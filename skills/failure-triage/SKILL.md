@@ -37,6 +37,10 @@ flaky." Look at all four before deciding:
 4. **The fixture/data/environment** — what data, mocks, or environment the test
    runs against, and whether the CI/build tooling itself is healthy.
 
+### Test-data lifecycle and state-mutation rule
+
+Test identities and fixtures must respect lifecycle transitions defined by the contract. If a test action changes authoritative persistent state (for example NEW → REGISTERED/EXISTING, PENDING → VERIFIED, OPEN → CLOSED), later tests must not continue treating that same identity or record as if it were still in the old state. A repeatable test must either use a fresh controlled identity/record or explicitly reset/reseed the environment to the required precondition. The authoritative system state determines the lifecycle stage; the test must not override it merely to exercise a desired path. Tests that mutate shared fixture state must declare that mutation or isolate/reset it so later tests cannot inherit stale assumptions.
+
 ## Step 2 — Classify into exactly one category
 
 Classify each independently actionable failure/root cause as exactly one category. Do not split one root cause across categories. If investigation reveals multiple independent defects, split them into separate failure records and classify each independently before moving on.
