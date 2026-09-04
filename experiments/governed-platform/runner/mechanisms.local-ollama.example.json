@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "mechanisms": [
+    {
+      "mechanism_id": "local-reasoner-a",
+      "kind": "reasoning-model",
+      "adapter": "ollama",
+      "provider": "local",
+      "model": "qwen3:4b",
+      "role": "reasoner-primary",
+      "qualification_ref": "pilot1-local-canary",
+      "privacy_class": "LOCAL_ONLY",
+      "enabled": true,
+      "evidence_policy": "CANDIDATE_UNTIL_QUALIFIED"
+    }
+  ]
+}

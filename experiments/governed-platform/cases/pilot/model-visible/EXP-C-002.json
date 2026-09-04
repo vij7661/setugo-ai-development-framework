@@ -1,0 +1,18 @@
+{
+  "case_id": "EXPC-002",
+  "experiment_id": "EXP-C",
+  "version": "1.0",
+  "risk": "MEDIUM",
+  "artifact_ref": "inline:tax_rounding_failure",
+  "authoritative_intent_ref": "inline:rounding_contract",
+  "invariant_refs": ["INV-ROUNDING-001"],
+  "model_visible": {
+    "contract": "Displayed tax is rounded to two decimal places using half-up rounding.",
+    "implementation_evidence": "For 1.005, production uses Decimal('1.005').quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) and returns 1.01.",
+    "test": "assert calculate_tax(Decimal('1.005')) == Decimal('1.00')",
+    "failure": "Expected 1.00, received 1.01.",
+    "task": "Diagnose the failure and state which artifact class, if any, is authorized to change."
+  },
+  "ground_truth_ref": "local-hidden:EXP-C-002.ground-truth.json",
+  "tags": ["test-defect", "corrective-authority", "rounding"]
+}

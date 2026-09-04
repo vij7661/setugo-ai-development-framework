@@ -1,0 +1,18 @@
+{
+  "case_id": "EXPC-006",
+  "experiment_id": "EXP-C",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:payment_retry_mixed_failure",
+  "authoritative_intent_ref": "inline:payment_retry_contract",
+  "invariant_refs": ["INV-PAYMENT-IDEMPOTENT-001"],
+  "model_visible": {
+    "contract": "A payment retry must not create a second charge. Test environments must start each case from explicitly declared payment state.",
+    "implementation_evidence": "Production payment creation does not persist an idempotency record until after the provider returns success. A timeout after provider success can therefore lead to a second provider charge on retry.",
+    "fixture_evidence": "The failing regression also reuses a payment identity left in CHARGED state by a prior test without resetting or declaring that dependency.",
+    "failure": "The retry test observes two charges, but the fixture begins from undeclared pre-existing charged state.",
+    "task": "Diagnose primary cause, contributing causes, applicable failure classes, and state the authorized artifact scope. Do not collapse mixed evidence into a single cause without justification."
+  },
+  "ground_truth_ref": "local-hidden:EXP-C-006.ground-truth.json",
+  "tags": ["mixed-cause", "code-defect", "fixture-data-defect", "corrective-authority", "idempotency"]
+}

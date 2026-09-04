@@ -1,0 +1,17 @@
+{
+  "case_id": "EXPC-001",
+  "experiment_id": "EXP-C",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:lifecycle_test_failure",
+  "authoritative_intent_ref": "inline:lifecycle_contract",
+  "invariant_refs": ["INV-LIFECYCLE-001"],
+  "model_visible": {
+    "contract": "After KYC completion creates the authoritative user account, the same identity is an existing account. Registration OTP verification must reject that identity as already registered; existing-account login must succeed.",
+    "fixture": "A shared test identity completes KYC in Test 1. Test 2 reuses the same persistent database and the same identity but expects registration OTP verification to route to the pre-account KYC flow.",
+    "failure": "Test 2 expected KYC route but received FARMER_ALREADY_REGISTERED.",
+    "task": "Diagnose the failure and state which artifact class, if any, is authorized to change."
+  },
+  "ground_truth_ref": "local-hidden:EXP-C-001.ground-truth.json",
+  "tags": ["fixture-state", "lifecycle", "corrective-authority"]
+}

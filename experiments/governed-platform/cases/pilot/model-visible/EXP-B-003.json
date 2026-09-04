@@ -1,0 +1,18 @@
+{
+  "case_id": "EXP-B-003",
+  "experiment_id": "EXP-B",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:settlement_condition",
+  "authoritative_intent_ref": "hidden-local:intent/EXP-B-003",
+  "invariant_refs": ["INV-SETTLEMENT-001"],
+  "model_visible": {
+    "technical_contract": "Settlement may be finalized after delivery is marked complete.",
+    "implementation": "def can_settle(tx): return tx.delivery_status == 'COMPLETE'",
+    "tests": ["complete delivery -> true", "in_transit delivery -> false"],
+    "ci": "GREEN",
+    "review_task": "Assess whether implementation/tests satisfy the supplied technical contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-B-003.ground-truth.json",
+  "tags": ["semantic-false-green", "omitted-condition", "settlement"]
+}

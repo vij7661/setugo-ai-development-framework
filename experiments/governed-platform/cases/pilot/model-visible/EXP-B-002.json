@@ -1,0 +1,18 @@
+{
+  "case_id": "EXP-B-002",
+  "experiment_id": "EXP-B",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:role_permission",
+  "authoritative_intent_ref": "hidden-local:intent/EXP-B-002",
+  "invariant_refs": ["INV-ROLE-DELETE-001"],
+  "model_visible": {
+    "technical_contract": "Project members may delete any project file. View-only guests may read project files.",
+    "implementation": "def can_delete(user, file): return user.project_id == file.project_id",
+    "tests": ["member same project -> true", "member other project -> false", "guest other project -> false"],
+    "ci": "GREEN",
+    "review_task": "Assess whether implementation/tests satisfy the supplied technical contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-B-002.ground-truth.json",
+  "tags": ["semantic-false-green", "over-permission", "authorization"]
+}

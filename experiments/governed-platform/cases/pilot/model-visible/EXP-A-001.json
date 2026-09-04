@@ -1,0 +1,16 @@
+{
+  "case_id": "EXP-A-001",
+  "experiment_id": "EXP-A",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:auction_acceptance_contract",
+  "authoritative_intent_ref": null,
+  "invariant_refs": [],
+  "model_visible": {
+    "artifact_type": "technical_contract",
+    "artifact": "A marketplace closes a listing when the seller accepts a bid. The accepted bid creates the transaction. If two acceptance commands for different bids arrive nearly simultaneously, each request reads the listing state, validates that the listing is OPEN, writes its accepted bid to the transaction table, and then updates the listing to CLOSED. Both handlers return success if their individual database operations succeed.",
+    "review_task": "Determine whether this contract is safe for concurrent bid acceptance. Report concrete material defects only."
+  },
+  "ground_truth_ref": "local-hidden:EXP-A-001.ground-truth.json",
+  "tags": ["concurrency", "trust", "transaction"]
+}

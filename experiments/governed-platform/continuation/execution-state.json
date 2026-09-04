@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "campaign": "pilot1",
+  "experiment": "EXP-B",
+  "case_id": "EXP-B-001",
+  "state": "EXECUTING",
+  "branch": "experiment/governed-platform-falsification-harness",
+  "last_verified_sha": "dcef498ef9189d827e591ce50a5522c5ed1f324f",
+  "repair_attempt": 0,
+  "max_repair_attempts": 2,
+  "human_required": false,
+  "continuation_policy": {
+    "on_success": "ADJUDICATE_EVIDENCE",
+    "on_failure": "DIAGNOSE",
+    "environment_tooling": "AUTO_REPAIR_WITHIN_SCOPE",
+    "requirement_unresolved": "REQUEST_HUMAN",
+    "manual_qa": "REQUEST_HUMAN"
+  }
+}

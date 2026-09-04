@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Governed Platform Execution Status",
+  "type": "object",
+  "required": ["schema_version", "campaign", "experiment", "case_id", "execution_status", "branch", "execution_sha", "run_id", "jobs", "human_required"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "campaign": {"type": "string"},
+    "experiment": {"type": "string"},
+    "case_id": {"type": "string"},
+    "execution_status": {"enum": ["QUEUED", "EXECUTING", "REPAIRING", "BLOCKED", "COMPLETE", "FAILED"]},
+    "scientific_status": {"enum": ["NOT_STARTED", "AWAITING_ADJUDICATION", "PASS", "FAIL", "INCONCLUSIVE"]},
+    "branch": {"type": "string"},
+    "execution_sha": {"type": "string", "minLength": 7},
+    "run_id": {"type": ["integer", "string"]},
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string"},
+          "status": {"type": "string"},
+          "job_id": {"type": ["integer", "string", "null"]},
+          "evidence": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "failure_classification": {"enum": ["NONE", "CODE DEFECT", "FIXTURE-DATA DEFECT", "TEST DEFECT", "ENVIRONMENT-TOOLING DEFECT", "REQUIREMENT UNRESOLVED"]},
+    "controller_decision": {"enum": ["CONTINUE", "RETRY", "DIAGNOSE", "BLOCK", "REQUEST_HUMAN", "COMPLETE", "IGNORE", "UNKNOWN"]},
+    "repair_attempt": {"type": "integer", "minimum": 0},
+    "max_repair_attempts": {"type": "integer", "minimum": 0},
+    "next_case": {"type": ["string", "null"]},
+    "human_required": {"type": "boolean"},
+    "human_reason": {"type": ["string", "null"]},
+    "updated_at": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

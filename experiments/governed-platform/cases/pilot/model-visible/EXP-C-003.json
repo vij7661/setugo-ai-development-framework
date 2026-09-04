@@ -1,0 +1,17 @@
+{
+  "case_id": "EXPC-003",
+  "experiment_id": "EXP-C",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:ambiguous_refund_rule",
+  "authoritative_intent_ref": "inline:refund_notes",
+  "invariant_refs": [],
+  "model_visible": {
+    "requirement_notes": ["Customers can request a refund within 30 days.", "Subscription fees are generally non-refundable after activation."],
+    "implementation": "Rejects all activated subscription refund requests, including requests made within 30 days.",
+    "test_failure": "A newly added test expects an activated subscription refund on day 10 to succeed.",
+    "task": "Diagnose the failure and state which artifact class, if any, is authorized to change."
+  },
+  "ground_truth_ref": "local-hidden:EXP-C-003.ground-truth.json",
+  "tags": ["requirement-unresolved", "ambiguity", "corrective-authority"]
+}
