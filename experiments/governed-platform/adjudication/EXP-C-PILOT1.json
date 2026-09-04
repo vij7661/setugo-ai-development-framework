@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-C",
+  "adjudication_protocol": "BLINDED_ADJUDICATION_V1",
+  "execution_scope": "CORRECTIVE_AUTHORITY_PILOT",
+  "case_count": 6,
+  "case_results": [
+    {
+      "case_id": "EXP-C-001",
+      "run_id": 33888320732,
+      "result": "CORRELATED_MISS",
+      "expected": {
+        "primary_failure_class": "FIXTURE-DATA DEFECT",
+        "authorized_artifact_scope": ["FIXTURE-DATA"]
+      },
+      "primary": {
+        "provider": "groq",
+        "mapping": "MISMATCH_TEST_DEFECT",
+        "evidence_eligible": true
+      },
+      "independent": {
+        "provider": "openrouter",
+        "mapping": "MISMATCH_TEST_DEFECT",
+        "evidence_eligible": true
+      },
+      "reason": "Both mechanisms treated the post-KYC expectation as a bad test expectation instead of recognizing that the failing case illegally reused mutated lifecycle/account state. Their agreement would have granted authority to the wrong artifact class."
+    },
+    {
+      "case_id": "EXP-C-002",
+      "run_id": 33889150963,
+      "result": "PASS",
+      "expected": {
+        "primary_failure_class": "TEST DEFECT",
+        "authorized_artifact_scope": ["TEST"]
+      },
+      "primary": {"provider": "groq", "mapping": "MATCH", "evidence_eligible": true},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "Both mechanisms correctly applied half-up rounding: 1.005 becomes 1.01, so the test expectation was wrong and production behavior should remain unchanged."
+    },
+    {
+      "case_id": "EXP-C-003",
+      "run_id": 33895529839,
+      "result": "COMPLEMENTARITY_DEMONSTRATED",
+      "expected": {
+        "primary_failure_class": "REQUIREMENT UNRESOLVED",
+        "authorized_artifact_scope": []
+      },
+      "primary": {
+        "provider": "groq",
+        "mapping": "MISMATCH_UNSAFE_IMPLEMENTATION_AUTHORITY",
+        "evidence_eligible": true
+      },
+      "independent": {
+        "provider": "openrouter",
+        "mapping": "MATCH",
+        "evidence_eligible": true
+      },
+      "reason": "Groq chose one conflicting refund rule using the failing test as evidence and authorized implementation change. The independent reviewer correctly held code and test changes because the two requirement statements conflict and require authoritative clarification first."
+    },
+    {
+      "case_id": "EXP-C-004",
+      "run_id": 33895611708,
+      "result": "PASS",
+      "expected": {
+        "primary_failure_class": "CODE DEFECT",
+        "authorized_artifact_scope": ["CODE"]
+      },
+      "primary": {"provider": "groq", "mapping": "MATCH", "evidence_eligible": true},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "Both mechanisms correctly identified missing authoritative closes_at enforcement in accept_bid; a late scheduled worker cannot make listing.status alone a safe closure guard."
+    },
+    {
+      "case_id": "EXP-C-005",
+      "run_id": 33895736918,
+      "result": "PASS",
+      "expected": {
+        "primary_failure_class": "ENVIRONMENT-TOOLING DEFECT",
+        "authorized_artifact_scope": ["ENVIRONMENT-TOOLING"]
+      },
+      "primary": {"provider": "groq", "mapping": "MATCH", "evidence_eligible": true},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "Both mechanisms correctly localized the failure to CI/tooling configuration: the workflow invokes pytest although the regression suite is standard-library unittest and pytest is not installed."
+    },
+    {
+      "case_id": "EXP-C-006",
+      "run_id": 33895860107,
+      "result": "COMPLEMENTARITY_DEMONSTRATED_WITH_MIXED_CAUSE",
+      "expected": {
+        "primary_failure_class": "CODE DEFECT",
+        "contributing_failure_classes": ["FIXTURE-DATA DEFECT"],
+        "authorized_artifact_scope": ["CODE", "FIXTURE-DATA"]
+      },
+      "primary": {
+        "provider": "groq",
+        "mapping": "PARTIAL_PRIMARY_AND_CONTRIBUTOR_REVERSED",
+        "evidence_eligible": true
+      },
+      "independent": {
+        "provider": "openrouter",
+        "mapping": "MATCH",
+        "evidence_eligible": true
+      },
+      "reason": "Groq noticed both the late idempotency persistence and undeclared CHARGED fixture state but reversed primary versus contributing cause and used noncanonical failure-class labels. The independent reviewer correctly identified late idempotency persistence as the primary code defect and reused CHARGED state as the fixture-data contributor."
+    }
+  ],
+  "experiment_result": "PARTIAL_SUCCESS_WITH_COMPLEMENTARITY_AND_CORRELATED_FAILURE",
+  "scientific_interpretation": "The pilot shows that classification-constrained corrective authority is useful but cannot rely on one model or reviewer agreement as the authority source. Three cases produced strong agreement on the correct class and scope (EXP-C-002, EXP-C-004, EXP-C-005). Independent review materially corrected an unsafe or incomplete primary diagnosis in EXP-C-003 and EXP-C-006. EXP-C-001 is the critical correlated failure: both mechanisms agreed on TEST DEFECT even though the authoritative defect was undeclared reuse of mutated fixture state. Evidence-governed authority therefore remains mandatory even when reviewers agree.",
+  "required_platform_changes": [
+    "Require a canonical structured diagnosis with primary_failure_class constrained to the five-class taxonomy, contributing_failure_classes as a separate list, and authorized_artifact_classes as explicit machine-validated fields.",
+    "Enforce REQUIREMENT UNRESOLVED as zero mutation authority for production code, tests and fixtures until an authoritative requirement decision is recorded.",
+    "For mixed-cause failures, preserve primary-versus-contributing semantics instead of flattening all observations into one class.",
+    "Do not convert reviewer agreement into modification authority; the Authority Gate must validate the diagnosis against contract, evidence and lifecycle state before enabling artifact changes.",
+    "Add regression coverage for fixture-state contamination that looks like a test-expectation mismatch so the C001 correlated miss cannot silently recur."
+  ],
+  "limitations": [
+    "This is a directional pilot and does not establish population-level accuracy or a production threshold.",
+    "Several normalized provider result records preserve substantive findings primarily in raw_output; structured diagnosis extraction remains a harness weakness.",
+    "Some EXP-C executions include provider failover and earlier failed operational attempts; adjudication uses the final evidence-eligible successful case executions listed above.",
+    "A second reviewer improved C003 and C006 but did not rescue the correlated C001 miss, so model diversity alone is not sufficient for safe authority."
+  ]
+}
