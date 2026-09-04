@@ -143,6 +143,77 @@ jobs:
             echo "No governed execution-status artifact available for run $RUN_ID; refusing to publish inferred state." >&2
             exit 1
           fi
+      - name: Build authoritative case history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _history
+          mkdir -p _history/runs
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/governed-platform-remote-pilot.yml/runs?per_page=40" --jq '.workflow_runs[] | select(.status=="completed") | .id' > _history/run-ids.txt
+          while read -r RUN_ID; do
+            [ -n "$RUN_ID" ] || continue
+            DEST="_history/runs/$RUN_ID"
+            mkdir -p "$DEST"
+            gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governed-platform-execution-status --dir "$DEST" >/dev/null 2>&1 || true
+          done < _history/run-ids.txt
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          latest = {}
+          for path in Path('_history/runs').glob('*/execution-status.json'):
+              try:
+                  state=json.loads(path.read_text(encoding='utf-8'))
+              except Exception:
+                  continue
+              case_id=state.get('case_id')
+              run_id=state.get('run_id')
+              if not case_id or run_id in (None,''):
+                  continue
+              try:
+                  run_num=int(run_id)
+              except Exception:
+                  continue
+              jobs=state.get('jobs') or []
+              failed=[j.get('name') or 'unnamed job' for j in jobs if str(j.get('conclusion','')).lower() not in ('','success','skipped')]
+              classification=state.get('failure_classification')
+              execution=state.get('execution_status')
+              if execution in ('COMPLETE','CONTINUING') and not failed:
+                  result='PASSED'
+              elif execution in ('FAILED','BLOCKED') or failed:
+                  result='FAILED'
+              else:
+                  result='INCOMPLETE'
+              reason=state.get('failure_reason')
+              if not reason and result=='FAILED':
+                  parts=[]
+                  if classification and classification!='NONE': parts.append(str(classification))
+                  if failed: parts.append('failed job(s): '+', '.join(failed))
+                  reason=' — '.join(parts) or 'Execution failed; no classified reason was published.'
+              item={
+                  'case_id':case_id,
+                  'experiment':state.get('experiment'),
+                  'execution_result':result,
+                  'execution_status':execution,
+                  'scientific_status':state.get('scientific_status'),
+                  'failure_classification':classification,
+                  'failure_reason':reason,
+                  'controller_decision':state.get('controller_decision'),
+                  'human_required':bool(state.get('human_required')),
+                  'run_id':run_num,
+                  'execution_sha':state.get('execution_sha'),
+                  'updated_at':state.get('updated_at') or state.get('event_time'),
+                  'jobs':jobs,
+              }
+              prev=latest.get(case_id)
+              if prev is None or run_num >= prev['run_id']:
+                  latest[case_id]=item
+          history=sorted(latest.values(), key=lambda x:x['run_id'], reverse=True)
+          Path('_site/execution-history.json').write_text(json.dumps({'cases':history},indent=2)+'\n',encoding='utf-8')
+          print(f'published {len(history)} historical case records')
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
