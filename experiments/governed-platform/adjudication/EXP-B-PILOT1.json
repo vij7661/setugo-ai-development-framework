@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-B",
+  "adjudication_protocol": "BLINDED_ADJUDICATION_V1",
+  "execution_scope": "ARM_A_ONLY",
+  "case_count": 3,
+  "case_results": [
+    {
+      "case_id": "EXP-B-001",
+      "run_id": 33875857778,
+      "result": "FALSE_GREEN_RISK_EXPOSED",
+      "primary": {
+        "provider": "groq",
+        "mapping": "VISIBLE_CONTRACT_CONFORMANT_ONLY",
+        "evidence_eligible": true
+      },
+      "independent": {
+        "provider": "openrouter",
+        "mapping": "VISIBLE_CONTRACT_CONFORMANT_WITH_TEST_GAP",
+        "evidence_eligible": true
+      },
+      "reason": "Both mechanisms evaluated the supplied strict-boundary contract rather than independently establishing authoritative requirement completeness. Groq returned no material defect; OpenRouter identified missing exact-boundary tests. Neither result can establish that the supplied contract is the authoritative intended behavior."
+    },
+    {
+      "case_id": "EXP-B-002",
+      "run_id": 33876861508,
+      "result": "PASS_DISCOVERABLE_SEMANTIC_DEFECT",
+      "primary": {
+        "provider": "groq",
+        "mapping": "MATCH",
+        "evidence_eligible": true
+      },
+      "independent": {
+        "provider": "openrouter",
+        "mapping": "MATCH",
+        "evidence_eligible": true
+      },
+      "reason": "Both mechanisms detected that same-project membership alone does not enforce the role restriction and that a view-only guest in the same project could delete files."
+    },
+    {
+      "case_id": "EXP-B-003",
+      "run_id": 33877280708,
+      "result": "FALSE_GREEN_RISK_EXPOSED",
+      "primary": {
+        "provider": "groq",
+        "mapping": "VISIBLE_CONTRACT_CONFORMANT_ONLY",
+        "evidence_eligible": true
+      },
+      "independent": {
+        "provider": "openrouter",
+        "mapping": "VISIBLE_CONTRACT_CONFORMANT_ONLY",
+        "evidence_eligible": true
+      },
+      "reason": "Both mechanisms concluded that delivery COMPLETE was sufficient because that was the supplied technical contract. The run therefore demonstrates that reviewer agreement cannot recover an omitted authoritative settlement precondition that is absent from the model-visible contract."
+    }
+  ],
+  "experiment_result": "INCONCLUSIVE_PARTIAL_ARMS_WITH_MATERIAL_ORACLE_WEAKNESS",
+  "scientific_interpretation": "Arm A establishes that independent model review can detect semantic defects that are present in the supplied contract/evidence (EXP-B-002), but cannot establish authoritative requirement completeness when the contract itself omits or misstates intent (EXP-B-001 and EXP-B-003). Agreement between reviewers is therefore not evidence that the semantic oracle is complete.",
+  "required_next_step": "Run the pre-registered Arm B and Arm C variants for controlled comparison before declaring the EXP-B hypothesis supported or rejected.",
+  "limitations": [
+    "Only Arm A (technical contract + code/tests) was executed for these three cases; the pre-registered preserved-intent and structured-constraint arms were not run.",
+    "The current normalizer records provider status PASS even when raw_output contains a material defect; scientific adjudication must therefore inspect substantive findings rather than trust the top-level status field.",
+    "EXP-B-001 OpenRouter found a test-boundary gap, which is useful but does not resolve the independent-oracle problem.",
+    "This adjudication must not be interpreted as a scientific PASS for EXP-B until Arms B and C are executed and compared."
+  ]
+}
