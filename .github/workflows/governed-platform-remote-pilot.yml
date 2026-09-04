@@ -76,25 +76,24 @@ jobs:
           python - <<'PY'
           import json,os
           from datetime import datetime,timezone
+          from pathlib import Path
           case=os.environ['CASE_ID']; now=datetime.now(timezone.utc).isoformat(); trail=[]
-          trail.append({'slot':'Primary','provider':'Groq','result':'SUCCESS' if os.environ['GROQ_RESULT']=='success' else 'FAILED','attempts':1,'reason':None if os.environ['GROQ_RESULT']=='success' else 'primary provider job failed','updated_at':now})
-          files=list(__import__('pathlib').Path('_router').rglob('*.routing-evidence.json'))
+          trail.append({'slot':'Primary','provider':'Groq','result':'SUCCESS' if os.environ['GROQ_RESULT']=='success' else 'FAILED','attempts':None,'reason':None if os.environ['GROQ_RESULT']=='success' else 'primary provider job failed','updated_at':now})
+          files=list(Path('_router').rglob('*.routing-evidence.json'))
           if files:
-           routing=json.loads(files[0].read_text())
-           for i,a in enumerate(routing.get('attempts',[])):
-            trail.append({'slot':'Independent' if i==0 else 'Fallback','provider':a.get('provider') or a.get('mechanism_id'),'result':a.get('status'),'attempts':a.get('attempts',0),'reason':a.get('reason'),'updated_at':a.get('updated_at') or routing.get('updated_at')})
+            routing=json.loads(files[0].read_text())
+            for i,a in enumerate(routing.get('attempts',[])):
+              trail.append({'slot':'Independent' if i==0 else 'Fallback','provider':a.get('provider') or a.get('mechanism_id'),'result':a.get('status'),'attempts':a.get('attempts'),'reason':a.get('reason'),'updated_at':a.get('updated_at') or routing.get('updated_at')})
           ok=os.environ['GROQ_RESULT']=='success' and os.environ['ROUTER_RESULT']=='success'
-          state={'schema_version':'1.1','campaign':'pilot1','experiment':case.rsplit('-',1)[0],'case_id':case,'execution_status':'COMPLETE' if ok else 'FAILED','scientific_status':'AWAITING_ADJUDICATION' if ok else 'INCONCLUSIVE','branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq primary','status':'completed','conclusion':os.environ['GROQ_RESULT']},{'name':'Independent provider router','status':'completed','conclusion':os.environ['ROUTER_RESULT']}],'provider_routing':trail,'failure_classification':'NONE' if ok else 'ENVIRONMENT-TOOLING DEFECT','controller_decision':'CONTINUE' if ok else 'DIAGNOSE','human_required':False,'updated_at':now}
-          open('execution-status.json','w').write(json.dumps(state,indent=2)+'\n')
+          state={'schema_version':'1.2','campaign':'pilot1','experiment':case.rsplit('-',1)[0],'case_id':case,'execution_status':'COMPLETE' if ok else 'FAILED','scientific_status':'AWAITING_ADJUDICATION' if ok else 'INCONCLUSIVE','branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq primary','status':'completed','conclusion':os.environ['GROQ_RESULT']},{'name':'Independent provider router','status':'completed','conclusion':os.environ['ROUTER_RESULT']}],'provider_routing':trail,'failure_classification':'NONE' if ok else 'ENVIRONMENT-TOOLING DEFECT','controller_decision':'CONTINUE' if ok else 'DIAGNOSE','human_required':False,'last_event_at':now,'updated_at':now,'source':'Governed Platform Remote Pilot execution artifact'}
+          Path('execution-status.json').write_text(json.dumps(state,indent=2)+'\n')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
-        with:
-          name: governed-platform-execution-status
-          path: execution-status.json
-      - name: Republish dashboard
+        with: {name: governed-platform-execution-status, path: execution-status.json}
+      - name: Republish dashboard from this exact run
         env: {GH_TOKEN: "${{ github.token }}"}
-        run: gh workflow run governed-platform-dashboard-pages.yml --ref main -f source_run_id="$GITHUB_RUN_ID"
+        run: gh workflow run governed-platform-dashboard-pages.yml --repo "$GITHUB_REPOSITORY" --ref main -f source_run_id="$GITHUB_RUN_ID"
   continue-campaign:
     name: Continue eligible experiment case
     needs: [groq, independent-router]
@@ -112,4 +111,4 @@ jobs:
           c=json.load(open(sys.argv[1]))['cases'];i=c.index(sys.argv[2]);print(c[i+1] if i+1<len(c) else '')
           PY
           )"
-          if [ -n "$NEXT" ]; then gh workflow run governed-platform-remote-pilot.yml --ref "$GITHUB_REF_NAME" -f case_id="$NEXT"; fi
+          if [ -n "$NEXT" ]; then gh workflow run governed-platform-remote-pilot.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f case_id="$NEXT"; fi
