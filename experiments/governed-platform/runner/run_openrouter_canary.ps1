@@ -1,4 +1,5 @@
 param(
+    [string]$CaseId = "EXP-A-001",
     [string]$Model = "nvidia/nemotron-3-ultra-550b-a55b:free",
     [string]$MechanismId = "remote-reasoner-b",
     [string]$InstructionVersion = "pilot1-canary-v1",
@@ -29,15 +30,16 @@ if (-not $env:OPENROUTER_API_KEY) {
 }
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
-$casePath = Join-Path $ExperimentDir "cases\pilot\model-visible\EXP-A-001.json"
+$casePath = Join-Path $ExperimentDir "cases\pilot\model-visible\$CaseId.json"
+if (-not (Test-Path $casePath)) { throw "Case file not found: $casePath" }
 $mechanismsPath = Join-Path $RunnerDir "mechanisms.remote-free.example.json"
-$envelopePath = Join-Path $OutDir "EXP-A-001.envelope.json"
-$resultPath = Join-Path $OutDir "EXP-A-001.openrouter.raw-result.json"
+$envelopePath = Join-Path $OutDir "$CaseId.envelope.json"
+$resultPath = Join-Path $OutDir "$CaseId.openrouter.raw-result.json"
 
 Write-Host "Checking Python..."
 $pythonCmd = Resolve-PythonCommand
 Write-Host "Python launcher: $($pythonCmd.Exe)"
-Write-Host "Preparing blinded envelope..."
+Write-Host "Preparing blinded envelope for $CaseId..."
 Invoke-PythonFile (Join-Path $RunnerDir "prepare_run.py") @(
     "--case", $casePath,
     "--mechanisms", $mechanismsPath,
