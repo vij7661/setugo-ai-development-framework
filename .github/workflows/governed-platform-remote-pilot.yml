@@ -9,10 +9,8 @@ on:
         default: "EXP-A-002"
         type: string
   push:
-    branches:
-      - experiment/governed-platform-falsification-harness
-    paths:
-      - ".github/pilot-trigger.json"
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/pilot-trigger.json]
 
 permissions:
   contents: read
@@ -27,7 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
+        with:
+          python-version: "3.12"
       - name: Resolve pilot case
         shell: bash
         run: |
@@ -41,7 +40,10 @@ jobs:
         run: python experiments/governed-platform/runner/run_remote_canary.py --envelope "pilot-results/groq/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --out "pilot-results/groq/${CASE_ID}.groq.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: pilot-groq-results, path: pilot-results/groq/, if-no-files-found: warn}
+        with:
+          name: pilot-groq-results
+          path: pilot-results/groq/
+          if-no-files-found: warn
 
   openrouter:
     name: OpenRouter blinded review
@@ -52,7 +54,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
+        with:
+          python-version: "3.12"
       - name: Resolve pilot case
         shell: bash
         run: |
@@ -66,33 +69,38 @@ jobs:
         run: python experiments/governed-platform/runner/run_remote_canary.py --envelope "pilot-results/openrouter/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --out "pilot-results/openrouter/${CASE_ID}.openrouter.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: pilot-openrouter-results, path: pilot-results/openrouter/, if-no-files-found: warn}
+        with:
+          name: pilot-openrouter-results
+          path: pilot-results/openrouter/
+          if-no-files-found: warn
 
   observability:
     name: Publish execution status
     needs: [groq, openrouter]
-    if: ${{ always() }}
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Resolve case and normalize authoritative state
+      - name: Resolve case
         shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
+          case "$CASE_ID" in EXP-B-001) NEXT=EXP-B-002;; EXP-B-002) NEXT=EXP-B-003;; *) NEXT="";; esac
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+          echo "NEXT_CASE=$NEXT" >> "$GITHUB_ENV"
+      - name: Normalize authoritative execution state
         env:
           GROQ_RESULT: ${{ needs.groq.result }}
           OPENROUTER_RESULT: ${{ needs.openrouter.result }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
-          case "$CASE_ID" in EXP-B-001) NEXT=EXP-B-002;; EXP-B-002) NEXT=EXP-B-003;; *) NEXT="";; esac
           python - <<'PY'
           import json, os
-          e={'campaign':'pilot1','experiment':os.environ.get('CASE_ID','EXP-B').rsplit('-',1)[0], 'case_id':os.environ['CASE_ID'], 'branch':os.environ['GITHUB_REF_NAME'], 'execution_sha':os.environ['GITHUB_SHA'], 'run_id':int(os.environ['GITHUB_RUN_ID']), 'jobs':[{'name':'Groq','status':'completed','conclusion':os.environ['GROQ_RESULT']},{'name':'OpenRouter','status':'completed','conclusion':os.environ['OPENROUTER_RESULT']}], 'scientific_status':'AWAITING_ADJUDICATION','controller_decision':'CONTINUE' if os.environ.get('NEXT') else 'COMPLETE','next_case':os.environ.get('NEXT') or None,'human_required':False}
-          open('execution-event.json','w').write(json.dumps(e))
+          case_id=os.environ['CASE_ID']
+          event={'campaign':'pilot1','experiment':case_id.rsplit('-',1)[0],'case_id':case_id,'branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq','status':'completed','conclusion':os.environ['GROQ_RESULT']},{'name':'OpenRouter','status':'completed','conclusion':os.environ['OPENROUTER_RESULT']}],'scientific_status':'AWAITING_ADJUDICATION','controller_decision':'CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE','next_case':os.environ.get('NEXT_CASE') or None,'human_required':False}
+          open('execution-event.json','w',encoding='utf-8').write(json.dumps(event))
           PY
           python experiments/governed-platform/observability/normalize_github_event.py --event execution-event.json --out execution-status.json
           python experiments/governed-platform/observability/render_status.py --state execution-status.json --out EXECUTION_STATUS.md
-        env:
-          CASE_ID: ${{ inputs.case_id }}
-          NEXT: ""
       - uses: actions/upload-artifact@v4
         with:
           name: governed-platform-execution-status
@@ -105,7 +113,9 @@ jobs:
     needs: [groq, openrouter, observability]
     if: ${{ needs.groq.result == 'success' && needs.openrouter.result == 'success' }}
     runs-on: ubuntu-latest
-    permissions: {actions: write, contents: read}
+    permissions:
+      actions: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Resolve completed and next case
@@ -113,9 +123,11 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CURRENT="${{ inputs.case_id }}"; else CURRENT="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
-          case "$CURRENT" in EXP-B-001) NEXT="EXP-B-002";; EXP-B-002) NEXT="EXP-B-003";; *) NEXT="";; esac
+          case "$CURRENT" in EXP-B-001) NEXT=EXP-B-002;; EXP-B-002) NEXT=EXP-B-003;; *) NEXT="";; esac
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
       - name: Trigger next eligible case
         if: ${{ steps.next.outputs.next != '' }}
-        env: {GH_TOKEN: "${{ github.token }}", NEXT_CASE: "${{ steps.next.outputs.next }}"}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEXT_CASE: ${{ steps.next.outputs.next }}
         run: gh workflow run governed-platform-remote-pilot.yml --ref "${{ github.ref_name }}" -f case_id="$NEXT_CASE"
