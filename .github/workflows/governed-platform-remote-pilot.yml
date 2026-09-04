@@ -116,6 +116,9 @@ jobs:
     needs: [groq, openrouter]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Resolve governed case transition
@@ -155,6 +158,11 @@ jobs:
             execution-status.json
             EXECUTION_STATUS.md
           if-no-files-found: warn
+      - name: Republish latest attempt to dashboard
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run governed-platform-dashboard-pages.yml --ref main -f source_run_id="$GITHUB_RUN_ID"
 
   continue-campaign:
     name: Continue eligible experiment case
