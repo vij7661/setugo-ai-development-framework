@@ -1,0 +1,23 @@
+{
+  "campaign_id": "pilot1",
+  "version": 1,
+  "cases": [
+    "EXP-A-001",
+    "EXP-A-002",
+    "EXP-B-001",
+    "EXP-B-002",
+    "EXP-B-003",
+    "EXP-C-001",
+    "EXP-C-002",
+    "EXP-C-003",
+    "EXP-C-004",
+    "EXP-C-005",
+    "EXP-C-006"
+  ],
+  "policy": {
+    "advance_on_execution_success": true,
+    "scientific_pass_required_for_advance": false,
+    "stop_on_human_required": true,
+    "max_repair_attempts": 2
+  }
+}
