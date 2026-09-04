@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "run-result.schema.json",
+  "title": "Governed Platform Experiment Run Result",
+  "type": "object",
+  "required": ["run_id", "case_id", "case_version", "mechanism_id", "started_at", "status", "raw_output_ref"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "case_id": {"type": "string"},
+    "case_version": {"type": "string"},
+    "artifact_sha": {"type": ["string", "null"]},
+    "mechanism_id": {"type": "string", "description": "Model, reviewer, deterministic tool, control workflow, or governed workflow identity."},
+    "mechanism_version": {"type": ["string", "null"]},
+    "provider": {"type": ["string", "null"]},
+    "configuration_ref": {"type": ["string", "null"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"enum": ["PASS", "FAIL", "BLOCKED", "ERROR", "UNCERTAIN"]},
+    "finding_classes": {"type": "array", "items": {"type": "string"}, "default": []},
+    "diagnosis": {"type": ["object", "null"]},
+    "authorized_scope": {"type": "array", "items": {"type": "string"}, "default": []},
+    "changed_artifacts": {"type": "array", "items": {"type": "string"}, "default": []},
+    "raw_output_ref": {"type": "string"},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}, "default": []},
+    "input_tokens": {"type": ["integer", "null"], "minimum": 0},
+    "output_tokens": {"type": ["integer", "null"], "minimum": 0},
+    "estimated_cost_usd": {"type": ["number", "null"], "minimum": 0},
+    "latency_ms": {"type": ["integer", "null"], "minimum": 0}
+  },
+  "additionalProperties": false
+}
