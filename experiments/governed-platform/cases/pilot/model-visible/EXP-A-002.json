@@ -1,0 +1,18 @@
+{
+  "case_id": "EXPA-002",
+  "experiment_id": "EXP-A",
+  "version": "1.0",
+  "risk": "MEDIUM",
+  "artifact_ref": "inline:idempotent_bid_retry",
+  "authoritative_intent_ref": "inline:idempotency_contract",
+  "invariant_refs": ["INV-BID-IDEMPOTENCY-001"],
+  "model_visible": {
+    "contract": "A client generates one idempotency key when the user taps Bid and reuses that key across HTTP retries. The authoritative sequencer deduplicates before append, and (bidder, idempotency_key) is unique in the same transaction as the event append.",
+    "implementation_evidence": "The client reuses the original key on retries. The server checks and writes the unique bidder/key pair transactionally before append. Duplicate retries return the original accepted result without appending a second bid event.",
+    "tests": ["same request retried three times -> one bid event", "same key by same bidder with changed payload -> rejected", "different bidder may reuse same opaque key"],
+    "ci": "GREEN",
+    "review_task": "Identify concrete material defects only. If none are supported by the supplied evidence, report no material defect found."
+  },
+  "ground_truth_ref": "local-hidden:EXP-A-002.ground-truth.json",
+  "tags": ["clean-control", "idempotency", "false-positive-control"]
+}
