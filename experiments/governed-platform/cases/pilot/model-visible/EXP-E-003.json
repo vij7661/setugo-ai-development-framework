@@ -1,15 +1,38 @@
 {
   "case_id": "EXPE-003",
   "experiment_id": "EXP-E",
-  "version": "1.0",
+  "version": "1.1",
   "risk": "HIGH",
   "artifact_ref": "baseline:exp-e-baseline-v1",
   "authoritative_intent_ref": "local-hidden:EXP-E-003.intent",
   "invariant_refs": ["INV-RETRY-001"],
   "model_visible": {
     "baseline": "Invariant INV-RETRY-001 requires automatic retry to remain bounded and to escalate after the configured maximum. REQ-RETRY-001 currently allows at most 3 automatic retries before human escalation.",
+    "relevant_graph": {
+      "nodes": [
+        "INV-RETRY-001",
+        "REQ-RETRY-001",
+        "CFG-RETRY-LIMIT",
+        "CODE-RETRY-ENGINE",
+        "TEST-RETRY-BOUNDARY",
+        "DOC-RETRY-RUNBOOK"
+      ],
+      "edges": [
+        {"from": "REQ-RETRY-001", "to": "INV-RETRY-001", "relation": "DERIVED_FROM"},
+        {"from": "CFG-RETRY-LIMIT", "to": "REQ-RETRY-001", "relation": "SATISFIES"},
+        {"from": "CODE-RETRY-ENGINE", "to": "REQ-RETRY-001", "relation": "IMPLEMENTS"},
+        {"from": "CODE-RETRY-ENGINE", "to": "CFG-RETRY-LIMIT", "relation": "DEPENDS_ON"},
+        {"from": "TEST-RETRY-BOUNDARY", "to": "CODE-RETRY-ENGINE", "relation": "VERIFIES"},
+        {"from": "TEST-RETRY-BOUNDARY", "to": "REQ-RETRY-001", "relation": "VERIFIES"},
+        {"from": "DOC-RETRY-RUNBOOK", "to": "REQ-RETRY-001", "relation": "DESCRIBES"}
+      ]
+    },
+    "accepted_evidence": [
+      {"id": "review:retry-code-v1", "artifact_id": "CODE-RETRY-ENGINE", "artifact_version": "1.0"},
+      {"id": "ci:retry-boundary-v1", "artifact_id": "TEST-RETRY-BOUNDARY", "artifact_version": "1.0"}
+    ],
     "proposed_change": "Replace REQ-RETRY-001 with: 'When the upstream dependency is unavailable, the platform should keep retrying automatically until the operation succeeds; human escalation is not required.'",
-    "task": "Classify the proposed change against the accepted baseline, identify any contradiction with governing invariants, state what downstream artifacts/evidence would be affected, and state whether implementation authority may be granted before the conflict is resolved."
+    "task": "Classify the proposed change against the accepted baseline, identify any contradiction with governing invariants, use only the supplied graph to state the affected downstream artifacts and accepted evidence, and state whether implementation authority may be granted before the conflict is resolved."
   },
   "ground_truth_ref": "local-hidden:EXP-E-003.ground-truth.json",
   "tags": ["change-impact", "contradictory", "invariant-conflict", "authority"]
