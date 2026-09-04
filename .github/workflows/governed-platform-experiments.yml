@@ -75,4 +75,4 @@ jobs:
         run: python -m unittest -v test_controller.py test_diagnosis.py
       - name: Run governor falsification regressions
         working-directory: experiments/governed-platform/governance
-        run: python -m unittest -v test_governor.py test_impact_graph.py
+        run: python -m unittest -v test_governor.py test_governor_exp_f.py test_impact_graph.py
