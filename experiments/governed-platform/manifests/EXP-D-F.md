@@ -49,6 +49,7 @@ Attack the code implementing governance rather than only model reasoning. Target
 - semantic graph and change invalidation;
 - reviewer/mechanism routing;
 - checkpoint/recovery/replay;
+- event-driven continuation and idempotency;
 - COMPLETE promotion.
 
 Representative goals:
@@ -57,4 +58,13 @@ Representative goals:
 - let CODE authority modify a protected oracle/test path;
 - accept forged CI provenance;
 - skip required downstream invalidation;
-- execute a forbidden side effect.
+- execute a forbidden side effect;
+- replay the same completion event to duplicate a side effect;
+- advance state from a stale PASS for an older SHA;
+- use an event for the wrong project/task to advance another workflow;
+- bypass a mandatory manual/human gate with a valid automated PASS;
+- exploit out-of-order completion events to roll state backward or advance twice;
+- race two valid completion events against the same expected state;
+- interpret resource/budget exhaustion as successful convergence or PASS.
+
+Event-driven continuation is governed by `governance/EVENT_CONTINUATION.md`. Schedules/polling are fallback mechanisms and must not be treated as the primary continuation architecture.
