@@ -1,0 +1,92 @@
+name: Governed Platform Remote Pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: "Blinded pilot case ID"
+        required: true
+        default: "EXP-A-002"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  groq:
+    name: Groq blinded review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Require Groq secret
+        run: test -n "$GROQ_API_KEY" || (echo "GROQ_API_KEY repository secret is missing" && exit 2)
+      - name: Prepare blinded envelope
+        run: |
+          mkdir -p pilot-results/groq
+          python experiments/governed-platform/runner/prepare_run.py \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${{ inputs.case_id }}.json" \
+            --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json \
+            --mechanism-id remote-reasoner-a \
+            --instruction-version pilot1-ci-v1 \
+            --out "pilot-results/groq/${{ inputs.case_id }}.envelope.json"
+      - name: Run Groq blinded review
+        run: |
+          python experiments/governed-platform/runner/run_remote_canary.py \
+            --envelope "pilot-results/groq/${{ inputs.case_id }}.envelope.json" \
+            --provider groq \
+            --base-url https://api.groq.com/openai/v1 \
+            --model openai/gpt-oss-20b \
+            --api-key-env GROQ_API_KEY \
+            --timeout-seconds 120 \
+            --out "pilot-results/groq/${{ inputs.case_id }}.groq.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "pilot-${{ inputs.case_id }}-groq"
+          path: pilot-results/groq/
+          if-no-files-found: warn
+
+  openrouter:
+    name: OpenRouter blinded review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Require OpenRouter secret
+        run: test -n "$OPENROUTER_API_KEY" || (echo "OPENROUTER_API_KEY repository secret is missing" && exit 2)
+      - name: Prepare blinded envelope
+        run: |
+          mkdir -p pilot-results/openrouter
+          python experiments/governed-platform/runner/prepare_run.py \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${{ inputs.case_id }}.json" \
+            --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json \
+            --mechanism-id remote-reasoner-b \
+            --instruction-version pilot1-ci-v1 \
+            --out "pilot-results/openrouter/${{ inputs.case_id }}.envelope.json"
+      - name: Run OpenRouter blinded review
+        run: |
+          python experiments/governed-platform/runner/run_remote_canary.py \
+            --envelope "pilot-results/openrouter/${{ inputs.case_id }}.envelope.json" \
+            --provider openrouter \
+            --base-url https://openrouter.ai/api/v1 \
+            --model nvidia/nemotron-3-ultra-550b-a55b:free \
+            --api-key-env OPENROUTER_API_KEY \
+            --timeout-seconds 120 \
+            --out "pilot-results/openrouter/${{ inputs.case_id }}.openrouter.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "pilot-${{ inputs.case_id }}-openrouter"
+          path: pilot-results/openrouter/
+          if-no-files-found: warn
