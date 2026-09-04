@@ -1,0 +1,17 @@
+{
+  "case_id": "EXPE-004",
+  "experiment_id": "EXP-E",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "baseline:exp-e-baseline-v1",
+  "authoritative_intent_ref": "local-hidden:EXP-E-004.intent",
+  "invariant_refs": ["INV-RETRY-001"],
+  "model_visible": {
+    "baseline": "CFG-RETRY-LIMIT is an accepted config artifact. The graph currently links CODE-RETRY-ENGINE to CFG-RETRY-LIMIT, and TEST-RETRY-BOUNDARY depends on the retry engine. ALERT-RETRY-EXHAUSTED appears in the baseline graph with no dependency edge to CFG-RETRY-LIMIT.",
+    "authoritative_artifact_evidence": "The alerting-rule implementation reads retry_limit directly from CFG-RETRY-LIMIT to determine the exhaustion threshold.",
+    "proposed_change": "Change CFG-RETRY-LIMIT from 3 to 5 as part of an approved modifying retry-policy update.",
+    "task": "Assess change impact. Determine whether the graph is complete enough to rely on, identify any missing dependency supported by the supplied evidence, state the impacted artifacts/evidence after correcting the graph, and state the correct next lifecycle action. Do not invent unsupported edges."
+  },
+  "ground_truth_ref": "local-hidden:EXP-E-004.ground-truth.json",
+  "tags": ["change-impact", "missing-edge", "graph-integrity", "evidence-invalidation"]
+}
