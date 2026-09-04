@@ -1,0 +1,24 @@
+{
+  "case_id": "EXPB-001",
+  "experiment_id": "EXP-B",
+  "version": "1.0",
+  "risk": "MEDIUM",
+  "artifact_ref": "inline:transfer_limit",
+  "authoritative_intent_ref": "hidden-local:intent/EXP-B-001",
+  "invariant_refs": ["INV-TRANSFER-LIMIT-001"],
+  "model_visible": {
+    "technical_contract": "A transfer is permitted only when amount > 10.00 and amount < 100.00.",
+    "implementation": "def allowed(amount): return amount > 10.00 and amount < 100.00",
+    "tests": [
+      "assert allowed(10.01) is True",
+      "assert allowed(50.00) is True",
+      "assert allowed(99.99) is True",
+      "assert allowed(9.99) is False",
+      "assert allowed(100.01) is False"
+    ],
+    "ci": "GREEN",
+    "review_task": "Assess whether the implementation and tests satisfy the supplied technical contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-B-001.ground-truth.json",
+  "tags": ["semantic-false-green", "boundary", "inclusive-exclusive"]
+}
