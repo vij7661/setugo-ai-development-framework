@@ -1,5 +1,5 @@
 import unittest
-from experiments.governed_platform.continuation.controller import decide
+from controller import decide
 
 
 class ControllerTests(unittest.TestCase):
