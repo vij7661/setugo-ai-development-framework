@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-E",
+  "adjudication_protocol": "BLINDED_ADJUDICATION_V1",
+  "adjudicated_at": "2026-09-04T18:39:00+00:00",
+  "truth_manifest_sha256": "f63d32a7bbb619e235c29d90b001d807e8764bb1911d005453dd50ae5eec1c0d",
+  "execution_sha": "f1952acdfa221e68891cf8c04238d512ec0e260d",
+  "case_count": 4,
+  "case_results": [
+    {
+      "case_id": "EXP-E-001",
+      "case_version": "1.0",
+      "run_id": 33905140717,
+      "result": "PASS",
+      "primary": {"provider": "groq", "mapping": "MATCH", "evidence_eligible": true},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "Both mechanisms limited revalidation to the documentation artifact and preserved unrelated accepted evidence."
+    },
+    {
+      "case_id": "EXP-E-002",
+      "case_version": "1.0",
+      "run_id": 33905250048,
+      "result": "PASS_WITH_COMPONENT_LIMITATION",
+      "primary": {"provider": "groq", "mapping": "PARTIAL_MATCH", "evidence_eligible": true, "limitation": "response ended at the provider's 2048 output-token boundary before completing the required impact/lifecycle explanation"},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "The independent mechanism matched the modifying retry-policy impact, stale retry evidence, unaffected audit branch, and requirements-level re-entry. The primary mechanism identified the core impact and stale retry evidence but was truncated before a complete answer."
+    },
+    {
+      "case_id": "EXP-E-003",
+      "case_version": "1.1",
+      "run_id": 33906643640,
+      "result": "PASS_AFTER_FIXTURE_REPAIR",
+      "excluded_prior_run": {"run_id": 33905360371, "reason": "FIXTURE-DATA DEFECT: model-visible input did not contain the graph/evidence context required for exact downstream-impact adjudication"},
+      "primary": {"provider": "groq", "mapping": "MATCH", "evidence_eligible": true},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "After supplying the relevant accepted graph and evidence, both mechanisms identified the invariant contradiction, the exact downstream set, stale retry evidence, and correctly withheld implementation authority pending requirement resolution."
+    },
+    {
+      "case_id": "EXP-E-004",
+      "case_version": "1.1",
+      "run_id": 33906737654,
+      "result": "PASS_AFTER_FIXTURE_REPAIR",
+      "excluded_prior_run": {"run_id": 33905476251, "reason": "FIXTURE-DATA DEFECT: model-visible input omitted the accepted evidence identifiers required for exact stale-evidence adjudication"},
+      "primary": {"provider": "groq", "mapping": "MATCH", "evidence_eligible": true},
+      "independent": {"provider": "openrouter", "mapping": "MATCH", "evidence_eligible": true},
+      "reason": "Both mechanisms detected the missing ALERT-RETRY-EXHAUSTED -> CFG-RETRY-LIMIT dependency, recomputed the exact impacted set, invalidated the two supplied retry evidence records, and required graph repair before relying on impact closure."
+    }
+  ],
+  "experiment_result": "PASS_PORTFOLIO_WITH_COMPONENT_LIMITATION",
+  "limitations": [
+    "The primary Groq mechanism was partial on EXP-E-002 because its completion ended at 2048 output tokens; provider completion limits must be visible as execution evidence rather than silently treated as complete reasoning.",
+    "EXP-E-003 and EXP-E-004 initial runs were excluded after concrete FIXTURE-DATA defects were found and repaired; protected truth was not changed.",
+    "Normalized result fields remain empty while substantive findings live only in raw_output; EXP-F must make this fail closed or preserve structured findings.",
+    "Campaign/file identifiers use EXP-E-### while provider-normalized results use EXPE-###; EXP-F must harden canonical evidence identity."
+  ]
+}
