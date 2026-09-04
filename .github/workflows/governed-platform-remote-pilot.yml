@@ -19,8 +19,41 @@ env:
   CAMPAIGN_MANIFEST: experiments/governed-platform/continuation/campaign.pilot1.json
 
 jobs:
+  publish-queued:
+    name: Publish queued governed state
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve case and publish QUEUED
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
+          python - "$CAMPAIGN_MANIFEST" "$CASE_ID" <<'PY'
+          import json,sys
+          manifest=json.load(open(sys.argv[1],encoding='utf-8'))
+          if sys.argv[2] not in manifest['cases']: raise SystemExit('case is not eligible in campaign manifest')
+          PY
+          EXPERIMENT="${CASE_ID%-*}"
+          gh workflow run governed-platform-dashboard-pages.yml --ref main \
+            -f execution_status=QUEUED \
+            -f campaign=pilot1 \
+            -f experiment="$EXPERIMENT" \
+            -f case_id="$CASE_ID" \
+            -f execution_branch="$GITHUB_REF_NAME" \
+            -f execution_sha="$GITHUB_SHA" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f controller_decision=WAIT \
+            -f scientific_status=AWAITING_ADJUDICATION
+
   groq:
     name: Groq blinded review
+    needs: publish-queued
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -34,11 +67,6 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
-          python - "$CAMPAIGN_MANIFEST" "$CASE_ID" <<'PY'
-          import json,sys
-          manifest=json.load(open(sys.argv[1],encoding='utf-8'))
-          if sys.argv[2] not in manifest['cases']: raise SystemExit('case is not eligible in campaign manifest')
-          PY
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require Groq secret
         run: test -n "$GROQ_API_KEY" || exit 2
@@ -55,6 +83,7 @@ jobs:
 
   openrouter:
     name: OpenRouter blinded review
+    needs: publish-queued
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -68,11 +97,6 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
-          python - "$CAMPAIGN_MANIFEST" "$CASE_ID" <<'PY'
-          import json,sys
-          manifest=json.load(open(sys.argv[1],encoding='utf-8'))
-          if sys.argv[2] not in manifest['cases']: raise SystemExit('case is not eligible in campaign manifest')
-          PY
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require OpenRouter secret
         run: test -n "$OPENROUTER_API_KEY" || exit 2
