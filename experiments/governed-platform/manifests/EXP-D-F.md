@@ -1,43 +1,29 @@
 # Later-Stage Adversarial Experiments
 
-These experiments require the minimum governance capabilities appropriate to their attack surface. Activation is evidence-based rather than calendar-based.
+These experiments were registered after the initial A/B/C pilot and are activated only when their minimal prerequisites exist.
 
 ## EXP-D — Adversarial System Escape
 
-Status: **ACTIVE — MINIMAL GOVERNOR QUALIFIED FOR PILOT ATTACKS**
+Status: **DIRECTIONAL PILOT EXECUTED / ADJUDICATED**
 
-Activation evidence:
-- deterministic minimal governor implemented in `governance/governor.py`;
-- exact project/task/SHA binding;
-- authenticated-event requirement;
-- replay/deduplication guard using stable source + event identity;
-- optimistic state-version guard for race/out-of-order events;
-- mandatory human-gate enforcement;
-- required-evidence and COMPLETE-promotion enforcement;
-- corrective-scope restriction by canonical failure class;
-- CI regression run 33902305725 passed at exact head `652589858dae3341cb5ec5a2f805de0ad4a9e320`.
+A minimal deterministic governor now exists and is falsified against adversarial escape cases. Pilot #1 phase D executed four cases covering stale-SHA advancement, mandatory-human-gate bypass, replayed side effects, and unauthorized COMPLETE promotion. Both evidence-eligible mechanisms identified all four target escapes. See `adjudication/EXP-D-PILOT1.json`.
 
-The pilot attack set begins with `EXP-D-001` through `EXP-D-004` covering stale-SHA acceptance, manual-gate bypass, replayed side effects, and unauthorized COMPLETE promotion. These are baseline attacks, not an exhaustive red-team portfolio.
-
-An independent red-team process is not constrained to the known failure taxonomy. It attempts to achieve one or more of:
-
-- false-green acceptance;
-- unauthorized artifact modification;
-- evidence suppression or spoofing;
-- incorrect COMPLETE promotion;
-- unsafe/destructive external side effect;
-- semantic-staleness escape;
-- permission-boundary bypass;
-- budget/reviewer denial-of-service;
-- another governance escape not anticipated by the designers.
-
-Attack construction should be separated from the system/design team where practical. Deterministic baseline attacks may be authored by the implementation team, but they do not satisfy the independent-red-team requirement by themselves.
+This is directional evidence only; the phase contains adversarial-positive cases and does not establish clean-control specificity.
 
 ## EXP-E — Accepted-Baseline Change/Revalidation
 
-Status: REGISTERED / BUILD AFTER MINIMAL INVARIANT + DEPENDENCY GRAPH
+Status: **PHASE-1 ACTIVE — MINIMAL INVARIANT + DEPENDENCY GRAPH IMPLEMENTED**
 
 Begin from a known accepted baseline. Introduce compatible, modifying, contradictory, foundational, lexically-different-but-semantically-conflicting, and interacting changes. Include hidden missing/incorrect dependency edges.
+
+The first directional slice uses `baselines/exp-e-baseline-v1.json` and `governance/impact_graph.py`. Phase-1 cases deliberately cover:
+
+- compatible documentation-only change precision control;
+- modifying retry-policy change with selective evidence invalidation;
+- direct contradiction with a governing invariant;
+- missing dependency edge supported by authoritative artifact evidence.
+
+Later EXP-E slices may add foundational, lexical-semantic and interacting-change cases after phase-1 results show which failure modes need more power.
 
 Measure:
 - change classification;
@@ -47,11 +33,14 @@ Measure:
 - correct lifecycle re-entry;
 - stale evidence retained incorrectly;
 - unnecessary revalidation;
-- intentional change vs old defect vs unresolved-requirement classification.
+- intentional change vs old defect vs unresolved-requirement classification;
+- missing/incorrect dependency-edge detection when authoritative relationship evidence exists.
+
+No headline acceptance threshold is invented before the directional pilot is observed.
 
 ## EXP-F — Governance/Orchestrator Falsification
 
-Status: **PARTIALLY UNBLOCKED — MINIMAL GOVERNOR EXISTS; BROADER ORCHESTRATOR/GRAPH ATTACKS REMAIN DEFERRED**
+Status: REGISTERED / MINIMAL GOVERNOR EXISTS / EXECUTE AFTER EXP-E PHASE-1
 
 Attack the code implementing governance rather than only model reasoning. Target:
 
@@ -78,6 +67,8 @@ Representative goals:
 - bypass a mandatory manual/human gate with a valid automated PASS;
 - exploit out-of-order completion events to roll state backward or advance twice;
 - race two valid completion events against the same expected state;
-- interpret resource/budget exhaustion as successful convergence or PASS.
+- interpret resource/budget exhaustion as successful convergence or PASS;
+- lose substantive reviewer findings because normalized structured fields are empty while only raw output contains the diagnosis;
+- allow inconsistent case identifiers to weaken evidence binding.
 
 Event-driven continuation is governed by `governance/EVENT_CONTINUATION.md`. Schedules/polling are fallback mechanisms and must not be treated as the primary continuation architecture.
