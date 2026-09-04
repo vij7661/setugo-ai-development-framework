@@ -13,6 +13,39 @@ $MechanismsPath = Join-Path $RunnerDir "mechanisms.local-ollama.example.json"
 $EnvelopePath = Join-Path $OutDir "EXP-A-001.envelope.json"
 $ResultPath = Join-Path $OutDir "EXP-A-001.ollama-result.json"
 
+function Resolve-PythonCommand {
+  $python = Get-Command python -ErrorAction SilentlyContinue
+  if ($python) {
+    return @($python.Source)
+  }
+
+  $py = Get-Command py -ErrorAction SilentlyContinue
+  if ($py) {
+    return @($py.Source, "-3")
+  }
+
+  throw "Python 3 was not found on PATH. Install Python 3 or make the 'python' or 'py' launcher available, then rerun this script."
+}
+
+function Invoke-PythonFile {
+  param(
+    [Parameter(Mandatory=$true)][string]$ScriptPath,
+    [Parameter(ValueFromRemainingArguments=$true)][string[]]$Arguments
+  )
+
+  $cmd = Resolve-PythonCommand
+  $exe = $cmd[0]
+  $prefix = @()
+  if ($cmd.Count -gt 1) {
+    $prefix = $cmd[1..($cmd.Count - 1)]
+  }
+
+  & $exe @prefix $ScriptPath @Arguments
+  if ($LASTEXITCODE -ne 0) {
+    throw "Python command failed with exit code $LASTEXITCODE: $ScriptPath"
+  }
+}
+
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
 Write-Host "Checking Ollama..."
@@ -24,8 +57,12 @@ if (($models -join "`n") -notmatch [regex]::Escape($Model)) {
   throw "Required local model '$Model' is not installed."
 }
 
+Write-Host "Checking Python..."
+$pythonCmd = Resolve-PythonCommand
+Write-Host ("Python launcher: " + ($pythonCmd -join " "))
+
 Write-Host "Preparing blinded envelope..."
-python (Join-Path $RunnerDir "prepare_run.py") `
+Invoke-PythonFile (Join-Path $RunnerDir "prepare_run.py") `
   --case $CasePath `
   --mechanisms $MechanismsPath `
   --mechanism-id $MechanismId `
@@ -33,7 +70,7 @@ python (Join-Path $RunnerDir "prepare_run.py") `
   --out $EnvelopePath
 
 Write-Host "Running local blinded canary through Ollama..."
-python (Join-Path $RunnerDir "run_ollama_canary.py") `
+Invoke-PythonFile (Join-Path $RunnerDir "run_ollama_canary.py") `
   --envelope $EnvelopePath `
   --model $Model `
   --out $ResultPath
