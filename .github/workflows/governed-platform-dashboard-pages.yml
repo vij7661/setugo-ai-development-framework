@@ -3,40 +3,9 @@ name: Governed Platform Dashboard Pages
 on:
   workflow_dispatch:
     inputs:
-      execution_status:
-        description: "Authoritative lifecycle state to publish"
-        required: false
-        type: string
-      campaign:
-        required: false
-        type: string
-      experiment:
-        required: false
-        type: string
-      case_id:
-        required: false
-        type: string
-      execution_branch:
-        required: false
-        type: string
-      execution_sha:
-        required: false
-        type: string
-      source_run_id:
-        required: false
-        type: string
-      controller_decision:
-        required: false
-        type: string
-      scientific_status:
-        required: false
-        type: string
-      next_case:
-        required: false
-        type: string
+      source_run_id: {required: false, type: string}
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "experiments/governed-platform/observability/dashboard/**"
       - ".github/workflows/governed-platform-dashboard-pages.yml"
@@ -66,62 +35,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
+        with: {ref: main}
       - name: Prepare dashboard site
         run: |
           mkdir -p _site
           cp experiments/governed-platform/observability/dashboard/index.html _site/index.html
           cp experiments/governed-platform/observability/dashboard/execution-status.json _site/execution-status.json
-      - name: Publish dispatched lifecycle state
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_status != '' }}
-        env:
-          EXECUTION_STATUS: ${{ inputs.execution_status }}
-          CAMPAIGN: ${{ inputs.campaign }}
-          EXPERIMENT: ${{ inputs.experiment }}
-          CASE_ID: ${{ inputs.case_id }}
-          EXECUTION_BRANCH: ${{ inputs.execution_branch }}
-          EXECUTION_SHA: ${{ inputs.execution_sha }}
-          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
-          CONTROLLER_DECISION: ${{ inputs.controller_decision }}
-          SCIENTIFIC_STATUS: ${{ inputs.scientific_status }}
-          NEXT_CASE: ${{ inputs.next_case }}
-        run: |
-          python - <<'PY'
-          import json, os
-          from datetime import datetime, timezone
-          def opt(name):
-              value=os.environ.get(name,'').strip()
-              return value or None
-          run_id=opt('SOURCE_RUN_ID')
-          state={
-              'campaign': opt('CAMPAIGN'),
-              'experiment': opt('EXPERIMENT'),
-              'case_id': opt('CASE_ID'),
-              'execution_status': opt('EXECUTION_STATUS'),
-              'scientific_status': opt('SCIENTIFIC_STATUS') or 'AWAITING_ADJUDICATION',
-              'controller_decision': opt('CONTROLLER_DECISION') or 'WAIT',
-              'failure_classification': 'NONE',
-              'human_required': False,
-              'next_case': opt('NEXT_CASE'),
-              'run_id': int(run_id) if run_id and run_id.isdigit() else run_id,
-              'execution_sha': opt('EXECUTION_SHA'),
-              'branch': opt('EXECUTION_BRANCH'),
-              'jobs': [],
-              'event_type': 'LIFECYCLE_STATE_PUBLISHED',
-              'updated_at': datetime.now(timezone.utc).isoformat(),
-              'source': 'governed workflow dispatch'
-          }
-          required=['campaign','experiment','case_id','execution_status','execution_sha','branch','run_id']
-          missing=[k for k in required if state.get(k) in (None,'')]
-          if missing:
-              raise SystemExit('refusing incomplete lifecycle publication: '+','.join(missing))
-          with open('_site/execution-status.json','w',encoding='utf-8') as f:
-              json.dump(state,f,indent=2)
-              f.write('\n')
-          PY
-      - name: Resolve governed execution artifact
-        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.execution_status == '' && inputs.source_run_id != '') }}
+      - name: Resolve governed execution artifact when explicitly bound to a run
+        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.source_run_id != '') }}
         env:
           GH_TOKEN: ${{ github.token }}
           WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -129,99 +50,56 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RUN_ID="$WORKFLOW_RUN_ID"
-          if [ -z "$RUN_ID" ]; then RUN_ID="$DISPATCH_RUN_ID"; fi
+          RUN_ID="$WORKFLOW_RUN_ID"; if [ -z "$RUN_ID" ]; then RUN_ID="$DISPATCH_RUN_ID"; fi
           test -n "$RUN_ID"
           mkdir -p _status
-          rm -rf _status/*
-          if gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governed-platform-execution-status --dir _status; then
-            STATUS="$(find _status -name execution-status.json -type f | head -n 1)"
-            if [ -n "$STATUS" ]; then
-              cp "$STATUS" _site/execution-status.json
-            else
-              echo "Execution artifact downloaded without execution-status.json" >&2
-              exit 1
-            fi
-          else
-            echo "No governed execution-status artifact available for run $RUN_ID; refusing to publish inferred state." >&2
-            exit 1
-          fi
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governed-platform-execution-status --dir _status
+          STATUS="$(find _status -name execution-status.json -type f | head -n 1)"
+          test -n "$STATUS"
+          cp "$STATUS" _site/execution-status.json
+      - name: Validate governed state and stamp publication time
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime,timezone
+          p='_site/execution-status.json'; s=json.load(open(p,encoding='utf-8'))
+          required=['campaign','experiment','case_id','execution_status','execution_sha','branch','run_id']
+          missing=[k for k in required if s.get(k) in (None,'')]
+          if missing: raise SystemExit('refusing incomplete governed state: '+','.join(missing))
+          s['last_event_at']=s.get('last_event_at') or s.get('updated_at') or s.get('event_time')
+          s['last_publication_at']=datetime.now(timezone.utc).isoformat()
+          json.dump(s,open(p,'w',encoding='utf-8'),indent=2);open(p,'a',encoding='utf-8').write('\n')
+          PY
       - name: Build authoritative case history
-        env:
-          GH_TOKEN: ${{ github.token }}
+        env: {GH_TOKEN: "${{ github.token }}"}
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf _history
-          mkdir -p _history/runs
+          rm -rf _history; mkdir -p _history/runs
           gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=100" --jq '.workflow_runs[] | select(.status=="completed") | select(.name=="Governed Platform Remote Pilot" or .name=="Governed Platform Gemini Qualification" or .name=="Governed Platform Mistral Qualification") | .id' > _history/run-ids.txt
-          while read -r RUN_ID; do
-            [ -n "$RUN_ID" ] || continue
-            DEST="_history/runs/$RUN_ID"
-            mkdir -p "$DEST"
-            gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governed-platform-execution-status --dir "$DEST" >/dev/null 2>&1 || true
-          done < _history/run-ids.txt
+          while read -r RUN_ID; do [ -n "$RUN_ID" ] || continue; DEST="_history/runs/$RUN_ID"; mkdir -p "$DEST"; gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governed-platform-execution-status --dir "$DEST" >/dev/null 2>&1 || true; done < _history/run-ids.txt
           python - <<'PY'
           import json
           from pathlib import Path
-
-          latest = {}
+          latest={}
           for path in Path('_history/runs').glob('*/execution-status.json'):
-              try:
-                  state=json.loads(path.read_text(encoding='utf-8'))
-              except Exception:
-                  continue
-              case_id=state.get('case_id')
-              run_id=state.get('run_id')
-              if not case_id or run_id in (None,''):
-                  continue
-              try:
-                  run_num=int(run_id)
-              except Exception:
-                  continue
-              jobs=state.get('jobs') or []
-              failed=[j.get('name') or 'unnamed job' for j in jobs if str(j.get('conclusion','')).lower() not in ('','success','skipped')]
-              classification=state.get('failure_classification')
-              execution=state.get('execution_status')
-              if execution in ('COMPLETE','CONTINUING') and not failed:
-                  result='PASSED'
-              elif execution in ('FAILED','BLOCKED') or failed:
-                  result='FAILED'
-              else:
-                  result='INCOMPLETE'
-              reason=state.get('failure_reason')
-              if not reason and result=='FAILED':
-                  parts=[]
-                  if classification and classification!='NONE': parts.append(str(classification))
-                  if failed: parts.append('failed job(s): '+', '.join(failed))
-                  reason=' — '.join(parts) or 'Execution failed; no classified reason was published.'
-              item={
-                  'case_id':case_id,
-                  'experiment':state.get('experiment'),
-                  'execution_result':result,
-                  'execution_status':execution,
-                  'scientific_status':state.get('scientific_status'),
-                  'failure_classification':classification,
-                  'failure_reason':reason,
-                  'controller_decision':state.get('controller_decision'),
-                  'human_required':bool(state.get('human_required')),
-                  'run_id':run_num,
-                  'execution_sha':state.get('execution_sha'),
-                  'updated_at':state.get('updated_at') or state.get('event_time'),
-                  'jobs':jobs,
-              }
-              key=(case_id, (jobs[0].get('provider') if jobs else None) or state.get('source') or 'default')
-              prev=latest.get(key)
-              if prev is None or run_num >= prev['run_id']:
-                  latest[key]=item
-          history=sorted(latest.values(), key=lambda x:x['run_id'], reverse=True)
-          Path('_site/execution-history.json').write_text(json.dumps({'cases':history},indent=2)+'\n',encoding='utf-8')
-          print(f'published {len(history)} historical case records')
+            try:s=json.loads(path.read_text())
+            except Exception:continue
+            case=s.get('case_id'); rid=s.get('run_id')
+            if not case or rid in (None,''):continue
+            try:rid=int(rid)
+            except:continue
+            jobs=s.get('jobs') or []; failed=[j.get('name') or 'unnamed' for j in jobs if str(j.get('conclusion','')).lower() not in ('','success','skipped')]
+            ex=s.get('execution_status'); result='PASSED' if ex in ('COMPLETE','CONTINUING') and not failed else ('FAILED' if ex in ('FAILED','BLOCKED') or failed else 'INCOMPLETE')
+            reason=s.get('failure_reason')
+            if not reason and result=='FAILED': reason=' — '.join(([str(s.get('failure_classification'))] if s.get('failure_classification') not in (None,'NONE') else [])+(['failed job(s): '+', '.join(failed)] if failed else [])) or 'Execution failed; no classified reason published.'
+            item={'case_id':case,'experiment':s.get('experiment'),'execution_result':result,'execution_status':ex,'scientific_status':s.get('scientific_status'),'failure_classification':s.get('failure_classification'),'failure_reason':reason,'controller_decision':s.get('controller_decision'),'human_required':bool(s.get('human_required')),'run_id':rid,'execution_sha':s.get('execution_sha'),'updated_at':s.get('updated_at') or s.get('event_time'),'jobs':jobs}
+            if case not in latest or rid>=latest[case]['run_id']:latest[case]=item
+          Path('_site/execution-history.json').write_text(json.dumps({'cases':sorted(latest.values(),key=lambda x:x['run_id'],reverse=True)},indent=2)+'\n')
           PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
+        with: {path: _site}
       - name: Deploy dashboard
         id: deployment
         uses: actions/deploy-pages@v4
