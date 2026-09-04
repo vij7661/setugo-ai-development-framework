@@ -31,8 +31,13 @@ jobs:
               json.loads(p.read_text(encoding="utf-8"))
               print("valid", p)
           PY
-      - name: Compile scorer
-        run: python -m py_compile experiments/governed-platform/score/score_pilot.py
+      - name: Compile harness Python
+        run: |
+          python -m py_compile experiments/governed-platform/score/score_pilot.py
+          python -m py_compile experiments/governed-platform/runner/prepare_run.py
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
         run: python -m unittest -v test_score_pilot.py
+      - name: Run preparation regressions
+        working-directory: experiments/governed-platform/runner
+        run: python -m unittest -v test_prepare_run.py
