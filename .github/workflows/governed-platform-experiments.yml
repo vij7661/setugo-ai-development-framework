@@ -36,13 +36,14 @@ jobs:
           python -m py_compile experiments/governed-platform/score/score_pilot.py
           python -m py_compile experiments/governed-platform/runner/prepare_run.py
           python -m py_compile experiments/governed-platform/runner/adapters.py
+          python -m py_compile experiments/governed-platform/runner/run_ollama_canary.py
           python -m py_compile experiments/governed-platform/ground-truth/freeze_truth.py
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
         run: python -m unittest -v test_score_pilot.py
       - name: Run runner regressions
         working-directory: experiments/governed-platform/runner
-        run: python -m unittest -v test_prepare_run.py test_adapters.py
+        run: python -m unittest -v test_prepare_run.py test_adapters.py test_ollama_adapter.py
       - name: Run protected-truth regressions
         working-directory: experiments/governed-platform/ground-truth
         run: python -m unittest -v test_freeze_truth.py
