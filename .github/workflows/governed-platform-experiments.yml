@@ -38,6 +38,7 @@ jobs:
           python -m py_compile experiments/governed-platform/runner/adapters.py
           python -m py_compile experiments/governed-platform/runner/openai_compatible.py
           python -m py_compile experiments/governed-platform/runner/run_ollama_canary.py
+          python -m py_compile experiments/governed-platform/runner/run_remote_canary.py
           python -m py_compile experiments/governed-platform/ground-truth/freeze_truth.py
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
