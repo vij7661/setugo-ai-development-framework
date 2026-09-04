@@ -38,6 +38,19 @@
       "role": "reasoner-independent-candidate",
       "qualification_ref": "UNQUALIFIED-CANDIDATE",
       "privacy_class": "external-provider"
+    },
+    {
+      "mechanism_id": "remote-reasoner-d",
+      "enabled": false,
+      "kind": "reasoning-model",
+      "adapter": "openai-compatible",
+      "provider": "gemini",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "model": "gemini-3.8-flash",
+      "api_key_env": "GEMINI_API_KEY",
+      "role": "reasoner-independent-candidate",
+      "qualification_ref": "UNQUALIFIED-CANDIDATE",
+      "privacy_class": "external-provider-free-tier"
     }
   ]
 }
