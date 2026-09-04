@@ -8,6 +8,11 @@ on:
         required: true
         default: "EXP-A-002"
         type: string
+  push:
+    branches:
+      - experiment/governed-platform-falsification-harness
+    paths:
+      - ".github/pilot-trigger.json"
 
 permissions:
   contents: read
@@ -24,31 +29,41 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Resolve pilot case
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CASE_ID="${{ inputs.case_id }}"
+          else
+            CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"
+          fi
+          test -n "$CASE_ID"
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require Groq secret
         run: test -n "$GROQ_API_KEY" || (echo "GROQ_API_KEY repository secret is missing" && exit 2)
       - name: Prepare blinded envelope
         run: |
           mkdir -p pilot-results/groq
           python experiments/governed-platform/runner/prepare_run.py \
-            --case "experiments/governed-platform/cases/pilot/model-visible/${{ inputs.case_id }}.json" \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
             --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json \
             --mechanism-id remote-reasoner-a \
             --instruction-version pilot1-ci-v1 \
-            --out "pilot-results/groq/${{ inputs.case_id }}.envelope.json"
+            --out "pilot-results/groq/${CASE_ID}.envelope.json"
       - name: Run Groq blinded review
         run: |
           python experiments/governed-platform/runner/run_remote_canary.py \
-            --envelope "pilot-results/groq/${{ inputs.case_id }}.envelope.json" \
+            --envelope "pilot-results/groq/${CASE_ID}.envelope.json" \
             --provider groq \
             --base-url https://api.groq.com/openai/v1 \
             --model openai/gpt-oss-20b \
             --api-key-env GROQ_API_KEY \
             --timeout-seconds 120 \
-            --out "pilot-results/groq/${{ inputs.case_id }}.groq.raw-result.json"
+            --out "pilot-results/groq/${CASE_ID}.groq.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: "pilot-${{ inputs.case_id }}-groq"
+          name: pilot-groq-results
           path: pilot-results/groq/
           if-no-files-found: warn
 
@@ -63,30 +78,40 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Resolve pilot case
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CASE_ID="${{ inputs.case_id }}"
+          else
+            CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"
+          fi
+          test -n "$CASE_ID"
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require OpenRouter secret
         run: test -n "$OPENROUTER_API_KEY" || (echo "OPENROUTER_API_KEY repository secret is missing" && exit 2)
       - name: Prepare blinded envelope
         run: |
           mkdir -p pilot-results/openrouter
           python experiments/governed-platform/runner/prepare_run.py \
-            --case "experiments/governed-platform/cases/pilot/model-visible/${{ inputs.case_id }}.json" \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
             --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json \
             --mechanism-id remote-reasoner-b \
             --instruction-version pilot1-ci-v1 \
-            --out "pilot-results/openrouter/${{ inputs.case_id }}.envelope.json"
+            --out "pilot-results/openrouter/${CASE_ID}.envelope.json"
       - name: Run OpenRouter blinded review
         run: |
           python experiments/governed-platform/runner/run_remote_canary.py \
-            --envelope "pilot-results/openrouter/${{ inputs.case_id }}.envelope.json" \
+            --envelope "pilot-results/openrouter/${CASE_ID}.envelope.json" \
             --provider openrouter \
             --base-url https://openrouter.ai/api/v1 \
             --model nvidia/nemotron-3-ultra-550b-a55b:free \
             --api-key-env OPENROUTER_API_KEY \
             --timeout-seconds 120 \
-            --out "pilot-results/openrouter/${{ inputs.case_id }}.openrouter.raw-result.json"
+            --out "pilot-results/openrouter/${CASE_ID}.openrouter.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: "pilot-${{ inputs.case_id }}-openrouter"
+          name: pilot-openrouter-results
           path: pilot-results/openrouter/
           if-no-files-found: warn
