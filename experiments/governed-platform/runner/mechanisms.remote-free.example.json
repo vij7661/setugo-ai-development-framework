@@ -25,6 +25,19 @@
       "role": "reasoner-independent",
       "qualification_ref": "PENDING-PILOT",
       "privacy_class": "external-provider"
+    },
+    {
+      "mechanism_id": "remote-reasoner-c",
+      "enabled": false,
+      "kind": "reasoning-model",
+      "adapter": "openai-compatible",
+      "provider": "mistral",
+      "base_url": "https://api.mistral.ai/v1",
+      "model": "mistral-small-latest",
+      "api_key_env": "MISTRAL_API_KEY",
+      "role": "reasoner-independent-candidate",
+      "qualification_ref": "UNQUALIFIED-CANDIDATE",
+      "privacy_class": "external-provider"
     }
   ]
 }
