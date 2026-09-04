@@ -8,8 +8,12 @@ on:
     paths:
       - "experiments/governed-platform/observability/dashboard/**"
       - ".github/workflows/governed-platform-dashboard-pages.yml"
+  workflow_run:
+    workflows: ["Governed Platform Remote Pilot"]
+    types: [completed]
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -20,17 +24,41 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.head_repository.full_name == github.repository }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Prepare dashboard site
         run: |
           mkdir -p _site
           cp experiments/governed-platform/observability/dashboard/index.html _site/index.html
           cp experiments/governed-platform/observability/dashboard/execution-status.json _site/execution-status.json
+      - name: Resolve latest governed execution status
+        if: ${{ github.event_name == 'workflow_run' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _status
+          if gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governed-platform-execution-status --dir _status; then
+            STATUS="$(find _status -name execution-status.json -type f | head -n 1)"
+            if [ -n "$STATUS" ]; then
+              cp "$STATUS" _site/execution-status.json
+            else
+              echo "Execution artifact downloaded without execution-status.json" >&2
+              exit 1
+            fi
+          else
+            echo "No governed execution-status artifact available for run $RUN_ID; refusing to publish inferred state." >&2
+            exit 1
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
