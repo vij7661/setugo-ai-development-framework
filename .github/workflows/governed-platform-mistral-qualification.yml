@@ -71,7 +71,10 @@ jobs:
           print('MODEL='+m['model'])
           PY
       - name: Run Mistral blinded qualification
+        id: qualification
+        shell: bash
         run: |
+          set -o pipefail
           python experiments/governed-platform/runner/run_remote_canary.py \
             --envelope "pilot-results/mistral/${CASE_ID}.envelope.json" \
             --provider "$PROVIDER" \
@@ -79,10 +82,61 @@ jobs:
             --model "$MODEL" \
             --api-key-env MISTRAL_API_KEY \
             --timeout-seconds 120 \
-            --out "pilot-results/mistral/${CASE_ID}.mistral.raw-result.json"
+            --out "pilot-results/mistral/${CASE_ID}.mistral.raw-result.json" \
+            2> >(tee pilot-results/mistral/provider-error.log >&2)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: pilot-mistral-qualification
           path: pilot-results/mistral/
           if-no-files-found: warn
+      - name: Build governed execution status
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          mkdir -p governed-status
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          status=os.environ.get('JOB_STATUS','failure').lower()
+          err=Path('pilot-results/mistral/provider-error.log')
+          detail=err.read_text(encoding='utf-8',errors='replace').strip() if err.exists() else ''
+          reason=None
+          classification='NONE'
+          if status!='success':
+              classification='ENVIRONMENT-TOOLING DEFECT'
+              if detail:
+                  lines=[x.strip() for x in detail.splitlines() if x.strip()]
+                  reason=(lines[-1] if lines else 'Mistral qualification failed.')[:500]
+              else:
+                  reason='Mistral qualification failed before a usable completion was produced.'
+          state={
+            'campaign':'pilot1',
+            'experiment':os.environ.get('CASE_ID','').rsplit('-',1)[0] or 'EXP-C',
+            'case_id':os.environ.get('CASE_ID') or 'UNKNOWN',
+            'execution_status':'COMPLETE' if status=='success' else 'FAILED',
+            'scientific_status':'AWAITING_ADJUDICATION' if status=='success' else 'NOT_SCORED_PROVIDER_FAILURE',
+            'controller_decision':'ADJUDICATE_EVIDENCE' if status=='success' else 'DIAGNOSE',
+            'failure_classification':classification,
+            'failure_reason':reason,
+            'human_required':False,
+            'next_case':None,
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'execution_sha':os.environ['GITHUB_SHA'],
+            'branch':os.environ['GITHUB_REF_NAME'],
+            'jobs':[{'name':'Mistral blinded qualification','status':'completed','conclusion':'success' if status=='success' else 'failure','provider':'mistral'}],
+            'event_type':'PROVIDER_QUALIFICATION_COMPLETED',
+            'updated_at':datetime.now(timezone.utc).isoformat(),
+            'source':'Governed Platform Mistral Qualification'
+          }
+          Path('governed-status/execution-status.json').write_text(json.dumps(state,indent=2)+'\n',encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: governed-platform-execution-status
+          path: governed-status/execution-status.json
+          if-no-files-found: error
