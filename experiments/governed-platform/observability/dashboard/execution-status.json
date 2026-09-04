@@ -12,6 +12,8 @@
   "failure_classification": "NONE",
   "controller_decision": "COMPLETE",
   "next_case": null,
+  "continuation_status": "PREREQUISITE_REQUIRED",
+  "next_action": "Build the minimal governor/orchestrator prerequisite, then activate EXP-D adversarial system-escape cases.",
   "jobs": [
     {"name": "Groq primary blinded review", "status": "completed", "conclusion": "success"},
     {"name": "Independent review with automatic provider failover", "status": "completed", "conclusion": "success"},
@@ -23,5 +25,5 @@
   "last_event_at": "2026-09-04T16:34:43Z",
   "last_publication_at": "2026-09-04T17:26:00Z",
   "updated_at": "2026-09-04T16:34:43Z",
-  "source": "recovered from verified governed execution artifact/run metadata; publication pipeline repair in progress"
+  "source": "Verified authoritative execution snapshot recovered from governed run evidence."
 }
