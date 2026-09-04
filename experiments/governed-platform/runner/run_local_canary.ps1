@@ -42,7 +42,7 @@ function Invoke-PythonFile {
 
   & $exe @prefix $ScriptPath @Arguments
   if ($LASTEXITCODE -ne 0) {
-    throw "Python command failed with exit code $LASTEXITCODE: $ScriptPath"
+    throw "Python command failed with exit code ${LASTEXITCODE}: $ScriptPath"
   }
 }
 
