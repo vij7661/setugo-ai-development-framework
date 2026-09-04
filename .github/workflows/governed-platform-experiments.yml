@@ -35,4 +35,4 @@ jobs:
         run: python -m py_compile experiments/governed-platform/score/score_pilot.py
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
-        run: python -m pytest -q
+        run: python -m unittest -v test_score_pilot.py
