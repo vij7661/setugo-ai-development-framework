@@ -15,6 +15,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CAMPAIGN_MANIFEST: experiments/governed-platform/continuation/campaign.pilot1.json
+
 jobs:
   groq:
     name: Groq blinded review
@@ -31,6 +34,11 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
+          python - "$CAMPAIGN_MANIFEST" "$CASE_ID" <<'PY'
+          import json,sys
+          manifest=json.load(open(sys.argv[1],encoding='utf-8'))
+          if sys.argv[2] not in manifest['cases']: raise SystemExit('case is not eligible in campaign manifest')
+          PY
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require Groq secret
         run: test -n "$GROQ_API_KEY" || exit 2
@@ -60,6 +68,11 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
+          python - "$CAMPAIGN_MANIFEST" "$CASE_ID" <<'PY'
+          import json,sys
+          manifest=json.load(open(sys.argv[1],encoding='utf-8'))
+          if sys.argv[2] not in manifest['cases']: raise SystemExit('case is not eligible in campaign manifest')
+          PY
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require OpenRouter secret
         run: test -n "$OPENROUTER_API_KEY" || exit 2
@@ -81,11 +94,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Resolve case
+      - name: Resolve governed case transition
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
-          case "$CASE_ID" in EXP-B-001) NEXT=EXP-B-002;; EXP-B-002) NEXT=EXP-B-003;; *) NEXT="";; esac
+          NEXT="$(python - "$CAMPAIGN_MANIFEST" "$CASE_ID" <<'PY'
+          import json,sys
+          cases=json.load(open(sys.argv[1],encoding='utf-8'))['cases']; current=sys.argv[2]
+          if current not in cases: raise SystemExit('case is not eligible in campaign manifest')
+          i=cases.index(current); print(cases[i+1] if i+1 < len(cases) else '')
+          PY
+          )"
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
           echo "NEXT_CASE=$NEXT" >> "$GITHUB_ENV"
       - name: Normalize authoritative execution state
@@ -95,39 +114,15 @@ jobs:
         run: |
           python - <<'PY'
           import json, os
-          case_id = os.environ['CASE_ID']
-          results = [os.environ['GROQ_RESULT'], os.environ['OPENROUTER_RESULT']]
-          all_success = all(r == 'success' for r in results)
-          event = {
-            'campaign': 'pilot1',
-            'experiment': case_id.rsplit('-', 1)[0],
-            'case_id': case_id,
-            'branch': os.environ['GITHUB_REF_NAME'],
-            'execution_sha': os.environ['GITHUB_SHA'],
-            'run_id': int(os.environ['GITHUB_RUN_ID']),
-            'jobs': [
-              {'name': 'Groq', 'status': 'completed', 'conclusion': os.environ['GROQ_RESULT']},
-              {'name': 'OpenRouter', 'status': 'completed', 'conclusion': os.environ['OPENROUTER_RESULT']},
-            ],
-            'failure_classification': 'NONE' if all_success else 'ENVIRONMENT-TOOLING DEFECT',
-            'controller_decision': ('CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE') if all_success else 'DIAGNOSE',
-            'next_case': (os.environ.get('NEXT_CASE') or None) if all_success else None,
-            'human_required': False,
-          }
-          open('execution-event.json', 'w', encoding='utf-8').write(json.dumps(event))
+          case_id=os.environ['CASE_ID']; results=[os.environ['GROQ_RESULT'],os.environ['OPENROUTER_RESULT']]; ok=all(r=='success' for r in results)
+          event={'campaign':'pilot1','experiment':case_id.rsplit('-',1)[0],'case_id':case_id,'branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq','status':'completed','conclusion':results[0]},{'name':'OpenRouter','status':'completed','conclusion':results[1]}],'failure_classification':'NONE' if ok else 'ENVIRONMENT-TOOLING DEFECT','controller_decision':('CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE') if ok else 'DIAGNOSE','next_case':(os.environ.get('NEXT_CASE') or None) if ok else None,'human_required':False}
+          open('execution-event.json','w',encoding='utf-8').write(json.dumps(event))
           PY
-          python experiments/governed-platform/observability/normalize_github_event.py \
-            --event execution-event.json \
-            --out execution-status.json \
-            --expected-branch "$GITHUB_REF_NAME" \
-            --expected-sha "$GITHUB_SHA" \
-            --expected-case "$CASE_ID" \
-            --expected-run-id "$GITHUB_RUN_ID"
+          python experiments/governed-platform/observability/normalize_github_event.py --event execution-event.json --out execution-status.json --expected-branch "$GITHUB_REF_NAME" --expected-sha "$GITHUB_SHA" --expected-case "$CASE_ID" --expected-run-id "$GITHUB_RUN_ID"
           python experiments/governed-platform/observability/render_status.py --state execution-status.json --out EXECUTION_STATUS.md
       - name: Publish status in Actions summary
         if: always()
-        run: |
-          if [ -f EXECUTION_STATUS.md ]; then cat EXECUTION_STATUS.md >> "$GITHUB_STEP_SUMMARY"; else echo "Execution status generation failed." >> "$GITHUB_STEP_SUMMARY"; fi
+        run: if [ -f EXECUTION_STATUS.md ]; then cat EXECUTION_STATUS.md >> "$GITHUB_STEP_SUMMARY"; else echo "Execution status generation failed." >> "$GITHUB_STEP_SUMMARY"; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -147,12 +142,18 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - name: Resolve completed and next case
+      - name: Resolve next case from campaign manifest
         id: next
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CURRENT="${{ inputs.case_id }}"; else CURRENT="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
-          case "$CURRENT" in EXP-B-001) NEXT=EXP-B-002;; EXP-B-002) NEXT=EXP-B-003;; *) NEXT="";; esac
+          NEXT="$(python - "$CAMPAIGN_MANIFEST" "$CURRENT" <<'PY'
+          import json,sys
+          manifest=json.load(open(sys.argv[1],encoding='utf-8')); cases=manifest['cases']; current=sys.argv[2]
+          if current not in cases: raise SystemExit('case is not eligible in campaign manifest')
+          i=cases.index(current); print(cases[i+1] if i+1 < len(cases) else '')
+          PY
+          )"
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
       - name: Trigger next eligible case
         if: ${{ steps.next.outputs.next != '' }}
