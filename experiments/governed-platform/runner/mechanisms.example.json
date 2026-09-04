@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "mechanisms": [
+    {
+      "mechanism_id": "reasoner-primary",
+      "kind": "llm",
+      "adapter": "configured-at-runtime",
+      "provider": "configured-at-runtime",
+      "model": "configured-at-runtime",
+      "role": "independent-reviewer",
+      "enabled": false,
+      "qualification_ref": null,
+      "privacy_class": "project-nonsecret",
+      "cost_policy": "record-actual-if-available"
+    },
+    {
+      "mechanism_id": "reasoner-independent",
+      "kind": "llm",
+      "adapter": "configured-at-runtime",
+      "provider": "configured-at-runtime",
+      "model": "configured-at-runtime",
+      "role": "independent-reviewer",
+      "enabled": false,
+      "qualification_ref": null,
+      "privacy_class": "project-nonsecret",
+      "cost_policy": "record-actual-if-available"
+    },
+    {
+      "mechanism_id": "deterministic-check",
+      "kind": "tool",
+      "adapter": "configured-at-runtime",
+      "provider": null,
+      "model": null,
+      "role": "deterministic-verifier",
+      "enabled": false,
+      "qualification_ref": null,
+      "privacy_class": "local",
+      "cost_policy": "record-runtime"
+    }
+  ]
+}
