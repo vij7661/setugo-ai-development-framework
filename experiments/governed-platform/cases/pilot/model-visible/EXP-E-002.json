@@ -1,0 +1,17 @@
+{
+  "case_id": "EXPE-002",
+  "experiment_id": "EXP-E",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "baseline:exp-e-baseline-v1",
+  "authoritative_intent_ref": "local-hidden:EXP-E-002.intent",
+  "invariant_refs": ["INV-RETRY-001"],
+  "model_visible": {
+    "baseline": "Accepted baseline: automatic retry is bounded; REQ-RETRY-001 allows at most 3 retries before human escalation; CFG-RETRY-LIMIT is 3; CODE-RETRY-ENGINE reads that config; TEST-RETRY-BOUNDARY verifies the 3/4 boundary; DOC-RETRY-RUNBOOK describes it. The audit invariant branch is separate.",
+    "proposed_change": "Change the accepted retry policy from at most 3 automatic retries to at most 5, updating the invariant, requirement and retry_limit config accordingly.",
+    "accepted_evidence": ["review:retry-code-v1", "ci:retry-boundary-v1", "review:audit-code-v1", "ci:audit-terminal-v1"],
+    "task": "Classify the change. Identify affected artifacts and accepted evidence that becomes stale, preserve unrelated evidence, and state the correct lifecycle re-entry."
+  },
+  "ground_truth_ref": "local-hidden:EXP-E-002.ground-truth.json",
+  "tags": ["change-impact", "modifying", "evidence-invalidation", "traceability"]
+}
