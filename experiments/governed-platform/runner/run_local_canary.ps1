@@ -16,12 +16,12 @@ $ResultPath = Join-Path $OutDir "EXP-A-001.ollama-result.json"
 function Resolve-PythonCommand {
   $python = Get-Command python -ErrorAction SilentlyContinue
   if ($python) {
-    return @($python.Source)
+    return [PSCustomObject]@{ Exe = $python.Source; Prefix = @() }
   }
 
   $py = Get-Command py -ErrorAction SilentlyContinue
   if ($py) {
-    return @($py.Source, "-3")
+    return [PSCustomObject]@{ Exe = $py.Source; Prefix = @("-3") }
   }
 
   throw "Python 3 was not found on PATH. Install Python 3 or make the 'python' or 'py' launcher available, then rerun this script."
@@ -34,13 +34,7 @@ function Invoke-PythonFile {
   )
 
   $cmd = Resolve-PythonCommand
-  $exe = $cmd[0]
-  $prefix = @()
-  if ($cmd.Count -gt 1) {
-    $prefix = $cmd[1..($cmd.Count - 1)]
-  }
-
-  & $exe @prefix $ScriptPath @Arguments
+  & $cmd.Exe @($cmd.Prefix) $ScriptPath @Arguments
   if ($LASTEXITCODE -ne 0) {
     throw "Python command failed with exit code ${LASTEXITCODE}: $ScriptPath"
   }
@@ -59,7 +53,8 @@ if (($models -join "`n") -notmatch [regex]::Escape($Model)) {
 
 Write-Host "Checking Python..."
 $pythonCmd = Resolve-PythonCommand
-Write-Host ("Python launcher: " + ($pythonCmd -join " "))
+$pythonDisplay = @($pythonCmd.Exe) + @($pythonCmd.Prefix)
+Write-Host ("Python launcher: " + ($pythonDisplay -join " "))
 
 Write-Host "Preparing blinded envelope..."
 Invoke-PythonFile (Join-Path $RunnerDir "prepare_run.py") `
