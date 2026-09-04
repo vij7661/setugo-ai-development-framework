@@ -83,3 +83,33 @@ jobs:
           name: pilot-openrouter-results
           path: pilot-results/openrouter/
           if-no-files-found: warn
+
+  continue-campaign:
+    name: Continue eligible experiment case
+    needs: [groq, openrouter]
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve completed and next case
+        id: next
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CURRENT="${{ inputs.case_id }}"; else CURRENT="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"; fi
+          case "$CURRENT" in
+            EXP-B-001) NEXT="EXP-B-002" ;;
+            EXP-B-002) NEXT="EXP-B-003" ;;
+            *) NEXT="" ;;
+          esac
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+      - name: Trigger next eligible case
+        if: ${{ steps.next.outputs.next != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEXT_CASE: ${{ steps.next.outputs.next }}
+        run: |
+          gh workflow run governed-platform-remote-pilot.yml --ref "${{ github.ref_name }}" -f case_id="$NEXT_CASE"
