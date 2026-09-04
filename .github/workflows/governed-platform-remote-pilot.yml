@@ -16,6 +16,8 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   groq:
@@ -32,11 +34,7 @@ jobs:
       - name: Resolve pilot case
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            CASE_ID="${{ inputs.case_id }}"
-          else
-            CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"
-          fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"; fi
           test -n "$CASE_ID"
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require Groq secret
@@ -44,22 +42,10 @@ jobs:
       - name: Prepare blinded envelope
         run: |
           mkdir -p pilot-results/groq
-          python experiments/governed-platform/runner/prepare_run.py \
-            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
-            --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json \
-            --mechanism-id remote-reasoner-a \
-            --instruction-version pilot1-ci-v1 \
-            --out "pilot-results/groq/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json --mechanism-id remote-reasoner-a --instruction-version pilot1-ci-v1 --out "pilot-results/groq/${CASE_ID}.envelope.json"
       - name: Run Groq blinded review
         run: |
-          python experiments/governed-platform/runner/run_remote_canary.py \
-            --envelope "pilot-results/groq/${CASE_ID}.envelope.json" \
-            --provider groq \
-            --base-url https://api.groq.com/openai/v1 \
-            --model openai/gpt-oss-20b \
-            --api-key-env GROQ_API_KEY \
-            --timeout-seconds 120 \
-            --out "pilot-results/groq/${CASE_ID}.groq.raw-result.json"
+          python experiments/governed-platform/runner/run_remote_canary.py --envelope "pilot-results/groq/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --out "pilot-results/groq/${CASE_ID}.groq.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -81,11 +67,7 @@ jobs:
       - name: Resolve pilot case
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            CASE_ID="${{ inputs.case_id }}"
-          else
-            CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"
-          fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"; fi
           test -n "$CASE_ID"
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
       - name: Require OpenRouter secret
@@ -93,25 +75,45 @@ jobs:
       - name: Prepare blinded envelope
         run: |
           mkdir -p pilot-results/openrouter
-          python experiments/governed-platform/runner/prepare_run.py \
-            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
-            --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json \
-            --mechanism-id remote-reasoner-b \
-            --instruction-version pilot1-ci-v1 \
-            --out "pilot-results/openrouter/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json --mechanism-id remote-reasoner-b --instruction-version pilot1-ci-v1 --out "pilot-results/openrouter/${CASE_ID}.envelope.json"
       - name: Run OpenRouter blinded review
         run: |
-          python experiments/governed-platform/runner/run_remote_canary.py \
-            --envelope "pilot-results/openrouter/${CASE_ID}.envelope.json" \
-            --provider openrouter \
-            --base-url https://openrouter.ai/api/v1 \
-            --model nvidia/nemotron-3-ultra-550b-a55b:free \
-            --api-key-env OPENROUTER_API_KEY \
-            --timeout-seconds 120 \
-            --out "pilot-results/openrouter/${CASE_ID}.openrouter.raw-result.json"
+          python experiments/governed-platform/runner/run_remote_canary.py --envelope "pilot-results/openrouter/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --out "pilot-results/openrouter/${CASE_ID}.openrouter.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: pilot-openrouter-results
           path: pilot-results/openrouter/
           if-no-files-found: warn
+
+  notify:
+    name: Event-driven completion notification
+    if: always()
+    needs: [groq, openrouter]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve case ID
+        id: case
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json", encoding="utf-8"))["case_id"])')"; fi
+          echo "case_id=$CASE_ID" >> "$GITHUB_OUTPUT"
+      - name: Post completion event to experiment PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CASE_ID: ${{ steps.case.outputs.case_id }}
+          GROQ_RESULT: ${{ needs.groq.result }}
+          OPENROUTER_RESULT: ${{ needs.openrouter.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ "$GROQ_RESULT" = "success" ] && [ "$OPENROUTER_RESULT" = "success" ]; then OVERALL="SUCCESS"; else OVERALL="ATTENTION REQUIRED"; fi
+          gh pr comment 1 --body "### Remote pilot completion event
+
+**Case:** \`$CASE_ID\`  
+**Overall:** **$OVERALL**  
+**Groq:** \`$GROQ_RESULT\`  
+**OpenRouter:** \`$OPENROUTER_RESULT\`  
+**Run:** $RUN_URL
+
+This comment was emitted immediately by the workflow after both blinded provider jobs reached a terminal state. Evidence remains in the workflow artifacts."
