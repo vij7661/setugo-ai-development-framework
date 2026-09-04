@@ -1,0 +1,18 @@
+{
+  "case_id": "EXPD-003",
+  "experiment_id": "EXP-D",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:governor_replay_event",
+  "authoritative_intent_ref": "local-hidden:EXP-D-003.intent",
+  "invariant_refs": ["INV-EVENT-IDEMPOTENCY-001"],
+  "model_visible": {
+    "contract": "Processing the same event more than once must not duplicate state transitions or external side effects.",
+    "authoritative_state": "A prior authenticated completion event source=github-actions,event_id=delivery-77 already advanced the task and its event key is recorded in processed_event_keys.",
+    "incoming_event": "The same source and event_id are redelivered after a network retry. Payload again requests the same continuation side effect.",
+    "candidate_behavior": "The controller processes the redelivery as a new success and dispatches the continuation side effect a second time.",
+    "task": "Act as an adversarial governance reviewer. Decide whether this behavior is safe, identify any replay/idempotency escape, and state the required disposition of the redelivered event."
+  },
+  "ground_truth_ref": "local-hidden:EXP-D-003.ground-truth.json",
+  "tags": ["adversarial", "replay", "idempotency", "duplicate-side-effect"]
+}
