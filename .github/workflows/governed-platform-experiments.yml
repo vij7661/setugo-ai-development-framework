@@ -42,6 +42,7 @@ jobs:
           python -m py_compile experiments/governed-platform/ground-truth/freeze_truth.py
           python -m py_compile experiments/governed-platform/observability/normalize_github_event.py
           python -m py_compile experiments/governed-platform/observability/render_status.py
+          python -m py_compile experiments/governed-platform/continuation/controller.py
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
         run: python -m unittest -v test_score_pilot.py
@@ -54,3 +55,6 @@ jobs:
       - name: Run observability regressions
         working-directory: experiments/governed-platform/observability
         run: python -m unittest -v test_observability.py
+      - name: Run continuation authority regressions
+        working-directory: experiments/governed-platform/continuation
+        run: python -m unittest -v test_controller.py
