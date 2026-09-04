@@ -1,5 +1,5 @@
 {
-  "case_id": "EXPE-003",
+  "case_id": "EXP-E-003",
   "experiment_id": "EXP-E",
   "version": "1.1",
   "risk": "HIGH",
@@ -9,14 +9,7 @@
   "model_visible": {
     "baseline": "Invariant INV-RETRY-001 requires automatic retry to remain bounded and to escalate after the configured maximum. REQ-RETRY-001 currently allows at most 3 automatic retries before human escalation.",
     "relevant_graph": {
-      "nodes": [
-        "INV-RETRY-001",
-        "REQ-RETRY-001",
-        "CFG-RETRY-LIMIT",
-        "CODE-RETRY-ENGINE",
-        "TEST-RETRY-BOUNDARY",
-        "DOC-RETRY-RUNBOOK"
-      ],
+      "nodes": ["INV-RETRY-001","REQ-RETRY-001","CFG-RETRY-LIMIT","CODE-RETRY-ENGINE","TEST-RETRY-BOUNDARY","DOC-RETRY-RUNBOOK"],
       "edges": [
         {"from": "REQ-RETRY-001", "to": "INV-RETRY-001", "relation": "DERIVED_FROM"},
         {"from": "CFG-RETRY-LIMIT", "to": "REQ-RETRY-001", "relation": "SATISFIES"},

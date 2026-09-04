@@ -1,5 +1,5 @@
 {
-  "case_id": "EXPE-004",
+  "case_id": "EXP-E-004",
   "experiment_id": "EXP-E",
   "version": "1.1",
   "risk": "HIGH",
@@ -9,12 +9,7 @@
   "model_visible": {
     "baseline": "CFG-RETRY-LIMIT is an accepted config artifact. The graph currently links CODE-RETRY-ENGINE to CFG-RETRY-LIMIT, and TEST-RETRY-BOUNDARY depends on the retry engine. ALERT-RETRY-EXHAUSTED appears in the baseline graph with no dependency edge to CFG-RETRY-LIMIT.",
     "relevant_graph": {
-      "nodes": [
-        "CFG-RETRY-LIMIT",
-        "CODE-RETRY-ENGINE",
-        "TEST-RETRY-BOUNDARY",
-        "ALERT-RETRY-EXHAUSTED"
-      ],
+      "nodes": ["CFG-RETRY-LIMIT","CODE-RETRY-ENGINE","TEST-RETRY-BOUNDARY","ALERT-RETRY-EXHAUSTED"],
       "edges": [
         {"from": "CODE-RETRY-ENGINE", "to": "CFG-RETRY-LIMIT", "relation": "DEPENDS_ON"},
         {"from": "TEST-RETRY-BOUNDARY", "to": "CODE-RETRY-ENGINE", "relation": "VERIFIES"}
