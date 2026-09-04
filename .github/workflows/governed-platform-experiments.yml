@@ -27,6 +27,7 @@ jobs:
           import json
           from pathlib import Path
           root = Path("experiments/governed-platform")
+          mismatches = []
           for p in root.rglob("*.json"):
               data = json.loads(p.read_text(encoding="utf-8"))
               print("valid", p)
@@ -34,7 +35,11 @@ jobs:
                   actual = data.get("case_id")
                   expected = p.stem
                   if actual != expected:
-                      raise SystemExit(f"case identity mismatch: {p}: payload={actual!r} filename={expected!r}")
+                      mismatches.append((str(p), actual, expected))
+          if mismatches:
+              for path, actual, expected in mismatches:
+                  print(f"CASE_ID_MISMATCH {path}: payload={actual!r} filename={expected!r}")
+              raise SystemExit(f"{len(mismatches)} canonical case identity mismatch(es)")
           PY
       - name: Compile harness Python
         run: |
