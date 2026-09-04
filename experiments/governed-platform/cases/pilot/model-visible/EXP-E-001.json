@@ -1,0 +1,17 @@
+{
+  "case_id": "EXPE-001",
+  "experiment_id": "EXP-E",
+  "version": "1.0",
+  "risk": "MEDIUM",
+  "artifact_ref": "baseline:exp-e-baseline-v1",
+  "authoritative_intent_ref": "local-hidden:EXP-E-001.intent",
+  "invariant_refs": ["INV-RETRY-001"],
+  "model_visible": {
+    "baseline": "The accepted retry requirement remains: at most 3 automatic retries before human escalation. Code, config and tests are unchanged and already accepted.",
+    "proposed_change": "Edit DOC-RETRY-RUNBOOK wording from 'retry up to three times, then escalate' to 'perform no more than three automatic retry attempts before escalation'. The change request explicitly states that behavior and requirement semantics are unchanged.",
+    "graph_context": "DOC-RETRY-RUNBOOK depends on REQ-RETRY-001. No other artifact is changed by the proposal.",
+    "task": "Classify the change, identify which artifacts/evidence require revalidation, and state the correct lifecycle re-entry. Do not invalidate unrelated accepted evidence without a dependency reason."
+  },
+  "ground_truth_ref": "local-hidden:EXP-E-001.ground-truth.json",
+  "tags": ["change-impact", "compatible", "precision-control"]
+}
