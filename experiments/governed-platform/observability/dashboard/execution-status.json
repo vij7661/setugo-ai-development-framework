@@ -1,19 +1,27 @@
 {
+  "schema_version": "1.1",
   "campaign": "pilot1",
-  "experiment": "EXP-B",
-  "case_id": "EXP-B-003",
+  "experiment": "EXP-C",
+  "case_id": "EXP-C-006",
   "execution_status": "COMPLETE",
   "scientific_status": "AWAITING_ADJUDICATION",
   "human_required": false,
   "branch": "experiment/governed-platform-falsification-harness",
-  "execution_sha": "358c65337b05648a3639b6c003536f4ee393848c",
-  "run_id": 33883987440,
+  "execution_sha": "cb6e8a6bc8db8e6eed736aa56ee1bd0c858b51eb",
+  "run_id": 33895860107,
   "failure_classification": "NONE",
   "controller_decision": "COMPLETE",
   "next_case": null,
   "jobs": [
-    {"name": "Groq", "status": "completed", "conclusion": "success"},
-    {"name": "OpenRouter", "status": "completed", "conclusion": "success"}
+    {"name": "Groq primary blinded review", "status": "completed", "conclusion": "success"},
+    {"name": "Independent review with automatic provider failover", "status": "completed", "conclusion": "success"},
+    {"name": "Publish execution status", "status": "completed", "conclusion": "success"},
+    {"name": "Continue eligible experiment case", "status": "completed", "conclusion": "success"}
   ],
-  "source": "verified remote-pilot snapshot"
+  "provider_routing": [],
+  "event_type": "RECOVERED_AUTHORITATIVE_SNAPSHOT",
+  "last_event_at": "2026-09-04T16:34:43Z",
+  "last_publication_at": "2026-09-04T17:26:00Z",
+  "updated_at": "2026-09-04T16:34:43Z",
+  "source": "recovered from verified governed execution artifact/run metadata; publication pipeline repair in progress"
 }
