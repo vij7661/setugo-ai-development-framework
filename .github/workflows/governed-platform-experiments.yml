@@ -55,6 +55,7 @@ jobs:
           python -m py_compile experiments/governed-platform/observability/normalize_github_event.py
           python -m py_compile experiments/governed-platform/observability/render_status.py
           python -m py_compile experiments/governed-platform/continuation/controller.py
+          python -m py_compile experiments/governed-platform/continuation/diagnosis.py
           python -m py_compile experiments/governed-platform/governance/governor.py
           python -m py_compile experiments/governed-platform/governance/impact_graph.py
       - name: Run scorer regressions
@@ -71,7 +72,7 @@ jobs:
         run: python -m unittest -v test_observability.py
       - name: Run continuation authority regressions
         working-directory: experiments/governed-platform/continuation
-        run: python -m unittest -v test_controller.py
+        run: python -m unittest -v test_controller.py test_diagnosis.py
       - name: Run governor falsification regressions
         working-directory: experiments/governed-platform/governance
         run: python -m unittest -v test_governor.py test_impact_graph.py
