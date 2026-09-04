@@ -1,0 +1,36 @@
+{
+  "baseline_id": "exp-e-baseline-v1",
+  "version": 1,
+  "nodes": [
+    {"id": "INV-RETRY-001", "kind": "INVARIANT", "version": "1.0", "summary": "Automatic retry is bounded and escalates after the configured maximum."},
+    {"id": "REQ-RETRY-001", "kind": "REQUIREMENT", "version": "1.0", "summary": "A failed operation may be retried at most 3 times automatically before human escalation."},
+    {"id": "CFG-RETRY-LIMIT", "kind": "CONFIG", "version": "1.0", "summary": "retry_limit=3"},
+    {"id": "CODE-RETRY-ENGINE", "kind": "CODE", "version": "1.0", "summary": "Retry engine reads retry_limit and escalates when the limit is exhausted."},
+    {"id": "TEST-RETRY-BOUNDARY", "kind": "TEST", "version": "1.0", "summary": "Verifies three retries are allowed and the fourth attempt requires escalation."},
+    {"id": "DOC-RETRY-RUNBOOK", "kind": "DOCUMENTATION", "version": "1.0", "summary": "Operator runbook explains bounded retry and escalation."},
+    {"id": "ALERT-RETRY-EXHAUSTED", "kind": "OPERATIONS", "version": "1.0", "summary": "Alerting rule is configured from retry_limit but its graph edge is intentionally absent for EXP-E missing-edge falsification."},
+    {"id": "INV-AUDIT-001", "kind": "INVARIANT", "version": "1.0", "summary": "Every terminal governance decision must emit immutable audit evidence."},
+    {"id": "REQ-AUDIT-001", "kind": "REQUIREMENT", "version": "1.0", "summary": "Terminal decisions write an audit event before publication."},
+    {"id": "CODE-AUDIT-WRITER", "kind": "CODE", "version": "1.0", "summary": "Audit writer persists terminal-decision evidence."},
+    {"id": "TEST-AUDIT-TERMINAL", "kind": "TEST", "version": "1.0", "summary": "Verifies terminal decisions cannot publish without audit evidence."}
+  ],
+  "edges": [
+    {"from": "REQ-RETRY-001", "to": "INV-RETRY-001", "relation": "DERIVED_FROM"},
+    {"from": "CFG-RETRY-LIMIT", "to": "REQ-RETRY-001", "relation": "SATISFIES"},
+    {"from": "CODE-RETRY-ENGINE", "to": "REQ-RETRY-001", "relation": "IMPLEMENTS"},
+    {"from": "CODE-RETRY-ENGINE", "to": "CFG-RETRY-LIMIT", "relation": "DEPENDS_ON"},
+    {"from": "TEST-RETRY-BOUNDARY", "to": "CODE-RETRY-ENGINE", "relation": "VERIFIES"},
+    {"from": "TEST-RETRY-BOUNDARY", "to": "REQ-RETRY-001", "relation": "VERIFIES"},
+    {"from": "DOC-RETRY-RUNBOOK", "to": "REQ-RETRY-001", "relation": "DESCRIBES"},
+    {"from": "REQ-AUDIT-001", "to": "INV-AUDIT-001", "relation": "DERIVED_FROM"},
+    {"from": "CODE-AUDIT-WRITER", "to": "REQ-AUDIT-001", "relation": "IMPLEMENTS"},
+    {"from": "TEST-AUDIT-TERMINAL", "to": "CODE-AUDIT-WRITER", "relation": "VERIFIES"},
+    {"from": "TEST-AUDIT-TERMINAL", "to": "REQ-AUDIT-001", "relation": "VERIFIES"}
+  ],
+  "evidence": [
+    {"id": "review:retry-code-v1", "artifact_id": "CODE-RETRY-ENGINE", "artifact_version": "1.0"},
+    {"id": "ci:retry-boundary-v1", "artifact_id": "TEST-RETRY-BOUNDARY", "artifact_version": "1.0"},
+    {"id": "review:audit-code-v1", "artifact_id": "CODE-AUDIT-WRITER", "artifact_version": "1.0"},
+    {"id": "ci:audit-terminal-v1", "artifact_id": "TEST-AUDIT-TERMINAL", "artifact_version": "1.0"}
+  ]
+}
