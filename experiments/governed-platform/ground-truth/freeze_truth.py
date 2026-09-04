@@ -17,6 +17,7 @@ from typing import Iterable
 
 REQUIRED_CASE_IDS = {
     "EXP-A-001",
+    "EXP-A-002",
     "EXP-B-001",
     "EXP-B-002",
     "EXP-B-003",
@@ -26,7 +27,6 @@ REQUIRED_CASE_IDS = {
     "EXP-C-004",
     "EXP-C-005",
     "EXP-C-006",
-    "EXP-C-007",
 }
 
 
