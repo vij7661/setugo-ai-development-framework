@@ -38,6 +38,21 @@ def _result(decision: str, reason: str, state: dict, event: dict, *, mutate: boo
     }
 
 
+def _consume(current: dict, event_key: str, evidence_refs: set[str]) -> dict:
+    """Record an authoritative event before any downstream side effect is dispatched."""
+    consumed = deepcopy(current)
+    processed = set(consumed.get("processed_event_keys", []))
+    consumed["processed_event_keys"] = sorted(processed | {event_key})
+    consumed["state_version"] = int(consumed.get("state_version", 0)) + 1
+    consumed["last_event_key"] = event_key
+    consumed["last_evidence_refs"] = sorted(evidence_refs)
+    return consumed
+
+
+def _string_list(value: object) -> bool:
+    return isinstance(value, list) and all(isinstance(item, str) and item for item in value)
+
+
 def process_event(state: dict, event: dict) -> dict:
     """Evaluate one event against authoritative state.
 
@@ -65,8 +80,18 @@ def process_event(state: dict, event: dict) -> dict:
     if event["execution_sha"] != current.get("execution_sha"):
         return _result("IGNORE", "event is stale or bound to a different execution SHA", current, event)
 
-    if int(event["expected_state_version"]) != int(current.get("state_version", 0)):
+    try:
+        expected_version = int(event["expected_state_version"])
+        current_version = int(current.get("state_version", 0))
+    except (TypeError, ValueError):
+        return _result("BLOCK", "state version is malformed", current, event)
+    if expected_version != current_version:
         return _result("IGNORE", "event is out-of-order or lost an optimistic state-version race", current, event)
+
+    evidence_value = event.get("evidence_refs", [])
+    if not _string_list(evidence_value):
+        return _result("BLOCK", "evidence refs are malformed", current, event)
+    supplied_evidence = set(evidence_value)
 
     if current.get("manual_gate_active", False):
         return _result("REQUEST_HUMAN", "mandatory manual gate is active", current, event)
@@ -81,19 +106,36 @@ def process_event(state: dict, event: dict) -> dict:
             return _result("DIAGNOSE", "failed execution requires evidence-based classification", current, event)
         if classification not in FAILURE_CLASSES:
             return _result("BLOCK", "unrecognized failure classification", current, event)
-        if classification == "REQUIREMENT UNRESOLVED":
-            return _result("REQUEST_HUMAN", "requirement ambiguity cannot receive automatic corrective authority", current, event)
-        requested = set(event.get("requested_artifact_classes", []))
+        if not supplied_evidence:
+            return _result("BLOCK", "classified failure requires evidence refs", current, event)
+        requested_value = event.get("requested_artifact_classes", [])
+        if not _string_list(requested_value):
+            return _result("BLOCK", "requested corrective scope is malformed", current, event)
+        requested = set(requested_value)
         allowed = ALLOWED_BY_CLASS[classification]
         if not requested.issubset(allowed):
             return _result("BLOCK", "requested corrective scope exceeds classified authority", current, event)
-        return _result("DIAGNOSE", "failure classified; scoped repair may be dispatched by corrective controller", current, event)
+        consumed = _consume(current, event_key, supplied_evidence)
+        if classification == "REQUIREMENT UNRESOLVED":
+            return _result(
+                "REQUEST_HUMAN",
+                "requirement ambiguity cannot receive automatic corrective authority",
+                consumed,
+                event,
+                mutate=True,
+            )
+        return _result(
+            "DIAGNOSE",
+            "failure classified; scoped repair may be dispatched by corrective controller",
+            consumed,
+            event,
+            mutate=True,
+        )
 
     if conclusion != "success":
         return _result("IGNORE", "event is not a terminal success/failure signal", current, event)
 
     required_evidence = set(current.get("required_evidence", []))
-    supplied_evidence = set(event.get("evidence_refs", []))
     if not required_evidence.issubset(supplied_evidence):
         return _result("BLOCK", "required evidence is incomplete", current, event)
 
@@ -104,9 +146,6 @@ def process_event(state: dict, event: dict) -> dict:
     if requested_transition not in {"CONTINUING", "COMPLETE"}:
         return _result("BLOCK", "unsupported success transition", current, event)
 
-    current["processed_event_keys"] = sorted(processed | {event_key})
-    current["state_version"] = int(current.get("state_version", 0)) + 1
+    current = _consume(current, event_key, supplied_evidence)
     current["status"] = requested_transition
-    current["last_event_key"] = event_key
-    current["last_evidence_refs"] = sorted(supplied_evidence)
     return _result(requested_transition if requested_transition == "COMPLETE" else "CONTINUE", "validated event advanced authoritative state", current, event, mutate=True)
