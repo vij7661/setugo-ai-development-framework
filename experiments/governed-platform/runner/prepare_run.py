@@ -38,17 +38,27 @@ def select_mechanism(config: dict[str, Any], mechanism_id: str) -> dict[str, Any
     return mechanism
 
 
-def validate_case(case: dict[str, Any]) -> None:
+def validate_case(case: dict[str, Any], expected_case_id: str | None = None) -> None:
     required = {"case_id", "experiment_id", "version", "risk", "artifact_ref", "model_visible"}
     missing = sorted(required - case.keys())
     if missing:
         raise ValueError(f"case missing required fields: {', '.join(missing)}")
     if not isinstance(case["model_visible"], dict):
         raise ValueError("model_visible must be an object")
+    if expected_case_id is not None and case["case_id"] != expected_case_id:
+        raise ValueError(
+            f"case identity mismatch: file identity {expected_case_id!r} != payload case_id {case['case_id']!r}"
+        )
 
 
-def prepare(case: dict[str, Any], mechanism: dict[str, Any], instruction_version: str) -> dict[str, Any]:
-    validate_case(case)
+def prepare(
+    case: dict[str, Any],
+    mechanism: dict[str, Any],
+    instruction_version: str,
+    *,
+    expected_case_id: str | None = None,
+) -> dict[str, Any]:
+    validate_case(case, expected_case_id=expected_case_id)
     model_visible = case["model_visible"]
     case_binding = {
         "case_id": case["case_id"],
@@ -79,7 +89,11 @@ def prepare(case: dict[str, Any], mechanism: dict[str, Any], instruction_version
             "privacy_class": mechanism.get("privacy_class"),
         },
         "model_visible": model_visible,
-        "prohibited_fields_confirmed_absent": ["ground_truth_ref", "authoritative_intent_ref", "invariant_refs"],
+        "prohibited_fields_confirmed_absent": [
+            "ground_truth_ref",
+            "authoritative_intent_ref",
+            "invariant_refs",
+        ],
     }
 
 
@@ -95,7 +109,12 @@ def main() -> int:
     case = load_json(args.case)
     config = load_json(args.mechanisms)
     mechanism = select_mechanism(config, args.mechanism_id)
-    envelope = prepare(case, mechanism, args.instruction_version)
+    envelope = prepare(
+        case,
+        mechanism,
+        args.instruction_version,
+        expected_case_id=args.case.stem,
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(envelope, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(args.out)
