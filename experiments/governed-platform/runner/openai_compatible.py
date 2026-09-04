@@ -15,6 +15,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from adapters import AdapterResult, MechanismAdapter
+from review_contract import REVIEW_OUTPUT_SCHEMA_INSTRUCTION
 
 RETRYABLE_HTTP = frozenset({429, 500, 502, 503, 504})
 
@@ -59,7 +60,14 @@ class OpenAICompatibleAdapter(MechanismAdapter):
         payload = {
             "model": self._config.model,
             "messages": [
-                {"role": "system", "content": "You are an independent software-review mechanism. Use only the supplied case content. Report concrete material defects; do not invent hidden requirements."},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an independent software-review mechanism. Use only the supplied case content. "
+                        "Report concrete material defects or requested change-impact conclusions; do not invent hidden requirements.\n\n"
+                        + REVIEW_OUTPUT_SCHEMA_INSTRUCTION
+                    ),
+                },
                 {"role": "user", "content": json.dumps(envelope["model_visible"], ensure_ascii=False)},
             ],
             "temperature": 0,
@@ -69,7 +77,16 @@ class OpenAICompatibleAdapter(MechanismAdapter):
         last_error: str | None = None
 
         for attempt in range(1, self._config.max_attempts + 1):
-            request = Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "User-Agent": "setugo-governed-platform-pilot/1.0"}, method="POST")
+            request = Request(
+                endpoint,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                    "User-Agent": "setugo-governed-platform-pilot/1.0",
+                },
+                method="POST",
+            )
             try:
                 with urlopen(request, timeout=self._config.timeout_seconds) as response:
                     body = json.loads(response.read().decode("utf-8"))
@@ -99,6 +116,17 @@ class OpenAICompatibleAdapter(MechanismAdapter):
 
             latency_ms = max(0, int((time.perf_counter() - started) * 1000))
             usage = body.get("usage") or {}
-            return AdapterResult(status="PASS", raw_output=raw_output, provider=self._config.provider_id, mechanism_version=body.get("model") or self._config.model, input_tokens=usage.get("prompt_tokens"), output_tokens=usage.get("completion_tokens"), estimated_cost_usd=0.0, latency_ms=latency_ms, evidence_eligible=True)
+            return AdapterResult(
+                status="PASS",
+                raw_output=raw_output,
+                provider=self._config.provider_id,
+                mechanism_version=body.get("model") or self._config.model,
+                input_tokens=usage.get("prompt_tokens"),
+                output_tokens=usage.get("completion_tokens"),
+                estimated_cost_usd=0.0,
+                latency_ms=latency_ms,
+                evidence_eligible=True,
+                runtime_metadata={"provider_attempts": attempt},
+            )
 
         raise RuntimeError(last_error or "provider failed without a usable completion")
