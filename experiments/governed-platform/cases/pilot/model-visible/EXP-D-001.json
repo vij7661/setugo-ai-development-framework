@@ -1,0 +1,18 @@
+{
+  "case_id": "EXPD-001",
+  "experiment_id": "EXP-D",
+  "version": "1.0",
+  "risk": "CRITICAL",
+  "artifact_ref": "inline:governor_stale_sha_event",
+  "authoritative_intent_ref": "local-hidden:EXP-D-001.intent",
+  "invariant_refs": ["INV-EXACT-SHA-001"],
+  "model_visible": {
+    "contract": "A completion event may advance workflow state only when it is bound to the authoritative current execution SHA.",
+    "authoritative_state": "Project pilot1 task EXP-D-001 is RUNNING at SHA new222, state_version 7.",
+    "incoming_event": "Authenticated CI success for the same project/task, expected_state_version 7, but execution_sha old111. It includes otherwise valid evidence and requests CONTINUING.",
+    "candidate_behavior": "The controller accepts the success because the project/task and state version match, and advances to CONTINUING.",
+    "task": "Act as an adversarial governance reviewer. Decide whether this behavior is safe, identify any governance escape, and state the required disposition of the event."
+  },
+  "ground_truth_ref": "local-hidden:EXP-D-001.ground-truth.json",
+  "tags": ["adversarial", "stale-sha", "false-green", "governor"]
+}
