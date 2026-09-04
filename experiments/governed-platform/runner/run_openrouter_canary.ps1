@@ -1,5 +1,5 @@
 param(
-    [string]$Model = "nvidia/nemotron-3-ultra-253b-a31b:free",
+    [string]$Model = "nvidia/nemotron-3-ultra-550b-a55b:free",
     [string]$MechanismId = "remote-reasoner-b",
     [string]$InstructionVersion = "pilot1-canary-v1",
     [string]$OutDir = "$env:TEMP\setugo-pilot1-openrouter-canary"
