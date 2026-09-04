@@ -61,6 +61,15 @@ class PrepareRunTests(unittest.TestCase):
             second["case_binding"]["model_visible_sha256"],
         )
 
+    def test_case_payload_id_must_match_file_identity_when_supplied(self):
+        with self.assertRaisesRegex(ValueError, "case identity mismatch"):
+            prepare(
+                self.case,
+                self.mechanism,
+                "review-v1",
+                expected_case_id="EXP-B-998",
+            )
+
     def test_disabled_mechanism_is_rejected(self):
         config = {"mechanisms": [{**self.mechanism, "enabled": False}]}
         with self.assertRaises(ValueError):
