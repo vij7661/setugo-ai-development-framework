@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "case.schema.json",
+  "title": "Governed Platform Experiment Case",
+  "type": "object",
+  "required": ["case_id", "experiment_id", "version", "risk", "artifact_ref", "model_visible"],
+  "properties": {
+    "case_id": {"type": "string", "pattern": "^[A-Z]+-[A-Z0-9-]+$"},
+    "experiment_id": {"enum": ["EXP-A", "EXP-B", "EXP-C", "EXP-D", "EXP-E", "EXP-F"]},
+    "version": {"type": "string"},
+    "risk": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "artifact_ref": {"type": "string"},
+    "authoritative_intent_ref": {"type": ["string", "null"]},
+    "invariant_refs": {"type": "array", "items": {"type": "string"}, "default": []},
+    "model_visible": {"type": "object"},
+    "ground_truth_ref": {"type": ["string", "null"], "description": "Prefer a hidden/local reference when disclosure would leak the answer."},
+    "tags": {"type": "array", "items": {"type": "string"}, "default": []}
+  },
+  "additionalProperties": false
+}
