@@ -1,0 +1,88 @@
+name: Governed Platform Mistral Qualification
+
+on:
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: "Blinded pilot case used for qualification"
+        required: true
+        default: "EXP-C-001"
+        type: string
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/mistral-qualification-trigger.json]
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-mistral:
+    name: Mistral blinded qualification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+      MECHANISM_ID: remote-reasoner-c
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Resolve qualification case and candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CASE_ID="${{ inputs.case_id }}"
+          else
+            CASE_ID="$(python -c 'import json; print(json.load(open(".github/mistral-qualification-trigger.json"))["case_id"])')"
+          fi
+          python - "$MECHANISMS" "$MECHANISM_ID" "$CASE_ID" <<'PY'
+          import json, sys
+          cfg=json.load(open(sys.argv[1],encoding='utf-8'))
+          match=[m for m in cfg['mechanisms'] if m['mechanism_id']==sys.argv[2]]
+          if len(match)!=1: raise SystemExit('candidate mechanism missing or duplicated')
+          m=match[0]
+          if m['provider']!='mistral': raise SystemExit('qualification workflow candidate is not mistral')
+          if m['qualification_ref']!='UNQUALIFIED-CANDIDATE': raise SystemExit('candidate must start unqualified')
+          print('candidate',m['provider'],m['model'],'case',sys.argv[3])
+          PY
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+      - name: Require Mistral secret
+        run: test -n "$MISTRAL_API_KEY" || { echo 'MISTRAL_API_KEY repository secret is required'; exit 2; }
+      - name: Prepare blinded envelope
+        run: |
+          mkdir -p pilot-results/mistral
+          python experiments/governed-platform/runner/prepare_run.py \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
+            --mechanisms "$MECHANISMS" \
+            --mechanism-id "$MECHANISM_ID" \
+            --instruction-version pilot1-mistral-qualification-v1 \
+            --out "pilot-results/mistral/${CASE_ID}.envelope.json"
+      - name: Resolve runtime provider configuration
+        run: |
+          python - "$MECHANISMS" "$MECHANISM_ID" <<'PY' >> "$GITHUB_ENV"
+          import json, sys
+          cfg=json.load(open(sys.argv[1],encoding='utf-8'))
+          m=next(x for x in cfg['mechanisms'] if x['mechanism_id']==sys.argv[2])
+          print('PROVIDER='+m['provider'])
+          print('BASE_URL='+m['base_url'])
+          print('MODEL='+m['model'])
+          PY
+      - name: Run Mistral blinded qualification
+        run: |
+          python experiments/governed-platform/runner/run_remote_canary.py \
+            --envelope "pilot-results/mistral/${CASE_ID}.envelope.json" \
+            --provider "$PROVIDER" \
+            --base-url "$BASE_URL" \
+            --model "$MODEL" \
+            --api-key-env MISTRAL_API_KEY \
+            --timeout-seconds 120 \
+            --out "pilot-results/mistral/${CASE_ID}.mistral.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pilot-mistral-qualification
+          path: pilot-results/mistral/
+          if-no-files-found: warn
