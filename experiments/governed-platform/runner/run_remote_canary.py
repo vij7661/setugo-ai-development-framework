@@ -50,7 +50,7 @@ def main() -> int:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(normalized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(args.out)
-    return 0 if result.status == "PASS" else 2
+    return 0 if normalized["status"] == "PASS" and normalized["evidence_eligible"] else 2
 
 
 if __name__ == "__main__":
