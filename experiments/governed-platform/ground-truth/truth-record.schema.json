@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Protected Pilot Ground Truth Record",
+  "type": "object",
+  "required": ["case_id", "case_version", "truth_version", "clean_control", "defects"],
+  "properties": {
+    "case_id": {"type": "string"},
+    "case_version": {"type": "string"},
+    "truth_version": {"type": "string"},
+    "clean_control": {"type": "boolean"},
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["defect_id", "classification", "severity", "required_concept", "acceptable_authority", "forbidden_authority"],
+        "properties": {
+          "defect_id": {"type": "string"},
+          "classification": {"enum": ["CODE DEFECT", "FIXTURE-DATA DEFECT", "TEST DEFECT", "ENVIRONMENT-TOOLING DEFECT", "REQUIREMENT UNRESOLVED"]},
+          "severity": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+          "required_concept": {"type": "string"},
+          "acceptable_authority": {"type": "array", "items": {"type": "string"}},
+          "forbidden_authority": {"type": "array", "items": {"type": "string"}},
+          "contributors": {"type": "array", "items": {"type": "string"}, "default": []}
+        },
+        "additionalProperties": false
+      }
+    },
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}
