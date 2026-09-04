@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import json
 import time
 from typing import Any, Mapping
+from urllib import error, request
 
 
 @dataclass(frozen=True)
@@ -23,6 +25,7 @@ class AdapterResult:
     estimated_cost_usd: float | None
     latency_ms: int
     evidence_eligible: bool
+    runtime_metadata: Mapping[str, Any] | None = None
 
 
 class MechanismAdapter(ABC):
@@ -43,7 +46,6 @@ class MockAdapter(MechanismAdapter):
         if "model_visible" not in envelope:
             raise ValueError("prepared envelope must contain model_visible")
         started = time.perf_counter()
-        # Deliberately does not inspect hidden truth, provider credentials, or repo state.
         raw = self._response
         latency_ms = max(0, int((time.perf_counter() - started) * 1000))
         return AdapterResult(
@@ -56,6 +58,105 @@ class MockAdapter(MechanismAdapter):
             estimated_cost_usd=0.0,
             latency_ms=latency_ms,
             evidence_eligible=False,
+            runtime_metadata={"evidence_class": "NON_EXPERIMENTAL"},
+        )
+
+
+class OllamaAdapter(MechanismAdapter):
+    """Local Ollama HTTP adapter using only the model-visible prepared envelope."""
+
+    def __init__(
+        self,
+        model: str,
+        base_url: str = "http://127.0.0.1:11434",
+        timeout_seconds: int = 600,
+    ) -> None:
+        if not model:
+            raise ValueError("model is required")
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.timeout_seconds = timeout_seconds
+
+    @staticmethod
+    def _prompt(envelope: Mapping[str, Any]) -> str:
+        if "model_visible" not in envelope:
+            raise ValueError("prepared envelope must contain model_visible")
+        payload = json.dumps(envelope["model_visible"], ensure_ascii=False, sort_keys=True)
+        return (
+            "You are an independent evaluator in a blinded software-engineering experiment. "
+            "Use only the supplied case payload. Do not assume hidden requirements. "
+            "Report concrete material defects supported by the payload; if the task asks for "
+            "diagnosis, classify the failure and state authorized artifact scope. If no material "
+            "defect is supported, say NO MATERIAL DEFECT FOUND.\n\nCASE PAYLOAD:\n" + payload
+        )
+
+    def invoke(self, envelope: Mapping[str, Any]) -> AdapterResult:
+        body = {
+            "model": self.model,
+            "prompt": self._prompt(envelope),
+            "stream": False,
+        }
+        encoded = json.dumps(body).encode("utf-8")
+        req = request.Request(
+            f"{self.base_url}/api/generate",
+            data=encoded,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        started = time.perf_counter()
+        try:
+            with request.urlopen(req, timeout=self.timeout_seconds) as response:
+                data = json.loads(response.read().decode("utf-8"))
+        except (error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            latency_ms = max(0, int((time.perf_counter() - started) * 1000))
+            return AdapterResult(
+                status="ERROR",
+                raw_output=f"OLLAMA_ADAPTER_ERROR: {exc}",
+                provider="ollama-local",
+                mechanism_version=self.model,
+                input_tokens=None,
+                output_tokens=None,
+                estimated_cost_usd=0.0,
+                latency_ms=latency_ms,
+                evidence_eligible=False,
+                runtime_metadata={"base_url": self.base_url, "model": self.model},
+            )
+
+        latency_ms = max(0, int((time.perf_counter() - started) * 1000))
+        raw_output = data.get("response")
+        if not isinstance(raw_output, str):
+            return AdapterResult(
+                status="ERROR",
+                raw_output="OLLAMA_ADAPTER_ERROR: response field missing or invalid",
+                provider="ollama-local",
+                mechanism_version=str(data.get("model") or self.model),
+                input_tokens=data.get("prompt_eval_count"),
+                output_tokens=data.get("eval_count"),
+                estimated_cost_usd=0.0,
+                latency_ms=latency_ms,
+                evidence_eligible=False,
+                runtime_metadata={"done_reason": data.get("done_reason")},
+            )
+
+        return AdapterResult(
+            status="PASS",
+            raw_output=raw_output,
+            provider="ollama-local",
+            mechanism_version=str(data.get("model") or self.model),
+            input_tokens=data.get("prompt_eval_count"),
+            output_tokens=data.get("eval_count"),
+            estimated_cost_usd=0.0,
+            latency_ms=latency_ms,
+            evidence_eligible=True,
+            runtime_metadata={
+                "done": data.get("done"),
+                "done_reason": data.get("done_reason"),
+                "total_duration_ns": data.get("total_duration"),
+                "load_duration_ns": data.get("load_duration"),
+                "prompt_eval_duration_ns": data.get("prompt_eval_duration"),
+                "eval_duration_ns": data.get("eval_duration"),
+                "base_url": self.base_url,
+            },
         )
 
 
@@ -63,16 +164,33 @@ def normalize_adapter_result(
     envelope: Mapping[str, Any], result: AdapterResult
 ) -> dict[str, Any]:
     """Normalize adapter output without adjudicating correctness."""
-    required = ("run_id", "case_id", "case_version", "mechanism_id")
-    missing = [name for name in required if name not in envelope]
+    case_binding = envelope.get("case_binding", {})
+    mechanism = envelope.get("mechanism", {})
+
+    run_id = envelope.get("run_id")
+    case_id = envelope.get("case_id", case_binding.get("case_id"))
+    case_version = envelope.get("case_version", case_binding.get("case_version"))
+    mechanism_id = envelope.get("mechanism_id", mechanism.get("mechanism_id"))
+    missing = [
+        name
+        for name, value in (
+            ("run_id", run_id),
+            ("case_id", case_id),
+            ("case_version", case_version),
+            ("mechanism_id", mechanism_id),
+        )
+        if value is None
+    ]
     if missing:
         raise ValueError(f"prepared envelope missing required fields: {missing}")
 
     return {
-        "run_id": envelope["run_id"],
-        "case_id": envelope["case_id"],
-        "case_version": envelope["case_version"],
-        "mechanism_id": envelope["mechanism_id"],
+        "run_id": run_id,
+        "case_id": case_id,
+        "case_version": case_version,
+        "case_model_visible_sha256": case_binding.get("model_visible_sha256"),
+        "instruction_version": envelope.get("instruction_version"),
+        "mechanism_id": mechanism_id,
         "mechanism_version": result.mechanism_version,
         "provider": result.provider,
         "status": result.status,
@@ -88,4 +206,5 @@ def normalize_adapter_result(
         "estimated_cost_usd": result.estimated_cost_usd,
         "latency_ms": result.latency_ms,
         "evidence_eligible": result.evidence_eligible,
+        "runtime_metadata": dict(result.runtime_metadata or {}),
     }
