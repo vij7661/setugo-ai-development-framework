@@ -1,0 +1,16 @@
+{
+  "warning": "EXAMPLE FORMAT ONLY. Do not commit real pilot ground truth when evaluated models can read this repository.",
+  "case_id": "EXAMPLE-001",
+  "version": "1.0",
+  "defects": [
+    {
+      "defect_id": "D1",
+      "class": "semantic-or-technical-defect-class",
+      "severity": "HIGH",
+      "required_concept": "Concise criterion a finding must identify to receive credit."
+    }
+  ],
+  "acceptable_authority": ["artifact/path/or/class"],
+  "forbidden_authority": ["protected/artifact/or/class"],
+  "adjudication_notes": "Stored locally or in a protected evaluation store, not in model-visible context."
+}
