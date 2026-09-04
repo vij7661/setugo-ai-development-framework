@@ -95,22 +95,51 @@ jobs:
         run: |
           python - <<'PY'
           import json, os
-          case_id=os.environ['CASE_ID']
-          event={'campaign':'pilot1','experiment':case_id.rsplit('-',1)[0],'case_id':case_id,'branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq','status':'completed','conclusion':os.environ['GROQ_RESULT']},{'name':'OpenRouter','status':'completed','conclusion':os.environ['OPENROUTER_RESULT']}],'scientific_status':'AWAITING_ADJUDICATION','controller_decision':'CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE','next_case':os.environ.get('NEXT_CASE') or None,'human_required':False}
-          open('execution-event.json','w',encoding='utf-8').write(json.dumps(event))
+          case_id = os.environ['CASE_ID']
+          results = [os.environ['GROQ_RESULT'], os.environ['OPENROUTER_RESULT']]
+          all_success = all(r == 'success' for r in results)
+          event = {
+            'campaign': 'pilot1',
+            'experiment': case_id.rsplit('-', 1)[0],
+            'case_id': case_id,
+            'branch': os.environ['GITHUB_REF_NAME'],
+            'execution_sha': os.environ['GITHUB_SHA'],
+            'run_id': int(os.environ['GITHUB_RUN_ID']),
+            'jobs': [
+              {'name': 'Groq', 'status': 'completed', 'conclusion': os.environ['GROQ_RESULT']},
+              {'name': 'OpenRouter', 'status': 'completed', 'conclusion': os.environ['OPENROUTER_RESULT']},
+            ],
+            'failure_classification': 'NONE' if all_success else 'ENVIRONMENT-TOOLING DEFECT',
+            'controller_decision': ('CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE') if all_success else 'DIAGNOSE',
+            'next_case': (os.environ.get('NEXT_CASE') or None) if all_success else None,
+            'human_required': False,
+          }
+          open('execution-event.json', 'w', encoding='utf-8').write(json.dumps(event))
           PY
-          python experiments/governed-platform/observability/normalize_github_event.py --event execution-event.json --out execution-status.json
+          python experiments/governed-platform/observability/normalize_github_event.py \
+            --event execution-event.json \
+            --out execution-status.json \
+            --expected-branch "$GITHUB_REF_NAME" \
+            --expected-sha "$GITHUB_SHA" \
+            --expected-case "$CASE_ID" \
+            --expected-run-id "$GITHUB_RUN_ID"
           python experiments/governed-platform/observability/render_status.py --state execution-status.json --out EXECUTION_STATUS.md
+      - name: Publish status in Actions summary
+        if: always()
+        run: |
+          if [ -f EXECUTION_STATUS.md ]; then cat EXECUTION_STATUS.md >> "$GITHUB_STEP_SUMMARY"; else echo "Execution status generation failed." >> "$GITHUB_STEP_SUMMARY"; fi
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: governed-platform-execution-status
           path: |
             execution-status.json
             EXECUTION_STATUS.md
+          if-no-files-found: warn
 
   continue-campaign:
     name: Continue eligible experiment case
-    needs: [groq, openrouter, observability]
+    needs: [groq, openrouter]
     if: ${{ needs.groq.result == 'success' && needs.openrouter.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
