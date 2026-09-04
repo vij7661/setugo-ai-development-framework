@@ -2,6 +2,38 @@ name: Governed Platform Dashboard Pages
 
 on:
   workflow_dispatch:
+    inputs:
+      execution_status:
+        description: "Authoritative lifecycle state to publish"
+        required: false
+        type: string
+      campaign:
+        required: false
+        type: string
+      experiment:
+        required: false
+        type: string
+      case_id:
+        required: false
+        type: string
+      execution_branch:
+        required: false
+        type: string
+      execution_sha:
+        required: false
+        type: string
+      source_run_id:
+        required: false
+        type: string
+      controller_decision:
+        required: false
+        type: string
+      scientific_status:
+        required: false
+        type: string
+      next_case:
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -38,6 +70,53 @@ jobs:
           mkdir -p _site
           cp experiments/governed-platform/observability/dashboard/index.html _site/index.html
           cp experiments/governed-platform/observability/dashboard/execution-status.json _site/execution-status.json
+      - name: Publish dispatched lifecycle state
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_status != '' }}
+        env:
+          EXECUTION_STATUS: ${{ inputs.execution_status }}
+          CAMPAIGN: ${{ inputs.campaign }}
+          EXPERIMENT: ${{ inputs.experiment }}
+          CASE_ID: ${{ inputs.case_id }}
+          EXECUTION_BRANCH: ${{ inputs.execution_branch }}
+          EXECUTION_SHA: ${{ inputs.execution_sha }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          CONTROLLER_DECISION: ${{ inputs.controller_decision }}
+          SCIENTIFIC_STATUS: ${{ inputs.scientific_status }}
+          NEXT_CASE: ${{ inputs.next_case }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          def opt(name):
+              value=os.environ.get(name,'').strip()
+              return value or None
+          run_id=opt('SOURCE_RUN_ID')
+          state={
+              'campaign': opt('CAMPAIGN'),
+              'experiment': opt('EXPERIMENT'),
+              'case_id': opt('CASE_ID'),
+              'execution_status': opt('EXECUTION_STATUS'),
+              'scientific_status': opt('SCIENTIFIC_STATUS') or 'AWAITING_ADJUDICATION',
+              'controller_decision': opt('CONTROLLER_DECISION') or 'WAIT',
+              'failure_classification': 'NONE',
+              'human_required': False,
+              'next_case': opt('NEXT_CASE'),
+              'run_id': int(run_id) if run_id and run_id.isdigit() else run_id,
+              'execution_sha': opt('EXECUTION_SHA'),
+              'branch': opt('EXECUTION_BRANCH'),
+              'jobs': [],
+              'event_type': 'LIFECYCLE_STATE_PUBLISHED',
+              'updated_at': datetime.now(timezone.utc).isoformat(),
+              'source': 'governed workflow dispatch'
+          }
+          required=['campaign','experiment','case_id','execution_status','execution_sha','branch','run_id']
+          missing=[k for k in required if state.get(k) in (None,'')]
+          if missing:
+              raise SystemExit('refusing incomplete lifecycle publication: '+','.join(missing))
+          with open('_site/execution-status.json','w',encoding='utf-8') as f:
+              json.dump(state,f,indent=2)
+              f.write('\n')
+          PY
       - name: Resolve latest governed execution status
         if: ${{ github.event_name == 'workflow_run' }}
         env:
