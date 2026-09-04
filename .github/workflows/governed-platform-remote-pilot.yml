@@ -6,7 +6,7 @@ on:
       case_id:
         description: "Blinded pilot case ID"
         required: true
-        default: "EXP-A-002"
+        default: "EXP-C-001"
         type: string
   push:
     branches: [experiment/governed-platform-falsification-harness]
@@ -17,6 +17,7 @@ permissions:
 
 env:
   CAMPAIGN_MANIFEST: experiments/governed-platform/continuation/campaign.pilot1.json
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
 
 jobs:
   publish-queued:
@@ -41,18 +42,13 @@ jobs:
           PY
           EXPERIMENT="${CASE_ID%-*}"
           gh workflow run governed-platform-dashboard-pages.yml --ref main \
-            -f execution_status=QUEUED \
-            -f campaign=pilot1 \
-            -f experiment="$EXPERIMENT" \
-            -f case_id="$CASE_ID" \
-            -f execution_branch="$GITHUB_REF_NAME" \
-            -f execution_sha="$GITHUB_SHA" \
-            -f source_run_id="$GITHUB_RUN_ID" \
-            -f controller_decision=WAIT \
-            -f scientific_status=AWAITING_ADJUDICATION
+            -f execution_status=QUEUED -f campaign=pilot1 -f experiment="$EXPERIMENT" \
+            -f case_id="$CASE_ID" -f execution_branch="$GITHUB_REF_NAME" \
+            -f execution_sha="$GITHUB_SHA" -f source_run_id="$GITHUB_RUN_ID" \
+            -f controller_decision=WAIT -f scientific_status=AWAITING_ADJUDICATION
 
   groq:
-    name: Groq blinded review
+    name: Groq primary blinded review
     needs: publish-queued
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -71,8 +67,8 @@ jobs:
       - name: Require Groq secret
         run: test -n "$GROQ_API_KEY" || exit 2
       - name: Prepare blinded envelope
-        run: mkdir -p pilot-results/groq && python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json --mechanism-id remote-reasoner-a --instruction-version pilot1-ci-v1 --out "pilot-results/groq/${CASE_ID}.envelope.json"
-      - name: Run Groq blinded review
+        run: mkdir -p pilot-results/groq && python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version pilot1-ci-v2 --out "pilot-results/groq/${CASE_ID}.envelope.json"
+      - name: Run Groq blinded review with bounded retry
         run: python experiments/governed-platform/runner/run_remote_canary.py --envelope "pilot-results/groq/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --out "pilot-results/groq/${CASE_ID}.groq.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -81,13 +77,16 @@ jobs:
           path: pilot-results/groq/
           if-no-files-found: warn
 
-  openrouter:
-    name: OpenRouter blinded review
+  independent-router:
+    name: Independent review with automatic provider failover
     needs: publish-queued
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -98,22 +97,27 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
           echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
-      - name: Require OpenRouter secret
-        run: test -n "$OPENROUTER_API_KEY" || exit 2
-      - name: Prepare blinded envelope
-        run: mkdir -p pilot-results/openrouter && python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms experiments/governed-platform/runner/mechanisms.remote-free.example.json --mechanism-id remote-reasoner-b --instruction-version pilot1-ci-v1 --out "pilot-results/openrouter/${CASE_ID}.envelope.json"
-      - name: Run OpenRouter blinded review
-        run: python experiments/governed-platform/runner/run_remote_canary.py --envelope "pilot-results/openrouter/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --out "pilot-results/openrouter/${CASE_ID}.openrouter.raw-result.json"
+      - name: Route independent review across eligible providers
+        shell: bash
+        run: |
+          mkdir -p pilot-results/routed
+          python experiments/governed-platform/runner/provider_router.py \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
+            --mechanisms "$MECHANISMS" \
+            --order "remote-reasoner-b,remote-reasoner-c,remote-reasoner-d,remote-reasoner-a" \
+            --instruction-version pilot1-routed-independent-v1 \
+            --out "pilot-results/routed/${CASE_ID}.routed.raw-result.json" \
+            --evidence-out "pilot-results/routed/${CASE_ID}.routing-evidence.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: pilot-openrouter-results
-          path: pilot-results/openrouter/
+          name: pilot-routed-independent-results
+          path: pilot-results/routed/
           if-no-files-found: warn
 
   observability:
     name: Publish execution status
-    needs: [groq, openrouter]
+    needs: [groq, independent-router]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -137,12 +141,12 @@ jobs:
       - name: Normalize authoritative execution state
         env:
           GROQ_RESULT: ${{ needs.groq.result }}
-          OPENROUTER_RESULT: ${{ needs.openrouter.result }}
+          ROUTER_RESULT: ${{ needs.independent-router.result }}
         run: |
           python - <<'PY'
           import json, os
-          case_id=os.environ['CASE_ID']; results=[os.environ['GROQ_RESULT'],os.environ['OPENROUTER_RESULT']]; ok=all(r=='success' for r in results)
-          event={'campaign':'pilot1','experiment':case_id.rsplit('-',1)[0],'case_id':case_id,'branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq','status':'completed','conclusion':results[0]},{'name':'OpenRouter','status':'completed','conclusion':results[1]}],'failure_classification':'NONE' if ok else 'ENVIRONMENT-TOOLING DEFECT','controller_decision':('CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE') if ok else 'DIAGNOSE','next_case':(os.environ.get('NEXT_CASE') or None) if ok else None,'human_required':False}
+          case_id=os.environ['CASE_ID']; results=[os.environ['GROQ_RESULT'],os.environ['ROUTER_RESULT']]; ok=all(r=='success' for r in results)
+          event={'campaign':'pilot1','experiment':case_id.rsplit('-',1)[0],'case_id':case_id,'branch':os.environ['GITHUB_REF_NAME'],'execution_sha':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'jobs':[{'name':'Groq primary','status':'completed','conclusion':results[0]},{'name':'Independent provider router','status':'completed','conclusion':results[1]}],'failure_classification':'NONE' if ok else 'ENVIRONMENT-TOOLING DEFECT','controller_decision':('CONTINUE' if os.environ.get('NEXT_CASE') else 'COMPLETE') if ok else 'DIAGNOSE','next_case':(os.environ.get('NEXT_CASE') or None) if ok else None,'human_required':False}
           open('execution-event.json','w',encoding='utf-8').write(json.dumps(event))
           PY
           python experiments/governed-platform/observability/normalize_github_event.py --event execution-event.json --out execution-status.json --expected-branch "$GITHUB_REF_NAME" --expected-sha "$GITHUB_SHA" --expected-case "$CASE_ID" --expected-run-id "$GITHUB_RUN_ID"
@@ -166,8 +170,8 @@ jobs:
 
   continue-campaign:
     name: Continue eligible experiment case
-    needs: [groq, openrouter]
-    if: ${{ needs.groq.result == 'success' && needs.openrouter.result == 'success' }}
+    needs: [groq, independent-router]
+    if: ${{ needs.groq.result == 'success' && needs.independent-router.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -181,7 +185,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then CURRENT="${{ inputs.case_id }}"; else CURRENT="$(python -c 'import json; print(json.load(open(".github/pilot-trigger.json"))["case_id"])')"; fi
           NEXT="$(python - "$CAMPAIGN_MANIFEST" "$CURRENT" <<'PY'
           import json,sys
-          manifest=json.load(open(sys.argv[1],encoding='utf-8')); cases=manifest['cases']; current=sys.argv[2]
+          cases=json.load(open(sys.argv[1],encoding='utf-8'))['cases']; current=sys.argv[2]
           if current not in cases: raise SystemExit('case is not eligible in campaign manifest')
           i=cases.index(current); print(cases[i+1] if i+1 < len(cases) else '')
           PY
