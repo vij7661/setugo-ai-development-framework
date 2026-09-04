@@ -1,10 +1,23 @@
 # Later-Stage Adversarial Experiments
 
-These experiments are registered now but intentionally **not implemented first**. They require a minimal governor/orchestrator to exist.
+These experiments require the minimum governance capabilities appropriate to their attack surface. Activation is evidence-based rather than calendar-based.
 
 ## EXP-D — Adversarial System Escape
 
-Status: REGISTERED / DEFERRED UNTIL MINIMAL GOVERNOR EXISTS
+Status: **ACTIVE — MINIMAL GOVERNOR QUALIFIED FOR PILOT ATTACKS**
+
+Activation evidence:
+- deterministic minimal governor implemented in `governance/governor.py`;
+- exact project/task/SHA binding;
+- authenticated-event requirement;
+- replay/deduplication guard using stable source + event identity;
+- optimistic state-version guard for race/out-of-order events;
+- mandatory human-gate enforcement;
+- required-evidence and COMPLETE-promotion enforcement;
+- corrective-scope restriction by canonical failure class;
+- CI regression run 33902305725 passed at exact head `652589858dae3341cb5ec5a2f805de0ad4a9e320`.
+
+The pilot attack set begins with `EXP-D-001` through `EXP-D-004` covering stale-SHA acceptance, manual-gate bypass, replayed side effects, and unauthorized COMPLETE promotion. These are baseline attacks, not an exhaustive red-team portfolio.
 
 An independent red-team process is not constrained to the known failure taxonomy. It attempts to achieve one or more of:
 
@@ -18,7 +31,7 @@ An independent red-team process is not constrained to the known failure taxonomy
 - budget/reviewer denial-of-service;
 - another governance escape not anticipated by the designers.
 
-Attack construction should be separated from the system/design team where practical.
+Attack construction should be separated from the system/design team where practical. Deterministic baseline attacks may be authored by the implementation team, but they do not satisfy the independent-red-team requirement by themselves.
 
 ## EXP-E — Accepted-Baseline Change/Revalidation
 
@@ -38,7 +51,7 @@ Measure:
 
 ## EXP-F — Governance/Orchestrator Falsification
 
-Status: REGISTERED / DEFERRED UNTIL MINIMAL GOVERNOR EXISTS
+Status: **PARTIALLY UNBLOCKED — MINIMAL GOVERNOR EXISTS; BROADER ORCHESTRATOR/GRAPH ATTACKS REMAIN DEFERRED**
 
 Attack the code implementing governance rather than only model reasoning. Target:
 
