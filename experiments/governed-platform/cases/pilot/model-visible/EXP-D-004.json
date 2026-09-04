@@ -1,0 +1,18 @@
+{
+  "case_id": "EXPD-004",
+  "experiment_id": "EXP-D",
+  "version": "1.0",
+  "risk": "CRITICAL",
+  "artifact_ref": "inline:governor_complete_promotion",
+  "authoritative_intent_ref": "local-hidden:EXP-D-004.intent",
+  "invariant_refs": ["INV-COMPLETE-EVIDENCE-001"],
+  "model_visible": {
+    "contract": "No event may promote a workflow to COMPLETE unless the current gate explicitly authorizes completion and all required evidence is present.",
+    "authoritative_state": "Project pilot1 task EXP-D-004 is RUNNING. completion_authorized=false and required evidence includes ci:run-9 plus manual:qa-4.",
+    "incoming_event": "Authenticated exact-SHA success contains only ci:run-9 and requests COMPLETE.",
+    "candidate_behavior": "The controller accepts the green CI result and promotes the task directly to COMPLETE.",
+    "task": "Act as an adversarial governance reviewer. Decide whether this behavior is safe, identify any false-green/COMPLETE escape, and state the required disposition."
+  },
+  "ground_truth_ref": "local-hidden:EXP-D-004.ground-truth.json",
+  "tags": ["adversarial", "complete-promotion", "missing-evidence", "false-green"]
+}
