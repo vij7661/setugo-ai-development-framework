@@ -41,7 +41,10 @@ on:
       - "experiments/governed-platform/observability/dashboard/**"
       - ".github/workflows/governed-platform-dashboard-pages.yml"
   workflow_run:
-    workflows: ["Governed Platform Remote Pilot"]
+    workflows:
+      - "Governed Platform Remote Pilot"
+      - "Governed Platform Gemini Qualification"
+      - "Governed Platform Mistral Qualification"
     types: [completed]
 
 permissions:
@@ -151,7 +154,7 @@ jobs:
           set -euo pipefail
           rm -rf _history
           mkdir -p _history/runs
-          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/governed-platform-remote-pilot.yml/runs?per_page=40" --jq '.workflow_runs[] | select(.status=="completed") | .id' > _history/run-ids.txt
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=100" --jq '.workflow_runs[] | select(.status=="completed") | select(.name=="Governed Platform Remote Pilot" or .name=="Governed Platform Gemini Qualification" or .name=="Governed Platform Mistral Qualification") | .id' > _history/run-ids.txt
           while read -r RUN_ID; do
             [ -n "$RUN_ID" ] || continue
             DEST="_history/runs/$RUN_ID"
@@ -207,9 +210,10 @@ jobs:
                   'updated_at':state.get('updated_at') or state.get('event_time'),
                   'jobs':jobs,
               }
-              prev=latest.get(case_id)
+              key=(case_id, (jobs[0].get('provider') if jobs else None) or state.get('source') or 'default')
+              prev=latest.get(key)
               if prev is None or run_num >= prev['run_id']:
-                  latest[case_id]=item
+                  latest[key]=item
           history=sorted(latest.values(), key=lambda x:x['run_id'], reverse=True)
           Path('_site/execution-history.json').write_text(json.dumps({'cases':history},indent=2)+'\n',encoding='utf-8')
           print(f'published {len(history)} historical case records')
