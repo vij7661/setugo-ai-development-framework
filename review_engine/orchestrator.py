@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import asdict
 from typing import Callable
 
 from .context_compiler import ContextCompiler
@@ -136,6 +137,15 @@ def _artifact_view(artifact: ReviewArtifact) -> dict:
     }
 
 
+def _reviewer_visible_memory_view(memory: VersionedMemoryStore) -> list[dict]:
+    """Independently derive the exact platform-owned shared state for reviewers."""
+    return [
+        asdict(record)
+        for record in memory.reviewer_visible()
+        if record.memory_class != "REVIEW_EVIDENCE"
+    ]
+
+
 def _prior_review_evidence_payload(
     response: ReviewerResponse,
     *,
@@ -227,6 +237,7 @@ class ReviewEngine:
         request: ReviewRequest,
         phase: str,
         artifact: ReviewArtifact | None,
+        expected_memory: list[dict],
     ) -> str | None:
         if not isinstance(context, dict):
             return "model-visible reviewer context is not an object"
@@ -234,6 +245,8 @@ class ReviewEngine:
             return "model-visible reviewer role disagrees with platform routing"
         if context.get("request_id") != request.request_id:
             return "model-visible request id disagrees with platform request"
+        if context.get("memory") != expected_memory:
+            return "model-visible shared memory disagrees with platform reviewer-visible memory"
 
         # These phases are expected to retain the exact user request. Phase-B
         # intentionally operates on the frozen artifact/review evidence bundle.
@@ -269,6 +282,7 @@ class ReviewEngine:
         *,
         session_id: str,
         request: ReviewRequest,
+        memory: VersionedMemoryStore,
         risk: str,
         task_type: str,
         phase: str,
@@ -294,6 +308,7 @@ class ReviewEngine:
             request=request,
             phase=phase,
             artifact=artifact,
+            expected_memory=_reviewer_visible_memory_view(memory),
         )
         if context_failure:
             reason = f"{config.role} reviewer context rejected: {context_failure}"
@@ -478,6 +493,7 @@ class ReviewEngine:
             r1_context,
             session_id=session_id,
             request=request,
+            memory=memory,
             risk=request.risk,
             task_type=task_type,
             phase="R1_INITIAL",
@@ -549,6 +565,7 @@ class ReviewEngine:
             r2_context,
             session_id=session_id,
             request=request,
+            memory=memory,
             risk=signals["risk"],
             task_type=task_type,
             phase="R2_INDEPENDENT",
@@ -644,6 +661,7 @@ class ReviewEngine:
             correction_context,
             session_id=session_id,
             request=request,
+            memory=memory,
             risk=signals["risk"],
             task_type=task_type,
             phase="R1_SCOPED_CORRECTION",
@@ -707,6 +725,7 @@ class ReviewEngine:
             r3_context,
             session_id=session_id,
             request=request,
+            memory=memory,
             risk=signals["risk"],
             task_type=task_type,
             phase="R3_INDEPENDENT",
@@ -826,6 +845,7 @@ class ReviewEngine:
             adjudication_context,
             session_id=session_id,
             request=request,
+            memory=memory,
             risk=signals["risk"],
             task_type=task_type,
             phase="R3_ADJUDICATION",
