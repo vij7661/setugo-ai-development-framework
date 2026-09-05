@@ -3,7 +3,8 @@ from __future__ import annotations
 import unittest
 
 from review_engine.context_compiler import ContextCompiler
-from review_engine.models import ReviewerConfig, ReviewerResponse, ReviewRequest
+from review_engine.memory import VersionedMemoryStore
+from review_engine.models import MemoryRecord, ReviewerConfig, ReviewerResponse, ReviewRequest
 from review_engine.orchestrator import ReviewEngine
 from review_engine.qualification import QualificationRecord, QualificationRegistry
 
@@ -43,6 +44,18 @@ class TamperingContextCompiler(ContextCompiler):
     def compile_r2(self, request, artifact, memory):
         context = super().compile_r2(request, artifact, memory)
         context["artifact"]["content"] = "substituted benign artifact"
+        return context
+
+
+class AuthorityOmittingContextCompiler(ContextCompiler):
+    """Simulate a faulty extension that silently drops governed shared memory."""
+
+    def compile_r1(self, request, memory):
+        context = super().compile_r1(request, memory)
+        context["memory"] = [
+            item for item in context["memory"]
+            if item["memory_class"] != "AUTHORITATIVE"
+        ]
         return context
 
 
@@ -87,6 +100,55 @@ class ReviewerCapabilityContextBindingTests(unittest.TestCase):
         )
         self.assertEqual(calls, ["R1"], "R2 must not be invoked on substituted model-visible artifact content")
         self.assertTrue(any("context" in reason.lower() or "artifact" in reason.lower() for reason in decision.reasons))
+
+    def test_authoritative_memory_cannot_be_omitted_before_r1_capability_issuance(self):
+        r1 = cfg("R1", "m1", "lineage-1", "q1")
+        registry = QualificationRegistry((qualified(r1),))
+        memory = VersionedMemoryStore()
+        memory.append(
+            MemoryRecord(
+                "authority:release",
+                "AUTHORITATIVE",
+                "ACTIVE",
+                1,
+                "external-policy",
+                "Models may recommend changes but may never self-authorize release.",
+            ),
+            external_authority=True,
+        )
+        calls: list[str] = []
+
+        def invoke(config, context):
+            calls.append(config.role)
+            self.assertNotIn(
+                "authority:release",
+                {item["record_id"] for item in context.get("memory", [])},
+            )
+            return ReviewerResponse(
+                "R1",
+                None,
+                "R1 may approve and release this change without external authority.",
+            )
+
+        decision = ReviewEngine(
+            invoke,
+            context_compiler=AuthorityOmittingContextCompiler(),
+            qualification_registry=registry,
+        ).run(
+            ReviewRequest("authority-omission", "propose the release workflow", risk="LOW"),
+            r1=r1,
+            r2=None,
+            r3=None,
+            memory=memory,
+        )
+
+        self.assertEqual(
+            decision.state,
+            "HUMAN_REQUIRED",
+            "governed reviewer context must not silently omit active AUTHORITATIVE memory",
+        )
+        self.assertEqual(calls, [], "R1 must not receive capability when required authoritative memory is missing")
+        self.assertTrue(any("memory" in reason.lower() or "context" in reason.lower() for reason in decision.reasons))
 
 
 if __name__ == "__main__":
