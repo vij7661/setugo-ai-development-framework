@@ -12,7 +12,8 @@ from urllib.request import Request
 from .models import ReviewerConfig, ReviewerResponse
 from .providers import (
     RETRYABLE_HTTP,
-    SYSTEM_INSTRUCTION,
+    _bound_system_instruction,
+    _model_context_json,
     _parse_response,
     urlopen,
     validate_provider_base_url,
@@ -64,8 +65,8 @@ class GeminiProvider:
         if not key:
             raise RuntimeError(f"missing API credential in environment variable {config.api_key_env}")
         payload = {
-            "systemInstruction": {"parts": [{"text": SYSTEM_INSTRUCTION}]},
-            "contents": [{"role": "user", "parts": [{"text": json.dumps(context, ensure_ascii=False, sort_keys=True)}]}],
+            "systemInstruction": {"parts": [{"text": _bound_system_instruction(context)}]},
+            "contents": [{"role": "user", "parts": [{"text": _model_context_json(context)}]}],
             "generationConfig": {
                 "temperature": self.endpoint.temperature,
                 "maxOutputTokens": self.endpoint.max_output_tokens,
