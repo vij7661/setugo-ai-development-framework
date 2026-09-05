@@ -5,6 +5,8 @@ from pathlib import Path
 
 from .models import MemoryRecord
 
+BUSY_TIMEOUT_MS = 30_000
+
 
 class SQLiteMemoryStore:
     """Single-node persistent shared memory for the MVP.
@@ -18,12 +20,14 @@ class SQLiteMemoryStore:
         self._init_schema()
 
     def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.path)
+        conn = sqlite3.connect(self.path, timeout=BUSY_TIMEOUT_MS / 1000)
         conn.row_factory = sqlite3.Row
+        conn.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS}")
         return conn
 
     def _init_schema(self) -> None:
         with self._connect() as conn:
+            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS memory_records (
@@ -130,6 +134,7 @@ class SQLiteMemoryStore:
 
     def reviewer_visible(self) -> tuple[MemoryRecord, ...]:
         return tuple(
-            r for r in self.current()
+            r
+            for r in self.current()
             if r.memory_class not in {"MODEL_PRIVATE", "PROTECTED_TRUTH"}
         )
