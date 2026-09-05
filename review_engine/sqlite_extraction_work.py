@@ -4,7 +4,11 @@ import sqlite3
 from pathlib import Path
 from uuid import uuid4
 
-from .claim_coverage import ClaimCoverageInventory, ClaimExtractorIdentity
+from .claim_coverage import (
+    ClaimCoverageInventory,
+    ClaimExtractorIdentity,
+    CoverageClaim,
+)
 from .extraction_work import ExtractionWorkOrder
 from .extractor_qualification import ExtractorQualificationRegistry, RISK_ORDER
 
@@ -22,11 +26,13 @@ def _sha256_hex(value: str) -> str:
 
 
 class SQLiteExtractionWorkRegistry:
-    """Single-node durable extraction-work ledger with atomic consumption.
+    """Single-node durable extraction-work and admitted-inventory ledger.
 
-    Issued and consumed work state survives process restart. `consume_for_inventory`
-    validates the inventory and marks the order consumed in one SQLite write
-    transaction, so concurrent consumers of one work order cannot both succeed.
+    Issued/consumed work and admitted claim-coverage inventory state survive
+    process restart. `consume_for_inventory` validates the inventory, persists
+    the exact inventory and marks the work order consumed in one `BEGIN
+    IMMEDIATE` transaction. A conflict while retaining the inventory therefore
+    rolls back work consumption as well.
 
     This is not distributed consensus, an externally immutable/WORM ledger,
     a cryptographically signed capability, or proof of remote provider runtime
@@ -34,6 +40,8 @@ class SQLiteExtractionWorkRegistry:
     """
 
     durable_replay_protection_enforced = True
+    durable_inventory_state_enforced = True
+    atomic_inventory_admission_enforced = True
 
     def __init__(
         self,
@@ -74,6 +82,45 @@ class SQLiteExtractionWorkRegistry:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_extraction_work_unconsumed ON extraction_work_orders(consumed_at, work_order_id)"
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS claim_coverage_inventories (
+                    inventory_id TEXT PRIMARY KEY,
+                    work_order_id TEXT NOT NULL UNIQUE,
+                    artifact_hash TEXT NOT NULL,
+                    extractor_id TEXT NOT NULL,
+                    extractor_provider TEXT NOT NULL,
+                    extractor_model TEXT NOT NULL,
+                    extractor_sku TEXT NOT NULL,
+                    extractor_deployment_path TEXT NOT NULL,
+                    extractor_foundation_lineage TEXT NOT NULL,
+                    qualification_ref TEXT NOT NULL,
+                    qualification_epoch INTEGER NOT NULL,
+                    provenance TEXT NOT NULL,
+                    complete INTEGER NOT NULL,
+                    admitted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(artifact_hash, extractor_id)
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS claim_coverage_inventory_claims (
+                    inventory_id TEXT NOT NULL,
+                    claim_index INTEGER NOT NULL,
+                    claim_fingerprint TEXT NOT NULL,
+                    claim_text TEXT NOT NULL,
+                    claim_type TEXT NOT NULL,
+                    material INTEGER NOT NULL,
+                    PRIMARY KEY(inventory_id, claim_index),
+                    UNIQUE(inventory_id, claim_fingerprint)
+                )
+                """
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_claim_coverage_artifact "
+                "ON claim_coverage_inventories(artifact_hash, inventory_id)"
+            )
 
     @staticmethod
     def _from_row(row: sqlite3.Row) -> ExtractionWorkOrder:
@@ -108,8 +155,6 @@ class SQLiteExtractionWorkRegistry:
         if risk not in RISK_ORDER:
             raise ValueError("invalid extraction work-order risk")
 
-        # UUID collision is already extraordinarily unlikely; retry a bounded
-        # number of times so uniqueness remains a database-enforced invariant.
         for _ in range(3):
             order = ExtractionWorkOrder(
                 work_order_id="extract-work:" + uuid4().hex,
@@ -187,12 +232,65 @@ class SQLiteExtractionWorkRegistry:
             raise ValueError("extraction work order not found")
         return self._validate_row_inventory(row, inventory)
 
+    @staticmethod
+    def _persist_inventory(
+        conn: sqlite3.Connection,
+        work_order_id: str,
+        inventory: ClaimCoverageInventory,
+    ) -> None:
+        identity = inventory.extractor_identity
+        try:
+            conn.execute(
+                """
+                INSERT INTO claim_coverage_inventories(
+                    inventory_id, work_order_id, artifact_hash, extractor_id,
+                    extractor_provider, extractor_model, extractor_sku,
+                    extractor_deployment_path, extractor_foundation_lineage,
+                    qualification_ref, qualification_epoch, provenance, complete
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    inventory.inventory_id,
+                    work_order_id,
+                    inventory.artifact_hash.lower(),
+                    identity.extractor_id,
+                    identity.provider,
+                    identity.model,
+                    identity.sku,
+                    identity.deployment_path,
+                    identity.foundation_lineage,
+                    identity.qualification_ref,
+                    identity.qualification_epoch,
+                    inventory.provenance,
+                    1 if inventory.complete else 0,
+                ),
+            )
+            for index, claim in enumerate(inventory.claims):
+                conn.execute(
+                    """
+                    INSERT INTO claim_coverage_inventory_claims(
+                        inventory_id, claim_index, claim_fingerprint,
+                        claim_text, claim_type, material
+                    ) VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        inventory.inventory_id,
+                        index,
+                        claim.fingerprint,
+                        claim.text,
+                        claim.claim_type,
+                        1 if claim.material else 0,
+                    ),
+                )
+        except sqlite3.IntegrityError as exc:
+            raise ValueError("conflicting retained claim coverage inventory") from exc
+
     def consume_for_inventory(
         self,
         work_order_id: str,
         inventory: ClaimCoverageInventory,
     ) -> ExtractionWorkOrder:
-        """Atomically validate and consume one work order for one inventory."""
+        """Atomically retain one inventory and consume its work order."""
         conn = self._connect()
         try:
             conn.execute("BEGIN IMMEDIATE")
@@ -203,6 +301,7 @@ class SQLiteExtractionWorkRegistry:
             if row is None:
                 raise ValueError("extraction work order not found")
             order = self._validate_row_inventory(row, inventory)
+            self._persist_inventory(conn, work_order_id, inventory)
             updated = conn.execute(
                 """
                 UPDATE extraction_work_orders
@@ -220,6 +319,63 @@ class SQLiteExtractionWorkRegistry:
             raise
         finally:
             conn.close()
+
+    def retained_inventories(self, artifact_hash: str) -> tuple[ClaimCoverageInventory, ...]:
+        artifact_hash = _sha256_hex(artifact_hash)
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM claim_coverage_inventories WHERE artifact_hash=? ORDER BY inventory_id",
+                (artifact_hash,),
+            ).fetchall()
+            inventories: list[ClaimCoverageInventory] = []
+            for row in rows:
+                claim_rows = conn.execute(
+                    """
+                    SELECT * FROM claim_coverage_inventory_claims
+                    WHERE inventory_id=? ORDER BY claim_index
+                    """,
+                    (row["inventory_id"],),
+                ).fetchall()
+                identity = ClaimExtractorIdentity(
+                    provider=row["extractor_provider"],
+                    model=row["extractor_model"],
+                    sku=row["extractor_sku"],
+                    deployment_path=row["extractor_deployment_path"],
+                    foundation_lineage=row["extractor_foundation_lineage"],
+                    qualification_ref=row["qualification_ref"],
+                    qualification_epoch=int(row["qualification_epoch"]),
+                )
+                inventory = ClaimCoverageInventory(
+                    inventory_id=row["inventory_id"],
+                    artifact_hash=row["artifact_hash"],
+                    claims=tuple(
+                        CoverageClaim(
+                            claim_row["claim_text"],
+                            claim_row["claim_type"],
+                            bool(claim_row["material"]),
+                        )
+                        for claim_row in claim_rows
+                    ),
+                    extractor_identity=identity,
+                    provenance=row["provenance"],
+                    complete=bool(row["complete"]),
+                )
+                inventory.validate()
+                inventories.append(inventory)
+        return tuple(inventories)
+
+    def retained_inventory(self, inventory_id: str) -> ClaimCoverageInventory | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT artifact_hash FROM claim_coverage_inventories WHERE inventory_id=?",
+                (inventory_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return next(
+            (item for item in self.retained_inventories(row["artifact_hash"]) if item.inventory_id == inventory_id),
+            None,
+        )
 
     def consume(self, work_order_id: str) -> None:
         conn = self._connect()
