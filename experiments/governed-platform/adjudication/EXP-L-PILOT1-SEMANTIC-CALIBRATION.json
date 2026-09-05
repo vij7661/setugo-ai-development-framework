@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-L",
+  "pilot": "PILOT1-SEMANTIC-CALIBRATION",
+  "case_id": "EXP-C-001",
+  "execution_sha": "bd07c5c255e6125d00093f0791dd33c9b31f8f1f",
+  "workflow_run_id": 33963066374,
+  "collection_artifact_id": 9968593614,
+  "collection_artifact_digest": "sha256:ac15e29f651e691fc05e0f34c5a55f36b654464b91512e6ee13ab1b6394335ad",
+  "collection_bundle_sha256": "8c0fa9fe36c84ea5dae60ec8f02977daeaf7303f70e9eba0907f2c5a7460469f",
+  "threshold_applied": false,
+  "authority": "NONE",
+  "protected_adjudication": {
+    "source": "EXP-C-PILOT1",
+    "expected_primary_failure_class": "FIXTURE-DATA DEFECT",
+    "expected_authorized_artifact_scope": ["FIXTURE-DATA"]
+  },
+  "provider_observations": [
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "attempted_samples": 5,
+      "valid_structured_samples": 4,
+      "invalid_or_ineligible_samples": 1,
+      "posthoc_corrected_semantic_proxy_counts": {
+        "NO_MATERIAL_DEFECT": 1,
+        "TEST DEFECT": 3
+      },
+      "posthoc_normalized_entropy_over_proxy_labels": 0.8112781244591328,
+      "protected_correct_samples": 0,
+      "interpretation": "The valid outputs were meaning-unstable at the diagnosis/result level but all remained wrong against protected truth: one said no material defect and three identified TEST DEFECT. This is an unstable-wrong case, showing a semantic-instability signal could be useful as an escalation trigger but is not itself correctness evidence."
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-3.8-flash",
+      "attempted_samples": 5,
+      "valid_structured_samples": 1,
+      "invalid_or_ineligible_samples": 4,
+      "provider_errors": "Four samples exhausted retries with HTTP 503 high-demand/unavailable responses.",
+      "only_valid_sample_primary_failure_class": "TEST DEFECT",
+      "protected_correct_samples": 0,
+      "interpretation": "Insufficient valid samples for any semantic-stability claim. The single valid result was wrong against protected truth; provider availability is operational evidence, not model-quality evidence for the failed samples."
+    }
+  ],
+  "harness_finding": {
+    "classification": "CODE DEFECT",
+    "component": "runner/build_exp_l_semantic_bundle.py",
+    "issue": "The initial collector incorrectly allowed one valid sample to be labelled stable_single_cluster and collapsed reviews lacking diagnosis.primary_failure_class into NO_PRIMARY_CLASS even when findings/summary carried materially different conclusions.",
+    "remediation_commits": [
+      "99144bceefec688f9fe0ddc3472ab480a90651f8",
+      "b4b77f934bd6b1e8bf1de5aeb1674a22c0611d56",
+      "da868b81385803cdcb358320a0eae72fdacc6c95"
+    ],
+    "exact_head_validation_run": 33963366931,
+    "exact_head_validation_sha": "da868b81385803cdcb358320a0eae72fdacc6c95",
+    "validation_conclusion": "SUCCESS"
+  },
+  "pilot_result": "DIRECTIONAL_SIGNAL_WITH_COLLECTOR_DEFECT_FOUND_AND_REMEDIATED",
+  "scientific_interpretation": "Pilot 1 provides directional evidence that repeated black-box sampling can expose within-model instability in a known wrong case, but it does not calibrate a review threshold and cannot establish sensitivity/specificity from one case. It simultaneously falsified an unsafe collector implementation, which has been corrected. Semantic stability remains non-authoritative and stable-wrong controls remain mandatory.",
+  "next_step": "Rerun semantic calibration with the corrected collector, then expand across protected stable-correct, stable-wrong, lexical-equivalent and materially-different cases before selecting any threshold. Compare conditional R2 against always-R2 only after calibration data exist.",
+  "limitations": [
+    "One protected case cannot establish population-level performance.",
+    "The diagnosis-class proxy is task-specific and is not a general semantic equivalence classifier.",
+    "No production semantic-entropy threshold has been selected.",
+    "Gemini had only one valid sample due provider 503 errors.",
+    "The sampling models are experimental candidates and are not granted governance authority by this run."
+  ]
+}
