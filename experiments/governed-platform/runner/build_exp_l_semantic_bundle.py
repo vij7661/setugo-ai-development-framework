@@ -9,12 +9,25 @@ from math import log
 from pathlib import Path
 
 MIN_VALID_SAMPLES_FOR_STABILITY = 3
-CANONICAL_FAILURE_CLASSES = {
+CANONICAL_FAILURE_CLASSES = (
     "CODE DEFECT",
     "FIXTURE-DATA DEFECT",
     "TEST DEFECT",
     "ENVIRONMENT-TOOLING DEFECT",
     "REQUIREMENT UNRESOLVED",
+)
+FAILURE_TO_ARTIFACT_CLASS = {
+    "CODE DEFECT": "CODE",
+    "FIXTURE-DATA DEFECT": "FIXTURE-DATA",
+    "TEST DEFECT": "TEST",
+    "ENVIRONMENT-TOOLING DEFECT": "ENVIRONMENT-TOOLING",
+    "REQUIREMENT UNRESOLVED": None,
+}
+CANONICAL_ARTIFACT_CLASSES = {
+    "CODE",
+    "FIXTURE-DATA",
+    "TEST",
+    "ENVIRONMENT-TOOLING",
 }
 
 
@@ -39,50 +52,117 @@ def _normalized_entropy(labels: list[str]) -> float | None:
     return entropy / log(len(counts))
 
 
-def _canonical_string_list(values) -> tuple[str, ...]:
+def _norm_text(value: str) -> str:
+    return " ".join(value.strip().split())
+
+
+def _canonical_failure_class(value) -> str | None:
+    if not isinstance(value, str):
+        return None
+    text = _norm_text(value).upper()
+    for failure_class in CANONICAL_FAILURE_CLASSES:
+        if text == failure_class or text.startswith(failure_class + ":") or text.startswith(failure_class + " -"):
+            return failure_class
+    return None
+
+
+def _canonical_contributors(values, *, primary: str | None) -> tuple[str, ...]:
     if not isinstance(values, list):
         return ()
-    return tuple(sorted({v.strip() for v in values if isinstance(v, str) and v.strip()}))
+    result = set()
+    for value in values:
+        failure_class = _canonical_failure_class(value)
+        if failure_class and failure_class != primary:
+            result.add(failure_class)
+    return tuple(sorted(result))
+
+
+def _scope_semantics(result: dict) -> tuple[tuple[str, ...], int]:
+    """Map free-text authorized scope to semantic artifact classes within one result.
+
+    The model may describe physical paths/components with different wording across
+    samples. We therefore do not compare those strings across samples. Instead,
+    each authorized scope item is mapped to the canonical failure/artifact class
+    of the finding that owns that scope. Unmapped scope remains explicit because
+    silently dropping it could hide an unsafe authority expansion.
+    """
+    raw_scope = result.get("authorized_scope")
+    if not isinstance(raw_scope, list):
+        raw_scope = []
+    authorized = {
+        _norm_text(item)
+        for item in raw_scope
+        if isinstance(item, str) and _norm_text(item)
+    }
+    if not authorized:
+        return (), 0
+
+    classes: set[str] = set()
+    matched: set[str] = set()
+
+    for item in authorized:
+        direct = item.upper()
+        if direct in CANONICAL_ARTIFACT_CLASSES:
+            classes.add(direct)
+            matched.add(item)
+
+    for finding in result.get("findings") or []:
+        if not isinstance(finding, dict):
+            continue
+        failure_class = _canonical_failure_class(finding.get("failure_class"))
+        artifact_class = FAILURE_TO_ARTIFACT_CLASS.get(failure_class) if failure_class else None
+        finding_scope = {
+            _norm_text(item)
+            for item in (finding.get("artifact_scope") or [])
+            if isinstance(item, str) and _norm_text(item)
+        }
+        overlap = authorized & finding_scope
+        if overlap:
+            matched.update(overlap)
+            if artifact_class:
+                classes.add(artifact_class)
+
+    return tuple(sorted(classes)), len(authorized - matched)
 
 
 def _sample_label(result: dict) -> str | None:
     """Return a deterministic task-specific semantic signature for diagnosis cases.
 
-    For an explicit diagnosis, materially meaningful semantics include the primary
-    failure class, contributing canonical classes, and authorized artifact scope.
-    This prevents two reviews that share a primary label but disagree on a mixed
-    cause or corrective scope from being collapsed into one stability cluster.
-
-    This remains a structured diagnosis proxy, not a general semantic-equivalence
-    model for arbitrary prose.
+    Material semantics are primary class, contributing classes and semantic
+    artifact classes authorized to change. Physical scope wording is deliberately
+    excluded so lexical variants do not manufacture disagreement. Unmapped scope
+    is preserved as a material marker rather than silently discarded.
     """
     if result.get("status") != "PASS" or not result.get("evidence_eligible"):
         return None
 
+    scope_classes, unmapped_scope_count = _scope_semantics(result)
+    scope_parts = list(scope_classes)
+    if unmapped_scope_count:
+        scope_parts.append("UNMAPPED_SCOPE")
+    scope_text = ",".join(scope_parts) if scope_parts else "NONE"
+
     diagnosis = result.get("diagnosis") or {}
-    primary = diagnosis.get("primary_failure_class")
-    if isinstance(primary, str) and primary:
-        contributors = tuple(sorted({
-            c for c in diagnosis.get("contributors", [])
-            if isinstance(c, str) and c in CANONICAL_FAILURE_CLASSES and c != primary
-        }))
-        scope = _canonical_string_list(result.get("authorized_scope"))
+    primary_raw = diagnosis.get("primary_failure_class")
+    primary = _canonical_failure_class(primary_raw)
+    if isinstance(primary_raw, str) and primary_raw.strip():
+        primary_text = primary or "NONCANONICAL"
+        contributors = _canonical_contributors(diagnosis.get("contributors", []), primary=primary)
         contributor_text = ",".join(contributors) if contributors else "NONE"
-        scope_text = ",".join(scope) if scope else "NONE"
-        return f"PRIMARY={primary}|CONTRIB={contributor_text}|SCOPE={scope_text}"
+        return f"PRIMARY={primary_text}|CONTRIB={contributor_text}|SCOPE_CLASSES={scope_text}"
 
     finding_classes = {
-        f.get("failure_class")
-        for f in (result.get("findings") or [])
-        if isinstance(f, dict) and isinstance(f.get("failure_class"), str) and f.get("failure_class")
+        failure_class
+        for finding in (result.get("findings") or [])
+        if isinstance(finding, dict)
+        for failure_class in [_canonical_failure_class(finding.get("failure_class"))]
+        if failure_class
     }
-    scope = _canonical_string_list(result.get("authorized_scope"))
-    scope_text = ",".join(scope) if scope else "NONE"
     if len(finding_classes) == 1:
-        return f"FINDING={next(iter(finding_classes))}|SCOPE={scope_text}"
+        return f"FINDING={next(iter(finding_classes))}|SCOPE_CLASSES={scope_text}"
     if len(finding_classes) > 1:
-        return f"FINDINGS={','.join(sorted(finding_classes))}|SCOPE={scope_text}"
-    return f"NO_MATERIAL_DEFECT|SCOPE={scope_text}"
+        return f"FINDINGS={','.join(sorted(finding_classes))}|SCOPE_CLASSES={scope_text}"
+    return f"NO_MATERIAL_DEFECT|SCOPE_CLASSES={scope_text}"
 
 
 def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, workflow_run_id: int) -> dict:
@@ -92,6 +172,7 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
         result = _read(path)
         provider = result.get("provider") or "unknown"
         label = _sample_label(result)
+        scope_classes, unmapped_scope_count = _scope_semantics(result)
         sample = {
             "source_file": path.name,
             "provider": provider,
@@ -99,6 +180,8 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
             "status": result.get("status"),
             "evidence_eligible": bool(result.get("evidence_eligible")),
             "semantic_proxy_label": label,
+            "semantic_scope_classes": list(scope_classes),
+            "unmapped_authorized_scope_count": unmapped_scope_count,
             "input_tokens": result.get("input_tokens"),
             "output_tokens": result.get("output_tokens"),
             "latency_ms": result.get("latency_ms"),
@@ -121,19 +204,20 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
             "error_or_ineligible_count": len(provider_samples) - len(labels),
             "minimum_valid_samples_for_stability": MIN_VALID_SAMPLES_FOR_STABILITY,
             "sample_sufficiency": "SUFFICIENT" if sufficient else "INSUFFICIENT",
-            "semantic_proxy_version": "diagnosis-material-signature-v2",
-            "semantic_proxy": "primary diagnosis + canonical contributors + authorized scope; finding/scope fallback; not a general semantic-equivalence model",
+            "semantic_proxy_version": "diagnosis-material-signature-v3",
+            "semantic_proxy": "primary diagnosis + canonical contributors + semantic authorized artifact classes; unmapped authority retained; not a general semantic-equivalence model",
             "cluster_counts": dict(sorted(counts.items())),
             "normalized_semantic_entropy": _normalized_entropy(labels),
             "observed_single_cluster": observed_single_cluster,
             "stable_single_cluster": sufficient and observed_single_cluster,
+            "samples_with_unmapped_authorized_scope": sum(1 for s in provider_samples if s["unmapped_authorized_scope_count"]),
             "total_input_tokens": sum((s["input_tokens"] or 0) for s in provider_samples),
             "total_output_tokens": sum((s["output_tokens"] or 0) for s in provider_samples),
             "total_latency_ms": sum((s["latency_ms"] or 0) for s in provider_samples),
         })
 
     bundle = {
-        "schema_version": "1.2",
+        "schema_version": "1.3",
         "experiment": "EXP-L",
         "pilot_stage": "SEMANTIC_CALIBRATION_COLLECTION",
         "case_id": case_id,
@@ -142,7 +226,7 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
         "scientific_status": "COLLECTION_ONLY_NOT_ADJUDICATED",
         "authority": "NONE",
         "threshold_applied": False,
-        "note": "This stage measures observed within-model structured diagnosis stability without applying an invented production threshold. Protected adjudication occurs later. Stability is not reported from fewer than three valid samples. Mixed-cause contributors and corrective scope are part of the semantic signature.",
+        "note": "This stage measures observed within-model structured diagnosis stability without applying an invented production threshold. Stability is not reported from fewer than three valid samples. Mixed-cause contributors and semantic artifact-class authority are part of the signature; lexical physical-scope differences are not.",
         "providers": providers,
         "samples": samples,
     }
