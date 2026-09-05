@@ -7,11 +7,16 @@ from unittest.mock import patch
 
 from review_engine.models import ReviewerConfig
 from review_engine.providers import ProviderRegistry, _parse_response
+from review_engine.truth_contract import neutral_epistemic_review
 
 
 class DummyAdapter:
     def invoke(self, config, context):
-        return _parse_response(config.role, context, json.dumps({"output": "ok", "findings": []}))
+        return _parse_response(
+            config.role,
+            context,
+            json.dumps({"output": "ok", "findings": [], "epistemic_review": neutral_epistemic_review()}),
+        )
 
 
 def cfg(role="R2"):
@@ -33,6 +38,7 @@ class ProviderTests(unittest.TestCase):
         raw = json.dumps({
             "output": "review",
             "artifact_hash": "forged-model-hash",
+            "epistemic_review": neutral_epistemic_review(),
             "findings": [{
                 "finding_id": "f1",
                 "severity": "HIGH",
@@ -49,8 +55,17 @@ class ProviderTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             _parse_response("R2", {"artifact": {"artifact_hash": "h"}}, "looks good")
 
+    def test_missing_epistemic_review_is_rejected(self):
+        raw = json.dumps({"output": "review", "findings": []})
+        with self.assertRaisesRegex(ValueError, "epistemic_review object required"):
+            _parse_response("R2", {"artifact": {"artifact_hash": "h"}}, raw)
+
     def test_missing_finding_summary_is_rejected(self):
-        raw = json.dumps({"output": "review", "findings": [{"severity": "HIGH", "material": True}]})
+        raw = json.dumps({
+            "output": "review",
+            "epistemic_review": neutral_epistemic_review(),
+            "findings": [{"severity": "HIGH", "material": True}],
+        })
         with self.assertRaises(ValueError):
             _parse_response("R2", {"artifact": {"artifact_hash": "h"}}, raw)
 
@@ -62,6 +77,7 @@ class ProviderTests(unittest.TestCase):
         response = registry.invoke(cfg(), {"artifact": {"artifact_hash": "h"}})
         self.assertEqual(response.output, "ok")
         self.assertEqual(response.artifact_hash, "h")
+        self.assertEqual(response.epistemic_review["version"], "TVC-1")
 
     def test_reviewer_config_uses_environment_name_not_raw_key_shape(self):
         bad = ReviewerConfig(
