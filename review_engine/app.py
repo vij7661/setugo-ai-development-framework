@@ -10,6 +10,7 @@ from .configuration import ReviewEngineConfiguration, build_provider_registry, b
 from .evidence_correspondence import EvidenceCorrespondenceValidator
 from .judge_health import JudgeHealthMonitor, JudgeObservation
 from .orchestrator import ReviewEngine
+from .providers import ProviderRegistry
 from .request_boundary import PlatformExecutionEnvelope, build_request
 from .session_store import SQLiteSessionStore
 from .sqlite_memory import SQLiteMemoryStore
@@ -31,8 +32,29 @@ class ReviewEngineApp:
         claim_coverage_validator: ClaimCoverageValidator | None = None,
     ) -> None:
         self.configuration = configuration
-        self.providers = provider_registry or build_provider_registry(configuration)
         self.qualifications = build_qualification_registry(configuration)
+
+        # In governed mode, an externally injected provider object is an adapter,
+        # not a replacement for the platform dispatch boundary. Route it through
+        # a platform-owned ProviderRegistry for every configured provider ID so
+        # context-integrity and mandatory response-contract checks cannot be
+        # bypassed by constructor injection. Experimental test/dev mode preserves
+        # the lightweight direct-injection path.
+        if provider_registry is None:
+            self.providers = build_provider_registry(configuration)
+        elif self.qualifications is None:
+            self.providers = provider_registry
+        else:
+            guarded = ProviderRegistry()
+            provider_ids = {
+                reviewer.provider
+                for reviewer in configuration.reviewers.values()
+                if reviewer is not None
+            }
+            for provider_id in provider_ids:
+                guarded.register(provider_id, provider_registry)
+            self.providers = guarded
+
         self.memory = SQLiteMemoryStore(memory_db)
         self.sessions = SQLiteSessionStore(sessions_db)
         # v0.1 is a review-only service. A future authenticated platform/tool
