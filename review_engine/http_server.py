@@ -3,31 +3,71 @@ from __future__ import annotations
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from .app import ReviewEngineApp
 from .configuration import load_configuration
 
 MAX_BODY_BYTES = 1_000_000
+WEB_ROOT = Path(__file__).with_name("web")
+STATIC_ASSETS = {
+    "/": ("index.html", "text/html; charset=utf-8"),
+    "/index.html": ("index.html", "text/html; charset=utf-8"),
+    "/styles.css": ("styles.css", "text/css; charset=utf-8"),
+    "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+}
+
+
+def static_asset(path: str) -> tuple[str, bytes] | None:
+    """Return only explicitly allow-listed UI files; never map arbitrary paths."""
+    spec = STATIC_ASSETS.get(path)
+    if spec is None:
+        return None
+    filename, content_type = spec
+    target = WEB_ROOT / filename
+    return content_type, target.read_bytes()
 
 
 class ReviewEngineHTTPHandler(BaseHTTPRequestHandler):
     app: ReviewEngineApp | None = None
 
+    def _security_headers(self) -> None:
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; connect-src 'self'; img-src 'self' data:; "
+            "style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+        )
+
+    def _bytes(self, status: int, body: bytes, content_type: str) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self._security_headers()
+        self.end_headers()
+        self.wfile.write(body)
+
     def _json(self, status: int, payload: dict | list) -> None:
         body = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers(); self.wfile.write(body)
+        self._bytes(status, body, "application/json; charset=utf-8")
 
     def _require_app(self) -> ReviewEngineApp:
-        if self.app is None: raise RuntimeError("Review Engine application not configured")
+        if self.app is None:
+            raise RuntimeError("Review Engine application not configured")
         return self.app
 
     def do_GET(self) -> None:
-        app = self._require_app(); parsed = urlparse(self.path); path = parsed.path
+        parsed = urlparse(self.path)
+        path = parsed.path
+        asset = static_asset(path)
+        if asset is not None:
+            content_type, body = asset
+            return self._bytes(200, body, content_type)
+
+        app = self._require_app()
         try:
             if path == "/health":
                 return self._json(200, app.health())
@@ -38,7 +78,8 @@ class ReviewEngineHTTPHandler(BaseHTTPRequestHandler):
                 return self._json(200, {"records": app.current_memory()})
             if path.startswith("/sessions/") and path.endswith("/events"):
                 session_id = path[len("/sessions/"):-len("/events")].strip("/")
-                if not session_id: return self._json(400, {"error": "session_id required"})
+                if not session_id:
+                    return self._json(400, {"error": "session_id required"})
                 return self._json(200, {"session_id": session_id, "events": app.session_events(session_id)})
             return self._json(404, {"error": "not found"})
         except (ValueError, TypeError) as exc:
@@ -47,15 +88,23 @@ class ReviewEngineHTTPHandler(BaseHTTPRequestHandler):
             return self._json(500, {"error": "internal review-engine error"})
 
     def do_POST(self) -> None:
-        app = self._require_app(); path = urlparse(self.path).path
-        if path != "/review": return self._json(404, {"error": "not found"})
+        app = self._require_app()
+        path = urlparse(self.path).path
+        if path != "/review":
+            return self._json(404, {"error": "not found"})
         try:
+            content_type = self.headers.get("Content-Type", "")
+            if not content_type.lower().startswith("application/json"):
+                return self._json(415, {"error": "application/json required"})
             length = int(self.headers.get("Content-Length", "0"))
-            if length <= 0: return self._json(400, {"error": "JSON request body required"})
-            if length > MAX_BODY_BYTES: return self._json(413, {"error": "request body too large"})
+            if length <= 0:
+                return self._json(400, {"error": "JSON request body required"})
+            if length > MAX_BODY_BYTES:
+                return self._json(413, {"error": "request body too large"})
             body = self.rfile.read(length)
             payload = json.loads(body.decode("utf-8"))
-            if not isinstance(payload, dict): return self._json(400, {"error": "JSON object required"})
+            if not isinstance(payload, dict):
+                return self._json(400, {"error": "JSON object required"})
             return self._json(200, app.review(payload))
         except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
             return self._json(400, {"error": str(exc)})
@@ -91,4 +140,5 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__": raise SystemExit(main())
+if __name__ == "__main__":
+    raise SystemExit(main())
