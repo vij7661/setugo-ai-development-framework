@@ -28,15 +28,16 @@ class OpenAICompatibleAdapterTests(unittest.TestCase):
     def test_success_requires_terminal_stop_and_captures_metadata(self, mocked_urlopen):
         os.environ["TEST_PROVIDER_KEY"] = "secret"
         mocked_urlopen.return_value = _FakeResponse({
-            "model": "model-x-revision",
+            "model": "spoofable-response-label",
             "choices": [{"message": {"content": "material defect"}, "finish_reason": "stop"}],
             "usage": {"prompt_tokens": 12, "completion_tokens": 4},
         })
         result = OpenAICompatibleAdapter(self.config).invoke(self.envelope)
         self.assertEqual(result.raw_output, "material defect")
         self.assertEqual(result.provider, "example")
-        self.assertEqual(result.mechanism_version, "model-x-revision")
-        self.assertEqual(result.runtime_metadata["finish_reason"], "stop")
+        self.assertEqual(result.mechanism_version, "model-x")
+        self.assertEqual(result.runtime_metadata["response_model_claim"], "spoofable-response-label")
+        self.assertEqual(result.runtime_metadata["configured_model"], "model-x")
         self.assertTrue(result.runtime_metadata["completion_complete"])
         request = mocked_urlopen.call_args.args[0]
         self.assertNotIn(b"ground_truth", request.data)
