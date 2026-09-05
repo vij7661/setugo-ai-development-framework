@@ -5,7 +5,6 @@ import json
 import os
 import random
 import time
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.error import HTTPError, URLError
@@ -22,6 +21,82 @@ LOOPBACK_HOSTNAMES = frozenset({"localhost"})
 
 class ProviderAdapter(Protocol):
     def invoke(self, config: ReviewerConfig, context: dict) -> ReviewerResponse: ...
+
+
+class _ImmutableProviderContextError(RuntimeError):
+    pass
+
+
+class _FrozenDict(dict):
+    """JSON-compatible dict that rejects ordinary in-place mutation."""
+
+    @staticmethod
+    def _immutable(*args, **kwargs):  # noqa: ANN002, ANN003
+        raise _ImmutableProviderContextError("provider dispatch context is immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    clear = _immutable
+    pop = _immutable
+    popitem = _immutable
+    setdefault = _immutable
+    update = _immutable
+    __ior__ = _immutable
+
+
+class _FrozenList(list):
+    """JSON-compatible list that rejects ordinary in-place mutation."""
+
+    @staticmethod
+    def _immutable(*args, **kwargs):  # noqa: ANN002, ANN003
+        raise _ImmutableProviderContextError("provider dispatch context is immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    append = _immutable
+    clear = _immutable
+    extend = _immutable
+    insert = _immutable
+    pop = _immutable
+    remove = _immutable
+    reverse = _immutable
+    sort = _immutable
+    __iadd__ = _immutable
+    __imul__ = _immutable
+
+
+def _freeze_json(value):  # noqa: ANN001, ANN201
+    if isinstance(value, dict):
+        frozen = _FrozenDict()
+        dict.__init__(frozen, ((key, _freeze_json(item)) for key, item in value.items()))
+        return frozen
+    if isinstance(value, list):
+        frozen = _FrozenList()
+        list.__init__(frozen, (_freeze_json(item) for item in value))
+        return frozen
+    return value
+
+
+def _provider_dispatch_snapshot(context: dict) -> tuple[dict, str]:
+    """Canonicalize and freeze the exact model-visible provider context.
+
+    The JSON round trip strips Python object identity and leaves only the data
+    that can actually be serialized to a provider. The returned object remains
+    dict/list compatible for built-in adapters but rejects normal mutation.
+    """
+    try:
+        canonical = json.dumps(
+            context,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        plain = json.loads(canonical)
+        before_hash = reviewer_context_hash(plain)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        raise RuntimeError("provider dispatch context is not admissible") from None
+    return _freeze_json(plain), before_hash
 
 
 def validate_provider_base_url(base_url: str, *, label: str = "provider") -> str:
@@ -305,14 +380,19 @@ class OpenAICompatibleProvider:
 class ProviderRegistry:
     """Dispatch provider adapters while preserving capability-bound context integrity.
 
-    The registry snapshots the model-visible context before giving it to an
-    adapter and rejects any response if that adapter mutates the dispatch copy.
-    This prevents mutated adapter state from being accepted as governed review
-    evidence. It is an in-process integrity control, not cryptographic proof of
-    what a remote provider ultimately received.
+    The registry canonicalizes and recursively freezes the model-visible context
+    before giving it to an adapter. Ordinary in-place mutation is therefore
+    rejected at the point of attempted mutation, including mutate-use-restore
+    patterns that a post-call hash alone could miss. A post-call hash remains as
+    defense in depth.
+
+    This is an in-process integrity control. It is not cryptographic proof of
+    what a remote provider ultimately received, and a separately constructed
+    payload inside a custom adapter remains an integration trust boundary.
     """
 
     provider_context_integrity_enforced = True
+    provider_context_immutable_dispatch_enforced = True
 
     def __init__(self) -> None:
         self._providers: dict[str, ProviderAdapter] = {}
@@ -327,13 +407,13 @@ class ProviderRegistry:
         if adapter is None:
             raise RuntimeError(f"provider adapter not registered: {config.provider}")
 
+        dispatch_context, before_hash = _provider_dispatch_snapshot(context)
         try:
-            dispatch_context = deepcopy(context)
-            before_hash = reviewer_context_hash(dispatch_context)
-        except (TypeError, ValueError):
-            raise RuntimeError("provider dispatch context is not admissible") from None
-
-        response = adapter.invoke(config, dispatch_context)
+            response = adapter.invoke(config, dispatch_context)
+        except _ImmutableProviderContextError:
+            raise RuntimeError(
+                "provider dispatch context changed during adapter invocation: immutable context mutation rejected"
+            ) from None
 
         try:
             after_hash = reviewer_context_hash(dispatch_context)
