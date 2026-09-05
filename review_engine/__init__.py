@@ -39,6 +39,11 @@ from .evidence_correspondence import (
     RetainedEvidenceCorrespondenceRegistry,
     claim_fingerprint,
 )
+from .evidence_snapshot import (
+    EvidenceSnapshot,
+    EvidenceSnapshotRegistry,
+    SQLiteEvidenceSnapshotRegistry,
+)
 from .evidence_verifier_qualification import (
     EvidenceVerifierQualificationDecision,
     EvidenceVerifierQualificationRecord,
@@ -73,6 +78,8 @@ __all__ = [
     "CoverageClaim",
     "EvidenceCorrespondenceAttestation",
     "EvidenceCorrespondenceValidator",
+    "EvidenceSnapshot",
+    "EvidenceSnapshotRegistry",
     "EvidenceVerifierIdentity",
     "EvidenceVerifierQualificationDecision",
     "EvidenceVerifierQualificationRecord",
@@ -103,6 +110,7 @@ __all__ = [
     "ReviewerConfig",
     "ReviewerResponse",
     "ReviewRequest",
+    "SQLiteEvidenceSnapshotRegistry",
     "SQLiteExtractionWorkRegistry",
     "SQLiteMemoryStore",
     "SQLiteQualifiedEvidenceCorrespondenceRegistry",
