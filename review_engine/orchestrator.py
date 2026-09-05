@@ -73,6 +73,8 @@ def _response_findings(
     *,
     artifact_hash: str,
     evidence_validator: EvidenceCorrespondenceValidator | None,
+    risk: str,
+    task_type: str,
 ) -> tuple[tuple[ReviewFinding, ...], tuple[dict, ...]]:
     # Direct in-process test adapters may omit epistemic evidence. Registered
     # provider adapters are required to return it. When present, explicit TVC
@@ -84,6 +86,8 @@ def _response_findings(
         response.epistemic_review,
         artifact_hash=artifact_hash,
         evidence_validator=evidence_validator,
+        risk=risk,
+        task_type=task_type,
     )
     return tuple(response.findings) + truth.findings, truth.evidence_assessments
 
@@ -247,6 +251,8 @@ class ReviewEngine:
             r1_initial,
             artifact_hash=artifact.artifact_hash,
             evidence_validator=self._evidence_validator,
+            risk=signals["risk"],
+            task_type=task_type,
         )
         r1_material = _material_findings(r1_all_findings)
         self._emit(
@@ -305,6 +311,8 @@ class ReviewEngine:
             r2_response,
             artifact_hash=artifact.artifact_hash,
             evidence_validator=self._evidence_validator,
+            risk=signals["risk"],
+            task_type=task_type,
         )
         r2_material = _material_findings(r2_all_findings)
         self._emit(
@@ -367,6 +375,8 @@ class ReviewEngine:
             r1_revised,
             artifact_hash=revised.artifact_hash,
             evidence_validator=self._evidence_validator,
+            risk=signals["risk"],
+            task_type=task_type,
         )
         r1_revised_material = _material_findings(r1_revised_all)
         self._emit(
@@ -402,6 +412,8 @@ class ReviewEngine:
             r3_independent,
             artifact_hash=revised.artifact_hash,
             evidence_validator=self._evidence_validator,
+            risk=signals["risk"],
+            task_type=task_type,
         )
         r3_material = _material_findings(r3_all_findings)
         self._emit(
@@ -445,6 +457,8 @@ class ReviewEngine:
             r3_adjudication,
             artifact_hash=revised.artifact_hash,
             evidence_validator=self._evidence_validator,
+            risk=signals["risk"],
+            task_type=task_type,
         )
         unresolved = _dedupe_findings(
             tuple(r1_revised_material) + tuple(_material_findings(r3_adjudication_all))
