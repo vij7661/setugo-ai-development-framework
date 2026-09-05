@@ -6,7 +6,7 @@ from .context_compiler import ContextCompiler
 from .evidence_correspondence import EvidenceCorrespondenceValidator, claim_fingerprint
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewDecision, ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
-from .qualification import QualificationRegistry
+from .qualification import QualificationRegistry, ReviewerCapability
 from .scoped_correction import CorrectionScopeError, build_scoped_correction_plan
 from .truth_contract import evaluate_truth_contract
 
@@ -214,6 +214,77 @@ class ReviewEngine:
         decision = self._qualifications.evaluate(config, risk=risk, task_type=task_type)
         return None if decision.eligible else f"{config.role} not qualified: {decision.reason}"
 
+    def _issue_reviewer_capability(
+        self,
+        config: ReviewerConfig,
+        *,
+        session_id: str,
+        risk: str,
+        task_type: str,
+        request_id: str,
+        phase: str,
+        artifact_hash: str | None = None,
+    ) -> tuple[ReviewerCapability | None, str | None]:
+        if self._qualifications is None:
+            return None, None
+        decision, capability = self._qualifications.issue_capability(
+            config,
+            risk=risk,
+            task_type=task_type,
+            request_id=request_id,
+            phase=phase,
+            artifact_hash=artifact_hash,
+        )
+        if not decision.eligible or capability is None:
+            reason = f"{config.role} not qualified: {decision.reason}"
+            self._emit(
+                session_id,
+                "CAPABILITY_ISSUANCE_REJECTED",
+                {
+                    "role": config.role,
+                    "phase": phase,
+                    "artifact_hash": artifact_hash,
+                    "risk": risk,
+                    "task_type": task_type,
+                    "qualification_ref": decision.qualification_ref,
+                    "qualification_epoch": decision.qualification_epoch,
+                    "reason": reason,
+                },
+            )
+            return None, reason
+        consumed = self._qualifications.consume_capability(
+            capability.capability_id,
+            config,
+            risk=risk,
+            task_type=task_type,
+            request_id=request_id,
+            phase=phase,
+            artifact_hash=artifact_hash,
+        )
+        self._emit(
+            session_id,
+            "REVIEWER_CAPABILITY_ISSUED",
+            {
+                "capability_id": consumed.capability_id,
+                "qualification_ref": consumed.qualification_ref,
+                "qualification_epoch": consumed.qualification_epoch,
+                "role": consumed.role,
+                "provider": consumed.provider,
+                "model": consumed.model,
+                "sku": consumed.sku,
+                "deployment_path": consumed.deployment_path,
+                "foundation_lineage": consumed.foundation_lineage,
+                "risk": consumed.risk,
+                "task_type": consumed.task_type,
+                "request_id": consumed.request_id,
+                "phase": consumed.phase,
+                "artifact_hash": consumed.artifact_hash,
+                "single_use_consumed_for_invocation": True,
+                "external_action_authority": False,
+            },
+        )
+        return consumed, None
+
     def _experimental_unqualified_failure(self, signals: dict, *, truth_review_required: bool = False) -> str | None:
         if self._qualifications is not None:
             return None
@@ -296,7 +367,14 @@ class ReviewEngine:
         if experimental_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (experimental_failure,)))
 
-        q_failure = self._qualification_failure(r1, risk=request.risk, task_type=task_type)
+        _, q_failure = self._issue_reviewer_capability(
+            r1,
+            session_id=session_id,
+            risk=request.risk,
+            task_type=task_type,
+            request_id=request.request_id,
+            phase="R1_INITIAL",
+        )
         if q_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,)))
 
@@ -358,7 +436,16 @@ class ReviewEngine:
         lineage_failure = self._lineage_failure(r1, r2)
         if lineage_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (lineage_failure,), artifact_hash=artifact.artifact_hash))
-        q_failure = self._qualification_failure(r2, risk=signals["risk"], task_type=task_type)
+
+        _, q_failure = self._issue_reviewer_capability(
+            r2,
+            session_id=session_id,
+            risk=signals["risk"],
+            task_type=task_type,
+            request_id=request.request_id,
+            phase="R2_INDEPENDENT",
+            artifact_hash=artifact.artifact_hash,
+        )
         if q_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=artifact.artifact_hash))
 
@@ -419,18 +506,16 @@ class ReviewEngine:
                 )
             )
 
-        q_failure = self._qualification_failure(r1, risk=signals["risk"], task_type=task_type)
+        _, q_failure = self._issue_reviewer_capability(
+            r1,
+            session_id=session_id,
+            risk=signals["risk"],
+            task_type=task_type,
+            request_id=request.request_id,
+            phase="R1_SCOPED_CORRECTION",
+            artifact_hash=artifact.artifact_hash,
+        )
         if q_failure:
-            self._emit(
-                session_id,
-                "CAPABILITY_ISSUANCE_REJECTED",
-                {
-                    "role": "R1",
-                    "phase": "SCOPED_CORRECTION",
-                    "artifact_hash": artifact.artifact_hash,
-                    "reason": q_failure,
-                },
-            )
             return finish(
                 ReviewDecision(
                     "HUMAN_REQUIRED",
@@ -524,7 +609,16 @@ class ReviewEngine:
         lineage_failure = self._lineage_failure(r1, r2, r3)
         if lineage_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (lineage_failure,), artifact_hash=revised.artifact_hash))
-        q_failure = self._qualification_failure(r3, risk=signals["risk"], task_type=task_type)
+
+        _, q_failure = self._issue_reviewer_capability(
+            r3,
+            session_id=session_id,
+            risk=signals["risk"],
+            task_type=task_type,
+            request_id=request.request_id,
+            phase="R3_INDEPENDENT",
+            artifact_hash=revised.artifact_hash,
+        )
         if q_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=revised.artifact_hash))
 
@@ -584,7 +678,15 @@ class ReviewEngine:
                 )
             )
 
-        q_failure = self._qualification_failure(r3, risk=signals["risk"], task_type=task_type)
+        _, q_failure = self._issue_reviewer_capability(
+            r3,
+            session_id=session_id,
+            risk=signals["risk"],
+            task_type=task_type,
+            request_id=request.request_id,
+            phase="R3_ADJUDICATION",
+            artifact_hash=revised.artifact_hash,
+        )
         if q_failure:
             self._emit(
                 session_id,
