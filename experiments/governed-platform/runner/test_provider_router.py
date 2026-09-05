@@ -72,6 +72,7 @@ class RouterTest(unittest.TestCase):
     def _files(self, root):
         case = root / "EXP-C-001.json"
         registry = root / "m.json"
+        qualifications = root / "q.json"
         out = root / "o.json"
         evidence = root / "ev.json"
         case.write_text(
@@ -86,7 +87,7 @@ class RouterTest(unittest.TestCase):
                 }
             )
         )
-        return case, registry, out, evidence
+        return case, registry, qualifications, out, evidence
 
     @staticmethod
     def _mechanisms(items):
@@ -101,33 +102,71 @@ class RouterTest(unittest.TestCase):
                     "provider": provider,
                     "base_url": "x",
                     "model": provider + "-model",
+                    "sku": provider + "-sku",
+                    "deployment_path": "api/" + provider + "/prod",
+                    "role": "JUDGE",
+                    "task_class": "GOVERNANCE_REVIEW",
+                    "privacy_class": "external-approved",
+                    "policy_hash": "policy-v1",
+                    "qualification_id": "qual-" + provider,
+                    "qualification_epoch": 1,
                     "api_key_env": provider.upper() + "_API_KEY",
                 }
             )
         return {"mechanisms": mechanisms}
 
-    def test_first_success_stops_later_calls_and_publishes_trail(self):
+    @staticmethod
+    def _qualifications(mechanisms, *, unqualified=()):
+        rows = []
+        for m in mechanisms["mechanisms"]:
+            rows.append(
+                {
+                    "mechanism_id": m["mechanism_id"],
+                    "provider": m["provider"],
+                    "model": m["model"],
+                    "sku": m["sku"],
+                    "deployment_path": m["deployment_path"],
+                    "role": m["role"],
+                    "task_class": m["task_class"],
+                    "privacy_class": m["privacy_class"],
+                    "policy_hash": m["policy_hash"],
+                    "qualification_id": m["qualification_id"],
+                    "qualification_epoch": m["qualification_epoch"],
+                    "status": "UNQUALIFIED" if m["mechanism_id"] in unqualified else "QUALIFIED",
+                }
+            )
+        return {"qualifications": rows}
+
+    def _argv(self, case, registry, qualifications, out, evidence, version, order="m1,m2,m3"):
+        return [
+            "provider_router.py",
+            "--case",
+            str(case),
+            "--mechanisms",
+            str(registry),
+            "--qualifications",
+            str(qualifications),
+            "--order",
+            order,
+            "--instruction-version",
+            version,
+            "--out",
+            str(out),
+            "--evidence-out",
+            str(evidence),
+        ]
+
+    def test_first_qualified_success_stops_later_calls_and_publishes_trail(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            case, registry, out, evidence = self._files(root)
-            registry.write_text(json.dumps(self._mechanisms([("m1", "mistral"), ("m2", "groq"), ("m3", "gemini")])))
+            case, registry, qualifications, out, evidence = self._files(root)
+            mechanisms = self._mechanisms([("m1", "mistral"), ("m2", "groq"), ("m3", "gemini")])
+            registry.write_text(json.dumps(mechanisms))
+            qualifications.write_text(json.dumps(self._qualifications(mechanisms)))
             FakeAdapter.calls = []
-            argv = [
-                "provider_router.py",
-                "--case",
-                str(case),
-                "--mechanisms",
-                str(registry),
-                "--order",
-                "m1,m2,m3",
-                "--instruction-version",
-                "router-test-v1",
-                "--out",
-                str(out),
-                "--evidence-out",
-                str(evidence),
-            ]
-            with patch("provider_router.OpenAICompatibleAdapter", FakeAdapter), patch("sys.argv", argv):
+            with patch("provider_router.OpenAICompatibleAdapter", FakeAdapter), patch(
+                "sys.argv", self._argv(case, registry, qualifications, out, evidence, "router-test-v1")
+            ):
                 self.assertEqual(provider_router.main(), 0)
 
             ev = json.loads(evidence.read_text())
@@ -143,28 +182,17 @@ class RouterTest(unittest.TestCase):
             self.assertEqual(result["mechanism_id"], "m2")
             self.assertFalse(ev["portfolio_exhausted"])
 
-    def test_unstructured_completion_is_failed_and_router_uses_next_provider(self):
+    def test_unstructured_completion_is_failed_and_router_uses_next_qualified_provider(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            case, registry, out, evidence = self._files(root)
-            registry.write_text(json.dumps(self._mechanisms([("m1", "openrouter"), ("m2", "groq"), ("m3", "gemini")])))
+            case, registry, qualifications, out, evidence = self._files(root)
+            mechanisms = self._mechanisms([("m1", "openrouter"), ("m2", "groq"), ("m3", "gemini")])
+            registry.write_text(json.dumps(mechanisms))
+            qualifications.write_text(json.dumps(self._qualifications(mechanisms)))
             UnstructuredThenSuccessAdapter.calls = []
-            argv = [
-                "provider_router.py",
-                "--case",
-                str(case),
-                "--mechanisms",
-                str(registry),
-                "--order",
-                "m1,m2,m3",
-                "--instruction-version",
-                "router-test-v2",
-                "--out",
-                str(out),
-                "--evidence-out",
-                str(evidence),
-            ]
-            with patch("provider_router.OpenAICompatibleAdapter", UnstructuredThenSuccessAdapter), patch("sys.argv", argv):
+            with patch("provider_router.OpenAICompatibleAdapter", UnstructuredThenSuccessAdapter), patch(
+                "sys.argv", self._argv(case, registry, qualifications, out, evidence, "router-test-v2")
+            ):
                 self.assertEqual(provider_router.main(), 0)
 
             ev = json.loads(evidence.read_text())
@@ -175,6 +203,44 @@ class RouterTest(unittest.TestCase):
             self.assertEqual(ev["selected_mechanism"], "m2")
             self.assertEqual(result["provider"], "groq")
             self.assertTrue(result["evidence_eligible"])
+
+    def test_unqualified_provider_is_denied_before_network_and_next_qualified_provider_runs(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            case, registry, qualifications, out, evidence = self._files(root)
+            mechanisms = self._mechanisms([("m1", "openrouter"), ("m2", "groq"), ("m3", "gemini")])
+            registry.write_text(json.dumps(mechanisms))
+            qualifications.write_text(json.dumps(self._qualifications(mechanisms, unqualified={"m1"})))
+            UnstructuredThenSuccessAdapter.calls = []
+            with patch("provider_router.OpenAICompatibleAdapter", UnstructuredThenSuccessAdapter), patch(
+                "sys.argv", self._argv(case, registry, qualifications, out, evidence, "router-test-v3")
+            ):
+                self.assertEqual(provider_router.main(), 0)
+
+            ev = json.loads(evidence.read_text())
+            self.assertEqual(UnstructuredThenSuccessAdapter.calls, ["groq"])
+            self.assertEqual([x["status"] for x in ev["attempts"]], ["NOT_CALLED", "SUCCESS", "NOT_CALLED"])
+            self.assertIn("qualification-denied", ev["attempts"][0]["reason"])
+            self.assertEqual(ev["selected_mechanism"], "m2")
+
+    def test_qualification_scope_mismatch_is_denied_before_network(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            case, registry, qualifications, out, evidence = self._files(root)
+            mechanisms = self._mechanisms([("m1", "openrouter"), ("m2", "groq")])
+            registry.write_text(json.dumps(mechanisms))
+            quals = self._qualifications(mechanisms)
+            quals["qualifications"][0]["deployment_path"] = "api/openrouter/other"
+            qualifications.write_text(json.dumps(quals))
+            UnstructuredThenSuccessAdapter.calls = []
+            with patch("provider_router.OpenAICompatibleAdapter", UnstructuredThenSuccessAdapter), patch(
+                "sys.argv", self._argv(case, registry, qualifications, out, evidence, "router-test-v4", "m1,m2")
+            ):
+                self.assertEqual(provider_router.main(), 0)
+
+            ev = json.loads(evidence.read_text())
+            self.assertEqual(UnstructuredThenSuccessAdapter.calls, ["groq"])
+            self.assertIn("qualification-deployment_path-mismatch", ev["attempts"][0]["reason"])
 
 
 if __name__ == "__main__":
