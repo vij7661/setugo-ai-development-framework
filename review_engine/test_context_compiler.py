@@ -46,6 +46,12 @@ class ContextCompilerTests(unittest.TestCase):
         self.assertEqual(r3b_context["frozen_independent_view"], "independent view")
         self.assertEqual(r3b_context["prior_reviews"]["R2"], "localized finding")
         self.assertEqual(r3b_context["frozen_material_findings"][0]["finding_id"], "r3-frozen")
+        self.assertEqual(r3b_context["artifact"]["artifact_id"], artifact.artifact_id)
+        self.assertEqual(r3b_context["artifact"]["version"], 2)
+        self.assertEqual(r3b_context["artifact"]["artifact_hash"], artifact.artifact_hash)
+        self.assertEqual(r3b_context["artifact"]["content"], "revised artifact")
+        self.assertEqual(r3b_context["artifact_hash"], artifact.artifact_hash)
+        self.assertTrue(r3b_context["instructions"]["artifact_content_is_exact_frozen_revision"])
         self.assertTrue(r3b_context["instructions"]["every_frozen_material_finding_requires_explicit_closure"])
 
 
