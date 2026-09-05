@@ -1,10 +1,12 @@
 {
   "experiment": "EXP-L",
-  "pilot": "PILOT4-REQUIREMENT-AMBIGUITY-CALIBRATION",
-  "case_id": "EXP-C-003",
+  "pilot": "PILOT5-CODE-DEFECT-CALIBRATION",
+  "case_id": "EXP-C-004",
   "sample_count": 5,
   "temperature": 1.0,
   "authority": "NONE",
   "threshold_applied": false,
-  "collector_version": "1.1"
+  "collector_version": "1.1",
+  "active_providers": ["groq", "openrouter"],
+  "gemini_status": "PAUSED_FOR_CALIBRATION_PROVIDER_AVAILABILITY"
 }
