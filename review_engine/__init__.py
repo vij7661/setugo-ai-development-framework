@@ -27,7 +27,9 @@ from .extractor_qualification import (
     ExtractorQualificationRecord,
     ExtractorQualificationRegistry,
 )
+from .extraction_work import ExtractionWorkOrder, ExtractionWorkRegistry
 from .qualified_claim_coverage import QualifiedRetainedClaimCoverageRegistry
+from .work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
 from .evidence_correspondence import (
     ClaimEvidenceAssessment,
     EvidenceCorrespondenceAttestation,
@@ -62,6 +64,8 @@ __all__ = [
     "CoverageClaim",
     "EvidenceCorrespondenceAttestation",
     "EvidenceCorrespondenceValidator",
+    "ExtractionWorkOrder",
+    "ExtractionWorkRegistry",
     "ExtractorQualificationDecision",
     "ExtractorQualificationRecord",
     "ExtractorQualificationRegistry",
@@ -89,6 +93,7 @@ __all__ = [
     "TVC_VERSION",
     "TruthContractResult",
     "VersionedMemoryStore",
+    "WorkOrderBoundClaimCoverageRegistry",
     "claim_fingerprint",
     "epistemic_protocol_instructions",
     "evaluate_truth_contract",
