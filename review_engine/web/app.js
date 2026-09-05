@@ -49,7 +49,7 @@ async function loadHealth() {
     const health = await api("/health");
     $("healthBadge").textContent = health.status === "ok" ? "SYSTEM READY" : "SYSTEM DEGRADED";
     $("healthBadge").classList.add(health.status === "ok" ? "ok" : "warn");
-    $("assurance").textContent = `${health.assurance_mode} · action execution disabled`;
+    $("assurance").textContent = `${health.assurance_mode} · ${health.truth_contract_version || "TVC unavailable"} · ${health.judge_health_monitor || "judge monitor unavailable"} · action execution disabled`;
     const container = $("reviewers");
     container.replaceChildren();
     for (const role of ["R1", "R2", "R3"]) {
@@ -88,6 +88,7 @@ function renderDecision(result) {
   const entries = [
     ["Request", result.request_id],
     ["Assurance", result.assurance_mode],
+    ["Truth contract", result.truth_contract_version || "—"],
     ["Evidence chain", result.session_chain_valid ? "VALID" : "INVALID"],
     ["Action authorized", result.action_authorized ? "YES" : "NO"],
     ["Human action approval", result.human_action_approval_required ? "REQUIRED" : "NOT REQUIRED"],
