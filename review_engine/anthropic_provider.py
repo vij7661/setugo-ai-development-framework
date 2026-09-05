@@ -4,12 +4,17 @@ import json
 import os
 import random
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .models import ReviewerConfig, ReviewerResponse
-from .providers import RETRYABLE_HTTP, SYSTEM_INSTRUCTION, _parse_response
+from .providers import (
+    RETRYABLE_HTTP,
+    SYSTEM_INSTRUCTION,
+    _parse_response,
+    validate_provider_base_url,
+)
 
 
 @dataclass(frozen=True)
@@ -26,13 +31,18 @@ class AnthropicEndpoint:
 
 class AnthropicProvider:
     def __init__(self, endpoint: AnthropicEndpoint) -> None:
-        if not endpoint.base_url.startswith(("https://", "http://")):
-            raise ValueError("Anthropic base_url must be http(s)")
+        base_url = validate_provider_base_url(endpoint.base_url, label="Anthropic")
         if not 0 <= endpoint.temperature <= 1:
             raise ValueError("Anthropic temperature must be in [0,1]")
         if endpoint.initial_backoff_seconds < 0 or endpoint.max_backoff_seconds < endpoint.initial_backoff_seconds:
             raise ValueError("invalid Anthropic backoff configuration")
-        self.endpoint = endpoint
+        if endpoint.max_attempts < 1:
+            raise ValueError("Anthropic max_attempts must be >= 1")
+        if endpoint.timeout_seconds <= 0:
+            raise ValueError("Anthropic timeout_seconds must be positive")
+        if endpoint.max_tokens < 1:
+            raise ValueError("Anthropic max_tokens must be positive")
+        self.endpoint = replace(endpoint, base_url=base_url)
 
     def _delay(self, attempt: int, retry_after: str | None = None) -> None:
         if retry_after:
