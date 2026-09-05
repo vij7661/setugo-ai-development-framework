@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Iterable
 
+from .claim_coverage import ClaimCoverageValidator
+from .claim_coverage_guard import ClaimCoverageGuardedInvoker
 from .configuration import ReviewEngineConfiguration, build_provider_registry, build_qualification_registry
 from .evidence_correspondence import EvidenceCorrespondenceValidator
 from .judge_health import JudgeHealthMonitor, JudgeObservation
@@ -25,6 +27,7 @@ class ReviewEngineApp:
         provider_registry=None,
         execution_envelope: PlatformExecutionEnvelope | None = None,
         evidence_validator: EvidenceCorrespondenceValidator | None = None,
+        claim_coverage_validator: ClaimCoverageValidator | None = None,
     ) -> None:
         self.configuration = configuration
         self.providers = provider_registry or build_provider_registry(configuration)
@@ -35,11 +38,17 @@ class ReviewEngineApp:
         # integration must inject its own trusted envelope here rather than
         # accepting governance-critical execution facts from request JSON.
         self.execution_envelope = execution_envelope or PlatformExecutionEnvelope()
-        # Evidence correspondence is also platform-owned. It is intentionally
-        # constructor-injected and has no public HTTP write surface in this MVP.
+        # Evidence correspondence and claim coverage are platform-owned. They are
+        # constructor-injected and intentionally have no public HTTP write surface.
         self.evidence_validator = evidence_validator
+        self.claim_coverage_validator = claim_coverage_validator
+        invoker = self.providers.invoke
+        self.claim_coverage_guard = None
+        if self.claim_coverage_validator is not None:
+            self.claim_coverage_guard = ClaimCoverageGuardedInvoker(invoker, self.claim_coverage_validator)
+            invoker = self.claim_coverage_guard
         self.engine = ReviewEngine(
-            self.providers.invoke,
+            invoker,
             session_store=self.sessions,
             qualification_registry=self.qualifications,
             evidence_validator=self.evidence_validator,
@@ -65,6 +74,7 @@ class ReviewEngineApp:
                 "session_chain_valid": self.sessions.validate_chain(request.request_id),
                 "truth_contract_version": TVC_VERSION,
                 "evidence_correspondence_validator_configured": self.evidence_validator is not None,
+                "claim_coverage_validator_configured": self.claim_coverage_validator is not None,
             }
         )
         return result
@@ -111,6 +121,7 @@ class ReviewEngineApp:
             "action_execution_enabled": False,
             "truth_contract_version": TVC_VERSION,
             "evidence_correspondence_validator": "CONFIGURED" if self.evidence_validator is not None else "UNCONFIGURED",
+            "claim_coverage_validator": "CONFIGURED" if self.claim_coverage_validator is not None else "UNCONFIGURED",
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
                 "operation_class": self.execution_envelope.operation_class,
