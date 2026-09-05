@@ -1,0 +1,19 @@
+{
+  "experiment_id": "EXP-F-PILOT13",
+  "scope": "tamper-evident evidence, reviewer lifecycle, transactional idempotency, recursive compile coverage, and end-to-end qualified provider failover integration",
+  "tested_sha": "a84d836751814cd56586b1d3deebb547c8686213",
+  "workflow_run_id": 33955449934,
+  "conclusion": "PASS",
+  "governance_tests": 152,
+  "runner_tests": 26,
+  "covered_controls": [
+    "hash-linked tamper-evident evidence chain with required-evidence completeness",
+    "reviewer performance scoped by role, task class, and risk tier with reversible versioned independent adjudication",
+    "SQLite-backed atomic idempotency uniqueness, event append, and state-version transition under concurrent writers",
+    "recursive compilation of all governed-platform Python modules",
+    "provider router denies unqualified provider/model/SKU/deployment-path routes before network invocation",
+    "runtime provider/model identity must match authorized qualification tuple",
+    "first qualified technical success stops later provider calls"
+  ],
+  "scientific_boundary": "This PASS establishes the tested governed-platform falsification harness behavior on the exact committed head. It does not by itself prove production multi-node datastore linearizability, live-provider privacy/compliance qualification, credential configuration, or full production-system correctness."
+}
