@@ -10,12 +10,13 @@ class SemanticProbePolicy:
     max_normalized_entropy: float
     max_refusal_ratio: float
     policy_version: str
+    min_samples: int = 3
 
 
 @dataclass(frozen=True)
 class SemanticProbeResult:
     status: str
-    normalized_entropy: float
+    normalized_entropy: float | None
     refusal_ratio: float
     semantic_cluster_count: int
     sample_count: int
@@ -23,7 +24,7 @@ class SemanticProbeResult:
     policy_version: str
 
 
-_VALID_STATUSES = {"STABLE", "UNCERTAIN", "REFUSAL_DOMINANT"}
+_VALID_STATUSES = {"STABLE", "UNCERTAIN", "REFUSAL_DOMINANT", "INSUFFICIENT"}
 
 
 def _validate_policy(policy: SemanticProbePolicy) -> None:
@@ -33,6 +34,8 @@ def _validate_policy(policy: SemanticProbePolicy) -> None:
         raise ValueError("max_normalized_entropy must be in [0, 1]")
     if not 0.0 <= policy.max_refusal_ratio <= 1.0:
         raise ValueError("max_refusal_ratio must be in [0, 1]")
+    if not isinstance(policy.min_samples, int) or policy.min_samples < 2:
+        raise ValueError("min_samples must be an integer >= 2")
 
 
 def analyze_semantic_samples(
@@ -44,7 +47,8 @@ def analyze_semantic_samples(
 
     `cluster_ids` represent context-sensitive semantic equivalence classes produced
     by a separately governed clustering step. This function deliberately does not
-    infer semantic equivalence from lexical similarity.
+    infer semantic equivalence from lexical similarity. Insufficient sampling is
+    not reported as stability and must route toward additional review.
     """
 
     _validate_policy(policy)
@@ -67,6 +71,17 @@ def analyze_semantic_samples(
         if refused:
             continue
         counts[cid] = counts.get(cid, 0) + 1
+
+    if n < policy.min_samples:
+        return SemanticProbeResult(
+            status="INSUFFICIENT",
+            normalized_entropy=None,
+            refusal_ratio=refusal_ratio,
+            semantic_cluster_count=len(counts),
+            sample_count=n,
+            reasons=("valid semantic sample count is below policy minimum",),
+            policy_version=policy.policy_version,
+        )
 
     non_refusal_n = sum(counts.values())
     if non_refusal_n <= 1 or len(counts) <= 1:
