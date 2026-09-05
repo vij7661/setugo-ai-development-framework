@@ -43,21 +43,17 @@ jobs:
           PY
       - name: Compile harness Python
         run: |
-          python -m py_compile experiments/governed-platform/score/score_pilot.py
-          python -m py_compile experiments/governed-platform/runner/prepare_run.py
-          python -m py_compile experiments/governed-platform/runner/review_contract.py
-          python -m py_compile experiments/governed-platform/runner/adapters.py
-          python -m py_compile experiments/governed-platform/runner/openai_compatible.py
-          python -m py_compile experiments/governed-platform/runner/provider_router.py
-          python -m py_compile experiments/governed-platform/runner/run_ollama_canary.py
-          python -m py_compile experiments/governed-platform/runner/run_remote_canary.py
-          python -m py_compile experiments/governed-platform/ground-truth/freeze_truth.py
-          python -m py_compile experiments/governed-platform/observability/normalize_github_event.py
-          python -m py_compile experiments/governed-platform/observability/render_status.py
-          python -m py_compile experiments/governed-platform/continuation/controller.py
-          python -m py_compile experiments/governed-platform/continuation/diagnosis.py
-          python -m py_compile experiments/governed-platform/governance/governor.py
-          python -m py_compile experiments/governed-platform/governance/impact_graph.py
+          python - <<'PY'
+          import py_compile
+          from pathlib import Path
+          root = Path("experiments/governed-platform")
+          files = sorted(root.rglob("*.py"))
+          if not files:
+              raise SystemExit("no Python files found to compile")
+          for path in files:
+              py_compile.compile(str(path), doraise=True)
+              print("compiled", path)
+          PY
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
         run: python -m unittest -v test_score_pilot.py
