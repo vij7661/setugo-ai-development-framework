@@ -44,18 +44,18 @@ class ReviewEngineApp:
         self.claim_coverage_validator = claim_coverage_validator
 
         # A governed reviewer configuration must not gain a stronger-looking
-        # assurance label while using coverage inventories that bypass extractor
-        # qualification admission. Experimental mode may use the raw reference
-        # registry for tests/prototyping, but GOVERNED mode requires a validator
-        # that explicitly enforces qualified inventory admission.
-        if (
-            self.qualifications is not None
-            and self.claim_coverage_validator is not None
-            and not bool(getattr(self.claim_coverage_validator, "qualified_admission_enforced", False))
-        ):
-            raise ValueError(
-                "GOVERNED assurance requires claim coverage with qualified extractor admission"
-            )
+        # assurance label while using coverage evidence that bypasses extractor
+        # qualification or accepts risk/task scope as free admission arguments.
+        # Experimental mode may use reference registries for tests/prototyping.
+        if self.qualifications is not None and self.claim_coverage_validator is not None:
+            if not bool(getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires claim coverage with qualified extractor admission"
+                )
+            if not bool(getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires claim coverage bound to platform-issued extraction scope"
+                )
 
         invoker = self.providers.invoke
         self.claim_coverage_guard = None
@@ -92,6 +92,9 @@ class ReviewEngineApp:
                 "claim_coverage_validator_configured": self.claim_coverage_validator is not None,
                 "claim_coverage_qualified_admission": bool(
                     getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)
+                ) if self.claim_coverage_validator is not None else False,
+                "claim_coverage_trusted_scope_binding": bool(
+                    getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)
                 ) if self.claim_coverage_validator is not None else False,
             }
         )
@@ -142,6 +145,9 @@ class ReviewEngineApp:
             "claim_coverage_validator": "CONFIGURED" if self.claim_coverage_validator is not None else "UNCONFIGURED",
             "claim_coverage_qualified_admission": bool(
                 getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)
+            ) if self.claim_coverage_validator is not None else False,
+            "claim_coverage_trusted_scope_binding": bool(
+                getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)
             ) if self.claim_coverage_validator is not None else False,
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
