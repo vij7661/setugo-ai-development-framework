@@ -70,8 +70,6 @@ class ProductFalsificationTests(unittest.TestCase):
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
                 return ReviewerResponse("R1", None, "v1: deployment succeeded")
             if config.role == "R2":
-                # Free-form findings are deliberately empty. TVC must still
-                # synthesize the material correspondence failure.
                 return ReviewerResponse(
                     "R2",
                     context["artifact"]["artifact_hash"],
@@ -136,9 +134,7 @@ class ProductFalsificationTests(unittest.TestCase):
         self.assertEqual(decision.state, "HUMAN_REQUIRED")
         self.assertTrue(any("contradiction" in text.lower() for text in decision.dissent))
 
-    def test_evidence_handle_presence_is_not_source_correspondence_validation(self):
-        # Deliberate boundary test: TVC-1 checks structural evidence handles but
-        # cannot know that an arbitrary handle actually supports the claim.
+    def test_fake_evidence_handle_cannot_certify_correspondence(self):
         review = {
             "version": TVC_VERSION,
             "correspondence": "SUPPORTED",
@@ -155,15 +151,16 @@ class ProductFalsificationTests(unittest.TestCase):
                 "material": True,
             }],
         }
-        result = evaluate_truth_contract("R2", review)
-        self.assertFalse(any(f.violated_invariant == "TVC-CORRESPONDENCE" for f in result.findings))
+        result = evaluate_truth_contract("R2", review, artifact_hash="0" * 64)
+        finding = next(f for f in result.findings if f.violated_invariant == "TVC-EVIDENCE-CORRESPONDENCE")
+        self.assertTrue(finding.material)
+        self.assertEqual(finding.severity, "HIGH")
+        self.assertEqual(result.evidence_assessments[0]["status"], "UNVERIFIED")
 
     def test_truth_bearer_misclassification_is_not_a_deterministic_semantic_oracle(self):
-        # Deliberate boundary test: a model can misclassify an empirical-looking
-        # assertion as an INFERENCE and report the overall correspondence status
-        # as SUPPORTED. TVC-1 validates the declared structure; it cannot prove
-        # the semantic classification itself is correct. Independent review and
-        # source correspondence validation remain necessary for stronger assurance.
+        # Deliberate remaining boundary: if a model misclassifies an empirical
+        # assertion as an INFERENCE, deterministic TVC structure alone cannot
+        # prove the semantic classification wrong.
         review = {
             "version": TVC_VERSION,
             "correspondence": "SUPPORTED",
@@ -181,13 +178,11 @@ class ProductFalsificationTests(unittest.TestCase):
             }],
         }
         result = evaluate_truth_contract("R1", review)
-        self.assertFalse(any(f.violated_invariant == "TVC-CORRESPONDENCE" for f in result.findings))
+        self.assertFalse(any(f.violated_invariant in {"TVC-CORRESPONDENCE", "TVC-EVIDENCE-CORRESPONDENCE"} for f in result.findings))
 
     def test_unanimous_judges_can_be_jointly_wrong_without_triggering_no_ground_truth_alarm(self):
         observations = []
         for i in range(20):
-            # Both judges return the same label. With no answer key, the monitor
-            # must not invent evidence that this shared label is correct.
             observations.append(JudgeObservation(f"t{i}", "judge-a", "WRONG-BUT-UNKNOWN"))
             observations.append(JudgeObservation(f"t{i}", "judge-b", "WRONG-BUT-UNKNOWN"))
         report = JudgeHealthMonitor(minimum_accuracy_target=0.9, minimum_shared_tasks=20).evaluate(observations)
