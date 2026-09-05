@@ -25,6 +25,7 @@ A governed development workflow using complementary verification, intent/invaria
 | EXP-K | Conditional Review Cost and Token Efficiency | Can conditional review preserve protected quality while reducing unnecessary calls, tokens, cost and latency? |
 | EXP-L | Adaptive Review Triggering with Semantic Uncertainty | Can black-box semantic instability/refusal/counterfactual signals decide when R2 adds enough marginal value, without treating stability as truth? |
 | EXP-M | Reviewer Blinding, Majority Pressure and Pair Effects | Does staged disclosure preserve independent correction better than exposing prior conclusions, confidence or majority signals before a reviewer forms its own position? |
+| EXP-N | Claim-Level Review Targeting and Context Reduction | Can proposition-level review targeting reduce reviewer context/tokens while preserving full-context material-defect coverage? |
 
 ## Experiment discipline
 
@@ -43,6 +44,7 @@ A governed development workflow using complementary verification, intent/invaria
 13. Semantic stability is not factuality. Low within-model semantic uncertainty cannot override governance-required review and must be evaluated explicitly against stable-but-wrong controls.
 14. Reviewer confidence and majority/vote signals are not admissible evidence for independent-review routing. A later reviewer must form and freeze an independent position before prior final reviews are disclosed for adjudication.
 15. Semantic-probe thresholds are versioned policy inputs. Test thresholds exercise mechanics only and cannot be promoted to production thresholds without calibration evidence.
+16. Context/token reduction may prioritize review targets but may not remove authoritative requirements, mark unreviewed claims as verified, or deny a high-risk reviewer access to the exact full artifact.
 
 ## Product-directed review sequence under test
 
@@ -55,6 +57,8 @@ Reviewer 1 may be any user-selected qualified model. Reviewer 2 and Reviewer 3 m
 The semantic probe is a cost/uncertainty signal only. It may help avoid unnecessary reviews on low-risk stable cases or trigger review on unstable/refusal-heavy cases. It does not replace independent review for policy-required risk tiers because a model can be consistently wrong.
 
 Reviewer 3 is tested with staged disclosure: first the authoritative context and frozen artifact, then after its independent position is frozen, prior final reviews may be revealed for adjudication. Confidence scores, vote counts, private reasoning and protected truth remain excluded.
+
+Claim-level targeting is deliberately deferred until the adaptive-review and reviewer-blinding pilots are better understood. Its intended use is later token/context reduction, not as a shortcut around review or evidence completeness.
 
 ## Minimum harness layout
 
@@ -72,7 +76,9 @@ The foundational experiments EXP-A through EXP-G establish verification, semanti
 
 **EXP-H Review Decision Engine → EXP-I Convergence → EXP-J Shared Memory/Contamination → EXP-K Cost/Token Efficiency → EXP-L Adaptive Review Triggering → EXP-M Reviewer Blinding/Pair Effects → freeze pilot findings → design MVP backend.**
 
-Scientific claims still require controlled executions and protected scoring. Deterministic guard tests establish harness behavior only; they do not make EXP-H through EXP-M scientific PASS results by themselves.
+**EXP-N Claim-Level Review Targeting remains pre-registered but deferred until after the EXP-L/M findings are frozen, because token reduction must be evaluated against a stable review policy rather than optimized prematurely.**
+
+Scientific claims still require controlled executions and protected scoring. Deterministic guard tests establish harness behavior only; they do not make EXP-H through EXP-N scientific PASS results by themselves.
 
 ## Freeze rule
 
