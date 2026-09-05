@@ -7,13 +7,14 @@ import time
 from dataclasses import dataclass, replace
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
 from .models import ReviewerConfig, ReviewerResponse
 from .providers import (
     RETRYABLE_HTTP,
     SYSTEM_INSTRUCTION,
     _parse_response,
+    urlopen,
     validate_provider_base_url,
 )
 
