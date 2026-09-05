@@ -16,7 +16,7 @@ class FailingProviders:
     def invoke(self, config, context):
         self.calls.append(config.role)
         # Deliberately include content that must never be copied into retained
-        # session evidence by the generic execution-abort path.
+        # session evidence or exposed through the application boundary.
         raise RuntimeError("provider-private-response-body SECRET_TOKEN_SHOULD_NOT_PERSIST")
 
 
@@ -49,8 +49,15 @@ class ExecutionAbortApplicationTests(unittest.TestCase):
             providers = FailingProviders()
             app = build_app(td, providers)
 
-            with self.assertRaisesRegex(RuntimeError, "SECRET_TOKEN_SHOULD_NOT_PERSIST"):
+            with self.assertRaises(RuntimeError) as caught:
                 app.review({"request_id": "provider-failure", "user_input": "brainstorm"})
+            self.assertEqual(
+                str(caught.exception),
+                "review execution failed; inspect retained session evidence",
+            )
+            self.assertNotIn("SECRET_TOKEN_SHOULD_NOT_PERSIST", str(caught.exception))
+            self.assertNotIn("provider-private-response-body", str(caught.exception))
+            self.assertIsNone(caught.exception.__cause__)
 
             self.assertEqual(providers.calls, ["R1"])
             events = app.session_events("provider-failure")
