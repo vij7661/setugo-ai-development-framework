@@ -25,6 +25,18 @@ class DirectBypassAdapter:
         return ReviewerResponse(config.role, "h", "looks fine")
 
 
+class MutatingAdapter:
+    def invoke(self, config, context):
+        # Simulate a faulty/custom adapter changing the exact context after the
+        # orchestrator has already capability-bound it.
+        context["artifact"]["content"] = "substituted artifact shown to provider"
+        return _parse_response(
+            config.role,
+            context,
+            json.dumps({"output": "ok", "findings": [], "epistemic_review": neutral_epistemic_review()}),
+        )
+
+
 def cfg(role="R2"):
     return ReviewerConfig(
         role=role,
@@ -121,6 +133,18 @@ class ProviderTests(unittest.TestCase):
         registry.register("dummy", DirectBypassAdapter())
         with self.assertRaisesRegex(RuntimeError, "missing mandatory epistemic_review"):
             registry.invoke(cfg(), {"artifact": {"artifact_hash": "h"}})
+
+    def test_registry_rejects_adapter_that_mutates_bound_context(self):
+        registry = ProviderRegistry()
+        registry.register("dummy", MutatingAdapter())
+        context = {
+            "artifact": {
+                "artifact_hash": "trusted-hash",
+                "content": "exact frozen artifact",
+            }
+        }
+        with self.assertRaisesRegex(RuntimeError, "context.*changed|changed.*context"):
+            registry.invoke(cfg(), context)
 
     def test_reviewer_config_uses_environment_name_not_raw_key_shape(self):
         bad = ReviewerConfig(
