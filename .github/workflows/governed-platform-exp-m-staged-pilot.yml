@@ -1,0 +1,30 @@
+name: Governed Platform EXP-M Staged Adjudication Pilot
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-m-staged-trigger.json]
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+jobs:
+  staged:
+    name: EXP-M OpenRouter Staged After Freeze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env: {OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Execute staged adjudication samples
+        run: |
+          N="$(python -c 'import json;print(json.load(open(".github/exp-m-staged-trigger.json")).get("sample_count",3))')"
+          CASE_ID=EXP-M-001-STAGED
+          mkdir -p exp-m-staged
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-b --instruction-version exp-m-staged-v1 --out "exp-m-staged/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$N"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-m-staged/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --temperature 0.7 --out "exp-m-staged/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-m-staged-results, path: exp-m-staged/, if-no-files-found: error}
