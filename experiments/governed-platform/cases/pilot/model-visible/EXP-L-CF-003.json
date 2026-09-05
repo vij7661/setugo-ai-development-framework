@@ -1,0 +1,25 @@
+{
+  "case_id": "EXP-L-CF-003",
+  "experiment_id": "EXP-L",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:ambiguous_refund_rule",
+  "authoritative_intent_ref": "inline:refund_notes",
+  "invariant_refs": [],
+  "model_visible": {
+    "requirement_notes": [
+      "Customers can request a refund within 30 days.",
+      "Subscription fees are generally non-refundable after activation."
+    ],
+    "implementation": "Rejects all activated subscription refund requests, including requests made within 30 days.",
+    "test_failure": "A newly added test expects an activated subscription refund on day 10 to succeed.",
+    "cross_examination": [
+      "Evaluate the outcome if the first requirement note controls the day-10 activated-subscription case.",
+      "Evaluate the outcome if the second requirement note controls the same case.",
+      "If those two controlled assumptions produce different authorized changes, determine whether the supplied material establishes which requirement has precedence."
+    ],
+    "task": "After this counterfactual comparison, diagnose the failure and state which artifact class, if any, is authorized to change. A counterfactual branch is not itself authoritative evidence."
+  },
+  "ground_truth_ref": "local-hidden:EXP-C-003.ground-truth.json",
+  "tags": ["counterfactual-probe", "requirement-unresolved", "ambiguity", "corrective-authority"]
+}
