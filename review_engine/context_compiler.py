@@ -6,6 +6,15 @@ from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewerResponse, ReviewRequest
 
 
+def _shared_memory_view(memory: VersionedMemoryStore) -> list[dict]:
+    """Return reviewer-visible shared state without general review evidence.
+
+    Frozen prior reviews required for adjudication are passed explicitly by the
+    context compiler; they must not arrive through ambient shared memory.
+    """
+    return [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"]
+
+
 class ContextCompiler:
     """Build role-specific context without leaking protected or anchoring data."""
 
@@ -14,7 +23,7 @@ class ContextCompiler:
             "role": "R1",
             "request_id": request.request_id,
             "user_input": request.user_input,
-            "memory": [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"],
+            "memory": _shared_memory_view(memory),
             "instructions": {
                 "authority": "advisory_generation_only",
                 "must_not_self_authorize": True,
@@ -37,7 +46,7 @@ class ContextCompiler:
                 "artifact_hash": artifact.artifact_hash,
                 "content": artifact.content,
             },
-            "memory": [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"],
+            "memory": _shared_memory_view(memory),
             "instructions": {
                 "mode": "independent_detector_challenger",
                 "find_first_material_failure": True,
@@ -65,7 +74,7 @@ class ContextCompiler:
                 "artifact_hash": artifact.artifact_hash,
                 "content": artifact.content,
             },
-            "memory": [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"],
+            "memory": _shared_memory_view(memory),
             "instructions": {
                 "mode": "independent_verifier",
                 "prior_reviewer_positions_hidden": True,
@@ -99,7 +108,7 @@ class ContextCompiler:
                 "R1": r1_response.output,
                 "R2": r2_response.output,
             },
-            "memory": [asdict(r) for r in memory.reviewer_visible()],
+            "memory": _shared_memory_view(memory),
             "instructions": {
                 "independent_view_is_frozen": True,
                 "compare_against_authoritative_evidence": True,
