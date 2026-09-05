@@ -5,6 +5,7 @@ import json
 import os
 import random
 import time
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.error import HTTPError, URLError
@@ -12,6 +13,7 @@ from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .models import ReviewFinding, ReviewerConfig, ReviewerResponse
+from .qualification import reviewer_context_hash
 from .truth_contract import TVC_VERSION, validate_epistemic_review
 
 RETRYABLE_HTTP = frozenset({429, 500, 502, 503, 504})
@@ -301,6 +303,17 @@ class OpenAICompatibleProvider:
 
 
 class ProviderRegistry:
+    """Dispatch provider adapters while preserving capability-bound context integrity.
+
+    The registry snapshots the model-visible context before giving it to an
+    adapter and rejects any response if that adapter mutates the dispatch copy.
+    This prevents mutated adapter state from being accepted as governed review
+    evidence. It is an in-process integrity control, not cryptographic proof of
+    what a remote provider ultimately received.
+    """
+
+    provider_context_integrity_enforced = True
+
     def __init__(self) -> None:
         self._providers: dict[str, ProviderAdapter] = {}
 
@@ -313,7 +326,22 @@ class ProviderRegistry:
         adapter = self._providers.get(config.provider)
         if adapter is None:
             raise RuntimeError(f"provider adapter not registered: {config.provider}")
-        response = adapter.invoke(config, context)
+
+        try:
+            dispatch_context = deepcopy(context)
+            before_hash = reviewer_context_hash(dispatch_context)
+        except (TypeError, ValueError):
+            raise RuntimeError("provider dispatch context is not admissible") from None
+
+        response = adapter.invoke(config, dispatch_context)
+
+        try:
+            after_hash = reviewer_context_hash(dispatch_context)
+        except (TypeError, ValueError):
+            raise RuntimeError("provider dispatch context changed during adapter invocation") from None
+        if after_hash != before_hash:
+            raise RuntimeError("provider dispatch context changed during adapter invocation")
+
         if not isinstance(response, ReviewerResponse):
             raise RuntimeError("provider adapter returned invalid response type")
         response.validate()
