@@ -17,8 +17,8 @@ The platform owns routing mechanics, context visibility, reviewer eligibility/in
 ```text
 User request
   -> trusted application execution envelope + caller declarations + conservative text floor
-  -> R1 interpreter/builder
-  -> platform risk/review decision
+  -> R1 interpreter/builder + structured epistemic review
+  -> platform risk/review decision + Truth & Veracity Contract evaluation
      -> direct finalization when bounded policy permits
      -> blinded R2 detection when review is required
         -> finalization if no effectively material finding
@@ -43,14 +43,45 @@ A future authenticated tool/agent system must inject real platform-owned tool gr
 
 Reviewer-supplied `material` is evidence rather than final authority. The platform computes effective finding materiality. At minimum, `HIGH` and `CRITICAL` findings are treated as material even if a reviewer emits `material=false`. Raw reviewer flags are retained separately in evidence.
 
+## Truth & Veracity Contract (TVC-1)
+
+Reviewer reasoning is now decomposed into four separate epistemic dimensions rather than one vague confidence judgment:
+
+- **Correspondence** — whether empirical claims have admissible evidence or remain explicitly unsupported/unverified.
+- **Coherence** — whether the artifact is internally consistent or contains unresolved contradictions.
+- **Pragmatic utility** — whether a proposal is operationally viable; usefulness never overrides factual/logical/governance defects.
+- **Semantic precision** — whether the response cleanly distinguishes empirical facts, logical claims, definitions, inferences, assumptions, hypotheses, opinions and recommendations.
+
+The implemented provider adapters require a structured `epistemic_review` object in model JSON. An empirical claim marked `SUPPORTED` must include at least one evidence handle. This is a structural provenance requirement: the presence of an evidence handle does **not** by itself prove that the cited source actually supports the claim.
+
+Explicit TVC failures are converted into platform-visible findings. In particular, unsupported/unverified **material empirical facts**, reported contradictions and materially misleading semantic presentation cannot be silently ignored just because the model omitted a matching free-form finding.
+
+R1 self-reported material truth/veracity failures force independent review. `EXPERIMENTAL_UNQUALIFIED` mode cannot clear such an escalation. Agreement between R1/R2/R3 is still evidence only and never establishes truth or action authority.
+
 ## Reviewer independence
 
 Whenever R2 is required, its `foundation_lineage` must differ from R1. Whenever R3 is required, it must differ from both R1 and R2. Cross-model agreement is evidence and never release/action authority.
 
+## No-ground-truth Judge Health Monitor
+
+`judge_health.py` adds a conservative logical-consistency alarm for retained judge decisions when the answer key is unknown.
+
+For two judges evaluated on the same `Q` single-label tasks, if both are required to have accuracy at least `a` against the same unknown answer key, they cannot disagree on more than `2 * (1-a) * Q` tasks. If observed disagreements exceed that bound, the platform can conclude only that **both judges cannot simultaneously satisfy the configured accuracy requirement**.
+
+Monitor states are deliberately non-certifying:
+
+- `INSUFFICIENT_DATA`
+- `NO_LOGICAL_ALARM`
+- `LOGICALLY_INCONSISTENT_WITH_QUALIFICATION_TARGET`
+
+`NO_LOGICAL_ALARM` is intentionally not called `HEALTHY`, `CORRECT` or `ALIGNED`. Agreement cannot establish correctness without ground truth. The monitor also cannot identify which judge is wrong. It is a qualification/monitoring alarm, not a release gate or correctness oracle.
+
+The current implementation is a sound pairwise disagreement-bound subset of richer no-knowledge/linear-programming approaches. It assumes authentic retained observations, comparable single-label tasks, and a common but unknown answer key. More advanced label-specific/correlation analysis remains future work.
+
 ## Qualification / assurance modes
 
 - **GOVERNED**: retained qualification records are present and each invoked reviewer must match provider + model + SKU + deployment path + role + foundation lineage + risk + task scope.
-- **EXPERIMENTAL_UNQUALIFIED**: no retained qualification evidence is configured. This mode is intentionally capped to bounded R1-only low-risk review. Any condition that requires independent R2, consequential/mutation/external review, high uncertainty, authoritative ambiguity or incomplete evidence fails closed to `HUMAN_REQUIRED`.
+- **EXPERIMENTAL_UNQUALIFIED**: no retained qualification evidence is configured. This mode is intentionally capped to bounded R1-only low-risk review. Any condition that requires independent R2, consequential/mutation/external review, high uncertainty, authoritative ambiguity, incomplete evidence, or a material Truth & Veracity escalation fails closed to `HUMAN_REQUIRED`.
 
 The multi-provider example configuration intentionally contains no qualification records and therefore runs only in `EXPERIMENTAL_UNQUALIFIED` mode until real retained qualifications are added.
 
@@ -63,6 +94,8 @@ Memory is typed and versioned rather than a raw shared chat log. Records have li
 The MVP session ledger is append-only at the application API and hash-linked. A request/session identifier represents one lifecycle: duplicate `REQUEST_RECEIVED` events are rejected and `FINAL_DECISION` seals the session. The hash chain is tamper-evident, not externally immutable against privileged database rewrite.
 
 Reviewer response `artifact_hash` binding is **platform-side bookkeeping integrity**: the provider adapter binds a response to the artifact hash in the platform-created context, and the orchestrator rejects mismatches. It is not a cryptographic reviewer attestation that proves the model semantically analyzed that exact content.
+
+Structured epistemic review evidence and TVC-derived findings are retained with stage evidence. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
 
 ## API-key rule
 
@@ -78,6 +111,8 @@ This is an MVP orchestration core, not a production authorization system.
 - Hash-linked evidence is not external/WORM immutability.
 - Provider runtime identity is not universally cryptographically attested.
 - Request-text consequence hints are not complete semantic intent detection.
+- Evidence-handle presence does not prove source correspondence; source provenance validation remains a separate platform responsibility.
+- Judge-health `NO_LOGICAL_ALARM` does not establish correctness or alignment.
 - The platform still needs authenticated tool-state integration before it can claim independently verified execution consequences.
 
 Future experiments should exercise this package end-to-end rather than adding isolated experiment-only orchestration paths.
