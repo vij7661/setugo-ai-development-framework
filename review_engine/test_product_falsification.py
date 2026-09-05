@@ -81,7 +81,7 @@ class ProductFalsificationTests(unittest.TestCase):
         def invoke(config, context):
             calls.append((config.role, context.get("mode"), context.get("phase")))
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
-                return ReviewerResponse("R1", None, "v1: deployment succeeded")
+                return ReviewerResponse("R1", None, "Status: The deployment succeeded.\nOwner: operations")
             if config.role == "R2":
                 return ReviewerResponse(
                     "R2",
@@ -92,7 +92,7 @@ class ProductFalsificationTests(unittest.TestCase):
                 )
             if config.role == "R1":
                 self.assertEqual(context["verified_review_targets"][0]["violated_invariant"], "TVC-CORRESPONDENCE")
-                return ReviewerResponse("R1", None, "v2: deployment status is unverified")
+                return ReviewerResponse("R1", None, "Status: The deployment status is unverified.\nOwner: operations")
             return ReviewerResponse(
                 "R3",
                 context["artifact"]["artifact_hash"],
@@ -125,12 +125,16 @@ class ProductFalsificationTests(unittest.TestCase):
 
         def invoke(config, context):
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
-                return ReviewerResponse("R1", None, "v1")
+                return ReviewerResponse("R1", None, "stable\nmaterial defect\nfooter")
             if config.role == "R2":
-                f = ReviewFinding("f1", "R2", "HIGH", True, "material defect")
+                f = ReviewFinding(
+                    "f1", "R2", "HIGH", True, "material defect",
+                    affected_scope=("claim:defect",),
+                    first_invalid_claim="material defect",
+                )
                 return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "defect", (f,))
             if config.role == "R1":
-                return ReviewerResponse("R1", None, "v2")
+                return ReviewerResponse("R1", None, "stable\nmaterial correction\nfooter")
             return ReviewerResponse(
                 "R3",
                 context.get("artifact", {}).get("artifact_hash") or context["artifact_hash"],
