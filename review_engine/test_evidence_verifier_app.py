@@ -20,6 +20,7 @@ from review_engine.models import ReviewerConfig, ReviewerResponse, content_hash
 from review_engine.qualification import QualificationRecord
 from review_engine.qualified_evidence_correspondence import QualifiedRetainedEvidenceCorrespondenceRegistry
 from review_engine.request_boundary import PlatformExecutionEnvelope
+from review_engine.sqlite_evidence_correspondence import SQLiteQualifiedEvidenceCorrespondenceRegistry
 
 
 ARTIFACT = "Revenue increased 40%."
@@ -149,12 +150,29 @@ class EvidenceVerifierApplicationTests(unittest.TestCase):
                     evidence_validator=RetainedEvidenceCorrespondenceRegistry(),
                 )
 
-    def test_governed_app_accepts_qualified_correspondence_registry(self):
+    def test_governed_app_rejects_qualified_but_in_memory_correspondence_registry(self):
         validator = QualifiedRetainedEvidenceCorrespondenceRegistry(
             verifier_qualifications(max_risk="HIGH")
         )
         validator.add(support_attestation())
         with tempfile.TemporaryDirectory() as td:
+            with self.assertRaisesRegex(ValueError, "durable evidence correspondence attestation state"):
+                ReviewEngineApp(
+                    governed_configuration(),
+                    memory_db=str(Path(td) / "memory.db"),
+                    sessions_db=str(Path(td) / "sessions.db"),
+                    provider_registry=FakeProviders(),
+                    execution_envelope=PlatformExecutionEnvelope(task_type="RESEARCH"),
+                    evidence_validator=validator,
+                )
+
+    def test_governed_app_accepts_durable_qualified_correspondence_registry(self):
+        with tempfile.TemporaryDirectory() as td:
+            validator = SQLiteQualifiedEvidenceCorrespondenceRegistry(
+                Path(td) / "correspondence.db",
+                verifier_qualifications(max_risk="HIGH"),
+            )
+            validator.add(support_attestation())
             app = ReviewEngineApp(
                 governed_configuration(),
                 memory_db=str(Path(td) / "memory.db"),
@@ -166,16 +184,18 @@ class EvidenceVerifierApplicationTests(unittest.TestCase):
             health = app.health()
             self.assertEqual(health["assurance_mode"], "GOVERNED")
             self.assertTrue(health["evidence_correspondence_qualified_verifier"])
+            self.assertTrue(health["evidence_correspondence_durable_attestation_state"])
 
-    def test_actual_review_risk_is_used_for_verifier_qualification(self):
+    def test_actual_review_risk_is_used_for_durable_verifier_qualification(self):
         # The attestation is valid for LOW risk only. If the orchestrator silently
         # used the validator's default LOW scope, this would false-green as
         # VERIFIED_SUPPORT. The HIGH request must make it UNVERIFIED instead.
-        validator = QualifiedRetainedEvidenceCorrespondenceRegistry(
-            verifier_qualifications(max_risk="LOW")
-        )
-        validator.add(support_attestation())
         with tempfile.TemporaryDirectory() as td:
+            validator = SQLiteQualifiedEvidenceCorrespondenceRegistry(
+                Path(td) / "correspondence.db",
+                verifier_qualifications(max_risk="LOW"),
+            )
+            validator.add(support_attestation())
             app = ReviewEngineApp(
                 governed_configuration(),
                 memory_db=str(Path(td) / "memory.db"),
