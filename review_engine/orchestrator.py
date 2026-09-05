@@ -698,6 +698,5 @@ class ReviewEngine:
                 ("R3 adjudication explicitly closed every frozen material finding without majority voting",),
                 revised.content,
                 revised.artifact_hash,
-                tuple(f.summary for f in r3_all_findings),
             )
         )
