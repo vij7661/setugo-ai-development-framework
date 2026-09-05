@@ -10,10 +10,14 @@ from .models import (
 from .memory import VersionedMemoryStore
 from .context_compiler import ContextCompiler
 from .orchestrator import ReviewEngine
+from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
 
 __all__ = [
     "ContextCompiler",
     "MemoryRecord",
+    "OpenAICompatibleEndpoint",
+    "OpenAICompatibleProvider",
+    "ProviderRegistry",
     "ReviewArtifact",
     "ReviewDecision",
     "ReviewEngine",
