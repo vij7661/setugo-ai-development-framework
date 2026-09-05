@@ -57,6 +57,17 @@ def inventory(*, inventory_id: str = "inv-1", artifact: str = ARTIFACT) -> Claim
     )
 
 
+def declared_claims() -> list[dict]:
+    return [
+        {
+            "claim_id": "c1",
+            "text": ARTIFACT,
+            "claim_type": "EMPIRICAL_FACT",
+            "material": True,
+        }
+    ]
+
+
 class SQLiteExtractionWorkTests(unittest.TestCase):
     def test_issued_work_order_survives_process_restart(self):
         with tempfile.TemporaryDirectory() as td:
@@ -118,19 +129,117 @@ class SQLiteExtractionWorkTests(unittest.TestCase):
 
             assessment = SQLiteWorkOrderBoundClaimCoverageRegistry(restarted).assess(
                 artifact_hash=expected.artifact_hash,
-                declared_claims=[
-                    {
-                        "claim_id": "c1",
-                        "text": ARTIFACT,
-                        "claim_type": "EMPIRICAL_FACT",
-                        "material": True,
-                    }
-                ],
+                declared_claims=declared_claims(),
                 reviewer_foundation_lineage="reviewer-lineage",
+                risk="LOW",
+                task_type="RESEARCH",
             )
             self.assertEqual(assessment.status, "VERIFIED_COVERAGE")
             self.assertEqual(assessment.inventory_ids, (expected.inventory_id,))
             self.assertEqual(assessment.provenance, (expected.provenance,))
+
+    def test_low_risk_inventory_cannot_satisfy_high_risk_review_scope(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extraction_work.db"
+            q = qualifications()
+            work = SQLiteExtractionWorkRegistry(path, q)
+            order = work.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            coverage = SQLiteWorkOrderBoundClaimCoverageRegistry(work)
+            coverage.add(inventory(), work_order_id=order.work_order_id)
+
+            low = coverage.assess(
+                artifact_hash=content_hash(ARTIFACT),
+                declared_claims=declared_claims(),
+                reviewer_foundation_lineage="reviewer-lineage",
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            high = coverage.assess(
+                artifact_hash=content_hash(ARTIFACT),
+                declared_claims=declared_claims(),
+                reviewer_foundation_lineage="reviewer-lineage",
+                risk="HIGH",
+                task_type="RESEARCH",
+            )
+            self.assertEqual(low.status, "VERIFIED_COVERAGE")
+            self.assertEqual(high.status, "UNVERIFIED")
+            self.assertEqual(high.inventory_ids, ())
+
+    def test_task_scoped_inventory_cannot_cross_review_task_type(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extraction_work.db"
+            work = SQLiteExtractionWorkRegistry(path, qualifications())
+            order = work.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            coverage = SQLiteWorkOrderBoundClaimCoverageRegistry(work)
+            coverage.add(inventory(), work_order_id=order.work_order_id)
+
+            assessment = coverage.assess(
+                artifact_hash=content_hash(ARTIFACT),
+                declared_claims=declared_claims(),
+                reviewer_foundation_lineage="reviewer-lineage",
+                risk="LOW",
+                task_type="GENERAL",
+            )
+            self.assertEqual(assessment.status, "UNVERIFIED")
+            self.assertEqual(assessment.inventory_ids, ())
+
+    def test_revocation_after_inventory_admission_invalidates_current_scope_assessment(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extraction_work.db"
+            q = qualifications()
+            work = SQLiteExtractionWorkRegistry(path, q)
+            order = work.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            coverage = SQLiteWorkOrderBoundClaimCoverageRegistry(work)
+            coverage.add(inventory(), work_order_id=order.work_order_id)
+            self.assertEqual(
+                coverage.assess(
+                    artifact_hash=content_hash(ARTIFACT),
+                    declared_claims=declared_claims(),
+                    reviewer_foundation_lineage="reviewer-lineage",
+                    risk="LOW",
+                    task_type="RESEARCH",
+                ).status,
+                "VERIFIED_COVERAGE",
+            )
+
+            q.add(
+                ExtractorQualificationRecord(
+                    qualification_ref="extractor-q1",
+                    provider="extractor-provider",
+                    model="extractor-model",
+                    sku="default",
+                    deployment_path="api",
+                    foundation_lineage="extractor-lineage",
+                    status="REVOKED",
+                    qualification_epoch=2,
+                    max_risk="HIGH",
+                    task_types=("RESEARCH",),
+                )
+            )
+            assessment = coverage.assess(
+                artifact_hash=content_hash(ARTIFACT),
+                declared_claims=declared_claims(),
+                reviewer_foundation_lineage="reviewer-lineage",
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            self.assertEqual(assessment.status, "UNVERIFIED")
+            self.assertEqual(assessment.inventory_ids, ())
 
     def test_invalid_inventory_rolls_back_without_consuming_work_order(self):
         with tempfile.TemporaryDirectory() as td:
