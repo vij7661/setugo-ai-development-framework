@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-L",
+  "pilot": "PILOT5-CODE-DEFECT-CALIBRATION",
+  "case_id": "EXP-C-004",
+  "execution_sha": "a428cce4f9cf4624bd809e9101ae3a77a6e9b333",
+  "workflow_run_id": 33963872155,
+  "bundle_artifact_id": 9968871303,
+  "bundle_digest": "sha256:370f1a5a8ce9fb67ffc071add00e4d8eb2edc637cef25a406cc7d65fd78be18e",
+  "authority": "NONE",
+  "threshold_applied": false,
+  "protected_adjudication": {
+    "source": "EXP-C-PILOT1",
+    "expected_primary_failure_class": "CODE DEFECT",
+    "expected_authorized_artifact_scope": ["CODE"]
+  },
+  "provider_observations": [
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "valid_samples": 5,
+      "sample_sufficiency": "SUFFICIENT",
+      "semantic_proxy_clusters": {"CODE DEFECT": 5},
+      "normalized_semantic_entropy": 0.0,
+      "protected_correctness": "CORRECT",
+      "classification": "STABLE_CORRECT",
+      "total_input_tokens": 2160,
+      "total_output_tokens": 2634,
+      "total_latency_ms": 3887
+    },
+    {
+      "provider": "openrouter",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "valid_samples": 5,
+      "sample_sufficiency": "SUFFICIENT",
+      "semantic_proxy_clusters": {"CODE DEFECT": 5},
+      "normalized_semantic_entropy": 0.0,
+      "protected_correctness": "CORRECT",
+      "classification": "STABLE_CORRECT",
+      "total_input_tokens": 2020,
+      "total_output_tokens": 2468,
+      "total_latency_ms": 354392
+    }
+  ],
+  "pilot_result": "TWO_PROVIDER_STABLE_CORRECT_CONTROL_WITH_LARGE_LATENCY_DIFFERENCE",
+  "scientific_interpretation": "Both Groq and OpenRouter were semantically stable and protected-correct on EXP-C-004, supplying a useful stable-correct control. However, OpenRouter required roughly two orders of magnitude more observed latency than Groq for the same five-sample calibration. This reinforces that review-trigger quality must be evaluated jointly with latency/cost, not accuracy alone.",
+  "design_consequences": [
+    "Retain provider-specific latency as a first-class EXP-K routing signal.",
+    "Do not infer reviewer quality from speed or vice versa.",
+    "Stable-correct controls are required when calibrating semantic escalation to measure unnecessary review overhead.",
+    "Provider/model selection should eventually be task-specific and cost/latency aware after qualification, not globally ranked."
+  ],
+  "limitations": [
+    "One case does not establish provider-level accuracy.",
+    "Observed OpenRouter latency may reflect free-tier/provider queue conditions and must not be generalized without more samples.",
+    "No production semantic threshold is inferred."
+  ]
+}
