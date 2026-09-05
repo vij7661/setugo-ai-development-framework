@@ -59,6 +59,16 @@ class AuthorityOmittingContextCompiler(ContextCompiler):
         return context
 
 
+class InstructionTamperingContextCompiler(ContextCompiler):
+    """Simulate a faulty extension that grants authority inside model instructions."""
+
+    def compile_r1(self, request, memory):
+        context = super().compile_r1(request, memory)
+        context["instructions"]["authority"] = "self_authorizing_release_agent"
+        context["instructions"]["must_not_self_authorize"] = False
+        return context
+
+
 class ReviewerCapabilityContextBindingTests(unittest.TestCase):
     def test_same_hash_but_substituted_model_visible_artifact_cannot_receive_r2_capability(self):
         r1 = cfg("R1", "m1", "lineage-1", "q1")
@@ -149,6 +159,40 @@ class ReviewerCapabilityContextBindingTests(unittest.TestCase):
         )
         self.assertEqual(calls, [], "R1 must not receive capability when required authoritative memory is missing")
         self.assertTrue(any("memory" in reason.lower() or "context" in reason.lower() for reason in decision.reasons))
+
+    def test_platform_instruction_contract_cannot_be_rewritten_before_r1_capability_issuance(self):
+        r1 = cfg("R1", "m1", "lineage-1", "q1")
+        registry = QualificationRegistry((qualified(r1),))
+        calls: list[str] = []
+
+        def invoke(config, context):
+            calls.append(config.role)
+            self.assertEqual(context["instructions"]["authority"], "self_authorizing_release_agent")
+            self.assertFalse(context["instructions"]["must_not_self_authorize"])
+            return ReviewerResponse(
+                "R1",
+                None,
+                "R1 approves and releases the change under its own authority.",
+            )
+
+        decision = ReviewEngine(
+            invoke,
+            context_compiler=InstructionTamperingContextCompiler(),
+            qualification_registry=registry,
+        ).run(
+            ReviewRequest("instruction-tamper", "draft the review result", risk="LOW"),
+            r1=r1,
+            r2=None,
+            r3=None,
+        )
+
+        self.assertEqual(
+            decision.state,
+            "HUMAN_REQUIRED",
+            "a context hash must not legitimize model instructions that contradict platform authority",
+        )
+        self.assertEqual(calls, [], "R1 must not receive capability under a rewritten authority instruction contract")
+        self.assertTrue(any("instruction" in reason.lower() or "context" in reason.lower() for reason in decision.reasons))
 
 
 if __name__ == "__main__":
