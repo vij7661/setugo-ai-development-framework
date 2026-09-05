@@ -77,9 +77,6 @@ def _response_findings(
     risk: str,
     task_type: str,
 ) -> tuple[tuple[ReviewFinding, ...], tuple[dict, ...]]:
-    # Direct in-process test adapters may omit epistemic evidence. Registered
-    # provider adapters are required to return it. When present, explicit TVC
-    # failures and platform evidence-correspondence failures become findings.
     if not response.epistemic_review:
         return tuple(response.findings), ()
     truth = evaluate_truth_contract(
@@ -328,9 +325,6 @@ class ReviewEngine:
             },
         )
 
-        # A material finding already present on R1's artifact is not erased merely
-        # because R2 omits it. R2 can add evidence/findings, but the artifact must
-        # be revised or the retained platform evidence state must change.
         correction_targets = _dedupe_findings(tuple(r1_material) + tuple(r2_material))
         if not correction_targets:
             return finish(
@@ -343,10 +337,6 @@ class ReviewEngine:
                 )
             )
 
-        # Models do not grant their own rewrite capability. Before R1 can revise
-        # anything, the platform must derive a machine-enforceable capability from
-        # exact, unique claim anchors in the frozen artifact. Broad/ambiguous or
-        # unbound scopes fail to human instead of becoming prompt-only authority.
         try:
             correction_plan = build_scoped_correction_plan(artifact.content, correction_targets)
         except CorrectionScopeError as exc:
@@ -387,9 +377,6 @@ class ReviewEngine:
                     "content": artifact.content,
                 },
                 "review_targets": [_finding_payload(f) for f in correction_targets],
-                # Compatibility field: only R2 findings are described as verified
-                # review targets. R1 self-findings/platform TVC findings remain in
-                # review_targets and are never relabeled as independent R2 evidence.
                 "verified_review_targets": [_finding_payload(f) for f in r2_material],
                 "platform_correction_scope": correction_plan.as_dict(),
             }
@@ -495,6 +482,27 @@ class ReviewEngine:
                 )
             )
 
+        phase_a_ids = tuple(f.finding_id for f in r3_material)
+        if len(set(phase_a_ids)) != len(phase_a_ids):
+            self._emit(
+                session_id,
+                "R3_ADJUDICATION_REJECTED",
+                {
+                    "artifact_hash": revised.artifact_hash,
+                    "frozen_material_finding_ids": list(phase_a_ids),
+                    "reason": "duplicate frozen R3 material finding ids",
+                    "adjudication_invoked": False,
+                },
+            )
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    ("R3 independent material finding ids are not unique",),
+                    artifact_hash=revised.artifact_hash,
+                    dissent=tuple(f.summary for f in r3_material),
+                )
+            )
+
         r3_adjudication = self._invoke(
             r3,
             self._contexts.compile_r3_phase_b(
@@ -502,6 +510,7 @@ class ReviewEngine:
                 revised,
                 memory,
                 frozen_independent_response=r3_independent,
+                frozen_material_findings=r3_material,
                 r1_response=r1_revised,
                 r2_response=r2_response,
             ),
@@ -516,8 +525,14 @@ class ReviewEngine:
             risk=signals["risk"],
             task_type=task_type,
         )
+
+        resolved_ids = set(r3_adjudication.resolved_finding_ids)
+        frozen_id_set = set(phase_a_ids)
+        invalid_resolution_ids = tuple(sorted(resolved_ids - frozen_id_set))
+        unclosed_phase_a = tuple(f for f in r3_material if f.finding_id not in resolved_ids)
+        phase_b_material = _material_findings(r3_adjudication_all)
         unresolved = _dedupe_findings(
-            tuple(r1_revised_material) + tuple(_material_findings(r3_adjudication_all))
+            tuple(r1_revised_material) + tuple(unclosed_phase_a) + tuple(phase_b_material)
         )
         self._emit(
             session_id,
@@ -525,16 +540,34 @@ class ReviewEngine:
             {
                 "artifact_hash": revised.artifact_hash,
                 "findings": [_finding_payload(f) for f in r3_adjudication_all],
+                "frozen_material_finding_ids": list(phase_a_ids),
+                "resolved_finding_ids": list(r3_adjudication.resolved_finding_ids),
+                "unclosed_frozen_finding_ids": [f.finding_id for f in unclosed_phase_a],
+                "invalid_resolution_ids": list(invalid_resolution_ids),
                 "unresolved_finding_ids": [f.finding_id for f in unresolved],
                 "epistemic_review": r3_adjudication.epistemic_review,
                 "evidence_correspondence": list(r3_adjudication_evidence_assessments),
             },
         )
-        if unresolved:
+        if invalid_resolution_ids:
             return finish(
                 ReviewDecision(
                     "HUMAN_REQUIRED",
-                    ("material conflict remains after staged R3 adjudication",),
+                    ("R3 adjudication referenced unknown frozen material finding ids",),
+                    artifact_hash=revised.artifact_hash,
+                    dissent=tuple(invalid_resolution_ids),
+                )
+            )
+        if unresolved:
+            reason = (
+                "material finding lacks explicit staged R3 closure"
+                if unclosed_phase_a
+                else "material conflict remains after staged R3 adjudication"
+            )
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    (reason,),
                     artifact_hash=revised.artifact_hash,
                     dissent=tuple(f.summary for f in unresolved),
                 )
@@ -542,7 +575,7 @@ class ReviewEngine:
         return finish(
             ReviewDecision(
                 "CONVERGED_PASS",
-                ("R3 adjudication resolved material review findings without majority voting",),
+                ("R3 adjudication explicitly closed every frozen material finding without majority voting",),
                 revised.content,
                 revised.artifact_hash,
                 tuple(f.summary for f in r3_all_findings),
