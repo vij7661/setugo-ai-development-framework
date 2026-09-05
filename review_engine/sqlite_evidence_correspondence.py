@@ -9,6 +9,7 @@ from .evidence_correspondence import (
     EvidenceVerifierIdentity,
     RetainedEvidenceCorrespondenceRegistry,
 )
+from .evidence_snapshot import EvidenceSnapshotRegistry
 from .evidence_verifier_qualification import EvidenceVerifierQualificationRegistry
 
 BUSY_TIMEOUT_MS = 30_000
@@ -19,8 +20,10 @@ class SQLiteQualifiedEvidenceCorrespondenceRegistry:
 
     The store persists exact attestation/verifier bindings and re-evaluates
     verifier qualification for the actual review risk/task at assessment time.
-    SQLite durability is not WORM/external immutability; a privileged database
-    writer can still rewrite the file.
+    When a snapshot registry is configured, admission also requires an exact
+    retained evidence_ref + content-hash binding. SQLite durability is not
+    WORM/external immutability; a privileged database writer can still rewrite
+    either store.
     """
 
     qualified_verifier_assessment_enforced = True
@@ -30,10 +33,22 @@ class SQLiteQualifiedEvidenceCorrespondenceRegistry:
         self,
         path: str | Path,
         qualification_registry: EvidenceVerifierQualificationRegistry,
+        snapshot_registry: EvidenceSnapshotRegistry | None = None,
     ) -> None:
         self.path = str(path)
         self._qualifications = qualification_registry
+        self._snapshots = snapshot_registry
         self._init_schema()
+
+    @property
+    def retained_snapshot_binding_enforced(self) -> bool:
+        return self._snapshots is not None
+
+    @property
+    def durable_snapshot_state_enforced(self) -> bool:
+        return bool(
+            getattr(self._snapshots, "durable_snapshot_state_enforced", False)
+        ) if self._snapshots is not None else False
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.path, timeout=BUSY_TIMEOUT_MS / 1000)
@@ -119,9 +134,21 @@ class SQLiteQualifiedEvidenceCorrespondenceRegistry:
             if expected != actual:
                 raise ValueError(f"evidence verifier qualification {name} binding mismatch")
 
+    def _check_snapshot_binding(self, attestation: EvidenceCorrespondenceAttestation) -> None:
+        if self._snapshots is None:
+            return
+        if not self._snapshots.has_exact_snapshot(
+            evidence_ref=attestation.evidence_ref,
+            evidence_content_hash=attestation.evidence_content_hash,
+        ):
+            raise ValueError(
+                "evidence correspondence attestation does not match a retained evidence snapshot"
+            )
+
     def add(self, attestation: EvidenceCorrespondenceAttestation) -> None:
         attestation.validate()
         self._check_static_qualification(attestation)
+        self._check_snapshot_binding(attestation)
         identity = attestation.verifier_identity
         assert identity is not None
 
@@ -233,8 +260,17 @@ class SQLiteQualifiedEvidenceCorrespondenceRegistry:
             identity = attestation.verifier_identity
             assert identity is not None
             decision = self._qualifications.evaluate(identity, risk=risk, task_type=task_type)
-            if decision.eligible:
-                eligible.append(attestation)
+            if not decision.eligible:
+                continue
+            # Recheck the retained snapshot at assessment time as well. If a
+            # future snapshot registry supports revocation/removal, stale source
+            # evidence must not keep producing VERIFIED_SUPPORT.
+            if self._snapshots is not None and not self._snapshots.has_exact_snapshot(
+                evidence_ref=attestation.evidence_ref,
+                evidence_content_hash=attestation.evidence_content_hash,
+            ):
+                continue
+            eligible.append(attestation)
 
         return RetainedEvidenceCorrespondenceRegistry.assessment_from_records(
             artifact_hash=artifact_hash,
