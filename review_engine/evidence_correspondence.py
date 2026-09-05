@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from typing import Iterable, Protocol
@@ -33,13 +34,63 @@ def _sha256_hex(value: str, field: str) -> str:
 
 
 @dataclass(frozen=True)
+class EvidenceVerifierIdentity:
+    """Platform-retained bookkeeping identity for evidence verification.
+
+    This binds qualification and assessment records to a concrete configured
+    provider/model/SKU/deployment path/foundation lineage. It is not universal
+    cryptographic proof that a remote provider executed that exact model.
+    """
+
+    provider: str
+    model: str
+    sku: str
+    deployment_path: str
+    foundation_lineage: str
+    qualification_ref: str
+    qualification_epoch: int
+
+    def validate(self) -> None:
+        for field in (
+            "provider",
+            "model",
+            "sku",
+            "deployment_path",
+            "foundation_lineage",
+            "qualification_ref",
+        ):
+            value = getattr(self, field)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"evidence verifier identity {field} required")
+        if self.qualification_epoch < 1:
+            raise ValueError("evidence verifier qualification_epoch must be >= 1")
+
+    @property
+    def verifier_id(self) -> str:
+        self.validate()
+        payload = json.dumps(
+            {
+                "provider": self.provider,
+                "model": self.model,
+                "sku": self.sku,
+                "deployment_path": self.deployment_path,
+                "foundation_lineage": self.foundation_lineage,
+                "qualification_ref": self.qualification_ref,
+                "qualification_epoch": self.qualification_epoch,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        return "evidence-verifier:" + sha256(payload.encode("utf-8")).hexdigest()
+
+
+@dataclass(frozen=True)
 class EvidenceCorrespondenceAttestation:
     """Platform-retained independent evidence-to-claim assessment.
 
-    Admission of these records is a trusted integration responsibility. Models
-    cannot create or authorize attestations by merely emitting evidence_refs.
-    The evidence content hash binds the assessment to an exact evidence snapshot;
-    the artifact and claim hashes prevent stale/rephrased reuse.
+    Raw/reference registries may retain structurally valid records without a
+    structured verifier identity. A governed qualification-enforced registry
+    requires `verifier_identity` and independently checks its eligibility.
     """
 
     attestation_id: str
@@ -51,6 +102,7 @@ class EvidenceCorrespondenceAttestation:
     verifier_id: str
     provenance: str
     qualification_ref: str | None = None
+    verifier_identity: EvidenceVerifierIdentity | None = None
 
     def validate(self) -> None:
         for field in ("attestation_id", "evidence_ref", "verifier_id", "provenance"):
@@ -64,6 +116,12 @@ class EvidenceCorrespondenceAttestation:
             raise ValueError("invalid evidence correspondence verdict")
         if self.qualification_ref is not None and not self.qualification_ref.strip():
             raise ValueError("qualification_ref cannot be blank")
+        if self.verifier_identity is not None:
+            self.verifier_identity.validate()
+            if self.verifier_id != self.verifier_identity.verifier_id:
+                raise ValueError("evidence attestation verifier_id does not match verifier identity")
+            if self.qualification_ref != self.verifier_identity.qualification_ref:
+                raise ValueError("evidence attestation qualification_ref does not match verifier identity")
 
 
 @dataclass(frozen=True)
@@ -89,16 +147,22 @@ class ClaimEvidenceAssessment:
 
 
 class EvidenceCorrespondenceValidator(Protocol):
-    def assess(self, *, artifact_hash: str, claim: dict) -> ClaimEvidenceAssessment: ...
+    def assess(
+        self,
+        *,
+        artifact_hash: str,
+        claim: dict,
+        risk: str = "LOW",
+        task_type: str = "GENERAL",
+    ) -> ClaimEvidenceAssessment: ...
 
 
 class RetainedEvidenceCorrespondenceRegistry:
-    """In-memory reference registry for trusted correspondence attestations.
+    """In-memory reference registry for retained correspondence attestations.
 
-    It does not generate semantic judgments. It only evaluates already-retained
-    independent attestations. A future source/evidence service may implement the
-    same protocol after authenticating sources, verifier identity and evidence
-    snapshots.
+    This raw registry performs exact artifact/claim/evidence matching but does
+    not independently qualify verifier identity. GOVERNED application assurance
+    must use a qualification-enforced validator instead.
     """
 
     def __init__(self, attestations: Iterable[EvidenceCorrespondenceAttestation] = ()) -> None:
@@ -124,7 +188,8 @@ class RetainedEvidenceCorrespondenceRegistry:
         self._ids[attestation.attestation_id] = attestation
         self._records[key] = attestation
 
-    def assess(self, *, artifact_hash: str, claim: dict) -> ClaimEvidenceAssessment:
+    @staticmethod
+    def _claim_inputs(*, artifact_hash: str, claim: dict) -> tuple[str, str, str, tuple[str, ...]]:
         artifact_hash = _sha256_hex(artifact_hash, "artifact_hash")
         claim_id = str(claim.get("claim_id", "")).strip()
         text = str(claim.get("text", "")).strip()
@@ -134,15 +199,33 @@ class RetainedEvidenceCorrespondenceRegistry:
         if not isinstance(raw_refs, list):
             raise ValueError("claim evidence_refs must be a list")
         evidence_refs = tuple(str(value).strip() for value in raw_refs if str(value).strip())
-        fingerprint = claim_fingerprint(text)
+        return artifact_hash, claim_id, claim_fingerprint(text), evidence_refs
 
-        matched = [
+    def matching_attestations(self, *, artifact_hash: str, claim: dict) -> tuple[EvidenceCorrespondenceAttestation, ...]:
+        artifact_hash, _, fingerprint, evidence_refs = self._claim_inputs(
+            artifact_hash=artifact_hash,
+            claim=claim,
+        )
+        return tuple(
             record
             for (bound_artifact, bound_claim, evidence_ref, _), record in self._records.items()
             if bound_artifact == artifact_hash
             and bound_claim == fingerprint
             and evidence_ref in evidence_refs
-        ]
+        )
+
+    @staticmethod
+    def assessment_from_records(
+        *,
+        artifact_hash: str,
+        claim: dict,
+        records: Iterable[EvidenceCorrespondenceAttestation],
+    ) -> ClaimEvidenceAssessment:
+        artifact_hash, claim_id, fingerprint, evidence_refs = RetainedEvidenceCorrespondenceRegistry._claim_inputs(
+            artifact_hash=artifact_hash,
+            claim=claim,
+        )
+        matched = tuple(records)
         verdicts = {record.verdict for record in matched}
         if "SUPPORTS" in verdicts and "CONTRADICTS" in verdicts:
             status = "CONFLICT"
@@ -164,4 +247,21 @@ class RetainedEvidenceCorrespondenceRegistry:
             attestation_ids=tuple(sorted(record.attestation_id for record in matched)),
             verifier_ids=tuple(sorted({record.verifier_id for record in matched})),
             provenance=tuple(sorted({record.provenance for record in matched})),
+        )
+
+    def assess(
+        self,
+        *,
+        artifact_hash: str,
+        claim: dict,
+        risk: str = "LOW",
+        task_type: str = "GENERAL",
+    ) -> ClaimEvidenceAssessment:
+        # risk/task_type are accepted for protocol compatibility; this raw
+        # reference registry deliberately does not claim qualification enforcement.
+        del risk, task_type
+        return self.assessment_from_records(
+            artifact_hash=artifact_hash,
+            claim=claim,
+            records=self.matching_attestations(artifact_hash=artifact_hash, claim=claim),
         )
