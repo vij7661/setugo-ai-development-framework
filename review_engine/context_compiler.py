@@ -1,0 +1,109 @@
+from __future__ import annotations
+
+from dataclasses import asdict
+
+from .memory import VersionedMemoryStore
+from .models import ReviewArtifact, ReviewerResponse, ReviewRequest
+
+
+class ContextCompiler:
+    """Build role-specific context without leaking protected or anchoring data."""
+
+    def compile_r1(self, request: ReviewRequest, memory: VersionedMemoryStore) -> dict:
+        return {
+            "role": "R1",
+            "request_id": request.request_id,
+            "user_input": request.user_input,
+            "memory": [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"],
+            "instructions": {
+                "authority": "advisory_generation_only",
+                "must_not_self_authorize": True,
+            },
+        }
+
+    def compile_r2(
+        self,
+        request: ReviewRequest,
+        artifact: ReviewArtifact,
+        memory: VersionedMemoryStore,
+    ) -> dict:
+        return {
+            "role": "R2",
+            "request_id": request.request_id,
+            "user_input": request.user_input,
+            "artifact": {
+                "artifact_id": artifact.artifact_id,
+                "version": artifact.version,
+                "artifact_hash": artifact.artifact_hash,
+                "content": artifact.content,
+            },
+            "memory": [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"],
+            "instructions": {
+                "mode": "independent_detector_challenger",
+                "find_first_material_failure": True,
+                "do_not_rewrite_artifact": True,
+                "do_not_assume_r1_correct": True,
+                "do_not_grant_authority": True,
+            },
+        }
+
+    def compile_r3_phase_a(
+        self,
+        request: ReviewRequest,
+        artifact: ReviewArtifact,
+        memory: VersionedMemoryStore,
+    ) -> dict:
+        # Phase A intentionally excludes R1/R2 conclusions, confidence and vote counts.
+        return {
+            "role": "R3",
+            "phase": "INDEPENDENT",
+            "request_id": request.request_id,
+            "user_input": request.user_input,
+            "artifact": {
+                "artifact_id": artifact.artifact_id,
+                "version": artifact.version,
+                "artifact_hash": artifact.artifact_hash,
+                "content": artifact.content,
+            },
+            "memory": [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"],
+            "instructions": {
+                "mode": "independent_verifier",
+                "prior_reviewer_positions_hidden": True,
+                "do_not_grant_authority": True,
+            },
+        }
+
+    def compile_r3_phase_b(
+        self,
+        request: ReviewRequest,
+        artifact: ReviewArtifact,
+        memory: VersionedMemoryStore,
+        *,
+        frozen_independent_response: ReviewerResponse,
+        r1_response: ReviewerResponse,
+        r2_response: ReviewerResponse,
+    ) -> dict:
+        frozen_independent_response.validate()
+        if frozen_independent_response.role != "R3":
+            raise ValueError("phase B requires frozen R3 independent response")
+        if frozen_independent_response.artifact_hash != artifact.artifact_hash:
+            raise ValueError("R3 independent response is stale for current artifact")
+
+        return {
+            "role": "R3",
+            "phase": "ADJUDICATION",
+            "request_id": request.request_id,
+            "artifact_hash": artifact.artifact_hash,
+            "frozen_independent_view": frozen_independent_response.output,
+            "prior_reviews": {
+                "R1": r1_response.output,
+                "R2": r2_response.output,
+            },
+            "memory": [asdict(r) for r in memory.reviewer_visible()],
+            "instructions": {
+                "independent_view_is_frozen": True,
+                "compare_against_authoritative_evidence": True,
+                "majority_vote_is_not_authority": True,
+                "do_not_grant_authority": True,
+            },
+        }
