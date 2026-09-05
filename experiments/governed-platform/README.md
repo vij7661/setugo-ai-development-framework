@@ -6,7 +6,7 @@ This directory is deliberately an experiment harness, not a production implement
 
 ## Central hypothesis
 
-A governed development workflow using complementary verification, intent/invariant traceability, evidence-aware diagnosis, scoped corrective authority, protected acceptance evidence, independently qualified cross-model critique, conditional review escalation, governed convergence, typed shared memory, and cost-aware review can reduce false-green and wrong-artifact correction outcomes relative to an unguided `fix it` workflow at acceptable cost and latency.
+A governed development workflow using complementary verification, intent/invariant traceability, evidence-aware diagnosis, scoped corrective authority, protected acceptance evidence, independently qualified cross-model critique, conditional review escalation, governed convergence, typed shared memory, semantic instability signals, staged reviewer disclosure, and cost-aware review can reduce false-green and wrong-artifact correction outcomes relative to an unguided `fix it` workflow at acceptable cost and latency.
 
 ## Experiments
 
@@ -23,6 +23,8 @@ A governed development workflow using complementary verification, intent/invaria
 | EXP-I | Three-Reviewer Convergence | Can R1/R2/R3 reach a governed terminal decision without majority voting, forced agreement, or endless review loops? |
 | EXP-J | Shared Memory and Reviewer Contamination | What context can be shared across reviewers without leaking protected truth or contaminating independent review? |
 | EXP-K | Conditional Review Cost and Token Efficiency | Can conditional review preserve protected quality while reducing unnecessary calls, tokens, cost and latency? |
+| EXP-L | Adaptive Review Triggering with Semantic Uncertainty | Can black-box semantic instability/refusal/counterfactual signals decide when R2 adds enough marginal value, without treating stability as truth? |
+| EXP-M | Reviewer Blinding, Majority Pressure and Pair Effects | Does staged disclosure preserve independent correction better than exposing prior conclusions, confidence or majority signals before a reviewer forms its own position? |
 
 ## Experiment discipline
 
@@ -38,14 +40,21 @@ A governed development workflow using complementary verification, intent/invaria
 10. Cross-model review must preserve blinding: reviewers may receive frozen artifacts and authorized requirements, but not protected ground truth or another model's hidden/private reasoning.
 11. Review escalation, convergence, memory visibility and review-budget policy are platform-owned controls; model recommendations cannot silently weaken them.
 12. Shared memory is internally typed and provenance-bound. A unified user experience must not imply unrestricted cross-model visibility.
+13. Semantic stability is not factuality. Low within-model semantic uncertainty cannot override governance-required review and must be evaluated explicitly against stable-but-wrong controls.
+14. Reviewer confidence and majority/vote signals are not admissible evidence for independent-review routing. A later reviewer must form and freeze an independent position before prior final reviews are disclosed for adjudication.
+15. Semantic-probe thresholds are versioned policy inputs. Test thresholds exercise mechanics only and cannot be promoted to production thresholds without calibration evidence.
 
 ## Product-directed review sequence under test
 
 The current experiments are converging on this product pattern:
 
-**User → Reviewer 1 / Interpreter → Review Decision Engine → optional Reviewer 2 → Reviewer 1 revision/integration → optional Reviewer 3 → Convergence Engine → Reviewer 1 final presentation / Human gate when required.**
+**User → Reviewer 1 / Interpreter → Review Decision Engine → optional semantic/counterfactual probe → optional Reviewer 2 → Reviewer 1 revision/integration → optional blinded Reviewer 3 → staged adjudication → Convergence Engine → Reviewer 1 final presentation / Human gate when required.**
 
 Reviewer 1 may be any user-selected qualified model. Reviewer 2 and Reviewer 3 may also be user-selected models, but the platform controls whether review is required, what context each reviewer can see, whether reviewer independence is sufficient, and whether a terminal state is allowed.
+
+The semantic probe is a cost/uncertainty signal only. It may help avoid unnecessary reviews on low-risk stable cases or trigger review on unstable/refusal-heavy cases. It does not replace independent review for policy-required risk tiers because a model can be consistently wrong.
+
+Reviewer 3 is tested with staged disclosure: first the authoritative context and frozen artifact, then after its independent position is frozen, prior final reviews may be revealed for adjudication. Confidence scores, vote counts, private reasoning and protected truth remain excluded.
 
 ## Minimum harness layout
 
@@ -55,15 +64,15 @@ Reviewer 1 may be any user-selected qualified model. Reviewer 2 and Reviewer 3 m
 - `results/` — generated run results; do not treat committed examples as authoritative experimental results.
 - `runner/` — provider/tool adapters and execution logic.
 - `score/` — deterministic scoring and analysis.
-- `governance/` — deterministic policy-layer guards, falsification tests, review decision, convergence, memory and efficiency policy validation.
+- `governance/` — deterministic policy-layer guards, falsification tests, review decision, convergence, memory, semantic uncertainty, reviewer blinding and efficiency policy validation.
 
 ## Execution order
 
 The foundational experiments EXP-A through EXP-G establish verification, semantic intent, scoped authority, governance falsification and cross-model critique. Product-directed experiments then proceed:
 
-**EXP-H Review Decision Engine → EXP-I Convergence → EXP-J Shared Memory/Contamination → EXP-K Cost/Token Efficiency → freeze pilot findings → design MVP backend.**
+**EXP-H Review Decision Engine → EXP-I Convergence → EXP-J Shared Memory/Contamination → EXP-K Cost/Token Efficiency → EXP-L Adaptive Review Triggering → EXP-M Reviewer Blinding/Pair Effects → freeze pilot findings → design MVP backend.**
 
-Scientific claims still require controlled executions and protected scoring. Deterministic guard tests establish harness behavior only; they do not make EXP-H through EXP-K scientific PASS results by themselves.
+Scientific claims still require controlled executions and protected scoring. Deterministic guard tests establish harness behavior only; they do not make EXP-H through EXP-M scientific PASS results by themselves.
 
 ## Freeze rule
 
