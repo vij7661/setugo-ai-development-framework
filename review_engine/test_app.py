@@ -6,6 +6,7 @@ from pathlib import Path
 
 from review_engine.app import ReviewEngineApp
 from review_engine.configuration import ReviewEngineConfiguration
+from review_engine.judge_health import JudgeObservation
 from review_engine.models import ReviewerConfig, ReviewerResponse
 
 
@@ -45,12 +46,15 @@ class AppTests(unittest.TestCase):
             self.assertEqual(health["execution_envelope"]["operation_class"], "ANALYSIS")
             self.assertEqual(health["execution_envelope"]["connected_tool_capabilities"], [])
             self.assertEqual(health["execution_envelope"]["source"], "trusted_application_boundary")
+            self.assertEqual(health["truth_contract_version"], "TVC-1")
+            self.assertEqual(health["judge_health_monitor"], "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1")
 
             result = app.review({"request_id": "s1", "user_input": "brainstorm", "operation_class": "CHAT"})
             self.assertEqual(result["state"], "CONVERGED_PASS")
             self.assertEqual(result["final_output"], "hello from R1")
             self.assertFalse(result["action_authorized"])
             self.assertTrue(result["session_chain_valid"])
+            self.assertEqual(result["truth_contract_version"], "TVC-1")
             self.assertEqual(fake.calls, ["R1"])
             self.assertEqual(result["platform_facts"]["platform_operation_class"], "ANALYSIS")
             self.assertEqual(result["platform_facts"]["declared_operation_class"], "CHAT")
@@ -93,6 +97,22 @@ class AppTests(unittest.TestCase):
             events = app.session_events("dup")
             self.assertEqual(len([e for e in events if e["event_type"] == "REQUEST_RECEIVED"]), 1)
             self.assertEqual(len([e for e in events if e["event_type"] == "FINAL_DECISION"]), 1)
+
+    def test_judge_health_is_internal_monitoring_evidence_not_correctness_certificate(self):
+        with tempfile.TemporaryDirectory() as td:
+            app = self.build_app(td, FakeProviders())
+            observations = []
+            for i in range(10):
+                observations.append(JudgeObservation(f"t{i}", "judge-a", "A"))
+                observations.append(JudgeObservation(f"t{i}", "judge-b", "B" if i < 3 else "A"))
+            report = app.judge_health(
+                observations,
+                minimum_accuracy_target=0.9,
+                minimum_shared_tasks=10,
+            )
+            self.assertEqual(report["status"], "LOGICALLY_INCONSISTENT_WITH_QUALIFICATION_TARGET")
+            self.assertFalse(report["no_alarm_establishes_correctness"])
+            self.assertFalse(report["can_identify_faulty_judge"])
 
 
 if __name__ == "__main__":
