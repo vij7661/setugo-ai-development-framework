@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Protocol
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .models import ReviewFinding, ReviewerConfig, ReviewerResponse
 from .truth_contract import TVC_VERSION, validate_epistemic_review
@@ -58,6 +58,31 @@ def validate_provider_base_url(base_url: str, *, label: str = "provider") -> str
         if not loopback:
             raise ValueError(f"{label} remote base_url must use https")
     return value
+
+
+class _RejectProviderRedirectHandler(HTTPRedirectHandler):
+    """Fail closed instead of forwarding credential-bearing headers on redirect."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001
+        raise HTTPError(
+            req.full_url,
+            code,
+            "provider HTTP redirects are forbidden",
+            headers,
+            fp,
+        )
+
+
+_PROVIDER_OPENER = build_opener(_RejectProviderRedirectHandler())
+
+
+def urlopen(request: Request, timeout: int | float):
+    """Provider transport opener with redirects disabled.
+
+    Kept as a module-level symbol so provider tests/integrations can patch the
+    transport without performing network calls.
+    """
+    return _PROVIDER_OPENER.open(request, timeout=timeout)
 
 
 @dataclass(frozen=True)
@@ -170,8 +195,6 @@ def _parse_response(role: str, context: dict, raw: str) -> ReviewerResponse:
     if not isinstance(proposed, dict):
         raise RuntimeError("proposed_signals must be an object")
 
-    # Missing/malformed epistemic structure is a non-conformant reviewer
-    # response. The platform never silently manufactures a passing assessment.
     epistemic_review = validate_epistemic_review(data.get("epistemic_review"))
 
     return ReviewerResponse(
@@ -272,7 +295,6 @@ class OpenAICompatibleProvider:
                     self._delay(attempt)
                     continue
                 raise RuntimeError(last_error)
-            # Runtime response model labels are intentionally ignored for identity/authority.
             return _parse_response(config.role, context, content)
 
         raise RuntimeError(last_error or "provider failed without usable completion")
@@ -297,7 +319,5 @@ class ProviderRegistry:
         response.validate()
         if not response.epistemic_review:
             raise RuntimeError("provider response missing mandatory epistemic_review")
-        # Revalidate at the registry boundary so future custom adapters cannot
-        # bypass the Truth & Veracity schema by constructing ReviewerResponse directly.
         validate_epistemic_review(response.epistemic_review)
         return response
