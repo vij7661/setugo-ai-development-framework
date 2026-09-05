@@ -10,6 +10,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .models import ReviewFinding, ReviewerConfig, ReviewerResponse
+from .truth_contract import TVC_VERSION, validate_epistemic_review
 
 RETRYABLE_HTTP = frozenset({429, 500, 502, 503, 504})
 
@@ -28,14 +29,15 @@ class OpenAICompatibleEndpoint:
     temperature: float = 0.0
 
 
-SYSTEM_INSTRUCTION = """You are a governed review-engine role. Return STRICT JSON only.
+SYSTEM_INSTRUCTION = f"""You are a governed review-engine role. Return STRICT JSON only.
 Never claim release, production, write, deployment, approval, or authorization authority.
 Do not reveal private chain-of-thought. Give concise evidence-based conclusions only.
+Agreement with another model is not proof of correctness.
 
 Schema:
-{
+{{
   "output": "user-facing artifact or concise review conclusion",
-  "proposed_signals": {
+  "proposed_signals": {{
     "risk": "LOW|MEDIUM|HIGH|CRITICAL",
     "materiality": "NONE|REVERSIBLE|MATERIAL|CONSEQUENTIAL",
     "uncertainty": "LOW|MEDIUM|HIGH",
@@ -43,9 +45,27 @@ Schema:
     "mutation_requested": false,
     "requirement_ambiguity": false,
     "evidence_complete": true
-  },
+  }},
+  "epistemic_review": {{
+    "version": "{TVC_VERSION}",
+    "correspondence": "SUPPORTED|UNSUPPORTED|UNVERIFIED|NOT_APPLICABLE",
+    "coherence": "CONSISTENT|CONTRADICTED|UNRESOLVED",
+    "pragmatic": "VIABLE|LIMITED|NOT_VIABLE|NOT_APPLICABLE",
+    "semantic": "PRECISE|AMBIGUOUS|MISLEADING",
+    "contradiction_refs": [],
+    "claims": [
+      {{
+        "claim_id": "c1",
+        "text": "specific truth-bearer",
+        "claim_type": "EMPIRICAL_FACT|LOGICAL_CLAIM|DEFINITION|INFERENCE|ASSUMPTION|HYPOTHESIS|OPINION|RECOMMENDATION",
+        "correspondence": "SUPPORTED|UNSUPPORTED|UNVERIFIED|NOT_APPLICABLE",
+        "evidence_refs": [],
+        "material": false
+      }}
+    ]
+  }},
   "findings": [
-    {
+    {{
       "finding_id": "stable local id",
       "severity": "NONE|LOW|MEDIUM|HIGH|CRITICAL",
       "material": false,
@@ -54,9 +74,12 @@ Schema:
       "evidence_refs": [],
       "affected_scope": [],
       "first_invalid_claim": null
-    }
+    }}
   ]
-}
+}}
+The epistemic_review object is mandatory. Empirical claims marked SUPPORTED must include evidence_refs.
+Correspondence, coherence, pragmatic utility and semantic precision are separate dimensions.
+Pragmatic usefulness never overrides factual, logical or governance defects.
 For R1 generation, findings may be empty. For R2/R3 review, localize the first material failure when possible and do not rewrite unrelated scope.
 """
 
@@ -106,6 +129,10 @@ def _parse_response(role: str, context: dict, raw: str) -> ReviewerResponse:
     if not isinstance(proposed, dict):
         raise RuntimeError("proposed_signals must be an object")
 
+    # Missing/malformed epistemic structure is a non-conformant reviewer
+    # response. The platform never silently manufactures a passing assessment.
+    epistemic_review = validate_epistemic_review(data.get("epistemic_review"))
+
     return ReviewerResponse(
         role=role,
         artifact_hash=_context_artifact_hash(context),
@@ -113,6 +140,7 @@ def _parse_response(role: str, context: dict, raw: str) -> ReviewerResponse:
         findings=tuple(findings),
         complete=True,
         proposed_signals=proposed,
+        epistemic_review=epistemic_review,
     )
 
 
