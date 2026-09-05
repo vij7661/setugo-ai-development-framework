@@ -34,6 +34,11 @@ class SQLiteExtractionWorkRegistry:
     IMMEDIATE` transaction. A conflict while retaining the inventory therefore
     rolls back work consumption as well.
 
+    Retained inventories can also be filtered against a current trusted review
+    risk/task. This prevents an inventory admitted under a LOW-risk extraction
+    capability from being silently reused for a HIGH-risk review, and rechecks
+    the extractor's current qualification before the inventory is considered.
+
     This is not distributed consensus, an externally immutable/WORM ledger,
     a cryptographically signed capability, or proof of remote provider runtime
     identity. A privileged SQLite writer can still rewrite the database.
@@ -42,6 +47,7 @@ class SQLiteExtractionWorkRegistry:
     durable_replay_protection_enforced = True
     durable_inventory_state_enforced = True
     atomic_inventory_admission_enforced = True
+    review_scope_filter_enforced = True
 
     def __init__(
         self,
@@ -363,6 +369,49 @@ class SQLiteExtractionWorkRegistry:
                 inventory.validate()
                 inventories.append(inventory)
         return tuple(inventories)
+
+    def retained_inventories_for_scope(
+        self,
+        artifact_hash: str,
+        *,
+        risk: str,
+        task_type: str,
+    ) -> tuple[ClaimCoverageInventory, ...]:
+        """Return retained inventories eligible for the current trusted review scope."""
+        if risk not in RISK_ORDER:
+            raise ValueError("invalid claim coverage review risk")
+        if not isinstance(task_type, str) or not task_type.strip():
+            raise ValueError("claim coverage review task_type required")
+        task_type = task_type.strip()
+
+        inventories = self.retained_inventories(artifact_hash)
+        eligible: list[ClaimCoverageInventory] = []
+        with self._connect() as conn:
+            for inventory in inventories:
+                row = conn.execute(
+                    """
+                    SELECT w.risk, w.task_type
+                    FROM claim_coverage_inventories i
+                    JOIN extraction_work_orders w ON w.work_order_id=i.work_order_id
+                    WHERE i.inventory_id=?
+                    """,
+                    (inventory.inventory_id,),
+                ).fetchone()
+                if row is None:
+                    continue
+                if row["risk"] not in RISK_ORDER or RISK_ORDER[row["risk"]] < RISK_ORDER[risk]:
+                    continue
+                if row["task_type"] != task_type:
+                    continue
+                decision = self._qualifications.evaluate(
+                    inventory.extractor_identity,
+                    risk=risk,
+                    task_type=task_type,
+                )
+                if not decision.eligible:
+                    continue
+                eligible.append(inventory)
+        return tuple(eligible)
 
     def retained_inventory(self, inventory_id: str) -> ClaimCoverageInventory | None:
         with self._connect() as conn:
