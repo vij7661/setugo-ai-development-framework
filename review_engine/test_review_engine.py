@@ -112,15 +112,20 @@ class ReviewEngineTests(unittest.TestCase):
         def invoke(config, context):
             calls.append((config.role, context.get("mode"), context.get("phase")))
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
-                return ReviewerResponse(role="R1", artifact_hash=None, output="v1 wrong")
+                return ReviewerResponse(role="R1", artifact_hash=None, output="stable header\nwrong authorization claim\nstable footer")
             if config.role == "R2":
-                finding = ReviewFinding("f1", "R2", "HIGH", True, "claim 2 violates invariant AUTH-1", "AUTH-1", (), ("claim:2",), "claim:2")
+                finding = ReviewFinding(
+                    "f1", "R2", "HIGH", True,
+                    "claim 2 violates invariant AUTH-1", "AUTH-1", (),
+                    ("claim:2",), "wrong authorization claim",
+                )
                 return ReviewerResponse(role="R2", artifact_hash=context["artifact"]["artifact_hash"], output="localized finding", findings=(finding,))
             if config.role == "R1":
                 self.assertEqual(context["mode"], "SCOPED_CORRECTION")
                 self.assertEqual(context["verified_review_targets"][0]["affected_scope"], ["claim:2"])
                 self.assertTrue(context["verified_review_targets"][0]["effective_material"])
-                return ReviewerResponse(role="R1", artifact_hash=None, output="v2 corrected")
+                self.assertEqual(context["platform_correction_scope"]["mode"], "EXACT_CLAIM_ANCHOR_REPLACEMENT_V1")
+                return ReviewerResponse(role="R1", artifact_hash=None, output="stable header\ncorrected authorization claim\nstable footer")
             self.assertEqual(context["phase"], "INDEPENDENT")
             self.assertNotIn("prior_reviews", context)
             return ReviewerResponse(role="R3", artifact_hash=context["artifact"]["artifact_hash"], output="independently verified")
@@ -132,7 +137,7 @@ class ReviewEngineTests(unittest.TestCase):
             r3=r3,
         )
         self.assertEqual(result.state, "CONVERGED_PASS")
-        self.assertEqual(result.final_output, "v2 corrected")
+        self.assertEqual(result.final_output, "stable header\ncorrected authorization claim\nstable footer")
         self.assertEqual(calls, [("R1", None, None), ("R2", None, None), ("R1", "SCOPED_CORRECTION", None), ("R3", None, "INDEPENDENT")])
 
     def test_high_severity_cannot_be_hidden_by_material_false(self):
@@ -143,11 +148,15 @@ class ReviewEngineTests(unittest.TestCase):
         def invoke(config, context):
             calls.append((config.role, context.get("mode")))
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
-                return ReviewerResponse("R1", None, "unsafe v1")
+                return ReviewerResponse("R1", None, "stable\nunauthenticated admin access\nfooter")
             if config.role == "R2":
-                finding = ReviewFinding("critical", "R2", "CRITICAL", False, "unauthenticated admin access")
+                finding = ReviewFinding(
+                    "critical", "R2", "CRITICAL", False, "unauthenticated admin access",
+                    affected_scope=("claim:admin-access",),
+                    first_invalid_claim="unauthenticated admin access",
+                )
                 return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "critical defect", (finding,))
-            return ReviewerResponse("R1", None, "corrected v2")
+            return ReviewerResponse("R1", None, "stable\nauthenticated admin access only\nfooter")
 
         result = governed_engine(invoke, r1, r2).run(
             ReviewRequest("q-critical-material", "security artifact", risk="HIGH"),
@@ -188,12 +197,16 @@ class ReviewEngineTests(unittest.TestCase):
         def invoke(config, context):
             calls.append(config.role)
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
-                return ReviewerResponse("R1", None, "v1")
+                return ReviewerResponse("R1", None, "stable\nmaterial defect\nfooter")
             if config.role == "R2":
-                f = ReviewFinding("f", "R2", "HIGH", True, "material defect")
+                f = ReviewFinding(
+                    "f", "R2", "HIGH", True, "material defect",
+                    affected_scope=("claim:defect",),
+                    first_invalid_claim="material defect",
+                )
                 return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "bad", (f,))
             if config.role == "R1":
-                return ReviewerResponse("R1", None, "v2")
+                return ReviewerResponse("R1", None, "stable\nmaterial correction\nfooter")
             self.fail("R3 must not be called")
 
         result = governed_engine(invoke, r1, r2, r3).run(
@@ -214,12 +227,16 @@ class ReviewEngineTests(unittest.TestCase):
 
         def invoke(config, context):
             if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
-                return ReviewerResponse(role="R1", artifact_hash=None, output="v1")
+                return ReviewerResponse(role="R1", artifact_hash=None, output="stable\nmaterial issue\nfooter")
             if config.role == "R2":
-                f = ReviewFinding("f1", "R2", "HIGH", True, "material issue")
+                f = ReviewFinding(
+                    "f1", "R2", "HIGH", True, "material issue",
+                    affected_scope=("claim:issue",),
+                    first_invalid_claim="material issue",
+                )
                 return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "R2 says issue", (f,))
             if config.role == "R1":
-                return ReviewerResponse(role="R1", artifact_hash=None, output="v2")
+                return ReviewerResponse(role="R1", artifact_hash=None, output="stable\nmaterial correction\nfooter")
             phases.append(context["phase"])
             if context["phase"] == "INDEPENDENT":
                 self.assertNotIn("prior_reviews", context)
@@ -237,6 +254,60 @@ class ReviewEngineTests(unittest.TestCase):
         )
         self.assertEqual(result.state, "CONVERGED_PASS")
         self.assertEqual(phases, ["INDEPENDENT", "ADJUDICATION"])
+
+    def test_unbound_material_scope_routes_to_human_without_correction_invocation(self):
+        r1 = cfg("R1", lineage="scope-r1")
+        r2 = cfg("R2", lineage="scope-r2")
+        r3 = cfg("R3", lineage="scope-r3")
+        calls = []
+
+        def invoke(config, context):
+            calls.append((config.role, context.get("mode")))
+            if config.role == "R1":
+                return ReviewerResponse("R1", None, "stable\nmaterial issue\nfooter")
+            finding = ReviewFinding("broad", "R2", "HIGH", True, "broad issue")
+            return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "broad", (finding,))
+
+        result = governed_engine(invoke, r1, r2, r3).run(
+            ReviewRequest("q-unbound-scope", "material", risk="HIGH"),
+            r1=r1,
+            r2=r2,
+            r3=r3,
+        )
+        self.assertEqual(result.state, "HUMAN_REQUIRED")
+        self.assertIn("not machine-enforceable", result.reasons[0])
+        self.assertEqual(calls, [("R1", None), ("R2", None)])
+
+    def test_out_of_scope_r1_rewrite_is_rejected_before_r3(self):
+        r1 = cfg("R1", lineage="rewrite-r1")
+        r2 = cfg("R2", lineage="rewrite-r2")
+        r3 = cfg("R3", lineage="rewrite-r3")
+        calls = []
+
+        def invoke(config, context):
+            calls.append((config.role, context.get("mode"), context.get("phase")))
+            if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
+                return ReviewerResponse("R1", None, "stable header\nwrong claim\nstable footer")
+            if config.role == "R2":
+                f = ReviewFinding(
+                    "localized", "R2", "HIGH", True, "wrong claim",
+                    affected_scope=("claim:c1",),
+                    first_invalid_claim="wrong claim",
+                )
+                return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "localized", (f,))
+            if config.role == "R1":
+                return ReviewerResponse("R1", None, "rewritten header\nfixed claim\nstable footer")
+            self.fail("R3 must not see an out-of-scope revision")
+
+        result = governed_engine(invoke, r1, r2, r3).run(
+            ReviewRequest("q-out-of-scope", "material", risk="HIGH"),
+            r1=r1,
+            r2=r2,
+            r3=r3,
+        )
+        self.assertEqual(result.state, "HUMAN_REQUIRED")
+        self.assertIn("outside the platform-authorized correction scope", result.reasons[0])
+        self.assertEqual([call[0] for call in calls], ["R1", "R2", "R1"])
 
     def test_authoritative_memory_is_versioned_and_external_authority_only(self):
         store = VersionedMemoryStore()
