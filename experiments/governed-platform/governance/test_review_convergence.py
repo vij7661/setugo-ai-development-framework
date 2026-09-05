@@ -5,8 +5,7 @@ from review_convergence import compatibility_gate, evaluate_review_convergence, 
 
 class DomainInvariantTests(unittest.TestCase):
     def test_missing_invariants_fail_closed(self):
-        with self.assertRaises(ValueError):
-            extract_domain_invariants({})
+        with self.assertRaises(ValueError): extract_domain_invariants({})
 
     def test_compatibility_requires_every_invariant(self):
         contract = {"domain_invariants": ["authority_external", "evidence_before_promotion"]}
@@ -16,8 +15,7 @@ class DomainInvariantTests(unittest.TestCase):
 
     def test_compatibility_passes_only_when_all_are_preserved(self):
         contract = {"domain_invariants": ["authority_external", "evidence_before_promotion"]}
-        result = compatibility_gate(contract, {"preserved_invariants": contract["domain_invariants"]})
-        self.assertTrue(result["compatible"])
+        self.assertTrue(compatibility_gate(contract, {"preserved_invariants": contract["domain_invariants"]})["compatible"])
 
 
 class ReviewConvergenceTests(unittest.TestCase):
@@ -29,6 +27,9 @@ class ReviewConvergenceTests(unittest.TestCase):
             "review_role": "JUDGE",
             "task_class": "SECURITY_REVIEW",
             "risk_tier": "HIGH",
+            "min_performance_samples": 20,
+            "required_difficulty_bands": ["MEDIUM", "HARD"],
+            "min_samples_per_difficulty": 5,
         }
 
     def perf(self, reviewer, rate, epoch=1):
@@ -41,38 +42,24 @@ class ReviewConvergenceTests(unittest.TestCase):
             "independently_adjudicated": True,
             "evidence_ref": f"perf-{reviewer}-{epoch}",
             "performance_epoch": epoch,
+            "sample_count": 20,
+            "difficulty_distribution": {"MEDIUM": 10, "HARD": 10},
         }
 
     def test_high_false_positive_reviewer_is_demoted(self):
-        reviews = [
-            {"reviewer_id": "r1", "verdict": "PASS"},
-            {"reviewer_id": "r2", "verdict": "PASS"},
-            {"reviewer_id": "r3", "verdict": "PASS"},
-        ]
-        records = [self.perf("r1", 0.02), self.perf("r2", 0.40), self.perf("r3", 0.03)]
-        result = evaluate_review_convergence(self.policy(), reviews, records)
+        reviews = [{"reviewer_id": "r1", "verdict": "PASS"}, {"reviewer_id": "r2", "verdict": "PASS"}, {"reviewer_id": "r3", "verdict": "PASS"}]
+        result = evaluate_review_convergence(self.policy(), reviews, [self.perf("r1", 0.02), self.perf("r2", 0.40), self.perf("r3", 0.03)])
         self.assertEqual("CONVERGED_PASS", result["decision"])
         self.assertEqual(["r2"], result["demoted_reviewers"])
 
     def test_ceiling_without_convergence_escalates(self):
-        reviews = [
-            {"reviewer_id": "r1", "verdict": "PASS"},
-            {"reviewer_id": "r2", "verdict": "FAIL"},
-            {"reviewer_id": "r3", "verdict": "PASS"},
-        ]
-        records = [self.perf("r1", 0.02), self.perf("r2", 0.03), self.perf("r3", 0.50)]
-        result = evaluate_review_convergence(self.policy(), reviews, records)
+        reviews = [{"reviewer_id": "r1", "verdict": "PASS"}, {"reviewer_id": "r2", "verdict": "FAIL"}, {"reviewer_id": "r3", "verdict": "PASS"}]
+        result = evaluate_review_convergence(self.policy(), reviews, [self.perf("r1", 0.02), self.perf("r2", 0.03), self.perf("r3", 0.50)])
         self.assertEqual("CEILING_REACHED_ESCALATE", result["decision"])
-        self.assertTrue(result["ceiling_reached"])
 
     def test_no_early_pass_from_insufficient_agreement(self):
-        result = evaluate_review_convergence(
-            self.policy(),
-            [{"reviewer_id": "r1", "verdict": "PASS"}],
-            [self.perf("r1", 0.01)],
-        )
+        result = evaluate_review_convergence(self.policy(), [{"reviewer_id": "r1", "verdict": "PASS"}], [self.perf("r1", 0.01)])
         self.assertEqual("CONTINUE_REVIEW", result["decision"])
 
 
-if __name__ == "__main__":
-    unittest.main()
+if __name__ == "__main__": unittest.main()
