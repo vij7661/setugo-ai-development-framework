@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-L",
+  "pilot": "PILOT2-SEMANTIC-CALIBRATION",
+  "case_id": "EXP-C-001",
+  "execution_sha": "4daf35b7d95d692c11522f1413b7efb7471ceaf9",
+  "workflow_run_id": 33963407155,
+  "bundle_artifact_id": 9968666412,
+  "bundle_digest": "sha256:86f92385a2d222b22d81d3c3cb505a0e83369f1926f6d637971b5fe5daa5b449",
+  "authority": "NONE",
+  "threshold_applied": false,
+  "protected_adjudication": {
+    "source": "EXP-C-PILOT1",
+    "expected_primary_failure_class": "FIXTURE-DATA DEFECT",
+    "expected_authorized_artifact_scope": ["FIXTURE-DATA"]
+  },
+  "provider_observations": [
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "requested_samples": 5,
+      "valid_samples": 4,
+      "invalid_or_error_samples": 1,
+      "sample_sufficiency": "SUFFICIENT",
+      "semantic_proxy_clusters": {"TEST DEFECT": 4},
+      "normalized_semantic_entropy": 0.0,
+      "observed_stability": "STABLE_SINGLE_CLUSTER",
+      "protected_correctness": "WRONG",
+      "classification": "STABLE_WRONG",
+      "interpretation": "All four valid samples converged on TEST DEFECT even though protected adjudication is FIXTURE-DATA DEFECT. Low semantic entropy therefore did not imply correctness."
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-3.8-flash",
+      "requested_samples": 5,
+      "valid_samples": 1,
+      "invalid_or_error_samples": 4,
+      "sample_sufficiency": "INSUFFICIENT",
+      "semantic_proxy_clusters": {"TEST DEFECT": 1},
+      "normalized_semantic_entropy": null,
+      "observed_stability": "NOT_ADMISSIBLE",
+      "protected_correctness": "WRONG_VALID_SAMPLE",
+      "classification": "PROVIDER_LIMITED_NO_STABILITY_CLAIM",
+      "interpretation": "One valid sample was wrong, but four provider/invocation failures leave too little valid evidence to estimate within-model stability."
+    }
+  ],
+  "pilot_result": "STABLE_WRONG_FAILURE_MODE_CONFIRMED_FOR_GROQ_WITH_GEMINI_SAMPLE_INSUFFICICIENCY",
+  "scientific_interpretation": "This pilot directly confirms a central limitation of semantic-uncertainty triggering: a model can be semantically stable across repeated black-box samples and still be wrong. Semantic stability can therefore be used as an uncertainty signal but cannot be a truth signal and must never override governance-required independent review. Provider failure/sampling insufficiency must be represented separately from model uncertainty.",
+  "design_consequences": [
+    "Retain stable-wrong rate as a first-class EXP-L metric.",
+    "Never permit low semantic entropy to bypass HIGH-risk or otherwise policy-required review.",
+    "Require a minimum valid-sample count before reporting stability.",
+    "Treat provider/invocation failure separately from semantic uncertainty.",
+    "Calibrate conditional-review thresholds only after collecting stable-correct, stable-wrong, unstable-wrong, and semantically-divergent case families."
+  ],
+  "limitations": [
+    "This is one protected case and does not establish population-level rates.",
+    "The semantic proxy is canonical defect classification for diagnosis cases, not a general semantic-equivalence model over arbitrary prose.",
+    "One Groq sample was invalid/ineligible and four Gemini samples were invalid/ineligible.",
+    "No production review threshold is inferred from this pilot."
+  ]
+}
