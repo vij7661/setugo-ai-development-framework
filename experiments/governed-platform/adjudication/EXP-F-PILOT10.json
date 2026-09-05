@@ -1,0 +1,9 @@
+{
+  "experiment_id": "EXP-F-PILOT10",
+  "scope": "provider+model+SKU+deployment-path qualification identity falsification",
+  "tested_sha": "65c8a4c0e18720ab593ff5688542e86488be62bd",
+  "workflow_run_id": 33954784457,
+  "conclusion": "PASS",
+  "governance_tests": 107,
+  "notes": "Exact-head CI passed all qualification identity cases. Routing and evidence eligibility now bind provider, model, SKU, deployment path, qualification reference, and qualification epoch. Missing SKU/deployment metadata fails closed. This append-only slice record does not by itself prove full EXP-F completion."
+}
