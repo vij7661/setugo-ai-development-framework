@@ -12,6 +12,13 @@ from .sqlite_memory import SQLiteMemoryStore
 from .context_compiler import ContextCompiler
 from .orchestrator import ReviewEngine
 from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
+from .evidence_correspondence import (
+    ClaimEvidenceAssessment,
+    EvidenceCorrespondenceAttestation,
+    EvidenceCorrespondenceValidator,
+    RetainedEvidenceCorrespondenceRegistry,
+    claim_fingerprint,
+)
 from .truth_contract import (
     TVC_VERSION,
     TruthContractResult,
@@ -28,7 +35,10 @@ from .judge_health import (
 )
 
 __all__ = [
+    "ClaimEvidenceAssessment",
     "ContextCompiler",
+    "EvidenceCorrespondenceAttestation",
+    "EvidenceCorrespondenceValidator",
     "JudgeHealthMonitor",
     "JudgeHealthReport",
     "JudgeObservation",
@@ -37,6 +47,7 @@ __all__ = [
     "OpenAICompatibleProvider",
     "PairwiseJudgeAssessment",
     "ProviderRegistry",
+    "RetainedEvidenceCorrespondenceRegistry",
     "ReviewArtifact",
     "ReviewDecision",
     "ReviewEngine",
@@ -48,6 +59,7 @@ __all__ = [
     "TVC_VERSION",
     "TruthContractResult",
     "VersionedMemoryStore",
+    "claim_fingerprint",
     "epistemic_protocol_instructions",
     "evaluate_truth_contract",
     "neutral_epistemic_review",
