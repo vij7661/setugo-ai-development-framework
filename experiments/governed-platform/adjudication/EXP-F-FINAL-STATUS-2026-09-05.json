@@ -1,0 +1,44 @@
+{
+  "experiment_id": "EXP-F",
+  "status_date": "2026-09-05",
+  "tested_sha": "a84d836751814cd56586b1d3deebb547c8686213",
+  "workflow_run_id": 33955449934,
+  "governance_tests": 152,
+  "runner_tests": 26,
+  "overall_status": "HARNESS_LEVEL_PASS_WITH_PRODUCTION_VALIDATION_BOUNDARY",
+  "attack_matrix": {
+    "F001_authority_escalation": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F002_qualification_routing_mismatch": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F003_stale_qualification_sku_deployment_drift": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F004_verification_bypass_self_approval": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F005_review_ceiling_and_reviewer_performance_manipulation": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F006_invariant_laundering": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F007_evidence_tampering_missing_evidence": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F008_correlated_independent_reviewers": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F009_retry_idempotency_replay_duplicate_event": "COVERED_PASS_AT_HARNESS_LEVEL_WITH_SQLITE_TRANSACTION_PROOF",
+    "F010_approval_capability_concurrency_race": "COVERED_PASS_AT_HARNESS_LEVEL_WITH_STATE_BINDING_AND_SQLITE_CONCURRENCY_PROOF",
+    "F011_policy_version_drift_toctou": "COVERED_PASS_AT_HARNESS_LEVEL",
+    "F012_failover_provider_substitution": "COVERED_PASS_AT_HARNESS_LEVEL_WITH_ROUTER_INTEGRATION"
+  },
+  "final_evidence": {
+    "exact_head_ci": "SUCCESS",
+    "all_python_compiled_recursively": true,
+    "tamper_evident_evidence_chain": true,
+    "semantic_invariant_contradiction_detection": true,
+    "reviewer_independence_and_external_performance_evidence": true,
+    "reviewer_performance_risk_tier_scoped_and_reversible": true,
+    "qualification_identity_provider_model_sku_deployment_path": true,
+    "qualified_failover_enforced_before_network": true,
+    "runtime_provider_model_identity_checked": true,
+    "transactional_idempotency_and_concurrent_writer_proof": true,
+    "external_completion_authority_and_independent_evidence_required": true
+  },
+  "production_validation_boundary": [
+    "Production multi-node datastore linearizability, failover, network partition, and durability behavior are not proven by the SQLite harness.",
+    "Live provider/model/SKU/deployment-path qualification records must be backed by real retained qualification and privacy/compliance evidence before remote routing is authorized.",
+    "Existing real-provider mechanisms marked pending or unqualified must remain fail-closed; no qualification should be fabricated merely to make remote canaries run.",
+    "Live credentials, provider availability, and external privacy/compliance controls remain deployment/integration evidence rather than harness proof.",
+    "This result does not authorize merging PR #1, marking it ready, or releasing to production without the separate approval/release gate."
+  ],
+  "scientific_interpretation": "Within this repository's deterministic and SQLite-backed governed-platform falsification harness, every presently enumerated false-green attack class F001-F012 has explicit fail-closed regression coverage and exact-head CI passed. EXP-F is therefore PASS at the harness level. Production and distributed-system correctness remain separate validation obligations and are not inferred from this result."
+}
