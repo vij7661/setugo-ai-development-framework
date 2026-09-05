@@ -1,0 +1,25 @@
+{
+  "case_id": "EXP-L-CF-001",
+  "experiment_id": "EXP-L",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:registration_lifecycle_fixture",
+  "authoritative_intent_ref": "inline:registration_lifecycle_contract",
+  "invariant_refs": [],
+  "model_visible": {
+    "contract": "After KYC completion creates the authoritative user account, the same identity is an existing account. Registration OTP verification must reject that identity as already registered; existing-account login must succeed.",
+    "test_sequence": [
+      "Test 1 uses identity U and completes KYC, creating the authoritative account for U.",
+      "Test 2 reuses the same persistent database and identity U, but its stated scenario is to exercise the pre-account registration/KYC path.",
+      "Test 2 expects the KYC route and instead receives FARMER_ALREADY_REGISTERED."
+    ],
+    "cross_examination": [
+      "Compare two hypotheses: (A) the expected assertion is wrong, and (B) the initial test state/data provisioning is wrong for the stated Test 2 scenario.",
+      "For each hypothesis, state what corrective change would be made and whether that change would preserve Test 2's stated scenario of exercising the pre-account path.",
+      "Identify what evidence would falsify your preferred hypothesis."
+    ],
+    "task": "After the comparison, diagnose the primary failure class and state which artifact class, if any, is authorized to change. The cross-examination is a stability probe, not a hint that either hypothesis is correct."
+  },
+  "ground_truth_ref": "local-hidden:EXP-C-001.ground-truth.json",
+  "tags": ["counterfactual-probe", "stable-wrong", "fixture-vs-test", "corrective-authority"]
+}
