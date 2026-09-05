@@ -108,16 +108,48 @@ class SystemIntegrationTests(unittest.TestCase):
             events = sessions.events("session-1")
             self.assertEqual([e.event_type for e in events], [
                 "REQUEST_RECEIVED",
+                "REVIEWER_CAPABILITY_ISSUED",
                 "R1_COMPLETED",
                 "ROUTE_DECISION",
+                "REVIEWER_CAPABILITY_ISSUED",
                 "R2_COMPLETED",
+                "REVIEWER_CAPABILITY_ISSUED",
                 "SCOPED_CORRECTION_AUTHORIZED",
                 "SCOPED_CORRECTION_ASSESSED",
                 "R1_REVISED",
+                "REVIEWER_CAPABILITY_ISSUED",
                 "R3_INDEPENDENT_COMPLETED",
                 "FINAL_DECISION",
             ])
-            self.assertTrue(events[5].payload["assessment"]["admissible"])
+
+            initial_artifact_hash = events[2].payload["artifact_hash"]
+            revised_artifact_hash = events[9].payload["artifact_hash"]
+            capability_events = [events[1], events[4], events[6], events[10]]
+            self.assertEqual(
+                [event.payload["phase"] for event in capability_events],
+                ["R1_INITIAL", "R2_INDEPENDENT", "R1_SCOPED_CORRECTION", "R3_INDEPENDENT"],
+            )
+            self.assertEqual(
+                [event.payload["role"] for event in capability_events],
+                ["R1", "R2", "R1", "R3"],
+            )
+            self.assertEqual(
+                [event.payload["artifact_hash"] for event in capability_events],
+                [None, initial_artifact_hash, initial_artifact_hash, revised_artifact_hash],
+            )
+            self.assertEqual(
+                [event.payload["request_id"] for event in capability_events],
+                ["session-1", "session-1", "session-1", "session-1"],
+            )
+            self.assertEqual(
+                [event.payload["qualification_epoch"] for event in capability_events],
+                [1, 1, 1, 1],
+            )
+            self.assertEqual(len({event.payload["capability_id"] for event in capability_events}), 4)
+            self.assertTrue(all(event.payload["single_use_consumed_for_invocation"] for event in capability_events))
+            self.assertTrue(all(event.payload["external_action_authority"] is False for event in capability_events))
+
+            self.assertTrue(events[8].payload["assessment"]["admissible"])
             self.assertEqual(events[-1].payload["state"], "CONVERGED_PASS")
 
 
