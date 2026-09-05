@@ -1,0 +1,52 @@
+{
+  "providers": {
+    "openai-compatible": {
+      "adapter": "openai_compatible",
+      "base_url": "https://api.example.com/v1",
+      "timeout_seconds": 120,
+      "max_attempts": 3,
+      "temperature": 0.0
+    },
+    "anthropic": {
+      "adapter": "anthropic",
+      "base_url": "https://api.anthropic.com/v1",
+      "anthropic_version": "2023-06-01",
+      "temperature": 0.0
+    },
+    "gemini": {
+      "adapter": "gemini",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta",
+      "temperature": 0.0
+    }
+  },
+  "reviewers": {
+    "R1": {
+      "provider": "openai-compatible",
+      "model": "user-selected-primary-model",
+      "api_key_env": "R1_API_KEY",
+      "sku": "default",
+      "deployment_path": "api",
+      "foundation_lineage": "primary-foundation",
+      "qualification_ref": null
+    },
+    "R2": {
+      "provider": "anthropic",
+      "model": "user-selected-claude-model",
+      "api_key_env": "R2_API_KEY",
+      "sku": "default",
+      "deployment_path": "anthropic-api",
+      "foundation_lineage": "anthropic-foundation",
+      "qualification_ref": null
+    },
+    "R3": {
+      "provider": "gemini",
+      "model": "user-selected-gemini-model",
+      "api_key_env": "R3_API_KEY",
+      "sku": "default",
+      "deployment_path": "google-ai-api",
+      "foundation_lineage": "gemini-foundation",
+      "qualification_ref": null
+    }
+  },
+  "qualifications": []
+}
