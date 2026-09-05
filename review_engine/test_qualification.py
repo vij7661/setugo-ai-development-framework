@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from review_engine.models import ReviewerConfig
-from review_engine.qualification import QualificationRecord, QualificationRegistry
+from review_engine.qualification import QualificationRecord, QualificationRegistry, reviewer_context_hash
 
 
 def cfg(ref="q1", *, model="m", role="R2", lineage="lineage"):
@@ -21,6 +21,17 @@ def record(**overrides):
     )
     values.update(overrides)
     return QualificationRecord(**values)
+
+
+def context_hash(request_id: str, *, phase: str = "R2_INDEPENDENT", content: str = "artifact text") -> str:
+    return reviewer_context_hash(
+        {
+            "role": "R2",
+            "request_id": request_id,
+            "phase": phase,
+            "artifact": {"artifact_hash": "artifact-a", "content": content},
+        }
+    )
 
 
 class QualificationTests(unittest.TestCase):
@@ -58,14 +69,16 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(registry.get("q1").qualification_epoch, 2)
         self.assertFalse(registry.evaluate(cfg(), risk="LOW").eligible)
 
-    def test_capability_binds_exact_epoch_identity_risk_task_request_phase_and_artifact(self):
+    def test_capability_binds_exact_epoch_identity_risk_task_request_phase_artifact_and_context(self):
         registry = QualificationRegistry((record(),))
+        ctx_hash = context_hash("req-1")
         decision, capability = registry.issue_capability(
             cfg(),
             risk="HIGH",
             task_type="GENERAL",
             request_id="req-1",
             phase="R2_INDEPENDENT",
+            context_hash=ctx_hash,
             artifact_hash="artifact-a",
         )
         self.assertTrue(decision.eligible)
@@ -78,6 +91,7 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(capability.request_id, "req-1")
         self.assertEqual(capability.phase, "R2_INDEPENDENT")
         self.assertEqual(capability.artifact_hash, "artifact-a")
+        self.assertEqual(capability.context_hash, ctx_hash)
 
     def test_revoked_qualification_cannot_issue_capability(self):
         registry = QualificationRegistry((record(status="REVOKED"),))
@@ -86,20 +100,23 @@ class QualificationTests(unittest.TestCase):
             risk="LOW",
             request_id="req-2",
             phase="R2_INDEPENDENT",
+            context_hash=context_hash("req-2"),
             artifact_hash="artifact-a",
         )
         self.assertFalse(decision.eligible)
         self.assertIsNone(capability)
         self.assertIn("REVOKED", decision.reason)
 
-    def test_capability_is_single_use_and_cannot_change_scope(self):
+    def test_capability_is_single_use_and_cannot_change_scope_or_context(self):
         registry = QualificationRegistry((record(),))
+        original_hash = context_hash("req-3")
         _, capability = registry.issue_capability(
             cfg(),
             risk="HIGH",
             task_type="GENERAL",
             request_id="req-3",
             phase="R2_INDEPENDENT",
+            context_hash=original_hash,
             artifact_hash="artifact-a",
         )
         assert capability is not None
@@ -112,6 +129,20 @@ class QualificationTests(unittest.TestCase):
                 task_type="GENERAL",
                 request_id="req-3",
                 phase="R3_INDEPENDENT",
+                context_hash=original_hash,
+                artifact_hash="artifact-a",
+            )
+        self.assertFalse(registry.capability_consumed(capability.capability_id))
+
+        with self.assertRaisesRegex(ValueError, "context_hash binding mismatch"):
+            registry.consume_capability(
+                capability.capability_id,
+                cfg(),
+                risk="HIGH",
+                task_type="GENERAL",
+                request_id="req-3",
+                phase="R2_INDEPENDENT",
+                context_hash=context_hash("req-3", content="substituted text"),
                 artifact_hash="artifact-a",
             )
         self.assertFalse(registry.capability_consumed(capability.capability_id))
@@ -123,6 +154,7 @@ class QualificationTests(unittest.TestCase):
             task_type="GENERAL",
             request_id="req-3",
             phase="R2_INDEPENDENT",
+            context_hash=original_hash,
             artifact_hash="artifact-a",
         )
         self.assertEqual(consumed.capability_id, capability.capability_id)
@@ -136,16 +168,19 @@ class QualificationTests(unittest.TestCase):
                 task_type="GENERAL",
                 request_id="req-3",
                 phase="R2_INDEPENDENT",
+                context_hash=original_hash,
                 artifact_hash="artifact-a",
             )
 
     def test_revocation_after_issue_does_not_retroactively_rewrite_one_shot_grant(self):
         registry = QualificationRegistry((record(),))
+        ctx_hash = context_hash("req-4")
         _, capability = registry.issue_capability(
             cfg(),
             risk="HIGH",
             request_id="req-4",
             phase="R2_INDEPENDENT",
+            context_hash=ctx_hash,
             artifact_hash="artifact-a",
         )
         assert capability is not None
@@ -157,6 +192,7 @@ class QualificationTests(unittest.TestCase):
             risk="HIGH",
             request_id="req-4",
             phase="R2_INDEPENDENT",
+            context_hash=ctx_hash,
             artifact_hash="artifact-a",
         )
         self.assertEqual(consumed.qualification_epoch, 1)
@@ -166,10 +202,16 @@ class QualificationTests(unittest.TestCase):
             risk="HIGH",
             request_id="req-4",
             phase="R2_INDEPENDENT",
+            context_hash=ctx_hash,
             artifact_hash="artifact-a",
         )
         self.assertFalse(next_decision.eligible)
         self.assertIsNone(next_capability)
+
+    def test_context_hash_is_canonical_for_equivalent_json_objects(self):
+        left = reviewer_context_hash({"b": [2, 3], "a": {"x": True}})
+        right = reviewer_context_hash({"a": {"x": True}, "b": [2, 3]})
+        self.assertEqual(left, right)
 
 
 if __name__ == "__main__":
