@@ -1,4 +1,5 @@
 {
+  "mvp_warning": "This example intentionally contains no retained qualification evidence. It runs in EXPERIMENTAL_UNQUALIFIED mode and is capped to bounded R1-only low-risk review until real qualification records are added.",
   "providers": {
     "openai-compatible": {
       "adapter": "openai_compatible",
@@ -11,7 +12,9 @@
       "adapter": "anthropic",
       "base_url": "https://api.anthropic.com/v1",
       "anthropic_version": "2023-06-01",
-      "temperature": 0.0
+      "temperature": 0.0,
+      "initial_backoff_seconds": 1.0,
+      "max_backoff_seconds": 10.0
     },
     "gemini": {
       "adapter": "gemini",
