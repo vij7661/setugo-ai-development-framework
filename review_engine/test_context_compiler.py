@@ -36,6 +36,10 @@ class ContextCompilerTests(unittest.TestCase):
             self.assertIn("project", ids)
             self.assertNotIn("old-review", ids)
             self.assertNotIn("private", ids)
+            protocol = context["instructions"]["truth_and_veracity_contract"]
+            self.assertEqual(protocol["version"], "TVC-1")
+            self.assertTrue(protocol["agreement_is_not_truth"])
+            self.assertTrue(protocol["model_judgment_is_evidence_not_authority"])
 
         self.assertEqual(r3b_context["frozen_independent_view"], "independent view")
         self.assertEqual(r3b_context["prior_reviews"]["R2"], "localized finding")
