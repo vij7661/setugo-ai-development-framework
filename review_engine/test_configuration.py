@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import tempfile
 import unittest
@@ -27,6 +28,32 @@ class ConfigurationTests(unittest.TestCase):
         if root_extra:
             data.update(root_extra)
         return data
+
+    @staticmethod
+    def _qualified_config_data():
+        return {
+            "providers": {"p": {"adapter": "openai_compatible", "base_url": "https://p.example/v1"}},
+            "reviewers": {
+                "R1": {
+                    "provider": "p",
+                    "model": "m",
+                    "api_key_env": "KEY",
+                    "foundation_lineage": "l",
+                    "qualification_ref": "q1",
+                }
+            },
+            "qualifications": [{
+                "qualification_ref": "q1",
+                "provider": "p",
+                "model": "m",
+                "role": "R1",
+                "foundation_lineage": "l",
+                "status": "QUALIFIED",
+                "qualification_epoch": 1,
+                "max_risk": "LOW",
+                "task_types": ["GENERAL"],
+            }],
+        }
 
     def test_user_can_choose_distinct_models_and_secret_env_names(self):
         path = self._write({
@@ -61,20 +88,22 @@ class ConfigurationTests(unittest.TestCase):
         self.assertIsNotNone(registry)
 
     def test_retained_qualification_switches_assurance_to_governed(self):
-        path = self._write({
-            "providers": {"p": {"adapter": "openai_compatible", "base_url": "https://p.example/v1"}},
-            "reviewers": {
-                "R1": {"provider": "p", "model": "m", "api_key_env": "KEY", "foundation_lineage": "l", "qualification_ref": "q1"}
-            },
-            "qualifications": [{
-                "qualification_ref": "q1", "provider": "p", "model": "m", "role": "R1",
-                "foundation_lineage": "l", "status": "QUALIFIED", "qualification_epoch": 1,
-                "max_risk": "LOW", "task_types": ["GENERAL"]
-            }],
-        })
+        path = self._write(self._qualified_config_data())
         config = load_configuration(path)
         self.assertEqual(config.assurance_mode, "GOVERNED")
         self.assertIsNotNone(build_qualification_registry(config))
+
+    def test_provider_endpoint_substitution_cannot_reuse_old_qualification(self):
+        approved = self._qualified_config_data()
+        approved_config = load_configuration(self._write(approved))
+        self.assertEqual(approved_config.assurance_mode, "GOVERNED")
+
+        substituted = copy.deepcopy(approved)
+        substituted["providers"]["p"]["base_url"] = "https://different-provider.example/v1"
+        substituted_config = load_configuration(self._write(substituted))
+
+        with self.assertRaisesRegex(ValueError, "deployment|provider.*binding|fingerprint|qualification"):
+            build_qualification_registry(substituted_config)
 
     def test_raw_api_key_field_is_rejected(self):
         path = self._write(self._minimal(provider_extra={"api_key": "secret"}))
