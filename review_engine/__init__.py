@@ -35,9 +35,16 @@ from .evidence_correspondence import (
     ClaimEvidenceAssessment,
     EvidenceCorrespondenceAttestation,
     EvidenceCorrespondenceValidator,
+    EvidenceVerifierIdentity,
     RetainedEvidenceCorrespondenceRegistry,
     claim_fingerprint,
 )
+from .evidence_verifier_qualification import (
+    EvidenceVerifierQualificationDecision,
+    EvidenceVerifierQualificationRecord,
+    EvidenceVerifierQualificationRegistry,
+)
+from .qualified_evidence_correspondence import QualifiedRetainedEvidenceCorrespondenceRegistry
 from .truth_contract import (
     TVC_VERSION,
     TruthContractResult,
@@ -65,6 +72,10 @@ __all__ = [
     "CoverageClaim",
     "EvidenceCorrespondenceAttestation",
     "EvidenceCorrespondenceValidator",
+    "EvidenceVerifierIdentity",
+    "EvidenceVerifierQualificationDecision",
+    "EvidenceVerifierQualificationRecord",
+    "EvidenceVerifierQualificationRegistry",
     "ExtractionWorkOrder",
     "ExtractionWorkRegistry",
     "ExtractorQualificationDecision",
@@ -81,6 +92,7 @@ __all__ = [
     "PairwiseJudgeAssessment",
     "ProviderRegistry",
     "QualifiedRetainedClaimCoverageRegistry",
+    "QualifiedRetainedEvidenceCorrespondenceRegistry",
     "RetainedClaimCoverageRegistry",
     "RetainedEvidenceCorrespondenceRegistry",
     "ReviewArtifact",
