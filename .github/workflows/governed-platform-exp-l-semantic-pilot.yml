@@ -61,11 +61,11 @@ jobs:
         if: always()
         with: {name: exp-l-groq-samples, path: exp-l-results/groq/, if-no-files-found: error}
 
-  gemini-samples:
-    name: EXP-L R1 Samples Gemini
+  openrouter-samples:
+    name: EXP-L R1 Samples OpenRouter
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env: {GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"}
+    env: {OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -89,18 +89,18 @@ jobs:
           echo "TEMPERATURE=$TEMPERATURE" >> "$GITHUB_ENV"
       - name: Sample primary model repeatedly
         run: |
-          mkdir -p exp-l-results/gemini
-          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-d --instruction-version exp-l-semantic-v1 --out "exp-l-results/gemini/${CASE_ID}.envelope.json"
+          mkdir -p exp-l-results/openrouter
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-b --instruction-version exp-l-semantic-v1 --out "exp-l-results/openrouter/${CASE_ID}.envelope.json"
           for i in $(seq 1 "$SAMPLE_COUNT"); do
-            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-l-results/gemini/${CASE_ID}.envelope.json" --provider gemini --base-url https://generativelanguage.googleapis.com/v1beta/openai --model gemini-3.8-flash --api-key-env GEMINI_API_KEY --timeout-seconds 120 --temperature "$TEMPERATURE" --out "exp-l-results/gemini/${CASE_ID}.sample-${i}.raw-result.json" || true
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-l-results/openrouter/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --temperature "$TEMPERATURE" --out "exp-l-results/openrouter/${CASE_ID}.sample-${i}.raw-result.json" || true
           done
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: exp-l-gemini-samples, path: exp-l-results/gemini/, if-no-files-found: error}
+        with: {name: exp-l-openrouter-samples, path: exp-l-results/openrouter/, if-no-files-found: error}
 
   bundle:
     name: Freeze EXP-L semantic calibration bundle
-    needs: [groq-samples, gemini-samples]
+    needs: [groq-samples, openrouter-samples]
     if: always()
     runs-on: ubuntu-latest
     steps:
