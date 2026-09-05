@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import os
+import random
+import time
 from dataclasses import dataclass
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .models import ReviewerConfig, ReviewerResponse
-from .providers import SYSTEM_INSTRUCTION, _parse_response
+from .providers import RETRYABLE_HTTP, SYSTEM_INSTRUCTION, _parse_response
 
 
 @dataclass(frozen=True)
@@ -18,6 +20,8 @@ class AnthropicEndpoint:
     max_attempts: int = 3
     max_tokens: int = 4096
     temperature: float = 0.0
+    initial_backoff_seconds: float = 1.0
+    max_backoff_seconds: float = 10.0
 
 
 class AnthropicProvider:
@@ -26,7 +30,22 @@ class AnthropicProvider:
             raise ValueError("Anthropic base_url must be http(s)")
         if not 0 <= endpoint.temperature <= 1:
             raise ValueError("Anthropic temperature must be in [0,1]")
+        if endpoint.initial_backoff_seconds < 0 or endpoint.max_backoff_seconds < endpoint.initial_backoff_seconds:
+            raise ValueError("invalid Anthropic backoff configuration")
         self.endpoint = endpoint
+
+    def _delay(self, attempt: int, retry_after: str | None = None) -> None:
+        if retry_after:
+            try:
+                time.sleep(min(max(float(retry_after), 0.0), self.endpoint.max_backoff_seconds))
+                return
+            except ValueError:
+                pass
+        base = min(
+            self.endpoint.initial_backoff_seconds * (2 ** max(0, attempt - 1)),
+            self.endpoint.max_backoff_seconds,
+        )
+        time.sleep(base + random.uniform(0, min(0.25, base / 4 if base else 0.0)))
 
     def invoke(self, config: ReviewerConfig, context: dict) -> ReviewerResponse:
         config.validate()
@@ -60,19 +79,25 @@ class AnthropicProvider:
             except HTTPError as exc:
                 detail = exc.read().decode("utf-8", errors="replace")[:1000]
                 last_error = f"Anthropic HTTP {exc.code}: {detail}"
-                if exc.code in {429, 500, 502, 503, 504} and attempt < self.endpoint.max_attempts:
+                if exc.code in RETRYABLE_HTTP and attempt < self.endpoint.max_attempts:
+                    self._delay(attempt, exc.headers.get("Retry-After"))
                     continue
                 raise RuntimeError(f"{last_error} (attempt {attempt}/{self.endpoint.max_attempts})") from exc
             except URLError as exc:
                 last_error = f"Anthropic connection failed: {exc.reason}"
                 if attempt < self.endpoint.max_attempts:
+                    self._delay(attempt)
                     continue
                 raise RuntimeError(f"{last_error} (attempt {attempt}/{self.endpoint.max_attempts})") from exc
 
             if body.get("stop_reason") not in {"end_turn", "stop_sequence"}:
                 raise RuntimeError(f"Anthropic completion incomplete: stop_reason={body.get('stop_reason')!r}")
             blocks = body.get("content") or []
-            text = "".join(str(block.get("text", "")) for block in blocks if isinstance(block, dict) and block.get("type") == "text")
+            text = "".join(
+                str(block.get("text", ""))
+                for block in blocks
+                if isinstance(block, dict) and block.get("type") == "text"
+            )
             if not text.strip():
                 raise RuntimeError("Anthropic response contained no usable text")
             return _parse_response(config.role, context, text)
