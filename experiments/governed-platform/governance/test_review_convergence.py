@@ -22,32 +22,52 @@ class DomainInvariantTests(unittest.TestCase):
 
 class ReviewConvergenceTests(unittest.TestCase):
     def policy(self):
-        return {"max_reviews": 3, "required_qualified_agreement": 2, "false_positive_rate_threshold": 0.10}
+        return {
+            "max_reviews": 3,
+            "required_qualified_agreement": 2,
+            "false_positive_rate_threshold": 0.10,
+            "review_role": "JUDGE",
+            "task_class": "SECURITY_REVIEW",
+        }
+
+    def perf(self, reviewer, rate, epoch=1):
+        return {
+            "reviewer_id": reviewer,
+            "false_positive_rate": rate,
+            "role": "JUDGE",
+            "task_class": "SECURITY_REVIEW",
+            "independently_adjudicated": True,
+            "evidence_ref": f"perf-{reviewer}-{epoch}",
+            "performance_epoch": epoch,
+        }
 
     def test_high_false_positive_reviewer_is_demoted(self):
         reviews = [
-            {"reviewer_id": "r1", "false_positive_rate": 0.02, "verdict": "PASS"},
-            {"reviewer_id": "r2", "false_positive_rate": 0.40, "verdict": "PASS"},
-            {"reviewer_id": "r3", "false_positive_rate": 0.03, "verdict": "PASS"},
+            {"reviewer_id": "r1", "verdict": "PASS"},
+            {"reviewer_id": "r2", "verdict": "PASS"},
+            {"reviewer_id": "r3", "verdict": "PASS"},
         ]
-        result = evaluate_review_convergence(self.policy(), reviews)
+        records = [self.perf("r1", 0.02), self.perf("r2", 0.40), self.perf("r3", 0.03)]
+        result = evaluate_review_convergence(self.policy(), reviews, records)
         self.assertEqual("CONVERGED_PASS", result["decision"])
         self.assertEqual(["r2"], result["demoted_reviewers"])
 
-    def test_ceiling_without_convergence_requires_human(self):
+    def test_ceiling_without_convergence_escalates(self):
         reviews = [
-            {"reviewer_id": "r1", "false_positive_rate": 0.02, "verdict": "PASS"},
-            {"reviewer_id": "r2", "false_positive_rate": 0.03, "verdict": "FAIL"},
-            {"reviewer_id": "r3", "false_positive_rate": 0.50, "verdict": "PASS"},
+            {"reviewer_id": "r1", "verdict": "PASS"},
+            {"reviewer_id": "r2", "verdict": "FAIL"},
+            {"reviewer_id": "r3", "verdict": "PASS"},
         ]
-        result = evaluate_review_convergence(self.policy(), reviews)
-        self.assertEqual("HUMAN_REQUIRED", result["decision"])
+        records = [self.perf("r1", 0.02), self.perf("r2", 0.03), self.perf("r3", 0.50)]
+        result = evaluate_review_convergence(self.policy(), reviews, records)
+        self.assertEqual("CEILING_REACHED_ESCALATE", result["decision"])
         self.assertTrue(result["ceiling_reached"])
 
     def test_no_early_pass_from_insufficient_agreement(self):
         result = evaluate_review_convergence(
             self.policy(),
-            [{"reviewer_id": "r1", "false_positive_rate": 0.01, "verdict": "PASS"}],
+            [{"reviewer_id": "r1", "verdict": "PASS"}],
+            [self.perf("r1", 0.01)],
         )
         self.assertEqual("CONTINUE_REVIEW", result["decision"])
 
