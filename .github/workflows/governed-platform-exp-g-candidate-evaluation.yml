@@ -35,7 +35,7 @@ jobs:
           python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/groq/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --out "exp-g-results/groq/${CASE_ID}.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: exp-g-groq, path: exp-g-results/groq/, if-no-files-found: warn}
+        with: {name: exp-g-groq, path: exp-g-results/groq/, if-no-files-found: error}
 
   openrouter:
     name: Candidate OpenRouter
@@ -58,7 +58,7 @@ jobs:
           python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/openrouter/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --out "exp-g-results/openrouter/${CASE_ID}.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: exp-g-openrouter, path: exp-g-results/openrouter/, if-no-files-found: warn}
+        with: {name: exp-g-openrouter, path: exp-g-results/openrouter/, if-no-files-found: error}
 
   mistral:
     name: Candidate Mistral
@@ -81,7 +81,7 @@ jobs:
           python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/mistral/${CASE_ID}.envelope.json" --provider mistral --base-url https://api.mistral.ai/v1 --model mistral-small-latest --api-key-env MISTRAL_API_KEY --timeout-seconds 120 --out "exp-g-results/mistral/${CASE_ID}.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: exp-g-mistral, path: exp-g-results/mistral/, if-no-files-found: warn}
+        with: {name: exp-g-mistral, path: exp-g-results/mistral/, if-no-files-found: error}
 
   gemini:
     name: Candidate Gemini
@@ -104,7 +104,7 @@ jobs:
           python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/gemini/${CASE_ID}.envelope.json" --provider gemini --base-url https://generativelanguage.googleapis.com/v1beta/openai --model gemini-3.8-flash --api-key-env GEMINI_API_KEY --timeout-seconds 120 --out "exp-g-results/gemini/${CASE_ID}.raw-result.json"
       - uses: actions/upload-artifact@v4
         if: always()
-        with: {name: exp-g-gemini, path: exp-g-results/gemini/, if-no-files-found: warn}
+        with: {name: exp-g-gemini, path: exp-g-results/gemini/, if-no-files-found: error}
 
   bundle:
     name: Freeze EXP-G review bundle
@@ -124,11 +124,10 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-g-trigger.json"))["case_id"])')"; fi
           mapfile -t RESULTS < <(find _candidate-results -name '*.raw-result.json' -type f | sort)
-          if [ "${#RESULTS[@]}" -eq 0 ]; then echo 'No candidate raw results were produced' >&2; exit 1; fi
+          if [ "${#RESULTS[@]}" -ne 4 ]; then echo "Expected four explicit candidate result records, found ${#RESULTS[@]}" >&2; exit 1; fi
           ARGS=()
           for f in "${RESULTS[@]}"; do ARGS+=(--result "$f"); done
           mkdir -p exp-g-review-bundle
           python experiments/governed-platform/runner/build_exp_g_candidate_bundle.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" "${ARGS[@]}" --execution-sha "$GITHUB_SHA" --workflow-run-id "$GITHUB_RUN_ID" --out "exp-g-review-bundle/${CASE_ID}.exp-g-candidate-review-bundle.json"
-          cp "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" "exp-g-review-bundle/${CASE_ID}.case.json"
       - uses: actions/upload-artifact@v4
         with: {name: exp-g-candidate-review-bundle, path: exp-g-review-bundle/, if-no-files-found: error}
