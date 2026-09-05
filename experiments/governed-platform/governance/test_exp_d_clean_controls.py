@@ -48,7 +48,7 @@ class ExpDCleanSpecificityControls(unittest.TestCase):
 
     def test_legitimate_single_event_is_consumed_once(self):
         result = process_event(base_state(), valid_event("unique-event"))
-        self.assertIn("orchestrator:unique-event", result["state"]["processed_event_keys"])
+        self.assertIn("orchestrator::unique-event", result["state"]["processed_event_keys"])
 
     def test_legitimate_authorized_complete_with_current_evidence_succeeds(self):
         result = process_event(base_state(), valid_event("complete-event", "COMPLETE"))
