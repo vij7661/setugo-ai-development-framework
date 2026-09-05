@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-G",
+  "pilot_id": "PILOT1-SEQUENTIAL-REVIEW",
+  "case_id": "EXP-C-001",
+  "review_chain": [
+    "ChatGPT frozen result",
+    "Claude adversarial review",
+    "DeepSeek adversarial review",
+    "protected adjudication"
+  ],
+  "protected_truth_source": "experiments/governed-platform/adjudication/EXP-C-PILOT1.json",
+  "protected_truth": {
+    "primary_failure_class": "FIXTURE-DATA DEFECT",
+    "authorized_artifact_scope": ["FIXTURE-DATA"]
+  },
+  "chatgpt": {
+    "primary_failure_class": "FIXTURE-DATA DEFECT",
+    "scope": ["FIXTURE-DATA"],
+    "adjudication": "MATCH",
+    "notes": "Correctly localized the causal defect to reuse of mutated lifecycle/account state and excluded production-code mutation."
+  },
+  "claude": {
+    "primary_failure_class": "FIXTURE-DATA DEFECT",
+    "scope": ["FIXTURE-DATA", "TEST-SETUP"],
+    "adjudication": "CLASS_MATCH_WITH_SCOPE_CAVEAT",
+    "notes": "Correctly retained FIXTURE-DATA as primary and usefully challenged overconfidence about the physical fixture/test-setup boundary. The caveat is useful for artifact mapping but does not change the protected semantic class."
+  },
+  "deepseek": {
+    "primary_failure_class": "TEST DEFECT",
+    "scope": ["TEST"],
+    "adjudication": "MISMATCH_CORRELATED_REASONING_ERROR",
+    "notes": "DeepSeek treated the test expectation itself as the defect and argued that fixture state was correct. This misses the case's causal setup: Test 2 is intended to exercise the pre-account path but illegally reuses the identity/database state mutated by Test 1. Changing only the assertion would change the scenario being tested rather than restore the intended precondition."
+  },
+  "final_adjudication": {
+    "primary_failure_class": "FIXTURE-DATA DEFECT",
+    "authorized_artifact_scope": ["FIXTURE-DATA"],
+    "production_code_authorized": false,
+    "majority_vote_used": false,
+    "reason": "The authoritative lifecycle contract makes FARMER_ALREADY_REGISTERED correct for an existing identity, but the test case description explicitly frames Test 2 as expecting the pre-account KYC flow while reusing the same mutated identity and persistent database. The defect is therefore the invalid starting state supplied to Test 2. The test assertion is consistent with the intended scenario; the fixture/state setup is inconsistent with that scenario."
+  },
+  "exp_g_findings": [
+    "Sequential review produced a genuine disagreement that required protected adjudication; model confidence or later-review position could not safely determine correctness.",
+    "Claude added useful scope uncertainty without changing the semantic primary class.",
+    "DeepSeek produced a plausible but wrong reframing that would have granted corrective authority to the wrong artifact class.",
+    "This case demonstrates why semantic responsibility and intended test preconditions must be distinguished from the physical file containing setup code.",
+    "The chain supports EXP-G's goal of exposing disagreement and correlated reasoning failures, but one case is insufficient for scientific PASS."
+  ],
+  "result": "DIRECTIONAL_SUCCESS_WITH_EXTERNAL_DISAGREEMENT_AND_PROTECTED_ADJUDICATION",
+  "scientific_status": "NOT_YET_SCIENTIFIC_PASS",
+  "next_requirements": [
+    "Run additional matched cases including clean controls, omission cases, mixed-cause cases, and role reversal.",
+    "Measure reviewer marginal true findings, false positives, correlated misses, and role-order effects.",
+    "Preserve every model output frozen before protected adjudication."
+  ]
+}
