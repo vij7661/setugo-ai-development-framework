@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -19,6 +20,24 @@ class FakeProviders:
         if config.role == "R1":
             return ReviewerResponse("R1", None, "hello from R1")
         raise AssertionError("low-risk test should not invoke external reviewers")
+
+
+class BlockingProviders(FakeProviders):
+    """Hold the winning R1 call open so a duplicate can race while in progress."""
+
+    def __init__(self):
+        super().__init__()
+        self.entered = threading.Event()
+        self.release = threading.Event()
+
+    def invoke(self, config, context):
+        self.calls.append(config.role)
+        if config.role != "R1":
+            raise AssertionError("low-risk test should not invoke external reviewers")
+        self.entered.set()
+        if not self.release.wait(timeout=10):
+            raise TimeoutError("test did not release provider")
+        return ReviewerResponse("R1", None, "hello from R1")
 
 
 def r1_config():
@@ -107,6 +126,67 @@ class AppTests(unittest.TestCase):
             events = app.session_events("dup")
             self.assertEqual(len([e for e in events if e["event_type"] == "REQUEST_RECEIVED"]), 1)
             self.assertEqual(len([e for e in events if e["event_type"] == "FINAL_DECISION"]), 1)
+            self.assertEqual(fake.calls, ["R1"])
+
+    def test_duplicate_request_id_is_rejected_after_application_restart_without_provider_replay(self):
+        with tempfile.TemporaryDirectory() as td:
+            first_provider = FakeProviders()
+            first_app = self.build_app(td, first_provider)
+            first = first_app.review({"request_id": "restart-dup", "user_input": "first"})
+            self.assertEqual(first["state"], "CONVERGED_PASS")
+            self.assertEqual(first_provider.calls, ["R1"])
+
+            restarted_provider = FakeProviders()
+            restarted_app = self.build_app(td, restarted_provider)
+            with self.assertRaisesRegex(ValueError, "already exists"):
+                restarted_app.review({"request_id": "restart-dup", "user_input": "retry after restart"})
+
+            self.assertEqual(restarted_provider.calls, [])
+            events = restarted_app.session_events("restart-dup")
+            self.assertEqual(len([e for e in events if e["event_type"] == "REQUEST_RECEIVED"]), 1)
+            self.assertEqual(len([e for e in events if e["event_type"] == "FINAL_DECISION"]), 1)
+            self.assertTrue(restarted_app.sessions.validate_chain("restart-dup"))
+
+    def test_concurrent_duplicate_request_is_rejected_before_second_provider_invocation(self):
+        with tempfile.TemporaryDirectory() as td:
+            provider = BlockingProviders()
+            app = self.build_app(td, provider)
+            first_result: list[dict] = []
+            first_error: list[Exception] = []
+
+            def first_request() -> None:
+                try:
+                    first_result.append(app.review({"request_id": "race-dup", "user_input": "first"}))
+                except Exception as exc:  # pragma: no cover - asserted below
+                    first_error.append(exc)
+
+            thread = threading.Thread(target=first_request)
+            thread.start()
+            self.assertTrue(provider.entered.wait(timeout=5), "winning request never reached provider")
+
+            try:
+                with self.assertRaisesRegex(ValueError, "already exists"):
+                    app.review({"request_id": "race-dup", "user_input": "concurrent duplicate"})
+                # The first request is still blocked inside R1. A second provider
+                # call here would prove that request admission happened too late.
+                self.assertEqual(provider.calls, ["R1"])
+                events_while_open = app.session_events("race-dup")
+                self.assertEqual(
+                    [e["event_type"] for e in events_while_open],
+                    ["REQUEST_RECEIVED"],
+                )
+            finally:
+                provider.release.set()
+                thread.join(timeout=10)
+
+            self.assertFalse(first_error, first_error)
+            self.assertEqual(len(first_result), 1)
+            self.assertEqual(first_result[0]["state"], "CONVERGED_PASS")
+            self.assertEqual(provider.calls, ["R1"])
+            events = app.session_events("race-dup")
+            self.assertEqual(len([e for e in events if e["event_type"] == "REQUEST_RECEIVED"]), 1)
+            self.assertEqual(len([e for e in events if e["event_type"] == "FINAL_DECISION"]), 1)
+            self.assertTrue(app.sessions.validate_chain("race-dup"))
 
     def test_judge_health_is_internal_monitoring_evidence_not_correctness_certificate(self):
         with tempfile.TemporaryDirectory() as td:
