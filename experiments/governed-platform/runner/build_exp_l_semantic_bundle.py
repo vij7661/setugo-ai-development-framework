@@ -8,6 +8,8 @@ from collections import Counter
 from math import log
 from pathlib import Path
 
+MIN_VALID_SAMPLES_FOR_STABILITY = 3
+
 
 def _read(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -18,9 +20,9 @@ def _sha256(value) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _normalized_entropy(labels: list[str]) -> float:
-    if len(labels) <= 1:
-        return 0.0
+def _normalized_entropy(labels: list[str]) -> float | None:
+    if len(labels) < MIN_VALID_SAMPLES_FOR_STABILITY:
+        return None
     counts = Counter(labels)
     if len(counts) <= 1:
         return 0.0
@@ -31,11 +33,31 @@ def _normalized_entropy(labels: list[str]) -> float:
 
 
 def _sample_label(result: dict) -> str | None:
+    """Return a deterministic task-specific semantic proxy for diagnosis cases.
+
+    This is not a general semantic equivalence model. Prefer the explicit primary
+    diagnosis. Otherwise use one unambiguous canonical finding class. A clean
+    structured review with no diagnosis/findings is a distinct NO_MATERIAL_DEFECT
+    conclusion rather than an uninformative placeholder.
+    """
     if result.get("status") != "PASS" or not result.get("evidence_eligible"):
         return None
+
     diagnosis = result.get("diagnosis") or {}
     primary = diagnosis.get("primary_failure_class")
-    return primary if isinstance(primary, str) and primary else "NO_PRIMARY_CLASS"
+    if isinstance(primary, str) and primary:
+        return primary
+
+    finding_classes = {
+        f.get("failure_class")
+        for f in (result.get("findings") or [])
+        if isinstance(f, dict) and isinstance(f.get("failure_class"), str) and f.get("failure_class")
+    }
+    if len(finding_classes) == 1:
+        return next(iter(finding_classes))
+    if len(finding_classes) > 1:
+        return "MULTIPLE_MATERIAL_CLASSES"
+    return "NO_MATERIAL_DEFECT"
 
 
 def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, workflow_run_id: int) -> dict:
@@ -65,22 +87,27 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
     for provider, provider_samples in sorted(by_provider.items()):
         labels = [s["semantic_proxy_label"] for s in provider_samples if s["semantic_proxy_label"] is not None]
         counts = Counter(labels)
+        sufficient = len(labels) >= MIN_VALID_SAMPLES_FOR_STABILITY
+        observed_single_cluster = bool(labels) and len(counts) == 1
         providers.append({
             "provider": provider,
             "sample_count": len(provider_samples),
             "valid_model_sample_count": len(labels),
             "error_or_ineligible_count": len(provider_samples) - len(labels),
-            "semantic_proxy": "canonical primary_failure_class for diagnosis cases; not a general semantic-equivalence model",
+            "minimum_valid_samples_for_stability": MIN_VALID_SAMPLES_FOR_STABILITY,
+            "sample_sufficiency": "SUFFICIENT" if sufficient else "INSUFFICIENT",
+            "semantic_proxy": "canonical diagnosis/finding class or NO_MATERIAL_DEFECT for diagnosis cases; not a general semantic-equivalence model",
             "cluster_counts": dict(sorted(counts.items())),
             "normalized_semantic_entropy": _normalized_entropy(labels),
-            "stable_single_cluster": len(labels) > 0 and len(counts) == 1,
+            "observed_single_cluster": observed_single_cluster,
+            "stable_single_cluster": sufficient and observed_single_cluster,
             "total_input_tokens": sum((s["input_tokens"] or 0) for s in provider_samples),
             "total_output_tokens": sum((s["output_tokens"] or 0) for s in provider_samples),
             "total_latency_ms": sum((s["latency_ms"] or 0) for s in provider_samples),
         })
 
     bundle = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "experiment": "EXP-L",
         "pilot_stage": "SEMANTIC_CALIBRATION_COLLECTION",
         "case_id": case_id,
@@ -89,7 +116,7 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
         "scientific_status": "COLLECTION_ONLY_NOT_ADJUDICATED",
         "authority": "NONE",
         "threshold_applied": False,
-        "note": "This stage measures observed within-model classification stability without applying an invented production threshold. Protected adjudication occurs later.",
+        "note": "This stage measures observed within-model classification stability without applying an invented production threshold. Protected adjudication occurs later. Stability is not reported from fewer than three valid samples.",
         "providers": providers,
         "samples": samples,
     }
