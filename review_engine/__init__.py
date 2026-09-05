@@ -8,6 +8,7 @@ from .models import (
     ReviewRequest,
 )
 from .memory import VersionedMemoryStore
+from .sqlite_memory import SQLiteMemoryStore
 from .context_compiler import ContextCompiler
 from .orchestrator import ReviewEngine
 from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
@@ -25,5 +26,6 @@ __all__ = [
     "ReviewerConfig",
     "ReviewerResponse",
     "ReviewRequest",
+    "SQLiteMemoryStore",
     "VersionedMemoryStore",
 ]
