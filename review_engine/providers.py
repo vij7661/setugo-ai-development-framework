@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import random
@@ -7,16 +8,56 @@ import time
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from .models import ReviewFinding, ReviewerConfig, ReviewerResponse
 from .truth_contract import TVC_VERSION, validate_epistemic_review
 
 RETRYABLE_HTTP = frozenset({429, 500, 502, 503, 504})
+LOOPBACK_HOSTNAMES = frozenset({"localhost"})
 
 
 class ProviderAdapter(Protocol):
     def invoke(self, config: ReviewerConfig, context: dict) -> ReviewerResponse: ...
+
+
+def validate_provider_base_url(base_url: str, *, label: str = "provider") -> str:
+    """Require encrypted transport for remote credential-bearing provider calls.
+
+    Plain HTTP is permitted only for an explicit loopback endpoint so local
+    development adapters can run without TLS. Remote provider endpoints must use
+    HTTPS because every supported adapter transmits an API credential.
+
+    Base URLs also reject embedded URL credentials, query strings and fragments;
+    those belong in structured adapter configuration/request construction rather
+    than an opaque authority string.
+    """
+    if not isinstance(base_url, str) or not base_url.strip():
+        raise ValueError(f"{label} base_url required")
+    value = base_url.strip()
+    if any(ch.isspace() for ch in value):
+        raise ValueError(f"{label} base_url cannot contain whitespace")
+
+    parsed = urlparse(value)
+    if parsed.scheme not in {"https", "http"} or not parsed.hostname:
+        raise ValueError(f"{label} base_url must be an absolute http(s) URL")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError(f"{label} base_url must not contain embedded credentials")
+    if parsed.query or parsed.fragment:
+        raise ValueError(f"{label} base_url must not contain query or fragment components")
+
+    if parsed.scheme == "http":
+        host = parsed.hostname.lower()
+        loopback = host in LOOPBACK_HOSTNAMES
+        if not loopback:
+            try:
+                loopback = ipaddress.ip_address(host).is_loopback
+            except ValueError:
+                loopback = False
+        if not loopback:
+            raise ValueError(f"{label} remote base_url must use https")
+    return value
 
 
 @dataclass(frozen=True)
@@ -146,11 +187,23 @@ def _parse_response(role: str, context: dict, raw: str) -> ReviewerResponse:
 
 class OpenAICompatibleProvider:
     def __init__(self, endpoint: OpenAICompatibleEndpoint) -> None:
-        if not endpoint.base_url.startswith(("https://", "http://")):
-            raise ValueError("provider base_url must be http(s)")
+        base_url = validate_provider_base_url(endpoint.base_url, label="provider")
         if not 0 <= endpoint.temperature <= 2:
             raise ValueError("temperature must be in [0,2]")
-        self.endpoint = endpoint
+        if endpoint.initial_backoff_seconds < 0 or endpoint.max_backoff_seconds < endpoint.initial_backoff_seconds:
+            raise ValueError("invalid provider backoff configuration")
+        if endpoint.max_attempts < 1:
+            raise ValueError("provider max_attempts must be >= 1")
+        if endpoint.timeout_seconds <= 0:
+            raise ValueError("provider timeout_seconds must be positive")
+        self.endpoint = OpenAICompatibleEndpoint(
+            base_url=base_url,
+            timeout_seconds=endpoint.timeout_seconds,
+            max_attempts=endpoint.max_attempts,
+            initial_backoff_seconds=endpoint.initial_backoff_seconds,
+            max_backoff_seconds=endpoint.max_backoff_seconds,
+            temperature=endpoint.temperature,
+        )
 
     def _delay(self, attempt: int, retry_after: str | None = None) -> None:
         if retry_after:
