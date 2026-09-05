@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-F",
+  "adjudication_protocol": "DETERMINISTIC_ORCHESTRATION_FALSIFICATION_V2",
+  "execution_scope": "DEEP_ORCHESTRATION_SLICE",
+  "execution_sha": "34401398ee9cd9b465f4b31115d2d121b322e19e",
+  "run_id": 33953822769,
+  "governance_test_count": 40,
+  "deep_case_count": 7,
+  "case_results": [
+    {"case_id":"EXP-F-DEEP-001","target":"canonical evidence identity substitution","result":"PASS","regression_test":"test_alias_evidence_identity_cannot_substitute_for_canonical_refs"},
+    {"case_id":"EXP-F-DEEP-002","target":"invariant-stage bypass by asserted compatibility","result":"PASS_AFTER_REPAIR","regression_test":"test_asserted_compatibility_cannot_bypass_invariant_extraction"},
+    {"case_id":"EXP-F-DEEP-003","target":"cross-project evidence laundering","result":"PASS","regression_test":"test_cross_project_evidence_binding_cannot_be_laundered"},
+    {"case_id":"EXP-F-DEEP-004","target":"cross-task evidence laundering","result":"PASS","regression_test":"test_cross_task_evidence_binding_cannot_be_laundered"},
+    {"case_id":"EXP-F-DEEP-005","target":"duplicate-reviewer convergence manipulation","result":"PASS_AFTER_REPAIR","regression_test":"test_duplicate_reviewer_cannot_manufacture_convergence"},
+    {"case_id":"EXP-F-DEEP-006","target":"routing without explicit invariants","result":"PASS_AFTER_REPAIR","regression_test":"test_routing_fails_closed_when_contract_omits_invariants"},
+    {"case_id":"EXP-F-DEEP-007","target":"sequentialized concurrent completion race","result":"PASS","regression_test":"test_sequentialized_race_loser_cannot_complete_again"}
+  ],
+  "experiment_result": "DEEP_DIRECTIONAL_SUCCESS_AFTER_REVIEWER_IDENTITY_AND_ROUTING_REPAIRS",
+  "scientific_interpretation": "The deeper EXP-F slice exercised cross-scope evidence binding, canonical evidence identity, state-version race handling, reviewer convergence manipulation, and invariant-stage enforcement. The falsification process exposed a convergence weakness where repeated reviews from one reviewer identity could count multiple times, and a routing trust weakness where asserted compatibility could be accepted without recomputing invariant preservation. Both were repaired and converted into deterministic regressions. This is stronger orchestration evidence but does not establish complete governance correctness.",
+  "required_next_step": "Continue EXP-F into provenance freshness under reviewer-model/provider replacement, colluding-but-distinct reviewer identities, evidence revocation after prior PASS, qualification drift between routing and execution, and rollback/revalidation when a previously qualified model or provider becomes ineligible.",
+  "limitations": [
+    "The cases are deterministic policy-layer falsification tests rather than population-level reliability measurements.",
+    "The concurrency case validates sequentialized compare-and-swap semantics, not distributed datastore linearizability under real concurrent writers.",
+    "Reviewer identity deduplication prevents duplicate identity inflation but does not yet detect colluding distinct identities.",
+    "Passing this exact-head run proves the tested controls at the recorded SHA only."
+  ]
+}
