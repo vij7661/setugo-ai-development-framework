@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Callable
 
 from .context_compiler import ContextCompiler
 from .evidence_correspondence import EvidenceCorrespondenceValidator, claim_fingerprint
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewDecision, ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
-from .qualification import QualificationRegistry, ReviewerCapability
+from .qualification import QualificationRegistry, reviewer_context_hash
 from .scoped_correction import CorrectionScopeError, build_scoped_correction_plan
 from .truth_contract import evaluate_truth_contract
 
@@ -126,6 +127,15 @@ def _finding_payload(f: ReviewFinding) -> dict:
     }
 
 
+def _artifact_view(artifact: ReviewArtifact) -> dict:
+    return {
+        "artifact_id": artifact.artifact_id,
+        "version": artifact.version,
+        "artifact_hash": artifact.artifact_hash,
+        "content": artifact.content,
+    }
+
+
 def _prior_review_evidence_payload(
     response: ReviewerResponse,
     *,
@@ -136,12 +146,7 @@ def _prior_review_evidence_payload(
     """Explicit Phase-B disclosure, never ambient reviewer memory or authority."""
     return {
         "role": response.role,
-        "source_artifact": {
-            "artifact_id": source_artifact.artifact_id,
-            "version": source_artifact.version,
-            "artifact_hash": source_artifact.artifact_hash,
-            "content": source_artifact.content,
-        },
+        "source_artifact": _artifact_view(source_artifact),
         "output": response.output,
         "findings": [_finding_payload(f) for f in findings],
         "epistemic_review": response.epistemic_review,
@@ -214,76 +219,176 @@ class ReviewEngine:
         decision = self._qualifications.evaluate(config, risk=risk, task_type=task_type)
         return None if decision.eligible else f"{config.role} not qualified: {decision.reason}"
 
-    def _issue_reviewer_capability(
+    @staticmethod
+    def _reviewer_context_failure(
+        context: dict,
+        *,
+        config: ReviewerConfig,
+        request: ReviewRequest,
+        phase: str,
+        artifact: ReviewArtifact | None,
+    ) -> str | None:
+        if not isinstance(context, dict):
+            return "model-visible reviewer context is not an object"
+        if context.get("role") != config.role:
+            return "model-visible reviewer role disagrees with platform routing"
+        if context.get("request_id") != request.request_id:
+            return "model-visible request id disagrees with platform request"
+
+        # These phases are expected to retain the exact user request. Phase-B
+        # intentionally operates on the frozen artifact/review evidence bundle.
+        if phase in {"R1_INITIAL", "R2_INDEPENDENT", "R1_SCOPED_CORRECTION", "R3_INDEPENDENT"}:
+            if context.get("user_input") != request.user_input:
+                return "model-visible user input disagrees with platform request"
+
+        expected_phase = {
+            "R3_INDEPENDENT": "INDEPENDENT",
+            "R3_ADJUDICATION": "ADJUDICATION",
+        }.get(phase)
+        if expected_phase is not None and context.get("phase") != expected_phase:
+            return "model-visible reviewer phase disagrees with platform routing"
+        if phase == "R1_SCOPED_CORRECTION" and context.get("mode") != "SCOPED_CORRECTION":
+            return "model-visible correction mode disagrees with platform routing"
+        if phase == "R1_INITIAL" and ("artifact" in context or context.get("mode") == "SCOPED_CORRECTION"):
+            return "initial R1 context contains unauthorized correction/artifact scope"
+
+        if artifact is None:
+            if phase != "R1_INITIAL":
+                return "platform artifact binding is missing for reviewer phase"
+        else:
+            if context.get("artifact") != _artifact_view(artifact):
+                return "model-visible artifact disagrees with platform artifact binding"
+            if phase == "R3_ADJUDICATION" and context.get("artifact_hash") != artifact.artifact_hash:
+                return "R3 adjudication compatibility hash disagrees with platform artifact"
+        return None
+
+    def _invoke_reviewer(
         self,
         config: ReviewerConfig,
+        context: dict,
         *,
         session_id: str,
+        request: ReviewRequest,
         risk: str,
         task_type: str,
-        request_id: str,
         phase: str,
-        artifact_hash: str | None = None,
-    ) -> tuple[ReviewerCapability | None, str | None]:
-        if self._qualifications is None:
-            return None, None
-        decision, capability = self._qualifications.issue_capability(
-            config,
-            risk=risk,
-            task_type=task_type,
-            request_id=request_id,
-            phase=phase,
-            artifact_hash=artifact_hash,
-        )
-        if not decision.eligible or capability is None:
-            reason = f"{config.role} not qualified: {decision.reason}"
+        artifact: ReviewArtifact | None = None,
+        before_invoke: Callable[[], None] | None = None,
+    ) -> tuple[ReviewerResponse | None, str | None]:
+        """Validate, snapshot, capability-bind and invoke one reviewer call."""
+        try:
+            bound_context = deepcopy(context)
+            context_hash = reviewer_context_hash(bound_context)
+        except (TypeError, ValueError) as exc:
+            reason = f"{config.role} reviewer context rejected: {exc}"
             self._emit(
                 session_id,
-                "CAPABILITY_ISSUANCE_REJECTED",
+                "REVIEWER_CONTEXT_REJECTED",
+                {"role": config.role, "phase": phase, "artifact_hash": artifact.artifact_hash if artifact else None, "reason": reason},
+            )
+            return None, reason
+
+        context_failure = self._reviewer_context_failure(
+            bound_context,
+            config=config,
+            request=request,
+            phase=phase,
+            artifact=artifact,
+        )
+        if context_failure:
+            reason = f"{config.role} reviewer context rejected: {context_failure}"
+            self._emit(
+                session_id,
+                "REVIEWER_CONTEXT_REJECTED",
                 {
                     "role": config.role,
                     "phase": phase,
-                    "artifact_hash": artifact_hash,
-                    "risk": risk,
-                    "task_type": task_type,
-                    "qualification_ref": decision.qualification_ref,
-                    "qualification_epoch": decision.qualification_epoch,
+                    "artifact_hash": artifact.artifact_hash if artifact else None,
+                    "context_hash": context_hash,
                     "reason": reason,
                 },
             )
             return None, reason
-        consumed = self._qualifications.consume_capability(
-            capability.capability_id,
-            config,
-            risk=risk,
-            task_type=task_type,
-            request_id=request_id,
-            phase=phase,
-            artifact_hash=artifact_hash,
-        )
-        self._emit(
-            session_id,
-            "REVIEWER_CAPABILITY_ISSUED",
-            {
-                "capability_id": consumed.capability_id,
-                "qualification_ref": consumed.qualification_ref,
-                "qualification_epoch": consumed.qualification_epoch,
-                "role": consumed.role,
-                "provider": consumed.provider,
-                "model": consumed.model,
-                "sku": consumed.sku,
-                "deployment_path": consumed.deployment_path,
-                "foundation_lineage": consumed.foundation_lineage,
-                "risk": consumed.risk,
-                "task_type": consumed.task_type,
-                "request_id": consumed.request_id,
-                "phase": consumed.phase,
-                "artifact_hash": consumed.artifact_hash,
-                "single_use_consumed_for_invocation": True,
-                "external_action_authority": False,
-            },
-        )
-        return consumed, None
+
+        if self._qualifications is not None:
+            decision, capability = self._qualifications.issue_capability(
+                config,
+                risk=risk,
+                task_type=task_type,
+                request_id=request.request_id,
+                phase=phase,
+                context_hash=context_hash,
+                artifact_hash=artifact.artifact_hash if artifact else None,
+            )
+            if not decision.eligible or capability is None:
+                reason = f"{config.role} not qualified: {decision.reason}"
+                self._emit(
+                    session_id,
+                    "CAPABILITY_ISSUANCE_REJECTED",
+                    {
+                        "role": config.role,
+                        "phase": phase,
+                        "artifact_hash": artifact.artifact_hash if artifact else None,
+                        "context_hash": context_hash,
+                        "risk": risk,
+                        "task_type": task_type,
+                        "qualification_ref": decision.qualification_ref,
+                        "qualification_epoch": decision.qualification_epoch,
+                        "reason": reason,
+                    },
+                )
+                return None, reason
+            consumed = self._qualifications.consume_capability(
+                capability.capability_id,
+                config,
+                risk=risk,
+                task_type=task_type,
+                request_id=request.request_id,
+                phase=phase,
+                context_hash=context_hash,
+                artifact_hash=artifact.artifact_hash if artifact else None,
+            )
+            if reviewer_context_hash(bound_context) != consumed.context_hash:
+                reason = f"{config.role} reviewer context changed after capability issuance"
+                self._emit(
+                    session_id,
+                    "REVIEWER_CONTEXT_REJECTED",
+                    {
+                        "role": config.role,
+                        "phase": phase,
+                        "artifact_hash": artifact.artifact_hash if artifact else None,
+                        "context_hash": reviewer_context_hash(bound_context),
+                        "reason": reason,
+                    },
+                )
+                return None, reason
+            self._emit(
+                session_id,
+                "REVIEWER_CAPABILITY_ISSUED",
+                {
+                    "capability_id": consumed.capability_id,
+                    "qualification_ref": consumed.qualification_ref,
+                    "qualification_epoch": consumed.qualification_epoch,
+                    "role": consumed.role,
+                    "provider": consumed.provider,
+                    "model": consumed.model,
+                    "sku": consumed.sku,
+                    "deployment_path": consumed.deployment_path,
+                    "foundation_lineage": consumed.foundation_lineage,
+                    "risk": consumed.risk,
+                    "task_type": consumed.task_type,
+                    "request_id": consumed.request_id,
+                    "phase": consumed.phase,
+                    "artifact_hash": consumed.artifact_hash,
+                    "context_hash": consumed.context_hash,
+                    "single_use_consumed_for_invocation": True,
+                    "external_action_authority": False,
+                },
+            )
+
+        if before_invoke is not None:
+            before_invoke()
+        return self._invoke(config, bound_context), None
 
     def _experimental_unqualified_failure(self, signals: dict, *, truth_review_required: bool = False) -> str | None:
         if self._qualifications is not None:
@@ -367,18 +472,19 @@ class ReviewEngine:
         if experimental_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (experimental_failure,)))
 
-        _, q_failure = self._issue_reviewer_capability(
+        r1_context = self._contexts.compile_r1(request, memory)
+        r1_initial, q_failure = self._invoke_reviewer(
             r1,
+            r1_context,
             session_id=session_id,
+            request=request,
             risk=request.risk,
             task_type=task_type,
-            request_id=request.request_id,
             phase="R1_INITIAL",
         )
         if q_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,)))
-
-        r1_initial = self._invoke(r1, self._contexts.compile_r1(request, memory))
+        assert r1_initial is not None
         r1_initial.validate()
         if r1_initial.role != "R1":
             raise ValueError("R1 invocation returned wrong role")
@@ -437,19 +543,20 @@ class ReviewEngine:
         if lineage_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (lineage_failure,), artifact_hash=artifact.artifact_hash))
 
-        _, q_failure = self._issue_reviewer_capability(
+        r2_context = self._contexts.compile_r2(request, artifact, memory)
+        r2_response, q_failure = self._invoke_reviewer(
             r2,
+            r2_context,
             session_id=session_id,
+            request=request,
             risk=signals["risk"],
             task_type=task_type,
-            request_id=request.request_id,
             phase="R2_INDEPENDENT",
-            artifact_hash=artifact.artifact_hash,
+            artifact=artifact,
         )
         if q_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=artifact.artifact_hash))
-
-        r2_response = self._invoke(r2, self._contexts.compile_r2(request, artifact, memory))
+        assert r2_response is not None
         r2_response.validate()
         if r2_response.role != "R2" or r2_response.artifact_hash != artifact.artifact_hash:
             raise ValueError("R2 response is not bound to current frozen artifact")
@@ -506,42 +613,11 @@ class ReviewEngine:
                 )
             )
 
-        _, q_failure = self._issue_reviewer_capability(
-            r1,
-            session_id=session_id,
-            risk=signals["risk"],
-            task_type=task_type,
-            request_id=request.request_id,
-            phase="R1_SCOPED_CORRECTION",
-            artifact_hash=artifact.artifact_hash,
-        )
-        if q_failure:
-            return finish(
-                ReviewDecision(
-                    "HUMAN_REQUIRED",
-                    (q_failure,),
-                    artifact_hash=artifact.artifact_hash,
-                )
-            )
-
-        self._emit(
-            session_id,
-            "SCOPED_CORRECTION_AUTHORIZED",
-            {
-                "artifact_hash": artifact.artifact_hash,
-                "scope_plan": correction_plan.as_dict(),
-            },
-        )
         correction_context = self._contexts.compile_r1(request, memory)
         correction_context.update(
             {
                 "mode": "SCOPED_CORRECTION",
-                "artifact": {
-                    "artifact_id": artifact.artifact_id,
-                    "version": artifact.version,
-                    "artifact_hash": artifact.artifact_hash,
-                    "content": artifact.content,
-                },
+                "artifact": _artifact_view(artifact),
                 "review_targets": [_finding_payload(f) for f in correction_targets],
                 "verified_review_targets": [_finding_payload(f) for f in r2_material],
                 "platform_correction_scope": correction_plan.as_dict(),
@@ -555,7 +631,28 @@ class ReviewEngine:
                 "platform_scope_is_authoritative_for_this_revision": True,
             }
         )
-        r1_revised = self._invoke(r1, correction_context)
+
+        def emit_correction_authorized() -> None:
+            self._emit(
+                session_id,
+                "SCOPED_CORRECTION_AUTHORIZED",
+                {"artifact_hash": artifact.artifact_hash, "scope_plan": correction_plan.as_dict()},
+            )
+
+        r1_revised, q_failure = self._invoke_reviewer(
+            r1,
+            correction_context,
+            session_id=session_id,
+            request=request,
+            risk=signals["risk"],
+            task_type=task_type,
+            phase="R1_SCOPED_CORRECTION",
+            artifact=artifact,
+            before_invoke=emit_correction_authorized,
+        )
+        if q_failure:
+            return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=artifact.artifact_hash))
+        assert r1_revised is not None
         r1_revised.validate()
         if r1_revised.role != "R1":
             raise ValueError("correction invocation returned wrong role")
@@ -573,13 +670,7 @@ class ReviewEngine:
             },
         )
         if not scope_assessment.admissible:
-            return finish(
-                ReviewDecision(
-                    "HUMAN_REQUIRED",
-                    (scope_assessment.reason,),
-                    artifact_hash=revised.artifact_hash,
-                )
-            )
+            return finish(ReviewDecision("HUMAN_REQUIRED", (scope_assessment.reason,), artifact_hash=revised.artifact_hash))
 
         r1_revised_all, r1_revised_evidence_assessments = _response_findings(
             r1_revised,
@@ -610,19 +701,20 @@ class ReviewEngine:
         if lineage_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (lineage_failure,), artifact_hash=revised.artifact_hash))
 
-        _, q_failure = self._issue_reviewer_capability(
+        r3_context = self._contexts.compile_r3_phase_a(request, revised, memory)
+        r3_independent, q_failure = self._invoke_reviewer(
             r3,
+            r3_context,
             session_id=session_id,
+            request=request,
             risk=signals["risk"],
             task_type=task_type,
-            request_id=request.request_id,
             phase="R3_INDEPENDENT",
-            artifact_hash=revised.artifact_hash,
+            artifact=revised,
         )
         if q_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=revised.artifact_hash))
-
-        r3_independent = self._invoke(r3, self._contexts.compile_r3_phase_a(request, revised, memory))
+        assert r3_independent is not None
         r3_independent.validate()
         if r3_independent.role != "R3" or r3_independent.artifact_hash != revised.artifact_hash:
             raise ValueError("R3 independent response is not bound to revised artifact")
@@ -678,35 +770,6 @@ class ReviewEngine:
                 )
             )
 
-        _, q_failure = self._issue_reviewer_capability(
-            r3,
-            session_id=session_id,
-            risk=signals["risk"],
-            task_type=task_type,
-            request_id=request.request_id,
-            phase="R3_ADJUDICATION",
-            artifact_hash=revised.artifact_hash,
-        )
-        if q_failure:
-            self._emit(
-                session_id,
-                "R3_ADJUDICATION_REJECTED",
-                {
-                    "artifact_hash": revised.artifact_hash,
-                    "frozen_material_finding_ids": list(phase_a_ids),
-                    "reason": q_failure,
-                    "adjudication_invoked": False,
-                },
-            )
-            return finish(
-                ReviewDecision(
-                    "HUMAN_REQUIRED",
-                    (q_failure,),
-                    artifact_hash=revised.artifact_hash,
-                    dissent=tuple(f.summary for f in r3_material),
-                )
-            )
-
         adjudication_context = self._contexts.compile_r3_phase_b(
             request,
             revised,
@@ -738,27 +801,57 @@ class ReviewEngine:
                 "respect_each_prior_review_source_artifact_binding": True,
             }
         )
-        self._emit(
-            session_id,
-            "R3_ADJUDICATION_DISCLOSURE",
-            {
-                "artifact_hash": revised.artifact_hash,
-                "frozen_material_finding_ids": list(phase_a_ids),
-                "prior_review_source_artifact_hashes": {
-                    "R1": revised.artifact_hash,
-                    "R2": artifact.artifact_hash,
+
+        def emit_adjudication_disclosure() -> None:
+            self._emit(
+                session_id,
+                "R3_ADJUDICATION_DISCLOSURE",
+                {
+                    "artifact_hash": revised.artifact_hash,
+                    "frozen_material_finding_ids": list(phase_a_ids),
+                    "prior_review_source_artifact_hashes": {"R1": revised.artifact_hash, "R2": artifact.artifact_hash},
+                    "prior_review_finding_ids": {
+                        "R1": [f.finding_id for f in r1_revised_all],
+                        "R2": [f.finding_id for f in r2_all_findings],
+                    },
+                    "prior_review_evidence_correspondence_counts": {
+                        "R1": len(r1_revised_evidence_assessments),
+                        "R2": len(r2_evidence_assessments),
+                    },
                 },
-                "prior_review_finding_ids": {
-                    "R1": [f.finding_id for f in r1_revised_all],
-                    "R2": [f.finding_id for f in r2_all_findings],
-                },
-                "prior_review_evidence_correspondence_counts": {
-                    "R1": len(r1_revised_evidence_assessments),
-                    "R2": len(r2_evidence_assessments),
-                },
-            },
+            )
+
+        r3_adjudication, q_failure = self._invoke_reviewer(
+            r3,
+            adjudication_context,
+            session_id=session_id,
+            request=request,
+            risk=signals["risk"],
+            task_type=task_type,
+            phase="R3_ADJUDICATION",
+            artifact=revised,
+            before_invoke=emit_adjudication_disclosure,
         )
-        r3_adjudication = self._invoke(r3, adjudication_context)
+        if q_failure:
+            self._emit(
+                session_id,
+                "R3_ADJUDICATION_REJECTED",
+                {
+                    "artifact_hash": revised.artifact_hash,
+                    "frozen_material_finding_ids": list(phase_a_ids),
+                    "reason": q_failure,
+                    "adjudication_invoked": False,
+                },
+            )
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    (q_failure,),
+                    artifact_hash=revised.artifact_hash,
+                    dissent=tuple(f.summary for f in r3_material),
+                )
+            )
+        assert r3_adjudication is not None
         r3_adjudication.validate()
         if r3_adjudication.role != "R3" or r3_adjudication.artifact_hash != revised.artifact_hash:
             raise ValueError("R3 adjudication response is not bound to revised artifact")
@@ -783,9 +876,7 @@ class ReviewEngine:
         effective_resolved_ids = resolved_ids - blocked_platform_ids
         unclosed_phase_a = tuple(f for f in r3_material if f.finding_id not in effective_resolved_ids)
         phase_b_material = _material_findings(r3_adjudication_all)
-        unresolved = _dedupe_findings(
-            tuple(r1_revised_material) + tuple(unclosed_phase_a) + tuple(phase_b_material)
-        )
+        unresolved = _dedupe_findings(tuple(r1_revised_material) + tuple(unclosed_phase_a) + tuple(phase_b_material))
         self._emit(
             session_id,
             "R3_ADJUDICATION_COMPLETED",
@@ -822,11 +913,7 @@ class ReviewEngine:
                 )
             )
         if unresolved:
-            reason = (
-                "material finding lacks explicit staged R3 closure"
-                if unclosed_phase_a
-                else "material conflict remains after staged R3 adjudication"
-            )
+            reason = "material finding lacks explicit staged R3 closure" if unclosed_phase_a else "material conflict remains after staged R3 adjudication"
             return finish(
                 ReviewDecision(
                     "HUMAN_REQUIRED",
