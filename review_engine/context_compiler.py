@@ -4,6 +4,7 @@ from dataclasses import asdict
 
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewerResponse, ReviewRequest
+from .truth_contract import epistemic_protocol_instructions
 
 
 def _shared_memory_view(memory: VersionedMemoryStore) -> list[dict]:
@@ -13,6 +14,12 @@ def _shared_memory_view(memory: VersionedMemoryStore) -> list[dict]:
     context compiler; they must not arrive through ambient shared memory.
     """
     return [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"]
+
+
+def _truth_protocol() -> dict:
+    # Return a fresh object so role-specific instructions cannot mutate a
+    # process-global policy dictionary.
+    return epistemic_protocol_instructions()
 
 
 class ContextCompiler:
@@ -27,6 +34,7 @@ class ContextCompiler:
             "instructions": {
                 "authority": "advisory_generation_only",
                 "must_not_self_authorize": True,
+                "truth_and_veracity_contract": _truth_protocol(),
             },
         }
 
@@ -53,6 +61,7 @@ class ContextCompiler:
                 "do_not_rewrite_artifact": True,
                 "do_not_assume_r1_correct": True,
                 "do_not_grant_authority": True,
+                "truth_and_veracity_contract": _truth_protocol(),
             },
         }
 
@@ -79,6 +88,7 @@ class ContextCompiler:
                 "mode": "independent_verifier",
                 "prior_reviewer_positions_hidden": True,
                 "do_not_grant_authority": True,
+                "truth_and_veracity_contract": _truth_protocol(),
             },
         }
 
@@ -114,5 +124,6 @@ class ContextCompiler:
                 "compare_against_authoritative_evidence": True,
                 "majority_vote_is_not_authority": True,
                 "do_not_grant_authority": True,
+                "truth_and_veracity_contract": _truth_protocol(),
             },
         }
