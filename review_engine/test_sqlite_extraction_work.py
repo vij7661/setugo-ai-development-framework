@@ -10,6 +10,7 @@ from review_engine.claim_coverage import ClaimCoverageInventory, ClaimExtractorI
 from review_engine.extractor_qualification import ExtractorQualificationRecord, ExtractorQualificationRegistry
 from review_engine.models import content_hash
 from review_engine.sqlite_extraction_work import SQLiteExtractionWorkRegistry
+from review_engine.sqlite_work_bound_claim_coverage import SQLiteWorkOrderBoundClaimCoverageRegistry
 from review_engine.work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
 
 
@@ -94,6 +95,43 @@ class SQLiteExtractionWorkTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "already consumed"):
                 restarted.consume_for_inventory(order.work_order_id, inventory(inventory_id="inv-2"))
 
+    def test_admitted_inventory_survives_restart_and_reconstructs_exact_coverage(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extraction_work.db"
+            q = qualifications()
+            first = SQLiteExtractionWorkRegistry(path, q)
+            order = first.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            expected = inventory()
+            SQLiteWorkOrderBoundClaimCoverageRegistry(first).add(
+                expected,
+                work_order_id=order.work_order_id,
+            )
+
+            restarted = SQLiteExtractionWorkRegistry(path, q)
+            self.assertEqual(restarted.retained_inventory(expected.inventory_id), expected)
+            self.assertEqual(restarted.retained_inventories(expected.artifact_hash), (expected,))
+
+            assessment = SQLiteWorkOrderBoundClaimCoverageRegistry(restarted).assess(
+                artifact_hash=expected.artifact_hash,
+                declared_claims=[
+                    {
+                        "claim_id": "c1",
+                        "text": ARTIFACT,
+                        "claim_type": "EMPIRICAL_FACT",
+                        "material": True,
+                    }
+                ],
+                reviewer_foundation_lineage="reviewer-lineage",
+            )
+            self.assertEqual(assessment.status, "VERIFIED_COVERAGE")
+            self.assertEqual(assessment.inventory_ids, (expected.inventory_id,))
+            self.assertEqual(assessment.provenance, (expected.provenance,))
+
     def test_invalid_inventory_rolls_back_without_consuming_work_order(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "extraction_work.db"
@@ -111,9 +149,38 @@ class SQLiteExtractionWorkTests(unittest.TestCase):
                     inventory(artifact="Different artifact."),
                 )
             self.assertFalse(work.is_consumed(order.work_order_id))
+            self.assertEqual(work.retained_inventories(content_hash(ARTIFACT)), ())
 
             work.consume_for_inventory(order.work_order_id, inventory())
             self.assertTrue(work.is_consumed(order.work_order_id))
+
+    def test_conflicting_inventory_admission_rolls_back_work_consumption(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extraction_work.db"
+            work = SQLiteExtractionWorkRegistry(path, qualifications())
+            first_order = work.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            second_order = work.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            first_inventory = inventory(inventory_id="inv-first")
+            second_inventory = inventory(inventory_id="inv-second")
+
+            work.consume_for_inventory(first_order.work_order_id, first_inventory)
+            with self.assertRaisesRegex(ValueError, "conflicting retained claim coverage inventory"):
+                work.consume_for_inventory(second_order.work_order_id, second_inventory)
+
+            self.assertTrue(work.is_consumed(first_order.work_order_id))
+            self.assertFalse(work.is_consumed(second_order.work_order_id))
+            self.assertEqual(work.retained_inventories(content_hash(ARTIFACT)), (first_inventory,))
+            self.assertIsNone(work.retained_inventory(second_inventory.inventory_id))
 
     def test_revocation_after_issue_is_rechecked_during_atomic_consume(self):
         with tempfile.TemporaryDirectory() as td:
@@ -144,6 +211,7 @@ class SQLiteExtractionWorkTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "no longer qualified"):
                 work.consume_for_inventory(order.work_order_id, inventory())
             self.assertFalse(work.is_consumed(order.work_order_id))
+            self.assertEqual(work.retained_inventories(content_hash(ARTIFACT)), ())
 
     def test_concurrent_consumers_cannot_both_spend_one_work_order(self):
         with tempfile.TemporaryDirectory() as td:
@@ -181,7 +249,62 @@ class SQLiteExtractionWorkTests(unittest.TestCase):
             failures = [outcome for outcome in outcomes if outcome != "CONSUMED"]
             self.assertEqual(len(failures), 1)
             self.assertIn("already consumed", failures[0])
-            self.assertTrue(SQLiteExtractionWorkRegistry(path, q).is_consumed(order.work_order_id))
+            restarted = SQLiteExtractionWorkRegistry(path, q)
+            self.assertTrue(restarted.is_consumed(order.work_order_id))
+            self.assertEqual(len(restarted.retained_inventories(content_hash(ARTIFACT))), 1)
+
+    def test_concurrent_same_extractor_inventory_admission_has_one_winner_and_one_unspent_loser(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "extraction_work.db"
+            q = qualifications()
+            issuer = SQLiteExtractionWorkRegistry(path, q)
+            first_order = issuer.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            second_order = issuer.issue(
+                artifact_hash=content_hash(ARTIFACT),
+                extractor_identity=identity(),
+                risk="LOW",
+                task_type="RESEARCH",
+            )
+            barrier = threading.Barrier(2)
+
+            def attempt(work_order_id: str, inventory_id: str) -> tuple[str, str]:
+                registry = SQLiteExtractionWorkRegistry(path, q)
+                barrier.wait(timeout=5)
+                try:
+                    registry.consume_for_inventory(
+                        work_order_id,
+                        inventory(inventory_id=inventory_id),
+                    )
+                    return work_order_id, "ADMITTED"
+                except ValueError as exc:
+                    return work_order_id, str(exc)
+
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                outcomes = list(pool.map(
+                    lambda args: attempt(*args),
+                    (
+                        (first_order.work_order_id, "inv-a"),
+                        (second_order.work_order_id, "inv-b"),
+                    ),
+                ))
+
+            winners = [work_id for work_id, outcome in outcomes if outcome == "ADMITTED"]
+            losers = [(work_id, outcome) for work_id, outcome in outcomes if outcome != "ADMITTED"]
+            self.assertEqual(len(winners), 1)
+            self.assertEqual(len(losers), 1)
+            self.assertIn("conflicting retained claim coverage inventory", losers[0][1])
+
+            restarted = SQLiteExtractionWorkRegistry(path, q)
+            self.assertTrue(restarted.is_consumed(winners[0]))
+            self.assertFalse(restarted.is_consumed(losers[0][0]))
+            retained = restarted.retained_inventories(content_hash(ARTIFACT))
+            self.assertEqual(len(retained), 1)
+            self.assertIn(retained[0].inventory_id, {"inv-a", "inv-b"})
 
 
 if __name__ == "__main__":
