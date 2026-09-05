@@ -10,6 +10,7 @@ from urllib.error import HTTPError
 
 from review_engine.anthropic_provider import AnthropicEndpoint, AnthropicProvider
 from review_engine.models import ReviewerConfig
+from review_engine.truth_contract import neutral_epistemic_review
 
 
 class _Response:
@@ -56,7 +57,11 @@ class AnthropicProviderTests(unittest.TestCase):
             "stop_reason": "end_turn",
             "content": [{
                 "type": "text",
-                "text": json.dumps({"output": "clean", "findings": []}),
+                "text": json.dumps({
+                    "output": "clean",
+                    "findings": [],
+                    "epistemic_review": neutral_epistemic_review(),
+                }),
             }],
         }
         context = {"artifact": {"artifact_hash": "artifact-hash"}}
@@ -68,6 +73,7 @@ class AnthropicProviderTests(unittest.TestCase):
 
         self.assertEqual(result.output, "clean")
         self.assertEqual(result.artifact_hash, "artifact-hash")
+        self.assertEqual(result.epistemic_review["version"], "TVC-1")
         sleep.assert_called_once_with(0.2)
 
     def test_invalid_backoff_configuration_is_rejected(self):
