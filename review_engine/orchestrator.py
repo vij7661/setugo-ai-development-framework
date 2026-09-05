@@ -6,6 +6,7 @@ from .context_compiler import ContextCompiler
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewDecision, ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
 from .qualification import QualificationRegistry
+from .truth_contract import evaluate_truth_contract
 
 RISK_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
 MATERIALITY_ORDER = {"NONE": 0, "REVERSIBLE": 1, "MATERIAL": 2, "CONSEQUENTIAL": 3}
@@ -70,8 +71,21 @@ def _effective_finding_material(finding: ReviewFinding) -> bool:
     return bool(finding.material or SEVERITY_ORDER[finding.severity] >= SEVERITY_ORDER["HIGH"])
 
 
+def _truth_contract_findings(response: ReviewerResponse) -> tuple[ReviewFinding, ...]:
+    # Direct in-process test adapters may omit epistemic evidence. Registered
+    # production provider adapters are required to return it. When present, its
+    # explicit failures become platform-visible findings.
+    if not response.epistemic_review:
+        return ()
+    return evaluate_truth_contract(response.role, response.epistemic_review).findings
+
+
+def _all_findings(response: ReviewerResponse) -> tuple[ReviewFinding, ...]:
+    return tuple(response.findings) + _truth_contract_findings(response)
+
+
 def _material_findings(response: ReviewerResponse) -> tuple[ReviewFinding, ...]:
-    return tuple(f for f in response.findings if _effective_finding_material(f))
+    return tuple(f for f in _all_findings(response) if _effective_finding_material(f))
 
 
 def _finding_payload(f: ReviewFinding) -> dict:
@@ -114,9 +128,11 @@ class ReviewEngine:
         decision = self._qualifications.evaluate(config, risk=risk, task_type=task_type)
         return None if decision.eligible else f"{config.role} not qualified: {decision.reason}"
 
-    def _experimental_unqualified_failure(self, signals: dict) -> str | None:
+    def _experimental_unqualified_failure(self, signals: dict, *, truth_review_required: bool = False) -> str | None:
         if self._qualifications is not None:
             return None
+        if truth_review_required:
+            return "EXPERIMENTAL_UNQUALIFIED mode cannot satisfy Truth & Veracity escalation"
         if _needs_r2(signals):
             return "EXPERIMENTAL_UNQUALIFIED mode cannot satisfy required independent review"
         if signals["requirement_ambiguity"]:
@@ -160,6 +176,7 @@ class ReviewEngine:
                 "requirement_ambiguity": request.requirement_ambiguity,
                 "evidence_complete": request.evidence_complete,
                 "assurance_mode": "GOVERNED" if self._qualifications is not None else "EXPERIMENTAL_UNQUALIFIED",
+                "truth_contract_version": "TVC-1",
             },
         )
 
@@ -203,11 +220,25 @@ class ReviewEngine:
             raise ValueError("R1 invocation returned wrong role")
         artifact = ReviewArtifact(f"{request.request_id}:artifact", 1, r1_initial.output)
         signals = _effective_signals(request, r1_initial)
-        self._emit(session_id, "R1_COMPLETED", {"artifact_hash": artifact.artifact_hash, "effective_signals": signals})
+        r1_all_findings = _all_findings(r1_initial)
+        r1_material = tuple(f for f in r1_all_findings if _effective_finding_material(f))
+        self._emit(
+            session_id,
+            "R1_COMPLETED",
+            {
+                "artifact_hash": artifact.artifact_hash,
+                "effective_signals": signals,
+                "findings": [_finding_payload(f) for f in r1_all_findings],
+                "material_finding_ids": [f.finding_id for f in r1_material],
+                "epistemic_review": r1_initial.epistemic_review,
+            },
+        )
 
         # If R1 discovers a higher-risk interpretation, its own qualification
-        # must cover that higher risk before its artifact can continue.
-        experimental_failure = self._experimental_unqualified_failure(signals)
+        # must cover that higher risk before its artifact can continue. A
+        # self-reported material truth/veracity failure also forces independent
+        # review rather than permitting R1-only convergence.
+        experimental_failure = self._experimental_unqualified_failure(signals, truth_review_required=bool(r1_material))
         if experimental_failure:
             return finish(ReviewDecision("HUMAN_REQUIRED", (experimental_failure,), artifact_hash=artifact.artifact_hash))
         q_failure = self._qualification_failure(r1, risk=signals["risk"], task_type=task_type)
@@ -222,11 +253,17 @@ class ReviewEngine:
         ):
             return finish(ReviewDecision("HUMAN_REQUIRED", ("incomplete evidence for consequential task",), artifact_hash=artifact.artifact_hash))
 
-        if not _needs_r2(signals):
+        needs_r2 = bool(r1_material) or _needs_r2(signals)
+        if not needs_r2:
             self._emit(session_id, "ROUTE_DECISION", {"route": "R1_ONLY", "artifact_hash": artifact.artifact_hash})
             return finish(ReviewDecision("CONVERGED_PASS", ("platform policy permits R1-only finalization",), artifact.content, artifact.artifact_hash))
 
-        self._emit(session_id, "ROUTE_DECISION", {"route": "R2_REQUIRED", "artifact_hash": artifact.artifact_hash})
+        route_reason = "R1_TRUTH_OR_SELF_FINDING_ESCALATION" if r1_material and not _needs_r2(signals) else "POLICY_R2_REQUIRED"
+        self._emit(
+            session_id,
+            "ROUTE_DECISION",
+            {"route": "R2_REQUIRED", "reason": route_reason, "artifact_hash": artifact.artifact_hash},
+        )
         if r2 is None or not r2.enabled:
             return finish(ReviewDecision("HUMAN_REQUIRED", ("R2 required but unavailable",), artifact_hash=artifact.artifact_hash))
         lineage_failure = self._lineage_failure(r1, r2)
@@ -240,14 +277,16 @@ class ReviewEngine:
         r2_response.validate()
         if r2_response.role != "R2" or r2_response.artifact_hash != artifact.artifact_hash:
             raise ValueError("R2 response is not bound to current frozen artifact")
-        r2_material = _material_findings(r2_response)
+        r2_all_findings = _all_findings(r2_response)
+        r2_material = tuple(f for f in r2_all_findings if _effective_finding_material(f))
         self._emit(
             session_id,
             "R2_COMPLETED",
             {
                 "artifact_hash": artifact.artifact_hash,
-                "findings": [_finding_payload(f) for f in r2_response.findings],
+                "findings": [_finding_payload(f) for f in r2_all_findings],
                 "material_finding_ids": [f.finding_id for f in r2_material],
+                "epistemic_review": r2_response.epistemic_review,
             },
         )
         if not r2_material:
@@ -257,7 +296,7 @@ class ReviewEngine:
                     ("required independent R2 review found no material defect",),
                     artifact.content,
                     artifact.artifact_hash,
-                    tuple(f.summary for f in r2_response.findings),
+                    tuple(f.summary for f in r2_all_findings),
                 )
             )
 
@@ -272,11 +311,13 @@ class ReviewEngine:
                     "content": artifact.content,
                 },
                 "verified_review_targets": [_finding_payload(f) for f in r2_material],
-                "instructions": {
-                    "change_only_affected_scope": True,
-                    "preserve_unaffected_content": True,
-                    "reviewer_finding_is_evidence_not_release_authority": True,
-                },
+            }
+        )
+        correction_context["instructions"].update(
+            {
+                "change_only_affected_scope": True,
+                "preserve_unaffected_content": True,
+                "reviewer_finding_is_evidence_not_release_authority": True,
             }
         )
         r1_revised = self._invoke(r1, correction_context)
@@ -284,6 +325,7 @@ class ReviewEngine:
         if r1_revised.role != "R1":
             raise ValueError("correction invocation returned wrong role")
         revised = ReviewArtifact(artifact.artifact_id, 2, r1_revised.output)
+        r1_revised_findings = _all_findings(r1_revised)
         self._emit(
             session_id,
             "R1_REVISED",
@@ -291,6 +333,8 @@ class ReviewEngine:
                 "previous_artifact_hash": artifact.artifact_hash,
                 "artifact_hash": revised.artifact_hash,
                 "trigger_finding_ids": [f.finding_id for f in r2_material],
+                "findings": [_finding_payload(f) for f in r1_revised_findings],
+                "epistemic_review": r1_revised.epistemic_review,
             },
         )
         if revised.artifact_hash == artifact.artifact_hash:
@@ -309,14 +353,16 @@ class ReviewEngine:
         r3_independent.validate()
         if r3_independent.role != "R3" or r3_independent.artifact_hash != revised.artifact_hash:
             raise ValueError("R3 independent response is not bound to revised artifact")
-        r3_material = _material_findings(r3_independent)
+        r3_all_findings = _all_findings(r3_independent)
+        r3_material = tuple(f for f in r3_all_findings if _effective_finding_material(f))
         self._emit(
             session_id,
             "R3_INDEPENDENT_COMPLETED",
             {
                 "artifact_hash": revised.artifact_hash,
-                "findings": [_finding_payload(f) for f in r3_independent.findings],
+                "findings": [_finding_payload(f) for f in r3_all_findings],
                 "material_finding_ids": [f.finding_id for f in r3_material],
+                "epistemic_review": r3_independent.epistemic_review,
             },
         )
         if not r3_material:
@@ -336,14 +382,16 @@ class ReviewEngine:
         r3_adjudication.validate()
         if r3_adjudication.role != "R3" or r3_adjudication.artifact_hash != revised.artifact_hash:
             raise ValueError("R3 adjudication response is not bound to revised artifact")
-        unresolved = _material_findings(r3_adjudication)
+        r3_adjudication_findings = _all_findings(r3_adjudication)
+        unresolved = tuple(f for f in r3_adjudication_findings if _effective_finding_material(f))
         self._emit(
             session_id,
             "R3_ADJUDICATION_COMPLETED",
             {
                 "artifact_hash": revised.artifact_hash,
-                "findings": [_finding_payload(f) for f in r3_adjudication.findings],
+                "findings": [_finding_payload(f) for f in r3_adjudication_findings],
                 "unresolved_finding_ids": [f.finding_id for f in unresolved],
+                "epistemic_review": r3_adjudication.epistemic_review,
             },
         )
         if unresolved:
@@ -361,6 +409,6 @@ class ReviewEngine:
                 ("R3 adjudication resolved material review findings without majority voting",),
                 revised.content,
                 revised.artifact_hash,
-                tuple(f.summary for f in r3_independent.findings),
+                tuple(f.summary for f in r3_all_findings),
             )
         )
