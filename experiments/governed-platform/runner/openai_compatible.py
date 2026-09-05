@@ -44,10 +44,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                 return
             except ValueError:
                 pass
-        base = min(
-            self._config.initial_backoff_seconds * (2 ** max(0, attempt - 1)),
-            self._config.max_backoff_seconds,
-        )
+        base = min(self._config.initial_backoff_seconds * (2 ** max(0, attempt - 1)), self._config.max_backoff_seconds)
         time.sleep(base + random.uniform(0, min(0.5, base / 4)))
 
     def invoke(self, envelope: Mapping[str, Any]) -> AdapterResult:
@@ -60,14 +57,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
         payload = {
             "model": self._config.model,
             "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are an independent software-review mechanism. Use only the supplied case content. "
-                        "Report concrete material defects or requested change-impact conclusions; do not invent hidden requirements.\n\n"
-                        + REVIEW_OUTPUT_SCHEMA_INSTRUCTION
-                    ),
-                },
+                {"role": "system", "content": "You are an independent software-review mechanism. Use only the supplied case content. Report concrete material defects or requested change-impact conclusions; do not invent hidden requirements.\n\n" + REVIEW_OUTPUT_SCHEMA_INSTRUCTION},
                 {"role": "user", "content": json.dumps(envelope["model_visible"], ensure_ascii=False)},
             ],
             "temperature": 0,
@@ -77,16 +67,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
         last_error: str | None = None
 
         for attempt in range(1, self._config.max_attempts + 1):
-            request = Request(
-                endpoint,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json",
-                    "User-Agent": "setugo-governed-platform-pilot/1.0",
-                },
-                method="POST",
-            )
+            request = Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "User-Agent": "setugo-governed-platform-pilot/1.0"}, method="POST")
             try:
                 with urlopen(request, timeout=self._config.timeout_seconds) as response:
                     body = json.loads(response.read().decode("utf-8"))
@@ -94,25 +75,26 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                 detail = exc.read().decode("utf-8", errors="replace")
                 last_error = f"provider HTTP {exc.code}: {detail}"
                 if exc.code in RETRYABLE_HTTP and attempt < self._config.max_attempts:
-                    self._delay(attempt, exc.headers.get("Retry-After"))
-                    continue
+                    self._delay(attempt, exc.headers.get("Retry-After")); continue
                 raise RuntimeError(f"{last_error} (attempt {attempt}/{self._config.max_attempts})") from exc
             except URLError as exc:
                 last_error = f"provider connection failed: {exc.reason}"
                 if attempt < self._config.max_attempts:
-                    self._delay(attempt)
-                    continue
+                    self._delay(attempt); continue
                 raise RuntimeError(f"{last_error} (attempt {attempt}/{self._config.max_attempts})") from exc
 
             choices = body.get("choices") or []
-            message = choices[0].get("message") or {} if choices else {}
+            first = choices[0] if choices else {}
+            message = first.get("message") or {}
             raw_output = message.get("content")
+            finish_reason = first.get("finish_reason")
             if not choices or not isinstance(raw_output, str) or not raw_output.strip():
                 last_error = "provider response contained no usable text completion"
                 if attempt < self._config.max_attempts:
-                    self._delay(attempt)
-                    continue
+                    self._delay(attempt); continue
                 raise RuntimeError(f"{last_error} (attempt {attempt}/{self._config.max_attempts})")
+            if finish_reason != "stop":
+                raise RuntimeError(f"provider completion is incomplete or nonterminal: finish_reason={finish_reason!r}")
 
             latency_ms = max(0, int((time.perf_counter() - started) * 1000))
             usage = body.get("usage") or {}
@@ -126,7 +108,12 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                 estimated_cost_usd=0.0,
                 latency_ms=latency_ms,
                 evidence_eligible=True,
-                runtime_metadata={"provider_attempts": attempt},
+                runtime_metadata={
+                    "provider_attempts": attempt,
+                    "finish_reason": finish_reason,
+                    "response_model_claim": body.get("model"),
+                    "completion_complete": True,
+                },
             )
 
         raise RuntimeError(last_error or "provider failed without a usable completion")
