@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Review Engine MVP</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">GOVERNED MULTI-LLM</p>
+        <h1>Review Engine</h1>
+        <p class="subtitle">Conditional R1 → R2 → R3 review with governed memory and evidence.</p>
+      </div>
+      <div id="healthBadge" class="badge">Loading…</div>
+    </header>
+
+    <section class="panel">
+      <div class="section-title"><h2>Reviewer configuration</h2><span id="assurance"></span></div>
+      <div id="reviewers" class="reviewer-grid"></div>
+      <p class="hint">MVP keys are resolved server-side from secret/environment references and are never returned to this page.</p>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><h2>New request</h2><span>Platform decides whether additional review is required</span></div>
+      <form id="reviewForm">
+        <label>Prompt<textarea id="userInput" required rows="7" placeholder="Describe the task, question, design, code decision, or artifact you want reviewed."></textarea></label>
+        <div class="form-grid">
+          <label>Operation
+            <select id="operationClass">
+              <option value="CHAT">Chat / general idea</option>
+              <option value="ANALYSIS">Analysis</option>
+              <option value="ARTIFACT_CREATE">Create artifact</option>
+              <option value="ARTIFACT_MODIFY">Modify artifact</option>
+              <option value="EXTERNAL_ACTION">External action</option>
+              <option value="PRODUCTION_CHANGE">Production change</option>
+              <option value="RELEASE">Release</option>
+            </select>
+          </label>
+          <label>Task type<input id="taskType" value="GENERAL"></label>
+          <label>Target environment
+            <select id="targetEnvironment">
+              <option value="">None</option>
+              <option value="development">Development</option>
+              <option value="staging">Staging</option>
+              <option value="production">Production</option>
+            </select>
+          </label>
+        </div>
+        <button id="runButton" type="submit">Run governed review</button>
+      </form>
+    </section>
+
+    <section id="resultPanel" class="panel hidden">
+      <div class="section-title"><h2>Decision</h2><span id="decisionState"></span></div>
+      <div id="decisionMeta" class="meta-grid"></div>
+      <h3>Reasons</h3><ul id="decisionReasons"></ul>
+      <h3>Final output</h3><pre id="finalOutput"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><h2>Review history</h2><button class="secondary" id="refreshHistory" type="button">Refresh</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Session</th><th>Status</th><th>Started (IST)</th><th>Updated (IST)</th><th>Evidence</th></tr></thead><tbody id="sessions"></tbody></table></div>
+    </section>
+
+    <section id="eventPanel" class="panel hidden">
+      <div class="section-title"><h2>Session evidence</h2><span id="eventSession"></span></div>
+      <div id="events" class="timeline"></div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
