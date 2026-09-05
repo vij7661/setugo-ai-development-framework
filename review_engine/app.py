@@ -42,6 +42,21 @@ class ReviewEngineApp:
         # constructor-injected and intentionally have no public HTTP write surface.
         self.evidence_validator = evidence_validator
         self.claim_coverage_validator = claim_coverage_validator
+
+        # A governed reviewer configuration must not gain a stronger-looking
+        # assurance label while using coverage inventories that bypass extractor
+        # qualification admission. Experimental mode may use the raw reference
+        # registry for tests/prototyping, but GOVERNED mode requires a validator
+        # that explicitly enforces qualified inventory admission.
+        if (
+            self.qualifications is not None
+            and self.claim_coverage_validator is not None
+            and not bool(getattr(self.claim_coverage_validator, "qualified_admission_enforced", False))
+        ):
+            raise ValueError(
+                "GOVERNED assurance requires claim coverage with qualified extractor admission"
+            )
+
         invoker = self.providers.invoke
         self.claim_coverage_guard = None
         if self.claim_coverage_validator is not None:
@@ -75,6 +90,9 @@ class ReviewEngineApp:
                 "truth_contract_version": TVC_VERSION,
                 "evidence_correspondence_validator_configured": self.evidence_validator is not None,
                 "claim_coverage_validator_configured": self.claim_coverage_validator is not None,
+                "claim_coverage_qualified_admission": bool(
+                    getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)
+                ) if self.claim_coverage_validator is not None else False,
             }
         )
         return result
@@ -122,6 +140,9 @@ class ReviewEngineApp:
             "truth_contract_version": TVC_VERSION,
             "evidence_correspondence_validator": "CONFIGURED" if self.evidence_validator is not None else "UNCONFIGURED",
             "claim_coverage_validator": "CONFIGURED" if self.claim_coverage_validator is not None else "UNCONFIGURED",
+            "claim_coverage_qualified_admission": bool(
+                getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)
+            ) if self.claim_coverage_validator is not None else False,
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
                 "operation_class": self.execution_envelope.operation_class,
