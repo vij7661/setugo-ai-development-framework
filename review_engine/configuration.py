@@ -7,15 +7,21 @@ from typing import Any
 
 from .models import ReviewerConfig
 from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
+from .qualification import QualificationRecord, QualificationRegistry
 
 
 @dataclass(frozen=True)
 class ReviewEngineConfiguration:
     reviewers: dict[str, ReviewerConfig]
     provider_specs: dict[str, dict[str, Any]]
+    qualification_records: tuple[QualificationRecord, ...] = ()
 
     def reviewer(self, role: str) -> ReviewerConfig | None:
         return self.reviewers.get(role)
+
+    @property
+    def assurance_mode(self) -> str:
+        return "GOVERNED" if self.qualification_records else "EXPERIMENTAL_UNQUALIFIED"
 
 
 def _reject_secret_material(node: Any, path: str = "root") -> None:
@@ -35,7 +41,6 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
     if not isinstance(data, dict):
         raise ValueError("configuration root must be an object")
     _reject_secret_material(data)
-
     provider_specs = data.get("providers")
     reviewer_specs = data.get("reviewers")
     if not isinstance(provider_specs, dict) or not isinstance(reviewer_specs, dict):
@@ -63,10 +68,36 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
         if config.provider not in provider_specs:
             raise ValueError(f"reviewer {role} references unknown provider {config.provider}")
         reviewers[role] = config
-
     if "R1" not in reviewers:
         raise ValueError("R1 reviewer configuration is required")
-    return ReviewEngineConfiguration(reviewers=reviewers, provider_specs=provider_specs)
+
+    records: list[QualificationRecord] = []
+    raw_records = data.get("qualifications", [])
+    if not isinstance(raw_records, list):
+        raise ValueError("qualifications must be a list")
+    for item in raw_records:
+        if not isinstance(item, dict):
+            raise ValueError("qualification record must be an object")
+        task_types = item.get("task_types", ["*"])
+        if not isinstance(task_types, list):
+            raise ValueError("qualification task_types must be a list")
+        record = QualificationRecord(
+            qualification_ref=str(item.get("qualification_ref", "")),
+            provider=str(item.get("provider", "")),
+            model=str(item.get("model", "")),
+            sku=str(item.get("sku", "default")),
+            deployment_path=str(item.get("deployment_path", "api")),
+            role=str(item.get("role", "")),
+            status=str(item.get("status", "UNQUALIFIED")),
+            qualification_epoch=int(item.get("qualification_epoch", 1)),
+            foundation_lineage=str(item.get("foundation_lineage", "")),
+            max_risk=str(item.get("max_risk", "LOW")),
+            task_types=tuple(str(v) for v in task_types),
+        )
+        record.validate()
+        records.append(record)
+    QualificationRegistry(tuple(records))  # validates duplicate/epoch semantics
+    return ReviewEngineConfiguration(reviewers=reviewers, provider_specs=provider_specs, qualification_records=tuple(records))
 
 
 def build_provider_registry(configuration: ReviewEngineConfiguration) -> ProviderRegistry:
@@ -87,3 +118,9 @@ def build_provider_registry(configuration: ReviewEngineConfiguration) -> Provide
         )
         registry.register(provider_id, OpenAICompatibleProvider(endpoint))
     return registry
+
+
+def build_qualification_registry(configuration: ReviewEngineConfiguration) -> QualificationRegistry | None:
+    if not configuration.qualification_records:
+        return None
+    return QualificationRegistry(configuration.qualification_records)
