@@ -1,12 +1,13 @@
 {
   "experiment": "EXP-L",
-  "pilot": "PILOT6-ENVIRONMENT-TOOLING-CALIBRATION",
-  "case_id": "EXP-C-005",
+  "pilot": "PILOT7-MIXED-CAUSE-CALIBRATION",
+  "case_id": "EXP-C-006",
   "sample_count": 5,
   "temperature": 1.0,
   "authority": "NONE",
   "threshold_applied": false,
-  "collector_version": "1.1",
+  "collector_version": "1.2",
+  "semantic_proxy_version": "diagnosis-material-signature-v2",
   "active_providers": ["groq", "openrouter"],
   "gemini_status": "PAUSED_FOR_CALIBRATION_PROVIDER_AVAILABILITY"
 }
