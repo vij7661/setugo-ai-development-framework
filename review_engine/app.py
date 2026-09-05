@@ -181,10 +181,20 @@ class ReviewEngineApp:
         except Exception as execution_error:
             try:
                 self.sessions.abort_if_owned(request.request_id, attempt_id)
-            except Exception as evidence_error:
+            except Exception:
+                # Neither the original provider/runtime exception nor an evidence
+                # backend exception is safe to expose at the application boundary.
                 raise RuntimeError(
                     "review execution failed and terminal failure evidence could not be retained"
-                ) from execution_error
+                ) from None
+            # Duplicate/session-admission conflicts are ValueError policy signals
+            # and retain their existing caller-visible semantics. Provider/runtime
+            # failures use RuntimeError and are deliberately collapsed so arbitrary
+            # provider response bodies cannot escape through CLI/direct app callers.
+            if isinstance(execution_error, RuntimeError):
+                raise RuntimeError(
+                    "review execution failed; inspect retained session evidence"
+                ) from None
             raise
 
         result = asdict(decision)
