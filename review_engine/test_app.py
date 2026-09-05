@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import threading
 import unittest
@@ -38,6 +39,12 @@ class BlockingProviders(FakeProviders):
         if not self.release.wait(timeout=10):
             raise TimeoutError("test did not release provider")
         return ReviewerResponse("R1", None, "hello from R1")
+
+
+class LeakyProviders(FakeProviders):
+    def invoke(self, config, context):
+        self.calls.append(config.role)
+        raise RuntimeError("provider HTTP 401 body echoed SUPER-SECRET-PROVIDER-VALUE")
 
 
 def r1_config():
@@ -167,8 +174,6 @@ class AppTests(unittest.TestCase):
             try:
                 with self.assertRaisesRegex(ValueError, "already exists"):
                     app.review({"request_id": "race-dup", "user_input": "concurrent duplicate"})
-                # The first request is still blocked inside R1. A second provider
-                # call here would prove that request admission happened too late.
                 self.assertEqual(provider.calls, ["R1"])
                 events_while_open = app.session_events("race-dup")
                 self.assertEqual(
@@ -187,6 +192,26 @@ class AppTests(unittest.TestCase):
             self.assertEqual(len([e for e in events if e["event_type"] == "REQUEST_RECEIVED"]), 1)
             self.assertEqual(len([e for e in events if e["event_type"] == "FINAL_DECISION"]), 1)
             self.assertTrue(app.sessions.validate_chain("race-dup"))
+
+    def test_provider_runtime_error_is_sanitized_after_terminal_abort_evidence(self):
+        with tempfile.TemporaryDirectory() as td:
+            provider = LeakyProviders()
+            app = self.build_app(td, provider)
+
+            with self.assertRaises(RuntimeError) as caught:
+                app.review({"request_id": "provider-leak", "user_input": "review this"})
+
+            self.assertEqual(
+                str(caught.exception),
+                "review execution failed; inspect retained session evidence",
+            )
+            self.assertNotIn("SUPER-SECRET-PROVIDER-VALUE", str(caught.exception))
+            self.assertIsNone(caught.exception.__cause__)
+            events = app.session_events("provider-leak")
+            self.assertEqual(events[-1]["event_type"], "EXECUTION_ABORTED")
+            self.assertNotIn("SUPER-SECRET-PROVIDER-VALUE", json.dumps(events, sort_keys=True))
+            self.assertTrue(app.sessions.validate_chain("provider-leak"))
+            self.assertEqual(provider.calls, ["R1"])
 
     def test_judge_health_is_internal_monitoring_evidence_not_correctness_certificate(self):
         with tempfile.TemporaryDirectory() as td:
