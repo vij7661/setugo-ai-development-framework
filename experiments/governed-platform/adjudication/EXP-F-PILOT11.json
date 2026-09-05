@@ -1,0 +1,32 @@
+{
+  "experiment": "EXP-F",
+  "pilot": "PILOT11",
+  "scope": "INDEPENDENTLY_ADJUDICATED_REVIEWER_PERFORMANCE",
+  "execution_sha": "7c3b05c36d8d290cf6b07ecfc8d8927f5debc0a9",
+  "workflow_run_id": 33954942459,
+  "workflow_job_id": 101276436880,
+  "result": "DIRECTIONAL_PASS",
+  "governance_test_count": 115,
+  "slice_cases": [
+    "self-reported reviewer rate cannot create eligibility",
+    "unadjudicated performance record ignored",
+    "wrong-role performance cannot transfer",
+    "wrong-task-class performance cannot transfer",
+    "missing performance evidence reference fails closed",
+    "latest performance epoch governs eligibility",
+    "review cannot override adverse external performance",
+    "independently qualified reviewers can converge"
+  ],
+  "failure_repair_history": {
+    "prior_head": "39d2b651df3117dc79485fe2ce2f57ac2464099f",
+    "prior_run_id": 33954872367,
+    "classification": "TEST DEFECT",
+    "reason": "stale deep-orchestration regression fixture omitted newly required review_role/task_class and external performance evidence",
+    "repair": "updated regression fixture to the new governance contract without weakening production controls"
+  },
+  "scientific_interpretation": "On this exact tested SHA, reviewer eligibility for convergence is driven by separate, independently adjudicated, role/task-scoped performance evidence rather than reviewer-supplied false-positive rates. Review ceiling failure escalates explicitly rather than passing.",
+  "limitations": [
+    "This is deterministic policy-layer evidence, not proof of production-scale reviewer calibration quality.",
+    "Performance record authenticity/immutability relies on the broader evidence-governance layer and is not independently cryptographically proven by this slice alone."
+  ]
+}
