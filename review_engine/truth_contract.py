@@ -177,13 +177,16 @@ def evaluate_truth_contract(
     *,
     artifact_hash: str | None = None,
     evidence_validator: EvidenceCorrespondenceValidator | None = None,
+    risk: str = "LOW",
+    task_type: str = "GENERAL",
 ) -> TruthContractResult:
     """Convert explicit epistemic failures into platform-visible findings.
 
     Reviewer labels remain evidence. The platform owns the consequence mapping.
     A model saying an empirical claim is SUPPORTED is insufficient for material
     correspondence: the exact claim/artifact/evidence binding needs a retained
-    independent platform-side assessment.
+    independent platform-side assessment. Qualified evidence validators receive
+    the platform review risk/task scope rather than trusting verifier labels.
     """
     normalized = validate_epistemic_review(review)
     findings: list[ReviewFinding] = []
@@ -212,7 +215,12 @@ def evaluate_truth_contract(
 
         if claim["correspondence"] == "SUPPORTED":
             if evidence_validator is not None and artifact_hash is not None:
-                assessment = evidence_validator.assess(artifact_hash=artifact_hash, claim=claim).as_dict()
+                assessment = evidence_validator.assess(
+                    artifact_hash=artifact_hash,
+                    claim=claim,
+                    risk=risk,
+                    task_type=task_type,
+                ).as_dict()
             else:
                 assessment = _unverified_platform_assessment(artifact_hash=artifact_hash, claim=claim)
             evidence_assessments.append(assessment)
