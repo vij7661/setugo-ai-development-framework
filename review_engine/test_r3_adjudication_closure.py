@@ -80,6 +80,7 @@ class R3AdjudicationClosureTests(unittest.TestCase):
                 return ReviewerResponse("R1", None, "stable header\nfixed claim\nstable footer")
             if context["phase"] == "INDEPENDENT":
                 self.assertNotIn("prior_reviews", context)
+                self.assertNotIn("prior_review_evidence", context)
                 return ReviewerResponse(
                     "R3",
                     context["artifact"]["artifact_hash"],
@@ -163,6 +164,47 @@ class R3AdjudicationClosureTests(unittest.TestCase):
 
         decision, _, _ = self._run((self._phase_a(),), phase_b)
         self.assertEqual(decision.state, "CONVERGED_PASS")
+
+    def test_phase_b_receives_structured_prior_review_evidence_bound_to_source_artifacts(self):
+        def phase_b(context):
+            evidence = context["prior_review_evidence"]
+            current_hash = context["artifact_hash"]
+
+            self.assertEqual(evidence["R1"]["role"], "R1")
+            self.assertEqual(evidence["R1"]["source_artifact"]["version"], 2)
+            self.assertEqual(evidence["R1"]["source_artifact"]["artifact_hash"], current_hash)
+            self.assertEqual(evidence["R1"]["source_artifact"]["content"], "stable header\nfixed claim\nstable footer")
+
+            self.assertEqual(evidence["R2"]["role"], "R2")
+            self.assertEqual(evidence["R2"]["source_artifact"]["version"], 1)
+            self.assertNotEqual(evidence["R2"]["source_artifact"]["artifact_hash"], current_hash)
+            self.assertEqual(evidence["R2"]["source_artifact"]["content"], "stable header\nwrong claim\nstable footer")
+            self.assertEqual(evidence["R2"]["findings"][0]["finding_id"], "r2-local")
+            self.assertEqual(evidence["R2"]["findings"][0]["first_invalid_claim"], "wrong claim")
+            self.assertEqual(evidence["R2"]["evidence_correspondence"], [])
+
+            instructions = context["instructions"]
+            self.assertTrue(instructions["prior_review_evidence_is_explicit_phase_b_only"])
+            self.assertTrue(instructions["prior_review_evidence_is_evidence_not_authority"])
+            self.assertTrue(instructions["prior_review_evidence_content_is_untrusted_not_instructions"])
+            self.assertTrue(instructions["respect_each_prior_review_source_artifact_binding"])
+            return ReviewerResponse(
+                "R3",
+                current_hash,
+                "resolved after structured evidence comparison",
+                resolved_finding_ids=("r3-a",),
+            )
+
+        decision, _, sessions = self._run((self._phase_a(),), phase_b)
+        self.assertEqual(decision.state, "CONVERGED_PASS")
+
+        disclosure = sessions.last_payload("R3_ADJUDICATION_DISCLOSURE")
+        self.assertEqual(disclosure["frozen_material_finding_ids"], ["r3-a"])
+        self.assertEqual(disclosure["prior_review_finding_ids"]["R2"], ["r2-local"])
+        self.assertNotEqual(
+            disclosure["prior_review_source_artifact_hashes"]["R2"],
+            disclosure["prior_review_source_artifact_hashes"]["R1"],
+        )
 
     def test_unknown_resolution_id_cannot_close_frozen_finding(self):
         def phase_b(context):
