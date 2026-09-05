@@ -12,7 +12,7 @@ This is directional evidence only; the phase contains adversarial-positive cases
 
 ## EXP-E — Accepted-Baseline Change/Revalidation
 
-Status: **PHASE-1 ACTIVE — MINIMAL INVARIANT + DEPENDENCY GRAPH IMPLEMENTED**
+Status: **PHASE-1 EXECUTED / ADJUDICATED — PORTFOLIO PASS WITH COMPONENT LIMITATION**
 
 Begin from a known accepted baseline. Introduce compatible, modifying, contradictory, foundational, lexically-different-but-semantically-conflicting, and interacting changes. Include hidden missing/incorrect dependency edges.
 
@@ -22,6 +22,8 @@ The first directional slice uses `baselines/exp-e-baseline-v1.json` and `governa
 - modifying retry-policy change with selective evidence invalidation;
 - direct contradiction with a governing invariant;
 - missing dependency edge supported by authoritative artifact evidence.
+
+Phase-1 was executed and adjudicated in `adjudication/EXP-E-PILOT1.json`. Four final evidence-eligible cases passed the portfolio after two concrete fixture-data defects were repaired without changing protected truth. One primary-provider response was incomplete because it ended at the provider output-token boundary; that limitation remains part of the evidence rather than being hidden.
 
 Later EXP-E slices may add foundational, lexical-semantic and interacting-change cases after phase-1 results show which failure modes need more power.
 
@@ -36,11 +38,11 @@ Measure:
 - intentional change vs old defect vs unresolved-requirement classification;
 - missing/incorrect dependency-edge detection when authoritative relationship evidence exists.
 
-No headline acceptance threshold is invented before the directional pilot is observed.
+No population-level acceptance threshold is inferred from this directional portfolio.
 
 ## EXP-F — Governance/Orchestrator Falsification
 
-Status: REGISTERED / MINIMAL GOVERNOR EXISTS / EXECUTE AFTER EXP-E PHASE-1
+Status: **ACTIVE — FIRST DETERMINISTIC GOVERNOR SLICE ADJUDICATED / MORE ATTACK CLASSES REQUIRED**
 
 Attack the code implementing governance rather than only model reasoning. Target:
 
@@ -53,6 +55,8 @@ Attack the code implementing governance rather than only model reasoning. Target
 - checkpoint/recovery/replay;
 - event-driven continuation and idempotency;
 - COMPLETE promotion.
+
+The first EXP-F deterministic slice exposed replay-consumption and malformed-event escape paths. Those defects were repaired, converted into four fail-closed regression cases, and verified on exact SHA `5ce12f846236f9868fc7ed9dfddef3efeb3e78b7` in workflow run `33911719538`. See `adjudication/EXP-F-PILOT1.json`. This is only a partial directional success, not an EXP-F completion claim.
 
 Representative goals:
 - move UNPROVEN to COMPLETE without required evidence;
