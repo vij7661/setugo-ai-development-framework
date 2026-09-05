@@ -79,7 +79,7 @@ class ClaimCoverageApplicationTests(unittest.TestCase):
         ))
         with tempfile.TemporaryDirectory() as td:
             app = self.build_app(td, coverage)
-            result = app.review({"request_id": "coverage-omit", "user_input": "summarize deployment"})
+            result = app.review({"request_id": "coverage-omit", "user_input": "summarize the status statement"})
             self.assertEqual(result["state"], "HUMAN_REQUIRED")
             self.assertTrue(result["claim_coverage_validator_configured"])
             events = app.session_events("coverage-omit")
@@ -99,7 +99,7 @@ class ClaimCoverageApplicationTests(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as td:
             app = self.build_app(td, RetainedClaimCoverageRegistry((stale,)))
-            result = app.review({"request_id": "coverage-stale", "user_input": "summarize deployment"})
+            result = app.review({"request_id": "coverage-stale", "user_input": "summarize the status statement"})
             self.assertEqual(result["state"], "HUMAN_REQUIRED")
             events = app.session_events("coverage-stale")
             r1 = next(event for event in events if event["event_type"] == "R1_COMPLETED")
@@ -111,7 +111,7 @@ class ClaimCoverageApplicationTests(unittest.TestCase):
             app = self.build_app(td, RetainedClaimCoverageRegistry())
             result = app.review({
                 "request_id": "coverage-forged",
-                "user_input": "summarize deployment",
+                "user_input": "summarize the status statement",
                 "claim_coverage": {
                     "inventory_id": "caller-forged",
                     "artifact_hash": content_hash(ARTIFACT),
