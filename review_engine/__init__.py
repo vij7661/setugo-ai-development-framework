@@ -22,6 +22,12 @@ from .claim_coverage import (
 )
 from .claim_coverage_guard import ClaimCoverageGuardedInvoker
 from .claim_coverage_policy import MinimumIndependentClaimCoverage
+from .extractor_qualification import (
+    ExtractorQualificationDecision,
+    ExtractorQualificationRecord,
+    ExtractorQualificationRegistry,
+)
+from .qualified_claim_coverage import QualifiedRetainedClaimCoverageRegistry
 from .evidence_correspondence import (
     ClaimEvidenceAssessment,
     EvidenceCorrespondenceAttestation,
@@ -56,6 +62,9 @@ __all__ = [
     "CoverageClaim",
     "EvidenceCorrespondenceAttestation",
     "EvidenceCorrespondenceValidator",
+    "ExtractorQualificationDecision",
+    "ExtractorQualificationRecord",
+    "ExtractorQualificationRegistry",
     "JudgeHealthMonitor",
     "JudgeHealthReport",
     "JudgeIdentityBinding",
@@ -66,6 +75,7 @@ __all__ = [
     "OpenAICompatibleProvider",
     "PairwiseJudgeAssessment",
     "ProviderRegistry",
+    "QualifiedRetainedClaimCoverageRegistry",
     "RetainedClaimCoverageRegistry",
     "RetainedEvidenceCorrespondenceRegistry",
     "ReviewArtifact",
