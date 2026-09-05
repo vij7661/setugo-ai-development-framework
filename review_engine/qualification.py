@@ -53,9 +53,10 @@ class ReviewerCapability:
 
     The capability is the linearization point between qualification state and one
     governed provider invocation. It is bound to the exact retained qualification
-    epoch, reviewer identity, risk and task type. Revocation before issuance
-    prevents issuance; a later revocation applies to future capabilities rather
-    than retroactively rewriting authority that was already issued for one call.
+    epoch, reviewer identity, risk/task and request/phase/artifact scope.
+    Revocation before issuance prevents issuance; a later revocation applies to
+    future capabilities rather than retroactively rewriting authority that was
+    already issued for one call.
 
     This is platform bookkeeping, not cryptographic proof of remote provider
     runtime identity and not authority for external/production actions.
@@ -72,6 +73,9 @@ class ReviewerCapability:
     foundation_lineage: str
     risk: str
     task_type: str
+    request_id: str
+    phase: str
+    artifact_hash: str | None = None
 
     def validate(self) -> None:
         if not self.capability_id:
@@ -86,6 +90,12 @@ class ReviewerCapability:
             raise ValueError("invalid reviewer capability risk")
         if not self.task_type:
             raise ValueError("reviewer capability task_type required")
+        if not self.request_id:
+            raise ValueError("reviewer capability request_id required")
+        if not self.phase:
+            raise ValueError("reviewer capability phase required")
+        if self.artifact_hash is not None and not self.artifact_hash:
+            raise ValueError("reviewer capability artifact_hash cannot be empty")
 
 
 class QualificationRegistry:
@@ -150,12 +160,21 @@ class QualificationRegistry:
         *,
         risk: str,
         task_type: str = "GENERAL",
+        request_id: str,
+        phase: str,
+        artifact_hash: str | None = None,
     ) -> tuple[QualificationDecision, ReviewerCapability | None]:
         """Atomically evaluate current qualification state and issue one call.
 
         `add()` uses the same lock, so qualification epoch/status transitions
         cannot interleave between the eligibility read and capability creation.
         """
+        if not request_id:
+            raise ValueError("reviewer capability request_id required")
+        if not phase:
+            raise ValueError("reviewer capability phase required")
+        if artifact_hash is not None and not artifact_hash:
+            raise ValueError("reviewer capability artifact_hash cannot be empty")
         with self._lock:
             decision = self._evaluate_unlocked(config, risk=risk, task_type=task_type)
             if not decision.eligible:
@@ -178,6 +197,9 @@ class QualificationRegistry:
                 foundation_lineage=record.foundation_lineage,
                 risk=risk,
                 task_type=task_type,
+                request_id=request_id,
+                phase=phase,
+                artifact_hash=artifact_hash,
             )
             capability.validate()
             self._capabilities[capability.capability_id] = capability
@@ -190,6 +212,9 @@ class QualificationRegistry:
         *,
         risk: str,
         task_type: str = "GENERAL",
+        request_id: str,
+        phase: str,
+        artifact_hash: str | None = None,
     ) -> ReviewerCapability:
         """Consume exactly one issued capability without allowing scope reuse."""
         with self._lock:
@@ -208,6 +233,9 @@ class QualificationRegistry:
                 "qualification_ref": (capability.qualification_ref, config.qualification_ref),
                 "risk": (capability.risk, risk),
                 "task_type": (capability.task_type, task_type),
+                "request_id": (capability.request_id, request_id),
+                "phase": (capability.phase, phase),
+                "artifact_hash": (capability.artifact_hash, artifact_hash),
             }
             for name, (expected, actual) in bindings.items():
                 if expected != actual:
