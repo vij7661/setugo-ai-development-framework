@@ -58,6 +58,119 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(registry.get("q1").qualification_epoch, 2)
         self.assertFalse(registry.evaluate(cfg(), risk="LOW").eligible)
 
+    def test_capability_binds_exact_epoch_identity_risk_task_request_phase_and_artifact(self):
+        registry = QualificationRegistry((record(),))
+        decision, capability = registry.issue_capability(
+            cfg(),
+            risk="HIGH",
+            task_type="GENERAL",
+            request_id="req-1",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        self.assertTrue(decision.eligible)
+        self.assertIsNotNone(capability)
+        assert capability is not None
+        self.assertEqual(capability.qualification_epoch, 1)
+        self.assertEqual(capability.model, "m")
+        self.assertEqual(capability.risk, "HIGH")
+        self.assertEqual(capability.task_type, "GENERAL")
+        self.assertEqual(capability.request_id, "req-1")
+        self.assertEqual(capability.phase, "R2_INDEPENDENT")
+        self.assertEqual(capability.artifact_hash, "artifact-a")
+
+    def test_revoked_qualification_cannot_issue_capability(self):
+        registry = QualificationRegistry((record(status="REVOKED"),))
+        decision, capability = registry.issue_capability(
+            cfg(),
+            risk="LOW",
+            request_id="req-2",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        self.assertFalse(decision.eligible)
+        self.assertIsNone(capability)
+        self.assertIn("REVOKED", decision.reason)
+
+    def test_capability_is_single_use_and_cannot_change_scope(self):
+        registry = QualificationRegistry((record(),))
+        _, capability = registry.issue_capability(
+            cfg(),
+            risk="HIGH",
+            task_type="GENERAL",
+            request_id="req-3",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        assert capability is not None
+
+        with self.assertRaisesRegex(ValueError, "phase binding mismatch"):
+            registry.consume_capability(
+                capability.capability_id,
+                cfg(),
+                risk="HIGH",
+                task_type="GENERAL",
+                request_id="req-3",
+                phase="R3_INDEPENDENT",
+                artifact_hash="artifact-a",
+            )
+        self.assertFalse(registry.capability_consumed(capability.capability_id))
+
+        consumed = registry.consume_capability(
+            capability.capability_id,
+            cfg(),
+            risk="HIGH",
+            task_type="GENERAL",
+            request_id="req-3",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        self.assertEqual(consumed.capability_id, capability.capability_id)
+        self.assertTrue(registry.capability_consumed(capability.capability_id))
+
+        with self.assertRaisesRegex(ValueError, "already consumed"):
+            registry.consume_capability(
+                capability.capability_id,
+                cfg(),
+                risk="HIGH",
+                task_type="GENERAL",
+                request_id="req-3",
+                phase="R2_INDEPENDENT",
+                artifact_hash="artifact-a",
+            )
+
+    def test_revocation_after_issue_does_not_retroactively_rewrite_one_shot_grant(self):
+        registry = QualificationRegistry((record(),))
+        _, capability = registry.issue_capability(
+            cfg(),
+            risk="HIGH",
+            request_id="req-4",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        assert capability is not None
+        registry.add(record(qualification_epoch=2, status="REVOKED"))
+
+        consumed = registry.consume_capability(
+            capability.capability_id,
+            cfg(),
+            risk="HIGH",
+            request_id="req-4",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        self.assertEqual(consumed.qualification_epoch, 1)
+
+        next_decision, next_capability = registry.issue_capability(
+            cfg(),
+            risk="HIGH",
+            request_id="req-4",
+            phase="R2_INDEPENDENT",
+            artifact_hash="artifact-a",
+        )
+        self.assertFalse(next_decision.eligible)
+        self.assertIsNone(next_capability)
+
 
 if __name__ == "__main__":
     unittest.main()
