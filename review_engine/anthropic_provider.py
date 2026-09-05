@@ -11,7 +11,8 @@ from urllib.request import Request
 from .models import ReviewerConfig, ReviewerResponse
 from .providers import (
     RETRYABLE_HTTP,
-    SYSTEM_INSTRUCTION,
+    _bound_system_instruction,
+    _model_context_json,
     _parse_response,
     urlopen,
     validate_provider_base_url,
@@ -67,8 +68,8 @@ class AnthropicProvider:
             "model": config.model,
             "max_tokens": self.endpoint.max_tokens,
             "temperature": self.endpoint.temperature,
-            "system": SYSTEM_INSTRUCTION,
-            "messages": [{"role": "user", "content": json.dumps(context, ensure_ascii=False, sort_keys=True)}],
+            "system": _bound_system_instruction(context),
+            "messages": [{"role": "user", "content": _model_context_json(context)}],
         }
         url = self.endpoint.base_url.rstrip("/") + "/messages"
         last_error = None
