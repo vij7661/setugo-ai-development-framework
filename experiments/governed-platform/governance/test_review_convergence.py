@@ -28,6 +28,7 @@ class ReviewConvergenceTests(unittest.TestCase):
             "false_positive_rate_threshold": 0.10,
             "review_role": "JUDGE",
             "task_class": "SECURITY_REVIEW",
+            "risk_tier": "HIGH",
         }
 
     def perf(self, reviewer, rate, epoch=1):
@@ -36,6 +37,7 @@ class ReviewConvergenceTests(unittest.TestCase):
             "false_positive_rate": rate,
             "role": "JUDGE",
             "task_class": "SECURITY_REVIEW",
+            "risk_tier": "HIGH",
             "independently_adjudicated": True,
             "evidence_ref": f"perf-{reviewer}-{epoch}",
             "performance_epoch": epoch,
