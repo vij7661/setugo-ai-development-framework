@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "experiments": ["EXP-H", "EXP-K"],
+  "pilot": "LOW_RISK_DIRECT_FINALIZATION_V1",
+  "source_workflow_run_id": 33971187700,
+  "source_execution_sha": "9afabf5556985a484521764a0b9d1e6da9335039",
+  "score_artifact_digest": "sha256:daca83ce4c46516d6d153c02afdff47251628983e61a5d2c635bd4ff4784ce57",
+  "cases": [
+    {
+      "case_id": "EXP-H-001",
+      "risk": "LOW",
+      "protected_expected": "NO_MATERIAL_DEFECT",
+      "r1_correct": true,
+      "r2_correct": true,
+      "conditional": {"reviewer_calls": 1, "total_tokens": 524, "latency_ms": 373},
+      "always_r2": {"reviewer_calls": 2, "total_tokens": 1312, "latency_ms": 4432},
+      "r2_marginal_true_findings": 0
+    },
+    {
+      "case_id": "EXP-H-014",
+      "risk": "LOW",
+      "protected_expected": "NO_MATERIAL_DEFECT",
+      "r1_correct": true,
+      "r2_correct": true,
+      "conditional": {"reviewer_calls": 1, "total_tokens": 548, "latency_ms": 329},
+      "always_r2": {"reviewer_calls": 2, "total_tokens": 1358, "latency_ms": 9974},
+      "r2_marginal_true_findings": 0
+    }
+  ],
+  "aggregate": {
+    "conditional_correct_cases": 2,
+    "always_r2_correct_cases": 2,
+    "conditional_reviewer_calls": 2,
+    "always_r2_reviewer_calls": 4,
+    "conditional_total_tokens": 1072,
+    "always_r2_total_tokens": 2670,
+    "token_overhead_always_r2": 1598,
+    "conditional_total_latency_ms": 702,
+    "always_r2_total_latency_ms": 14406,
+    "latency_overhead_always_r2_ms": 13704,
+    "reviewer_call_reduction_vs_always_r2_fraction": 0.5,
+    "token_reduction_vs_always_r2_fraction": 0.598501872659176,
+    "summed_latency_reduction_vs_always_r2_fraction": 0.9511314729973622,
+    "unnecessary_r2_count": 2
+  },
+  "result": "DIRECTIONAL_SUPPORT_FOR_LOW_RISK_DIRECT_FINALIZATION",
+  "scientific_interpretation": "For these two pre-registered LOW-risk clean controls, Reviewer 1 was correct without independent review and Reviewer 2 added no true material finding. The conditional policy therefore preserved protected correctness while avoiding two unnecessary reviewer calls and substantial token/latency overhead. This supports the product behavior that simple low-risk, read-only, complete-evidence prompts need not automatically invoke another LLM.",
+  "authority": "NONE",
+  "limitations": [
+    "Only two clean low-risk controls were evaluated; this is not enough to set a production no-review threshold.",
+    "The pilot does not yet include low-risk cases where R1 is wrong, which are required to estimate the false-negative risk of direct finalization.",
+    "Latency values are provider/path specific and should not be generalized beyond the frozen routes used here.",
+    "Zero reported monetary cost reflects the frozen provider routes used in this pilot and is not a general cost claim."
+  ],
+  "next_required_falsification": [
+    "Add LOW-risk R1-wrong controls to test whether semantic/counterfactual signals can trigger R2 without turning all low-risk work into always-review.",
+    "Add clean controls where R2 generates a false positive to measure harmful review overhead.",
+    "Compare conditional, R1-only and always-R2 across a larger mixed low/medium/high risk case set."
+  ]
+}
