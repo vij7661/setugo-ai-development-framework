@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-F",
+  "adjudication_protocol": "QUALIFICATION_DRIFT_REVOCATION_V1",
+  "execution_scope": "QUALIFICATION_LINEAGE_SLICE",
+  "execution_sha": "8673f3ba56cdf2c5291abcd2fcf06237917396e0",
+  "run_id": 33953913491,
+  "case_count": 8,
+  "case_results": [
+    {"case_id":"EXP-F-QUAL-001","result":"PASS","regression_test":"test_current_evidence_lineage_remains_admissible"},
+    {"case_id":"EXP-F-QUAL-002","result":"PASS","regression_test":"test_current_qualification_can_execute"},
+    {"case_id":"EXP-F-QUAL-003","result":"PASS","regression_test":"test_epoch_drift_invalidates_routing_time_authorization"},
+    {"case_id":"EXP-F-QUAL-004","result":"PASS","regression_test":"test_expired_qualification_cannot_execute"},
+    {"case_id":"EXP-F-QUAL-005","result":"PASS","regression_test":"test_provider_or_model_replacement_invalidates_route"},
+    {"case_id":"EXP-F-QUAL-006","result":"PASS","regression_test":"test_requalification_invalidates_old_evidence_lineage"},
+    {"case_id":"EXP-F-QUAL-007","result":"PASS","regression_test":"test_revocation_invalidates_previously_green_evidence"},
+    {"case_id":"EXP-F-QUAL-008","result":"PASS","regression_test":"test_revoked_model_cannot_execute_after_routing"}
+  ],
+  "governance_test_count": 48,
+  "experiment_result": "QUALIFICATION_DRIFT_SLICE_PASS",
+  "scientific_interpretation": "Routing eligibility is treated as revocable state, not durable authority. Execution and evidence admission both revalidate the current qualification lineage.",
+  "limitations": [
+    "This slice tests deterministic qualification lineage controls rather than provider-runtime revocation races.",
+    "A passing slice does not establish safety of scoped capability issuance or revocation; those are tested separately."
+  ]
+}
