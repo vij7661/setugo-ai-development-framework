@@ -4,6 +4,7 @@ from dataclasses import asdict
 from typing import Iterable
 
 from .configuration import ReviewEngineConfiguration, build_provider_registry, build_qualification_registry
+from .evidence_correspondence import EvidenceCorrespondenceValidator
 from .judge_health import JudgeHealthMonitor, JudgeObservation
 from .orchestrator import ReviewEngine
 from .request_boundary import PlatformExecutionEnvelope, build_request
@@ -23,6 +24,7 @@ class ReviewEngineApp:
         sessions_db: str,
         provider_registry=None,
         execution_envelope: PlatformExecutionEnvelope | None = None,
+        evidence_validator: EvidenceCorrespondenceValidator | None = None,
     ) -> None:
         self.configuration = configuration
         self.providers = provider_registry or build_provider_registry(configuration)
@@ -33,10 +35,14 @@ class ReviewEngineApp:
         # integration must inject its own trusted envelope here rather than
         # accepting governance-critical execution facts from request JSON.
         self.execution_envelope = execution_envelope or PlatformExecutionEnvelope()
+        # Evidence correspondence is also platform-owned. It is intentionally
+        # constructor-injected and has no public HTTP write surface in this MVP.
+        self.evidence_validator = evidence_validator
         self.engine = ReviewEngine(
             self.providers.invoke,
             session_store=self.sessions,
             qualification_registry=self.qualifications,
+            evidence_validator=self.evidence_validator,
         )
 
     def review(self, payload: dict) -> dict:
@@ -58,6 +64,7 @@ class ReviewEngineApp:
                 "human_action_approval_required": bool(request.platform_facts.get("human_approval_required")),
                 "session_chain_valid": self.sessions.validate_chain(request.request_id),
                 "truth_contract_version": TVC_VERSION,
+                "evidence_correspondence_validator_configured": self.evidence_validator is not None,
             }
         )
         return result
@@ -103,6 +110,7 @@ class ReviewEngineApp:
             "evidence_backend": "sqlite-hash-linked-single-node",
             "action_execution_enabled": False,
             "truth_contract_version": TVC_VERSION,
+            "evidence_correspondence_validator": "CONFIGURED" if self.evidence_validator is not None else "UNCONFIGURED",
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
                 "operation_class": self.execution_envelope.operation_class,
