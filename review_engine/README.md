@@ -18,11 +18,12 @@ The platform owns routing mechanics, context visibility, reviewer eligibility/in
 User request
   -> trusted application execution envelope + caller declarations + conservative text floor
   -> R1 interpreter/builder + structured epistemic review
-  -> platform risk/review decision + Truth & Veracity Contract evaluation
+  -> platform Truth & Veracity Contract + evidence-correspondence evaluation
+  -> platform risk/review decision
      -> direct finalization when bounded policy permits
      -> blinded R2 detection when review is required
-        -> finalization if no effectively material finding
-        -> scoped R1 revision if a material finding is accepted
+        -> finalization only if no material finding remains
+        -> scoped R1 revision when material findings remain
            -> blinded R3 verification for material change/disagreement
            -> staged disclosure/adjudication
   -> final decision state or HUMAN_REQUIRED
@@ -43,20 +44,49 @@ A future authenticated tool/agent system must inject real platform-owned tool gr
 
 Reviewer-supplied `material` is evidence rather than final authority. The platform computes effective finding materiality. At minimum, `HIGH` and `CRITICAL` findings are treated as material even if a reviewer emits `material=false`. Raw reviewer flags are retained separately in evidence.
 
+A material finding already attached to the current R1 artifact is not erased merely because R2 omits the same finding. The artifact must be revised, the platform evidence state must change, or the workflow must fail to human review.
+
 ## Truth & Veracity Contract (TVC-1)
 
-Reviewer reasoning is now decomposed into four separate epistemic dimensions rather than one vague confidence judgment:
+Reviewer reasoning is decomposed into four separate epistemic dimensions rather than one vague confidence judgment:
 
 - **Correspondence** — whether empirical claims have admissible evidence or remain explicitly unsupported/unverified.
 - **Coherence** — whether the artifact is internally consistent or contains unresolved contradictions.
 - **Pragmatic utility** — whether a proposal is operationally viable; usefulness never overrides factual/logical/governance defects.
 - **Semantic precision** — whether the response cleanly distinguishes empirical facts, logical claims, definitions, inferences, assumptions, hypotheses, opinions and recommendations.
 
-The implemented provider adapters require a structured `epistemic_review` object in model JSON. An empirical claim marked `SUPPORTED` must include at least one evidence handle. This is a structural provenance requirement: the presence of an evidence handle does **not** by itself prove that the cited source actually supports the claim.
+The implemented provider adapters require a structured `epistemic_review` object in model JSON. An empirical claim marked `SUPPORTED` must include at least one evidence handle. That remains only a structural requirement; the model cannot certify evidence correspondence by naming a source.
 
-Explicit TVC failures are converted into platform-visible findings. In particular, unsupported/unverified **material empirical facts**, reported contradictions and materially misleading semantic presentation cannot be silently ignored just because the model omitted a matching free-form finding.
+Explicit TVC failures are converted into platform-visible findings. Unsupported/unverified **material empirical facts**, reported contradictions and materially misleading semantic presentation cannot be silently ignored just because the model omitted a matching free-form finding.
 
-R1 self-reported material truth/veracity failures force independent review. `EXPERIMENTAL_UNQUALIFIED` mode cannot clear such an escalation. Agreement between R1/R2/R3 is still evidence only and never establishes truth or action authority.
+R1 self-reported material truth/veracity failures force independent review. `EXPERIMENTAL_UNQUALIFIED` mode cannot clear such an escalation. Agreement between R1/R2/R3 remains evidence only and never establishes truth or action authority.
+
+## Evidence Correspondence Validator
+
+`evidence_correspondence.py` closes the specific gap between **having an evidence reference** and **having retained evidence that supports the exact claim**.
+
+A retained correspondence attestation is bound to:
+
+- exact artifact SHA-256,
+- normalized claim-text fingerprint,
+- evidence reference,
+- exact evidence-content SHA-256 snapshot,
+- verifier identity and provenance,
+- optional verifier qualification reference.
+
+The reference registry returns one of:
+
+- `VERIFIED_SUPPORT`
+- `VERIFIED_CONTRADICTION`
+- `CONFLICT`
+- `INSUFFICIENT`
+- `UNVERIFIED`
+
+For a material empirical claim that a reviewer labels `SUPPORTED`, anything other than `VERIFIED_SUPPORT` becomes a platform-visible `TVC-EVIDENCE-CORRESPONDENCE` finding. A fake handle, stale artifact, rephrased claim, insufficient attestation or conflicting retained evidence therefore cannot be converted into verified correspondence by model assertion alone.
+
+The validator is constructor-injected at the trusted application boundary and has no public HTTP write surface in the MVP. Models and arbitrary API callers cannot add correspondence attestations through review JSON.
+
+This control is **not a semantic truth oracle**. The reference registry does not itself decide whether source text entails a claim; it evaluates independently retained attestations. A future evidence/source service must authenticate source snapshots, verifier identity, qualification and provenance before admitting those attestations.
 
 ## Reviewer independence
 
@@ -68,7 +98,7 @@ Whenever R2 is required, its `foundation_lineage` must differ from R1. Whenever 
 
 For two judges evaluated on the same `Q` single-label tasks, if both are required to have accuracy at least `a` against the same unknown answer key, they cannot disagree on more than `2 * (1-a) * Q` tasks. If observed disagreements exceed that bound, the platform can conclude only that **both judges cannot simultaneously satisfy the configured accuracy requirement**.
 
-Monitor states are deliberately non-certifying:
+Monitor states remain deliberately non-certifying:
 
 - `INSUFFICIENT_DATA`
 - `NO_LOGICAL_ALARM`
@@ -76,7 +106,15 @@ Monitor states are deliberately non-certifying:
 
 `NO_LOGICAL_ALARM` is intentionally not called `HEALTHY`, `CORRECT` or `ALIGNED`. Agreement cannot establish correctness without ground truth. The monitor also cannot identify which judge is wrong. It is a qualification/monitoring alarm, not a release gate or correctness oracle.
 
-The current implementation is a sound pairwise disagreement-bound subset of richer no-knowledge/linear-programming approaches. It assumes authentic retained observations, comparable single-label tasks, and a common but unknown answer key. More advanced label-specific/correlation analysis remains future work.
+### Judge identity binding
+
+Judge-health observations now require a platform-bound `JudgeIdentityBinding` by default. The monitor derives the judge identifier from provider + model + SKU + deployment path + role + foundation lineage + qualification reference + qualification epoch instead of trusting a free-form or model self-reported name.
+
+- a forged `judge_id` that does not match its binding is rejected;
+- two aliases for the same provider/model/SKU/deployment path are not counted as two judges;
+- same-foundation-lineage pairs can still be analyzed by the mathematical disagreement bound, but the report emits an explicit correlation warning.
+
+This is stronger bookkeeping identity, not universal runtime cryptographic attestation. Provider-side runtime identity proof remains an integration boundary.
 
 ## Qualification / assurance modes
 
@@ -95,7 +133,7 @@ The MVP session ledger is append-only at the application API and hash-linked. A 
 
 Reviewer response `artifact_hash` binding is **platform-side bookkeeping integrity**: the provider adapter binds a response to the artifact hash in the platform-created context, and the orchestrator rejects mismatches. It is not a cryptographic reviewer attestation that proves the model semantically analyzed that exact content.
 
-Structured epistemic review evidence and TVC-derived findings are retained with stage evidence. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
+Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
 
 ## API-key rule
 
@@ -111,8 +149,10 @@ This is an MVP orchestration core, not a production authorization system.
 - Hash-linked evidence is not external/WORM immutability.
 - Provider runtime identity is not universally cryptographically attested.
 - Request-text consequence hints are not complete semantic intent detection.
-- Evidence-handle presence does not prove source correspondence; source provenance validation remains a separate platform responsibility.
+- The correspondence registry consumes retained verifier attestations; it does not independently solve semantic entailment from arbitrary source text.
+- Claim extraction/classification completeness remains a reviewer + independent-review problem; a model could still misclassify or omit a truth-bearer unless another control detects it.
 - Judge-health `NO_LOGICAL_ALARM` does not establish correctness or alignment.
+- Same foundation lineage is a correlation warning, not proof of shared training data or identical reasoning.
 - The platform still needs authenticated tool-state integration before it can claim independently verified execution consequences.
 
 Future experiments should exercise this package end-to-end rather than adding isolated experiment-only orchestration paths.
