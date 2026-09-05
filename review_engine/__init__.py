@@ -30,6 +30,7 @@ from .truth_contract import (
 from .judge_health import (
     JudgeHealthMonitor,
     JudgeHealthReport,
+    JudgeIdentityBinding,
     JudgeObservation,
     PairwiseJudgeAssessment,
 )
@@ -41,6 +42,7 @@ __all__ = [
     "EvidenceCorrespondenceValidator",
     "JudgeHealthMonitor",
     "JudgeHealthReport",
+    "JudgeIdentityBinding",
     "JudgeObservation",
     "MemoryRecord",
     "OpenAICompatibleEndpoint",
