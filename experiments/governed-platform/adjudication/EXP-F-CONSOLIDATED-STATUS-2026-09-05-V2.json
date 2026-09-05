@@ -1,0 +1,52 @@
+{
+  "experiment_id": "EXP-F",
+  "status_date": "2026-09-05",
+  "current_tested_head": "7c3b05c36d8d290cf6b07ecfc8d8927f5debc0a9",
+  "current_exact_head_run": 33954942459,
+  "current_governance_test_count": 115,
+  "overall_status": "PARTIAL_PASS_WITH_OPEN_GAPS",
+  "attack_matrix": {
+    "F001_authority_escalation": "COVERED_PASS",
+    "F002_qualification_routing_mismatch": "COVERED_PASS",
+    "F003_stale_qualification_sku_drift": "COVERED_PASS_FOR_PROVIDER_MODEL_SKU_DEPLOYMENT_PATH_IDENTITY",
+    "F004_verification_bypass_self_approval": "COVERED_PASS",
+    "F005_review_ceiling_manipulation": "COVERED_PASS_FOR_EXTERNAL_PERFORMANCE_EVIDENCE_AND_EXPLICIT_CEILING_ESCALATION",
+    "F006_invariant_laundering": "COVERED_PASS_FOR_CANONICAL_SEMANTIC_PREDICATES",
+    "F007_evidence_tampering_missing_evidence": "COVERED_PASS_WITH_BROADER_IMMUTABILITY_LIMITATION",
+    "F008_correlated_independent_reviewers": "COVERED_PASS",
+    "F009_retry_idempotency_replay_duplicate_event": "PARTIAL_PASS",
+    "F010_approval_capability_concurrency_race": "COVERED_PASS_FOR_DETERMINISTIC_STATE_VERSION_AND_POLICY_ARTIFACT_BINDING",
+    "F011_policy_version_drift_toctou": "COVERED_PASS",
+    "F012_failover_provider_substitution": "COVERED_PASS"
+  },
+  "newly_closed_since_prior_status": [
+    "semantic invariant laundering via canonical predicates and contradiction detection",
+    "provider+model+SKU+deployment-path qualification identity",
+    "reviewer performance eligibility from independently adjudicated evidence rather than self-reported rates",
+    "explicit CEILING_REACHED_ESCALATE terminal state"
+  ],
+  "remaining_open_gaps": [
+    {
+      "id": "GAP-AUTHORITATIVE-IDEMPOTENCY-LINEARIZABILITY",
+      "maps_to": ["F009", "F010"],
+      "reason": "Current replay/state-version controls do not establish transactional deduplication or authoritative linearization of concurrent duplicate intents/events."
+    },
+    {
+      "id": "GAP-EVIDENCE-IMMUTABILITY-LINKAGE",
+      "maps_to": ["F007"],
+      "reason": "Evidence admissibility and lineage are covered, but append-only tamper-evident linkage/hash-chain semantics are not yet independently falsified end to end."
+    },
+    {
+      "id": "GAP-REVIEW-PERFORMANCE-LIFECYCLE",
+      "maps_to": ["F005"],
+      "reason": "External performance evidence is now required, but reversible/versioned demotion and explicit risk-tier scoping should still be falsified."
+    },
+    {
+      "id": "GAP-WORKFLOW-COMPILE-COVERAGE",
+      "maps_to": [],
+      "reason": "Explicit py_compile still names only a subset of governance modules; unittest discovery imports them, but CI should compile all governance Python files explicitly or recursively."
+    }
+  ],
+  "next_priority": "GAP-AUTHORITATIVE-IDEMPOTENCY-LINEARIZABILITY",
+  "scientific_interpretation": "EXP-F now has exact-head deterministic evidence for authority boundaries, qualification identity including SKU/deployment path, independent reviewer lineage, externally adjudicated reviewer performance, semantic invariant contradiction detection, TOCTOU binding, evidence admissibility, and failover substitution. Full PASS remains withheld until authoritative idempotency/linearizability, evidence immutability linkage, reviewer performance lifecycle, and CI compile hardening are closed and revalidated."
+}
