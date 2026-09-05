@@ -16,6 +16,7 @@ from review_engine.models import ReviewerConfig
 from review_engine.qualification import QualificationRecord
 from review_engine.qualified_claim_coverage import QualifiedRetainedClaimCoverageRegistry
 from review_engine.sqlite_extraction_work import SQLiteExtractionWorkRegistry
+from review_engine.sqlite_work_bound_claim_coverage import SQLiteWorkOrderBoundClaimCoverageRegistry
 from review_engine.work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
 
 
@@ -113,7 +114,22 @@ class ExtractorQualificationAppTests(unittest.TestCase):
                     claim_coverage_validator=WorkOrderBoundClaimCoverageRegistry(work),
                 )
 
-    def test_governed_app_accepts_durable_work_order_bound_qualified_coverage(self):
+    def test_governed_app_rejects_durable_work_with_in_memory_inventory_view(self):
+        with tempfile.TemporaryDirectory() as td:
+            work = SQLiteExtractionWorkRegistry(
+                Path(td) / "extraction_work.db",
+                extractor_qualifications(),
+            )
+            with self.assertRaisesRegex(ValueError, "durable retained claim coverage inventory state"):
+                ReviewEngineApp(
+                    governed_configuration(),
+                    memory_db=str(Path(td) / "memory.db"),
+                    sessions_db=str(Path(td) / "sessions.db"),
+                    provider_registry=FakeProviders(),
+                    claim_coverage_validator=WorkOrderBoundClaimCoverageRegistry(work),
+                )
+
+    def test_governed_app_accepts_durable_atomic_work_order_bound_coverage(self):
         with tempfile.TemporaryDirectory() as td:
             work = SQLiteExtractionWorkRegistry(
                 Path(td) / "extraction_work.db",
@@ -124,7 +140,7 @@ class ExtractorQualificationAppTests(unittest.TestCase):
                 memory_db=str(Path(td) / "memory.db"),
                 sessions_db=str(Path(td) / "sessions.db"),
                 provider_registry=FakeProviders(),
-                claim_coverage_validator=WorkOrderBoundClaimCoverageRegistry(work),
+                claim_coverage_validator=SQLiteWorkOrderBoundClaimCoverageRegistry(work),
             )
             health = app.health()
             self.assertEqual(health["assurance_mode"], "GOVERNED")
@@ -132,6 +148,8 @@ class ExtractorQualificationAppTests(unittest.TestCase):
             self.assertTrue(health["claim_coverage_qualified_admission"])
             self.assertTrue(health["claim_coverage_trusted_scope_binding"])
             self.assertTrue(health["claim_coverage_durable_replay_protection"])
+            self.assertTrue(health["claim_coverage_durable_inventory_state"])
+            self.assertTrue(health["claim_coverage_atomic_inventory_admission"])
 
 
 if __name__ == "__main__":
