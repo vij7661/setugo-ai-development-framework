@@ -45,6 +45,7 @@ from .evidence_verifier_qualification import (
     EvidenceVerifierQualificationRegistry,
 )
 from .qualified_evidence_correspondence import QualifiedRetainedEvidenceCorrespondenceRegistry
+from .sqlite_evidence_correspondence import SQLiteQualifiedEvidenceCorrespondenceRegistry
 from .truth_contract import (
     TVC_VERSION,
     TruthContractResult,
@@ -104,6 +105,7 @@ __all__ = [
     "ReviewRequest",
     "SQLiteExtractionWorkRegistry",
     "SQLiteMemoryStore",
+    "SQLiteQualifiedEvidenceCorrespondenceRegistry",
     "TVC_VERSION",
     "TruthContractResult",
     "VersionedMemoryStore",
