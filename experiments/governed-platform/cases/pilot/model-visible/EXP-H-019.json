@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-019",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:retry-count-note",
+  "authoritative_intent_ref": "inline:retry-semantics-contract",
+  "invariant_refs": ["INV-H-LOW-019"],
+  "model_visible": {
+    "contract": "The internal policy allows the original attempt plus at most 3 retries, for at most 4 total attempts.",
+    "artifact": "note='At most 3 total attempts are allowed.'",
+    "context": "Read-only internal documentation review; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-019.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "retry-semantics"]
+}
