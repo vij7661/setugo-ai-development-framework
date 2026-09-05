@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-F",
+  "slice": "EXTERNAL_REVIEW_REMEDIATION",
+  "review_source": "Independent Claude falsification review supplied by user",
+  "tested_sha": "f41dcc29899a640b7852dd78a27e210677d17756",
+  "workflow_run_id": 33956452720,
+  "workflow_job_id": 101280557344,
+  "result": "HARNESS_REMEDIATION_PASS_WITH_EXPLICIT_INTEGRATION_BOUNDARIES",
+  "exact_head_evidence": {
+    "workflow_conclusion": "success",
+    "governance_tests": 168,
+    "runner_tests": 31,
+    "recursive_python_compile": true
+  },
+  "accepted_findings_and_actions": [
+    {
+      "finding": "Runtime provider/model identity cannot rely on response metadata",
+      "action": "Added out-of-band runtime identity attestation bound to provider/model/SKU/deployment_path/qualification lineage; provider self-attestation is rejected; response model label is diagnostic only; router revalidates qualification and attestation after the remote call.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    },
+    {
+      "finding": "Semantic invariant omission class",
+      "action": "Added external task-policy required-invariant catalog and fail-closed contract completeness validation; model-visible contract cannot define its own required catalog.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    },
+    {
+      "finding": "No composite/chained attacks",
+      "action": "Added initial composite attack suite combining qualification drift, duplicate retry, capability revocation, artifact drift, policy drift, and qualification revocation, plus a valid-composition control.",
+      "status": "PARTIALLY_REMEDIATED_INITIAL_COMPOSITE_SLICE"
+    },
+    {
+      "finding": "Reviewer independence may share the same foundation model through different paths",
+      "action": "Reviewer independence now requires foundation_lineage diversity; same foundation via different providers/routes is correlated and cannot count as independent.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    },
+    {
+      "finding": "Truncated reviewer output can appear complete",
+      "action": "OpenAI-compatible evidence now requires terminal finish_reason=stop; length-truncated or missing-terminal completions are rejected even if syntactically valid.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    },
+    {
+      "finding": "Reviewer performance easy-case padding",
+      "action": "Performance eligibility now requires pre-registered minimum sample count and difficulty-band coverage in addition to independent adjudication, role/task/risk scope, epoch, and false-positive threshold.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    },
+    {
+      "finding": "Artifact/capability scope and TOCTOU drift",
+      "action": "Fixed policy binding so authority artifact hash must match both current artifact and request artifact; stale requests cannot preserve authority after current artifact mutation.",
+      "status": "CODE_DEFECT_FIXED_AND_REGRESSION_COVERED"
+    },
+    {
+      "finding": "Mid-flight revocation window",
+      "action": "Provider router re-reads qualification and identity attestation after the remote call and discards the result if authority changed while execution was in flight.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    },
+    {
+      "finding": "EXP-D lacked clean specificity controls",
+      "action": "Added matched clean controls for legitimate current-SHA transition, cleared gate, single event consumption, and authorized COMPLETE.",
+      "status": "REMEDIATED_AT_HARNESS_LEVEL"
+    }
+  ],
+  "failure_and_repair_record": {
+    "pre_repair_run_id": 33956411988,
+    "pre_repair_result": "failure",
+    "classification": "TEST DEFECT",
+    "reason": "Clean-control test expected orchestrator:unique-event while governor canonical event key is orchestrator::unique-event.",
+    "production_logic_changed_for_failure": false,
+    "repaired_head": "f41dcc29899a640b7852dd78a27e210677d17756",
+    "repaired_run_id": 33956452720,
+    "repaired_result": "success"
+  },
+  "open_boundaries": [
+    "Hash-linked evidence is tamper-evident but not externally immutable against privileged rewrite from genesis; production requires independent/WORM anchoring or notarization.",
+    "SQLite concurrency proof does not establish multi-node consensus, partition tolerance, leader failover, or distributed durability semantics.",
+    "Out-of-band identity attestation is now a required control contract, but production must obtain trustworthy independently verified or cryptographic provider/deployment identity evidence rather than fabricate attestations.",
+    "Composite attack coverage is an initial explicit suite, not exhaustive pairwise/triple, property-based, mutation, or fuzz testing.",
+    "Additional generalized fixture-contamination cases remain useful to test that EXP-C C001 lessons generalize beyond the original fixture.",
+    "No result in this adjudication authorizes merging PR #1 or production release."
+  ],
+  "scientific_interpretation": "The external falsification review identified multiple real weaknesses, including one concrete artifact-binding code defect. Those accepted harness-level findings were remediated and the exact repaired head passed the expanded suite. The appropriate claim is therefore a harness-level pass after external-review remediation, not production correctness. External evidence anchoring, distributed datastore correctness, and deeper compositional/fuzz validation remain separate obligations."
+}
