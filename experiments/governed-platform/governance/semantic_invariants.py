@@ -19,11 +19,7 @@ def _stable_hash(value: object) -> str:
 
 
 def extract_structured_invariants(contract: dict) -> dict:
-    """Validate and freeze policy-owned semantic invariants.
-
-    Each invariant must carry a canonical predicate. Ambiguous or incomplete
-    semantic policy fails closed rather than being inferred from prose.
-    """
+    """Validate and freeze policy-owned semantic invariants."""
     values = contract.get("semantic_invariants")
     if not isinstance(values, list) or not values:
         raise ValueError("semantic_invariants must be a non-empty explicit list")
@@ -81,6 +77,44 @@ def extract_structured_invariants(contract: dict) -> dict:
     return {"invariants": normalized, "invariant_hash": _stable_hash(normalized)}
 
 
+def validate_invariant_completeness(task_policy: dict, contract: dict) -> dict:
+    """Require the contract to contain every invariant mandated by external policy.
+
+    The required set belongs to the task-policy layer, not to model-visible prose.
+    This closes the omission class where a contract simply drops a known-required
+    invariant and therefore creates no contradiction to detect.
+    """
+    if not isinstance(task_policy, dict):
+        return {"complete": False, "reason": "task-policy-malformed"}
+    required = task_policy.get("required_invariant_ids")
+    task_class = task_policy.get("task_class")
+    policy_ref = task_policy.get("policy_ref")
+    if not isinstance(required, list) or not required or not all(isinstance(x, str) and x for x in required):
+        return {"complete": False, "reason": "required-invariant-catalog-missing"}
+    if not isinstance(task_class, str) or not task_class or not isinstance(policy_ref, str) or not policy_ref:
+        return {"complete": False, "reason": "task-policy-binding-missing"}
+
+    frozen = extract_structured_invariants(contract)
+    present = {item["id"] for item in frozen["invariants"]}
+    missing = [item for item in required if item not in present]
+    if missing:
+        return {
+            "complete": False,
+            "reason": "required semantic invariants omitted",
+            "missing_invariant_ids": missing,
+            "task_class": task_class,
+            "policy_ref": policy_ref,
+            "invariant_hash": frozen["invariant_hash"],
+        }
+    return {
+        "complete": True,
+        "reason": "policy-required invariant catalog satisfied",
+        "task_class": task_class,
+        "policy_ref": policy_ref,
+        "invariant_hash": frozen["invariant_hash"],
+    }
+
+
 def semantic_compatibility_gate(contract: dict, candidate: dict) -> dict:
     """Compare candidate semantic claims to canonical predicates, not wording."""
     frozen = extract_structured_invariants(contract)
@@ -126,32 +160,22 @@ def semantic_compatibility_gate(contract: dict, candidate: dict) -> dict:
             missing.append(invariant["id"])
 
     if contradictions:
-        return {
-            "compatible": False,
-            "reason": "semantic contradiction detected",
-            "contradictions": contradictions,
-            "missing_invariants": missing,
-            "invariant_hash": frozen["invariant_hash"],
-        }
+        return {"compatible": False, "reason": "semantic contradiction detected", "contradictions": contradictions, "missing_invariants": missing, "invariant_hash": frozen["invariant_hash"]}
     if missing:
-        return {
-            "compatible": False,
-            "reason": "semantic invariants not demonstrated",
-            "missing_invariants": missing,
-            "invariant_hash": frozen["invariant_hash"],
-        }
-    return {
-        "compatible": True,
-        "reason": "all canonical semantic predicates preserved",
-        "invariant_hash": frozen["invariant_hash"],
-        "invariant_ids": [x["id"] for x in frozen["invariants"]],
-    }
+        return {"compatible": False, "reason": "semantic invariants not demonstrated", "missing_invariants": missing, "invariant_hash": frozen["invariant_hash"]}
+    return {"compatible": True, "reason": "all canonical semantic predicates preserved", "invariant_hash": frozen["invariant_hash"], "invariant_ids": [x["id"] for x in frozen["invariants"]]}
 
 
-def authorize_semantic_routing(contract: dict, candidate: dict) -> dict:
+def authorize_semantic_routing(contract: dict, candidate: dict, task_policy: dict | None = None) -> dict:
+    if task_policy is None:
+        return {"authorized": False, "reason": "external invariant completeness policy required"}
+    completeness = validate_invariant_completeness(task_policy, contract)
+    if not completeness["complete"]:
+        return {"authorized": False, "reason": completeness["reason"], "completeness": completeness}
     gate = semantic_compatibility_gate(contract, candidate)
     return {
         "authorized": bool(gate["compatible"]),
         "reason": "policy-layer semantic invariant gate passed" if gate["compatible"] else gate["reason"],
         "gate": gate,
+        "completeness": completeness,
     }
