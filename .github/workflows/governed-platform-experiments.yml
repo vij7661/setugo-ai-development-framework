@@ -59,7 +59,7 @@ jobs:
         run: python -m unittest -v test_score_pilot.py
       - name: Run runner regressions
         working-directory: experiments/governed-platform/runner
-        run: python -m unittest -v test_prepare_run.py test_review_contract.py test_adapters.py test_ollama_adapter.py test_openai_compatible.py test_provider_router.py
+        run: python -m unittest -v test_prepare_run.py test_review_contract.py test_adapters.py test_ollama_adapter.py test_openai_compatible.py test_provider_router.py test_build_exp_l_semantic_bundle.py
       - name: Run protected-truth regressions
         working-directory: experiments/governed-platform/ground-truth
         run: python -m unittest -v test_freeze_truth.py
