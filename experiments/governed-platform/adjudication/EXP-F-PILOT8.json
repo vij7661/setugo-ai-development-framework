@@ -1,0 +1,21 @@
+{
+  "experiment_id": "EXP-F-PILOT8",
+  "scope": "provider failover substitution falsification",
+  "tested_sha": "307c8324c2fa1c6f42bc8b8261ca2d62f071cf97",
+  "workflow_run_id": 33954309579,
+  "conclusion": "PASS",
+  "governance_tests": 93,
+  "cases": [
+    "current_exact_qualified_failover_is_allowed",
+    "missing_sku_fails_closed",
+    "model_substitution_is_denied",
+    "policy_binding_change_is_denied",
+    "privacy_class_downgrade_is_denied",
+    "provider_substitution_is_denied",
+    "role_substitution_is_denied",
+    "sku_substitution_is_denied",
+    "task_class_substitution_is_denied",
+    "unqualified_candidate_is_denied"
+  ],
+  "notes": "Exact-head CI passed all provider failover substitution cases. Failover availability is not treated as failover eligibility. The replacement path must remain exactly qualified across provider, model, SKU, role, task class, privacy class, policy binding, and qualification lineage. This is an append-only slice record and does not by itself prove full EXP-F completion."
+}
