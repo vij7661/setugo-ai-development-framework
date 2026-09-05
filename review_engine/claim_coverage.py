@@ -163,9 +163,19 @@ class ClaimCoverageAssessment:
         self.validate()
         return asdict(self)
 
+    def _finding_evidence_refs(self) -> tuple[str, ...]:
+        """Stable trace handles retained with stage-level coverage findings."""
+        return tuple(
+            [f"coverage-inventory:{value}" for value in self.inventory_ids]
+            + [f"coverage-extractor:{value}" for value in self.extractor_ids]
+            + [f"coverage-provenance:{value}" for value in self.provenance]
+            + [f"coverage-warning:{value}" for value in self.correlation_warnings]
+        )
+
     def findings(self, reviewer_role: str) -> tuple[ReviewFinding, ...]:
         self.validate()
         findings: list[ReviewFinding] = []
+        evidence_refs = self._finding_evidence_refs()
         if self.status == "UNVERIFIED":
             findings.append(
                 ReviewFinding(
@@ -175,6 +185,7 @@ class ClaimCoverageAssessment:
                     material=True,
                     summary="Independent claim coverage is unavailable for the exact artifact/reviewer lineage.",
                     violated_invariant="TVC-COVERAGE",
+                    evidence_refs=evidence_refs,
                     affected_scope=("artifact:claim-coverage",),
                 )
             )
@@ -187,6 +198,7 @@ class ClaimCoverageAssessment:
                     material=True,
                     summary="Independent claim coverage inventories conflict on a material truth-bearer.",
                     violated_invariant="TVC-COVERAGE",
+                    evidence_refs=evidence_refs,
                     affected_scope=("artifact:claim-coverage",),
                 )
             )
@@ -200,6 +212,7 @@ class ClaimCoverageAssessment:
                     material=True,
                     summary=f"Material claim omitted from reviewer epistemic inventory: {text}",
                     violated_invariant="TVC-COVERAGE",
+                    evidence_refs=evidence_refs,
                     affected_scope=(f"claim-fingerprint:{fingerprint}",),
                     first_invalid_claim=text,
                 )
@@ -217,6 +230,7 @@ class ClaimCoverageAssessment:
                         f"expected {expected_type}, reviewer declared {declared_type}: {text}"
                     ),
                     violated_invariant="TVC-COVERAGE",
+                    evidence_refs=evidence_refs,
                     affected_scope=(f"claim-fingerprint:{fingerprint}",),
                     first_invalid_claim=text,
                 )
