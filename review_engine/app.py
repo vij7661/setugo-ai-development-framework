@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from typing import Iterable
+from uuid import uuid4
 
 from .claim_coverage import ClaimCoverageValidator
 from .claim_coverage_guard import ClaimCoverageGuardedInvoker
@@ -165,15 +166,26 @@ class ReviewEngineApp:
             "r3": self.configuration.reviewer("R3"),
             "memory": self.memory,
         }
-        if self.claim_coverage_guard is None:
-            decision = self.engine.run(request, **run_kwargs)
-        else:
-            task_type = str(request.platform_facts.get("task_type", "GENERAL"))
-            with self.claim_coverage_guard.assessment_scope(
-                risk=request.risk,
-                task_type=task_type,
-            ):
-                decision = self.engine.run(request, **run_kwargs)
+        attempt_id = "review-attempt:" + uuid4().hex
+        try:
+            with self.sessions.execution_attempt(attempt_id):
+                if self.claim_coverage_guard is None:
+                    decision = self.engine.run(request, **run_kwargs)
+                else:
+                    task_type = str(request.platform_facts.get("task_type", "GENERAL"))
+                    with self.claim_coverage_guard.assessment_scope(
+                        risk=request.risk,
+                        task_type=task_type,
+                    ):
+                        decision = self.engine.run(request, **run_kwargs)
+        except Exception as execution_error:
+            try:
+                self.sessions.abort_if_owned(request.request_id, attempt_id)
+            except Exception as evidence_error:
+                raise RuntimeError(
+                    "review execution failed and terminal failure evidence could not be retained"
+                ) from execution_error
+            raise
 
         result = asdict(decision)
         durable_replay = self._coverage_durable_replay_protection()
@@ -185,6 +197,12 @@ class ReviewEngineApp:
                 "action_authorized": False,
                 "human_action_approval_required": bool(request.platform_facts.get("human_approval_required")),
                 "session_chain_valid": self.sessions.validate_chain(request.request_id),
+                "session_terminal_abort_evidence": bool(
+                    getattr(self.sessions, "terminal_abort_evidence_enforced", False)
+                ),
+                "session_owned_execution_attempt": bool(
+                    getattr(self.sessions, "owned_execution_attempt_enforced", False)
+                ),
                 "truth_contract_version": TVC_VERSION,
                 "evidence_correspondence_validator_configured": self.evidence_validator is not None,
                 "evidence_correspondence_qualified_verifier": self._evidence_qualified_verifier(),
@@ -249,6 +267,12 @@ class ReviewEngineApp:
             "memory_backend": "sqlite-single-node",
             "evidence_backend": "sqlite-hash-linked-single-node",
             "action_execution_enabled": False,
+            "session_terminal_abort_evidence": bool(
+                getattr(self.sessions, "terminal_abort_evidence_enforced", False)
+            ),
+            "session_owned_execution_attempt": bool(
+                getattr(self.sessions, "owned_execution_attempt_enforced", False)
+            ),
             "truth_contract_version": TVC_VERSION,
             "evidence_correspondence_validator": "CONFIGURED" if self.evidence_validator is not None else "UNCONFIGURED",
             "evidence_correspondence_qualified_verifier": self._evidence_qualified_verifier(),
