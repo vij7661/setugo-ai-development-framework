@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-021",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:basis-points-note",
+  "authoritative_intent_ref": "inline:basis-points-contract",
+  "invariant_refs": ["INV-H-LOW-021"],
+  "model_visible": {
+    "contract": "100 basis points equals 1 percentage point, so 125 basis points equals 1.25%.",
+    "artifact": "note='125 basis points equals 12.5%.'",
+    "context": "Read-only internal explanatory note; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-021.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "unit-conversion", "basis-points"]
+}
