@@ -1,0 +1,24 @@
+{
+  "experiment_id": "EXP-F",
+  "pilot_id": "PILOT12",
+  "scope": "AUTHORITATIVE_IDEMPOTENCY_AND_DETERMINISTIC_LINEARIZATION",
+  "execution_sha": "0a0feb618ea4025cbf8616e9912a145d739b5f87",
+  "workflow_run_id": 33955129716,
+  "governance_test_count": 125,
+  "case_count": 10,
+  "result": "DIRECTIONAL_SUCCESS_DETERMINISTIC_LAYER",
+  "covered": [
+    "intent-level idempotency key uniqueness scoped by actor",
+    "same-key same-intent retry cannot append twice",
+    "same-key different-intent reuse is rejected",
+    "concurrent duplicate loser cannot linearize",
+    "stale competing writer loses optimistic state-version race",
+    "single authoritative event id retained for winning intent"
+  ],
+  "limitations": [
+    "This is a deterministic policy/transaction contract test, not a proof of a real database unique constraint under distributed concurrency.",
+    "Atomic persistence of intent ledger, authoritative event append, and state version mutation remains an external database/infrastructure requirement.",
+    "Distributed linearizability across replicas, retries, failover, and network partitions remains open until exercised against a real transactional store."
+  ],
+  "scientific_interpretation": "The deterministic F009/F010 idempotency and linearization guard rejected every injected duplicate/race false-green in this slice. Mark deterministic-layer coverage PASS only; do not claim distributed/database linearizability proven."
+}
