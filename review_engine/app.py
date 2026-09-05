@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from typing import Iterable
 
 from .configuration import ReviewEngineConfiguration, build_provider_registry, build_qualification_registry
+from .judge_health import JudgeHealthMonitor, JudgeObservation
 from .orchestrator import ReviewEngine
 from .request_boundary import PlatformExecutionEnvelope, build_request
 from .session_store import SQLiteSessionStore
 from .sqlite_memory import SQLiteMemoryStore
+from .truth_contract import TVC_VERSION
 
 
 class ReviewEngineApp:
@@ -54,9 +57,30 @@ class ReviewEngineApp:
                 "action_authorized": False,
                 "human_action_approval_required": bool(request.platform_facts.get("human_approval_required")),
                 "session_chain_valid": self.sessions.validate_chain(request.request_id),
+                "truth_contract_version": TVC_VERSION,
             }
         )
         return result
+
+    def judge_health(
+        self,
+        observations: Iterable[JudgeObservation],
+        *,
+        minimum_accuracy_target: float,
+        minimum_shared_tasks: int = 20,
+    ) -> dict:
+        """Evaluate platform-retained judge telemetry without claiming correctness.
+
+        This method intentionally has no public HTTP endpoint in the MVP. A
+        future authenticated evaluation/telemetry pipeline should provide the
+        observations so arbitrary callers cannot manufacture qualification
+        health evidence.
+        """
+        monitor = JudgeHealthMonitor(
+            minimum_accuracy_target=minimum_accuracy_target,
+            minimum_shared_tasks=minimum_shared_tasks,
+        )
+        return asdict(monitor.evaluate(observations))
 
     def health(self) -> dict:
         reviewers = {}
@@ -78,6 +102,8 @@ class ReviewEngineApp:
             "memory_backend": "sqlite-single-node",
             "evidence_backend": "sqlite-hash-linked-single-node",
             "action_execution_enabled": False,
+            "truth_contract_version": TVC_VERSION,
+            "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
                 "operation_class": self.execution_envelope.operation_class,
                 "connected_tool_capabilities": list(self.execution_envelope.connected_tool_capabilities),
