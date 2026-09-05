@@ -6,7 +6,7 @@ This directory is deliberately an experiment harness, not a production implement
 
 ## Central hypothesis
 
-A governed development workflow using complementary verification, intent/invariant traceability, evidence-aware diagnosis, scoped corrective authority, protected acceptance evidence, and independently qualified cross-model critique can reduce false-green and wrong-artifact correction outcomes relative to an unguided `fix it` workflow at acceptable cost and latency.
+A governed development workflow using complementary verification, intent/invariant traceability, evidence-aware diagnosis, scoped corrective authority, protected acceptance evidence, independently qualified cross-model critique, conditional review escalation, governed convergence, typed shared memory, and cost-aware review can reduce false-green and wrong-artifact correction outcomes relative to an unguided `fix it` workflow at acceptable cost and latency.
 
 ## Experiments
 
@@ -19,6 +19,10 @@ A governed development workflow using complementary verification, intent/invaria
 | EXP-E | Accepted-Baseline Change/Revalidation | Are contradictions, invariant impacts, downstream invalidation, and lifecycle re-entry handled correctly? |
 | EXP-F | Governance/Orchestrator Falsification | Can bugs or attacks against the governor itself manufacture PASS/COMPLETE or unauthorized effects? |
 | EXP-G | Cross-Model Adversarial Review | Does a qualified independent LLM reviewing another LLM's frozen artifact find additional true defects and reduce false-green outcomes without creating unacceptable false positives or authority leakage? |
+| EXP-H | Review Decision Engine | Can the platform decide when Reviewer 1 may finalize, when Reviewer 2 or Reviewer 3 is warranted, and when human escalation is required? |
+| EXP-I | Three-Reviewer Convergence | Can R1/R2/R3 reach a governed terminal decision without majority voting, forced agreement, or endless review loops? |
+| EXP-J | Shared Memory and Reviewer Contamination | What context can be shared across reviewers without leaking protected truth or contaminating independent review? |
+| EXP-K | Conditional Review Cost and Token Efficiency | Can conditional review preserve protected quality while reducing unnecessary calls, tokens, cost and latency? |
 
 ## Experiment discipline
 
@@ -32,6 +36,16 @@ A governed development workflow using complementary verification, intent/invaria
 8. A failed experiment reopens only the mechanism(s) implicated by evidence; it does not automatically invalidate unrelated architecture.
 9. Cross-model agreement is evidence only; it never creates authority by itself.
 10. Cross-model review must preserve blinding: reviewers may receive frozen artifacts and authorized requirements, but not protected ground truth or another model's hidden/private reasoning.
+11. Review escalation, convergence, memory visibility and review-budget policy are platform-owned controls; model recommendations cannot silently weaken them.
+12. Shared memory is internally typed and provenance-bound. A unified user experience must not imply unrestricted cross-model visibility.
+
+## Product-directed review sequence under test
+
+The current experiments are converging on this product pattern:
+
+**User → Reviewer 1 / Interpreter → Review Decision Engine → optional Reviewer 2 → Reviewer 1 revision/integration → optional Reviewer 3 → Convergence Engine → Reviewer 1 final presentation / Human gate when required.**
+
+Reviewer 1 may be any user-selected qualified model. Reviewer 2 and Reviewer 3 may also be user-selected models, but the platform controls whether review is required, what context each reviewer can see, whether reviewer independence is sufficient, and whether a terminal state is allowed.
 
 ## Minimum harness layout
 
@@ -41,11 +55,15 @@ A governed development workflow using complementary verification, intent/invaria
 - `results/` — generated run results; do not treat committed examples as authoritative experimental results.
 - `runner/` — provider/tool adapters and execution logic.
 - `score/` — deterministic scoring and analysis.
-- `governance/` — deterministic policy-layer guards, falsification tests, and cross-model review protocol validation.
+- `governance/` — deterministic policy-layer guards, falsification tests, review decision, convergence, memory and efficiency policy validation.
 
-## Initial execution order
+## Execution order
 
-Start with **EXP-A, EXP-B, and EXP-C** because they can be tested without building the full orchestration platform. EXP-E follows once a minimal semantic/invariant graph exists. EXP-D and EXP-F require a minimal governor/orchestrator implementation. EXP-G follows once at least two qualified, lineage-independent model routes are available and protected scoring/adjudication can evaluate cross-model marginal value.
+The foundational experiments EXP-A through EXP-G establish verification, semantic intent, scoped authority, governance falsification and cross-model critique. Product-directed experiments then proceed:
+
+**EXP-H Review Decision Engine → EXP-I Convergence → EXP-J Shared Memory/Contamination → EXP-K Cost/Token Efficiency → freeze pilot findings → design MVP backend.**
+
+Scientific claims still require controlled executions and protected scoring. Deterministic guard tests establish harness behavior only; they do not make EXP-H through EXP-K scientific PASS results by themselves.
 
 ## Freeze rule
 
