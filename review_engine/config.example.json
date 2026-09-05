@@ -1,0 +1,54 @@
+{
+  "providers": {
+    "primary-provider": {
+      "adapter": "openai_compatible",
+      "base_url": "https://provider.example/v1",
+      "timeout_seconds": 120,
+      "max_attempts": 3,
+      "temperature": 0.0
+    },
+    "review-provider": {
+      "adapter": "openai_compatible",
+      "base_url": "https://second-provider.example/v1",
+      "timeout_seconds": 120,
+      "max_attempts": 3,
+      "temperature": 0.0
+    },
+    "adjudicator-provider": {
+      "adapter": "openai_compatible",
+      "base_url": "https://third-provider.example/v1",
+      "timeout_seconds": 120,
+      "max_attempts": 3,
+      "temperature": 0.0
+    }
+  },
+  "reviewers": {
+    "R1": {
+      "provider": "primary-provider",
+      "model": "user-selected-primary-model",
+      "sku": "default",
+      "deployment_path": "api",
+      "api_key_env": "R1_API_KEY",
+      "foundation_lineage": "primary-lineage",
+      "qualification_ref": "qualification-record-id"
+    },
+    "R2": {
+      "provider": "review-provider",
+      "model": "user-selected-reviewer-model",
+      "sku": "default",
+      "deployment_path": "api",
+      "api_key_env": "R2_API_KEY",
+      "foundation_lineage": "independent-lineage-2",
+      "qualification_ref": "qualification-record-id"
+    },
+    "R3": {
+      "provider": "adjudicator-provider",
+      "model": "user-selected-third-model",
+      "sku": "default",
+      "deployment_path": "api",
+      "api_key_env": "R3_API_KEY",
+      "foundation_lineage": "independent-lineage-3",
+      "qualification_ref": "qualification-record-id"
+    }
+  }
+}
