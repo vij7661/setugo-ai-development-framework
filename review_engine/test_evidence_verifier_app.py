@@ -12,6 +12,7 @@ from review_engine.evidence_correspondence import (
     RetainedEvidenceCorrespondenceRegistry,
     claim_fingerprint,
 )
+from review_engine.evidence_snapshot import EvidenceSnapshot, SQLiteEvidenceSnapshotRegistry
 from review_engine.evidence_verifier_qualification import (
     EvidenceVerifierQualificationRecord,
     EvidenceVerifierQualificationRegistry,
@@ -26,6 +27,8 @@ from review_engine.sqlite_evidence_correspondence import SQLiteQualifiedEvidence
 ARTIFACT = "Revenue increased 40%."
 CLAIM = ARTIFACT
 EVIDENCE_REF = "report:2026-q3"
+EVIDENCE_CONTENT = "retained evidence snapshot"
+EVIDENCE_HASH = content_hash(EVIDENCE_CONTENT)
 
 
 def reviewer() -> ReviewerConfig:
@@ -92,6 +95,16 @@ def verifier_qualifications(*, max_risk: str = "LOW") -> EvidenceVerifierQualifi
     ))
 
 
+def retained_snapshot() -> EvidenceSnapshot:
+    return EvidenceSnapshot(
+        snapshot_id="snapshot-1",
+        evidence_ref=EVIDENCE_REF,
+        evidence_content_hash=EVIDENCE_HASH,
+        source_locator="connector://retained/report/2026-q3",
+        acquisition_provenance="trusted-source-ingestion-test",
+    )
+
+
 def support_attestation() -> EvidenceCorrespondenceAttestation:
     identity = verifier_identity()
     return EvidenceCorrespondenceAttestation(
@@ -99,13 +112,19 @@ def support_attestation() -> EvidenceCorrespondenceAttestation:
         artifact_hash=content_hash(ARTIFACT),
         claim_fingerprint=claim_fingerprint(CLAIM),
         evidence_ref=EVIDENCE_REF,
-        evidence_content_hash=content_hash("retained evidence snapshot"),
+        evidence_content_hash=EVIDENCE_HASH,
         verdict="SUPPORTS",
         verifier_id=identity.verifier_id,
         provenance="qualified-verifier-app-test",
         qualification_ref=identity.qualification_ref,
         verifier_identity=identity,
     )
+
+
+def snapshot_registry(td: str) -> SQLiteEvidenceSnapshotRegistry:
+    registry = SQLiteEvidenceSnapshotRegistry(Path(td) / "snapshots.db")
+    registry.add(retained_snapshot())
+    return registry
 
 
 class FakeProviders:
@@ -166,11 +185,30 @@ class EvidenceVerifierApplicationTests(unittest.TestCase):
                     evidence_validator=validator,
                 )
 
-    def test_governed_app_accepts_durable_qualified_correspondence_registry(self):
+    def test_governed_app_rejects_durable_correspondence_without_snapshot_binding(self):
         with tempfile.TemporaryDirectory() as td:
             validator = SQLiteQualifiedEvidenceCorrespondenceRegistry(
                 Path(td) / "correspondence.db",
                 verifier_qualifications(max_risk="HIGH"),
+            )
+            validator.add(support_attestation())
+            with self.assertRaisesRegex(ValueError, "retained evidence snapshots"):
+                ReviewEngineApp(
+                    governed_configuration(),
+                    memory_db=str(Path(td) / "memory.db"),
+                    sessions_db=str(Path(td) / "sessions.db"),
+                    provider_registry=FakeProviders(),
+                    execution_envelope=PlatformExecutionEnvelope(task_type="RESEARCH"),
+                    evidence_validator=validator,
+                )
+
+    def test_governed_app_accepts_durable_snapshot_bound_qualified_correspondence_registry(self):
+        with tempfile.TemporaryDirectory() as td:
+            snapshots = snapshot_registry(td)
+            validator = SQLiteQualifiedEvidenceCorrespondenceRegistry(
+                Path(td) / "correspondence.db",
+                verifier_qualifications(max_risk="HIGH"),
+                snapshot_registry=snapshots,
             )
             validator.add(support_attestation())
             app = ReviewEngineApp(
@@ -185,15 +223,19 @@ class EvidenceVerifierApplicationTests(unittest.TestCase):
             self.assertEqual(health["assurance_mode"], "GOVERNED")
             self.assertTrue(health["evidence_correspondence_qualified_verifier"])
             self.assertTrue(health["evidence_correspondence_durable_attestation_state"])
+            self.assertTrue(health["evidence_correspondence_retained_snapshot_binding"])
+            self.assertTrue(health["evidence_correspondence_durable_snapshot_state"])
 
-    def test_actual_review_risk_is_used_for_durable_verifier_qualification(self):
+    def test_actual_review_risk_is_used_for_snapshot_bound_verifier_qualification(self):
         # The attestation is valid for LOW risk only. If the orchestrator silently
         # used the validator's default LOW scope, this would false-green as
         # VERIFIED_SUPPORT. The HIGH request must make it UNVERIFIED instead.
         with tempfile.TemporaryDirectory() as td:
+            snapshots = snapshot_registry(td)
             validator = SQLiteQualifiedEvidenceCorrespondenceRegistry(
                 Path(td) / "correspondence.db",
                 verifier_qualifications(max_risk="LOW"),
+                snapshot_registry=snapshots,
             )
             validator.add(support_attestation())
             app = ReviewEngineApp(
