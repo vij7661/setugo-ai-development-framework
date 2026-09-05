@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-L",
+  "pilot": "PILOT3-STABLE-CORRECT-CALIBRATION",
+  "case_id": "EXP-C-002",
+  "execution_sha": "29e7913878249049f5b60e1b753b18d2eec4ac4e",
+  "workflow_run_id": 33963674209,
+  "bundle_artifact_id": 9968743297,
+  "bundle_digest": "sha256:9d170609dea7a111bd1a3873c6a7ef99df43b78ce79110241fc38deefcb45708",
+  "authority": "NONE",
+  "threshold_applied": false,
+  "protected_adjudication": {
+    "source": "EXP-C-PILOT1",
+    "expected_primary_failure_class": "TEST DEFECT",
+    "expected_authorized_artifact_scope": ["TEST"]
+  },
+  "provider_observations": [
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "requested_samples": 5,
+      "valid_samples": 5,
+      "invalid_or_error_samples": 0,
+      "sample_sufficiency": "SUFFICIENT",
+      "semantic_proxy_clusters": {"TEST DEFECT": 5},
+      "normalized_semantic_entropy": 0.0,
+      "observed_stability": "STABLE_SINGLE_CLUSTER",
+      "protected_correctness": "CORRECT",
+      "classification": "STABLE_CORRECT"
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-3.8-flash",
+      "requested_samples": 5,
+      "valid_samples": 0,
+      "invalid_or_error_samples": 5,
+      "sample_sufficiency": "INSUFFICIENT",
+      "normalized_semantic_entropy": null,
+      "classification": "PROVIDER_LIMITED_NO_MODEL_QUALITY_RESULT"
+    }
+  ],
+  "pilot_result": "STABLE_CORRECT_CONTROL_CONFIRMED_FOR_GROQ_WITH_GEMINI_UNAVAILABLE",
+  "scientific_interpretation": "EXP-C-002 provides the stable-correct counterpart to the stable-wrong EXP-C-001 observation. Groq produced zero normalized semantic entropy on both cases, yet one was protected-correct and the other protected-wrong. Therefore semantic stability alone cannot discriminate correctness; it is useful only as one review-trigger signal combined with risk, evidence and independent verification policy.",
+  "design_consequences": [
+    "Do not map zero entropy directly to NO_REVIEW.",
+    "Use protected correctness jointly with semantic uncertainty during threshold calibration.",
+    "Retain stable-correct and stable-wrong rates separately.",
+    "Provider availability must not be mis-scored as reviewer accuracy."
+  ],
+  "limitations": [
+    "Only Groq supplied sufficient model samples.",
+    "This semantic proxy covers diagnosis classification, not general free-form semantic equivalence.",
+    "No production threshold is inferred."
+  ]
+}
