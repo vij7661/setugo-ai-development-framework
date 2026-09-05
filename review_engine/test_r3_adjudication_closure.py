@@ -146,6 +146,24 @@ class R3AdjudicationClosureTests(unittest.TestCase):
         self.assertEqual(payload["invalid_resolution_ids"], [])
         self.assertEqual(payload["unresolved_finding_ids"], [])
 
+    def test_phase_b_receives_exact_revised_artifact_not_hash_only(self):
+        def phase_b(context):
+            artifact = context["artifact"]
+            self.assertEqual(artifact["artifact_id"], "r3-closure-test:artifact")
+            self.assertEqual(artifact["version"], 2)
+            self.assertEqual(artifact["content"], "stable header\nfixed claim\nstable footer")
+            self.assertEqual(artifact["artifact_hash"], context["artifact_hash"])
+            self.assertTrue(context["instructions"]["artifact_content_is_exact_frozen_revision"])
+            return ReviewerResponse(
+                "R3",
+                artifact["artifact_hash"],
+                "resolved while viewing exact revised artifact",
+                resolved_finding_ids=("r3-a",),
+            )
+
+        decision, _, _ = self._run((self._phase_a(),), phase_b)
+        self.assertEqual(decision.state, "CONVERGED_PASS")
+
     def test_unknown_resolution_id_cannot_close_frozen_finding(self):
         def phase_b(context):
             return ReviewerResponse(
