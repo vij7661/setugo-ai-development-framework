@@ -48,7 +48,7 @@ def authorize_model_routing(contract: dict, candidate: dict) -> dict:
     return {"authorized": True, "reason": "policy-layer invariant gate passed", "gate": gate}
 
 
-def _performance_index(records: list[dict], role: str, task_class: str) -> dict[str, dict]:
+def _performance_index(records: list[dict], role: str, task_class: str, risk_tier: str) -> dict[str, dict]:
     """Build reviewer performance from independently adjudicated evidence only."""
     index: dict[str, dict] = {}
     for record in records:
@@ -56,7 +56,11 @@ def _performance_index(records: list[dict], role: str, task_class: str) -> dict[
         rate = record.get("false_positive_rate")
         if not reviewer or not record.get("independently_adjudicated", False):
             continue
-        if record.get("role") != role or record.get("task_class") != task_class:
+        if (
+            record.get("role") != role
+            or record.get("task_class") != task_class
+            or record.get("risk_tier") != risk_tier
+        ):
             continue
         if not isinstance(rate, (int, float)) or not 0 <= rate <= 1:
             continue
@@ -72,14 +76,17 @@ def evaluate_review_convergence(policy: dict, reviews: list[dict], performance_r
     """Apply review convergence using externally adjudicated reviewer performance.
 
     Reviewers cannot self-report the metric that determines their own eligibility.
-    Performance evidence is scoped to role/task class and must be independently
-    adjudicated, versioned by performance_epoch, and linked to evidence_ref.
+    Performance evidence is scoped to role/task class/risk tier and must be
+    independently adjudicated, versioned by performance_epoch, and linked to an
+    evidence_ref. A later independently adjudicated epoch can demote or restore a
+    reviewer, making reviewer status reversible without mutating prior evidence.
     """
     ceiling = policy.get("max_reviews")
     threshold = policy.get("false_positive_rate_threshold")
     required_agreement = policy.get("required_qualified_agreement")
     role = policy.get("review_role")
     task_class = policy.get("task_class")
+    risk_tier = policy.get("risk_tier")
     if not isinstance(ceiling, int) or ceiling < 1:
         raise ValueError("max_reviews must be a positive pre-registered integer")
     if not isinstance(required_agreement, int) or required_agreement < 1 or required_agreement > ceiling:
@@ -88,8 +95,10 @@ def evaluate_review_convergence(policy: dict, reviews: list[dict], performance_r
         raise ValueError("false_positive_rate_threshold must be between 0 and 1")
     if not isinstance(role, str) or not role or not isinstance(task_class, str) or not task_class:
         raise ValueError("review_role and task_class must be pre-registered")
+    if not isinstance(risk_tier, str) or not risk_tier:
+        raise ValueError("risk_tier must be pre-registered")
 
-    performance = _performance_index(performance_records or [], role, task_class)
+    performance = _performance_index(performance_records or [], role, task_class, risk_tier)
     considered = reviews[:ceiling]
     qualified = []
     demoted = []
@@ -133,4 +142,5 @@ def evaluate_review_convergence(policy: dict, reviews: list[dict], performance_r
         "missing_performance_evidence": missing_performance_evidence,
         "duplicate_reviewers": duplicate_reviewers,
         "ceiling_reached": len(considered) >= ceiling,
+        "risk_tier": risk_tier,
     }
