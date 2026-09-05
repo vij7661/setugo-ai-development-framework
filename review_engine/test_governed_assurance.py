@@ -152,6 +152,7 @@ class GovernedAssuranceTests(unittest.TestCase):
                 task_type="GENERAL",
                 request_id,
                 phase,
+                context_hash,
                 artifact_hash=None,
             ):
                 if not self._revoked_once:
@@ -163,6 +164,7 @@ class GovernedAssuranceTests(unittest.TestCase):
                     task_type=task_type,
                     request_id=request_id,
                     phase=phase,
+                    context_hash=context_hash,
                     artifact_hash=artifact_hash,
                 )
 
