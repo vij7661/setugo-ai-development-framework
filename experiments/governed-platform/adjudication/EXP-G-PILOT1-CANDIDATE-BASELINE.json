@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-G",
+  "pilot": "PILOT1-CANDIDATE-BASELINE",
+  "case_id": "EXP-C-001",
+  "execution_sha": "fe816abbcb0ff58bc2b3220f88f633150a67ffc7",
+  "workflow_run_id": 33957554683,
+  "review_bundle_artifact_id": 9966859556,
+  "review_bundle_digest": "sha256:93c9936e1d4a7e0cc5d98062f906345838486330ea3d3a36e0ca58f3108f1d4d",
+  "review_bundle_sha256": "42241af2c0d4cb8ba0487d6863c28751b9f53689376b2e94c724e023fd40eb7f",
+  "collection_status": "COMPLETE_WITH_PROVIDER_ERROR",
+  "candidate_outputs_authoritative": false,
+  "candidate_outputs_may_approve_or_release": false,
+  "protected_adjudication": {
+    "source": "EXP-C-PILOT1",
+    "expected_primary_failure_class": "FIXTURE-DATA DEFECT",
+    "expected_authorized_artifact_scope": ["FIXTURE-DATA"],
+    "reason": "The failing case illegally reuses lifecycle-mutated persistent fixture/account state after KYC; changing the test expectation would authorize the wrong artifact class."
+  },
+  "candidate_results": [
+    {
+      "provider": "groq",
+      "mechanism_id": "remote-reasoner-a",
+      "model": "openai/gpt-oss-20b",
+      "technical_status": "PASS",
+      "structured_output_valid": true,
+      "candidate_primary_failure_class": "TEST DEFECT",
+      "mapping_to_protected_adjudication": "MISMATCH_CORRELATED_MISS",
+      "qualification_use": "CANDIDATE_EVIDENCE_ONLY"
+    },
+    {
+      "provider": "openrouter",
+      "mechanism_id": "remote-reasoner-b",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "technical_status": "PASS",
+      "structured_output_valid": true,
+      "candidate_primary_failure_class": "TEST DEFECT",
+      "mapping_to_protected_adjudication": "MISMATCH_CORRELATED_MISS",
+      "qualification_use": "CANDIDATE_EVIDENCE_ONLY"
+    },
+    {
+      "provider": "gemini",
+      "mechanism_id": "remote-reasoner-d",
+      "model": "gemini-3.8-flash",
+      "technical_status": "PASS",
+      "structured_output_valid": true,
+      "candidate_primary_failure_class": "TEST DEFECT",
+      "mapping_to_protected_adjudication": "MISMATCH_CORRELATED_MISS",
+      "qualification_use": "CANDIDATE_EVIDENCE_ONLY"
+    },
+    {
+      "provider": "mistral",
+      "mechanism_id": "remote-reasoner-c",
+      "model": "mistral-small-latest",
+      "technical_status": "ERROR",
+      "structured_output_valid": false,
+      "error_class": "ENVIRONMENT-TOOLING DEFECT",
+      "error": "provider HTTP 429 rate limit after 3/3 bounded attempts",
+      "mapping_to_protected_adjudication": "NO_MODEL_RESULT",
+      "qualification_use": "CANDIDATE_EVIDENCE_ONLY"
+    }
+  ],
+  "pilot_result": "CORRELATED_MISS_ACROSS_THREE_SUCCESSFUL_CANDIDATES_AWAITING_EXTERNAL_ADVERSARIAL_REVIEW",
+  "scientific_interpretation": "Groq, OpenRouter/Nemotron, and Gemini independently returned well-formed completions but converged on the same wrong TEST DEFECT diagnosis for a case whose protected adjudication is FIXTURE-DATA DEFECT. Agreement across these three candidates therefore does not constitute correctness or authority. Mistral produced no model-quality evidence because provider rate limiting exhausted all three bounded attempts. This is baseline evidence for EXP-G and should be presented blinded to external reviewers such as Claude and DeepSeek to test whether a separate reviewer can break the correlated miss.",
+  "next_step": "Submit the frozen sanitized candidate-review bundle to external lineage-independent reviewers without protected ground truth, freeze their outputs, then independently score those findings against the protected adjudication.",
+  "limitations": [
+    "This pilot is candidate baseline collection, not yet the full G0/G1/G2/G3 scientific sequence.",
+    "No Claude or DeepSeek result is included in this adjudication yet.",
+    "Provider response identity labels are not treated as qualification proof.",
+    "Mistral rate limiting is operational evidence only and must not be scored as model-quality failure.",
+    "One case cannot establish population-level comparative accuracy or qualification."
+  ]
+}
