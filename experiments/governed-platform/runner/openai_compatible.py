@@ -30,10 +30,13 @@ class RemoteProviderConfig:
     max_attempts: int = 3
     initial_backoff_seconds: float = 2.0
     max_backoff_seconds: float = 15.0
+    temperature: float = 0.0
 
 
 class OpenAICompatibleAdapter(MechanismAdapter):
     def __init__(self, config: RemoteProviderConfig) -> None:
+        if not 0.0 <= config.temperature <= 2.0:
+            raise ValueError("temperature must be in [0, 2]")
         self._config = config
 
     def _delay(self, attempt: int, retry_after: str | None = None) -> None:
@@ -59,7 +62,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                 {"role": "system", "content": "You are an independent software-review mechanism. Use only the supplied case content. Report concrete material defects or requested change-impact conclusions; do not invent hidden requirements.\n\n" + REVIEW_OUTPUT_SCHEMA_INSTRUCTION},
                 {"role": "user", "content": json.dumps(envelope["model_visible"], ensure_ascii=False)},
             ],
-            "temperature": 0,
+            "temperature": self._config.temperature,
         }
         endpoint = self._config.base_url.rstrip("/") + "/chat/completions"
         started = time.perf_counter()
@@ -112,6 +115,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                     "response_model_claim": body.get("model"),
                     "completion_complete": True,
                     "configured_model": self._config.model,
+                    "sampling_temperature": self._config.temperature,
                 },
             )
         raise RuntimeError(last_error or "provider failed without a usable completion")
