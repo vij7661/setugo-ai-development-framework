@@ -40,12 +40,29 @@ def compatibility_gate(contract: dict, candidate: dict) -> dict:
     return {"compatible": True, "reason": "all explicit domain invariants preserved", "invariants": invariants}
 
 
+def authorize_model_routing(contract: dict, candidate: dict) -> dict:
+    """Authorize routing only after the policy layer recomputes compatibility.
+
+    Callers cannot bypass invariant extraction by presenting an asserted PASS
+    receipt. Routing authority is derived from this deterministic gate only.
+    """
+    gate = compatibility_gate(contract, candidate)
+    if not gate["compatible"]:
+        return {"authorized": False, "reason": gate["reason"], "gate": gate}
+    return {
+        "authorized": True,
+        "reason": "policy-layer invariant gate passed",
+        "gate": gate,
+    }
+
+
 def evaluate_review_convergence(policy: dict, reviews: list[dict]) -> dict:
     """Apply a pre-registered review ceiling and false-positive reviewer demotion.
 
     The ceiling and threshold must be registered before evaluation. Demoted
-    reviewers cannot contribute to convergence. Reaching the ceiling without
-    sufficient qualified agreement returns HUMAN_REQUIRED rather than PASS.
+    reviewers cannot contribute to convergence. Duplicate reviewer identities are
+    counted once so repeated submissions cannot manufacture agreement. Reaching
+    the ceiling without sufficient qualified agreement returns HUMAN_REQUIRED.
     """
     ceiling = policy.get("max_reviews")
     threshold = policy.get("false_positive_rate_threshold")
@@ -60,12 +77,18 @@ def evaluate_review_convergence(policy: dict, reviews: list[dict]) -> dict:
     considered = reviews[:ceiling]
     qualified = []
     demoted = []
+    duplicate_reviewers = []
+    seen_reviewers = set()
     for review in considered:
         reviewer = review.get("reviewer_id")
         rate = review.get("false_positive_rate")
         if not reviewer or not isinstance(rate, (int, float)) or not 0 <= rate <= 1:
             demoted.append(reviewer or "UNKNOWN")
             continue
+        if reviewer in seen_reviewers:
+            duplicate_reviewers.append(reviewer)
+            continue
+        seen_reviewers.add(reviewer)
         if rate > threshold:
             demoted.append(reviewer)
             continue
@@ -86,5 +109,6 @@ def evaluate_review_convergence(policy: dict, reviews: list[dict]) -> dict:
         "reviews_considered": len(considered),
         "qualified_reviews": len(qualified),
         "demoted_reviewers": demoted,
+        "duplicate_reviewers": duplicate_reviewers,
         "ceiling_reached": len(considered) >= ceiling,
     }
