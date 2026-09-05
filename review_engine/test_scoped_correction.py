@@ -111,6 +111,32 @@ class ScopedCorrectionTests(unittest.TestCase):
                 (finding("f1", anchor="the whole artifact is one bad claim"),),
             )
 
+    def test_single_near_whole_artifact_anchor_is_not_localized_correction_authority(self):
+        original = "X" + ("bad" * 120) + "Y"
+        oversized_anchor = original[1:-1]
+        self.assertGreater(len(oversized_anchor) / len(original), 0.95)
+        with self.assertRaisesRegex(CorrectionScopeError, "localized"):
+            build_scoped_correction_plan(
+                original,
+                (finding("near-whole", anchor=oversized_anchor),),
+            )
+
+    def test_multiple_anchors_cannot_accumulate_into_near_whole_artifact_authority(self):
+        anchor_a = "A" * 80
+        stable_middle = "MID"
+        anchor_b = "B" * 80
+        original = "H" + anchor_a + stable_middle + anchor_b + "T"
+        editable_fraction = (len(anchor_a) + len(anchor_b)) / len(original)
+        self.assertGreater(editable_fraction, 0.95)
+        with self.assertRaisesRegex(CorrectionScopeError, "localized"):
+            build_scoped_correction_plan(
+                original,
+                (
+                    finding("a", anchor=anchor_a, scope=("claim:a",)),
+                    finding("b", anchor=anchor_b, scope=("claim:b",)),
+                ),
+            )
+
     def test_no_change_is_not_an_admissible_material_correction(self):
         original = "stable\nwrong claim\nfooter"
         plan = build_scoped_correction_plan(original, (finding("f1", anchor="wrong claim"),))
