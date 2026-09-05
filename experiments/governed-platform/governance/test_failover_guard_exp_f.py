@@ -9,6 +9,7 @@ class ExpFFailoverGuardTests(unittest.TestCase):
             "provider": "groq",
             "model": "builder-a",
             "sku": "prod-a",
+            "deployment_path": "api/groq/prod-a",
             "role": "BUILDER",
             "task_class": "CODE_CHANGE",
             "privacy_class": "external-approved",
@@ -18,6 +19,7 @@ class ExpFFailoverGuardTests(unittest.TestCase):
             "provider": "mistral",
             "model": "builder-b",
             "sku": "prod-b",
+            "deployment_path": "api/mistral/prod-b",
             "role": "BUILDER",
             "task_class": "CODE_CHANGE",
             "privacy_class": "external-approved",
@@ -39,6 +41,10 @@ class ExpFFailoverGuardTests(unittest.TestCase):
 
     def test_sku_substitution_is_denied(self):
         q = dict(self.qualification, sku="different-sku")
+        self.assertFalse(authorize_failover(self.original, self.candidate, q)["authorized"])
+
+    def test_deployment_path_substitution_is_denied(self):
+        q = dict(self.qualification, deployment_path="api/mistral/other")
         self.assertFalse(authorize_failover(self.original, self.candidate, q)["authorized"])
 
     def test_model_substitution_is_denied(self):
@@ -69,9 +75,26 @@ class ExpFFailoverGuardTests(unittest.TestCase):
         q = dict(self.qualification, policy_hash="policy-v2")
         self.assertFalse(authorize_failover(self.original, c, q)["authorized"])
 
+    def test_qualification_task_scope_mismatch_is_denied(self):
+        q = dict(self.qualification, task_class="ARCH_REVIEW")
+        self.assertFalse(authorize_failover(self.original, self.candidate, q)["authorized"])
+
+    def test_qualification_privacy_scope_mismatch_is_denied(self):
+        q = dict(self.qualification, privacy_class="internal-only")
+        self.assertFalse(authorize_failover(self.original, self.candidate, q)["authorized"])
+
+    def test_qualification_policy_scope_mismatch_is_denied(self):
+        q = dict(self.qualification, policy_hash="policy-v2")
+        self.assertFalse(authorize_failover(self.original, self.candidate, q)["authorized"])
+
     def test_missing_sku_fails_closed(self):
         c = dict(self.candidate)
         del c["sku"]
+        self.assertFalse(authorize_failover(self.original, c, self.qualification)["authorized"])
+
+    def test_missing_deployment_path_fails_closed(self):
+        c = dict(self.candidate)
+        del c["deployment_path"]
         self.assertFalse(authorize_failover(self.original, c, self.qualification)["authorized"])
 
 
