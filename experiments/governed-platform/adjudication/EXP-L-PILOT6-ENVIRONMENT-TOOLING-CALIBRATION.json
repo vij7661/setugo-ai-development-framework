@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-L",
+  "pilot": "PILOT6-ENVIRONMENT-TOOLING-CALIBRATION",
+  "case_id": "EXP-C-005",
+  "execution_sha": "94adad816bbc2d14f936b26689c26b6e424366c4",
+  "workflow_run_id": 33964175163,
+  "bundle_artifact_id": 9968953633,
+  "bundle_digest": "sha256:6bd5318678a9a83bbf2898069d381d17d109461911fd14d30c142441cb56c175",
+  "bundle_sha256": "880bbbd7b3600dff3121235b129b6e904948cabf59d4e531f30fbd42023d98c1",
+  "authority": "NONE",
+  "threshold_applied": false,
+  "protected_adjudication": {
+    "source": "EXP-C-PILOT1",
+    "expected_primary_failure_class": "ENVIRONMENT-TOOLING DEFECT",
+    "expected_authorized_artifact_scope": ["ENVIRONMENT-TOOLING"]
+  },
+  "provider_observations": [
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "valid_samples": 5,
+      "sample_sufficiency": "SUFFICIENT",
+      "semantic_proxy_clusters": {"ENVIRONMENT-TOOLING DEFECT": 5},
+      "normalized_semantic_entropy": 0.0,
+      "protected_correctness": "CORRECT",
+      "classification": "STABLE_CORRECT",
+      "total_input_tokens": 2145,
+      "total_output_tokens": 2553,
+      "total_latency_ms": 3794
+    },
+    {
+      "provider": "openrouter",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "valid_samples": 5,
+      "sample_sufficiency": "SUFFICIENT",
+      "semantic_proxy_clusters": {"ENVIRONMENT-TOOLING DEFECT": 5},
+      "normalized_semantic_entropy": 0.0,
+      "protected_correctness": "CORRECT",
+      "classification": "STABLE_CORRECT",
+      "total_input_tokens": 2000,
+      "total_output_tokens": 3531,
+      "total_latency_ms": 311033
+    }
+  ],
+  "pilot_result": "TWO_PROVIDER_STABLE_CORRECT_ENVIRONMENT_CONTROL_WITH_PERSISTENT_LATENCY_GAP",
+  "scientific_interpretation": "Groq and OpenRouter both produced five valid, semantically stable, protected-correct environment/tooling classifications. Together with EXP-L Pilot 5, this supplies a second two-provider stable-correct control while again showing a large provider latency gap. Stability remains non-authoritative because Pilots 2 and 4 already demonstrate zero-entropy stable-wrong cases.",
+  "design_consequences": [
+    "Retain stable-correct controls across more than one defect class.",
+    "Evaluate review triggering against protected correctness, not entropy alone.",
+    "Use measured latency and token cost in EXP-K alongside correctness.",
+    "Do not generalize OpenRouter latency from a small free-tier sample, but retain it as observed routing evidence."
+  ],
+  "limitations": [
+    "The bundle used semantic proxy version 1.1 before mixed-cause signatures were added; this case has a single defect class so that limitation does not affect its class-level result.",
+    "Only one case per defect class is represented here.",
+    "No production threshold is inferred."
+  ]
+}
