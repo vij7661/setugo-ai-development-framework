@@ -4,12 +4,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from adapters import normalize_adapter_result
 from openai_compatible import OpenAICompatibleAdapter, RemoteProviderConfig
 from prepare_run import prepare
+
+GOVERNANCE_DIR = Path(__file__).resolve().parents[1] / "governance"
+if str(GOVERNANCE_DIR) not in sys.path:
+    sys.path.insert(0, str(GOVERNANCE_DIR))
+from failover_guard import authorize_failover
 
 
 def load(path: Path):
@@ -24,6 +30,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--case", required=True, type=Path)
     parser.add_argument("--mechanisms", required=True, type=Path)
+    parser.add_argument("--qualifications", required=True, type=Path)
     parser.add_argument("--order", required=True)
     parser.add_argument("--instruction-version", required=True)
     parser.add_argument("--out", required=True, type=Path)
@@ -32,10 +39,21 @@ def main() -> int:
 
     case = load(args.case)
     registry = {m["mechanism_id"]: m for m in load(args.mechanisms)["mechanisms"]}
+    qualification_data = load(args.qualifications)
+    qualifications = {q["mechanism_id"]: q for q in qualification_data.get("qualifications", [])}
     order = [x.strip() for x in args.order.split(",") if x.strip()]
     attempts = []
     selected = None
     normalized = None
+
+    original_route = None
+    for mechanism_id in order:
+        mechanism = registry.get(mechanism_id)
+        if mechanism and mechanism.get("enabled"):
+            original_route = mechanism
+            break
+    if original_route is None:
+        raise RuntimeError("eligible provider portfolio has no enabled route origin")
 
     for index, mechanism_id in enumerate(order):
         mechanism = registry.get(mechanism_id)
@@ -46,6 +64,22 @@ def main() -> int:
                     "provider": mechanism.get("provider") if mechanism else None,
                     "status": "NOT_CALLED",
                     "reason": "missing-or-disabled",
+                    "updated_at": now(),
+                }
+            )
+            continue
+
+        qualification = qualifications.get(mechanism_id)
+        authorization = authorize_failover(original_route, mechanism, qualification or {})
+        if not authorization["authorized"]:
+            attempts.append(
+                {
+                    "mechanism_id": mechanism_id,
+                    "provider": mechanism.get("provider"),
+                    "model": mechanism.get("model"),
+                    "status": "NOT_CALLED",
+                    "attempts": 0,
+                    "reason": "qualification-denied:" + authorization["reason"],
                     "updated_at": now(),
                 }
             )
@@ -68,6 +102,8 @@ def main() -> int:
                 )
             )
             result = adapter.invoke(envelope)
+            if result.provider != mechanism["provider"] or result.mechanism_version != mechanism["model"]:
+                raise RuntimeError("provider/model runtime identity does not match authorized qualification tuple")
             candidate = normalize_adapter_result(envelope, result)
             if candidate["status"] != "PASS" or not candidate["evidence_eligible"]:
                 detail = candidate.get("runtime_metadata", {}).get("normalization_error") or candidate["status"]
@@ -86,6 +122,10 @@ def main() -> int:
                     "provider": mechanism["provider"],
                     "status": "SUCCESS",
                     "model": mechanism["model"],
+                    "sku": mechanism["sku"],
+                    "deployment_path": mechanism["deployment_path"],
+                    "qualification_id": mechanism["qualification_id"],
+                    "qualification_epoch": mechanism["qualification_epoch"],
                     "run_id": normalized["run_id"],
                     "attempts": provider_attempts,
                     "started_at": started,
