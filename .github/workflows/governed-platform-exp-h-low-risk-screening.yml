@@ -1,0 +1,88 @@
+name: Governed Platform EXP-H Low-Risk Adversarial Screening
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-h-low-risk-screening-trigger.json]
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+jobs:
+  r1-screen:
+    name: EXP-H Low-Risk R1 Screening Groq
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env: {GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Execute one frozen R1 sample per pre-registered case
+        run: |
+          mkdir -p exp-h-screen-r1
+          for CASE_ID in EXP-H-015 EXP-H-016 EXP-H-017 EXP-H-018 EXP-H-019 EXP-H-020 EXP-H-021 EXP-H-022; do
+            python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version exp-h-low-risk-screen-v1 --out "exp-h-screen-r1/${CASE_ID}.envelope.json"
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-h-screen-r1/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --temperature 0.7 --out "exp-h-screen-r1/${CASE_ID}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-h-low-risk-screen-r1, path: exp-h-screen-r1/, if-no-files-found: error}
+
+  score:
+    name: Score EXP-H Low-Risk Adversarial Screening
+    needs: [r1-screen]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/download-artifact@v4
+        with: {name: exp-h-low-risk-screen-r1, path: _r1}
+      - name: Protected deterministic screening score
+        run: |
+          mkdir -p exp-h-screen-score
+          ARGS=()
+          for f in _r1/*.raw-result.json; do ARGS+=(--result "$f"); done
+          python experiments/governed-platform/score/score_exp_h_low_risk_screening.py "${ARGS[@]}" --out exp-h-screen-score/EXP-H-LOW-RISK-SCREENING-PILOT1.json
+      - uses: actions/upload-artifact@v4
+        with: {name: exp-h-low-risk-screen-score, path: exp-h-screen-score/, if-no-files-found: error}
+
+  semantic-followup:
+    name: EXP-L Automatic Semantic Follow-Up for Every Screening Miss
+    needs: [score]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env: {GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/download-artifact@v4
+        with: {name: exp-h-low-risk-screen-score, path: _score}
+      - name: Re-sample every unsafe or incorrect screening case
+        run: |
+          mkdir -p exp-h-screen-followup
+          mapfile -t CASES < <(python - <<'PY'
+          import json
+          x=json.load(open('_score/EXP-H-LOW-RISK-SCREENING-PILOT1.json'))
+          for cid in x['aggregate']['followup_case_ids']:
+              print(cid)
+          PY
+          )
+          if [ "${#CASES[@]}" -eq 0 ]; then
+            printf '{"experiment":"EXP-L","pilot":"LOW_RISK_SCREENING_FOLLOWUP","followup_case_ids":[],"result":"NO_SCREENING_MISSES"}\n' > exp-h-screen-followup/NO-MISSES.json
+          fi
+          for CASE_ID in "${CASES[@]}"; do
+            mkdir -p "exp-h-screen-followup/${CASE_ID}"
+            python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version exp-l-low-risk-followup-v1 --out "exp-h-screen-followup/${CASE_ID}/${CASE_ID}.envelope.json"
+            for i in $(seq 1 5); do
+              python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-h-screen-followup/${CASE_ID}/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --temperature 1.0 --out "exp-h-screen-followup/${CASE_ID}/${CASE_ID}.sample-${i}.raw-result.json" || true
+            done
+            mapfile -t RESULTS < <(find "exp-h-screen-followup/${CASE_ID}" -name '*.raw-result.json' -type f | sort)
+            ARGS=(); for f in "${RESULTS[@]}"; do ARGS+=(--result "$f"); done
+            python experiments/governed-platform/runner/build_exp_l_semantic_bundle.py --case-id "$CASE_ID" "${ARGS[@]}" --execution-sha "$GITHUB_SHA" --workflow-run-id "$GITHUB_RUN_ID" --out "exp-h-screen-followup/${CASE_ID}.semantic-followup.json"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-h-low-risk-screen-semantic-followup, path: exp-h-screen-followup/, if-no-files-found: error}
