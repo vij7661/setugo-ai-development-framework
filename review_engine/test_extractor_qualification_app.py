@@ -15,6 +15,7 @@ from review_engine.extractor_qualification import (
 from review_engine.models import ReviewerConfig
 from review_engine.qualification import QualificationRecord
 from review_engine.qualified_claim_coverage import QualifiedRetainedClaimCoverageRegistry
+from review_engine.sqlite_extraction_work import SQLiteExtractionWorkRegistry
 from review_engine.work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
 
 
@@ -100,9 +101,24 @@ class ExtractorQualificationAppTests(unittest.TestCase):
                     ),
                 )
 
-    def test_governed_app_accepts_work_order_bound_qualified_coverage(self):
+    def test_governed_app_rejects_in_memory_work_order_registry(self):
         with tempfile.TemporaryDirectory() as td:
             work = ExtractionWorkRegistry(extractor_qualifications())
+            with self.assertRaisesRegex(ValueError, "durable extraction work replay protection"):
+                ReviewEngineApp(
+                    governed_configuration(),
+                    memory_db=str(Path(td) / "memory.db"),
+                    sessions_db=str(Path(td) / "sessions.db"),
+                    provider_registry=FakeProviders(),
+                    claim_coverage_validator=WorkOrderBoundClaimCoverageRegistry(work),
+                )
+
+    def test_governed_app_accepts_durable_work_order_bound_qualified_coverage(self):
+        with tempfile.TemporaryDirectory() as td:
+            work = SQLiteExtractionWorkRegistry(
+                Path(td) / "extraction_work.db",
+                extractor_qualifications(),
+            )
             app = ReviewEngineApp(
                 governed_configuration(),
                 memory_db=str(Path(td) / "memory.db"),
@@ -115,6 +131,7 @@ class ExtractorQualificationAppTests(unittest.TestCase):
             self.assertEqual(health["claim_coverage_validator"], "CONFIGURED")
             self.assertTrue(health["claim_coverage_qualified_admission"])
             self.assertTrue(health["claim_coverage_trusted_scope_binding"])
+            self.assertTrue(health["claim_coverage_durable_replay_protection"])
 
 
 if __name__ == "__main__":
