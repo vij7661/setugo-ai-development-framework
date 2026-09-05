@@ -132,11 +132,25 @@ Claim extraction has its own qualification role rather than being disguised as R
 - maximum risk,
 - task-type scope.
 
-`QualifiedRetainedClaimCoverageRegistry` rejects an inventory before retention when the extractor qualification is missing, non-`QUALIFIED`, stale by epoch, provider/model/SKU/deployment substituted, lineage-mismatched, above its risk ceiling, or outside its task scope. Admission retains the qualification reference/epoch and platform-supplied risk/task scope used for that decision.
+`QualifiedRetainedClaimCoverageRegistry` rejects an inventory before retention when the extractor qualification is missing, non-`QUALIFIED`, stale by epoch, provider/model/SKU/deployment substituted, lineage-mismatched, above its risk ceiling, or outside its task scope.
 
-A Review Engine configuration with reviewer qualification records is in `GOVERNED` assurance mode. If claim coverage is also configured in that mode, `ReviewEngineApp` refuses to initialize unless the injected claim-coverage validator explicitly enforces qualified extractor admission. The raw reference coverage registry remains usable only for experimental/test integrations; it cannot silently inherit the `GOVERNED` assurance label.
+### Platform-issued extraction work scope
 
-This qualification binding is still **not universal cryptographic runtime attestation**. It proves that the retained inventory was admitted against the platform's qualification registry and configured identity fields; it does not prove that a remote provider actually executed the named model/SKU/path. The platform process admitting an inventory must also supply the correct artifact risk/task context; authenticated extractor execution/runtime attestation remains an integration boundary.
+`extraction_work.py` moves artifact risk/task scope out of free-form inventory-admission arguments. `ExtractionWorkRegistry` issues a single-use `ExtractionWorkOrder` only after the selected extractor is qualified for the exact artifact hash, risk and task type. The order binds:
+
+- exact artifact hash,
+- risk,
+- task type,
+- platform-derived extractor ID,
+- qualification reference,
+- qualification epoch,
+- unique work-order ID.
+
+`WorkOrderBoundClaimCoverageRegistry` accepts an inventory only through that retained work order. It rejects artifact substitution, extractor substitution, qualification-ref/epoch substitution, revocation or qualification change after issuance, and replay of a consumed work order. Admission risk/task scope is read from the retained platform work order rather than supplied again by the admitting caller.
+
+A Review Engine configuration with reviewer qualification records is in `GOVERNED` assurance mode. If claim coverage is also configured in that mode, `ReviewEngineApp` now refuses to initialize unless the injected claim-coverage validator enforces **both** qualified extractor admission and platform-issued extraction-scope binding. The raw reference registry and the qualification-only registry remain usable for experimental/test integrations, but neither can silently inherit the stronger `GOVERNED` claim-coverage assurance surface.
+
+These bindings are still **not universal cryptographic provider runtime attestation**. They establish platform-issued scope, retained qualification identity and replay-resistant bookkeeping inside the current process. They do not prove that a remote provider actually executed the named model/SKU/path, nor are the in-memory work-order/qualification registries external immutable ledgers.
 
 ## Reviewer independence
 
@@ -168,7 +182,7 @@ This is stronger bookkeeping identity, not universal runtime cryptographic attes
 
 ## Qualification / assurance modes
 
-- **GOVERNED**: retained reviewer qualification records are present and each invoked reviewer must match provider + model + SKU + deployment path + role + foundation lineage + risk + task scope. If claim coverage is configured, qualified extractor admission is also required.
+- **GOVERNED**: retained reviewer qualification records are present and each invoked reviewer must match provider + model + SKU + deployment path + role + foundation lineage + risk + task scope. If claim coverage is configured, the app requires qualified extractor admission plus platform-issued extraction work scope.
 - **EXPERIMENTAL_UNQUALIFIED**: no retained reviewer qualification evidence is configured. This mode is intentionally capped to bounded R1-only low-risk review. Any condition that requires independent R2, consequential/mutation/external review, high uncertainty, authoritative ambiguity, incomplete evidence, or a material Truth & Veracity escalation fails closed to `HUMAN_REQUIRED`.
 
 The multi-provider example configuration intentionally contains no qualification records and therefore runs only in `EXPERIMENTAL_UNQUALIFIED` mode until real retained qualifications are added.
@@ -183,7 +197,7 @@ The MVP session ledger is append-only at the application API and hash-linked. A 
 
 Reviewer response `artifact_hash` binding is **platform-side bookkeeping integrity**: the provider adapter binds a response to the artifact hash in the platform-created context, and the orchestrator rejects mismatches. It is not a cryptographic reviewer attestation that proves the model semantically analyzed that exact content.
 
-Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. Claim-coverage findings are platform-generated when the product application guard is configured and now carry retained inventory/extractor/provenance references. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
+Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. Claim-coverage findings are platform-generated when the product application guard is configured and carry retained inventory/extractor/provenance references. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
 
 ## API-key rule
 
@@ -201,12 +215,11 @@ This is an MVP orchestration core, not a production authorization system.
 - Request-text consequence hints are not complete semantic intent detection.
 - The correspondence registry consumes retained verifier attestations; it does not independently solve semantic entailment from arbitrary source text.
 - Claim-coverage inventories are retained extraction evidence, not a semantic-completeness oracle.
-- Extractor qualification now governs inventory admission when the qualified registry is used and is mandatory for claim coverage under `GOVERNED` app assurance, but authenticated runtime/provider execution proof remains an integration boundary.
-- Admission risk/task values must come from the trusted extraction pipeline; the registry cannot independently discover whether those admission facts were lied about by a compromised platform caller.
+- Governed claim coverage now requires qualified extractor admission and platform-issued single-use extraction scope, but the work-order and qualification registries are in-process bookkeeping rather than externally attested capability infrastructure.
 - Exact claim fingerprinting deliberately fails conservatively on paraphrase/claim-boundary drift rather than asserting semantic equivalence.
 - Multiple independent extractors reduce some correlated omission risk but do not establish correctness or completeness.
 - Judge-health `NO_LOGICAL_ALARM` does not establish correctness or alignment.
 - Same foundation lineage is a correlation warning, not proof of shared training data or identical reasoning.
-- The platform still needs authenticated tool-state integration before it can claim independently verified execution consequences.
+- The platform still needs authenticated provider/runtime identity and authenticated tool-state integration before it can claim independently verified execution consequences.
 
 Future experiments should exercise this package end-to-end rather than adding isolated experiment-only orchestration paths.
