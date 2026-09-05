@@ -67,8 +67,9 @@ class ReviewEngineApp:
         # A governed reviewer configuration must not gain a stronger-looking
         # assurance label while using coverage evidence that bypasses extractor
         # qualification, accepts risk/task scope as free admission arguments,
-        # forgets replay/inventory state after restart, or consumes work before
-        # the corresponding inventory is durably retained.
+        # forgets replay/inventory state after restart, consumes work before the
+        # corresponding inventory is durably retained, or reuses lower-scope or
+        # currently revoked extraction evidence in a stronger review.
         if self.qualifications is not None and self.claim_coverage_validator is not None:
             if not bool(getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)):
                 raise ValueError(
@@ -89,6 +90,14 @@ class ReviewEngineApp:
             if not bool(getattr(self.claim_coverage_validator, "atomic_inventory_admission_enforced", False)):
                 raise ValueError(
                     "GOVERNED assurance requires atomic claim coverage inventory admission and work consumption"
+                )
+            if not bool(getattr(self.claim_coverage_validator, "review_scope_binding_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires claim coverage bound to current trusted review risk/task"
+                )
+            if not bool(getattr(self.claim_coverage_validator, "current_extractor_qualification_recheck_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires current extractor qualification recheck during claim coverage assessment"
                 )
 
         invoker = self.providers.invoke
@@ -118,6 +127,16 @@ class ReviewEngineApp:
             getattr(self.claim_coverage_validator, "atomic_inventory_admission_enforced", False)
         ) if self.claim_coverage_validator is not None else False
 
+    def _coverage_review_scope_binding(self) -> bool:
+        return bool(
+            getattr(self.claim_coverage_validator, "review_scope_binding_enforced", False)
+        ) if self.claim_coverage_validator is not None else False
+
+    def _coverage_current_qualification_recheck(self) -> bool:
+        return bool(
+            getattr(self.claim_coverage_validator, "current_extractor_qualification_recheck_enforced", False)
+        ) if self.claim_coverage_validator is not None else False
+
     def _evidence_qualified_verifier(self) -> bool:
         return bool(
             getattr(self.evidence_validator, "qualified_verifier_assessment_enforced", False)
@@ -140,13 +159,22 @@ class ReviewEngineApp:
 
     def review(self, payload: dict) -> dict:
         request = build_request(payload, platform_envelope=self.execution_envelope)
-        decision = self.engine.run(
-            request,
-            r1=self.configuration.reviewer("R1"),
-            r2=self.configuration.reviewer("R2"),
-            r3=self.configuration.reviewer("R3"),
-            memory=self.memory,
-        )
+        run_kwargs = {
+            "r1": self.configuration.reviewer("R1"),
+            "r2": self.configuration.reviewer("R2"),
+            "r3": self.configuration.reviewer("R3"),
+            "memory": self.memory,
+        }
+        if self.claim_coverage_guard is None:
+            decision = self.engine.run(request, **run_kwargs)
+        else:
+            task_type = str(request.platform_facts.get("task_type", "GENERAL"))
+            with self.claim_coverage_guard.assessment_scope(
+                risk=request.risk,
+                task_type=task_type,
+            ):
+                decision = self.engine.run(request, **run_kwargs)
+
         result = asdict(decision)
         durable_replay = self._coverage_durable_replay_protection()
         result.update(
@@ -174,6 +202,8 @@ class ReviewEngineApp:
                 "claim_coverage_durable_replay_protection": durable_replay,
                 "claim_coverage_durable_inventory_state": self._coverage_durable_inventory_state(),
                 "claim_coverage_atomic_inventory_admission": self._coverage_atomic_inventory_admission(),
+                "claim_coverage_review_scope_binding": self._coverage_review_scope_binding(),
+                "claim_coverage_current_qualification_recheck": self._coverage_current_qualification_recheck(),
             }
         )
         return result
@@ -236,6 +266,8 @@ class ReviewEngineApp:
             "claim_coverage_durable_replay_protection": durable_replay,
             "claim_coverage_durable_inventory_state": self._coverage_durable_inventory_state(),
             "claim_coverage_atomic_inventory_admission": self._coverage_atomic_inventory_admission(),
+            "claim_coverage_review_scope_binding": self._coverage_review_scope_binding(),
+            "claim_coverage_current_qualification_recheck": self._coverage_current_qualification_recheck(),
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
                 "operation_class": self.execution_envelope.operation_class,
