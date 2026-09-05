@@ -6,7 +6,7 @@ This directory is deliberately an experiment harness, not a production implement
 
 ## Central hypothesis
 
-A governed development workflow using complementary verification, intent/invariant traceability, evidence-aware diagnosis, scoped corrective authority, and protected acceptance evidence can reduce false-green and wrong-artifact correction outcomes relative to an unguided `fix it` workflow at acceptable cost and latency.
+A governed development workflow using complementary verification, intent/invariant traceability, evidence-aware diagnosis, scoped corrective authority, protected acceptance evidence, and independently qualified cross-model critique can reduce false-green and wrong-artifact correction outcomes relative to an unguided `fix it` workflow at acceptable cost and latency.
 
 ## Experiments
 
@@ -18,6 +18,7 @@ A governed development workflow using complementary verification, intent/invaria
 | EXP-D | Adversarial System Escape | Can an independent attacker bypass governance without being constrained to known defect classes? |
 | EXP-E | Accepted-Baseline Change/Revalidation | Are contradictions, invariant impacts, downstream invalidation, and lifecycle re-entry handled correctly? |
 | EXP-F | Governance/Orchestrator Falsification | Can bugs or attacks against the governor itself manufacture PASS/COMPLETE or unauthorized effects? |
+| EXP-G | Cross-Model Adversarial Review | Does a qualified independent LLM reviewing another LLM's frozen artifact find additional true defects and reduce false-green outcomes without creating unacceptable false positives or authority leakage? |
 
 ## Experiment discipline
 
@@ -29,6 +30,8 @@ A governed development workflow using complementary verification, intent/invaria
 6. Never invent model scores or thresholds. Pilots estimate effect sizes; later sample size/power decisions use observed data.
 7. Cost and latency are first-class outcomes alongside defect detection and false-green rate.
 8. A failed experiment reopens only the mechanism(s) implicated by evidence; it does not automatically invalidate unrelated architecture.
+9. Cross-model agreement is evidence only; it never creates authority by itself.
+10. Cross-model review must preserve blinding: reviewers may receive frozen artifacts and authorized requirements, but not protected ground truth or another model's hidden/private reasoning.
 
 ## Minimum harness layout
 
@@ -36,12 +39,13 @@ A governed development workflow using complementary verification, intent/invaria
 - `manifests/` — pre-registered experiment definitions.
 - `cases/` — public/non-secret case material. Hidden ground truth must not be committed when it could leak to evaluated models.
 - `results/` — generated run results; do not treat committed examples as authoritative experimental results.
-- `runner/` — future provider/tool adapters and execution logic.
+- `runner/` — provider/tool adapters and execution logic.
 - `score/` — deterministic scoring and analysis.
+- `governance/` — deterministic policy-layer guards, falsification tests, and cross-model review protocol validation.
 
 ## Initial execution order
 
-Start with **EXP-A, EXP-B, and EXP-C** because they can be tested without building the full orchestration platform. EXP-E follows once a minimal semantic/invariant graph exists. EXP-D and EXP-F require a minimal governor/orchestrator implementation and are intentionally later.
+Start with **EXP-A, EXP-B, and EXP-C** because they can be tested without building the full orchestration platform. EXP-E follows once a minimal semantic/invariant graph exists. EXP-D and EXP-F require a minimal governor/orchestrator implementation. EXP-G follows once at least two qualified, lineage-independent model routes are available and protected scoring/adjudication can evaluate cross-model marginal value.
 
 ## Freeze rule
 
