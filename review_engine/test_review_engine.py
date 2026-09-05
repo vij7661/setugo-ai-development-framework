@@ -244,7 +244,13 @@ class ReviewEngineTests(unittest.TestCase):
                 return ReviewerResponse("R3", context["artifact"]["artifact_hash"], "independent concern", (f,))
             self.assertEqual(context["frozen_independent_view"], "independent concern")
             self.assertEqual(context["prior_reviews"]["R2"], "R2 says issue")
-            return ReviewerResponse("R3", context["artifact_hash"], "resolved after evidence comparison")
+            self.assertEqual(context["frozen_material_findings"][0]["finding_id"], "f2")
+            return ReviewerResponse(
+                "R3",
+                context["artifact_hash"],
+                "resolved after evidence comparison",
+                resolved_finding_ids=("f2",),
+            )
 
         result = governed_engine(invoke, r1, r2, r3).run(
             ReviewRequest(request_id="q6", user_input="material change", risk="HIGH", materiality="MATERIAL"),
