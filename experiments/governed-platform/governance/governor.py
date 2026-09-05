@@ -53,6 +53,33 @@ def _string_list(value: object) -> bool:
     return isinstance(value, list) and all(isinstance(item, str) and item for item in value)
 
 
+def _required_evidence_provenance_is_current(current: dict, required_evidence: set[str]) -> bool:
+    """Validate authoritative evidence bindings when the state declares them.
+
+    Legacy pilot states may omit evidence_bindings. Once bindings are present,
+    every required evidence reference must be bound to the current project, task,
+    and exact execution SHA; a stale or cross-scope binding fails closed.
+    """
+    bindings = current.get("evidence_bindings")
+    if bindings is None:
+        return True
+    if not isinstance(bindings, dict):
+        return False
+    expected = {
+        "project_id": current.get("project_id"),
+        "task_id": current.get("task_id"),
+        "execution_sha": current.get("execution_sha"),
+    }
+    for ref in required_evidence:
+        binding = bindings.get(ref)
+        if not isinstance(binding, dict):
+            return False
+        for key, value in expected.items():
+            if binding.get(key) != value:
+                return False
+    return True
+
+
 def process_event(state: dict, event: dict) -> dict:
     """Evaluate one event against authoritative state.
 
@@ -138,6 +165,8 @@ def process_event(state: dict, event: dict) -> dict:
     required_evidence = set(current.get("required_evidence", []))
     if not required_evidence.issubset(supplied_evidence):
         return _result("BLOCK", "required evidence is incomplete", current, event)
+    if not _required_evidence_provenance_is_current(current, required_evidence):
+        return _result("BLOCK", "required evidence provenance is stale, malformed, or out of scope", current, event)
 
     requested_transition = event.get("requested_transition", "CONTINUING")
     if requested_transition == "COMPLETE" and not current.get("completion_authorized", False):
