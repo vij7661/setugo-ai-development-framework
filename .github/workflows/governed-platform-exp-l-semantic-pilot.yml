@@ -1,0 +1,124 @@
+name: Governed Platform EXP-L Semantic Calibration
+on:
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: Blinded diagnosis case ID
+        required: true
+        default: EXP-C-001
+        type: string
+      sample_count:
+        description: Samples per provider
+        required: true
+        default: "5"
+        type: string
+      temperature:
+        description: Sampling temperature
+        required: true
+        default: "1.0"
+        type: string
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-l-trigger.json]
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+jobs:
+  groq-samples:
+    name: EXP-L R1 Samples Groq
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env: {GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve pilot configuration
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then
+            CASE_ID="${{ inputs.case_id }}"; SAMPLE_COUNT="${{ inputs.sample_count }}"; TEMPERATURE="${{ inputs.temperature }}"
+          else
+            eval "$(python - <<'PY'
+          import json
+          x=json.load(open('.github/exp-l-trigger.json'))
+          print('CASE_ID='+str(x['case_id']))
+          print('SAMPLE_COUNT='+str(x.get('sample_count',5)))
+          print('TEMPERATURE='+str(x.get('temperature',1.0)))
+          PY
+          )"
+          fi
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+          echo "SAMPLE_COUNT=$SAMPLE_COUNT" >> "$GITHUB_ENV"
+          echo "TEMPERATURE=$TEMPERATURE" >> "$GITHUB_ENV"
+      - name: Sample primary model repeatedly
+        run: |
+          mkdir -p exp-l-results/groq
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version exp-l-semantic-v1 --out "exp-l-results/groq/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$SAMPLE_COUNT"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-l-results/groq/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --temperature "$TEMPERATURE" --out "exp-l-results/groq/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-l-groq-samples, path: exp-l-results/groq/, if-no-files-found: error}
+
+  gemini-samples:
+    name: EXP-L R1 Samples Gemini
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env: {GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve pilot configuration
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then
+            CASE_ID="${{ inputs.case_id }}"; SAMPLE_COUNT="${{ inputs.sample_count }}"; TEMPERATURE="${{ inputs.temperature }}"
+          else
+            eval "$(python - <<'PY'
+          import json
+          x=json.load(open('.github/exp-l-trigger.json'))
+          print('CASE_ID='+str(x['case_id']))
+          print('SAMPLE_COUNT='+str(x.get('sample_count',5)))
+          print('TEMPERATURE='+str(x.get('temperature',1.0)))
+          PY
+          )"
+          fi
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+          echo "SAMPLE_COUNT=$SAMPLE_COUNT" >> "$GITHUB_ENV"
+          echo "TEMPERATURE=$TEMPERATURE" >> "$GITHUB_ENV"
+      - name: Sample primary model repeatedly
+        run: |
+          mkdir -p exp-l-results/gemini
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-d --instruction-version exp-l-semantic-v1 --out "exp-l-results/gemini/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$SAMPLE_COUNT"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-l-results/gemini/${CASE_ID}.envelope.json" --provider gemini --base-url https://generativelanguage.googleapis.com/v1beta/openai --model gemini-3.8-flash --api-key-env GEMINI_API_KEY --timeout-seconds 120 --temperature "$TEMPERATURE" --out "exp-l-results/gemini/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-l-gemini-samples, path: exp-l-results/gemini/, if-no-files-found: error}
+
+  bundle:
+    name: Freeze EXP-L semantic calibration bundle
+    needs: [groq-samples, gemini-samples]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: exp-l-*-samples
+          path: _semantic-results
+          merge-multiple: false
+      - name: Build threshold-free semantic distribution bundle
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-l-trigger.json"))["case_id"])')"; fi
+          mapfile -t RESULTS < <(find _semantic-results -name '*.raw-result.json' -type f | sort)
+          if [ "${#RESULTS[@]}" -lt 2 ]; then echo "Insufficient explicit sample records: ${#RESULTS[@]}" >&2; exit 1; fi
+          ARGS=(); for f in "${RESULTS[@]}"; do ARGS+=(--result "$f"); done
+          mkdir -p exp-l-bundle
+          python experiments/governed-platform/runner/build_exp_l_semantic_bundle.py --case-id "$CASE_ID" "${ARGS[@]}" --execution-sha "$GITHUB_SHA" --workflow-run-id "$GITHUB_RUN_ID" --out "exp-l-bundle/${CASE_ID}.semantic-calibration.json"
+      - uses: actions/upload-artifact@v4
+        with: {name: exp-l-semantic-calibration-bundle, path: exp-l-bundle/, if-no-files-found: error}
