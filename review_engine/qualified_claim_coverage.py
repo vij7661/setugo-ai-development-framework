@@ -19,6 +19,8 @@ class QualifiedRetainedClaimCoverageRegistry:
     inventory can become coverage evidence.
     """
 
+    qualified_admission_enforced = True
+
     def __init__(self, qualification_registry: ExtractorQualificationRegistry) -> None:
         self._qualifications = qualification_registry
         self._coverage = RetainedClaimCoverageRegistry()
