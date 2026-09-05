@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-F",
+  "adjudication_protocol": "CAPABILITY_AUTHORITY_FALSIFICATION_V1",
+  "execution_scope": "SCOPED_CAPABILITY_EXPIRY_AND_REVOCATION",
+  "execution_sha": "987d37ce9d9a6ecc96bc291f673e1eb7f6ac7bdd",
+  "run_id": 33953994607,
+  "governance_test_count": 58,
+  "slice_test_count": 10,
+  "experiment_result": "DIRECTIONAL_PASS",
+  "case_results": [
+    {"case_id":"EXP-F-CAP-001","target":"expired capability execution","result":"PASS"},
+    {"case_id":"EXP-F-CAP-002","target":"revoked capability execution","result":"PASS"},
+    {"case_id":"EXP-F-CAP-003","target":"artifact scope widening","result":"PASS"},
+    {"case_id":"EXP-F-CAP-004","target":"action type escalation","result":"PASS"},
+    {"case_id":"EXP-F-CAP-005","target":"cross-task capability use","result":"PASS"},
+    {"case_id":"EXP-F-CAP-006","target":"capability epoch drift","result":"PASS"},
+    {"case_id":"EXP-F-CAP-007","target":"revoked capability evidence admissibility","result":"PASS"},
+    {"case_id":"EXP-F-CAP-008","target":"reissued capability invalidates old evidence lineage","result":"PASS"},
+    {"case_id":"EXP-F-CAP-009","target":"current capability evidence admissibility","result":"PASS"},
+    {"case_id":"EXP-F-CAP-010","target":"current bound capability execution","result":"PASS"}
+  ],
+  "scientific_interpretation": "The scoped capability layer rejected expired, revoked, widened, escalated, cross-task, and stale-lineage uses on the exact tested SHA. This supports the claim that issued authority is bounded and revocable rather than permanent. It does not establish correctness of all future capability implementations or distributed enforcement points.",
+  "required_next_step": "Continue EXP-F against evidence-retention and historical replay semantics so previously valid evidence cannot regain admissibility after retention expiry, execution lineage change, policy epoch change, or explicit invalidation.",
+  "limitations": [
+    "This is a deterministic policy-layer falsification slice, not a production distributed-capability test.",
+    "The slice validates the implemented guard semantics at one exact SHA only.",
+    "No claim is made that all external side-effect systems enforce the same capability semantics yet."
+  ]
+}
