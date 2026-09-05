@@ -1,13 +1,15 @@
-name: Governed Platform Experiment Harness
+name: Governed Platform + Review Engine Harness
 
 on:
   pull_request:
     paths:
       - "experiments/governed-platform/**"
+      - "review_engine/**"
       - ".github/workflows/governed-platform-experiments.yml"
   push:
     paths:
       - "experiments/governed-platform/**"
+      - "review_engine/**"
       - ".github/workflows/governed-platform-experiments.yml"
 
 permissions:
@@ -41,19 +43,21 @@ jobs:
                   print(f"CASE_ID_MISMATCH {path}: payload={actual!r} filename={expected!r}")
               raise SystemExit(f"{len(mismatches)} canonical case identity mismatch(es)")
           PY
-      - name: Compile harness Python
+      - name: Compile harness and Review Engine Python
         run: |
           python - <<'PY'
           import py_compile
           from pathlib import Path
-          root = Path("experiments/governed-platform")
-          files = sorted(root.rglob("*.py"))
+          roots = [Path("experiments/governed-platform"), Path("review_engine")]
+          files = sorted(p for root in roots for p in root.rglob("*.py"))
           if not files:
               raise SystemExit("no Python files found to compile")
           for path in files:
               py_compile.compile(str(path), doraise=True)
               print("compiled", path)
           PY
+      - name: Run Review Engine MVP system regressions
+        run: python -m unittest discover -v -s review_engine -p 'test_*.py'
       - name: Run scorer regressions
         working-directory: experiments/governed-platform/score
         run: python -m unittest discover -v -p 'test_*.py'
