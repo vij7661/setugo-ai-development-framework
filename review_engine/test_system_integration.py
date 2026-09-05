@@ -72,13 +72,14 @@ class SystemIntegrationTests(unittest.TestCase):
                         "f-auth", "R2", "CRITICAL", True,
                         "R1 self-authorization violates authoritative memory.",
                         violated_invariant="req:authority",
-                        affected_scope=("release-authority-claim",),
+                        affected_scope=("claim:release-authority",),
                         first_invalid_claim="R1 can release by itself",
                     )
                     return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "localized authority defect", (f,))
                 if config.role == "R1":
                     self.assertEqual(context["mode"], "SCOPED_CORRECTION")
-                    self.assertEqual(context["verified_review_targets"][0]["affected_scope"], ["release-authority-claim"])
+                    self.assertEqual(context["verified_review_targets"][0]["affected_scope"], ["claim:release-authority"])
+                    self.assertEqual(context["platform_correction_scope"]["mode"], "EXACT_CLAIM_ANCHOR_REPLACEMENT_V1")
                     return ReviewerResponse("R1", None, "Design says release authority remains external to all models.")
                 self.assertEqual(config.role, "R3")
                 self.assertEqual(context["phase"], "INDEPENDENT")
@@ -110,10 +111,13 @@ class SystemIntegrationTests(unittest.TestCase):
                 "R1_COMPLETED",
                 "ROUTE_DECISION",
                 "R2_COMPLETED",
+                "SCOPED_CORRECTION_AUTHORIZED",
+                "SCOPED_CORRECTION_ASSESSED",
                 "R1_REVISED",
                 "R3_INDEPENDENT_COMPLETED",
                 "FINAL_DECISION",
             ])
+            self.assertTrue(events[5].payload["assessment"]["admissible"])
             self.assertEqual(events[-1].payload["state"], "CONVERGED_PASS")
 
 
