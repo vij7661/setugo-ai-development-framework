@@ -74,6 +74,11 @@ class ReviewEngineApp:
             evidence_validator=self.evidence_validator,
         )
 
+    def _coverage_durable_replay_protection(self) -> bool:
+        return bool(
+            getattr(self.claim_coverage_validator, "durable_work_state_enforced", False)
+        ) if self.claim_coverage_validator is not None else False
+
     def review(self, payload: dict) -> dict:
         request = build_request(payload, platform_envelope=self.execution_envelope)
         decision = self.engine.run(
@@ -84,6 +89,7 @@ class ReviewEngineApp:
             memory=self.memory,
         )
         result = asdict(decision)
+        durable_replay = self._coverage_durable_replay_protection()
         result.update(
             {
                 "request_id": request.request_id,
@@ -101,9 +107,10 @@ class ReviewEngineApp:
                 "claim_coverage_trusted_scope_binding": bool(
                     getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)
                 ) if self.claim_coverage_validator is not None else False,
-                "claim_coverage_durable_work_state": bool(
-                    getattr(self.claim_coverage_validator, "durable_work_state_enforced", False)
-                ) if self.claim_coverage_validator is not None else False,
+                # Keep the original bookkeeping label while exposing the clearer
+                # user-facing governance meaning as an explicit alias.
+                "claim_coverage_durable_work_state": durable_replay,
+                "claim_coverage_durable_replay_protection": durable_replay,
             }
         )
         return result
@@ -141,6 +148,7 @@ class ReviewEngineApp:
                     "enabled": cfg.enabled,
                     "qualification_ref": cfg.qualification_ref,
                 }
+        durable_replay = self._coverage_durable_replay_protection()
         return {
             "status": "ok",
             "assurance_mode": self.configuration.assurance_mode,
@@ -157,9 +165,8 @@ class ReviewEngineApp:
             "claim_coverage_trusted_scope_binding": bool(
                 getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)
             ) if self.claim_coverage_validator is not None else False,
-            "claim_coverage_durable_work_state": bool(
-                getattr(self.claim_coverage_validator, "durable_work_state_enforced", False)
-            ) if self.claim_coverage_validator is not None else False,
+            "claim_coverage_durable_work_state": durable_replay,
+            "claim_coverage_durable_replay_protection": durable_replay,
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
                 "operation_class": self.execution_envelope.operation_class,
