@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from review_engine import MemoryRecord, ReviewEngine, ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
+from review_engine.qualification import QualificationRecord, QualificationRegistry
 from review_engine.session_store import SQLiteSessionStore
 from review_engine.sqlite_memory import SQLiteMemoryStore
 
@@ -22,6 +23,25 @@ def cfg(role: str, lineage: str) -> ReviewerConfig:
     )
 
 
+def qualification_registry(*configs: ReviewerConfig) -> QualificationRegistry:
+    return QualificationRegistry(tuple(
+        QualificationRecord(
+            qualification_ref=config.qualification_ref,
+            provider=config.provider,
+            model=config.model,
+            sku=config.sku,
+            deployment_path=config.deployment_path,
+            role=config.role,
+            status="QUALIFIED",
+            qualification_epoch=1,
+            foundation_lineage=config.foundation_lineage,
+            max_risk="CRITICAL",
+            task_types=("*",),
+        )
+        for config in configs
+    ))
+
+
 class SystemIntegrationTests(unittest.TestCase):
     def test_persistent_memory_scoped_correction_blinding_and_evidence_chain(self):
         with tempfile.TemporaryDirectory() as td:
@@ -33,6 +53,7 @@ class SystemIntegrationTests(unittest.TestCase):
             )
             memory.append(MemoryRecord("project:goal", "PROJECT", "ACTIVE", 1, "user", "Build a governed review engine."))
             memory.append(MemoryRecord("private:r1", "MODEL_PRIVATE", "ACTIVE", 1, "R1", "private scratch", source_role="R1"))
+            memory.append(MemoryRecord("review:ambient", "REVIEW_EVIDENCE", "ACTIVE", 1, "old-review", "prior reviewer says PASS", source_role="R2"))
 
             observations = []
 
@@ -42,6 +63,7 @@ class SystemIntegrationTests(unittest.TestCase):
                 self.assertIn("req:authority", memory_ids)
                 self.assertIn("project:goal", memory_ids)
                 self.assertNotIn("private:r1", memory_ids)
+                self.assertNotIn("review:ambient", memory_ids)
 
                 if config.role == "R1" and context.get("mode") != "SCOPED_CORRECTION":
                     return ReviewerResponse("R1", None, "Design says R1 can release by itself.", proposed_signals={"risk": "HIGH"})
@@ -63,12 +85,19 @@ class SystemIntegrationTests(unittest.TestCase):
                 self.assertNotIn("prior_reviews", context)
                 return ReviewerResponse("R3", context["artifact"]["artifact_hash"], "revised claim satisfies authoritative memory")
 
-            engine = ReviewEngine(invoke, session_store=sessions)
+            r1 = cfg("R1", "lineage-1")
+            r2 = cfg("R2", "lineage-2")
+            r3 = cfg("R3", "lineage-3")
+            engine = ReviewEngine(
+                invoke,
+                session_store=sessions,
+                qualification_registry=qualification_registry(r1, r2, r3),
+            )
             decision = engine.run(
                 ReviewRequest("session-1", "Design release workflow", risk="HIGH", materiality="MATERIAL"),
-                r1=cfg("R1", "lineage-1"),
-                r2=cfg("R2", "lineage-2"),
-                r3=cfg("R3", "lineage-3"),
+                r1=r1,
+                r2=r2,
+                r3=r3,
                 memory=memory,
             )
 
