@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-F",
+  "adjudication_protocol": "DETERMINISTIC_GOVERNOR_FALSIFICATION_V1",
+  "execution_scope": "EVIDENCE_RETENTION_AND_HISTORICAL_REPLAY_SLICE",
+  "execution_sha": "a5a43481535747cefdf95f62f4a3abb47f388c8c",
+  "run_id": 33954062947,
+  "case_count": 10,
+  "suite_test_count": 68,
+  "case_results": [
+    {"case_id":"EXP-F-RET-001","target":"expired retention replay","result":"PASS","regression_test":"test_expired_retention_cannot_be_replayed"},
+    {"case_id":"EXP-F-RET-002","target":"policy epoch drift","result":"PASS","regression_test":"test_policy_epoch_change_invalidates_historical_evidence"},
+    {"case_id":"EXP-F-RET-003","target":"execution lineage drift","result":"PASS","regression_test":"test_execution_lineage_change_invalidates_historical_evidence"},
+    {"case_id":"EXP-F-RET-004","target":"qualification lineage drift","result":"PASS","regression_test":"test_qualification_epoch_change_invalidates_historical_evidence"},
+    {"case_id":"EXP-F-RET-005","target":"capability lineage drift","result":"PASS","regression_test":"test_capability_epoch_change_invalidates_historical_evidence"},
+    {"case_id":"EXP-F-RET-006","target":"explicit invalidation resurrection","result":"PASS","regression_test":"test_explicitly_invalidated_evidence_cannot_return"},
+    {"case_id":"EXP-F-RET-007","target":"revoked evidence id resurrection","result":"PASS","regression_test":"test_revoked_evidence_id_cannot_return"},
+    {"case_id":"EXP-F-RET-008","target":"cross-task historical reuse","result":"PASS","regression_test":"test_cross_task_historical_evidence_cannot_be_reused"},
+    {"case_id":"EXP-F-RET-009","target":"cross-project historical reuse","result":"PASS","regression_test":"test_cross_project_historical_evidence_cannot_be_reused"},
+    {"case_id":"EXP-F-RET-010","target":"current retained evidence positive control","result":"PASS","regression_test":"test_current_evidence_within_retention_is_admissible"}
+  ],
+  "experiment_result": "DIRECTIONAL_SUCCESS",
+  "scientific_interpretation": "Historical evidence remains available for audit but cannot regain current authority after retention expiry, lineage drift, revocation, invalidation, or scope mismatch. This is a bounded EXP-F slice, not proof of overall orchestrator correctness.",
+  "limitations": [
+    "This slice exercises deterministic evidence-admissibility logic only.",
+    "It does not establish security of external evidence stores, clocks, cryptographic signatures, or distributed replicas.",
+    "Overall EXP-F remains incomplete until all registered orchestration attack classes are exhausted or explicitly bounded."
+  ]
+}
