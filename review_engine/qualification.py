@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass
 from threading import RLock
 from uuid import uuid4
@@ -8,6 +10,23 @@ from .models import ReviewerConfig
 
 RISK_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
 QUALIFICATION_STATUSES = {"QUALIFIED", "PENDING", "REVOKED", "EXPIRED", "UNQUALIFIED"}
+
+
+def reviewer_context_hash(context: dict) -> str:
+    """Return a deterministic binding for the exact model-visible context."""
+    if not isinstance(context, dict):
+        raise ValueError("reviewer context must be an object")
+    try:
+        canonical = json.dumps(
+            context,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError("reviewer context must be canonical JSON data") from exc
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -53,7 +72,9 @@ class ReviewerCapability:
 
     The capability is the linearization point between qualification state and one
     governed provider invocation. It is bound to the exact retained qualification
-    epoch, reviewer identity, risk/task and request/phase/artifact scope.
+    epoch, reviewer identity, risk/task, request/phase/artifact scope and the
+    canonical hash of the exact model-visible context.
+
     Revocation before issuance prevents issuance; a later revocation applies to
     future capabilities rather than retroactively rewriting authority that was
     already issued for one call.
@@ -75,6 +96,7 @@ class ReviewerCapability:
     task_type: str
     request_id: str
     phase: str
+    context_hash: str
     artifact_hash: str | None = None
 
     def validate(self) -> None:
@@ -94,6 +116,8 @@ class ReviewerCapability:
             raise ValueError("reviewer capability request_id required")
         if not self.phase:
             raise ValueError("reviewer capability phase required")
+        if len(self.context_hash) != 64 or any(ch not in "0123456789abcdef" for ch in self.context_hash):
+            raise ValueError("reviewer capability context_hash must be a sha256 hex digest")
         if self.artifact_hash is not None and not self.artifact_hash:
             raise ValueError("reviewer capability artifact_hash cannot be empty")
 
@@ -162,6 +186,7 @@ class QualificationRegistry:
         task_type: str = "GENERAL",
         request_id: str,
         phase: str,
+        context_hash: str,
         artifact_hash: str | None = None,
     ) -> tuple[QualificationDecision, ReviewerCapability | None]:
         """Atomically evaluate current qualification state and issue one call.
@@ -173,6 +198,8 @@ class QualificationRegistry:
             raise ValueError("reviewer capability request_id required")
         if not phase:
             raise ValueError("reviewer capability phase required")
+        if len(context_hash) != 64 or any(ch not in "0123456789abcdef" for ch in context_hash):
+            raise ValueError("reviewer capability context_hash must be a sha256 hex digest")
         if artifact_hash is not None and not artifact_hash:
             raise ValueError("reviewer capability artifact_hash cannot be empty")
         with self._lock:
@@ -199,6 +226,7 @@ class QualificationRegistry:
                 task_type=task_type,
                 request_id=request_id,
                 phase=phase,
+                context_hash=context_hash,
                 artifact_hash=artifact_hash,
             )
             capability.validate()
@@ -214,6 +242,7 @@ class QualificationRegistry:
         task_type: str = "GENERAL",
         request_id: str,
         phase: str,
+        context_hash: str,
         artifact_hash: str | None = None,
     ) -> ReviewerCapability:
         """Consume exactly one issued capability without allowing scope reuse."""
@@ -235,6 +264,7 @@ class QualificationRegistry:
                 "task_type": (capability.task_type, task_type),
                 "request_id": (capability.request_id, request_id),
                 "phase": (capability.phase, phase),
+                "context_hash": (capability.context_hash, context_hash),
                 "artifact_hash": (capability.artifact_hash, artifact_hash),
             }
             for name, (expected, actual) in bindings.items():
