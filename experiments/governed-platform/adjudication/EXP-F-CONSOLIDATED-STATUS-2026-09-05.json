@@ -1,0 +1,68 @@
+{
+  "experiment_id": "EXP-F",
+  "status_date": "2026-09-05",
+  "current_tested_head": "307c8324c2fa1c6f42bc8b8261ca2d62f071cf97",
+  "current_exact_head_run": 33954309579,
+  "current_governance_test_count": 93,
+  "overall_status": "PARTIAL_PASS_WITH_OPEN_GAPS",
+  "attack_matrix": {
+    "F001_authority_escalation": "COVERED_PASS",
+    "F002_qualification_routing_mismatch": "COVERED_PASS",
+    "F003_stale_qualification_sku_drift": "PARTIAL_PASS",
+    "F004_verification_bypass_self_approval": "COVERED_PASS",
+    "F005_review_ceiling_manipulation": "PARTIAL_PASS",
+    "F006_invariant_laundering": "OPEN",
+    "F007_evidence_tampering_missing_evidence": "COVERED_PASS",
+    "F008_correlated_independent_reviewers": "COVERED_PASS",
+    "F009_retry_idempotency_replay_duplicate_event": "PARTIAL_PASS",
+    "F010_approval_capability_concurrency_race": "COVERED_PASS_FOR_DETERMINISTIC_STATE_VERSION_AND_BINDING",
+    "F011_policy_version_drift_toctou": "COVERED_PASS",
+    "F012_failover_provider_substitution": "COVERED_PASS"
+  },
+  "covered_capabilities": [
+    "external completion authority",
+    "scoped capability expiry and revocation",
+    "qualification expiry revocation and lineage drift",
+    "historical evidence retention versus current admissibility",
+    "policy epoch/hash and artifact hash binding",
+    "reviewer identity and lineage independence",
+    "provider/model/SKU failover substitution rejection",
+    "cross-project and cross-task evidence binding",
+    "duplicate same-reviewer identity rejection",
+    "stale SHA and stale state-version rejection",
+    "missing evidence and manual-gate fail closed behavior"
+  ],
+  "remaining_open_gaps": [
+    {
+      "id": "GAP-SEMANTIC-INVARIANTS",
+      "maps_to": ["F006"],
+      "reason": "Compatibility currently relies on exact invariant strings. Semantic normalization, contradiction detection, MUST/MUST_NOT predicates, ambiguity handling, and synonym-resistant laundering detection are not yet implemented."
+    },
+    {
+      "id": "GAP-SKU-QUALIFICATION-REGISTRY",
+      "maps_to": ["F003", "F012"],
+      "reason": "Failover guard now requires SKU, but the core qualification registry/qualification guard still needs provider+model+SKU/deployment-path metadata as first-class persisted qualification identity."
+    },
+    {
+      "id": "GAP-REVIEWER-PERFORMANCE-EVIDENCE",
+      "maps_to": ["F005"],
+      "reason": "Review convergence still trusts reviewer-supplied false_positive_rate. Demotion must instead derive from retained independent adjudication/regression evidence and be reversible, versioned, and role/task/risk-specific."
+    },
+    {
+      "id": "GAP-FULL-REVIEW-CONVERGENCE-STATE-MACHINE",
+      "maps_to": ["F005"],
+      "reason": "Need explicit immutable max_review_rounds and terminal states CONVERGED_PASS, CONVERGED_FAIL, CEILING_REACHED_ESCALATE with no forced pass at the ceiling."
+    },
+    {
+      "id": "GAP-AUTHORITATIVE-IDEMPOTENCY-LINEARIZABILITY",
+      "maps_to": ["F009", "F010"],
+      "reason": "Current deterministic state-version/replay tests do not establish transactional deduplication or distributed linearizability under concurrent duplicate events."
+    },
+    {
+      "id": "GAP-WORKFLOW-COMPILE-COVERAGE",
+      "maps_to": [],
+      "reason": "The explicit py_compile step still does not list every governance module, although unittest discovery imports and executes them. Workflow should compile all governance Python files explicitly or compile the directory recursively."
+    }
+  ],
+  "scientific_interpretation": "EXP-F has strong deterministic evidence across most authority, qualification, evidence, independence, TOCTOU, and failover false-green paths, but it is not complete. Full experiment PASS is withheld until semantic invariant laundering, qualification SKU/deployment-path identity, reviewer performance evidence, full convergence state semantics, and authoritative idempotency/linearizability gaps are closed and revalidated on an exact head."
+}
