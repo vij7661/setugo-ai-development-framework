@@ -77,6 +77,7 @@ class ExpFDeepOrchestrationTests(unittest.TestCase):
             "false_positive_rate_threshold": 0.10,
             "review_role": "judge",
             "task_class": "governance-review",
+            "risk_tier": "high",
         }
         reviews = [
             {"reviewer_id": "r1", "verdict": "PASS"},
@@ -90,6 +91,7 @@ class ExpFDeepOrchestrationTests(unittest.TestCase):
                 "independently_adjudicated": True,
                 "role": "judge",
                 "task_class": "governance-review",
+                "risk_tier": "high",
                 "evidence_ref": "perf:r1:v1",
                 "performance_epoch": 1,
             },
@@ -99,6 +101,7 @@ class ExpFDeepOrchestrationTests(unittest.TestCase):
                 "independently_adjudicated": True,
                 "role": "judge",
                 "task_class": "governance-review",
+                "risk_tier": "high",
                 "evidence_ref": "perf:r2:v1",
                 "performance_epoch": 1,
             },
