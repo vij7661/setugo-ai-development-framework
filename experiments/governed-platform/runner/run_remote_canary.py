@@ -50,6 +50,7 @@ def _write_error_result(args, envelope, exc: Exception) -> None:
             "configured_model": args.model,
             "completion_complete": False,
             "structured_output_valid": False,
+            "sampling_temperature": args.temperature,
             "error_type": type(exc).__name__,
             "error": str(exc),
         },
@@ -67,6 +68,7 @@ def main() -> int:
     parser.add_argument("--model", required=True)
     parser.add_argument("--api-key-env", required=True)
     parser.add_argument("--timeout-seconds", type=int, default=120)
+    parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()
 
@@ -84,6 +86,7 @@ def main() -> int:
             model=args.model,
             api_key_env=args.api_key_env,
             timeout_seconds=args.timeout_seconds,
+            temperature=args.temperature,
         )
     )
     try:
