@@ -238,4 +238,13 @@ class ProviderRegistry:
         adapter = self._providers.get(config.provider)
         if adapter is None:
             raise RuntimeError(f"provider adapter not registered: {config.provider}")
-        return adapter.invoke(config, context)
+        response = adapter.invoke(config, context)
+        if not isinstance(response, ReviewerResponse):
+            raise RuntimeError("provider adapter returned invalid response type")
+        response.validate()
+        if not response.epistemic_review:
+            raise RuntimeError("provider response missing mandatory epistemic_review")
+        # Revalidate at the registry boundary so future custom adapters cannot
+        # bypass the Truth & Veracity schema by constructing ReviewerResponse directly.
+        validate_epistemic_review(response.epistemic_review)
+        return response
