@@ -7,6 +7,7 @@ from pathlib import Path
 from review_engine.app import ReviewEngineApp
 from review_engine.claim_coverage import RetainedClaimCoverageRegistry
 from review_engine.configuration import ReviewEngineConfiguration
+from review_engine.extraction_work import ExtractionWorkRegistry
 from review_engine.extractor_qualification import (
     ExtractorQualificationRecord,
     ExtractorQualificationRegistry,
@@ -14,6 +15,7 @@ from review_engine.extractor_qualification import (
 from review_engine.models import ReviewerConfig
 from review_engine.qualification import QualificationRecord
 from review_engine.qualified_claim_coverage import QualifiedRetainedClaimCoverageRegistry
+from review_engine.work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
 
 
 class FakeProviders:
@@ -85,21 +87,34 @@ class ExtractorQualificationAppTests(unittest.TestCase):
                     claim_coverage_validator=RetainedClaimCoverageRegistry(),
                 )
 
-    def test_governed_app_accepts_qualification_enforced_coverage_registry(self):
+    def test_governed_app_rejects_qualified_but_free_scope_admission(self):
         with tempfile.TemporaryDirectory() as td:
+            with self.assertRaisesRegex(ValueError, "platform-issued extraction scope"):
+                ReviewEngineApp(
+                    governed_configuration(),
+                    memory_db=str(Path(td) / "memory.db"),
+                    sessions_db=str(Path(td) / "sessions.db"),
+                    provider_registry=FakeProviders(),
+                    claim_coverage_validator=QualifiedRetainedClaimCoverageRegistry(
+                        extractor_qualifications()
+                    ),
+                )
+
+    def test_governed_app_accepts_work_order_bound_qualified_coverage(self):
+        with tempfile.TemporaryDirectory() as td:
+            work = ExtractionWorkRegistry(extractor_qualifications())
             app = ReviewEngineApp(
                 governed_configuration(),
                 memory_db=str(Path(td) / "memory.db"),
                 sessions_db=str(Path(td) / "sessions.db"),
                 provider_registry=FakeProviders(),
-                claim_coverage_validator=QualifiedRetainedClaimCoverageRegistry(
-                    extractor_qualifications()
-                ),
+                claim_coverage_validator=WorkOrderBoundClaimCoverageRegistry(work),
             )
             health = app.health()
             self.assertEqual(health["assurance_mode"], "GOVERNED")
             self.assertEqual(health["claim_coverage_validator"], "CONFIGURED")
             self.assertTrue(health["claim_coverage_qualified_admission"])
+            self.assertTrue(health["claim_coverage_trusted_scope_binding"])
 
 
 if __name__ == "__main__":
