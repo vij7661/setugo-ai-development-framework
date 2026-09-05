@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-022",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:end-exclusive-window-clean",
+  "authoritative_intent_ref": "inline:time-window-contract",
+  "invariant_refs": ["INV-H-LOW-022"],
+  "model_visible": {
+    "contract": "The internal window is [10:00, 11:00): start-inclusive and end-exclusive.",
+    "artifact": "event_time='10:59'; note='inside window'",
+    "context": "Read-only internal preview; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-022.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "interval-boundary", "clean-control"]
+}
