@@ -75,6 +75,37 @@ class ProviderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             _parse_response("R2", {"artifact": {"artifact_hash": "h"}}, raw)
 
+    def test_r3_adjudication_parses_exact_resolved_finding_ids(self):
+        raw = json.dumps({
+            "output": "resolved against evidence",
+            "epistemic_review": neutral_epistemic_review(),
+            "findings": [],
+            "resolved_finding_ids": ["r3-a", "r3-b"],
+        })
+        result = _parse_response("R3", {"artifact_hash": "trusted-hash"}, raw)
+        self.assertEqual(result.artifact_hash, "trusted-hash")
+        self.assertEqual(result.resolved_finding_ids, ("r3-a", "r3-b"))
+
+    def test_resolved_finding_ids_must_be_a_list(self):
+        raw = json.dumps({
+            "output": "bad closure shape",
+            "epistemic_review": neutral_epistemic_review(),
+            "findings": [],
+            "resolved_finding_ids": "r3-a",
+        })
+        with self.assertRaisesRegex(RuntimeError, "resolved_finding_ids must be a list"):
+            _parse_response("R3", {"artifact_hash": "h"}, raw)
+
+    def test_duplicate_resolved_finding_ids_are_rejected(self):
+        raw = json.dumps({
+            "output": "duplicate closure",
+            "epistemic_review": neutral_epistemic_review(),
+            "findings": [],
+            "resolved_finding_ids": ["r3-a", "r3-a"],
+        })
+        with self.assertRaisesRegex(ValueError, "cannot contain duplicates"):
+            _parse_response("R3", {"artifact_hash": "h"}, raw)
+
     def test_registry_requires_explicit_provider_registration(self):
         registry = ProviderRegistry()
         with self.assertRaises(RuntimeError):
