@@ -52,6 +52,12 @@ from .evidence_verifier_qualification import (
 )
 from .qualified_evidence_correspondence import QualifiedRetainedEvidenceCorrespondenceRegistry
 from .sqlite_evidence_correspondence import SQLiteQualifiedEvidenceCorrespondenceRegistry
+from .scoped_correction import (
+    CorrectionScopeError,
+    ScopedCorrectionAssessment,
+    ScopedCorrectionPlan,
+    build_scoped_correction_plan,
+)
 from .truth_contract import (
     TVC_VERSION,
     TruthContractResult,
@@ -76,6 +82,7 @@ __all__ = [
     "ClaimEvidenceAssessment",
     "ClaimExtractorIdentity",
     "ContextCompiler",
+    "CorrectionScopeError",
     "CoverageClaim",
     "EvidenceCorrespondenceAttestation",
     "EvidenceCorrespondenceValidator",
@@ -116,10 +123,13 @@ __all__ = [
     "SQLiteMemoryStore",
     "SQLiteQualifiedEvidenceCorrespondenceRegistry",
     "SQLiteWorkOrderBoundClaimCoverageRegistry",
+    "ScopedCorrectionAssessment",
+    "ScopedCorrectionPlan",
     "TVC_VERSION",
     "TruthContractResult",
     "VersionedMemoryStore",
     "WorkOrderBoundClaimCoverageRegistry",
+    "build_scoped_correction_plan",
     "claim_fingerprint",
     "epistemic_protocol_instructions",
     "evaluate_truth_contract",
