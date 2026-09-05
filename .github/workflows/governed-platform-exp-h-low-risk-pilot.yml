@@ -1,0 +1,99 @@
+name: Governed Platform EXP-H Low-Risk Direct Finalization Pilot
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-h-low-risk-trigger.json]
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+jobs:
+  r1:
+    name: EXP-H Conditional R1 Groq
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env: {GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Execute low-risk primary reviews
+        run: |
+          mkdir -p exp-h-r1
+          for CASE_ID in EXP-H-001 EXP-H-014; do
+            python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version exp-h-low-risk-r1-v1 --out "exp-h-r1/${CASE_ID}.envelope.json"
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-h-r1/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --temperature 0.2 --out "exp-h-r1/${CASE_ID}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-h-low-risk-r1, path: exp-h-r1/, if-no-files-found: error}
+
+  r2:
+    name: EXP-H Always-Review OpenRouter R2
+    needs: [r1]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env: {OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/download-artifact@v4
+        with: {name: exp-h-low-risk-r1, path: _r1}
+      - name: Build frozen R1 review cases and execute R2
+        run: |
+          mkdir -p exp-h-r2
+          for CASE_ID in EXP-H-001 EXP-H-014; do
+            CASE_ID="$CASE_ID" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          cid=os.environ['CASE_ID']
+          source=json.load(open(f'experiments/governed-platform/cases/pilot/model-visible/{cid}.json'))
+          r1=json.load(open(f'_r1/{cid}.raw-result.json'))
+          frozen={k:r1.get(k) for k in ('summary','findings','diagnosis','authorized_scope','changed_artifacts','evidence_refs','status','evidence_eligible')}
+          derived={
+            'case_id': cid+'-R2',
+            'experiment_id': 'EXP-H',
+            'version': '1.0',
+            'risk': 'LOW',
+            'artifact_ref': 'frozen-r1:'+cid,
+            'model_visible': {
+              'authoritative_case': source['model_visible'],
+              'frozen_r1_result': frozen,
+              'task': 'Independently review the supplied underlying case and the frozen R1 result. Report a material finding only if the underlying artifact violates its contract or R1 made a material review error. Do not assume R1 is correct. This remains read-only; no external action or mutation is requested.'
+            }
+          }
+          Path(f'exp-h-r2/{cid}-R2.json').write_text(json.dumps(derived,indent=2)+'\n')
+          PY
+            python experiments/governed-platform/runner/prepare_run.py --case "exp-h-r2/${CASE_ID}-R2.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-b --instruction-version exp-h-low-risk-r2-v1 --out "exp-h-r2/${CASE_ID}-R2.envelope.json"
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-h-r2/${CASE_ID}-R2.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --temperature 0.2 --out "exp-h-r2/${CASE_ID}-R2.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-h-low-risk-r2, path: exp-h-r2/, if-no-files-found: error}
+
+  score:
+    name: Score EXP-H Low-Risk Conditional vs Always-R2
+    needs: [r1, r2]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: exp-h-low-risk-*
+          path: _results
+          merge-multiple: false
+      - name: Score protected clean controls and retained overhead
+        run: |
+          mkdir -p exp-h-score
+          python experiments/governed-platform/score/score_exp_h_low_risk.py \
+            --r1 _results/exp-h-low-risk-r1/EXP-H-001.raw-result.json \
+            --r1 _results/exp-h-low-risk-r1/EXP-H-014.raw-result.json \
+            --r2 _results/exp-h-low-risk-r2/EXP-H-001-R2.raw-result.json \
+            --r2 _results/exp-h-low-risk-r2/EXP-H-014-R2.raw-result.json \
+            --out exp-h-score/EXP-H-LOW-RISK-PILOT1.json
+      - uses: actions/upload-artifact@v4
+        with: {name: exp-h-low-risk-score, path: exp-h-score/, if-no-files-found: error}
