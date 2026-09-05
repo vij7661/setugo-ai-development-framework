@@ -4,7 +4,7 @@ import unittest
 
 from review_engine.context_compiler import ContextCompiler
 from review_engine.memory import VersionedMemoryStore
-from review_engine.models import MemoryRecord, ReviewArtifact, ReviewerResponse, ReviewRequest
+from review_engine.models import MemoryRecord, ReviewArtifact, ReviewFinding, ReviewerResponse, ReviewRequest
 
 
 class ContextCompilerTests(unittest.TestCase):
@@ -22,11 +22,13 @@ class ContextCompilerTests(unittest.TestCase):
         r2_context = compiler.compile_r2(request, artifact, memory)
         r3a_context = compiler.compile_r3_phase_a(request, artifact, memory)
         frozen = ReviewerResponse("R3", artifact.artifact_hash, "independent view")
+        frozen_finding = ReviewFinding("r3-frozen", "R3", "HIGH", True, "frozen material concern")
         r3b_context = compiler.compile_r3_phase_b(
             request,
             artifact,
             memory,
             frozen_independent_response=frozen,
+            frozen_material_findings=(frozen_finding,),
             r1_response=ReviewerResponse("R1", None, "revised"),
             r2_response=ReviewerResponse("R2", artifact.artifact_hash, "localized finding"),
         )
@@ -43,6 +45,8 @@ class ContextCompilerTests(unittest.TestCase):
 
         self.assertEqual(r3b_context["frozen_independent_view"], "independent view")
         self.assertEqual(r3b_context["prior_reviews"]["R2"], "localized finding")
+        self.assertEqual(r3b_context["frozen_material_findings"][0]["finding_id"], "r3-frozen")
+        self.assertTrue(r3b_context["instructions"]["every_frozen_material_finding_requires_explicit_closure"])
 
 
 if __name__ == "__main__":
