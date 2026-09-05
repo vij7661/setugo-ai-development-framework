@@ -144,6 +144,8 @@ def build_provider_registry(configuration: ReviewEngineConfiguration) -> Provide
                     max_attempts=int(spec.get("max_attempts", 3)),
                     temperature=float(spec.get("temperature", 0.0)),
                     max_output_tokens=int(spec.get("max_output_tokens", 4096)),
+                    initial_backoff_seconds=float(spec.get("initial_backoff_seconds", 1.0)),
+                    max_backoff_seconds=float(spec.get("max_backoff_seconds", 10.0)),
                 )
             )
         else:
