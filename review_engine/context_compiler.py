@@ -4,6 +4,7 @@ from dataclasses import asdict
 
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewFinding, ReviewerResponse, ReviewRequest
+from .providers import SYSTEM_INSTRUCTION
 from .truth_contract import epistemic_protocol_instructions
 
 
@@ -34,6 +35,11 @@ def _finding_view(finding: ReviewFinding) -> dict:
     }
 
 
+def _provider_system_instruction() -> str:
+    """Freeze the platform-owned provider instruction into capability scope."""
+    return SYSTEM_INSTRUCTION
+
+
 class ContextCompiler:
     """Build role-specific context without leaking protected or anchoring data."""
 
@@ -42,6 +48,7 @@ class ContextCompiler:
             "role": "R1",
             "request_id": request.request_id,
             "user_input": request.user_input,
+            "platform_system_instruction": _provider_system_instruction(),
             "memory": _shared_memory_view(memory),
             "instructions": {
                 "authority": "advisory_generation_only",
@@ -60,6 +67,7 @@ class ContextCompiler:
             "role": "R2",
             "request_id": request.request_id,
             "user_input": request.user_input,
+            "platform_system_instruction": _provider_system_instruction(),
             "artifact": {
                 "artifact_id": artifact.artifact_id,
                 "version": artifact.version,
@@ -88,6 +96,7 @@ class ContextCompiler:
             "phase": "INDEPENDENT",
             "request_id": request.request_id,
             "user_input": request.user_input,
+            "platform_system_instruction": _provider_system_instruction(),
             "artifact": {
                 "artifact_id": artifact.artifact_id,
                 "version": artifact.version,
@@ -128,6 +137,7 @@ class ContextCompiler:
             "role": "R3",
             "phase": "ADJUDICATION",
             "request_id": request.request_id,
+            "platform_system_instruction": _provider_system_instruction(),
             "artifact": {
                 "artifact_id": artifact.artifact_id,
                 "version": artifact.version,
