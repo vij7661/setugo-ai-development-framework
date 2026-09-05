@@ -1,0 +1,52 @@
+{
+  "experiment_id": "EXP-F",
+  "status_date": "2026-09-05",
+  "tested_sha": "f41dcc29899a640b7852dd78a27e210677d17756",
+  "workflow_run_id": 33956452720,
+  "governance_tests": 168,
+  "runner_tests": 31,
+  "overall_status": "HARNESS_LEVEL_PASS_AFTER_EXTERNAL_REVIEW_REMEDIATION_WITH_INTEGRATION_BOUNDARIES",
+  "external_review_effect": {
+    "prior_review_verdict": "DOWNGRADE_TO_PARTIAL_PASS",
+    "accepted_material_findings": [
+      "unauthenticated runtime identity trust",
+      "semantic invariant omission class",
+      "insufficient reviewer foundation-lineage independence",
+      "truncated reviewer evidence acceptance",
+      "reviewer performance easy-case padding",
+      "artifact current-state TOCTOU binding defect",
+      "mid-flight qualification/identity revocation window",
+      "EXP-D specificity controls",
+      "lack of composite attack coverage"
+    ],
+    "post_remediation_exact_head_ci": "SUCCESS"
+  },
+  "current_harness_controls": {
+    "authority_external_to_models": true,
+    "external_task_policy_invariant_completeness": true,
+    "semantic_contradiction_and_missing_claim_detection": true,
+    "provider_model_sku_deployment_qualification": true,
+    "out_of_band_runtime_identity_attestation_required": true,
+    "provider_self_attestation_rejected": true,
+    "provider_response_model_label_non_authoritative": true,
+    "pre_and_post_call_qualification_identity_revalidation": true,
+    "terminal_reviewer_completion_required": true,
+    "reviewer_foundation_lineage_diversity": true,
+    "reviewer_performance_difficulty_stratification": true,
+    "tamper_evident_hash_linked_evidence": true,
+    "current_artifact_policy_capability_binding": true,
+    "deterministic_and_sqlite_transactional_idempotency": true,
+    "initial_composite_attack_regressions": true,
+    "matched_exp_d_clean_controls": true,
+    "recursive_python_compile": true
+  },
+  "remaining_boundaries": {
+    "external_evidence_immutability": "OPEN_INTEGRATION_BOUNDARY",
+    "multi_node_distributed_datastore_correctness": "OPEN_INTEGRATION_BOUNDARY",
+    "real_provider_cryptographic_or_trusted_identity_attestation": "OPEN_DEPLOYMENT_BOUNDARY",
+    "exhaustive_composite_property_mutation_fuzz_testing": "OPEN_DEPTH_BOUNDARY",
+    "generalized_fixture_contamination_campaign": "RECOMMENDED_ADDITIONAL_FALSIFICATION"
+  },
+  "claim_boundary": "This status supports only the deterministic/SQLite-backed repository harness. It does not establish production correctness, multi-node linearizability, externally immutable evidence, or trustworthy live provider identity until those integrations are implemented and independently validated.",
+  "release_state": "PR #1 remains draft and unmerged; this status does not authorize merge, readiness, or production release."
+}
