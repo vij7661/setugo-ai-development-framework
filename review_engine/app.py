@@ -44,16 +44,17 @@ class ReviewEngineApp:
         self.claim_coverage_validator = claim_coverage_validator
 
         # GOVERNED assurance must not treat a free verifier_id/qualification
-        # label as evidence-verification authority. A configured correspondence
-        # validator must independently enforce structured verifier eligibility.
-        if (
-            self.qualifications is not None
-            and self.evidence_validator is not None
-            and not bool(getattr(self.evidence_validator, "qualified_verifier_assessment_enforced", False))
-        ):
-            raise ValueError(
-                "GOVERNED assurance requires evidence correspondence with qualified verifier assessment"
-            )
+        # label as evidence-verification authority, nor forget retained
+        # correspondence attestations after process restart.
+        if self.qualifications is not None and self.evidence_validator is not None:
+            if not bool(getattr(self.evidence_validator, "qualified_verifier_assessment_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires evidence correspondence with qualified verifier assessment"
+                )
+            if not bool(getattr(self.evidence_validator, "durable_attestation_state_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires durable evidence correspondence attestation state"
+                )
 
         # A governed reviewer configuration must not gain a stronger-looking
         # assurance label while using coverage evidence that bypasses extractor
@@ -96,6 +97,11 @@ class ReviewEngineApp:
             getattr(self.evidence_validator, "qualified_verifier_assessment_enforced", False)
         ) if self.evidence_validator is not None else False
 
+    def _evidence_durable_attestation_state(self) -> bool:
+        return bool(
+            getattr(self.evidence_validator, "durable_attestation_state_enforced", False)
+        ) if self.evidence_validator is not None else False
+
     def review(self, payload: dict) -> dict:
         request = build_request(payload, platform_envelope=self.execution_envelope)
         decision = self.engine.run(
@@ -118,6 +124,7 @@ class ReviewEngineApp:
                 "truth_contract_version": TVC_VERSION,
                 "evidence_correspondence_validator_configured": self.evidence_validator is not None,
                 "evidence_correspondence_qualified_verifier": self._evidence_qualified_verifier(),
+                "evidence_correspondence_durable_attestation_state": self._evidence_durable_attestation_state(),
                 "claim_coverage_validator_configured": self.claim_coverage_validator is not None,
                 "claim_coverage_qualified_admission": bool(
                     getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)
@@ -177,6 +184,7 @@ class ReviewEngineApp:
             "truth_contract_version": TVC_VERSION,
             "evidence_correspondence_validator": "CONFIGURED" if self.evidence_validator is not None else "UNCONFIGURED",
             "evidence_correspondence_qualified_verifier": self._evidence_qualified_verifier(),
+            "evidence_correspondence_durable_attestation_state": self._evidence_durable_attestation_state(),
             "claim_coverage_validator": "CONFIGURED" if self.claim_coverage_validator is not None else "UNCONFIGURED",
             "claim_coverage_qualified_admission": bool(
                 getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)
