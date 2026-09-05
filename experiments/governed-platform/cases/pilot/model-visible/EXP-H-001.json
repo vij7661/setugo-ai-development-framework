@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-001",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:non-production-status-preview",
+  "authoritative_intent_ref": "inline:display-label-contract",
+  "invariant_refs": ["INV-H-LOW-001"],
+  "model_visible": {
+    "contract": "For a non-production preview, when status is READY the displayed label must be exactly 'Ready'.",
+    "artifact": "status=READY; displayed_label='Ready'",
+    "context": "Read-only review. No external action, production change, data mutation, configuration mutation, or release decision is requested.",
+    "task": "Review the supplied preview against the supplied contract. Report a material finding only if the preview violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-001.ground-truth.json",
+  "tags": ["low-risk", "clean-control", "no-review", "read-only"]
+}
