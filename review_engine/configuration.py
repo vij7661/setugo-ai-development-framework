@@ -12,6 +12,81 @@ from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, Provi
 from .qualification import QualificationRecord, QualificationRegistry
 
 
+TOP_LEVEL_FIELDS = frozenset({"providers", "reviewers", "qualifications"})
+REVIEWER_ROLES = frozenset({"R1", "R2", "R3"})
+REVIEWER_FIELDS = frozenset({
+    "provider",
+    "model",
+    "sku",
+    "deployment_path",
+    "api_key_env",
+    "foundation_lineage",
+    "qualification_ref",
+    "enabled",
+})
+QUALIFICATION_FIELDS = frozenset({
+    "qualification_ref",
+    "provider",
+    "model",
+    "sku",
+    "deployment_path",
+    "role",
+    "status",
+    "qualification_epoch",
+    "foundation_lineage",
+    "max_risk",
+    "task_types",
+})
+PROVIDER_FIELDS = {
+    "openai_compatible": frozenset({
+        "adapter",
+        "base_url",
+        "timeout_seconds",
+        "max_attempts",
+        "initial_backoff_seconds",
+        "max_backoff_seconds",
+        "temperature",
+    }),
+    "anthropic": frozenset({
+        "adapter",
+        "base_url",
+        "anthropic_version",
+        "timeout_seconds",
+        "max_attempts",
+        "max_tokens",
+        "temperature",
+        "initial_backoff_seconds",
+        "max_backoff_seconds",
+    }),
+    "gemini": frozenset({
+        "adapter",
+        "base_url",
+        "timeout_seconds",
+        "max_attempts",
+        "temperature",
+        "max_output_tokens",
+        "initial_backoff_seconds",
+        "max_backoff_seconds",
+    }),
+}
+FORBIDDEN_CREDENTIAL_FIELD_NAMES = frozenset({
+    "apikey",
+    "token",
+    "secret",
+    "authorization",
+    "accesstoken",
+    "bearertoken",
+    "authtoken",
+    "clientsecret",
+    "secretkey",
+    "password",
+    "passwd",
+    "privatekey",
+    "credential",
+    "credentials",
+})
+
+
 @dataclass(frozen=True)
 class ReviewEngineConfiguration:
     reviewers: dict[str, ReviewerConfig]
@@ -26,11 +101,21 @@ class ReviewEngineConfiguration:
         return "GOVERNED" if self.qualification_records else "EXPERIMENTAL_UNQUALIFIED"
 
 
+def _normalized_field_name(value: object) -> str:
+    return "".join(ch for ch in str(value).lower() if ch.isalnum())
+
+
 def _reject_secret_material(node: Any, path: str = "root") -> None:
+    """Reject credential-shaped configuration fields at any nesting depth.
+
+    The configuration contract carries secret *references* such as api_key_env,
+    never raw credentials. Normalization catches common spelling variants such as
+    apiKey, api-key, client_secret and bearer-token without matching legitimate
+    reference names like api_key_env.
+    """
     if isinstance(node, dict):
         for key, value in node.items():
-            lower = str(key).lower()
-            if lower in {"api_key", "apikey", "token", "secret", "authorization"}:
+            if _normalized_field_name(key) in FORBIDDEN_CREDENTIAL_FIELD_NAMES:
                 raise ValueError(f"raw credential field forbidden in configuration: {path}.{key}")
             _reject_secret_material(value, f"{path}.{key}")
     elif isinstance(node, list):
@@ -38,15 +123,38 @@ def _reject_secret_material(node: Any, path: str = "root") -> None:
             _reject_secret_material(value, f"{path}[{index}]")
 
 
+def _reject_unknown_fields(node: dict, *, path: str, allowed: frozenset[str]) -> None:
+    unknown = sorted(str(key) for key in node if key not in allowed)
+    if unknown:
+        raise ValueError(f"unsupported configuration field(s) at {path}: {', '.join(unknown)}")
+
+
 def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError("configuration root must be an object")
     _reject_secret_material(data)
+    _reject_unknown_fields(data, path="root", allowed=TOP_LEVEL_FIELDS)
+
     provider_specs = data.get("providers")
     reviewer_specs = data.get("reviewers")
     if not isinstance(provider_specs, dict) or not isinstance(reviewer_specs, dict):
         raise ValueError("configuration requires providers and reviewers objects")
+
+    _reject_unknown_fields(reviewer_specs, path="root.reviewers", allowed=REVIEWER_ROLES)
+
+    validated_provider_specs: dict[str, dict[str, Any]] = {}
+    for provider_id, spec in provider_specs.items():
+        if not isinstance(provider_id, str) or not provider_id.strip():
+            raise ValueError("provider identifier must be a non-empty string")
+        if not isinstance(spec, dict):
+            raise ValueError(f"provider {provider_id} must be an object")
+        adapter_type = spec.get("adapter")
+        allowed_fields = PROVIDER_FIELDS.get(adapter_type)
+        if allowed_fields is None:
+            raise ValueError(f"unsupported provider adapter: {adapter_type!r}")
+        _reject_unknown_fields(spec, path=f"root.providers.{provider_id}", allowed=allowed_fields)
+        validated_provider_specs[provider_id] = dict(spec)
 
     reviewers: dict[str, ReviewerConfig] = {}
     for role in ("R1", "R2", "R3"):
@@ -55,6 +163,7 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
             continue
         if not isinstance(spec, dict):
             raise ValueError(f"reviewer {role} must be an object")
+        _reject_unknown_fields(spec, path=f"root.reviewers.{role}", allowed=REVIEWER_FIELDS)
         config = ReviewerConfig(
             role=role,
             provider=str(spec.get("provider", "")),
@@ -67,7 +176,7 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
             enabled=bool(spec.get("enabled", True)),
         )
         config.validate()
-        if config.provider not in provider_specs:
+        if config.provider not in validated_provider_specs:
             raise ValueError(f"reviewer {role} references unknown provider {config.provider}")
         reviewers[role] = config
     if "R1" not in reviewers:
@@ -77,9 +186,10 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
     raw_records = data.get("qualifications", [])
     if not isinstance(raw_records, list):
         raise ValueError("qualifications must be a list")
-    for item in raw_records:
+    for index, item in enumerate(raw_records):
         if not isinstance(item, dict):
             raise ValueError("qualification record must be an object")
+        _reject_unknown_fields(item, path=f"root.qualifications[{index}]", allowed=QUALIFICATION_FIELDS)
         task_types = item.get("task_types", ["*"])
         if not isinstance(task_types, list):
             raise ValueError("qualification task_types must be a list")
@@ -101,7 +211,7 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
     QualificationRegistry(tuple(records))
     return ReviewEngineConfiguration(
         reviewers=reviewers,
-        provider_specs=provider_specs,
+        provider_specs=validated_provider_specs,
         qualification_records=tuple(records),
     )
 
