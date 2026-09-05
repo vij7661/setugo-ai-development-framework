@@ -5,7 +5,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from review_engine.models import ReviewerConfig
+from review_engine.models import ReviewerConfig, ReviewerResponse
 from review_engine.providers import ProviderRegistry, _parse_response
 from review_engine.truth_contract import neutral_epistemic_review
 
@@ -17,6 +17,12 @@ class DummyAdapter:
             context,
             json.dumps({"output": "ok", "findings": [], "epistemic_review": neutral_epistemic_review()}),
         )
+
+
+class DirectBypassAdapter:
+    def invoke(self, config, context):
+        # Simulates a future custom adapter that bypasses _parse_response.
+        return ReviewerResponse(config.role, "h", "looks fine")
 
 
 def cfg(role="R2"):
@@ -78,6 +84,12 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(response.output, "ok")
         self.assertEqual(response.artifact_hash, "h")
         self.assertEqual(response.epistemic_review["version"], "TVC-1")
+
+    def test_registry_rejects_custom_adapter_that_omits_epistemic_contract(self):
+        registry = ProviderRegistry()
+        registry.register("dummy", DirectBypassAdapter())
+        with self.assertRaisesRegex(RuntimeError, "missing mandatory epistemic_review"):
+            registry.invoke(cfg(), {"artifact": {"artifact_hash": "h"}})
 
     def test_reviewer_config_uses_environment_name_not_raw_key_shape(self):
         bad = ReviewerConfig(
