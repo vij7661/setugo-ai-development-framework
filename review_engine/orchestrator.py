@@ -7,6 +7,7 @@ from .evidence_correspondence import EvidenceCorrespondenceValidator
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewDecision, ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
 from .qualification import QualificationRegistry
+from .scoped_correction import CorrectionScopeError, build_scoped_correction_plan
 from .truth_contract import evaluate_truth_contract
 
 RISK_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
@@ -342,6 +343,39 @@ class ReviewEngine:
                 )
             )
 
+        # Models do not grant their own rewrite capability. Before R1 can revise
+        # anything, the platform must derive a machine-enforceable capability from
+        # exact, unique claim anchors in the frozen artifact. Broad/ambiguous or
+        # unbound scopes fail to human instead of becoming prompt-only authority.
+        try:
+            correction_plan = build_scoped_correction_plan(artifact.content, correction_targets)
+        except CorrectionScopeError as exc:
+            self._emit(
+                session_id,
+                "SCOPED_CORRECTION_REJECTED",
+                {
+                    "artifact_hash": artifact.artifact_hash,
+                    "trigger_finding_ids": [f.finding_id for f in correction_targets],
+                    "reason": str(exc),
+                    "correction_invoked": False,
+                },
+            )
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    (f"material correction scope is not machine-enforceable: {exc}",),
+                    artifact_hash=artifact.artifact_hash,
+                )
+            )
+
+        self._emit(
+            session_id,
+            "SCOPED_CORRECTION_AUTHORIZED",
+            {
+                "artifact_hash": artifact.artifact_hash,
+                "scope_plan": correction_plan.as_dict(),
+            },
+        )
         correction_context = self._contexts.compile_r1(request, memory)
         correction_context.update(
             {
@@ -357,6 +391,7 @@ class ReviewEngine:
                 # review targets. R1 self-findings/platform TVC findings remain in
                 # review_targets and are never relabeled as independent R2 evidence.
                 "verified_review_targets": [_finding_payload(f) for f in r2_material],
+                "platform_correction_scope": correction_plan.as_dict(),
             }
         )
         correction_context["instructions"].update(
@@ -364,6 +399,7 @@ class ReviewEngine:
                 "change_only_affected_scope": True,
                 "preserve_unaffected_content": True,
                 "review_targets_are_evidence_not_release_authority": True,
+                "platform_scope_is_authoritative_for_this_revision": True,
             }
         )
         r1_revised = self._invoke(r1, correction_context)
@@ -371,6 +407,27 @@ class ReviewEngine:
         if r1_revised.role != "R1":
             raise ValueError("correction invocation returned wrong role")
         revised = ReviewArtifact(artifact.artifact_id, 2, r1_revised.output)
+
+        scope_assessment = correction_plan.assess(revised.content)
+        self._emit(
+            session_id,
+            "SCOPED_CORRECTION_ASSESSED",
+            {
+                "previous_artifact_hash": artifact.artifact_hash,
+                "artifact_hash": revised.artifact_hash,
+                "trigger_finding_ids": [f.finding_id for f in correction_targets],
+                "assessment": scope_assessment.as_dict(),
+            },
+        )
+        if not scope_assessment.admissible:
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    (scope_assessment.reason,),
+                    artifact_hash=revised.artifact_hash,
+                )
+            )
+
         r1_revised_all, r1_revised_evidence_assessments = _response_findings(
             r1_revised,
             artifact_hash=revised.artifact_hash,
@@ -390,10 +447,9 @@ class ReviewEngine:
                 "material_finding_ids": [f.finding_id for f in r1_revised_material],
                 "epistemic_review": r1_revised.epistemic_review,
                 "evidence_correspondence": list(r1_revised_evidence_assessments),
+                "scope_assessment": scope_assessment.as_dict(),
             },
         )
-        if revised.artifact_hash == artifact.artifact_hash:
-            return finish(ReviewDecision("HUMAN_REQUIRED", ("material review finding produced no artifact revision",), artifact_hash=revised.artifact_hash))
 
         if r3 is None or not r3.enabled:
             return finish(ReviewDecision("HUMAN_REQUIRED", ("material revision requires R3 but R3 is unavailable",), artifact_hash=revised.artifact_hash))
