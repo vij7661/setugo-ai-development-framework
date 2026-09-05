@@ -7,7 +7,7 @@ DECISIONS = {"NO_REVIEW", "REVIEW_R2", "REVIEW_R3", "HUMAN_REQUIRED"}
 RISK_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
 MATERIALITY_ORDER = {"NONE": 0, "REVERSIBLE": 1, "MATERIAL": 2, "CONSEQUENTIAL": 3}
 SEVERITY_ORDER = {"NONE": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
-SEMANTIC_PROBE_STATUSES = {"NOT_RUN", "STABLE", "UNCERTAIN", "REFUSAL_DOMINANT"}
+SEMANTIC_PROBE_STATUSES = {"NOT_RUN", "STABLE", "UNCERTAIN", "REFUSAL_DOMINANT", "INSUFFICIENT"}
 
 
 @dataclass(frozen=True)
@@ -92,7 +92,7 @@ def decide_review(signals: dict[str, Any]) -> ReviewDecision:
             reasons.append("suspected reviewer memory contamination")
         return ReviewDecision("REVIEW_R3", tuple(reasons))
 
-    semantic_escalation = semantic_probe_status in {"UNCERTAIN", "REFUSAL_DOMINANT"}
+    semantic_escalation = semantic_probe_status in {"UNCERTAIN", "REFUSAL_DOMINANT", "INSUFFICIENT"}
     needs_r2 = (
         RISK_ORDER[risk] >= RISK_ORDER["MEDIUM"]
         or MATERIALITY_ORDER[materiality] >= MATERIALITY_ORDER["MATERIAL"]
@@ -126,6 +126,8 @@ def decide_review(signals: dict[str, Any]) -> ReviewDecision:
             reasons.append("high within-model semantic uncertainty")
         if semantic_probe_status == "REFUSAL_DOMINANT":
             reasons.append("within-model probe dominated by refusal or unknown answers")
+        if semantic_probe_status == "INSUFFICIENT":
+            reasons.append("semantic probe has insufficient valid samples")
         if counterfactual_instability:
             reasons.append("controlled counterfactual cross-examination changed the material conclusion")
         if suspected_memory_contamination:
