@@ -5,6 +5,7 @@ from typing import Callable
 from .context_compiler import ContextCompiler
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewDecision, ReviewerConfig, ReviewerResponse, ReviewRequest
+from .qualification import QualificationRegistry
 
 RISK_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
 MATERIALITY_ORDER = {"NONE": 0, "REVERSIBLE": 1, "MATERIAL": 2, "CONSEQUENTIAL": 3}
@@ -52,18 +53,35 @@ def _material_findings(response: ReviewerResponse) -> tuple:
 class ReviewEngine:
     """Governed R1 -> conditional R2 -> conditional R3 product orchestration."""
 
-    def __init__(self, invoker: ReviewerInvoker, *, context_compiler: ContextCompiler | None = None, session_store=None) -> None:
+    def __init__(
+        self,
+        invoker: ReviewerInvoker,
+        *,
+        context_compiler: ContextCompiler | None = None,
+        session_store=None,
+        qualification_registry: QualificationRegistry | None = None,
+    ) -> None:
         self._invoke = invoker
         self._contexts = context_compiler or ContextCompiler()
         self._sessions = session_store
+        self._qualifications = qualification_registry
 
     def _emit(self, session_id: str, event_type: str, payload: dict) -> None:
         if self._sessions is not None:
             self._sessions.append(session_id, event_type, payload)
 
+    def _qualification_failure(self, config: ReviewerConfig, *, risk: str, task_type: str) -> str | None:
+        if self._qualifications is None:
+            return None
+        decision = self._qualifications.evaluate(config, risk=risk, task_type=task_type)
+        if decision.eligible:
+            return None
+        return f"{config.role} not qualified: {decision.reason}"
+
     def run(self, request: ReviewRequest, *, r1: ReviewerConfig, r2: ReviewerConfig | None, r3: ReviewerConfig | None, memory: VersionedMemoryStore | None = None) -> ReviewDecision:
         memory = memory or VersionedMemoryStore()
         session_id = request.request_id
+        task_type = str(request.platform_facts.get("task_type", "GENERAL"))
         self._emit(session_id, "REQUEST_RECEIVED", {
             "request_id": request.request_id,
             "risk_floor": request.risk,
@@ -72,6 +90,7 @@ class ReviewEngine:
             "mutation_requested": request.mutation_requested,
             "requirement_ambiguity": request.requirement_ambiguity,
             "evidence_complete": request.evidence_complete,
+            "assurance_mode": "GOVERNED" if self._qualifications is not None else "EXPERIMENTAL_UNQUALIFIED",
         })
 
         def finish(decision: ReviewDecision) -> ReviewDecision:
@@ -92,6 +111,10 @@ class ReviewEngine:
             r3.validate()
             if r3.role != "R3": raise ValueError("third configuration must be R3")
 
+        q_failure = self._qualification_failure(r1, risk=request.risk, task_type=task_type)
+        if q_failure:
+            return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,)))
+
         r1_initial = self._invoke(r1, self._contexts.compile_r1(request, memory))
         r1_initial.validate()
         if r1_initial.role != "R1": raise ValueError("R1 invocation returned wrong role")
@@ -111,6 +134,9 @@ class ReviewEngine:
         self._emit(session_id, "ROUTE_DECISION", {"route": "R2_REQUIRED", "artifact_hash": artifact.artifact_hash})
         if r2 is None or not r2.enabled:
             return finish(ReviewDecision("HUMAN_REQUIRED", ("R2 required but unavailable",), artifact_hash=artifact.artifact_hash))
+        q_failure = self._qualification_failure(r2, risk=signals["risk"], task_type=task_type)
+        if q_failure:
+            return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=artifact.artifact_hash))
 
         r2_response = self._invoke(r2, self._contexts.compile_r2(request, artifact, memory))
         r2_response.validate()
@@ -152,6 +178,9 @@ class ReviewEngine:
             return finish(ReviewDecision("HUMAN_REQUIRED", ("material revision requires R3 but R3 is unavailable",), artifact_hash=revised.artifact_hash))
         if r2.foundation_lineage == r3.foundation_lineage and RISK_ORDER[signals["risk"]] >= RISK_ORDER["HIGH"]:
             return finish(ReviewDecision("HUMAN_REQUIRED", ("high-risk R3 is not foundation-lineage independent from R2",), artifact_hash=revised.artifact_hash))
+        q_failure = self._qualification_failure(r3, risk=signals["risk"], task_type=task_type)
+        if q_failure:
+            return finish(ReviewDecision("HUMAN_REQUIRED", (q_failure,), artifact_hash=revised.artifact_hash))
 
         r3_independent = self._invoke(r3, self._contexts.compile_r3_phase_a(request, revised, memory))
         r3_independent.validate()
