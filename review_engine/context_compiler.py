@@ -128,6 +128,14 @@ class ContextCompiler:
             "role": "R3",
             "phase": "ADJUDICATION",
             "request_id": request.request_id,
+            "artifact": {
+                "artifact_id": artifact.artifact_id,
+                "version": artifact.version,
+                "artifact_hash": artifact.artifact_hash,
+                "content": artifact.content,
+            },
+            # Compatibility binding retained for adapters that read the top-level
+            # hash. The platform-owned artifact object above is authoritative.
             "artifact_hash": artifact.artifact_hash,
             "frozen_independent_view": frozen_independent_response.output,
             "frozen_material_findings": [_finding_view(f) for f in frozen_material_findings],
@@ -138,6 +146,7 @@ class ContextCompiler:
             "memory": _shared_memory_view(memory),
             "instructions": {
                 "independent_view_is_frozen": True,
+                "artifact_content_is_exact_frozen_revision": True,
                 "compare_against_authoritative_evidence": True,
                 "majority_vote_is_not_authority": True,
                 "do_not_grant_authority": True,
