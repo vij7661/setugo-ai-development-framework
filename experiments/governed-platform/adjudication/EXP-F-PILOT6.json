@@ -1,0 +1,9 @@
+{
+  "experiment_id": "EXP-F-PILOT6",
+  "scope": "policy TOCTOU and authority binding falsification",
+  "tested_sha": "09db04c20fac268a5e5aec7fd2da33ba1ff3ddc5",
+  "workflow_run_id": 33954134532,
+  "conclusion": "PASS",
+  "governance_tests": 78,
+  "notes": "Exact-head CI passed all policy binding/TOCTOU cases. Policy epoch, policy hash, artifact hash, capability identity, revocation, stale request metadata, and evidence policy lineage are fail-closed boundaries. This is an append-only slice record and does not by itself prove the entire orchestration attack surface safe."
+}
