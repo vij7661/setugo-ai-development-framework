@@ -53,7 +53,6 @@ class OpenAICompatibleAdapter(MechanismAdapter):
         api_key = os.environ.get(self._config.api_key_env)
         if not api_key:
             raise RuntimeError(f"missing API credential in environment variable {self._config.api_key_env}")
-
         payload = {
             "model": self._config.model,
             "messages": [
@@ -65,7 +64,6 @@ class OpenAICompatibleAdapter(MechanismAdapter):
         endpoint = self._config.base_url.rstrip("/") + "/chat/completions"
         started = time.perf_counter()
         last_error: str | None = None
-
         for attempt in range(1, self._config.max_attempts + 1):
             request = Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "User-Agent": "setugo-governed-platform-pilot/1.0"}, method="POST")
             try:
@@ -102,7 +100,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                 status="PASS",
                 raw_output=raw_output,
                 provider=self._config.provider_id,
-                mechanism_version=body.get("model") or self._config.model,
+                mechanism_version=self._config.model,
                 input_tokens=usage.get("prompt_tokens"),
                 output_tokens=usage.get("completion_tokens"),
                 estimated_cost_usd=0.0,
@@ -113,7 +111,7 @@ class OpenAICompatibleAdapter(MechanismAdapter):
                     "finish_reason": finish_reason,
                     "response_model_claim": body.get("model"),
                     "completion_complete": True,
+                    "configured_model": self._config.model,
                 },
             )
-
         raise RuntimeError(last_error or "provider failed without a usable completion")
