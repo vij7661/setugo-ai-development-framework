@@ -138,20 +138,35 @@ class GovernedAssuranceTests(unittest.TestCase):
         )
         self.assertIn("REVOKED", decision.reasons[0])
 
-    def test_stale_eligible_observation_cannot_issue_capability_after_epoch_revocation(self):
-        class RevokingAfterEligibleRegistry(QualificationRegistry):
+    def test_revocation_immediately_before_atomic_issue_blocks_provider_call(self):
+        class RevokingAtIssuanceRegistry(QualificationRegistry):
             def __init__(self):
                 super().__init__((qual("R1", "q1", "m1"),))
                 self._revoked_once = False
 
-            def evaluate(self, config, *, risk, task_type="GENERAL"):
-                decision = super().evaluate(config, risk=risk, task_type=task_type)
-                if decision.eligible and not self._revoked_once:
+            def issue_capability(
+                self,
+                config,
+                *,
+                risk,
+                task_type="GENERAL",
+                request_id,
+                phase,
+                artifact_hash=None,
+            ):
+                if not self._revoked_once:
                     self._revoked_once = True
                     self.add(qual("R1", "q1", "m1", status="REVOKED", epoch=2))
-                return decision
+                return super().issue_capability(
+                    config,
+                    risk=risk,
+                    task_type=task_type,
+                    request_id=request_id,
+                    phase=phase,
+                    artifact_hash=artifact_hash,
+                )
 
-        registry = RevokingAfterEligibleRegistry()
+        registry = RevokingAtIssuanceRegistry()
         calls = []
 
         def invoke(config, context):
@@ -166,7 +181,7 @@ class GovernedAssuranceTests(unittest.TestCase):
         )
 
         self.assertEqual(decision.state, "HUMAN_REQUIRED")
-        self.assertEqual(calls, [], "stale eligible observation must not become provider capability")
+        self.assertEqual(calls, [], "revoked qualification must not become provider capability")
         self.assertIn("REVOKED", decision.reasons[0])
 
 
