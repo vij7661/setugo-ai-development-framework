@@ -1,18 +1,8 @@
-"""Governance primitives for review convergence and semantic invariant extraction.
-
-These functions are deterministic policy-layer controls. Model output is evidence;
-it never grants its own authority.
-"""
+"""Governance primitives for review convergence and semantic invariant extraction."""
 from __future__ import annotations
 
 
 def extract_domain_invariants(contract: dict) -> list[str]:
-    """Return explicit semantic invariants required before compatibility review.
-
-    Fail closed when the contract does not provide non-empty invariants. The
-    platform must not infer consequential domain semantics from implementation
-    similarity alone.
-    """
     values = contract.get("domain_invariants")
     if not isinstance(values, list):
         raise ValueError("domain_invariants must be an explicit list")
@@ -29,7 +19,6 @@ def extract_domain_invariants(contract: dict) -> list[str]:
 
 
 def compatibility_gate(contract: dict, candidate: dict) -> dict:
-    """Gate compatibility on explicit preservation of every domain invariant."""
     invariants = extract_domain_invariants(contract)
     preserved = candidate.get("preserved_invariants")
     if not isinstance(preserved, list) or not all(isinstance(x, str) for x in preserved):
@@ -41,30 +30,42 @@ def compatibility_gate(contract: dict, candidate: dict) -> dict:
 
 
 def authorize_model_routing(contract: dict, candidate: dict) -> dict:
-    """Authorize routing only after the policy layer recomputes compatibility."""
     gate = compatibility_gate(contract, candidate)
     if not gate["compatible"]:
         return {"authorized": False, "reason": gate["reason"], "gate": gate}
     return {"authorized": True, "reason": "policy-layer invariant gate passed", "gate": gate}
 
 
-def _performance_index(records: list[dict], role: str, task_class: str, risk_tier: str) -> dict[str, dict]:
-    """Build reviewer performance from independently adjudicated evidence only."""
+def _performance_record_is_representative(record: dict, *, min_samples: int, required_bands: list[str], min_per_band: int) -> bool:
+    sample_count = record.get("sample_count")
+    distribution = record.get("difficulty_distribution")
+    if not isinstance(sample_count, int) or sample_count < min_samples:
+        return False
+    if not isinstance(distribution, dict):
+        return False
+    if sum(v for v in distribution.values() if isinstance(v, int) and v >= 0) < sample_count:
+        return False
+    for band in required_bands:
+        count = distribution.get(band)
+        if not isinstance(count, int) or count < min_per_band:
+            return False
+    return True
+
+
+def _performance_index(records: list[dict], role: str, task_class: str, risk_tier: str, *, min_samples: int, required_bands: list[str], min_per_band: int) -> dict[str, dict]:
     index: dict[str, dict] = {}
     for record in records:
         reviewer = record.get("reviewer_id")
         rate = record.get("false_positive_rate")
         if not reviewer or not record.get("independently_adjudicated", False):
             continue
-        if (
-            record.get("role") != role
-            or record.get("task_class") != task_class
-            or record.get("risk_tier") != risk_tier
-        ):
+        if record.get("role") != role or record.get("task_class") != task_class or record.get("risk_tier") != risk_tier:
             continue
         if not isinstance(rate, (int, float)) or not 0 <= rate <= 1:
             continue
         if not record.get("evidence_ref") or not isinstance(record.get("performance_epoch"), int):
+            continue
+        if not _performance_record_is_representative(record, min_samples=min_samples, required_bands=required_bands, min_per_band=min_per_band):
             continue
         prior = index.get(reviewer)
         if prior is None or record["performance_epoch"] > prior["performance_epoch"]:
@@ -73,20 +74,15 @@ def _performance_index(records: list[dict], role: str, task_class: str, risk_tie
 
 
 def evaluate_review_convergence(policy: dict, reviews: list[dict], performance_records: list[dict] | None = None) -> dict:
-    """Apply review convergence using externally adjudicated reviewer performance.
-
-    Reviewers cannot self-report the metric that determines their own eligibility.
-    Performance evidence is scoped to role/task class/risk tier and must be
-    independently adjudicated, versioned by performance_epoch, and linked to an
-    evidence_ref. A later independently adjudicated epoch can demote or restore a
-    reviewer, making reviewer status reversible without mutating prior evidence.
-    """
     ceiling = policy.get("max_reviews")
     threshold = policy.get("false_positive_rate_threshold")
     required_agreement = policy.get("required_qualified_agreement")
     role = policy.get("review_role")
     task_class = policy.get("task_class")
     risk_tier = policy.get("risk_tier")
+    min_samples = policy.get("min_performance_samples")
+    required_bands = policy.get("required_difficulty_bands")
+    min_per_band = policy.get("min_samples_per_difficulty")
     if not isinstance(ceiling, int) or ceiling < 1:
         raise ValueError("max_reviews must be a positive pre-registered integer")
     if not isinstance(required_agreement, int) or required_agreement < 1 or required_agreement > ceiling:
@@ -97,8 +93,14 @@ def evaluate_review_convergence(policy: dict, reviews: list[dict], performance_r
         raise ValueError("review_role and task_class must be pre-registered")
     if not isinstance(risk_tier, str) or not risk_tier:
         raise ValueError("risk_tier must be pre-registered")
+    if not isinstance(min_samples, int) or min_samples < 1:
+        raise ValueError("min_performance_samples must be pre-registered")
+    if not isinstance(required_bands, list) or not required_bands or not all(isinstance(x, str) and x for x in required_bands):
+        raise ValueError("required_difficulty_bands must be pre-registered")
+    if not isinstance(min_per_band, int) or min_per_band < 1:
+        raise ValueError("min_samples_per_difficulty must be pre-registered")
 
-    performance = _performance_index(performance_records or [], role, task_class, risk_tier)
+    performance = _performance_index(performance_records or [], role, task_class, risk_tier, min_samples=min_samples, required_bands=required_bands, min_per_band=min_per_band)
     considered = reviews[:ceiling]
     qualified = []
     demoted = []
