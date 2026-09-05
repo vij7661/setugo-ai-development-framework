@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-020",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:operator-precedence-clean",
+  "authoritative_intent_ref": "inline:eligibility-boolean-contract",
+  "invariant_refs": ["INV-H-LOW-020"],
+  "model_visible": {
+    "contract": "Show 'Eligible' when (A=true AND B=true) OR C=true.",
+    "artifact": "A=false; B=true; C=true; label='Eligible'",
+    "context": "Read-only internal preview; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-020.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "boolean-precedence", "clean-control"]
+}
