@@ -20,7 +20,7 @@ This record is platform-side adjudication. External reviewer conclusions are can
 
 | Finding | External severity | Platform classification | Disposition |
 | --- | --- | --- | --- |
-| N-01 Gemini retry loop has no bounded backoff | MEDIUM | REAL ROBUSTNESS DEFECT | Fix now and add regression matching OpenAI-compatible/Anthropic retry behavior. |
+| N-01 Gemini retry loop has no bounded backoff | MEDIUM | REAL ROBUSTNESS DEFECT | CLOSED after adjudication: Gemini now uses bounded exponential backoff/jitter, honors `Retry-After`, exposes configurable backoff limits, and has a retry regression. Exact-head `522e78eb1381a1df08785705f45e75f58db0d310`, workflow run `33981688222`, full harness SUCCESS. |
 | N-02 euphemistic text can evade deterministic consequence hints | LOW | DECLARED INTEGRATION BOUNDARY | Do not expand keyword heuristics as a substitute for platform-owned action/tool state. Keep documented. Future authenticated tool/route integration must provide the real execution envelope. |
 | N-03 HTTP 502 path lacks detailed exception logging | LOW | OPERABILITY GAP | Non-gating. Prefer sanitized correlation logging only; do not log provider bodies, request payloads, credentials, or raw exception strings that may contain remote content. |
 
@@ -30,7 +30,7 @@ The remediation closure gate for R-01 through R-05 is **CLOSED** for the purpose
 
 This is not production/release approval. It only means the previously identified critical/high trust-model defects have survived independent targeted re-review and platform-side source adjudication at the frozen SHA.
 
-Before live-provider robustness work, close N-01. N-02 remains an explicit integration boundary. N-03 is a safe operability improvement but must preserve secret/error-body non-disclosure.
+N-01 has also been closed and revalidated on the full harness. N-02 remains an explicit integration boundary. N-03 is a safe operability improvement but must preserve secret/error-body non-disclosure.
 
 ## Next architecture items (not part of this closure gate)
 
