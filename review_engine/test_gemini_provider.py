@@ -10,6 +10,7 @@ from urllib.error import HTTPError
 
 from review_engine.gemini_provider import GeminiEndpoint, GeminiProvider
 from review_engine.models import ReviewerConfig
+from review_engine.truth_contract import neutral_epistemic_review
 
 
 class _Response:
@@ -57,7 +58,11 @@ class GeminiProviderTests(unittest.TestCase):
                 "finishReason": "STOP",
                 "content": {
                     "parts": [{
-                        "text": json.dumps({"output": "clean", "findings": []}),
+                        "text": json.dumps({
+                            "output": "clean",
+                            "findings": [],
+                            "epistemic_review": neutral_epistemic_review(),
+                        }),
                     }]
                 },
             }]
@@ -71,6 +76,7 @@ class GeminiProviderTests(unittest.TestCase):
 
         self.assertEqual(result.output, "clean")
         self.assertEqual(result.artifact_hash, "artifact-hash")
+        self.assertEqual(result.epistemic_review["version"], "TVC-1")
         sleep.assert_called_once_with(0.2)
 
     def test_invalid_backoff_configuration_is_rejected(self):
