@@ -23,16 +23,7 @@ class ProviderAdapter(Protocol):
 
 
 def validate_provider_base_url(base_url: str, *, label: str = "provider") -> str:
-    """Require encrypted transport for remote credential-bearing provider calls.
-
-    Plain HTTP is permitted only for an explicit loopback endpoint so local
-    development adapters can run without TLS. Remote provider endpoints must use
-    HTTPS because every supported adapter transmits an API credential.
-
-    Base URLs also reject embedded URL credentials, query strings and fragments;
-    those belong in structured adapter configuration/request construction rather
-    than an opaque authority string.
-    """
+    """Require encrypted transport for remote credential-bearing provider calls."""
     if not isinstance(base_url, str) or not base_url.strip():
         raise ValueError(f"{label} base_url required")
     value = base_url.strip()
@@ -77,11 +68,7 @@ _PROVIDER_OPENER = build_opener(_RejectProviderRedirectHandler())
 
 
 def urlopen(request: Request, timeout: int | float):
-    """Provider transport opener with redirects disabled.
-
-    Kept as a module-level symbol so provider tests/integrations can patch the
-    transport without performing network calls.
-    """
+    """Provider transport opener with redirects disabled."""
     return _PROVIDER_OPENER.open(request, timeout=timeout)
 
 
@@ -141,12 +128,14 @@ Schema:
       "affected_scope": [],
       "first_invalid_claim": null
     }}
-  ]
+  ],
+  "resolved_finding_ids": []
 }}
 The epistemic_review object is mandatory. Empirical claims marked SUPPORTED must include evidence_refs.
 Correspondence, coherence, pragmatic utility and semantic precision are separate dimensions.
 Pragmatic usefulness never overrides factual, logical or governance defects.
 For R1 generation, findings may be empty. For R2/R3 review, localize the first material failure when possible and do not rewrite unrelated scope.
+resolved_finding_ids is only for R3 ADJUDICATION. It must contain exact frozen Phase-A material finding IDs that the adjudicator explicitly resolves. Never use omission as resolution and never invent IDs.
 """
 
 
@@ -195,9 +184,17 @@ def _parse_response(role: str, context: dict, raw: str) -> ReviewerResponse:
     if not isinstance(proposed, dict):
         raise RuntimeError("proposed_signals must be an object")
 
+    raw_resolved = data.get("resolved_finding_ids", [])
+    if raw_resolved is None:
+        raw_resolved = []
+    if not isinstance(raw_resolved, list):
+        raise RuntimeError("resolved_finding_ids must be a list")
+    if any(not isinstance(value, str) or not value.strip() for value in raw_resolved):
+        raise RuntimeError("resolved_finding_ids must contain non-empty strings")
+
     epistemic_review = validate_epistemic_review(data.get("epistemic_review"))
 
-    return ReviewerResponse(
+    response = ReviewerResponse(
         role=role,
         artifact_hash=_context_artifact_hash(context),
         output=data["output"].strip(),
@@ -205,7 +202,10 @@ def _parse_response(role: str, context: dict, raw: str) -> ReviewerResponse:
         complete=True,
         proposed_signals=proposed,
         epistemic_review=epistemic_review,
+        resolved_finding_ids=tuple(raw_resolved),
     )
+    response.validate()
+    return response
 
 
 class OpenAICompatibleProvider:
