@@ -6,7 +6,7 @@ from pathlib import Path
 
 from review_engine.app import ReviewEngineApp
 from review_engine.configuration import ReviewEngineConfiguration
-from review_engine.judge_health import JudgeObservation
+from review_engine.judge_health import JudgeIdentityBinding, JudgeObservation
 from review_engine.models import ReviewerConfig, ReviewerResponse
 
 
@@ -23,6 +23,14 @@ class FakeProviders:
 
 def r1_config():
     return ReviewerConfig("R1", "fake", "model", "default", "api", "R1_API_KEY", "lineage", None)
+
+
+def health_identity(name: str) -> JudgeIdentityBinding:
+    return JudgeIdentityBinding(
+        provider=f"provider-{name}", model=f"model-{name}", sku="default",
+        deployment_path=f"api/{name}", role="R2", foundation_lineage=f"lineage-{name}",
+        qualification_ref=f"q-{name}", qualification_epoch=1,
+    )
 
 
 class AppTests(unittest.TestCase):
@@ -47,6 +55,7 @@ class AppTests(unittest.TestCase):
             self.assertEqual(health["execution_envelope"]["connected_tool_capabilities"], [])
             self.assertEqual(health["execution_envelope"]["source"], "trusted_application_boundary")
             self.assertEqual(health["truth_contract_version"], "TVC-1")
+            self.assertEqual(health["evidence_correspondence_validator"], "UNCONFIGURED")
             self.assertEqual(health["judge_health_monitor"], "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1")
 
             result = app.review({"request_id": "s1", "user_input": "brainstorm", "operation_class": "CHAT"})
@@ -55,6 +64,7 @@ class AppTests(unittest.TestCase):
             self.assertFalse(result["action_authorized"])
             self.assertTrue(result["session_chain_valid"])
             self.assertEqual(result["truth_contract_version"], "TVC-1")
+            self.assertFalse(result["evidence_correspondence_validator_configured"])
             self.assertEqual(fake.calls, ["R1"])
             self.assertEqual(result["platform_facts"]["platform_operation_class"], "ANALYSIS")
             self.assertEqual(result["platform_facts"]["declared_operation_class"], "CHAT")
@@ -101,16 +111,18 @@ class AppTests(unittest.TestCase):
     def test_judge_health_is_internal_monitoring_evidence_not_correctness_certificate(self):
         with tempfile.TemporaryDirectory() as td:
             app = self.build_app(td, FakeProviders())
+            a, b = health_identity("a"), health_identity("b")
             observations = []
             for i in range(10):
-                observations.append(JudgeObservation(f"t{i}", "judge-a", "A"))
-                observations.append(JudgeObservation(f"t{i}", "judge-b", "B" if i < 3 else "A"))
+                observations.append(JudgeObservation.bound(f"t{i}", a, "A"))
+                observations.append(JudgeObservation.bound(f"t{i}", b, "B" if i < 3 else "A"))
             report = app.judge_health(
                 observations,
                 minimum_accuracy_target=0.9,
                 minimum_shared_tasks=10,
             )
             self.assertEqual(report["status"], "LOGICALLY_INCONSISTENT_WITH_QUALIFICATION_TARGET")
+            self.assertTrue(report["bound_identity_required"])
             self.assertFalse(report["no_alarm_establishes_correctness"])
             self.assertFalse(report["can_identify_faulty_judge"])
 
