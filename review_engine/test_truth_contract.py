@@ -190,8 +190,8 @@ class TruthContractTests(unittest.TestCase):
             r3=None,
         )
         self.assertEqual(decision.state, "HUMAN_REQUIRED")
-        self.assertEqual(calls, ["R1", "R2", "R1"])
-        self.assertIn("no artifact revision", decision.reasons[0])
+        self.assertEqual(calls, ["R1", "R2"])
+        self.assertIn("entire artifact", decision.reasons[0])
 
     def test_material_r1_truth_finding_can_be_corrected_then_blindly_verified(self):
         r1 = cfg("R1", "lineage-r1")
@@ -205,7 +205,7 @@ class TruthContractTests(unittest.TestCase):
                 return ReviewerResponse(
                     "R1",
                     None,
-                    "The external system already approved this change.",
+                    "Assessment: The external system already approved this change.\nPolicy: authority remains external.",
                     epistemic_review=unsupported_material_fact(),
                 )
             if config.role == "R2":
@@ -217,10 +217,11 @@ class TruthContractTests(unittest.TestCase):
                 )
             if config.role == "R1":
                 self.assertTrue(context["review_targets"])
+                self.assertEqual(context["platform_correction_scope"]["anchors"], ["The external system already approved this change."])
                 return ReviewerResponse(
                     "R1",
                     None,
-                    "The available evidence does not establish external approval.",
+                    "Assessment: The available evidence does not establish external approval.\nPolicy: authority remains external.",
                     epistemic_review=neutral_epistemic_review(),
                 )
             return ReviewerResponse(
