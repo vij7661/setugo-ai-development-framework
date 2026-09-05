@@ -146,6 +146,10 @@ class SystemIntegrationTests(unittest.TestCase):
                 [1, 1, 1, 1],
             )
             self.assertEqual(len({event.payload["capability_id"] for event in capability_events}), 4)
+            context_hashes = [event.payload["context_hash"] for event in capability_events]
+            self.assertTrue(all(len(value) == 64 for value in context_hashes))
+            self.assertTrue(all(all(ch in "0123456789abcdef" for ch in value) for value in context_hashes))
+            self.assertEqual(len(set(context_hashes)), 4)
             self.assertTrue(all(event.payload["single_use_consumed_for_invocation"] for event in capability_events))
             self.assertTrue(all(event.payload["external_action_authority"] is False for event in capability_events))
 
