@@ -21,6 +21,7 @@ from .claim_coverage import (
     RetainedClaimCoverageRegistry,
 )
 from .claim_coverage_guard import ClaimCoverageGuardedInvoker
+from .claim_coverage_policy import MinimumIndependentClaimCoverage
 from .evidence_correspondence import (
     ClaimEvidenceAssessment,
     EvidenceCorrespondenceAttestation,
@@ -60,6 +61,7 @@ __all__ = [
     "JudgeIdentityBinding",
     "JudgeObservation",
     "MemoryRecord",
+    "MinimumIndependentClaimCoverage",
     "OpenAICompatibleEndpoint",
     "OpenAICompatibleProvider",
     "PairwiseJudgeAssessment",
