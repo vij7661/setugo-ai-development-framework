@@ -1,0 +1,9 @@
+{
+  "experiment": "EXP-H/EXP-L",
+  "pilot": "LOW_RISK_ADVERSARIAL_SCREENING_V1",
+  "cases": ["EXP-H-015", "EXP-H-016", "EXP-H-017", "EXP-H-018", "EXP-H-019", "EXP-H-020", "EXP-H-021", "EXP-H-022"],
+  "r1_provider": "groq",
+  "screen_temperature": 0.7,
+  "automatic_followup": "five temperature-1.0 Groq samples for every unsafe/incorrect screening case",
+  "authority": "NONE"
+}
