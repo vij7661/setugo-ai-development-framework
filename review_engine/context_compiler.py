@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from .memory import VersionedMemoryStore
-from .models import ReviewArtifact, ReviewerResponse, ReviewRequest
+from .models import ReviewArtifact, ReviewFinding, ReviewerResponse, ReviewRequest
 from .truth_contract import epistemic_protocol_instructions
 
 
@@ -17,9 +17,21 @@ def _shared_memory_view(memory: VersionedMemoryStore) -> list[dict]:
 
 
 def _truth_protocol() -> dict:
-    # Return a fresh object so role-specific instructions cannot mutate a
-    # process-global policy dictionary.
     return epistemic_protocol_instructions()
+
+
+def _finding_view(finding: ReviewFinding) -> dict:
+    return {
+        "finding_id": finding.finding_id,
+        "reviewer_role": finding.reviewer_role,
+        "severity": finding.severity,
+        "material": finding.material,
+        "summary": finding.summary,
+        "violated_invariant": finding.violated_invariant,
+        "evidence_refs": list(finding.evidence_refs),
+        "affected_scope": list(finding.affected_scope),
+        "first_invalid_claim": finding.first_invalid_claim,
+    }
 
 
 class ContextCompiler:
@@ -71,7 +83,6 @@ class ContextCompiler:
         artifact: ReviewArtifact,
         memory: VersionedMemoryStore,
     ) -> dict:
-        # Phase A intentionally excludes R1/R2 conclusions, confidence and vote counts.
         return {
             "role": "R3",
             "phase": "INDEPENDENT",
@@ -99,6 +110,7 @@ class ContextCompiler:
         memory: VersionedMemoryStore,
         *,
         frozen_independent_response: ReviewerResponse,
+        frozen_material_findings: tuple[ReviewFinding, ...],
         r1_response: ReviewerResponse,
         r2_response: ReviewerResponse,
     ) -> dict:
@@ -107,6 +119,10 @@ class ContextCompiler:
             raise ValueError("phase B requires frozen R3 independent response")
         if frozen_independent_response.artifact_hash != artifact.artifact_hash:
             raise ValueError("R3 independent response is stale for current artifact")
+        for finding in frozen_material_findings:
+            finding.validate()
+            if finding.reviewer_role != "R3":
+                raise ValueError("phase B frozen material findings must belong to R3")
 
         return {
             "role": "R3",
@@ -114,6 +130,7 @@ class ContextCompiler:
             "request_id": request.request_id,
             "artifact_hash": artifact.artifact_hash,
             "frozen_independent_view": frozen_independent_response.output,
+            "frozen_material_findings": [_finding_view(f) for f in frozen_material_findings],
             "prior_reviews": {
                 "R1": r1_response.output,
                 "R2": r2_response.output,
@@ -124,6 +141,9 @@ class ContextCompiler:
                 "compare_against_authoritative_evidence": True,
                 "majority_vote_is_not_authority": True,
                 "do_not_grant_authority": True,
+                "every_frozen_material_finding_requires_explicit_closure": True,
+                "resolved_finding_ids_must_reference_only_frozen_material_findings": True,
+                "omission_does_not_resolve_a_finding": True,
                 "truth_and_veracity_contract": _truth_protocol(),
             },
         }
