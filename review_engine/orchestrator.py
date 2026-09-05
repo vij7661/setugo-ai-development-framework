@@ -419,6 +419,26 @@ class ReviewEngine:
                 )
             )
 
+        q_failure = self._qualification_failure(r1, risk=signals["risk"], task_type=task_type)
+        if q_failure:
+            self._emit(
+                session_id,
+                "CAPABILITY_ISSUANCE_REJECTED",
+                {
+                    "role": "R1",
+                    "phase": "SCOPED_CORRECTION",
+                    "artifact_hash": artifact.artifact_hash,
+                    "reason": q_failure,
+                },
+            )
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    (q_failure,),
+                    artifact_hash=artifact.artifact_hash,
+                )
+            )
+
         self._emit(
             session_id,
             "SCOPED_CORRECTION_AUTHORIZED",
@@ -559,6 +579,27 @@ class ReviewEngine:
                 ReviewDecision(
                     "HUMAN_REQUIRED",
                     ("R3 independent material finding ids are not unique",),
+                    artifact_hash=revised.artifact_hash,
+                    dissent=tuple(f.summary for f in r3_material),
+                )
+            )
+
+        q_failure = self._qualification_failure(r3, risk=signals["risk"], task_type=task_type)
+        if q_failure:
+            self._emit(
+                session_id,
+                "R3_ADJUDICATION_REJECTED",
+                {
+                    "artifact_hash": revised.artifact_hash,
+                    "frozen_material_finding_ids": list(phase_a_ids),
+                    "reason": q_failure,
+                    "adjudication_invoked": False,
+                },
+            )
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    (q_failure,),
                     artifact_hash=revised.artifact_hash,
                     dissent=tuple(f.summary for f in r3_material),
                 )
