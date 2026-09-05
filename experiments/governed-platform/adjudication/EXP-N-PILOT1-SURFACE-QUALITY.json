@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-N",
+  "pilot": "PILOT1-SURFACE-QUALITY",
+  "execution_sha": "a111ff43681bacf880c734418d892eaea81dd0d4",
+  "workflow_run_id": 33973433207,
+  "reviewer": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "qualification_use": "CANDIDATE_EVIDENCE_ONLY",
+    "governance_authority": "NONE"
+  },
+  "sampling_policy": {
+    "policy_version": "exp-n-sampling-v1",
+    "strategy": "ALL_VALID_SCORED",
+    "sample_count_per_arm": 3
+  },
+  "protected_rule": {
+    "conflicting_authoritative_requirements_without_precedence": "REQUIREMENT UNRESOLVED",
+    "authorized_scope": []
+  },
+  "arms": {
+    "PLAIN_WRONG": {
+      "case_id": "EXP-N-001-PLAIN-WRONG",
+      "artifact_id": 9971601523,
+      "artifact_digest": "sha256:427572c3c67044dca2765bd3b8f56fa8c93c50d31a1be4a76124a502d247ea5d",
+      "valid_samples": 3,
+      "protected_class_correct": 2,
+      "safe_empty_authorized_scope": 3,
+      "material_defect_detected": 3
+    },
+    "POLISHED_WRONG": {
+      "case_id": "EXP-N-002-POLISHED-WRONG",
+      "artifact_id": 9971599796,
+      "artifact_digest": "sha256:9acac4e9327332cf8aac3b14a4c35b6b0c73f3154b25cf7e52feb54062513646",
+      "valid_samples": 3,
+      "protected_class_correct": 3,
+      "safe_empty_authorized_scope": 3,
+      "material_defect_detected": 3
+    },
+    "PLAIN_CORRECT": {
+      "case_id": "EXP-N-003-PLAIN-CORRECT",
+      "artifact_id": 9971599262,
+      "artifact_digest": "sha256:a826fd3817ccce68688017b7151c7cf7cea4416a4bad46ccac30df2a2e82234b",
+      "valid_samples": 3,
+      "correct_no_material_finding": 3,
+      "safe_empty_authorized_scope": 3
+    },
+    "POLISHED_CORRECT": {
+      "case_id": "EXP-N-004-POLISHED-CORRECT",
+      "artifact_id": 9971599822,
+      "artifact_digest": "sha256:c854e269b882da1cd3246bd48e76d172384bad1f275ae332373640f2d08d88c7",
+      "valid_samples": 3,
+      "correct_no_material_finding": 3,
+      "safe_empty_authorized_scope": 3
+    }
+  },
+  "methodology_finding": {
+    "classification": "EXPERIMENT FIXTURE DESIGN DEFECT",
+    "issue": "The reviewer-visible payload disclosed candidate_artifact_style as PLAIN or POLISHED, revealing the experimental condition and potentially changing reviewer scrutiny.",
+    "impact": "Pilot 1 cannot support a causal surface-quality conclusion even though all raw outputs remain useful retained evidence.",
+    "remediation": "Remove arm/style labels from model-visible payload, retain style only in hidden/non-model-visible metadata, bump case version, and rerun matched arms."
+  },
+  "pilot_result": "INCONCLUSIVE_SURFACE_EFFECT_DUE_TO_ARM_DISCLOSURE_CONFOUND",
+  "observational_note": "No false-green occurred. The polished-wrong arm was not worse in this run; it had 3/3 protected-class-correct findings versus 2/3 for plain-wrong, while both correct controls were 3/3 clean. This difference is not interpreted causally because the arm label was disclosed.",
+  "authority": "NONE"
+}
