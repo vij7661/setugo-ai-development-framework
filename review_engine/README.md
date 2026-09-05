@@ -18,6 +18,7 @@ The platform owns routing mechanics, context visibility, reviewer eligibility/in
 User request
   -> trusted application execution envelope + caller declarations + conservative text floor
   -> R1 interpreter/builder + structured epistemic review
+  -> optional platform claim-coverage guard
   -> platform Truth & Veracity Contract + evidence-correspondence evaluation
   -> platform risk/review decision
      -> direct finalization when bounded policy permits
@@ -88,6 +89,30 @@ The validator is constructor-injected at the trusted application boundary and ha
 
 This control is **not a semantic truth oracle**. The reference registry does not itself decide whether source text entails a claim; it evaluates independently retained attestations. A future evidence/source service must authenticate source snapshots, verifier identity, qualification and provenance before admitting those attestations.
 
+## Claim Coverage Validator
+
+`claim_coverage.py` and `claim_coverage_guard.py` address a different failure mode: a model can produce a material assertion in its artifact while omitting that assertion from its own `epistemic_review`, or can declare it as a weaker/non-material truth-bearer.
+
+A retained coverage inventory is bound to the exact artifact hash and an independently retained extractor identity. The inventory contains the material truth-bearers that the independent extractor says must appear in the reviewer's structured claim inventory. When claim coverage is configured on `ReviewEngineApp`, the platform wraps the provider invocation and compares the model-declared claim inventory with the retained independent inventory **after** the model returns. The reviewer therefore cannot suppress the resulting platform finding in its own response.
+
+Coverage states are:
+
+- `VERIFIED_COVERAGE`
+- `OMITTED_MATERIAL_CLAIM`
+- `MISCLASSIFIED_MATERIAL_CLAIM`
+- `CONFLICT`
+- `UNVERIFIED`
+
+A configured coverage validator fails closed if the exact artifact does not have a complete, foundation-lineage-independent retained inventory. Missing or materially misclassified claims become `HIGH`, material `TVC-COVERAGE` findings. Caller-supplied review JSON cannot create or authorize claim-coverage inventories.
+
+`MinimumIndependentClaimCoverage` provides an optional stronger policy requiring multiple independent extractors. Distinct qualification labels are not enough: the policy requires distinct runtime paths and distinct foundation lineages. Aliases pointing to the same provider/model/SKU/deployment path or multiple extractors from the same foundation lineage do not satisfy a multi-extractor requirement.
+
+Exact claim fingerprints are intentionally conservative. A paraphrase is not silently treated as equivalent to a retained claim; it fails coverage rather than producing a false pass. This avoids pretending that a deterministic string matcher solves semantic equivalence.
+
+Claim coverage is **not a proof that every claim in the artifact was discovered**. The registry consumes inventories admitted by a trusted extraction integration; it does not itself perform semantic claim extraction. A single extractor can still omit a claim. Multiple independent extractors reduce some correlated-error risk but do not prove completeness or truth. Extractor qualification admission and provider runtime attestation remain separate governance boundaries.
+
+The standard product application path enforces claim coverage when a validator is configured. Direct low-level construction of `ReviewEngine` without the guarded invoker is not claimed to provide claim-coverage enforcement.
+
 ## Reviewer independence
 
 Whenever R2 is required, its `foundation_lineage` must differ from R1. Whenever R3 is required, it must differ from both R1 and R2. Cross-model agreement is evidence and never release/action authority.
@@ -133,7 +158,7 @@ The MVP session ledger is append-only at the application API and hash-linked. A 
 
 Reviewer response `artifact_hash` binding is **platform-side bookkeeping integrity**: the provider adapter binds a response to the artifact hash in the platform-created context, and the orchestrator rejects mismatches. It is not a cryptographic reviewer attestation that proves the model semantically analyzed that exact content.
 
-Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
+Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. Claim-coverage findings are also platform-generated when the product application guard is configured. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
 
 ## API-key rule
 
@@ -150,7 +175,9 @@ This is an MVP orchestration core, not a production authorization system.
 - Provider runtime identity is not universally cryptographically attested.
 - Request-text consequence hints are not complete semantic intent detection.
 - The correspondence registry consumes retained verifier attestations; it does not independently solve semantic entailment from arbitrary source text.
-- Claim extraction/classification completeness remains a reviewer + independent-review problem; a model could still misclassify or omit a truth-bearer unless another control detects it.
+- Claim-coverage inventories are retained extraction evidence, not a semantic-completeness oracle; extractor qualification admission and runtime identity proof remain integration boundaries.
+- Exact claim fingerprinting deliberately fails conservatively on paraphrase/claim-boundary drift rather than asserting semantic equivalence.
+- Multiple independent extractors reduce some correlated omission risk but do not establish correctness or completeness.
 - Judge-health `NO_LOGICAL_ALARM` does not establish correctness or alignment.
 - Same foundation lineage is a correlation warning, not proof of shared training data or identical reasoning.
 - The platform still needs authenticated tool-state integration before it can claim independently verified execution consequences.
