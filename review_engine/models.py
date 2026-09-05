@@ -100,6 +100,11 @@ class ReviewerResponse:
     # Structured Truth & Veracity Contract evidence. Direct in-process test
     # adapters may omit it; real provider adapters validate and populate it.
     epistemic_review: dict[str, Any] = field(default_factory=dict)
+    # Only meaningful for staged R3 adjudication. A prior material finding does
+    # not disappear by omission: the adjudicator must explicitly name each
+    # frozen Phase-A finding it considers resolved. The orchestrator checks that
+    # every ID belongs to that exact frozen material set before using it.
+    resolved_finding_ids: tuple[str, ...] = ()
 
     def validate(self) -> None:
         if self.role not in REVIEW_ROLES:
@@ -108,6 +113,12 @@ class ReviewerResponse:
             raise ValueError("incomplete reviewer response is not admissible")
         if not isinstance(self.epistemic_review, dict):
             raise ValueError("epistemic_review must be an object")
+        if not isinstance(self.resolved_finding_ids, tuple):
+            raise ValueError("resolved_finding_ids must be a tuple")
+        if any(not isinstance(value, str) or not value.strip() for value in self.resolved_finding_ids):
+            raise ValueError("resolved_finding_ids cannot contain blank values")
+        if len(set(self.resolved_finding_ids)) != len(self.resolved_finding_ids):
+            raise ValueError("resolved_finding_ids cannot contain duplicates")
         for finding in self.findings:
             finding.validate()
             if finding.reviewer_role != self.role:
