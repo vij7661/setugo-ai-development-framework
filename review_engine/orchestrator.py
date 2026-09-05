@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable
 
 from .context_compiler import ContextCompiler
-from .evidence_correspondence import EvidenceCorrespondenceValidator
+from .evidence_correspondence import EvidenceCorrespondenceValidator, claim_fingerprint
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewDecision, ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
 from .qualification import QualificationRegistry
@@ -14,6 +14,7 @@ RISK_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
 MATERIALITY_ORDER = {"NONE": 0, "REVERSIBLE": 1, "MATERIAL": 2, "CONSEQUENTIAL": 3}
 UNCERTAINTY_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2}
 SEVERITY_ORDER = {"NONE": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
+PLATFORM_EVIDENCE_CLOSURE_INVARIANTS = frozenset({"TVC-CORRESPONDENCE", "TVC-EVIDENCE-CORRESPONDENCE"})
 ReviewerInvoker = Callable[[ReviewerConfig, dict], ReviewerResponse]
 
 
@@ -146,6 +147,43 @@ def _prior_review_evidence_payload(
         "epistemic_review": response.epistemic_review,
         "evidence_correspondence": list(evidence_assessments),
     }
+
+
+def _platform_evidence_closure_failures(
+    frozen_findings: tuple[ReviewFinding, ...],
+    *,
+    requested_resolved_ids: set[str],
+    artifact: ReviewArtifact,
+    adjudication_evidence_assessments: tuple[dict, ...],
+) -> tuple[ReviewFinding, ...]:
+    """Keep platform-owned evidence defects outside model-only closure authority.
+
+    R3 can request closure of any frozen finding ID, but correspondence findings
+    were created by the platform from evidence state. If the exact empirical
+    truth-bearer is still present in the unchanged adjudicated artifact, the
+    platform requires a VERIFIED_SUPPORT assessment bound to that exact artifact
+    and claim fingerprint before treating the ID as closed.
+    """
+    verified_support = {
+        str(assessment.get("claim_fingerprint"))
+        for assessment in adjudication_evidence_assessments
+        if assessment.get("status") == "VERIFIED_SUPPORT"
+        and assessment.get("artifact_hash") == artifact.artifact_hash
+        and assessment.get("claim_fingerprint")
+    }
+    failures: list[ReviewFinding] = []
+    for finding in frozen_findings:
+        if finding.finding_id not in requested_resolved_ids:
+            continue
+        if finding.violated_invariant not in PLATFORM_EVIDENCE_CLOSURE_INVARIANTS:
+            continue
+        claim = (finding.first_invalid_claim or "").strip()
+        if not claim or claim not in artifact.content:
+            failures.append(finding)
+            continue
+        if claim_fingerprint(claim) not in verified_support:
+            failures.append(finding)
+    return tuple(failures)
 
 
 class ReviewEngine:
@@ -592,7 +630,15 @@ class ReviewEngine:
         resolved_ids = set(r3_adjudication.resolved_finding_ids)
         frozen_id_set = set(phase_a_ids)
         invalid_resolution_ids = tuple(sorted(resolved_ids - frozen_id_set))
-        unclosed_phase_a = tuple(f for f in r3_material if f.finding_id not in resolved_ids)
+        platform_evidence_closure_failures = _platform_evidence_closure_failures(
+            r3_material,
+            requested_resolved_ids=resolved_ids,
+            artifact=revised,
+            adjudication_evidence_assessments=r3_adjudication_evidence_assessments,
+        )
+        blocked_platform_ids = {f.finding_id for f in platform_evidence_closure_failures}
+        effective_resolved_ids = resolved_ids - blocked_platform_ids
+        unclosed_phase_a = tuple(f for f in r3_material if f.finding_id not in effective_resolved_ids)
         phase_b_material = _material_findings(r3_adjudication_all)
         unresolved = _dedupe_findings(
             tuple(r1_revised_material) + tuple(unclosed_phase_a) + tuple(phase_b_material)
@@ -605,6 +651,8 @@ class ReviewEngine:
                 "findings": [_finding_payload(f) for f in r3_adjudication_all],
                 "frozen_material_finding_ids": list(phase_a_ids),
                 "resolved_finding_ids": list(r3_adjudication.resolved_finding_ids),
+                "platform_evidence_closure_rejected_ids": [f.finding_id for f in platform_evidence_closure_failures],
+                "effective_resolved_finding_ids": sorted(effective_resolved_ids),
                 "unclosed_frozen_finding_ids": [f.finding_id for f in unclosed_phase_a],
                 "invalid_resolution_ids": list(invalid_resolution_ids),
                 "unresolved_finding_ids": [f.finding_id for f in unresolved],
@@ -619,6 +667,15 @@ class ReviewEngine:
                     ("R3 adjudication referenced unknown frozen material finding ids",),
                     artifact_hash=revised.artifact_hash,
                     dissent=tuple(invalid_resolution_ids),
+                )
+            )
+        if platform_evidence_closure_failures:
+            return finish(
+                ReviewDecision(
+                    "HUMAN_REQUIRED",
+                    ("platform-owned evidence finding lacks exact platform-verified evidence closure",),
+                    artifact_hash=revised.artifact_hash,
+                    dissent=tuple(f.summary for f in platform_evidence_closure_failures),
                 )
             )
         if unresolved:
