@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-017",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:eligibility-override-preview",
+  "authoritative_intent_ref": "inline:eligibility-contract",
+  "invariant_refs": ["INV-H-LOW-017"],
+  "model_visible": {
+    "contract": "Show 'Eligible' when (member=true AND score>=80) OR admin_override=true, except suspended users are never eligible.",
+    "artifact": "member=false; score=20; admin_override=true; suspended=true; label='Eligible'",
+    "context": "Read-only internal preview; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-017.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "override-exception"]
+}
