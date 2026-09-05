@@ -12,6 +12,15 @@ from .sqlite_memory import SQLiteMemoryStore
 from .context_compiler import ContextCompiler
 from .orchestrator import ReviewEngine
 from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
+from .claim_coverage import (
+    ClaimCoverageAssessment,
+    ClaimCoverageInventory,
+    ClaimCoverageValidator,
+    ClaimExtractorIdentity,
+    CoverageClaim,
+    RetainedClaimCoverageRegistry,
+)
+from .claim_coverage_guard import ClaimCoverageGuardedInvoker
 from .evidence_correspondence import (
     ClaimEvidenceAssessment,
     EvidenceCorrespondenceAttestation,
@@ -36,8 +45,14 @@ from .judge_health import (
 )
 
 __all__ = [
+    "ClaimCoverageAssessment",
+    "ClaimCoverageGuardedInvoker",
+    "ClaimCoverageInventory",
+    "ClaimCoverageValidator",
     "ClaimEvidenceAssessment",
+    "ClaimExtractorIdentity",
     "ContextCompiler",
+    "CoverageClaim",
     "EvidenceCorrespondenceAttestation",
     "EvidenceCorrespondenceValidator",
     "JudgeHealthMonitor",
@@ -49,6 +64,7 @@ __all__ = [
     "OpenAICompatibleProvider",
     "PairwiseJudgeAssessment",
     "ProviderRegistry",
+    "RetainedClaimCoverageRegistry",
     "RetainedEvidenceCorrespondenceRegistry",
     "ReviewArtifact",
     "ReviewDecision",
