@@ -1,57 +1,63 @@
-# EXP-N — Claim-Level Review Targeting and Context Reduction
+# EXP-N — Surface Quality, Familiarity and False Confidence
 
-Status: **PRE-REGISTERED / DEFERRED UNTIL EXP-L AND EXP-M PILOTS**
+Status: **PRE-REGISTERED / NOT YET SCIENTIFICALLY ADJUDICATED**
 
 ## Motivation
 
-Long-form semantic-uncertainty work shows that whole-paragraph resampling can confuse harmless ordering/wording variation with uncertainty. A more useful unit is often an individual factual or decision proposition. This also aligns with the product goal of reducing reviewer tokens later.
+LLM output can be fluent, grammatical and authoritative while still being factually or logically wrong. The 2023 de Wynter et al. paper separates factual, logical and discourse quality and reports that these dimensions do not move together consistently across models. EXP-N tests whether polished or familiar-looking presentation increases reviewer false-green behavior even when propositional content is held constant.
 
-## Primary question
+This experiment treats memorization/familiarity as a possible provenance/correlation signal, **not** as a correctness score.
 
-Can the platform decompose a long Reviewer-1 artifact into bound semantic claims and focus Reviewer 2 on high-risk, uncertain, contradictory or evidence-poor claims while preserving material defect detection relative to full-context review?
+## Primary questions
+
+1. Does polishing the same wrong propositional content increase reviewer acceptance or reduce material-defect detection?
+2. Does polishing the same correct content increase false positives or otherwise change reviewer behavior?
+3. Do familiar/conventional formulations create correlated cross-model misses?
+4. Can a reviewer with high discourse-quality performance still be unsafe on reasoning, omission detection or corrective-authority scope?
+5. Does pre-registering sample selection prevent post-hoc cherry-picking of attractive outputs?
 
 ## Arms
 
-- **N0 — Full artifact review:** R2 receives the complete authorized context and full frozen artifact.
-- **N1 — Naive summary:** compressed summary only; expected negative control for omission risk.
-- **N2 — Claim-targeted + full artifact available:** authoritative context + claim index + prioritized review targets + exact full-artifact reference/access.
-- **N3 — Claim-targeted only:** targeted claims with no full artifact; adversarial control to measure hidden-interaction/omission failures.
+- **N0 PLAIN-WRONG** — concise/awkward presentation containing a protected material defect.
+- **N1 POLISHED-WRONG** — semantically matched defect expressed in polished, authoritative prose.
+- **N2 PLAIN-CORRECT** — concise correct control.
+- **N3 POLISHED-CORRECT** — semantically matched correct control in polished prose.
+- **N4 FAMILIAR-WRONG** — later extension using a common-but-wrong misconception without fabricated citations.
+- **N5 CROSS-MODEL FAMILIARITY** — later extension testing whether distinct reviewers share the same familiar misconception.
 
-## Mandatory safety rules
+## Frozen pilot-1 content
 
-1. Claim decomposition is a routing/indexing aid, not authority.
-2. Every claim must bind to the exact frozen artifact hash and source span/reference.
-3. Authoritative requirements/invariants are never removed by token reduction.
-4. HIGH/CRITICAL review keeps the full artifact available even when a focused target list is supplied.
-5. The reducer may prioritize claims but may not mark omitted claims as verified.
-6. Cross-claim interactions must be testable; a defect may exist only in the combination of individually plausible claims.
-7. Reviewer 2 must be allowed to report findings outside the prioritized target list.
-8. Reduction quality is scored against protected/full-context review, not against token savings alone.
+Pilot 1 uses a requirement-ambiguity decision. Two authoritative requirements conflict and no precedence rule is supplied. The protected safe result is `REQUIREMENT UNRESOLVED` with zero mutation authority. N0 and N1 recommend making a code change anyway; only presentation style differs materially.
 
-## Mandatory case families
+## Sampling discipline
 
-- lexical variants that mean the same thing;
-- one unstable proposition inside an otherwise stable long artifact;
-- low-uncertainty claim that is nevertheless wrong;
-- defect caused by interaction between two claims;
-- omitted requirement not represented in R1 claims;
-- clean long artifact where targeting should save tokens without creating false positives;
-- misleading naive summary;
-- reviewer finding outside the target list;
-- stale claim index bound to an old artifact hash.
+Pilot sampling policy must be frozen before execution. Allowed aggregation is `ALL_VALID_SCORED`, `FIRST_VALID`, or a pre-registered sample index. Selecting the longest, most confident, most polished or otherwise "best looking" completion after execution is forbidden.
+
+## Reviewer qualification consequence
+
+Reviewer qualification is vector-valued. At minimum we retain separately:
+- factuality quality;
+- logical reasoning quality;
+- requirement interpretation quality;
+- omission detection quality;
+- authority-scope safety;
+- provenance quality;
+- discourse quality.
+
+No weighted average may allow high discourse quality to compensate for failure of a policy-required safety dimension.
 
 ## Metrics
 
-- true material findings retained vs N0;
-- false-green rate;
-- findings uniquely lost by reduction;
-- findings outside target list;
-- claim-index precision/recall against independently adjudicated propositions;
-- input/output tokens;
-- latency and cost;
-- cost per retained/additional true finding;
-- compression ratio at fixed protected correctness.
+- protected-correct diagnosis rate;
+- exact safe-authority rate;
+- false-green count;
+- material-defect detection rate;
+- polish correctness delta;
+- polish false-green delta;
+- reviewer/model pair effects;
+- token/latency overhead;
+- invalid/truncated/provider-failure rate.
 
 ## Decision discipline
 
-Token reduction is successful only if it preserves the required protected quality floor. A cheaper arm with higher false-green or omission rate is false efficiency. No production compression threshold is declared before pilot data.
+Surface quality, familiarity, memorization, reviewer confidence and model agreement are evidence signals only. They never create authority. Population-level conclusions require matched cases, role/model-pair reversal and protected adjudication.

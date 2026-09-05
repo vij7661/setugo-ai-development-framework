@@ -1,0 +1,65 @@
+name: Governed Platform EXP-N Surface Quality Pilot
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-n-trigger.json]
+  workflow_dispatch:
+    inputs:
+      sample_count:
+        description: Samples per matched arm
+        required: true
+        default: "3"
+        type: string
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+  MODEL: openai/gpt-oss-20b
+  BASE_URL: https://api.groq.com/openai/v1
+jobs:
+  matched-arms:
+    name: EXP-N Groq ${{ matrix.case_id }}
+    strategy:
+      fail-fast: false
+      matrix:
+        case_id:
+          - EXP-N-001-PLAIN-WRONG
+          - EXP-N-002-POLISHED-WRONG
+          - EXP-N-003-PLAIN-CORRECT
+          - EXP-N-004-POLISHED-CORRECT
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve frozen sample count
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            N="${{ inputs.sample_count }}"
+          else
+            N="$(python -c 'import json;print(json.load(open(".github/exp-n-trigger.json")).get("sample_count",3))')"
+          fi
+          echo "N=$N" >> "$GITHUB_ENV"
+      - name: Execute matched arm under pre-registered ALL_VALID_SCORED policy
+        run: |
+          mkdir -p "exp-n-results/${{ matrix.case_id }}"
+          CASE_ID="${{ matrix.case_id }}"
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version exp-n-surface-v1 --out "exp-n-results/${CASE_ID}/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$N"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-n-results/${CASE_ID}/${CASE_ID}.envelope.json" --provider groq --base-url "$BASE_URL" --model "$MODEL" --api-key-env GROQ_API_KEY --timeout-seconds 90 --temperature 0.7 --out "exp-n-results/${CASE_ID}/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          case_id = "${{ matrix.case_id }}"
+          p = Path("exp-n-results") / case_id / "sampling-policy.json"
+          p.write_text(json.dumps({"policy_version":"exp-n-sampling-v1","strategy":"ALL_VALID_SCORED","sample_count":int(os.environ["N"]),"authority":"NONE"}, indent=2) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-n-${{ matrix.case_id }}
+          path: exp-n-results/${{ matrix.case_id }}/
+          if-no-files-found: error
