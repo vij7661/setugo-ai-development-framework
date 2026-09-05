@@ -109,9 +109,34 @@ A configured coverage validator fails closed if the exact artifact does not have
 
 Exact claim fingerprints are intentionally conservative. A paraphrase is not silently treated as equivalent to a retained claim; it fails coverage rather than producing a false pass. This avoids pretending that a deterministic string matcher solves semantic equivalence.
 
-Claim coverage is **not a proof that every claim in the artifact was discovered**. The registry consumes inventories admitted by a trusted extraction integration; it does not itself perform semantic claim extraction. A single extractor can still omit a claim. Multiple independent extractors reduce some correlated-error risk but do not prove completeness or truth. Extractor qualification admission and provider runtime attestation remain separate governance boundaries.
+`TVC-COVERAGE` findings retain inventory, extractor, provenance and correlation-warning references so stage evidence can identify which retained coverage records led to the platform finding.
+
+Claim coverage is **not a proof that every claim in the artifact was discovered**. The registry consumes inventories admitted by an extraction integration; it does not itself perform semantic claim extraction. A single extractor can still omit a claim. Multiple independent extractors reduce some correlated-error risk but do not prove completeness or truth.
 
 The standard product application path enforces claim coverage when a validator is configured. Direct low-level construction of `ReviewEngine` without the guarded invoker is not claimed to provide claim-coverage enforcement.
+
+### Claim extractor qualification
+
+Claim extraction has its own qualification role rather than being disguised as R1/R2/R3 review qualification.
+
+`extractor_qualification.py` defines retained `ExtractorQualificationRecord` evidence binding:
+
+- provider,
+- model,
+- SKU,
+- deployment path,
+- foundation lineage,
+- qualification reference,
+- monotonically advancing qualification epoch,
+- qualification status,
+- maximum risk,
+- task-type scope.
+
+`QualifiedRetainedClaimCoverageRegistry` rejects an inventory before retention when the extractor qualification is missing, non-`QUALIFIED`, stale by epoch, provider/model/SKU/deployment substituted, lineage-mismatched, above its risk ceiling, or outside its task scope. Admission retains the qualification reference/epoch and platform-supplied risk/task scope used for that decision.
+
+A Review Engine configuration with reviewer qualification records is in `GOVERNED` assurance mode. If claim coverage is also configured in that mode, `ReviewEngineApp` refuses to initialize unless the injected claim-coverage validator explicitly enforces qualified extractor admission. The raw reference coverage registry remains usable only for experimental/test integrations; it cannot silently inherit the `GOVERNED` assurance label.
+
+This qualification binding is still **not universal cryptographic runtime attestation**. It proves that the retained inventory was admitted against the platform's qualification registry and configured identity fields; it does not prove that a remote provider actually executed the named model/SKU/path. The platform process admitting an inventory must also supply the correct artifact risk/task context; authenticated extractor execution/runtime attestation remains an integration boundary.
 
 ## Reviewer independence
 
@@ -143,8 +168,8 @@ This is stronger bookkeeping identity, not universal runtime cryptographic attes
 
 ## Qualification / assurance modes
 
-- **GOVERNED**: retained qualification records are present and each invoked reviewer must match provider + model + SKU + deployment path + role + foundation lineage + risk + task scope.
-- **EXPERIMENTAL_UNQUALIFIED**: no retained qualification evidence is configured. This mode is intentionally capped to bounded R1-only low-risk review. Any condition that requires independent R2, consequential/mutation/external review, high uncertainty, authoritative ambiguity, incomplete evidence, or a material Truth & Veracity escalation fails closed to `HUMAN_REQUIRED`.
+- **GOVERNED**: retained reviewer qualification records are present and each invoked reviewer must match provider + model + SKU + deployment path + role + foundation lineage + risk + task scope. If claim coverage is configured, qualified extractor admission is also required.
+- **EXPERIMENTAL_UNQUALIFIED**: no retained reviewer qualification evidence is configured. This mode is intentionally capped to bounded R1-only low-risk review. Any condition that requires independent R2, consequential/mutation/external review, high uncertainty, authoritative ambiguity, incomplete evidence, or a material Truth & Veracity escalation fails closed to `HUMAN_REQUIRED`.
 
 The multi-provider example configuration intentionally contains no qualification records and therefore runs only in `EXPERIMENTAL_UNQUALIFIED` mode until real retained qualifications are added.
 
@@ -158,7 +183,7 @@ The MVP session ledger is append-only at the application API and hash-linked. A 
 
 Reviewer response `artifact_hash` binding is **platform-side bookkeeping integrity**: the provider adapter binds a response to the artifact hash in the platform-created context, and the orchestrator rejects mismatches. It is not a cryptographic reviewer attestation that proves the model semantically analyzed that exact content.
 
-Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. Claim-coverage findings are also platform-generated when the product application guard is configured. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
+Structured epistemic review evidence, TVC-derived findings and evidence-correspondence assessments are retained with stage evidence. Claim-coverage findings are platform-generated when the product application guard is configured and now carry retained inventory/extractor/provenance references. This improves auditability but does not make model statements authoritative or make the evidence store externally immutable.
 
 ## API-key rule
 
@@ -172,10 +197,12 @@ This is an MVP orchestration core, not a production authorization system.
 - Action/tool execution is disabled; `CONVERGED_PASS` never authorizes an external/production action.
 - SQLite memory/evidence are single-node reference stores, not distributed-consensus proof.
 - Hash-linked evidence is not external/WORM immutability.
-- Provider runtime identity is not universally cryptographically attested.
+- Provider/extractor runtime identity is not universally cryptographically attested.
 - Request-text consequence hints are not complete semantic intent detection.
 - The correspondence registry consumes retained verifier attestations; it does not independently solve semantic entailment from arbitrary source text.
-- Claim-coverage inventories are retained extraction evidence, not a semantic-completeness oracle; extractor qualification admission and runtime identity proof remain integration boundaries.
+- Claim-coverage inventories are retained extraction evidence, not a semantic-completeness oracle.
+- Extractor qualification now governs inventory admission when the qualified registry is used and is mandatory for claim coverage under `GOVERNED` app assurance, but authenticated runtime/provider execution proof remains an integration boundary.
+- Admission risk/task values must come from the trusted extraction pipeline; the registry cannot independently discover whether those admission facts were lied about by a compromised platform caller.
 - Exact claim fingerprinting deliberately fails conservatively on paraphrase/claim-boundary drift rather than asserting semantic equivalence.
 - Multiple independent extractors reduce some correlated omission risk but do not establish correctness or completeness.
 - Judge-health `NO_LOGICAL_ALARM` does not establish correctness or alignment.
