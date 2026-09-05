@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-L",
+  "pilot": "PILOT7-MIXED-CAUSE-CALIBRATION",
+  "case_id": "EXP-C-006",
+  "source_workflow_run_id": 33964510365,
+  "source_execution_sha": "6d96185863a458974f22a471315fa4c08f22799b",
+  "protected_expected": {
+    "primary_failure_class": "CODE DEFECT",
+    "contributing_failure_classes": ["FIXTURE-DATA DEFECT"],
+    "authorized_artifact_scope": ["CODE", "FIXTURE-DATA"]
+  },
+  "source_sample_count_per_provider": 5,
+  "threshold_applied": false,
+  "authority": "NONE",
+  "collector_observation": {
+    "source_bundle_schema_version": "1.2",
+    "source_bundle_semantic_proxy_version": "diagnosis-material-signature-v2",
+    "source_bundle_sha256": "08b0ef39b0bad0ce4b5d7d0c1715d1a63bdd4cc26251ef4ef91b641fac9826af",
+    "measurement_issue": "The v2 signature compared physical authorized-scope wording across samples, so lexical variants could inflate semantic entropy. This does not invalidate the observed primary/contributor disagreement, but it makes the numeric v2 entropy unsuitable as final calibration evidence.",
+    "remediation_commit": "f32a9ab3a64f90c7b79205a8558d61521613d8c5",
+    "remediation": "diagnosis-material-signature-v3 maps free-text scope to semantic artifact classes and retains unmapped authority as an explicit marker"
+  },
+  "v3_reanalysis_of_frozen_raw_samples": {
+    "method": "Recompute deterministic semantic signatures from the exact frozen raw result artifacts; no provider calls were repeated.",
+    "groq": {
+      "valid_samples": 5,
+      "protected_exact_primary_contributor_match_count": 1,
+      "diagnostic_patterns": {
+        "primary_fixture_contributor_code_no_scope": 1,
+        "primary_test_contributor_code": 1,
+        "primary_code_contributor_fixture": 1,
+        "findings_code_and_fixture_without_primary": 2
+      },
+      "v3_cluster_counts": {
+        "FINDINGS=CODE DEFECT,FIXTURE-DATA DEFECT|SCOPE_CLASSES=NONE": 2,
+        "PRIMARY=CODE DEFECT|CONTRIB=FIXTURE-DATA DEFECT|SCOPE_CLASSES=CODE,FIXTURE-DATA": 1,
+        "PRIMARY=FIXTURE-DATA DEFECT|CONTRIB=CODE DEFECT|SCOPE_CLASSES=NONE": 1,
+        "PRIMARY=TEST DEFECT|CONTRIB=CODE DEFECT|SCOPE_CLASSES=CODE,TEST": 1
+      },
+      "v3_normalized_semantic_entropy": 0.9609640474436812,
+      "total_latency_ms": 6710,
+      "total_input_tokens": 2395,
+      "total_output_tokens": 4980
+    },
+    "openrouter": {
+      "valid_samples": 5,
+      "protected_exact_primary_contributor_match_count": 1,
+      "diagnostic_patterns": {
+        "primary_fixture_contributor_code": 4,
+        "primary_code_contributor_fixture": 1
+      },
+      "v3_cluster_counts": {
+        "PRIMARY=FIXTURE-DATA DEFECT|CONTRIB=CODE DEFECT|SCOPE_CLASSES=CODE,FIXTURE-DATA": 3,
+        "PRIMARY=FIXTURE-DATA DEFECT|CONTRIB=CODE DEFECT|SCOPE_CLASSES=UNMAPPED_SCOPE": 1,
+        "PRIMARY=CODE DEFECT|CONTRIB=FIXTURE-DATA DEFECT|SCOPE_CLASSES=CODE,FIXTURE-DATA": 1
+      },
+      "v3_normalized_semantic_entropy": 0.8649735207179272,
+      "samples_with_unmapped_authorized_scope": 1,
+      "total_latency_ms": 169121,
+      "total_input_tokens": 2260,
+      "total_output_tokens": 8713
+    }
+  },
+  "result": "DIRECTIONAL_SIGNAL_MIXED_CAUSE_INSTABILITY_WITH_MEASUREMENT_REFINEMENT",
+  "scientific_interpretation": "Both providers were materially unstable on the mixed-cause case, and each produced the protected primary/contributor ordering in only one of five samples. The result supports using structured semantic instability as an escalation signal. It does not support treating high entropy as proof of error or choosing a production threshold from this case. The v2 lexical-scope inflation was identified and remediated before threshold calibration.",
+  "limitations": [
+    "One mixed-cause case cannot establish population-level discrimination.",
+    "The v3 reanalysis is deterministic post-processing of frozen raw outputs rather than a new provider execution.",
+    "Artifact-class scope normalization cannot infer the semantic class of a free-text authorized scope item that does not map back to a classified finding; such items are retained as UNMAPPED_SCOPE.",
+    "Reviewer/model outputs remain evidence, not authority."
+  ]
+}
