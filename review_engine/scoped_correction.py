@@ -6,6 +6,12 @@ from dataclasses import dataclass
 from .models import ReviewFinding
 
 
+# Platform-owned safety budget. Reviewers may identify correction targets but
+# cannot enlarge this capability. A future policy service may replace this
+# centralized MVP constant; it must not become a model/user supplied parameter.
+MAX_AUTOMATIC_EDITABLE_FRACTION = 0.80
+
+
 class CorrectionScopeError(ValueError):
     """A material correction target cannot be bound to a safe automatic text scope."""
 
@@ -35,6 +41,14 @@ class ScopedCorrectionPlan:
     target_finding_ids: tuple[str, ...]
     anchors: tuple[str, ...]
 
+    @property
+    def editable_chars(self) -> int:
+        return sum(end - start for start, end in self.editable_ranges)
+
+    @property
+    def editable_fraction(self) -> float:
+        return self.editable_chars / len(self.original)
+
     def immutable_segments(self) -> tuple[str, ...]:
         segments: list[str] = []
         cursor = 0
@@ -53,6 +67,10 @@ class ScopedCorrectionPlan:
                 for start, end in self.editable_ranges
             ],
             "anchors": list(self.anchors),
+            "editable_chars": self.editable_chars,
+            "artifact_chars": len(self.original),
+            "editable_fraction": self.editable_fraction,
+            "max_automatic_editable_fraction": MAX_AUTOMATIC_EDITABLE_FRACTION,
             "unaffected_content_must_be_preserved_exactly": True,
         }
 
@@ -135,6 +153,11 @@ def build_scoped_correction_plan(
     if editable_chars >= len(original):
         raise CorrectionScopeError(
             "automatic correction would authorize the entire artifact; human review is required"
+        )
+    editable_fraction = editable_chars / len(original)
+    if editable_fraction > MAX_AUTOMATIC_EDITABLE_FRACTION:
+        raise CorrectionScopeError(
+            "automatic correction is not localized: editable scope exceeds the platform correction budget"
         )
 
     return ScopedCorrectionPlan(
