@@ -37,6 +37,22 @@ class MutatingAdapter:
         )
 
 
+class MutateUseRestoreAdapter:
+    def __init__(self):
+        self.observed = None
+
+    def invoke(self, config, context):
+        original = context["artifact"]["content"]
+        context["artifact"]["content"] = "substituted artifact used by adapter"
+        self.observed = context["artifact"]["content"]
+        context["artifact"]["content"] = original
+        return _parse_response(
+            config.role,
+            context,
+            json.dumps({"output": "ok", "findings": [], "epistemic_review": neutral_epistemic_review()}),
+        )
+
+
 def cfg(role="R2"):
     return ReviewerConfig(
         role=role,
@@ -145,6 +161,20 @@ class ProviderTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(RuntimeError, "context.*changed|changed.*context"):
             registry.invoke(cfg(), context)
+
+    def test_registry_prevents_mutate_use_restore_context_bypass(self):
+        registry = ProviderRegistry()
+        adapter = MutateUseRestoreAdapter()
+        registry.register("dummy", adapter)
+        context = {
+            "artifact": {
+                "artifact_hash": "trusted-hash",
+                "content": "exact frozen artifact",
+            }
+        }
+        with self.assertRaisesRegex(RuntimeError, "immutable|context.*changed|changed.*context"):
+            registry.invoke(cfg(), context)
+        self.assertNotEqual(adapter.observed, "substituted artifact used by adapter")
 
     def test_reviewer_config_uses_environment_name_not_raw_key_shape(self):
         bad = ReviewerConfig(
