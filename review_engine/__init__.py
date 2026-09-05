@@ -28,6 +28,7 @@ from .extractor_qualification import (
     ExtractorQualificationRegistry,
 )
 from .extraction_work import ExtractionWorkOrder, ExtractionWorkRegistry
+from .sqlite_extraction_work import SQLiteExtractionWorkRegistry
 from .qualified_claim_coverage import QualifiedRetainedClaimCoverageRegistry
 from .work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
 from .evidence_correspondence import (
@@ -89,6 +90,7 @@ __all__ = [
     "ReviewerConfig",
     "ReviewerResponse",
     "ReviewRequest",
+    "SQLiteExtractionWorkRegistry",
     "SQLiteMemoryStore",
     "TVC_VERSION",
     "TruthContractResult",
