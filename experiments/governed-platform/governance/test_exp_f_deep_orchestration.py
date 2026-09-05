@@ -75,14 +75,36 @@ class ExpFDeepOrchestrationTests(unittest.TestCase):
             "max_reviews": 3,
             "required_qualified_agreement": 2,
             "false_positive_rate_threshold": 0.10,
+            "review_role": "judge",
+            "task_class": "governance-review",
         }
         reviews = [
-            {"reviewer_id": "r1", "false_positive_rate": 0.01, "verdict": "PASS"},
-            {"reviewer_id": "r1", "false_positive_rate": 0.01, "verdict": "PASS"},
-            {"reviewer_id": "r2", "false_positive_rate": 0.02, "verdict": "FAIL"},
+            {"reviewer_id": "r1", "verdict": "PASS"},
+            {"reviewer_id": "r1", "verdict": "PASS"},
+            {"reviewer_id": "r2", "verdict": "FAIL"},
         ]
-        result = evaluate_review_convergence(policy, reviews)
-        self.assertEqual("HUMAN_REQUIRED", result["decision"])
+        performance_records = [
+            {
+                "reviewer_id": "r1",
+                "false_positive_rate": 0.01,
+                "independently_adjudicated": True,
+                "role": "judge",
+                "task_class": "governance-review",
+                "evidence_ref": "perf:r1:v1",
+                "performance_epoch": 1,
+            },
+            {
+                "reviewer_id": "r2",
+                "false_positive_rate": 0.02,
+                "independently_adjudicated": True,
+                "role": "judge",
+                "task_class": "governance-review",
+                "evidence_ref": "perf:r2:v1",
+                "performance_epoch": 1,
+            },
+        ]
+        result = evaluate_review_convergence(policy, reviews, performance_records)
+        self.assertEqual("CEILING_REACHED_ESCALATE", result["decision"])
         self.assertEqual(["r1"], result["duplicate_reviewers"])
 
     def test_asserted_compatibility_cannot_bypass_invariant_extraction(self):
