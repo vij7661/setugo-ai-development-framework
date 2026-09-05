@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .evidence_correspondence import EvidenceCorrespondenceValidator, claim_fingerprint
 from .models import ReviewFinding
 
 TVC_VERSION = "TVC-1"
@@ -27,6 +28,7 @@ SEMANTIC_STATES = {"PRECISE", "AMBIGUOUS", "MISLEADING"}
 class TruthContractResult:
     normalized: dict[str, Any]
     findings: tuple[ReviewFinding, ...]
+    evidence_assessments: tuple[dict[str, Any], ...] = ()
 
 
 def epistemic_protocol_instructions() -> dict[str, Any]:
@@ -43,6 +45,8 @@ def epistemic_protocol_instructions() -> dict[str, Any]:
         "semantic": "Distinguish facts, logical claims, definitions, inferences, assumptions, hypotheses, opinions and recommendations.",
         "agreement_is_not_truth": True,
         "model_judgment_is_evidence_not_authority": True,
+        "material_supported_empirical_claim_requires_platform_correspondence": True,
+        "evidence_ref_presence_is_not_correspondence_proof": True,
         "claim_types": sorted(CLAIM_TYPES),
         "required_response_object": "epistemic_review",
     }
@@ -126,10 +130,9 @@ def validate_epistemic_review(value: Any) -> dict[str, Any]:
         if not isinstance(material, bool):
             raise ValueError("epistemic claim material must be boolean")
 
-        # Structural correspondence invariant: a reviewer cannot label an
-        # empirical assertion SUPPORTED while providing zero evidence handles.
-        # This does not prove the handles themselves are valid; evidence
-        # provenance validation is a separate platform responsibility.
+        # Structural invariant only. The platform correspondence validator below
+        # separately checks whether retained independent evidence actually
+        # supports the exact bound claim/artifact.
         if claim_type == "EMPIRICAL_FACT" and claim_correspondence == "SUPPORTED" and not evidence_refs:
             raise ValueError("supported empirical fact requires evidence_refs")
 
@@ -155,19 +158,42 @@ def validate_epistemic_review(value: Any) -> dict[str, Any]:
     }
 
 
-def evaluate_truth_contract(role: str, review: dict[str, Any]) -> TruthContractResult:
+def _unverified_platform_assessment(*, artifact_hash: str | None, claim: dict) -> dict[str, Any]:
+    return {
+        "claim_id": claim["claim_id"],
+        "claim_fingerprint": claim_fingerprint(claim["text"]),
+        "artifact_hash": artifact_hash,
+        "status": "UNVERIFIED",
+        "evidence_refs": list(claim["evidence_refs"]),
+        "attestation_ids": [],
+        "verifier_ids": [],
+        "provenance": [],
+    }
+
+
+def evaluate_truth_contract(
+    role: str,
+    review: dict[str, Any],
+    *,
+    artifact_hash: str | None = None,
+    evidence_validator: EvidenceCorrespondenceValidator | None = None,
+) -> TruthContractResult:
     """Convert explicit epistemic failures into platform-visible findings.
 
-    Reviewer labels remain evidence. The platform owns the consequence mapping:
-    explicit unsupported material facts, contradictions and misleading semantic
-    presentation cannot be silently ignored merely because the reviewer omitted
-    a matching free-form finding.
+    Reviewer labels remain evidence. The platform owns the consequence mapping.
+    A model saying an empirical claim is SUPPORTED is insufficient for material
+    correspondence: the exact claim/artifact/evidence binding needs a retained
+    independent platform-side assessment.
     """
     normalized = validate_epistemic_review(review)
     findings: list[ReviewFinding] = []
+    evidence_assessments: list[dict[str, Any]] = []
 
     for claim in normalized["claims"]:
-        if claim["claim_type"] == "EMPIRICAL_FACT" and claim["correspondence"] in {"UNSUPPORTED", "UNVERIFIED"}:
+        if claim["claim_type"] != "EMPIRICAL_FACT":
+            continue
+
+        if claim["correspondence"] in {"UNSUPPORTED", "UNVERIFIED"}:
             severity = "HIGH" if claim["material"] else "MEDIUM"
             findings.append(
                 ReviewFinding(
@@ -177,6 +203,41 @@ def evaluate_truth_contract(role: str, review: dict[str, Any]) -> TruthContractR
                     material=bool(claim["material"]),
                     summary=f"Empirical claim is {claim['correspondence'].lower()}: {claim['text']}",
                     violated_invariant="TVC-CORRESPONDENCE",
+                    evidence_refs=tuple(claim["evidence_refs"]),
+                    affected_scope=(f"claim:{claim['claim_id']}",),
+                    first_invalid_claim=claim["text"],
+                )
+            )
+            continue
+
+        if claim["correspondence"] == "SUPPORTED":
+            if evidence_validator is not None and artifact_hash is not None:
+                assessment = evidence_validator.assess(artifact_hash=artifact_hash, claim=claim).as_dict()
+            else:
+                assessment = _unverified_platform_assessment(artifact_hash=artifact_hash, claim=claim)
+            evidence_assessments.append(assessment)
+            status = assessment["status"]
+            if status == "VERIFIED_SUPPORT":
+                continue
+
+            severity = "HIGH" if claim["material"] else "MEDIUM"
+            material = bool(claim["material"])
+            if status == "VERIFIED_CONTRADICTION":
+                summary = f"Retained evidence contradicts reviewer-supported empirical claim: {claim['text']}"
+            elif status == "CONFLICT":
+                summary = f"Retained evidence is materially conflicting for empirical claim: {claim['text']}"
+            elif status == "INSUFFICIENT":
+                summary = f"Retained evidence is insufficient to verify reviewer-supported empirical claim: {claim['text']}"
+            else:
+                summary = f"Reviewer-supported empirical claim lacks platform-verified evidence correspondence: {claim['text']}"
+            findings.append(
+                ReviewFinding(
+                    finding_id=f"tvc-evidence-correspondence-{claim['claim_id']}",
+                    reviewer_role=role,
+                    severity=severity,
+                    material=material,
+                    summary=summary,
+                    violated_invariant="TVC-EVIDENCE-CORRESPONDENCE",
                     evidence_refs=tuple(claim["evidence_refs"]),
                     affected_scope=(f"claim:{claim['claim_id']}",),
                     first_invalid_claim=claim["text"],
@@ -269,4 +330,8 @@ def evaluate_truth_contract(role: str, review: dict[str, Any]) -> TruthContractR
 
     for finding in findings:
         finding.validate()
-    return TruthContractResult(normalized=normalized, findings=tuple(findings))
+    return TruthContractResult(
+        normalized=normalized,
+        findings=tuple(findings),
+        evidence_assessments=tuple(evidence_assessments),
+    )
