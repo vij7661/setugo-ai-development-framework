@@ -97,12 +97,17 @@ class ReviewerResponse:
     findings: tuple[ReviewFinding, ...] = ()
     complete: bool = True
     proposed_signals: dict[str, Any] = field(default_factory=dict)
+    # Structured Truth & Veracity Contract evidence. Direct in-process test
+    # adapters may omit it; real provider adapters validate and populate it.
+    epistemic_review: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> None:
         if self.role not in REVIEW_ROLES:
             raise ValueError("invalid response role")
         if not self.complete:
             raise ValueError("incomplete reviewer response is not admissible")
+        if not isinstance(self.epistemic_review, dict):
+            raise ValueError("epistemic_review must be an object")
         for finding in self.findings:
             finding.validate()
             if finding.reviewer_role != self.role:
