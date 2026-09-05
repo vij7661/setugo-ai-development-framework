@@ -45,8 +45,9 @@ class ReviewEngineApp:
 
         # A governed reviewer configuration must not gain a stronger-looking
         # assurance label while using coverage evidence that bypasses extractor
-        # qualification or accepts risk/task scope as free admission arguments.
-        # Experimental mode may use reference registries for tests/prototyping.
+        # qualification, accepts risk/task scope as free admission arguments, or
+        # forgets replay state after a process restart. Experimental mode may use
+        # reference registries for tests/prototyping.
         if self.qualifications is not None and self.claim_coverage_validator is not None:
             if not bool(getattr(self.claim_coverage_validator, "qualified_admission_enforced", False)):
                 raise ValueError(
@@ -55,6 +56,10 @@ class ReviewEngineApp:
             if not bool(getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)):
                 raise ValueError(
                     "GOVERNED assurance requires claim coverage bound to platform-issued extraction scope"
+                )
+            if not bool(getattr(self.claim_coverage_validator, "durable_work_state_enforced", False)):
+                raise ValueError(
+                    "GOVERNED assurance requires durable extraction work replay protection"
                 )
 
         invoker = self.providers.invoke
@@ -95,6 +100,9 @@ class ReviewEngineApp:
                 ) if self.claim_coverage_validator is not None else False,
                 "claim_coverage_trusted_scope_binding": bool(
                     getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)
+                ) if self.claim_coverage_validator is not None else False,
+                "claim_coverage_durable_work_state": bool(
+                    getattr(self.claim_coverage_validator, "durable_work_state_enforced", False)
                 ) if self.claim_coverage_validator is not None else False,
             }
         )
@@ -148,6 +156,9 @@ class ReviewEngineApp:
             ) if self.claim_coverage_validator is not None else False,
             "claim_coverage_trusted_scope_binding": bool(
                 getattr(self.claim_coverage_validator, "trusted_scope_binding_enforced", False)
+            ) if self.claim_coverage_validator is not None else False,
+            "claim_coverage_durable_work_state": bool(
+                getattr(self.claim_coverage_validator, "durable_work_state_enforced", False)
             ) if self.claim_coverage_validator is not None else False,
             "judge_health_monitor": "PAIRWISE_LOGICAL_DISAGREEMENT_BOUND_V1",
             "execution_envelope": {
