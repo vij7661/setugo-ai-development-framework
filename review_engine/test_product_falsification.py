@@ -159,12 +159,14 @@ class ProductFalsificationTests(unittest.TestCase):
         self.assertFalse(any(f.violated_invariant == "TVC-CORRESPONDENCE" for f in result.findings))
 
     def test_truth_bearer_misclassification_is_not_a_deterministic_semantic_oracle(self):
-        # Deliberate boundary test: if a model labels an empirical assertion as
-        # an INFERENCE, TVC-1 alone cannot prove the label is wrong. Independent
-        # review/source validation remains necessary for stronger assurance.
+        # Deliberate boundary test: a model can misclassify an empirical-looking
+        # assertion as an INFERENCE and report the overall correspondence status
+        # as SUPPORTED. TVC-1 validates the declared structure; it cannot prove
+        # the semantic classification itself is correct. Independent review and
+        # source correspondence validation remain necessary for stronger assurance.
         review = {
             "version": TVC_VERSION,
-            "correspondence": "UNVERIFIED",
+            "correspondence": "SUPPORTED",
             "coherence": "CONSISTENT",
             "pragmatic": "VIABLE",
             "semantic": "PRECISE",
@@ -173,7 +175,7 @@ class ProductFalsificationTests(unittest.TestCase):
                 "claim_id": "c1",
                 "text": "The deployment succeeded.",
                 "claim_type": "INFERENCE",
-                "correspondence": "UNVERIFIED",
+                "correspondence": "NOT_APPLICABLE",
                 "evidence_refs": [],
                 "material": True,
             }],
