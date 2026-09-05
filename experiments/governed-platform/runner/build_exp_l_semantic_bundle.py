@@ -9,6 +9,13 @@ from math import log
 from pathlib import Path
 
 MIN_VALID_SAMPLES_FOR_STABILITY = 3
+CANONICAL_FAILURE_CLASSES = {
+    "CODE DEFECT",
+    "FIXTURE-DATA DEFECT",
+    "TEST DEFECT",
+    "ENVIRONMENT-TOOLING DEFECT",
+    "REQUIREMENT UNRESOLVED",
+}
 
 
 def _read(path: Path):
@@ -32,13 +39,22 @@ def _normalized_entropy(labels: list[str]) -> float | None:
     return entropy / log(len(counts))
 
 
-def _sample_label(result: dict) -> str | None:
-    """Return a deterministic task-specific semantic proxy for diagnosis cases.
+def _canonical_string_list(values) -> tuple[str, ...]:
+    if not isinstance(values, list):
+        return ()
+    return tuple(sorted({v.strip() for v in values if isinstance(v, str) and v.strip()}))
 
-    This is not a general semantic equivalence model. Prefer the explicit primary
-    diagnosis. Otherwise use one unambiguous canonical finding class. A clean
-    structured review with no diagnosis/findings is a distinct NO_MATERIAL_DEFECT
-    conclusion rather than an uninformative placeholder.
+
+def _sample_label(result: dict) -> str | None:
+    """Return a deterministic task-specific semantic signature for diagnosis cases.
+
+    For an explicit diagnosis, materially meaningful semantics include the primary
+    failure class, contributing canonical classes, and authorized artifact scope.
+    This prevents two reviews that share a primary label but disagree on a mixed
+    cause or corrective scope from being collapsed into one stability cluster.
+
+    This remains a structured diagnosis proxy, not a general semantic-equivalence
+    model for arbitrary prose.
     """
     if result.get("status") != "PASS" or not result.get("evidence_eligible"):
         return None
@@ -46,18 +62,27 @@ def _sample_label(result: dict) -> str | None:
     diagnosis = result.get("diagnosis") or {}
     primary = diagnosis.get("primary_failure_class")
     if isinstance(primary, str) and primary:
-        return primary
+        contributors = tuple(sorted({
+            c for c in diagnosis.get("contributors", [])
+            if isinstance(c, str) and c in CANONICAL_FAILURE_CLASSES and c != primary
+        }))
+        scope = _canonical_string_list(result.get("authorized_scope"))
+        contributor_text = ",".join(contributors) if contributors else "NONE"
+        scope_text = ",".join(scope) if scope else "NONE"
+        return f"PRIMARY={primary}|CONTRIB={contributor_text}|SCOPE={scope_text}"
 
     finding_classes = {
         f.get("failure_class")
         for f in (result.get("findings") or [])
         if isinstance(f, dict) and isinstance(f.get("failure_class"), str) and f.get("failure_class")
     }
+    scope = _canonical_string_list(result.get("authorized_scope"))
+    scope_text = ",".join(scope) if scope else "NONE"
     if len(finding_classes) == 1:
-        return next(iter(finding_classes))
+        return f"FINDING={next(iter(finding_classes))}|SCOPE={scope_text}"
     if len(finding_classes) > 1:
-        return "MULTIPLE_MATERIAL_CLASSES"
-    return "NO_MATERIAL_DEFECT"
+        return f"FINDINGS={','.join(sorted(finding_classes))}|SCOPE={scope_text}"
+    return f"NO_MATERIAL_DEFECT|SCOPE={scope_text}"
 
 
 def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, workflow_run_id: int) -> dict:
@@ -96,7 +121,8 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
             "error_or_ineligible_count": len(provider_samples) - len(labels),
             "minimum_valid_samples_for_stability": MIN_VALID_SAMPLES_FOR_STABILITY,
             "sample_sufficiency": "SUFFICIENT" if sufficient else "INSUFFICIENT",
-            "semantic_proxy": "canonical diagnosis/finding class or NO_MATERIAL_DEFECT for diagnosis cases; not a general semantic-equivalence model",
+            "semantic_proxy_version": "diagnosis-material-signature-v2",
+            "semantic_proxy": "primary diagnosis + canonical contributors + authorized scope; finding/scope fallback; not a general semantic-equivalence model",
             "cluster_counts": dict(sorted(counts.items())),
             "normalized_semantic_entropy": _normalized_entropy(labels),
             "observed_single_cluster": observed_single_cluster,
@@ -107,7 +133,7 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
         })
 
     bundle = {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "experiment": "EXP-L",
         "pilot_stage": "SEMANTIC_CALIBRATION_COLLECTION",
         "case_id": case_id,
@@ -116,7 +142,7 @@ def build_bundle(case_id: str, result_paths: list[Path], execution_sha: str, wor
         "scientific_status": "COLLECTION_ONLY_NOT_ADJUDICATED",
         "authority": "NONE",
         "threshold_applied": False,
-        "note": "This stage measures observed within-model classification stability without applying an invented production threshold. Protected adjudication occurs later. Stability is not reported from fewer than three valid samples.",
+        "note": "This stage measures observed within-model structured diagnosis stability without applying an invented production threshold. Protected adjudication occurs later. Stability is not reported from fewer than three valid samples. Mixed-cause contributors and corrective scope are part of the semantic signature.",
         "providers": providers,
         "samples": samples,
     }
