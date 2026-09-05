@@ -138,5 +138,36 @@ class GovernedAssuranceTests(unittest.TestCase):
         )
         self.assertIn("REVOKED", decision.reasons[0])
 
+    def test_stale_eligible_observation_cannot_issue_capability_after_epoch_revocation(self):
+        class RevokingAfterEligibleRegistry(QualificationRegistry):
+            def __init__(self):
+                super().__init__((qual("R1", "q1", "m1"),))
+                self._revoked_once = False
+
+            def evaluate(self, config, *, risk, task_type="GENERAL"):
+                decision = super().evaluate(config, risk=risk, task_type=task_type)
+                if decision.eligible and not self._revoked_once:
+                    self._revoked_once = True
+                    self.add(qual("R1", "q1", "m1", status="REVOKED", epoch=2))
+                return decision
+
+        registry = RevokingAfterEligibleRegistry()
+        calls = []
+
+        def invoke(config, context):
+            calls.append(config.role)
+            return ReviewerResponse("R1", None, "candidate")
+
+        decision = ReviewEngine(invoke, qualification_registry=registry).run(
+            ReviewRequest("qualification-toctou", "simple review", risk="LOW"),
+            r1=cfg("R1", "q1", "m1"),
+            r2=None,
+            r3=None,
+        )
+
+        self.assertEqual(decision.state, "HUMAN_REQUIRED")
+        self.assertEqual(calls, [], "stale eligible observation must not become provider capability")
+        self.assertIn("REVOKED", decision.reasons[0])
+
 
 if __name__ == "__main__": unittest.main()
