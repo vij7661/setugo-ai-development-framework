@@ -2,6 +2,8 @@
 """Execute one prepared blinded envelope through an OpenAI-compatible remote provider.
 
 This runner never reads protected ground truth. Provider/model/credential locations are runtime inputs.
+Every attempted invocation writes an explicit result record, including transport/provider failures,
+so experimental candidate collection cannot silently drop a failed mechanism.
 """
 
 from __future__ import annotations
@@ -16,6 +18,45 @@ from openai_compatible import OpenAICompatibleAdapter, RemoteProviderConfig
 
 def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_error_result(args, envelope, exc: Exception) -> None:
+    case_binding = envelope.get("case_binding", {})
+    mechanism = envelope.get("mechanism", {})
+    result = {
+        "run_id": envelope.get("run_id"),
+        "case_id": envelope.get("case_id", case_binding.get("case_id")),
+        "case_version": envelope.get("case_version", case_binding.get("case_version")),
+        "case_model_visible_sha256": case_binding.get("model_visible_sha256"),
+        "instruction_version": envelope.get("instruction_version"),
+        "mechanism_id": envelope.get("mechanism_id", mechanism.get("mechanism_id")),
+        "mechanism_version": args.model,
+        "provider": args.provider,
+        "status": "ERROR",
+        "summary": None,
+        "findings": [],
+        "detected_defect_ids": [],
+        "diagnosis": None,
+        "authorized_scope": [],
+        "changed_artifacts": [],
+        "raw_output": None,
+        "evidence_refs": [],
+        "input_tokens": None,
+        "output_tokens": None,
+        "estimated_cost_usd": None,
+        "latency_ms": None,
+        "evidence_eligible": False,
+        "runtime_metadata": {
+            "configured_model": args.model,
+            "completion_complete": False,
+            "structured_output_valid": False,
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+        },
+    }
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(args.out)
 
 
 def main() -> int:
@@ -45,12 +86,16 @@ def main() -> int:
             timeout_seconds=args.timeout_seconds,
         )
     )
-    result = adapter.invoke(envelope)
-    normalized = normalize_adapter_result(envelope, result)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(normalized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(args.out)
-    return 0 if normalized["status"] == "PASS" and normalized["evidence_eligible"] else 2
+    try:
+        result = adapter.invoke(envelope)
+        normalized = normalize_adapter_result(envelope, result)
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(normalized, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(args.out)
+        return 0 if normalized["status"] == "PASS" and normalized["evidence_eligible"] else 2
+    except Exception as exc:
+        _write_error_result(args, envelope, exc)
+        return 2
 
 
 if __name__ == "__main__":
