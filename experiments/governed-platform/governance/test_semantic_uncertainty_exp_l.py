@@ -36,6 +36,7 @@ class ExpLSemanticUncertaintyTests(unittest.TestCase):
             max_normalized_entropy=0.50,
             max_refusal_ratio=0.50,
             policy_version="exp-l-test-policy-v1",
+            min_samples=3,
         )
 
     def test_l001_lexical_variants_in_same_semantic_cluster_are_stable(self):
@@ -76,7 +77,6 @@ class ExpLSemanticUncertaintyTests(unittest.TestCase):
         self.assertEqual("REVIEW_R2", decision.decision)
 
     def test_l006_stable_wrong_case_remains_possible_by_design(self):
-        # A single semantic cluster can be consistently wrong; the probe must not claim truth.
         result = analyze_semantic_samples(
             ["WRONG_SAME_MEANING"] * 5,
             [False] * 5,
@@ -84,7 +84,6 @@ class ExpLSemanticUncertaintyTests(unittest.TestCase):
         )
         self.assertEqual("STABLE", result.status)
         self.assertEqual("NO_REVIEW", decide_review(base(semantic_probe_status=result.status)).decision)
-        # Scientific evaluation must count this as a stable-wrong failure if protected truth says it is wrong.
 
     def test_l007_counterfactual_instability_triggers_r2(self):
         decision = decide_review(base(counterfactual_instability=True))
@@ -97,8 +96,8 @@ class ExpLSemanticUncertaintyTests(unittest.TestCase):
     def test_l009_invalid_policy_without_version_fails_closed(self):
         with self.assertRaises(ValueError):
             analyze_semantic_samples(
-                ["A", "B"],
-                [False, False],
+                ["A", "B", "A"],
+                [False, False, False],
                 SemanticProbePolicy(0.5, 0.5, ""),
             )
 
@@ -108,15 +107,29 @@ class ExpLSemanticUncertaintyTests(unittest.TestCase):
 
     def test_l011_mismatched_sample_metadata_fails_closed(self):
         with self.assertRaises(ValueError):
-            analyze_semantic_samples(["A", "B"], [False], self.policy)
+            analyze_semantic_samples(["A", "B", "A"], [False], self.policy)
 
     def test_l012_thresholds_are_explicit_policy_inputs_not_hidden_constants(self):
-        loose = SemanticProbePolicy(1.0, 1.0, "loose-v1")
-        strict = SemanticProbePolicy(0.0, 0.0, "strict-v1")
-        clusters = ["A", "B"]
-        refusals = [False, False]
+        loose = SemanticProbePolicy(1.0, 1.0, "loose-v1", min_samples=3)
+        strict = SemanticProbePolicy(0.0, 0.0, "strict-v1", min_samples=3)
+        clusters = ["A", "B", "A"]
+        refusals = [False, False, False]
         self.assertEqual("STABLE", analyze_semantic_samples(clusters, refusals, loose).status)
         self.assertEqual("UNCERTAIN", analyze_semantic_samples(clusters, refusals, strict).status)
+
+    def test_l013_insufficient_samples_are_not_reported_as_stable(self):
+        result = analyze_semantic_samples(["A"], [False], self.policy)
+        self.assertEqual("INSUFFICIENT", result.status)
+        self.assertIsNone(result.normalized_entropy)
+        self.assertEqual("REVIEW_R2", decide_review(base(semantic_probe_status=result.status)).decision)
+
+    def test_l014_invalid_minimum_sample_policy_fails_closed(self):
+        with self.assertRaises(ValueError):
+            analyze_semantic_samples(
+                ["A", "A"],
+                [False, False],
+                SemanticProbePolicy(0.5, 0.5, "bad-min", min_samples=1),
+            )
 
 
 if __name__ == "__main__":
