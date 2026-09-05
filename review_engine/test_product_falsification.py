@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from review_engine.judge_health import JudgeHealthMonitor, JudgeObservation
+from review_engine.judge_health import JudgeHealthMonitor, JudgeIdentityBinding, JudgeObservation
 from review_engine.models import ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
 from review_engine.orchestrator import ReviewEngine
 from review_engine.qualification import QualificationRecord, QualificationRegistry
@@ -39,6 +39,19 @@ def registry(*configs: ReviewerConfig) -> QualificationRegistry:
         )
         for config in configs
     ))
+
+
+def health_identity(name: str) -> JudgeIdentityBinding:
+    return JudgeIdentityBinding(
+        provider=f"provider-{name}",
+        model=f"model-{name}",
+        sku="default",
+        deployment_path=f"api/{name}",
+        role="R2",
+        foundation_lineage=f"lineage-{name}",
+        qualification_ref=f"health-q-{name}",
+        qualification_epoch=1,
+    )
 
 
 def unverified_material_review(text: str = "The deployment succeeded.") -> dict:
@@ -158,9 +171,6 @@ class ProductFalsificationTests(unittest.TestCase):
         self.assertEqual(result.evidence_assessments[0]["status"], "UNVERIFIED")
 
     def test_truth_bearer_misclassification_is_not_a_deterministic_semantic_oracle(self):
-        # Deliberate remaining boundary: if a model misclassifies an empirical
-        # assertion as an INFERENCE, deterministic TVC structure alone cannot
-        # prove the semantic classification wrong.
         review = {
             "version": TVC_VERSION,
             "correspondence": "SUPPORTED",
@@ -180,11 +190,12 @@ class ProductFalsificationTests(unittest.TestCase):
         result = evaluate_truth_contract("R1", review)
         self.assertFalse(any(f.violated_invariant in {"TVC-CORRESPONDENCE", "TVC-EVIDENCE-CORRESPONDENCE"} for f in result.findings))
 
-    def test_unanimous_judges_can_be_jointly_wrong_without_triggering_no_ground_truth_alarm(self):
+    def test_unanimous_bound_judges_can_be_jointly_wrong_without_triggering_no_ground_truth_alarm(self):
+        a, b = health_identity("a"), health_identity("b")
         observations = []
         for i in range(20):
-            observations.append(JudgeObservation(f"t{i}", "judge-a", "WRONG-BUT-UNKNOWN"))
-            observations.append(JudgeObservation(f"t{i}", "judge-b", "WRONG-BUT-UNKNOWN"))
+            observations.append(JudgeObservation.bound(f"t{i}", a, "WRONG-BUT-UNKNOWN"))
+            observations.append(JudgeObservation.bound(f"t{i}", b, "WRONG-BUT-UNKNOWN"))
         report = JudgeHealthMonitor(minimum_accuracy_target=0.9, minimum_shared_tasks=20).evaluate(observations)
         self.assertEqual(report.status, "NO_LOGICAL_ALARM")
         self.assertFalse(report.no_alarm_establishes_correctness)
