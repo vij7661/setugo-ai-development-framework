@@ -78,12 +78,7 @@ def _freeze_json(value):  # noqa: ANN001, ANN201
 
 
 def _provider_dispatch_snapshot(context: dict) -> tuple[dict, str]:
-    """Canonicalize and freeze the exact model-visible provider context.
-
-    The JSON round trip strips Python object identity and leaves only the data
-    that can actually be serialized to a provider. The returned object remains
-    dict/list compatible for built-in adapters but rejects normal mutation.
-    """
+    """Canonicalize and freeze the exact model-visible provider context."""
     try:
         canonical = json.dumps(
             context,
@@ -216,6 +211,36 @@ resolved_finding_ids is only for R3 ADJUDICATION. It must contain exact frozen P
 """
 
 
+def _bound_system_instruction(context: dict) -> str:
+    """Return only the exact capability-bound platform system instruction.
+
+    Real reviewer contexts carry this value before capability hashing. Synthetic
+    adapter unit-test contexts may omit it and retain the platform default for
+    backwards-compatible isolated adapter tests.
+    """
+    value = context.get("platform_system_instruction")
+    actual_reviewer_context = (
+        context.get("role") in {"R1", "R2", "R3"}
+        and "request_id" in context
+        and "memory" in context
+    )
+    if value is None:
+        if actual_reviewer_context:
+            raise RuntimeError("capability-bound provider system instruction missing from reviewer context")
+        return SYSTEM_INSTRUCTION
+    if not isinstance(value, str) or not value:
+        raise RuntimeError("capability-bound provider system instruction is invalid")
+    if value != SYSTEM_INSTRUCTION:
+        raise RuntimeError("provider system instruction drifted from capability-bound platform instruction")
+    return value
+
+
+def _model_context_json(context: dict) -> str:
+    """Serialize model context without redundantly repeating the system prompt."""
+    visible = {key: value for key, value in context.items() if key != "platform_system_instruction"}
+    return json.dumps(visible, ensure_ascii=False, sort_keys=True)
+
+
 def _context_artifact_hash(context: dict) -> str | None:
     artifact = context.get("artifact")
     if isinstance(artifact, dict):
@@ -321,11 +346,12 @@ class OpenAICompatibleProvider:
         if not key:
             raise RuntimeError(f"missing API credential in environment variable {config.api_key_env}")
 
+        system_instruction = _bound_system_instruction(context)
         payload = {
             "model": config.model,
             "messages": [
-                {"role": "system", "content": SYSTEM_INSTRUCTION},
-                {"role": "user", "content": json.dumps(context, ensure_ascii=False, sort_keys=True)},
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": _model_context_json(context)},
             ],
             "temperature": self.endpoint.temperature,
             "response_format": {"type": "json_object"},
