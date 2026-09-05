@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-015",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:fresh-badge-boundary",
+  "authoritative_intent_ref": "inline:fresh-badge-contract",
+  "invariant_refs": ["INV-H-LOW-015"],
+  "model_visible": {
+    "contract": "In this internal preview, badge 'Fresh' is allowed only when age_minutes < 30. Exactly 30 minutes is not Fresh.",
+    "artifact": "age_minutes=30; badge='Fresh'",
+    "context": "Read-only internal preview; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-015.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "boundary"]
+}
