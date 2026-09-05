@@ -1,0 +1,9 @@
+{
+  "experiment_id": "EXP-F-PILOT7",
+  "scope": "reviewer correlation and independence falsification",
+  "tested_sha": "9bbf152842c9b6b93a1b19666398b9b27f9a93bd",
+  "workflow_run_id": 33954208549,
+  "conclusion": "PASS",
+  "governance_tests": 83,
+  "notes": "Exact-head CI passed all reviewer-independence cases. Distinct reviewer IDs are insufficient when provider/model/SKU/qualification/prompt/context lineage is correlated; incomplete lineage fails closed. This is an append-only slice record and does not by itself prove the entire orchestration attack surface safe."
+}
