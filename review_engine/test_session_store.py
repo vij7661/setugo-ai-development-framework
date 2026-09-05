@@ -33,6 +33,7 @@ class SessionStoreTests(unittest.TestCase):
         self.store.append("s1", "FINAL_DECISION", {"state": "CONVERGED_PASS", "reasons": ["R2 clean"], "artifact_hash": "h"})
         decision = self.store.latest_decision("s1")
         self.assertEqual(decision.payload["state"], "CONVERGED_PASS")
+        self.assertEqual(self.store.latest_terminal("s1"), decision)
         summary = self.store.list_sessions()[0]
         self.assertEqual(summary.session_id, "s1")
         self.assertEqual(summary.final_state, "CONVERGED_PASS")
@@ -69,6 +70,56 @@ class SessionStoreTests(unittest.TestCase):
             self.store.append("sealed", "R1_COMPLETED", {"artifact_hash": "late"})
         self.assertTrue(self.store.validate_chain("sealed"))
         self.assertEqual(len(self.store.events("sealed")), 2)
+
+    def test_owned_execution_abort_seals_open_session_and_is_visible_in_summary(self):
+        with self.store.execution_attempt("attempt-owner"):
+            request = self.store.append("aborted", "REQUEST_RECEIVED", {"request_id": "aborted"})
+        self.assertEqual(request.payload["execution_attempt_id"], "attempt-owner")
+
+        aborted = self.store.abort_if_owned("aborted", "attempt-owner")
+        self.assertIsNotNone(aborted)
+        self.assertEqual(aborted.event_type, "EXECUTION_ABORTED")
+        self.assertEqual(aborted.payload["state"], "EXECUTION_ABORTED")
+        self.assertEqual(
+            aborted.payload["reasons"],
+            ["review execution failed before a governed final decision"],
+        )
+        self.assertTrue(self.store.validate_chain("aborted"))
+        self.assertEqual(self.store.latest_terminal("aborted"), aborted)
+        self.assertIsNone(self.store.latest_decision("aborted"))
+
+        summary = self.store.list_sessions()[0]
+        self.assertEqual(summary.session_id, "aborted")
+        self.assertEqual(summary.final_state, "EXECUTION_ABORTED")
+        self.assertEqual(
+            summary.final_reasons,
+            ("review execution failed before a governed final decision",),
+        )
+        with self.assertRaisesRegex(ValueError, "already terminal"):
+            self.store.append("aborted", "R1_COMPLETED", {"artifact_hash": "late"})
+
+    def test_wrong_execution_attempt_cannot_abort_another_open_session(self):
+        with self.store.execution_attempt("winning-attempt"):
+            self.store.append("owned", "REQUEST_RECEIVED", {"request_id": "owned"})
+
+        self.assertIsNone(self.store.abort_if_owned("owned", "losing-attempt"))
+        events = self.store.events("owned")
+        self.assertEqual([event.event_type for event in events], ["REQUEST_RECEIVED"])
+        self.assertTrue(self.store.validate_chain("owned"))
+
+        aborted = self.store.abort_if_owned("owned", "winning-attempt")
+        self.assertIsNotNone(aborted)
+        self.assertEqual([event.event_type for event in self.store.events("owned")], ["REQUEST_RECEIVED", "EXECUTION_ABORTED"])
+
+    def test_abort_is_idempotent_after_terminal_event(self):
+        with self.store.execution_attempt("owner"):
+            self.store.append("once", "REQUEST_RECEIVED", {"request_id": "once"})
+        first = self.store.abort_if_owned("once", "owner")
+        second = self.store.abort_if_owned("once", "owner")
+        self.assertIsNotNone(first)
+        self.assertIsNone(second)
+        self.assertEqual(len(self.store.events("once")), 2)
+        self.assertTrue(self.store.validate_chain("once"))
 
     def test_concurrent_event_writers_serialize_without_corrupting_chain(self):
         self.store.append("parallel", "REQUEST_RECEIVED", {"request_id": "parallel"})
