@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-F",
+  "adjudication_protocol": "DETERMINISTIC_GOVERNOR_FALSIFICATION_V1",
+  "execution_scope": "DIRECTIONAL_GOVERNOR_SLICE",
+  "execution_sha": "5ce12f846236f9868fc7ed9dfddef3efeb3e78b7",
+  "run_id": 33911719538,
+  "case_count": 4,
+  "case_results": [
+    {
+      "case_id": "EXP-F-GOV-001",
+      "target": "replay after classified failure / repair dispatch",
+      "result": "PASS_AFTER_REPAIR",
+      "evidence": "A classified failure event is consumed into authoritative state before repair dispatch; replay of the same delivery is ignored as duplicate.",
+      "regression_test": "test_classified_failure_event_is_consumed_before_repair_dispatch"
+    },
+    {
+      "case_id": "EXP-F-GOV-002",
+      "target": "replay around REQUIREMENT UNRESOLVED human escalation",
+      "result": "PASS_AFTER_REPAIR",
+      "evidence": "A REQUIREMENT UNRESOLVED event is consumed before REQUEST_HUMAN is emitted, preventing the same event from being reprocessed to duplicate downstream behavior.",
+      "regression_test": "test_requirement_unresolved_event_is_consumed_before_human_request"
+    },
+    {
+      "case_id": "EXP-F-GOV-003",
+      "target": "malformed optimistic state version",
+      "result": "PASS_AFTER_REPAIR",
+      "evidence": "Malformed state-version input fails closed with BLOCK and does not mutate authoritative state instead of raising an unhandled conversion error.",
+      "regression_test": "test_malformed_state_version_fails_closed_instead_of_crashing"
+    },
+    {
+      "case_id": "EXP-F-GOV-004",
+      "target": "malformed evidence references",
+      "result": "PASS_AFTER_REPAIR",
+      "evidence": "Malformed evidence-reference structure fails closed with BLOCK and does not mutate authoritative state.",
+      "regression_test": "test_malformed_evidence_fails_closed"
+    }
+  ],
+  "experiment_result": "PARTIAL_DIRECTIONAL_SUCCESS_AFTER_DISCOVERED_GOVERNANCE_DEFECTS",
+  "scientific_interpretation": "This slice confirms that EXP-F is functioning as a falsification experiment rather than a confirmation test: replay and malformed-event escape paths were exposed, repaired, converted into deterministic regressions, and verified on the exact repaired SHA. It does not establish overall governance correctness because most pre-registered EXP-F attack classes remain unexecuted.",
+  "required_next_step": "Continue EXP-F against the remaining registered attack classes, especially stale/forged provenance, cross-project/task event binding, concurrent completion races, forbidden corrective scope, budget/resource exhaustion semantics, normalized-finding loss, canonical evidence identity, and COMPLETE promotion. Do not declare EXP-F complete from this slice.",
+  "limitations": [
+    "The four cases are deterministic governor regressions, not independent model-review cases.",
+    "This slice covers replay consumption and malformed event structures only; it does not measure the full EXP-F attack surface.",
+    "Passing regressions prove the repaired paths at the exact execution SHA, not absence of other governance defects.",
+    "No population-level reliability threshold is inferred from four adversarial cases."
+  ]
+}
