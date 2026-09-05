@@ -1,0 +1,134 @@
+name: Governed Platform EXP-G Candidate Evaluation
+on:
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: Blinded pilot case ID
+        required: true
+        default: EXP-C-001
+        type: string
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-g-trigger.json]
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+jobs:
+  groq:
+    name: Candidate Groq
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env: {GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve case
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-g-trigger.json"))["case_id"])')"; fi
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+      - name: Execute candidate
+        continue-on-error: true
+        run: |
+          mkdir -p exp-g-results/groq
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-a --instruction-version exp-g-candidate-v1 --out "exp-g-results/groq/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/groq/${CASE_ID}.envelope.json" --provider groq --base-url https://api.groq.com/openai/v1 --model openai/gpt-oss-20b --api-key-env GROQ_API_KEY --timeout-seconds 120 --out "exp-g-results/groq/${CASE_ID}.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-g-groq, path: exp-g-results/groq/, if-no-files-found: warn}
+
+  openrouter:
+    name: Candidate OpenRouter
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env: {OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve case
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-g-trigger.json"))["case_id"])')"; fi
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+      - name: Execute candidate
+        continue-on-error: true
+        run: |
+          mkdir -p exp-g-results/openrouter
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-b --instruction-version exp-g-candidate-v1 --out "exp-g-results/openrouter/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/openrouter/${CASE_ID}.envelope.json" --provider openrouter --base-url https://openrouter.ai/api/v1 --model nvidia/nemotron-3-ultra-550b-a55b:free --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --out "exp-g-results/openrouter/${CASE_ID}.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-g-openrouter, path: exp-g-results/openrouter/, if-no-files-found: warn}
+
+  mistral:
+    name: Candidate Mistral
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env: {MISTRAL_API_KEY: "${{ secrets.MISTRAL_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve case
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-g-trigger.json"))["case_id"])')"; fi
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+      - name: Execute candidate
+        continue-on-error: true
+        run: |
+          mkdir -p exp-g-results/mistral
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-c --instruction-version exp-g-candidate-v1 --out "exp-g-results/mistral/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/mistral/${CASE_ID}.envelope.json" --provider mistral --base-url https://api.mistral.ai/v1 --model mistral-small-latest --api-key-env MISTRAL_API_KEY --timeout-seconds 120 --out "exp-g-results/mistral/${CASE_ID}.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-g-mistral, path: exp-g-results/mistral/, if-no-files-found: warn}
+
+  gemini:
+    name: Candidate Gemini
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env: {GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve case
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-g-trigger.json"))["case_id"])')"; fi
+          echo "CASE_ID=$CASE_ID" >> "$GITHUB_ENV"
+      - name: Execute candidate
+        continue-on-error: true
+        run: |
+          mkdir -p exp-g-results/gemini
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-d --instruction-version exp-g-candidate-v1 --out "exp-g-results/gemini/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-g-results/gemini/${CASE_ID}.envelope.json" --provider gemini --base-url https://generativelanguage.googleapis.com/v1beta/openai --model gemini-3.8-flash --api-key-env GEMINI_API_KEY --timeout-seconds 120 --out "exp-g-results/gemini/${CASE_ID}.raw-result.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-g-gemini, path: exp-g-results/gemini/, if-no-files-found: warn}
+
+  bundle:
+    name: Freeze EXP-G review bundle
+    needs: [groq, openrouter, mistral, gemini]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: exp-g-*
+          path: _candidate-results
+          merge-multiple: false
+      - name: Resolve case and build frozen bundle
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ]; then CASE_ID="${{ inputs.case_id }}"; else CASE_ID="$(python -c 'import json;print(json.load(open(".github/exp-g-trigger.json"))["case_id"])')"; fi
+          mapfile -t RESULTS < <(find _candidate-results -name '*.raw-result.json' -type f | sort)
+          if [ "${#RESULTS[@]}" -eq 0 ]; then echo 'No candidate raw results were produced' >&2; exit 1; fi
+          ARGS=()
+          for f in "${RESULTS[@]}"; do ARGS+=(--result "$f"); done
+          mkdir -p exp-g-review-bundle
+          python experiments/governed-platform/runner/build_exp_g_candidate_bundle.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" "${ARGS[@]}" --execution-sha "$GITHUB_SHA" --workflow-run-id "$GITHUB_RUN_ID" --out "exp-g-review-bundle/${CASE_ID}.exp-g-candidate-review-bundle.json"
+          cp "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" "exp-g-review-bundle/${CASE_ID}.case.json"
+      - uses: actions/upload-artifact@v4
+        with: {name: exp-g-candidate-review-bundle, path: exp-g-review-bundle/, if-no-files-found: error}
