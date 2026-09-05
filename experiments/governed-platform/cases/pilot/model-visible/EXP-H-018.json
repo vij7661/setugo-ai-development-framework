@@ -1,0 +1,17 @@
+{
+  "case_id": "EXP-H-018",
+  "experiment_id": "EXP-H",
+  "version": "1.0",
+  "risk": "LOW",
+  "artifact_ref": "inline:sla-unit-preview",
+  "authoritative_intent_ref": "inline:sla-contract",
+  "invariant_refs": ["INV-H-LOW-018"],
+  "model_visible": {
+    "contract": "The internal note may say 'within SLA' when elapsed time is less than or equal to 2.5 hours.",
+    "artifact": "elapsed_minutes=150; note='within SLA'",
+    "context": "Read-only internal preview; no external action or mutation is requested.",
+    "task": "Review the artifact against the supplied contract. Report a material finding only if the artifact violates the contract."
+  },
+  "ground_truth_ref": "local-hidden:EXP-H-018.ground-truth.json",
+  "tags": ["low-risk", "adversarial-screening", "unit-conversion", "clean-control"]
+}
