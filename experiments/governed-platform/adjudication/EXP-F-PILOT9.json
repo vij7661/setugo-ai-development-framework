@@ -1,0 +1,10 @@
+{
+  "experiment_id": "EXP-F-PILOT9",
+  "scope": "semantic invariant laundering falsification",
+  "tested_sha": "bd2c90af57e098a5b619bdf114beea638fc253b0",
+  "workflow_run_id": 33954688023,
+  "conclusion": "PASS",
+  "governance_tests": 101,
+  "cases": 8,
+  "notes": "Exact-head CI passed all semantic invariant laundering cases, including reworded contradictory authority claims, ambiguity fail-closed behavior, normative polarity consistency, duplicate invariant identity rejection, semantic hash drift, missing semantic claims, and policy-layer recomputation. This remains a slice result, not a claim of full EXP-F completion."
+}
