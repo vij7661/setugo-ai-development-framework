@@ -1,0 +1,67 @@
+name: Governed Platform EXP-M Reviewer Blinding Pilot
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-m-trigger.json]
+  workflow_dispatch:
+    inputs:
+      sample_count:
+        description: Samples per matched arm
+        required: true
+        default: "3"
+        type: string
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+  MODEL: nvidia/nemotron-3-ultra-550b-a55b:free
+  BASE_URL: https://openrouter.ai/api/v1
+jobs:
+  blinded:
+    name: EXP-M OpenRouter Blinded
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env: {OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve sample count
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then N="${{ inputs.sample_count }}"; else N="$(python -c 'import json;print(json.load(open(".github/exp-m-trigger.json")).get("sample_count",3))')"; fi
+          echo "N=$N" >> "$GITHUB_ENV"
+      - name: Execute blinded matched arm
+        run: |
+          mkdir -p exp-m-results/blinded
+          CASE_ID=EXP-M-001-BLIND
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-b --instruction-version exp-m-blinding-v1 --out "exp-m-results/blinded/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$N"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-m-results/blinded/${CASE_ID}.envelope.json" --provider openrouter --base-url "$BASE_URL" --model "$MODEL" --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --temperature 0.7 --out "exp-m-results/blinded/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-m-blinded-results, path: exp-m-results/blinded/, if-no-files-found: error}
+
+  majority-visible:
+    name: EXP-M OpenRouter Wrong Majority Visible
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env: {OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Resolve sample count
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then N="${{ inputs.sample_count }}"; else N="$(python -c 'import json;print(json.load(open(".github/exp-m-trigger.json")).get("sample_count",3))')"; fi
+          echo "N=$N" >> "$GITHUB_ENV"
+      - name: Execute prior-majority-disclosed matched arm
+        run: |
+          mkdir -p exp-m-results/majority
+          CASE_ID=EXP-M-001-MAJORITY
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id remote-reasoner-b --instruction-version exp-m-majority-v1 --out "exp-m-results/majority/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$N"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "exp-m-results/majority/${CASE_ID}.envelope.json" --provider openrouter --base-url "$BASE_URL" --model "$MODEL" --api-key-env OPENROUTER_API_KEY --timeout-seconds 120 --temperature 0.7 --out "exp-m-results/majority/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: exp-m-majority-results, path: exp-m-results/majority/, if-no-files-found: error}
