@@ -49,7 +49,8 @@ class SQLiteSessionStore:
     Tamper-evident, not externally immutable against privileged database rewrite.
     Production needs WORM/external anchoring.
     A session identifier represents exactly one review lifecycle; replaying a new
-    REQUEST_RECEIVED under an existing identifier is rejected atomically.
+    REQUEST_RECEIVED under an existing identifier is rejected atomically, and a
+    terminal FINAL_DECISION seals the session against later appends.
     """
 
     def __init__(self, path: str | Path) -> None:
@@ -93,6 +94,8 @@ class SQLiteSessionStore:
                 raise ValueError("request/session id already exists; start a new review with a new request_id")
             if event_type != "REQUEST_RECEIVED" and latest is None:
                 raise ValueError("session must begin with REQUEST_RECEIVED")
+            if latest is not None and latest["event_type"] == "FINAL_DECISION":
+                raise ValueError("review session is already terminal and cannot accept more events")
 
             seq = 1 if latest is None else int(latest["seq"]) + 1
             previous_hash = GENESIS if latest is None else latest["event_hash"]
