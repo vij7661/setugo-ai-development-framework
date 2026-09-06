@@ -1,0 +1,45 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 10,
+  "record_type": "first_run_mechanism_defect",
+  "date": "2026-09-06",
+  "design_sha": "1af5116b1d3768bdf9466bc08a924d29bd14bf5a",
+  "workflow_run_id": 34044420058,
+  "workflow_conclusion": "failure",
+  "scientific_endpoints_executed": true,
+  "endpoint_total": 20,
+  "endpoint_passed": 17,
+  "endpoint_failed": 3,
+  "classification": "MECHANISM_DEFECT",
+  "failed_endpoints": [
+    {
+      "id": "P10-09",
+      "name": "exact_issue_replay_is_idempotent",
+      "observation": "An exact replay of generation 1 was rejected instead of returning the already committed checkpoint.",
+      "root_cause": "The issue path evaluates predecessor/genesis admission before resolving an existing identical issuance, causing GENESIS_AFTER_EXISTING_STATE on an otherwise valid exact replay."
+    },
+    {
+      "id": "P10-17",
+      "name": "postcommit_response_loss_restarts_as_same_idempotent_checkpoint",
+      "observation": "After the authority committed and the response was lost, a fresh authority process rejected the exact retry with GENESIS_AFTER_EXISTING_STATE.",
+      "root_cause": "Same replay-ordering mechanism defect as P10-09: exact durable replay is checked too late."
+    },
+    {
+      "id": "P10-18",
+      "name": "authority_store_tamper_or_deletion_blocks_verification",
+      "observation": "Verification remained positive after statement_json in the durable authority store was tampered while digest/tag columns remained unchanged.",
+      "root_cause": "Verification checks stored digest/tag/issuance columns but does not parse and compare the durable statement_json to the supplied signed statement, leaving a durable-record integrity blind spot."
+    }
+  ],
+  "repair_scope": [
+    "Resolve exact existing issuance/generation replay before predecessor/genesis admission while preserving semantic rebinding and same-generation equivocation denial.",
+    "Require the durable authority-store statement_json to parse and exactly match the supplied signed statement and its digest before verification can pass."
+  ],
+  "prohibited_repairs": [
+    "Do not weaken or delete P10-09, P10-17, or P10-18.",
+    "Do not alter expected outcomes to make the run green.",
+    "Do not broaden model, reviewer, production, or release authority."
+  ],
+  "scientific_status": "FAILED_FIRST_RUN_PENDING_NARROW_MECHANISM_REPAIR",
+  "notes": "Workflow failure is not itself the scientific finding; the finding is the three executed falsification endpoints that exposed mechanism behavior. A later repaired pass must retain this first-run failure in lineage and must not be described as first-run 20/20."
+}
