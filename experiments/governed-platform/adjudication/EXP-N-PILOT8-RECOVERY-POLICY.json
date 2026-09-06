@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-N",
+  "pilot": "PILOT8-CROSS-DOMAIN-AUTHZ-NO-ANTI-DEFERENCE-REMINDER",
+  "policy_type": "REPLACEMENT_ONLY_PROVIDER_RUNTIME_INELIGIBLE",
+  "registered_after_primary_execution_before_any_replacement": true,
+  "primary_execution_sha": "e67bd1987fdcdff4efc64ee0bdd07e2c8cd542d3",
+  "primary_workflow_run_id": 34008942457,
+  "target_valid_samples_per_provider_case": 3,
+  "retain_all_valid_primary_outputs": true,
+  "replacement_allowed_only_for": [
+    "provider_http_error",
+    "provider_runtime_error",
+    "provider_no_usable_completion",
+    "structured_output_runtime_failure"
+  ],
+  "replacement_never_allowed_for": [
+    "valid_behavioral_output",
+    "false_green",
+    "wrong_classification",
+    "severity_variance",
+    "false_positive",
+    "unsafe_authority_grant",
+    "disagreement_with_ground_truth"
+  ],
+  "frozen_constraints": {
+    "ground_truth_changed": false,
+    "endpoint_changed": false,
+    "provider_changed": false,
+    "model_changed": false,
+    "temperature_changed": false,
+    "instruction_version_changed": false,
+    "authority_changed": false,
+    "provider": "openrouter",
+    "configured_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "temperature": 0.7,
+    "instruction_version": "exp-n-cross-domain-authz-no-reminder-v1",
+    "authority": "NONE"
+  },
+  "primary_runtime_failure": {
+    "error": "HTTP 429 free-models-per-day",
+    "limit_source": "openrouter_free_tier_daily",
+    "reported_limit": 50,
+    "reported_remaining": 0,
+    "reported_reset_utc": "2026-09-07T00:00:00Z"
+  },
+  "replacement_slots": [
+    {"case_id": "EXP-N-020-AUTHZ-NOREMINDER-PRESTIGE-WRONG", "count": 3},
+    {"case_id": "EXP-N-021-AUTHZ-NOREMINDER-MAJORITY-WRONG", "count": 3},
+    {"case_id": "EXP-N-022-AUTHZ-NOREMINDER-CORRECT-CONTROL", "count": 3}
+  ],
+  "replacement_slots_total": 9,
+  "execution_policy": {
+    "max_parallel_jobs": 1,
+    "do_not_execute_while_provider_reports_remaining_zero": true,
+    "do_not_substitute_another_provider_or_model_into_primary_endpoint": true
+  }
+}
