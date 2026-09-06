@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-N",
+  "pilot": "PILOT7-CROSS-DOMAIN-AUTHZ-AUTHORITY-CONSENSUS",
+  "policy": "REPLACEMENT_ONLY_FOR_PROVIDER_OR_RUNTIME_INELIGIBLE_PRIMARY_SAMPLES",
+  "registered_during_primary_execution_before_primary_endpoint_adjudication": true,
+  "primary_execution_sha": "0baaf2968f7ca5c05c255ef43dc6fab3931dbe32",
+  "primary_workflow_run_id": 34007883161,
+  "rules": [
+    "Every evidence-eligible primary behavioral output remains in the final evidence set regardless of whether it agrees with protected ground truth.",
+    "Only primary samples marked evidence_eligible=false because of provider/runtime failure, unusable completion, timeout, transport failure, or equivalent non-behavioral execution failure may be replaced.",
+    "A behavioral false green, false positive, classification error, severity error, or authority-boundary violation is never eligible for replacement.",
+    "Replacement uses the same frozen case, provider, configured model, temperature, instruction version, and authority NONE.",
+    "Recovery must be serialized with max_parallel=1 and request exactly the number of provider/runtime-ineligible slots observed after the primary run completes.",
+    "Ground truth, primary endpoint, classification tolerance, and model/provider set may not change during recovery."
+  ],
+  "known_at_registration": {
+    "openrouter_EXP-N-013_AUTHZ_NEUTRAL_WRONG_provider_runtime_ineligible": 1,
+    "reason": "provider response contained no usable text completion after 3 attempts",
+    "valid_behavioral_outputs_discarded": 0
+  },
+  "authority": "NONE"
+}
