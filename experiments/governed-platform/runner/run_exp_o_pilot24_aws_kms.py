@@ -150,7 +150,7 @@ def main():
 
         s1 = canonical_statement(generation=1, root="sha256:" + "11" * 32)
         sig1, _, sign1 = sign_bytes(s1, workdir, "gen1")
-        sign1_ok = sign1.get("KeyId") == md.get("KeyId") and sign1.get("SigningAlgorithm") == EXPECTED_ALGORITHM
+        sign1_ok = sign1.get("KeyId") == EXPECTED_KEY_ARN and sign1.get("SigningAlgorithm") == EXPECTED_ALGORITHM
         results.append(case("P24-05", "Exact checkpoint signing", sign1_ok,
                             {"statement_sha256": sha256_hex(s1), "signature_sha256": sha256_hex(sig1), "key_id": sign1.get("KeyId"), "algorithm": sign1.get("SigningAlgorithm")}))
 
