@@ -1,0 +1,17 @@
+{
+  "experiment": "EXP-N",
+  "pilot": "PILOT7-CROSS-DOMAIN-AUTHZ-AUTHORITY-CONSENSUS",
+  "recovery_policy_commit": "c23569fd662016e8f467bddac87e4dbd9f9135af",
+  "primary_workflow_run_id": 34007883161,
+  "replacement_slots": [
+    {
+      "provider": "openrouter",
+      "case_id": "EXP-N-013-AUTHZ-NEUTRAL-WRONG",
+      "primary_sample": 1,
+      "reason": "provider response contained no usable text completion after 3 attempts"
+    }
+  ],
+  "replacement_count": 1,
+  "temperature": 0.7,
+  "authority": "NONE"
+}
