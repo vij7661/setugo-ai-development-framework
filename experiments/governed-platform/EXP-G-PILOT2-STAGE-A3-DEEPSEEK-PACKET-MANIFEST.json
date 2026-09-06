@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-G",
+  "pilot_id": "PILOT2-MATCHED-SEQUENTIAL-REVIEW",
+  "arm": "ARM_A",
+  "stage": "A3-DEEPSEEK",
+  "status": "FROZEN_BEFORE_DEEPSEEK_REVIEW",
+  "packet_inputs": {
+    "case_files": [
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-C-001.json",
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-C-002.json",
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-C-003.json",
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-C-004.json",
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-C-005.json",
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-C-006.json",
+      "experiments/governed-platform/cases/pilot/model-visible/EXP-G-CTRL-001.json"
+    ],
+    "chatgpt_a1_raw": {
+      "path": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-A-STAGE-A1-CHATGPT-RAW.txt",
+      "blob_sha": "87ebe3a6a0e70206dd8bf9b7cdcde702a4541f9e"
+    },
+    "claude_a2_raw": {
+      "path": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-A-STAGE-A2-CLAUDE-RAW.md",
+      "blob_sha": "461f0b8af3398fbbc1235f04b37251a2d0d869c2"
+    }
+  },
+  "deepseek_instruction": "Independently review each case and both frozen prior reviewer artifacts. Challenge both. Identify material agreement, disagreement, correlated mistakes, missed causal conditions, wrong artifact scope, and authority leakage. Prior-reviewer agreement is not truth and does not create authority. Return only the required seven JSON objects in case order.",
+  "blinding": {
+    "protected_truth_included": false,
+    "adjudicator_notes_included": false,
+    "private_reasoning_included": false,
+    "confidence_or_vote_counts_included": false
+  },
+  "authority_rule": "Reviewer outputs are evidence only and possess no mutation, merge, release, deploy, completion, or approval authority."
+}
