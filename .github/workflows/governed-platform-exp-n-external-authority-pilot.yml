@@ -58,6 +58,8 @@ jobs:
             experiments/governed-platform/cases/pilot/model-visible/EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL.json \
             experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json \
             experiments/governed-platform/governance/authority_binding.py \
+            experiments/governed-platform/governance/execution_authority.py \
+            experiments/governed-platform/governance/capability_guard.py \
             experiments/governed-platform/runner/mechanisms.remote-free.example.json \
             experiments/governed-platform/runner/prepare_run.py \
             experiments/governed-platform/runner/adapters.py \
@@ -105,6 +107,8 @@ jobs:
               Path(".github/workflows/governed-platform-exp-n-external-authority-pilot.yml"),
               Path("$CAPABILITY"),
               Path("experiments/governed-platform/governance/authority_binding.py"),
+              Path("experiments/governed-platform/governance/execution_authority.py"),
+              Path("experiments/governed-platform/governance/capability_guard.py"),
               Path("experiments/governed-platform/runner/mechanisms.remote-free.example.json"),
               Path("experiments/governed-platform/runner/prepare_run.py"),
               Path("experiments/governed-platform/runner/adapters.py"),
