@@ -1,0 +1,15 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 8,
+  "record_type": "SECOND_RUN_FAILURE_CLASSIFICATION",
+  "status": "MECHANISM_DEFECT",
+  "run_id": 34043521015,
+  "job_id": 101514398723,
+  "tested_commit": "412129f053ad907accb35348124ab65cd5b38cc0",
+  "scientific_pass": false,
+  "observed_failure": "After the reconciliation fixture was initialized correctly, all Pilot 8 cases reached the Pilot 8 mechanism setup and failed while issuing the clean generation-1 composite checkpoint with PermissionError: current promotion lost race.",
+  "root_cause": "The durable composite journal used sqlite3.Connection.total_changes as though it were the affected-row count for the immediately preceding CURRENT-promotion UPDATE. total_changes is cumulative for the connection, so the preceding INSERT and authentication-tag UPDATE made the clean promotion appear to have affected more than one row. The same faulty affected-row check was also present in PENDING recovery promotion.",
+  "classification_basis": "This failure is in the Pilot 8 production mechanism's clean issuance/liveness transition after the fixture defect was removed. Prior EXP-I Pilot 1-7 tests remained green in the same run. It is therefore a mechanism defect, not a test-expectation adjustment and not a scientific pass.",
+  "allowed_repair": "Replace both cumulative Connection.total_changes checks with the rowcount of the exact conditional UPDATE cursor. Do not change any Pilot 8 endpoint, expected outcome, state binding, generation rule, authority boundary, or failure criterion.",
+  "scientific_claim": "NONE"
+}
