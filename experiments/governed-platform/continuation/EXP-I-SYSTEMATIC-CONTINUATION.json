@@ -1,0 +1,24 @@
+{
+  "track": "EXP-I",
+  "stage": "SYSTEMATIC_STATE_SPACE_AND_FAULT_EXPLORATION",
+  "state": "BOUNDED_PASS_ADJUDICATED",
+  "not_pilot_20": true,
+  "scientific_adjudication": "experiments/governed-platform/adjudication/EXP-I-STATE-SPACE-ISSUANCE-ANCHOR.json",
+  "evaluated_sha": "bb7122557c62e4a671b6612e0ae9f14e88e9deb5",
+  "scientific_run_id": 34062825622,
+  "scientific_job_id": 101566299334,
+  "adjudication_commit": "fb0cbcb44d507cc7daeae2462c791dc2cab2afaf",
+  "scientific_result": {
+    "visited_states": 5611,
+    "transitions_checked": 16848,
+    "max_depth_reached": 12,
+    "production_violations": 0,
+    "frozen_invariants_passed": "SA-01..SA-10",
+    "required_mutants_detected": "4/4",
+    "governed_regression": "1123/1123"
+  },
+  "next_target": "INTEGRATED_GOVERNED_MVP",
+  "next_action": "Inspect existing repository architecture and compose a minimum integrated governed execution slice from already-tested seams. Preserve model authority at zero for consequential completion/release/deploy and retain fail-closed human gates where policy requires them.",
+  "stop_condition": "Manual intervention only for genuine requirement ambiguity, unavailable external credential/resource, or a governance rule requiring explicit human authority.",
+  "nonclaim": "This continuation marker does not grant production, release, deploy, or completion authority."
+}
