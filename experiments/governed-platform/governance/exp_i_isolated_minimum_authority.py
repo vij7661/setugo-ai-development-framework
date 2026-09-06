@@ -34,7 +34,7 @@ class RecoveryAuthorizationAuthority:
     def public_key_pem(self)->str: return Path(self.public_path).read_text()
     def issue(self,recovery_id:str,current_epoch:int,current_digest:str,target:dict[str,Any])->dict[str,Any]:
         body=_permit_body(recovery_id,current_epoch,current_digest,target)
-        return {'permit':body,'signature':_ed25519_sign(Path(self.private_path).read_text(),_canon(body))}
+        return {'permit':body,'signature':_ed25519_sign(self.private_path,_canon(body))}
 
 
 def _ensure_min_schema(path:str)->None:
@@ -79,7 +79,8 @@ def _advance(root_db:str,root_auth:str,min_db:str,recovery_public_pem:str,author
     try:
         c.execute('BEGIN IMMEDIATE')
         row=c.execute('SELECT root_epoch,record_digest FROM minimum WHERE id=1').fetchone()
-        if row is None:return {'ok':False,'reason':'MINIMUM_NOT_BOOTSTRAPPED'}
+        if row is None:
+            c.execute('ROLLBACK'); return {'ok':False,'reason':'MINIMUM_NOT_BOOTSTRAPPED'}
         ce,cd=int(row[0]),str(row[1]); pd=_digest({'permit':body,'signature':sig})
         prior=c.execute('SELECT permit_digest,target_epoch,target_digest FROM recovery_ledger WHERE recovery_id=?',(body['recovery_id'],)).fetchone()
         if prior:
@@ -90,8 +91,10 @@ def _advance(root_db:str,root_auth:str,min_db:str,recovery_public_pem:str,author
         if ce!=int(body['current_minimum_epoch']) or cd!=body['current_minimum_digest']:
             c.execute('ROLLBACK'); return {'ok':False,'reason':'CURRENT_MINIMUM_BINDING_MISMATCH'}
         te=int(body['target_root_epoch']); td=str(body['target_root_record_digest'])
-        if te!=ce+1:return {'ok':False,'reason':'TARGET_EPOCH_NOT_CONTIGUOUS'}
-        if body['predecessor_root_record_digest']!=cd:return {'ok':False,'reason':'PREDECESSOR_MISMATCH'}
+        if te!=ce+1:
+            c.execute('ROLLBACK'); return {'ok':False,'reason':'TARGET_EPOCH_NOT_CONTIGUOUS'}
+        if body['predecessor_root_record_digest']!=cd:
+            c.execute('ROLLBACK'); return {'ok':False,'reason':'PREDECESSOR_MISMATCH'}
         c.execute('INSERT INTO recovery_ledger VALUES(?,?,?,?)',(body['recovery_id'],pd,te,td))
         c.execute('UPDATE minimum SET root_epoch=?,record_digest=? WHERE id=1',(te,td)); c.execute('COMMIT')
         return {'ok':True,'replay':False,'minimum':[te,td]}
