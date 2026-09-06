@@ -1,8 +1,9 @@
 """EXP-O Pilot 11 ownership fencing for process-separated semantic permits.
 
-This layer leaves finalized Pilot 10 code intact. It adds a durable, integrity-
-protected owner/epoch record in front of Pilot 10 raw-permit resolution so an
-IN_FLIGHT permit has one active gateway owner per fencing epoch.
+This layer leaves finalized Pilot 10 source intact. It places an integrity-
+protected owner/epoch record in the same SQLite database as Pilot 10's durable
+semantic permit, then atomically resolves and finalizes both records so stale
+owners cannot exploit a check/use race.
 """
 from __future__ import annotations
 
@@ -35,7 +36,7 @@ def _deny(reason: str, **extra: Any) -> dict[str, Any]:
 
 
 class SemanticPermitLeaseRegistry:
-    """Durable one-owner-per-epoch lease/fencing registry."""
+    """One-owner-per-epoch fencing registry co-transactional with Pilot 10."""
 
     def __init__(self, db_path: str | Path, integrity_key: bytes, p10_registry: DurableSemanticPermitRegistry) -> None:
         if not integrity_key:
@@ -43,6 +44,8 @@ class SemanticPermitLeaseRegistry:
         self.db_path = str(db_path)
         self._key = bytes(integrity_key)
         self._p10 = p10_registry
+        if Path(self.db_path).resolve() != Path(self._p10.db_path).resolve():
+            raise ValueError("Pilot 11 lease and Pilot 10 semantic registry must share one SQLite database")
         self._init_schema()
 
     def _connect(self) -> sqlite3.Connection:
@@ -89,24 +92,32 @@ class SemanticPermitLeaseRegistry:
             (_canonical(payload).decode("utf-8"), self._tag(payload), str(payload["bound_permit_id"])),
         )
 
+    def _validate_bindings(self, record: Mapping[str, Any], bound_permit_id: str, expected_bindings: Mapping[str, Any]) -> str | None:
+        for field in REGISTRY_BINDING_FIELDS:
+            expected = bound_permit_id if field == "bound_permit_id" else expected_bindings.get(field)
+            if record.get(field) != expected:
+                return f"SEMANTIC_LEASE_BINDING_MISMATCH:{field}"
+        return None
+
     def register_issued(self, outer_permit_payload: Mapping[str, Any]) -> dict[str, Any]:
         payload = copy.deepcopy(dict(outer_permit_payload))
         for field in REGISTRY_BINDING_FIELDS:
             if payload.get(field) in (None, "", []):
                 raise ValueError(f"lease record missing binding {field}")
         bound_id = str(payload["bound_permit_id"])
-        p10 = self._p10.inspect(bound_id)
-        if not p10.get("verified") or p10.get("state") != "ISSUED":
-            raise ValueError("underlying semantic permit must exist in ISSUED state")
-        record = {
-            **{field: copy.deepcopy(payload[field]) for field in REGISTRY_BINDING_FIELDS},
-            "state": "ISSUED",
-            "lease_owner_gateway_instance_id": None,
-            "lease_epoch": 0,
-            "authoritative_result_digest": None,
-        }
         with closing(self._connect()) as conn:
             conn.execute("BEGIN IMMEDIATE")
+            p10, p10_error = self._p10._read_verified(conn, bound_id)
+            if p10_error or p10 is None or p10.get("state") != "ISSUED":
+                conn.rollback()
+                raise ValueError("underlying semantic permit must exist in ISSUED state")
+            record = {
+                **{field: copy.deepcopy(payload[field]) for field in REGISTRY_BINDING_FIELDS},
+                "state": "ISSUED",
+                "lease_owner_gateway_instance_id": None,
+                "lease_epoch": 0,
+                "authoritative_result_digest": None,
+            }
             try:
                 conn.execute(
                     "INSERT INTO semantic_permit_leases(bound_permit_id, record_json, integrity_tag) VALUES (?, ?, ?)",
@@ -136,79 +147,120 @@ class SemanticPermitLeaseRegistry:
             "authoritative_result_digest": record["authoritative_result_digest"],
         }
 
-    def acquire(self, bound_permit_id: str, *, gateway_instance_id: str, expected_bindings: Mapping[str, Any]) -> dict[str, Any]:
+    def resolve_for_gateway(
+        self,
+        bound_permit_id: str,
+        *,
+        gateway_instance_id: str,
+        expected_bindings: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Atomically acquire/take over ownership and resolve P10's inner permit."""
         if not gateway_instance_id:
-            return {"acquired": False, "reason": "GATEWAY_INSTANCE_ID_REQUIRED"}
+            return {"resolved": False, "reason": "GATEWAY_INSTANCE_ID_REQUIRED"}
         with closing(self._connect()) as conn:
             conn.execute("BEGIN IMMEDIATE")
-            record, error = self._read(conn, bound_permit_id)
-            if error:
+            lease, lease_error = self._read(conn, bound_permit_id)
+            if lease_error:
                 conn.rollback()
-                return {"acquired": False, "reason": error}
-            assert record is not None
-            for field in REGISTRY_BINDING_FIELDS:
-                expected = bound_permit_id if field == "bound_permit_id" else expected_bindings.get(field)
-                if record.get(field) != expected:
-                    conn.rollback()
-                    return {"acquired": False, "reason": f"SEMANTIC_LEASE_BINDING_MISMATCH:{field}"}
+                return {"resolved": False, "reason": lease_error}
+            assert lease is not None
+            binding_error = self._validate_bindings(lease, bound_permit_id, expected_bindings)
+            if binding_error:
+                conn.rollback()
+                return {"resolved": False, "reason": binding_error}
 
-            state = record.get("state")
-            owner = record.get("lease_owner_gateway_instance_id")
-            epoch = int(record.get("lease_epoch", 0))
-            if state == "CONSUMED":
+            p10, p10_error = self._p10._read_verified(conn, bound_permit_id)
+            if p10_error or p10 is None:
+                conn.rollback()
+                return {"resolved": False, "reason": p10_error or "SEMANTIC_REGISTRY_RECORD_MISSING"}
+            inner = p10.get("inner_permit")
+            if not isinstance(inner, Mapping) or digest(dict(inner)) != p10.get("inner_permit_digest"):
+                conn.rollback()
+                return {"resolved": False, "reason": "SEMANTIC_REGISTRY_INNER_PERMIT_DIGEST_MISMATCH"}
+
+            state = lease.get("state")
+            owner = lease.get("lease_owner_gateway_instance_id")
+            epoch = int(lease.get("lease_epoch", 0))
+            if state == "CONSUMED" or p10.get("state") == "CONSUMED":
                 conn.commit()
                 return {
-                    "acquired": False,
+                    "resolved": False,
                     "reason": "SEMANTIC_BOUND_PERMIT_CONSUMED",
                     "state": "CONSUMED",
                     "lease_owner_gateway_instance_id": owner,
                     "lease_epoch": epoch,
                 }
+
             if state == "ISSUED":
-                record["state"] = "IN_FLIGHT"
-                record["lease_owner_gateway_instance_id"] = gateway_instance_id
-                record["lease_epoch"] = epoch + 1
-                self._write(conn, record)
+                if p10.get("state") != "ISSUED":
+                    conn.rollback()
+                    return {"resolved": False, "reason": "SEMANTIC_FIRST_OWNER_REQUIRES_UNDERLYING_ISSUED"}
+                idem_error = self._p10._claim_semantic_idempotency(conn, p10)
+                if idem_error:
+                    lease["state"] = "CONSUMED"
+                    lease["authoritative_result_digest"] = "DENIED_BEFORE_INNER_EFFECT"
+                    self._write(conn, lease)
+                    conn.commit()
+                    return {"resolved": False, "reason": idem_error, "state": "CONSUMED"}
+                new_epoch = epoch + 1
+                lease["state"] = "IN_FLIGHT"
+                lease["lease_owner_gateway_instance_id"] = gateway_instance_id
+                lease["lease_epoch"] = new_epoch
+                p10["state"] = "IN_FLIGHT"
+                p10["use_attempts"] = int(p10.get("use_attempts", 0)) + 1
+                self._write(conn, lease)
+                self._p10._write(conn, p10)
                 conn.commit()
                 return {
-                    "acquired": True,
+                    "resolved": True,
                     "disposition": "FIRST_OWNER",
+                    "registry_disposition": "FIRST_USE",
                     "lease_owner_gateway_instance_id": gateway_instance_id,
-                    "lease_epoch": epoch + 1,
+                    "lease_epoch": new_epoch,
+                    "inner_permit": copy.deepcopy(dict(inner)),
+                    "inner_permit_digest": p10.get("inner_permit_digest"),
                 }
+
             if state != "IN_FLIGHT":
                 conn.rollback()
-                return {"acquired": False, "reason": "SEMANTIC_LEASE_STATE_INVALID"}
+                return {"resolved": False, "reason": "SEMANTIC_LEASE_STATE_INVALID"}
             if owner == gateway_instance_id:
                 conn.commit()
                 return {
-                    "acquired": False,
+                    "resolved": False,
                     "reason": "SEMANTIC_IN_FLIGHT_ALREADY_OWNED",
                     "state": "IN_FLIGHT",
                     "lease_owner_gateway_instance_id": owner,
                     "lease_epoch": epoch,
                 }
-
-            # Controlled restart takeover is valid only when the underlying P10
-            # record also reached IN_FLIGHT. This prevents takeover of an owner
-            # that never resolved the raw inner permit.
-            p10 = self._p10.inspect(bound_permit_id)
-            if not p10.get("verified") or p10.get("state") != "IN_FLIGHT":
+            if p10.get("state") != "IN_FLIGHT":
                 conn.rollback()
-                return {"acquired": False, "reason": "SEMANTIC_TAKEOVER_REQUIRES_UNDERLYING_IN_FLIGHT"}
-            record["lease_owner_gateway_instance_id"] = gateway_instance_id
-            record["lease_epoch"] = epoch + 1
-            self._write(conn, record)
+                return {"resolved": False, "reason": "SEMANTIC_TAKEOVER_REQUIRES_UNDERLYING_IN_FLIGHT"}
+            idem_error = self._p10._claim_semantic_idempotency(conn, p10)
+            if idem_error:
+                conn.rollback()
+                return {"resolved": False, "reason": idem_error, "state": "IN_FLIGHT"}
+
+            new_epoch = epoch + 1
+            old_owner = owner
+            lease["lease_owner_gateway_instance_id"] = gateway_instance_id
+            lease["lease_epoch"] = new_epoch
+            p10["use_attempts"] = int(p10.get("use_attempts", 0)) + 1
+            self._write(conn, lease)
+            self._p10._write(conn, p10)
             conn.commit()
             return {
-                "acquired": True,
+                "resolved": True,
                 "disposition": "RESTART_TAKEOVER",
+                "registry_disposition": "RECOVERY_IN_FLIGHT",
                 "lease_owner_gateway_instance_id": gateway_instance_id,
-                "lease_epoch": epoch + 1,
-                "previous_owner_gateway_instance_id": owner,
+                "previous_owner_gateway_instance_id": old_owner,
+                "lease_epoch": new_epoch,
+                "inner_permit": copy.deepcopy(dict(inner)),
+                "inner_permit_digest": p10.get("inner_permit_digest"),
             }
 
-    def finalize(
+    def finalize_both(
         self,
         bound_permit_id: str,
         *,
@@ -216,59 +268,73 @@ class SemanticPermitLeaseRegistry:
         lease_epoch: int,
         authoritative_result_digest: str,
     ) -> dict[str, Any]:
+        """Atomically fence owner+epoch and consume P10 + P11 records together."""
+        if not authoritative_result_digest:
+            return {"finalized": False, "reason": "AUTHORITATIVE_RESULT_DIGEST_REQUIRED"}
         with closing(self._connect()) as conn:
             conn.execute("BEGIN IMMEDIATE")
-            record, error = self._read(conn, bound_permit_id)
-            if error:
+            lease, lease_error = self._read(conn, bound_permit_id)
+            if lease_error:
                 conn.rollback()
-                return {"finalized": False, "reason": error}
-            assert record is not None
-            if record.get("state") == "CONSUMED":
+                return {"finalized": False, "reason": lease_error}
+            assert lease is not None
+            if lease.get("state") == "CONSUMED":
                 conn.commit()
                 return {"finalized": False, "reason": "SEMANTIC_BOUND_PERMIT_CONSUMED"}
-            if record.get("state") != "IN_FLIGHT":
+            if lease.get("state") != "IN_FLIGHT":
                 conn.rollback()
                 return {"finalized": False, "reason": "SEMANTIC_LEASE_FINALIZE_REQUIRES_IN_FLIGHT"}
-            if record.get("lease_owner_gateway_instance_id") != gateway_instance_id:
+            if lease.get("lease_owner_gateway_instance_id") != gateway_instance_id:
                 conn.rollback()
                 return {"finalized": False, "reason": "SEMANTIC_LEASE_STALE_OWNER"}
-            if int(record.get("lease_epoch", 0)) != int(lease_epoch):
+            if int(lease.get("lease_epoch", 0)) != int(lease_epoch):
                 conn.rollback()
                 return {"finalized": False, "reason": "SEMANTIC_LEASE_STALE_EPOCH"}
-            record["state"] = "CONSUMED"
-            record["authoritative_result_digest"] = authoritative_result_digest
-            self._write(conn, record)
-            conn.commit()
-            return {"finalized": True, "state": "CONSUMED", "lease_epoch": int(lease_epoch)}
 
-    def consume_denied_attempt(self, bound_permit_id: str, *, gateway_instance_id: str, lease_epoch: int) -> None:
-        """Consume a lease when underlying P10 resolution fails after acquisition."""
-        with closing(self._connect()) as conn:
-            conn.execute("BEGIN IMMEDIATE")
-            record, error = self._read(conn, bound_permit_id)
-            if error:
+            p10, p10_error = self._p10._read_verified(conn, bound_permit_id)
+            if p10_error or p10 is None:
                 conn.rollback()
-                return
-            assert record is not None
-            if (
-                record.get("state") == "IN_FLIGHT"
-                and record.get("lease_owner_gateway_instance_id") == gateway_instance_id
-                and int(record.get("lease_epoch", 0)) == int(lease_epoch)
-            ):
-                record["state"] = "CONSUMED"
-                record["authoritative_result_digest"] = "DENIED_BEFORE_INNER_EFFECT"
-                self._write(conn, record)
+                return {"finalized": False, "reason": p10_error or "SEMANTIC_REGISTRY_RECORD_MISSING"}
+            if p10.get("state") != "IN_FLIGHT":
+                conn.rollback()
+                return {"finalized": False, "reason": "SEMANTIC_REGISTRY_FINALIZE_REQUIRES_IN_FLIGHT"}
+
+            p10["state"] = "CONSUMED"
+            p10["authoritative_result_digest"] = authoritative_result_digest
+            lease["state"] = "CONSUMED"
+            lease["authoritative_result_digest"] = authoritative_result_digest
+            self._p10._write(conn, p10)
+            self._write(conn, lease)
             conn.commit()
+            return {
+                "finalized": True,
+                "state": "CONSUMED",
+                "lease_owner_gateway_instance_id": gateway_instance_id,
+                "lease_epoch": int(lease_epoch),
+                "authoritative_result_digest": authoritative_result_digest,
+            }
+
+    def stale_finalize_probe(
+        self,
+        bound_permit_id: str,
+        *,
+        gateway_instance_id: str,
+        lease_epoch: int,
+        authoritative_result_digest: str,
+    ) -> dict[str, Any]:
+        """Trusted harness probe uses the exact authoritative finalization path."""
+        return self.finalize_both(
+            bound_permit_id,
+            gateway_instance_id=gateway_instance_id,
+            lease_epoch=lease_epoch,
+            authoritative_result_digest=authoritative_result_digest,
+        )
 
 
 class FencedSemanticBoundLocalEnforcementPoint:
-    """Pilot 11 issuer: P10 outer permit plus a durable ISSUED fence record."""
+    """Pilot 11 issuer: Pilot 10 outer permit plus a durable ISSUED fence record."""
 
-    def __init__(
-        self,
-        p10_lep: DurableSemanticBoundLocalEnforcementPoint,
-        lease_registry: SemanticPermitLeaseRegistry,
-    ) -> None:
+    def __init__(self, p10_lep: DurableSemanticBoundLocalEnforcementPoint, lease_registry: SemanticPermitLeaseRegistry) -> None:
         self._p10_lep = p10_lep
         self._leases = lease_registry
 
@@ -335,26 +401,20 @@ class FencedProcessSemanticBoundGateway:
         bound_id = str(payload.get("bound_permit_id", ""))
         if not bound_id:
             return _deny("SEMANTIC_BOUND_PERMIT_ID_REQUIRED")
-        expected_registry = {field: payload.get(field) for field in REGISTRY_BINDING_FIELDS if field != "bound_permit_id"}
-
-        lease = self._leases.acquire(
+        expected = {field: payload.get(field) for field in REGISTRY_BINDING_FIELDS if field != "bound_permit_id"}
+        resolved = self._leases.resolve_for_gateway(
             bound_id,
             gateway_instance_id=self.gateway_instance_id,
-            expected_bindings=expected_registry,
+            expected_bindings=expected,
         )
-        if not lease.get("acquired"):
-            return _deny(
-                str(lease.get("reason", "SEMANTIC_LEASE_ACQUIRE_DENIED")),
-                lease_epoch=lease.get("lease_epoch"),
-                lease_owner_gateway_instance_id=lease.get("lease_owner_gateway_instance_id"),
-                lease_state=lease.get("state"),
-            )
-        epoch = int(lease["lease_epoch"])
-
-        resolved = self._p10.begin_use(bound_id, expected_bindings=expected_registry)
         if not resolved.get("resolved"):
-            self._leases.consume_denied_attempt(bound_id, gateway_instance_id=self.gateway_instance_id, lease_epoch=epoch)
-            return _deny(str(resolved.get("reason", "SEMANTIC_REGISTRY_RESOLUTION_DENIED")), lease_epoch=epoch)
+            return _deny(
+                str(resolved.get("reason", "SEMANTIC_LEASE_RESOLUTION_DENIED")),
+                lease_epoch=resolved.get("lease_epoch"),
+                lease_owner_gateway_instance_id=resolved.get("lease_owner_gateway_instance_id"),
+                lease_state=resolved.get("state"),
+            )
+        epoch = int(resolved["lease_epoch"])
 
         if after_resolve_hook is not None:
             after_resolve_hook()
@@ -372,36 +432,25 @@ class FencedProcessSemanticBoundGateway:
 
         authoritative_result = gateway_result.get("result") if isinstance(gateway_result.get("result"), Mapping) else gateway_result
         result_digest = digest(authoritative_result)
-
-        # Fence before changing the underlying semantic registry. Old owners
-        # that lost the lease must not finalize shared authority state.
-        lease_snapshot = self._leases.inspect(bound_id)
-        if (
-            not lease_snapshot.get("verified")
-            or lease_snapshot.get("state") != "IN_FLIGHT"
-            or lease_snapshot.get("lease_owner_gateway_instance_id") != self.gateway_instance_id
-            or int(lease_snapshot.get("lease_epoch", -1)) != epoch
-        ):
-            return _deny("SEMANTIC_LEASE_FENCED_BEFORE_FINALIZE", authoritative_gateway_result=gateway_result, lease_epoch=epoch)
-
-        p10_final = self._p10.finalize(bound_id, authoritative_result_digest=result_digest)
-        if not p10_final.get("finalized"):
-            return _deny(str(p10_final.get("reason", "SEMANTIC_REGISTRY_FINALIZATION_FAILED")), lease_epoch=epoch)
-        lease_final = self._leases.finalize(
+        finalized = self._leases.finalize_both(
             bound_id,
             gateway_instance_id=self.gateway_instance_id,
             lease_epoch=epoch,
             authoritative_result_digest=result_digest,
         )
-        if not lease_final.get("finalized"):
-            return _deny(str(lease_final.get("reason", "SEMANTIC_LEASE_FINALIZATION_FAILED")), lease_epoch=epoch)
+        if not finalized.get("finalized"):
+            return _deny(
+                str(finalized.get("reason", "SEMANTIC_FENCED_FINALIZATION_FAILED")),
+                authoritative_gateway_result=gateway_result,
+                lease_epoch=epoch,
+            )
         return {
             **gateway_result,
-            "lease_disposition": lease.get("disposition"),
+            "lease_disposition": resolved.get("disposition"),
             "lease_owner_gateway_instance_id": self.gateway_instance_id,
             "lease_epoch": epoch,
             "lease_state": "CONSUMED",
-            "registry_disposition": resolved.get("disposition"),
+            "registry_disposition": resolved.get("registry_disposition"),
             "bound_permit_id": bound_id,
             "inner_permit_digest": resolved.get("inner_permit_digest"),
         }
