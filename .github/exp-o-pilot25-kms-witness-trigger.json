@@ -1,0 +1,12 @@
+{
+  "experiment": "EXP-O",
+  "pilot": "PILOT25-KMS-WITNESS-INTEGRATION",
+  "aws_role_arn": "arn:aws:iam::297165774800:role/setugo-pilot24-kms-signer",
+  "aws_region": "ap-southeast-2",
+  "kms_key_arn": "arn:aws:kms:ap-southeast-2:297165774800:key/57d95d4f-9b80-44e4-badf-0330ba9f897c",
+  "key_spec": "ECC_NIST_P256",
+  "signing_algorithm": "ECDSA_SHA_256",
+  "nonce": "pilot25-kms-witness-1",
+  "design_commit": "e5beafb470a65322d3a03d673a9e3b6851d63967",
+  "created_at_utc": "2026-09-06T12:28:01Z"
+}
