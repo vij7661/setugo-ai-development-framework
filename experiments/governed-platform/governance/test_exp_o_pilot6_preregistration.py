@@ -41,7 +41,7 @@ class ExpOPilot6PreExecutionIntegrityTests(unittest.TestCase):
         self.assertIn("sample policy: `ALL_VALID`", text)
         self.assertIn("maximum parallel provider jobs: `1`", text)
         self.assertIn("OpenRouter is deliberately excluded", text)
-        self.assertIn("not a model qualification decision", text)
+        self.assertIn("not a model qualification decision", text.replace("**", ""))
 
     def test_cases_have_exact_five_arms_and_identical_authoritative_state(self) -> None:
         data = json.loads(CASES.read_text(encoding="utf-8"))
