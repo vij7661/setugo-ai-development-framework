@@ -1,0 +1,69 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 10,
+  "title": "Process-isolated composite checkpoint authority",
+  "date": "2026-09-06",
+  "status": "BOUNDED_PASS_AFTER_MECHANISM_REPAIR",
+  "first_run": {
+    "design_sha": "1af5116b1d3768bdf9466bc08a924d29bd14bf5a",
+    "workflow_run_id": 34044420058,
+    "endpoint_total": 20,
+    "endpoint_passed": 17,
+    "endpoint_failed": 3,
+    "classification": "MECHANISM_DEFECT",
+    "failed_endpoints": ["P10-09", "P10-17", "P10-18"],
+    "failure_record_commit": "e35539fde22606acd850b17a4fd65a16e4fa1985",
+    "preserved_lineage": true
+  },
+  "repair": {
+    "commit": "a8d3fa3110fb3fef0523649dce03ff21e8428299",
+    "scope": [
+      "Resolve an exact already-durable issuance replay before new-issuance predecessor/genesis admission, while preserving semantic rebinding and same-generation equivocation denial.",
+      "Parse and authenticate durable authority-store statement_json and require it to exactly match the supplied signed statement before verification can pass."
+    ],
+    "tests_modified": false,
+    "expected_outcomes_modified": false,
+    "authority_broadened": false
+  },
+  "repaired_run": {
+    "workflow_run_id": 34044704328,
+    "repair_sha": "a8d3fa3110fb3fef0523649dce03ff21e8428299",
+    "workflow_conclusion": "success",
+    "endpoint_total": 20,
+    "endpoint_passed": 20,
+    "endpoint_failed": 0,
+    "full_governor_suite": {
+      "passed": 972,
+      "failed": 0
+    }
+  },
+  "observed_properties_after_repair": [
+    "Composite checkpoint issuance occurs in a distinct subprocess with a separate SQLite authority store on the tested local path.",
+    "The caller API and child argv do not expose checkpoint signing bytes in the tested interface surface.",
+    "Issued checkpoints bind the exact current permit-ledger digest, reconciliation digest, and permit-authority epoch.",
+    "Verification requires the exact durable authority record and current governance state.",
+    "Unrelated-key forgery, authentication mutation, signed binding substitution, stale generations, and predecessor mismatch fail closed.",
+    "Monotonic generation and same-generation equivocation memory survive authority-process restart in the tested store.",
+    "Exact issue replay is idempotent, including retry from a fresh authority process after post-commit response loss.",
+    "Durable authority-store statement tamper or deletion blocks verification.",
+    "Authority-process unavailability fails closed without a local verification substitute.",
+    "Prior positive verification does not remain valid after checkpoint, permit-ledger, reconciliation-ledger, or permit-authority-epoch changes.",
+    "Model and reviewer outputs have zero production or release authority on this path.",
+    "A clean higher-generation checkpoint remains live after authority restart."
+  ],
+  "bounded_conclusion": "In the tested local subprocess/SQLite/HMAC path, composite checkpoint issuance and verification were isolated behind a distinct authority process and separate durable store; exact replay, restart monotonicity, response-loss recovery, stale/current-state binding, forgery, durable-store tamper/deletion, and authority unavailability behaved as preregistered after a narrow mechanism repair. The first scientific run was 17/20 and exposed three mechanism defects; this pilot must not be described as first-run 20/20.",
+  "not_established": [
+    "Hardware-backed key non-extractability or HSM/KMS isolation.",
+    "Protection against a hostile same-user operating-system or parent-process environment.",
+    "Physical power-loss or storage-controller durability guarantees.",
+    "Distributed consensus, Byzantine fault tolerance, or multi-node authority independence.",
+    "Production readiness or universal correctness."
+  ],
+  "authority": {
+    "model_authority": false,
+    "reviewer_authority": false,
+    "production_authority_from_model_or_reviewer": false,
+    "release_authority_from_model_or_reviewer": false
+  },
+  "scientific_note": "GitHub Actions success is operational regression evidence only. The bounded scientific conclusion is based on the executed preregistered endpoint behavior together with retained first-run failure lineage and the narrow repair."
+}
