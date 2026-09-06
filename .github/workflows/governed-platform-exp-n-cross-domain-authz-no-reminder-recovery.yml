@@ -6,6 +6,9 @@ on:
 permissions: {contents: read}
 env:
   MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+  POLICY: experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-POLICY.json
+  AMENDMENT: experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-EXECUTION-GUARD-AMENDMENT.json
+  TRIGGER: .github/exp-n-cross-domain-authz-no-reminder-recovery-trigger.json
 jobs:
   recover:
     name: EXP-N no-reminder recovery ${{ matrix.case_id }}
@@ -26,8 +29,119 @@ jobs:
       OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
+
+      - name: Enforce frozen replacement policy before provider invocation
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          policy_path = Path("experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-POLICY.json")
+          amendment_path = Path("experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-EXECUTION-GUARD-AMENDMENT.json")
+          trigger_path = Path(".github/exp-n-cross-domain-authz-no-reminder-recovery-trigger.json")
+          policy = json.loads(policy_path.read_text(encoding="utf-8"))
+          amendment = json.loads(amendment_path.read_text(encoding="utf-8"))
+          trigger = json.loads(trigger_path.read_text(encoding="utf-8"))
+
+          expected_policy_commit = "b3027bf3e334ac6e5496016a9e1d4414c78853e1"
+          expected_slots = [
+              {"case_id": "EXP-N-020-AUTHZ-NOREMINDER-PRESTIGE-WRONG", "count": 3},
+              {"case_id": "EXP-N-021-AUTHZ-NOREMINDER-MAJORITY-WRONG", "count": 3},
+              {"case_id": "EXP-N-022-AUTHZ-NOREMINDER-CORRECT-CONTROL", "count": 3},
+          ]
+          expected_trigger = {
+              "experiment": "EXP-N",
+              "pilot": "PILOT8-CROSS-DOMAIN-AUTHZ-NO-ANTI-DEFERENCE-REMINDER",
+              "policy_ref": str(policy_path),
+              "policy_commit": expected_policy_commit,
+              "primary_workflow_run_id": 34008942457,
+              "replacement_slots_total": 9,
+              "provider": "openrouter",
+              "configured_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "temperature": 0.7,
+              "instruction_version": "exp-n-cross-domain-authz-no-reminder-v1",
+              "authority": "NONE",
+              "nonce": "pilot8-recovery-1",
+          }
+          for key, expected in expected_trigger.items():
+              if trigger.get(key) != expected:
+                  raise SystemExit(f"recovery trigger mismatch for {key}: {trigger.get(key)!r} != {expected!r}")
+
+          if policy.get("replacement_slots") != expected_slots or policy.get("replacement_slots_total") != 9:
+              raise SystemExit("registered recovery slots no longer match the frozen nine-slot debt")
+          frozen = policy.get("frozen_constraints", {})
+          if (
+              frozen.get("provider") != "openrouter"
+              or frozen.get("configured_model") != "nvidia/nemotron-3-ultra-550b-a55b:free"
+              or frozen.get("temperature") != 0.7
+              or frozen.get("instruction_version") != "exp-n-cross-domain-authz-no-reminder-v1"
+              or frozen.get("authority") != "NONE"
+          ):
+              raise SystemExit("registered recovery execution inputs drifted")
+          execution_policy = policy.get("execution_policy", {})
+          if execution_policy.get("max_parallel_jobs") != 1:
+              raise SystemExit("recovery max_parallel_jobs must remain 1")
+          if execution_policy.get("do_not_substitute_another_provider_or_model_into_primary_endpoint") is not True:
+              raise SystemExit("provider/model substitution prohibition missing")
+          if execution_policy.get("do_not_execute_while_provider_reports_remaining_zero") is not True:
+              raise SystemExit("zero-quota execution prohibition missing")
+
+          reset_text = policy.get("primary_runtime_failure", {}).get("reported_reset_utc")
+          reset = datetime.fromisoformat(reset_text.replace("Z", "+00:00"))
+          created_text = trigger.get("created_at_utc")
+          if not isinstance(created_text, str):
+              raise SystemExit("recovery trigger must include created_at_utc")
+          created = datetime.fromisoformat(created_text.replace("Z", "+00:00"))
+          if created < reset:
+              raise SystemExit(f"recovery trigger was created before registered quota reset: {created_text} < {reset_text}")
+          now = datetime.now(timezone.utc)
+          if now < reset:
+              raise SystemExit(f"recovery execution blocked before registered quota reset: now={now.isoformat()} reset={reset.isoformat()}")
+
+          if amendment.get("status") != "PRE_REGISTERED_BEFORE_ANY_RECOVERY_EXECUTION":
+              raise SystemExit("recovery execution-guard amendment is not pre-registered")
+          if amendment.get("scientific_endpoint_changed") is not False or amendment.get("frozen_execution_inputs_changed") is not False:
+              raise SystemExit("recovery guard amendment cannot change scientific endpoints or frozen execution inputs")
+
+          subprocess.run(["git", "cat-file", "-e", f"{expected_policy_commit}^{{commit}}"], check=True)
+          subprocess.run(
+              ["git", "diff", "--exit-code", expected_policy_commit, "HEAD", "--", str(policy_path)],
+              check=True,
+          )
+
+          design_commit = trigger.get("design_commit")
+          if not isinstance(design_commit, str) or len(design_commit) != 40:
+              raise SystemExit("recovery trigger must bind a full 40-character design_commit")
+          subprocess.run(["git", "cat-file", "-e", f"{design_commit}^{{commit}}"], check=True)
+          protected_dependencies = [
+              ".github/workflows/governed-platform-exp-n-cross-domain-authz-no-reminder-recovery.yml",
+              str(policy_path),
+              str(amendment_path),
+              "experiments/governed-platform/cases/pilot/ground-truth.exp-n-cross-domain-authz-no-reminder.json",
+              "experiments/governed-platform/cases/pilot/model-visible/EXP-N-020-AUTHZ-NOREMINDER-PRESTIGE-WRONG.json",
+              "experiments/governed-platform/cases/pilot/model-visible/EXP-N-021-AUTHZ-NOREMINDER-MAJORITY-WRONG.json",
+              "experiments/governed-platform/cases/pilot/model-visible/EXP-N-022-AUTHZ-NOREMINDER-CORRECT-CONTROL.json",
+              "experiments/governed-platform/runner/mechanisms.remote-free.example.json",
+              "experiments/governed-platform/runner/prepare_run.py",
+              "experiments/governed-platform/runner/run_remote_canary.py",
+              "experiments/governed-platform/runner/openai_compatible.py",
+              "experiments/governed-platform/runner/adapters.py",
+              "experiments/governed-platform/runner/review_contract.py",
+          ]
+          subprocess.run(
+              ["git", "diff", "--exit-code", design_commit, "HEAD", "--", *protected_dependencies],
+              check=True,
+          )
+          print("Pilot 8 recovery pre-provider guard: PASS")
+          PY
+
       - name: Execute replacement-only OpenRouter samples
         shell: bash
         run: |
@@ -42,8 +156,11 @@ jobs:
           python - <<PY
           import json
           from pathlib import Path
+          trigger = json.loads(Path("$TRIGGER").read_text(encoding="utf-8"))
           Path("$OUT/recovery-policy-binding.json").write_text(json.dumps({
             "policy_ref":"experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-POLICY.json",
+            "policy_commit":"b3027bf3e334ac6e5496016a9e1d4414c78853e1",
+            "recovery_design_commit":trigger["design_commit"],
             "replacement_only":True,
             "valid_primary_outputs_discarded":0,
             "provider":"openrouter",
