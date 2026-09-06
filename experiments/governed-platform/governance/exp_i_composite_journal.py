@@ -287,11 +287,11 @@ class DurableCompositeJournalAuthority:
                 raise PermissionError("issuance no longer pending")
             if self._semantic_tuple(durable) != self._semantic_tuple(current_record):
                 raise PermissionError("durable issuance changed before promotion")
-            con.execute(
+            promotion = con.execute(
                 "UPDATE composite_checkpoint_journal SET status='CURRENT', tag=? WHERE issuance_id=? AND status='PENDING'",
                 (current_tag, issuance_id),
             )
-            if con.total_changes != 1:
+            if promotion.rowcount != 1:
                 raise PermissionError("current promotion lost race")
             con.commit()
             result = self.get(issuance_id)
@@ -359,11 +359,11 @@ class DurableCompositeJournalAuthority:
                 tag="",
             )
             tag = self._sign_payload(current.payload())
-            con.execute(
+            promotion = con.execute(
                 "UPDATE composite_checkpoint_journal SET status='CURRENT', tag=? WHERE issuance_id=? AND status='PENDING'",
                 (tag, issuance_id),
             )
-            if con.total_changes != 1:
+            if promotion.rowcount != 1:
                 con.rollback()
                 return DurableCompositeDecision(False, ("pending recovery lost race",))
             con.commit()
