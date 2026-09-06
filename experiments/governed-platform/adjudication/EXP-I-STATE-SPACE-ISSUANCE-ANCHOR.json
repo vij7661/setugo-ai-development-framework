@@ -1,0 +1,80 @@
+{
+  "record_type": "SCIENTIFIC_ADJUDICATION",
+  "track": "EXP-I SYSTEMATIC_STATE_SPACE_AND_FAULT_EXPLORATION",
+  "not_pilot_20": true,
+  "verdict": "BOUNDED_PASS",
+  "evaluated_sha": "bb7122557c62e4a671b6612e0ae9f14e88e9deb5",
+  "scientific_exposure": {
+    "ordinal": 1,
+    "run_id": 34062825622,
+    "job_id": 101566299334,
+    "workflow": "Governed Experiment Checks",
+    "result": "SUCCESS"
+  },
+  "preregistration": "experiments/governed-platform/adjudication/EXP-I-STATE-SPACE-ISSUANCE-ANCHOR-PREREGISTRATION.md",
+  "freeze_record": "experiments/governed-platform/adjudication/EXP-I-STATE-SPACE-SCIENTIFIC-FREEZE.json",
+  "preserved_pre_freeze_failure": "experiments/governed-platform/adjudication/EXP-I-STATE-SPACE-CONSTRUCTION-FAILURE-001.json",
+  "parent_scientific_basis": {
+    "pilot": 19,
+    "adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT19-ISSUANCE-ANCHOR-CRASH-CONSISTENCY.json",
+    "evaluated_sha": "6514f9f8530c97a3d10d4027857bfdb1b8656a8a"
+  },
+  "scientific_evidence": {
+    "bounds": {
+      "max_depth": 12,
+      "max_generation": 3,
+      "sa09_local_liveness_steps": 8,
+      "recovery_ids": ["A", "B", "C"],
+      "targets": ["T1", "T2"],
+      "reconcilers": ["R1", "R2"]
+    },
+    "max_depth_reached": 12,
+    "visited_states": 5611,
+    "transitions_checked": 16848,
+    "production_violations": [],
+    "invariants": {
+      "SA-01": "PASS",
+      "SA-02": "PASS",
+      "SA-03": "PASS",
+      "SA-04": "PASS",
+      "SA-05": "PASS",
+      "SA-06": "PASS",
+      "SA-07": "PASS",
+      "SA-08": "PASS",
+      "SA-09": "PASS",
+      "SA-10": "PASS"
+    },
+    "mutants": {
+      "MUT-01": {"detected": true, "expected_invariant": "SA-02", "observed_invariant": "SA-02", "reason": "ledger-ahead state authorized"},
+      "MUT-02": {"detected": true, "expected_invariant": "SA-10", "observed_invariant": "SA-10", "reason": "caller-selected conflicting state became authority"},
+      "MUT-03": {"detected": true, "expected_invariant": "SA-03", "observed_invariant": "SA-03", "reason": "anchor-ahead state authorized"},
+      "MUT-04": {"detected": true, "expected_invariant": "SA-05", "observed_invariant": "SA-05", "reason": "recovery identity durably rebound or duplicated"}
+    },
+    "governed_regression": {
+      "passed": 1123,
+      "total": 1123,
+      "status": "OK"
+    }
+  },
+  "acceptance_correspondence": {
+    "exact_frozen_sha_confirmed": true,
+    "all_frozen_invariants_clean": true,
+    "all_required_mutants_detected_in_expected_classes": true,
+    "complete_governed_regression_same_sha": true,
+    "first_frozen_result_preserved_before_repair": true,
+    "ci_green_used_as_evidence_but_not_as_standalone_scientific_pass": true
+  },
+  "construction_evidence_status": "PRE_FREEZE_CONSTRUCTION_ONLY_NOT_USED_AS_SCIENTIFIC_SUBSTITUTE",
+  "nonclaims": [
+    "no correctness claim beyond depth 12 or generation 3",
+    "no liveness claim beyond 8 local clean recovery transitions",
+    "no exhaustive claim over all platform states or all crash schedules",
+    "no equivalence claim to every Python SQLite or filesystem behavior",
+    "no physical power-loss or storage-controller durability claim",
+    "no distributed network-partition or Byzantine correctness claim",
+    "no KMS HSM or independent administrative trust-domain claim",
+    "no production release deploy or completion authority",
+    "no third-party certification"
+  ],
+  "interpretation": "Within the preregistered bounded state space, the modeled production mechanism exhibited no frozen invariant counterexample, while all required unsafe mutants were detected in their expected invariant classes. This is bounded falsification evidence only and does not establish correctness outside the frozen bounds or nonclaimed environments."
+}
