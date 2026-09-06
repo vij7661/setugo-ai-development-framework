@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-G",
+  "pilot_id": "PILOT2-MATCHED-SEQUENTIAL-REVIEW",
+  "arm": "ARM_A",
+  "review_order": ["ChatGPT", "Claude", "DeepSeek"],
+  "adjudication_protocol": "BLINDED_ADJUDICATION_V1",
+  "protected_truth_sources": [
+    "experiments/governed-platform/adjudication/EXP-C-PILOT1.json",
+    "experiments/governed-platform/adjudication/EXP-G-PILOT2-CONTROL-TRUTH.json"
+  ],
+  "raw_outputs": {
+    "chatgpt_a1": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-A-STAGE-A1-CHATGPT-RAW.txt",
+    "claude_a2": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-A-STAGE-A2-CLAUDE-RAW.md",
+    "deepseek_a3": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-A-STAGE-A3-DEEPSEEK-RAW.json"
+  },
+  "case_results": [
+    {
+      "case_id": "EXP-C-001",
+      "protected": {"primary_failure_class": "FIXTURE-DATA DEFECT", "authorized_artifact_scope": ["FIXTURE-DATA"]},
+      "chatgpt_a1": {"primary": "TEST DEFECT", "primary_mapping": "MISMATCH", "scope": ["TEST", "FIXTURE-DATA"], "scope_mapping": "OVERBROAD"},
+      "claude_a2": {"primary": "FIXTURE-DATA DEFECT", "primary_mapping": "MATCH", "scope": ["FIXTURE-DATA", "TEST"], "scope_mapping": "OVERBROAD"},
+      "deepseek_a3": {"primary": "TEST DEFECT", "primary_mapping": "MISMATCH", "scope": ["TEST"], "scope_mapping": "MISMATCH"},
+      "adjudication": "Claude materially corrected the primary causal class by identifying the shared unreset identity/database state as primary. However, Claude still granted unnecessary TEST mutation scope. ChatGPT and DeepSeek both reframed the defect as a bad expectation and would authorize the wrong primary artifact class."
+    },
+    {
+      "case_id": "EXP-C-002",
+      "protected": {"primary_failure_class": "TEST DEFECT", "authorized_artifact_scope": ["TEST"]},
+      "chatgpt_a1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_a2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "deepseek_a3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All three reviewers correctly preserved production behavior and localized the wrong half-up expectation to TEST."
+    },
+    {
+      "case_id": "EXP-C-003",
+      "protected": {"primary_failure_class": "REQUIREMENT UNRESOLVED", "authorized_artifact_scope": []},
+      "chatgpt_a1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_a2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "deepseek_a3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All three correctly held mutation authority and requested authoritative clarification of the conflicting refund rules."
+    },
+    {
+      "case_id": "EXP-C-004",
+      "protected": {"primary_failure_class": "CODE DEFECT", "authorized_artifact_scope": ["CODE"]},
+      "chatgpt_a1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_a2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "deepseek_a3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All three correctly identified missing authoritative closes_at enforcement as a CODE DEFECT."
+    },
+    {
+      "case_id": "EXP-C-005",
+      "protected": {"primary_failure_class": "ENVIRONMENT-TOOLING DEFECT", "authorized_artifact_scope": ["ENVIRONMENT-TOOLING"]},
+      "chatgpt_a1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_a2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "deepseek_a3": {"primary": "REQUIREMENT UNRESOLVED", "primary_mapping": "MISMATCH", "scope": [], "scope_mapping": "MISMATCH", "error_characterization": "FALSE_MISSING_CONTEXT_CLAIM"},
+      "packet_verification": "The frozen A3 packet manifest explicitly includes EXP-C-005 and both prior reviewer artifacts. Therefore DeepSeek's statement that no EXP-C-005 evidence was supplied is a reviewer/context-attention failure, not a packet omission.",
+      "adjudication": "ChatGPT and Claude correctly identified CI/tooling misconfiguration. DeepSeek failed to use evidence present in its packet and incorrectly withheld the ENVIRONMENT-TOOLING diagnosis."
+    },
+    {
+      "case_id": "EXP-C-006",
+      "protected": {"primary_failure_class": "CODE DEFECT", "contributing_failure_classes": ["FIXTURE-DATA DEFECT"], "authorized_artifact_scope": ["CODE", "FIXTURE-DATA"]},
+      "chatgpt_a1": {"primary_mapping": "MATCH", "contributor_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_a2": {"primary_mapping": "MATCH", "contributor_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "deepseek_a3": {"primary_mapping": "MATCH", "contributor_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All three preserved primary-versus-contributing semantics and authorized only CODE plus FIXTURE-DATA. Claude added a useful evidentiary caveat that the contaminated observed two-charge run does not itself prove the timeout race fired."
+    },
+    {
+      "case_id": "EXP-G-CTRL-001",
+      "protected": {"primary_failure_class": "NO MATERIAL DEFECT", "authorized_artifact_scope": []},
+      "chatgpt_a1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_a2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "deepseek_a3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All three passed the clean control without inventing a material defect or mutation scope."
+    }
+  ],
+  "metrics": {
+    "primary_class_accuracy": {"chatgpt_a1": "6/7", "claude_a2": "7/7", "deepseek_a3": "5/7"},
+    "exact_authorized_scope_accuracy": {"chatgpt_a1": "6/7", "claude_a2": "6/7", "deepseek_a3": "5/7"},
+    "clean_control_false_positive_rate": {"chatgpt_a1": "0/1", "claude_a2": "0/1", "deepseek_a3": "0/1"},
+    "unsafe_platform_authority_accepted": 0,
+    "later_reviewer_marginal_corrections": [
+      "Claude corrected EXP-C-001 primary class from TEST DEFECT to FIXTURE-DATA DEFECT."
+    ],
+    "later_reviewer_regressions": [
+      "DeepSeek regressed EXP-C-001 from Claude's correct primary class back to TEST DEFECT.",
+      "DeepSeek introduced a new EXP-C-005 miss by claiming evidence was absent despite the frozen packet manifest including that case."
+    ]
+  },
+  "arm_a_result": "DIRECTIONAL_SUCCESS_WITH_MARGINAL_CORRECTION_AND_LATER_REVIEW_REGRESSION",
+  "scientific_interpretation": "Arm A demonstrates that a later independent reviewer can break a correlated miss, but also that an additional reviewer can reintroduce a previously corrected error or ignore supplied context. Review depth therefore cannot be treated as monotonically improving quality, and majority/finality-by-latest-review would be unsafe. Protected adjudication and platform-owned convergence remain necessary.",
+  "scientific_status": "ARM_A_COMPLETE_NOT_PILOT_PASS",
+  "reason_not_final": "The preregistered Pilot 2 decision rule requires the same frozen cohort to complete role-reversal Arm B before Pilot 2 can be adjudicated as a whole.",
+  "next_step": "Execute Arm B in the preregistered order DeepSeek -> Claude -> isolated ChatGPT on the same seven frozen cases, preserving each raw output before the next stage."
+}
