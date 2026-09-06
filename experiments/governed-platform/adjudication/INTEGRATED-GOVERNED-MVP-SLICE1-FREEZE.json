@@ -1,0 +1,47 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_1",
+  "status": "FROZEN_AWAITING_FIRST_EXPOSURE",
+  "branch": "feature/integrated-governed-mvp",
+  "preregistered_contract": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_CONTRACT.md",
+  "preregistration_commit": "ced5cbdc52b998bfb2017da981850deeaf75be28",
+  "implementation_commit": "e93ea27db123cc09d16f1057a8358cb8bbd7e4a5",
+  "construction_head": "8d604a04d53fc1bce28c5be0ca02ec8c4a28f302",
+  "construction_evidence": {
+    "workflow_run": 34063089838,
+    "job": 101567010106,
+    "acceptance_cases": "MVP-01..MVP-12 explicit ok",
+    "governed_regression": "1135/1135 OK"
+  },
+  "frozen_acceptance_cases": [
+    "MVP-01",
+    "MVP-02",
+    "MVP-03",
+    "MVP-04",
+    "MVP-05",
+    "MVP-06",
+    "MVP-07",
+    "MVP-08",
+    "MVP-09",
+    "MVP-10",
+    "MVP-11",
+    "MVP-12"
+  ],
+  "scientific_acceptance": {
+    "require_exact_frozen_sha": true,
+    "require_all_acceptance_cases_explicit_ok": true,
+    "require_complete_governed_regression_same_sha": true,
+    "expected_test_count_if_metadata_only_freeze": 1135,
+    "preserve_first_frozen_result_before_any_repair": true
+  },
+  "claim_boundary": "A positive integrated decision means only eligibility to invoke an isolated execution gateway after exact qualification and use-time external capability checks. It does not itself perform a consequential side effect and grants no release, deploy, merge, production, completion, or self-issued authority.",
+  "nonclaims": [
+    "production readiness",
+    "real sandbox isolation",
+    "real repository mutation",
+    "real network/browser isolation",
+    "distributed trust-domain independence",
+    "KMS/HSM-backed production authority",
+    "external independent certification",
+    "release/deploy/merge/completion authority"
+  ]
+}
