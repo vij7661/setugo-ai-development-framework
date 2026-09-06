@@ -5,6 +5,7 @@ import json
 import unittest
 
 from exp_i_issuance_anchor_state_space import (
+    LIVENESS_MAX_STEPS,
     MAX_DEPTH,
     MAX_GENERATION,
     State,
@@ -23,12 +24,13 @@ class ExpIStateSpaceIssuanceAnchorTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.result = explore()
         cls.summary = scientific_summary()
-        # Retained in exact CI logs for correspondence inspection.
         print("EXP_I_STATE_SPACE_SUMMARY=" + json.dumps(cls.summary, sort_keys=True), flush=True)
 
     def test_sa_00_frozen_bounds_are_exact(self):
         self.assertEqual(MAX_GENERATION, 3)
         self.assertEqual(MAX_DEPTH, 12)
+        self.assertEqual(LIVENESS_MAX_STEPS, 8)
+        self.assertEqual(self.summary["bounds"]["sa09_local_liveness_steps"], 8)
         self.assertEqual(self.result.max_depth_reached, MAX_DEPTH)
         self.assertGreater(self.result.visited_states, 0)
         self.assertGreater(self.result.transitions_checked, self.result.visited_states)
