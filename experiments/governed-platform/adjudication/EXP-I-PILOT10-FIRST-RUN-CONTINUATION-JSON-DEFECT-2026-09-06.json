@@ -1,0 +1,23 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 10,
+  "run_id": 34049057364,
+  "job_id": 101529253042,
+  "evaluated_head_sha": "c9de8593fb47390146f87e0ee8c3d9ee88295ba4",
+  "classification": "CONTINUATION_ARTIFACT_SERIALIZATION_DEFECT",
+  "scientific_endpoints_reached": false,
+  "scientific_result": "NO_MECHANISM_RESULT",
+  "failure": "Committed JSON validation raised JSONDecodeError: Extra data before Python compilation or any P10 endpoint execution.",
+  "root_cause": "experiments/governed-platform/continuation/execution-state.json contained one accidental extra closing brace after the otherwise valid JSON object.",
+  "authorized_repair_scope": [
+    "CONTINUATION-METADATA"
+  ],
+  "repair_constraint": "Remove only the extra closing brace and advance the continuation state to implemented/awaiting-first-scientific-run. Do not alter the Pilot 10 preregistration, signer mechanism, P10-01..P10-16 tests, expected outcomes, or authority boundaries.",
+  "rerun_requirement": "Execute the unchanged full workflow after the metadata-only repair. This failed run does not count as a Pilot 10 signer-mechanism execution.",
+  "authority": {
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "release_authority": false
+  }
+}
