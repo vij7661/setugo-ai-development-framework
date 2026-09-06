@@ -1,0 +1,59 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 10,
+  "title": "Isolated composite-checkpoint signing authority",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T17:41:50Z",
+  "parent_adjudication_commit": "598eac5da910e4e0607984964e46a01be3c40147",
+  "evaluated_sha": "bb8523689895ea1e8578d0db6c84c7882814f0fc",
+  "validation_run_id": 34049114487,
+  "validation_job_id": 101529408338,
+  "execution": {
+    "pilot10_vectors": "16/16 passed",
+    "pilot9_regression_vectors": "14/14 passed",
+    "pilot8_regression_vectors": "20/20 passed",
+    "governor_falsification_suite": "962/962 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "preserved_failure_lineage": [
+    {
+      "run_id": 34049057364,
+      "job_id": 101529253042,
+      "classification": "CONTINUATION_ARTIFACT_SERIALIZATION_DEFECT",
+      "scientific_endpoints_reached": false,
+      "summary": "The first Pilot 10 workflow stopped during committed-JSON validation because execution-state.json contained an extra closing brace. No signer endpoint executed, so the run was preserved as a continuation-metadata defect and was not counted as mechanism evidence."
+    },
+    {
+      "run_id": 34049114487,
+      "job_id": 101529408338,
+      "classification": "FROZEN_ENDPOINT_EXECUTION",
+      "scientific_result": "16/16 passed",
+      "summary": "After the metadata-only repair, the unchanged P10-01..P10-16 falsifiers all executed and passed. The full governed-platform governor suite passed 962/962."
+    }
+  ],
+  "supported_claim": "On the tested same-host Ubuntu 24.04 / Python 3.12 prototype, composite-checkpoint minting authority was removed from the writer process and placed in a distinct signer subprocess with a distinct durable signer ledger. The writer possessed no raw composite signing key, could not supply semantic authority fields for signing, and could not manufacture an accepted checkpoint with unrelated material. The signer independently derived current permit-ledger, reconciliation-ledger and permit-authority-epoch bindings, enforced issuance identity, predecessor, monotonic generation, replay and semantic-rebinding constraints, preserved monotonic/replay state across restart, failed closed when unavailable before writer mutation, rejected stale or mutated signer material after state drift, prevented competing or concurrent writers from creating duplicate CURRENT generations, and preserved clean higher-generation liveness across signer/writer restart. Models, reviewers and writers gained no production, release, merge or approval authority from signer evidence or a CURRENT checkpoint.",
+  "authority_boundaries": {
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false,
+    "writer_generated_authority": false,
+    "signer_authority_scope": "checkpoint-authentication-only",
+    "checkpoint_is_production_authority": false,
+    "checkpoint_is_release_authority": false,
+    "production_authority": false,
+    "release_authority": false
+  },
+  "not_proven": [
+    "Asymmetric public-key verify-only separation",
+    "Private-key nonextractability or HSM/KMS custody",
+    "Protection against same-user debugger, ptrace, process-memory inspection, host administrator, kernel, or hypervisor compromise",
+    "Protection after signer process or signer key compromise",
+    "Multi-signer threshold authority",
+    "Administratively independent trust domains",
+    "Multi-host or Byzantine consensus",
+    "Physical power-loss durability",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 11: asymmetric verify-only checkpoint authentication. Replace the symmetric composite-checkpoint authentication boundary with an isolated private-key signer and public-key-only writer/verifier path so verification does not require signer availability and no writer/verifier process can mint checkpoints. Freeze algorithm/key identity, canonical signed statement, monotonic signer ledger, stale-key/key-substitution behavior, restart/replay semantics, and fail-closed private-signer outage before implementation."
+}
