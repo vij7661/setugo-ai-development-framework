@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-I",
+  "pilot": 18,
+  "title": "Recovery-Signer Crash Consistency",
+  "status": "BOUNDED_PASS",
+  "evaluated_sha": "3cffae801b87127912741f9323d87c3bf81c8900",
+  "validation": {
+    "workflow_run_id": 34056102248,
+    "workflow_job_id": 101548175050,
+    "p18_vectors_passed": 16,
+    "p18_vectors_total": 16,
+    "governed_regression_passed": 1090,
+    "governed_regression_total": 1090,
+    "scientific_correspondence": "Every frozen P18-01..P18-16 test appeared explicitly as ok in the exact frozen-head job log; the same job concluded Ran 1090 tests and OK. Workflow success alone was not used as scientific proof."
+  },
+  "scientific_lineage": {
+    "parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT17-ISOLATED-RECOVERY-AUTHORIZATION-SIGNER.json",
+    "parent_adjudication_commit": "c2d55d794b96934ab97516ce007424ec1a675015",
+    "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT18-RECOVERY-SIGNER-CRASH-CONSISTENCY-PREREGISTRATION.md",
+    "preregistration_commit": "816af067618a8b4ff1db1083283e9fe5c7e68a43",
+    "construction_runs_are_scientific_evidence": false,
+    "repair_attempts_after_frozen_exposure": 0,
+    "first_frozen_result_preserved": true
+  },
+  "supported_bounded_claims": [
+    "On the tested same-host Ubuntu/Python/SQLite/OpenSSL prototype, parent-controlled external process termination at the frozen recovery-signer issuance boundaries did not manufacture permit authority.",
+    "Kills before durable issuance commit left no committed issuance authority after fresh reopen.",
+    "A kill after durable issuance commit but before response delivery preserved one issuance identity and retry returned the exact same permit/signature rather than minting duplicate authority.",
+    "A committed recovery identity remained non-rebindable across kill, restart and replay.",
+    "Minimum-side use-time validation required committed issuance evidence and the independent anti-rollback anchor, preventing pre-commit signed material from authorizing trusted-minimum mutation.",
+    "State drift after issuance was revalidated at minimum use time and stale authorization failed closed.",
+    "Concurrent retries after response loss converged on one exact permit/signature and one durable issuance identity.",
+    "Repeated signer restart preserved replay and rebinding memory.",
+    "A stale issuance-store snapshot could not silently resurrect a pre-issuance state against the independent anchor in the frozen vector.",
+    "After crash/replay recovery, clean next-step R2 to R3 authorization and minimum advancement remained live.",
+    "Models, reviewers, registry/root/minimum ordinary surfaces gained no signer, release, deploy or production authority from crash recovery."
+  ],
+  "explicit_nonclaims": [
+    "physical power-loss or storage-controller durability",
+    "OS-user, host-admin, kernel or hypervisor compromise resistance",
+    "KMS/HSM private-key nonextractability",
+    "security after joint compromise of signer key/store and independent anti-rollback anchor",
+    "atomicity between the issuance ledger commit and anti-rollback-anchor update under a kill precisely between those two durable writes",
+    "torn-write or crash consistency of the anti-rollback anchor itself",
+    "remote multi-system atomicity",
+    "multi-host or Byzantine consensus",
+    "production, release, deploy or completion authority"
+  ],
+  "retained_hygiene_debt": [
+    "Pre-existing subprocess ResourceWarning messages from older Pilot 13/14 paths remain visible in the governed regression log and are not treated as Pilot 18 mechanism failures."
+  ],
+  "next_gap": "The nearest unproven crash boundary is the two-store durability gap between issuance-ledger COMMIT and independent anti-rollback-anchor advancement, including kill/torn/stale/divergent anchor states and deterministic reconciliation."
+}
