@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-H",
+  "pilot_id": "PILOT1-REVIEW-DISAGREEMENT-GATE",
+  "status": "PREREGISTERED_BEFORE_IMPLEMENTATION",
+  "motivation": "EXP-G Pilot 2 showed that later reviewers can correct earlier mistakes, later reviewers can also regress corrected conclusions, two-model agreement can be wrong, and the last reviewer can be wrong. Therefore convergence cannot be majority-vote, latest-review-wins, or reviewer-count based.",
+  "scientific_question": "Can a deterministic platform-owned gate prevent model-review agreement, ordering, or regression from becoming approval authority while still allowing a fully independently verified unanimous claim to advance to the next governance gate?",
+  "authority_invariants": [
+    "Reviewer outputs are evidence only and never issue mutation, merge, release, deploy, completion, or approval authority.",
+    "Majority agreement is never sufficient for convergence.",
+    "Latest-reviewer output is never sufficient for convergence.",
+    "Unanimous reviewer agreement is never sufficient for approval.",
+    "Material disagreement in primary failure class or authorized artifact scope must route to independent adjudication.",
+    "Malformed taxonomy or artifact-scope labels fail closed.",
+    "A platform-owned independent verification artifact must bind the exact canonical claim and exact artifact scope before the case can become eligible for a later governance decision.",
+    "EXP-H itself never returns APPROVED, RELEASED, MERGED, DEPLOYED, or COMPLETE."
+  ],
+  "allowed_failure_classes": [
+    "CODE DEFECT",
+    "FIXTURE-DATA DEFECT",
+    "TEST DEFECT",
+    "ENVIRONMENT-TOOLING DEFECT",
+    "REQUIREMENT UNRESOLVED",
+    "NO MATERIAL DEFECT"
+  ],
+  "allowed_artifact_scopes": ["CODE", "FIXTURE-DATA", "TEST", "ENVIRONMENT-TOOLING"],
+  "gate_states": [
+    "INVALID_REVIEW_INPUT",
+    "ESCALATE_INDEPENDENT_ADJUDICATION",
+    "REQUIRE_INDEPENDENT_VERIFICATION",
+    "VERIFICATION_CONFLICT",
+    "ELIGIBLE_FOR_GOVERNANCE_GATE"
+  ],
+  "decision_rules": [
+    "Reject any review whose primary class is outside the frozen class vocabulary.",
+    "Reject any artifact scope outside the frozen artifact-scope vocabulary.",
+    "For REQUIREMENT UNRESOLVED and NO MATERIAL DEFECT, artifact scope must be empty.",
+    "If valid reviewers disagree on primary class, route to ESCALATE_INDEPENDENT_ADJUDICATION.",
+    "If valid reviewers agree on primary class but disagree on exact artifact scope, route to ESCALATE_INDEPENDENT_ADJUDICATION.",
+    "If all valid reviewers agree exactly but independent verification is absent, return REQUIRE_INDEPENDENT_VERIFICATION.",
+    "Independent verification must be platform-issued, valid, and bind the exact case, canonical primary class, and exact artifact scope.",
+    "If verification conflicts with reviewer consensus, return VERIFICATION_CONFLICT.",
+    "Only exact reviewer consensus plus matching valid platform verification may return ELIGIBLE_FOR_GOVERNANCE_GATE.",
+    "ELIGIBLE_FOR_GOVERNANCE_GATE is not approval authority."
+  ],
+  "falsification_vectors": [
+    "2-of-3 majority wrong with one dissent",
+    "2-of-3 majority correct with one dissent",
+    "latest reviewer corrects earlier two-model agreement",
+    "latest reviewer regresses earlier correct result",
+    "three reviewers unanimously wrong",
+    "three reviewers unanimously correct but unverified",
+    "primary class agreement with scope disagreement",
+    "invalid failure-class taxonomy",
+    "invalid artifact-scope taxonomy such as TEST DEFECT used as scope",
+    "REQUIREMENT UNRESOLVED with non-empty mutation scope",
+    "NO MATERIAL DEFECT with non-empty mutation scope",
+    "matching verifier for unanimous claim",
+    "verifier primary-class conflict",
+    "verifier scope conflict",
+    "verifier case-binding conflict",
+    "invalid/non-platform verifier",
+    "review-order permutation invariance",
+    "duplicate reviewer does not manufacture convergence when another reviewer dissents",
+    "clean-control unanimity still requires verification",
+    "no terminal approval state exists"
+  ],
+  "pass_condition": "All frozen falsification vectors pass without any path granting reviewer-generated approval authority, and the only liveness path reaches ELIGIBLE_FOR_GOVERNANCE_GATE after exact consensus plus exact matching platform-owned independent verification.",
+  "explicit_non_claims": [
+    "EXP-H does not prove reviewer consensus is true.",
+    "EXP-H does not replace protected adjudication or independent verification.",
+    "EXP-H does not authorize code mutation or release.",
+    "EXP-H does not solve general Byzantine consensus.",
+    "EXP-H Pilot 1 is a deterministic bounded decision-gate prototype."
+  ]
+}
