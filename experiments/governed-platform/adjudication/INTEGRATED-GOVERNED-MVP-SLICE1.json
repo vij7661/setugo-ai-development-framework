@@ -1,0 +1,52 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_1",
+  "status": "BOUNDED_PASS",
+  "branch": "feature/integrated-governed-mvp",
+  "preregistered_contract": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_CONTRACT.md",
+  "preregistration_commit": "ced5cbdc52b998bfb2017da981850deeaf75be28",
+  "implementation_commit": "e93ea27db123cc09d16f1057a8358cb8bbd7e4a5",
+  "construction_head": "8d604a04d53fc1bce28c5be0ca02ec8c4a28f302",
+  "frozen_sha": "27ae98f2d1f09e139349c25652c7e6c3dab800c3",
+  "scientific_run_id": 34063431024,
+  "scientific_job_id": 101567938134,
+  "evidence_correspondence": {
+    "exact_frozen_sha_checked_out": true,
+    "acceptance_cases": "MVP-01..MVP-12 explicitly ok in the exact frozen job log",
+    "governed_regression": "1135/1135 OK on the same exact frozen SHA",
+    "post_exposure_repair": false,
+    "ci_green_used_as_sole_evidence": false,
+    "direct_job_log_correspondence_verified": true
+  },
+  "supported_bounded_claims": [
+    "A clean exact-scoped integrated request can produce eligibility to invoke an isolated execution gateway only after exact qualification and use-time external capability validation.",
+    "Execution identity substitution fails closed.",
+    "Qualification epoch drift, revocation, and expiry fail closed.",
+    "Model-requested scope widening is retained as evidence and does not become authority.",
+    "Capability revocation or expiry at use time denies execution eligibility.",
+    "Action or artifact widening fails closed.",
+    "Human-required decisions cannot be bypassed by model success claims or skip requests.",
+    "Review-required states do not become execution authorization.",
+    "Terminal actions remain behind a separate external gate.",
+    "Unsafe model authority attempts remain evidence-eligible without gaining authority.",
+    "Malformed review-gate state fails closed.",
+    "Clean replay of the same bound request is deterministic."
+  ],
+  "claim_boundary": "A positive Slice 1 result is an authorization/evidence record indicating eligibility to invoke an isolated execution gateway. Slice 1 itself performs no consequential side effect and does not mint terminal authority.",
+  "nonclaims": [
+    "production readiness",
+    "real sandbox or worker isolation",
+    "real repository mutation",
+    "real network or browser isolation",
+    "crash-safe consequential side-effect execution",
+    "distributed trust-domain independence",
+    "KMS/HSM-backed production authority",
+    "external independent certification",
+    "release, deploy, merge, production, completion, or self-issued authority"
+  ],
+  "retained_hygiene": [
+    "Historical subprocess ResourceWarnings remain visible in the full regression log; they did not fail the frozen run and are not treated as proof of mechanism correctness."
+  ],
+  "program_adjudication_independence": "PROJECT_INTERNAL_NOT_THIRD_PARTY",
+  "next_target": "Integrated Governed MVP Slice 2: isolated execution gateway consuming the exact Slice 1 bound decision with fresh use-time capability/state validation, durable idempotency, crash/retry/restart safety, exact effect/result lineage, and no terminal-authority laundering.",
+  "manual_intervention_required": false
+}
