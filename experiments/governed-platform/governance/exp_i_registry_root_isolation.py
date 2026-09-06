@@ -1,6 +1,6 @@
 """EXP-I Pilot 13: isolated trust-registry root and monotonic trusted minimum."""
 from __future__ import annotations
-import hashlib, json, os, sqlite3, subprocess, sys, tempfile
+import hashlib, json, sqlite3, subprocess, sys
 from pathlib import Path
 from typing import Any, Mapping
 from exp_i_asymmetric_checkpoint_signer import _canon, _digest, _ed25519_sign, _ed25519_verify, _ensure_ed25519_keypair
@@ -50,7 +50,7 @@ class IsolatedRootAuthority:
     def start(self):
         if self.proc and self.proc.poll() is None: return
         self.proc=subprocess.Popen([sys.executable,__file__,"--root-worker",self._store,self._private,self._public],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True,bufsize=1)
-        ready=json.loads(self.proc.stdout.readline());
+        ready=json.loads(self.proc.stdout.readline())
         if not ready.get("ready"): raise RuntimeError("ROOT_START_FAILED")
         self.root_id=ready["root_id"]; self.public_key_pem=ready["public_key_pem"]
     def stop(self, kill=False):
@@ -75,7 +75,7 @@ class TrustedMinimumAuthority:
             con.execute("COMMIT")
         finally: con.close()
     def current(self):
-        con=sqlite3.connect(self.path); row=con.execute("SELECT trust_epoch,event_digest FROM minimum WHERE id=1").fetchone(); con.close();
+        con=sqlite3.connect(self.path); row=con.execute("SELECT trust_epoch,event_digest FROM minimum WHERE id=1").fetchone(); con.close()
         if not row: raise PermissionError("MINIMUM_UNSET")
         return int(row[0]),str(row[1])
 
@@ -85,16 +85,22 @@ class RootSignedRegistry:
     def transition(self,*,transition_id:str,key_id:str,public_key_pem:str,activation_generation:int):
         con=sqlite3.connect(self.path,timeout=10,isolation_level=None)
         try:
-            con.execute("BEGIN IMMEDIATE"); last=con.execute("SELECT trust_epoch,event_json,event_digest FROM trust_events ORDER BY trust_epoch DESC LIMIT 1").fetchone()
+            con.execute("BEGIN IMMEDIATE")
+            rows=con.execute("SELECT trust_epoch,event_json,event_digest,signature FROM trust_events ORDER BY trust_epoch").fetchall()
+            for epoch_raw,event_json,event_digest,signature in rows:
+                event=json.loads(event_json)
+                if event.get("transition_id")==transition_id:
+                    if event.get("active_key_id")!=key_id or event.get("active_public_key_pem")!=public_key_pem or int(event.get("activation_generation",-1))!=int(activation_generation):
+                        raise PermissionError("TRANSITION_REBIND_DENIED")
+                    con.execute("COMMIT")
+                    return {"event":event,"event_digest":str(event_digest),"signature":str(signature)}
+            last=rows[-1] if rows else None
             epoch=1 if not last else int(last[0])+1; pred="GENESIS" if not last else str(last[2]); prior=None if not last else json.loads(last[1])["active_key_id"]
+            if activation_generation!=epoch: raise PermissionError("ACTIVATION_GENERATION_NOT_EXACT_NEXT")
             body={"registry_version":REGISTRY_VERSION,"transition_id":transition_id,"trust_epoch":epoch,"event_type":"BOOTSTRAP" if epoch==1 else "ROTATE_REVOKE","prior_key_id":prior,"prior_status_after":None if epoch==1 else "REVOKED","active_key_id":key_id,"active_public_key_pem":public_key_pem,"active_public_key_fingerprint":fp(public_key_pem),"activation_generation":activation_generation,"predecessor_event_digest":pred,"signer_root_id":self.root.root_id}
             signed=self.root.sign(body)
             if not signed.get("ok"): raise PermissionError(signed.get("reason","ROOT_SIGN_FAILED"))
             sig=signed["signature"]; digest=_digest({"event":body,"signature":sig})
-            existing=con.execute("SELECT event_json,event_digest,signature FROM trust_events WHERE trust_epoch=?",(epoch,)).fetchone()
-            if existing:
-                if json.loads(existing[0])!=body: raise PermissionError("REGISTRY_EPOCH_CONFLICT")
-                con.execute("COMMIT"); return {"event":body,"event_digest":existing[1],"signature":existing[2]}
             con.execute("INSERT INTO trust_events VALUES(?,?,?,?)",(epoch,json.dumps(body,sort_keys=True),digest,sig)); con.execute("COMMIT")
             return {"event":body,"event_digest":digest,"signature":sig}
         finally: con.close()
