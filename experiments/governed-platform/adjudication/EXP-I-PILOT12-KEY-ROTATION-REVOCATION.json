@@ -1,0 +1,67 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 12,
+  "title": "Checkpoint signer key rotation and revocation",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T18:13:40Z",
+  "parent_adjudication_commit": "5af7c814c9a940a1aec6870a324d43a5b0f741b6",
+  "evaluated_sha": "5ef36d6af3861ffa5ac69a21d1e4e8fe255d5f81",
+  "validation_run_id": 34050503205,
+  "validation_job_id": 101533134419,
+  "execution": {
+    "pilot12_vectors": "16/16 passed",
+    "pilot11_regression_vectors": "16/16 passed",
+    "pilot10_regression_vectors": "16/16 passed",
+    "pilot9_regression_vectors": "14/14 passed",
+    "pilot8_regression_vectors": "20/20 passed",
+    "governor_falsification_suite": "994/994 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "scientific_lineage": [
+    {
+      "run_id": 34050058993,
+      "classification": "FIRST_FROZEN_RUN",
+      "scientific_result": "3 passed / 13 errors in Pilot 12; 994-test suite not green",
+      "failure_artifact": "experiments/governed-platform/adjudication/EXP-I-PILOT12-FIRST-RUN-TEST-FIXTURE-DEFECT-2026-09-06.json",
+      "diagnosis": "TEST_FIXTURE_DEFECT",
+      "summary": "The Pilot 12 fixture omitted initialization of the pre-existing convergence_reconciliation ledger. The signer child correctly attempted to derive governed reconciliation state, raised before returning the first K1 issuance, and surfaced as SIGNER_RESPONSE_LOST. The first failure is retained as experiment lineage rather than overwritten."
+    },
+    {
+      "run_id": 34050503205,
+      "job_id": 101533134419,
+      "classification": "AUTHORIZED_FIXTURE_REPAIR_AND_FROZEN_ENDPOINT_EXECUTION",
+      "scientific_result": "16/16 passed",
+      "summary": "Only the diagnosis-authorized fixture initialization was changed. The Pilot 12 mechanism and frozen P12-01..P12-16 endpoints/expected outcomes were unchanged. Every P12 endpoint explicitly executed and passed on evaluated SHA 5ef36d6af3861ffa5ac69a21d1e4e8fe255d5f81; the complete governed-platform governor suite passed 994/994."
+    }
+  ],
+  "supported_claim": "On the tested same-host Ubuntu 24.04 / Python 3.12 / SQLite / OpenSSL prototype, checkpoint-signing-key eligibility was governed by a durable platform trust registry separate from checkpoint signer, writer and verifier surfaces. K1-to-K2 and K2-to-K3 transitions advanced trust epoch and activation generation exactly once; revoked prior keys remained mathematically verifiable for historical audit but were ineligible for current trust and new issuance. Key-id/fingerprint substitution, trust-epoch rollback, stale verifier/cache reactivation, mixed-key lineage substitution and post-revocation K1 issuance were rejected. Exact replay remained idempotent, concurrent rotation versus issuance produced one authoritative outcome on the exercised path, restart preserved current trust enforcement, and models/reviewers/writers/verifiers/signers gained no production, release, merge or approval authority from trust state or signatures.",
+  "authority_boundaries": {
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false,
+    "writer_generated_authority": false,
+    "verifier_generated_authority": false,
+    "checkpoint_signer_can_mutate_trust_registry": false,
+    "platform_trust_registry_authority_is_only_key_eligibility_mutator": true,
+    "signature_is_production_authority": false,
+    "trust_status_is_release_authority": false,
+    "production_authority": false,
+    "release_authority": false
+  },
+  "not_proven": [
+    "Integrity of the trust registry against compromise of its own signing key or same-host private-key file",
+    "HSM or KMS nonextractability for registry or checkpoint-signing private keys",
+    "Protection against same-user filesystem access, debugger, ptrace, process-memory inspection, host administrator, kernel, hypervisor or physical host compromise",
+    "Secure recovery after actual compromise of the active trust-registry signing key",
+    "Administratively independent trust domains",
+    "Threshold or multi-party trust-registry authority",
+    "Networked remote trust-registry transport security",
+    "Cross-host distributed trust-registry consensus",
+    "Hardware-backed attestation",
+    "Physical power-loss durability",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "implementation_note": "The trust-registry authority still persists its Ed25519 private key as a same-host PEM file and signs registry transitions itself. Pilot 12 therefore proves bounded transition semantics and current-use revocation behavior, not integrity after compromise of the trust-registry authority/key itself.",
+  "next_falsification_target": "EXP-I Pilot 13: trust-registry root isolation and compromise containment. Remove registry private-key material from ordinary registry reader/writer surfaces, isolate trust-transition signing in a distinct authority process, bind readers to a pinned public root plus monotonic trusted-minimum trust epoch, and falsify coherent SQLite rollback/rewrite, old-valid-registry replay, forged/replaced registry roots, post-compromise stale-key reactivation, signer/registry collusion attempts, authority-process outage, restart, and clean K3-to-K4 liveness without granting models, reviewers, checkpoint signers or registry readers trust-mutation authority."
+}
