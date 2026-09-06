@@ -11,7 +11,6 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 from pathlib import Path
-import socket
 import sys
 import uuid
 
@@ -135,7 +134,6 @@ def main() -> int:
                 self._send(400, {"authorized": False, "decision": "DENY", "reason": "INVALID_REQUEST_OBJECT"})
                 return
 
-            # Trusted time is process configuration, never a caller field.
             try:
                 trusted_now_ms = int(clock())
             except Exception as exc:
@@ -146,9 +144,13 @@ def main() -> int:
 
             def after_inflight() -> None:
                 if args.enable_test_faults and fault == "CRASH_AFTER_REGISTRY_IN_FLIGHT":
-                    # The registry transition is already durably committed, but
-                    # no MCP effect has yet been attempted.
                     os._exit(86)
+
+            def after_gateway(_result) -> None:
+                if args.enable_test_faults and fault == "CRASH_AFTER_GATEWAY_BEFORE_REGISTRY_FINALIZE":
+                    # The authoritative MCP SQLite effect may already be committed,
+                    # while the durable semantic registry remains IN_FLIGHT.
+                    os._exit(87)
 
             result = gateway.execute(
                 permit=body.get("permit"),
@@ -159,6 +161,7 @@ def main() -> int:
                 idempotency_key=str(body.get("idempotency_key", "")),
                 now_ms=trusted_now_ms,
                 after_inflight_hook=after_inflight,
+                after_gateway_hook=after_gateway,
             )
             result["gateway_instance_id"] = instance_id
             result["gateway_time_ms"] = trusted_now_ms
