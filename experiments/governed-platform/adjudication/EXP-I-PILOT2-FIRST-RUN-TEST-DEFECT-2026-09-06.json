@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "record_type": "FIRST_RUN_FAILURE_CLASSIFICATION",
+  "experiment_id": "EXP-I",
+  "pilot_id": "PILOT2-CONVERGENCE-ENTRYPOINT-ISOLATION",
+  "frozen_design_sha": "a304a51cb72f85b9770dca0886ff2d8595aed20f",
+  "workflow_run_id": 34040490014,
+  "job_id": 101506227918,
+  "workflow_conclusion": "failure",
+  "classification": "TEST EXPECTATION DEFECT",
+  "mechanism_failure": false,
+  "scientific_pass": false,
+  "scientific_fail": false,
+  "failed_endpoint": "test_i2_12_missing_verification_cannot_be_substituted_at_issue",
+  "observed_behavior": "ConvergencePermitAuthority.issue correctly denied permit issuance because the claim gate returned REQUIRE_INDEPENDENT_VERIFICATION and raised PermissionError.",
+  "incorrect_test_expectation": "The test expected only AttributeError or TypeError for a missing verification argument and therefore treated the correct PermissionError fail-closed behavior as an error.",
+  "allowed_repair": "Change only the expected exception type for this test to PermissionError. Do not modify the permit mechanism, decision rules, falsification vector, or pass condition.",
+  "other_endpoint_status": "All other 21 EXP-I Pilot 2 permit falsification tests passed in the same frozen run.",
+  "audit_rule": "The first run remains preserved and must not be described as 22/22. Scientific adjudication requires a post-repair exact-SHA rerun."
+}
