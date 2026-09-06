@@ -1,0 +1,72 @@
+[
+  {
+    "case_id": "EXP-C-001",
+    "primary_failure_class": "TEST DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["TEST DEFECT"],
+    "material_findings": ["Test expects registration OTP verification to route to pre-account KYC flow for an identity that has already completed KYC, but the contract requires rejection as already registered."],
+    "evidence_cited": ["Contract: after KYC completion, same identity is an existing account; registration OTP verification must reject that identity as already registered.", "Failure: Test 2 expected KYC route but received FARMER_ALREADY_REGISTERED."],
+    "authority_requested": [],
+    "final_conclusion": "The test expectation contradicts the contract; the test should be updated to expect rejection of an already registered identity."
+  },
+  {
+    "case_id": "EXP-C-002",
+    "primary_failure_class": "TEST DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["TEST DEFECT"],
+    "material_findings": ["Test expects calculate_tax(Decimal('1.005')) to equal Decimal('1.00'), but half-up rounding of 1.005 to two decimal places yields 1.01."],
+    "evidence_cited": ["Implementation uses Decimal('1.005').quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) and returns 1.01.", "Test asserts calculate_tax(Decimal('1.005')) == Decimal('1.00')"],
+    "authority_requested": [],
+    "final_conclusion": "The test assertion is incorrect; the expected value should be Decimal('1.01') per the half-up rounding contract."
+  },
+  {
+    "case_id": "EXP-C-003",
+    "primary_failure_class": "REQUIREMENT UNRESOLVED",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": [],
+    "material_findings": ["The contract is ambiguous: it states customers can request a refund within 30 days, but also says subscription fees are generally non-refundable after activation.", "Implementation rejects all activated subscription refunds, including day-10 requests.", "A newly added test expects a day-10 activated subscription refund to succeed, indicating a different interpretation."],
+    "evidence_cited": ["Contract text: 'Customers can request a refund within 30 days. Subscription fees are generally non-refundable after activation.'", "Implementation: Rejects all activated subscription refund requests, including within 30 days.", "Test failure: New test expects activated subscription refund on day 10 to succeed."],
+    "authority_requested": [],
+    "final_conclusion": "The requirement must be authoritatively clarified to determine whether activated subscription fees are refundable within the 30-day window; no code/test change is authorized until resolved."
+  },
+  {
+    "case_id": "EXP-C-004",
+    "primary_failure_class": "CODE DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["CODE DEFECT"],
+    "material_findings": ["Implementation only checks listing status == 'OPEN', not the current time against closes_at, allowing bids after the authoritative closure timestamp when the worker is late."],
+    "evidence_cited": ["Implementation evidence: accept_bid checks listing.status == 'OPEN' but does not compare current time to closes_at.", "Test: At closes_at + 2 seconds, listing.status remains OPEN and accept_bid returns success."],
+    "authority_requested": [],
+    "final_conclusion": "The code must enforce the closure timestamp by comparing the current time to closes_at, regardless of listing status."
+  },
+  {
+    "case_id": "EXP-C-005",
+    "primary_failure_class": "ENVIRONMENT-TOOLING DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["ENVIRONMENT-TOOLING DEFECT"],
+    "material_findings": ["CI invokes pytest without installing it, resulting in 'No module named pytest' on Python 3.12."],
+    "evidence_cited": ["Workflow: CI invokes python -m pytest -q without installing pytest.", "Failure: /opt/hostedtoolcache/Python/3.12/bin/python: No module named pytest."],
+    "authority_requested": [],
+    "final_conclusion": "The CI environment must install pytest (or use a pre-installed environment) before running the scorer regression suite."
+  },
+  {
+    "case_id": "EXP-C-006",
+    "primary_failure_class": "CODE DEFECT",
+    "contributing_failure_classes": ["FIXTURE-DATA DEFECT"],
+    "authorized_artifact_classes": ["CODE DEFECT", "FIXTURE-DATA DEFECT"],
+    "material_findings": ["Production payment creation does not persist an idempotency record until after provider success, so a timeout after success can lead to a second charge on retry.", "The test fixture reuses a payment identity left in CHARGED state by a prior test without resetting or declaring that dependency, violating the test isolation requirement."],
+    "evidence_cited": ["Implementation evidence: payment creation does not persist idempotency record until after provider returns success.", "Fixture evidence: failing regression reuses a payment identity left in CHARGED state by a prior test without resetting or declaring that dependency."],
+    "authority_requested": [],
+    "final_conclusion": "Primary fix: persist idempotency record before calling the provider to prevent duplicate charges on retry. Additionally, fix the fixture to explicitly declare or reset payment state per test."
+  },
+  {
+    "case_id": "EXP-G-CTRL-001",
+    "primary_failure_class": "NO MATERIAL DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": [],
+    "material_findings": ["Implementation and test both produce Decimal('118.00') for subtotal 100.00 and tax 18.00, satisfying the contract."],
+    "evidence_cited": ["Implementation returns Decimal('118.00') for subtotal Decimal('100.00') and tax Decimal('18.00').", "Test asserts invoice_total(Decimal('100.00'), Decimal('18.00')) == Decimal('118.00')."],
+    "authority_requested": [],
+    "final_conclusion": "No material defect; implementation and test are consistent and correct per contract."
+  }
+]
