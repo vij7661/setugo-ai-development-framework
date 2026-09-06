@@ -3,11 +3,15 @@
   "campaign": "governed-platform-falsification",
   "experiment": "EXP-I",
   "pilot": 9,
-  "state": "PREREGISTERING",
+  "state": "IMPLEMENTED_AWAITING_FIRST_SCIENTIFIC_RUN",
   "authoritative_parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT8-COMPOSITE-CRASH-CONSISTENCY.json",
-  "last_verified_sha": "3b3be3b6f6e6d57ed36dafed8f99aba6fc98eb57",
-  "next_falsification_target": "EXP-I Pilot 9: external subprocess termination / SIGKILL around composite-checkpoint issuance and recovery",
+  "last_verified_sha": "43f3d9f86e32cbd77adf09c15806577e7eddb080",
+  "next_falsification_target": "Execute first frozen EXP-I Pilot 9 scientific run: P9-01..P9-14 plus complete governed-platform regression suite",
   "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT9-EXTERNAL-SUBPROCESS-TERMINATION-PREREGISTRATION.md",
+  "implementation": [
+    "experiments/governed-platform/governance/exp_i_pilot9_external_sigkill.py",
+    "experiments/governed-platform/governance/test_exp_i_pilot9_external_sigkill.py"
+  ],
   "continuation_source_of_truth": "GIT_ADJUDICATION_AND_EXECUTION_STATE",
   "chat_memory_is_authoritative": false,
   "resume_rule": "Verify last_verified_sha and latest formal adjudication before continuing; resume only from its next_falsification_target; never silently reopen an adjudicated pilot.",
