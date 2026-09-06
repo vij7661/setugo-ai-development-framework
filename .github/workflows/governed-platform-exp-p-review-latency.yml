@@ -1,0 +1,58 @@
+name: Governed Platform EXP-P Review Latency
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/exp-p-pilot1-review-latency]
+    paths: [.github/exp-p-trigger.json]
+permissions: {contents: read}
+
+jobs:
+  measure:
+    name: Measure governed review latency
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+      GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+      MISTRAL_API_KEY: "${{ secrets.MISTRAL_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Verify frozen latency harness
+        run: python -m unittest -v experiments/governed-platform/runner/test_measure_review_latency_exp_p.py
+      - name: Validate required credentials are present
+        run: |
+          python - <<'PY'
+          import os
+          missing=[k for k in ('GROQ_API_KEY','GEMINI_API_KEY','MISTRAL_API_KEY') if not os.environ.get(k)]
+          if missing:
+              raise SystemExit('missing required secret(s): '+','.join(missing))
+          PY
+      - name: Execute frozen 10x3-path latency sample
+        run: |
+          mkdir -p exp-p-results
+          python experiments/governed-platform/runner/measure_review_latency_exp_p.py \
+            --case experiments/governed-platform/cases/pilot/model-visible/EXP-C-004.json \
+            --iterations 10 \
+            --timeout-seconds 120 \
+            --max-tokens 600 \
+            --execution-sha "$GITHUB_SHA" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --out exp-p-results/EXP-P-PILOT1-latency.json
+      - name: Print compact summary
+        if: always()
+        run: |
+          if [ -f exp-p-results/EXP-P-PILOT1-latency.json ]; then
+            python - <<'PY'
+          import json
+          d=json.load(open('exp-p-results/EXP-P-PILOT1-latency.json'))
+          print(json.dumps(d['summary'], indent=2))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-p-pilot1-review-latency
+          path: exp-p-results/
+          if-no-files-found: error
