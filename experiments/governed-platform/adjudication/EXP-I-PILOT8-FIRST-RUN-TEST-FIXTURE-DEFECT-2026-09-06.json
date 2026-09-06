@@ -1,0 +1,16 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 8,
+  "record_type": "FIRST_RUN_FAILURE_CLASSIFICATION",
+  "status": "TEST_FIXTURE_DEFECT",
+  "run_id": 34043353738,
+  "job_id": 101513941152,
+  "tested_commit": "1ac15fe00efd92a99a1b0972af437c0aab60d187",
+  "scientific_endpoints_reached": false,
+  "observed_failure": "All 20 Pilot 8 tests errored during setUp before endpoint assertions because the reconciliation table did not exist when the composite journal attempted to compute the reconciliation digest.",
+  "root_cause": "The Pilot 8 fixture initialized DurableConvergencePermitAuthority but omitted initialization of the production convergence_reconciliation schema owned by UseTimeCheckpointAuthority.",
+  "classification_basis": "The failure occurred before any P8-01..P8-20 mechanism assertion. Existing Pilot 1-7 regressions remained green in the same run. Therefore this run is not evidence that the Pilot 8 mechanism passed or failed.",
+  "allowed_repair": "Initialize the existing production reconciliation schema in test setUp using UseTimeCheckpointAuthority without changing Pilot 8 scientific endpoints, expected outcomes, or mechanism semantics.",
+  "repair_commit": "412129f053ad907accb35348124ab65cd5b38cc0",
+  "scientific_claim": "NONE"
+}
