@@ -1,0 +1,39 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 2,
+  "title": "Convergence entry-point isolation with platform-issued single-use permit",
+  "status": "BOUNDED_PASS_AFTER_TEST_EXPECTATION_REPAIR",
+  "adjudicated_utc": "2026-09-06T15:01:44Z",
+  "frozen_repaired_sha": "dfecc7cff95ba5fad94de1543db08ac1ab849c17",
+  "validation_run_id": 34040669358,
+  "validation_job_id": 101506713112,
+  "first_frozen_run": {
+    "run_id": 34040490014,
+    "result": "TEST_EXPECTATION_DEFECT",
+    "detail": "21 of 22 Pilot 2 vectors behaved as intended. I2-12 correctly failed closed with PermissionError because independent verification was missing, while the test expected only AttributeError or TypeError.",
+    "mechanism_changed_by_repair": false,
+    "preserved_failure_record": "EXP-I-PILOT2-FIRST-RUN-TEST-DEFECT-2026-09-06.json"
+  },
+  "repaired_execution": {
+    "pilot2_vectors": "22/22 passed",
+    "governor_falsification_suite": "812/812 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested in-process path, terminal EXP-I convergence can be reached through the permit authority only after the claim gate is eligible and the permit is bound to the exact case, primary failure class, artifact scope, verification artifact, convergence signals, issuance epoch, and nonce. Tested forgery, semantic substitution, reviewer duplication, replay after consumption, stale epoch, and post-issuance signal changes fail closed; the clean verified three-reviewer control remains live exactly once.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "permit_issuer": "platform convergence authority",
+    "model_or_reviewer_can_self_authorize_terminal_convergence": false
+  },
+  "not_proven": [
+    "Durable replay protection across process restart or host crash",
+    "Atomic consumption across multiple concurrent authority processes",
+    "Tamper resistance of persisted permit state",
+    "External cryptographic or hardware-backed signing-key isolation",
+    "Production release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 3: durable convergence-permit consumption and nonce binding across process restart/crash, without widening convergence or production authority."
+}
