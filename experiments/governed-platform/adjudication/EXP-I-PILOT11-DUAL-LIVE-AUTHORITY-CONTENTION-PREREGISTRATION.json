@@ -1,0 +1,72 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 11,
+  "title": "Dual-live composite checkpoint authority contention and split-brain falsification",
+  "record_type": "preregistration",
+  "date": "2026-09-06",
+  "predecessor_pilot": 10,
+  "predecessor_adjudication_commit": "099710cb1e71f46308dba108dbf8334516b6b2f6",
+  "hypothesis": "Two simultaneously live composite-checkpoint authority subprocesses sharing the same durable authority store cannot manufacture two conflicting authoritative checkpoints at one generation, cannot bypass monotonicity after another authority advances state, and recover idempotently across commit/response ambiguity.",
+  "mechanism_under_test": {
+    "authority_processes": 2,
+    "host_scope": "same host",
+    "authority_store": "shared SQLite WAL store",
+    "main_governance_store": "shared SQLite governance database",
+    "checkpoint_authentication": "HMAC in authority subprocesses",
+    "serialization_boundary": "SQLite BEGIN IMMEDIATE plus generation and issuance uniqueness",
+    "model_or_reviewer_authority": false
+  },
+  "frozen_rules": [
+    "At most one distinct statement may be durably issued at a generation.",
+    "Two authority processes do not count as two independent trust domains; they share host, credentials, code, and durable store.",
+    "An exact concurrent duplicate issuance may converge only to one durable checkpoint identity; duplicate delivery must not create a second logical checkpoint.",
+    "A different issuance or state binding at an already-issued generation must fail closed as equivocation/conflict.",
+    "A stale process cannot issue a lower generation after another process durably advances the maximum generation.",
+    "A committed checkpoint whose response is lost must be recoverable by another process as the same durable checkpoint rather than as a new issuance.",
+    "Lock contention, process death, malformed/tampered durable state, or verification ambiguity cannot turn into release or production authority.",
+    "Positive liveness controls are required so universal denial cannot satisfy the pilot.",
+    "No endpoint or expected outcome may be changed after observing a scientific run merely to obtain green CI."
+  ],
+  "endpoints": [
+    {"id":"P11-01","name":"two_live_authority_processes_are_distinct_pids_and_share_only_registered_stores","expected":"PASS"},
+    {"id":"P11-02","name":"concurrent_distinct_issuances_same_generation_yield_at_most_one_positive_issue","expected":"PASS"},
+    {"id":"P11-03","name":"same_generation_race_leaves_exactly_one_durable_generation_row","expected":"PASS"},
+    {"id":"P11-04","name":"losing_same_generation_process_cannot_verify_its_conflicting_statement","expected":"PASS"},
+    {"id":"P11-05","name":"concurrent_exact_same_issuance_converges_to_same_checkpoint_digest","expected":"PASS"},
+    {"id":"P11-06","name":"concurrent_exact_same_issuance_does_not_create_duplicate_durable_rows","expected":"PASS"},
+    {"id":"P11-07","name":"different_issuance_identity_cannot_rebind_existing_generation","expected":"PASS"},
+    {"id":"P11-08","name":"same_issuance_identity_cannot_rebind_changed_governance_state","expected":"PASS"},
+    {"id":"P11-09","name":"authority_A_advances_generation_then_stale_authority_B_lower_generation_is_denied","expected":"PASS"},
+    {"id":"P11-10","name":"restart_after_higher_generation_preserves_maximum_and_equivocation_memory","expected":"PASS"},
+    {"id":"P11-11","name":"authority_A_postcommit_response_loss_authority_B_retry_returns_same_checkpoint","expected":"PASS"},
+    {"id":"P11-12","name":"killed_authority_process_does_not_leave_second_authoritative_generation","expected":"PASS"},
+    {"id":"P11-13","name":"database_lock_contention_cannot_create_duplicate_or_false_positive_issue","expected":"PASS"},
+    {"id":"P11-14","name":"tampered_shared_authority_store_blocks_verification_from_both_processes","expected":"PASS"},
+    {"id":"P11-15","name":"deleted_authority_row_blocks_verification_from_both_processes","expected":"PASS"},
+    {"id":"P11-16","name":"stale_prior_positive_verification_cannot_survive_current_governance_state_change","expected":"PASS"},
+    {"id":"P11-17","name":"one_process_unavailable_other_process_requires_durable_current_state_not_peer_claim","expected":"PASS"},
+    {"id":"P11-18","name":"repeated_parallel_retries_after_ambiguous_commit_remain_one_logical_checkpoint","expected":"PASS"},
+    {"id":"P11-19","name":"model_reviewer_or_process_success_flags_have_zero_release_authority","expected":"PASS"},
+    {"id":"P11-20","name":"clean_next_generation_liveness_with_two_live_processes_after_fault_cases","expected":"PASS"}
+  ],
+  "falsification_conditions": [
+    "Two distinct checkpoint statements become durably authoritative at the same generation.",
+    "A losing or stale authority process returns a conflicting positive issuance that can verify as current.",
+    "Exact concurrent retry creates more than one durable logical checkpoint.",
+    "Lower-generation issuance succeeds after another process has durably advanced the maximum.",
+    "Response-loss recovery manufactures a new checkpoint instead of recovering the existing one.",
+    "Tampered/deleted durable authority state is accepted by either process.",
+    "Any model or reviewer output gains production or release authority."
+  ],
+  "bounded_claim_if_passed": "On the tested same-host, shared-SQLite authority path, two simultaneously live authority subprocesses serialize conflicting generation issuance, preserve durable idempotency and monotonicity across restart/response ambiguity, and fail closed on tested contention and store-integrity faults.",
+  "explicit_nonclaims": [
+    "Not distributed consensus.",
+    "Not Byzantine fault tolerance.",
+    "Not multi-host or multi-region split-brain tolerance.",
+    "Not administratively independent authority domains.",
+    "Not hardware-backed secret isolation.",
+    "Not physical power-loss durability.",
+    "Not production readiness."
+  ],
+  "execution_status": "PREREGISTERED_NOT_EXECUTED"
+}
