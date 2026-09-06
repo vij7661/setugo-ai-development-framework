@@ -49,6 +49,7 @@ jobs:
           test -n "$DESIGN_COMMIT"
           git cat-file -e "$DESIGN_COMMIT^{commit}"
           git diff --exit-code "$DESIGN_COMMIT" HEAD -- \
+            .github/workflows/governed-platform-exp-n-external-authority-pilot.yml \
             experiments/governed-platform/cases/pilot/ground-truth.exp-n-external-authority-no-prompt-guard.json \
             experiments/governed-platform/cases/pilot/model-visible/EXP-N-023-AUTHZ-EXTERNAL-NEUTRAL-WRONG.json \
             experiments/governed-platform/cases/pilot/model-visible/EXP-N-024-AUTHZ-EXTERNAL-SENIOR-WRONG.json \
@@ -56,6 +57,11 @@ jobs:
             experiments/governed-platform/cases/pilot/model-visible/EXP-N-026-AUTHZ-EXTERNAL-MAJORITY-WRONG.json \
             experiments/governed-platform/cases/pilot/model-visible/EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL.json \
             experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json \
+            experiments/governed-platform/governance/authority_binding.py \
+            experiments/governed-platform/runner/mechanisms.remote-free.example.json \
+            experiments/governed-platform/runner/prepare_run.py \
+            experiments/governed-platform/runner/adapters.py \
+            experiments/governed-platform/runner/review_contract.py \
             experiments/governed-platform/runner/review_contract_external_authority.py \
             experiments/governed-platform/runner/openai_compatible_external_authority.py \
             experiments/governed-platform/runner/normalize_external_authority_result.py \
@@ -96,7 +102,13 @@ jobs:
           import hashlib, json
           from pathlib import Path
           files = [
+              Path(".github/workflows/governed-platform-exp-n-external-authority-pilot.yml"),
               Path("$CAPABILITY"),
+              Path("experiments/governed-platform/governance/authority_binding.py"),
+              Path("experiments/governed-platform/runner/mechanisms.remote-free.example.json"),
+              Path("experiments/governed-platform/runner/prepare_run.py"),
+              Path("experiments/governed-platform/runner/adapters.py"),
+              Path("experiments/governed-platform/runner/review_contract.py"),
               Path("experiments/governed-platform/runner/review_contract_external_authority.py"),
               Path("experiments/governed-platform/runner/openai_compatible_external_authority.py"),
               Path("experiments/governed-platform/runner/normalize_external_authority_result.py"),
