@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-I",
+  "pilot_id": "PILOT1-CLAIM-BOUND-CONVERGENCE",
+  "status": "ADJUDICATED",
+  "result": "BOUNDED_PASS_CANONICAL_CLAIM_BOUND_CONVERGENCE",
+  "scientific_execution": {
+    "frozen_design_sha": "8acb5e01ff011d5da02ba48d4760ca09db1e925f",
+    "workflow_run_id": 34040138047,
+    "job_id": 101505274715,
+    "workflow_conclusion": "success",
+    "workflow_success_interpretation": "Operational completion only; scientific result is based on the frozen falsification endpoints and protected governance interpretation below."
+  },
+  "lineage": {
+    "lineage_correction_commit": "dc157060b1f26525e53f710dcce20ccfab1f448a",
+    "distinct_reviewer_hardening_commit": "ff58a90cfffd555fe277044a262dc2339ceca3c5",
+    "historical_mislabel": "The first disagreement-gate preregistration and prototype filenames used EXP-H before existing manifests were rediscovered. The chronology is retained for audit; canonical scientific lineage is EXP-I.",
+    "mislabel_classification": "EXPERIMENT_LINEAGE_LABELING_DEFECT",
+    "preexecution_distinct_reviewer_gap_classification": "PREEXECUTION_MECHANISM_GAP"
+  },
+  "mechanisms": {
+    "claim_gate": "experiments/governed-platform/governance/exp_i_claim_convergence_gate.py",
+    "composed_entrypoint": "experiments/governed-platform/governance/exp_i_governed_convergence.py",
+    "existing_signal_engine": "experiments/governed-platform/governance/tri_reviewer_convergence.py"
+  },
+  "frozen_endpoint_results": {
+    "canonical_claim_gate": {
+      "test_file": "experiments/governed-platform/governance/test_exp_i_pilot1_claim_convergence_gate.py",
+      "passed": 23,
+      "total": 23
+    },
+    "composed_convergence": {
+      "test_file": "experiments/governed-platform/governance/test_exp_i_pilot1_governed_convergence.py",
+      "passed": 12,
+      "total": 12
+    },
+    "full_governor_falsification_regression": {
+      "passed": 790,
+      "total": 790
+    }
+  },
+  "falsified_false_green_paths": [
+    "A 2-of-3 reviewer majority cannot converge when one material reviewer dissents, whether the majority is correct or wrong.",
+    "A latest reviewer cannot overwrite earlier material disagreement into convergence, whether the latest reviewer is correcting or regressing.",
+    "Three-reviewer unanimity without matching independent verification cannot reach the legacy terminal convergence engine.",
+    "Primary-class agreement with exact artifact-scope disagreement cannot converge.",
+    "Failure-class taxonomy and artifact-scope taxonomy are independently validated; labels such as TEST DEFECT cannot masquerade as TEST scope.",
+    "REQUIREMENT UNRESOLVED and NO MATERIAL DEFECT cannot carry mutation scope.",
+    "A verification artifact with mismatched case, primary class, scope, platform issuance, or validity cannot promote reviewer consensus.",
+    "One reviewer duplicated three times, two reviewers plus a duplicate, and reviewer-cardinality other than exactly three fail closed.",
+    "Review ordering does not convert material disagreement into convergence.",
+    "Review-ceiling pressure with material conflict cannot force a pass.",
+    "Material revision after verification invalidates terminal convergence eligibility.",
+    "Authoritative failure and requirement ambiguity remain capable of overriding otherwise verified model agreement."
+  ],
+  "liveness_result": "Exactly three distinct valid reviewer claims agreeing on the same case, primary failure class, and exact artifact scope, plus a matching valid platform-issued verification artifact and clean platform convergence signals, can reach CONVERGED_PASS on the canonical composed path.",
+  "authority_result": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "meaning_of_converged_pass": "Epistemic/governance convergence state only. It does not authorize mutation, merge, release, deploy, or completion."
+  },
+  "interpretation": "EXP-G Pilot 2 empirically showed that reviewer count, majority, order, and final-review position are unsafe convergence proxies. EXP-I Pilot 1 demonstrates on the bounded canonical composed path that exact three-reviewer claim agreement is treated only as evidence: it is blocked by any material claim/scope disagreement, requires three distinct reviewer identities, requires exact platform-issued independent verification, and remains subordinate to platform signals such as authoritative failure, requirement ambiguity, material revision, unresolved severity, and review-ceiling conflict.",
+  "bounded_non_claims": [
+    "This does not prove reviewer consensus is semantically true under arbitrary verifier failure or compromise.",
+    "The VerificationArtifact is a deterministic prototype record with platform_issued and valid fields; this pilot does not prove cryptographic non-forgeability of those fields.",
+    "This does not prove the legacy low-level tri_reviewer_convergence.decide_convergence function is impossible to call directly from arbitrary Python code. The canonical composed EXP-I path is tested; repository-wide entry-point isolation remains an untested structural boundary.",
+    "This is not Byzantine consensus.",
+    "This is not production release or mutation authority.",
+    "This is a bounded deterministic convergence-gate prototype."
+  ],
+  "next_scientific_frontier": "EXP-I Pilot 2 should test structural entry-point isolation so no caller can bypass claim binding and independent verification by directly invoking the legacy low-level convergence engine or forging an eligibility handoff."
+}
