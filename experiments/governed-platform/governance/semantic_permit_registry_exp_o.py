@@ -67,7 +67,9 @@ class DurableSemanticPermitRegistry:
 
     The registry exposes sanitized state by default. `begin_use` is the only
     normal path that resolves the raw inner permit, and that method is intended
-    for trusted gateway-side code.
+    for trusted gateway-side code. A second durable table prevents an external
+    idempotency key from being rebound to different semantic content even
+    though the historical MCP gateway predates semantic-payload digests.
     """
 
     def __init__(self, db_path: str | Path, integrity_key: bytes) -> None:
@@ -90,6 +92,17 @@ class DurableSemanticPermitRegistry:
                     bound_permit_id TEXT PRIMARY KEY,
                     record_json TEXT NOT NULL,
                     integrity_tag TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS semantic_idempotency_bindings (
+                    worker_id TEXT NOT NULL,
+                    idempotency_key TEXT NOT NULL,
+                    semantic_effect_digest TEXT NOT NULL,
+                    bound_permit_id TEXT NOT NULL,
+                    PRIMARY KEY(worker_id, idempotency_key)
                 )
                 """
             )
@@ -121,6 +134,27 @@ class DurableSemanticPermitRegistry:
             "UPDATE semantic_permits SET record_json = ?, integrity_tag = ? WHERE bound_permit_id = ?",
             (_canonical(payload).decode("utf-8"), self._tag(payload), str(payload["bound_permit_id"])),
         )
+
+    def _claim_semantic_idempotency(self, conn: sqlite3.Connection, record: Mapping[str, Any]) -> str | None:
+        worker_id = str(record["worker_id"])
+        idempotency_key = str(record["idempotency_key"])
+        effect_digest = str(record["effect_digest"])
+        bound_permit_id = str(record["bound_permit_id"])
+        row = conn.execute(
+            "SELECT semantic_effect_digest, bound_permit_id FROM semantic_idempotency_bindings WHERE worker_id = ? AND idempotency_key = ?",
+            (worker_id, idempotency_key),
+        ).fetchone()
+        if row is None:
+            conn.execute(
+                "INSERT INTO semantic_idempotency_bindings(worker_id, idempotency_key, semantic_effect_digest, bound_permit_id) VALUES (?, ?, ?, ?)",
+                (worker_id, idempotency_key, effect_digest, bound_permit_id),
+            )
+            return None
+        if str(row["semantic_effect_digest"]) != effect_digest:
+            return "SEMANTIC_IDEMPOTENCY_KEY_REUSED_FOR_DIFFERENT_EFFECT"
+        if str(row["bound_permit_id"]) != bound_permit_id:
+            return "SEMANTIC_IDEMPOTENCY_KEY_ALREADY_BOUND_TO_DIFFERENT_PERMIT"
+        return None
 
     def issue(self, record: Mapping[str, Any]) -> dict[str, Any]:
         payload = copy.deepcopy(dict(record))
@@ -205,6 +239,11 @@ class DurableSemanticPermitRegistry:
             if state not in {"ISSUED", "IN_FLIGHT"}:
                 conn.rollback()
                 return {"resolved": False, "reason": "SEMANTIC_REGISTRY_STATE_INVALID"}
+
+            idempotency_error = self._claim_semantic_idempotency(conn, record)
+            if idempotency_error:
+                conn.rollback()
+                return {"resolved": False, "reason": idempotency_error, "state": state}
 
             disposition = "FIRST_USE" if state == "ISSUED" else "RECOVERY_IN_FLIGHT"
             record["state"] = "IN_FLIGHT"
@@ -346,11 +385,10 @@ class DurableSemanticBoundLocalEnforcementPoint:
             "idempotency_key": idempotency_key,
         }
         self._registry.issue({**binding, "inner_permit": inner_permit})
-        outer_payload = copy.deepcopy(binding)
         return {
             "authorized": True,
             "decision": "DURABLE_SEMANTIC_BOUND_PERMIT_ISSUED",
-            "permit": _sign(outer_payload, self._outer_key),
+            "permit": _sign(copy.deepcopy(binding), self._outer_key),
             "registry_state": "ISSUED",
             "inner_lep_decision": inner.get("decision"),
             "semantic_verification_id": evidence.get("verification_id"),
@@ -382,6 +420,7 @@ class ProcessSemanticBoundGateway:
         idempotency_key: str,
         now_ms: int,
         after_inflight_hook: Callable[[], None] | None = None,
+        after_gateway_hook: Callable[[Mapping[str, Any]], None] | None = None,
     ) -> dict[str, Any]:
         if not _verify(permit, self._outer_key):
             return _deny("SEMANTIC_BOUND_OUTER_PERMIT_INVALID")
@@ -422,7 +461,11 @@ class ProcessSemanticBoundGateway:
             idempotency_key=idempotency_key,
             now_ms=now_ms,
         )
-        result_digest = digest(gateway_result)
+        if after_gateway_hook is not None:
+            after_gateway_hook(gateway_result)
+
+        authoritative_result = gateway_result.get("result") if isinstance(gateway_result.get("result"), Mapping) else gateway_result
+        result_digest = digest(authoritative_result)
         finalized = self._registry.finalize(bound_permit_id, authoritative_result_digest=result_digest)
         if not finalized.get("finalized", False):
             return _deny(
