@@ -1,0 +1,47 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 14,
+  "title": "Trust-registry root-key rotation and compromise recovery",
+  "status": "BOUNDED_PASS",
+  "preregistration_commit": "d4dba578d272ba1380236cdbef46ad20f2624d6f",
+  "evaluated_sha": "0b1bd0ed77e788e9864f6e6b2c54b0b70f47b5c4",
+  "validation_run_id": 34052633073,
+  "validation_job_id": 101538851397,
+  "first_scientific_run": "CLEAN_PASS",
+  "pilot_vectors": {
+    "passed": 16,
+    "total": 16
+  },
+  "governor_regression_suite": {
+    "passed": 1026,
+    "total": 1026
+  },
+  "bounded_claim": [
+    "On the tested same-host SQLite/OpenSSL prototype, root trust rotation R1->R2 and R2->R3 remained monotonic under the preregistered vectors.",
+    "A revoked historical root remained usable for historical cryptographic verification but was denied new currently eligible registry issuance after revocation.",
+    "Root epoch rollback, stale pre-rotation root snapshots, root identity/public-key substitution, old-root semantic rebinding, transition rebinding, and revoked-root plus registry-writer collusion failed closed in the tested vectors.",
+    "Exact transition replay remained idempotent and current-root restart preserved eligible replay and liveness.",
+    "No tested model, reviewer, registry writer, or revoked root acquired release or production authority."
+  ],
+  "authority_boundaries": {
+    "model_generated_root_authority": false,
+    "reviewer_generated_root_authority": false,
+    "root_signer_can_self_rotate": false,
+    "registry_writer_can_activate_root": false,
+    "production_authority": false,
+    "release_authority": false
+  },
+  "observed_non_endpoint_hygiene": [
+    "ResourceWarning messages for unclosed subprocess stdin/stdout handles were observed. They did not change any frozen endpoint and were preserved rather than repaired after first green exposure."
+  ],
+  "not_proven": [
+    "Atomic crash recovery across the root-trust record store and the independent trusted-minimum store.",
+    "A physically simultaneous root-rotation commit racing current-root issuance at the exact transition boundary.",
+    "Physical host failure, disk power-loss semantics, or multi-host consensus.",
+    "KMS/HSM private-key nonextractability.",
+    "Separate administrative or cloud trust domains.",
+    "Containment after compromise of both root-trust authentication material and trusted-minimum authority.",
+    "Production or release authority."
+  ],
+  "next_falsification_target": "EXP-I Pilot 15: abrupt external process termination and recovery across root-trust rotation plus trusted-minimum advancement. Use parent-observed readiness and external termination around the two durable authorities, reopen in fresh processes, and test fail-closed ambiguity handling, exact replay, old-root non-resurrection, same-transition conflict prevention, and clean higher-root liveness."
+}
