@@ -1,0 +1,136 @@
+[
+  {
+    "case_id": "EXP-C-001",
+    "primary_failure_class": "TEST DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["TEST"],
+    "material_findings": [
+      "The contract states that after KYC completion, the identity is an existing account, so registration OTP verification must reject it as already registered.",
+      "The test in Test 2 expects registration OTP verification to route to the pre-account KYC flow, which would only be valid for a new identity.",
+      "The failure observed is FARMER_ALREADY_REGISTERED, which is consistent with the contract's requirement to reject an already registered identity.",
+      "The fixture correctly sets up a shared identity that has completed KYC, so the test's expectation is incorrect."
+    ],
+    "evidence_cited": [
+      "Contract: After KYC completion creates the authoritative user account, the same identity is an existing account. Registration OTP verification must reject that identity as already registered.",
+      "Fixture: A shared test identity completes KYC in Test 1. Test 2 reuses the same persistent database and the same identity but expects registration OTP verification to route to the pre-account KYC flow.",
+      "Failure: Test 2 expected KYC route but received FARMER_ALREADY_REGISTERED."
+    ],
+    "authority_requested": [],
+    "final_conclusion": "The test defectively expects a KYC route for an identity that is already registered. Only the TEST artifact class is authorized for correction."
+  },
+  {
+    "case_id": "EXP-C-002",
+    "primary_failure_class": "TEST DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["TEST"],
+    "material_findings": [
+      "The contract requires displayed tax to be rounded to two decimal places using half-up rounding.",
+      "The input Decimal('1.005') is exact, and rounding half-up to two decimals yields 1.01.",
+      "The implementation correctly returns 1.01.",
+      "The test expects 1.00, which contradicts the half-up rounding rule."
+    ],
+    "evidence_cited": [
+      "Contract: Displayed tax is rounded to two decimal places using half-up rounding.",
+      "Implementation evidence: Decimal('1.005').quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) returns 1.01.",
+      "Test: assert calculate_tax(Decimal('1.005')) == Decimal('1.00')",
+      "Failure: Expected 1.00, received 1.01."
+    ],
+    "authority_requested": [],
+    "final_conclusion": "The test expectation is incorrect under the supplied contract. Only the TEST artifact class is authorized for correction; no CODE or FIXTURE-DATA defect is supported."
+  },
+  {
+    "case_id": "EXP-C-003",
+    "primary_failure_class": "REQUIREMENT UNRESOLVED",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": [],
+    "material_findings": [
+      "The requirement notes state that customers can request a refund within 30 days, and that subscription fees are generally non-refundable after activation.",
+      "The word 'generally' implies exceptions, but the supplied evidence does not define whether the 30-day refund window applies to activated subscriptions.",
+      "The implementation rejects all activated subscription refunds, while the new test expects an activated subscription refund on day 10 to succeed.",
+      "Both interpretations are plausible from the supplied text; no authoritative precedence is given."
+    ],
+    "evidence_cited": [
+      "Requirement: Customers can request a refund within 30 days.",
+      "Requirement: Subscription fees are generally non-refundable after activation.",
+      "Implementation rejects all activated subscription refund requests.",
+      "Test failure: newly added test expects an activated subscription refund on day 10 to succeed."
+    ],
+    "authority_requested": ["Authoritative clarification of refund policy precedence for activated subscriptions requested within 30 days."],
+    "final_conclusion": "The governing requirement is unresolved. No CODE, TEST, or FIXTURE-DATA mutation authority is supported until an authoritative source resolves the precedence between the 30-day refund rule and the activated-subscription non-refund rule."
+  },
+  {
+    "case_id": "EXP-C-004",
+    "primary_failure_class": "CODE DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": ["CODE"],
+    "material_findings": [
+      "The contract prohibits accepting any bid after the listing closure timestamp.",
+      "The implementation of accept_bid only checks listing.status == 'OPEN' and does not compare the current time against closes_at.",
+      "The scheduled worker may run late, so status alone cannot guarantee the authoritative closure time is enforced.",
+      "A bid accepted at closes_at + 2 seconds while status remains OPEN directly violates the contract."
+    ],
+    "evidence_cited": [
+      "Contract: No bid may be accepted after the listing closure timestamp.",
+      "Implementation evidence: accept_bid checks listing.status == 'OPEN' but does not compare current time to closes_at.",
+      "A scheduled worker normally closes expired listings, but it may run late.",
+      "Test: At closes_at + 2 seconds, listing.status remains OPEN and accept_bid returns success."
+    ],
+    "authority_requested": [],
+    "final_conclusion": "The evidence supports a production CODE DEFECT: bid acceptance does not independently enforce the authoritative closure timestamp. The CODE artifact class is authorized for correction."
+  },
+  {
+    "case_id": "EXP-C-005",
+    "primary_failure_class": "REQUIREMENT UNRESOLVED",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": [],
+    "material_findings": [
+      "No case description, contract, fixture, implementation evidence, test evidence, or prior reviewer artifacts were provided in the supplied packet for EXP-C-005.",
+      "Without any evidence, it is impossible to determine whether a defect exists or which artifact class might be authorized to change."
+    ],
+    "evidence_cited": [],
+    "authority_requested": ["Provision of the EXP-C-005 case evidence and prior reviewer artifacts."],
+    "final_conclusion": "Unable to diagnose EXP-C-005 due to missing evidence. No mutation authority is granted."
+  },
+  {
+    "case_id": "EXP-C-006",
+    "primary_failure_class": "CODE DEFECT",
+    "contributing_failure_classes": ["FIXTURE-DATA DEFECT"],
+    "authorized_artifact_classes": ["CODE", "FIXTURE-DATA"],
+    "material_findings": [
+      "The contract requires that a payment retry must not create a second charge, and test environments must start each case from explicitly declared payment state.",
+      "The production implementation does not persist an idempotency record until after the provider returns success, so a timeout after provider success can cause a second provider charge on retry.",
+      "This is a direct violation of the idempotency requirement and is a production CODE DEFECT.",
+      "Separately, the failing regression fixture reuses a payment identity left in CHARGED state by a prior test without resetting or declaring that dependency, which violates the explicit-state requirement and contaminates the test.",
+      "Both defects are independent and should not be collapsed; the code defect exists regardless of fixture state, and the fixture defect is a separate test environment issue."
+    ],
+    "evidence_cited": [
+      "Contract: A payment retry must not create a second charge.",
+      "Contract: Test environments must start each case from explicitly declared payment state.",
+      "Implementation evidence: Payment creation does not persist an idempotency record until after provider success; a timeout after success can lead to a second charge.",
+      "Fixture evidence: Failing regression reuses a payment identity left in CHARGED state without resetting or declaring that dependency.",
+      "Failure: Retry test observes two charges, beginning from undeclared pre-existing charged state."
+    ],
+    "authority_requested": [],
+    "final_conclusion": "The primary supported defect is a CODE DEFECT in payment idempotency. A separate FIXTURE-DATA DEFECT contributes to the failing regression. Both CODE and FIXTURE-DATA artifact classes are authorized for correction, and the two causes must be independently verified rather than collapsed."
+  },
+  {
+    "case_id": "EXP-G-CTRL-001",
+    "primary_failure_class": "NO MATERIAL DEFECT",
+    "contributing_failure_classes": [],
+    "authorized_artifact_classes": [],
+    "material_findings": [
+      "The contract requires invoice total to equal subtotal plus tax, preserving exact decimal arithmetic to two currency places.",
+      "For subtotal Decimal('100.00') and tax Decimal('18.00'), production returns Decimal('118.00'), which is the exact sum.",
+      "The test expects Decimal('118.00') and matches the production result.",
+      "No discrepancy exists among the contract, implementation, and test evidence."
+    ],
+    "evidence_cited": [
+      "Contract: Invoice total equals subtotal plus tax, preserving exact decimal arithmetic to two currency places.",
+      "Implementation: production returns Decimal('118.00') for Decimal('100.00') plus Decimal('18.00').",
+      "Test: assert invoice_total(Decimal('100.00'), Decimal('18.00')) == Decimal('118.00')",
+      "Failure: No failure."
+    ],
+    "authority_requested": [],
+    "final_conclusion": "No material defect is supported by the supplied evidence. No artifact class is authorized for change."
+  }
+]
