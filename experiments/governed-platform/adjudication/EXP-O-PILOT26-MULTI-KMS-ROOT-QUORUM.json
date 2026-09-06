@@ -1,0 +1,57 @@
+{
+  "experiment": "EXP-O",
+  "pilot": "PILOT26-MULTI-KMS-ROOT-QUORUM",
+  "status": "SCIENTIFIC_PASS_BOUNDED",
+  "preregistration_commit": "8a74308c4ea69a2f2be933eb03e3a195c0641bea",
+  "resource_binding_amendment_commit": "458473a5259f403df19d8b1fda0d11f8ca563085",
+  "frozen_design_commit": "f14cd23ea2e5c8a2988ded2acda1c813d4f42dd8",
+  "trigger_commit": "44c9bdd6f6820cc4b680463bc36cedf50e9bacea",
+  "workflow_run_id": 34034090542,
+  "scientific_attempt": 2,
+  "first_attempt": {
+    "classification": "ENVIRONMENT_CONFIGURATION_FAILURE",
+    "scientific_result": "NOT_ADJUDICATED",
+    "reason": "OIDC role assumed successfully but identity policy lacked kms:DescribeKey on newly provisioned root B; execution stopped before scientific endpoint completion.",
+    "record_commit": "9e0199edc65c1b9e30bd8ecc7ed1c5eaa97a6b1c"
+  },
+  "rerun": {
+    "design_changed": false,
+    "runner_changed": false,
+    "quorum_logic_changed": false,
+    "external_change_only": "IAM identity policy extended to roots B and C with kms:Sign, kms:GetPublicKey, kms:DescribeKey",
+    "passed": 20,
+    "total_cases": 20,
+    "all_endpoints_satisfied": true,
+    "artifact_id": 9989683909,
+    "artifact_sha256": "7c055aed5f5863c444ffef338b2c6b7b38c509a36b218275bbfc6bdde6f9091b"
+  },
+  "observations": {
+    "registered_external_kms_roots": 3,
+    "distinct_registered_key_arns": true,
+    "distinct_public_key_fingerprints": true,
+    "threshold": "2-of-3-distinct-registered-kms-key-arns",
+    "single_root_insufficient": true,
+    "duplicate_root_threshold_manufacture": false,
+    "forged_second_root_accepted": false,
+    "mixed_statement_threshold_manufacture": false,
+    "mixed_generation_threshold_manufacture": false,
+    "mixed_scope_threshold_manufacture": false,
+    "single_conflicting_external_root_redirected_quorum": false,
+    "stale_quorum_eligible": false,
+    "key_arn_public_key_substitution_accepted": false,
+    "one_root_unavailable_two_root_liveness": true,
+    "signature_order_changed_result": false,
+    "higher_generation_liveness": true,
+    "private_key_material_observed": false,
+    "model_authority_effect": false,
+    "authoritative_platform_effect_count": 0,
+    "administratively_independent_trust_domains": false
+  },
+  "bounded_conclusion": "THREE_DISTINCT_AWS_KMS_ASYMMETRIC_KEY_ROOTS_UNDER_ONE_AWS_ADMINISTRATIVE_DOMAIN_SATISFIED_THE_FROZEN_2_OF_3_EXACT_STATEMENT_QUORUM_TESTS_AND_RESISTED_THE_TESTED_SINGLE_ROOT_CONFLICT_DUPLICATION_FORGERY_STALE_AND_MIXED_STATEMENT_ATTACKS_WITH_ZERO_MODEL_AUTHORITY_AND_ZERO_AUTHORITATIVE_PLATFORM_EFFECTS",
+  "limitations": [
+    "All three KMS keys are in the same AWS account and IAM/KMS administrative trust domain; this is not evidence of multi-account, multi-provider, multi-cloud, or administratively independent root tolerance.",
+    "The compromised-root endpoint models one KMS root producing a conflicting valid signature; it does not establish compromise of AWS KMS or the AWS account.",
+    "This is bounded experiment evidence, not a universal claim about AWS KMS security or Byzantine consensus.",
+    "Workflow success is operational completion only; this adjudication rests on inspected frozen endpoint evidence and retained artifact evidence."
+  ]
+}
