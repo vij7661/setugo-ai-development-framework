@@ -1,0 +1,36 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 5,
+  "title": "Use-time checkpoint binding and consume/checkpoint reconciliation",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T15:17:00Z",
+  "frozen_sha": "8d7081c79388ce5db557c931ab54ff30d0cdf5bc",
+  "validation_run_id": 34041771655,
+  "validation_job_id": 101509720256,
+  "execution": {
+    "pilot5_vectors": "20/20 passed",
+    "governor_falsification_suite": "872/872 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested same-host SQLite prototype, a platform-issued use-time integrity token bound to the exact current checkpoint, pre-consumption canonical ledger state, convergence permit binding, authority epoch, and one-time token identity prevented stale checkpoint reuse after the tested intervening ledger mutations. Permit consumption and creation of a durable PENDING reconciliation record occurred in one SQLite transaction; PENDING survived restart, could not be silently settled by restart, an old or same-generation checkpoint, or a wrong-digest higher-generation checkpoint, and was settled exactly once by an authenticated strictly higher-generation checkpoint over the exact recorded post-consumption ledger state. Concurrent same-token consumers produced at most one terminal convergence transition. Reviewer/model inputs gained no production or release authority.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "use_time_token_issuer": "platform integrity authority",
+    "reconciliation_settlement_is_release_authority": false,
+    "terminal_convergence_while_pending_is_settled_governance_state": false
+  },
+  "not_proven": [
+    "Atomic commitment between SQLite and a truly external checkpoint service",
+    "Physical power-loss durability",
+    "HSM or KMS key nonextractability",
+    "Protection after compromise of all local permit, integrity, and token keys",
+    "Tamper resistance or independent integrity of the convergence_reconciliation table itself",
+    "Global uniqueness of unconsumed use-time token nonces at issuance",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 6: reconciliation-ledger integrity. Protect PENDING/SETTLED reconciliation records against coherent local rewrite, deletion, rollback, post-digest substitution, checkpoint-generation lowering, and forged settlement state without widening convergence or release authority."
+}
