@@ -1,0 +1,29 @@
+name: EXP-I Pilot 18 Construction Check
+
+on:
+  push:
+    branches:
+      - "experiment/exp-i-pilot18-recovery-signer-crash-consistency"
+    paths:
+      - "experiments/governed-platform/governance/exp_i_recovery_signer_crash_consistency.py"
+      - "experiments/governed-platform/governance/exp_i_crash_aware_minimum.py"
+      - "experiments/governed-platform/governance/test_exp_i_pilot18_recovery_signer_crash_consistency.py"
+      - ".github/workflows/exp-i-pilot18-construction.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-p18:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Pilot 18
+        run: python -m compileall -q experiments/governed-platform/governance
+      - name: Run frozen Pilot 18 vectors only
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_exp_i_pilot18_recovery_signer_crash_consistency.py
