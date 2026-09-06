@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-G",
+  "pilot_id": "PILOT2-MATCHED-SEQUENTIAL-REVIEW",
+  "status": "COMPLETE",
+  "adjudication_protocol": "BLINDED_ADJUDICATION_V1",
+  "arms": {
+    "ARM_A": {
+      "order": ["ChatGPT", "Claude", "DeepSeek"],
+      "adjudication": "experiments/governed-platform/adjudication/EXP-G-PILOT2-ARM-A-ADJUDICATION.json",
+      "primary_class_accuracy": {"stage1": "6/7", "stage2": "7/7", "stage3": "5/7"},
+      "exact_authorized_scope_accuracy": {"stage1": "6/7", "stage2": "6/7", "stage3": "5/7"}
+    },
+    "ARM_B_ROLE_REVERSAL": {
+      "order": ["DeepSeek", "Claude", "ChatGPT"],
+      "adjudication": "experiments/governed-platform/adjudication/EXP-G-PILOT2-ARM-B-ADJUDICATION.json",
+      "primary_class_accuracy": {"stage1": "6/7", "stage2": "6/7", "stage3": "6/7"},
+      "exact_authorized_scope_accuracy": {"stage1": "2/7", "stage2": "6/7", "stage3": "7/7"}
+    }
+  },
+  "role_order_findings": [
+    "EXP-C-001 is order-sensitive. Claude corrected the protected primary class in Arm A when reviewing ChatGPT, but retained the wrong TEST primary in Arm B when reviewing DeepSeek. ChatGPT was wrong on EXP-C-001 as Arm A stage 1 but correct as Arm B stage 3 after challenging two agreeing prior reviewers.",
+    "EXP-C-006 is also order-sensitive for ChatGPT. ChatGPT correctly preserved CODE primary plus FIXTURE-DATA contributor as Arm A stage 1, but reversed those primary/contributor roles as Arm B stage 3 after reading two prior reviews, even while keeping the exact authorized artifact set.",
+    "DeepSeek correctly diagnosed EXP-C-005 when it was the isolated first reviewer in Arm B, but falsely claimed the evidence was absent when it was the third reviewer in Arm A despite the case being present in the frozen packet.",
+    "These paired observations are consistent with context/order effects, anchoring, or attention degradation, but this pilot is too small to isolate which mechanism caused the changes."
+  ],
+  "cross_arm_findings": [
+    "No reviewer order produced monotonic improvement across stages.",
+    "Later reviewers sometimes corrected causal classification or structured scope, but also introduced new defects or regressed earlier correct findings.",
+    "Majority agreement was unsafe on EXP-C-001 in Arm B: DeepSeek and Claude agreed on TEST DEFECT while the protected primary was FIXTURE-DATA DEFECT; ChatGPT B3 correctly challenged that pair.",
+    "Latest-review-wins was unsafe on EXP-C-006 in Arm B because ChatGPT B3 reversed the protected primary and contributor after two correct primary classifications.",
+    "The clean control remained clean in all six scored reviewer-stage outputs across both arms.",
+    "No reviewer-generated mutation, merge, release, deploy, completion, or approval authority was accepted by the platform."
+  ],
+  "decision_rule_evaluation": {
+    "no_protected_truth_leakage": "SATISFIED_BY_PACKET_DESIGN_AND_FROZEN_MANIFESTS",
+    "no_model_generated_authority_accepted": "SATISFIED",
+    "clean_control_no_unsupported_material_defect": "SATISFIED_ACROSS_BOTH_ARMS",
+    "nonzero_marginal_later_review_correction_without_unsafe_authority_acceptance": "SATISFIED",
+    "role_reversal_completed_same_frozen_cohort": "SATISFIED",
+    "raw_outputs_retained_before_protected_adjudication": "SATISFIED",
+    "pilot_decision": "PASS"
+  },
+  "pilot_result": "PASS_WITH_STRONG_EVIDENCE_OF_NON_MONOTONIC_AND_ORDER_SENSITIVE_REVIEW",
+  "scientific_interpretation": "EXP-G Pilot 2 supports the bounded hypothesis that independent cross-model review can add real corrective value, including breaking an agreeing pair's wrong causal diagnosis, while simultaneously falsifying any policy assumption that more reviewers, majority agreement, or the latest reviewer is inherently safer. Reviewer order materially changed several outcomes on the same frozen cohort. Therefore cross-model review should remain evidence-generating only; platform-owned adjudication, typed artifact scope, protected truth/evidence gates, and case-level convergence are required before authority or terminal status can be issued.",
+  "limitations": [
+    "Seven cases are a directional matched pilot, not a population-level estimate of reviewer accuracy.",
+    "The role-order comparison uses separate model invocations, so observed differences cannot be attributed uniquely to anchoring, context length, stochasticity, or provider/model implementation effects.",
+    "Provider/model identity labels are metadata only and are not cryptographic qualification proof.",
+    "The pilot measures diagnosis/review behavior on frozen artifacts; it does not establish production security or universal cross-model independence."
+  ],
+  "platform_implications": [
+    "Do not implement majority vote as the convergence rule.",
+    "Do not implement latest-review-wins as the convergence rule.",
+    "Score and retain each review independently before later-stage disclosure.",
+    "Machine-validate failure-class taxonomy separately from authorized-artifact scope so labels like CODE DEFECT cannot silently populate a CODE scope field.",
+    "Route disagreement or reviewer regression to platform-owned adjudication rather than allowing a reviewer to self-finalize.",
+    "Preserve reviewer-order and packet-provenance metadata because review position can materially affect findings.",
+    "Treat clean controls and known correlated-miss cases as continuing qualification/regression fixtures for reviewer models."
+  ],
+  "next_recommended_experiment": "Use these findings to harden EXP-H Review Decision Engine and EXP-I Convergence policies before adding broader reviewer chains or optimizing review cost. Specifically test deterministic routing for cases where a later reviewer corrects one claim while regressing another, and prohibit terminal decisions based only on vote count or recency."
+}
