@@ -1,0 +1,38 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 7,
+  "title": "Composite cross-root consistency",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T15:41:00Z",
+  "frozen_sha": "741c5f2edc9423f3c2358749fe2b309c50b0d6b5",
+  "validation_run_id": 34042298083,
+  "validation_job_id": 101511131527,
+  "execution": {
+    "pilot7_vectors": "20/20 passed",
+    "governor_falsification_suite": "912/912 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested same-host prototype, a platform-issued HMAC-authenticated composite checkpoint bound the exact current permit-ledger digest, reconciliation-ledger digest, permit-authority epoch, monotonic composite generation, and predecessor checkpoint such that the preregistered one-sided mutations, coordinated post-issuance mutations, stale/current mixed-era root pairs, independently valid side-root substitutions, digest/epoch field substitution, forged authentication, scope/predecessor tampering, trusted-minimum rollback, and repeated-restart mixed-state attempts all failed closed. Coordinated higher-generation current state remained live.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "release_authority": false,
+    "composite_checkpoint_authority": "platform-held prototype integrity authority",
+    "model_or_reviewer_can_mint_or_advance_trusted_composite_generation": false,
+    "valid_composite_checkpoint_is_release_authority": false
+  },
+  "not_proven": [
+    "Atomic commitment between SQLite state transitions and composite checkpoint issuance",
+    "Crash-safe reconciliation when ledger state changes but the corresponding higher composite checkpoint is not durably established",
+    "Atomic commitment between SQLite and a truly external checkpoint service",
+    "Physical power-loss semantics",
+    "HSM or KMS key nonextractability",
+    "Protection after compromise of SQLite together with the composite key or trusted-minimum authority",
+    "Administratively independent trust domains",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 8: composite checkpoint crash-consistency and issuance reconciliation. Test the interval between a durable ledger-state transition and durable establishment of the corresponding higher composite checkpoint, including crash/restart ambiguity, duplicate issuance, stale predecessor replay, and fail-closed recovery before currentness is re-established."
+}
