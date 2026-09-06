@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import sqlite3
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -153,7 +154,7 @@ class ExternalMonotonicAnchor:
         if not self._valid_minimum_record(minimum):
             return {"ok": False, "reason": "MINIMUM_INVALID"}
         trusted_minimum = int(minimum["payload"]["minimum_generation"])
-        # requested_minimum is allowed to strengthen but never lower trusted state.
+        # Request input may strengthen but can never lower the externally retained minimum.
         effective_minimum = max(trusted_minimum, int(requested_minimum or trusted_minimum))
         try:
             statement = dict(checkpoint["statement"])
@@ -177,3 +178,45 @@ class ExternalMonotonicAnchor:
             "production_authority": False,
             "release_authority": False,
         }
+
+    def verify_authority_store(
+        self,
+        authority_store: str | Path,
+        checkpoint: Mapping[str, Any],
+        *,
+        requested_minimum: int | None = None,
+    ) -> dict[str, Any]:
+        external = self.verify_checkpoint(checkpoint, requested_minimum=requested_minimum)
+        if not external.get("ok"):
+            return external
+        generation = int(external["generation"])
+        digest = str(external["checkpoint_digest"])
+        try:
+            con = sqlite3.connect(str(authority_store), timeout=5.0)
+            con.row_factory = sqlite3.Row
+            try:
+                meta = con.execute("SELECT max_generation FROM meta WHERE singleton=1").fetchone()
+                if meta is None:
+                    return {"ok": False, "reason": "AUTHORITY_META_MISSING"}
+                maximum = int(meta[0])
+                if maximum != generation:
+                    return {"ok": False, "reason": "AUTHORITY_META_ANCHOR_MISMATCH", "trusted_minimum": external["trusted_minimum"]}
+                row = con.execute(
+                    "SELECT issuance_id,checkpoint_digest,statement_json,auth_tag FROM issued WHERE generation=?",
+                    (generation,),
+                ).fetchone()
+                if row is None:
+                    return {"ok": False, "reason": "ANCHORED_AUTHORITY_ROW_MISSING"}
+                if str(row["checkpoint_digest"]) != digest:
+                    return {"ok": False, "reason": "AUTHORITY_ROW_ANCHOR_DIGEST_MISMATCH"}
+                total_at_or_above = con.execute(
+                    "SELECT COUNT(*) FROM issued WHERE generation>=?",
+                    (generation,),
+                ).fetchone()[0]
+                if total_at_or_above != 1:
+                    return {"ok": False, "reason": "AUTHORITY_GENERATION_AMBIGUITY"}
+            finally:
+                con.close()
+        except sqlite3.Error:
+            return {"ok": False, "reason": "AUTHORITY_STORE_UNREADABLE"}
+        return external
