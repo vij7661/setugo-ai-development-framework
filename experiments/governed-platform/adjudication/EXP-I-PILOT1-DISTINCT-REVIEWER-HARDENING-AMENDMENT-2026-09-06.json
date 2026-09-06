@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "record_type": "PREEXECUTION_HARDENING_AMENDMENT",
+  "experiment_id": "EXP-I",
+  "pilot_id": "PILOT1-CLAIM-BOUND-CONVERGENCE",
+  "status": "FROZEN_BEFORE_MECHANISM_CHANGE",
+  "motivation": "EXP-I is explicitly a three-reviewer convergence experiment. The pre-execution claim gate validated reviewer_id presence but did not require exactly three distinct reviewer identities, allowing duplicated reviewer records to potentially manufacture apparent unanimity when no dissenting record was present.",
+  "classification": "PREEXECUTION_MECHANISM_GAP",
+  "scientific_execution_occurred_before_amendment": false,
+  "new_invariant": "Claim-bound convergence requires exactly three review claims from exactly three distinct non-empty reviewer_id values for the same case before reviewer consensus can become eligible for independent verification.",
+  "new_falsification_vectors": [
+    "one reviewer duplicated three times cannot manufacture consensus",
+    "two distinct reviewers with one duplicated record cannot manufacture three-reviewer consensus",
+    "four or more reviewer records do not silently alter the frozen three-reviewer decision contract"
+  ],
+  "allowed_resolution": "Fail closed as INVALID_REVIEW_INPUT for any reviewer-cardinality or reviewer-identity-distinctness violation.",
+  "unchanged_rules": [
+    "majority vote is insufficient",
+    "latest reviewer is insufficient",
+    "exact primary-class and exact artifact-scope agreement are required",
+    "unanimity without independent verification is insufficient",
+    "verification must be platform-issued, valid, and bind exact case/class/scope",
+    "ELIGIBLE_FOR_GOVERNANCE_GATE is not terminal approval"
+  ]
+}
