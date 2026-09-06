@@ -5,6 +5,10 @@ This runner is intentionally separate from run_remote_canary.py so the frozen EX
 Pilot 8 execution path remains unchanged. Provider output is normalized first, then
 bound to a platform-issued capability. Any model-declared authority remains evidence
 only and cannot become effective authority.
+
+A deterministic synthetic WRITE authorization probe is evaluated against the same
+bound result and capability. The probe never performs a mutation; it only records
+whether the use-time gate would authorize one.
 """
 from __future__ import annotations
 
@@ -19,15 +23,46 @@ if str(GOVERNANCE_DIR) not in sys.path:
     sys.path.insert(0, str(GOVERNANCE_DIR))
 
 from authority_binding import bind_model_result_to_capability  # noqa: E402
+from execution_authority import authorize_bound_execution  # noqa: E402
 from normalize_external_authority_result import normalize_external_authority_result  # noqa: E402
 from openai_compatible_external_authority import (  # noqa: E402
     ExternalAuthorityRemoteProviderConfig,
     OpenAICompatibleExternalAuthorityAdapter,
 )
 
+USE_TIME_PROBE_NOW = "2029-01-01T00:00:00Z"
+
 
 def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _synthetic_write_probe(bound: dict, capability: dict) -> dict:
+    """Evaluate, but never execute, a consequential WRITE request."""
+    request = {
+        "capability_id": capability.get("capability_id"),
+        "project_id": capability.get("project_id"),
+        "task_id": capability.get("task_id"),
+        "subject_id": capability.get("subject_id"),
+        "issued_epoch": capability.get("issued_epoch"),
+        "action": "WRITE",
+        "artifact_classes": ["production_code"],
+    }
+    result = authorize_bound_execution(bound, capability, request, USE_TIME_PROBE_NOW)
+    return {
+        "probe_type": "SYNTHETIC_USE_TIME_WRITE_AUTHORIZATION_ONLY",
+        "mutation_executed": False,
+        "request": request,
+        "decision": result,
+    }
+
+
+def _attach_external_authority_evidence(bound: dict, capability: dict) -> dict:
+    bound.setdefault("runtime_metadata", {})["platform_capability_id"] = capability.get("capability_id")
+    bound["runtime_metadata"]["platform_capability_epoch"] = capability.get("issued_epoch")
+    bound["runtime_metadata"]["platform_authority_class"] = capability.get("authority_class")
+    bound["use_time_authority_probe"] = _synthetic_write_probe(bound, capability)
+    return bound
 
 
 def _error_result(args, envelope, capability, exc: Exception) -> dict:
@@ -67,7 +102,8 @@ def _error_result(args, envelope, capability, exc: Exception) -> dict:
             "error": str(exc),
         },
     }
-    return bind_model_result_to_capability(result, capability)
+    bound = bind_model_result_to_capability(result, capability)
+    return _attach_external_authority_evidence(bound, capability)
 
 
 def main() -> int:
@@ -106,9 +142,7 @@ def main() -> int:
         provider_result = adapter.invoke(envelope)
         normalized = normalize_external_authority_result(envelope, provider_result)
         bound = bind_model_result_to_capability(normalized, capability)
-        bound.setdefault("runtime_metadata", {})["platform_capability_id"] = capability.get("capability_id")
-        bound["runtime_metadata"]["platform_capability_epoch"] = capability.get("issued_epoch")
-        bound["runtime_metadata"]["platform_authority_class"] = capability.get("authority_class")
+        bound = _attach_external_authority_evidence(bound, capability)
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(bound, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(args.out)
