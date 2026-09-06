@@ -1,0 +1,12 @@
+{
+  "experiment": "EXP-O",
+  "pilot": "PILOT24-AWS-KMS-ASYMMETRIC-CHECKPOINT",
+  "aws_role_arn": "arn:aws:iam::297165774800:role/setugo-pilot24-kms-signer",
+  "aws_region": "ap-southeast-2",
+  "kms_key_arn": "arn:aws:kms:ap-southeast-2:297165774800:key/57d95d4f-9b80-44e4-badf-0330ba9f897c",
+  "key_spec": "ECC_NIST_P256",
+  "signing_algorithm": "ECDSA_SHA_256",
+  "nonce": "pilot24-aws-kms-1",
+  "design_commit": "0d11f19afd9d5c64b2937e6d301804f0588e77d6",
+  "created_at_utc": "2026-09-06T11:54:08Z"
+}
