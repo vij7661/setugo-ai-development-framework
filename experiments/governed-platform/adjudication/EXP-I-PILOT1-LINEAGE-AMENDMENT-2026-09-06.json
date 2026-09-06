@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "record_type": "PREEXECUTION_LINEAGE_AMENDMENT",
+  "canonical_experiment_id": "EXP-I",
+  "canonical_pilot_id": "PILOT1-CLAIM-BOUND-CONVERGENCE",
+  "status": "AMENDED_BEFORE_SCIENTIFIC_EXECUTION",
+  "reason": "The disagreement/verification gate was initially preregistered under EXP-H before the branch's existing experiment manifests were fully rediscovered. Existing EXP-H is the Review Decision Engine that chooses NO_REVIEW / REVIEW_R2 / REVIEW_R3 / HUMAN_REQUIRED. Existing EXP-I is Three-Reviewer Convergence and explicitly owns convergence without majority voting or reviewer self-approval. The new gate therefore belongs to EXP-I as claim-level convergence hardening.",
+  "classification": "EXPERIMENT_LINEAGE_LABELING_DEFECT",
+  "scientific_failure": false,
+  "mechanism_failure": false,
+  "rules_changed_by_amendment": false,
+  "pass_condition_changed_by_amendment": false,
+  "falsification_vectors_changed_by_amendment": false,
+  "historical_artifacts_retained": {
+    "mislabelled_preregistration": {
+      "path": "experiments/governed-platform/adjudication/EXP-H-PILOT1-REVIEW-DISAGREEMENT-GATE-PREREGISTRATION.json",
+      "blob_sha": "730d29f2a4baf8a6a68f5782bbb48e79f987af18"
+    },
+    "implementation": {
+      "path": "experiments/governed-platform/governance/exp_h_review_disagreement_gate.py",
+      "blob_sha": "6b1c4f09b85ea52c57f991c13862baf2a88b6a46"
+    },
+    "falsification_tests": {
+      "path": "experiments/governed-platform/governance/test_exp_h_review_disagreement_gate.py",
+      "blob_sha": "4c9bd96d6603c5d124ed549a9db899447abeb1dc"
+    }
+  },
+  "existing_lineage_binding": {
+    "exp_h_manifest": "experiments/governed-platform/manifests/EXP-H.md",
+    "exp_h_role": "Adaptive platform-owned review escalation: NO_REVIEW / REVIEW_R2 / REVIEW_R3 / HUMAN_REQUIRED.",
+    "exp_i_manifest": "experiments/governed-platform/manifests/EXP-I.md",
+    "exp_i_role": "Three-reviewer convergence without majority voting, reviewer self-approval, forced agreement, or review-ceiling false-green.",
+    "existing_exp_i_engine": "experiments/governed-platform/governance/tri_reviewer_convergence.py"
+  },
+  "newly_identified_integration_gap": "The existing EXP-I convergence engine consumes precomputed platform signals and can return CONVERGED_PASS, but it does not itself bind the exact reviewer primary-class/artifact-scope claims to a valid platform-issued independent verification artifact. The claim gate must therefore be composed ahead of terminal convergence and tested against bypass.",
+  "canonical_scientific_question": "Can EXP-I compose exact reviewer-claim validation, disagreement handling, and platform-issued claim-bound verification with its existing convergence engine so majority voting, latest-reviewer selection, unanimous-but-unverified agreement, malformed scope, or direct terminal convergence cannot create a false-green?",
+  "execution_rule": "No scientific PASS/FAIL for EXP-I Pilot 1 may be issued until the corrected lineage, claim gate, composition mechanism, and frozen integration falsification tests execute together at an exact post-amendment SHA.",
+  "audit_note": "Historical exp_h_* filenames are intentionally retained rather than rewritten so the preregistration chronology remains inspectable. Canonical adjudication and claims must use EXP-I Pilot 1 after this amendment."
+}
