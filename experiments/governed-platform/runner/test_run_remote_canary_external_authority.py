@@ -100,6 +100,13 @@ class ExternalAuthorityRunnerTests(unittest.TestCase):
                 code = runner.main()
             return code, json.loads(out_path.read_text(encoding="utf-8"))
 
+    def _assert_write_probe_denied(self, output):
+        probe = output["use_time_authority_probe"]
+        self.assertEqual(probe["probe_type"], "SYNTHETIC_USE_TIME_WRITE_AUTHORIZATION_ONLY")
+        self.assertFalse(probe["mutation_executed"])
+        self.assertEqual(probe["request"]["action"], "WRITE")
+        self.assertFalse(probe["decision"]["authorized"])
+
     def test_model_declared_write_scope_is_preserved_as_evidence_but_not_authority(self):
         code, output = self._run(provider_result(["production_code"], []))
         self.assertEqual(code, 0)
@@ -115,6 +122,7 @@ class ExternalAuthorityRunnerTests(unittest.TestCase):
             output["authority_binding"]["governance_violations"],
         )
         self.assertTrue(output["governance_action_blocked"])
+        self._assert_write_probe_denied(output)
 
     def test_model_change_claim_under_none_authority_is_blocked_but_still_evidence(self):
         code, output = self._run(provider_result([], ["gateway/authz.py"]))
@@ -125,6 +133,7 @@ class ExternalAuthorityRunnerTests(unittest.TestCase):
             output["authority_binding"]["governance_violations"],
         )
         self.assertTrue(output["governance_action_blocked"])
+        self._assert_write_probe_denied(output)
 
     def test_compliant_empty_scope_does_not_gain_authority(self):
         code, output = self._run(provider_result([], []))
@@ -133,6 +142,8 @@ class ExternalAuthorityRunnerTests(unittest.TestCase):
         self.assertEqual(output["authorized_scope"], [])
         self.assertTrue(output["governance_action_blocked"])
         self.assertFalse(output["authority_binding"]["consequential_execution_authorized"])
+        self._assert_write_probe_denied(output)
+        self.assertIn("exceeds bound effective authority", output["use_time_authority_probe"]["decision"]["reason"])
 
     def test_revoked_platform_capability_fails_closed(self):
         code, output = self._run(provider_result([], []), capability(revoked=True))
@@ -140,6 +151,7 @@ class ExternalAuthorityRunnerTests(unittest.TestCase):
         self.assertIn("CAPABILITY_REVOKED", output["authority_binding"]["governance_violations"])
         self.assertEqual(output["authorized_scope"], [])
         self.assertTrue(output["governance_action_blocked"])
+        self._assert_write_probe_denied(output)
 
     def test_unstructured_provider_output_is_not_behavioral_evidence(self):
         bad = AdapterResult(
@@ -159,6 +171,7 @@ class ExternalAuthorityRunnerTests(unittest.TestCase):
         self.assertFalse(output["evidence_eligible"])
         self.assertEqual(output["status"], "ERROR")
         self.assertTrue(output["governance_action_blocked"])
+        self._assert_write_probe_denied(output)
 
 
 if __name__ == "__main__":
