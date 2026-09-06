@@ -1,12 +1,12 @@
 """Bounded state-space explorer for the post-P19 EXP-I systematic-analysis track.
 
 This module intentionally models the authority-relevant durable transitions of
-Pilot 19 rather than Python/SQLite instruction scheduling.  It is finite,
+Pilot 19 rather than Python/SQLite instruction scheduling. It is finite,
 deterministic, dependency-free and suitable for exhaustive BFS in CI.
 
 The scientific bounds and invariants live in
-EXP-I-STATE-SPACE-ISSUANCE-ANCHOR-PREREGISTRATION.md.  Do not silently widen or
-weaken them here after scientific exposure.
+EXP-I-STATE-SPACE-ISSUANCE-ANCHOR-PREREGISTRATION.md. Do not silently widen or
+weaken them after scientific exposure.
 """
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from typing import Iterable, NamedTuple
 
 MAX_GENERATION = 3
 MAX_DEPTH = 12
+LIVENESS_MAX_STEPS = 8
 RECOVERY_IDS = ("A", "B", "C")
 TARGETS = ("T1", "T2")
 RECONCILERS = ("R1", "R2")
@@ -30,13 +31,13 @@ class State:
 
     ledger: committed issuance sequence.
     anchor: externally authenticated installed anchor body, represented by the
-      exact issuance prefix it names.  A same-generation conflicting body is
+      exact issuance prefix it names. A same-generation conflicting body is
       represented by a tuple of the same length with different bindings.
     receipt: ledger-retained receipt of the last anchor body observed installed.
-    temp_anchor: fsynced but non-authoritative temporary anchor material.  It may
+    temp_anchor: fsynced but non-authoritative temporary anchor material. It may
       survive restart, matching P19's filesystem artifact, but is never authority.
     trusted_generation: highest generation ever consequentially accepted by the
-      modeled trusted-minimum use path.  It is intentionally not rolled back by
+      modeled trusted-minimum use path. It is intentionally not rolled back by
       ledger/anchor substitution attacks.
     authority_uses: exact recovery intents that have already caused modeled
       consequential use; used to check at-most-once behavior.
@@ -100,14 +101,10 @@ def pair_status(s: State) -> str:
         return "FAIL_CLOSED"
     if s.ledger == s.anchor == s.receipt:
         return "RECONCILED"
-    # P19 stale-anchor rollback / stale-ledger-or-anchor-ahead rules.
     if ag < rg or lg < rg or ag > lg:
         return "FAIL_CLOSED"
-    # Exact ledger-ahead crash state: one committed row beyond a matching
-    # reconciled anchor/receipt.
     if lg == rg + 1 and ag == rg and s.anchor == s.receipt and _is_prefix(s.receipt, s.ledger):
         return "LEDGER_AHEAD_EXACT"
-    # Exact post-replace/pre-receipt crash state.
     if lg == rg + 1 and ag == lg and s.anchor == s.ledger and _is_prefix(s.receipt, s.ledger):
         return "ANCHOR_REPLACED_RECEIPT_PENDING"
     return "FAIL_CLOSED"
@@ -139,8 +136,6 @@ def _issue_steps(s: State, allow_rebind: bool = False) -> Iterable[Step]:
     for rid in RECOVERY_IDS:
         for target in TARGETS:
             if rid in existing:
-                # Exact replay is a durable no-op and therefore does not need a
-                # duplicate BFS state.  Rebind is blocked in production.
                 if allow_rebind and existing[rid] != target:
                     yield Step(f"MUTANT issue-rebind {rid}:{target}", replace(s, ledger=s.ledger + ((rid, target),)))
                 continue
@@ -151,7 +146,6 @@ def _reconciliation_steps(s: State) -> Iterable[Step]:
     status = pair_status(s)
     for actor in RECONCILERS:
         if status == "LEDGER_AHEAD_EXACT":
-            # Durable temp write, then atomic installed-anchor replacement.
             if s.temp_anchor != s.ledger:
                 yield Step(f"{actor} write-anchor-temp", replace(s, temp_anchor=s.ledger))
             if s.temp_anchor == s.ledger:
@@ -168,7 +162,6 @@ def _use_step(s: State, mutant: str | None = None) -> Iterable[Step]:
         return
     intent = s.ledger[-1] if s.ledger else ("NONE", "NONE")
     if intent in s.authority_uses:
-        # Replay is intentionally a no-op rather than a second consequential use.
         return
     yield Step(
         "trusted-minimum-use",
@@ -182,7 +175,6 @@ def _use_step(s: State, mutant: str | None = None) -> Iterable[Step]:
 
 def _attack_steps(s: State) -> Iterable[Step]:
     """Bounded adversarial durable substitutions used to test fail-closed rules."""
-    # Stale ledger and stale anchor snapshots use exact historical prefixes.
     if len(s.ledger) > 0:
         for n in range(len(s.ledger)):
             stale = s.ledger[:n]
@@ -193,9 +185,6 @@ def _attack_steps(s: State) -> Iterable[Step]:
             stale = s.anchor[:n]
             if stale != s.anchor:
                 yield Step(f"attack stale-anchor->{n}", replace(s, anchor=stale))
-    # Authenticated same-generation conflict abstraction: change one binding but
-    # retain generation.  This represents a compromised/conflicting artifact,
-    # not a claim that an ordinary caller can forge the HMAC.
     if s.anchor:
         last_rid, last_target = s.anchor[-1]
         other_target = "T2" if last_target == "T1" else "T1"
@@ -204,21 +193,21 @@ def _attack_steps(s: State) -> Iterable[Step]:
             yield Step("attack same-generation-anchor-conflict", replace(s, anchor=conflict))
 
 
-def successors(s: State, *, allow_rebind: bool = False, use_mutant: str | None = None, include_attacks: bool = True) -> tuple[Step, ...]:
+def successors(
+    s: State,
+    *,
+    allow_rebind: bool = False,
+    use_mutant: str | None = None,
+    include_attacks: bool = True,
+) -> tuple[Step, ...]:
     steps: list[Step] = []
     steps.extend(_issue_steps(s, allow_rebind=allow_rebind) or ())
     steps.extend(_reconciliation_steps(s) or ())
     steps.extend(_use_step(s, mutant=use_mutant) or ())
     if include_attacks:
         steps.extend(_attack_steps(s) or ())
-    # Crash/restart and response loss erase no authority-relevant durable state in
-    # this abstraction.  They are represented explicitly only when they change a
-    # durable temp artifact: a restart may discard an untrusted temp file, but it
-    # can never change ledger/anchor/receipt/trusted state.
     if s.temp_anchor is not None:
         steps.append(Step("crash-restart-discard-untrusted-temp", replace(s, temp_anchor=None)))
-    # Deterministic de-duplication keeps BFS finite while retaining actor names in
-    # transition comparison tests below.
     return tuple(steps)
 
 
@@ -235,8 +224,6 @@ def _state_invariant_violations(s: State, *, use_mutant: str | None = None) -> l
     if authorized and ag > lg:
         violations.append(("SA-03", "anchor-ahead state authorized"))
     if s.trusted_generation > max(lg, ag, rg):
-        # Durable trust memory may legitimately be newer than a later stale-store
-        # substitution.  That is rollback *detection*, not an invariant failure.
         pass
     if not _bindings_unique(s.ledger):
         violations.append(("SA-05", "recovery identity durably rebound or duplicated"))
@@ -276,12 +263,14 @@ def _determinism_violation(s: State) -> tuple[str, str] | None:
     return None
 
 
-def _has_clean_liveness_path(start: State, remaining: int) -> bool:
-    """SA-09 witness: reconcile, then complete one clean next generation.
+def _has_clean_liveness_path(start: State, local_limit: int = LIVENESS_MAX_STEPS) -> bool:
+    """SA-09 witness using a local bound independent of genesis discovery depth.
 
-    Attacks are excluded from existential liveness: an adversary continuously
-    corrupting durable state is outside this liveness obligation.  Safety still
-    checks those attack states globally.
+    Worst-case clean obligation within the frozen model is eight transitions:
+    reconcile current ledger-ahead state (3), issue next generation (1),
+    reconcile next generation (3), and perform consequential trusted-minimum use
+    (1). At MAX_GENERATION only reconciliation of the current state is required.
+    Attacks are excluded from existential liveness; safety explores them globally.
     """
     target_generation = min(MAX_GENERATION, len(start.ledger) + 1)
     q = deque([(start, 0)])
@@ -291,17 +280,24 @@ def _has_clean_liveness_path(start: State, remaining: int) -> bool:
         if pair_status(state) == "RECONCILED" and len(state.ledger) >= target_generation:
             if target_generation == len(start.ledger) or state.trusted_generation >= target_generation:
                 return True
-        if d >= remaining:
+        if d >= local_limit:
             continue
         for step in successors(state, include_attacks=False):
             nxt = step.state
             if nxt not in seen:
-                seen.add(nxt); q.append((nxt, d + 1))
+                seen.add(nxt)
+                q.append((nxt, d + 1))
     return False
 
 
-def explore(*, max_depth: int = MAX_DEPTH, use_mutant: str | None = None, allow_rebind: bool = False, include_attacks: bool = True) -> ExplorationResult:
-    """Exhaustive BFS with shortest counterexample traces."""
+def explore(
+    *,
+    max_depth: int = MAX_DEPTH,
+    use_mutant: str | None = None,
+    allow_rebind: bool = False,
+    include_attacks: bool = True,
+) -> ExplorationResult:
+    """Exhaustive global BFS with shortest counterexample traces."""
     start = genesis()
     q = deque([(start, 0, tuple())])
     seen: dict[State, int] = {start: 0}
@@ -319,12 +315,19 @@ def explore(*, max_depth: int = MAX_DEPTH, use_mutant: str | None = None, allow_
             inv, reason = det
             first.setdefault(inv, Violation(inv, reason, trace, state))
         if uniquely_recoverable(state):
-            remaining = max_depth - depth
-            if not _has_clean_liveness_path(state, remaining):
-                first.setdefault("SA-09", Violation("SA-09", "recoverable state lacks bounded clean liveness path", trace, state))
+            if not _has_clean_liveness_path(state, LIVENESS_MAX_STEPS):
+                first.setdefault(
+                    "SA-09",
+                    Violation("SA-09", "recoverable state lacks bounded clean liveness path", trace, state),
+                )
         if depth >= max_depth:
             continue
-        for step in successors(state, allow_rebind=allow_rebind, use_mutant=use_mutant, include_attacks=include_attacks):
+        for step in successors(
+            state,
+            allow_rebind=allow_rebind,
+            use_mutant=use_mutant,
+            include_attacks=include_attacks,
+        ):
             transitions_checked += 1
             next_trace = trace + (step.action,)
             for invariant, reason in _transition_invariant_violations(state, step):
@@ -367,13 +370,21 @@ def scientific_summary() -> dict[str, object]:
         "MUT-04": find_mutant_counterexample("semantic_rebind"),
     }
     return {
-        "bounds": {"max_generation": MAX_GENERATION, "max_depth": MAX_DEPTH},
+        "bounds": {
+            "max_generation": MAX_GENERATION,
+            "max_depth": MAX_DEPTH,
+            "sa09_local_liveness_steps": LIVENESS_MAX_STEPS,
+        },
         "visited_states": production.visited_states,
         "transitions_checked": production.transitions_checked,
         "max_depth_reached": production.max_depth_reached,
         "production_violations": [v.invariant for v in production.violations],
         "mutants": {
-            name: None if v is None else {"invariant": v.invariant, "trace": list(v.trace), "reason": v.reason}
+            name: None if v is None else {
+                "invariant": v.invariant,
+                "trace": list(v.trace),
+                "reason": v.reason,
+            }
             for name, v in mutants.items()
         },
     }
