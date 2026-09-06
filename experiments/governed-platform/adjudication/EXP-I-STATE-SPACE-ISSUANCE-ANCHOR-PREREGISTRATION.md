@@ -32,13 +32,15 @@ The model is an abstraction. Passing it cannot upgrade P19 into a distributed, B
 ## Frozen finite bounds
 
 - generations modeled: `0..3`
-- distinct recovery identities: `A`, `B`
+- distinct recovery identities: `A`, `B`, `C`
 - distinct semantic targets per recovery identity: `T1`, `T2`
 - maximum transition depth from genesis: `12`
 - reconciliation actors: `R1`, `R2`
 - search strategy: breadth-first search with state deduplication
 - counterexample requirement: retain the shortest discovered transition trace for each violated invariant
 - crash/restart abstraction: volatile/in-flight operation state is erased; durable ledger, anchor and receipt state remain as modeled
+
+Pre-implementation correction note: the initial preregistration named only `A`, `B` while also bounding generations through 3. Before any analysis implementation or scientific exposure, the identity domain was corrected to `A`, `B`, `C` so generation 3 is reachable without violating exact recovery-intent idempotency. No invariant, depth bound, acceptance condition, or expected outcome changed.
 
 The depth/state bound may be increased in a later separately frozen analysis. It must not be reduced after first scientific exposure to obtain a pass.
 
