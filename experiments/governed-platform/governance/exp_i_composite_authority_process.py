@@ -116,19 +116,35 @@ def _issue(
         maximum = int(con.execute("SELECT max_generation FROM meta WHERE singleton=1").fetchone()[0])
         existing_id = con.execute("SELECT * FROM issued WHERE issuance_id=?", (issuance_id,)).fetchone()
         existing_gen = con.execute("SELECT * FROM issued WHERE generation=?", (generation,)).fetchone()
-        if generation < maximum:
-            con.execute("ROLLBACK")
-            return {"ok": False, "reason": "CHECKPOINT_GENERATION_ROLLBACK", "maximum": maximum}
-        try:
-            predecessor = _predecessor(con, generation)
-        except PermissionError as exc:
-            con.execute("ROLLBACK")
-            return {"ok": False, "reason": str(exc)}
-        statement = _statement(issuance_id=issuance_id, generation=generation, pair=pair, predecessor=predecessor)
-        digest = checkpoint_digest(statement)
+
+        # Exact durable replay is resolved before new-issuance predecessor admission.
+        # Otherwise a committed generation-1 retry is incorrectly rejected as a
+        # new genesis after state already exists.
         if existing_id is not None:
-            old_statement = json.loads(existing_id["statement_json"])
-            if checkpoint_digest(old_statement) != digest or int(existing_id["generation"]) != generation:
+            try:
+                old_statement = json.loads(existing_id["statement_json"])
+            except Exception:
+                con.execute("ROLLBACK")
+                return {"ok": False, "reason": "AUTHORITY_RECORD_MISMATCH"}
+            stored_digest = str(existing_id["checkpoint_digest"])
+            stored_tag = str(existing_id["auth_tag"])
+            if checkpoint_digest(old_statement) != stored_digest or not hmac.compare_digest(
+                _tag(old_statement, checkpoint_key), stored_tag
+            ):
+                con.execute("ROLLBACK")
+                return {"ok": False, "reason": "AUTHORITY_RECORD_MISMATCH"}
+            exact_current_binding = (
+                int(existing_id["generation"]) == generation
+                and old_statement.get("version") == VERSION
+                and old_statement.get("scope") == SCOPE
+                and old_statement.get("authority_id") == AUTHORITY_ID
+                and old_statement.get("issuance_id") == issuance_id
+                and int(old_statement.get("generation", -1)) == generation
+                and old_statement.get("permit_ledger_digest") == str(pair["permit_ledger_digest"])
+                and old_statement.get("reconciliation_digest") == str(pair["reconciliation_digest"])
+                and int(old_statement.get("permit_authority_epoch", -1)) == int(pair["permit_authority_epoch"])
+            )
+            if not exact_current_binding:
                 con.execute("ROLLBACK")
                 return {"ok": False, "reason": "ISSUANCE_ID_REBINDING"}
             con.execute("COMMIT")
@@ -136,22 +152,28 @@ def _issue(
                 "ok": True,
                 "replay": True,
                 "statement": old_statement,
-                "checkpoint_digest": str(existing_id["checkpoint_digest"]),
-                "auth_tag": str(existing_id["auth_tag"]),
+                "checkpoint_digest": stored_digest,
+                "auth_tag": stored_tag,
             }
+
+        if generation < maximum:
+            con.execute("ROLLBACK")
+            return {"ok": False, "reason": "CHECKPOINT_GENERATION_ROLLBACK", "maximum": maximum}
+
+        # If the requested generation already exists but the issuance identity did
+        # not match above, it is necessarily a distinct statement at that
+        # generation and must not be treated as an idempotent replay.
         if existing_gen is not None:
-            old_statement = json.loads(existing_gen["statement_json"])
-            if checkpoint_digest(old_statement) != digest:
-                con.execute("ROLLBACK")
-                return {"ok": False, "reason": "CHECKPOINT_SAME_GENERATION_EQUIVOCATION"}
-            con.execute("COMMIT")
-            return {
-                "ok": True,
-                "replay": True,
-                "statement": old_statement,
-                "checkpoint_digest": str(existing_gen["checkpoint_digest"]),
-                "auth_tag": str(existing_gen["auth_tag"]),
-            }
+            con.execute("ROLLBACK")
+            return {"ok": False, "reason": "CHECKPOINT_SAME_GENERATION_EQUIVOCATION"}
+
+        try:
+            predecessor = _predecessor(con, generation)
+        except PermissionError as exc:
+            con.execute("ROLLBACK")
+            return {"ok": False, "reason": str(exc)}
+        statement = _statement(issuance_id=issuance_id, generation=generation, pair=pair, predecessor=predecessor)
+        digest = checkpoint_digest(statement)
         tag = _tag(statement, checkpoint_key)
         con.execute(
             "INSERT INTO issued(generation,issuance_id,statement_json,checkpoint_digest,auth_tag) VALUES(?,?,?,?,?)",
@@ -206,7 +228,19 @@ def _verify(
         row = con.execute("SELECT * FROM issued WHERE generation=?", (generation,)).fetchone()
         if row is None:
             return {"ok": False, "reason": "AUTHORITY_RECORD_MISSING"}
-        if str(row["checkpoint_digest"]) != digest or str(row["auth_tag"]) != supplied_tag:
+        try:
+            durable_statement = json.loads(row["statement_json"])
+        except Exception:
+            return {"ok": False, "reason": "AUTHORITY_RECORD_MISMATCH"}
+        durable_digest = checkpoint_digest(durable_statement)
+        durable_tag = _tag(durable_statement, checkpoint_key)
+        if (
+            durable_statement != statement
+            or durable_digest != str(row["checkpoint_digest"])
+            or durable_digest != digest
+            or not hmac.compare_digest(durable_tag, str(row["auth_tag"]))
+            or not hmac.compare_digest(str(row["auth_tag"]), supplied_tag)
+        ):
             return {"ok": False, "reason": "AUTHORITY_RECORD_MISMATCH"}
         if str(row["issuance_id"]) != str(statement.get("issuance_id")):
             return {"ok": False, "reason": "AUTHORITY_ISSUANCE_MISMATCH"}
