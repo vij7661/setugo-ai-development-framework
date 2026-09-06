@@ -105,12 +105,7 @@ class StorageCrashPrototype:
         for frame, _ in frames:
             if frame.get("seq") != expected_seq:
                 return {"valid": False, "reason": "SEQUENCE_CONFLICT", "records": records}
-            core = {
-                "seq": frame.get("seq"),
-                "record_type": frame.get("record_type"),
-                "payload": frame.get("payload"),
-                "prev_digest": frame.get("prev_digest"),
-            }
+            core = {"seq": frame.get("seq"), "record_type": frame.get("record_type"), "payload": frame.get("payload"), "prev_digest": frame.get("prev_digest")}
             if frame.get("prev_digest") != prev:
                 return {"valid": False, "reason": "PREVIOUS_DIGEST_MISMATCH", "records": records}
             expected_digest = digest(core)
@@ -156,7 +151,6 @@ class StorageCrashPrototype:
         try:
             frames = self._raw_frames()
         except ValueError:
-            # If a torn tail exists, retain only complete frames at/below the durable marker.
             data = self.journal.read_bytes()
             lines = data.splitlines(keepends=True)
             complete = [line for line in lines if line.endswith(b"\n")]
@@ -192,9 +186,7 @@ class StorageCrashPrototype:
         return self._load_json(self.checkpoint_durable, None)
 
     def anchor_fence(self, *, term: int, index: int, lease_epoch: int, record_digest: str) -> None:
-        self._atomic_json(self.anchor, {
-            "term": int(term), "index": int(index), "lease_epoch": int(lease_epoch), "record_digest": record_digest
-        })
+        self._atomic_json(self.anchor, {"term": int(term), "index": int(index), "lease_epoch": int(lease_epoch), "record_digest": record_digest})
 
     def effect_apply(self, idempotency_key: str, effect_digest: str) -> dict[str, Any]:
         ledger = self._load_json(self.effect_ledger, {"effects": {}})
@@ -264,14 +256,11 @@ class StorageCrashPrototype:
                 return deny("ANCHORED_HIGHER_FENCE_MISSING", recovery_status="STALE_ROLLBACK_BLOCKED")
             if observed == anchored and candidate.get("record_digest") not in {None, anchor.get("record_digest")}:
                 return deny("ANCHORED_FENCE_DIGEST_MISMATCH", recovery_status="CORRUPT")
-        # Any durable authority/fence beyond a durable checkpoint is evidence that stale
-        # checkpoint state cannot be trusted for consequential use.
         cp_seq = int(cp["seq"]) if cp is not None else 0
         uncheckpointed = [r for r in durable_records if int(r["seq"]) > cp_seq]
         if uncheckpointed:
             if effect_evidence is not None or consumed is not None:
-                return deny("DURABLE_STATE_AHEAD_OF_CHECKPOINT", recovery_status="RECONCILIATION_REQUIRED",
-                            original_result_id=(effect_evidence or {}).get("result_id"))
+                return deny("DURABLE_STATE_AHEAD_OF_CHECKPOINT", recovery_status="RECONCILIATION_REQUIRED", original_result_id=(effect_evidence or {}).get("result_id"))
             return deny("DURABLE_AUTHORITY_AHEAD_OF_CHECKPOINT", recovery_status="RECONCILIATION_REQUIRED")
         if consumed is not None:
             key = str(consumed.get("idempotency_key", ""))
@@ -285,24 +274,22 @@ class StorageCrashPrototype:
             if effect is None or effect.get("result_id") != effect_evidence.get("result_id"):
                 return deny("EFFECT_EVIDENCE_LEDGER_MISMATCH", recovery_status="RECONCILIATION_REQUIRED")
             return deny("EFFECT_ALREADY_COMMITTED", recovery_status="RECOVERED_EFFECT", original_result_id=effect["result_id"])
+        effects = self._load_json(self.effect_ledger, {"effects": {}})["effects"]
         if authority is None:
-            # Effect ledger can still prove an ambiguous prior side effect even if journal evidence was lost.
-            effects = self._load_json(self.effect_ledger, {"effects": {}})["effects"]
             if effects:
                 return deny("EFFECT_PRESENT_WITHOUT_AUTHORITY_EVIDENCE", recovery_status="RECONCILIATION_REQUIRED")
             return deny("NO_DURABLE_AUTHORITY", recovery_status="EMPTY")
         required = ("term", "index", "lease_owner", "lease_epoch", "idempotency_key", "effect_digest", "semantic_digest")
         if any(authority.get(k) in (None, "") for k in required):
             return deny("AUTHORITY_BINDING_INCOMPLETE", recovery_status="CORRUPT")
-        return {
-            "authorized": True,
-            "decision": "ALLOW_RECOVERED_AUTHORITY",
-            "recovery_status": "AUTHORITATIVE",
-            "authority": copy.deepcopy(authority),
-        }
+        existing = effects.get(str(authority["idempotency_key"]))
+        if existing is not None:
+            if existing.get("effect_digest") != authority.get("effect_digest"):
+                return deny("EFFECT_LEDGER_REBINDING_CORRUPTION", recovery_status="CORRUPT")
+            return deny("EFFECT_PRESENT_WITHOUT_JOURNAL_EVIDENCE", recovery_status="RECONCILIATION_REQUIRED", original_result_id=existing.get("result_id"))
+        return {"authorized": True, "decision": "ALLOW_RECOVERED_AUTHORITY", "recovery_status": "AUTHORITATIVE", "authority": copy.deepcopy(authority)}
 
-    def use_recovered_authority(self, recovered: Mapping[str, Any], *, idempotency_key: str, effect_digest: str,
-                                semantic_digest: str) -> dict[str, Any]:
+    def use_recovered_authority(self, recovered: Mapping[str, Any], *, idempotency_key: str, effect_digest: str, semantic_digest: str) -> dict[str, Any]:
         if not recovered.get("authorized") or recovered.get("recovery_status") != "AUTHORITATIVE":
             return deny("RECOVERED_AUTHORITY_REQUIRED")
         auth = recovered["authority"]
@@ -316,9 +303,5 @@ class StorageCrashPrototype:
         return {"authorized": True, "decision": "ALLOW_EFFECT", "executed": False}
 
 
-def authority_payload(*, term: int = 1, index: int = 1, owner: str = "r1", epoch: int = 1,
-                      key: str = "intent-1", effect: str = "effect-A", semantic: str = "semantic-A") -> dict[str, Any]:
-    return {
-        "term": term, "index": index, "lease_owner": owner, "lease_epoch": epoch,
-        "idempotency_key": key, "effect_digest": effect, "semantic_digest": semantic,
-    }
+def authority_payload(*, term: int = 1, index: int = 1, owner: str = "r1", epoch: int = 1, key: str = "intent-1", effect: str = "effect-A", semantic: str = "semantic-A") -> dict[str, Any]:
+    return {"term": term, "index": index, "lease_owner": owner, "lease_epoch": epoch, "idempotency_key": key, "effect_digest": effect, "semantic_digest": semantic}
