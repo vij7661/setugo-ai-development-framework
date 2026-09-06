@@ -3,18 +3,21 @@
   "campaign": "governed-platform-falsification",
   "experiment": "EXP-I",
   "pilot": 10,
-  "state": "PREREGISTERED_AWAITING_IMPLEMENTATION",
+  "state": "IMPLEMENTED_AWAITING_FIRST_SCIENTIFIC_RUN",
   "authoritative_parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT9-EXTERNAL-SUBPROCESS-TERMINATION.json",
   "last_adjudication_commit": "598eac5da910e4e0607984964e46a01be3c40147",
   "last_evaluated_sha": "c4ff03145a4f11ae97819d6e857239db1d30218f",
   "last_validation_run_id": 34048588426,
-  "next_falsification_target": "Implement frozen EXP-I Pilot 10 isolated composite-checkpoint signer and P10-01..P10-16",
+  "next_falsification_target": "Execute first scientific run of frozen EXP-I Pilot 10 P10-01..P10-16 plus complete governed-platform regression suite",
   "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT10-ISOLATED-CHECKPOINT-SIGNER-PREREGISTRATION.md",
+  "implementation": [
+    "experiments/governed-platform/governance/exp_i_isolated_checkpoint_signer.py",
+    "experiments/governed-platform/governance/test_exp_i_pilot10_isolated_checkpoint_signer.py"
+  ],
   "continuation_source_of_truth": "GIT_ADJUDICATION_AND_EXECUTION_STATE",
   "chat_memory_is_authoritative": false,
   "resume_rule": "Read this file and the referenced formal adjudication first. Verify the adjudication commit/evaluated SHA and latest completed validation evidence. Resume only from next_falsification_target; never infer experiment position from chat memory and never silently reopen an adjudicated pilot.",
-  "repair_attempt": 0,
+  "repair_attempt": 1,
   "max_repair_attempts": 2,
   "human_required": false
-}
 }
