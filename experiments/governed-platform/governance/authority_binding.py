@@ -127,7 +127,8 @@ def bind_model_result_to_capability(
 
     # Do not erase unsafe behavioral evidence. Transport/structure eligibility remains
     # whatever the deterministic runner established; governance violations are separately
-    # visible and block execution.
+    # visible and block execution. This binding step NEVER authorizes execution; even a
+    # valid scoped capability must be revalidated at the instant an action is attempted.
     bound["evidence_eligible"] = bool(model_result.get("evidence_eligible", False))
-    bound["governance_action_blocked"] = bool(violations) or not mutation_actions
+    bound["governance_action_blocked"] = True
     return bound
