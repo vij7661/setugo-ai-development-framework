@@ -183,3 +183,43 @@ These decisions define the default product direction. A future change should rec
 **Why:** A large green test suite proves implementation consistency, not universal behavioral correctness.
 
 **Consequence:** Architecture docs distinguish invariants, experimental mechanisms and open questions. CI success alone never promotes a behavioral hypothesis.
+
+## ADR-023 — Coding agents are replaceable runtimes above the model layer
+
+**Decision:** Codex, Claude Code and future coding agents are represented in an Agent Runtime Registry separate from the Model & Execution-Path Registry.
+
+**Why:** A coding-agent product may add its own planning, terminal, repository, memory and tool orchestration and may use one or more underlying models. Treating it as merely a model name loses material execution provenance.
+
+**Consequence:** Agent-runtime qualification is role/task-specific. When underlying model/path identity is observable and material, its qualification is checked separately. The platform may add or replace agent products without changing the governance contract.
+
+## ADR-024 — MCP is a governed tool fabric, not an authority source
+
+**Decision:** MCP may be used as the common tool-discovery/invocation protocol for heterogeneous agents, but every agent-facing MCP path is filtered or mediated by a platform-owned MCP Policy Gateway.
+
+**Why:** Tool availability and authorization are different concepts. An MCP server exposing a write/deploy/delete tool must not make that action permissible merely because an agent can discover it.
+
+**Consequence:** The platform maintains an MCP Server/Tool Catalog, task-specific MCP Tool Profiles, tool risk/side-effect classes, and use-time capability validation before consequential invocation.
+
+## ADR-025 — Agents do not receive unrestricted ambient tool credentials
+
+**Decision:** Agent runtimes receive scoped tool channels/profiles and references, not broad long-lived credentials for GitHub, terminal infrastructure, databases, cloud platforms or other systems.
+
+**Why:** Direct ambient credentials would let an autonomous agent bypass capability scope and make revocation/audit incomplete.
+
+**Consequence:** The MCP/tool gateway resolves protected secret references or short-lived leases only after use-time authorization. Credential values remain outside model context and evidence.
+
+## ADR-026 — Concurrent coding agents use isolated workspaces
+
+**Decision:** Parallel Builders operate on separately bound workspaces/worktrees from the same frozen base contract/SHA. They do not concurrently mutate one authoritative working tree.
+
+**Why:** Shared mutable workspaces make provenance, race handling, rollback, comparison and independent adjudication unreliable.
+
+**Consequence:** A platform-owned integration step compares/finalizes selected diffs, validates invariants, runs regression, and creates the next authoritative artifact/SHA. No agent self-merges its proposal into the authoritative branch.
+
+## ADR-027 — Agent completion is operational evidence only
+
+**Decision:** Vendor/runtime states such as Codex completed or Claude Code finished normalize to agent-result events; they never directly mean governed task COMPLETE.
+
+**Why:** Runtime completion does not establish requirement correctness, evidence completeness, independent review, or release authority.
+
+**Consequence:** Agent adapters emit normalized events/evidence. The Governor remains the only component that advances authoritative workflow state.
