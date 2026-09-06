@@ -3,13 +3,14 @@
   "campaign": "governed-platform-falsification",
   "experiment": "EXP-I",
   "pilot": 12,
-  "state": "IMPLEMENTED_AWAITING_FIRST_SCIENTIFIC_RUN",
+  "state": "FIRST_RUN_FAILED_REPAIR_AUTHORIZED",
   "authoritative_parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT11-ASYMMETRIC-VERIFY-ONLY.json",
   "last_adjudication_commit": "5af7c814c9a940a1aec6870a324d43a5b0f741b6",
-  "last_evaluated_sha": "03f7c900c7cb8ae45a6c3d103a41f317bfb4ffe8",
-  "last_validation_run_id": 34049698205,
-  "last_validation_job_id": 101530947099,
-  "next_falsification_target": "Execute first scientific run of frozen EXP-I Pilot 12 P12-01..P12-16 plus complete governed-platform regression suite; preserve and classify any first-run defect before repair",
+  "last_evaluated_sha": "194e0b570493af462b53dbfbacd6899cdf34f865",
+  "last_validation_run_id": 34050058993,
+  "last_validation_job_id": 101531928013,
+  "last_failure_artifact": "experiments/governed-platform/adjudication/EXP-I-PILOT12-FIRST-RUN-TEST-FIXTURE-DEFECT-2026-09-06.json",
+  "next_falsification_target": "Apply only the authorized Pilot 12 test-fixture repair: initialize the pre-existing convergence_reconciliation ledger in setUp using UseTimeCheckpointAuthority, leave the frozen mechanism and P12-01..P12-16 expectations unchanged, then rerun all Pilot 12 endpoints plus the complete governed-platform regression suite",
   "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT12-KEY-ROTATION-REVOCATION-PREREGISTRATION.md",
   "implementation": [
     "experiments/governed-platform/governance/exp_i_key_rotation_registry.py",
@@ -18,7 +19,7 @@
   "continuation_source_of_truth": "GIT_ADJUDICATION_AND_EXECUTION_STATE",
   "chat_memory_is_authoritative": false,
   "resume_rule": "Read this file and the referenced formal adjudication first. Verify the adjudication commit/evaluated SHA and latest completed validation evidence. Resume only from next_falsification_target; never infer experiment position from chat memory and never silently reopen an adjudicated pilot.",
-  "repair_attempt": 0,
+  "repair_attempt": 1,
   "max_repair_attempts": 2,
   "human_required": false
 }
