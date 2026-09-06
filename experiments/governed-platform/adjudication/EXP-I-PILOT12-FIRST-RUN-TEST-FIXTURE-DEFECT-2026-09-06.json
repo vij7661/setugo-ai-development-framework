@@ -1,0 +1,33 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 12,
+  "title": "First-run prerequisite reconciliation-ledger fixture defect",
+  "status": "FIRST_RUN_FAILED",
+  "classification": "TEST_FIXTURE_DEFECT",
+  "observed_utc": "2026-09-06T17:55:43Z",
+  "evaluated_sha": "194e0b570493af462b53dbfbacd6899cdf34f865",
+  "validation_run_id": 34050058993,
+  "validation_job_id": 101531928013,
+  "scientific_endpoints_reached": true,
+  "all_primary_endpoints_executed": true,
+  "execution": {
+    "pilot12_passed": ["P12-01", "P12-03", "P12-07"],
+    "pilot12_errored": ["P12-02", "P12-04", "P12-05", "P12-06", "P12-08", "P12-09", "P12-10", "P12-11", "P12-12", "P12-13", "P12-14", "P12-15", "P12-16"],
+    "common_error": "SIGNER_RESPONSE_LOST",
+    "governor_suite": "994 tests; FAILED (errors=13)",
+    "workflow_conclusion": "failure"
+  },
+  "root_cause": "The Pilot 12 fixture created the durable convergence permit but omitted initialization of the existing convergence_reconciliation ledger. RotatingCheckpointSignerProcess correctly derives both permit-ledger and reconciliation-ledger state before signing. ReconciliationIntegrityAuthority.reconciliation_digest() queries convergence_reconciliation; because Pilot 12 setUp never initialized that table, the signer child raised the existing 'reconciliation database unavailable or corrupt' RuntimeError and exited before returning the first K1 issuance. The parent therefore observed SIGNER_RESPONSE_LOST. Pilot 11's corresponding fixture initialized this prerequisite through UseTimeCheckpointAuthority before invoking the isolated signer.",
+  "why_not_mechanism_falsification": "The frozen key-rotation/revocation security endpoints were not contradicted by the observed error. Thirteen cases could not exercise their intended mechanism path because a prerequisite platform ledger schema was absent from the test fixture. The passing P12-01, P12-03 and P12-07 paths did not require baseline checkpoint issuance. This run remains failed evidence and cannot support a Pilot 12 pass.",
+  "authorized_repair": {
+    "scope": ["experiments/governed-platform/governance/test_exp_i_pilot12_key_rotation_registry.py"],
+    "change": "Initialize the already-existing convergence_reconciliation prerequisite in setUp using the same UseTimeCheckpointAuthority initialization path used by prior EXP-I pilots. Do not alter P12-01..P12-16 endpoint expectations, preregistration, production mechanism, trust-registry behavior, signer behavior, verifier behavior or writer behavior.",
+    "repair_attempt": 1,
+    "full_rerun_required": true
+  },
+  "authority_effect": {
+    "production_authority": false,
+    "release_authority": false,
+    "scientific_pass": false
+  }
+}
