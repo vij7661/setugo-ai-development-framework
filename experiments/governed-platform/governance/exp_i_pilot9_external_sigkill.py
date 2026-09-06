@@ -1,15 +1,19 @@
-"""EXP-I Pilot 9: externally killed composite-checkpoint writer at frozen cut points."""
+"""EXP-I Pilot 9: parent-driven SIGKILL around the exact composite-journal issue() path.
+
+The worker calls DurableCompositeJournalAuthority.issue() unchanged.  A test-only
+connection proxy observes the exact SQLite statements/commits and exposes the
+preregistered readiness cut points without reimplementing checkpoint semantics.
+"""
 from __future__ import annotations
 
 import argparse
 import json
 import os
 import signal
-import sqlite3
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
-from exp_i_composite_journal import DurableCompositeJournalAuthority, DurableCompositeRecord
+from exp_i_composite_journal import DurableCompositeJournalAuthority
 
 READY_POINTS = (
     "READY_BEFORE_PENDING_INSERT",
@@ -20,11 +24,6 @@ READY_POINTS = (
 )
 
 
-def _canon(value: Any) -> bytes:
-    import json as _json
-    return _json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
-
-
 def _ready_and_block(point: str | None, expected: str) -> None:
     if point != expected:
         return
@@ -33,132 +32,68 @@ def _ready_and_block(point: str | None, expected: str) -> None:
         signal.pause()
 
 
-def issue_with_external_cut(
-    journal: DurableCompositeJournalAuthority,
-    issuance_id: str,
-    generation: int,
-    ready_point: str | None,
-) -> DurableCompositeRecord:
-    if ready_point not in (None, *READY_POINTS):
+class _ObservedConnection:
+    """Transparent test-only proxy over the exact sqlite3.Connection used by issue()."""
+
+    def __init__(self, inner: Any, ready_point: str):
+        self._inner = inner
+        self._ready_point = ready_point
+        self._phase: str | None = None
+
+    def execute(self, sql: str, parameters: Any = ()):
+        normalized = " ".join(sql.split()).upper()
+
+        if normalized.startswith("INSERT INTO COMPOSITE_CHECKPOINT_JOURNAL"):
+            _ready_and_block(self._ready_point, "READY_BEFORE_PENDING_INSERT")
+            cursor = self._inner.execute(sql, parameters)
+            self._phase = "PENDING_INSERT_EXECUTED"
+            return cursor
+
+        if normalized.startswith("UPDATE COMPOSITE_CHECKPOINT_JOURNAL SET TAG="):
+            cursor = self._inner.execute(sql, parameters)
+            self._phase = "PENDING_AUTH_UPDATE_EXECUTED"
+            return cursor
+
+        if normalized.startswith("UPDATE COMPOSITE_CHECKPOINT_JOURNAL SET STATUS='CURRENT'"):
+            cursor = self._inner.execute(sql, parameters)
+            self._phase = "CURRENT_UPDATE_EXECUTED"
+            _ready_and_block(self._ready_point, "READY_AFTER_CURRENT_UPDATE_BEFORE_COMMIT")
+            return cursor
+
+        return self._inner.execute(sql, parameters)
+
+    def commit(self) -> None:
+        phase = self._phase
+        self._inner.commit()
+        if phase == "PENDING_INSERT_EXECUTED":
+            self._phase = "PENDING_COMMITTED"
+            _ready_and_block(self._ready_point, "READY_AFTER_PENDING_COMMIT")
+        elif phase == "PENDING_AUTH_UPDATE_EXECUTED":
+            self._phase = "PENDING_AUTH_COMMITTED"
+            _ready_and_block(self._ready_point, "READY_AFTER_AUTHENTICATED_PENDING_COMMIT")
+        elif phase == "CURRENT_UPDATE_EXECUTED":
+            self._phase = "CURRENT_COMMITTED"
+            _ready_and_block(self._ready_point, "READY_AFTER_CURRENT_COMMIT_BEFORE_RESPONSE")
+
+    def rollback(self) -> None:
+        return self._inner.rollback()
+
+    def close(self) -> None:
+        return self._inner.close()
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+
+def _instrument_exact_issue_path(journal: DurableCompositeJournalAuthority, ready_point: str) -> None:
+    if ready_point not in READY_POINTS:
         raise ValueError("unknown readiness point")
-    if not issuance_id:
-        raise ValueError("issuance identity required")
-    if not isinstance(generation, int) or generation < 1:
-        raise ValueError("generation must be positive")
+    original_connect: Callable[[], Any] = journal._connect
 
-    pair = journal._pair.current_pair()  # test harness exercises the frozen Pilot 8 mechanism internals
-    con = journal._connect()
-    try:
-        con.execute("BEGIN IMMEDIATE")
-        existing_row = con.execute(
-            "SELECT * FROM composite_checkpoint_journal WHERE issuance_id=?",
-            (issuance_id,),
-        ).fetchone()
-        existing = journal._row_to_record(existing_row)
-        predecessor = journal._expected_predecessor(con, generation)
-        prototype = DurableCompositeRecord(
-            issuance_id=issuance_id,
-            scope=journal._scope,
-            generation=generation,
-            permit_ledger_digest=pair["permit_ledger_digest"],
-            reconciliation_digest=pair["reconciliation_digest"],
-            permit_authority_epoch=pair["permit_authority_epoch"],
-            previous_checkpoint_digest=predecessor,
-            status="PENDING",
-            tag="",
-        )
-        if existing is not None:
-            if journal._semantic_tuple(existing) != journal._semantic_tuple(prototype):
-                con.rollback()
-                raise PermissionError("issuance identity semantic rebinding denied")
-            con.rollback()
-            if existing.status == "CURRENT" and journal._authentic(existing):
-                return existing
-            raise PermissionError("existing non-current issuance requires recovery")
+    def observed_connect() -> _ObservedConnection:
+        return _ObservedConnection(original_connect(), ready_point)
 
-        _ready_and_block(ready_point, "READY_BEFORE_PENDING_INSERT")
-        con.execute(
-            """
-            INSERT INTO composite_checkpoint_journal(
-                issuance_id, scope, generation, permit_ledger_digest,
-                reconciliation_digest, permit_authority_epoch,
-                previous_checkpoint_digest, status, tag
-            ) VALUES(?,?,?,?,?,?,?,?,?)
-            """,
-            (
-                prototype.issuance_id,
-                prototype.scope,
-                prototype.generation,
-                prototype.permit_ledger_digest,
-                prototype.reconciliation_digest,
-                prototype.permit_authority_epoch,
-                prototype.previous_checkpoint_digest,
-                "PENDING",
-                "",
-            ),
-        )
-        con.commit()
-        _ready_and_block(ready_point, "READY_AFTER_PENDING_COMMIT")
-
-        pending_payload = prototype.payload()
-        pending_tag = journal._sign_payload(pending_payload)
-        con.execute("BEGIN IMMEDIATE")
-        update = con.execute(
-            "UPDATE composite_checkpoint_journal SET tag=? WHERE issuance_id=? AND status='PENDING'",
-            (pending_tag, issuance_id),
-        )
-        if update.rowcount != 1:
-            con.rollback()
-            raise PermissionError("pending authentication lost race")
-        con.commit()
-        _ready_and_block(ready_point, "READY_AFTER_AUTHENTICATED_PENDING_COMMIT")
-
-        current_record = DurableCompositeRecord(
-            issuance_id=issuance_id,
-            scope=journal._scope,
-            generation=generation,
-            permit_ledger_digest=pair["permit_ledger_digest"],
-            reconciliation_digest=pair["reconciliation_digest"],
-            permit_authority_epoch=pair["permit_authority_epoch"],
-            previous_checkpoint_digest=predecessor,
-            status="CURRENT",
-            tag="",
-        )
-        current_tag = journal._sign_payload(current_record.payload())
-        con.execute("BEGIN IMMEDIATE")
-        row = con.execute(
-            "SELECT * FROM composite_checkpoint_journal WHERE issuance_id=?",
-            (issuance_id,),
-        ).fetchone()
-        durable = journal._row_to_record(row)
-        if durable is None or durable.status != "PENDING":
-            con.rollback()
-            raise PermissionError("issuance no longer pending")
-        if journal._semantic_tuple(durable) != journal._semantic_tuple(current_record):
-            con.rollback()
-            raise PermissionError("durable issuance changed before promotion")
-        promotion = con.execute(
-            "UPDATE composite_checkpoint_journal SET status='CURRENT', tag=? WHERE issuance_id=? AND status='PENDING'",
-            (current_tag, issuance_id),
-        )
-        if promotion.rowcount != 1:
-            con.rollback()
-            raise PermissionError("current promotion lost race")
-        _ready_and_block(ready_point, "READY_AFTER_CURRENT_UPDATE_BEFORE_COMMIT")
-        con.commit()
-        _ready_and_block(ready_point, "READY_AFTER_CURRENT_COMMIT_BEFORE_RESPONSE")
-        result = journal.get(issuance_id)
-        if result is None:
-            raise RuntimeError("durable checkpoint missing after commit")
-        return result
-    except sqlite3.IntegrityError as exc:
-        try:
-            con.rollback()
-        except sqlite3.Error:
-            pass
-        raise PermissionError("conflicting generation or issuance") from exc
-    finally:
-        con.close()
+    journal._connect = observed_connect  # type: ignore[method-assign]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -166,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--db", required=True)
     ap.add_argument("--issuance-id", required=True)
     ap.add_argument("--generation", required=True, type=int)
-    ap.add_argument("--ready-point")
+    ap.add_argument("--ready-point", required=True, choices=READY_POINTS)
     ap.add_argument("--permit-integrity-key", required=True)
     ap.add_argument("--reconciliation-integrity-key", required=True)
     ap.add_argument("--composite-key", required=True)
@@ -178,8 +113,22 @@ def main(argv: list[str] | None = None) -> int:
         args.reconciliation_integrity_key.encode("utf-8"),
         args.composite_key.encode("utf-8"),
     )
-    record = issue_with_external_cut(journal, args.issuance_id, args.generation, args.ready_point)
-    print(json.dumps({"issuance_id": record.issuance_id, "generation": record.generation, "status": record.status, "record_digest": record.record_digest()}, sort_keys=True), flush=True)
+    _instrument_exact_issue_path(journal, args.ready_point)
+
+    # Exact frozen mechanism under test; no duplicated issue transition exists here.
+    record = journal.issue(args.issuance_id, args.generation)
+    print(
+        json.dumps(
+            {
+                "issuance_id": record.issuance_id,
+                "generation": record.generation,
+                "status": record.status,
+                "record_digest": record.record_digest(),
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
     return 0
 
 
