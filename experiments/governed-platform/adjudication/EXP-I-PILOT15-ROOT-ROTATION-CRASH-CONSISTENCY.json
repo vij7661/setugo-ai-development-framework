@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.2",
+  "campaign": "governed-platform-falsification",
+  "experiment": "EXP-I",
+  "pilot": 15,
+  "title": "Root rotation crash consistency across separate trust and minimum stores",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T19:03:00Z",
+  "authoritative_parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT14-ROOT-ROTATION-COMPROMISE-RECOVERY.json",
+  "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT15-ROOT-ROTATION-CRASH-CONSISTENCY-PREREGISTRATION.md",
+  "preregistration_commit": "70b87700d7ca4aaba976b5f710ac55b9c7cbdd01",
+  "evaluated_sha": "d44bf958d327547fd5185adfacec19f47f2e5b6a",
+  "validation_run_id": 34053521072,
+  "validation_job_id": 101541223130,
+  "workflow_conclusion": "success",
+  "scientific_correspondence": {
+    "frozen_vectors": "P15-01..P15-16",
+    "passed": 16,
+    "failed": 0,
+    "all_frozen_vectors_explicit_in_job_log": true,
+    "governed_regression_tests_passed": 1042,
+    "governed_regression_tests_total": 1042,
+    "governed_regression_result": "OK",
+    "operational_success_alone_is_scientific_pass": false
+  },
+  "first_frozen_scientific_run": {
+    "result": "PASS",
+    "repair_attempts_after_exposure": 0,
+    "mechanism_or_fixture_relaxation": false
+  },
+  "mechanism_evidence": [
+    "Root-trust history and trusted-root minimum remain separate durable SQLite stores.",
+    "Crash vectors use a distinct child process, parent-observed readiness, and external parent termination rather than injected exceptions or worker self-termination.",
+    "A durable newer root record with a stale trusted minimum is classified as ambiguous and is non-current for consequential use.",
+    "Recovery requires the exact authenticated next transition, exact root identity/public-key fingerprint, exact activation epoch, contiguous root epoch, and predecessor digest equal to the current trusted minimum.",
+    "Exact recovery replay is idempotent and does not create duplicate root records or duplicate minimum advancement.",
+    "Two independent recovery subprocesses racing the same exact ambiguous transition converge on the same root digest and trusted minimum binding.",
+    "A stale pre-rotation root snapshot cannot restore the prior root after the trusted minimum advances.",
+    "Clean R2-to-R3 rotation remains live after the crash/recovery cycle."
+  ],
+  "bounded_claim": "On the tested same-host SQLite prototype, root rotation remained fail-closed across the preregistered genuine external-process termination boundaries surrounding the separate root-trust and trusted-minimum transactions. A durable newer root with a stale minimum was not accepted as current; exact authenticated reconciliation was idempotent under replay and concurrent recovery; stale-root restoration and semantic rebinding were denied; and a subsequent clean root rotation remained live.",
+  "authority_boundaries": {
+    "model_generated_root_or_minimum_authority": false,
+    "reviewer_generated_root_or_minimum_authority": false,
+    "root_signer_self_repair_authority": false,
+    "registry_writer_trusted_minimum_mutation_authority": false,
+    "ambiguous_rotation_recovery_authority": "PLATFORM_OWNED_ONLY",
+    "production_authority": false,
+    "release_authority": false
+  },
+  "not_proven": [
+    "Physical power-loss or storage-controller reordering semantics.",
+    "Hardware fsync durability guarantees beyond the tested hosted SQLite environment.",
+    "KMS/HSM key nonextractability or hardware-backed root/minimum authority.",
+    "Separate operating-system privilege or administrative trust domains for the two authorities.",
+    "Security after compromise of both root-trust authentication material and trusted-minimum authority.",
+    "Atomicity across independent remote databases, KMS/HSM services, or geographically separate systems.",
+    "Multi-host or Byzantine consensus.",
+    "Production, release, deploy, or completion authority.",
+    "Universal correctness of model or reviewer conclusions."
+  ],
+  "hygiene_observation": "Historical subprocess ResourceWarning messages from earlier Pilot 13/Pilot 14/Pilot 21 tests remain visible as inherited cleanup debt. Pilot 15's parent-kill helper explicitly closes its captured subprocess pipes after termination; the warnings are not treated as scientific endpoint success or failure.",
+  "next_falsification_target": "EXP-I Pilot 16: isolate trusted-minimum advancement behind a separate platform-owned authority process and durable store so root signers, root-trust writers, registry writers, models, and reviewers cannot self-resolve an ambiguous rotation. Falsify forged, stale, replayed, rebound, unavailable, restarted, and concurrent recovery authorization while preserving exact-replay idempotency and clean R2-to-R3 liveness."
+}
