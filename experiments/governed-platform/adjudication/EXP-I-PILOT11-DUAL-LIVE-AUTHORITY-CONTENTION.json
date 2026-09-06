@@ -1,0 +1,59 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 11,
+  "title": "Dual-live composite checkpoint authority contention and split-brain falsification",
+  "date": "2026-09-06",
+  "status": "BOUNDED_FIRST_RUN_PASS",
+  "preregistration_commit": "27548834d98bfad24879d85199eb0205f10b3ebc",
+  "design_test_sha": "512e935264434a7e544fb3b848aa0b3fa42aebac",
+  "workflow_run_id": 34045042492,
+  "workflow_job_id": 101518495700,
+  "workflow_conclusion": "success",
+  "scientific_endpoints": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "first_run": true,
+    "mechanism_repair_required": false,
+    "test_repair_required": false,
+    "expected_outcomes_modified": false
+  },
+  "full_governor_suite": {
+    "passed": 992,
+    "failed": 0
+  },
+  "observed_properties": [
+    "Two simultaneously live authority subprocesses used distinct process identities while sharing only the registered main governance database and authority store on the tested path.",
+    "Concurrent distinct issuances at one generation produced at most one positive issue and exactly one durable generation row.",
+    "A losing authority process could not verify a conflicting same-generation statement.",
+    "Concurrent exact duplicate issuance converged to the same checkpoint digest without duplicate durable rows.",
+    "Different issuance identities and changed governance-state bindings could not rebind an already-issued generation or issuance identity.",
+    "A stale authority process could not issue a lower generation after another process durably advanced the maximum, and this monotonic/equivocation memory survived restart.",
+    "A checkpoint committed before response loss was recovered by another live process as the same durable checkpoint rather than a new logical issuance.",
+    "Killing an authority process after commit did not permit a second authoritative checkpoint at that generation.",
+    "Tested SQLite lock contention did not create duplicate rows or a false-positive competing issuance.",
+    "Tampering with or deleting the shared durable authority record blocked verification from both live processes.",
+    "A prior positive verification became invalid after the current governance state changed.",
+    "When one authority process became unavailable, the surviving process still required the durable current record rather than trusting a peer-shaped claim.",
+    "Repeated parallel retries after commit/response ambiguity remained one logical checkpoint.",
+    "Model, reviewer, and process success indicators conveyed zero production or release authority.",
+    "A clean next-generation checkpoint remained live with two simultaneously live processes after the tested contention and fault cases."
+  ],
+  "bounded_conclusion": "On the tested same-host, shared-SQLite authority path, two simultaneously live authority subprocesses serialized conflicting generation issuance, preserved durable idempotency and monotonicity across restart and response ambiguity, and failed closed on the tested contention and authority-store integrity faults.",
+  "explicit_nonclaims": [
+    "Not distributed consensus.",
+    "Not Byzantine fault tolerance.",
+    "Not multi-host, multi-region, or network-partition split-brain tolerance.",
+    "Not administratively independent authority domains.",
+    "Not hardware-backed or non-extractable secret isolation.",
+    "Not physical power-loss or storage-controller durability.",
+    "Not production readiness or universal correctness."
+  ],
+  "authority": {
+    "model_authority": false,
+    "reviewer_authority": false,
+    "production_authority_from_model_reviewer_or_success_flag": false,
+    "release_authority_from_model_reviewer_or_success_flag": false
+  },
+  "scientific_note": "The GitHub Actions success state is operational completion evidence only. The scientific conclusion is bounded to the preregistered P11-01 through P11-20 behavior observed on exact design/test SHA 512e935264434a7e544fb3b848aa0b3fa42aebac."
+}
