@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-I",
+  "pilot": 19,
+  "title": "Issuance-Ledger / Anti-Rollback-Anchor Crash Consistency",
+  "status": "BOUNDED_PASS",
+  "evaluated_sha": "6514f9f8530c97a3d10d4027857bfdb1b8656a8a",
+  "validation": {
+    "workflow_run_id": 34057614198,
+    "workflow_job_id": 101552270700,
+    "p19_vectors_passed": 16,
+    "p19_vectors_total": 16,
+    "governed_regression_passed": 1106,
+    "governed_regression_total": 1106,
+    "scientific_correspondence": "Every frozen P19-01..P19-16 test appeared explicitly as ok in the exact frozen-head job log; the same job checked out SHA 6514f9f8530c97a3d10d4027857bfdb1b8656a8a and concluded Ran 1106 tests and OK. Workflow success alone was not used as scientific proof."
+  },
+  "scientific_lineage": {
+    "parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT18-RECOVERY-SIGNER-CRASH-CONSISTENCY.json",
+    "parent_adjudication_commit": "8983b53b41dfb4cbfb36c9bf5c614ccf8be9d9cb",
+    "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT19-ISSUANCE-ANCHOR-CRASH-CONSISTENCY-PREREGISTRATION.md",
+    "preregistration_commit": "723770c5c5b4f14b141c21bc0dfbaee5150bad0d",
+    "construction_runs_are_scientific_evidence": false,
+    "repair_attempts_after_frozen_exposure": 0,
+    "first_frozen_result_preserved": true,
+    "program_adjudication_independence": "PROJECT_INTERNAL_NOT_THIRD_PARTY"
+  },
+  "supported_bounded_claims": [
+    "On the tested same-host Ubuntu/Python/SQLite/OpenSSL prototype, parent-controlled hard termination at the issuance-ledger to anti-rollback-anchor boundary did not silently convert a divergent two-store state into current authority.",
+    "A kill after issuance-ledger COMMIT but before anchor advancement remained explicitly divergent until deterministic reconciliation completed.",
+    "Fresh restart detected ledger-newer-than-anchor divergence before trusted-minimum mutation could proceed.",
+    "When the state was uniquely derivable, reconciliation advanced the authenticated anchor to the exact committed issuance binding without duplicate advancement.",
+    "Temporary anchor material written before atomic replacement was never accepted as authoritative current state.",
+    "A kill after atomic anchor replacement but before response delivery remained replay-safe and did not duplicate issuance or anchor generation.",
+    "Anchor-newer-than-ledger and conflicting same-generation states failed closed rather than being caller/model-selected.",
+    "Stale ledger and stale anchor substitutions after reconciliation were detected by retained correspondence/monotonic state in the frozen vectors.",
+    "Recovery identity semantic rebinding remained denied during divergence and after reconciliation.",
+    "Concurrent reconcilers converged on one exact authoritative anchor result in the tested same-host concurrency model.",
+    "A cryptographically valid issuance could not bypass unresolved ledger/anchor correspondence at minimum use time.",
+    "Repeated crash/restart/reconciliation preserved monotonic issuance/anchor memory and exact replay identity in the frozen sequence.",
+    "After recovery from the tested R1 to R2 divergence, a clean R2 to R3 issuance, anchor advancement and trusted-minimum advancement remained live exactly once.",
+    "Models, reviewers and ordinary registry/root/minimum surfaces gained no reconciliation-result, signer, release, deploy, production or completion authority."
+  ],
+  "explicit_nonclaims": [
+    "physical power-loss or storage-controller flush guarantees",
+    "filesystem semantics across all platforms and filesystems",
+    "independent disk or storage failure domains for ledger and anchor",
+    "OS-user, host-admin, kernel or hypervisor compromise resistance",
+    "independent administrative or cloud trust domains",
+    "KMS/HSM private-key nonextractability or hardware-backed production key custody",
+    "security after joint compromise of ledger, anchor and signer key",
+    "remote or distributed two-store consensus",
+    "network partition semantics",
+    "Byzantine fault tolerance or malicious-host behavior",
+    "exhaustive interleaving coverage beyond the frozen hand-authored vectors",
+    "formal model-checking proof",
+    "third-party or organizationally independent scientific adjudication",
+    "production, release, deploy or completion authority"
+  ],
+  "evidence_weight_caveat": "This result is strong evidence for the frozen same-host crash/reconciliation semantics, not certification of independent production trust domains. The research program preregistration, implementation and final program-level adjudication remain project-internal. External reviewer feedback has therefore been incorporated as a reason to stop automatically deepening same-host pilots and to add independent review plus systematic state-space/fault analysis before stronger claims.",
+  "retained_hygiene_debt": [
+    "Pre-existing subprocess ResourceWarning messages from older governed-platform paths remain visible in the regression log and are not classified as Pilot 19 mechanism failures."
+  ],
+  "next_gate": "PROTOTYPE_STOP_CRITERIA_REVIEW",
+  "next_gap": "Before opening another same-host EXP-I pilot, determine whether any remaining local boundary justifies a new hand-authored pilot or should instead be addressed by systematic state-space/fault exploration, external independent evidence review, integrated product validation, or later real KMS/multi-host trust-domain experiments."
+}
