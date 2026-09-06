@@ -1,0 +1,97 @@
+name: Governed Platform EXP-O Pilot 6 Tool Result Injection
+
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-o-pilot6-tool-result-injection-trigger.json]
+
+permissions: {contents: read}
+
+jobs:
+  run:
+    name: EXP-O Pilot 6 ${{ matrix.arm }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        arm:
+          - P6-A-CLEAN-SIGNED-CONTROL
+          - P6-B-SIGNED-ADMIN-RELEASE
+          - P6-C-SIGNED-PRODUCTION-FOLLOWON
+          - P6-D-INELIGIBLE-ADMIN-CLAIM
+          - P6-E-SIGNED-POLICY-OVERRIDE
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+
+      - name: Enforce frozen Pilot 6 trigger and design binding
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, re, subprocess
+          from pathlib import Path
+
+          trigger_path = Path('.github/exp-o-pilot6-tool-result-injection-trigger.json')
+          if not trigger_path.is_file():
+              raise SystemExit('Pilot 6 trigger is required')
+          trigger = json.loads(trigger_path.read_text(encoding='utf-8'))
+          expected = {
+              'experiment': 'EXP-O',
+              'pilot': 'PILOT6-REAL-MODEL-TOOL-RESULT-INJECTION',
+              'provider': 'groq',
+              'configured_model': 'openai/gpt-oss-20b',
+              'temperature': 0.7,
+              'samples_per_arm': 3,
+              'sample_policy': 'ALL_VALID',
+              'nonce': 'pilot6-groq-1',
+          }
+          for key, value in expected.items():
+              if trigger.get(key) != value:
+                  raise SystemExit(f'trigger mismatch {key}: {trigger.get(key)!r} != {value!r}')
+          design = trigger.get('design_commit')
+          if not isinstance(design, str) or not re.fullmatch(r'[0-9a-f]{40}', design):
+              raise SystemExit('design_commit must be a full lowercase 40-char SHA')
+          created = trigger.get('created_at_utc')
+          if not isinstance(created, str) or not created.endswith('Z'):
+              raise SystemExit('created_at_utc must be an explicit UTC timestamp')
+          subprocess.run(['git', 'cat-file', '-e', f'{design}^{{commit}}'], check=True)
+
+          protected = [
+              '.github/workflows/governed-platform-exp-o-pilot6-tool-result-injection.yml',
+              'experiments/governed-platform/adjudication/EXP-O-PILOT6-REAL-MODEL-TOOL-RESULT-INJECTION-PREREGISTRATION.md',
+              'experiments/governed-platform/cases/pilot/exp-o-pilot6-tool-result-injection.json',
+              'experiments/governed-platform/runner/run_exp_o_pilot6_behavior.py',
+              'experiments/governed-platform/governance/test_exp_o_pilot6_preregistration.py',
+          ]
+          subprocess.run(['git', 'diff', '--exit-code', design, 'HEAD', '--', *protected], check=True)
+          print(f'Pilot 6 design binding verified: {design}')
+          PY
+
+      - name: Execute frozen Groq behavioral arm
+        shell: bash
+        run: |
+          ARM="${{ matrix.arm }}"
+          OUT="exp-o-pilot6-results/${ARM}"
+          python experiments/governed-platform/runner/run_exp_o_pilot6_behavior.py \
+            --cases experiments/governed-platform/cases/pilot/exp-o-pilot6-tool-result-injection.json \
+            --arm "$ARM" \
+            --provider groq \
+            --model openai/gpt-oss-20b \
+            --temperature 0.7 \
+            --samples 3 \
+            --output-dir "$OUT"
+          cp .github/exp-o-pilot6-tool-result-injection-trigger.json "$OUT/trigger-binding.json"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-o-pilot6-${{ matrix.arm }}
+          path: exp-o-pilot6-results/${{ matrix.arm }}/
+          if-no-files-found: error
