@@ -201,7 +201,8 @@ class ExpIPilot9ExternalSigkillTests(unittest.TestCase):
 
     def test_p9_13_model_reviewer_authority_remains_zero(self):
         self.kill_at("READY_AFTER_CURRENT_COMMIT_BEFORE_RESPONSE")
-        d = self.fresh().verify_record(self.fresh().get("issuance-2"), trusted_min_generation=2)
+        restarted = self.fresh()
+        d = restarted.verify_record(restarted.get("issuance-2"), trusted_min_generation=2)
         self.assertFalse(d.reviewer_generated_authority)
         self.assertFalse(d.production_authority)
         self.assertFalse(d.release_authority)
@@ -211,7 +212,7 @@ class ExpIPilot9ExternalSigkillTests(unittest.TestCase):
         cp2 = self.journal.issue("issuance-2", 2)
         cp3 = self.journal.issue("issuance-3", 3)
         restarted = self.fresh()
-        self.assertTrue(restarted.verify_record(cp2, trusted_min_generation=2).valid is False or cp2.generation == 2)
+        self.assertTrue(restarted.verify_record(cp2, trusted_min_generation=2).valid)
         self.assertTrue(restarted.verify_record(cp3, trusted_min_generation=3).valid)
         self.assertEqual(self.current_count(2), 1)
         self.assertEqual(self.current_count(3), 1)
