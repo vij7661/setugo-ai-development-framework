@@ -1,0 +1,45 @@
+{
+  "record_type": "SCIENTIFIC_CANDIDATE_FREEZE",
+  "track": "EXP-I SYSTEMATIC_STATE_SPACE_AND_FAULT_EXPLORATION",
+  "not_pilot_20": true,
+  "scientific_state": "FROZEN_CANDIDATE_FIRST_RUN_PENDING",
+  "parent_scientific_basis": {
+    "pilot": 19,
+    "adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT19-ISSUANCE-ANCHOR-CRASH-CONSISTENCY.json",
+    "evaluated_sha": "6514f9f8530c97a3d10d4027857bfdb1b8656a8a"
+  },
+  "preregistration": "experiments/governed-platform/adjudication/EXP-I-STATE-SPACE-ISSUANCE-ANCHOR-PREREGISTRATION.md",
+  "construction_head": "ca0487e9c7850ced2576914498a48b0274d5c83a",
+  "construction_evidence": {
+    "scientific_status": "NOT_SCIENTIFIC_EVIDENCE_PRE_FREEZE",
+    "visited_states": 5611,
+    "transitions_checked": 16848,
+    "max_depth_reached": 12,
+    "production_violations": [],
+    "mutants_detected": ["MUT-01:SA-02", "MUT-02:SA-10", "MUT-03:SA-03", "MUT-04:SA-05"],
+    "governed_regression": "1123/1123 OK"
+  },
+  "preserved_pre_freeze_failure": "experiments/governed-platform/adjudication/EXP-I-STATE-SPACE-CONSTRUCTION-FAILURE-001.json",
+  "frozen_bounds": {
+    "global_max_depth": 12,
+    "max_generation": 3,
+    "sa09_local_liveness_steps": 8,
+    "recovery_ids": ["A", "B", "C"],
+    "targets": ["T1", "T2"],
+    "reconcilers": ["R1", "R2"]
+  },
+  "frozen_invariants": ["SA-01", "SA-02", "SA-03", "SA-04", "SA-05", "SA-06", "SA-07", "SA-08", "SA-09", "SA-10"],
+  "required_mutants": ["MUT-01", "MUT-02", "MUT-03", "MUT-04"],
+  "first_frozen_result_rule": "Preserve and classify the first exact frozen-head result before any repair. CI success alone is not scientific acceptance.",
+  "acceptance_rule": "BOUNDED_PASS only if exact frozen SHA completes the preregistered bounded BFS with SA-01..SA-10 clean, all four unsafe mutants detected in expected classes, and the complete governed-platform regression suite passes on that same SHA.",
+  "nonclaims": [
+    "no correctness claim beyond depth 12 or generation 3",
+    "no liveness claim beyond 8 local clean recovery transitions",
+    "no equivalence claim to every Python/SQLite/filesystem behavior",
+    "no physical power-loss or storage-controller durability claim",
+    "no distributed/network-partition/Byzantine correctness claim",
+    "no KMS/HSM or independent trust-domain claim",
+    "no production/release/deploy authority",
+    "no third-party certification"
+  ]
+}
