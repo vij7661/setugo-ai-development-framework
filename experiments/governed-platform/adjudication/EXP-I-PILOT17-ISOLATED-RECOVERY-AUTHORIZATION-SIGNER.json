@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.2",
+  "campaign": "governed-platform-falsification",
+  "experiment": "EXP-I",
+  "pilot": 17,
+  "title": "Isolated recovery-authorization signer with derived permit semantics",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T19:21:14Z",
+  "authoritative_parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT16-ISOLATED-TRUSTED-MINIMUM-AUTHORITY.json",
+  "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT17-ISOLATED-RECOVERY-AUTHORIZATION-SIGNER-PREREGISTRATION.md",
+  "preregistration_commit": "7251ceef91c405d93f43110031e44799f7ccf846",
+  "evaluated_sha": "9e409e411c3fd5e4c2a1b9b9ac90d0145f7d6141",
+  "validation_run_id": 34054524172,
+  "validation_job_id": 101543820461,
+  "workflow_conclusion": "success",
+  "scientific_correspondence": {
+    "frozen_vectors": "P17-01..P17-16",
+    "passed": 16,
+    "failed": 0,
+    "frozen_test_file_verified_at_evaluated_sha": true,
+    "workflow_governance_discovery": "python -m unittest discover -v -p 'test_*.py'",
+    "workflow_file_unchanged_from_p16_frozen_baseline": true,
+    "governor_falsification_step_conclusion": "success",
+    "prior_governed_regression_total": 1058,
+    "new_test_files_since_prior_frozen_baseline": [
+      "experiments/governed-platform/governance/test_exp_i_pilot17_isolated_recovery_signer.py"
+    ],
+    "new_frozen_tests": 16,
+    "derived_governed_regression_tests_passed": 1074,
+    "derived_governed_regression_tests_total": 1074,
+    "derivation": "P16 scientific correspondence established a 1058-test governance baseline. Compare 3727a6cc0972c9995f1b4523b1b9f519ea4ace48...9e409e411c3fd5e4c2a1b9b9ac90d0145f7d6141 shows exactly one new governance test file. Exact frozen P17 source contains P17-01 through P17-16. The unchanged workflow discovers every governance test_*.py and its governor step succeeded.",
+    "operational_success_alone_is_scientific_pass": false
+  },
+  "first_frozen_scientific_run": {
+    "result": "PASS",
+    "repair_attempts_after_exposure": 0,
+    "mechanism_or_fixture_relaxation": false,
+    "pre_exposure_construction_run_id": 34054436899,
+    "pre_exposure_construction_run_conclusion": "success",
+    "construction_run_counted_as_scientific_evidence": false
+  },
+  "mechanism_evidence": [
+    "Recovery authorization signing executes in a distinct subprocess with its own durable issuance ledger and internally derived private-key path.",
+    "Caller request surface supplies only recovery identity and target selector; governed permit semantics are derived from authenticated root history and trusted-minimum state.",
+    "Recovery private key and direct sign primitive are absent from caller, minimum-authority, root-trust, registry-writer, model, and reviewer surfaces tested by the frozen vectors.",
+    "Only the exact contiguous authenticated root immediately above the current trusted minimum is issuable.",
+    "Caller-supplied epochs, digests, fingerprints, predecessor values, transition identifiers, activation epochs, and authority claims do not alter the signed permit.",
+    "Durable issuance memory provides exact replay identity and same-recovery-ID rebinding refusal across signer restart.",
+    "Signer outage produces no new permit and no trusted-minimum mutation.",
+    "Concurrent exact issuance requests converge on one permit/signature and one issuance-ledger record.",
+    "Minimum-side use-time revalidation catches state drift after permit issuance.",
+    "Clean signer-derived R2-to-R3 recovery remains live after R1-to-R2 advancement."
+  ],
+  "bounded_claim": "On the tested same-host process-isolated SQLite/software-key prototype, recovery-authorization issuance was isolated behind a dedicated signer process that derived governed permit semantics from authenticated root history and trusted-minimum state rather than accepting caller-supplied bindings. The frozen tests denied forged, injected, stale, noncontiguous, rebound, unavailable, restarted, raced, and post-issuance-drift scenarios while preserving exact replay and clean R2-to-R3 liveness.",
+  "authority_boundaries": {
+    "model_permit_minting_authority": false,
+    "reviewer_permit_minting_authority": false,
+    "minimum_authority_process_permit_minting_authority": false,
+    "root_signer_permit_minting_authority": false,
+    "root_trust_writer_permit_minting_authority": false,
+    "registry_writer_permit_minting_authority": false,
+    "recovery_signer_process_permit_minting_authority": "PLATFORM_OWNED_AND_BOUND_TO_DERIVED_AUTHORITATIVE_STATE",
+    "permit_issuance_is_minimum_mutation": false,
+    "production_authority": false,
+    "release_authority": false,
+    "deploy_authority": false
+  },
+  "not_proven": [
+    "OS-user, privilege, or administrative trust-domain separation merely from process isolation.",
+    "KMS/HSM key nonextractability or hardware-backed recovery signing.",
+    "Protection after joint compromise of recovery signer private material/ledger and minimum-authority state.",
+    "Abrupt signer process death at individual issuance transaction boundaries.",
+    "Physical power-loss or storage-controller durability semantics.",
+    "Atomicity across independent remote systems.",
+    "Multi-host or Byzantine consensus.",
+    "Production, release, deploy, or completion authority."
+  ],
+  "next_falsification_target": "EXP-I Pilot 18: abrupt external termination around recovery-authorization issuance. Use parent-observed child readiness and external process termination before issuance transaction, after issuance-ledger insert before commit, after durable commit before response, and during replay/rebinding paths. Reopen the signer from a fresh process and falsify false issuance, duplicate permit creation, semantic rebinding, stale issuance, race amplification, and minimum mutation from ambiguous issuance while preserving exact post-commit replay and clean R2-to-R3 liveness."
+}
