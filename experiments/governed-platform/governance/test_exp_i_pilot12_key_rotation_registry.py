@@ -12,6 +12,7 @@ import unittest
 from exp_i_asymmetric_checkpoint_signer import _digest
 from exp_i_claim_convergence_gate import ReviewClaim, VerificationArtifact
 from exp_i_durable_convergence_permit import DurableConvergencePermitAuthority
+from exp_i_use_time_checkpoint import UseTimeCheckpointAuthority
 from exp_i_key_rotation_registry import (
     PlatformTrustRegistryAuthority,
     RotatingCheckpointSignerProcess,
@@ -25,6 +26,7 @@ CASE = "EXP-I-P12-CASE"
 PERMIT_KEY = b"exp-i-pilot12-permit-key"
 PERMIT_INTEGRITY_KEY = b"exp-i-pilot12-permit-integrity-key"
 RECON_INTEGRITY_KEY = b"exp-i-pilot12-reconciliation-integrity-key"
+TOKEN_KEY = b"exp-i-pilot12-token-key"
 
 
 def reviews():
@@ -59,6 +61,9 @@ class ExpIPilot12KeyRotationRegistryTests(unittest.TestCase):
         self.registry_db = str(root / "trust-registry.db")
         self.permits = DurableConvergencePermitAuthority(self.state_db, PERMIT_KEY)
         self.permits.issue(reviews(), verifier_artifact(), signals(), nonce="permit-1")
+        self.use_time = UseTimeCheckpointAuthority(
+            self.state_db, PERMIT_KEY, PERMIT_INTEGRITY_KEY, TOKEN_KEY
+        )
         self.registry = PlatformTrustRegistryAuthority(self.registry_db)
         self.signers = []
         self.k1 = self.new_signer("K1")
