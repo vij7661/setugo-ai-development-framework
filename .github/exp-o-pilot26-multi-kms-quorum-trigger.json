@@ -1,0 +1,15 @@
+{
+  "experiment": "EXP-O",
+  "pilot": "PILOT26-MULTI-KMS-ROOT-QUORUM",
+  "aws_role_arn": "arn:aws:iam::297165774800:role/setugo-pilot24-kms-signer",
+  "aws_region": "ap-southeast-2",
+  "root_a_arn": "arn:aws:kms:ap-southeast-2:297165774800:key/57d95d4f-9b80-44e4-badf-0330ba9f897c",
+  "root_b_arn": "arn:aws:kms:ap-southeast-2:297165774800:key/aad32262-2396-485e-a6f2-0ae0cd10f52e",
+  "root_c_arn": "arn:aws:kms:ap-southeast-2:297165774800:key/992638b8-7086-41a6-a3dc-849a998c4f86",
+  "key_spec": "ECC_NIST_P256",
+  "signing_algorithm": "ECDSA_SHA_256",
+  "threshold": "2-of-3-distinct-registered-kms-key-arns",
+  "nonce": "pilot26-multi-kms-1",
+  "design_commit": "f14cd23ea2e5c8a2988ded2acda1c813d4f42dd8",
+  "created_at_utc": "2026-09-06T12:45:57Z"
+}
