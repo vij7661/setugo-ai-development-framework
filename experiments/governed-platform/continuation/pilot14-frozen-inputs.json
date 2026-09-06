@@ -1,0 +1,10 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 14,
+  "frozen_case_range": "P14-01..P14-16",
+  "frozen_root_sequence": ["R1", "R2", "R3"],
+  "frozen_algorithm": "Ed25519",
+  "frozen_rotation_policy": "REVOKE_PRIOR_ACTIVATE_EXACTLY_ONE_NEXT_ROOT",
+  "frozen_replay_policy": "EXACT_REPLAY_IDEMPOTENT_SEMANTIC_REBIND_DENIED",
+  "post_exposure_endpoint_changes_allowed": false
+}
