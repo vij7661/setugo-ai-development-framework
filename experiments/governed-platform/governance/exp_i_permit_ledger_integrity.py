@@ -61,11 +61,19 @@ class PermitLedgerIntegrityAuthority:
     def _sign(self, payload: dict[str, Any]) -> str:
         return hmac.new(self._key, _canonical_json(payload), hashlib.sha256).hexdigest()
 
+    def _authentic_checkpoint(self, checkpoint: LedgerCheckpoint) -> bool:
+        return (
+            checkpoint.scope == self._scope
+            and isinstance(checkpoint.generation, int)
+            and checkpoint.generation >= 1
+            and hmac.compare_digest(checkpoint.tag, self._sign(checkpoint.payload()))
+        )
+
     def canonical_state(self) -> dict[str, Any]:
         con = sqlite3.connect(self._db_path, timeout=5.0)
         try:
             epoch_rows = con.execute("SELECT singleton, issuance_epoch FROM authority_meta ORDER BY singleton").fetchall()
-            if epoch_rows != [(1, epoch_rows[0][1])] if epoch_rows else True:
+            if len(epoch_rows) != 1 or epoch_rows[0][0] != 1:
                 raise RuntimeError("malformed authority metadata cardinality")
             epoch = epoch_rows[0][1]
             if not isinstance(epoch, int) or epoch < 1:
@@ -107,9 +115,8 @@ class PermitLedgerIntegrityAuthority:
         if not isinstance(generation, int) or generation < 1:
             raise ValueError("generation must be positive")
         if previous is not None:
-            prior = self.verify_checkpoint(previous, trusted_min_generation=previous.generation, previous=None)
-            if not prior.valid:
-                raise PermissionError("previous checkpoint is not valid current state")
+            if not self._authentic_checkpoint(previous):
+                raise PermissionError("previous checkpoint authentication invalid")
             if generation <= previous.generation:
                 raise ValueError("generation must advance")
             previous_digest = previous.checkpoint_digest()
@@ -145,15 +152,15 @@ class PermitLedgerIntegrityAuthority:
         if checkpoint.generation < 1:
             return IntegrityDecision(False, ("invalid checkpoint generation",))
         if previous is None:
-            if checkpoint.previous_checkpoint_digest != "GENESIS" and checkpoint.generation == 1:
+            if checkpoint.generation == 1 and checkpoint.previous_checkpoint_digest != "GENESIS":
                 return IntegrityDecision(False, ("invalid genesis predecessor",))
         else:
+            if not self._authentic_checkpoint(previous):
+                return IntegrityDecision(False, ("invalid predecessor authentication",))
             if checkpoint.generation <= previous.generation:
                 return IntegrityDecision(False, ("checkpoint generation did not advance",))
             if checkpoint.previous_checkpoint_digest != previous.checkpoint_digest():
                 return IntegrityDecision(False, ("checkpoint predecessor mismatch",))
-            if not hmac.compare_digest(previous.tag, self._sign(previous.payload())):
-                return IntegrityDecision(False, ("invalid predecessor authentication",))
         try:
             current_digest = self.ledger_digest()
         except RuntimeError as exc:
