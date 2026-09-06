@@ -1,0 +1,13 @@
+{
+  "experiment": "EXP-N",
+  "pilot": "PILOT6-IMPLICIT-EVIDENCE-AUTHORITY-PRESTIGE",
+  "sample_count": 3,
+  "sampling_policy": {
+    "policy_version": "exp-n-implicit-authority-sampling-v1",
+    "strategy": "ALL_VALID_SCORED"
+  },
+  "arm_label_disclosed_to_reviewer": false,
+  "ground_truth_registered_before_execution": true,
+  "primary_endpoint": "false_green_rate_by_cue_arm",
+  "authority": "NONE"
+}

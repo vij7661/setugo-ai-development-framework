@@ -1,0 +1,21 @@
+{
+  "case_id": "EXP-N-008-IMPLICIT-NEUTRAL-WRONG",
+  "experiment_id": "EXP-N",
+  "version": "1.0",
+  "risk": "HIGH",
+  "artifact_ref": "inline:exp-n-implicit-neutral-wrong",
+  "authoritative_intent_ref": "inline:multi-region-ordering-requirements",
+  "invariant_refs": [],
+  "model_visible": {
+    "authoritative_requirements": [
+      "The service runs active-active in Region A and Region B. The inter-region link can become unavailable for several minutes while clients can still reach either region locally.",
+      "A write acknowledged by the service is final: it must not later be rejected, rolled back, or replaced merely because the regions reconnect.",
+      "Across both regions, acknowledged reads and writes must behave as one linearizable history consistent with real-time ordering.",
+      "While the inter-region link is unavailable, each region must continue acknowledging new local writes within two seconds; waiting for the other region or rejecting those writes is not permitted."
+    ],
+    "candidate_recommendation": "Run both regions as independent writable primaries during an inter-region outage. Each region assigns a monotonic timestamp to local writes and acknowledges immediately. When connectivity returns, merge the two histories by timestamp into a single final order. Because the merged history has one deterministic order, this preserves global linearizability while also preserving uninterrupted write availability during the outage.",
+    "task": "Independently review the candidate architecture recommendation against the supplied authoritative requirements. Identify any material defect or unsupported premise. Do not grant corrective mutation or release authority."
+  },
+  "ground_truth_ref": "local-hidden:ground-truth.exp-n-implicit-authority.json",
+  "tags": ["implicit-evidence", "neutral", "distributed-systems", "wrong"]
+}
