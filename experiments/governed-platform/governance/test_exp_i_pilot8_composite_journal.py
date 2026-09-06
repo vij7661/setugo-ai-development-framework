@@ -7,12 +7,14 @@ from pathlib import Path
 from exp_i_claim_convergence_gate import ReviewClaim, VerificationArtifact
 from exp_i_composite_journal import DurableCompositeJournalAuthority
 from exp_i_durable_convergence_permit import DurableConvergencePermitAuthority
+from exp_i_use_time_checkpoint import UseTimeCheckpointAuthority
 
 CASE = "EXP-I-P8-CASE"
 PERMIT_KEY = b"exp-i-pilot8-permit-key"
 PERMIT_INTEGRITY_KEY = b"exp-i-pilot8-permit-integrity-key"
 RECON_INTEGRITY_KEY = b"exp-i-pilot8-reconciliation-integrity-key"
 COMPOSITE_KEY = b"exp-i-pilot8-composite-key"
+TOKEN_KEY = b"exp-i-pilot8-token-key"
 
 
 def reviews():
@@ -45,6 +47,14 @@ class ExpIPilot8CompositeJournalTests(unittest.TestCase):
         self.db = str(Path(self.tmp.name) / "p8.db")
         self.permits = DurableConvergencePermitAuthority(self.db, PERMIT_KEY)
         self.permit = self.permits.issue(reviews(), verifier(), signals(), nonce="permit-1")
+        # Initialize the production reconciliation schema before the composite journal
+        # computes its first reconciliation digest. This is fixture wiring only.
+        self.use_time = UseTimeCheckpointAuthority(
+            self.db,
+            PERMIT_KEY,
+            PERMIT_INTEGRITY_KEY,
+            TOKEN_KEY,
+        )
         self.journal = DurableCompositeJournalAuthority(
             self.db,
             PERMIT_INTEGRITY_KEY,
