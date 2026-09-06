@@ -1,0 +1,9 @@
+{
+  "experiment": "EXP-P",
+  "pilot": 1,
+  "run": "first-scientific-sample",
+  "paths": ["R1-R2-R1", "R1-R2-R1-R3", "R1-R2-R1-R3-R1"],
+  "iterations_per_path": 10,
+  "expected_stage_calls_without_retries": 120,
+  "preregistration_commit": "bd5da108d3645d68dd407cfa46d62f2116777788"
+}
