@@ -1,0 +1,33 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 3,
+  "title": "Durable convergence permit consumption and replay protection",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T15:06:00Z",
+  "frozen_sha": "f48987e8ec7e91732885aec75f48fc0ab4ff16ff",
+  "validation_run_id": 34041200261,
+  "validation_job_id": 101508156108,
+  "execution": {
+    "pilot3_vectors": "20/20 passed",
+    "governor_falsification_suite": "832/832 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested SQLite WAL-backed platform authority path, permit semantic bindings and one-time consumption survive authority restart. Exact unconsumed permits remain live once; consumed permits remain denied after restart and repeated restart; same-nonce semantic rebinding, forgery, case/class/scope/verifier/signal substitution, stale epochs, and concurrent double consumption fail closed. A clean fresh permit remains live exactly once after the tested attack vectors.",
+  "storage_integrity_boundary": "The pilot does not establish tamper resistance of the SQLite store. Direct deletion of a consumed record was explicitly tested only for fail-closed behavior on later consumption; no claim is made that deletion or coherent rollback can be detected independently from the local store itself.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "model_or_reviewer_can_mutate_ledger_control_state": false,
+    "terminal_convergence_is_release_authority": false
+  },
+  "not_proven": [
+    "Tamper-evident or tamper-resistant persistence under coherent local database rewrite or rollback",
+    "Physical power-loss durability",
+    "Byzantine or multi-host consensus",
+    "External cryptographic signing-key isolation",
+    "Production or release authority",
+    "Universal reviewer correctness"
+  ],
+  "next_falsification_target": "EXP-I Pilot 4: externally anchored integrity for the durable convergence-permit ledger, including coherent rollback, deletion, status resurrection, epoch lowering, and payload rebinding attempts."
+}
