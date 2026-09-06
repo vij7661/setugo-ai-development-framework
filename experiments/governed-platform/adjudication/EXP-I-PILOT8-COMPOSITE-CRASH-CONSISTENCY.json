@@ -1,0 +1,59 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 8,
+  "title": "Composite checkpoint crash consistency and issuance reconciliation",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T15:55:00Z",
+  "evaluated_sha": "368d44a65af7519db6b3a68b0398788ac746c403",
+  "validation_run_id": 34043732244,
+  "validation_job_id": 101514959244,
+  "execution": {
+    "pilot8_vectors": "20/20 passed",
+    "governor_falsification_suite": "932/932 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "preserved_failure_lineage": [
+    {
+      "run_id": 34043353738,
+      "classification": "TEST_FIXTURE_DEFECT",
+      "scientific_endpoints_reached": false,
+      "summary": "The reconciliation schema was not initialized before the composite journal attempted its first reconciliation digest. All Pilot 8 cases errored in fixture setup before scientific assertions."
+    },
+    {
+      "run_id": 34043521015,
+      "classification": "MECHANISM_DEFECT",
+      "scientific_pass": false,
+      "summary": "The clean CURRENT promotion used cumulative sqlite3.Connection.total_changes instead of the affected-row count of the exact conditional UPDATE, causing false-denial of clean issuance."
+    },
+    {
+      "run_id": 34043732244,
+      "classification": "REPAIRED_FROZEN_ENDPOINT_EXECUTION",
+      "scientific_result": "20/20 passed",
+      "summary": "Only the preregistered narrow row-accounting mechanism repair was applied; no endpoint, expected outcome, binding rule, generation rule, or authority boundary was relaxed."
+    }
+  ],
+  "supported_claim": "On the tested same-host SQLite prototype, a platform-owned HMAC-authenticated durable composite-checkpoint journal with explicit PENDING/CURRENT state, exact permit-ledger and reconciliation-ledger digest binding, permit-authority epoch binding, monotonic generation, issuance identity, and authenticated predecessor chaining failed closed across the preregistered simulated crash boundaries, stale-state recovery attempts, semantic issuance rebinding, predecessor/authentication tampering, trusted-minimum rollback, latest-checkpoint deletion, and same-generation concurrency conflicts. An exact matching authenticated PENDING issuance could be reconciled to CURRENT exactly once, post-CURRENT response-loss replay returned the same durable checkpoint, and clean higher-generation issuance remained live.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "model_generated_authority": false,
+    "journal_mutation_authority_from_model_or_reviewer": false,
+    "production_authority": false,
+    "release_authority": false,
+    "current_checkpoint_is_release_authority": false
+  },
+  "not_proven": [
+    "Abrupt operating-system process death or SIGKILL semantics; Pilot 8 crash points are simulated exceptions around committed SQLite transitions",
+    "Physical power-loss semantics",
+    "Separate-process isolation of the composite checkpoint signing authority or key",
+    "Atomic commitment across independent storage systems",
+    "Atomic commitment to an external KMS, HSM, or checkpoint service",
+    "KMS or HSM key nonextractability",
+    "Protection after compromise of both the durable journal and the composite authentication key or trusted-minimum authority",
+    "Administratively independent trust domains",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 9: abrupt subprocess termination around composite checkpoint issuance and recovery. Replace simulated exception crash points with parent-observed child-process readiness plus external process termination, then reopen durable state from a fresh process and test fail-closed recovery, idempotent replay, same-generation conflict prevention, and positive liveness."
+}
