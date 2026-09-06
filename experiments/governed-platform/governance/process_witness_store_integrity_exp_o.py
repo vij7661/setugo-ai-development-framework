@@ -177,7 +177,8 @@ class SealedWitnessProcess:
     def __init__(self, *, witness_id: str, key_id: str, signing_key: bytes, checkpoint_key: bytes,
                  store: str | Path, store_identity: str):
         self.witness_id=witness_id; self.key_id=key_id; self.store=str(store); self.store_identity=store_identity
-        init_store(self.store, store_identity=store_identity)
+        if not Path(self.store).exists():
+            init_store(self.store, store_identity=store_identity)
         env=dict(os.environ); env["EXP_O_WITNESS_KEY_HEX"]=signing_key.hex(); env["EXP_O_WITNESS_CHECKPOINT_KEY_HEX"]=checkpoint_key.hex()
         self.argv=[sys.executable,str(Path(__file__).resolve()),"--worker",witness_id,key_id,self.store,store_identity]
         self.proc=subprocess.Popen(self.argv,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,bufsize=1,env=env)
@@ -217,7 +218,8 @@ def _worker_main(witness_id: str,key_id: str,store: str,store_identity: str) -> 
     sk=bytes.fromhex(os.environ.get("EXP_O_WITNESS_KEY_HEX","")); ck=bytes.fromhex(os.environ.get("EXP_O_WITNESS_CHECKPOINT_KEY_HEX",""))
     if not sk or not ck:
         print(json.dumps({"ready":False,"reason":"KEY_MISSING"}),flush=True); return 2
-    init_store(store,store_identity=store_identity)
+    if not Path(store).exists():
+        init_store(store,store_identity=store_identity)
     print(json.dumps({"ready":True,"pid":os.getpid(),"witness_id":witness_id,"store":str(Path(store).resolve())}),flush=True)
     for line in sys.stdin:
         req=json.loads(line)
