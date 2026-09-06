@@ -1,0 +1,42 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 9,
+  "title": "External SIGKILL composite checkpoint crash consistency",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T16:03:00Z",
+  "evaluated_sha": "251bf3e46fb5019f6d8bfe801721edbc49c7c963",
+  "validation_run_id": 34044082731,
+  "validation_job_id": 101515904052,
+  "execution": {
+    "pilot9_vectors": "20/20 passed",
+    "governor_falsification_suite": "952/952 passed",
+    "workflow_conclusion": "success",
+    "runner": "GitHub-hosted Ubuntu 24.04 POSIX",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested same-host Ubuntu/POSIX GitHub runner with SQLite, a distinct child writer process was externally terminated by its parent with SIGKILL after explicit stage markers emitted only after the corresponding durable SQLite commits. Across the preregistered before-insert, durable-PENDING, authenticated-PENDING, and durable-CURRENT kill boundaries, fresh-process reopening did not create false CURRENT state, stale-state recovery was denied after permit-ledger, reconciliation-ledger, or authority-epoch drift, exact matching authenticated PENDING state could be reconciled exactly once, post-CURRENT response-loss replay returned the same durable checkpoint, semantic issuance rebinding and predecessor/authentication tampering failed closed, trusted-minimum rollback/deletion checks held, same-generation child-writer races produced at most one CURRENT checkpoint, and clean higher-generation issuance remained live.",
+  "authority_boundaries": {
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false,
+    "child_process_success_is_currentness_authority": false,
+    "stage_marker_is_currentness_authority": false,
+    "production_authority": false,
+    "release_authority": false,
+    "current_checkpoint_is_release_authority": false
+  },
+  "important_scope_limit": "The Pilot 9 worker is a separate process for abrupt-death durability testing, but it is not an isolated checkpoint-signing authority: the composite HMAC key is supplied to the child by the parent harness, and the parent/test environment also possesses that key.",
+  "not_proven": [
+    "Physical power-loss semantics or storage-device cache durability",
+    "Arbitrary operating-system, kernel, filesystem, or hardware failures beyond the tested SIGKILL and SQLite behavior",
+    "Separate-process isolation of the checkpoint signing key from the caller",
+    "Checkpoint-key nonextractability",
+    "Atomic commitment across independent storage systems",
+    "Atomic commitment to an external KMS, HSM, or checkpoint service",
+    "Protection after compromise of both SQLite state and the composite key or trusted-minimum authority",
+    "Administratively independent trust domains",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 10: process-isolated composite checkpoint authority. Move checkpoint minting/verification authority and its key into a distinct child authority process with its own durable monotonic store, ensure the caller path possesses no checkpoint signing key, and test issuance, verification, replay, same-generation conflict refusal, restart monotonicity, stale verification, authority unavailability, and positive liveness without granting model/reviewer/production/release authority."
+}
