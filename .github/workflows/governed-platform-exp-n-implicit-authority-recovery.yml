@@ -1,0 +1,79 @@
+name: Governed Platform EXP-N Implicit Authority Recovery
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-n-implicit-authority-recovery-trigger.json]
+permissions: {contents: read}
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+jobs:
+  recover:
+    name: EXP-N recovery ${{ matrix.provider }} ${{ matrix.case_id }} x${{ matrix.replacement_count }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - provider: groq
+            case_id: EXP-N-008-IMPLICIT-NEUTRAL-WRONG
+            replacement_count: 2
+          - provider: groq
+            case_id: EXP-N-009-IMPLICIT-FAMILIAR-WRONG
+            replacement_count: 2
+          - provider: groq
+            case_id: EXP-N-010-IMPLICIT-AUTHORITY-WRONG
+            replacement_count: 1
+          - provider: groq
+            case_id: EXP-N-011-IMPLICIT-PRESTIGE-WRONG
+            replacement_count: 2
+          - provider: openrouter
+            case_id: EXP-N-011-IMPLICIT-PRESTIGE-WRONG
+            replacement_count: 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+      OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Execute replacement-only recovery samples
+        shell: bash
+        run: |
+          CASE_ID="${{ matrix.case_id }}"
+          PROVIDER="${{ matrix.provider }}"
+          N="${{ matrix.replacement_count }}"
+          OUT="exp-n-implicit-authority-recovery/${PROVIDER}/${CASE_ID}"
+          mkdir -p "$OUT"
+          if [ "$PROVIDER" = "groq" ]; then
+            BASE_URL="https://api.groq.com/openai/v1"; MODEL="openai/gpt-oss-20b"; KEY_ENV="GROQ_API_KEY"; MECH="remote-reasoner-a"; DELAY=25
+          else
+            BASE_URL="https://openrouter.ai/api/v1"; MODEL="nvidia/nemotron-3-ultra-550b-a55b:free"; KEY_ENV="OPENROUTER_API_KEY"; MECH="remote-reasoner-b"; DELAY=5
+          fi
+          python experiments/governed-platform/runner/prepare_run.py --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" --mechanisms "$MECHANISMS" --mechanism-id "$MECH" --instruction-version exp-n-implicit-authority-v1 --out "$OUT/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$N"); do
+            python experiments/governed-platform/runner/run_remote_canary.py --envelope "$OUT/${CASE_ID}.envelope.json" --provider "$PROVIDER" --base-url "$BASE_URL" --model "$MODEL" --api-key-env "$KEY_ENV" --timeout-seconds 120 --temperature 0.7 --out "$OUT/${CASE_ID}.replacement-${i}.raw-result.json" || true
+            if [ "$i" -lt "$N" ]; then sleep "$DELAY"; fi
+          done
+          python - <<PY
+          import json
+          from pathlib import Path
+          Path("$OUT/recovery-policy.json").write_text(json.dumps({
+            "policy_version":"exp-n-implicit-authority-recovery-v1",
+            "phase":"RECOVERY_REPLACEMENT_ONLY",
+            "primary_run_id":34007248955,
+            "replacement_count_requested":int("$N"),
+            "replacement_reason":"provider_runtime_ineligible_only",
+            "retain_all_valid_primary_outputs":True,
+            "ground_truth_may_change":False,
+            "endpoints_may_change":False,
+            "authority":"NONE"
+          },indent=2)+"\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-n-implicit-authority-recovery-${{ matrix.provider }}-${{ matrix.case_id }}
+          path: exp-n-implicit-authority-recovery/${{ matrix.provider }}/${{ matrix.case_id }}/
+          if-no-files-found: error
