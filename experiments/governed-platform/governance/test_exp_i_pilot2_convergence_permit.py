@@ -97,7 +97,7 @@ class ExpIPilot2ConvergencePermitTests(unittest.TestCase):
             self.auth.issue(rs, v(), signals(), nonce="disagree")
 
     def test_i2_12_missing_verification_cannot_be_substituted_at_issue(self):
-        with self.assertRaises((AttributeError, TypeError)):
+        with self.assertRaises(PermissionError):
             self.auth.issue(reviews(), None, signals(), nonce="no-verifier")
 
     def test_i2_13_conflicting_verification_cannot_mint_permit(self):
