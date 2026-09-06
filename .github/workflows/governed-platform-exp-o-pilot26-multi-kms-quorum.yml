@@ -1,0 +1,83 @@
+name: Governed Platform EXP-O Pilot 26 Multi-KMS Root Quorum
+
+on:
+  push:
+    branches:
+      - experiment/governed-platform-falsification-harness
+    paths:
+      - .github/exp-o-pilot26-multi-kms-quorum-trigger.json
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  pilot26:
+    name: EXP-O Pilot 26 multi-KMS root quorum
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce frozen Pilot 26 trigger and protected design
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,re,subprocess
+          from pathlib import Path
+          p=Path('.github/exp-o-pilot26-multi-kms-quorum-trigger.json')
+          if not p.is_file(): raise SystemExit('Pilot 26 trigger required')
+          t=json.loads(p.read_text())
+          expected={
+            'experiment':'EXP-O',
+            'pilot':'PILOT26-MULTI-KMS-ROOT-QUORUM',
+            'aws_role_arn':'arn:aws:iam::297165774800:role/setugo-pilot24-kms-signer',
+            'aws_region':'ap-southeast-2',
+            'root_a_arn':'arn:aws:kms:ap-southeast-2:297165774800:key/57d95d4f-9b80-44e4-badf-0330ba9f897c',
+            'root_b_arn':'arn:aws:kms:ap-southeast-2:297165774800:key/aad32262-2396-485e-a6f2-0ae0cd10f52e',
+            'root_c_arn':'arn:aws:kms:ap-southeast-2:297165774800:key/992638b8-7086-41a6-a3dc-849a998c4f86',
+            'key_spec':'ECC_NIST_P256',
+            'signing_algorithm':'ECDSA_SHA_256',
+            'threshold':'2-of-3-distinct-registered-kms-key-arns',
+            'nonce':'pilot26-multi-kms-1',
+          }
+          for k,v in expected.items():
+            if t.get(k)!=v: raise SystemExit(f'trigger mismatch {k}')
+          design=t.get('design_commit')
+          if not isinstance(design,str) or not re.fullmatch(r'[0-9a-f]{40}',design): raise SystemExit('full design SHA required')
+          if not isinstance(t.get('created_at_utc'),str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z',t['created_at_utc']): raise SystemExit('UTC timestamp required')
+          subprocess.run(['git','cat-file','-e',f'{design}^{{commit}}'],check=True)
+          protected=[
+            '.github/workflows/governed-platform-exp-o-pilot26-multi-kms-quorum.yml',
+            'experiments/governed-platform/adjudication/EXP-O-PILOT26-MULTI-KMS-ROOT-QUORUM-PREREGISTRATION.md',
+            'experiments/governed-platform/adjudication/EXP-O-PILOT26-KMS-ROOT-RESOURCE-BINDING-AMENDMENT.md',
+            'experiments/governed-platform/runner/run_exp_o_pilot26_multi_kms_quorum.py',
+            'experiments/governed-platform/governance/test_exp_o_pilot26_multi_kms_preregistration.py',
+          ]
+          subprocess.run(['git','diff','--exit-code',design,'HEAD','--',*protected],check=True)
+          print('Pilot 26 protected design verified:',design)
+          PY
+      - name: Configure temporary AWS credentials from GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::297165774800:role/setugo-pilot24-kms-signer
+          aws-region: ap-southeast-2
+          role-session-name: setugo-exp-o-pilot26
+          audience: sts.amazonaws.com
+      - name: Execute frozen Pilot 26 multi-KMS quorum suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=exp-o-pilot26-results
+          python experiments/governed-platform/runner/run_exp_o_pilot26_multi_kms_quorum.py --output-dir "$OUT"
+          cp .github/exp-o-pilot26-multi-kms-quorum-trigger.json "$OUT/trigger-binding.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-o-pilot26-multi-kms-quorum
+          path: exp-o-pilot26-results/
+          if-no-files-found: error
