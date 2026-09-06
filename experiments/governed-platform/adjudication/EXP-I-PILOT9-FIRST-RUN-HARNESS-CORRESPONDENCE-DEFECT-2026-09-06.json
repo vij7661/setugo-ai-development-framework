@@ -1,0 +1,35 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 9,
+  "run_id": 34048318974,
+  "job_id": 101527268957,
+  "evaluated_head_sha": "cdf46e47d3f1f5dcdf90402e6d030e3d7e516192",
+  "operational_result": {
+    "pilot9_vectors": "14/14 passed",
+    "governor_falsification_suite": "946/946 passed",
+    "workflow_conclusion": "success"
+  },
+  "scientific_result": "NOT_ADJUDICABLE_AS_EXACT_MECHANISM_PASS",
+  "classification": "TEST_HARNESS_CORRESPONDENCE_DEFECT",
+  "scientific_endpoints_reached": false,
+  "finding": "The external-SIGKILL worker duplicated the Pilot 8 issuance transition using private DurableCompositeJournalAuthority internals rather than executing DurableCompositeJournalAuthority.issue() itself. The duplicate path was materially non-identical: it added an affected-row check to PENDING authentication that the exact issue() path does not contain, and readiness boundaries were not all located at the exact corresponding statements in issue(). A 14/14 green result therefore cannot establish abrupt-process-death behavior of the exact mechanism under test.",
+  "preserved_evidence": {
+    "all_frozen_vectors_executed": true,
+    "all_frozen_vectors_operationally_green": true,
+    "pilot8_vectors_remained_green": true,
+    "full_governor_suite_green": true,
+    "green_execution_is_scientific_pass": false
+  },
+  "authorized_repair_scope": [
+    "TEST-INSTRUMENTATION",
+    "BEHAVIORALLY-INERT-CUTPOINT-HOOKS"
+  ],
+  "repair_constraint": "Do not alter checkpoint state transitions, transaction ordering, SQL predicates, authentication semantics, recovery semantics, generation rules, expected outcomes, or authority boundaries. Add only optional no-op-by-default cutpoint observation hooks to the exact issue() path and make the subprocess invoke that exact method.",
+  "rerun_requirement": "Rerun unchanged P9-01..P9-14 plus the complete governed-platform regression suite after the narrow correspondence repair.",
+  "authority": {
+    "production_authority": false,
+    "release_authority": false,
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false
+  }
+}
