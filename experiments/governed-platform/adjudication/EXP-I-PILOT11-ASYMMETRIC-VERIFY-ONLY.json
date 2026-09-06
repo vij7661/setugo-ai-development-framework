@@ -1,0 +1,57 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 11,
+  "title": "Asymmetric verify-only composite checkpoint authentication",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T17:49:30Z",
+  "parent_adjudication_commit": "90ff38e6274b5523bd919d9e6c9ef538d04fa3f4",
+  "evaluated_sha": "03f7c900c7cb8ae45a6c3d103a41f317bfb4ffe8",
+  "validation_run_id": 34049698205,
+  "validation_job_id": 101530947099,
+  "execution": {
+    "pilot11_vectors": "16/16 passed",
+    "pilot10_regression_vectors": "16/16 passed",
+    "pilot9_regression_vectors": "14/14 passed",
+    "pilot8_regression_vectors": "20/20 passed",
+    "governor_falsification_suite": "978/978 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "scientific_lineage": [
+    {
+      "run_id": 34049698205,
+      "job_id": 101530947099,
+      "classification": "FROZEN_ENDPOINT_EXECUTION",
+      "scientific_result": "16/16 passed",
+      "summary": "All preregistered P11-01..P11-16 endpoints executed on the frozen Pilot 11 head and passed. No Pilot 11 repair was required. The complete governed-platform governor suite passed 978/978."
+    }
+  ],
+  "supported_claim": "On the tested same-host Ubuntu 24.04 / Python 3.12 / OpenSSL prototype, composite checkpoint authentication was separated from minting with Ed25519. The private checkpoint-signing key was confined to the signer subprocess boundary while writer and verifier surfaces received only the public verification key and fixed key identity. Public material alone could not mint an accepted checkpoint; unrelated private-key signatures, public-key/key-id substitution and signed-field mutation were rejected. Already-issued valid material remained cryptographically verifiable while the signer was unavailable, while signer outage blocked new writer mutation. The signer independently derived current permit-ledger, reconciliation-ledger and permit-authority-epoch bindings, enforced exact-next generation, predecessor, issuance identity, replay and semantic-rebinding constraints, and preserved monotonic/replay state across restart. Cryptographic validity alone did not promote stale material after governed-state drift. Clean higher-generation liveness survived signer/verifier restart. Models, reviewers, writers and verifiers gained no production, release, merge or approval authority from checkpoint signatures or verification success.",
+  "authority_boundaries": {
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false,
+    "writer_generated_authority": false,
+    "verifier_generated_authority": false,
+    "signer_authority_scope": "checkpoint-signing-only",
+    "signature_is_production_authority": false,
+    "verification_is_release_authority": false,
+    "production_authority": false,
+    "release_authority": false
+  },
+  "not_proven": [
+    "HSM or KMS private-key nonextractability",
+    "Protection against same-user filesystem access, debugger, ptrace, process-memory inspection, host administrator, kernel, hypervisor or physical host compromise",
+    "Protection after signer process or private signing key compromise",
+    "Multi-signer or threshold signing authority",
+    "Administratively independent trust domains",
+    "Networked remote-signer transport security",
+    "Production-scale key rotation, revocation or compromise recovery",
+    "Hardware-backed attestation",
+    "Physical power-loss durability",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "implementation_note": "The bounded prototype persists the Ed25519 private key as a same-host PEM file for signer restart continuity and uses best-effort restrictive file permissions. This is intentionally not evidence of key nonextractability or protection from a same-user/host administrator adversary.",
+  "next_falsification_target": "EXP-I Pilot 12: checkpoint signer key rotation and revocation. Introduce an external platform trust registry that is authoritative for key identity/epoch and is separate from signer, writer and verifier. Test clean K1-to-K2 rotation, post-revocation K1 rejection despite cryptographic validity, trust-epoch rollback and stale-registry resistance, key-id/public-key substitution, mixed-key lineage, concurrent rotation versus issuance, restart/cache invalidation, and clean second rotation liveness without granting the signer authority to modify its own trust status."
+}
