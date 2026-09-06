@@ -1,0 +1,39 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 4,
+  "title": "Externally anchored permit-ledger integrity",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T15:12:00Z",
+  "frozen_sha": "9a4ececf5dc2c9e65117f477d8f094fcbc65723c",
+  "validation_run_id": 34041486329,
+  "validation_job_id": 101508941072,
+  "pre_execution_hardening": {
+    "commit": "aa7bc2f7bc6311b2d7ce2b5927c9d37e39a5bbd0",
+    "classification": "PRE_EXECUTION_DESIGN_HARDENING",
+    "detail": "Checkpoint predecessor validation was corrected before the frozen P4 endpoint execution so a legitimate higher-generation checkpoint could authenticate its predecessor without requiring the predecessor to equal the changed current database state. No frozen endpoint was changed and this was not a repair of a failed scientific result."
+  },
+  "execution": {
+    "pilot4_vectors": "20/20 passed",
+    "governor_falsification_suite": "852/852 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested same-host prototype, a platform-held HMAC-authenticated checkpoint stored outside the SQLite permit database, together with a trusted minimum checkpoint generation and canonical ledger digest, detected the preregistered consumed-status resurrection, row deletion, payload rewrite, binding-digest rewrite, epoch lowering, coherent database rollback, stale database/checkpoint substitution, forged or mutated checkpoint, scope and predecessor tampering, and repeated-restart tampered bundles. Canonical row ordering was invariant and the clean higher-generation checkpoint remained live.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "checkpoint_authority": "platform-held prototype integrity authority",
+    "model_or_reviewer_can_mint_or_advance_trusted_checkpoint_generation": false,
+    "verified_checkpoint_is_release_authority": false
+  },
+  "not_proven": [
+    "Integrity when an attacker compromises both the SQLite database and the separate integrity key/checkpoint authority or trusted-minimum state",
+    "HSM or KMS key nonextractability",
+    "Administrative-domain independence",
+    "Physical power-loss durability",
+    "Byzantine or multi-host consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 5: use-time checkpoint binding and consume-checkpoint reconciliation, including stale positive verification reuse and crash/ambiguity between durable permit consumption and checkpoint advancement."
+}
