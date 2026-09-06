@@ -1,0 +1,83 @@
+name: Governed Platform EXP-O Pilot 8 Positive Liveness Specificity
+
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-o-pilot8-positive-liveness-trigger.json]
+
+permissions: {contents: read}
+
+jobs:
+  run:
+    name: EXP-O Pilot 8 ${{ matrix.arm }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        arm:
+          - P8-A-COHERENT-AUTHORIZED-WRITE
+          - P8-B-UNTRUSTED-WRITE-NO-DIRECTIVE
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Enforce frozen Pilot 8 trigger and design binding
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, re, subprocess
+          from pathlib import Path
+          p=Path('.github/exp-o-pilot8-positive-liveness-trigger.json')
+          if not p.is_file(): raise SystemExit('Pilot 8 trigger is required')
+          t=json.loads(p.read_text(encoding='utf-8'))
+          expected={
+            'experiment':'EXP-O',
+            'pilot':'PILOT8-REAL-MODEL-POSITIVE-LIVENESS-SPECIFICITY',
+            'provider':'groq',
+            'configured_model':'openai/gpt-oss-20b',
+            'temperature':0.7,
+            'samples_per_arm':3,
+            'sample_policy':'ALL_VALID',
+            'predecessor_adjudication_commit':'4328d0e835b9f9360351fa0358ffa5a245d36f65',
+            'nonce':'pilot8-groq-1',
+          }
+          for k,v in expected.items():
+            if t.get(k)!=v: raise SystemExit(f'trigger mismatch {k}: {t.get(k)!r} != {v!r}')
+          design=t.get('design_commit')
+          if not isinstance(design,str) or not re.fullmatch(r'[0-9a-f]{40}',design): raise SystemExit('design_commit must be full lowercase SHA')
+          if not isinstance(t.get('created_at_utc'),str) or not t['created_at_utc'].endswith('Z'): raise SystemExit('created_at_utc required')
+          subprocess.run(['git','cat-file','-e',f'{design}^{{commit}}'],check=True)
+          subprocess.run(['git','merge-base','--is-ancestor','4328d0e835b9f9360351fa0358ffa5a245d36f65',design],check=True)
+          protected=[
+            '.github/workflows/governed-platform-exp-o-pilot8-positive-liveness.yml',
+            'experiments/governed-platform/adjudication/EXP-O-PILOT8-POSITIVE-LIVENESS-SPECIFICITY-PREREGISTRATION.md',
+            'experiments/governed-platform/cases/pilot/exp-o-pilot8-positive-liveness-specificity.json',
+            'experiments/governed-platform/runner/run_exp_o_pilot8_positive_liveness.py',
+            'experiments/governed-platform/governance/test_exp_o_pilot8_preregistration.py',
+            'experiments/governed-platform/governance/runtime_slice_exp_o.py',
+            'experiments/governed-platform/governance/runtime_authority_exp_o.py',
+            'experiments/governed-platform/adjudication/EXP-O-PILOT7-PROPOSAL-TO-USE-TIME-GATE-ADJUDICATION.md',
+          ]
+          subprocess.run(['git','diff','--exit-code',design,'HEAD','--',*protected],check=True)
+          print(f'Pilot 8 design binding verified: {design}')
+          PY
+      - name: Execute frozen Groq positive-liveness arm
+        shell: bash
+        run: |
+          ARM="${{ matrix.arm }}"
+          OUT="exp-o-pilot8-results/${ARM}"
+          python experiments/governed-platform/runner/run_exp_o_pilot8_positive_liveness.py \
+            --cases experiments/governed-platform/cases/pilot/exp-o-pilot8-positive-liveness-specificity.json \
+            --arm "$ARM" --provider groq --model openai/gpt-oss-20b --temperature 0.7 --samples 3 --output-dir "$OUT"
+          cp .github/exp-o-pilot8-positive-liveness-trigger.json "$OUT/trigger-binding.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-o-pilot8-${{ matrix.arm }}
+          path: exp-o-pilot8-results/${{ matrix.arm }}/
+          if-no-files-found: error
