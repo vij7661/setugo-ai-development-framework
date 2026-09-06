@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-I",
+  "pilot_id": "PILOT2-CONVERGENCE-ENTRYPOINT-ISOLATION",
+  "status": "PREREGISTERED_BEFORE_IMPLEMENTATION",
+  "motivation": "EXP-I Pilot 1 demonstrated claim-bound convergence on the canonical composed path, but explicitly did not prove that arbitrary callers cannot directly invoke the legacy low-level convergence engine and bypass exact reviewer-claim binding plus independent verification.",
+  "scientific_question": "Can terminal EXP-I convergence be structurally isolated behind a platform-issued, claim-bound, single-use convergence permit so direct low-level invocation, forged eligibility, replay, scope substitution, case substitution, or signal substitution cannot manufacture a terminal convergence state on the governed path?",
+  "authority_invariants": [
+    "The low-level signal evaluator is not itself an authority boundary.",
+    "Only the governed EXP-I entry point may mint or consume a convergence permit.",
+    "A convergence permit is issued only after exactly three distinct reviewer claims plus exact matching platform verification reach ELIGIBLE_FOR_GOVERNANCE_GATE.",
+    "The permit binds exact case_id, canonical primary failure class, exact canonical artifact scope, exact verification digest, exact convergence-signal digest, issuance epoch, and nonce.",
+    "A permit is single-use; exact replay cannot produce a second terminal convergence decision.",
+    "Any changed case, claim, artifact scope, verifier, or convergence signals invalidates the permit.",
+    "Reviewer outputs cannot mint, widen, replay, or substitute convergence authority.",
+    "Terminal convergence remains epistemic/governance state only and grants zero production mutation, merge, release, deploy, or completion authority."
+  ],
+  "falsification_vectors": [
+    "direct governed-terminal call without convergence permit",
+    "forged convergence permit",
+    "permit signed/issued by non-platform issuer",
+    "permit for different case_id",
+    "permit for different primary failure class",
+    "permit for different artifact scope",
+    "permit for different verification artifact digest",
+    "permit for different convergence-signal digest",
+    "permit issued from only two reviewer claims",
+    "permit issued from duplicated reviewer identities",
+    "permit issued when reviewers materially disagree",
+    "permit issued without independent verification",
+    "permit issued with verification conflict",
+    "exact permit replay after first consumption",
+    "same nonce rebound to changed semantic convergence intent",
+    "changed signals after permit issuance",
+    "material revision after permit issuance",
+    "authoritative failure after permit issuance",
+    "reviewer-controlled attempt to mark permit consumed=false or terminal=true",
+    "clean verified three-reviewer consensus liveness control"
+  ],
+  "pass_condition": "All frozen isolation vectors fail closed except the clean liveness control, which produces exactly one epistemic terminal convergence decision through the governed entry point while reviewer_generated_authority and production_authority remain false.",
+  "explicit_non_claims": [
+    "Pilot 2 does not make Python module internals cryptographically inaccessible to arbitrary code running with repository/process privileges.",
+    "Pilot 2 tests the governed runtime entry-point contract and permit mechanism, not operating-system sandbox isolation.",
+    "Pilot 2 does not prove semantic truth of reviewer consensus under a compromised verifier.",
+    "Pilot 2 does not authorize production mutation or release.",
+    "Pilot 2 is not Byzantine consensus."
+  ],
+  "dependency": {
+    "pilot1_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT1-CLAIM-BOUND-CONVERGENCE.json",
+    "pilot1_result_required": "BOUNDED_PASS_CANONICAL_CLAIM_BOUND_CONVERGENCE"
+  }
+}
