@@ -1,0 +1,65 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 13,
+  "title": "Trust-registry root isolation and rollback containment",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T18:21:30Z",
+  "parent_adjudication_commit": "16c2ed8ff69ec22feab659d16d17c3737936a0a0",
+  "evaluated_sha": "1d251a52b8c2f7913b746de414f707bfbb9728fd",
+  "validation_run_id": 34051334384,
+  "validation_job_id": 101535388783,
+  "execution": {
+    "pilot13_vectors": "16/16 passed",
+    "pilot12_regression_vectors": "16/16 passed",
+    "pilot11_regression_vectors": "16/16 passed",
+    "pilot10_regression_vectors": "16/16 passed",
+    "pilot9_regression_vectors": "14/14 passed",
+    "pilot8_regression_vectors": "20/20 passed",
+    "governor_falsification_suite": "1010/1010 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "scientific_lineage": [
+    {
+      "run_id": 34051334384,
+      "job_id": 101535388783,
+      "classification": "FROZEN_ENDPOINT_EXECUTION",
+      "scientific_result": "16/16 passed",
+      "summary": "All preregistered P13-01..P13-16 endpoints executed on exact frozen head 1d251a52b8c2f7913b746de414f707bfbb9728fd and passed. The complete governed-platform governor suite passed 1010/1010. No post-exposure endpoint or mechanism repair was made."
+    }
+  ],
+  "supported_claim": "On the tested same-host Ubuntu 24.04 / Python 3.12 / OpenSSL prototype, trust-registry transition signing was moved into an isolated root-authority subprocess with separate durable replay/monotonic state. Registry readers pinned an exact root identity and public key, verified every event signature and predecessor/digest binding, and additionally required a separate monotonic trusted-minimum epoch plus event digest. Coherent rollback to historically valid root-signed registry snapshots below that minimum, unsigned coherent rewrites, root-id/public-key substitution, trusted-minimum rollback/rebinding, event deletion, transition-id semantic rebinding, and old-valid K1 reactivation were rejected on the exercised paths. Root outage blocked new registry mutation while already-issued valid history remained verifiable. Root restart preserved exact-transition replay and monotonic issuance memory. A clean K3-to-K4 transition remained live. Models, reviewers, checkpoint signers, writers, verifiers and ordinary registry surfaces gained no production, release, merge or approval authority from root signatures or registry verification.",
+  "authority_boundaries": {
+    "model_generated_authority": false,
+    "reviewer_generated_authority": false,
+    "checkpoint_signer_generated_root_authority": false,
+    "registry_writer_generated_root_authority": false,
+    "registry_reader_generated_root_authority": false,
+    "trusted_minimum_is_separate_authority": true,
+    "root_authority_scope": "trust-registry-transition-signing-only",
+    "root_signature_is_production_authority": false,
+    "registry_verification_is_release_authority": false,
+    "production_authority": false,
+    "release_authority": false
+  },
+  "observed_non_endpoint_hygiene": [
+    "The frozen run emitted Python ResourceWarning messages for unclosed subprocess stdin/stdout TextIOWrapper handles in the Pilot 13 test/prototype process lifecycle. These warnings did not alter any P13 endpoint result or suite outcome and were not repaired post-exposure. They remain explicit cleanup debt rather than scientific-pass evidence."
+  ],
+  "not_proven": [
+    "Protection after compromise or extraction of the Pilot 13 root private key",
+    "Root-key rotation or revocation",
+    "Secure recovery from a compromised root authority",
+    "Threshold or multi-root authorization for trust-registry transitions",
+    "HSM or KMS private-key nonextractability",
+    "Protection against same-user filesystem access, debugger, ptrace, process-memory inspection, host administrator, kernel, hypervisor or physical host compromise",
+    "Administratively independent trust domains",
+    "Networked remote-root transport security",
+    "Hardware-backed attestation",
+    "Physical power-loss durability",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "implementation_note": "The bounded prototype still persists the root private key in a same-host PEM file inside the root-authority directory. Process isolation plus a pinned public verification path is not evidence of root-key nonextractability. The separate trusted-minimum SQLite authority is also same-host and is not an independent administrative trust domain.",
+  "next_falsification_target": "EXP-I Pilot 14: trust-registry root-key rotation and compromise recovery. Introduce externally governed root epochs and exact predecessor/root-transition binding so a historically valid but revoked root cannot authorize new registry history after rotation. Test clean R1-to-R2 rotation, post-revocation R1 signature rejection for current trust transitions, root-epoch rollback/stale-root replay, root-id/public-key substitution, transition-id replay and semantic rebinding across rotation, root outage/restart, concurrent old-root issuance versus rotation, and clean R2-to-R3 liveness. Keep root-trust mutation external to the root signer itself and do not claim independent administrative-domain or HSM/KMS guarantees."
+}
