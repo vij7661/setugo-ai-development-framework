@@ -131,12 +131,17 @@ def child_main(args):
         con.execute("CREATE TABLE IF NOT EXISTS meta(id INTEGER PRIMARY KEY CHECK(id=1), max_generation INTEGER NOT NULL)")
         con.execute("INSERT OR IGNORE INTO meta(id,max_generation) VALUES(1,-1)")
         con.execute("CREATE TABLE IF NOT EXISTS history(generation INTEGER PRIMARY KEY, statement_hash TEXT NOT NULL, vote TEXT NOT NULL)")
+        # Finish schema/bootstrap DML before the serialized operational transaction.
+        con.commit()
         qc = con.execute("PRAGMA quick_check").fetchone()[0]
         if qc != "ok":
             raise sqlite3.DatabaseError(qc)
+        # Serialize the anti-equivocation decision before reading durable state.
+        con.execute("BEGIN IMMEDIATE")
         max_gen = con.execute("SELECT max_generation FROM meta WHERE id=1").fetchone()[0]
         existing = con.execute("SELECT statement_hash,vote FROM history WHERE generation=?", (generation,)).fetchone()
         if existing:
+            con.rollback()
             if existing[0] != digest:
                 print(json.dumps({"status": "DENY", "reason": "SAME_GENERATION_CONFLICT", "generation": generation}))
                 return 2
@@ -144,11 +149,11 @@ def child_main(args):
                               "generation": generation, "statement_hash": digest, "vote": existing[1], "aws_credentials_present": False}))
             return 0
         if generation < max_gen:
+            con.rollback()
             print(json.dumps({"status": "DENY", "reason": "LOWER_GENERATION", "generation": generation, "max_generation": max_gen}))
             return 2
         payload = f"{args.witness_id}|{generation}|{digest}".encode()
         vote = hmac.new(key.encode(), payload, hashlib.sha256).hexdigest()
-        con.execute("BEGIN IMMEDIATE")
         con.execute("INSERT INTO history(generation,statement_hash,vote) VALUES(?,?,?)", (generation,digest,vote))
         con.execute("UPDATE meta SET max_generation=? WHERE id=1", (max(max_gen,generation),))
         con.commit()
