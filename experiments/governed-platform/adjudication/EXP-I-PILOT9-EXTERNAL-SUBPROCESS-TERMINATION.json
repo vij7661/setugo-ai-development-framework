@@ -1,0 +1,59 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 9,
+  "title": "External subprocess termination around composite-checkpoint issuance and recovery",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T17:29:00Z",
+  "parent_adjudication_sha": "3b3be3b6f6e6d57ed36dafed8f99aba6fc98eb57",
+  "evaluated_sha": "c4ff03145a4f11ae97819d6e857239db1d30218f",
+  "validation_run_id": 34048588426,
+  "validation_job_id": 101527987097,
+  "execution": {
+    "pilot9_vectors": "14/14 passed",
+    "pilot8_regression_vectors": "20/20 passed",
+    "governor_falsification_suite": "946/946 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "preserved_failure_lineage": [
+    {
+      "run_id": 34048318974,
+      "classification": "TEST_HARNESS_CORRESPONDENCE_DEFECT",
+      "scientific_endpoints_reached": false,
+      "summary": "The first external-SIGKILL harness duplicated the Pilot 8 issuance transition using private internals instead of executing DurableCompositeJournalAuthority.issue() itself. The duplicate path was materially non-identical, so its 14/14 green result was preserved but not accepted as exact-mechanism evidence."
+    },
+    {
+      "run_id": 34048588426,
+      "classification": "REPAIRED_FROZEN_ENDPOINT_EXECUTION",
+      "scientific_result": "14/14 passed",
+      "summary": "The narrow correspondence repair left production checkpoint code unchanged. A test-only transparent SQLite connection proxy observed the exact SQL/commit boundaries while the child executed DurableCompositeJournalAuthority.issue() itself. No frozen endpoint, expected result, state transition, SQL predicate, authentication rule, recovery rule, generation rule, or authority boundary was relaxed."
+    }
+  ],
+  "supported_claim": "On the tested same-host SQLite prototype running on Ubuntu 24.04 / Python 3.12, the exact DurableCompositeJournalAuthority.issue() path remained fail-closed and replay-safe across the preregistered parent-driven external SIGKILL boundaries. Killing before durable PENDING produced no false CURRENT; a committed unauthenticated PENDING remained non-current and unrecoverable; an authenticated PENDING remained non-current until exact matching recovery and then promoted exactly once; killing after the CURRENT UPDATE but before COMMIT rolled the promotion back to authenticated PENDING and allowed one exact later reconciliation; killing after CURRENT COMMIT but before response preserved the durable valid CURRENT checkpoint and exact retry returned the same issuance without duplication. State drift, semantic rebinding, and a competing same-generation issuance remained denied, and clean higher-generation issuance remained live. The parent verified the readiness marker PID matched the live child PID and that termination was external SIGKILL rather than cooperative worker cleanup.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "model_generated_authority": false,
+    "writer_generated_authority": false,
+    "checkpoint_is_production_authority": false,
+    "checkpoint_is_release_authority": false,
+    "production_authority": false,
+    "release_authority": false
+  },
+  "not_proven": [
+    "Physical power-loss semantics",
+    "Kernel panic, VM reset, or whole-host disappearance semantics",
+    "Storage-controller, filesystem barrier, drive-cache, torn-page, bit-rot, or all SQLite WAL/checkpoint interleavings",
+    "Windows or non-Linux hard-termination semantics",
+    "Separate-process isolation or non-possession of the composite checkpoint authentication/signing key by the writer",
+    "Atomic commitment across independent storage systems",
+    "Atomic commitment to an external KMS, HSM, or checkpoint service",
+    "KMS or HSM key nonextractability",
+    "Exactly-once semantics for arbitrary remote side effects",
+    "Protection after compromise of both durable state and the checkpoint authentication key or trusted-minimum authority",
+    "Administratively independent trust domains",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 10: isolate composite-checkpoint authentication/signing authority from the writer process. The writer must possess no checkpoint signing key and must request a narrowly bound signature/authorization from a distinct process that independently enforces scope, generation, predecessor, ledger digests, permit-authority epoch, issuance identity, replay/semantic-rebinding rules, and fail-closed behavior across signer restart or unavailability."
+}
