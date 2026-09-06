@@ -1,0 +1,48 @@
+{
+  "record_type": "PRE_FREEZE_CONSTRUCTION_FAILURE_CLASSIFICATION",
+  "track": "EXP-I SYSTEMATIC_STATE_SPACE_AND_FAULT_EXPLORATION",
+  "construction_run": 34061803290,
+  "construction_job": 101563528187,
+  "construction_head": "d2e82fe2cc29be417d6488573619ce255147e6be",
+  "scientific_status": "NOT_SCIENTIFIC_EVIDENCE_PRE_FREEZE",
+  "observed_result": {
+    "governed_regression_total": 1123,
+    "failures": 2,
+    "production_model_violations": ["SA-09"],
+    "safety_invariants_clean": ["SA-01", "SA-02", "SA-03", "SA-04", "SA-05", "SA-06", "SA-07", "SA-08", "SA-10"],
+    "mutant_integrity": {
+      "MUT-01": "DETECTED",
+      "MUT-02": "DETECTED",
+      "MUT-03": "DETECTED",
+      "MUT-04": "DETECTED"
+    },
+    "shortest_counterexample_trace": [
+      "issue-commit A:T1",
+      "R1 write-anchor-temp",
+      "R1 replace-anchor",
+      "R1 store-receipt",
+      "issue-commit B:T1"
+    ],
+    "counterexample_state": {
+      "ledger": [["A", "T1"], ["B", "T1"]],
+      "anchor": [["A", "T1"]],
+      "receipt": [["A", "T1"]],
+      "temp_anchor": null,
+      "trusted_generation": 0,
+      "authority_uses": []
+    }
+  },
+  "classification": [
+    "STATE_SPACE_HARNESS_DEFECT",
+    "PREREGISTERED_LIVENESS_BOUND_SPECIFICATION_DEFECT"
+  ],
+  "mechanism_counterexample": false,
+  "diagnosis": "SA-09 incorrectly consumes the global genesis exploration budget as the local recovery-liveness budget. The counterexample is a valid exact ledger-ahead state at global depth 5. Only 7 global transitions remain under MAX_DEPTH=12, while the current witness definition requires up to 8 local transitions to reconcile the current issuance, issue one clean next generation, reconcile that generation, and perform the modeled trusted-minimum consequential use. The failure therefore depends on when a state is discovered from genesis rather than on whether that state has a bounded clean recovery path. The same defect would systematically make sufficiently late recoverable states fail even when their protocol recovery is valid.",
+  "repair_constraint": "Do not change any authority safety rule, pair-status classification, reconciliation target, mutant expectation, generation bound, or global safety-search depth. Give SA-09 a separately explicit fixed local recovery bound sufficient for its frozen recovery-plus-next-generation obligation, and preserve the global BFS depth at 12.",
+  "planned_pre_scientific_correction": {
+    "global_safety_depth": 12,
+    "sa09_local_liveness_steps": 8,
+    "rationale": "Eight is the exact worst-case modeled clean path: reconcile ledger-ahead state (write temp, replace anchor, store receipt = 3), issue next generation (1), reconcile it (3), perform trusted-minimum consequential use (1).",
+    "scientific_freeze_occurred": false
+  }
+}
