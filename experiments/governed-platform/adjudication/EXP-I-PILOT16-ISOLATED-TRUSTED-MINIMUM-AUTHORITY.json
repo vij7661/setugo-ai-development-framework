@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.2",
+  "campaign": "governed-platform-falsification",
+  "experiment": "EXP-I",
+  "pilot": 16,
+  "title": "Isolated trusted-minimum advancement authority",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T19:15:01Z",
+  "authoritative_parent_adjudication": "experiments/governed-platform/adjudication/EXP-I-PILOT15-ROOT-ROTATION-CRASH-CONSISTENCY.json",
+  "preregistration": "experiments/governed-platform/adjudication/EXP-I-PILOT16-ISOLATED-TRUSTED-MINIMUM-AUTHORITY-PREREGISTRATION.md",
+  "preregistration_commit": "b729f54cfad62a41a09abfb9ef7c297c60fe2cbc",
+  "evaluated_sha": "3727a6cc0972c9995f1b4523b1b9f519ea4ace48",
+  "validation_run_id": 34053851970,
+  "validation_job_id": 101542069597,
+  "workflow_conclusion": "success",
+  "scientific_correspondence": {
+    "frozen_vectors": "P16-01..P16-16",
+    "passed": 16,
+    "failed": 0,
+    "frozen_test_file_verified_at_evaluated_sha": true,
+    "workflow_governance_discovery_verified_at_evaluated_sha": "python -m unittest discover -v -p 'test_*.py'",
+    "governor_falsification_step_conclusion": "success",
+    "prior_governed_regression_total": 1042,
+    "new_test_files_since_prior_frozen_baseline": [
+      "experiments/governed-platform/governance/test_exp_i_pilot16_isolated_minimum_authority.py"
+    ],
+    "new_frozen_tests": 16,
+    "derived_governed_regression_tests_passed": 1058,
+    "derived_governed_regression_tests_total": 1058,
+    "derivation": "P15 frozen baseline passed 1042/1042; compare d44bf958d327547fd5185adfacec19f47f2e5b6a...3727a6cc0972c9995f1b4523b1b9f519ea4ace48 shows exactly one new governance test file; exact frozen P16 test file contains P16-01 through P16-16; unchanged exact-SHA workflow discovers every governance test_*.py; governor discovery step succeeded.",
+    "individual_p16_job_log_lines_directly_inspected": false,
+    "reason_individual_lines_not_claimed": "Connector log output was oversized/truncated in the interactive retrieval path; correspondence is established from exact frozen source, exact workflow discovery semantics, exact diff, and successful discovery step rather than invented line-level inspection.",
+    "operational_success_alone_is_scientific_pass": false
+  },
+  "first_frozen_scientific_run": {
+    "result": "PASS",
+    "repair_attempts_after_exposure": 0,
+    "mechanism_or_fixture_relaxation": false,
+    "pre_exposure_construction_fix": "Ed25519 signing helper invocation was corrected to pass the private-key path before the candidate SHA was frozen or scientifically exposed."
+  },
+  "mechanism_evidence": [
+    "Trusted-minimum mutation executes in a dedicated subprocess opening its own durable minimum store.",
+    "Platform recovery authorization is asymmetric: the recovery-authority surface owns the Ed25519 private key while the minimum-authority process receives only the public verification key.",
+    "Recovery authorization binds recovery identity, current minimum epoch/digest, target root epoch/digest/root identity/public-key fingerprint, predecessor digest, transition identity, and activation registry epoch.",
+    "Minimum authority independently re-reads authenticated root history and current durable minimum state at use time before mutation.",
+    "Missing, forged, stale, substituted, and semantically rebound recovery authorization is denied before trusted-minimum advancement.",
+    "A durable recovery ledger preserves exact replay idempotency and recovery-identity rebinding denial across process restart.",
+    "Concurrent exact recovery clients converge on one durable minimum binding without duplicate authority.",
+    "Minimum-authority outage causes zero trusted-minimum mutation.",
+    "Clean separately authorized R2-to-R3 advancement remains live after the R1-to-R2 recovery cycle."
+  ],
+  "bounded_claim": "On the tested same-host process-isolated SQLite prototype, trusted-minimum advancement required a separate minimum-authority process plus an exact platform-owned asymmetric recovery authorization. The mutation process held only verification material, independently revalidated root and minimum state at use time, denied the preregistered missing/forged/stale/substituted/rebound requests, preserved replay/restart/concurrency safety, failed closed on authority-process outage, and retained clean R2-to-R3 liveness.",
+  "authority_boundaries": {
+    "model_generated_minimum_authority": false,
+    "reviewer_generated_minimum_authority": false,
+    "root_signer_minimum_authority": false,
+    "root_trust_writer_minimum_authority": false,
+    "registry_writer_minimum_authority": false,
+    "minimum_authority_process_permit_minting_authority": false,
+    "recovery_authorization_issuance": "PLATFORM_OWNED_ONLY",
+    "trusted_minimum_mutation": "DEDICATED_MINIMUM_AUTHORITY_PROCESS_ONLY_AFTER_VALID_PLATFORM_AUTHORIZATION",
+    "production_authority": false,
+    "release_authority": false,
+    "deploy_authority": false
+  },
+  "not_proven": [
+    "OS-user, privilege, or administrative trust-domain separation merely from process separation.",
+    "KMS/HSM key nonextractability or hardware-backed recovery authorization.",
+    "Protection after compromise of both recovery-authorization private key and trusted-minimum authority/store.",
+    "Physical power-loss or storage-controller durability semantics.",
+    "Atomicity across independent remote databases or external KMS/HSM systems.",
+    "Multi-host or Byzantine consensus.",
+    "Production, release, deploy, or completion authority.",
+    "Universal correctness of model or reviewer conclusions."
+  ],
+  "next_falsification_target": "EXP-I Pilot 17: isolate the recovery-authorization signer itself behind a distinct platform-owned process and durable issuance ledger. The signer must derive the exact permit semantics from authoritative root history and trusted-minimum state rather than accepting caller-supplied semantic bindings. Falsify private-key exposure, semantic injection, forged issuance, stale/noncontiguous target selection, replay/rebinding, outage, restart, concurrent issuance, post-issuance state drift, and nonplatform authority claims while preserving exact replay and clean R2-to-R3 liveness."
+}
