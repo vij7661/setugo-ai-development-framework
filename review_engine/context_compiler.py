@@ -5,16 +5,8 @@ from dataclasses import asdict
 from .memory import VersionedMemoryStore
 from .models import ReviewArtifact, ReviewFinding, ReviewerResponse, ReviewRequest
 from .providers import SYSTEM_INSTRUCTION
+from .retrieval import ContextRetriever, RetrievalQuery, ReturnAllRetriever
 from .truth_contract import epistemic_protocol_instructions
-
-
-def _shared_memory_view(memory: VersionedMemoryStore) -> list[dict]:
-    """Return reviewer-visible shared state without general review evidence.
-
-    Frozen prior reviews required for adjudication are passed explicitly by the
-    context compiler; they must not arrive through ambient shared memory.
-    """
-    return [asdict(r) for r in memory.reviewer_visible() if r.memory_class != "REVIEW_EVIDENCE"]
 
 
 def _truth_protocol() -> dict:
@@ -43,13 +35,40 @@ def _provider_system_instruction() -> str:
 class ContextCompiler:
     """Build role-specific context without leaking protected or anchoring data."""
 
+    def __init__(self, retriever: ContextRetriever | None = None) -> None:
+        self._retriever = retriever or ReturnAllRetriever()
+
+    def _retrieve(
+        self,
+        *,
+        role: str,
+        request: ReviewRequest,
+        memory: VersionedMemoryStore,
+        artifact: ReviewArtifact | None = None,
+    ) -> tuple[list[dict], dict]:
+        result = self._retriever.retrieve(
+            query=RetrievalQuery(
+                role=role,
+                request_id=request.request_id,
+                artifact_id=artifact.artifact_id if artifact is not None else None,
+                artifact_version=artifact.version if artifact is not None else None,
+                artifact_hash=artifact.artifact_hash if artifact is not None else None,
+            ),
+            memory=memory,
+        )
+        if result.query_artifact_hash != (artifact.artifact_hash if artifact is not None else None):
+            raise ValueError("retrieval result is stale for current artifact")
+        return [asdict(record) for record in result.records], result.audit_view()
+
     def compile_r1(self, request: ReviewRequest, memory: VersionedMemoryStore) -> dict:
+        memory_view, retrieval = self._retrieve(role="R1", request=request, memory=memory)
         return {
             "role": "R1",
             "request_id": request.request_id,
             "user_input": request.user_input,
             "platform_system_instruction": _provider_system_instruction(),
-            "memory": _shared_memory_view(memory),
+            "memory": memory_view,
+            "retrieval": retrieval,
             "instructions": {
                 "authority": "advisory_generation_only",
                 "must_not_self_authorize": True,
@@ -63,6 +82,9 @@ class ContextCompiler:
         artifact: ReviewArtifact,
         memory: VersionedMemoryStore,
     ) -> dict:
+        memory_view, retrieval = self._retrieve(
+            role="R2", request=request, memory=memory, artifact=artifact
+        )
         return {
             "role": "R2",
             "request_id": request.request_id,
@@ -74,7 +96,8 @@ class ContextCompiler:
                 "artifact_hash": artifact.artifact_hash,
                 "content": artifact.content,
             },
-            "memory": _shared_memory_view(memory),
+            "memory": memory_view,
+            "retrieval": retrieval,
             "instructions": {
                 "mode": "independent_detector_challenger",
                 "find_first_material_failure": True,
@@ -91,6 +114,9 @@ class ContextCompiler:
         artifact: ReviewArtifact,
         memory: VersionedMemoryStore,
     ) -> dict:
+        memory_view, retrieval = self._retrieve(
+            role="R3", request=request, memory=memory, artifact=artifact
+        )
         return {
             "role": "R3",
             "phase": "INDEPENDENT",
@@ -103,7 +129,8 @@ class ContextCompiler:
                 "artifact_hash": artifact.artifact_hash,
                 "content": artifact.content,
             },
-            "memory": _shared_memory_view(memory),
+            "memory": memory_view,
+            "retrieval": retrieval,
             "instructions": {
                 "mode": "independent_verifier",
                 "prior_reviewer_positions_hidden": True,
@@ -133,6 +160,9 @@ class ContextCompiler:
             if finding.reviewer_role != "R3":
                 raise ValueError("phase B frozen material findings must belong to R3")
 
+        memory_view, retrieval = self._retrieve(
+            role="R3", request=request, memory=memory, artifact=artifact
+        )
         return {
             "role": "R3",
             "phase": "ADJUDICATION",
@@ -153,7 +183,8 @@ class ContextCompiler:
                 "R1": r1_response.output,
                 "R2": r2_response.output,
             },
-            "memory": _shared_memory_view(memory),
+            "memory": memory_view,
+            "retrieval": retrieval,
             "instructions": {
                 "independent_view_is_frozen": True,
                 "artifact_content_is_exact_frozen_revision": True,

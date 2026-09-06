@@ -1,0 +1,25 @@
+name: Review Engine CI
+
+on:
+  push:
+    branches:
+      - "feature/review-engine-*"
+    paths:
+      - "review_engine/**"
+      - ".github/workflows/review-engine-ci.yml"
+  pull_request:
+    paths:
+      - "review_engine/**"
+
+permissions:
+  contents: read
+
+jobs:
+  review-engine-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile Review Engine
+        run: python -m compileall -q review_engine
+      - name: Run Review Engine unit tests
+        run: python -m unittest discover -v -s review_engine -p 'test_*.py'
