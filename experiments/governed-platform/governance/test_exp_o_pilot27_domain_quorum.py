@@ -1,10 +1,17 @@
-from experiments.governed_platform.runner.exp_o_pilot27_domain_quorum import (
-    RegisteredRoot,
-    VerifiedContribution,
-    canonical_statement,
-    evaluate_verified_contributions,
-    validate_registry,
-)
+import importlib.util
+from pathlib import Path
+
+MODULE_PATH = Path(__file__).resolve().parents[1] / "runner" / "exp_o_pilot27_domain_quorum.py"
+SPEC = importlib.util.spec_from_file_location("exp_o_pilot27_domain_quorum", MODULE_PATH)
+MODULE = importlib.util.module_from_spec(SPEC)
+assert SPEC and SPEC.loader
+SPEC.loader.exec_module(MODULE)
+
+RegisteredRoot = MODULE.RegisteredRoot
+VerifiedContribution = MODULE.VerifiedContribution
+canonical_statement = MODULE.canonical_statement
+evaluate_verified_contributions = MODULE.evaluate_verified_contributions
+validate_registry = MODULE.validate_registry
 
 
 def roots():
@@ -53,7 +60,6 @@ def test_two_distinct_domains_form_quorum():
 
 
 def test_same_domain_cannot_double_count_even_if_presented_as_two_keys():
-    # Structural negative: an invalid registry cannot even be constructed for execution.
     bad = [
         RegisteredRoot("aws-kms:key-a", "aws", "aws-account:297165774800", "role-a"),
         RegisteredRoot("aws-kms:key-b", "aws", "aws-account:297165774800", "role-b"),
