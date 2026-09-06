@@ -1,0 +1,128 @@
+name: Governed Platform EXP-N External Authority Pilot
+
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-n-external-authority-trigger.json]
+
+permissions: {contents: read}
+
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+  CAPABILITY: experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json
+  GROUND_TRUTH: experiments/governed-platform/cases/pilot/ground-truth.exp-n-external-authority-no-prompt-guard.json
+
+jobs:
+  run:
+    name: EXP-N external-authority ${{ matrix.provider }} ${{ matrix.case_id }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        provider: [groq, openrouter]
+        case_id:
+          - EXP-N-023-AUTHZ-EXTERNAL-NEUTRAL-WRONG
+          - EXP-N-024-AUTHZ-EXTERNAL-SENIOR-WRONG
+          - EXP-N-025-AUTHZ-EXTERNAL-PRESTIGE-WRONG
+          - EXP-N-026-AUTHZ-EXTERNAL-MAJORITY-WRONG
+          - EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+      OPENROUTER_API_KEY: "${{ secrets.OPENROUTER_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+
+      - name: Enforce Pilot 8 completion prerequisite and frozen design binding
+        shell: bash
+        run: |
+          test -f experiments/governed-platform/adjudication/EXP-N-PILOT8-NO-REMINDER.json || {
+            echo "Pilot 9 is blocked until final Pilot 8 adjudication exists" >&2
+            exit 1
+          }
+          DESIGN_COMMIT="$(python -c 'import json;print(json.load(open(".github/exp-n-external-authority-trigger.json"))["design_commit"])')"
+          test -n "$DESIGN_COMMIT"
+          git cat-file -e "$DESIGN_COMMIT^{commit}"
+          git diff --exit-code "$DESIGN_COMMIT" HEAD -- \
+            experiments/governed-platform/cases/pilot/ground-truth.exp-n-external-authority-no-prompt-guard.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-023-AUTHZ-EXTERNAL-NEUTRAL-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-024-AUTHZ-EXTERNAL-SENIOR-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-025-AUTHZ-EXTERNAL-PRESTIGE-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-026-AUTHZ-EXTERNAL-MAJORITY-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL.json \
+            experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json \
+            experiments/governed-platform/runner/review_contract_external_authority.py \
+            experiments/governed-platform/runner/openai_compatible_external_authority.py \
+            experiments/governed-platform/runner/normalize_external_authority_result.py \
+            experiments/governed-platform/runner/run_remote_canary_external_authority.py
+
+      - name: Execute frozen external-authority arm
+        shell: bash
+        run: |
+          N="$(python -c 'import json;print(json.load(open(".github/exp-n-external-authority-trigger.json")).get("sample_count",3))')"
+          CASE_ID="${{ matrix.case_id }}"
+          PROVIDER="${{ matrix.provider }}"
+          OUT="exp-n-external-authority-results/${PROVIDER}/${CASE_ID}"
+          mkdir -p "$OUT"
+          if [ "$PROVIDER" = "groq" ]; then
+            BASE_URL="https://api.groq.com/openai/v1"; MODEL="openai/gpt-oss-20b"; KEY_ENV="GROQ_API_KEY"; MECH="remote-reasoner-a"
+          else
+            BASE_URL="https://openrouter.ai/api/v1"; MODEL="nvidia/nemotron-3-ultra-550b-a55b:free"; KEY_ENV="OPENROUTER_API_KEY"; MECH="remote-reasoner-b"
+          fi
+          python experiments/governed-platform/runner/prepare_run.py \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
+            --mechanisms "$MECHANISMS" \
+            --mechanism-id "$MECH" \
+            --instruction-version exp-n-external-authority-v1 \
+            --out "$OUT/${CASE_ID}.envelope.json"
+          for i in $(seq 1 "$N"); do
+            python experiments/governed-platform/runner/run_remote_canary_external_authority.py \
+              --envelope "$OUT/${CASE_ID}.envelope.json" \
+              --capability "$CAPABILITY" \
+              --provider "$PROVIDER" \
+              --base-url "$BASE_URL" \
+              --model "$MODEL" \
+              --api-key-env "$KEY_ENV" \
+              --timeout-seconds 120 \
+              --temperature 0.7 \
+              --out "$OUT/${CASE_ID}.sample-${i}.raw-result.json" || true
+          done
+          python - <<PY
+          import hashlib, json
+          from pathlib import Path
+          files = [
+              Path("$CAPABILITY"),
+              Path("experiments/governed-platform/runner/review_contract_external_authority.py"),
+              Path("experiments/governed-platform/runner/openai_compatible_external_authority.py"),
+              Path("experiments/governed-platform/runner/normalize_external_authority_result.py"),
+              Path("experiments/governed-platform/runner/run_remote_canary_external_authority.py"),
+          ]
+          binding = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+          policy = {
+              "policy_version": "exp-n-external-authority-sampling-v1",
+              "strategy": "ALL_VALID_SCORED",
+              "sample_count": int("$N"),
+              "experimental_arm_label_visible": False,
+              "ground_truth_registered_before_execution": True,
+              "platform_authority": "NONE",
+              "model_authority_effect": False,
+              "max_parallel_jobs": 1,
+              "matched_predecessor": "PILOT8-CROSS-DOMAIN-AUTHZ-NO-ANTI-DEFERENCE-REMINDER",
+              "experimental_change": "REMOVE_REMAINING_TASK_AUTHORITY_REMINDER_AND_SCHEMA_EMPTY_SCOPE_CUE_BIND_EXTERNALLY",
+              "design_commit": json.load(open(".github/exp-n-external-authority-trigger.json"))["design_commit"],
+              "authority_path_sha256": binding,
+          }
+          Path("$OUT/sampling-policy.json").write_text(json.dumps(policy, indent=2) + "\n")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-n-external-authority-${{ matrix.provider }}-${{ matrix.case_id }}
+          path: exp-n-external-authority-results/${{ matrix.provider }}/${{ matrix.case_id }}/
+          if-no-files-found: error
