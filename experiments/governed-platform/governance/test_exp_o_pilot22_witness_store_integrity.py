@@ -69,7 +69,7 @@ class ExpOPilot22WitnessStoreIntegrityTests(unittest.TestCase):
         p,chk5,_=self.bootstrap("w1",5,5); self.wal_flush(self.store("w1")); old=self.root/"old.sqlite"; shutil.copy2(self.store("w1"),old)
         r=p.request(self.stmt(6),checkpoint=chk5,minimum_checkpoint_generation=5); self.assertTrue(r["approved"]); chk6=self.cp("w1",6); p.stop(); shutil.copy2(old,self.store("w1")); q=self.proc("w1"); rr=q.request(self.stmt(6),checkpoint=chk6,minimum_checkpoint_generation=6); self.assertFalse(rr["approved"])
     def test_p22_09_stale_db_plus_old_valid_checkpoint_below_trusted_minimum(self):
-        p,chk5,_=self.bootstrap("w1",5,5); p.stop(); q=self.restart(p,"w1") if False else self.proc("w1"); r=q.request(self.stmt(5),checkpoint=chk5,minimum_checkpoint_generation=6); self.assertFalse(r["approved"]); self.assertEqual(r["reason"],"WITNESS_CHECKPOINT_ROLLBACK")
+        p,chk5,_=self.bootstrap("w1",5,5); p.stop(); q=self.proc("w1"); r=q.request(self.stmt(5),checkpoint=chk5,minimum_checkpoint_generation=6); self.assertFalse(r["approved"]); self.assertEqual(r["reason"],"WITNESS_CHECKPOINT_ROLLBACK")
     def test_p22_10_checkpoint_auth_tag_mutation(self):
         p,chk,_=self.bootstrap("w1"); bad=dict(chk); bad["checkpoint_auth_tag"]="0"+bad["checkpoint_auth_tag"][1:]; r=p.request(self.stmt(5),checkpoint=bad,minimum_checkpoint_generation=5); self.assertFalse(r["approved"])
     def test_p22_11_forged_checkpoint_wrong_key(self):
@@ -94,9 +94,8 @@ class ExpOPilot22WitnessStoreIntegrityTests(unittest.TestCase):
         db=self.authdb(); st=statement_for_db(db,project=P,task=T,logical_state_id=L,generation=5); evil=sign_witness(st,witness_id="w3",key_id="k3",key=WKEYS["w3"]); r=self.quorum(db,[evil],5); self.assertFalse(r["authorized"])
     def test_p22_18_one_store_corrupt_remaining_two_honest_current_stores_live(self):
         p1,c1,_=self.bootstrap("w1"); p1.stop(); self.mutate_sql(self.store("w1"),"UPDATE signed_statements SET statement_digest='bad' WHERE generation=5")
-        p2,c2,_=self.bootstrap("w2"); p3,c3,_=self.bootstrap("w3"); db=self.authdb(); st=statement_for_db(db,project=P,task=T,logical_state_id=L,generation=5)
-        # checkpoint current empty/signing histories to the exact authority statement via higher fresh generation in isolated stores
-        r2=p2.request(st,checkpoint=c2,minimum_checkpoint_generation=5); r3=p3.request(st,checkpoint=c3,minimum_checkpoint_generation=5); self.assertTrue(r2["approved"]); self.assertTrue(r3["approved"]); rr=self.quorum(db,[r2,r3],5); self.assertTrue(rr["authorized"])
+        p2,c2,_=self.bootstrap("w2"); p3,c3,_=self.bootstrap("w3"); db=self.authdb(); st=statement_for_db(db,project=P,task=T,logical_state_id=L,generation=6)
+        r2=p2.request(st,checkpoint=c2,minimum_checkpoint_generation=5); r3=p3.request(st,checkpoint=c3,minimum_checkpoint_generation=5); self.assertTrue(r2["approved"]); self.assertTrue(r3["approved"]); rr=self.quorum(db,[r2,r3],6); self.assertTrue(rr["authorized"])
     def test_p22_19_postcommit_precheckpoint_crash_fails_closed_until_reconciled(self):
         p,chk5,_=self.bootstrap("w1",5,5); r=p.request(self.stmt(6),checkpoint=chk5,minimum_checkpoint_generation=5,crash_after_history_commit=True); self.assertEqual(r["transport"],"UNKNOWN_AFTER_REQUEST"); q=self.proc("w1"); blocked=q.request(self.stmt(6),checkpoint=chk5,minimum_checkpoint_generation=5); self.assertFalse(blocked["approved"]); chk6=self.cp("w1",6); replay=q.request(self.stmt(6),checkpoint=chk6,minimum_checkpoint_generation=6); self.assertTrue(replay["approved"]); self.assertTrue(replay["replay"])
     def test_p22_20_clean_higher_generation_checkpoint_liveness_control(self):
