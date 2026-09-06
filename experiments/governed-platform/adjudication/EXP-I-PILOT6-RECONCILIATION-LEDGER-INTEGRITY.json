@@ -1,0 +1,35 @@
+{
+  "experiment": "EXP-I",
+  "pilot": 6,
+  "title": "Reconciliation-ledger integrity",
+  "status": "BOUNDED_PASS",
+  "adjudicated_utc": "2026-09-06T15:23:00Z",
+  "frozen_sha": "56b9a19be003ccf39b070dbb759251369c3b89ed",
+  "validation_run_id": 34042026495,
+  "validation_job_id": 101510408754,
+  "execution": {
+    "pilot6_vectors": "20/20 passed",
+    "governor_falsification_suite": "892/892 passed",
+    "workflow_conclusion": "success",
+    "operational_success_is_scientific_pass_by_itself": false
+  },
+  "supported_claim": "On the tested same-host prototype, a dedicated HMAC-authenticated reconciliation checkpoint over the canonical reconciliation ledger, together with a trusted minimum reconciliation-checkpoint generation, detected the preregistered PENDING-to-SETTLED forgery, SETTLED-to-PENDING rollback, row deletion, pre/post ledger-digest substitution, checkpoint-generation lowering or inflation, permit/token nonce substitution, settlement-checkpoint-digest substitution, coherent full-row rewrite, stale/current reconciliation-state and checkpoint substitutions, forged checkpoint, scope/predecessor tampering, and repeated-restart tampered bundles. The clean higher-generation SETTLED reconciliation checkpoint remained live.",
+  "authority_boundaries": {
+    "reviewer_generated_authority": false,
+    "production_authority": false,
+    "reconciliation_checkpoint_authority": "platform-held prototype integrity authority",
+    "model_or_reviewer_can_mint_or_advance_trusted_reconciliation_checkpoint_generation": false,
+    "valid_settled_reconciliation_checkpoint_is_release_authority": false
+  },
+  "not_proven": [
+    "Atomic commitment or cryptographic consistency between the separate permit-ledger and reconciliation-ledger integrity roots",
+    "Atomic commitment between SQLite and a truly external checkpoint service",
+    "HSM or KMS key nonextractability",
+    "Physical power-loss durability",
+    "Protection after compromise of SQLite together with the reconciliation-integrity key or trusted-minimum authority",
+    "Multi-host or Byzantine consensus",
+    "Production or release authority",
+    "Universal correctness of reviewer conclusions"
+  ],
+  "next_falsification_target": "EXP-I Pilot 7: composite cross-root consistency. Bind the current permit-ledger digest and reconciliation-ledger digest under one platform checkpoint so independently valid but mixed-era roots cannot be combined into a false current state."
+}
