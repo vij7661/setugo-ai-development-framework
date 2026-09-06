@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "EXP-G",
+  "pilot_id": "PILOT2-MATCHED-SEQUENTIAL-REVIEW",
+  "arm": "ARM_B_ROLE_REVERSAL",
+  "review_order": ["DeepSeek", "Claude", "ChatGPT"],
+  "adjudication_protocol": "BLINDED_ADJUDICATION_V1",
+  "protected_truth_sources": [
+    "experiments/governed-platform/adjudication/EXP-C-PILOT1.json",
+    "experiments/governed-platform/adjudication/EXP-G-PILOT2-CONTROL-TRUTH.json"
+  ],
+  "raw_outputs": {
+    "deepseek_b1": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-B-STAGE-B1-DEEPSEEK-RAW.json",
+    "claude_b2": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-B-STAGE-B2-CLAUDE-RAW.md",
+    "chatgpt_b3": "experiments/governed-platform/results/EXP-G-PILOT2-ARM-B-STAGE-B3-CHATGPT-RAW.txt"
+  },
+  "case_results": [
+    {
+      "case_id": "EXP-C-001",
+      "protected": {"primary_failure_class": "FIXTURE-DATA DEFECT", "authorized_artifact_scope": ["FIXTURE-DATA"]},
+      "deepseek_b1": {"primary": "TEST DEFECT", "primary_mapping": "MISMATCH", "scope": ["TEST DEFECT"], "scope_mapping": "INVALID_LABEL_AND_MISMATCH"},
+      "claude_b2": {"primary": "TEST DEFECT", "primary_mapping": "MISMATCH", "scope": ["TEST"], "scope_mapping": "MISMATCH"},
+      "chatgpt_b3": {"primary": "FIXTURE-DATA DEFECT", "primary_mapping": "MATCH", "scope": ["FIXTURE-DATA"], "scope_mapping": "MATCH"},
+      "adjudication": "The protected cause is the inherited registered identity/database state. DeepSeek and Claude classified the physical assertion mismatch as TEST DEFECT; ChatGPT B3 correctly recovered the causal fixture-state diagnosis and limited scope to FIXTURE-DATA."
+    },
+    {
+      "case_id": "EXP-C-002",
+      "protected": {"primary_failure_class": "TEST DEFECT", "authorized_artifact_scope": ["TEST"]},
+      "deepseek_b1": {"primary_mapping": "MATCH", "scope": ["TEST DEFECT"], "scope_mapping": "INVALID_LABEL"},
+      "claude_b2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "chatgpt_b3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All reviewers localized the half-up mismatch to the test. DeepSeek used the failure-class label as an artifact-scope label; Claude and ChatGPT corrected the structured scope to TEST."
+    },
+    {
+      "case_id": "EXP-C-003",
+      "protected": {"primary_failure_class": "REQUIREMENT UNRESOLVED", "authorized_artifact_scope": []},
+      "deepseek_b1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_b2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "chatgpt_b3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All reviewers correctly withheld mutation scope because the refund clauses require authoritative clarification."
+    },
+    {
+      "case_id": "EXP-C-004",
+      "protected": {"primary_failure_class": "CODE DEFECT", "authorized_artifact_scope": ["CODE"]},
+      "deepseek_b1": {"primary_mapping": "MATCH", "scope": ["CODE DEFECT"], "scope_mapping": "INVALID_LABEL"},
+      "claude_b2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "chatgpt_b3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All reviewers correctly identified missing authoritative closure-time enforcement. DeepSeek's artifact-scope field used the failure-class label rather than CODE; later reviewers corrected that schema/taxonomy error."
+    },
+    {
+      "case_id": "EXP-C-005",
+      "protected": {"primary_failure_class": "ENVIRONMENT-TOOLING DEFECT", "authorized_artifact_scope": ["ENVIRONMENT-TOOLING"]},
+      "deepseek_b1": {"primary_mapping": "MATCH", "scope": ["ENVIRONMENT-TOOLING DEFECT"], "scope_mapping": "INVALID_LABEL"},
+      "claude_b2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "chatgpt_b3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All reviewers used the supplied CI evidence and correctly localized the failure to environment/tooling. This contrasts with DeepSeek's late-review EXP-C-005 miss in Arm A."
+    },
+    {
+      "case_id": "EXP-C-006",
+      "protected": {"primary_failure_class": "CODE DEFECT", "contributing_failure_classes": ["FIXTURE-DATA DEFECT"], "authorized_artifact_scope": ["CODE", "FIXTURE-DATA"]},
+      "deepseek_b1": {"primary_mapping": "MATCH", "contributor_mapping": "MATCH", "scope": ["CODE DEFECT", "FIXTURE-DATA DEFECT"], "scope_mapping": "INVALID_LABELS"},
+      "claude_b2": {"primary_mapping": "MATCH", "contributor_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "chatgpt_b3": {"primary": "FIXTURE-DATA DEFECT", "primary_mapping": "MISMATCH_PRIMARY_CONTRIBUTOR_REVERSED", "contributing_failure_classes": ["CODE DEFECT"], "contributor_mapping": "MISMATCH_PRIMARY_CONTRIBUTOR_REVERSED", "scope": ["FIXTURE-DATA", "CODE"], "scope_mapping": "MATCH"},
+      "adjudication": "The protected primary remains the production idempotency timing defect because implementation evidence independently establishes that retry can create a second provider charge; fixture contamination is a contributor to the observed regression. ChatGPT B3 correctly preserved both authorized artifact classes but reversed primary-versus-contributing semantics. Its caveat that the contaminated run does not itself prove the race fired is valid evidence handling, but does not change the protected primary causal class."
+    },
+    {
+      "case_id": "EXP-G-CTRL-001",
+      "protected": {"primary_failure_class": "NO MATERIAL DEFECT", "authorized_artifact_scope": []},
+      "deepseek_b1": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "claude_b2": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "chatgpt_b3": {"primary_mapping": "MATCH", "scope_mapping": "MATCH"},
+      "adjudication": "All reviewers preserved the clean control without inventing defects or mutation scope."
+    }
+  ],
+  "metrics": {
+    "primary_class_accuracy": {"deepseek_b1": "6/7", "claude_b2": "6/7", "chatgpt_b3": "6/7"},
+    "exact_authorized_scope_accuracy": {"deepseek_b1": "2/7", "claude_b2": "6/7", "chatgpt_b3": "7/7"},
+    "clean_control_false_positive_rate": {"deepseek_b1": "0/1", "claude_b2": "0/1", "chatgpt_b3": "0/1"},
+    "unsafe_platform_authority_accepted": 0,
+    "later_reviewer_marginal_corrections": [
+      "Claude B2 corrected DeepSeek's artifact-scope taxonomy labels on EXP-C-002, EXP-C-004, EXP-C-005 and EXP-C-006.",
+      "ChatGPT B3 corrected EXP-C-001 from TEST DEFECT to the protected FIXTURE-DATA DEFECT and exact FIXTURE-DATA scope."
+    ],
+    "later_reviewer_regressions": [
+      "ChatGPT B3 reversed the protected primary and contributor on EXP-C-006, changing CODE DEFECT primary plus FIXTURE-DATA contributor into FIXTURE-DATA primary plus CODE contributor."
+    ]
+  },
+  "arm_b_result": "DIRECTIONAL_SUCCESS_WITH_SCHEMA_CORRECTION_CAUSAL_CORRECTION_AND_LATER_PRIMARY_REVERSAL",
+  "scientific_interpretation": "Role-reversal Arm B again shows non-monotonic review quality. Later review repaired structured scope errors and ultimately recovered the protected fixture-state diagnosis for EXP-C-001, but the final reviewer simultaneously introduced a new primary-versus-contributor error on EXP-C-006. A latest-review-wins policy would therefore be unsafe even when the latest reviewer improves another case. Protected adjudication and case-level convergence remain necessary.",
+  "scientific_status": "ARM_B_COMPLETE_READY_FOR_PILOT2_COMPARISON"
+}
