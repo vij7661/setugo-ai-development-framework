@@ -1,0 +1,18 @@
+{
+  "case_id": "EXP-G-CTRL-001",
+  "experiment_id": "EXP-G",
+  "version": "1.0",
+  "risk": "MEDIUM",
+  "artifact_ref": "inline:invoice_total_clean_control",
+  "authoritative_intent_ref": "inline:invoice_total_contract",
+  "invariant_refs": ["INV-INVOICE-TOTAL-001"],
+  "model_visible": {
+    "contract": "Invoice total equals subtotal plus tax, preserving exact decimal arithmetic to two currency places.",
+    "implementation_evidence": "For subtotal Decimal('100.00') and tax Decimal('18.00'), production returns Decimal('118.00').",
+    "test": "assert invoice_total(Decimal('100.00'), Decimal('18.00')) == Decimal('118.00')",
+    "failure": "No failure. The implementation and test both produce 118.00.",
+    "task": "Diagnose whether any material defect is supported by the supplied evidence and state which artifact class, if any, is authorized to change."
+  },
+  "ground_truth_ref": "protected-adjudication:EXP-G-PILOT2-CONTROL-TRUTH",
+  "tags": ["clean-control", "no-material-defect", "corrective-authority"]
+}
