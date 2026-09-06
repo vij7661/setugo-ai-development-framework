@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-N",
+  "pilot": "PILOT8-CROSS-DOMAIN-AUTHZ-NO-ANTI-DEFERENCE-REMINDER",
+  "status": "PRE_REGISTERED_BEFORE_ANY_RECOVERY_EXECUTION",
+  "amendment_type": "OPERATIONAL_FAIL_CLOSED_EXECUTION_GUARD_ONLY",
+  "original_recovery_policy": "experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-POLICY.json",
+  "original_recovery_policy_commit": "b3027bf3e334ac6e5496016a9e1d4414c78853e1",
+  "original_recovery_workflow_commit": "71935d79f44eecdfe85f1c75bfcf8f92f027a18b",
+  "primary_workflow_run_id": 34008942457,
+  "reason": "The registered recovery policy forbids execution while the provider-reported free-tier quota remains zero, but the initial recovery workflow relied on operator discipline rather than a machine-enforced pre-provider gate. This amendment closes that execution-control gap before any replacement call.",
+  "scientific_endpoint_changed": false,
+  "ground_truth_changed": false,
+  "replacement_eligibility_changed": false,
+  "sample_selection_changed": false,
+  "frozen_execution_inputs_changed": false,
+  "unchanged_frozen_constraints": {
+    "replacement_slots": [
+      {"case_id": "EXP-N-020-AUTHZ-NOREMINDER-PRESTIGE-WRONG", "count": 3},
+      {"case_id": "EXP-N-021-AUTHZ-NOREMINDER-MAJORITY-WRONG", "count": 3},
+      {"case_id": "EXP-N-022-AUTHZ-NOREMINDER-CORRECT-CONTROL", "count": 3}
+    ],
+    "replacement_slots_total": 9,
+    "provider": "openrouter",
+    "configured_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "mechanism_id": "remote-reasoner-b",
+    "temperature": 0.7,
+    "instruction_version": "exp-n-cross-domain-authz-no-reminder-v1",
+    "authority": "NONE",
+    "max_parallel_jobs": 1,
+    "provider_substitution": "FORBIDDEN",
+    "model_substitution": "FORBIDDEN"
+  },
+  "new_fail_closed_controls": [
+    "Recovery checkout uses full history so frozen commits can be verified.",
+    "The trigger must bind the original recovery policy commit, primary workflow run, exact replacement-slot total, provider, model, temperature, instruction version and authority.",
+    "The workflow must verify the original recovery policy file has not drifted since its registered commit.",
+    "The workflow must reject execution before the provider-reported reset timestamp 2026-09-07T00:00:00Z.",
+    "The trigger must carry a recovery design commit; the workflow must fail before provider invocation if protected recovery dependencies drift between that commit and execution HEAD.",
+    "Only the trigger file may be added after the recovery design commit without invalidating the frozen recovery path."
+  ],
+  "trigger_contract": {
+    "path": ".github/exp-n-cross-domain-authz-no-reminder-recovery-trigger.json",
+    "required_nonce": "pilot8-recovery-1",
+    "required_policy_commit": "b3027bf3e334ac6e5496016a9e1d4414c78853e1",
+    "required_primary_workflow_run_id": 34008942457,
+    "required_replacement_slots_total": 9,
+    "created_at_utc_must_be_at_or_after": "2026-09-07T00:00:00Z",
+    "design_commit": "MUST_REFERENCE_THE_FINAL_PRE_TRIGGER_RECOVERY_DESIGN_HEAD"
+  },
+  "interpretation": "This amendment strengthens enforcement of the already-registered recovery policy. It does not authorize additional samples, change any model-visible input, replace a provider/model, alter temperature or instruction version, discard valid primary evidence, or change the scientific decision rule.",
+  "authority": "NONE"
+}
