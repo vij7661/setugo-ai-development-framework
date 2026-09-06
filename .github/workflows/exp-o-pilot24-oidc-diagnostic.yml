@@ -1,0 +1,44 @@
+name: EXP-O Pilot 24 OIDC Subject Diagnostic
+
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-o-pilot24-oidc-diagnostic-trigger.json]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode selected GitHub OIDC claims without exposing token
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp)"
+          chmod 600 "$tmp"
+          cleanup() { rm -f "$tmp"; }
+          trap cleanup EXIT
+          curl --fail --silent --show-error \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" \
+            -o "$tmp"
+          python - "$tmp" <<'PY'
+          import base64, json, sys
+          p=sys.argv[1]
+          response=json.load(open(p, encoding='utf-8'))
+          token=response['value']
+          parts=token.split('.')
+          if len(parts) != 3:
+              raise SystemExit('unexpected OIDC token structure')
+          payload=parts[1] + '=' * (-len(parts[1]) % 4)
+          claims=json.loads(base64.urlsafe_b64decode(payload).decode('utf-8'))
+          selected={k: claims.get(k) for k in [
+              'iss','aud','sub','repository','repository_id','repository_owner',
+              'repository_owner_id','ref','ref_type','workflow_ref','job_workflow_ref'
+          ]}
+          print('OIDC_SELECTED_CLAIMS=' + json.dumps(selected, sort_keys=True))
+          PY
