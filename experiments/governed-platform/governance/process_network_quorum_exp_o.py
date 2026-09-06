@@ -31,7 +31,7 @@ QUORUM = 2
 LEASE_DURATION_MS = 1000
 CLUSTER_ID = "exp-o-p14-cluster"
 MAX_BODY_BYTES = 2_000_000
-PEER_TIMEOUT_S = 0.20
+PEER_TIMEOUT_S = 1.00
 
 BINDING_FIELDS = (
     "semantic_payload_digest",
