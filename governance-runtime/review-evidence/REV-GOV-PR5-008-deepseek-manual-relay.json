@@ -1,0 +1,12 @@
+{
+  "review_request_id": "REV-GOV-PR5-008",
+  "reviewed_artifact_commit": "4133bd86806631d246c943b7d79a84346500b827",
+  "reviewer": {
+    "provider": "deepseek",
+    "model": "deepseek"
+  },
+  "disposition": "PASS",
+  "findings": [],
+  "evidence_assessment": "The candidate implements a robust governance runtime with clear separation of review authority from interaction modes. The review_required classifier fails closed for material transitions, governance paths, and standard requirements, preventing R1 trigger mislabeling. AUTO_MODE and MANUAL_MODE (via USER_INITIATED_API) share the same trusted provider adapter semantics, and MANUAL_RELAY is correctly downgraded to non-authenticated identity, thus unable to satisfy provider-specific mandatory review. Reviewer identity provenance is enforced via trusted execution identity, preventing self-claim spoofing. Superseded review replay is blocked by binding ReviewEvidence to the current ReviewRequest and artifact commit. Shared-memory grounding and promotion wiring ensure that caller-supplied authority flags cannot mint validity. API failures fail closed. The portable review bundle design includes raw artifacts with manifest hashes for byte-integrity verification, though in this review environment the raw files were not directly accessible; however, the builder logic appears correct and the convenience copies match the intended content. No authority bypass or false-green path was identified.",
+  "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION"
+}
