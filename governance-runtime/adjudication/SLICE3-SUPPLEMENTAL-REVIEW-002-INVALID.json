@@ -1,0 +1,35 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_3",
+  "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "review_evidence_path": "governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-invalid.json",
+  "claimed_disposition": "PASS",
+  "effective_disposition": "INVALID_REVIEW_EVIDENCE",
+  "counts_for_promotion": false,
+  "classification": [
+    "REVIEW_WRONG_REVISION_ACCEPTED_PREVENTED",
+    "REVIEW_REQUEST_ID_BINDING_INVALID",
+    "REVIEW_SCHEMA_SHAPE_INVALID",
+    "REVIEWER_IDENTITY_UNAUTHENTICATED_EXTERNAL_CONTENT",
+    "REVIEW_CONTENT_INTERNAL_REVISION_CONTRADICTION"
+  ],
+  "reasons": [
+    "The response omits the required reviewed_artifact_commit field entirely.",
+    "The supplied review_request_id does not equal the required request ID SLICE3-REVIEW-4F1797B-SUPPLEMENT-002 and instead embeds a malformed candidate-like string ending 8666.",
+    "The evidence_assessment and regression_preservation text also cite candidate 4f1797b8d6da23f3bba9f68cc98a625cc9618666, which differs from the frozen candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6.",
+    "prior_finding_reassessment is an object instead of the required array.",
+    "findings is an object instead of the required array.",
+    "review_coverage is a mapping keyed by dimension instead of the required array of dimension objects.",
+    "Reviewer provider/model fields are placeholders/self-declared external content and do not establish authenticated provenance."
+  ],
+  "technical_content_assessment": {
+    "S3-R-001": "The substantive reassessment resolves the reviewer's earlier SHA-reading mistake, but the new response introduces a different candidate-identity typo and therefore cannot authorize acceptance.",
+    "S3-R-002": "The substantive reasoning is consistent with the frozen code: manifest_hash transitively binds all manifest fields and explicit field checks independently enforce critical relationships. No candidate repair is justified by this finding.",
+    "S3-R-003": "Substantively resolved by the supplemental exact diff/control-flow evidence.",
+    "S3-R-004": "Substantively resolved by the supplemental locking/durability/crash/replay evidence."
+  },
+  "candidate_change_required": false,
+  "frozen_harness_change_required": false,
+  "next_action": "Request a corrected re-issuance from the same independent reviewer against the same unchanged candidate. The corrected response must use the exact review_request_id, include reviewed_artifact_commit exactly equal to the frozen candidate, use the required array shapes, and avoid placeholder provenance claims. Do not re-review technical substance unless the reviewer wishes to change its assessment.",
+  "historical_failure_preserved": "325610d807eb88595231ec05af33e93f340ecb49 remains the preserved 14/16 construction failure with S3-03 and S3-11 failures.",
+  "scientific_endpoint_reached": false
+}
