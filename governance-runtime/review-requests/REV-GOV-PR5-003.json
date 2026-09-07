@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-003",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-5",
+    "commit": "e412d9ff7617ecc01ad53d06eb1df0714372c215"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "anthropic",
+    "model_class": "claude"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether AUTO_MODE and MANUAL_MODE are separated from review authority semantics correctly.",
+    "Assess whether primary R1 may recommend review without being able to waive deterministic REQUIRED review.",
+    "Assess whether production MANUAL_MODE using USER_INITIATED_API preserves the same provider API and governance semantics as AUTO_MODE/AUTOMATIC_API.",
+    "Assess whether MANUAL_RELAY is safely limited to a fallback transport and cannot redesign or weaken production API review.",
+    "Assess whether the self-contained portable review bundle is sufficient for a reviewer with zero GitHub/repository/tool access and whether bundle integrity/revision binding fail closed.",
+    "Assess shared project memory continuity and authority separation across chat/session boundaries.",
+    "Identify any path by which proposer confidence, reviewer consensus, platform mode, user choice, transport behavior, shared memory, API failure, or chat-window changes could bypass mandatory evidence/review/governor gates.",
+    "Assess whether deterministic tests and CI are sufficient for this bounded candidate and identify missing adversarial cases.",
+    "Return an independent disposition without assuming or using the proposer conclusion."
+  ],
+  "evidence_refs": [
+    {
+      "type": "portable_bundle",
+      "ref": "governance-runtime/review-bundles/REV-GOV-PR5-003.bundle.json"
+    },
+    {
+      "type": "ci_run",
+      "ref": "34117717820"
+    },
+    {
+      "type": "history",
+      "ref": "REV-GOV-PR5-001 and REV-GOV-PR5-002 superseded before external review"
+    }
+  ],
+  "expected_output": {
+    "required_fields": [
+      "review_request_id",
+      "reviewed_artifact_commit",
+      "reviewer",
+      "disposition",
+      "findings",
+      "evidence_assessment",
+      "independence_attestation"
+    ],
+    "allowed_dispositions": [
+      "PASS",
+      "BOUNDED_PASS",
+      "FAIL",
+      "NOT_TESTED",
+      "INSUFFICIENT_EVIDENCE",
+      "CHANGES_REQUIRED"
+    ]
+  },
+  "state": "REVIEW_REQUIRED",
+  "request_hash": "970a169a3717de412f0f9cd20bc951c1f2bc64f9befe2dcaadbaa4b0b819c5a7"
+}
