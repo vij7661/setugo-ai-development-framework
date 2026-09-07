@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-003",
+  "reviewed_artifact_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34168261336,
+  "job_id": 101883498584,
+  "artifact_id": 10034862695,
+  "artifact_digest": "sha256:52878c5e31163af54513fe0a227d95d9c8a543fe5ede31696a08c5b1a0c0a6d5",
+  "trigger_sha": "e53032990f4713a810e55242c779ea303b2d0245",
+  "request_hash": "77795f8416b0f9d4573a2b13f11d1707fc41880bd2a6b8ab63340beb90d98211",
+  "corpus_sha256": "c951bffd4b5cf89e78e3e9774daf6ddf405f24e82345decff4a8306a960e04e4",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "review": {
+    "disposition": "PASS",
+    "evidence_assessment": "Assessed PR #10 candidate commit f3b26a057ff862dc5f31794ec72c751a2b71f79b against base commit a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d and merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852. Exactly seven changed files were inspected along with CI workflow records (run 34167372130, job 101880985712, 1183 tests OK, S4-01..S4-16 pass) and frozen adjudication artifacts. Invariants for isolated tool execution (argv-form shell-free launch, workspace/executable/environment confinement, bounded runtime/output, process outcome honesty, crash/replay/concurrency convergence, non-minting of remote/terminal authority, and preserved failure history) are fully enforced and verified.",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "reviewer": {"provider": "gemini", "model": "gemini-3.6-flash"},
+    "review_coverage": [
+      {"dimension_id":"integration_lineage_integrity","status":"TESTED_SUPPORTED","evidence":["PR-10:base=feature/integrated-governed-mvp@a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d","experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md"],"assessment":"Lineage integrity verified: PR #10 integrates candidate head f3b26a057ff862dc5f31794ec72c751a2b71f79b directly into accepted Slice 3 parent a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d without substitution."},
+      {"dimension_id":"transition_scope_exactness","status":"TESTED_SUPPORTED","evidence":[".github/workflows/integrated-governed-mvp-slice4.yml","experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md","experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json","experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json","experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-SCIENTIFIC-ADJUDICATION.json","experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"],"assessment":"Scope exactness verified: PR #10 consists of exactly the seven verified Slice 4 files with no unrelated authority-bearing changes."},
+      {"dimension_id":"scientific_subject_and_history_integrity","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json","experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-SCIENTIFIC-ADJUDICATION.json"],"assessment":"Scientific subject and history integrity verified: frozen candidate f6f04970d594292f21db648132afab7da4f263a6 remains unchanged, and early construction failure plus HTTP 503 review attempts remain preserved."},
+      {"dimension_id":"execution_boundary_invariant_preservation","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"],"assessment":"Execution boundary invariants verified: gateway enforces exact contract/manifest binding, shell=False execution, workspace/executable/env confinement, timeout/output byte bounds, process outcome honesty, durable idempotency, crash recovery, and evidence lineage."},
+      {"dimension_id":"terminal_and_remote_authority_separation","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md"],"assessment":"Authority separation verified: local tool execution results explicitly return terminal_authority=False and release_completion_authority=False, preventing minting of remote push, merge, deploy, or completion authority."},
+      {"dimension_id":"pr_transition_ci_binding","status":"TESTED_SUPPORTED","evidence":["PR CI run 34167372130 job 101880985712","merge-ref=43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852"],"assessment":"PR transition CI binding verified: CI run 34167372130 job 101880985712 checked out exact merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852 and verified 1183 tests OK including S4-01..S4-16."},
+      {"dimension_id":"provenance_and_adjudication_consistency","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-SCIENTIFIC-ADJUDICATION.json"],"assessment":"Provenance and adjudication consistency verified: scientific adjudication records, API review evidence, non-cryptographic remote model identity limitations, and post-freeze records are fully aligned."},
+      {"dimension_id":"remaining_integration_bypass_search","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"],"assessment":"Adversarial inspection found no authority bypasses, scope smuggling, semantic rebinding, stale state ambiguity, or false-green pathways in the gateway or test harness."}
+    ]
+  },
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+}
