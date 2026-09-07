@@ -8,7 +8,11 @@ import json
 from pathlib import Path
 import subprocess
 
-from review_protocol import verify_review_request
+from review_protocol import (
+    build_portable_review_bundle,
+    verify_portable_review_bundle,
+    verify_review_request,
+)
 
 REVIEW_ARTIFACT_PATHS = [
     "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
@@ -65,6 +69,29 @@ def main() -> int:
             "bytes_utf8": len(content.encode("utf-8")),
         })
 
+    reference_summaries = {}
+    for ref in request.get("evidence_refs", []):
+        if not isinstance(ref, dict):
+            raise SystemExit("INVALID_EVIDENCE_REF")
+        ref_type = ref.get("type")
+        ref_value = ref.get("ref")
+        key = f"{ref_type}:{ref_value}"
+        if ref_type in {"file", "artifact", "portable_bundle"}:
+            continue
+        if ref_type == "ci_run":
+            if str(ref_value) != str(args.ci_run_id):
+                raise SystemExit("CI_RUN_EVIDENCE_REF_MISMATCH")
+            reference_summaries[key] = {
+                "ci_run_id": str(args.ci_run_id),
+                "builder_head": args.builder_head,
+                "source": "GITHUB_ACTIONS_CURRENT_RUN",
+            }
+        else:
+            reference_summaries[key] = {
+                "ref": ref_value,
+                "source": "REVIEW_REQUEST_EMBEDDED_REFERENCE",
+            }
+
     evidence_summary = {
         "review_request_id": review_id,
         "reviewed_candidate_commit": reviewed_commit,
@@ -72,8 +99,18 @@ def main() -> int:
         "packet_builder": "GITHUB_ACTIONS",
         "builder_execution_head": args.builder_head,
         "builder_ci_run_id": str(args.ci_run_id),
+        "reference_summaries": reference_summaries,
         "note": "The reviewer must use only this packet; repository access is not required.",
     }
+
+    portable_bundle = build_portable_review_bundle(
+        request=request,
+        artifacts=[{"path": item["path"], "content": item["content"]} for item in embedded],
+        evidence_summary=evidence_summary,
+    )
+    bundle_ok, bundle_reason = verify_portable_review_bundle(request=request, bundle=portable_bundle)
+    if not bundle_ok:
+        raise SystemExit(f"INVALID_PORTABLE_BUNDLE: {bundle_reason}")
 
     output_contract = {
         "review_request_id": review_id,
@@ -121,11 +158,15 @@ def main() -> int:
         json.dumps(request, indent=2, sort_keys=True, ensure_ascii=False),
         "```",
         "",
-        "## Evidence summary",
+        "## Evidence coverage summary",
         "",
         "```json",
         json.dumps(evidence_summary, indent=2, sort_keys=True, ensure_ascii=False),
         "```",
+        "",
+        "## Logical portable-bundle hash",
+        "",
+        f"`{portable_bundle['bundle_hash']}`",
     ]
 
     manifest_entries = []
@@ -152,6 +193,7 @@ def main() -> int:
     packet = packet_body + (
         "\n## Portable packet integrity\n\n"
         f"- packet_body_sha256: `{packet_body_sha256}`\n"
+        f"- logical_bundle_sha256: `{portable_bundle['bundle_hash']}`\n"
         f"- review_request_id: `{review_id}`\n"
         f"- reviewed_candidate_commit: `{reviewed_commit}`\n"
         "- repository_access_required: `false`\n"
@@ -166,7 +208,7 @@ def main() -> int:
     (output_dir / packet_name).write_text(packet, encoding="utf-8")
 
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "review_request_id": review_id,
         "reviewed_candidate_commit": reviewed_commit,
         "repository_access_required": False,
@@ -174,6 +216,8 @@ def main() -> int:
         "bundle_filename": packet_name,
         "bundle_body_sha256": packet_body_sha256,
         "bundle_file_sha256": packet_file_sha256,
+        "logical_bundle_sha256": portable_bundle["bundle_hash"],
+        "covered_evidence_refs": request.get("evidence_refs", []),
         "embedded_artifacts": manifest_entries,
         "builder_execution_head": args.builder_head,
         "builder_ci_run_id": str(args.ci_run_id),
@@ -183,7 +227,8 @@ def main() -> int:
     print(
         "PORTABLE_REVIEW_PACKET_BUILT "
         f"request={review_id} candidate={reviewed_commit} "
-        f"file_sha256={packet_file_sha256} artifacts={len(manifest_entries)}"
+        f"file_sha256={packet_file_sha256} logical_bundle_sha256={portable_bundle['bundle_hash']} "
+        f"artifacts={len(manifest_entries)} evidence_refs={len(request.get('evidence_refs', []))}"
     )
     return 0
 
