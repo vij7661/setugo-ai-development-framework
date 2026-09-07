@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "memory_id": "GOVERNED-SHARED-PROJECT-MEMORY-001",
   "state": "ACTIVE",
   "role": "CROSS_AGENT_CONTINUITY_AND_COORDINATION",
@@ -26,7 +26,7 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "S3-01..S3-16 are frozen. First mechanism candidate reached 14/16. S3-03 and S3-11 are classified validation-order/classification defects with no unauthorized mutation observed. Next allowed action is a narrow code-only repair; frozen tests/preregistration must not be changed to obtain green.",
+    "continuity_summary": "S3-01..S3-16 are frozen. First mechanism candidate reached 14/16. S3-03 and S3-11 are classified validation-order/classification defects with no unauthorized mutation observed. Live-governance mode/bundle redesign is being completed before Slice 3 resumes.",
     "allowed_use": [
       "session_resume",
       "task_routing",
@@ -42,28 +42,45 @@
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
-    "status": "PENDING_EXTERNAL_REVIEW",
-    "reviewed_candidate_commit": "86ed86fd3fd3cecc2c62b63ce790dca98d009172",
-    "candidate_ci_run": 34115861126,
+    "status": "PENDING_CANDIDATE_FREEZE",
+    "platform_modes": [
+      "AUTO_MODE",
+      "MANUAL_MODE"
+    ],
+    "review_levels": [
+      "NONE",
+      "RECOMMENDED",
+      "REQUIRED"
+    ],
+    "production_auto_mode_transport": "AUTOMATIC_API",
+    "production_manual_mode_transport": "USER_INITIATED_API",
+    "current_collaboration_transport": "MANUAL_RELAY",
+    "manual_relay_requires_portable_bundle": true,
     "features_under_review": [
       "live conversation governance",
       "active governed shared project memory",
-      "transport-neutral independent review orchestration",
-      "manual relay review adapter",
-      "automatic API review adapter contract"
+      "AUTO_MODE automatic independent review",
+      "MANUAL_MODE user-triggered reviewer buttons",
+      "transport-neutral review policy",
+      "USER_INITIATED_API using the same provider API contract as AUTOMATIC_API",
+      "self-contained MANUAL_RELAY review bundles for reviewers without GitHub access"
     ]
   },
   "pending_reviews": [
     {
       "purpose": "Promotion of live conversation governance PR #5",
-      "status": "PENDING_EXTERNAL_REVIEW",
+      "status": "PENDING_CANDIDATE_FREEZE",
       "preferred_reviewer": "CLAUDE",
+      "platform_mode": "MANUAL_MODE",
       "transport": "MANUAL_RELAY",
-      "review_request_id": "REV-GOV-PR5-002",
-      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-002.json",
-      "reviewed_artifact_commit": "86ed86fd3fd3cecc2c62b63ce790dca98d009172",
+      "review_request_id": null,
+      "review_request_path": null,
+      "portable_bundle_path": null,
+      "reviewed_artifact_commit": null,
+      "repository_access_required": false,
       "superseded_review_requests": [
-        "REV-GOV-PR5-001"
+        "REV-GOV-PR5-001",
+        "REV-GOV-PR5-002"
       ]
     }
   ],
@@ -73,6 +90,8 @@
     "material_claim_requires_authority_resolution_before_promotion": true,
     "stale_memory_must_be_marked_and_repaired": true,
     "memory_write_failure_changes_authority": false,
-    "memory_write_failure_must_be_surfaced": true
+    "memory_write_failure_must_be_surfaced": true,
+    "platform_mode_changes_authority": false,
+    "manual_mode_user_skip_of_required_review_promotes_authority": false
   }
 }
