@@ -105,14 +105,14 @@ jobs:
               'Assess whether primary R1 may recommend review without being able to waive deterministic REQUIRED review.',
               'Assess whether production MANUAL_MODE using USER_INITIATED_API preserves the same provider API and governance semantics as AUTO_MODE/AUTOMATIC_API.',
               'Assess whether MANUAL_RELAY is safely limited to a fallback transport and cannot redesign or weaken production API review.',
-              'Assess whether CI-built self-contained review packets are sufficient for a reviewer with zero GitHub/repository/tool access and whether packet integrity/revision binding fail closed.',
+              'Assess whether CI-built self-contained review packets are sufficient for a reviewer with zero GitHub/repository/tool access and whether full-file packet integrity/revision binding fail closed.',
               'Assess shared project memory continuity and authority separation across chat/session boundaries.',
               'Identify any path by which proposer confidence, reviewer consensus, platform mode, user choice, transport behavior, shared memory, API failure, packet export, or chat-window changes could bypass mandatory evidence/review/governor gates.',
               'Assess whether deterministic tests and CI are sufficient for this bounded candidate and identify missing adversarial cases.',
               'Return an independent disposition without assuming or using the proposer conclusion.'
           ]
           req = build_review_request(
-              review_request_id='REV-GOV-PR5-005',
+              review_request_id='REV-GOV-PR5-006',
               trigger='MATERIAL_GOVERNANCE_CHANGE',
               artifact_type='live_conversation_governance_runtime_candidate',
               artifact_ref='PR-5',
@@ -123,26 +123,37 @@ jobs:
               review_questions=questions,
               evidence_refs=[
                   {'type':'ci_run','ref':os.environ['GITHUB_RUN_ID']},
-                  {'type':'history','ref':'REV-GOV-PR5-001 through REV-GOV-PR5-004 superseded before external review'}
+                  {'type':'history','ref':'REV-GOV-PR5-001 through REV-GOV-PR5-005 superseded before external review'}
               ],
           )
-          with open('/tmp/REV-GOV-PR5-005.json','w',encoding='utf-8') as f:
+          with open('/tmp/REV-GOV-PR5-006.json','w',encoding='utf-8') as f:
               json.dump(req,f,indent=2)
           PY
           python governance-runtime/build_portable_review_packet.py \
-            --request /tmp/REV-GOV-PR5-005.json \
+            --request /tmp/REV-GOV-PR5-006.json \
             --output-dir candidate-review-output \
             --ci-run-id "$GITHUB_RUN_ID" \
             --builder-head "$GITHUB_SHA"
-          cp /tmp/REV-GOV-PR5-005.json candidate-review-output/REV-GOV-PR5-005.request.json
-          test -s candidate-review-output/REV-GOV-PR5-005-portable-review-packet.md
-          test -s candidate-review-output/REV-GOV-PR5-005.manifest.json
-          test -s candidate-review-output/REV-GOV-PR5-005.request.json
+          cp /tmp/REV-GOV-PR5-006.json candidate-review-output/REV-GOV-PR5-006.request.json
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path('candidate-review-output')
+          packet=root/'REV-GOV-PR5-006-portable-review-packet.md'
+          manifest=json.loads((root/'REV-GOV-PR5-006.manifest.json').read_text(encoding='utf-8'))
+          request=json.loads((root/'REV-GOV-PR5-006.request.json').read_text(encoding='utf-8'))
+          actual=hashlib.sha256(packet.read_bytes()).hexdigest()
+          assert actual == manifest['bundle_file_sha256']
+          assert manifest['reviewed_candidate_commit'] == os.environ['GITHUB_SHA']
+          assert request['artifact']['commit'] == os.environ['GITHUB_SHA']
+          assert manifest['review_request_id'] == request['review_request_id'] == 'REV-GOV-PR5-006'
+          assert manifest['repository_access_required'] is False
+          PY
 
       - name: Upload candidate-bound Claude review packet
         uses: actions/upload-artifact@v4
         with:
-          name: claude-review-REV-GOV-PR5-005-${{ github.run_id }}
+          name: claude-review-REV-GOV-PR5-006-${{ github.run_id }}
           path: candidate-review-output/
           if-no-files-found: error
           retention-days: 30
