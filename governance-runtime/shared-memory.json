@@ -16,14 +16,14 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. Governance PR #5 review REV-GOV-PR5-008 is active for DeepSeek against exact candidate 4133bd86806631d246c943b7d79a84346500b827. Packet SHA-256 is 2089d771232edf0be958483ab77227839bf750a87e2856369ec367df9c7900e9. Manual-relay provider identity remains unauthenticated by self-declared JSON.",
+    "continuity_summary": "Slice 3 remains frozen at 14/16. Governance PR #5 review REV-GOV-PR5-008 returned PASS content with zero findings for exact candidate 4133bd86806631d246c943b7d79a84346500b827, but manual-relay DeepSeek identity is not provider-authenticated, so the review does not authorize promotion.",
     "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
-    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated"]
+    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity"]
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
-    "status": "PENDING_EXTERNAL_REVIEW",
+    "status": "PENDING_INDEPENDENT_REVIEW",
     "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
     "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
     "production_auto_mode_transport": "AUTOMATIC_API",
@@ -32,8 +32,11 @@
     "manual_relay_requires_portable_bundle": true,
     "selected_next_reviewer": null,
     "current_review_request_id": "REV-GOV-PR5-008",
-    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_review_status": "REVIEW_RECEIVED",
     "reviewed_candidate_commit": "4133bd86806631d246c943b7d79a84346500b827",
+    "current_review_disposition": "PASS",
+    "current_review_identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "current_review_counts_for_promotion": false,
     "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-008.manifest.json",
     "portable_bundle_sha256": "2089d771232edf0be958483ab77227839bf750a87e2856369ec367df9c7900e9",
     "features_under_review": [
@@ -50,7 +53,7 @@
   "pending_reviews": [
     {
       "purpose": "Promotion of live conversation governance PR #5",
-      "status": "PENDING_EXTERNAL_REVIEW",
+      "status": "REVIEW_RECEIVED",
       "preferred_reviewer": "DEEPSEEK",
       "selected_reviewer": {"provider":"deepseek","model_class":"deepseek"},
       "platform_mode": "MANUAL_MODE",
@@ -62,12 +65,16 @@
       "reviewed_artifact_commit": "4133bd86806631d246c943b7d79a84346500b827",
       "repository_access_required": false,
       "identity_assurance_expected": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+      "received_disposition": "PASS",
+      "findings_count": 0,
+      "counts_for_current_promotion": false,
       "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007"]
     }
   ],
   "received_review_history": [
     {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"deepseek","identity_assurance":"CORRECTED_AFTER_USER_DISCLOSURE","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
-    {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"claimed_anthropic_claude","identity_assurance":"USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false}
+    {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"claimed_anthropic_claude","identity_assurance":"USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
+    {"request_id":"REV-GOV-PR5-008","reviewed_candidate":"4133bd86806631d246c943b7d79a84346500b827","origin":"self_declared_deepseek_manual_relay","identity_assurance":"MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY","disposition":"PASS","findings_count":0,"counts_for_current_promotion":false}
   ],
   "memory_conflict_history": [
     {"id":"LCG-F6","observed":"shared-memory.json lagged authoritative session-state.json at earlier review ingestion","resolution":"AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED","silent_merge":false},
