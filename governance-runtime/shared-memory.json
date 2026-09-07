@@ -16,64 +16,64 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. Governance PR #5 review REV-GOV-PR5-008 returned unqualified PASS content with zero findings for exact candidate 4133bd86806631d246c943b7d79a84346500b827, but it is not promotable: manual-relay DeepSeek identity is unauthenticated and the reviewer stated raw files were not directly accessible even though raw-byte integrity was a required review question.",
+    "continuity_summary": "Slice 3 remains frozen at 14/16. REV-GOV-PR5-008 is preserved but superseded after exposing semantic review overclaim: PASS was returned while raw files were not directly accessible. GOV-SEM-001 is implemented under preregistered tests; PR #5 is back at PENDING_CANDIDATE_FREEZE until complete CI and a new schema-4 independent review boundary.",
     "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
-    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity","accept_full_pass_when_required_review_area_not_tested"]
+    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity","accept_full_pass_when_required_review_area_not_tested","promote_legacy_review_schema","promote_negative_review_disposition"]
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
-    "status": "PENDING_INDEPENDENT_REVIEW",
+    "status": "PENDING_CANDIDATE_FREEZE",
     "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
     "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
     "production_auto_mode_transport": "AUTOMATIC_API",
     "production_manual_mode_transport": "USER_INITIATED_API",
     "current_collaboration_transport": "MANUAL_RELAY",
     "manual_relay_requires_portable_bundle": true,
+    "semantic_review_schema_minimum_for_promotion": 4,
+    "positive_promotable_dispositions": ["PASS","BOUNDED_PASS"],
     "selected_next_reviewer": null,
-    "current_review_request_id": "REV-GOV-PR5-008",
-    "current_review_status": "REVIEW_RECEIVED",
-    "reviewed_candidate_commit": "4133bd86806631d246c943b7d79a84346500b827",
-    "current_review_disposition": "PASS",
-    "current_review_semantic_validation": "CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT",
-    "current_review_effective_state": "INSUFFICIENT_EVIDENCE_FOR_FULL_PASS",
-    "current_review_identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "current_review_request_id": null,
+    "current_review_status": "NOT_YET_PRESENT",
+    "reviewed_candidate_commit": null,
+    "current_review_disposition": null,
+    "current_review_semantic_validation": null,
+    "current_review_effective_state": null,
+    "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
-    "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-008.manifest.json",
-    "portable_bundle_sha256": "2089d771232edf0be958483ab77227839bf750a87e2856369ec367df9c7900e9",
+    "portable_bundle_manifest_path": null,
+    "portable_bundle_sha256": null,
     "features_under_review": [
       "trusted reviewer identity provenance",
       "material promotion always requires current authenticated review",
+      "schema-4 required review dimensions",
+      "semantic disposition/evidence consistency",
+      "positive-disposition promotion floor",
       "governance-path and material review classification",
       "promotion binds current ReviewRequest/ReviewEvidence/execution envelope",
       "shared-memory grounding",
       "raw canonical portable packet integrity",
       "provider-neutral reviewer selection",
-      "semantic disposition/evidence consistency",
       "AUTO_MODE/MANUAL_MODE authority equivalence"
     ]
   },
   "pending_reviews": [
     {
       "purpose": "Promotion of live conversation governance PR #5",
-      "status": "REVIEW_RECEIVED",
-      "preferred_reviewer": "DEEPSEEK",
-      "selected_reviewer": {"provider":"deepseek","model_class":"deepseek"},
+      "status": "PENDING_CANDIDATE_FREEZE",
+      "preferred_reviewer": null,
+      "selected_reviewer": null,
       "platform_mode": "MANUAL_MODE",
       "transport": "MANUAL_RELAY",
-      "review_request_id": "REV-GOV-PR5-008",
-      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-008.json",
-      "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-008.manifest.json",
-      "portable_bundle_sha256": "2089d771232edf0be958483ab77227839bf750a87e2856369ec367df9c7900e9",
-      "reviewed_artifact_commit": "4133bd86806631d246c943b7d79a84346500b827",
+      "review_request_id": null,
+      "review_request_path": null,
+      "portable_bundle_manifest_path": null,
+      "portable_bundle_sha256": null,
+      "reviewed_artifact_commit": null,
       "repository_access_required": false,
       "identity_assurance_expected": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
-      "received_disposition": "PASS",
-      "semantic_validation": "CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT",
-      "effective_state": "INSUFFICIENT_EVIDENCE_FOR_FULL_PASS",
-      "findings_count": 0,
       "counts_for_current_promotion": false,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007"]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008"]
     }
   ],
   "received_review_history": [
@@ -83,7 +83,8 @@
   ],
   "memory_conflict_history": [
     {"id":"LCG-F6","observed":"shared-memory.json lagged authoritative session-state.json at earlier review ingestion","resolution":"AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED","silent_merge":false},
-    {"id":"LCG-F7","observed":"manual-relay review JSON self-declared Anthropic/Claude identity although user later disclosed the content came from DeepSeek","resolution":"REVIEWER_IDENTITY_CLAIM_RETRACTED_AND_COMBINED_REPAIR_APPLIED","silent_merge":false}
+    {"id":"LCG-F7","observed":"manual-relay review JSON self-declared Anthropic/Claude identity although user later disclosed the content came from DeepSeek","resolution":"REVIEWER_IDENTITY_CLAIM_RETRACTED_AND_COMBINED_REPAIR_APPLIED","silent_merge":false},
+    {"id":"LCG-F8","observed":"REV-GOV-PR5-008 returned PASS while admitting raw files were not directly accessible","resolution":"REVIEW_PRESERVED_NONPROMOTABLE_AND_GOV_SEM_001_PREREGISTERED_IMPLEMENTED","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
@@ -95,6 +96,8 @@
     "platform_mode_changes_authority": false,
     "manual_mode_user_skip_of_required_review_promotes_authority": false,
     "manual_relay_self_declared_reviewer_identity_is_authenticated": false,
-    "review_disposition_may_override_missing_required_review_evidence": false
+    "review_disposition_may_override_missing_required_review_evidence": false,
+    "legacy_review_schema_may_promote_material_authority": false,
+    "negative_review_disposition_may_promote_material_authority": false
   }
 }
