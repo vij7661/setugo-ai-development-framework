@@ -32,11 +32,26 @@ def _provider_system_instruction() -> str:
     return SYSTEM_INSTRUCTION
 
 
+def _retrieval_query_text(request: ReviewRequest, artifact: ReviewArtifact | None) -> str:
+    """Platform-construct retrieval text from already-authorized reviewer inputs."""
+    if artifact is None:
+        return request.user_input
+    return request.user_input + "\n\n" + artifact.content
+
+
 class ContextCompiler:
     """Build role-specific context without leaking protected or anchoring data."""
 
     def __init__(self, retriever: ContextRetriever | None = None) -> None:
         self._retriever = retriever or ReturnAllRetriever()
+
+    @property
+    def retrieval_strategy(self) -> str:
+        return str(getattr(self._retriever, "STRATEGY", type(self._retriever).__name__))
+
+    @property
+    def retrieval_strategy_version(self) -> str:
+        return str(getattr(self._retriever, "STRATEGY_VERSION", "unknown"))
 
     def _retrieve(
         self,
@@ -53,6 +68,7 @@ class ContextCompiler:
                 artifact_id=artifact.artifact_id if artifact is not None else None,
                 artifact_version=artifact.version if artifact is not None else None,
                 artifact_hash=artifact.artifact_hash if artifact is not None else None,
+                query_text=_retrieval_query_text(request, artifact),
             ),
             memory=memory,
         )
