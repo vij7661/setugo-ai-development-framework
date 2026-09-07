@@ -8,6 +8,10 @@ from hashlib import sha256
 from pathlib import Path
 
 from .review_execution_classification import ingest_user_provided_external_content
+from .single_file_review_container import (
+    build_single_file_review_container,
+    verify_single_file_review_container,
+)
 
 
 SUPPORTED_REVIEW_TARGETS = frozenset({"provider-neutral", "claude", "deepseek", "kimi"})
@@ -15,23 +19,20 @@ EXTERNAL_CONTENT_IDENTITY_ASSURANCE = "UNAUTHENTICATED_EXTERNAL_CONTENT"
 RAW_HASH_BASIS = "RAW_FILE_BYTES"
 TRANSPORT_PROFILE_CHECKED_DATE = "2026-09-07"
 
-# Convenience-only input profiles. These describe how the same canonical review
-# bytes can be presented to different reviewer surfaces. They are never included
-# in the raw-artifact authority set and never authenticate the reviewer/model.
 TARGET_TRANSPORT_PROFILES = {
     "provider-neutral": {
         "api_family": "UNSPECIFIED",
-        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "manual_input_shape": "ONE_UTF8_TEXT_FILE_OR_MARKDOWN_PLUS_RAW_FILES",
         "prompt_layout": "review instruction plus canonical source manifest and raw files",
         "structured_output": "follow REVIEW_PROMPT.txt output contract",
         "documentation_basis": [],
     },
     "claude": {
         "api_family": "ANTHROPIC_MESSAGES",
-        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "manual_input_shape": "ONE_UTF8_TEXT_FILE",
         "prompt_layout": "long source/context first, explicit review instruction and output schema; XML delimiters may be used",
         "structured_output": "explicit schema/instructions in prompt or supported structured-output surface",
-        "document_input_note": "Claude Messages supports document input including PDF by URL, base64 or file_id; raw text files remain canonical for code review",
+        "document_input_note": "Claude Messages supports document input including PDF by URL, base64 or file_id; the generated single UTF-8 text container is sufficient for this code-review export",
         "documentation_basis": [
             "https://docs.anthropic.com/en/docs/build-with-claude/pdf-support",
             "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-templates-and-variables",
@@ -39,7 +40,7 @@ TARGET_TRANSPORT_PROFILES = {
     },
     "deepseek": {
         "api_family": "OPENAI_CHAT_COMPLETIONS_OR_RESPONSES",
-        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "manual_input_shape": "ONE_UTF8_TEXT_FILE",
         "prompt_layout": "system/user instruction with explicit JSON output contract and canonical source text",
         "structured_output": "Chat Completions response_format=json_object; Responses API supports json_object/json_schema",
         "documentation_basis": [
@@ -49,7 +50,7 @@ TARGET_TRANSPORT_PROFILES = {
     },
     "kimi": {
         "api_family": "MESSAGES_STYLE_CHAT",
-        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "manual_input_shape": "ONE_UTF8_TEXT_FILE",
         "prompt_layout": "system/user messages with clear steps, delimiters/XML and reference text",
         "structured_output": "state the exact output schema in the prompt; this profile makes no stronger JSON-mode claim",
         "documentation_basis": [
@@ -107,10 +108,10 @@ def _safe_source(root: Path, relative: str) -> tuple[Path, str]:
 
 def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...], source_text: dict[str, str]) -> str:
     target_note = {
-        "provider-neutral": "Use this packet with any external reviewer that can consume UTF-8 text/Markdown.",
-        "claude": "Claude-targeted input hint only; reviewer identity is not proven by this file.",
-        "deepseek": "DeepSeek-targeted input hint only; this Markdown can be supplied as plain text when document upload is unavailable.",
-        "kimi": "Kimi-targeted input hint only; reviewer identity is not proven by this file.",
+        "provider-neutral": "Use the generated SINGLE_FILE_REVIEW.txt with any external reviewer that can consume UTF-8 text.",
+        "claude": "Upload SINGLE_FILE_REVIEW.txt to Claude; reviewer identity is not proven by the returned content.",
+        "deepseek": "Upload SINGLE_FILE_REVIEW.txt to DeepSeek; no ZIP or multi-file upload is required.",
+        "kimi": "Upload SINGLE_FILE_REVIEW.txt to Kimi; reviewer identity is not proven by the returned content.",
     }[spec.intended_reviewer]
     lines = [
         f"# External Independent-Review Evidence Packet — {spec.review_id}",
@@ -133,8 +134,8 @@ def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...
         "",
         "## Authority and provenance rules",
         "",
-        "1. The files under `raw-artifacts/` and their SHA-256 hashes are the canonical review bytes.",
-        "2. This Markdown is a convenience rendering and is not independently authoritative over the raw files.",
+        "1. The files under `raw-artifacts/` and their SHA-256 hashes are the canonical review bytes retained by the export.",
+        "2. `SINGLE_FILE_REVIEW.txt` deterministically embeds those same UTF-8 bytes with byte counts and SHA-256 values for one-file handoff.",
         "3. Pasted or returned content starts as USER_PROVIDED_EXTERNAL_CONTENT; self-declared reviewer/provider/model fields do not classify or authenticate it.",
         "4. Only an explicit user attestation may later classify pasted content as USER_ATTESTED_EXTERNAL_LLM_REVIEW, and that still does not become provider-API authentication.",
         "5. Only platform AUTOMATIC_API or USER_INITIATED_API execution can satisfy a provider-authenticated platform review requirement.",
@@ -164,12 +165,7 @@ def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...
 
 
 def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: ReviewExportSpec) -> dict:
-    """Build a provider-neutral, byte-bound external-evidence export.
-
-    The same raw artifact set is used regardless of Claude/DeepSeek/Kimi target.
-    Target selection changes only convenience input hints. The resulting handoff
-    is external content, not a platform API review and not reviewer authentication.
-    """
+    """Build a provider-neutral, byte-bound external-evidence export."""
     spec.validate()
     external_classification = ingest_user_provided_external_content()
     root = Path(repo_root)
@@ -227,6 +223,22 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
     packet = _render_packet(spec, frozen_entries, source_text)
     (out / "REVIEW_PACKET.md").write_text(packet, encoding="utf-8")
 
+    single_file_artifacts = tuple(
+        {"path": entry.path, "content": source_text[entry.path]}
+        for entry in frozen_entries
+    )
+    single_file_text = build_single_file_review_container(
+        review_id=spec.review_id,
+        candidate_sha=spec.candidate_sha,
+        intended_reviewer=spec.intended_reviewer,
+        prompt=spec.prompt,
+        artifacts=single_file_artifacts,
+    )
+    verified_single_payload = verify_single_file_review_container(single_file_text)
+    if len(verified_single_payload["artifacts"]) != len(frozen_entries):
+        raise RuntimeError("single-file review container coverage mismatch")
+    (out / "SINGLE_FILE_REVIEW.txt").write_text(single_file_text, encoding="utf-8")
+
     transport_profile = {
         "schema_version": 1,
         "intended_reviewer": spec.intended_reviewer,
@@ -243,6 +255,7 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
         out / "REVIEW_REQUEST.json",
         out / "REVIEW_PROMPT.txt",
         out / "REVIEW_PACKET.md",
+        out / "SINGLE_FILE_REVIEW.txt",
         out / "TARGET_TRANSPORT.json",
     ]
     checksum_paths.extend(raw_dir / entry.path for entry in frozen_entries)
@@ -261,6 +274,7 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
         "raw_artifact_count": len(frozen_entries),
         "raw_artifacts": [asdict(entry) for entry in frozen_entries],
         "packet_sha256": sha256((out / "REVIEW_PACKET.md").read_bytes()).hexdigest(),
+        "single_file_sha256": sha256((out / "SINGLE_FILE_REVIEW.txt").read_bytes()).hexdigest(),
         "request_sha256": sha256((out / "REVIEW_REQUEST.json").read_bytes()).hexdigest(),
         "transport_profile_sha256": sha256((out / "TARGET_TRANSPORT.json").read_bytes()).hexdigest(),
         "checksums_sha256": sha256((out / "SHA256SUMS.txt").read_bytes()).hexdigest(),
