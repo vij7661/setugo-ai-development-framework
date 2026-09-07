@@ -14,6 +14,12 @@ A common failure chain is:
 
 The conversation can become internally coherent while drifting away from external reality.
 
+A second continuity-specific failure chain is:
+
+`authoritative state verified -> advisory memory/continuity write fails -> failure is hidden or treated as success -> next session resumes from stale/missing continuity -> user repetition or guesswork substitutes for governed recovery`
+
+A continuity-store failure must not become an authority failure.
+
 ## Required State Separation
 
 Maintain separate stores/state classes for:
@@ -26,7 +32,7 @@ Maintain separate stores/state classes for:
 6. Governed requirements
 7. Retracted/superseded claims
 
-Raw conversation transcripts, summaries, model memory, and agent-to-agent messages are not authoritative stores.
+Raw conversation transcripts, summaries, model memory, continuity caches, and agent-to-agent messages are not authoritative stores.
 
 ## Claim Provenance Contract
 
@@ -113,6 +119,31 @@ Suggested triggers:
 - before release/completion adjudication
 - when a contradiction or retraction occurs
 - when execution resumes after a context-window/chat/session boundary
+- after a continuity-store read/write failure before authoritative work resumes
+
+## Continuity-Store Failure Handling
+
+Model/user memory and other continuity caches are advisory conveniences. They must not be the only durable representation of authoritative project state.
+
+Required behavior when a continuity read or write fails:
+
+1. Detect and surface the failure explicitly; never acknowledge an unsuccessful write as saved, remembered, synchronized, or persisted.
+2. Preserve source precedence. Authoritative Git/evidence/registry state remains authoritative regardless of continuity-cache availability.
+3. If authoritative state is already durably persisted, the workflow may continue while recording the continuity failure for audit/retry.
+4. If the authoritative change itself is not durably persisted, block authoritative completion, promotion, or release rather than relying on the conversation or memory cache.
+5. On the next session/context boundary, reconstruct state from governed storage rather than asking the user to restate authoritative definitions or inferring them from stale summaries when governed state is available.
+6. A failed continuity write must not alter claim status, experiment status, revision identity, evidence validity, promotion eligibility, or release outcome.
+7. Repeated continuity failures must remain observable; retries must not erase the original failure history.
+
+The platform should distinguish at least:
+
+- `CONTINUITY_READ_UNAVAILABLE`
+- `CONTINUITY_WRITE_UNAVAILABLE`
+- `CONTINUITY_WRITE_REJECTED`
+- `CONTINUITY_STATE_STALE`
+- `CONTINUITY_STATE_MISSING`
+
+These are continuity conditions, not evidence states. They must not be mapped to `ACCEPTED`, `PROMOTED`, or any other authoritative claim status.
 
 ## Drift Detection Signals
 
@@ -126,19 +157,27 @@ The platform should detect and flag at least:
 - authoritative context containing RETRACTED or CONTRADICTED claims
 - requirements whose only provenance traces to conversation/model assertion
 - summary text that upgrades `possible/maybe/unverified` into factual language
+- continuity write/read failure hidden from the user or audit trail
+- failed continuity write falsely acknowledged as persisted
+- fresh-session recovery that asks for user repetition or uses guesswork despite available governed state
+- stale continuity state overriding a newer authoritative revision
 
 ## Governor Boundary
 
-LLMs may identify drift, but the non-propagation, promotion eligibility, retraction propagation, and reassessment requirements must be enforced by deterministic platform mechanisms.
+LLMs may identify drift, but the non-propagation, promotion eligibility, retraction propagation, reassessment requirements, source precedence, and continuity-failure recovery rules must be enforced by deterministic platform mechanisms.
 
-A Judge may recommend ACCEPT, REJECT, or REASSESS, but cannot override missing provenance or invalid parent-claim state.
+A Judge may recommend ACCEPT, REJECT, or REASSESS, but cannot override missing provenance, invalid parent-claim state, or authoritative source precedence.
+
+A continuity subsystem may improve convenience but cannot confer authority. Its failure cannot upgrade, downgrade, restore, erase, or substitute authoritative state.
 
 ## Relationship to External Evidence Validation
 
 This standard complements `standards/external-evidence-semantic-validation.md`.
 
-External semantic validation controls whether a source claim is valid enough to enter the system. Conversational drift control governs how claims propagate after entry and how contamination is contained if a claim later proves wrong.
+External semantic validation controls whether a source claim is valid enough to enter the system. Conversational drift control governs how claims propagate after entry, how continuity failures are contained, and how contamination is contained if a claim later proves wrong.
 
 ## Historical Integrity
 
 Corrections must preserve history. Do not silently rewrite R1/R2/R3 outputs to make them appear correct after the fact. Store the original claim, the later contradiction, the retraction, affected descendants, and the final adjudication.
+
+Continuity failures must also preserve their own audit history. Do not rewrite a failed memory/cache update as though it succeeded after a later retry.
