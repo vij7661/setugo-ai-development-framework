@@ -16,7 +16,7 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. REV-GOV-PR5-008 is preserved but superseded after exposing semantic review overclaim: PASS was returned while raw files were not directly accessible. GOV-SEM-001 is implemented under preregistered tests; PR #5 is back at PENDING_CANDIDATE_FREEZE until complete CI and a new schema-4 independent review boundary.",
+    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-SEM-001 semantic-review enforcement is construction-green at e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f with 33/33 tests in workflow 34131579394. REV-GOV-PR5-008 is preserved but superseded. PR #5 is ready for MANUAL_MODE reviewer selection; no current ReviewRequest exists yet.",
     "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
     "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity","accept_full_pass_when_required_review_area_not_tested","promote_legacy_review_schema","promote_negative_review_disposition"]
   },
@@ -24,8 +24,8 @@
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
     "status": "PENDING_CANDIDATE_FREEZE",
-    "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
-    "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
+    "platform_modes": ["AUTO_MODE","MANUAL_MODE"],
+    "review_levels": ["NONE","RECOMMENDED","REQUIRED"],
     "production_auto_mode_transport": "AUTOMATIC_API",
     "production_manual_mode_transport": "USER_INITIATED_API",
     "current_collaboration_transport": "MANUAL_RELAY",
@@ -43,38 +43,11 @@
     "current_review_counts_for_promotion": false,
     "portable_bundle_manifest_path": null,
     "portable_bundle_sha256": null,
-    "features_under_review": [
-      "trusted reviewer identity provenance",
-      "material promotion always requires current authenticated review",
-      "schema-4 required review dimensions",
-      "semantic disposition/evidence consistency",
-      "positive-disposition promotion floor",
-      "governance-path and material review classification",
-      "promotion binds current ReviewRequest/ReviewEvidence/execution envelope",
-      "shared-memory grounding",
-      "raw canonical portable packet integrity",
-      "provider-neutral reviewer selection",
-      "AUTO_MODE/MANUAL_MODE authority equivalence"
-    ]
+    "construction_evidence": {"id":"GOV-SEM-001-CONSTRUCTION-GREEN-001","candidate_commit":"e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f","workflow_run":34131579394,"tests":"33/33","state":"CONSTRUCTION_GREEN_BOUNDED"},
+    "features_under_review": ["trusted reviewer identity provenance","material promotion always requires current authenticated review","schema-4 required review dimensions","semantic disposition/evidence consistency","positive-disposition promotion floor","governance-path and material review classification","promotion binds current ReviewRequest/ReviewEvidence/execution envelope","shared-memory grounding","raw canonical portable packet integrity","provider-neutral reviewer selection","AUTO_MODE/MANUAL_MODE authority equivalence"]
   },
   "pending_reviews": [
-    {
-      "purpose": "Promotion of live conversation governance PR #5",
-      "status": "PENDING_CANDIDATE_FREEZE",
-      "preferred_reviewer": null,
-      "selected_reviewer": null,
-      "platform_mode": "MANUAL_MODE",
-      "transport": "MANUAL_RELAY",
-      "review_request_id": null,
-      "review_request_path": null,
-      "portable_bundle_manifest_path": null,
-      "portable_bundle_sha256": null,
-      "reviewed_artifact_commit": null,
-      "repository_access_required": false,
-      "identity_assurance_expected": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
-      "counts_for_current_promotion": false,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008"]
-    }
+    {"purpose":"Promotion of live conversation governance PR #5","status":"PENDING_CANDIDATE_FREEZE","preferred_reviewer":null,"selected_reviewer":null,"platform_mode":"MANUAL_MODE","transport":"MANUAL_RELAY","review_request_id":null,"review_request_path":null,"portable_bundle_manifest_path":null,"portable_bundle_sha256":null,"reviewed_artifact_commit":null,"repository_access_required":false,"identity_assurance_expected":"MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY","counts_for_current_promotion":false,"superseded_review_requests":["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008"]}
   ],
   "received_review_history": [
     {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"deepseek","identity_assurance":"CORRECTED_AFTER_USER_DISCLOSURE","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
