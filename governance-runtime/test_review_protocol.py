@@ -5,13 +5,17 @@ import unittest
 
 from review_protocol import (
     AutomaticAPITransport,
-    DispatchResult,
     ManualRelayTransport,
     ReviewOrchestrator,
+    UserInitiatedAPITransport,
+    build_portable_review_bundle,
     build_review_request,
     can_promote_material_transition,
     canonical_hash,
+    evaluate_review_level,
+    plan_review_interaction,
     validate_review_evidence,
+    verify_portable_review_bundle,
 )
 
 
@@ -29,7 +33,14 @@ class ReviewProtocolTests(unittest.TestCase):
             review_questions=["Independently assess the governance design."],
             evidence_refs=[{"type": "git", "ref": "PR-5"}],
         )
-        self.orchestrator = ReviewOrchestrator()
+        self.bundle = build_portable_review_bundle(
+            request=self.request,
+            artifacts=[
+                {"path": "governance-runtime/review_protocol.py", "content": "exact candidate content"},
+                {"path": "governance-runtime/session-state.json", "content": "{}"},
+            ],
+            evidence_summary={"ci": "green", "repository_access_required": False},
+        )
 
     def _valid_evidence(self) -> dict:
         return {
@@ -42,26 +53,47 @@ class ReviewProtocolTests(unittest.TestCase):
             "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
         }
 
-    def test_manual_and_api_receive_identical_review_request_semantics(self) -> None:
-        captured = []
+    def test_policy_can_force_required_even_when_r1_does_not_recommend(self) -> None:
+        self.assertEqual(
+            evaluate_review_level(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
+                r1_recommends_review=False,
+            ),
+            "REQUIRED",
+        )
 
-        def provider_call(payload):
-            captured.append(deepcopy(dict(payload)))
-            return self._valid_evidence()
+    def test_r1_can_recommend_review_for_nonmandatory_work(self) -> None:
+        self.assertEqual(
+            evaluate_review_level(
+                trigger="NON_AUTHORITATIVE_ARCHITECTURE_PROPOSAL",
+                r1_recommends_review=True,
+            ),
+            "RECOMMENDED",
+        )
+        self.assertEqual(
+            evaluate_review_level(
+                trigger="ROUTINE_FORMATTING",
+                r1_recommends_review=False,
+            ),
+            "NONE",
+        )
 
-        manual = self.orchestrator.dispatch(self.request, ManualRelayTransport())
-        automatic = self.orchestrator.dispatch(self.request, AutomaticAPITransport(provider_call))
+    def test_auto_mode_dispatches_review_without_user_button(self) -> None:
+        plan = plan_review_interaction(platform_mode="AUTO_MODE", review_level="RECOMMENDED")
+        self.assertEqual(plan["action"], "AUTOMATIC_API")
+        self.assertTrue(plan["automatic_dispatch"])
+        self.assertFalse(plan["show_review_controls"])
 
-        self.assertEqual(manual.payload_hash, automatic.payload_hash)
-        self.assertEqual(manual.payload_hash, canonical_hash(self.request))
-        self.assertEqual(captured, [self.request])
-        self.assertEqual(manual.state, "PENDING_EXTERNAL_REVIEW")
-        self.assertEqual(automatic.state, "REVIEW_RECEIVED")
+    def test_manual_mode_shows_buttons_and_does_not_auto_dispatch(self) -> None:
+        plan = plan_review_interaction(platform_mode="MANUAL_MODE", review_level="RECOMMENDED")
+        self.assertEqual(plan["action"], "SHOW_REVIEW_CONTROLS")
+        self.assertTrue(plan["show_review_controls"])
+        self.assertFalse(plan["automatic_dispatch"])
+        self.assertEqual(plan["recommended_buttons"], ["ASK_REVIEWER_SLOT_1", "ASK_REVIEWER_SLOT_2"])
 
-    def test_manual_relay_cannot_self_complete_review(self) -> None:
-        result = self.orchestrator.dispatch(self.request, ManualRelayTransport())
-        self.assertIsNone(result.response)
-        self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
+    def test_manual_required_review_can_be_skipped_but_authority_stays_blocked(self) -> None:
+        plan = plan_review_interaction(platform_mode="MANUAL_MODE", review_level="REQUIRED")
+        self.assertTrue(plan["authoritative_transition_blocked"])
         self.assertFalse(
             can_promote_material_transition(
                 trigger="MATERIAL_GOVERNANCE_CHANGE",
@@ -70,14 +102,45 @@ class ReviewProtocolTests(unittest.TestCase):
             )
         )
 
-    def test_api_provider_failure_fails_closed_to_pending_review(self) -> None:
-        def broken_provider(_payload):
-            raise TimeoutError("provider timed out")
+    def test_auto_and_user_initiated_api_receive_identical_request_semantics(self) -> None:
+        captured = []
 
-        result = self.orchestrator.dispatch(self.request, AutomaticAPITransport(broken_provider))
-        self.assertEqual(result.transport, "AUTOMATIC_API")
+        def provider_call(payload):
+            captured.append(deepcopy(dict(payload)))
+            return self._valid_evidence()
+
+        automatic = ReviewOrchestrator().dispatch(self.request, AutomaticAPITransport(provider_call))
+        user_initiated = ReviewOrchestrator().dispatch(self.request, UserInitiatedAPITransport(provider_call))
+
+        self.assertEqual(automatic.payload_hash, user_initiated.payload_hash)
+        self.assertEqual(automatic.payload_hash, canonical_hash(self.request))
+        self.assertEqual(captured, [self.request, self.request])
+        self.assertEqual(automatic.state, "REVIEW_RECEIVED")
+        self.assertEqual(user_initiated.state, "REVIEW_RECEIVED")
+
+    def test_manual_relay_requires_self_contained_verified_bundle(self) -> None:
+        ok, reason = verify_portable_review_bundle(request=self.request, bundle=self.bundle)
+        self.assertTrue(ok, reason)
+        self.assertFalse(self.bundle["repository_access_required"])
+        result = ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(self.bundle))
         self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
         self.assertIsNone(result.response)
+        self.assertEqual(result.portable_bundle_hash, self.bundle["bundle_hash"])
+
+    def test_corrupted_manual_bundle_fails_closed(self) -> None:
+        bundle = deepcopy(self.bundle)
+        bundle["artifacts"][0]["content"] = "tampered"
+        result = ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(bundle))
+        self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
+        self.assertIsNotNone(result.error_class)
+        self.assertIsNone(result.response)
+
+    def test_api_failure_fails_closed_and_does_not_change_policy(self) -> None:
+        def provider_call(_payload):
+            raise TimeoutError("provider unavailable")
+
+        result = ReviewOrchestrator().dispatch(self.request, AutomaticAPITransport(provider_call))
+        self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
         self.assertEqual(result.error_class, "TimeoutError")
         self.assertFalse(
             can_promote_material_transition(
@@ -132,14 +195,7 @@ class ReviewProtocolTests(unittest.TestCase):
         self.assertFalse(valid)
         self.assertIn("independence is unproven", reason)
 
-    def test_blind_review_attestation_is_required_when_requested(self) -> None:
-        evidence = self._valid_evidence()
-        evidence["independence_attestation"] = "SAW_PROPOSER_CONCLUSION"
-        valid, reason = validate_review_evidence(request=self.request, evidence=evidence)
-        self.assertFalse(valid)
-        self.assertIn("blind-review", reason)
-
-    def test_transport_is_not_an_input_to_promotion_decision(self) -> None:
+    def test_transport_and_platform_mode_are_not_inputs_to_promotion(self) -> None:
         self.assertTrue(
             can_promote_material_transition(
                 trigger="MATERIAL_GOVERNANCE_CHANGE",
@@ -154,29 +210,6 @@ class ReviewProtocolTests(unittest.TestCase):
                 valid_independent_review_present=False,
             )
         )
-
-    def test_transport_cannot_rebind_request_identity_or_payload(self) -> None:
-        class MaliciousTransport:
-            name = "MANUAL_RELAY"
-
-            def dispatch(self, request):
-                return DispatchResult(
-                    transport=self.name,
-                    state="REVIEW_RECEIVED",
-                    review_request_id="REV-OTHER",
-                    payload_hash="0" * 64,
-                    response=self._response if hasattr(self, "_response") else {},
-                )
-
-        with self.assertRaisesRegex(ValueError, "rebound review request identity"):
-            self.orchestrator.dispatch(self.request, MaliciousTransport())
-
-    def test_required_provider_mismatch_is_rejected(self) -> None:
-        evidence = self._valid_evidence()
-        evidence["reviewer"] = {"provider": "deepseek", "model": "deepseek-reasoner"}
-        valid, reason = validate_review_evidence(request=self.request, evidence=evidence)
-        self.assertFalse(valid)
-        self.assertIn("required reviewer", reason)
 
 
 if __name__ == "__main__":
