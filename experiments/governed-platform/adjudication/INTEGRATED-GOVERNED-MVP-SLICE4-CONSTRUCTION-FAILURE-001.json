@@ -1,0 +1,17 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_4",
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "candidate_commit": "ad0f56f2737b7cc840f1032744b7f4581d109bd2",
+  "preregistration_commit": "f78c5462193445ecb6675dcee4f8f3cc65e99d96",
+  "frozen_acceptance_harness_commit": "0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6",
+  "workflow_run_id": 34166059723,
+  "job_id": 101877193695,
+  "result": "FAILURE_BEFORE_SCIENTIFIC_ENDPOINTS",
+  "observed_failure": "The frozen Slice 4 acceptance harness could not import integrated_governed_mvp_tool_runner_gateway because the Slice 4 mechanism was intentionally absent.",
+  "exception": "ModuleNotFoundError: No module named 'integrated_governed_mvp_tool_runner_gateway'",
+  "fixture_defect": false,
+  "mechanism_defect": false,
+  "construction_absence": true,
+  "scientific_claim_effect": "NONE",
+  "history_policy": "Preserve this first exposed construction result. Do not rewrite it after the mechanism is implemented and do not count it as scientific acceptance evidence."
+}
