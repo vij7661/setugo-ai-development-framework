@@ -1,0 +1,25 @@
+{
+  "bypass_id": "RE-BYP-003",
+  "classification": "PROPOSER_INFLUENCED_REVIEW_RETRIEVAL_ADMISSION",
+  "invariant": "The artifact author must not be able to suppress prior reviewer-relevant memory from R2/R3 merely by rewording the artifact under review.",
+  "status": "DISCOVERED",
+  "independent_review_required": true,
+  "source_external_content_sha256": "681dafb1206cc6945e6d88b21086bf330eacf4a3fd75fe5de17d8f27cbff520d",
+  "source_classification": "USER_PROVIDED_EXTERNAL_CONTENT",
+  "source_claimed_reviewer_metadata_not_authenticated": true,
+  "verified_against_candidate": "dfa7e2021a2b13a482488f96fb759b7c0ddfb163",
+  "attack_family": [
+    "R1 rewords an equivalent artifact so non-authoritative prior memory loses lexical overlap and is omitted from R2/R3 retrieval",
+    "raising minimum_overlap amplifies proposer control because artifact content currently participates directly in the admission query"
+  ],
+  "first_failure_ref": null,
+  "repair_ref": null,
+  "regression_ref": null,
+  "full_suite_ref": null,
+  "independent_review_ref": null,
+  "notes": [
+    "The current ContextCompiler concatenates request.user_input and artifact.content for retrieval query construction.",
+    "The current GovernedLexicalRetriever uses lexical overlap as an admission gate for non-authoritative records.",
+    "Freeze a production-path regression proving artifact rewording cannot alter the admitted review-memory set before changing retrieval construction."
+  ]
+}
