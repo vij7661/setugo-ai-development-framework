@@ -7,7 +7,16 @@ from pathlib import Path
 import re
 import sys
 
-from review_protocol import ALLOWED_TRANSPORTS, PLATFORM_MODES, REVIEW_LEVELS, verify_review_request
+from review_protocol import (
+    ALLOWED_TRANSPORTS,
+    PLATFORM_MODES,
+    PROMOTABLE_REVIEW_DISPOSITIONS,
+    REVIEW_DIMENSION_STATUSES,
+    REVIEW_LEVELS,
+    SEMANTIC_REVIEW_SCHEMA_VERSION,
+    canonical_hash,
+    verify_review_request,
+)
 
 ROOT = Path(__file__).resolve().parent
 STATE_PATH = ROOT / "session-state.json"
@@ -101,7 +110,13 @@ def main() -> int:
     for key in ("branch", "head_commit", "state", "next_action", "forbidden_shortcut"):
         if not work.get(key):
             fail(f"active_workstream.{key} is required")
-    for key in ("head_commit", "preregistration_commit", "frozen_acceptance_harness_commit", "first_mechanism_commit", "preserved_failure_record_commit"):
+    for key in (
+        "head_commit",
+        "preregistration_commit",
+        "frozen_acceptance_harness_commit",
+        "first_mechanism_commit",
+        "preserved_failure_record_commit",
+    ):
         require_sha(work.get(key), f"active_workstream.{key}")
     latest = work.get("latest_result", {})
     passed, total, failures = latest.get("passed"), latest.get("total"), latest.get("failures")
@@ -121,6 +136,10 @@ def main() -> int:
     review = state.get("independent_review", {})
     if review.get("policy_state") != "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS":
         fail("mandatory review policy weakened")
+    if review.get("semantic_review_schema_minimum_for_promotion") != SEMANTIC_REVIEW_SCHEMA_VERSION:
+        fail("semantic review schema floor changed or missing")
+    if set(review.get("positive_promotable_dispositions", [])) != set(PROMOTABLE_REVIEW_DISPOSITIONS):
+        fail("positive promotable review dispositions changed")
     if set(review.get("platform_modes", [])) != set(PLATFORM_MODES):
         fail("platform modes invalid")
     if set(review.get("review_levels", [])) != set(REVIEW_LEVELS):
@@ -153,6 +172,10 @@ def main() -> int:
         fail("shared memory lost AUTO_MODE transport")
     if mem_runtime.get("production_manual_mode_transport") != "USER_INITIATED_API":
         fail("shared memory lost MANUAL_MODE transport")
+    if mem_runtime.get("semantic_review_schema_minimum_for_promotion") != SEMANTIC_REVIEW_SCHEMA_VERSION:
+        fail("shared memory lost semantic review schema floor")
+    if set(mem_runtime.get("positive_promotable_dispositions", [])) != set(PROMOTABLE_REVIEW_DISPOSITIONS):
+        fail("shared memory lost promotable disposition floor")
 
     pending = memory.get("pending_reviews")
     if not isinstance(pending, list) or not pending or not isinstance(pending[0], dict):
@@ -181,6 +204,13 @@ def main() -> int:
         ok, reason = verify_review_request(request)
         if not ok:
             fail(f"active review request invalid: {reason}")
+        if request.get("schema_version") != SEMANTIC_REVIEW_SCHEMA_VERSION:
+            fail("active material review must use semantic ReviewRequest schema 4")
+        dimensions = request.get("required_review_dimensions")
+        if not isinstance(dimensions, list) or not dimensions:
+            fail("active semantic review lacks required dimensions")
+        if set(request.get("review_dimension_status_vocabulary", [])) != set(REVIEW_DIMENSION_STATUSES):
+            fail("active semantic review status vocabulary invalid")
         if request.get("review_request_id") != active_id:
             fail("active request ID differs from authority")
         reviewed_commit = review.get("current_reviewed_artifact_commit")
@@ -203,10 +233,12 @@ def main() -> int:
                 fail("packet manifest missing")
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             schema = manifest.get("schema_version")
-            if schema not in {1, 2, 3}:
-                fail("packet manifest schema invalid")
+            if schema != 4:
+                fail("active semantic review packet manifest must use schema 4")
             if manifest.get("review_request_id") != active_id or manifest.get("reviewed_candidate_commit") != reviewed_commit:
                 fail("packet manifest review binding invalid")
+            if canonical_hash(manifest.get("required_review_dimensions", [])) != canonical_hash(dimensions):
+                fail("packet manifest semantic dimensions differ from ReviewRequest")
             if manifest.get("repository_access_required") is not False:
                 fail("manual packet must not require repository access")
             if manifest.get("bundle_storage") not in {"EXTERNAL_USER_PORTABLE_FILE", "GITHUB_ACTIONS_ARTIFACT_EXPORT"}:
@@ -225,13 +257,12 @@ def main() -> int:
                 require_sha256(item.get("content_sha256"), f"packet.artifact[{idx}].content_sha256")
                 if not isinstance(item.get("bytes_utf8"), int) or item["bytes_utf8"] <= 0:
                     fail(f"packet artifact {idx} byte length invalid")
-                if schema >= 3:
-                    if item.get("hash_basis") != "RAW_GIT_BLOB_UTF8_BYTES":
-                        fail(f"packet artifact {idx} raw hash basis missing")
-                    if not isinstance(item.get("raw_export_path"), str) or not item.get("raw_export_path", "").startswith("raw-artifacts/"):
-                        fail(f"packet artifact {idx} raw export path missing")
-            if schema >= 3 and manifest.get("raw_artifacts_are_byte_authoritative") is not True:
-                fail("schema-3 packet must declare raw artifacts byte-authoritative")
+                if item.get("hash_basis") != "RAW_GIT_BLOB_UTF8_BYTES":
+                    fail(f"packet artifact {idx} raw hash basis missing")
+                if not isinstance(item.get("raw_export_path"), str) or not item.get("raw_export_path", "").startswith("raw-artifacts/"):
+                    fail(f"packet artifact {idx} raw export path missing")
+            if manifest.get("raw_artifacts_are_byte_authoritative") is not True:
+                fail("semantic packet must declare raw artifacts byte-authoritative")
             if manifest.get("bundle_storage") == "GITHUB_ACTIONS_ARTIFACT_EXPORT":
                 if not isinstance(manifest.get("actions_artifact_id"), int) or manifest["actions_artifact_id"] <= 0:
                     fail("packet manifest missing Actions artifact ID")
@@ -262,6 +293,9 @@ def main() -> int:
         "memory_write_failure_must_be_surfaced": True,
         "platform_mode_changes_authority": False,
         "manual_mode_user_skip_of_required_review_promotes_authority": False,
+        "review_disposition_may_override_missing_required_review_evidence": False,
+        "legacy_review_schema_may_promote_material_authority": False,
+        "negative_review_disposition_may_promote_material_authority": False,
     }
     for key, expected in required_rules.items():
         if rules.get(key) is not expected:
