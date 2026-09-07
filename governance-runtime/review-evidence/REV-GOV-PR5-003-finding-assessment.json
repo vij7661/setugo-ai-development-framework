@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "source_review": "governance-runtime/review-evidence/REV-GOV-PR5-003-claude.json",
+  "source_review_request": "REV-GOV-PR5-003",
+  "source_candidate_commit": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
+  "current_candidate_at_assessment": "e40f31951b6013a155472223d77469be25bbecb8",
+  "counts_for_current_promotion": false,
+  "finding_reassessment": [
+    {
+      "id": "F1",
+      "status": "STILL_APPLIES",
+      "classification": "AUTHORITY_GATE_TRUSTS_UNVERIFIED_CALLER_FLAG",
+      "repair": "Promotion gate must validate ReviewRequest/ReviewEvidence internally rather than accepting valid_independent_review_present as a caller boolean."
+    },
+    {
+      "id": "F2",
+      "status": "STILL_APPLIES",
+      "classification": "GROUNDING_CHECK_NOT_BOUND_TO_PROMOTION_GATE",
+      "repair": "Add deterministic shared-memory/authority reconciliation evidence and require the promotion gate to validate it before material promotion. CI-only consistency checks are insufficient."
+    },
+    {
+      "id": "F3",
+      "status": "STILL_APPLIES",
+      "classification": "REVIEWER_IDENTITY_INCOMPLETE_VALIDATION",
+      "repair": "Require non-empty reviewer provider/model and enforce configured model/model_class constraints deterministically."
+    },
+    {
+      "id": "F4",
+      "status": "STILL_APPLIES",
+      "classification": "MANDATORY_REVIEW_POLICY_CLOSED_TRIGGER_GAP",
+      "repair": "Add governed catch-all material-authority/standard-required review paths so unknown material transitions cannot silently fall to NONE."
+    },
+    {
+      "id": "F5",
+      "status": "STILL_APPLIES",
+      "classification": "PORTABLE_BUNDLE_EVIDENCE_COVERAGE_NOT_ENFORCED",
+      "repair": "Bind bundle coverage to ReviewRequest evidence_refs and fail closed when required embedded/summary evidence is absent."
+    }
+  ],
+  "additional_live_runtime_finding": {
+    "id": "LCG-F6",
+    "status": "OBSERVED_DURING_REVIEW_INGESTION",
+    "classification": "SHARED_MEMORY_STALE_RELATIVE_TO_AUTHORITATIVE_CHECKPOINT",
+    "evidence": "At review ingestion, session-state.json named active request REV-GOV-PR5-006 while shared-memory.json still represented PENDING_CANDIDATE_FREEZE and only listed supersession through REV-GOV-PR5-003.",
+    "required_action": "Authoritative checkpoint wins. Surface conflict and repair shared memory; add regression coverage so stale memory cannot remain silently inconsistent with active review state."
+  },
+  "next_state": "SUPERSEDE_UNSENT_REV-GOV-PR5-006_THEN_REPAIR_CANDIDATE"
+}
