@@ -423,10 +423,44 @@ class RepositoryMutationGateway:
 
         patch_digest = canonical_hash(patch)
         changed_files = sorted(op["path"] for op in operations)
+
+        # Contract identity is classification-significant. A sealed manifest that
+        # names a different effect contract is a contract-substitution attempt,
+        # not a generic manifest-shape failure.
         if (
             manifest.get("effect_contract_id") != contract["effect_contract_id"]
             or manifest.get("effect_contract_hash") != contract["contract_hash"]
-            or manifest.get("execution_id") != slice2["effect_id"]
+        ):
+            return self._deny("DENIED_CONTRACT", "action manifest substitutes a different effect contract identity or hash")
+
+        if not isinstance(manifest.get("idempotency_key"), str) or not manifest.get("idempotency_key"):
+            return self._deny("DENIED_MANIFEST", "action effect manifest lacks a valid idempotency key")
+
+        key = manifest["idempotency_key"]
+        attempted_binding_material = {
+            "slice2_result_hash": slice2["receipt_hash"],
+            "effect_contract_hash": contract["contract_hash"],
+            "manifest_hash": manifest["manifest_hash"],
+            "base_sha": manifest.get("base_sha"),
+            "patch_digest": patch_digest,
+        }
+        attempted_binding_hash = canonical_hash(attempted_binding_material)
+
+        # Once an idempotency key has durable authority state, classify any
+        # semantic rebinding before generic manifest-vs-current-contract checks.
+        # This preserves the intent-level idempotency boundary even when the
+        # attempted rebind also carries a stale/different base SHA.
+        with self._lock:
+            with self._connect() as connection:
+                existing = self._load_row(connection, key)
+                if existing is not None:
+                    if not self._row_valid(existing):
+                        return self._deny("BLOCKED_AMBIGUOUS_DURABLE_STATE", "durable repository mutation state is malformed or conflicting")
+                    if existing["binding_hash"] != attempted_binding_hash:
+                        return self._deny("DENIED_IDEMPOTENCY_REBIND", "idempotency key is already bound to different repository mutation semantics")
+
+        if (
+            manifest.get("execution_id") != slice2["effect_id"]
             or manifest.get("slice2_result_hash") != slice2["receipt_hash"]
             or manifest.get("base_sha") != contract["base_sha"]
             or manifest.get("patch_digest") != patch_digest
@@ -434,20 +468,10 @@ class RepositoryMutationGateway:
             or manifest.get("target_paths") != changed_files
             or manifest.get("action_class") not in contract["allowed_action_classes"]
             or manifest.get("tool_id") not in contract["allowed_tool_ids"]
-            or not isinstance(manifest.get("idempotency_key"), str)
-            or not manifest.get("idempotency_key")
         ):
             return self._deny("DENIED_MANIFEST", "action manifest differs from the exact contract, patch, or Slice 2 binding")
 
-        key = manifest["idempotency_key"]
-        binding_material = {
-            "slice2_result_hash": slice2["receipt_hash"],
-            "effect_contract_hash": contract["contract_hash"],
-            "manifest_hash": manifest["manifest_hash"],
-            "base_sha": manifest["base_sha"],
-            "patch_digest": patch_digest,
-        }
-        binding_hash = canonical_hash(binding_material)
+        binding_hash = attempted_binding_hash
 
         with self._lock:
             with self._connect() as connection:
