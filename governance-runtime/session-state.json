@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-016",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-017",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -19,7 +19,7 @@
     "normative_contract_commit": "732dfe9c3a61afb100f27394168d8905a9b4152f",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_EXTERNAL_REVIEW",
+      "state": "PENDING_INDEPENDENT_REVIEW",
       "next_review_request_id": null,
       "next_review_reviewer": null,
       "review_request_id": "REV-GOV-PR5-008",
@@ -66,8 +66,8 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "Wait for manual DeepSeek review REV-GOV-PR5-008 of exact candidate 4133bd86806631d246c943b7d79a84346500b827. Returned manual-relay identity remains unverified provider provenance and cannot be upgraded merely by reviewer self-claim. PR #5 remains non-authoritative.",
-    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count superseded review evidence as current; do not trust reviewer-authored provider/model fields as authenticated identity; do not rebind REV-GOV-PR5-008 to another provider or candidate."
+    "next_action": "REV-GOV-PR5-008 returned PASS content for exact candidate 4133bd86806631d246c943b7d79a84346500b827, but MANUAL_RELAY cannot authenticate DeepSeek provider identity. Preserve the PASS as review content, keep PR #5 non-authoritative, and either obtain trusted provider execution later or continue only non-authoritative construction such as the narrow Slice 3 code-only repair.",
+    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count superseded review evidence as current; do not trust reviewer-authored provider/model fields as authenticated identity; do not promote PR #5 from manual-relay PASS content alone."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 2",
@@ -90,11 +90,15 @@
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 and future material governed authority transitions",
-    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_review_status": "REVIEW_RECEIVED",
     "current_review_request_id": "REV-GOV-PR5-008",
     "current_requested_reviewer": "DEEPSEEK",
     "current_reviewed_artifact_commit": "4133bd86806631d246c943b7d79a84346500b827",
     "current_reviewer_identity_assurance_expected": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "current_review_disposition": "PASS",
+    "current_review_findings_count": 0,
+    "current_review_identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "current_review_counts_for_promotion": false,
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007"],
     "received_review_evidence": [
       {
@@ -115,6 +119,17 @@
         "disposition": "CHANGES_REQUIRED",
         "counts_for_current_promotion": false,
         "evidence_path": "governance-runtime/review-evidence/REV-GOV-PR5-003-claude-manual-relay-unverified.json"
+      },
+      {
+        "request_id": "REV-GOV-PR5-008",
+        "reviewed_commit": "4133bd86806631d246c943b7d79a84346500b827",
+        "origin": "self_declared_deepseek_manual_relay",
+        "identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+        "disposition": "PASS",
+        "findings_count": 0,
+        "counts_for_current_promotion": false,
+        "evidence_path": "governance-runtime/review-evidence/REV-GOV-PR5-008-deepseek-manual-relay.json",
+        "assessment_path": "governance-runtime/review-evidence/REV-GOV-PR5-008-ingestion-assessment.json"
       }
     ],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
@@ -135,10 +150,10 @@
     {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"PENDING_EXTERNAL_REVIEW","description":"DeepSeek-bound REV-GOV-PR5-008 is active for exact candidate 4133bd86806631d246c943b7d79a84346500b827."},
+    {"id":"GOV-IR-001","state":"REVIEW_RECEIVED_IDENTITY_UNVERIFIED","description":"REV-GOV-PR5-008 returned PASS with zero findings for exact candidate, but manual-relay provider identity is not authenticated and does not satisfy promotion."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
-    {"id":"GOV-PORTABLE-001","state":"PENDING_EXTERNAL_REVIEW","description":"DeepSeek packet uses raw canonical artifacts with reproducible hashes and governed Actions manifest."},
-    {"id":"GOV-ID-001","state":"PENDING_EXTERNAL_REVIEW_UNAUTHENTICATED_IDENTITY","description":"Manual relay target is DeepSeek, but returned provider identity cannot be authenticated from review JSON alone."},
+    {"id":"GOV-PORTABLE-001","state":"REVIEW_CONTENT_PASS","description":"DeepSeek-targeted packet review returned PASS; raw artifact integrity was not directly exercised by the reviewer environment."},
+    {"id":"GOV-ID-001","state":"BLOCKED_IDENTITY_UNVERIFIED","description":"Manual relay response self-declares DeepSeek but no trusted provider execution envelope exists; plugin search found no usable DeepSeek reviewer integration."},
     {"id":"GOV-SELECT-001","state":"CONSTRUCTION_GREEN","description":"Reviewer-selection generator proved provider-neutral DeepSeek-bound packet generation in CI run 34127921175."}
   ]
 }
