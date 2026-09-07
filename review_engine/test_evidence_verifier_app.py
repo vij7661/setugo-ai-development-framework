@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from review_engine.app import ReviewEngineApp
-from review_engine.configuration import ReviewEngineConfiguration
+from review_engine.configuration import ReviewEngineConfiguration, provider_binding_fingerprint
 from review_engine.evidence_correspondence import (
     EvidenceCorrespondenceAttestation,
     EvidenceVerifierIdentity,
@@ -29,6 +29,8 @@ CLAIM = ARTIFACT
 EVIDENCE_REF = "report:2026-q3"
 EVIDENCE_CONTENT = "retained evidence snapshot"
 EVIDENCE_HASH = content_hash(EVIDENCE_CONTENT)
+PROVIDER_SPEC = {"adapter": "openai_compatible", "base_url": "https://fake.example/v1"}
+PROVIDER_BINDING = provider_binding_fingerprint(PROVIDER_SPEC)
 
 
 def reviewer() -> ReviewerConfig:
@@ -41,13 +43,14 @@ def reviewer() -> ReviewerConfig:
         api_key_env="R1_KEY",
         foundation_lineage="reviewer-lineage",
         qualification_ref="r1-q1",
+        provider_binding_fingerprint=PROVIDER_BINDING,
     )
 
 
 def governed_configuration() -> ReviewEngineConfiguration:
     return ReviewEngineConfiguration(
         reviewers={"R1": reviewer()},
-        provider_specs={},
+        provider_specs={"fake": PROVIDER_SPEC},
         qualification_records=(
             QualificationRecord(
                 qualification_ref="r1-q1",
@@ -61,6 +64,7 @@ def governed_configuration() -> ReviewEngineConfiguration:
                 foundation_lineage="reviewer-lineage",
                 max_risk="HIGH",
                 task_types=("RESEARCH",),
+                provider_binding_fingerprint=PROVIDER_BINDING,
             ),
         ),
     )
