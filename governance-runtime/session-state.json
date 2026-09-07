@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-025",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-026",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -13,7 +13,7 @@
     "promotion": {
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
-      "next_review_request_id": null,
+      "next_review_request_id": "REV-GOV-PR5-010",
       "next_review_reviewer": {"provider":"deepseek","model_class":"deepseek"},
       "review_request_id": null,
       "review_request_path": null,
@@ -57,8 +57,8 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "GOV-PORTABLE-002 is construction-green at 302155699df010487a6579a5aa23cf36de3f6d62 with 40/40 tests in workflow 34134075461. DeepSeek remains selected. Synchronize shared memory, then declare REV-GOV-PR5-010 so CI builds one deterministic ordinary text review attachment from the exact candidate.",
-    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-009 or earlier superseded reviews as current; do not weaken raw-byte-integrity review; do not require ZIP or many-file human upload for the new DeepSeek manual relay."
+    "next_action": "REV-GOV-PR5-010 is declared for DeepSeek. CI must generate a schema-4 candidate-bound request and a verified one-file ordinary text container embedding all required artifacts before activation. PR #5 remains non-authoritative.",
+    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-009 or earlier superseded reviews as current; do not weaken raw-byte-integrity review; do not require ZIP or many-file human upload for REV-GOV-PR5-010."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 2",
@@ -114,11 +114,11 @@
   ],
   "construction_evidence": [
     {"id":"GOV-SEM-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-SEM-001.json","candidate_commit":"e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f","workflow_run":34131579394,"tests":"33/33","state":"CONSTRUCTION_GREEN_BOUNDED"},
-    {"id":"GOV-PORTABLE-002-CONSTRUCTION-GREEN-001","candidate_commit":"302155699df010487a6579a5aa23cf36de3f6d62","workflow_run":34134075461,"tests":"40/40","state":"CONSTRUCTION_GREEN_BOUNDED"}
+    {"id":"GOV-PORTABLE-002-CONSTRUCTION-GREEN-001","candidate_commit":"ddc4ecc2021bdf2570c81cf524fa5e9b3373f045","workflow_run":34134467145,"tests":"40/40","state":"CONSTRUCTION_GREEN_BOUNDED"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"READY_TO_DECLARE_NEXT_REQUEST","description":"DeepSeek selected; issue a fresh review request after shared-memory synchronization."},
-    {"id":"GOV-PORTABLE-002","state":"CONSTRUCTION_GREEN","description":"Single ordinary text attachment deterministically embeds and reconstructs every required UTF-8 raw review artifact; 7/7 dedicated P2 cases passed inside 40/40 governance tests."},
+    {"id":"GOV-IR-001","state":"REQUEST_DECLARED_PENDING_PACKET","description":"REV-GOV-PR5-010 declared for DeepSeek; exact candidate-bound one-file packet must pass CI before activation."},
+    {"id":"GOV-PORTABLE-002","state":"CONSTRUCTION_GREEN_READY_FOR_REVIEW","description":"Single ordinary text attachment deterministically embeds and reconstructs every required UTF-8 raw review artifact; 7/7 P2 cases passed inside 40/40 governance tests."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
     {"id":"GOV-ID-001","state":"BLOCKED_IDENTITY_UNVERIFIED_IN_MANUAL_RELAY","description":"Manual relay provider identity remains non-authenticating; production API adapters remain the trusted identity path."},
     {"id":"GOV-SELECT-001","state":"CONSTRUCTION_GREEN","description":"Reviewer selection remains provider-neutral and semantically bound."},
