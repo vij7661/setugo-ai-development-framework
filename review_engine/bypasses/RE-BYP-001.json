@@ -29,7 +29,8 @@
   ],
   "notes": [
     "Review Engine CI passed the repaired runtime-alias regression family and the integrated harness passed.",
-    "The later frozen completion candidate additionally includes external-content/API-review classification and one-file review handoff controls, with both CI layers green.",
+    "The later completion candidate additionally includes external-content/API-review classification and one-file review handoff controls, with both CI layers green.",
+    "This record intentionally references the last code-and-test completion candidate rather than self-referentially pointing at metadata-only commits that update this record.",
     "RE-BYP-001 is intentionally not CLOSED; governed independent review is still required for this authority-boundary repair."
   ]
 }
