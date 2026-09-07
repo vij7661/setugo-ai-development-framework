@@ -12,7 +12,6 @@ from review_protocol import (
     MANDATORY_REVIEW_TRIGGERS,
     PLATFORM_MODES,
     REVIEW_LEVELS,
-    verify_portable_review_bundle,
     verify_review_request,
 )
 
@@ -21,6 +20,7 @@ STATE_PATH = ROOT / "session-state.json"
 MEMORY_PATH = ROOT / "shared-memory.json"
 LOG_PATH = ROOT / "decision-log.jsonl"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 EXPECTED_PRECEDENCE = [
     "governed_git_state",
@@ -48,6 +48,11 @@ def fail(message: str) -> None:
 def require_sha(value: object, field: str) -> None:
     if not isinstance(value, str) or not SHA40.fullmatch(value):
         fail(f"{field} must be a lowercase 40-character Git SHA")
+
+
+def require_sha256(value: object, field: str) -> None:
+    if not isinstance(value, str) or not SHA256.fullmatch(value):
+        fail(f"{field} must be a lowercase 64-character SHA-256")
 
 
 def main() -> int:
@@ -255,18 +260,39 @@ def main() -> int:
             fail("shared memory reviewed artifact differs from session state")
 
         if review.get("current_collaboration_transport") == "MANUAL_RELAY":
-            bundle_path_value = promotion.get("portable_bundle_path")
-            if not isinstance(bundle_path_value, str) or not bundle_path_value.startswith("governance-runtime/review-bundles/"):
-                fail("MANUAL_RELAY active review requires governed portable bundle path")
-            bundle_path = ROOT.parent / bundle_path_value
-            if not bundle_path.is_file():
-                fail("active portable review bundle file does not exist")
-            bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-            bundle_ok, bundle_reason = verify_portable_review_bundle(request=request, bundle=bundle)
-            if not bundle_ok:
-                fail(f"active portable review bundle invalid: {bundle_reason}")
-            if mem_review.get("portable_bundle_path") != bundle_path_value:
-                fail("shared memory portable review bundle differs from session state")
+            manifest_path_value = promotion.get("portable_bundle_manifest_path")
+            if not isinstance(manifest_path_value, str) or not manifest_path_value.startswith("governance-runtime/review-bundles/"):
+                fail("MANUAL_RELAY active review requires governed portable-bundle manifest path")
+            manifest_path = ROOT.parent / manifest_path_value
+            if not manifest_path.is_file():
+                fail("active portable review bundle manifest does not exist")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if manifest.get("schema_version") != 1:
+                fail("portable review bundle manifest schema is invalid")
+            if manifest.get("review_request_id") != active_request_id:
+                fail("portable review bundle manifest targets a different review request")
+            if manifest.get("reviewed_candidate_commit") != reviewed_commit:
+                fail("portable review bundle manifest targets a different candidate commit")
+            if manifest.get("repository_access_required") is not False:
+                fail("manual review bundle manifest must not require repository access")
+            if manifest.get("bundle_storage") != "EXTERNAL_USER_PORTABLE_FILE":
+                fail("manual review bundle storage mode is invalid")
+            if not isinstance(manifest.get("bundle_filename"), str) or not manifest["bundle_filename"]:
+                fail("portable review bundle manifest lacks bundle filename")
+            require_sha256(manifest.get("bundle_sha256"), "portable_bundle_manifest.bundle_sha256")
+            embedded = manifest.get("embedded_artifacts")
+            if not isinstance(embedded, list) or not embedded:
+                fail("portable review bundle manifest lacks embedded-artifact hashes")
+            for idx, item in enumerate(embedded):
+                if not isinstance(item, dict) or not isinstance(item.get("path"), str) or not item.get("path"):
+                    fail(f"portable review manifest artifact {idx} is malformed")
+                require_sha256(item.get("content_sha256"), f"portable_bundle_manifest.embedded_artifacts[{idx}].content_sha256")
+                if not isinstance(item.get("bytes_utf8"), int) or item["bytes_utf8"] <= 0:
+                    fail(f"portable review manifest artifact {idx} has invalid byte length")
+            if mem_review.get("portable_bundle_manifest_path") != manifest_path_value:
+                fail("shared memory portable review manifest differs from session state")
+            if mem_review.get("portable_bundle_sha256") != manifest.get("bundle_sha256"):
+                fail("shared memory portable review bundle hash differs from governed manifest")
             if mem_review.get("repository_access_required") is not False:
                 fail("shared memory manual review incorrectly requires repository access")
 
