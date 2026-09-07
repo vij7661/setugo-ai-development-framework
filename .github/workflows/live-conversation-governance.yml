@@ -92,3 +92,35 @@ jobs:
           )
           git show "${FROZEN_SHA}:experiments/governed-platform/governance/test_integrated_governed_mvp_slice3.py" >/dev/null
           echo "Verified frozen Slice 3 harness at ${FROZEN_SHA}"
+
+      - name: Build portable manual-review packet when an active request exists
+        id: portable_packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUEST_PATH=$(python - <<'PY'
+          import json
+          value=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion'].get('review_request_path')
+          print(value or '')
+          PY
+          )
+          if [ -z "$REQUEST_PATH" ]; then
+            echo "No active review request; packet build skipped."
+            echo "has_packet=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python governance-runtime/build_portable_review_packet.py \
+            --request "$REQUEST_PATH" \
+            --output-dir review-output \
+            --ci-run-id "$GITHUB_RUN_ID" \
+            --builder-head "$GITHUB_SHA"
+          echo "has_packet=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload portable manual-review packet
+        if: steps.portable_packet.outputs.has_packet == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-review-packet-${{ github.run_id }}
+          path: review-output/
+          if-no-files-found: error
+          retention-days: 30
