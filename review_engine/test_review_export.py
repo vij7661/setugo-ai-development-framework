@@ -51,11 +51,17 @@ class ReviewExportTests(unittest.TestCase):
             sums = (out / "SHA256SUMS.txt").read_text(encoding="utf-8")
             self.assertIn("raw-artifacts/review_engine/a.py", sums)
             self.assertIn("REVIEW_PACKET.md", sums)
+            self.assertIn("TARGET_TRANSPORT.json", sums)
 
     def test_target_changes_only_convenience_metadata_not_raw_artifact_hashes(self):
         with tempfile.TemporaryDirectory() as td:
             root = self._repo(td)
             raw_hash_sets = []
+            expected_api_families = {
+                "claude": "ANTHROPIC_MESSAGES",
+                "deepseek": "OPENAI_CHAT_COMPLETIONS_OR_RESPONSES",
+                "kimi": "MESSAGES_STYLE_CHAT",
+            }
             for target in ("claude", "deepseek", "kimi"):
                 out = Path(td) / target
                 result = build_review_export(root, out, self._spec(target))
@@ -63,6 +69,12 @@ class ReviewExportTests(unittest.TestCase):
                 request = json.loads((out / "REVIEW_REQUEST.json").read_text(encoding="utf-8"))
                 self.assertEqual(request["intended_reviewer"], target)
                 self.assertEqual(request["transport"], "MANUAL_RELAY")
+                transport = json.loads((out / "TARGET_TRANSPORT.json").read_text(encoding="utf-8"))
+                self.assertEqual(transport["intended_reviewer"], target)
+                self.assertEqual(transport["authority"], "CONVENIENCE_ONLY_NOT_REVIEW_EVIDENCE")
+                self.assertEqual(transport["api_family"], expected_api_families[target])
+                self.assertTrue(transport["documentation_basis"])
+                self.assertEqual(len(result["transport_profile_sha256"]), 64)
             self.assertEqual(raw_hash_sets[0], raw_hash_sets[1])
             self.assertEqual(raw_hash_sets[1], raw_hash_sets[2])
 
@@ -74,6 +86,7 @@ class ReviewExportTests(unittest.TestCase):
             packet = (out / "REVIEW_PACKET.md").read_text(encoding="utf-8")
             self.assertIn("Do not infer reviewer/provider/model identity from self-declared output metadata", packet)
             self.assertIn(MANUAL_RELAY_IDENTITY_ASSURANCE, packet)
+            self.assertIn("TARGET_TRANSPORT.json", packet)
 
     def test_path_traversal_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
