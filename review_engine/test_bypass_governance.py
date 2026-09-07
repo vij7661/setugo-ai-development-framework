@@ -9,7 +9,7 @@ from review_engine.bypass_governance import BypassRecord, assert_no_bypass_excep
 
 FAILURE_REF = "github-actions:12345/job/67890@" + "a" * 40
 REPAIR_REF = "commit:" + "b" * 40 + ":review_engine/qualification.py"
-REGRESSION_REF = "review_engine/test_example_regression.py@" + "c" * 40
+REGRESSION_REF = "review_engine/test_runtime_regression.py@" + "c" * 40
 FULL_SUITE_REF = "review-engine-ci:12345=SUCCESS;integrated-harness:23456=SUCCESS@" + "d" * 40
 REVIEW_REF = "platform-review:REV-TEST-001@" + "e" * 40
 ALL_REFS = {FAILURE_REF, REPAIR_REF, REGRESSION_REF, FULL_SUITE_REF, REVIEW_REF}
