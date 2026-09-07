@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-017",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-018",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -55,7 +55,7 @@
     "state": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
     "preregistration_commit": "47d3de5578dd65780f66fed1baedb9f0932b7670",
     "frozen_acceptance_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
-    "first_mechanism_commit": "ce6b88dc166c72d8f8f8ca9cdfc2a2bd8b53cb5e",
+    "first_mechanism_commit": "ce6b88dc166c72d8f8f8f8ca9cdfc2a2bd8b53cb5e",
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
     "latest_result": {
@@ -66,8 +66,8 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "REV-GOV-PR5-008 returned PASS content for exact candidate 4133bd86806631d246c943b7d79a84346500b827, but MANUAL_RELAY cannot authenticate DeepSeek provider identity. Preserve the PASS as review content, keep PR #5 non-authoritative, and either obtain trusted provider execution later or continue only non-authoritative construction such as the narrow Slice 3 code-only repair.",
-    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count superseded review evidence as current; do not trust reviewer-authored provider/model fields as authenticated identity; do not promote PR #5 from manual-relay PASS content alone."
+    "next_action": "REV-GOV-PR5-008 returned an unqualified PASS, but two independent blockers prevent promotion: MANUAL_RELAY cannot authenticate DeepSeek provider identity, and the review itself states raw files were not directly accessible even though raw-byte integrity was a required review question. Treat the substantive review as useful evidence but not a valid full PASS. PR #5 remains non-authoritative. Non-authoritative Slice 3 construction may continue without changing frozen S3-01..S3-16.",
+    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count superseded review evidence as current; do not trust reviewer-authored provider/model fields as authenticated identity; do not promote PR #5 from manual-relay PASS content; do not accept a PASS whose own evidence assessment says a required review area was not directly tested."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 2",
@@ -98,6 +98,8 @@
     "current_review_disposition": "PASS",
     "current_review_findings_count": 0,
     "current_review_identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "current_review_semantic_validation": "CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT",
+    "current_review_effective_state": "INSUFFICIENT_EVIDENCE_FOR_FULL_PASS",
     "current_review_counts_for_promotion": false,
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007"],
     "received_review_evidence": [
@@ -126,10 +128,13 @@
         "origin": "self_declared_deepseek_manual_relay",
         "identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
         "disposition": "PASS",
+        "semantic_validation": "CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT",
+        "effective_state": "INSUFFICIENT_EVIDENCE_FOR_FULL_PASS",
         "findings_count": 0,
         "counts_for_current_promotion": false,
         "evidence_path": "governance-runtime/review-evidence/REV-GOV-PR5-008-deepseek-manual-relay.json",
-        "assessment_path": "governance-runtime/review-evidence/REV-GOV-PR5-008-ingestion-assessment.json"
+        "assessment_path": "governance-runtime/review-evidence/REV-GOV-PR5-008-ingestion-assessment.json",
+        "semantic_assessment_path": "governance-runtime/review-evidence/REV-GOV-PR5-008-semantic-disposition-assessment.json"
       }
     ],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
@@ -150,10 +155,11 @@
     {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"REVIEW_RECEIVED_IDENTITY_UNVERIFIED","description":"REV-GOV-PR5-008 returned PASS with zero findings for exact candidate, but manual-relay provider identity is not authenticated and does not satisfy promotion."},
+    {"id":"GOV-IR-001","state":"REVIEW_RECEIVED_NOT_PROMOTABLE","description":"REV-GOV-PR5-008 returned PASS content with zero findings, but identity is unverified and a required raw-byte review area was not directly tested."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
-    {"id":"GOV-PORTABLE-001","state":"REVIEW_CONTENT_PASS","description":"DeepSeek-targeted packet review returned PASS; raw artifact integrity was not directly exercised by the reviewer environment."},
+    {"id":"GOV-PORTABLE-001","state":"INSUFFICIENT_REVIEW_EVIDENCE","description":"Reviewer stated raw files were not directly accessible, so raw-byte integrity was not independently exercised despite unqualified PASS."},
     {"id":"GOV-ID-001","state":"BLOCKED_IDENTITY_UNVERIFIED","description":"Manual relay response self-declares DeepSeek but no trusted provider execution envelope exists; plugin search found no usable DeepSeek reviewer integration."},
-    {"id":"GOV-SELECT-001","state":"CONSTRUCTION_GREEN","description":"Reviewer-selection generator proved provider-neutral DeepSeek-bound packet generation in CI run 34127921175."}
+    {"id":"GOV-SELECT-001","state":"CONSTRUCTION_GREEN","description":"Reviewer-selection generator proved provider-neutral DeepSeek-bound packet generation in CI run 34127921175."},
+    {"id":"GOV-SEM-001","state":"DEFECT_OBSERVED","description":"Review validator currently accepts an allowed disposition syntactically even when the review evidence assessment admits a required review area was not directly tested. Semantic disposition/evidence consistency needs deterministic enforcement."}
   ]
 }
