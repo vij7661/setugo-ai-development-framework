@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "evidence_id": "GOV-REVIEW-CLASS-001-CONSTRUCTION-GREEN-001",
+  "preregistration": "governance-runtime/repair-preregistrations/GOV-REVIEW-CLASS-001.md",
+  "candidate_commit": "22996852efcf0b82d7d13f03c747dc375bce60cd",
+  "workflow_run": 34141285547,
+  "conclusion": "success",
+  "tests": "50/50",
+  "state": "CONSTRUCTION_GREEN_BOUNDED",
+  "verified_boundaries": [
+    "AUTOMATIC_API classified as PLATFORM_AUTO_API_REVIEW",
+    "USER_INITIATED_API classified as PLATFORM_USER_INITIATED_API_REVIEW",
+    "copy/paste defaults to USER_PROVIDED_EXTERNAL_CONTENT",
+    "explicit user source attestation produces USER_ATTESTED_EXTERNAL_LLM_REVIEW without provider authentication",
+    "self-declared reviewer fields cannot establish provenance",
+    "external content cannot satisfy material promotion",
+    "MANUAL_RELAY is rejected as a platform review transport",
+    "historical manual-relay material remains readable as non-promotable external evidence",
+    "review context export derives required file artifacts from ReviewRequest evidence refs",
+    "frozen Slice 3 acceptance harness remained unchanged"
+  ],
+  "preserved_first_exposure": {
+    "workflow_run": 34138508059,
+    "candidate_commit": "44620cda46cd1ba4654ab45c324c623a9bd885b3",
+    "classification": "CONSTRUCTION_MECHANISM_ABSENCE"
+  },
+  "authority_claim": "Construction green only. This does not promote PR #5 and does not substitute for a required platform-authenticated independent review.",
+  "unauthorized_promotion_observed": false
+}
