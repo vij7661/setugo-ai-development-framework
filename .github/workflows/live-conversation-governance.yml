@@ -93,6 +93,36 @@ jobs:
           git show "${FROZEN_SHA}:experiments/governed-platform/governance/test_integrated_governed_mvp_slice3.py" >/dev/null
           echo "Verified frozen Slice 3 harness at ${FROZEN_SHA}"
 
+      - name: Self-test portable review packet builder on this exact SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=governance-runtime python - <<'PY'
+          import json, os
+          from review_protocol import build_review_request
+          req = build_review_request(
+              review_request_id='REV-CI-SELFTEST',
+              trigger='MATERIAL_GOVERNANCE_CHANGE',
+              artifact_type='live_conversation_governance_runtime_candidate',
+              artifact_ref='CI-SELFTEST',
+              artifact_commit=os.environ['GITHUB_SHA'],
+              proposer={'provider':'openai','model':'gpt-5.6-sol'},
+              required_reviewer={'provider':'anthropic','model_class':'claude'},
+              blind_review_required=True,
+              review_questions=['Independently assess the governed candidate.'],
+              evidence_refs=[{'type':'ci_selftest','ref':os.environ['GITHUB_RUN_ID']}],
+          )
+          with open('/tmp/review-selftest.json','w',encoding='utf-8') as f:
+              json.dump(req,f,indent=2)
+          PY
+          python governance-runtime/build_portable_review_packet.py \
+            --request /tmp/review-selftest.json \
+            --output-dir /tmp/review-selftest-output \
+            --ci-run-id "$GITHUB_RUN_ID" \
+            --builder-head "$GITHUB_SHA"
+          test -s /tmp/review-selftest-output/REV-CI-SELFTEST-portable-review-packet.md
+          test -s /tmp/review-selftest-output/REV-CI-SELFTEST.manifest.json
+
       - name: Build portable manual-review packet when an active request exists
         id: portable_packet
         shell: bash
