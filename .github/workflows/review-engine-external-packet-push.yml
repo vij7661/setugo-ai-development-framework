@@ -1,0 +1,36 @@
+name: Review Engine External Packet Push
+
+on:
+  push:
+    branches:
+      - review-packet/re-pr6-claude-002
+
+permissions:
+  contents: read
+
+jobs:
+  build-review-packet:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact reviewed candidate
+        uses: actions/checkout@v4
+        with:
+          ref: fd5da6c0c1c544e590bb45ffcbe47c6ec5247620
+          fetch-depth: 1
+
+      - name: Checkout packet builder only
+        shell: bash
+        run: |
+          git show origin/review-packet/re-pr6-claude-002:tools/build_review_engine_claude_packet.py > /tmp/build_review_engine_claude_packet.py
+
+      - name: Build and verify one-file full-source packet
+        shell: bash
+        run: python /tmp/build_review_engine_claude_packet.py
+
+      - name: Upload one-file review packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: REV-RE-PR6-CLAUDE-002
+          path: REV-RE-PR6-CLAUDE-002.txt
+          if-no-files-found: error
+          retention-days: 30
