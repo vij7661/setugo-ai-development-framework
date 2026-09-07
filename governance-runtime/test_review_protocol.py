@@ -5,7 +5,9 @@ import unittest
 
 from review_protocol import (
     AutomaticAPITransport,
+    DispatchResult,
     ManualRelayTransport,
+    ReviewOrchestrator,
     build_review_request,
     can_promote_material_transition,
     canonical_hash,
@@ -27,6 +29,7 @@ class ReviewProtocolTests(unittest.TestCase):
             review_questions=["Independently assess the governance design."],
             evidence_refs=[{"type": "git", "ref": "PR-5"}],
         )
+        self.orchestrator = ReviewOrchestrator()
 
     def _valid_evidence(self) -> dict:
         return {
@@ -46,8 +49,8 @@ class ReviewProtocolTests(unittest.TestCase):
             captured.append(deepcopy(dict(payload)))
             return self._valid_evidence()
 
-        manual = ManualRelayTransport().dispatch(self.request)
-        automatic = AutomaticAPITransport(provider_call).dispatch(self.request)
+        manual = self.orchestrator.dispatch(self.request, ManualRelayTransport())
+        automatic = self.orchestrator.dispatch(self.request, AutomaticAPITransport(provider_call))
 
         self.assertEqual(manual.payload_hash, automatic.payload_hash)
         self.assertEqual(manual.payload_hash, canonical_hash(self.request))
@@ -56,7 +59,7 @@ class ReviewProtocolTests(unittest.TestCase):
         self.assertEqual(automatic.state, "REVIEW_RECEIVED")
 
     def test_manual_relay_cannot_self_complete_review(self) -> None:
-        result = ManualRelayTransport().dispatch(self.request)
+        result = self.orchestrator.dispatch(self.request, ManualRelayTransport())
         self.assertIsNone(result.response)
         self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
         self.assertFalse(
@@ -67,9 +70,15 @@ class ReviewProtocolTests(unittest.TestCase):
             )
         )
 
-    def test_api_failure_or_absence_cannot_change_policy(self) -> None:
-        manual = ManualRelayTransport().dispatch(self.request)
-        self.assertEqual(manual.state, "PENDING_EXTERNAL_REVIEW")
+    def test_api_provider_failure_fails_closed_to_pending_review(self) -> None:
+        def broken_provider(_payload):
+            raise TimeoutError("provider timed out")
+
+        result = self.orchestrator.dispatch(self.request, AutomaticAPITransport(broken_provider))
+        self.assertEqual(result.transport, "AUTOMATIC_API")
+        self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
+        self.assertIsNone(result.response)
+        self.assertEqual(result.error_class, "TimeoutError")
         self.assertFalse(
             can_promote_material_transition(
                 trigger="MATERIAL_GOVERNANCE_CHANGE",
@@ -145,6 +154,29 @@ class ReviewProtocolTests(unittest.TestCase):
                 valid_independent_review_present=False,
             )
         )
+
+    def test_transport_cannot_rebind_request_identity_or_payload(self) -> None:
+        class MaliciousTransport:
+            name = "MANUAL_RELAY"
+
+            def dispatch(self, request):
+                return DispatchResult(
+                    transport=self.name,
+                    state="REVIEW_RECEIVED",
+                    review_request_id="REV-OTHER",
+                    payload_hash="0" * 64,
+                    response=self._response if hasattr(self, "_response") else {},
+                )
+
+        with self.assertRaisesRegex(ValueError, "rebound review request identity"):
+            self.orchestrator.dispatch(self.request, MaliciousTransport())
+
+    def test_required_provider_mismatch_is_rejected(self) -> None:
+        evidence = self._valid_evidence()
+        evidence["reviewer"] = {"provider": "deepseek", "model": "deepseek-reasoner"}
+        valid, reason = validate_review_evidence(request=self.request, evidence=evidence)
+        self.assertFalse(valid)
+        self.assertIn("required reviewer", reason)
 
 
 if __name__ == "__main__":
