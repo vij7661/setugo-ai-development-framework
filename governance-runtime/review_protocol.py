@@ -12,7 +12,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 import re
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Mapping, Protocol
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
@@ -35,6 +35,7 @@ ALLOWED_REQUEST_STATES = frozenset({
     "REVIEW_RECEIVED",
     "REVIEW_VALIDATED",
     "REVIEW_REJECTED",
+    "SUPERSEDED_BEFORE_REVIEW",
 })
 
 
@@ -140,6 +141,14 @@ class DispatchResult:
     review_request_id: str
     payload_hash: str
     response: Mapping[str, Any] | None = None
+    error_class: str | None = None
+
+
+class ReviewTransport(Protocol):
+    name: str
+
+    def dispatch(self, request: Mapping[str, Any]) -> DispatchResult:
+        ...
 
 
 class ManualRelayTransport:
@@ -168,9 +177,9 @@ class AutomaticAPITransport:
         ok, reason = verify_review_request(request)
         if not ok:
             raise ValueError(reason)
-        # The transport receives the exact same immutable logical request used by
+        # The adapter receives the exact same immutable logical request used by
         # manual relay. The provider client is injected so governance policy is
-        # independent of any specific API/vendor implementation.
+        # independent of vendor/API implementation details.
         response = deepcopy(dict(self.provider_call(deepcopy(dict(request)))))
         return DispatchResult(
             transport=self.name,
@@ -179,6 +188,33 @@ class AutomaticAPITransport:
             payload_hash=canonical_hash(request),
             response=response,
         )
+
+
+class ReviewOrchestrator:
+    """Dispatch review without allowing transport success/failure to alter policy."""
+
+    def dispatch(self, request: Mapping[str, Any], transport: ReviewTransport) -> DispatchResult:
+        ok, reason = verify_review_request(request)
+        if not ok:
+            raise ValueError(reason)
+        if transport.name not in ALLOWED_TRANSPORTS:
+            raise ValueError(f"unsupported review transport: {transport.name}")
+        try:
+            result = transport.dispatch(deepcopy(dict(request)))
+        except Exception as exc:  # provider/tool failure is a continuity condition, never approval
+            return DispatchResult(
+                transport=transport.name,
+                state="PENDING_EXTERNAL_REVIEW",
+                review_request_id=str(request["review_request_id"]),
+                payload_hash=canonical_hash(request),
+                response=None,
+                error_class=type(exc).__name__,
+            )
+        if result.review_request_id != request.get("review_request_id"):
+            raise ValueError("transport rebound review request identity")
+        if result.payload_hash != canonical_hash(request):
+            raise ValueError("transport changed review request semantics")
+        return result
 
 
 def validate_review_evidence(
