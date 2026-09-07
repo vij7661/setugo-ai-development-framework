@@ -21,6 +21,7 @@ MEMORY_PATH = ROOT / "shared-memory.json"
 LOG_PATH = ROOT / "decision-log.jsonl"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+ARTIFACT_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 EXPECTED_PRECEDENCE = [
     "governed_git_state",
@@ -275,11 +276,22 @@ def main() -> int:
                 fail("portable review bundle manifest targets a different candidate commit")
             if manifest.get("repository_access_required") is not False:
                 fail("manual review bundle manifest must not require repository access")
-            if manifest.get("bundle_storage") != "EXTERNAL_USER_PORTABLE_FILE":
+            storage = manifest.get("bundle_storage")
+            if storage not in {"EXTERNAL_USER_PORTABLE_FILE", "GITHUB_ACTIONS_ARTIFACT_EXPORT"}:
                 fail("manual review bundle storage mode is invalid")
             if not isinstance(manifest.get("bundle_filename"), str) or not manifest["bundle_filename"]:
                 fail("portable review bundle manifest lacks bundle filename")
-            require_sha256(manifest.get("bundle_sha256"), "portable_bundle_manifest.bundle_sha256")
+            require_sha256(manifest.get("bundle_file_sha256"), "portable_bundle_manifest.bundle_file_sha256")
+            if manifest.get("bundle_body_sha256") is not None:
+                require_sha256(manifest.get("bundle_body_sha256"), "portable_bundle_manifest.bundle_body_sha256")
+            if storage == "GITHUB_ACTIONS_ARTIFACT_EXPORT":
+                if not isinstance(manifest.get("actions_artifact_id"), int) or manifest["actions_artifact_id"] <= 0:
+                    fail("GitHub Actions packet manifest lacks artifact ID")
+                if not isinstance(manifest.get("actions_run_id"), int) or manifest["actions_run_id"] <= 0:
+                    fail("GitHub Actions packet manifest lacks run ID")
+                digest = manifest.get("actions_artifact_digest")
+                if not isinstance(digest, str) or not ARTIFACT_DIGEST.fullmatch(digest):
+                    fail("GitHub Actions packet manifest lacks valid artifact digest")
             embedded = manifest.get("embedded_artifacts")
             if not isinstance(embedded, list) or not embedded:
                 fail("portable review bundle manifest lacks embedded-artifact hashes")
@@ -291,7 +303,7 @@ def main() -> int:
                     fail(f"portable review manifest artifact {idx} has invalid byte length")
             if mem_review.get("portable_bundle_manifest_path") != manifest_path_value:
                 fail("shared memory portable review manifest differs from session state")
-            if mem_review.get("portable_bundle_sha256") != manifest.get("bundle_sha256"):
+            if mem_review.get("portable_bundle_sha256") != manifest.get("bundle_file_sha256"):
                 fail("shared memory portable review bundle hash differs from governed manifest")
             if mem_review.get("repository_access_required") is not False:
                 fail("shared memory manual review incorrectly requires repository access")
