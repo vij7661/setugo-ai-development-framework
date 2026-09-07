@@ -16,28 +16,36 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "S3-01..S3-16 are frozen. First mechanism candidate reached 14/16. S3-03 and S3-11 remain classified validation-order/classification defects with no unauthorized mutation observed. Live-governance review-mode design is being independently reviewed before Slice 3 resumes.",
+    "continuity_summary": "S3-01..S3-16 remain frozen at 14/16 with S3-03 and S3-11 classified. Live-governance PR #5 is blocked while Claude findings F1-F5 and stale-memory regression LCG-F6 are repaired. Claude review REV-GOV-PR5-003 is valid only for superseded candidate e412d9ff and cannot satisfy current promotion.",
     "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
-    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority"]
+    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current"]
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
-    "status": "PENDING_CANDIDATE_FREEZE",
+    "status": "CHANGES_REQUIRED_REPAIR_IN_PROGRESS",
     "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
     "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
     "production_auto_mode_transport": "AUTOMATIC_API",
     "production_manual_mode_transport": "USER_INITIATED_API",
     "current_collaboration_transport": "MANUAL_RELAY",
     "manual_relay_requires_portable_bundle": true,
-    "features_under_review": [
-      "live conversation governance",
-      "active governed shared project memory",
-      "AUTO_MODE automatic independent review",
-      "MANUAL_MODE user-triggered reviewer buttons",
-      "transport-neutral review policy",
-      "USER_INITIATED_API using the same provider API contract as AUTOMATIC_API",
-      "self-contained MANUAL_RELAY packet bound by governed manifest/hash"
+    "current_review_request_id": null,
+    "current_review_status": "NOT_YET_PRESENT",
+    "received_review": {
+      "request_id": "REV-GOV-PR5-003",
+      "reviewed_candidate": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
+      "disposition": "CHANGES_REQUIRED",
+      "counts_for_current_promotion": false,
+      "findings": ["F1","F2","F3","F4","F5"]
+    },
+    "features_under_repair": [
+      "promotion gate must validate review evidence internally",
+      "promotion gate must validate shared-memory/authority grounding",
+      "reviewer model identity/class validation",
+      "catch-all material authority review trigger",
+      "portable bundle evidence-ref coverage",
+      "stale shared-memory regression"
     ]
   },
   "pending_reviews": [
@@ -53,7 +61,15 @@
       "portable_bundle_sha256": null,
       "reviewed_artifact_commit": null,
       "repository_access_required": false,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003"]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006"]
+    }
+  ],
+  "memory_conflict_history": [
+    {
+      "id": "LCG-F6",
+      "observed": "shared-memory.json lagged authoritative session-state.json at review ingestion and omitted active REV-GOV-PR5-006",
+      "resolution": "AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED",
+      "silent_merge": false
     }
   ],
   "memory_rules": {
