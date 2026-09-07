@@ -1,21 +1,11 @@
 {
-  "enabled": false,
-  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-003",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-SCIENTIFIC-003.json",
-  "reviewed_candidate_commit": "f6f04970d594292f21db648132afab7da4f263a6",
+  "enabled": true,
+  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-001",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-001.json",
+  "reviewed_candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "COMPLETED_PASS_INGESTED",
-  "workflow_run_id": 34167130365,
-  "successful_job_id": 101880290858,
-  "artifact_id": 10034515777,
-  "artifact_digest": "sha256:37f7e7b86a7d0c7ad4b88c4590ccd772eea9816793f7d2a82898bf3bc87ab81c",
-  "evidence_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-platform-review.json",
-  "adjudication_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-adjudication.json",
-  "preserved_prior_attempts": [
-    {"review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-001", "workflow_run_id": 34167008144, "job_id": 101879947558, "artifact_id": 10034474473, "failure": "Gemini HTTP 503 UNAVAILABLE: model high demand", "authority_effect": "NONE"},
-    {"review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-002", "workflow_run_id": 34167064296, "job_id": 101880103624, "artifact_id": 10034492859, "failure": "Gemini HTTP 503 UNAVAILABLE: model high demand", "authority_effect": "NONE"}
-  ]
+  "status": "REQUESTED"
 }
