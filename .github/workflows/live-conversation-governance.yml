@@ -93,23 +93,31 @@ jobs:
           git show "${FROZEN_SHA}:experiments/governed-platform/governance/test_integrated_governed_mvp_slice3.py" >/dev/null
           echo "Verified frozen Slice 3 harness at ${FROZEN_SHA}"
 
-      - name: Build candidate-bound Claude review packet when next review ID is declared
+      - name: Build candidate-bound selected-reviewer packet when next review ID is declared
         id: candidate_packet
         shell: bash
         run: |
           set -euo pipefail
-          NEXT_ID=$(python - <<'PY'
+          readarray -t REVIEW_META < <(python - <<'PY'
           import json
           p=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion']
+          reviewer=p.get('next_review_reviewer') or {}
           print(p.get('next_review_request_id') or '')
+          print(reviewer.get('provider') or '')
+          print(reviewer.get('model_class') or '')
           PY
           )
+          NEXT_ID="${REVIEW_META[0]}"
+          SELECTED_PROVIDER="${REVIEW_META[1]}"
+          SELECTED_MODEL_CLASS="${REVIEW_META[2]}"
           if [ -z "$NEXT_ID" ]; then
             echo "No next review request declared; candidate packet build skipped."
             echo "has_candidate_packet=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          export NEXT_ID
+          test -n "$SELECTED_PROVIDER"
+          test -n "$SELECTED_MODEL_CLASS"
+          export NEXT_ID SELECTED_PROVIDER SELECTED_MODEL_CLASS
           PYTHONPATH=governance-runtime python - <<'PY'
           import json, os
           from review_protocol import build_review_request
@@ -119,13 +127,14 @@ jobs:
               'Assess whether production MANUAL_MODE using USER_INITIATED_API preserves the same provider API and governance semantics as AUTO_MODE/AUTOMATIC_API.',
               'Assess whether MANUAL_RELAY is safely limited to a fallback transport and cannot redesign or weaken production API review.',
               'Assess whether promotion validates actual ReviewEvidence and shared-memory grounding instead of caller-supplied authority flags.',
-              'Assess reviewer provider/model/model-class validation and catch-all material/standard-required review policy.',
-              'Assess whether CI-built self-contained review packets prove coverage of all ReviewRequest evidence refs for a reviewer with zero repository access.',
+              'Assess reviewer identity provenance, proposer-controlled trigger resistance, and superseded-review replay resistance.',
+              'Assess whether CI-built self-contained review exports prove evidence coverage and raw-byte integrity for a reviewer with zero repository access.',
               'Assess shared project memory continuity and stale-memory conflict handling across chat/session boundaries.',
-              'Identify any remaining authority bypass, false-green path, transport/mode divergence, evidence gap, or missing adversarial case.',
+              'Identify any remaining authority bypass, false-green path, transport/mode divergence, evidence gap, reviewer-selection defect, or missing adversarial case.',
               'Return an independent disposition without assuming or using the proposer conclusion.'
           ]
-          prior=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion'].get('superseded_review_requests',[])
+          state=json.load(open('governance-runtime/session-state.json'))
+          prior=state['runtime']['promotion'].get('superseded_review_requests',[])
           req = build_review_request(
               review_request_id=os.environ['NEXT_ID'],
               trigger='MATERIAL_GOVERNANCE_CHANGE',
@@ -133,7 +142,10 @@ jobs:
               artifact_ref='PR-5',
               artifact_commit=os.environ['GITHUB_SHA'],
               proposer={'provider':'openai','model':'gpt-5.6-sol'},
-              required_reviewer={'provider':'anthropic','model_class':'claude'},
+              required_reviewer={
+                  'provider':os.environ['SELECTED_PROVIDER'],
+                  'model_class':os.environ['SELECTED_MODEL_CLASS'],
+              },
               blind_review_required=True,
               review_questions=questions,
               evidence_refs=[
@@ -142,8 +154,10 @@ jobs:
                   {'type':'file','ref':'governance-runtime/review_protocol.py'},
                   {'type':'file','ref':'governance-runtime/test_review_protocol.py'},
                   {'type':'file','ref':'governance-runtime/session-state.json'},
-                  {'type':'file','ref':'governance-runtime/shared-memory.json'}
+                  {'type':'file','ref':'governance-runtime/shared-memory.json'},
+                  {'type':'file','ref':'.github/workflows/live-conversation-governance.yml'}
               ],
+              material_authority_transition=True,
           )
           path=f"/tmp/{os.environ['NEXT_ID']}.json"
           with open(path,'w',encoding='utf-8') as f:
@@ -157,12 +171,13 @@ jobs:
           cp "/tmp/${NEXT_ID}.json" "candidate-review-output/${NEXT_ID}.request.json"
           echo "has_candidate_packet=true" >> "$GITHUB_OUTPUT"
           echo "review_request_id=$NEXT_ID" >> "$GITHUB_OUTPUT"
+          echo "selected_provider=$SELECTED_PROVIDER" >> "$GITHUB_OUTPUT"
 
-      - name: Upload candidate-bound Claude review packet
+      - name: Upload candidate-bound selected-reviewer packet
         if: steps.candidate_packet.outputs.has_candidate_packet == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: claude-review-${{ steps.candidate_packet.outputs.review_request_id }}-${{ github.run_id }}
+          name: review-${{ steps.candidate_packet.outputs.selected_provider }}-${{ steps.candidate_packet.outputs.review_request_id }}-${{ github.run_id }}
           path: candidate-review-output/
           if-no-files-found: error
           retention-days: 30
