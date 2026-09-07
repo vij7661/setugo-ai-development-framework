@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 import unittest
 
+from test_single_file_review_container import SingleFileReviewContainerTests  # imported so current CI loader executes P2 cases
 from review_protocol import (
     DispatchResult,
     build_review_request,
