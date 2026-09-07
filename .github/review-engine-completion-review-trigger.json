@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "review_request_id": "REV-RE-COMP-002",
   "base_sha": "539cb7e63a721661e9daf3663a539e64a3c61e7e",
   "candidate_sha": "56d080e14d1414e2f994800f19c232cd0c0317d6",
@@ -7,5 +7,8 @@
   "model": "gemini-3.6-flash",
   "mode": "AUTO_MODE",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
-  "transport": "AUTOMATIC_API"
+  "transport": "AUTOMATIC_API",
+  "status": "COMPLETED_PASS",
+  "workflow_run_id": 34155684585,
+  "evidence_path": "review_engine/reviews/REV-RE-COMP-002-platform-api-review.json"
 }
