@@ -25,6 +25,7 @@ REVIEW_ARTIFACT_PATHS = [
     "governance-runtime/test_review_protocol.py",
     "governance-runtime/test_reviewer_selection.py",
     "governance-runtime/test_review_semantics.py",
+    "governance-runtime/test_single_file_review_container.py",
     "governance-runtime/repair-preregistrations/GOV-SEM-001.md",
     "governance-runtime/repair-preregistrations/GOV-PORTABLE-002.md",
     "governance-runtime/validate_runtime.py",
