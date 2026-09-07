@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-034",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-035",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -14,19 +14,19 @@
     "handoff_contract_commit": "2898d69688a9f14a541ebc7a2990a0a81c0d5591",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_CANDIDATE_FREEZE",
+      "state": "PENDING_EXTERNAL_REVIEW",
       "next_review_request_id": null,
       "next_review_reviewer": null,
-      "review_request_id": null,
-      "review_request_path": null,
+      "review_request_id": "REV-GOV-PR5-013",
+      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-013.json",
       "portable_bundle_manifest_path": null,
-      "reviewed_candidate_commit": null,
-      "candidate_ci_run": null,
-      "candidate_ci_conclusion": null,
+      "reviewed_candidate_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+      "candidate_ci_run": 34164220980,
+      "candidate_ci_conclusion": "success",
       "actions_artifact_id": null,
       "actions_artifact_digest": null,
       "portable_bundle_sha256": null,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011"]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"]
     }
   },
   "shared_memory": {
@@ -39,22 +39,22 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "Corrected pasted Slice 3 PASS was semantically valid but external and non-promotable. Platform-authenticated review was then executed; attempt 1 failed closed on Gemini HTTP 503 and was preserved, attempt 2 passed with exact candidate binding, 12/12 mandatory dimensions supported, zero findings, and deterministic validation valid."
+    "last_observed_conflict": "Slice 3 is closed as BOUNDED_PASS. PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 was frozen on review-candidate/live-conversation-governance-pr5-013 after live-governance CI run 34164220980 succeeded. ReviewRequest REV-GOV-PR5-013 is now active and exact-candidate bound."
   },
   "execution_handoff": {
-    "sequence": 34,
+    "sequence": 35,
     "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "phase": "BOUNDED_PASS",
-    "last_completed_action": "Adjudicated Slice 3 at exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. Frozen harness remains 16/16. Corrected pasted review was preserved as valid external semantic PASS but non-promotable. Platform review SLICE3-PLATFORM-AUTO-003 used Gemini API through PLATFORM_AUTO_API_REVIEW/AUTOMATIC_API: attempt 1 HTTP 503 was preserved with no authority effect; attempt 2 succeeded with exact candidate binding, zero findings, 12/12 mandatory dimensions TESTED_SUPPORTED, and deterministic response validation valid. Slice 3 is therefore BOUNDED_PASS without granting merge, release, deploy, remote-push, or terminal authority.",
-    "next_required_action": "Freeze the current live-conversation-governance PR #5 implementation as an immutable exact candidate, verify candidate CI and evidence binding, then obtain platform-authenticated independent review before PR #5 promotion. Preserve all earlier failed/superseded review history and do not infer downstream authority from the Slice 3 bounded pass.",
+    "last_completed_action": "Closed Slice 3 as BOUNDED_PASS after exact-candidate platform-authenticated Gemini review. Then added the PR #5 platform-review runner/workflow, validated the live-conversation-governance candidate at commit 2ae09783c0c36d5b8cc66146c3445e131fd99971 with CI run 34164220980 SUCCESS, froze that exact commit on review-candidate/live-conversation-governance-pr5-013, and created schema-4 ReviewRequest REV-GOV-PR5-013 bound to that candidate.",
+    "next_required_action": "Execute the platform-authenticated AUTOMATIC_API review for REV-GOV-PR5-013 against exact frozen candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971, preserve provider/API failures fail-closed, deterministically validate the returned semantic coverage and exact candidate binding, then adjudicate PR #5 without rewriting superseded review history.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "manual_deliverable": "No manual input required for candidate freeze and platform-review preparation.",
-    "handoff_reason": "Slice 3 scientific boundary is closed as a bounded pass; the next unfinished governed boundary is live-conversation-governance PR #5 candidate freeze and authenticated review.",
-    "historical_failure_preserved": "Parent candidate 325610d807eb88595231ec05af33e93f340ecb49 remains preserved as 14/16 with S3-03 and S3-11 failures. Platform review attempt 1 HTTP 503 and prior malformed/external review results remain preserved with no rewritten history.",
-    "resume_rule": "On any new chat or generic CONTINUE request, verify this exact handoff against governed Git/evidence and execute next_required_action. Never resume Slice 3 review correction, EXP-I/EXP-K, or another nearby workstream from stale memory or repository HEAD alone."
+    "manual_deliverable": "No manual input required while the authenticated PR #5 platform review can be dispatched automatically.",
+    "handoff_reason": "PR #5 material governance promotion is blocked on an exact-candidate provider-API-authenticated independent review.",
+    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider HTTP 503 attempt, malformed/corrected pasted reviews, and PR #5 superseded review requests REV-GOV-PR5-001..012 remain preserved and non-rewritten.",
+    "resume_rule": "On any new chat or generic CONTINUE request, verify this exact handoff and active ReviewRequest from Git before acting. Continue REV-GOV-PR5-013 platform review; do not return to stale Slice 3 correction, EXP-I/EXP-K, or infer a frontier from repository HEAD alone."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
@@ -67,8 +67,8 @@
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
     "latest_result": {"passed": 16, "total": 16, "failures": []},
-    "next_action": "Freeze live-conversation-governance PR #5 as an immutable review candidate and verify it before platform-authenticated independent review.",
-    "forbidden_shortcut": "Do not grant merge/release/deploy/remote-push/terminal authority from Slice 3 PASS; do not erase the 14/16 failure or provider 503; do not treat pasted external review as authenticated platform review; do not infer the next frontier from repository HEAD alone."
+    "next_action": "Complete authenticated ReviewRequest REV-GOV-PR5-013 for frozen PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 before any PR #5 promotion.",
+    "forbidden_shortcut": "Do not grant PR #5 promotion from CI, old pasted reviews, or Slice 3 PASS; only the current exact-candidate platform review may satisfy the required review boundary."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 3",
@@ -94,13 +94,13 @@
     "user_attestation_is_provider_authentication": false,
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
-    "current_required_transition": "Freeze and independently review live-conversation-governance PR #5 candidate",
-    "current_review_status": "NOT_YET_PRESENT",
-    "current_review_request_id": null,
-    "current_review_transport": null,
-    "current_requested_reviewer": null,
-    "current_reviewed_artifact_commit": null,
-    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011"],
+    "current_required_transition": "Platform-authenticated independent review of live-conversation-governance PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971",
+    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_review_request_id": "REV-GOV-PR5-013",
+    "current_review_transport": "AUTOMATIC_API",
+    "current_requested_reviewer": {"provider":"gemini","model_class":"gemini"},
+    "current_reviewed_artifact_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
