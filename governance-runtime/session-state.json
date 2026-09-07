@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-014",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-015",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -20,7 +20,7 @@
     "promotion": {
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
-      "next_review_request_id": null,
+      "next_review_request_id": "REV-GOV-PR5-008",
       "next_review_reviewer": {
         "provider": "deepseek",
         "model_class": "deepseek",
@@ -70,7 +70,7 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "User selected DeepSeek in MANUAL_MODE. Synchronize reviewer selection into shared memory, then declare a new candidate-bound DeepSeek ReviewRequest. PR #5 remains non-authoritative. After governance review boundary is handled, resume the narrow Slice 3 code-only repair without changing S3-01..S3-16.",
+    "next_action": "Generate and validate candidate-bound DeepSeek packet REV-GOV-PR5-008 from this exact checkpoint commit. PR #5 remains non-authoritative. After the review boundary is handled, resume the narrow Slice 3 code-only repair without changing S3-01..S3-16.",
     "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count superseded review evidence as current; do not trust reviewer-authored provider/model fields as authenticated identity; do not rewrite a Claude-bound ReviewRequest into DeepSeek after issuance."
   },
   "accepted_prior_boundary": {
@@ -96,7 +96,7 @@
     "current_required_transition": "Promotion of live conversation governance PR #5 and future material governed authority transitions",
     "current_review_status": "NOT_YET_PRESENT",
     "current_review_request_id": null,
-    "current_requested_reviewer": "DEEPSEEK_SELECTED_NOT_YET_ISSUED",
+    "current_requested_reviewer": "DEEPSEEK",
     "current_reviewed_artifact_commit": null,
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007"],
     "received_review_evidence": [
@@ -138,10 +138,10 @@
     {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"REVIEWER_SELECTED","description":"Combined repair is construction-green; user selected DeepSeek for the next manual-mode review."},
+    {"id":"GOV-IR-001","state":"DEEPSEEK_REQUEST_DECLARED","description":"Combined repair is construction-green; DeepSeek selected and REV-GOV-PR5-008 declared for the next manual-mode review."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
     {"id":"GOV-PORTABLE-001","state":"CONSTRUCTION_GREEN","description":"Portable export includes raw canonical artifacts with reproducible hashes; Markdown is convenience only."},
-    {"id":"GOV-ID-001","state":"REVIEWER_SELECTED","description":"Manual relay self-declared identity is non-authenticating; selected target reviewer is DeepSeek, while production API adapters provide trusted identity provenance."},
-    {"id":"GOV-SELECT-001","state":"REPAIR_APPLIED_PENDING_CI","description":"Reviewer-selection generator was hard-coded to Claude; it is now provider-neutral and must prove DeepSeek-bound packet generation in CI."}
+    {"id":"GOV-ID-001","state":"DEEPSEEK_REQUEST_DECLARED","description":"Manual relay self-declared identity is non-authenticating; requested target reviewer is DeepSeek, while production API adapters provide trusted identity provenance."},
+    {"id":"GOV-SELECT-001","state":"PENDING_DEEPSEEK_PACKET_CI","description":"Reviewer-selection generator is provider-neutral and REV-GOV-PR5-008 must prove DeepSeek-bound packet generation in CI."}
   ]
 }
