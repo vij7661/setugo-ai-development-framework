@@ -1,0 +1,28 @@
+{
+  "bypass_id": "RE-BYP-001",
+  "classification": "REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
+  "invariant": "A reviewer that shares the same effective provider/model runtime identity with another reviewer cannot satisfy an independent reviewer role merely by carrying a different foundation_lineage label.",
+  "status": "PRESERVED",
+  "independent_review_required": true,
+  "first_failure": {
+    "candidate_commit": "97387b0e729a446a1959bddfb7968f62a391f82d",
+    "workflow": "Review Engine CI",
+    "workflow_run_id": 34147695252,
+    "job_id": 101823167241,
+    "test": "review_engine/test_reviewer_independence_runtime_alias.py::ReviewerRuntimeAliasIndependenceTests::test_same_runtime_identity_cannot_masquerade_as_independent_via_lineage_label",
+    "expected": "HUMAN_REQUIRED before R2 invocation",
+    "actual": "CONVERGED_PASS",
+    "suite_result": "272 tests run; 271 passed; 1 failed",
+    "classification": "GENUINE_MECHANISM_FALSE_GREEN"
+  },
+  "first_failure_ref": "github-actions:34147695252/job/101823167241@97387b0e729a446a1959bddfb7968f62a391f82d",
+  "repair_ref": null,
+  "regression_ref": "review_engine/test_reviewer_independence_runtime_alias.py@97387b0e729a446a1959bddfb7968f62a391f82d",
+  "full_suite_ref": null,
+  "independent_review_ref": null,
+  "notes": [
+    "The first exposure is preserved before any production-mechanism repair.",
+    "The regression expectation must not be weakened to obtain green CI.",
+    "This bypass remains non-closed until the production mechanism is repaired, the frozen regression and full suite are green, and governed independent review is satisfied."
+  ]
+}
