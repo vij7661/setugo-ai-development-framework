@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "checkpoint_id": "LIVE-CONV-2026-09-07-001",
+  "checkpoint_state": "ACTIVE",
+  "authority": {
+    "repository": "vij7661/setugo-ai-development-framework",
+    "source_precedence": [
+      "governed_git_state",
+      "governed_registries_and_evidence",
+      "project_chat_and_files_advisory",
+      "continuity_summaries_and_memory_advisory",
+      "model_recollection_non_authoritative"
+    ]
+  },
+  "runtime": {
+    "branch": "governance/live-conversation-runtime",
+    "normative_contract_path": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
+    "normative_contract_commit": "d55a450d98ba21189ab25aa82eab3022f377bb06"
+  },
+  "applicable_standards": [
+    {
+      "path": "standards/conversational-drift-contamination-control.md",
+      "branch": "main",
+      "blob_sha": "0908d676e172c89987305ca9f52078723ea1b6fe"
+    },
+    {
+      "path": "standards/external-evidence-semantic-validation.md",
+      "branch": "main",
+      "blob_sha": "b13287ecd12e5c76a83202ad2bf76a37cbd19270"
+    }
+  ],
+  "active_workstream": {
+    "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+    "branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+    "head_commit": "325610d807eb88595231ec05af33e93f340ecb49",
+    "state": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
+    "preregistration_commit": "47d3de5578dd65780f66fed1baedb9f0932b7670",
+    "frozen_acceptance_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
+    "first_mechanism_commit": "ce6b88dc166c72d8f8f8ca9cdfc2a2bd8b53cb5e",
+    "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
+    "frozen_cases": "S3-01..S3-16",
+    "latest_result": {
+      "passed": 14,
+      "total": 16,
+      "failures": [
+        {
+          "case": "S3-03",
+          "classification": "MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT",
+          "observed": "DENIED_MANIFEST",
+          "expected": "DENIED_CONTRACT",
+          "unauthorized_mutation_observed": false
+        },
+        {
+          "case": "S3-11",
+          "classification": "MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT",
+          "observed": "DENIED_MANIFEST",
+          "expected": "DENIED_IDEMPOTENCY_REBIND",
+          "unauthorized_mutation_observed": false
+        }
+      ]
+    },
+    "next_action": "Apply a narrow code-only validation-order/classification repair without changing S3-01..S3-16; rerun dedicated Slice 3 and full governed regression. If construction becomes fully green, create metadata-only freeze and use first complete workflows on the frozen SHA for scientific acceptance evidence.",
+    "forbidden_shortcut": "Do not modify the frozen S3 harness or preregistration to obtain green."
+  },
+  "accepted_prior_boundary": {
+    "name": "Integrated Governed MVP Slice 2",
+    "scientific_freeze_commit": "026e895c117b4be1303d898293335ea796ac2d2c",
+    "bounded_adjudication_commit": "eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b",
+    "state": "BOUNDED_PASS"
+  },
+  "independent_review": {
+    "policy_state": "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS",
+    "current_required_transition": "Any future Slice 3 scientific adjudication or material frozen-contract change",
+    "current_review_status": "NOT_YET_PRESENT",
+    "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
+    "consensus_is_evidence": false
+  },
+  "continuity": {
+    "project_chat_is_authoritative": false,
+    "memory_is_authoritative": false,
+    "new_chat_bootstrap_required": true,
+    "on_git_unavailable": "GROUNDING_REQUIRED",
+    "user_repetition_required_when_governed_state_exists": false
+  },
+  "open_governance_items": [
+    {
+      "id": "GOV-IR-001",
+      "state": "WORKING_PROPOSAL",
+      "description": "Preregister and falsify deterministic independent-review escalation so the proposing LLM cannot decide for itself that review is unnecessary."
+    }
+  ]
+}
