@@ -5,10 +5,14 @@ import unittest
 from pathlib import Path
 
 from review_engine.app import ReviewEngineApp
-from review_engine.configuration import ReviewEngineConfiguration
+from review_engine.configuration import ReviewEngineConfiguration, provider_binding_fingerprint
 from review_engine.models import ReviewerConfig, ReviewerResponse
 from review_engine.qualification import QualificationRecord
 from review_engine.truth_contract import neutral_epistemic_review
+
+
+PROVIDER_SPEC = {"adapter": "openai_compatible", "base_url": "https://fake.example/v1"}
+PROVIDER_BINDING = provider_binding_fingerprint(PROVIDER_SPEC)
 
 
 class MutatingInjectedProvider:
@@ -38,6 +42,7 @@ def governed_configuration() -> ReviewEngineConfiguration:
         api_key_env="R1_API_KEY",
         foundation_lineage="lineage-r1",
         qualification_ref="q-r1",
+        provider_binding_fingerprint=PROVIDER_BINDING,
     )
     qualification = QualificationRecord(
         qualification_ref="q-r1",
@@ -51,10 +56,11 @@ def governed_configuration() -> ReviewEngineConfiguration:
         foundation_lineage="lineage-r1",
         max_risk="LOW",
         task_types=("GENERAL",),
+        provider_binding_fingerprint=PROVIDER_BINDING,
     )
     return ReviewEngineConfiguration(
         reviewers={"R1": reviewer},
-        provider_specs={},
+        provider_specs={"fake": PROVIDER_SPEC},
         qualification_records=(qualification,),
     )
 
