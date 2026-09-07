@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Transport-neutral independent-review protocol for governed authority transitions.
 
-Governance policy determines whether review is required. Review transport only
-moves the same ReviewRequest/ReviewEvidence objects. Manual relay and automatic
-API delivery MUST NOT change promotion eligibility or evidence requirements.
+Review policy determines whether review is NONE, RECOMMENDED, or REQUIRED.
+Platform mode determines whether an eligible review is initiated automatically or
+presented to the user. Review transport moves the same logical ReviewRequest and
+ReviewEvidence objects; transport/mode never changes authority semantics.
 """
 from __future__ import annotations
 
@@ -28,7 +29,9 @@ MANDATORY_REVIEW_TRIGGERS = frozenset({
     "MATERIAL_DISAGREEMENT_RESOLUTION",
 })
 
-ALLOWED_TRANSPORTS = frozenset({"MANUAL_RELAY", "AUTOMATIC_API"})
+PLATFORM_MODES = frozenset({"AUTO_MODE", "MANUAL_MODE"})
+REVIEW_LEVELS = frozenset({"NONE", "RECOMMENDED", "REQUIRED"})
+ALLOWED_TRANSPORTS = frozenset({"MANUAL_RELAY", "AUTOMATIC_API", "USER_INITIATED_API"})
 ALLOWED_REQUEST_STATES = frozenset({
     "REVIEW_REQUIRED",
     "PENDING_EXTERNAL_REVIEW",
@@ -44,9 +47,52 @@ def canonical_hash(value: Any) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def content_hash(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def review_required(trigger: str) -> bool:
     """Deterministically decide whether an authority transition needs review."""
     return trigger in MANDATORY_REVIEW_TRIGGERS
+
+
+def evaluate_review_level(*, trigger: str, r1_recommends_review: bool) -> str:
+    """Policy can force REQUIRED; R1 may only raise NONE to RECOMMENDED."""
+    if review_required(trigger):
+        return "REQUIRED"
+    return "RECOMMENDED" if r1_recommends_review else "NONE"
+
+
+def plan_review_interaction(*, platform_mode: str, review_level: str) -> dict[str, Any]:
+    """Return UI/dispatch intent without changing review authority semantics."""
+    if platform_mode not in PLATFORM_MODES:
+        raise ValueError(f"unsupported platform mode: {platform_mode}")
+    if review_level not in REVIEW_LEVELS:
+        raise ValueError(f"unsupported review level: {review_level}")
+
+    if review_level == "NONE":
+        return {
+            "action": "NO_REVIEW",
+            "show_review_controls": False,
+            "automatic_dispatch": False,
+            "authoritative_transition_blocked": False,
+        }
+
+    if platform_mode == "AUTO_MODE":
+        return {
+            "action": "AUTOMATIC_API",
+            "show_review_controls": False,
+            "automatic_dispatch": True,
+            "authoritative_transition_blocked": review_level == "REQUIRED",
+        }
+
+    return {
+        "action": "SHOW_REVIEW_CONTROLS",
+        "show_review_controls": True,
+        "automatic_dispatch": False,
+        "authoritative_transition_blocked": review_level == "REQUIRED",
+        "recommended_buttons": ["ASK_REVIEWER_SLOT_1", "ASK_REVIEWER_SLOT_2"],
+    }
 
 
 def build_review_request(
@@ -134,6 +180,82 @@ def verify_review_request(request: Mapping[str, Any]) -> tuple[bool, str]:
         return False, "review request is malformed"
 
 
+def build_portable_review_bundle(
+    *,
+    request: Mapping[str, Any],
+    artifacts: list[Mapping[str, Any]],
+    evidence_summary: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build a self-contained manual-review packet requiring no repository access."""
+    ok, reason = verify_review_request(request)
+    if not ok:
+        raise ValueError(reason)
+    if not artifacts:
+        raise ValueError("portable review bundle requires at least one embedded artifact")
+
+    embedded: list[dict[str, Any]] = []
+    for item in artifacts:
+        path = item.get("path")
+        content = item.get("content")
+        if not isinstance(path, str) or not path or not isinstance(content, str):
+            raise ValueError("portable artifact requires path and UTF-8 content")
+        embedded.append({
+            "path": path,
+            "content": content,
+            "content_sha256": content_hash(content),
+        })
+
+    bundle = {
+        "schema_version": 1,
+        "bundle_type": "SELF_CONTAINED_INDEPENDENT_REVIEW",
+        "review_request": deepcopy(dict(request)),
+        "reviewed_artifact_commit": request["artifact"]["commit"],
+        "repository_access_required": False,
+        "artifacts": embedded,
+        "evidence_summary": deepcopy(dict(evidence_summary)),
+    }
+    bundle["bundle_hash"] = canonical_hash(bundle)
+    return bundle
+
+
+def verify_portable_review_bundle(
+    *,
+    request: Mapping[str, Any],
+    bundle: Mapping[str, Any],
+) -> tuple[bool, str]:
+    try:
+        ok, reason = verify_review_request(request)
+        if not ok:
+            return False, reason
+        material = deepcopy(dict(bundle))
+        supplied_hash = material.pop("bundle_hash")
+        if not isinstance(supplied_hash, str) or canonical_hash(material) != supplied_hash:
+            return False, "portable review bundle hash is invalid"
+        if bundle.get("bundle_type") != "SELF_CONTAINED_INDEPENDENT_REVIEW":
+            return False, "portable review bundle type is invalid"
+        if bundle.get("repository_access_required") is not False:
+            return False, "manual review bundle must not require repository access"
+        embedded_request = bundle.get("review_request")
+        if not isinstance(embedded_request, Mapping):
+            return False, "portable review bundle lacks embedded ReviewRequest"
+        if canonical_hash(embedded_request) != canonical_hash(request):
+            return False, "portable review bundle rebound ReviewRequest semantics"
+        if bundle.get("reviewed_artifact_commit") != request["artifact"]["commit"]:
+            return False, "portable review bundle targets a different artifact commit"
+        artifacts = bundle.get("artifacts")
+        if not isinstance(artifacts, list) or not artifacts:
+            return False, "portable review bundle lacks artifacts"
+        for item in artifacts:
+            if not isinstance(item, Mapping):
+                return False, "portable review artifact is malformed"
+            content = item.get("content")
+            if not isinstance(content, str) or item.get("content_sha256") != content_hash(content):
+                return False, "portable review artifact content hash is invalid"
+        return True, "portable review bundle verified"
+    except (KeyError, TypeError, ValueError):
+        return False, "portable review bundle is malformed"
+
+
 @dataclass(frozen=True)
 class DispatchResult:
     transport: str
@@ -142,6 +264,7 @@ class DispatchResult:
     payload_hash: str
     response: Mapping[str, Any] | None = None
     error_class: str | None = None
+    portable_bundle_hash: str | None = None
 
 
 class ReviewTransport(Protocol):
@@ -152,24 +275,34 @@ class ReviewTransport(Protocol):
 
 
 class ManualRelayTransport:
+    """Human relay fallback for environments without direct reviewer API access."""
+
     name = "MANUAL_RELAY"
+
+    def __init__(self, portable_bundle: Mapping[str, Any]):
+        self.portable_bundle = deepcopy(dict(portable_bundle))
 
     def dispatch(self, request: Mapping[str, Any]) -> DispatchResult:
         ok, reason = verify_review_request(request)
         if not ok:
             raise ValueError(reason)
+        bundle_ok, bundle_reason = verify_portable_review_bundle(
+            request=request,
+            bundle=self.portable_bundle,
+        )
+        if not bundle_ok:
+            raise ValueError(bundle_reason)
         return DispatchResult(
             transport=self.name,
             state="PENDING_EXTERNAL_REVIEW",
             review_request_id=str(request["review_request_id"]),
             payload_hash=canonical_hash(request),
             response=None,
+            portable_bundle_hash=str(self.portable_bundle["bundle_hash"]),
         )
 
 
-class AutomaticAPITransport:
-    name = "AUTOMATIC_API"
-
+class _APITransportBase:
     def __init__(self, provider_call: Callable[[Mapping[str, Any]], Mapping[str, Any]]):
         self.provider_call = provider_call
 
@@ -177,9 +310,6 @@ class AutomaticAPITransport:
         ok, reason = verify_review_request(request)
         if not ok:
             raise ValueError(reason)
-        # The adapter receives the exact same immutable logical request used by
-        # manual relay. The provider client is injected so governance policy is
-        # independent of vendor/API implementation details.
         response = deepcopy(dict(self.provider_call(deepcopy(dict(request)))))
         return DispatchResult(
             transport=self.name,
@@ -188,6 +318,18 @@ class AutomaticAPITransport:
             payload_hash=canonical_hash(request),
             response=response,
         )
+
+
+class AutomaticAPITransport(_APITransportBase):
+    """API transport selected automatically by AUTO_MODE."""
+
+    name = "AUTOMATIC_API"
+
+
+class UserInitiatedAPITransport(_APITransportBase):
+    """Same provider API semantics, initiated by a MANUAL_MODE user button."""
+
+    name = "USER_INITIATED_API"
 
 
 class ReviewOrchestrator:
@@ -201,7 +343,7 @@ class ReviewOrchestrator:
             raise ValueError(f"unsupported review transport: {transport.name}")
         try:
             result = transport.dispatch(deepcopy(dict(request)))
-        except Exception as exc:  # provider/tool failure is a continuity condition, never approval
+        except Exception as exc:  # provider/tool/manual-packet failure is never approval
             return DispatchResult(
                 transport=transport.name,
                 state="PENDING_EXTERNAL_REVIEW",
@@ -261,7 +403,7 @@ def can_promote_material_transition(
     deterministic_gate_passed: bool,
     valid_independent_review_present: bool,
 ) -> bool:
-    """Transport never appears here: it cannot alter promotion eligibility."""
+    """Platform mode and transport never appear here: they cannot alter authority."""
     if not deterministic_gate_passed:
         return False
     if review_required(trigger) and not valid_independent_review_present:
