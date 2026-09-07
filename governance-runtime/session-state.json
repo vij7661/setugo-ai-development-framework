@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-024",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-025",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -14,7 +14,7 @@
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
       "next_review_request_id": null,
-      "next_review_reviewer": null,
+      "next_review_reviewer": {"provider":"deepseek","model_class":"deepseek"},
       "review_request_id": null,
       "review_request_path": null,
       "portable_bundle_manifest_path": null,
@@ -37,7 +37,7 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "DeepSeek manual relay does not accept ZIP and multi-file upload is impractical; unsent REV-GOV-PR5-009 was superseded before packaging repair rather than weakening raw-byte review evidence."
+    "last_observed_conflict": "DeepSeek ZIP/many-file incompatibility is resolved by GOV-PORTABLE-002 single-file review container; raw UTF-8 bytes are reconstructable from one JSON-in-text attachment."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
@@ -57,8 +57,8 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "Implement preregistered GOV-PORTABLE-002 single-file manual review container, verify reconstruction/hash/tamper cases in CI, freeze a new candidate, then issue a fresh DeepSeek review request requiring only one ordinary text attachment.",
-    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-009 or earlier superseded reviews as current; do not weaken raw-byte-integrity review merely because ZIP/many-file upload is unsupported; do not promote a legacy review schema, negative disposition, or incomplete mandatory review coverage."
+    "next_action": "GOV-PORTABLE-002 is construction-green at 302155699df010487a6579a5aa23cf36de3f6d62 with 40/40 tests in workflow 34134075461. DeepSeek remains selected. Synchronize shared memory, then declare REV-GOV-PR5-010 so CI builds one deterministic ordinary text review attachment from the exact candidate.",
+    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-009 or earlier superseded reviews as current; do not weaken raw-byte-integrity review; do not require ZIP or many-file human upload for the new DeepSeek manual relay."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 2",
@@ -80,12 +80,14 @@
     "production_manual_mode_transport": "USER_INITIATED_API",
     "manual_relay_requires_portable_bundle": true,
     "portable_bundle_repository_access_required": false,
+    "manual_relay_preferred_attachment_count": 1,
+    "single_file_review_container": "REQUIRED_FOR_CURRENT_DEEPSEEK_MANUAL_RELAY",
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 and future material governed authority transitions",
     "current_review_status": "NOT_YET_PRESENT",
     "current_review_request_id": null,
-    "current_requested_reviewer": null,
+    "current_requested_reviewer": "DEEPSEEK",
     "current_reviewed_artifact_commit": null,
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009"],
     "received_review_evidence": [
@@ -111,11 +113,12 @@
     {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
   ],
   "construction_evidence": [
-    {"id":"GOV-SEM-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-SEM-001.json","candidate_commit":"e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f","workflow_run":34131579394,"tests":"33/33","state":"CONSTRUCTION_GREEN_BOUNDED"}
+    {"id":"GOV-SEM-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-SEM-001.json","candidate_commit":"e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f","workflow_run":34131579394,"tests":"33/33","state":"CONSTRUCTION_GREEN_BOUNDED"},
+    {"id":"GOV-PORTABLE-002-CONSTRUCTION-GREEN-001","candidate_commit":"302155699df010487a6579a5aa23cf36de3f6d62","workflow_run":34134075461,"tests":"40/40","state":"CONSTRUCTION_GREEN_BOUNDED"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"PENDING_CANDIDATE_FREEZE","description":"REV-GOV-PR5-009 was superseded before review; a fresh request is required after GOV-PORTABLE-002."},
-    {"id":"GOV-PORTABLE-002","state":"PREREGISTERED_REPAIR_PENDING","description":"Single ordinary text attachment must embed and integrity-bind all required raw review artifacts without changing review authority semantics."},
+    {"id":"GOV-IR-001","state":"READY_TO_DECLARE_NEXT_REQUEST","description":"DeepSeek selected; issue a fresh review request after shared-memory synchronization."},
+    {"id":"GOV-PORTABLE-002","state":"CONSTRUCTION_GREEN","description":"Single ordinary text attachment deterministically embeds and reconstructs every required UTF-8 raw review artifact; 7/7 dedicated P2 cases passed inside 40/40 governance tests."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
     {"id":"GOV-ID-001","state":"BLOCKED_IDENTITY_UNVERIFIED_IN_MANUAL_RELAY","description":"Manual relay provider identity remains non-authenticating; production API adapters remain the trusted identity path."},
     {"id":"GOV-SELECT-001","state":"CONSTRUCTION_GREEN","description":"Reviewer selection remains provider-neutral and semantically bound."},
