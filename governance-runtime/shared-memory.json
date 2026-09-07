@@ -7,51 +7,25 @@
   "read_policy": "READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY",
   "write_policy": "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
   "sources": [
-    {
-      "class": "governed_checkpoint",
-      "path": "governance-runtime/session-state.json",
-      "use": "verified continuity pointer"
-    },
-    {
-      "class": "chatgpt_project_memory_and_context",
-      "use": "shared working continuity input subject to reconciliation"
-    },
-    {
-      "class": "external_agent_memory_or_review",
-      "use": "working/reviewer input with provenance; never authority by repetition"
-    }
+    {"class":"governed_checkpoint","path":"governance-runtime/session-state.json","use":"verified continuity pointer"},
+    {"class":"chatgpt_project_memory_and_context","use":"shared working continuity input subject to reconciliation"},
+    {"class":"external_agent_memory_or_review","use":"working/reviewer input with provenance; never authority by repetition"}
   ],
   "current_work": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "S3-01..S3-16 are frozen. First mechanism candidate reached 14/16. S3-03 and S3-11 are classified validation-order/classification defects with no unauthorized mutation observed. Live-governance mode/bundle redesign is being completed before Slice 3 resumes.",
-    "allowed_use": [
-      "session_resume",
-      "task_routing",
-      "context_preparation",
-      "review_packet_preparation"
-    ],
-    "prohibited_use": [
-      "declare_slice3_pass",
-      "change_frozen_expectations",
-      "grant_terminal_authority"
-    ]
+    "continuity_summary": "S3-01..S3-16 are frozen. First mechanism candidate reached 14/16. S3-03 and S3-11 remain classified validation-order/classification defects with no unauthorized mutation observed. Live-governance review-mode design is being independently reviewed before Slice 3 resumes.",
+    "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
+    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority"]
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
     "status": "PENDING_CANDIDATE_FREEZE",
-    "platform_modes": [
-      "AUTO_MODE",
-      "MANUAL_MODE"
-    ],
-    "review_levels": [
-      "NONE",
-      "RECOMMENDED",
-      "REQUIRED"
-    ],
+    "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
+    "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
     "production_auto_mode_transport": "AUTOMATIC_API",
     "production_manual_mode_transport": "USER_INITIATED_API",
     "current_collaboration_transport": "MANUAL_RELAY",
@@ -63,7 +37,7 @@
       "MANUAL_MODE user-triggered reviewer buttons",
       "transport-neutral review policy",
       "USER_INITIATED_API using the same provider API contract as AUTOMATIC_API",
-      "self-contained MANUAL_RELAY review bundles for reviewers without GitHub access"
+      "self-contained MANUAL_RELAY packet bound by governed manifest/hash"
     ]
   },
   "pending_reviews": [
@@ -75,13 +49,11 @@
       "transport": "MANUAL_RELAY",
       "review_request_id": null,
       "review_request_path": null,
-      "portable_bundle_path": null,
+      "portable_bundle_manifest_path": null,
+      "portable_bundle_sha256": null,
       "reviewed_artifact_commit": null,
       "repository_access_required": false,
-      "superseded_review_requests": [
-        "REV-GOV-PR5-001",
-        "REV-GOV-PR5-002"
-      ]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003"]
     }
   ],
   "memory_rules": {
