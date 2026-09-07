@@ -1,0 +1,31 @@
+{
+  "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
+  "received_in_chat": true,
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "claimed_disposition": "PASS",
+  "candidate_expected": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "raw_review": {
+    "review_request_id": "SLICE3-REVIEW-4F1797b8d6da23f3bba9f68cc98a625cc9618666",
+    "reviewer": {
+      "provider": "independent-falsification-reviewer",
+      "model": "exact model if actually known",
+      "independent_of_proposer": true
+    },
+    "disposition": "PASS",
+    "prior_finding_reassessment": {
+      "finding_id": "S3-R-001",
+      "status": "RESOLVED",
+      "assessment": "The prior review's SHA mismatch claim was based on a transcription error. The supplemental packet identifies the distributed PDF as containing '417197b8d6da23f3bba9f68cc98a625cc96186e6', which was a typo. The actual CI run 34156635574 explicitly checked out commit 4f1797b8d6da23f3bba9f68cc98a625cc96186e6, as confirmed by the observed checkout command and observed HEAD. The candidate SHA is correctly tied to the CI evidence."
+    },
+    "findings": {
+      "id": "S3-R-002",
+      "severity": "LOW",
+      "title": "Attempted binding hash field coverage resolved via transitive manifest_hash",
+      "required_change": null
+    },
+    "evidence_assessment": "The supplemental packet provides the exact repair diff, complete validation-order control flow, locking mechanics, SQLite durability settings, INTENT/COMMITTED/ACKED state transitions, crash injection points, and replay recovery logic. The prior 14/16 historical failure at 325610d807eb88595231ec05af33e93f340ecb49 is preserved. The CI evidence explicitly confirms the candidate SHA 4f1797b8d6da23f3bba9f68cc98a625cc9618666 was tested, and all 16 frozen vectors pass. The evidence now supports independent verification of all mandatory dimensions.",
+    "independence_attestation": "I independently assessed the supplied candidate and did not assume the proposer conclusion. The historical 14/16 failure at 325610d807eb88595231ec05af33e93f340ecb49 is preserved as required. Green CI was not treated as sufficient evidence; I examined the exact code, control flow, locking, and crash-recovery mechanics to confirm the claims.",
+    "review_coverage_summary": "All twelve dimensions claimed TESTED_SUPPORTED, but response shape was a mapping rather than the required array and candidate identity was malformed/contradictory."
+  }
+}
