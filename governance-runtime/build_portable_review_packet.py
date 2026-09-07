@@ -218,7 +218,7 @@ def main() -> int:
         "schema_version": 3,
         "review_request_id": review_id,
         "reviewed_candidate_commit": reviewed_commit,
-        "requested_reviewer": deepcopy(dict(required_reviewer)) if False else dict(required_reviewer),
+        "requested_reviewer": dict(required_reviewer),
         "repository_access_required": False,
         "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
         "bundle_filename": packet_name,
