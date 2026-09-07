@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Transport-neutral independent-review protocol for governed authority transitions.
+"""Governed independent-review protocol for material authority transitions.
 
-Review policy determines whether review is NONE, RECOMMENDED, or REQUIRED.
-Platform mode determines initiation only. Promotion validates grounding and review
-evidence directly; callers cannot mint authority with an unverified review boolean.
+Key invariants:
+- Platform mode changes initiation only, never authority semantics.
+- Material authority promotion always requires validated independent review.
+- Reviewer identity comes from trusted execution provenance, never reviewer-authored JSON.
+- Manual relay without authenticated provenance is useful review content but cannot satisfy
+  a provider-specific mandatory-review requirement.
+- Shared-memory grounding and deterministic evidence gates remain mandatory.
 """
 from __future__ import annotations
 
@@ -12,7 +16,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 import re
-from typing import Any, Callable, Mapping, Protocol
+from typing import Any, Callable, Mapping, Protocol, Sequence
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
@@ -29,6 +33,13 @@ MANDATORY_REVIEW_TRIGGERS = frozenset({
     "MATERIAL_AUTHORITY_TRANSITION",
 })
 
+GOVERNANCE_RELEVANT_PATH_PREFIXES = (
+    "governance-runtime/",
+    "standards/",
+    "experiments/governed-platform/",
+    ".github/workflows/",
+)
+
 PLATFORM_MODES = frozenset({"AUTO_MODE", "MANUAL_MODE"})
 REVIEW_LEVELS = frozenset({"NONE", "RECOMMENDED", "REQUIRED"})
 ALLOWED_TRANSPORTS = frozenset({"MANUAL_RELAY", "AUTOMATIC_API", "USER_INITIATED_API"})
@@ -40,6 +51,7 @@ ALLOWED_REQUEST_STATES = frozenset({
     "REVIEW_REJECTED",
     "SUPERSEDED_BEFORE_REVIEW",
 })
+TRUSTED_IDENTITY_ASSURANCE = frozenset({"PROVIDER_ADAPTER_AUTHENTICATED"})
 
 
 def canonical_hash(value: Any) -> str:
@@ -56,12 +68,25 @@ def review_required(
     *,
     material_authority_transition: bool = False,
     standard_requires_review: bool = False,
+    changed_paths: Sequence[str] | None = None,
 ) -> bool:
-    """Deterministically require review for known, material, or standard-marked transitions."""
+    """Review-level classifier for UI/orchestration; authority gate is stricter.
+
+    This classifier fails closed for governance-relevant paths, known mandatory triggers,
+    explicit material transitions, and governing-standard requirements. Even if a proposer
+    lies to this classifier, `can_promote_material_transition` still requires review because
+    material promotion is review-required by definition.
+    """
+    paths = tuple(changed_paths or ())
+    protected_path_changed = any(
+        isinstance(path, str) and path.startswith(GOVERNANCE_RELEVANT_PATH_PREFIXES)
+        for path in paths
+    )
     return (
         trigger in MANDATORY_REVIEW_TRIGGERS
         or bool(material_authority_transition)
         or bool(standard_requires_review)
+        or protected_path_changed
     )
 
 
@@ -71,12 +96,13 @@ def evaluate_review_level(
     r1_recommends_review: bool,
     material_authority_transition: bool = False,
     standard_requires_review: bool = False,
+    changed_paths: Sequence[str] | None = None,
 ) -> str:
-    """Policy can force REQUIRED; R1 may only raise NONE to RECOMMENDED."""
     if review_required(
         trigger,
         material_authority_transition=material_authority_transition,
         standard_requires_review=standard_requires_review,
+        changed_paths=changed_paths,
     ):
         return "REQUIRED"
     return "RECOMMENDED" if r1_recommends_review else "NONE"
@@ -87,7 +113,6 @@ def plan_review_interaction(*, platform_mode: str, review_level: str) -> dict[st
         raise ValueError(f"unsupported platform mode: {platform_mode}")
     if review_level not in REVIEW_LEVELS:
         raise ValueError(f"unsupported review level: {review_level}")
-
     if review_level == "NONE":
         return {
             "action": "NO_REVIEW",
@@ -123,15 +148,18 @@ def build_review_request(
     blind_review_required: bool,
     review_questions: list[str],
     evidence_refs: list[Mapping[str, Any]],
-    material_authority_transition: bool = False,
+    material_authority_transition: bool = True,
     standard_requires_review: bool = False,
+    changed_paths: Sequence[str] | None = None,
 ) -> dict[str, Any]:
+    # ReviewRequest construction for governed promotion defaults to material=True.
     if not review_required(
         trigger,
         material_authority_transition=material_authority_transition,
         standard_requires_review=standard_requires_review,
+        changed_paths=changed_paths,
     ):
-        raise ValueError(f"trigger does not require independent review: {trigger}")
+        raise ValueError("review request is not bound to a mandatory-review condition")
     if not SHA40.fullmatch(artifact_commit):
         raise ValueError("artifact_commit must be an exact lowercase 40-character Git SHA")
     if not review_request_id or not artifact_type or not artifact_ref:
@@ -142,15 +170,21 @@ def build_review_request(
         raise ValueError("proposer model identity is required")
     if not isinstance(required_reviewer.get("provider"), str) or not required_reviewer.get("provider"):
         raise ValueError("required reviewer provider identity is required")
+    if not (
+        isinstance(required_reviewer.get("model"), str) and required_reviewer.get("model")
+        or isinstance(required_reviewer.get("model_class"), str) and required_reviewer.get("model_class")
+    ):
+        raise ValueError("required reviewer model or model_class is required")
     if not review_questions:
         raise ValueError("at least one review question is required")
 
     request = {
-        "schema_version": 2,
+        "schema_version": 3,
         "review_request_id": review_request_id,
         "trigger": trigger,
         "material_authority_transition": bool(material_authority_transition),
         "standard_requires_review": bool(standard_requires_review),
+        "changed_paths": list(changed_paths or ()),
         "artifact": {
             "type": artifact_type,
             "ref": artifact_ref,
@@ -192,17 +226,35 @@ def verify_review_request(request: Mapping[str, Any]) -> tuple[bool, str]:
         supplied_hash = material.pop("request_hash")
         if not isinstance(supplied_hash, str) or canonical_hash(material) != supplied_hash:
             return False, "review request hash is invalid"
-        if request.get("schema_version") not in {1, 2}:
+        if request.get("schema_version") not in {1, 2, 3}:
             return False, "unsupported review request schema"
         if not review_required(
             str(request.get("trigger", "")),
             material_authority_transition=bool(request.get("material_authority_transition", False)),
             standard_requires_review=bool(request.get("standard_requires_review", False)),
+            changed_paths=request.get("changed_paths", []),
         ):
             return False, "review request is not bound to a mandatory-review condition"
         artifact = request.get("artifact")
         if not isinstance(artifact, Mapping) or not SHA40.fullmatch(str(artifact.get("commit", ""))):
             return False, "review artifact commit is invalid"
+        proposer = request.get("proposer")
+        if not isinstance(proposer, Mapping):
+            return False, "review proposer identity is missing"
+        if not isinstance(proposer.get("provider"), str) or not proposer.get("provider"):
+            return False, "review proposer provider is missing"
+        if not isinstance(proposer.get("model"), str) or not proposer.get("model"):
+            return False, "review proposer model is missing"
+        required = request.get("required_reviewer")
+        if not isinstance(required, Mapping):
+            return False, "required reviewer identity is missing"
+        if not isinstance(required.get("provider"), str) or not required.get("provider"):
+            return False, "required reviewer provider is missing"
+        if not (
+            isinstance(required.get("model"), str) and required.get("model")
+            or isinstance(required.get("model_class"), str) and required.get("model_class")
+        ):
+            return False, "required reviewer model constraint is missing"
         if request.get("state") not in ALLOWED_REQUEST_STATES:
             return False, "review request state is invalid"
         return True, "review request verified"
@@ -220,13 +272,11 @@ def build_portable_review_bundle(
     artifacts: list[Mapping[str, Any]],
     evidence_summary: Mapping[str, Any],
 ) -> dict[str, Any]:
-    """Build a self-contained manual-review packet and prove request evidence coverage."""
     ok, reason = verify_review_request(request)
     if not ok:
         raise ValueError(reason)
     if not artifacts:
         raise ValueError("portable review bundle requires at least one embedded artifact")
-
     embedded: list[dict[str, Any]] = []
     artifact_paths: set[str] = set()
     for item in artifacts:
@@ -240,11 +290,9 @@ def build_portable_review_bundle(
             "content": content,
             "content_sha256": content_hash(content),
         })
-
     reference_summaries = evidence_summary.get("reference_summaries", {})
     if not isinstance(reference_summaries, Mapping):
         raise ValueError("evidence_summary.reference_summaries must be a mapping")
-
     for ref in request.get("evidence_refs", []):
         if not isinstance(ref, Mapping):
             raise ValueError("review request evidence ref is malformed")
@@ -259,9 +307,8 @@ def build_portable_review_bundle(
             continue
         elif _evidence_key(ref) not in reference_summaries:
             raise ValueError(f"portable bundle missing evidence summary for: {_evidence_key(ref)}")
-
     bundle = {
-        "schema_version": 2,
+        "schema_version": 3,
         "bundle_type": "SELF_CONTAINED_INDEPENDENT_REVIEW",
         "review_request": deepcopy(dict(request)),
         "reviewed_artifact_commit": request["artifact"]["commit"],
@@ -287,7 +334,7 @@ def verify_portable_review_bundle(
         supplied_hash = material.pop("bundle_hash")
         if not isinstance(supplied_hash, str) or canonical_hash(material) != supplied_hash:
             return False, "portable review bundle hash is invalid"
-        if bundle.get("schema_version") not in {1, 2}:
+        if bundle.get("schema_version") not in {1, 2, 3}:
             return False, "portable review bundle schema is invalid"
         if bundle.get("bundle_type") != "SELF_CONTAINED_INDEPENDENT_REVIEW":
             return False, "portable review bundle type is invalid"
@@ -300,7 +347,6 @@ def verify_portable_review_bundle(
             return False, "portable review bundle rebound ReviewRequest semantics"
         if bundle.get("reviewed_artifact_commit") != request["artifact"]["commit"]:
             return False, "portable review bundle targets a different artifact commit"
-
         artifacts = bundle.get("artifacts")
         if not isinstance(artifacts, list) or not artifacts:
             return False, "portable review bundle lacks artifacts"
@@ -315,7 +361,6 @@ def verify_portable_review_bundle(
             if not isinstance(content, str) or item.get("content_sha256") != content_hash(content):
                 return False, "portable review artifact content hash is invalid"
             artifact_paths.add(path)
-
         covered = bundle.get("covered_evidence_refs")
         if canonical_hash(covered) != canonical_hash(request.get("evidence_refs", [])):
             return False, "portable review bundle evidence coverage differs from ReviewRequest"
@@ -325,7 +370,6 @@ def verify_portable_review_bundle(
         reference_summaries = summary.get("reference_summaries", {})
         if not isinstance(reference_summaries, Mapping):
             return False, "portable review bundle reference summaries are invalid"
-
         for ref in request.get("evidence_refs", []):
             if not isinstance(ref, Mapping):
                 return False, "review request evidence ref is malformed"
@@ -352,6 +396,9 @@ class DispatchResult:
     response: Mapping[str, Any] | None = None
     error_class: str | None = None
     portable_bundle_hash: str | None = None
+    reviewer_provider: str | None = None
+    reviewer_model: str | None = None
+    identity_assurance: str = "UNVERIFIED"
 
 
 class ReviewTransport(Protocol):
@@ -381,12 +428,46 @@ class ManualRelayTransport:
             payload_hash=canonical_hash(request),
             response=None,
             portable_bundle_hash=str(self.portable_bundle["bundle_hash"]),
+            identity_assurance="UNVERIFIED_MANUAL_RELAY",
         )
 
 
+def ingest_manual_relay_response(
+    *,
+    request: Mapping[str, Any],
+    evidence: Mapping[str, Any],
+    portable_bundle_hash: str | None = None,
+) -> DispatchResult:
+    """Represent returned manual-relay content without pretending provider identity is known."""
+    ok, reason = verify_review_request(request)
+    if not ok:
+        raise ValueError(reason)
+    return DispatchResult(
+        transport="MANUAL_RELAY",
+        state="REVIEW_RECEIVED",
+        review_request_id=str(request["review_request_id"]),
+        payload_hash=canonical_hash(request),
+        response=deepcopy(dict(evidence)),
+        portable_bundle_hash=portable_bundle_hash,
+        reviewer_provider=None,
+        reviewer_model=None,
+        identity_assurance="UNVERIFIED_MANUAL_RELAY",
+    )
+
+
 class _APITransportBase:
-    def __init__(self, provider_call: Callable[[Mapping[str, Any]], Mapping[str, Any]]):
+    def __init__(
+        self,
+        provider_call: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+        *,
+        provider: str,
+        model: str,
+    ):
+        if not provider or not model:
+            raise ValueError("trusted API adapter requires configured provider/model identity")
         self.provider_call = provider_call
+        self.provider = provider
+        self.model = model
 
     def dispatch(self, request: Mapping[str, Any]) -> DispatchResult:
         ok, reason = verify_review_request(request)
@@ -399,6 +480,9 @@ class _APITransportBase:
             review_request_id=str(request["review_request_id"]),
             payload_hash=canonical_hash(request),
             response=response,
+            reviewer_provider=self.provider,
+            reviewer_model=self.model,
+            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
         )
 
 
@@ -427,6 +511,7 @@ class ReviewOrchestrator:
                 payload_hash=canonical_hash(request),
                 response=None,
                 error_class=type(exc).__name__,
+                identity_assurance="UNVERIFIED",
             )
         if result.review_request_id != request.get("review_request_id"):
             raise ValueError("transport rebound review request identity")
@@ -451,40 +536,66 @@ def validate_review_evidence(
     *,
     request: Mapping[str, Any],
     evidence: Mapping[str, Any],
+    execution: DispatchResult,
 ) -> tuple[bool, str]:
+    """Validate content and trusted execution provenance together."""
     ok, reason = verify_review_request(request)
     if not ok:
         return False, reason
     try:
+        if execution.state != "REVIEW_RECEIVED":
+            return False, "review execution has not produced received evidence"
+        if execution.review_request_id != request.get("review_request_id"):
+            return False, "review execution is bound to a different request"
+        if execution.payload_hash != canonical_hash(request):
+            return False, "review execution changed request semantics"
+        if execution.response is None or canonical_hash(execution.response) != canonical_hash(evidence):
+            return False, "review evidence differs from transport execution response"
         if evidence.get("review_request_id") != request.get("review_request_id"):
             return False, "review evidence is bound to a different request"
         if evidence.get("reviewed_artifact_commit") != request["artifact"]["commit"]:
             return False, "review evidence is bound to a different artifact commit"
-        reviewer = evidence.get("reviewer")
-        if not isinstance(reviewer, Mapping):
-            return False, "reviewer identity is missing"
-        reviewer_provider = reviewer.get("provider")
-        reviewer_model = reviewer.get("model")
-        if not isinstance(reviewer_provider, str) or not reviewer_provider.strip():
-            return False, "reviewer provider identity is missing"
-        if not isinstance(reviewer_model, str) or not reviewer_model.strip():
-            return False, "reviewer model identity is missing"
+
+        required = request.get("required_reviewer")
+        if not isinstance(required, Mapping):
+            return False, "required reviewer identity is missing"
+        required_provider = required.get("provider")
+        if not isinstance(required_provider, str) or not required_provider:
+            return False, "required reviewer provider is missing"
+        required_model = required.get("model")
+        required_model_class = required.get("model_class")
+        if not (
+            isinstance(required_model, str) and required_model
+            or isinstance(required_model_class, str) and required_model_class
+        ):
+            return False, "required reviewer model constraint is missing"
+
+        if execution.identity_assurance not in TRUSTED_IDENTITY_ASSURANCE:
+            return False, "reviewer identity is not provider-authenticated"
+        reviewer_provider = execution.reviewer_provider
+        reviewer_model = execution.reviewer_model
+        if not isinstance(reviewer_provider, str) or not reviewer_provider:
+            return False, "trusted reviewer provider identity is missing"
+        if not isinstance(reviewer_model, str) or not reviewer_model:
+            return False, "trusted reviewer model identity is missing"
+        if reviewer_provider != required_provider:
+            return False, "trusted reviewer provider does not satisfy required reviewer"
+        if required_model and reviewer_model != required_model:
+            return False, "trusted reviewer model does not satisfy required exact model"
+        if required_model_class and not _model_matches_class(reviewer_model, str(required_model_class)):
+            return False, "trusted reviewer model does not satisfy required model class"
+
+        reviewer_claim = evidence.get("reviewer")
+        if not isinstance(reviewer_claim, Mapping):
+            return False, "reviewer claim is missing from review content"
+        claimed_provider = reviewer_claim.get("provider")
+        claimed_model = reviewer_claim.get("model")
+        if claimed_provider != reviewer_provider or claimed_model != reviewer_model:
+            return False, "review content reviewer claim conflicts with trusted execution identity"
 
         proposer = request.get("proposer", {})
         if reviewer_provider == proposer.get("provider") and reviewer_model == proposer.get("model"):
             return False, "review independence is unproven: proposer and reviewer are identical"
-
-        required = request.get("required_reviewer", {})
-        required_provider = required.get("provider")
-        if required_provider and reviewer_provider != required_provider:
-            return False, "reviewer provider does not satisfy the required reviewer"
-        required_model = required.get("model")
-        if required_model and reviewer_model != required_model:
-            return False, "reviewer model does not satisfy required exact model"
-        required_model_class = required.get("model_class")
-        if required_model_class and not _model_matches_class(reviewer_model, str(required_model_class)):
-            return False, "reviewer model does not satisfy required model class"
-
         if request.get("blind_review_required") and evidence.get("independence_attestation") != "BLIND_TO_PROPOSER_CONCLUSION":
             return False, "blind-review attestation is missing"
         allowed = request.get("expected_output", {}).get("allowed_dispositions", [])
@@ -493,7 +604,7 @@ def validate_review_evidence(
         for field in ("findings", "evidence_assessment"):
             if field not in evidence:
                 return False, f"review evidence missing required field: {field}"
-        return True, "review evidence validated"
+        return True, "review evidence and provenance validated"
     except (KeyError, TypeError, ValueError):
         return False, "review evidence is malformed"
 
@@ -503,7 +614,6 @@ def validate_shared_memory_grounding(
     authoritative_state: Mapping[str, Any],
     shared_memory: Mapping[str, Any],
 ) -> tuple[bool, str]:
-    """Bind shared-memory continuity to authoritative checkpoint before promotion."""
     try:
         if shared_memory.get("independent_authority") is not False:
             return False, "shared memory claims independent authority"
@@ -519,7 +629,6 @@ def validate_shared_memory_grounding(
         for key, value in expected.items():
             if mem_work.get(key) != value:
                 return False, f"shared memory is stale/conflicted at current_work.{key}"
-
         review = authoritative_state.get("independent_review")
         mem_runtime = shared_memory.get("governance_runtime")
         pending = shared_memory.get("pending_reviews")
@@ -527,7 +636,6 @@ def validate_shared_memory_grounding(
             return False, "review-state grounding is missing"
         if not isinstance(pending, list) or not pending or not isinstance(pending[0], Mapping):
             return False, "shared-memory pending review state is missing"
-
         active_id = review.get("current_review_request_id")
         active_status = review.get("current_review_status")
         mem_pending = pending[0]
@@ -550,16 +658,18 @@ def validate_shared_memory_grounding(
 
 def can_promote_material_transition(
     *,
-    trigger: str,
     deterministic_gate_passed: bool,
     authoritative_state: Mapping[str, Any],
     shared_memory: Mapping[str, Any],
-    review_request: Mapping[str, Any] | None = None,
-    review_evidence: Mapping[str, Any] | None = None,
-    material_authority_transition: bool = False,
-    standard_requires_review: bool = False,
+    review_request: Mapping[str, Any] | None,
+    review_evidence: Mapping[str, Any] | None,
+    review_execution: DispatchResult | None,
+    trigger: str | None = None,
 ) -> bool:
-    """Fail closed unless grounding, deterministic gate, and required review evidence validate."""
+    """Material authority promotion always requires authenticated independent review.
+
+    `trigger` is retained only as metadata/backward compatibility. It cannot waive review.
+    """
     if not deterministic_gate_passed:
         return False
     grounding_ok, _ = validate_shared_memory_grounding(
@@ -568,14 +678,11 @@ def can_promote_material_transition(
     )
     if not grounding_ok:
         return False
-    if review_required(
-        trigger,
-        material_authority_transition=material_authority_transition,
-        standard_requires_review=standard_requires_review,
-    ):
-        if review_request is None or review_evidence is None:
-            return False
-        valid_review, _ = validate_review_evidence(request=review_request, evidence=review_evidence)
-        if not valid_review:
-            return False
-    return True
+    if review_request is None or review_evidence is None or review_execution is None:
+        return False
+    valid_review, _ = validate_review_evidence(
+        request=review_request,
+        evidence=review_evidence,
+        execution=review_execution,
+    )
+    return bool(valid_review)
