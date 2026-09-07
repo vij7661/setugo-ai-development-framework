@@ -148,14 +148,16 @@ def main() -> int:
         ])
 
     packet_body = "\n".join(parts) + "\n"
-    packet_sha256 = sha256_text(packet_body)
+    packet_body_sha256 = sha256_text(packet_body)
     packet = packet_body + (
         "\n## Portable packet integrity\n\n"
-        f"- packet_body_sha256: `{packet_sha256}`\n"
+        f"- packet_body_sha256: `{packet_body_sha256}`\n"
         f"- review_request_id: `{review_id}`\n"
         f"- reviewed_candidate_commit: `{reviewed_commit}`\n"
         "- repository_access_required: `false`\n"
+        "- The detached governed manifest binds the SHA-256 of this entire exported file.\n"
     )
+    packet_file_sha256 = sha256_text(packet)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -170,7 +172,8 @@ def main() -> int:
         "repository_access_required": False,
         "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
         "bundle_filename": packet_name,
-        "bundle_body_sha256": packet_sha256,
+        "bundle_body_sha256": packet_body_sha256,
+        "bundle_file_sha256": packet_file_sha256,
         "embedded_artifacts": manifest_entries,
         "builder_execution_head": args.builder_head,
         "builder_ci_run_id": str(args.ci_run_id),
@@ -180,7 +183,7 @@ def main() -> int:
     print(
         "PORTABLE_REVIEW_PACKET_BUILT "
         f"request={review_id} candidate={reviewed_commit} "
-        f"body_sha256={packet_sha256} artifacts={len(manifest_entries)}"
+        f"file_sha256={packet_file_sha256} artifacts={len(manifest_entries)}"
     )
     return 0
 
