@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-002",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-003",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -19,9 +19,12 @@
     "normative_contract_commit": "337c5953e84c0b95c857f2580e7f3cedc9d4578e",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_INDEPENDENT_REVIEW",
-      "review_request_id": "PENDING_CANDIDATE_FREEZE",
-      "last_known_ci_conclusion": "success"
+      "state": "PENDING_EXTERNAL_REVIEW",
+      "review_request_id": "REV-GOV-PR5-001",
+      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-001.json",
+      "reviewed_candidate_commit": "64e6a9766ced9cfc1617d6ea3a54a9acee2f92cb",
+      "candidate_ci_run": 34115411249,
+      "candidate_ci_conclusion": "success"
     }
   },
   "shared_memory": {
@@ -85,7 +88,10 @@
     "production_default_intent": "AUTOMATIC_API_WHEN_CONFIGURED",
     "transport_may_change_policy": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 to main and any future Slice 3 scientific adjudication or material frozen-contract change",
-    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
+    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_review_request_id": "REV-GOV-PR5-001",
+    "current_requested_reviewer": "CLAUDE",
+    "current_reviewed_artifact_commit": "64e6a9766ced9cfc1617d6ea3a54a9acee2f92cb",
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
@@ -114,13 +120,15 @@
   "open_governance_items": [
     {
       "id": "GOV-IR-001",
-      "state": "IMPLEMENTATION_CANDIDATE_PENDING_REVIEW",
-      "description": "Transport-neutral independent-review escalation with MANUAL_RELAY for this collaboration and AUTOMATIC_API provider adapters for the production platform."
+      "state": "PENDING_EXTERNAL_REVIEW",
+      "description": "Transport-neutral independent-review escalation with MANUAL_RELAY for this collaboration and AUTOMATIC_API provider adapters for the production platform.",
+      "review_request_id": "REV-GOV-PR5-001"
     },
     {
       "id": "GOV-MEM-001",
-      "state": "IMPLEMENTATION_CANDIDATE_PENDING_REVIEW",
-      "description": "Treat shared project memory as an active governed coordination/continuity subsystem that is read first for navigation and verified against authoritative state before material use."
+      "state": "PENDING_EXTERNAL_REVIEW",
+      "description": "Treat shared project memory as an active governed coordination/continuity subsystem that is read first for navigation and verified against authoritative state before material use.",
+      "review_request_id": "REV-GOV-PR5-001"
     }
   ]
 }
