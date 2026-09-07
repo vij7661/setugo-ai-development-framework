@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-013",
+  "reviewed_artifact_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34164436416,
+  "trigger_sha": "37f0308eb5b44fff16ad7f690a106695737a4a6c",
+  "artifact_id": 10033683051,
+  "artifact_digest": "sha256:f44aa5b873c7f39b8ba4a3bb6a4ae9e93bb70fdb3cdd3284178e922ab53eb1bc",
+  "request_hash": "671805f003606033bd4ac8fe6a219f131e836cae42d385994bddb5c36eb6c850",
+  "corpus_sha256": "65bc53df5d9736b9b9290600009e9b533a911a6a171056f902ccc4185cf57f24",
+  "validation": {"valid":true,"errors":[],"effective_disposition":"PASS","all_mandatory_dimensions_supported":true},
+  "review": {
+    "disposition": "PASS",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "evidence_assessment": "Independent adversarial inspection confirms the exact candidate meets all required security and authority invariants: platform API reviews remain distinct from external evidence, exact request/candidate binding is enforced, provider/API failures fail closed, shared-memory grounding is checked against authoritative checkpoint state, and semantic coverage is deterministically validated across all mandatory dimensions.",
+    "mandatory_dimensions": "12/12 TESTED_SUPPORTED"
+  },
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+}
