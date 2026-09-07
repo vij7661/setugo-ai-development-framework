@@ -1,10 +1,16 @@
 {
-  "enabled": true,
+  "enabled": false,
   "review_request_id": "REV-MVP-SLICE3-INTEGRATION-001",
   "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE3-INTEGRATION-001.json",
   "reviewed_candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
-  "transport": "AUTOMATIC_API"
+  "transport": "AUTOMATIC_API",
+  "status": "COMPLETED_PASS",
+  "workflow_run_id": 34165614541,
+  "successful_job_id": 101875937341,
+  "artifact_id": 10034039526,
+  "artifact_digest": "sha256:c08c2510f02520dec47f1df95e8b1e3b13289ae6aea5f9194a8239dea00714a1",
+  "evidence_path": "governance-runtime/review-evidence/REV-MVP-SLICE3-INTEGRATION-001-platform-review.json"
 }
