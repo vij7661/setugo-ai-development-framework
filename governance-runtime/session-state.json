@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-031",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-032",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -10,6 +10,8 @@
     "branch": "governance/live-conversation-runtime",
     "normative_contract_path": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
     "normative_contract_commit": "f0fa972ad33201d8fe3c7b5c2e6f61d6675bc14f",
+    "handoff_contract_path": "governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md",
+    "handoff_contract_commit": "2898d69688a9f14a541ebc7a2990a0a81c0d5591",
     "promotion": {
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
@@ -37,28 +39,40 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "Review-shaped pasted content had been modeled as MANUAL_RELAY review execution. GOV-REVIEW-CLASS-001 now separates platform API review execution from external evidence ingestion; REV-GOV-PR5-011 is superseded and preserved."
+    "last_observed_conflict": "Live conversation resumed from stale project memory/repository history instead of the latest operational frontier. Execution handoff is now explicit and candidate-bound."
+  },
+  "execution_handoff": {
+    "sequence": 32,
+    "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+    "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+    "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+    "phase": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+    "last_completed_action": "Verified the narrow S3-03/S3-11 repair at exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6: frozen Slice 3 acceptance harness passed 16/16 and the governed platform experiment harness passed at the same SHA. Generated and delivered the independent-review prompt and PDF packet to the user.",
+    "next_required_action": "Wait for the independent reviewer response for exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. When received, ingest the raw result without rewriting history, classify its provenance, validate coverage/disposition, adjudicate findings, and advance or repair Slice 3 accordingly.",
+    "stop_condition": "INDEPENDENT_REVIEW_REQUIRED",
+    "manual_input_required": true,
+    "manual_deliverable": "Reviewer must receive the exact Slice 3 independent-review prompt and the candidate-bound review packet before execution stops; these were delivered in the current conversation.",
+    "handoff_reason": "Material Slice 3 authority transition cannot proceed from construction-green to scientific acceptance without independent review.",
+    "historical_failure_preserved": "Parent candidate 325610d807eb88595231ec05af33e93f340ecb49 remains preserved as 14/16 with S3-03 and S3-11 mechanism validation-order classification failures; the repair does not rewrite that history.",
+    "resume_rule": "On any new chat or generic CONTINUE request, verify this handoff against governed Git/evidence and execute next_required_action. Do not infer an execution frontier from repository HEAD, summaries, model memory, or older experiments."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
-    "head_commit": "325610d807eb88595231ec05af33e93f340ecb49",
-    "state": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
+    "head_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+    "state": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
     "preregistration_commit": "47d3de5578dd65780f66fed1baedb9f0932b7670",
     "frozen_acceptance_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
     "first_mechanism_commit": "ce6b88dc166c72d8f8fca9cdfc2a2bd8b53cb5e",
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
     "latest_result": {
-      "passed": 14,
+      "passed": 16,
       "total": 16,
-      "failures": [
-        {"case":"S3-03","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_CONTRACT","unauthorized_mutation_observed":false},
-        {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
-      ]
+      "failures": []
     },
-    "next_action": "GOV-REVIEW-CLASS-001 is construction-green. Resume the preregistered narrow Slice 3 repair for S3-03 and S3-11 without changing the frozen harness. PR #5 remains non-authoritative pending a future platform-authenticated independent review.",
-    "forbidden_shortcut": "Do not modify the frozen Slice 3 acceptance harness; do not reuse REV-GOV-PR5-011; do not infer provenance from pasted reviewer fields; do not treat user-attested external content as provider-authenticated; do not promote PR #5 from external pasted evidence."
+    "next_action": "Independent review is the next required action. Do not modify the frozen harness or candidate while review is pending. On reviewer response, validate exact candidate binding, provenance, semantic coverage, findings, and disposition before any promotion or further repair.",
+    "forbidden_shortcut": "Do not declare Slice 3 scientifically passed from 16/16 CI alone; do not erase the preserved 14/16 failure; do not resume EXP-I/EXP-K or another nearby workstream; do not infer next action from repository HEAD; do not treat pasted reviewer self-identification as provider authentication."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 2",
@@ -84,12 +98,12 @@
     "user_attestation_is_provider_authentication": false,
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
-    "current_required_transition": "Promotion of live conversation governance PR #5 and future material governed authority transitions",
-    "current_review_status": "NOT_YET_PRESENT",
+    "current_required_transition": "Independent adjudication of Slice 3 candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 and promotion of live conversation governance PR #5",
+    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
     "current_review_request_id": null,
     "current_review_transport": null,
     "current_requested_reviewer": null,
-    "current_reviewed_artifact_commit": null,
+    "current_reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
@@ -104,9 +118,10 @@
     "shared_memory_is_independent_authority": false,
     "model_memory_is_authoritative": false,
     "new_chat_bootstrap_required": true,
-    "bootstrap_sequence": "SHARED_MEMORY_THEN_GIT_VERIFICATION",
+    "bootstrap_sequence": "AUTHORITATIVE_EXECUTION_HANDOFF_THEN_SHARED_MEMORY_RECONCILIATION_THEN_GIT_VERIFICATION",
     "on_git_unavailable": "GROUNDING_REQUIRED",
-    "user_repetition_required_when_governed_state_exists": false
+    "user_repetition_required_when_governed_state_exists": false,
+    "generic_continue_semantics": "EXECUTE_VERIFIED_HANDOFF_NEXT_REQUIRED_ACTION"
   },
   "applicable_standards": [
     {"path":"standards/conversational-drift-contamination-control.md","branch":"main","blob_sha":"0908d676e172c89987305ca9f52078723ea1b6fe"},
@@ -119,9 +134,11 @@
     {"id":"REV-GOV-PR5-011-CANDIDATE-CI","candidate_commit":"d808fdfbc334639fc0e78a1332f837c636b8923a","workflow_run":34135364859,"tests":"40/40","state":"HISTORICAL_CANDIDATE_PACKET_VERIFIED_SUPERSEDED"},
     {"id":"GOV-REVIEW-CLASS-001-CONSTRUCTION-FAILURE-001","path":"governance-runtime/construction-evidence/GOV-REVIEW-CLASS-001-CONSTRUCTION-FAILURE-001.json","candidate_commit":"44620cda46cd1ba4654ab45c324c623a9bd885b3","workflow_run":34138508059,"state":"CONSTRUCTION_MECHANISM_ABSENCE_PRESERVED"},
     {"id":"GOV-REVIEW-CLASS-001-STATE-MIGRATION-RED-001","candidate_commit":"ebee3272cbb3c254e72c9b5d7931b8bb9edb7af8","workflow_run":34139877884,"state":"VALIDATOR_STATE_MIGRATION_MISMATCH_PRESERVED"},
-    {"id":"GOV-REVIEW-CLASS-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-REVIEW-CLASS-001.json","candidate_commit":"22996852efcf0b82d7d13f03c747dc375bce60cd","workflow_run":34141285547,"tests":"50/50","state":"CONSTRUCTION_GREEN_BOUNDED"}
+    {"id":"GOV-REVIEW-CLASS-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-REVIEW-CLASS-001.json","candidate_commit":"22996852efcf0b82d7d13f03c747dc375bce60cd","workflow_run":34141285547,"tests":"50/50","state":"CONSTRUCTION_GREEN_BOUNDED"},
+    {"id":"SLICE3-REPAIR-CONSTRUCTION-GREEN-001","candidate_commit":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","workflow_run":34156635574,"tests":"16/16","state":"CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW"}
   ],
   "open_governance_items": [
+    {"id":"GOV-HANDOFF-001","state":"CONSTRUCTION_IN_PROGRESS","description":"Deterministic execution handoff protocol added after repeated stale-resume failures. Validator and shared-memory mirroring are being hardened before PR #5 can be promoted."},
     {"id":"GOV-REVIEW-CLASS-001","state":"CONSTRUCTION_GREEN","description":"Two platform API review classes and external-evidence provenance separation are implemented and passed 50/50 tests. Independent platform-authenticated review remains required before PR #5 promotion."},
     {"id":"GOV-IR-001","state":"NO_ACTIVE_PLATFORM_REVIEW","description":"PR #5 remains non-authoritative. REV-GOV-PR5-011 is superseded; no pasted external result counts as platform review."},
     {"id":"GOV-HARDEN-F1","state":"BACKLOG_LOW","description":"Free-text PASS contradiction detection is regex-bounded; structured coverage is the primary deterministic gate."},
