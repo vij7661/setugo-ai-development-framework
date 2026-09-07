@@ -7,6 +7,8 @@ from review_protocol import (
     AutomaticAPITransport,
     DispatchResult,
     ManualRelayTransport,
+    attest_external_llm_review,
+    classify_user_provided_external_content,
     ReviewOrchestrator,
     UserInitiatedAPITransport,
     build_portable_review_bundle,
@@ -124,6 +126,7 @@ class ReviewProtocolTests(unittest.TestCase):
             reviewer_provider=provider,
             reviewer_model=model,
             identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
+            review_class="PLATFORM_AUTO_API_REVIEW",
         )
 
     def test_governance_path_cannot_be_downgraded_by_r1_trigger_label(self) -> None:
@@ -196,12 +199,13 @@ class ReviewProtocolTests(unittest.TestCase):
             )
         )
 
-    def test_manual_relay_self_declared_claude_identity_cannot_satisfy_provider_requirement(self) -> None:
+    def test_manual_relay_content_is_external_evidence_not_review_execution(self) -> None:
         evidence = self._valid_evidence(provider="anthropic", model="claude-sonnet-5")
-        execution = ingest_manual_relay_response(request=self.request, evidence=evidence)
-        valid, reason = validate_review_evidence(request=self.request, evidence=evidence, execution=execution)
-        self.assertFalse(valid)
-        self.assertIn("not provider-authenticated", reason)
+        record = ingest_manual_relay_response(request=self.request, evidence=evidence)
+        self.assertEqual(record["evidence_class"], "USER_PROVIDED_EXTERNAL_CONTENT")
+        self.assertFalse(record["provider_api_authenticated"])
+        self.assertIsNone(record["user_attested_source"])
+        self.assertEqual(record["self_declared_reviewer"]["provider"], "anthropic")
         self.assertFalse(
             can_promote_material_transition(
                 deterministic_gate_passed=True,
@@ -209,7 +213,7 @@ class ReviewProtocolTests(unittest.TestCase):
                 shared_memory=self.shared_memory,
                 review_request=self.request,
                 review_evidence=evidence,
-                review_execution=execution,
+                review_execution=None,
             )
         )
 
@@ -317,6 +321,7 @@ class ReviewProtocolTests(unittest.TestCase):
             reviewer_provider="openai",
             reviewer_model="gpt-5.6-sol",
             identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
+            review_class="PLATFORM_AUTO_API_REVIEW",
         )
         valid, reason = validate_review_evidence(request=request, evidence=evidence, execution=execution)
         self.assertFalse(valid)
@@ -399,12 +404,9 @@ class ReviewProtocolTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("missing evidence summary", reason)
 
-    def test_corrupted_manual_bundle_fails_closed(self) -> None:
-        bundle = deepcopy(self.bundle)
-        bundle["artifacts"][0]["content"] = "tampered"
-        result = ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(bundle))
-        self.assertEqual(result.state, "PENDING_EXTERNAL_REVIEW")
-        self.assertIsNotNone(result.error_class)
+    def test_manual_relay_is_not_a_platform_review_transport(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unsupported review transport"):
+            ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(self.bundle))
 
     def test_deterministic_gate_still_blocks_valid_authenticated_review(self) -> None:
         evidence = self._valid_evidence()
