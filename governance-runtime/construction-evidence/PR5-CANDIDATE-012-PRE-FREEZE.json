@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "candidate_purpose": "Live conversation governance PR #5 candidate pre-freeze validation",
+  "includes": [
+    "governance-runtime/platform_candidate_review.py",
+    ".github/workflows/governance-candidate-platform-review.yml",
+    "Slice 3 BOUNDED_PASS authoritative checkpoint and synchronized shared memory",
+    "preserved Slice 3 external and platform review evidence"
+  ],
+  "authority_effect": "NONE_PENDING_CANDIDATE_CI_AND_FREEZE"
+}
