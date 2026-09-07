@@ -21,6 +21,10 @@ def content_hash(text: str) -> str:
     return sha256(text.encode("utf-8")).hexdigest()
 
 
+def _is_sha256_hex(value: str) -> bool:
+    return len(value) == 64 and all(ch in "0123456789abcdef" for ch in value)
+
+
 @dataclass(frozen=True)
 class ReviewerConfig:
     role: str
@@ -32,6 +36,11 @@ class ReviewerConfig:
     foundation_lineage: str
     qualification_ref: str | None = None
     enabled: bool = True
+    # Platform-derived canonical binding to the configured provider execution
+    # route and behavior-affecting adapter settings. Callers do not supply this
+    # directly through configuration JSON; load_configuration derives it from
+    # the validated provider spec.
+    provider_binding_fingerprint: str | None = None
 
     def validate(self) -> None:
         if self.role not in REVIEW_ROLES:
@@ -41,6 +50,8 @@ class ReviewerConfig:
                 raise ValueError(f"reviewer {name} required")
         if not self.api_key_env.replace("_", "").isalnum():
             raise ValueError("api_key_env must be an environment/secret name, not a raw key")
+        if self.provider_binding_fingerprint is not None and not _is_sha256_hex(self.provider_binding_fingerprint):
+            raise ValueError("reviewer provider_binding_fingerprint must be a sha256 hex digest")
 
 
 @dataclass(frozen=True)
