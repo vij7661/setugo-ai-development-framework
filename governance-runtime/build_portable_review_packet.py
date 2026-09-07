@@ -24,6 +24,8 @@ REVIEW_ARTIFACT_PATHS = [
     "governance-runtime/review_protocol.py",
     "governance-runtime/test_review_protocol.py",
     "governance-runtime/test_reviewer_selection.py",
+    "governance-runtime/test_review_semantics.py",
+    "governance-runtime/repair-preregistrations/GOV-SEM-001.md",
     "governance-runtime/validate_runtime.py",
     "governance-runtime/session-state.json",
     "governance-runtime/shared-memory.json",
@@ -140,15 +142,39 @@ def main() -> int:
     required_reviewer = request.get("required_reviewer", {})
     requested_provider = str(required_reviewer.get("provider", "unspecified"))
     requested_model = str(required_reviewer.get("model") or required_reviewer.get("model_class") or "unspecified")
+    required_dimensions = request.get("required_review_dimensions", [])
+
     output_contract = {
         "review_request_id": review_id,
         "reviewed_artifact_commit": reviewed_commit,
-        "reviewer": {"provider": "<reviewer self-claim; not authentication>", "model": "<reviewer self-claim; not authentication>"},
+        "reviewer": {
+            "provider": "<reviewer self-claim; not authentication>",
+            "model": "<reviewer self-claim; not authentication>",
+        },
         "disposition": "PASS | BOUNDED_PASS | FAIL | NOT_TESTED | INSUFFICIENT_EVIDENCE | CHANGES_REQUIRED",
-        "findings": [{"id":"F1","severity":"CRITICAL | HIGH | MEDIUM | LOW","title":"...","evidence":"...","impact":"...","required_change":"..."}],
+        "findings": [
+            {
+                "id": "F1",
+                "severity": "CRITICAL | HIGH | MEDIUM | LOW",
+                "title": "...",
+                "evidence": "...",
+                "impact": "...",
+                "required_change": "...",
+            }
+        ],
         "evidence_assessment": "...",
         "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
     }
+    if required_dimensions:
+        output_contract["review_coverage"] = [
+            {
+                "dimension_id": item["id"],
+                "status": "TESTED_SUPPORTED | TESTED_DEFECT_FOUND | CONTRADICTED | NOT_TESTED | UNAVAILABLE | INACCESSIBLE | INSUFFICIENT",
+                "evidence": ["<specific evidence reference or observation when tested>"],
+                "assessment": "<what was actually tested/observed for this dimension>",
+            }
+            for item in required_dimensions
+        ]
 
     parts = [
         f"# Independent Review Packet — {review_id}",
@@ -165,6 +191,16 @@ def main() -> int:
         f"- Exact review request: `{review_id}`.",
         "- IMPORTANT: reviewer/provider/model fields in your JSON are content claims only. Manual relay does not authenticate provider identity.",
         "- Byte-integrity verification must use the raw files under `raw-artifacts/` and the detached manifest, not text reconstructed from Markdown fences.",
+    ]
+    if required_dimensions:
+        parts.extend([
+            "- Complete `review_coverage` for every machine-readable review dimension in the ReviewRequest.",
+            "- `PASS` is allowed only when every listed review dimension is directly tested and `TESTED_SUPPORTED` with non-empty evidence.",
+            "- `BOUNDED_PASS` cannot hide a gap in any dimension marked `mandatory: true`.",
+            "- If a mandatory dimension cannot be accessed, inspected, or tested, mark it `INACCESSIBLE`, `UNAVAILABLE`, `NOT_TESTED`, or `INSUFFICIENT` and use `INSUFFICIENT_EVIDENCE`/`NOT_TESTED`, not PASS.",
+            "- Free-text explanation must agree with structured review coverage; contradiction fails closed.",
+        ])
+    parts.extend([
         "",
         "## Required output",
         "",
@@ -177,6 +213,16 @@ def main() -> int:
         "```json",
         json.dumps(request, indent=2, sort_keys=True, ensure_ascii=False),
         "```",
+    ])
+    if required_dimensions:
+        parts.extend([
+            "",
+            "## Required review dimensions",
+            "```json",
+            json.dumps(required_dimensions, indent=2, ensure_ascii=False),
+            "```",
+        ])
+    parts.extend([
         "",
         "## Evidence coverage summary",
         "```json",
@@ -189,11 +235,16 @@ def main() -> int:
         "```",
         "",
         f"Logical portable-bundle SHA-256: `{portable_bundle['bundle_hash']}`",
-    ]
+    ])
 
     for item in embedded:
         path, content = item["path"], item["content"]
-        language = "python" if path.endswith(".py") else "json" if path.endswith((".json", ".jsonl")) else "yaml" if path.endswith((".yml", ".yaml")) else "markdown"
+        language = (
+            "python" if path.endswith(".py")
+            else "json" if path.endswith((".json", ".jsonl"))
+            else "yaml" if path.endswith((".yml", ".yaml"))
+            else "markdown"
+        )
         parts.extend(["", f"## Convenience copy: `{path}`", f"```{language}", content.rstrip("\n"), "```"])
 
     packet_body = "\n".join(parts) + "\n"
@@ -215,10 +266,11 @@ def main() -> int:
     (output_dir / request_name).write_text(json.dumps(request, indent=2) + "\n", encoding="utf-8")
 
     manifest = {
-        "schema_version": 3,
+        "schema_version": 4 if required_dimensions else 3,
         "review_request_id": review_id,
         "reviewed_candidate_commit": reviewed_commit,
         "requested_reviewer": dict(required_reviewer),
+        "required_review_dimensions": required_dimensions,
         "repository_access_required": False,
         "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
         "bundle_filename": packet_name,
@@ -242,7 +294,8 @@ def main() -> int:
     print(
         "PORTABLE_REVIEW_EXPORT_BUILT "
         f"request={review_id} candidate={reviewed_commit} requested_provider={requested_provider} "
-        f"file_sha256={packet_file_sha256} logical_bundle_sha256={portable_bundle['bundle_hash']} raw_artifacts={len(manifest_entries)}"
+        f"semantic_dimensions={len(required_dimensions)} file_sha256={packet_file_sha256} "
+        f"logical_bundle_sha256={portable_bundle['bundle_hash']} raw_artifacts={len(manifest_entries)}"
     )
     return 0
 
