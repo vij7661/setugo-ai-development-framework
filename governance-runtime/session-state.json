@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-039",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-040",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -13,20 +13,20 @@
     "handoff_contract_path": "governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md",
     "handoff_contract_commit": "2898d69688a9f14a541ebc7a2990a0a81c0d5591",
     "promotion": {
-      "pull_request": null,
+      "pull_request": 10,
       "state": "PENDING_CANDIDATE_FREEZE",
-      "next_review_request_id": null,
-      "next_review_reviewer": null,
+      "next_review_request_id": "REV-MVP-SLICE4-INTEGRATION-002",
+      "next_review_reviewer": "gemini",
       "review_request_id": null,
       "review_request_path": null,
       "portable_bundle_manifest_path": null,
       "reviewed_candidate_commit": null,
-      "candidate_ci_run": null,
-      "candidate_ci_conclusion": null,
+      "candidate_ci_run": 34167372130,
+      "candidate_ci_conclusion": "success",
       "actions_artifact_id": null,
       "actions_artifact_digest": null,
       "portable_bundle_sha256": null,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013","REV-MVP-SLICE2-INTEGRATION-001","REV-MVP-SLICE3-INTEGRATION-001"]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013","REV-MVP-SLICE2-INTEGRATION-001","REV-MVP-SLICE3-INTEGRATION-001","REV-MVP-SLICE4-INTEGRATION-001"]
     }
   },
   "shared_memory": {
@@ -39,41 +39,41 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "Checkpoint 038 and shared memory used semantically equivalent but non-identical next_required_action strings. Live governance run 34166285068 correctly failed closed before later checks. The mismatch is being repaired explicitly while preserving the failed run; no Slice 4 scientific result or authority state changed because of the bookkeeping defect."
+    "last_observed_conflict": "Checkpoint 039 remained pinned to frozen scientific SHA f6f04970d594292f21db648132afab7da4f263a6 after authoritative Slice 4 scientific adjudication and PR #10 head advanced to f3b26a057ff862dc5f31794ec72c751a2b71f79b. Live governance run 34167628195 failed closed on the stale head pointer. The first integration review request also carried an invalid canonical request_hash; its authenticated API PASS is preserved but non-promotable. Authority remains Git/evidence and the checkpoint is reconstructed here before corrected review reissuance."
   },
   "execution_handoff": {
-    "sequence": 39,
-    "workstream": "Integrated Governed MVP Slice 4 - Isolated Tool Runner Gateway",
+    "sequence": 40,
+    "workstream": "Integrated Governed MVP Slice 4 - PR #10 Integration Transition",
     "candidate_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
-    "candidate_commit": "f6f04970d594292f21db648132afab7da4f263a6",
-    "phase": "FROZEN_DEDICATED_SCIENTIFIC_GREEN_FULL_SCIENTIFIC_PENDING",
-    "last_completed_action": "Full construction regression run 34166171216 completed SUCCESS on mechanism commit b4cc31394fff001f1c726ba8093da20114b324df after dedicated construction run 34166171316 passed S4-01..S4-16. Created the metadata-only scientific freeze record as commit f6f04970d594292f21db648132afab7da4f263a6 without changing the frozen harness or mechanism. Dedicated scientific run 34166321103 on that exact frozen SHA completed SUCCESS. Complete governed scientific run 34166321130 on the same exact frozen SHA is still in progress. Separately, live-governance run 34166285068 failed closed on an exact handoff-string mismatch between authority and shared memory; that continuity bookkeeping failure is preserved and did not alter Slice 4 authority.",
-    "next_required_action": "Verify complete governed scientific run 34166321130 for exact frozen Slice 4 SHA f6f04970d594292f21db648132afab7da4f263a6. If it is green, verify direct job-log correspondence and exact checkout SHA, then create a schema-4 independent platform review request bound to the unchanged frozen candidate and execute authenticated review before any BOUNDED_PASS adjudication. If the scientific run fails, preserve and classify the failure before any repair.",
+    "candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
+    "phase": "PR10_INTEGRATION_REVIEW_REISSUANCE_REQUIRED",
+    "last_completed_action": "Verified PR #10 exact base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d and head f3b26a057ff862dc5f31794ec72c751a2b71f79b, exactly seven changed files, no comments/reviews/threads, and PR transition CI run 34167372130/job 101880985712 SUCCESS with 1183 tests OK and S4-01..S4-16 passing on merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852. Authenticated review workflow 34167633377 returned semantic PASS, but review request REV-MVP-SLICE4-INTEGRATION-001 had an invalid canonical request_hash and cannot count for promotion. Live governance run 34167628195 independently exposed stale checkpoint 039 and failed closed before reference verification completed.",
+    "next_required_action": "Execute hash-valid authenticated review request REV-MVP-SLICE4-INTEGRATION-002 against exact PR #10 head f3b26a057ff862dc5f31794ec72c751a2b71f79b and parent a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d; preserve REV-MVP-SLICE4-INTEGRATION-001 as invalid/non-promotable, then deterministically ingest only a valid reviewed result before PR readiness or merge.",
     "stop_condition": "NONE",
     "manual_input_required": false,
     "manual_deliverable": "No manual input required while GitHub Actions and authenticated platform review remain available.",
-    "handoff_reason": "Slice 4 is now frozen and its dedicated scientific acceptance passed on the exact frozen SHA; complete governed regression and independent review remain mandatory before bounded adjudication.",
-    "historical_failure_preserved": "Slice 3 parent 14/16 failure, provider/review history, Slice 2/3 integration review evidence, Slice 4 construction mechanism-absence failure, and continuity validation failure run 34166285068 remain preserved without rewriting.",
-    "resume_rule": "On generic CONTINUE, verify exact frozen Slice 4 SHA f6f04970d594292f21db648132afab7da4f263a6 and run 34166321130. Do not modify frozen S4-01..S4-16 or the mechanism, do not call dedicated green sufficient, and do not infer another workstream from repository HEAD."
+    "handoff_reason": "PR #10 transition CI is green, but continuity reconstruction and a corrected hash-valid independent review are mandatory because the first review request integrity contract was invalid.",
+    "historical_failure_preserved": "Slice 3 parent 14/16 failure, prior provider/review history, Slice 4 construction mechanism-absence failure, scientific review HTTP 503 attempts, continuity failure run 34166285068, stale-checkpoint failure run 34167628195, and invalid integration review request REV-MVP-SLICE4-INTEGRATION-001 remain preserved without rewriting.",
+    "resume_rule": "On generic CONTINUE, verify PR #10 still has base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d and head f3b26a057ff862dc5f31794ec72c751a2b71f79b, then execute corrected REV-MVP-SLICE4-INTEGRATION-002. Never treat review 001, scientific PASS, or CI alone as merge authority."
   },
   "active_workstream": {
-    "name": "Integrated Governed MVP Slice 4 - Isolated Tool Runner Gateway",
+    "name": "Integrated Governed MVP Slice 4 - PR #10 Integration Transition",
     "branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
-    "head_commit": "f6f04970d594292f21db648132afab7da4f263a6",
-    "state": "FROZEN_DEDICATED_SCIENTIFIC_GREEN_FULL_SCIENTIFIC_PENDING",
+    "head_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
+    "state": "PR10_INTEGRATION_REVIEW_REISSUANCE_REQUIRED",
     "preregistration_commit": "f78c5462193445ecb6675dcee4f8f3cc65e99d96",
     "frozen_acceptance_harness_commit": "0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6",
     "first_mechanism_commit": "b4cc31394fff001f1c726ba8093da20114b324df",
     "preserved_failure_record_commit": "f9df961c3f05bdaa87f559c86de980f9e1dc6c37",
     "frozen_cases": "S4-01..S4-16",
-    "latest_result": {"passed": 16, "total": 16, "failures": []},
-    "next_action": "Verify complete governed scientific run 34166321130 on exact frozen SHA, then perform exact-candidate independent platform review before bounded adjudication.",
-    "forbidden_shortcut": "Do not accept dedicated green alone; do not edit the frozen harness/mechanism after freeze; do not claim arbitrary-code sandbox security; do not treat CI alone as independent review or terminal authority."
+    "latest_result": {"passed": 1183, "total": 1183, "failures": []},
+    "next_action": "Execute corrected hash-valid authenticated PR #10 integration review REV-MVP-SLICE4-INTEGRATION-002, then ingest valid evidence before merge.",
+    "forbidden_shortcut": "Do not use invalid review request 001 for promotion; do not alter frozen S4-01..S4-16 or scientific subject f6f04970d594292f21db648132afab7da4f263a6; do not claim arbitrary-code sandbox security; do not treat CI/scientific PASS as merge or terminal authority."
   },
   "accepted_prior_boundary": {
-    "name": "Integrated Governed MVP through Slice 3",
-    "scientific_freeze_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-    "bounded_adjudication_commit": "bdb61336a5d307021a6071d6774bb0c8d45a573b",
+    "name": "Integrated Governed MVP Slice 4 scientific boundary",
+    "scientific_freeze_commit": "f6f04970d594292f21db648132afab7da4f263a6",
+    "bounded_adjudication_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
     "state": "BOUNDED_PASS"
   },
   "independent_review": {
@@ -94,13 +94,13 @@
     "user_attestation_is_provider_authentication": false,
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
-    "current_required_transition": "Independent review of exact frozen Slice 4 candidate after complete scientific CI correspondence",
+    "current_required_transition": "Hash-valid independent review of exact PR #10 Slice 4 integration transition",
     "current_review_status": "NOT_YET_PRESENT",
     "current_review_request_id": null,
     "current_review_transport": null,
     "current_requested_reviewer": null,
     "current_reviewed_artifact_commit": null,
-    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013","REV-MVP-SLICE2-INTEGRATION-001","REV-MVP-SLICE3-INTEGRATION-001"],
+    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013","REV-MVP-SLICE2-INTEGRATION-001","REV-MVP-SLICE3-INTEGRATION-001","REV-MVP-SLICE4-INTEGRATION-001"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },

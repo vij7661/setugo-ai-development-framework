@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-001",
+  "reviewed_artifact_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
+  "classification": "INVALID_REVIEW_REQUEST_INTEGRITY_NONPROMOTABLE",
+  "request_integrity": {
+    "supplied_request_hash": "740117b9f821a6d73e8f0dd1146f3a392cff37f3573318fcf357b61497aa5da8",
+    "canonical_expected_request_hash": "121ef33d5b23eec3e8bbdd4613b9b8de233aa3ca4815e015b3a0b6dbb5506602",
+    "valid": false,
+    "failure": "review request hash is invalid"
+  },
+  "platform_execution": {
+    "workflow_run_id": 34167633377,
+    "job_id": 101881744220,
+    "artifact_id": 10034669354,
+    "artifact_digest": "sha256:dd6f909f4ca26950d3cb77efabdc8e1eef1b4a6ece863df5f6ad5cd8b30bc93e",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "transport": "AUTOMATIC_API",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "review_content_disposition": "PASS",
+    "review_content_findings": 0,
+    "review_content_mandatory_dimensions": "8/8 TESTED_SUPPORTED"
+  },
+  "related_continuity_failure": {
+    "workflow_run_id": 34167628195,
+    "job_id": 101881729283,
+    "classification": "STALE_DURABLE_EXECUTION_HANDOFF",
+    "observed": "Checkpoint 039 expected feature branch head f6f04970d594292f21db648132afab7da4f263a6 while authoritative PR #10 feature branch head was f3b26a057ff862dc5f31794ec72c751a2b71f79b; live governance failed closed during authoritative-reference verification.",
+    "authority_effect": "NONE"
+  },
+  "effective_disposition": "INVALID_REVIEW_EVIDENCE",
+  "counts_for_promotion": false,
+  "authority_effect": "NONE",
+  "history_preserved": true,
+  "required_repair": "Reconstruct continuity state from authoritative Git and reissue the exact integration review under a new request ID with a valid canonical request_hash. Do not mutate or promote this request/review history."
+}

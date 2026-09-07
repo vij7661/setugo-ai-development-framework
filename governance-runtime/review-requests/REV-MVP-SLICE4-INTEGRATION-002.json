@@ -1,0 +1,61 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-002",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    ".github/workflows/integrated-governed-mvp-slice4.yml",
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md",
+    "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json",
+    "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json",
+    "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-SCIENTIFIC-ADJUDICATION.json",
+    "experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice4_integration_candidate",
+    "ref": "PR-10:base=feature/integrated-governed-mvp@a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d",
+    "commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "gemini", "model_class": "gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Verify from the exact candidate evidence that integrating Slice 4 head f3b26a057ff862dc5f31794ec72c751a2b71f79b into parent feature/integrated-governed-mvp at a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d is lineage-correct and contains only the seven verified PR #10 changed files.",
+    "Check that the post-freeze scientific adjudication bookkeeping does not change the frozen scientific subject f6f04970d594292f21db648132afab7da4f263a6 or launder construction/review failures.",
+    "Verify exact execution-boundary invariants remain bounded: Slice 3 lineage, platform-owned contract/manifest binding, shell-free argv execution, executable/workspace/environment confinement, timeout/output bounds, process outcome honesty, durable idempotency, crash/replay/concurrency handling, and evidence lineage.",
+    "Check that local tool execution cannot mint remote push, merge, release, deploy, production, completion, or arbitrary-code-sandbox authority.",
+    "Verify the first construction absence and both authenticated scientific-review HTTP 503 attempts remain preserved with no authority effect.",
+    "Check PR transition evidence: PR #10 base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d, head f3b26a057ff862dc5f31794ec72c751a2b71f79b, GitHub merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852; CI run 34167372130/job 101880985712 checked out that merge-ref and recorded 1183 tests OK with S4-01..S4-16 passing.",
+    "Search adversarially for integration-time scope smuggling, authority widening, stale-state ambiguity, provenance defects, false-green routes, semantic rebinding, or mismatch between scientific and integration lineages.",
+    "Return an independent disposition without treating proposer confidence, scientific PASS, or green CI by itself as merge authority."
+  ],
+  "evidence_refs": [
+    {"type":"history","ref":"PR #10 exact transition: base=a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d; head=f3b26a057ff862dc5f31794ec72c751a2b71f79b; merge-ref=43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852; exactly seven changed files; PR CI run 34167372130 job 101880985712 success; full suite 1183 tests OK; S4-01..S4-16 pass."},
+    {"type":"file","ref":".github/workflows/integrated-governed-mvp-slice4.yml"},
+    {"type":"file","ref":"experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md"},
+    {"type":"file","ref":"experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json"},
+    {"type":"file","ref":"experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json"},
+    {"type":"file","ref":"experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-SCIENTIFIC-ADJUDICATION.json"},
+    {"type":"file","ref":"experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py"},
+    {"type":"file","ref":"experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"integration_lineage_integrity","mandatory":true,"description":"The exact Slice 4 integration head is applied only after the accepted Slice 3 parent at a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d, with no lineage substitution."},
+    {"id":"transition_scope_exactness","mandatory":true,"description":"PR #10 contains exactly the seven verified Slice 4 files and no unrelated authority-bearing change."},
+    {"id":"scientific_subject_and_history_integrity","mandatory":true,"description":"Frozen scientific candidate f6f04970d594292f21db648132afab7da4f263a6 remains the scientific subject; construction absence and two provider 503 review failures remain preserved without laundering."},
+    {"id":"execution_boundary_invariant_preservation","mandatory":true,"description":"The bounded tool-runner contract, manifest, executable, argv, workspace, environment, timeout/output, process-outcome, idempotency, crash/replay/concurrency, and evidence-lineage invariants remain intact at integration."},
+    {"id":"terminal_and_remote_authority_separation","mandatory":true,"description":"Integration cannot mint remote push, merge, release, deploy, production, completion, or arbitrary-code-sandbox authority from local tool success or model/worker output."},
+    {"id":"pr_transition_ci_binding","mandatory":true,"description":"CI evidence corresponds to exact PR #10 base/head merge-ref and demonstrates complete governed regression plus S4-01..S4-16 without substituting scientific authority for merge authority."},
+    {"id":"provenance_and_adjudication_consistency","mandatory":true,"description":"Scientific review/adjudication provenance, authenticated API boundary, non-cryptographic remote model identity limitation, and post-freeze bookkeeping are represented consistently."},
+    {"id":"remaining_integration_bypass_search","mandatory":true,"description":"Adversarial review finds no material integration-time authority bypass, scope smuggling, stale-state ambiguity, semantic rebinding, provenance defect, or false-green path."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "180edc832cac01689b2ce5b4ae095a31e364733bb67e4db48c09d09c994031ea"
+}
