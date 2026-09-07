@@ -7,7 +7,11 @@ from pathlib import Path
 import re
 import sys
 
-from review_protocol import ALLOWED_TRANSPORTS, MANDATORY_REVIEW_TRIGGERS
+from review_protocol import (
+    ALLOWED_TRANSPORTS,
+    MANDATORY_REVIEW_TRIGGERS,
+    verify_review_request,
+)
 
 ROOT = Path(__file__).resolve().parent
 STATE_PATH = ROOT / "session-state.json"
@@ -178,6 +182,50 @@ def main() -> int:
             fail("shared-memory pending review uses unsupported transport")
         if item.get("status") not in {"PENDING_CANDIDATE_FREEZE", "PENDING_EXTERNAL_REVIEW", "REVIEW_RECEIVED", "REVIEW_VALIDATED"}:
             fail("shared-memory pending review has invalid status")
+
+    promotion = runtime.get("promotion", {})
+    active_request_id = review.get("current_review_request_id")
+    if active_request_id is None:
+        if promotion.get("state") != "PENDING_CANDIDATE_FREEZE":
+            fail("no active review request is allowed only while candidate freeze is pending")
+        if pending_reviews[0].get("status") != "PENDING_CANDIDATE_FREEZE":
+            fail("shared memory disagrees with pending candidate-freeze review state")
+    else:
+        if not isinstance(active_request_id, str) or not active_request_id:
+            fail("active review request identity is malformed")
+        request_path_value = promotion.get("review_request_path")
+        if not isinstance(request_path_value, str) or not request_path_value.startswith("governance-runtime/review-requests/"):
+            fail("active review request path is missing or outside governed review registry")
+        request_path = ROOT.parent / request_path_value
+        if not request_path.is_file():
+            fail("active review request file does not exist")
+        request = json.loads(request_path.read_text(encoding="utf-8"))
+        request_ok, request_reason = verify_review_request(request)
+        if not request_ok:
+            fail(f"active review request invalid: {request_reason}")
+        if request.get("review_request_id") != active_request_id:
+            fail("active review request ID differs from session state")
+        reviewed_commit = review.get("current_reviewed_artifact_commit")
+        require_sha(reviewed_commit, "independent_review.current_reviewed_artifact_commit")
+        if request.get("artifact", {}).get("commit") != reviewed_commit:
+            fail("active review request artifact differs from session-state reviewed commit")
+        if promotion.get("reviewed_candidate_commit") != reviewed_commit:
+            fail("promotion candidate differs from review request artifact")
+        mem_review = pending_reviews[0]
+        if mem_review.get("status") != "PENDING_EXTERNAL_REVIEW":
+            fail("active review request requires shared-memory PENDING_EXTERNAL_REVIEW")
+        if mem_review.get("review_request_id") != active_request_id:
+            fail("shared memory review request differs from session state")
+        if mem_review.get("reviewed_artifact_commit") != reviewed_commit:
+            fail("shared memory reviewed artifact differs from session state")
+
+    superseded_ids = set(review.get("superseded_review_requests", [])) | set(promotion.get("superseded_review_requests", []))
+    for request_id in superseded_ids:
+        if not isinstance(request_id, str) or not request_id:
+            fail("superseded review request ID is malformed")
+        candidate = ROOT / "review-requests" / f"{request_id}.json"
+        if not candidate.is_file():
+            fail(f"superseded review request file missing: {request_id}")
 
     memory_rules = memory.get("memory_rules", {})
     if memory_rules.get("repetition_upgrades_status") is not False:
