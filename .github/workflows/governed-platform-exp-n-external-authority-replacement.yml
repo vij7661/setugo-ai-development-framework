@@ -1,0 +1,120 @@
+name: Governed Platform EXP-N External Authority Replacement
+
+on:
+  push:
+    branches: [experiment/governed-platform-falsification-harness]
+    paths: [.github/exp-n-external-authority-replacement-trigger.json]
+
+permissions: {contents: read}
+
+env:
+  MECHANISMS: experiments/governed-platform/runner/mechanisms.remote-free.example.json
+  CAPABILITY: experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json
+  POLICY: experiments/governed-platform/adjudication/EXP-N-PILOT9-REPLACEMENT-POLICY.json
+  CASE_ID: EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL
+
+jobs:
+  replacement:
+    name: EXP-N Pilot 9 replacement groq EXP-N-027 sample-3
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GROQ_API_KEY: "${{ secrets.GROQ_API_KEY }}"
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+
+      - name: Fail-closed frozen replacement guard
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          t=json.loads(Path('.github/exp-n-external-authority-replacement-trigger.json').read_text())
+          p=json.loads(Path('experiments/governed-platform/adjudication/EXP-N-PILOT9-REPLACEMENT-POLICY.json').read_text())
+          assert t['experiment']=='EXP-N'
+          assert t['pilot']=='PILOT9-EXTERNAL-AUTHORITY-NO-PROMPT-GUARD'
+          assert t['primary_workflow_run_id']==34069299759
+          assert t['replacement_policy_commit']=='50268e0b77c259a6c9fc5e4abe32d8117cdd453b'
+          assert t['design_commit']=='16d15ab34ab9924cb75392307c8c281e0b01e703'
+          assert t['provider']=='groq'
+          assert t['configured_model']=='openai/gpt-oss-20b'
+          assert t['mechanism_id']=='remote-reasoner-a'
+          assert t['case_id']=='EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL'
+          assert t['original_sample_index']==3
+          assert t['temperature']==0.7
+          assert t['instruction_version']=='exp-n-external-authority-v1'
+          assert t['authority']=='NONE'
+          assert p['replacement_slots_total']==1
+          assert p['valid_primary_samples_retained']==29
+          assert p['valid_primary_samples_discarded']==0
+          s=p['replacement_slots'][0]
+          assert s['provider']==t['provider'] and s['configured_model']==t['configured_model']
+          assert s['mechanism_id']==t['mechanism_id'] and s['case_id']==t['case_id']
+          assert s['original_sample_index']==t['original_sample_index']
+          PY
+          git cat-file -e "16d15ab34ab9924cb75392307c8c281e0b01e703^{commit}"
+          git cat-file -e "50268e0b77c259a6c9fc5e4abe32d8117cdd453b^{commit}"
+          git diff --exit-code 16d15ab34ab9924cb75392307c8c281e0b01e703 HEAD -- \
+            .github/workflows/governed-platform-exp-n-external-authority-pilot.yml \
+            experiments/governed-platform/cases/pilot/ground-truth.exp-n-external-authority-no-prompt-guard.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-023-AUTHZ-EXTERNAL-NEUTRAL-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-024-AUTHZ-EXTERNAL-SENIOR-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-025-AUTHZ-EXTERNAL-PRESTIGE-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-026-AUTHZ-EXTERNAL-MAJORITY-WRONG.json \
+            experiments/governed-platform/cases/pilot/model-visible/EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL.json \
+            experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json \
+            experiments/governed-platform/governance/authority_binding.py \
+            experiments/governed-platform/governance/execution_authority.py \
+            experiments/governed-platform/governance/capability_guard.py \
+            experiments/governed-platform/runner/mechanisms.remote-free.example.json \
+            experiments/governed-platform/runner/prepare_run.py \
+            experiments/governed-platform/runner/adapters.py \
+            experiments/governed-platform/runner/review_contract.py \
+            experiments/governed-platform/runner/review_contract_external_authority.py \
+            experiments/governed-platform/runner/openai_compatible_external_authority.py \
+            experiments/governed-platform/runner/normalize_external_authority_result.py \
+            experiments/governed-platform/runner/run_remote_canary_external_authority.py
+
+      - name: Execute exactly one frozen missing slot
+        shell: bash
+        run: |
+          OUT="exp-n-pilot9-replacement/groq/$CASE_ID"
+          mkdir -p "$OUT"
+          python experiments/governed-platform/runner/prepare_run.py \
+            --case "experiments/governed-platform/cases/pilot/model-visible/${CASE_ID}.json" \
+            --mechanisms "$MECHANISMS" \
+            --mechanism-id remote-reasoner-a \
+            --instruction-version exp-n-external-authority-v1 \
+            --out "$OUT/${CASE_ID}.envelope.json"
+          python experiments/governed-platform/runner/run_remote_canary_external_authority.py \
+            --envelope "$OUT/${CASE_ID}.envelope.json" \
+            --capability "$CAPABILITY" \
+            --provider groq \
+            --base-url "https://api.groq.com/openai/v1" \
+            --model "openai/gpt-oss-20b" \
+            --api-key-env GROQ_API_KEY \
+            --timeout-seconds 120 \
+            --temperature 0.7 \
+            --out "$OUT/${CASE_ID}.replacement-for-sample-3.raw-result.json" || true
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('exp-n-pilot9-replacement/groq/EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL/replacement-metadata.json')
+          p.write_text(json.dumps({
+            'experiment':'EXP-N','pilot':'PILOT9-EXTERNAL-AUTHORITY-NO-PROMPT-GUARD',
+            'primary_workflow_run_id':34069299759,'provider':'groq','configured_model':'openai/gpt-oss-20b',
+            'mechanism_id':'remote-reasoner-a','case_id':'EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL',
+            'replaces_original_sample_index':3,'temperature':0.7,'instruction_version':'exp-n-external-authority-v1',
+            'authority':'NONE','selection_basis':'PROVIDER_RUNTIME_INELIGIBLE_ONLY'
+          },indent=2)+'\n')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp-n-pilot9-replacement-groq-EXP-N-027-sample-3
+          path: exp-n-pilot9-replacement/groq/EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL/
+          if-no-files-found: error
