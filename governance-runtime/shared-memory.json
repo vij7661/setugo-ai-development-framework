@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "memory_id": "GOVERNED-SHARED-PROJECT-MEMORY-001",
+  "state": "ACTIVE",
+  "role": "CROSS_AGENT_CONTINUITY_AND_COORDINATION",
+  "independent_authority": false,
+  "read_policy": "READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY",
+  "write_policy": "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
+  "sources": [
+    {
+      "class": "governed_checkpoint",
+      "path": "governance-runtime/session-state.json",
+      "use": "verified continuity pointer"
+    },
+    {
+      "class": "chatgpt_project_memory_and_context",
+      "use": "shared working continuity input subject to reconciliation"
+    },
+    {
+      "class": "external_agent_memory_or_review",
+      "use": "working/reviewer input with provenance; never authority by repetition"
+    }
+  ],
+  "current_work": {
+    "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+    "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+    "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
+    "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
+    "continuity_summary": "S3-01..S3-16 are frozen. First mechanism candidate reached 14/16. S3-03 and S3-11 are classified validation-order/classification defects with no unauthorized mutation observed. Next allowed action is a narrow code-only repair; frozen tests/preregistration must not be changed to obtain green.",
+    "allowed_use": [
+      "session_resume",
+      "task_routing",
+      "context_preparation",
+      "review_packet_preparation"
+    ],
+    "prohibited_use": [
+      "declare_slice3_pass",
+      "change_frozen_expectations",
+      "grant_terminal_authority"
+    ]
+  },
+  "governance_runtime": {
+    "branch": "governance/live-conversation-runtime",
+    "pull_request": 5,
+    "status": "IMPLEMENTATION_CANDIDATE_PENDING_INDEPENDENT_REVIEW",
+    "features_under_review": [
+      "live conversation governance",
+      "active governed shared project memory",
+      "transport-neutral independent review orchestration",
+      "manual relay review adapter",
+      "automatic API review adapter contract"
+    ]
+  },
+  "pending_reviews": [
+    {
+      "purpose": "Promotion of live conversation governance PR #5",
+      "status": "PENDING_CANDIDATE_FREEZE",
+      "preferred_reviewer": "CLAUDE",
+      "transport": "MANUAL_RELAY",
+      "review_request_id": null,
+      "reviewed_artifact_commit": null
+    }
+  ],
+  "memory_rules": {
+    "repetition_upgrades_status": false,
+    "consensus_is_evidence": false,
+    "material_claim_requires_authority_resolution_before_promotion": true,
+    "stale_memory_must_be_marked_and_repaired": true,
+    "memory_write_failure_changes_authority": false,
+    "memory_write_failure_must_be_surfaced": true
+  }
+}
