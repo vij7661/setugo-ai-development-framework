@@ -1,0 +1,228 @@
+{
+  "authority_note": "This evidence may satisfy the independent-review stage for the exact reviewed candidate. It does not merge, release, deploy, or independently authorize production use.",
+  "classification": "PLATFORM_AUTO_API_REVIEW_EVIDENCE",
+  "deterministic_validation": {
+    "all_mandatory_dimensions_supported": true,
+    "blocking_findings_present": false,
+    "can_close_authority_bypasses": true,
+    "can_count_as_platform_review_evidence": true,
+    "effective_disposition": "PASS",
+    "errors": [],
+    "valid": true
+  },
+  "execution_envelope": {
+    "corpus_sha256": "eca2e661cb5443b527ca0a51ee3aaf4c01bb6e1a2fdc3201de5500be471f82ff",
+    "endpoint_base_url": "https://generativelanguage.googleapis.com/v1beta",
+    "identity_assurance": "PROVIDER_ENDPOINT_CREDENTIAL_BOUND",
+    "model": "gemini-3.6-flash",
+    "parsed_review_sha256": "d7564496c29f5f880ad4b8b84f4711129d89365d9f0bb0716191583d8253e330",
+    "prompt_sha256": "60e6c9caeb2e418667eddea504ee76c5199389bf45ec65d12642d70ec27e82b4",
+    "provenance_basis": "PLATFORM_API_EXECUTION",
+    "provider": "gemini",
+    "provider_api_authenticated": true,
+    "provider_response_sha256": "42632f2a96d219349266b02a5d1da0eadf2f543ab26bdd5b573a2832797605f8",
+    "remote_model_identity_cryptographically_proven": false,
+    "request_sha256": "a308958cf06c8b7ea3d71836b2a4230c4941d27529b7b81fa50826f7d5de8e0c",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "review_request_id": "REV-RE-COMP-002",
+    "reviewed_artifact_commit": "56d080e14d1414e2f994800f19c232cd0c0317d6",
+    "schema_version": 1,
+    "transport": "AUTOMATIC_API",
+    "trigger_sha": "ce28225c600562377314a8f1e34b9b3a2471e364",
+    "workflow_run_id": "34155684585"
+  },
+  "github_actions_artifact": {
+    "artifact_digest": "sha256:ee06e9058f783abde9e9aa4ade478ee76d1898b6ae7795c2ba29ecf984fe9ed5",
+    "artifact_id": 10030882609,
+    "raw_provider_response_retained_in_artifact": true,
+    "raw_provider_response_sha256": "42632f2a96d219349266b02a5d1da0eadf2f543ab26bdd5b573a2832797605f8",
+    "workflow_run_id": 34155684585,
+    "provider_response_id": "QhCfasHBMfS4sOIPz5ynqAw",
+    "provider_model_version": "gemini-3.6-flash",
+    "finish_reason": "STOP"
+  },
+  "review": {
+    "disposition": "PASS",
+    "evidence_assessment": "Comprehensive adversarial inspection of candidate commit 56d080e14d1414e2f994800f19c232cd0c0317d6 confirms that all 11 mandatory governance dimensions are fully satisfied. Provider configuration fingerprinting prevents route/parameter substitution, effective runtime identity check blocks reviewer aliasing across roles under lock, retrieval query text excludes proposer-authored artifact content while preserving mandatory authoritative memory, execution evidence is platform-stamped and cannot be forged by model output, external review content starts as unauthenticated non-authority, single-file containers enforce exact UTF-8 byte and SHA-256 integrity, bypass governance records enforce linear lifecycle transitions with verifier callbacks, AST checks verify no production escape hatches exist, and ReviewEngineApp correctly composes all retrieval and claim coverage guards on standard execution paths.",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "review_coverage": [
+      {
+        "assessment": "Provider specs are canonicalized and fingerprinted via SHA-256 of adapter type, base URL, and adapter settings in configuration.py. QualificationRegistry validates provider_binding_fingerprint before allowing GOVERNED mode.",
+        "dimension_id": "provider_configuration_qualification_binding",
+        "evidence": [
+          "review_engine/configuration.py:provider_binding_fingerprint",
+          "review_engine/configuration.py:build_qualification_registry",
+          "review_engine/test_configuration.py:test_provider_endpoint_substitution_cannot_reuse_old_qualification"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "QualificationRegistry._same_effective_runtime conservatively detects runtime aliasing across provider ID, model label, or provider binding fingerprint. Capability issuance under critical section lock prevents concurrent cross-role capability issuance for correlated runtimes.",
+        "dimension_id": "reviewer_runtime_independence",
+        "evidence": [
+          "review_engine/qualification.py:_same_effective_runtime",
+          "review_engine/qualification.py:issue_capability",
+          "review_engine/test_reviewer_independence_runtime_alias.py:ReviewerRuntimeAliasIndependenceTests",
+          "review_engine/test_qualification.py:test_concurrent_cross_role_issue_allows_only_one_correlated_runtime_capability"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "ContextCompiler._retrieval_query_text constructs admission queries solely from user_input, isolating retrieval from proposer artifact rewording. GovernedLexicalRetriever enforces non-droppable AUTHORITATIVE memory admission regardless of budget.",
+        "dimension_id": "retrieval_admission_and_proposer_influence",
+        "evidence": [
+          "review_engine/context_compiler.py:_retrieval_query_text",
+          "review_engine/retrieval.py:GovernedLexicalRetriever",
+          "review_engine/test_retrieval_proposer_influence.py:ProposerInfluencedRetrievalTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "classify_platform_api_review requires authenticated API transport. RetrievalAwareReviewEngine stamps platform-owned execution_evidence onto every reviewer response, overwriting any model- or adapter-provided execution identity claims.",
+        "dimension_id": "review_execution_provenance_classification",
+        "evidence": [
+          "review_engine/review_execution_classification.py:classify_platform_api_review",
+          "review_engine/retrieval_review_engine.py:_platform_execution_evidence",
+          "review_engine/test_execution_provenance.py:ExecutionProvenanceTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "External copy/paste content starts as USER_PROVIDED_EXTERNAL_CONTENT with can_satisfy_platform_review=False. User attestation upgrades classification to USER_ATTESTED_EXTERNAL_LLM_REVIEW without conferring API authentication or review authority.",
+        "dimension_id": "external_content_non_authority",
+        "evidence": [
+          "review_engine/review_execution_classification.py:ingest_user_provided_external_content",
+          "review_engine/review_execution_classification.py:attest_external_llm_review",
+          "review_engine/test_review_execution_classification.py:ReviewExecutionClassificationTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "Single-file review containers and export packets bind exact candidate SHA, UTF-8 byte lengths, and content SHA-256 hashes. Tampering or path traversal attempts fail closed during construction and verification.",
+        "dimension_id": "single_file_and_review_export_integrity",
+        "evidence": [
+          "review_engine/single_file_review_container.py:verify_single_file_review_container",
+          "review_engine/review_export.py:build_review_export",
+          "review_engine/test_single_file_review_container.py:SingleFileReviewContainerTests",
+          "review_engine/test_review_export.py:ReviewExportTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "BypassRecord enforces strict linear stage progression and validates structured evidence refs. Authority bypass closure requires a platform evidence verifier callback. Production AST inspection confirms no forbidden escape hatch flags or broad exception swallowing exist.",
+        "dimension_id": "authority_bypass_lifecycle_and_escape_hatches",
+        "evidence": [
+          "review_engine/bypass_governance.py:BypassRecord",
+          "review_engine/test_bypass_governance.py:BypassGovernanceTests",
+          "review_engine/test_no_authority_bypass_escape_hatches.py:NoAuthorityBypassEscapeHatchTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "ReviewEngineApp wires RetrievalAwareReviewEngine, ContextCompiler, ClaimCoverageGuardedInvoker, EvidenceCorrespondenceValidator, and PlatformExecutionEnvelope into unified service workflows.",
+        "dimension_id": "app_composition_and_standard_path_wiring",
+        "evidence": [
+          "review_engine/app.py:ReviewEngineApp",
+          "review_engine/test_app_composition_governance.py:ReviewEngineAppCompositionTests",
+          "review_engine/test_retrieval_app.py:RetrievalApplicationTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "ReviewEngineApp validates all required flags for evidence correspondence and claim coverage validators in GOVERNED mode, including durable replay protection, snapshot bindings, and risk scope rechecks.",
+        "dimension_id": "truth_claim_coverage_and_evidence_correspondence",
+        "evidence": [
+          "review_engine/app.py:ReviewEngineApp",
+          "review_engine/test_claim_coverage_review_scope.py:ClaimCoverageReviewScopeApplicationTests",
+          "review_engine/test_evidence_verifier_app.py:EvidenceVerifierApplicationTests",
+          "review_engine/test_extractor_qualification_app.py:ExtractorQualificationAppTests"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "ContextCompiler enforces phase-specific mode/instruction contracts for R3 adjudication and R1 scoped correction. Revocation of qualification before phase B or correction halts execution immediately.",
+        "dimension_id": "r3_adjudication_and_scoped_correction_closure",
+        "evidence": [
+          "review_engine/context_compiler.py:ContextCompiler",
+          "review_engine/test_governed_assurance.py:test_r3_revoked_after_phase_a_is_not_invoked_for_phase_b",
+          "review_engine/test_governed_assurance.py:test_r1_revoked_after_r2_is_not_invoked_for_scoped_correction"
+        ],
+        "status": "TESTED_SUPPORTED"
+      },
+      {
+        "assessment": "Full examination of completion API review runner, workflow, and bypass records RE-BYP-001/002/003 confirms that exact candidate commit binding, ancestor check, and fail-closed validation prevent false-green bypasses.",
+        "dimension_id": "remaining_false_green_or_authority_bypass_search",
+        "evidence": [
+          ".github/workflows/review-engine-completion-api-review.yml",
+          "review_engine/completion_api_review.py:execute_completion_review",
+          "review_engine/bypasses/RE-BYP-001.json",
+          "review_engine/bypasses/RE-BYP-002.json",
+          "review_engine/bypasses/RE-BYP-003.json"
+        ],
+        "status": "TESTED_SUPPORTED"
+      }
+    ],
+    "review_request_id": "REV-RE-COMP-002",
+    "reviewed_artifact_commit": "56d080e14d1414e2f994800f19c232cd0c0317d6",
+    "reviewer": {
+      "model": "gemini-3.6-flash",
+      "provider": "gemini"
+    }
+  },
+  "review_request": {
+    "allowed_coverage_statuses": [
+      "CONTRADICTED",
+      "INSUFFICIENT",
+      "NOT_TESTED",
+      "TESTED_DEFECT_FOUND",
+      "TESTED_SUPPORTED",
+      "UNAVAILABLE"
+    ],
+    "allowed_dispositions": [
+      "CHANGES_REQUIRED",
+      "INSUFFICIENT_EVIDENCE",
+      "PASS"
+    ],
+    "authority_rule": "Reviewer content cannot establish its own provenance; execution envelope is authoritative for API provenance.",
+    "base_commit": "539cb7e63a721661e9daf3663a539e64a3c61e7e",
+    "corpus_sha256": "eca2e661cb5443b527ca0a51ee3aaf4c01bb6e1a2fdc3201de5500be471f82ff",
+    "mandatory_review_dimensions": [
+      "provider_configuration_qualification_binding",
+      "reviewer_runtime_independence",
+      "retrieval_admission_and_proposer_influence",
+      "review_execution_provenance_classification",
+      "external_content_non_authority",
+      "single_file_and_review_export_integrity",
+      "authority_bypass_lifecycle_and_escape_hatches",
+      "app_composition_and_standard_path_wiring",
+      "truth_claim_coverage_and_evidence_correspondence",
+      "r3_adjudication_and_scoped_correction_closure",
+      "remaining_false_green_or_authority_bypass_search"
+    ],
+    "pass_rule": "PASS requires every mandatory dimension TESTED_SUPPORTED and no MEDIUM/HIGH/CRITICAL finding.",
+    "request_sha256": "a308958cf06c8b7ea3d71836b2a4230c4941d27529b7b81fa50826f7d5de8e0c",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "review_request_id": "REV-RE-COMP-002",
+    "reviewed_artifact_commit": "56d080e14d1414e2f994800f19c232cd0c0317d6",
+    "schema_version": 1,
+    "selected_model": "gemini-3.6-flash",
+    "selected_provider": "gemini",
+    "transport": "AUTOMATIC_API"
+  },
+  "schema_version": 1,
+  "workflow_status": {
+    "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+    "candidate_sha": "56d080e14d1414e2f994800f19c232cd0c0317d6",
+    "failure_detail": "",
+    "model": "gemini-3.6-flash",
+    "provider": "gemini",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "review_request_id": "REV-RE-COMP-002",
+    "schema_version": 1,
+    "transport": "AUTOMATIC_API",
+    "trigger_sha": "ce28225c600562377314a8f1e34b9b3a2471e364",
+    "workflow_run_id": "34155684585",
+    "workflow_status": "success"
+  }
+}
