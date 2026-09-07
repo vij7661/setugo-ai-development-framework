@@ -120,6 +120,36 @@ def _valid_sha256(value: str) -> bool:
     return len(value) == 64 and all(ch in "0123456789abcdef" for ch in value)
 
 
+def _same_effective_runtime(
+    *,
+    left_provider: str,
+    left_model: str,
+    left_provider_binding: str | None,
+    right_provider: str,
+    right_model: str,
+    right_provider_binding: str | None,
+) -> bool:
+    """Conservatively detect reviewer aliases for independence purposes.
+
+    Same provider+model is never accepted as independent merely because role,
+    SKU, deployment labels or foundation-lineage labels differ. Provider aliases
+    are also treated as the same runtime when the model and platform-derived
+    provider execution fingerprint are identical.
+
+    This is a fail-closed bookkeeping invariant, not a universal cryptographic
+    statement that two different-looking runtimes are truly independent.
+    """
+    if left_model != right_model:
+        return False
+    if left_provider == right_provider:
+        return True
+    return bool(
+        left_provider_binding
+        and right_provider_binding
+        and left_provider_binding == right_provider_binding
+    )
+
+
 @dataclass(frozen=True)
 class QualificationRecord:
     qualification_ref: str
@@ -295,6 +325,9 @@ class QualificationRegistry:
 
         `add()` uses the same lock, so qualification epoch/status transitions
         cannot interleave between the eligibility read and capability creation.
+        The same critical section also enforces reviewer independence across
+        different roles in one request: a previously issued effective runtime
+        identity cannot be re-labelled as another independent reviewer.
         """
         if not request_id:
             raise ValueError("reviewer capability request_id required")
@@ -314,6 +347,25 @@ class QualificationRegistry:
             record = self._records.get(ref)
             if record is None:
                 raise RuntimeError("eligible qualification record disappeared during issuance")
+
+            for existing in self._capabilities.values():
+                if existing.request_id != request_id or existing.role == record.role:
+                    continue
+                if _same_effective_runtime(
+                    left_provider=existing.provider,
+                    left_model=existing.model,
+                    left_provider_binding=existing.provider_binding_fingerprint,
+                    right_provider=record.provider,
+                    right_model=record.model,
+                    right_provider_binding=record.provider_binding_fingerprint,
+                ):
+                    return QualificationDecision(
+                        False,
+                        f"reviewer runtime identity is not independent from {existing.role}",
+                        ref,
+                        record.qualification_epoch,
+                    ), None
+
             capability = ReviewerCapability(
                 capability_id="review-cap:" + uuid4().hex,
                 qualification_ref=record.qualification_ref,
