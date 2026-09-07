@@ -1,0 +1,38 @@
+{
+  "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
+  "received_in_chat": true,
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "review_request_id": "SLICE3-REVIEW-4F1797B-SUPPLEMENT-002",
+  "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "claimed_disposition": "PASS",
+  "reviewer": {
+    "provider": null,
+    "model": null,
+    "independent_of_proposer": true
+  },
+  "prior_finding_reassessment": [
+    {"finding_id":"S3-R-001","status":"RESOLVED"},
+    {"finding_id":"S3-R-002","status":"RESOLVED"},
+    {"finding_id":"S3-R-003","status":"RESOLVED"},
+    {"finding_id":"S3-R-004","status":"RESOLVED"}
+  ],
+  "findings": [],
+  "evidence_assessment": "Supplemental evidence resolves the earlier insufficiency; exact candidate CI, validation ordering, manifest transitive binding, locking, SQLite durability, replay, crash recovery, repository confinement, evidence lineage, and remote-authority boundaries are assessed as supported.",
+  "independence_attestation": "Reviewer states independent assessment and preserves the historical 14/16 failure at 325610d807eb88595231ec05af33e93f340ecb49.",
+  "review_coverage": [
+    {"dimension_id":"contract_substitution_classification","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"idempotency_rebind_resistance","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"validation_order_safety","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"durable_state_fail_closed","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"manifest_exact_binding","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"repository_confinement","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"atomicity_and_crash_consistency","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"replay_and_concurrency","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"evidence_lineage","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"remote_authority_boundary","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"regression_preservation","status":"TESTED_SUPPORTED"},
+    {"dimension_id":"remaining_false_green_search","status":"TESTED_SUPPORTED"}
+  ],
+  "provenance_note": "Schema/candidate binding is corrected and semantically positive, but this arrived via user paste. Under current governed review rules it remains external evidence, not provider-API-authenticated platform review, and cannot by itself satisfy a material promotion gate."
+}
