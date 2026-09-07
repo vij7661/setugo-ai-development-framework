@@ -10,6 +10,9 @@ import sys
 from review_protocol import (
     ALLOWED_TRANSPORTS,
     MANDATORY_REVIEW_TRIGGERS,
+    PLATFORM_MODES,
+    REVIEW_LEVELS,
+    verify_portable_review_bundle,
     verify_review_request,
 )
 
@@ -66,7 +69,7 @@ def main() -> int:
         if field not in state:
             fail(f"missing required top-level field: {field}")
 
-    if state["schema_version"] != 2:
+    if state["schema_version"] != 3:
         fail("unsupported session-state schema_version")
     if state["checkpoint_state"] not in ALLOWED_CHECKPOINT_STATES:
         fail("invalid checkpoint_state")
@@ -100,7 +103,7 @@ def main() -> int:
     if shared.get("on_authoritative_persist_failure") != "BLOCK_AUTHORITATIVE_COMPLETION":
         fail("authoritative persistence failure must block completion")
 
-    if memory.get("schema_version") != 1 or memory.get("state") != "ACTIVE":
+    if memory.get("schema_version") != 2 or memory.get("state") != "ACTIVE":
         fail("shared-memory artifact is malformed or inactive")
     if memory.get("independent_authority") is not False:
         fail("shared-memory artifact claims independent authority")
@@ -157,14 +160,28 @@ def main() -> int:
     review = state["independent_review"]
     if review.get("policy_state") != "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS":
         fail("mandatory independent-review policy was weakened")
+    if set(review.get("platform_modes", [])) != set(PLATFORM_MODES):
+        fail("platform modes must be exactly AUTO_MODE and MANUAL_MODE")
+    if set(review.get("review_levels", [])) != set(REVIEW_LEVELS):
+        fail("review levels must be exactly NONE, RECOMMENDED, REQUIRED")
     if set(review.get("supported_transports", [])) != set(ALLOWED_TRANSPORTS):
-        fail("review transports must include exactly MANUAL_RELAY and AUTOMATIC_API")
+        fail("review transports must be AUTOMATIC_API, USER_INITIATED_API, MANUAL_RELAY")
+    if review.get("current_collaboration_mode") != "MANUAL_MODE":
+        fail("this collaboration must emulate MANUAL_MODE")
     if review.get("current_collaboration_transport") != "MANUAL_RELAY":
         fail("this collaboration must use MANUAL_RELAY until a valid API reviewer is connected")
-    if review.get("production_default_intent") != "AUTOMATIC_API_WHEN_CONFIGURED":
-        fail("production automatic API intent was removed")
+    if review.get("production_auto_mode_transport") != "AUTOMATIC_API":
+        fail("AUTO_MODE must preserve automatic API dispatch")
+    if review.get("production_manual_mode_transport") != "USER_INITIATED_API":
+        fail("production MANUAL_MODE must use user-initiated provider API dispatch")
+    if review.get("manual_relay_requires_portable_bundle") is not True:
+        fail("MANUAL_RELAY must require a portable review bundle")
+    if review.get("portable_bundle_repository_access_required") is not False:
+        fail("portable review bundle must not require repository access")
     if review.get("transport_may_change_policy") is not False:
-        fail("review transport must not be allowed to change governance policy")
+        fail("review transport must not change governance policy")
+    if review.get("platform_mode_may_change_authority") is not False:
+        fail("platform mode must not change authority semantics")
     if review.get("current_review_status") not in ALLOWED_REVIEW_STATUS:
         fail("invalid independent-review status")
     if review.get("consensus_is_evidence") is not False:
@@ -174,12 +191,28 @@ def main() -> int:
     if not MANDATORY_REVIEW_TRIGGERS:
         fail("mandatory review trigger set must not be empty")
 
+    mem_runtime = memory.get("governance_runtime", {})
+    if set(mem_runtime.get("platform_modes", [])) != set(PLATFORM_MODES):
+        fail("shared memory has stale platform modes")
+    if set(mem_runtime.get("review_levels", [])) != set(REVIEW_LEVELS):
+        fail("shared memory has stale review levels")
+    if mem_runtime.get("production_auto_mode_transport") != "AUTOMATIC_API":
+        fail("shared memory lost AUTO_MODE transport")
+    if mem_runtime.get("production_manual_mode_transport") != "USER_INITIATED_API":
+        fail("shared memory lost production MANUAL_MODE transport")
+    if mem_runtime.get("current_collaboration_transport") != "MANUAL_RELAY":
+        fail("shared memory collaboration transport differs from session state")
+    if mem_runtime.get("manual_relay_requires_portable_bundle") is not True:
+        fail("shared memory lost portable manual-relay requirement")
+
     pending_reviews = memory.get("pending_reviews")
     if not isinstance(pending_reviews, list) or not pending_reviews:
         fail("shared memory must retain pending review coordination")
     for item in pending_reviews:
         if item.get("transport") not in ALLOWED_TRANSPORTS:
             fail("shared-memory pending review uses unsupported transport")
+        if item.get("platform_mode") not in PLATFORM_MODES:
+            fail("shared-memory pending review uses unsupported platform mode")
         if item.get("status") not in {"PENDING_CANDIDATE_FREEZE", "PENDING_EXTERNAL_REVIEW", "REVIEW_RECEIVED", "REVIEW_VALIDATED"}:
             fail("shared-memory pending review has invalid status")
 
@@ -190,6 +223,8 @@ def main() -> int:
             fail("no active review request is allowed only while candidate freeze is pending")
         if pending_reviews[0].get("status") != "PENDING_CANDIDATE_FREEZE":
             fail("shared memory disagrees with pending candidate-freeze review state")
+        if review.get("current_review_status") != "NOT_YET_PRESENT":
+            fail("candidate-freeze state must not pretend active review exists")
     else:
         if not isinstance(active_request_id, str) or not active_request_id:
             fail("active review request identity is malformed")
@@ -219,6 +254,22 @@ def main() -> int:
         if mem_review.get("reviewed_artifact_commit") != reviewed_commit:
             fail("shared memory reviewed artifact differs from session state")
 
+        if review.get("current_collaboration_transport") == "MANUAL_RELAY":
+            bundle_path_value = promotion.get("portable_bundle_path")
+            if not isinstance(bundle_path_value, str) or not bundle_path_value.startswith("governance-runtime/review-bundles/"):
+                fail("MANUAL_RELAY active review requires governed portable bundle path")
+            bundle_path = ROOT.parent / bundle_path_value
+            if not bundle_path.is_file():
+                fail("active portable review bundle file does not exist")
+            bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+            bundle_ok, bundle_reason = verify_portable_review_bundle(request=request, bundle=bundle)
+            if not bundle_ok:
+                fail(f"active portable review bundle invalid: {bundle_reason}")
+            if mem_review.get("portable_bundle_path") != bundle_path_value:
+                fail("shared memory portable review bundle differs from session state")
+            if mem_review.get("repository_access_required") is not False:
+                fail("shared memory manual review incorrectly requires repository access")
+
     superseded_ids = set(review.get("superseded_review_requests", [])) | set(promotion.get("superseded_review_requests", []))
     for request_id in superseded_ids:
         if not isinstance(request_id, str) or not request_id:
@@ -238,6 +289,10 @@ def main() -> int:
         fail("memory write failure must not change authority")
     if memory_rules.get("memory_write_failure_must_be_surfaced") is not True:
         fail("memory write failure must be surfaced")
+    if memory_rules.get("platform_mode_changes_authority") is not False:
+        fail("shared memory must preserve mode-independent authority")
+    if memory_rules.get("manual_mode_user_skip_of_required_review_promotes_authority") is not False:
+        fail("skipping required review in MANUAL_MODE must not promote authority")
 
     continuity = state["continuity"]
     if continuity.get("project_chat_is_authoritative") is not False:
@@ -280,6 +335,7 @@ def main() -> int:
         f"workstream={work['state']} "
         f"result={passed}/{total} "
         f"review={review['current_review_status']} "
+        f"mode={review['current_collaboration_mode']} "
         f"transport={review['current_collaboration_transport']} "
         f"shared_memory={memory['state']}"
     )
