@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-037",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-038",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -26,7 +26,7 @@
       "actions_artifact_id": null,
       "actions_artifact_digest": null,
       "portable_bundle_sha256": null,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013"]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013","REV-MVP-SLICE2-INTEGRATION-001","REV-MVP-SLICE3-INTEGRATION-001"]
     }
   },
   "shared_memory": {
@@ -39,39 +39,39 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "PR #5 was successfully merged after exact-candidate CI, authenticated REV-GOV-PR5-013 PASS, deterministic semantic validation, and green closure-head validation. The stale pre-merge handoff is superseded by this post-merge checkpoint."
+    "last_observed_conflict": "The prior handoff still pointed to Slice 2/3 integration after both transitions had completed. Git verifies PR #8 merged as ff55bb7a803cfffead3ecaf6ea7e171453ed436d and PR #9 merged as a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d. The frontier is now preregistered Slice 4 construction."
   },
   "execution_handoff": {
-    "sequence": 37,
-    "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
-    "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
-    "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-    "phase": "BOUNDED_PASS",
-    "last_completed_action": "Merged live-conversation-governance PR #5 after candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 passed CI run 34164220980, platform-authenticated ReviewRequest REV-GOV-PR5-013 passed workflow 34164436416 with 12/12 mandatory dimensions TESTED_SUPPORTED and zero findings, and closure head 98c156a724356cdd354e74b7960c43fd0ced01f4 passed run 34164599205. PR #5 merged successfully as f0bb95a5b4902b76efceca2f36e27d3512e0bbc7.",
-    "next_required_action": "Integrate the scientifically accepted Integrated Governed MVP stack in lineage order. Git proves Slice 2 head eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b is exactly 8 commits ahead of feature/integrated-governed-mvp, and Slice 3 head 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 is exactly 7 commits ahead of Slice 2 with no behind commits. Create and govern the Slice 2 integration transition first; after it is accepted, advance Slice 3 without skipping its parent lineage.",
+    "sequence": 38,
+    "workstream": "Integrated Governed MVP Slice 4 - Isolated Tool Runner Gateway",
+    "candidate_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
+    "candidate_commit": "b4cc31394fff001f1c726ba8093da20114b324df",
+    "phase": "CONSTRUCTION_DEDICATED_GREEN_FULL_REGRESSION_PENDING",
+    "last_completed_action": "Integrated the accepted Slice 2 and Slice 3 stack in lineage order: PR #8 merged as ff55bb7a803cfffead3ecaf6ea7e171453ed436d after fresh CI and authenticated REV-MVP-SLICE2-INTEGRATION-001 PASS; PR #9 merged as a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d after fresh CI and authenticated REV-MVP-SLICE3-INTEGRATION-001 PASS. Preregistered Slice 4 at f78c5462193445ecb6675dcee4f8f3cc65e99d96, froze S4-01..S4-16 at 0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6, preserved the expected first construction mechanism-absence failure from run 34166059723 in commit f9df961c3f05bdaa87f559c86de980f9e1dc6c37, and implemented the first mechanism at b4cc31394fff001f1c726ba8093da20114b324df. Dedicated Slice 4 construction run 34166171316 passed the frozen harness; the full governed regression run 34166171216 is still in progress and has not been used as acceptance evidence.",
+    "next_required_action": "Verify full governed construction run 34166171216 for exact Slice 4 mechanism commit b4cc31394fff001f1c726ba8093da20114b324df. If it is green, create an exact Slice 4 scientific freeze record without changing the frozen harness or mechanism, then require both the dedicated Slice 4 workflow and complete governed-platform regression to pass on that exact frozen SHA before independent review/adjudication. If the full construction run fails, preserve and classify the failure before any repair.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "manual_deliverable": "No manual input required while exact branch lineage and platform-authenticated review are available.",
-    "handoff_reason": "Live conversation governance promotion is complete. The next unfinished authoritative frontier is integration of the already adjudicated stacked MVP slices in their proven Git ancestry order.",
-    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider HTTP 503 attempt, malformed/corrected pasted reviews, PR #5 superseded requests REV-GOV-PR5-001..012, provisional candidate 012, and REV-GOV-PR5-013 review/merge evidence remain preserved without rewriting.",
-    "resume_rule": "On generic CONTINUE, verify this post-merge handoff and branch ancestry from Git, then continue the Slice 2 -> integrated MVP transition before Slice 3. Never attempt PR #5 merge again and never infer a different frontier from repository HEAD/model memory."
+    "manual_deliverable": "No manual input required while GitHub Actions and authenticated platform review remain available.",
+    "handoff_reason": "Slice 2 and Slice 3 integration are complete. Slice 4 is now preregistered and under falsification-first construction; dedicated acceptance is green but the complete construction regression has not yet finished.",
+    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider failure/review history, PR #5 review history, Slice 2/3 integration review evidence, and Slice 4 first mechanism-absence construction failure remain preserved without rewriting.",
+    "resume_rule": "On generic CONTINUE, verify this exact Slice 4 handoff and GitHub run 34166171216. Do not skip directly to scientific acceptance, do not modify frozen S4-01..S4-16 to obtain green, and do not infer another workstream from repository HEAD."
   },
   "active_workstream": {
-    "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
-    "branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
-    "head_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-    "state": "BOUNDED_PASS",
-    "preregistration_commit": "47d3de5578dd65780f66fed1baedb9f0932b7670",
-    "frozen_acceptance_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
-    "first_mechanism_commit": "ce6b88dc166c72d8f8f8ca9cdfc2a2bd8b53cb5e",
-    "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
-    "frozen_cases": "S3-01..S3-16",
+    "name": "Integrated Governed MVP Slice 4 - Isolated Tool Runner Gateway",
+    "branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
+    "head_commit": "b4cc31394fff001f1c726ba8093da20114b324df",
+    "state": "CONSTRUCTION_DEDICATED_GREEN_FULL_REGRESSION_PENDING",
+    "preregistration_commit": "f78c5462193445ecb6675dcee4f8f3cc65e99d96",
+    "frozen_acceptance_harness_commit": "0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6",
+    "first_mechanism_commit": "b4cc31394fff001f1c726ba8093da20114b324df",
+    "preserved_failure_record_commit": "f9df961c3f05bdaa87f559c86de980f9e1dc6c37",
+    "frozen_cases": "S4-01..S4-16",
     "latest_result": {"passed": 16, "total": 16, "failures": []},
-    "next_action": "Integrate Slice 2 into feature/integrated-governed-mvp under the governed material-authority-transition path, then integrate Slice 3 on top of that accepted parent lineage.",
-    "forbidden_shortcut": "Do not merge Slice 3 ahead of its Slice 2 parent integration; do not target main merely because PR #5 merged; do not bypass material-transition review; do not rewrite earlier failure/review history."
+    "next_action": "Verify complete construction regression run 34166171216; freeze only if both dedicated and full construction evidence are green, then execute scientific workflows on the exact frozen SHA.",
+    "forbidden_shortcut": "Do not call the construction-green mechanism scientifically accepted; do not weaken or edit frozen S4-01..S4-16 after exposure; do not claim arbitrary-code sandbox security; do not treat CI alone as independent review or terminal authority."
   },
   "accepted_prior_boundary": {
-    "name": "Integrated Governed MVP Slice 3",
+    "name": "Integrated Governed MVP through Slice 3",
     "scientific_freeze_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "bounded_adjudication_commit": "bdb61336a5d307021a6071d6774bb0c8d45a573b",
     "state": "BOUNDED_PASS"
@@ -94,13 +94,13 @@
     "user_attestation_is_provider_authentication": false,
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
-    "current_required_transition": "Governed integration of Slice 2 into feature/integrated-governed-mvp before Slice 3 integration",
+    "current_required_transition": "Slice 4 candidate freeze and independent review after exact construction evidence is complete",
     "current_review_status": "NOT_YET_PRESENT",
     "current_review_request_id": null,
     "current_review_transport": null,
     "current_requested_reviewer": null,
     "current_reviewed_artifact_commit": null,
-    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013"],
+    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013","REV-MVP-SLICE2-INTEGRATION-001","REV-MVP-SLICE3-INTEGRATION-001"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
