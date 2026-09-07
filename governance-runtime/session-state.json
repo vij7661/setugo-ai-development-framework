@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-023",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-024",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -12,19 +12,19 @@
     "normative_contract_commit": "1eea3c47e4c267561054c637a9e18f88ea970fd3",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_EXTERNAL_REVIEW",
+      "state": "PENDING_CANDIDATE_FREEZE",
       "next_review_request_id": null,
       "next_review_reviewer": null,
-      "review_request_id": "REV-GOV-PR5-009",
-      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-009.json",
-      "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-009.manifest.json",
-      "reviewed_candidate_commit": "07ad04e2706211cd46db01da743e573132e22f8f",
-      "candidate_ci_run": 34132548815,
-      "candidate_ci_conclusion": "success",
-      "actions_artifact_id": 10022661993,
-      "actions_artifact_digest": "sha256:7838e009348cb4b55b9b24c8afc34c0f32e210703308e69cfdcfa9fc3e1fff9c",
-      "portable_bundle_sha256": "8ea0a48d22e2b3d6693d344144dea8fb08fdb860a9a3f2783323d04ea004370a",
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008"]
+      "review_request_id": null,
+      "review_request_path": null,
+      "portable_bundle_manifest_path": null,
+      "reviewed_candidate_commit": null,
+      "candidate_ci_run": null,
+      "candidate_ci_conclusion": null,
+      "actions_artifact_id": null,
+      "actions_artifact_digest": null,
+      "portable_bundle_sha256": null,
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009"]
     }
   },
   "shared_memory": {
@@ -37,7 +37,7 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "REV-GOV-PR5-008 claimed PASS while its own evidence assessment admitted raw files were not directly accessible; GOV-SEM-001 now blocks that semantic overclaim."
+    "last_observed_conflict": "DeepSeek manual relay does not accept ZIP and multi-file upload is impractical; unsent REV-GOV-PR5-009 was superseded before packaging repair rather than weakening raw-byte review evidence."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
@@ -57,8 +57,8 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "REV-GOV-PR5-009 is active for DeepSeek against exact candidate 07ad04e2706211cd46db01da743e573132e22f8f and CI run 34132548815. Manual relay must use the ordinary-file export because DeepSeek does not accept ZIP; all raw artifacts and manifest must be provided so the mandatory raw-byte-integrity review dimension is actually testable. PR #5 remains non-authoritative.",
-    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-008 or any earlier superseded review as current; do not trust manual-relay provider self-claims; do not promote a legacy review schema, a negative review disposition, a PASS with incomplete mandatory review coverage, or a DeepSeek review that did not receive the required raw ordinary files."
+    "next_action": "Implement preregistered GOV-PORTABLE-002 single-file manual review container, verify reconstruction/hash/tamper cases in CI, freeze a new candidate, then issue a fresh DeepSeek review request requiring only one ordinary text attachment.",
+    "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-009 or earlier superseded reviews as current; do not weaken raw-byte-integrity review merely because ZIP/many-file upload is unsupported; do not promote a legacy review schema, negative disposition, or incomplete mandatory review coverage."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 2",
@@ -83,11 +83,11 @@
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 and future material governed authority transitions",
-    "current_review_status": "PENDING_EXTERNAL_REVIEW",
-    "current_review_request_id": "REV-GOV-PR5-009",
-    "current_requested_reviewer": "DEEPSEEK",
-    "current_reviewed_artifact_commit": "07ad04e2706211cd46db01da743e573132e22f8f",
-    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008"],
+    "current_review_status": "NOT_YET_PRESENT",
+    "current_review_request_id": null,
+    "current_requested_reviewer": null,
+    "current_reviewed_artifact_commit": null,
+    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009"],
     "received_review_evidence": [
       {"request_id":"REV-GOV-PR5-003","reviewed_commit":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"deepseek","identity_assurance":"CORRECTED_AFTER_USER_DISCLOSURE","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false,"evidence_path":"governance-runtime/review-evidence/REV-GOV-PR5-003-claude.json","correction_path":"governance-runtime/review-evidence/REV-GOV-PR5-003-reviewer-identity-correction.json"},
       {"request_id":"REV-GOV-PR5-003","reviewed_commit":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"claimed_anthropic_claude","identity_assurance":"USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false,"evidence_path":"governance-runtime/review-evidence/REV-GOV-PR5-003-claude-manual-relay-unverified.json"},
@@ -114,11 +114,11 @@
     {"id":"GOV-SEM-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-SEM-001.json","candidate_commit":"e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f","workflow_run":34131579394,"tests":"33/33","state":"CONSTRUCTION_GREEN_BOUNDED"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"PENDING_EXTERNAL_REVIEW","description":"REV-GOV-PR5-009 is active for DeepSeek, schema 4, exact candidate 07ad04e2706211cd46db01da743e573132e22f8f; manual relay ordinary-file export must include all mandatory evidence dimensions."},
+    {"id":"GOV-IR-001","state":"PENDING_CANDIDATE_FREEZE","description":"REV-GOV-PR5-009 was superseded before review; a fresh request is required after GOV-PORTABLE-002."},
+    {"id":"GOV-PORTABLE-002","state":"PREREGISTERED_REPAIR_PENDING","description":"Single ordinary text attachment must embed and integrity-bind all required raw review artifacts without changing review authority semantics."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
-    {"id":"GOV-PORTABLE-001","state":"CONSTRUCTION_GREEN","description":"Portable review export includes semantic dimensions, raw canonical artifacts, and instructions that mandatory inaccessible dimensions cannot receive PASS."},
     {"id":"GOV-ID-001","state":"BLOCKED_IDENTITY_UNVERIFIED_IN_MANUAL_RELAY","description":"Manual relay provider identity remains non-authenticating; production API adapters remain the trusted identity path."},
     {"id":"GOV-SELECT-001","state":"CONSTRUCTION_GREEN","description":"Reviewer selection remains provider-neutral and semantically bound."},
-    {"id":"GOV-SEM-001","state":"CONSTRUCTION_GREEN_UNDER_REVIEW","description":"Preregistered semantic review enforcement passed 33/33 and is now under REV-GOV-PR5-009 DeepSeek review."}
+    {"id":"GOV-SEM-001","state":"CONSTRUCTION_GREEN","description":"Preregistered semantic review enforcement passed 33/33; first red mechanism-absence exposure is preserved."}
   ]
 }
