@@ -16,25 +16,25 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "status": "BOUNDED_PASS",
-    "continuity_summary": "Slice 3 remains BOUNDED_PASS. PR #5 exact candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 has green candidate CI run 34164220980 and a valid platform-authenticated Gemini ReviewRequest REV-GOV-PR5-013 PASS from workflow 34164436416: zero findings, 12/12 mandatory dimensions TESTED_SUPPORTED, exact candidate/request binding, deterministic validation valid. Next is final closure-head validation, PR body correction, and promotion if no blocker remains.",
+    "continuity_summary": "Live-conversation-governance PR #5 is merged as f0bb95a5b4902b76efceca2f36e27d3512e0bbc7 after exact candidate CI, authenticated REV-GOV-PR5-013 PASS, and green closure head. Next frontier is the Integrated Governed MVP stack. Git ancestry proves Slice 2 eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b is 8 commits ahead of feature/integrated-governed-mvp, and Slice 3 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 is 7 commits ahead of Slice 2. Integrate Slice 2 first under the material-transition review path, then Slice 3.",
     "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
-    "prohibited_use": ["promote_pr5_without_green_closure_head","rewrite_prior_failures","treat_external_paste_as_platform_review","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
+    "prohibited_use": ["attempt_pr5_merge_again","merge_slice3_before_slice2_parent_integration","target_main_from_stale_assumption","bypass_material_transition_review","rewrite_prior_failures","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
   },
   "execution_handoff": {
-    "sequence": 36,
+    "sequence": 37,
     "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "phase": "BOUNDED_PASS",
-    "next_required_action": "Run final closure-head validation for PR #5, update the stale PR #5 description with the exact candidate/review/closure evidence while preserving superseded history, then promote/merge only if the closure head is green and no governance rule or repository condition blocks the transition.",
+    "next_required_action": "Integrate the scientifically accepted Integrated Governed MVP stack in lineage order. Git proves Slice 2 head eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b is exactly 8 commits ahead of feature/integrated-governed-mvp, and Slice 3 head 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 is exactly 7 commits ahead of Slice 2 with no behind commits. Create and govern the Slice 2 integration transition first; after it is accepted, advance Slice 3 without skipping its parent lineage.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "resume_rule": "Generic CONTINUE means verify current PR #5 review evidence and closure-head CI, then complete PR #5 closure/promotion if permitted; never reconstruct another frontier from memory or repository HEAD."
+    "resume_rule": "Generic CONTINUE means verify the authoritative post-merge handoff and exact Git ancestry, then continue Slice 2 integration before Slice 3; never retry PR #5 or reconstruct another frontier from memory/repository HEAD."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
-    "pull_request": 5,
-    "status": "VALID_INDEPENDENT_REVIEW_PRESENT",
+    "pull_request": null,
+    "status": "PENDING_CANDIDATE_FREEZE",
     "platform_modes": ["AUTO_MODE","MANUAL_MODE"],
     "review_levels": ["NONE","RECOMMENDED","REQUIRED"],
     "supported_review_transports": ["AUTOMATIC_API","USER_INITIATED_API"],
@@ -45,34 +45,34 @@
     "current_external_evidence_channel": "USER_PASTE",
     "semantic_review_schema_minimum_for_promotion": 4,
     "positive_promotable_dispositions": ["PASS","BOUNDED_PASS"],
-    "selected_next_reviewer": {"provider":"gemini","model_class":"gemini"},
-    "current_review_request_id": "REV-GOV-PR5-013",
-    "current_review_status": "VALID_INDEPENDENT_REVIEW_PRESENT",
-    "reviewed_candidate_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
-    "current_review_disposition": "PASS",
-    "current_review_semantic_validation": "VALID_12_OF_12_TESTED_SUPPORTED",
-    "current_review_effective_state": "VALID_INDEPENDENT_REVIEW_PRESENT",
-    "current_review_identity_assurance": "PROVIDER_API_AUTHENTICATED_EXECUTION_ENVELOPE",
-    "current_review_counts_for_promotion": true,
-    "construction_evidence": {"id":"PR5-CANDIDATE-013-CI","candidate_commit":"2ae09783c0c36d5b8cc66146c3445e131fd99971","workflow_run":34164220980,"state":"CONSTRUCTION_GREEN_REVIEWED_PASS"},
-    "features_under_review": ["deterministic execution handoff","platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
+    "selected_next_reviewer": null,
+    "current_review_request_id": null,
+    "current_review_status": "NOT_YET_PRESENT",
+    "reviewed_candidate_commit": null,
+    "current_review_disposition": null,
+    "current_review_semantic_validation": null,
+    "current_review_effective_state": "PENDING_CANDIDATE_FREEZE",
+    "current_review_identity_assurance": null,
+    "current_review_counts_for_promotion": false,
+    "construction_evidence": {"id":"PR5-MERGE-COMPLETE","candidate_commit":"2ae09783c0c36d5b8cc66146c3445e131fd99971","workflow_run":34164220980,"state":"MERGED_AFTER_AUTHENTICATED_REVIEW","merge_commit":"f0bb95a5b4902b76efceca2f36e27d3512e0bbc7"},
+    "features_under_review": ["Integrated Governed MVP Slice 2 integration transition before Slice 3"]
   },
   "pending_reviews": [
     {
-      "purpose": "Final closure/promotion of live-conversation-governance PR #5 after valid REV-GOV-PR5-013",
-      "status": "VALID_INDEPENDENT_REVIEW_PRESENT",
+      "purpose": "Governed material-authority transition for Slice 2 integration into feature/integrated-governed-mvp",
+      "status": "PENDING_CANDIDATE_FREEZE",
       "platform_mode": "AUTO_MODE",
-      "review_request_id": "REV-GOV-PR5-013",
-      "review_transport": "AUTOMATIC_API",
-      "reviewed_artifact_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
-      "counts_for_current_promotion": true,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"]
+      "review_request_id": null,
+      "review_transport": null,
+      "reviewed_artifact_commit": null,
+      "counts_for_current_promotion": false,
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013"]
     }
   ],
   "received_review_history": [
     {"request_id":"SLICE3-REVIEW-4F1797B-SUPPLEMENT-002","origin":"user_pasted_external_content","claimed_disposition":"PASS","effective_disposition":"VALID_EXTERNAL_SEMANTIC_PASS_NONPROMOTABLE","reviewed_candidate":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","counts_for_current_promotion":false},
     {"request_id":"SLICE3-PLATFORM-AUTO-003","origin":"platform_authenticated_gemini_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","attempt1":"HTTP_503_UNAVAILABLE_PRESERVED","attempt2":"PASS","mandatory_dimensions":"12/12 TESTED_SUPPORTED","findings":0,"effective_disposition":"BOUNDED_PASS","provider_api_authenticated":true},
-    {"request_id":"REV-GOV-PR5-013","origin":"platform_authenticated_gemini_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"2ae09783c0c36d5b8cc66146c3445e131fd99971","workflow_run":34164436416,"disposition":"PASS","mandatory_dimensions":"12/12 TESTED_SUPPORTED","findings":0,"semantic_validation":"VALID","provider_api_authenticated":true,"counts_for_current_promotion":true}
+    {"request_id":"REV-GOV-PR5-013","origin":"platform_authenticated_gemini_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"2ae09783c0c36d5b8cc66146c3445e131fd99971","workflow_run":34164436416,"disposition":"PASS","mandatory_dimensions":"12/12 TESTED_SUPPORTED","findings":0,"semantic_validation":"VALID","provider_api_authenticated":true,"counts_for_current_promotion":true,"merge_commit":"f0bb95a5b4902b76efceca2f36e27d3512e0bbc7"}
   ],
   "external_evidence_history": [
     {"id":"SLICE3-SUPPLEMENT-002-INVALID-PASS","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-invalid.json","provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS"},
@@ -82,7 +82,8 @@
     {"id":"LCG-F12","observed":"Assistant repeatedly resumed from stale model/project context or repository history instead of the true last operational checkpoint.","resolution":"GOV_HANDOFF_001_EXPLICIT_CANDIDATE_BOUND_EXECUTION_HANDOFF_ADDED","silent_merge":false},
     {"id":"LCG-F13","observed":"Supplemental reviewer returned PASS with malformed request/candidate binding and response schema.","resolution":"MALFORMED_PASS_PRESERVED_NON_PROMOTABLE_CORRECTED_REISSUANCE_REQUIRED","silent_merge":false},
     {"id":"LCG-F14","observed":"Corrected pasted PASS was schema-valid but remained unauthenticated external evidence under platform review policy.","resolution":"EXTERNAL_SEMANTIC_PASS_PRESERVED_NONPROMOTABLE_PLATFORM_API_REVIEW_EXECUTED","silent_merge":false},
-    {"id":"LCG-F15","observed":"First platform-authenticated Slice 3 review attempt received Gemini HTTP 503 high-demand response.","resolution":"PROVIDER_FAILURE_PRESERVED_NO_AUTHORITY_EFFECT_SAME_REQUEST_RETRIED_AND_PASSED","silent_merge":false}
+    {"id":"LCG-F15","observed":"First platform-authenticated Slice 3 review attempt received Gemini HTTP 503 high-demand response.","resolution":"PROVIDER_FAILURE_PRESERVED_NO_AUTHORITY_EFFECT_SAME_REQUEST_RETRIED_AND_PASSED","silent_merge":false},
+    {"id":"LCG-F16","observed":"Authoritative handoff still pointed to PR #5 closure after PR #5 had already merged.","resolution":"POST_MERGE_HANDOFF_ADVANCED_TO_STACK_INTEGRATION_FRONTIER","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
