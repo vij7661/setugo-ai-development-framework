@@ -7,9 +7,11 @@ from dataclasses import asdict, dataclass
 from hashlib import sha256
 from pathlib import Path
 
+from .review_execution_classification import ingest_user_provided_external_content
+
 
 SUPPORTED_REVIEW_TARGETS = frozenset({"provider-neutral", "claude", "deepseek", "kimi"})
-MANUAL_RELAY_IDENTITY_ASSURANCE = "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY"
+EXTERNAL_CONTENT_IDENTITY_ASSURANCE = "UNAUTHENTICATED_EXTERNAL_CONTENT"
 RAW_HASH_BASIS = "RAW_FILE_BYTES"
 TRANSPORT_PROFILE_CHECKED_DATE = "2026-09-07"
 
@@ -96,8 +98,6 @@ def _safe_source(root: Path, relative: str) -> tuple[Path, str]:
     source = root / rel
     if not source.is_file():
         raise ValueError(f"review source file not found: {relative}")
-    # Resolve only for containment validation. The retained/canonical path remains
-    # the repository-relative path supplied in the source manifest.
     resolved_root = root.resolve()
     resolved_source = source.resolve()
     if resolved_source != resolved_root and resolved_root not in resolved_source.parents:
@@ -107,17 +107,20 @@ def _safe_source(root: Path, relative: str) -> tuple[Path, str]:
 
 def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...], source_text: dict[str, str]) -> str:
     target_note = {
-        "provider-neutral": "Use this packet with any independent reviewer that can consume UTF-8 text/Markdown.",
-        "claude": "Claude-targeted transport hint only; reviewer identity is not proven by this file.",
-        "deepseek": "DeepSeek-targeted transport hint only; this Markdown can be supplied as plain text when document upload is unavailable.",
-        "kimi": "Kimi-targeted transport hint only; reviewer identity is not proven by this file.",
+        "provider-neutral": "Use this packet with any external reviewer that can consume UTF-8 text/Markdown.",
+        "claude": "Claude-targeted input hint only; reviewer identity is not proven by this file.",
+        "deepseek": "DeepSeek-targeted input hint only; this Markdown can be supplied as plain text when document upload is unavailable.",
+        "kimi": "Kimi-targeted input hint only; reviewer identity is not proven by this file.",
     }[spec.intended_reviewer]
     lines = [
-        f"# Independent Review Packet — {spec.review_id}",
+        f"# External Independent-Review Evidence Packet — {spec.review_id}",
         "",
         f"- Candidate commit: `{spec.candidate_sha}`",
-        f"- Intended reviewer target: `{spec.intended_reviewer}`",
-        f"- Identity assurance for manual relay: `{MANUAL_RELAY_IDENTITY_ASSURANCE}`",
+        f"- Intended external reviewer target: `{spec.intended_reviewer}`",
+        f"- Initial content classification: `USER_PROVIDED_EXTERNAL_CONTENT`",
+        f"- Delivery channel: `EXTERNAL_EVIDENCE_RELAY`",
+        f"- Provider identity assurance: `{EXTERNAL_CONTENT_IDENTITY_ASSURANCE}`",
+        f"- Can satisfy platform API-review authority: `false`",
         f"- Raw artifact hash basis: `{RAW_HASH_BASIS}`",
         "",
         target_note,
@@ -132,9 +135,11 @@ def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...
         "",
         "1. The files under `raw-artifacts/` and their SHA-256 hashes are the canonical review bytes.",
         "2. This Markdown is a convenience rendering and is not independently authoritative over the raw files.",
-        "3. Do not infer reviewer/provider/model identity from self-declared output metadata.",
-        "4. Green CI, reviewer agreement, or a PASS string is evidence only; it is not promotion authority.",
-        "5. Review the exact candidate commit and report any candidate/hash mismatch.",
+        "3. Pasted or returned content starts as USER_PROVIDED_EXTERNAL_CONTENT; self-declared reviewer/provider/model fields do not classify or authenticate it.",
+        "4. Only an explicit user attestation may later classify pasted content as USER_ATTESTED_EXTERNAL_LLM_REVIEW, and that still does not become provider-API authentication.",
+        "5. Only platform AUTOMATIC_API or USER_INITIATED_API execution can satisfy a provider-authenticated platform review requirement.",
+        "6. Green CI, reviewer agreement, or a PASS string is evidence only; it is not promotion authority.",
+        "7. Review the exact candidate commit and report any candidate/hash mismatch.",
         "",
         "## Raw artifact manifest",
         "",
@@ -159,13 +164,14 @@ def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...
 
 
 def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: ReviewExportSpec) -> dict:
-    """Build one provider-neutral, byte-bound manual-review export.
+    """Build a provider-neutral, byte-bound external-evidence export.
 
     The same raw artifact set is used regardless of Claude/DeepSeek/Kimi target.
-    Target selection changes only transport/readability hints in convenience
-    files; it cannot alter the reviewed source bytes or authenticate the reviewer.
+    Target selection changes only convenience input hints. The resulting handoff
+    is external content, not a platform API review and not reviewer authentication.
     """
     spec.validate()
+    external_classification = ingest_user_provided_external_content()
     root = Path(repo_root)
     out = Path(output_dir)
     if not root.is_dir():
@@ -197,15 +203,21 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
 
     frozen_entries = tuple(entries)
     request = {
-        "schema_version": 1,
+        "schema_version": 2,
         "review_id": spec.review_id,
         "candidate_sha": spec.candidate_sha,
-        "intended_reviewer": spec.intended_reviewer,
-        "transport": "MANUAL_RELAY",
-        "reviewer_identity_assurance": MANUAL_RELAY_IDENTITY_ASSURANCE,
+        "intended_external_reviewer": spec.intended_reviewer,
+        "content_classification": external_classification.review_class,
+        "delivery_channel": external_classification.transport,
+        "platform_review_transport": None,
+        "provider_api_authenticated": external_classification.provider_api_authenticated,
+        "can_satisfy_platform_review": external_classification.can_satisfy_platform_review,
+        "provenance_basis": external_classification.provenance_basis,
+        "reviewer_identity_assurance": EXTERNAL_CONTENT_IDENTITY_ASSURANCE,
         "raw_hash_basis": RAW_HASH_BASIS,
         "raw_artifacts": [asdict(entry) for entry in frozen_entries],
-        "output_rule": "Return the requested review result only; self-declared provider/model metadata does not authenticate reviewer identity.",
+        "attestation_rule": "Only an explicit user statement may later classify returned content as USER_ATTESTED_EXTERNAL_LLM_REVIEW; content metadata cannot establish its own source.",
+        "output_rule": "Return the requested external assessment only; self-declared provider/model metadata does not authenticate reviewer identity or satisfy a platform API-review gate.",
     }
     (out / "REVIEW_REQUEST.json").write_text(
         json.dumps(request, indent=2, sort_keys=True) + "\n",
@@ -244,6 +256,8 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
         "review_id": spec.review_id,
         "candidate_sha": spec.candidate_sha,
         "intended_reviewer": spec.intended_reviewer,
+        "content_classification": external_classification.review_class,
+        "can_satisfy_platform_review": False,
         "raw_artifact_count": len(frozen_entries),
         "raw_artifacts": [asdict(entry) for entry in frozen_entries],
         "packet_sha256": sha256((out / "REVIEW_PACKET.md").read_bytes()).hexdigest(),
@@ -254,7 +268,7 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build a deterministic Review Engine independent-review export")
+    parser = argparse.ArgumentParser(description="Build a deterministic Review Engine external-review evidence export")
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--output", required=True)
     parser.add_argument("--review-id", required=True)
