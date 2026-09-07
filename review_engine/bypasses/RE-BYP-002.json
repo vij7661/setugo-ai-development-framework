@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-002",
   "classification": "RESIDUAL_REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
   "invariant": "Reviewer independence must fail closed when two reviewer roles may resolve to the same effective runtime, even if provider aliases, URL spellings, or model labels differ.",
-  "status": "INDEPENDENTLY_REVIEWED",
+  "status": "CLOSED",
   "independent_review_required": true,
   "source_external_content_sha256": "681dafb1206cc6945e6d88b21086bf330eacf4a3fd75fe5de17d8f27cbff520d",
   "source_classification": "USER_PROVIDED_EXTERNAL_CONTENT",
@@ -28,9 +28,10 @@
   "full_suite_candidate": "2807bfc530b22113cecd8c5defdd55293509556e",
   "independent_review_ref": "platform-review:REV-RE-COMP-002@56d080e14d1414e2f994800f19c232cd0c0317d6",
   "independent_review_evidence": "review_engine/reviews/REV-RE-COMP-002-platform-api-review.json",
+  "post_review_validation_ref": "review-engine-ci:34156006553=SUCCESS;governed-platform-review-engine-harness:34156006609=SUCCESS@835be9f4a15f5f86f3d199234dc2e1e525b4c9c7",
   "notes": [
     "All residual runtime-alias regressions pass at the exact full-suite candidate.",
     "REV-RE-COMP-002 was executed as PLATFORM_AUTO_API_REVIEW through the Gemini API against exact candidate 56d080e14d1414e2f994800f19c232cd0c0317d6; deterministic validation reported PASS with all 11 mandatory dimensions TESTED_SUPPORTED and zero findings.",
-    "Lifecycle has advanced exactly one edge from FULL_SUITE_GREEN to INDEPENDENTLY_REVIEWED; CLOSED remains a separate transition."
+    "The INDEPENDENTLY_REVIEWED lifecycle state was separately validated by Review Engine CI 34156006553 and integrated harness 34156006609 before this final CLOSED transition."
   ]
 }
