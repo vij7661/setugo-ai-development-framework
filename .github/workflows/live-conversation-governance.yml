@@ -33,7 +33,7 @@ jobs:
       - name: Test review, grounding, transport, selection, semantic consistency, single-file integrity, and fail-closed promotion invariants
         run: |
           cd governance-runtime
-          python -m unittest -v test_review_protocol.py test_reviewer_selection.py test_review_semantics.py
+          python -m unittest -v test_review_protocol.py test_reviewer_selection.py test_review_semantics.py test_review_classification.py
 
       - name: Verify authoritative references exist and active head is exact
         shell: bash
