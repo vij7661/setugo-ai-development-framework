@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "freeze_id": "GOV-PR5-REPAIR-FREEZE-001",
+  "construction_candidate_commit": "88fb033fb100042f7b1fe44140475dc3cd594339",
+  "construction_ci_run": 34122773078,
+  "construction_ci_conclusion": "success",
+  "source_review_evidence": "governance-runtime/review-evidence/REV-GOV-PR5-003-claude.json",
+  "finding_assessment": "governance-runtime/review-evidence/REV-GOV-PR5-003-finding-assessment.json",
+  "repairs_in_scope": [
+    "F1 promotion gate validates actual ReviewRequest/ReviewEvidence",
+    "F2 promotion gate validates shared-memory grounding against authority",
+    "F3 reviewer provider/model/model-class validation",
+    "F4 material-authority and standard-required catch-all review enforcement",
+    "F5 portable packet evidence-ref coverage enforcement",
+    "LCG-F6 stale shared-memory conflict detection/repair",
+    "LCG-F7 CI review request ID no longer hard-coded"
+  ],
+  "scientific_or_authoritative_disposition": "NOT_YET_REVIEWED",
+  "promotion_allowed": false,
+  "next_step": "Declare next review request ID, run CI to build exact candidate-bound packet, then obtain fresh independent Claude review."
+}
