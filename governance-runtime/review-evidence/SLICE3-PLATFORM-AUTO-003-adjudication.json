@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "review_request_id": "SLICE3-PLATFORM-AUTO-003",
+  "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "construction_evidence": {
+    "workflow_run_id": 34156635574,
+    "frozen_tests": "16/16",
+    "candidate_exact": true
+  },
+  "review_evidence": {
+    "path": "governance-runtime/review-evidence/SLICE3-PLATFORM-AUTO-003-platform-review.json",
+    "workflow_run_id": 34163781560,
+    "run_attempt": 2,
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "transport": "AUTOMATIC_API",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "provider_api_authenticated": true,
+    "semantic_validation_valid": true,
+    "mandatory_dimensions_supported": "12/12",
+    "findings": 0,
+    "disposition": "PASS"
+  },
+  "preserved_history": {
+    "parent_candidate": "325610d807eb88595231ec05af33e93f340ecb49",
+    "parent_result": "14/16",
+    "parent_failures": ["S3-03","S3-11"],
+    "platform_review_attempt1": "HTTP_503_UNAVAILABLE_HIGH_DEMAND; preserved with no authority effect",
+    "external_corrected_review": "VALID_EXTERNAL_SEMANTIC_PASS_NONPROMOTABLE"
+  },
+  "effective_scientific_state": "BOUNDED_PASS",
+  "scope": "Integrated Governed MVP Slice 3 Repository Mutation Gateway as frozen at exact candidate commit and frozen S3-01..S3-16 acceptance harness.",
+  "limitations": [
+    "Remote Gemini model identity is not cryptographically proven; authenticated platform API execution envelope establishes provider-call provenance.",
+    "PASS is bounded to the frozen candidate, frozen harness, supplied exact source corpus, and tested local repository-mutation authority surface; it does not grant merge, release, deploy, remote push, or terminal authority."
+  ],
+  "promotion_authority": "Slice 3 scientific boundary may advance to BOUNDED_PASS; downstream authority transitions remain independently governed."
+}

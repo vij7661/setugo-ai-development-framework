@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-006",
+  "reviewed_candidate_commit": "e40f31951b6013a155472223d77469be25bbecb8",
+  "repository_access_required": false,
+  "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
+  "bundle_filename": "REV-GOV-PR5-006-portable-review-packet.md",
+  "bundle_body_sha256": "057beeaf90c72f8b9624f1a4c3a19609bce0778f7945d8f4689b0bbd2aa62d0a",
+  "bundle_file_sha256": "13535b8ddc2a04602c5d4449ffa7a2fab0ca038d34474d13e17a150619d6e7da",
+  "embedded_artifacts": [
+    {"path":"governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md","content_sha256":"3f28e09858ed0365f63eb654a12a51e1753a7798bc549e991539ee7057cf8cac","bytes_utf8":13787},
+    {"path":"governance-runtime/review_protocol.py","content_sha256":"1c699a1650d5dc6185b049cdd6172fde5e8e68debacaa49706f4c7c7ac3b5ed9","bytes_utf8":16187},
+    {"path":"governance-runtime/test_review_protocol.py","content_sha256":"9d43b49c26c9fcd519fe34c39dff7a7033091e7d24a9f20c206b4ac47190cd11","bytes_utf8":9166},
+    {"path":"governance-runtime/validate_runtime.py","content_sha256":"00cf4507cde84258304f52475beebca5b19bb66ceb0b9cbecc3e6488d8f24ef7","bytes_utf8":21717},
+    {"path":"governance-runtime/session-state.json","content_sha256":"0397aa8d11aad0b2b86627b2f205c3af5352074668fe02b65996df17b699bb33","bytes_utf8":6446},
+    {"path":"governance-runtime/shared-memory.json","content_sha256":"73e4c43b3c40312d5824d8f2c462be83b1465ab7c77cc590c356891206f174c8","bytes_utf8":3520},
+    {"path":"governance-runtime/decision-log.jsonl","content_sha256":"b9066eb269d938d06ad79cd7f3b38d0fc3dc801366511dbc5734920fb138bd2e","bytes_utf8":7416},
+    {"path":"governance-runtime/build_portable_review_packet.py","content_sha256":"513121df05d736716755defafcb7196b010fddf77835da213cec83999d99e148","bytes_utf8":6875},
+    {"path":".github/workflows/live-conversation-governance.yml","content_sha256":"530f9ccfb3f206b6cab012c23b40c2aaf0e41176685a2d887c79a3bd27080623","bytes_utf8":8657}
+  ],
+  "builder_execution_head": "e40f31951b6013a155472223d77469be25bbecb8",
+  "builder_ci_run_id": "34121555924",
+  "actions_artifact_id": 10018372901,
+  "actions_run_id": 34121555924,
+  "actions_artifact_name": "claude-review-REV-GOV-PR5-006-34121555924",
+  "actions_artifact_digest": "sha256:53477ab805c54a8e56903066b994058eb7d28515554e1bcab3e9e9d2c0c26d72",
+  "external_review_received": false
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-007",
+  "reviewed_candidate_commit": "956d71dfd23b19450ff3b61aa89131d885709c14",
+  "repository_access_required": false,
+  "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
+  "bundle_filename": "REV-GOV-PR5-007-portable-review-packet.md",
+  "bundle_body_sha256": "eb48f38187c364b052a84c51ea66d5deb9320742f06921e7e05964daa8740693",
+  "bundle_file_sha256": "bbab6f10e3072aa5261471a6b2529224b13cc52474d551589883056eb788cf26",
+  "logical_bundle_sha256": "e69f88f7ceab81da630a2cb8d0c564a6edab4fa4d287bb390207570e8ff31a09",
+  "actions_artifact_id": 10018893528,
+  "actions_run_id": 34122900153,
+  "actions_artifact_digest": "sha256:79f22d9253cd57d89d6aaa1058722a25e6c8dd4c2e433dd590dd689370d44d6c",
+  "covered_evidence_refs": [
+    {"type":"ci_run","ref":"34122900153"},
+    {"type":"history","ref":"superseded review requests: REV-GOV-PR5-001,REV-GOV-PR5-002,REV-GOV-PR5-003,REV-GOV-PR5-004,REV-GOV-PR5-005,REV-GOV-PR5-006"},
+    {"type":"file","ref":"governance-runtime/review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/test_review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"}
+  ],
+  "embedded_artifacts": [
+    {"path":"governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md","content_sha256":"3f28e09858ed0365f63eb654a12a51e1753a7798bc549e991539ee7057cf8cac","bytes_utf8":13787},
+    {"path":"governance-runtime/review_protocol.py","content_sha256":"cba61f2450abb870f5abbf912e665712b162ccb6bc83473dc464de1419ab8666","bytes_utf8":24666},
+    {"path":"governance-runtime/test_review_protocol.py","content_sha256":"475a859b604839d0526ff2b4b7896e2b8b58a2fd1acf13da47da407c6b4216f4","bytes_utf8":13840},
+    {"path":"governance-runtime/validate_runtime.py","content_sha256":"00cf4507cde84258304f52475beebca5b19bb66ceb0b9cbecc3e6488d8f24ef7","bytes_utf8":21717},
+    {"path":"governance-runtime/session-state.json","content_sha256":"a41f7dc7880dc69d8a7a99583ef17d3cdcb5cd58017212e5470dc329869cf51a","bytes_utf8":7055},
+    {"path":"governance-runtime/shared-memory.json","content_sha256":"3379801adcaff8dd3aa68b443929a8b500070cdf2af06621fefe5b8d42f776d6","bytes_utf8":4249},
+    {"path":"governance-runtime/decision-log.jsonl","content_sha256":"1aba5401e522c008e46c892a4be97a6dbc4e98a5efd5f29180e665185e5b5f34","bytes_utf8":9530},
+    {"path":"governance-runtime/build_portable_review_packet.py","content_sha256":"57906bd87f20a0ce822021ebe1685588ca2feefa50e8cb9cafe2a633018a921f","bytes_utf8":8763},
+    {"path":".github/workflows/live-conversation-governance.yml","content_sha256":"2b237dea6ac00eec37954c6622fb2e3f4629e5d3d56d77cc3e4df9ee2cfb8c80","bytes_utf8":9044}
+  ],
+  "builder_execution_head": "956d71dfd23b19450ff3b61aa89131d885709c14",
+  "builder_ci_run_id": "34122900153"
+}

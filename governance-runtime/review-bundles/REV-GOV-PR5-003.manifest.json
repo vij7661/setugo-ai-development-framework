@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-003",
+  "reviewed_candidate_commit": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
+  "repository_access_required": false,
+  "bundle_storage": "EXTERNAL_USER_PORTABLE_FILE",
+  "bundle_filename": "REV-GOV-PR5-003-portable-review-packet.md",
+  "bundle_sha256": "51a322d53326465fbf84f3fab843e82b33aa424229ad614b60c9c9381edeafe8",
+  "embedded_artifacts": [
+    {"path":"governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md","content_sha256":"0f90e207341dd059e3fa688cf7ce70eba09369427e30d3104ddd2d9a30d91064","bytes_utf8":12913},
+    {"path":"governance-runtime/review_protocol.py","content_sha256":"a074cd3c09b463954fe8a51129a904db26e47f2e252ef5bcff32ea5895450432","bytes_utf8":16130},
+    {"path":"governance-runtime/test_review_protocol.py","content_sha256":"9d43b49c26c9fcd519fe34c39dff7a7033091e7d24a9f20c206b4ac47190cd11","bytes_utf8":9166},
+    {"path":"checkpoint-snapshot.json","content_sha256":"da629ba3deed183ecb33657f3842625385d448f07a4a903e53944548465d6e18","bytes_utf8":1559},
+    {"path":"shared-memory-snapshot.json","content_sha256":"86e54099d1d3bebe6f1c0a799672fc517f1be42f962b2e2174bf9a3f963b9416","bytes_utf8":912},
+    {"path":"ci-evidence.json","content_sha256":"1e099bec2e185f53040ad051ec27ffbc0c4ea73a7377576a5475d21761d5c6e9","bytes_utf8":621}
+  ],
+  "ci_run": 34117717820,
+  "ci_conclusion": "success",
+  "external_review_received": false,
+  "note": "This governed manifest binds the exported self-contained packet. The reviewer does not need GitHub access. The full packet is intentionally external because the current connector cannot upload local generated files back into the repository."
+}

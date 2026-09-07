@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "evidence_id": "GOV-PORTABLE-002-PACKET-FAILURE-001",
+  "state": "CONSTRUCTION_FAILURE_PRESERVED",
+  "classification": "PORTABLE_BUNDLE_REFERENCED_ARTIFACT_OMITTED",
+  "review_request_id": "REV-GOV-PR5-010",
+  "candidate_commit": "ed6fa1e1f79165d317c47e6d6a7fee061d2d7fe0",
+  "workflow_run": 34134573232,
+  "workflow_conclusion": "failure",
+  "pre_packet_checks": {
+    "runtime_validation": "PASS",
+    "governance_tests": "40/40 PASS",
+    "authoritative_reference_checks": "PASS",
+    "frozen_slice3_harness_check": "PASS"
+  },
+  "failure_step": "Build candidate-bound selected-reviewer packet when next review ID is declared",
+  "observed_error": "ValueError: portable bundle missing referenced artifact: governance-runtime/test_single_file_review_container.py",
+  "root_cause": "The schema-4 ReviewRequest evidence_refs correctly included governance-runtime/test_single_file_review_container.py, but REVIEW_ARTIFACT_PATHS in build_portable_review_packet.py omitted that same referenced artifact.",
+  "unauthorized_promotion_observed": false,
+  "external_review_received": false,
+  "review_packet_generated": false,
+  "repair_constraint": "Add the missing referenced artifact to REVIEW_ARTIFACT_PATHS. Do not remove or weaken the ReviewRequest evidence reference, frozen P2 tests, semantic dimensions, or raw-byte-integrity requirement.",
+  "revision_binding_rule": "REV-GOV-PR5-010 must be superseded before external review because repairing the builder changes the candidate revision; a fresh review request must bind the repaired exact commit."
+}

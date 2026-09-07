@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "review_request_id": "REV-GOV-PR5-007",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": false,
+  "standard_requires_review": false,
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-5",
+    "commit": "956d71dfd23b19450ff3b61aa89131d885709c14"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "anthropic",
+    "model_class": "claude"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether AUTO_MODE and MANUAL_MODE are separated from review authority semantics correctly.",
+    "Assess whether primary R1 may recommend review without being able to waive deterministic REQUIRED review.",
+    "Assess whether production MANUAL_MODE using USER_INITIATED_API preserves the same provider API and governance semantics as AUTO_MODE/AUTOMATIC_API.",
+    "Assess whether MANUAL_RELAY is safely limited to a fallback transport and cannot redesign or weaken production API review.",
+    "Assess whether promotion validates actual ReviewEvidence and shared-memory grounding instead of caller-supplied authority flags.",
+    "Assess reviewer provider/model/model-class validation and catch-all material/standard-required review policy.",
+    "Assess whether CI-built self-contained review packets prove coverage of all ReviewRequest evidence refs for a reviewer with zero repository access.",
+    "Assess shared project memory continuity and stale-memory conflict handling across chat/session boundaries.",
+    "Identify any remaining authority bypass, false-green path, transport/mode divergence, evidence gap, or missing adversarial case.",
+    "Return an independent disposition without assuming or using the proposer conclusion."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34122900153"},
+    {"type":"history","ref":"superseded review requests: REV-GOV-PR5-001,REV-GOV-PR5-002,REV-GOV-PR5-003,REV-GOV-PR5-004,REV-GOV-PR5-005,REV-GOV-PR5-006"},
+    {"type":"file","ref":"governance-runtime/review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/test_review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"}
+  ],
+  "expected_output": {
+    "required_fields": [
+      "review_request_id",
+      "reviewed_artifact_commit",
+      "reviewer",
+      "disposition",
+      "findings",
+      "evidence_assessment",
+      "independence_attestation"
+    ],
+    "allowed_dispositions": [
+      "PASS",
+      "BOUNDED_PASS",
+      "FAIL",
+      "NOT_TESTED",
+      "INSUFFICIENT_EVIDENCE",
+      "CHANGES_REQUIRED"
+    ]
+  },
+  "state": "REVIEW_REQUIRED",
+  "request_hash": "36f926d535fd9fcaab294c27d318e1c3ddeb07491c0b1ed6d774b977402a260c"
+}

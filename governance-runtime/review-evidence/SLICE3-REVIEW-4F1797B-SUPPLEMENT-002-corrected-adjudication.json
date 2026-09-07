@@ -1,0 +1,32 @@
+{
+  "review_request_id": "SLICE3-REVIEW-4F1797B-SUPPLEMENT-002",
+  "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "input_path": "governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-corrected.json",
+  "envelope_validation": {
+    "exact_request_id": true,
+    "exact_candidate_binding": true,
+    "required_array_shapes": true,
+    "placeholder_provenance_removed": true
+  },
+  "semantic_validation": {
+    "claimed_disposition": "PASS",
+    "mandatory_dimensions": 12,
+    "tested_supported": 12,
+    "open_findings": 0,
+    "prior_findings_resolved": ["S3-R-001","S3-R-002","S3-R-003","S3-R-004"],
+    "result": "SEMANTIC_PASS_SUPPORTED"
+  },
+  "provenance_validation": {
+    "transport": "USER_PASTE",
+    "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
+    "provider_api_authenticated": false,
+    "provider_identity_known": false,
+    "model_identity_known": false,
+    "counts_for_material_promotion": false
+  },
+  "effective_adjudication": "VALID_EXTERNAL_SEMANTIC_PASS_NONPROMOTABLE",
+  "candidate_changed": false,
+  "frozen_harness_changed": false,
+  "historical_failure_preserved": "325610d807eb88595231ec05af33e93f340ecb49 remains the preserved 14/16 parent failure with S3-03 and S3-11 failing.",
+  "next_required_action": "Obtain provider-API-authenticated platform review of the unchanged candidate under AUTOMATIC_API or USER_INITIATED_API before scientific acceptance/promotion. Do not treat pasted external PASS as platform review authority."
+}

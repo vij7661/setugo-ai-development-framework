@@ -1,0 +1,18 @@
+{
+  "failure_id": "GOV-SEM-001-CONSTRUCTION-FAILURE-001",
+  "repair_boundary": "GOV-SEM-001",
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "workflow_run": 34130468376,
+  "head_commit": "ac08a0ce609aa1d296e6abed3c1cb52d3f72515c",
+  "checkpoint_validation": "PASS",
+  "existing_review_tests": "23 existing protocol/selection tests passed before semantic suite import",
+  "semantic_suite_result": "FAILED_TO_IMPORT",
+  "observed": "ImportError: cannot import name 'validate_review_semantics' from review_protocol",
+  "expected": "A deterministic semantic review validator enforcing structured review dimensions and disposition/evidence consistency",
+  "scientific_endpoint_reached": true,
+  "fixture_defect": false,
+  "mechanism_present": false,
+  "history_rewritten": false,
+  "frozen_test_file": "governance-runtime/test_review_semantics.py",
+  "preregistration": "governance-runtime/repair-preregistrations/GOV-SEM-001.md"
+}

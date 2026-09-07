@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "review_request_id": "SLICE3-PLATFORM-AUTO-003",
+  "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "workflow_run_id": 34163781560,
+  "run_attempt": 1,
+  "workflow_conclusion": "failure",
+  "provider_api_authenticated": true,
+  "provider_result": "HTTP_503_UNAVAILABLE_HIGH_DEMAND",
+  "authority_effect": "NONE",
+  "artifact_id": 10033469542,
+  "artifact_digest": "sha256:940e9d2aece3300d88d7051bddbe0a683cb87750da8325f0f7ec0ddc3d5b6846",
+  "historical_integrity": "Preserved. No substitution, silent acceptance, or authority transition occurred after provider failure. The same frozen request was retried."
+}

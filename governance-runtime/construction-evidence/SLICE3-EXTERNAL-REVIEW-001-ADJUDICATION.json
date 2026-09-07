@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "artifact": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+  "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "external_review_evidence": "governance-runtime/review-evidence/SLICE3-4F1797B-EXTERNAL-REVIEW-001.json",
+  "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "reported_disposition": "INSUFFICIENT_EVIDENCE",
+  "candidate_changed": false,
+  "frozen_harness_changed": false,
+  "adjudication": [
+    {
+      "finding_id": "S3-R-001",
+      "classification": "REVIEWER_EVIDENCE_READING_OR_TRANSCRIPTION_DEFECT",
+      "mechanism_defect": false,
+      "packet_defect": false,
+      "resolution": "The distributed PDF contains the exact candidate SHA 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. GitHub Actions run 34156635574 also checked out that exact SHA before running the frozen harness. The reviewer-cited 417197... value is not present in the packet and is not the CI checkout SHA. No rerun is scientifically required for this finding because exact-candidate execution is already evidenced."
+    },
+    {
+      "finding_id": "S3-R-002",
+      "classification": "EVIDENCE_PACKET_INSUFFICIENCY_NOT_MECHANISM_DEFECT",
+      "mechanism_defect": false,
+      "packet_defect": true,
+      "resolution": "The original packet did not explain that manifest_hash is a self-hash over the complete action manifest with only manifest_hash removed before canonical hashing. Therefore execution_id, slice2_result_hash, base_sha, patch_digest, changed_files, target_paths, action_class, tool_id, idempotency_key and other manifest semantics are transitively committed by manifest_hash. The gateway then independently validates the security-critical fields against Slice 2, contract, patch digest and changed-file set before mutation. Supplemental evidence must make this explicit."
+    },
+    {
+      "finding_id": "S3-R-003",
+      "classification": "EVIDENCE_PACKET_INSUFFICIENCY",
+      "mechanism_defect": false,
+      "packet_defect": true,
+      "resolution": "Provide the exact repair diff plus the complete validation-order segment from the frozen candidate, together with a deterministic control-flow summary. Candidate code remains frozen."
+    },
+    {
+      "finding_id": "S3-R-004",
+      "classification": "EVIDENCE_PACKET_INSUFFICIENCY",
+      "mechanism_defect": false,
+      "packet_defect": true,
+      "resolution": "Provide the exact locking, SQLite durability, INTENT/COMMITTED/ACKED state sequence, pre-commit crash path, post-commit recovery path, replay path and local-only Git mutation code from the frozen candidate. Candidate code remains frozen."
+    }
+  ],
+  "effective_state": "PENDING_SUPPLEMENTAL_INDEPENDENT_REVIEW",
+  "next_action": "Issue a candidate-bound supplemental evidence packet to the same independent reviewer and require reassessment of all mandatory dimensions against the unchanged exact candidate. Do not promote from the current external insufficient-evidence result."
+}

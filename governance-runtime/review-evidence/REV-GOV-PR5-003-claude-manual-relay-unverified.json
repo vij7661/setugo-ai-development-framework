@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-003",
+  "reviewed_artifact_commit": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
+  "reviewer_claim": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5"
+  },
+  "identity_provenance": {
+    "transport": "MANUAL_RELAY",
+    "assurance": "USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED",
+    "cryptographic_provider_identity_verified": false,
+    "satisfies_provider_specific_review_policy": false
+  },
+  "disposition": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "CRITICAL",
+      "title": "review_required(trigger) trusts proposer-controlled classification",
+      "evidence_summary": "The old candidate accepted an opaque trigger string and checked only membership in MANDATORY_REVIEW_TRIGGERS; a material governance change mislabeled ROUTINE_FORMATTING could receive NONE.",
+      "required_change": "Derive mandatory-review classification from platform-owned/trusted action context or otherwise fail closed for governance-relevant/material authority changes."
+    },
+    {
+      "id": "F2",
+      "severity": "HIGH",
+      "title": "Transport outcome to promotion evidence wiring is not proven end-to-end",
+      "evidence_summary": "The old candidate tested DispatchResult failure and a separate promotion boolean but did not provide one trusted path that converts received review evidence into promotion eligibility.",
+      "required_change": "Promotion must validate ReviewRequest/ReviewEvidence and trusted execution provenance directly rather than accept a caller-provided review-valid flag."
+    },
+    {
+      "id": "F3",
+      "severity": "MEDIUM",
+      "title": "Evidence validation relied on earlier required-provider construction invariant",
+      "evidence_summary": "validate_review_evidence skipped provider enforcement when required_reviewer.provider was absent.",
+      "required_change": "Re-enforce required reviewer identity invariants at evidence acceptance."
+    },
+    {
+      "id": "F4",
+      "severity": "MEDIUM",
+      "title": "Portable bundle completeness was not proven",
+      "evidence_summary": "The old markdown packet omitted runtime files its own governance contract described as load-bearing and structural bundle validation did not prove completeness.",
+      "required_change": "Bind required review artifact set/evidence refs and fail closed on incomplete bundles."
+    },
+    {
+      "id": "F5",
+      "severity": "LOW",
+      "title": "Markdown-fenced artifact hashes were not independently reproducible",
+      "evidence_summary": "Extracted code differed by one byte from declared hashes, consistent with newline/fence representation ambiguity.",
+      "required_change": "Provide raw canonical artifacts or explicit canonicalization rules so independent reviewers can reproduce hashes."
+    }
+  ],
+  "evidence_assessment": "All embedded tests in the old packet reportedly passed, but the review identified trigger-classification, integration, reviewer-invariant, bundle-completeness, and hash-reproducibility gaps.",
+  "independence_attestation_claimed": "BLIND_TO_PROPOSER_CONCLUSION",
+  "counts_for_current_promotion": false,
+  "reason_not_current_promotion_evidence": "The review targets superseded request REV-GOV-PR5-003 and manual-relay reviewer identity is not provider-authenticated."
+}

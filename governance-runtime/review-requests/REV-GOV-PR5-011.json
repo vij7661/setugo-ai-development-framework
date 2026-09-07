@@ -1,0 +1,70 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-PR5-011",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [],
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-5",
+    "commit": "d808fdfbc334639fc0e78a1332f837c636b8923a"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "deepseek",
+    "model_class": "deepseek"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether AUTO_MODE and MANUAL_MODE are separated from review authority semantics correctly.",
+    "Assess whether primary R1 may recommend review without being able to waive deterministic REQUIRED review.",
+    "Assess whether production MANUAL_MODE using USER_INITIATED_API preserves the same provider API and governance semantics as AUTO_MODE/AUTOMATIC_API.",
+    "Assess whether MANUAL_RELAY is safely limited to a fallback transport and cannot redesign or weaken production API review.",
+    "Assess whether promotion validates actual ReviewEvidence, semantic review coverage, and shared-memory grounding instead of caller-supplied authority flags.",
+    "Assess reviewer identity provenance, proposer-controlled trigger resistance, superseded-review replay resistance, and selected-reviewer binding.",
+    "Assess whether the CI-built single-file manual review container embeds all required evidence and reconstructs each reviewed UTF-8 artifact to its recorded raw Git blob SHA-256 and byte length without repository access or separate file uploads.",
+    "Assess shared project memory continuity and stale-memory conflict handling across chat/session boundaries.",
+    "Assess disposition/evidence consistency: PASS must be impossible when a mandatory review dimension is unavailable, inaccessible, not tested, or insufficient.",
+    "Identify any remaining authority bypass, false-green path, transport/mode divergence, evidence gap, reviewer-selection defect, semantic-review defect, single-file packaging defect, or missing adversarial case.",
+    "Return an independent disposition without assuming or using the proposer conclusion."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34135364859"},
+    {"type":"history","ref":"superseded review requests: REV-GOV-PR5-001,REV-GOV-PR5-002,REV-GOV-PR5-003,REV-GOV-PR5-004,REV-GOV-PR5-005,REV-GOV-PR5-006,REV-GOV-PR5-007,REV-GOV-PR5-008,REV-GOV-PR5-009,REV-GOV-PR5-010"},
+    {"type":"file","ref":"governance-runtime/review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/test_review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/test_reviewer_selection.py"},
+    {"type":"file","ref":"governance-runtime/test_review_semantics.py"},
+    {"type":"file","ref":"governance-runtime/test_single_file_review_container.py"},
+    {"type":"file","ref":"governance-runtime/repair-preregistrations/GOV-SEM-001.md"},
+    {"type":"file","ref":"governance-runtime/repair-preregistrations/GOV-PORTABLE-002.md"},
+    {"type":"file","ref":"governance-runtime/build_portable_review_packet.py"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"},
+    {"type":"file","ref":".github/workflows/live-conversation-governance.yml"}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"mode_authority_equivalence","mandatory":true,"description":"AUTO_MODE and MANUAL_MODE may differ only in review initiation, never authority semantics."},
+    {"id":"r1_review_bypass_resistance","mandatory":true,"description":"R1 trigger/classification choices cannot waive deterministic REQUIRED review."},
+    {"id":"reviewer_identity_and_selection_binding","mandatory":true,"description":"Reviewer provider/model identity and selected-reviewer binding resist spoofing/substitution."},
+    {"id":"superseded_review_replay_resistance","mandatory":true,"description":"Only the current ReviewRequest and exact reviewed commit can satisfy promotion."},
+    {"id":"review_to_promotion_wiring","mandatory":true,"description":"Promotion consumes actual ReviewEvidence, execution provenance, semantic validation, and deterministic gate state."},
+    {"id":"shared_memory_grounding","mandatory":true,"description":"Stale or conflicting shared memory cannot become authority or permit promotion."},
+    {"id":"api_failure_fail_closed","mandatory":true,"description":"Automatic and user-initiated provider API failures remain pending/non-authoritative."},
+    {"id":"portable_packet_evidence_coverage","mandatory":true,"description":"The one-file manual review container contains every required evidence artifact/reference for zero-repository-access review."},
+    {"id":"raw_byte_integrity","mandatory":true,"description":"Reviewer directly inspects the single-file container artifact records and their SHA-256/UTF-8 byte lengths; separate ZIP/raw-file uploads and Markdown reconstruction are not required."},
+    {"id":"semantic_disposition_consistency","mandatory":true,"description":"Disposition agrees with structured review coverage and free-text evidence assessment."},
+    {"id":"remaining_authority_bypass_search","mandatory":true,"description":"Adversarial search for any additional authority bypass or false-green path."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "fe45ff518b416d8739be9225f2c191e336a93514176265925b90a583be819850"
+}

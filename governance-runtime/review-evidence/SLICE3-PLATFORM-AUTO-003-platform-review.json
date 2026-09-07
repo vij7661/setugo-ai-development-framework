@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "review_request_id": "SLICE3-PLATFORM-AUTO-003",
+  "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34163781560,
+  "run_attempt": 2,
+  "trigger_sha": "ee20dc3621f0c535a9176077e97bfe0899846080",
+  "artifact_id": 10033481894,
+  "artifact_digest": "sha256:f721bbd9669ac962c7f28b120f84bf83757da4dee5b8893c9d1f20e23aed8502",
+  "request_sha256": "cdee16a624cb1faef456dc41651f3f0f86bec861ff1c7d498a911420ca279e5b",
+  "corpus_sha256": "7145e1266f0741e884e64d488e4d1d7bf990b685306b364e9c647001fe08cb6a",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "review": {
+    "disposition": "PASS",
+    "evidence_assessment": "The repair diff correctly resolves historical failures S3-03 and S3-11 by prioritizing contract-substitution classification and rebind detection before generic manifest or base checks. All 16 frozen tests pass, and adversarial inspection supports validation-order safety, durable state integrity, path confinement, atomicity/crash recovery, and strict remote/terminal authority separation.",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "reviewer": {"provider":"gemini","model":"gemini-3.6-flash"},
+    "review_coverage": [
+      {"dimension_id":"contract_substitution_classification","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:427-434","test_integrated_governed_mvp_slice3.py:207-214"]},
+      {"dimension_id":"idempotency_rebind_resistance","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:443-455","test_integrated_governed_mvp_slice3.py:270-277"]},
+      {"dimension_id":"validation_order_safety","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:382-475"]},
+      {"dimension_id":"durable_state_fail_closed","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:108-144","integrated_governed_mvp_repository_gateway.py:451-452"]},
+      {"dimension_id":"manifest_exact_binding","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:457-471","test_integrated_governed_mvp_slice3.py:221-231"]},
+      {"dimension_id":"repository_confinement","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:226-240","integrated_governed_mvp_repository_gateway.py:263-298","test_integrated_governed_mvp_slice3.py:245-260"]},
+      {"dimension_id":"atomicity_and_crash_consistency","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:512-588","test_integrated_governed_mvp_slice3.py:279-296"]},
+      {"dimension_id":"replay_and_concurrency","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:461-471","test_integrated_governed_mvp_slice3.py:263-268","test_integrated_governed_mvp_slice3.py:298-306"]},
+      {"dimension_id":"evidence_lineage","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:550-564","test_integrated_governed_mvp_slice3.py:308-322"]},
+      {"dimension_id":"remote_authority_boundary","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:603-613","test_integrated_governed_mvp_slice3.py:324-358"]},
+      {"dimension_id":"regression_preservation","status":"TESTED_SUPPORTED","evidence":["test_integrated_governed_mvp_slice3.py:1-360"]},
+      {"dimension_id":"remaining_false_green_search","status":"TESTED_SUPPORTED","evidence":["integrated_governed_mvp_repository_gateway.py:1-613"]}
+    ]
+  },
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+}

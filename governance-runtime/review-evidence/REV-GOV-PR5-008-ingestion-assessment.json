@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-008",
+  "reviewed_artifact_commit": "4133bd86806631d246c943b7d79a84346500b827",
+  "structural_validation": {
+    "request_id_matches": true,
+    "artifact_commit_matches": true,
+    "disposition_allowed": true,
+    "blind_review_attestation_present": true,
+    "required_fields_present": true
+  },
+  "content_result": {
+    "disposition": "PASS",
+    "findings_count": 0,
+    "review_content_usable_as_adversarial_evidence": true
+  },
+  "identity_provenance": {
+    "transport": "MANUAL_RELAY",
+    "self_declared_provider": "deepseek",
+    "self_declared_model": "deepseek",
+    "trusted_provider_authentication_present": false,
+    "identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "reason": "The pasted review JSON self-declares provider/model. No trusted DeepSeek API/plugin execution envelope is available in this collaboration, and prior spoof testing proved self-declared reviewer identity is not authentication."
+  },
+  "promotion_effect": {
+    "counts_for_current_promotion": false,
+    "pr5_state": "PENDING_INDEPENDENT_REVIEW_IDENTITY_UNVERIFIED",
+    "reason": "REV-GOV-PR5-008 requires DeepSeek review, but current manual-relay provenance cannot authenticate that the returned content was produced by DeepSeek."
+  },
+  "plugin_discovery": {
+    "searched_for": "DeepSeek API reviewer",
+    "usable_trusted_deepseek_integration_found": false
+  },
+  "history_rewritten": false
+}

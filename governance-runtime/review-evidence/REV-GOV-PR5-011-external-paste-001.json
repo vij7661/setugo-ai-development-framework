@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "evidence_id": "REV-GOV-PR5-011-EXTERNAL-PASTE-001",
+  "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
+  "related_review_request_id": "REV-GOV-PR5-011",
+  "related_artifact_commit": "d808fdfbc334639fc0e78a1332f837c636b8923a",
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "user_attested_source": null,
+  "self_declared_reviewer": {"provider": "moonshot", "model": "kimi"},
+  "self_declared_reviewer_is_provenance": false,
+  "claimed_disposition": "PASS",
+  "claimed_review_coverage": {"mandatory_dimensions": 11, "tested_supported": 11},
+  "findings": [
+    {"id":"F1","severity":"LOW","title":"Free-text PASS-contradiction detection is regex-bounded","classification":"NON_BLOCKING_HARDENING"},
+    {"id":"F2","severity":"LOW","title":"Shared-memory grounding validates only the first pending review entry","classification":"NON_BLOCKING_HARDENING"},
+    {"id":"F3","severity":"LOW","title":"Model-class matching is normalized-token containment","classification":"NON_BLOCKING_HARDENING"}
+  ],
+  "provenance_assessment": "The user pasted review-shaped JSON without identifying its source. Internal reviewer.provider/model fields are content claims only. No provider or model origin is inferred from them.",
+  "governance_effect": "May inform defect discovery and hardening backlog; cannot satisfy a platform review gate.",
+  "history_preserved": true
+}

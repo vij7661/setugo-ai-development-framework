@@ -1,0 +1,245 @@
+name: Live Conversation Governance
+
+on:
+  push:
+    branches:
+      - governance/live-conversation-runtime
+    paths:
+      - 'governance-runtime/**'
+      - '.github/workflows/live-conversation-governance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-live-governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout live governance branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate checkpoint, shared memory, and decision log
+        run: python governance-runtime/validate_runtime.py
+
+      - name: Test review, grounding, transport, selection, semantic consistency, external evidence classification, single-file integrity, and fail-closed promotion invariants
+        run: |
+          cd governance-runtime
+          python -m unittest -v test_review_protocol.py test_reviewer_selection.py test_review_semantics.py test_review_classification.py
+
+      - name: Verify authoritative references exist and active head is exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTIVE_BRANCH=$(python - <<'PY'
+          import json
+          print(json.load(open('governance-runtime/session-state.json'))['active_workstream']['branch'])
+          PY
+          )
+          EXPECTED_HEAD=$(python - <<'PY'
+          import json
+          print(json.load(open('governance-runtime/session-state.json'))['active_workstream']['head_commit'])
+          PY
+          )
+          REMOTE_HEAD=$(git ls-remote origin "refs/heads/${ACTIVE_BRANCH}" | awk '{print $1}')
+          test -n "$REMOTE_HEAD"
+          test "$REMOTE_HEAD" = "$EXPECTED_HEAD"
+
+          git fetch --no-tags origin main "$ACTIVE_BRANCH"
+
+          python - <<'PY' > /tmp/governed-shas.txt
+          import json
+          s=json.load(open('governance-runtime/session-state.json'))
+          print(s['runtime']['normative_contract_commit'])
+          for item in s['applicable_standards']:
+              print(item['blob_sha'])
+          w=s['active_workstream']
+          for key in ('head_commit','preregistration_commit','frozen_acceptance_harness_commit','first_mechanism_commit','preserved_failure_record_commit'):
+              print(w[key])
+          p=s.get('accepted_prior_boundary',{})
+          for key in ('scientific_freeze_commit','bounded_adjudication_commit'):
+              if key in p:
+                  print(p[key])
+          PY
+
+          while read -r SHA; do
+            if git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
+              continue
+            fi
+            if git cat-file -e "${SHA}^{blob}" 2>/dev/null; then
+              continue
+            fi
+            echo "Referenced Git object does not exist locally after authoritative fetch: ${SHA}" >&2
+            exit 1
+          done < /tmp/governed-shas.txt
+
+      - name: Assert frozen Slice 3 harness is unchanged at referenced commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          FROZEN_SHA=$(python - <<'PY'
+          import json
+          print(json.load(open('governance-runtime/session-state.json'))['active_workstream']['frozen_acceptance_harness_commit'])
+          PY
+          )
+          git show "${FROZEN_SHA}:experiments/governed-platform/governance/test_integrated_governed_mvp_slice3.py" >/dev/null
+          echo "Verified frozen Slice 3 harness at ${FROZEN_SHA}"
+
+      - name: Build candidate-bound review request and evidence-context export when next review ID is declared
+        id: candidate_packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          readarray -t REVIEW_META < <(python - <<'PY'
+          import json
+          p=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion']
+          reviewer=p.get('next_review_reviewer') or {}
+          print(p.get('next_review_request_id') or '')
+          print(reviewer.get('provider') or '')
+          print(reviewer.get('model_class') or '')
+          PY
+          )
+          NEXT_ID="${REVIEW_META[0]}"
+          SELECTED_PROVIDER="${REVIEW_META[1]}"
+          SELECTED_MODEL_CLASS="${REVIEW_META[2]}"
+          if [ -z "$NEXT_ID" ]; then
+            echo "No next review request declared; candidate review-context build skipped."
+            echo "has_candidate_packet=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          test -n "$SELECTED_PROVIDER"
+          test -n "$SELECTED_MODEL_CLASS"
+          export NEXT_ID SELECTED_PROVIDER SELECTED_MODEL_CLASS
+          PYTHONPATH=governance-runtime python - <<'PY'
+          import json, os
+          from review_protocol import build_review_request
+
+          questions = [
+              'Independently assess whether AUTO_MODE and MANUAL_MODE are separated from review authority semantics correctly.',
+              'Assess whether R1 can waive deterministic REQUIRED review through trigger or classification choices.',
+              'Assess whether production MANUAL_MODE uses USER_INITIATED_API with the same provider-adapter authority semantics as AUTO_MODE/AUTOMATIC_API.',
+              'Assess whether copy/paste and historical MANUAL_RELAY are external evidence only and cannot be treated as platform review execution.',
+              'Assess whether user-attested external LLM provenance remains distinct from provider-API-authenticated reviewer provenance.',
+              'Assess whether promotion validates actual ReviewEvidence, semantic review coverage, current-state binding, shared-memory grounding, and trusted platform API execution rather than caller-supplied authority flags.',
+              'Assess reviewer identity provenance, reviewer selection binding, superseded-review replay resistance, and provider/model substitution resistance.',
+              'Assess whether any portable/single-file export is correctly treated as an external evidence/context artifact rather than a source of platform review authority.',
+              'Assess shared project memory continuity and stale-memory conflict handling across chat/session boundaries.',
+              'Assess disposition/evidence consistency: PASS must be impossible when a mandatory review dimension is unavailable, inaccessible, not tested, or insufficient.',
+              'Identify any remaining authority bypass, false-green path, mode/transport divergence, evidence gap, reviewer-selection defect, semantic-review defect, or external-evidence provenance defect.',
+              'Return an independent disposition without assuming or using the proposer conclusion.'
+          ]
+          dimensions = [
+              {'id':'mode_authority_equivalence','mandatory':True,'description':'AUTO_MODE and MANUAL_MODE may differ only in who initiates a provider API call, never authority semantics.'},
+              {'id':'r1_review_bypass_resistance','mandatory':True,'description':'R1 trigger/classification choices cannot waive deterministic REQUIRED review.'},
+              {'id':'platform_api_review_class_binding','mandatory':True,'description':'AUTOMATIC_API maps to PLATFORM_AUTO_API_REVIEW and USER_INITIATED_API maps to PLATFORM_USER_INITIATED_API_REVIEW; no other transport is a platform review.'},
+              {'id':'external_evidence_provenance_separation','mandatory':True,'description':'Pasted/user-attested external content cannot establish its own provider provenance or satisfy a platform review gate.'},
+              {'id':'reviewer_identity_and_selection_binding','mandatory':True,'description':'Reviewer provider/model identity and selected-reviewer binding resist spoofing/substitution.'},
+              {'id':'superseded_review_replay_resistance','mandatory':True,'description':'Only the current ReviewRequest and exact reviewed commit can satisfy promotion.'},
+              {'id':'review_to_promotion_wiring','mandatory':True,'description':'Promotion consumes actual ReviewEvidence, trusted platform API execution provenance, semantic validation, and deterministic gate state.'},
+              {'id':'shared_memory_grounding','mandatory':True,'description':'Stale or conflicting shared memory cannot become authority or permit promotion.'},
+              {'id':'api_failure_fail_closed','mandatory':True,'description':'Automatic and user-initiated provider API failures remain pending/non-authoritative.'},
+              {'id':'portable_external_evidence_integrity','mandatory':True,'description':'Portable/single-file exports preserve referenced artifact integrity while remaining external evidence/context artifacts, not platform review authority.'},
+              {'id':'semantic_disposition_consistency','mandatory':True,'description':'Disposition agrees with structured review coverage and free-text evidence assessment.'},
+              {'id':'remaining_authority_bypass_search','mandatory':True,'description':'Adversarial search for any additional authority bypass or false-green path.'},
+          ]
+          state=json.load(open('governance-runtime/session-state.json'))
+          prior=state['runtime']['promotion'].get('superseded_review_requests',[])
+          req = build_review_request(
+              review_request_id=os.environ['NEXT_ID'],
+              trigger='MATERIAL_GOVERNANCE_CHANGE',
+              artifact_type='live_conversation_governance_runtime_candidate',
+              artifact_ref='PR-5',
+              artifact_commit=os.environ['GITHUB_SHA'],
+              proposer={'provider':'openai','model':'gpt-5.6-sol'},
+              required_reviewer={'provider':os.environ['SELECTED_PROVIDER'],'model_class':os.environ['SELECTED_MODEL_CLASS']},
+              blind_review_required=True,
+              review_questions=questions,
+              evidence_refs=[
+                  {'type':'ci_run','ref':os.environ['GITHUB_RUN_ID']},
+                  {'type':'history','ref':'superseded review requests: ' + ','.join(prior)},
+                  {'type':'file','ref':'governance-runtime/review_protocol.py'},
+                  {'type':'file','ref':'governance-runtime/test_review_protocol.py'},
+                  {'type':'file','ref':'governance-runtime/test_reviewer_selection.py'},
+                  {'type':'file','ref':'governance-runtime/test_review_semantics.py'},
+                  {'type':'file','ref':'governance-runtime/test_review_classification.py'},
+                  {'type':'file','ref':'governance-runtime/test_single_file_review_container.py'},
+                  {'type':'file','ref':'governance-runtime/repair-preregistrations/GOV-SEM-001.md'},
+                  {'type':'file','ref':'governance-runtime/repair-preregistrations/GOV-PORTABLE-002.md'},
+                  {'type':'file','ref':'governance-runtime/repair-preregistrations/GOV-REVIEW-CLASS-001.md'},
+                  {'type':'file','ref':'governance-runtime/build_portable_review_packet.py'},
+                  {'type':'file','ref':'governance-runtime/session-state.json'},
+                  {'type':'file','ref':'governance-runtime/shared-memory.json'},
+                  {'type':'file','ref':'.github/workflows/live-conversation-governance.yml'}
+              ],
+              material_authority_transition=True,
+              required_review_dimensions=dimensions,
+          )
+          path=f"/tmp/{os.environ['NEXT_ID']}.json"
+          with open(path,'w',encoding='utf-8') as f:
+              json.dump(req,f,indent=2)
+          PY
+          python governance-runtime/build_portable_review_packet.py \
+            --request "/tmp/${NEXT_ID}.json" \
+            --output-dir candidate-review-output \
+            --ci-run-id "$GITHUB_RUN_ID" \
+            --builder-head "$GITHUB_SHA"
+          cp "/tmp/${NEXT_ID}.json" "candidate-review-output/${NEXT_ID}.request.json"
+          echo "has_candidate_packet=true" >> "$GITHUB_OUTPUT"
+          echo "review_request_id=$NEXT_ID" >> "$GITHUB_OUTPUT"
+          echo "selected_provider=$SELECTED_PROVIDER" >> "$GITHUB_OUTPUT"
+
+      - name: Upload candidate-bound review context archive
+        if: steps.candidate_packet.outputs.has_candidate_packet == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-context-${{ steps.candidate_packet.outputs.selected_provider }}-${{ steps.candidate_packet.outputs.review_request_id }}-${{ github.run_id }}
+          path: candidate-review-output/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Rebuild active review context archive from original candidate evidence
+        id: portable_packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          readarray -t META < <(python - <<'PY'
+          import json
+          p=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion']
+          print(p.get('review_request_path') or '')
+          print(p.get('candidate_ci_run') or '')
+          print(p.get('reviewed_candidate_commit') or '')
+          PY
+          )
+          REQUEST_PATH="${META[0]}"
+          ORIGINAL_CI_RUN="${META[1]}"
+          REVIEWED_COMMIT="${META[2]}"
+          if [ -z "$REQUEST_PATH" ]; then
+            echo "No active platform review request; context rebuild skipped."
+            echo "has_packet=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          test -n "$ORIGINAL_CI_RUN"
+          test -n "$REVIEWED_COMMIT"
+          python governance-runtime/build_portable_review_packet.py \
+            --request "$REQUEST_PATH" \
+            --output-dir review-output \
+            --ci-run-id "$ORIGINAL_CI_RUN" \
+            --builder-head "$REVIEWED_COMMIT"
+          echo "has_packet=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload active review context archive
+        if: steps.portable_packet.outputs.has_packet == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-review-context-${{ github.run_id }}
+          path: review-output/
+          if-no-files-found: error
+          retention-days: 30

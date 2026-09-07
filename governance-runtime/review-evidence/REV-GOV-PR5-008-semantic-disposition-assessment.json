@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-008",
+  "reviewed_artifact_commit": "4133bd86806631d246c943b7d79a84346500b827",
+  "observed_disposition": "PASS",
+  "semantic_validation": "CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT",
+  "contradiction": {
+    "review_requirement": "Assess whether CI-built self-contained review exports prove evidence coverage and raw-byte integrity for a reviewer with zero repository access.",
+    "reviewer_statement": "the raw files were not directly accessible",
+    "effect": "The requested raw-byte-integrity review area was not directly tested, so an unqualified PASS overstates the evidence actually examined."
+  },
+  "governed_interpretation": {
+    "accept_unqualified_pass": false,
+    "minimum_supported_state": "INSUFFICIENT_EVIDENCE_FOR_FULL_PASS",
+    "counts_for_current_promotion": false,
+    "independent_reasons": [
+      "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+      "REVIEW_DISPOSITION_CONTRADICTS_STATED_EVIDENCE_COVERAGE"
+    ]
+  },
+  "failure_classification": "REVIEW_DISPOSITION_EVIDENCE_CONTRADICTION",
+  "history_rewritten": false
+}

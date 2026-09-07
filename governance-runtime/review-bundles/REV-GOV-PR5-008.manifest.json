@@ -1,0 +1,44 @@
+{
+  "schema_version": 3,
+  "review_request_id": "REV-GOV-PR5-008",
+  "reviewed_candidate_commit": "4133bd86806631d246c943b7d79a84346500b827",
+  "requested_reviewer": {
+    "provider": "deepseek",
+    "model_class": "deepseek"
+  },
+  "repository_access_required": false,
+  "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
+  "bundle_filename": "REV-GOV-PR5-008-portable-review-packet.md",
+  "request_filename": "REV-GOV-PR5-008.request.json",
+  "bundle_body_sha256": "5ffcd3bfb7cc9e93d9232acf84029b5f23f9d222c0a6037826979edfd04a206a",
+  "bundle_file_sha256": "2089d771232edf0be958483ab77227839bf750a87e2856369ec367df9c7900e9",
+  "logical_bundle_sha256": "f00d40557f51e5b46b7efc425b14d2ea5156507fa506863cd67969bb0743e97f",
+  "raw_artifacts_are_byte_authoritative": true,
+  "covered_evidence_refs": [
+    {"type":"ci_run","ref":"34127921175"},
+    {"type":"history","ref":"superseded review requests: REV-GOV-PR5-001,REV-GOV-PR5-002,REV-GOV-PR5-003,REV-GOV-PR5-004,REV-GOV-PR5-005,REV-GOV-PR5-006,REV-GOV-PR5-007"},
+    {"type":"file","ref":"governance-runtime/review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/test_review_protocol.py"},
+    {"type":"file","ref":"governance-runtime/test_reviewer_selection.py"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"},
+    {"type":"file","ref":".github/workflows/live-conversation-governance.yml"}
+  ],
+  "embedded_artifacts": [
+    {"path":"governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md","raw_export_path":"raw-artifacts/governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md","content_sha256":"0d29cc2e4039eb029f83fbed4bcc86582ac3c7f392dcff0c506368481ee84e45","bytes_utf8":9665,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/review_protocol.py","raw_export_path":"raw-artifacts/governance-runtime/review_protocol.py","content_sha256":"059ca2c6ec7d1e295a529df77b1e41394c660bba35fe2b649a8ea4dd0d2e6b5a","bytes_utf8":27063,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/test_review_protocol.py","raw_export_path":"raw-artifacts/governance-runtime/test_review_protocol.py","content_sha256":"0f3d10fd313a83ed480fe2cdf190e309a763022bdd5e12e8dd03b1feb6e8fa2d","bytes_utf8":17469,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/test_reviewer_selection.py","raw_export_path":"raw-artifacts/governance-runtime/test_reviewer_selection.py","content_sha256":"14d52702bda4f19ad15769285588e6e73ce09d701006cf44acecd95c8c721dbb","bytes_utf8":2328,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/validate_runtime.py","raw_export_path":"raw-artifacts/governance-runtime/validate_runtime.py","content_sha256":"814a34e6d9f31d877143d7fdae0e7a0aa92e7cc254a01bbdcf07080cbb627b49","bytes_utf8":17670,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/session-state.json","raw_export_path":"raw-artifacts/governance-runtime/session-state.json","content_sha256":"a19a9d69a54fe88637360d881acd489867c3fa8acf532d4fab7261bfe0684a9e","bytes_utf8":8397,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/shared-memory.json","raw_export_path":"raw-artifacts/governance-runtime/shared-memory.json","content_sha256":"b6aa5f834d4518e9b02358f7621b685222e1d95cd0256f38174ebe02de448c6b","bytes_utf8":5289,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/decision-log.jsonl","raw_export_path":"raw-artifacts/governance-runtime/decision-log.jsonl","content_sha256":"1aba5401e522c008e46c892a4be97a6dbc4e98a5efd5f29180e665185e5b5f34","bytes_utf8":9530,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":"governance-runtime/build_portable_review_packet.py","raw_export_path":"raw-artifacts/governance-runtime/build_portable_review_packet.py","content_sha256":"cc258b6d775fb0912f6c607fe59f7b12f20904caee706f057ca5e21a1b2bb646","bytes_utf8":10493,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"},
+    {"path":".github/workflows/live-conversation-governance.yml","raw_export_path":"raw-artifacts/.github/workflows/live-conversation-governance.yml","content_sha256":"2ca28e785aed12e38280d3f2f96ab35d2bbc2cfc21f827e96d13a12871020396","bytes_utf8":10343,"hash_basis":"RAW_GIT_BLOB_UTF8_BYTES"}
+  ],
+  "builder_execution_head": "4133bd86806631d246c943b7d79a84346500b827",
+  "builder_ci_run_id": "34127921175",
+  "actions_artifact_id": 10020850420,
+  "actions_run_id": 34127921175,
+  "actions_artifact_digest": "sha256:34d53453a821e9f94d5818ae2af48b2b96c2cd4f8b1974eeac97f9b1058ed608"
+}

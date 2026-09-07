@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "failure_id": "LCG-F8",
+  "observed_at": "2026-09-07T13:23:16Z",
+  "classification": "REVIEWER_SELECTION_MECHANISM_DEFECT",
+  "trigger": "User selected DeepSeek in MANUAL_MODE reviewer controls.",
+  "observed": {
+    "workflow": ".github/workflows/live-conversation-governance.yml",
+    "packet_builder": "governance-runtime/build_portable_review_packet.py",
+    "defect": "Candidate ReviewRequest and portable packet generation were hard-coded to Anthropic/Claude even though MANUAL_MODE exposed multiple reviewer choices.",
+    "examples": [
+      "required_reviewer={'provider':'anthropic','model_class':'claude'}",
+      "packet reviewer instructions fixed to Claude/Anthropic",
+      "artifact naming fixed to claude-review-*"
+    ]
+  },
+  "impact": "Selecting DeepSeek could not produce a semantically correct DeepSeek-bound ReviewRequest/packet without bypassing or manually rewriting governed request semantics.",
+  "unauthorized_promotion_observed": false,
+  "repair_scope": [
+    "Derive selected reviewer provider/model_class from governed session state.",
+    "Make packet builder reviewer instructions/output contract provider-neutral and request-derived.",
+    "Make artifact naming reviewer-neutral.",
+    "Add regression proving DeepSeek and Claude selections generate distinct, correctly bound ReviewRequests without changing promotion policy."
+  ],
+  "forbidden_shortcut": "Do not merely replace the visible prompt text while leaving the governed ReviewRequest bound to Anthropic/Claude."
+}

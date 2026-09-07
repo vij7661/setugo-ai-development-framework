@@ -1,0 +1,26 @@
+{
+  "evidence_id": "GOV-SEM-001-CONSTRUCTION-GREEN-001",
+  "repair_boundary": "GOV-SEM-001",
+  "candidate_commit": "e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f",
+  "workflow_run": 34131579394,
+  "job_id": 101772718436,
+  "conclusion": "success",
+  "tests_run": 33,
+  "tests_passed": 33,
+  "tests_failed": 0,
+  "semantic_regressions_included": true,
+  "rev008_phrase_regression_passed": true,
+  "legacy_review_schema_promotion_blocked": true,
+  "negative_review_disposition_promotion_blocked": true,
+  "mandatory_dimension_gap_blocks_pass": true,
+  "frozen_slice3_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
+  "frozen_slice3_harness_verified_unchanged": true,
+  "classification": "CONSTRUCTION_GREEN_BOUNDED",
+  "scientific_acceptance_claimed": false,
+  "independent_review_still_required": true,
+  "first_red_exposure": {
+    "workflow_run": 34130468376,
+    "failure_record": "governance-runtime/failures/GOV-SEM-001-CONSTRUCTION-FAILURE-001.json",
+    "classification": "CONSTRUCTION_MECHANISM_ABSENCE"
+  }
+}

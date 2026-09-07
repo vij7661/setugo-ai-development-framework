@@ -1,0 +1,59 @@
+{
+  "review_request_id": "REV-GOV-PR5-003",
+  "reviewed_artifact_commit": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
+  "reviewer": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-20250514"
+  },
+  "disposition": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "CRITICAL",
+      "title": "Promotion gate trusts caller-supplied boolean instead of validating evidence",
+      "evidence": "`can_promote_material_transition` accepts `valid_independent_review_present` as a boolean and does not call `validate_review_evidence` internally. The function signature is `(trigger, deterministic_gate_passed, valid_independent_review_present)`. A caller could erroneously or maliciously set `valid_independent_review_present=True` without having validated evidence, bypassing the mandatory review gate.",
+      "impact": "Any code path that invokes this function with an incorrect boolean can authorize a material transition without valid independent review, directly violating the governance requirement that REQUIRED review be enforced before authority promotion.",
+      "required_change": "Modify `can_promote_material_transition` to accept the `ReviewEvidence` object and the `ReviewRequest` and call `validate_review_evidence` internally, or require that the boolean be derived from a validated evidence object via a trusted function. The gate must not trust an unverified flag."
+    },
+    {
+      "id": "F2",
+      "severity": "HIGH",
+      "title": "Shared memory authority separation is not enforced in code",
+      "evidence": "The `review_protocol.py` module contains no functions related to memory, memory verification, or authority precedence. The governance document describes a bootstrap procedure for verifying shared memory pointers against Git/authority, but this is only operational guidance. No code enforces that memory cannot be promoted to authority without verification.",
+      "impact": "If a chat session fails to follow the documented bootstrap steps, stale or conflicted shared memory could be treated as authoritative, bypassing the governance gates. The enforcement boundary relies entirely on the AI's discipline rather than a deterministic mechanism.",
+      "required_change": "Add a code-level enforcement layer that checks memory state against authoritative Git/evidence before any promotion. For example, a function that verifies all material pointers in shared memory resolve to exact commits and refuses to proceed if they do not."
+    },
+    {
+      "id": "F3",
+      "severity": "MEDIUM",
+      "title": "Review evidence validation does not require reviewer.model to be present",
+      "evidence": "In `validate_review_evidence`, the code checks `reviewer.get(\"provider\")` and compares against the proposer's provider/model, but it does not require `reviewer.model` to be a non-empty string. A reviewer entry like `{\"provider\": \"anthropic\"}` (with no model) would pass validation if the provider matches the required provider and the proposer is different.",
+      "impact": "Incomplete reviewer identity can be accepted as valid, undermining the binding of review evidence to a specific model. This could allow a review from an unintended model to satisfy a REQUIRED review.",
+      "required_change": "Require `reviewer.model` to be present and a string, and enforce that it matches the `required_reviewer.model_class` if specified."
+    },
+    {
+      "id": "F4",
+      "severity": "MEDIUM",
+      "title": "Mandatory review trigger list is closed and may not cover all material transitions",
+      "evidence": "`MANDATORY_REVIEW_TRIGGERS` is a fixed `frozenset`. The governance document states that review is required for \"anything a governing standard marks as requiring independent judgment,\" but this catch-all is not represented in the trigger set. New or unforeseen material transitions outside the enumerated list would not be marked REQUIRED.",
+      "impact": "A material authority transition that is not explicitly in the list could proceed without independent review, violating the spirit of the governance policy.",
+      "required_change": "Either make the trigger set dynamically loadable from a governed configuration, or add a catch-all trigger (e.g., `MATERIAL_AUTHORITY_TRANSITION`) and require that all material changes map to it."
+    },
+    {
+      "id": "F5",
+      "severity": "LOW",
+      "title": "Portable bundle does not enforce inclusion of all referenced evidence artifacts",
+      "evidence": "`verify_portable_review_bundle` checks that the bundle contains at least one artifact and that artifact hashes match, but it does not compare the artifact list against the `evidence_refs` in the ReviewRequest. A request might reference evidence items that are not embedded in the bundle.",
+      "impact": "A reviewer using a manual bundle might not receive all necessary evidence, leading to an incomplete or incorrect review, even though the bundle passes integrity checks.",
+      "required_change": "Ensure that all artifacts referenced in `evidence_refs` are required to be present in the bundle, or at least include a manifest listing the bundled artifacts and verifying that all referenced items are present."
+    }
+  ],
+  "evidence_assessment": "The review protocol code and tests cover many baseline scenarios: required review cannot be lowered by R1, platform mode does not alter promotion, automatic and user-initiated API transports carry identical semantics, manual relay bundles fail closed on tampering, and API failures block promotion. However, the critical flaw in `can_promote_material_transition` (F1) and the lack of code enforcement for shared memory (F2) undermine the overall enforcement boundary. The test suite does not include cases for missing reviewer.model, incomplete artifact inclusion in bundles, or the promotion gate receiving an unvalidated boolean. CI evidence is green but does not demonstrate that all adversarial paths are covered. The design has a solid conceptual foundation but requires concrete code changes to close these gaps.",
+  "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+  "governance_disposition": {
+    "structurally_valid_for_request": true,
+    "active_request_at_receipt": "REV-GOV-PR5-006",
+    "counts_for_current_promotion": false,
+    "reason": "REV-GOV-PR5-003 and candidate e412d9ff7617ecc01ad53d06eb1df0714372c215 were superseded before this review was received. Findings remain admissible defect evidence and must be reassessed against the current candidate."
+  }
+}

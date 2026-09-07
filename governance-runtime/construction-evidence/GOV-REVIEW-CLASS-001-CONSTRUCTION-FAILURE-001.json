@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "evidence_id": "GOV-REVIEW-CLASS-001-CONSTRUCTION-FAILURE-001",
+  "preregistration": "governance-runtime/repair-preregistrations/GOV-REVIEW-CLASS-001.md",
+  "workflow_run": 34138508059,
+  "candidate_commit": "44620cda46cd1ba4654ab45c324c623a9bd885b3",
+  "conclusion": "failure",
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "prior_tests_observed": "41 prior tests passed before classification-suite import failure",
+  "failure": {
+    "test_module": "test_review_classification",
+    "observed": "ImportError: cannot import name 'attest_external_llm_review' from review_protocol",
+    "expected_scientific_endpoint": "Old mechanism lacks the preregistered external-evidence classification/attestation functions and still treats MANUAL_RELAY as a review transport."
+  },
+  "unauthorized_promotion_observed": false,
+  "harness_changed_after_exposure": false,
+  "next_action": "Apply only the preregistered GOV-REVIEW-CLASS-001 mechanism repair; do not weaken RC-01..RC-10."
+}

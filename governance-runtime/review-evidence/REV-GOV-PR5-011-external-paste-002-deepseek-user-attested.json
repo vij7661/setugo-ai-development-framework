@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "evidence_id": "REV-GOV-PR5-011-EXTERNAL-PASTE-002",
+  "evidence_class": "USER_ATTESTED_EXTERNAL_LLM_REVIEW",
+  "related_review_request_id": "REV-GOV-PR5-011",
+  "related_artifact_commit": "d808fdfbc334639fc0e78a1332f837c636b8923a",
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "user_attested_source": {"provider": "deepseek", "model": "deepseek"},
+  "self_declared_reviewer": {"provider": "deepseek", "model": "deepseek"},
+  "claimed_disposition": "PASS",
+  "claimed_findings_count": 0,
+  "claimed_review_coverage": {"mandatory_dimensions": 11, "tested_supported": 11},
+  "substantive_assessment": "The pasted review reported all 11 mandatory dimensions TESTED_SUPPORTED and found no authority bypass or false-green path.",
+  "provenance_assessment": "The user explicitly identified this pasted result as a DeepSeek review. That establishes user-attested source provenance only; it does not establish provider-API-authenticated execution provenance.",
+  "governance_effect": "May be used as external technical evidence/advisory review content; cannot satisfy the mandatory platform-authenticated review gate by itself.",
+  "history_preserved": true
+}

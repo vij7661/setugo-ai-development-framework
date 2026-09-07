@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "memory_id": "GOVERNED-SHARED-PROJECT-MEMORY-001",
+  "state": "ACTIVE",
+  "role": "CROSS_AGENT_CONTINUITY_AND_COORDINATION",
+  "independent_authority": false,
+  "read_policy": "READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY",
+  "write_policy": "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
+  "sources": [
+    {"class":"governed_checkpoint","path":"governance-runtime/session-state.json","use":"verified continuity pointer"},
+    {"class":"chatgpt_project_memory_and_context","use":"shared working continuity input subject to reconciliation"},
+    {"class":"external_agent_memory_or_review","use":"working/reviewer input with provenance; never authority by repetition"}
+  ],
+  "current_work": {
+    "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+    "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+    "authoritative_head": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+    "status": "BOUNDED_PASS",
+    "continuity_summary": "Slice 3 remains BOUNDED_PASS. PR #5 exact candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 has green candidate CI run 34164220980 and a valid platform-authenticated Gemini ReviewRequest REV-GOV-PR5-013 PASS from workflow 34164436416: zero findings, 12/12 mandatory dimensions TESTED_SUPPORTED, exact candidate/request binding, deterministic validation valid. Next is final closure-head validation, PR body correction, and promotion if no blocker remains.",
+    "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
+    "prohibited_use": ["promote_pr5_without_green_closure_head","rewrite_prior_failures","treat_external_paste_as_platform_review","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
+  },
+  "execution_handoff": {
+    "sequence": 36,
+    "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+    "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+    "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+    "phase": "BOUNDED_PASS",
+    "next_required_action": "Run final closure-head validation for PR #5, update the stale PR #5 description with the exact candidate/review/closure evidence while preserving superseded history, then promote/merge only if the closure head is green and no governance rule or repository condition blocks the transition.",
+    "stop_condition": "NONE",
+    "manual_input_required": false,
+    "resume_rule": "Generic CONTINUE means verify current PR #5 review evidence and closure-head CI, then complete PR #5 closure/promotion if permitted; never reconstruct another frontier from memory or repository HEAD."
+  },
+  "governance_runtime": {
+    "branch": "governance/live-conversation-runtime",
+    "pull_request": 5,
+    "status": "VALID_INDEPENDENT_REVIEW_PRESENT",
+    "platform_modes": ["AUTO_MODE","MANUAL_MODE"],
+    "review_levels": ["NONE","RECOMMENDED","REQUIRED"],
+    "supported_review_transports": ["AUTOMATIC_API","USER_INITIATED_API"],
+    "external_evidence_classes": ["USER_PROVIDED_EXTERNAL_CONTENT","USER_ATTESTED_EXTERNAL_LLM_REVIEW"],
+    "production_auto_mode_transport": "AUTOMATIC_API",
+    "production_manual_mode_transport": "USER_INITIATED_API",
+    "current_collaboration_review_transport": null,
+    "current_external_evidence_channel": "USER_PASTE",
+    "semantic_review_schema_minimum_for_promotion": 4,
+    "positive_promotable_dispositions": ["PASS","BOUNDED_PASS"],
+    "selected_next_reviewer": {"provider":"gemini","model_class":"gemini"},
+    "current_review_request_id": "REV-GOV-PR5-013",
+    "current_review_status": "VALID_INDEPENDENT_REVIEW_PRESENT",
+    "reviewed_candidate_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+    "current_review_disposition": "PASS",
+    "current_review_semantic_validation": "VALID_12_OF_12_TESTED_SUPPORTED",
+    "current_review_effective_state": "VALID_INDEPENDENT_REVIEW_PRESENT",
+    "current_review_identity_assurance": "PROVIDER_API_AUTHENTICATED_EXECUTION_ENVELOPE",
+    "current_review_counts_for_promotion": true,
+    "construction_evidence": {"id":"PR5-CANDIDATE-013-CI","candidate_commit":"2ae09783c0c36d5b8cc66146c3445e131fd99971","workflow_run":34164220980,"state":"CONSTRUCTION_GREEN_REVIEWED_PASS"},
+    "features_under_review": ["deterministic execution handoff","platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
+  },
+  "pending_reviews": [
+    {
+      "purpose": "Final closure/promotion of live-conversation-governance PR #5 after valid REV-GOV-PR5-013",
+      "status": "VALID_INDEPENDENT_REVIEW_PRESENT",
+      "platform_mode": "AUTO_MODE",
+      "review_request_id": "REV-GOV-PR5-013",
+      "review_transport": "AUTOMATIC_API",
+      "reviewed_artifact_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+      "counts_for_current_promotion": true,
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"]
+    }
+  ],
+  "received_review_history": [
+    {"request_id":"SLICE3-REVIEW-4F1797B-SUPPLEMENT-002","origin":"user_pasted_external_content","claimed_disposition":"PASS","effective_disposition":"VALID_EXTERNAL_SEMANTIC_PASS_NONPROMOTABLE","reviewed_candidate":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","counts_for_current_promotion":false},
+    {"request_id":"SLICE3-PLATFORM-AUTO-003","origin":"platform_authenticated_gemini_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","attempt1":"HTTP_503_UNAVAILABLE_PRESERVED","attempt2":"PASS","mandatory_dimensions":"12/12 TESTED_SUPPORTED","findings":0,"effective_disposition":"BOUNDED_PASS","provider_api_authenticated":true},
+    {"request_id":"REV-GOV-PR5-013","origin":"platform_authenticated_gemini_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"2ae09783c0c36d5b8cc66146c3445e131fd99971","workflow_run":34164436416,"disposition":"PASS","mandatory_dimensions":"12/12 TESTED_SUPPORTED","findings":0,"semantic_validation":"VALID","provider_api_authenticated":true,"counts_for_current_promotion":true}
+  ],
+  "external_evidence_history": [
+    {"id":"SLICE3-SUPPLEMENT-002-INVALID-PASS","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-invalid.json","provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS"},
+    {"id":"SLICE3-SUPPLEMENT-002-CORRECTED-PASS","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-corrected.json","provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS"}
+  ],
+  "memory_conflict_history": [
+    {"id":"LCG-F12","observed":"Assistant repeatedly resumed from stale model/project context or repository history instead of the true last operational checkpoint.","resolution":"GOV_HANDOFF_001_EXPLICIT_CANDIDATE_BOUND_EXECUTION_HANDOFF_ADDED","silent_merge":false},
+    {"id":"LCG-F13","observed":"Supplemental reviewer returned PASS with malformed request/candidate binding and response schema.","resolution":"MALFORMED_PASS_PRESERVED_NON_PROMOTABLE_CORRECTED_REISSUANCE_REQUIRED","silent_merge":false},
+    {"id":"LCG-F14","observed":"Corrected pasted PASS was schema-valid but remained unauthenticated external evidence under platform review policy.","resolution":"EXTERNAL_SEMANTIC_PASS_PRESERVED_NONPROMOTABLE_PLATFORM_API_REVIEW_EXECUTED","silent_merge":false},
+    {"id":"LCG-F15","observed":"First platform-authenticated Slice 3 review attempt received Gemini HTTP 503 high-demand response.","resolution":"PROVIDER_FAILURE_PRESERVED_NO_AUTHORITY_EFFECT_SAME_REQUEST_RETRIED_AND_PASSED","silent_merge":false}
+  ],
+  "memory_rules": {
+    "repetition_upgrades_status": false,
+    "consensus_is_evidence": false,
+    "material_claim_requires_authority_resolution_before_promotion": true,
+    "stale_memory_must_be_marked_and_repaired": true,
+    "memory_write_failure_changes_authority": false,
+    "memory_write_failure_must_be_surfaced": true,
+    "platform_mode_changes_authority": false,
+    "manual_mode_user_skip_of_required_review_promotes_authority": false,
+    "external_content_self_declared_reviewer_is_authenticated": false,
+    "user_attested_external_review_is_provider_api_authenticated": false,
+    "external_evidence_may_satisfy_platform_review_gate": false,
+    "review_disposition_may_override_missing_required_review_evidence": false,
+    "legacy_review_schema_may_promote_material_authority": false,
+    "negative_review_disposition_may_promote_material_authority": false,
+    "chat_summary_may_override_execution_handoff": false,
+    "repository_head_alone_defines_execution_frontier": false,
+    "generic_continue_uses_execution_handoff": true
+  }
+}
