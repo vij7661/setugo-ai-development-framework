@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-009",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-010",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -20,6 +20,7 @@
     "promotion": {
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
+      "next_review_request_id": "REV-GOV-PR5-007",
       "review_request_id": null,
       "review_request_path": null,
       "portable_bundle_manifest_path": null,
@@ -49,7 +50,7 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "At Claude review ingestion, shared-memory.json lagged authoritative session-state.json and omitted active review REV-GOV-PR5-006. Authority won; memory repair required."
+    "last_observed_conflict": "At Claude review ingestion, shared-memory.json lagged authoritative session-state.json and omitted active review REV-GOV-PR5-006. Authority won; memory repaired."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
@@ -69,7 +70,7 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "Repair live-governance findings F1-F5 plus stale shared-memory regression first; no current review request is eligible. After CI-green construction, freeze a new candidate and issue a new self-contained Claude review request. Then resume the narrow Slice 3 code-only repair without changing S3-01..S3-16.",
+    "next_action": "Use CI to build REV-GOV-PR5-007 against the exact post-freeze governance candidate. Then obtain fresh independent Claude review before PR #5 promotion. After governance review is resolved, resume the narrow Slice 3 code-only repair without changing S3-01..S3-16.",
     "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts and do not count review evidence for a superseded governance candidate toward promotion."
   },
   "accepted_prior_boundary": {
@@ -125,8 +126,8 @@
     {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"CHANGES_REQUIRED","description":"Claude review exposed promotion-gate, reviewer identity, trigger-coverage, and bundle-coverage defects that remain applicable."},
-    {"id":"GOV-MEM-001","state":"CHANGES_REQUIRED","description":"Promotion must consume deterministic shared-memory/authority grounding evidence; live ingestion also exposed stale shared-memory state."},
-    {"id":"GOV-PORTABLE-001","state":"CHANGES_REQUIRED","description":"Portable bundle must prove coverage of ReviewRequest evidence refs in addition to integrity/hash binding."}
+    {"id":"GOV-IR-001","state":"PENDING_CANDIDATE_FREEZE","description":"Repaired F1/F3/F4 plus promotion evidence validation require fresh independent review."},
+    {"id":"GOV-MEM-001","state":"PENDING_CANDIDATE_FREEZE","description":"Promotion now validates shared-memory grounding against authority; stale-memory regression repaired and awaits fresh review."},
+    {"id":"GOV-PORTABLE-001","state":"PENDING_CANDIDATE_FREEZE","description":"Portable packet now enforces ReviewRequest evidence-ref coverage and awaits fresh review."}
   ]
 }
