@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-003",
   "classification": "PROPOSER_INFLUENCED_REVIEW_RETRIEVAL_ADMISSION",
   "invariant": "The artifact author must not be able to suppress prior reviewer-relevant memory from R2/R3 merely by rewording the artifact under review.",
-  "status": "PRESERVED",
+  "status": "MECHANISM_REPAIRED",
   "independent_review_required": true,
   "source_external_content_sha256": "681dafb1206cc6945e6d88b21086bf330eacf4a3fd75fe5de17d8f27cbff520d",
   "source_classification": "USER_PROVIDED_EXTERNAL_CONTENT",
@@ -20,12 +20,12 @@
   ],
   "first_failure_actual": "R2/R3 retrieval query_text included artifact.content and rewording changed the admitted memory set from ['prior-adverse-memory'] to [].",
   "suite_result": "290 tests run; 285 passed; 5 newly frozen regressions failed; no unrelated prior regression failed.",
-  "repair_ref": null,
+  "repair_ref": "commit:95b875972b91f525918d9f50aceb46b6f09f1d58:review_engine/context_compiler.py",
   "regression_ref": "review_engine/test_retrieval_proposer_influence.py@e312b8d7b9a86432198ffd88dabe06eadb322d32",
   "full_suite_ref": null,
   "independent_review_ref": null,
   "notes": [
-    "The first red exposure is preserved before changing retrieval query construction.",
-    "The mechanism repair must remove proposer-authored artifact content from the lexical admission query rather than weaken the new tests."
+    "R2/R3 lexical admission query text now derives from the user/platform review request only.",
+    "Artifact id/version/hash remain bound separately, and artifact content remains visible to the reviewer but cannot control memory admission by lexical wording."
   ]
 }
