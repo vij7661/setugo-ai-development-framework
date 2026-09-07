@@ -147,6 +147,8 @@ Therefore manual relay requires a self-contained portable bundle containing:
 
 The reviewer must be able to perform the requested review from the bundle alone. Repository links may be optional metadata but cannot be required.
 
+When the current execution environment cannot persist the generated external packet back into Git, governed Git must retain a compact portable-bundle manifest containing at least the review request ID, exact reviewed candidate revision, exported filename, whole-packet SHA-256, per-artifact hashes/lengths, CI identity, and `repository_access_required: false`. The manifest is evidence of what packet was exported; it is **not** a substitute for the full self-contained packet. Before returned review evidence is accepted, the actual packet used for manual relay must be available and its hash/bindings must match the governed manifest. A missing or mismatched external packet therefore fails closed even if its manifest exists.
+
 If the bundle is missing, malformed, corrupted, targets the wrong revision, or rebinds ReviewRequest semantics, manual review remains pending/fails closed.
 
 ## Reviewer independence
@@ -174,7 +176,7 @@ Switching between auto and manual product modes must not require changing govern
 
 ## Manual relay behavior for this collaboration
 
-When this collaboration reaches a review boundary and no connected reviewer API exists, the assistant states clearly `REVIEW NEEDED — <REVIEWER> — <review_request_id>` and provides/uploads the self-contained portable bundle. The user relays it manually. Returned output is validated against the exact request, artifact revision, reviewer identity, output contract, and independence requirement before it counts as review evidence.
+When this collaboration reaches a review boundary and no connected reviewer API exists, the assistant states clearly `REVIEW NEEDED — <REVIEWER> — <review_request_id>` and provides/uploads the self-contained portable bundle. The user relays it manually. Returned output is validated against the exact request, artifact revision, reviewer identity, output contract, independence requirement, and governed portable-bundle manifest before it counts as review evidence.
 
 ## Shared-memory continuity
 
@@ -216,6 +218,7 @@ At minimum surface/record:
 - `MANUAL_RELAY_SELF_COMPLETED`
 - `MANUAL_RELAY_REQUIRED_REPOSITORY_ACCESS`
 - `PORTABLE_REVIEW_BUNDLE_TAMPERED`
+- `PORTABLE_REVIEW_MANIFEST_MISMATCH`
 - `API_FAILURE_TREATED_AS_APPROVAL`
 - `REVIEW_ID_SEMANTIC_REBIND`
 - `CONSENSUS_AS_EVIDENCE`
@@ -238,7 +241,7 @@ For every material cycle:
 8. Apply review policy.
 9. Use platform mode to choose automatic dispatch vs user review controls.
 10. Use the selected transport without changing policy.
-11. Validate ReviewEvidence.
+11. Validate ReviewEvidence and, for manual relay, the actual packet against its governed manifest.
 12. Apply deterministic governor/evidence gate.
 13. Persist authoritative checkpoint.
 14. Synchronize shared memory.
