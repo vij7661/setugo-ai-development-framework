@@ -15,7 +15,14 @@
   "runtime": {
     "branch": "governance/live-conversation-runtime",
     "normative_contract_path": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
-    "normative_contract_commit": "d55a450d98ba21189ab25aa82eab3022f377bb06"
+    "normative_contract_commit": "d55a450d98ba21189ab25aa82eab3022f377bb06",
+    "promotion": {
+      "pull_request": 5,
+      "state": "PENDING_INDEPENDENT_REVIEW",
+      "last_ci_run": 34113666409,
+      "last_ci_commit": "2cbed4aacfce9b99779f6ed334d5b7b2f9942acf",
+      "last_ci_conclusion": "success"
+    }
   },
   "applicable_standards": [
     {
@@ -59,7 +66,7 @@
         }
       ]
     },
-    "next_action": "Apply a narrow code-only validation-order/classification repair without changing S3-01..S3-16; rerun dedicated Slice 3 and full governed regression. If construction becomes fully green, create metadata-only freeze and use first complete workflows on the frozen SHA for scientific acceptance evidence.",
+    "next_action": "Apply a narrow code-only validation-order/classification repair without changing S3-01..S3-16; rerun dedicated Slice 3 and full governed regression. If construction becomes fully green, create metadata-only freeze and use first complete workflows on the frozen SHA for scientific acceptance evidence. Any scientific adjudication then remains pending until valid independent review is recorded.",
     "forbidden_shortcut": "Do not modify the frozen S3 harness or preregistration to obtain green."
   },
   "accepted_prior_boundary": {
@@ -70,8 +77,8 @@
   },
   "independent_review": {
     "policy_state": "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS",
-    "current_required_transition": "Any future Slice 3 scientific adjudication or material frozen-contract change",
-    "current_review_status": "NOT_YET_PRESENT",
+    "current_required_transition": "Promotion of live conversation governance PR #5 to main and any future Slice 3 scientific adjudication or material frozen-contract change",
+    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
