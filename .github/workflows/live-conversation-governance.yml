@@ -1,0 +1,89 @@
+name: Live Conversation Governance
+
+on:
+  push:
+    branches:
+      - governance/live-conversation-runtime
+    paths:
+      - 'governance-runtime/**'
+      - '.github/workflows/live-conversation-governance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-live-governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout live governance branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate checkpoint semantics and decision log
+        run: python governance-runtime/validate_runtime.py
+
+      - name: Verify authoritative references exist and active head is exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTIVE_BRANCH=$(python - <<'PY'
+          import json
+          print(json.load(open('governance-runtime/session-state.json'))['active_workstream']['branch'])
+          PY
+          )
+          EXPECTED_HEAD=$(python - <<'PY'
+          import json
+          print(json.load(open('governance-runtime/session-state.json'))['active_workstream']['head_commit'])
+          PY
+          )
+          REMOTE_HEAD=$(git ls-remote origin "refs/heads/${ACTIVE_BRANCH}" | awk '{print $1}')
+          test -n "$REMOTE_HEAD"
+          test "$REMOTE_HEAD" = "$EXPECTED_HEAD"
+
+          git fetch --no-tags origin main "$ACTIVE_BRANCH"
+
+          python - <<'PY' > /tmp/governed-shas.txt
+          import json
+          s=json.load(open('governance-runtime/session-state.json'))
+          print(s['runtime']['normative_contract_commit'])
+          for item in s['applicable_standards']:
+              print(item['blob_sha'])
+          w=s['active_workstream']
+          for key in ('head_commit','preregistration_commit','frozen_acceptance_harness_commit','first_mechanism_commit','preserved_failure_record_commit'):
+              print(w[key])
+          p=s.get('accepted_prior_boundary',{})
+          for key in ('scientific_freeze_commit','bounded_adjudication_commit'):
+              if key in p:
+                  print(p[key])
+          PY
+
+          while read -r SHA; do
+            if git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
+              continue
+            fi
+            if git cat-file -e "${SHA}^{blob}" 2>/dev/null; then
+              continue
+            fi
+            echo "Referenced Git object does not exist locally after authoritative fetch: ${SHA}" >&2
+            exit 1
+          done < /tmp/governed-shas.txt
+
+      - name: Assert frozen Slice 3 harness is unchanged at referenced commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          FROZEN_SHA=$(python - <<'PY'
+          import json
+          print(json.load(open('governance-runtime/session-state.json'))['active_workstream']['frozen_acceptance_harness_commit'])
+          PY
+          )
+          git show "${FROZEN_SHA}:experiments/governed-platform/governance/test_integrated_governed_mvp_slice3.py" >/dev/null
+          echo "Verified frozen Slice 3 harness at ${FROZEN_SHA}"
