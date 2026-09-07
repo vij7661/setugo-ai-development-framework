@@ -42,7 +42,9 @@
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
-    "status": "IMPLEMENTATION_CANDIDATE_REFINEMENT",
+    "status": "PENDING_EXTERNAL_REVIEW",
+    "reviewed_candidate_commit": "86ed86fd3fd3cecc2c62b63ce790dca98d009172",
+    "candidate_ci_run": 34115861126,
     "features_under_review": [
       "live conversation governance",
       "active governed shared project memory",
@@ -54,11 +56,12 @@
   "pending_reviews": [
     {
       "purpose": "Promotion of live conversation governance PR #5",
-      "status": "PENDING_CANDIDATE_FREEZE",
+      "status": "PENDING_EXTERNAL_REVIEW",
       "preferred_reviewer": "CLAUDE",
       "transport": "MANUAL_RELAY",
-      "review_request_id": null,
-      "reviewed_artifact_commit": null,
+      "review_request_id": "REV-GOV-PR5-002",
+      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-002.json",
+      "reviewed_artifact_commit": "86ed86fd3fd3cecc2c62b63ce790dca98d009172",
       "superseded_review_requests": [
         "REV-GOV-PR5-001"
       ]
