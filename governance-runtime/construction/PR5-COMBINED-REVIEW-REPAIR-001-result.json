@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repair_id": "PR5-COMBINED-REVIEW-REPAIR-001",
+  "candidate_commit": "732dfe9c3a61afb100f27394168d8905a9b4152f",
+  "workflow_run": 34126157653,
+  "job_id": 101755198676,
+  "conclusion": "success",
+  "review_protocol_tests": {
+    "passed": 21,
+    "total": 21,
+    "status": "OK"
+  },
+  "verified_regressions": [
+    "DeepSeek execution cannot masquerade as Claude through reviewer-authored JSON",
+    "Manual relay self-declared Claude identity cannot satisfy provider-specific review",
+    "Governance-path changes cannot be downgraded by R1 trigger label",
+    "Material promotion cannot waive review with ROUTINE_FORMATTING trigger",
+    "Promotion binds to current authoritative review request/status",
+    "Superseded/non-current review request cannot promote",
+    "Pending review cannot promote with old content",
+    "API failure fails closed end-to-end",
+    "Trusted API identity must match review content identity",
+    "Required reviewer provider/model constraints are rechecked",
+    "Stale shared memory blocks promotion",
+    "Portable bundle missing artifact/evidence summary fails closed",
+    "AUTO_MODE and MANUAL_MODE retain common authority semantics"
+  ],
+  "frozen_slice3_harness_verified": "aa91eda070a5f85c98845fec75dd57024feaa405",
+  "scientific_claim": "CONSTRUCTION_GREEN_ONLY",
+  "promotion_allowed": false,
+  "reason": "Material governance change still requires fresh independent review of an exact frozen candidate; manual-relay provider identity is not authenticated by pasted JSON alone."
+}
