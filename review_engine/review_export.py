@@ -11,6 +11,50 @@ from pathlib import Path
 SUPPORTED_REVIEW_TARGETS = frozenset({"provider-neutral", "claude", "deepseek", "kimi"})
 MANUAL_RELAY_IDENTITY_ASSURANCE = "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY"
 RAW_HASH_BASIS = "RAW_FILE_BYTES"
+TRANSPORT_PROFILE_CHECKED_DATE = "2026-09-07"
+
+# Convenience-only input profiles. These describe how the same canonical review
+# bytes can be presented to different reviewer surfaces. They are never included
+# in the raw-artifact authority set and never authenticate the reviewer/model.
+TARGET_TRANSPORT_PROFILES = {
+    "provider-neutral": {
+        "api_family": "UNSPECIFIED",
+        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "prompt_layout": "review instruction plus canonical source manifest and raw files",
+        "structured_output": "follow REVIEW_PROMPT.txt output contract",
+        "documentation_basis": [],
+    },
+    "claude": {
+        "api_family": "ANTHROPIC_MESSAGES",
+        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "prompt_layout": "long source/context first, explicit review instruction and output schema; XML delimiters may be used",
+        "structured_output": "explicit schema/instructions in prompt or supported structured-output surface",
+        "document_input_note": "Claude Messages supports document input including PDF by URL, base64 or file_id; raw text files remain canonical for code review",
+        "documentation_basis": [
+            "https://docs.anthropic.com/en/docs/build-with-claude/pdf-support",
+            "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-templates-and-variables",
+        ],
+    },
+    "deepseek": {
+        "api_family": "OPENAI_CHAT_COMPLETIONS_OR_RESPONSES",
+        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "prompt_layout": "system/user instruction with explicit JSON output contract and canonical source text",
+        "structured_output": "Chat Completions response_format=json_object; Responses API supports json_object/json_schema",
+        "documentation_basis": [
+            "https://api-docs.deepseek.com/api/create-chat-completion/",
+            "https://api-docs.deepseek.com/api/create-response/",
+        ],
+    },
+    "kimi": {
+        "api_family": "MESSAGES_STYLE_CHAT",
+        "manual_input_shape": "UTF8_TEXT_MARKDOWN_PLUS_RAW_FILES",
+        "prompt_layout": "system/user messages with clear steps, delimiters/XML and reference text",
+        "structured_output": "state the exact output schema in the prompt; this profile makes no stronger JSON-mode claim",
+        "documentation_basis": [
+            "https://platform.moonshot.ai/docs/guide/prompt-best-practice",
+        ],
+    },
+}
 
 
 @dataclass(frozen=True)
@@ -77,6 +121,8 @@ def _render_packet(spec: ReviewExportSpec, entries: tuple[ReviewSourceEntry, ...
         f"- Raw artifact hash basis: `{RAW_HASH_BASIS}`",
         "",
         target_note,
+        "",
+        "`TARGET_TRANSPORT.json` is convenience metadata only. It may change as provider interfaces evolve and is not part of the canonical reviewed source set.",
         "",
         "## Review instruction",
         "",
@@ -169,7 +215,24 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
     packet = _render_packet(spec, frozen_entries, source_text)
     (out / "REVIEW_PACKET.md").write_text(packet, encoding="utf-8")
 
-    checksum_paths = [out / "REVIEW_REQUEST.json", out / "REVIEW_PROMPT.txt", out / "REVIEW_PACKET.md"]
+    transport_profile = {
+        "schema_version": 1,
+        "intended_reviewer": spec.intended_reviewer,
+        "checked_date": TRANSPORT_PROFILE_CHECKED_DATE,
+        "authority": "CONVENIENCE_ONLY_NOT_REVIEW_EVIDENCE",
+        **TARGET_TRANSPORT_PROFILES[spec.intended_reviewer],
+    }
+    (out / "TARGET_TRANSPORT.json").write_text(
+        json.dumps(transport_profile, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    checksum_paths = [
+        out / "REVIEW_REQUEST.json",
+        out / "REVIEW_PROMPT.txt",
+        out / "REVIEW_PACKET.md",
+        out / "TARGET_TRANSPORT.json",
+    ]
     checksum_paths.extend(raw_dir / entry.path for entry in frozen_entries)
     checksum_lines = []
     for path in sorted(checksum_paths, key=lambda value: value.relative_to(out).as_posix()):
@@ -185,6 +248,7 @@ def build_review_export(repo_root: str | Path, output_dir: str | Path, spec: Rev
         "raw_artifacts": [asdict(entry) for entry in frozen_entries],
         "packet_sha256": sha256((out / "REVIEW_PACKET.md").read_bytes()).hexdigest(),
         "request_sha256": sha256((out / "REVIEW_REQUEST.json").read_bytes()).hexdigest(),
+        "transport_profile_sha256": sha256((out / "TARGET_TRANSPORT.json").read_bytes()).hexdigest(),
         "checksums_sha256": sha256((out / "SHA256SUMS.txt").read_bytes()).hexdigest(),
     }
 
