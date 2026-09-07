@@ -6,7 +6,7 @@ from pathlib import Path
 
 from review_engine.app import ReviewEngineApp
 from review_engine.claim_coverage import RetainedClaimCoverageRegistry
-from review_engine.configuration import ReviewEngineConfiguration
+from review_engine.configuration import ReviewEngineConfiguration, provider_binding_fingerprint
 from review_engine.extraction_work import ExtractionWorkRegistry
 from review_engine.extractor_qualification import (
     ExtractorQualificationRecord,
@@ -18,6 +18,10 @@ from review_engine.qualified_claim_coverage import QualifiedRetainedClaimCoverag
 from review_engine.sqlite_extraction_work import SQLiteExtractionWorkRegistry
 from review_engine.sqlite_work_bound_claim_coverage import SQLiteWorkOrderBoundClaimCoverageRegistry
 from review_engine.work_bound_claim_coverage import WorkOrderBoundClaimCoverageRegistry
+
+
+PROVIDER_SPEC = {"adapter": "openai_compatible", "base_url": "https://fake.example/v1"}
+PROVIDER_BINDING = provider_binding_fingerprint(PROVIDER_SPEC)
 
 
 class FakeProviders:
@@ -35,13 +39,14 @@ def reviewer() -> ReviewerConfig:
         api_key_env="R1_KEY",
         foundation_lineage="reviewer-lineage",
         qualification_ref="r1-q1",
+        provider_binding_fingerprint=PROVIDER_BINDING,
     )
 
 
 def governed_configuration() -> ReviewEngineConfiguration:
     return ReviewEngineConfiguration(
         reviewers={"R1": reviewer()},
-        provider_specs={},
+        provider_specs={"fake": PROVIDER_SPEC},
         qualification_records=(
             QualificationRecord(
                 qualification_ref="r1-q1",
@@ -55,6 +60,7 @@ def governed_configuration() -> ReviewEngineConfiguration:
                 foundation_lineage="reviewer-lineage",
                 max_risk="LOW",
                 task_types=("*",),
+                provider_binding_fingerprint=PROVIDER_BINDING,
             ),
         ),
     )
