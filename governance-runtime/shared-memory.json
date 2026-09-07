@@ -26,7 +26,7 @@
     "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "phase": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
-    "next_required_action": "Wait for the independent reviewer response for exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6, then ingest raw result, classify provenance, validate semantic coverage/disposition, adjudicate findings, and advance or repair Slice 3.",
+    "next_required_action": "Wait for the independent reviewer response for exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. When received, ingest the raw result without rewriting history, classify its provenance, validate coverage/disposition, adjudicate findings, and advance or repair Slice 3 accordingly.",
     "stop_condition": "INDEPENDENT_REVIEW_REQUIRED",
     "manual_input_required": true,
     "resume_rule": "Generic CONTINUE means execute the authoritative session-state execution_handoff.next_required_action after Git/evidence verification; never reconstruct a different frontier from memory or repository HEAD."
