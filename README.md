@@ -7,10 +7,12 @@ A public, reusable framework for disciplined software discovery, architecture, i
 - `prompt-framework/` — Setugo AI Development Prompt Framework v1.6 in public/shareable form.
 - `skills/failure-triage/` — native failure-triage skill source from the Claude experiment.
 - `claude-code/` — native Claude Code safeguards and configuration examples.
+- `standards/` — executable-governance-oriented standards, including external evidence semantic validation.
+- `experiments/governed-platform/` — falsification designs for the governed AI-development platform, including EXP-J semantic evidence gating.
 
 ## Core idea
 
-Do not treat the current implementation, current test, current fixture, or current documentation as automatically correct. Establish the intended contract first, then judge each artifact against that contract.
+Do not treat the current implementation, current test, current fixture, current documentation, external claim, or Judge verdict as automatically correct. Establish the intended contract first, then judge each artifact against that contract and require the evidence needed for promotion.
 
 The broader operating model is:
 
@@ -25,6 +27,8 @@ The framework is designed to help teams move through:
 Start with the prompt framework. Individual prompts may reference Core Standards A–E. When a prompt is used independently, include every Core Standard it references. Do not execute a prompt with an unresolved Core Standard reference and do not reconstruct missing standards from memory.
 
 The Claude artifacts are included as native files rather than converted PDFs so developers can inspect, adapt, and use them directly. They are intended as examples of turning reasoning rules into executable safeguards, not as universal drop-in policy for every repository.
+
+For external research/evidence, lexical similarity is discovery evidence only. Before a material external finding is promoted, verify the actual domain, intended users, inputs, outputs, workflow/capabilities, claimed overlap, and authoritative support. A researcher or Judge verdict cannot substitute for missing mandatory evidence.
 
 ## Relationship to Setugo
 
