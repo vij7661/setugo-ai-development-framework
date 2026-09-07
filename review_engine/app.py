@@ -7,11 +7,13 @@ from uuid import uuid4
 from .claim_coverage import ClaimCoverageValidator
 from .claim_coverage_guard import ClaimCoverageGuardedInvoker
 from .configuration import ReviewEngineConfiguration, build_provider_registry, build_qualification_registry
+from .context_compiler import ContextCompiler
 from .evidence_correspondence import EvidenceCorrespondenceValidator
 from .judge_health import JudgeHealthMonitor, JudgeObservation
-from .orchestrator import ReviewEngine
 from .providers import ProviderRegistry
 from .request_boundary import PlatformExecutionEnvelope, build_request
+from .retrieval import ContextRetriever
+from .retrieval_review_engine import RetrievalAwareReviewEngine
 from .session_store import SQLiteSessionStore
 from .sqlite_memory import SQLiteMemoryStore
 from .truth_contract import TVC_VERSION
@@ -30,6 +32,7 @@ class ReviewEngineApp:
         execution_envelope: PlatformExecutionEnvelope | None = None,
         evidence_validator: EvidenceCorrespondenceValidator | None = None,
         claim_coverage_validator: ClaimCoverageValidator | None = None,
+        context_retriever: ContextRetriever | None = None,
     ) -> None:
         self.configuration = configuration
         self.qualifications = build_qualification_registry(configuration)
@@ -128,8 +131,14 @@ class ReviewEngineApp:
         if self.claim_coverage_validator is not None:
             self.claim_coverage_guard = ClaimCoverageGuardedInvoker(invoker, self.claim_coverage_validator)
             invoker = self.claim_coverage_guard
-        self.engine = ReviewEngine(
+        self.context_compiler = ContextCompiler(context_retriever)
+        # Always use the retrieval-aware orchestrator. With the default
+        # ReturnAllRetriever this preserves legacy behavior; with a selective
+        # retriever it enforces authorized-subset admission, non-droppable
+        # AUTHORITATIVE memory, artifact binding and retrieval evidence retention.
+        self.engine = RetrievalAwareReviewEngine(
             invoker,
+            context_compiler=self.context_compiler,
             session_store=self.sessions,
             qualification_registry=self.qualifications,
             evidence_validator=self.evidence_validator,
@@ -236,6 +245,8 @@ class ReviewEngineApp:
                     getattr(self.sessions, "owned_execution_attempt_enforced", False)
                 ),
                 "truth_contract_version": TVC_VERSION,
+                "retrieval_strategy": self.context_compiler.retrieval_strategy,
+                "retrieval_strategy_version": self.context_compiler.retrieval_strategy_version,
                 "evidence_correspondence_validator_configured": self.evidence_validator is not None,
                 "evidence_correspondence_qualified_verifier": self._evidence_qualified_verifier(),
                 "evidence_correspondence_durable_attestation_state": self._evidence_durable_attestation_state(),
@@ -306,6 +317,8 @@ class ReviewEngineApp:
                 getattr(self.sessions, "owned_execution_attempt_enforced", False)
             ),
             "truth_contract_version": TVC_VERSION,
+            "retrieval_strategy": self.context_compiler.retrieval_strategy,
+            "retrieval_strategy_version": self.context_compiler.retrieval_strategy_version,
             "evidence_correspondence_validator": "CONFIGURED" if self.evidence_validator is not None else "UNCONFIGURED",
             "evidence_correspondence_qualified_verifier": self._evidence_qualified_verifier(),
             "evidence_correspondence_durable_attestation_state": self._evidence_durable_attestation_state(),
