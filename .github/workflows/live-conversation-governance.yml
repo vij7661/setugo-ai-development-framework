@@ -27,8 +27,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate checkpoint semantics and decision log
+      - name: Validate checkpoint, shared memory, and decision log
         run: python governance-runtime/validate_runtime.py
+
+      - name: Test manual/API review transport equivalence and fail-closed promotion
+        run: |
+          cd governance-runtime
+          python -m unittest -v test_review_protocol.py
 
       - name: Verify authoritative references exist and active head is exact
         shell: bash
