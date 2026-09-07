@@ -1,0 +1,51 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_4",
+  "status": "FROZEN_AWAITING_FIRST_SCIENTIFIC_EXPOSURE",
+  "branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
+  "preregistered_contract": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md",
+  "preregistration_commit": "f78c5462193445ecb6675dcee4f8f3cc65e99d96",
+  "acceptance_harness_commit": "0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6",
+  "execution_workflow_commit": "ad0f56f2737b7cc840f1032744b7f4581d109bd2",
+  "first_mechanism_commit": "b4cc31394fff001f1c726ba8093da20114b324df",
+  "construction_head": "b4cc31394fff001f1c726ba8093da20114b324df",
+  "construction_evidence": {
+    "slice4_workflow_run": 34166171316,
+    "slice4_job": 101877517024,
+    "acceptance_cases": "S4-01..S4-16 explicit pass",
+    "governed_workflow_run": 34166171216,
+    "governed_job": 101877516443,
+    "governed_regression": "COMPLETE_SUCCESS"
+  },
+  "preserved_construction_history": [
+    {
+      "candidate": "ad0f56f2737b7cc840f1032744b7f4581d109bd2",
+      "record_commit": "f9df961c3f05bdaa87f559c86de980f9e1dc6c37",
+      "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+      "result": "Frozen Slice 4 harness failed to import the intentionally absent tool-runner gateway. No scientific endpoint was reached and no fixture expectation was changed."
+    }
+  ],
+  "frozen_acceptance_cases": [
+    "S4-01","S4-02","S4-03","S4-04","S4-05","S4-06","S4-07","S4-08",
+    "S4-09","S4-10","S4-11","S4-12","S4-13","S4-14","S4-15","S4-16"
+  ],
+  "scientific_acceptance": {
+    "require_exact_frozen_sha": true,
+    "require_all_acceptance_cases_explicit_pass": true,
+    "require_complete_governed_regression_same_sha": true,
+    "require_direct_job_log_correspondence": true,
+    "preserve_first_frozen_result_before_any_repair": true,
+    "require_independent_semantic_platform_review_before_bounded_adjudication": true
+  },
+  "claim_boundary": "A positive Slice 4 result supports only that, in the tested reference runner, one exact platform-authorized argv-form subprocess can be constrained to an isolated workspace, minimized environment, fixed executable/arguments, bounded runtime/output, and durable replay identity under the tested conditions. It does not establish arbitrary-code sandbox security, kernel/container escape resistance, production network isolation, production credential safety, remote repository authority, or release/deploy/merge/production/completion authority.",
+  "nonclaims": [
+    "arbitrary untrusted-code kernel/OS/container/VM escape resistance",
+    "production sandbox orchestration",
+    "production network-egress enforcement",
+    "production secret-manager credential leasing",
+    "production remote repository mutation",
+    "multi-host execution atomicity",
+    "distributed consensus",
+    "third-party independent certification",
+    "release, deploy, merge, production, or completion authority"
+  ]
+}
