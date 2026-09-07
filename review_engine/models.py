@@ -111,6 +111,11 @@ class ReviewerResponse:
     # Structured Truth & Veracity Contract evidence. Direct in-process test
     # adapters may omit it; real provider adapters validate and populate it.
     epistemic_review: dict[str, Any] = field(default_factory=dict)
+    # Platform-owned provider dispatch evidence is attached by ProviderRegistry
+    # after the adapter call. Model JSON is never allowed to populate this field.
+    # It proves platform routing/config/context bookkeeping, not cryptographic
+    # remote provider/model runtime identity.
+    execution_evidence: dict[str, Any] = field(default_factory=dict)
     # Only meaningful for staged R3 adjudication. A prior material finding does
     # not disappear by omission: the adjudicator must explicitly name each
     # frozen Phase-A finding it considers resolved. The orchestrator checks that
@@ -124,6 +129,8 @@ class ReviewerResponse:
             raise ValueError("incomplete reviewer response is not admissible")
         if not isinstance(self.epistemic_review, dict):
             raise ValueError("epistemic_review must be an object")
+        if not isinstance(self.execution_evidence, dict):
+            raise ValueError("execution_evidence must be an object")
         if not isinstance(self.resolved_finding_ids, tuple):
             raise ValueError("resolved_finding_ids must be a tuple")
         if any(not isinstance(value, str) or not value.strip() for value in self.resolved_finding_ids):
