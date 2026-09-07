@@ -1,0 +1,17 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-PR5-012",
+  "state": "SUPERSEDED_BEFORE_REVIEW",
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-5",
+    "commit": "60659a16c05e97040234e742386acbb4e345a0d3"
+  },
+  "candidate_ci_run": 34164098133,
+  "candidate_ci_conclusion": "success",
+  "review_request_was_dispatched": false,
+  "supersession_reason": "Candidate was frozen provisionally, then superseded before independent review because the authenticated PR #5 platform-review runner/workflow was added to the governance implementation before the final candidate freeze.",
+  "superseded_by": "REV-GOV-PR5-013",
+  "authority_effect": "NONE",
+  "historical_integrity": "This record exists to preserve the candidate/request sequence. It must not be interpreted as completed independent review evidence or a promotable ReviewRequest."
+}
