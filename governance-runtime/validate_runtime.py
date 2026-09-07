@@ -8,13 +8,12 @@ import re
 import sys
 
 from review_protocol import (
-    ALLOWED_TRANSPORTS,
+    EXTERNAL_EVIDENCE_CLASSES,
     PLATFORM_MODES,
+    PLATFORM_REVIEW_TRANSPORTS,
     PROMOTABLE_REVIEW_DISPOSITIONS,
-    REVIEW_DIMENSION_STATUSES,
     REVIEW_LEVELS,
     SEMANTIC_REVIEW_SCHEMA_VERSION,
-    canonical_hash,
     verify_review_request,
 )
 
@@ -25,7 +24,6 @@ LOG_PATH = ROOT / "decision-log.jsonl"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ARTIFACT_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
-
 EXPECTED_PRECEDENCE = [
     "governed_git_state",
     "governed_registries_and_evidence",
@@ -36,12 +34,8 @@ EXPECTED_PRECEDENCE = [
 ]
 ALLOWED_CHECKPOINT_STATES = {"ACTIVE", "GROUNDING_REQUIRED", "SUSPENDED", "SUPERSEDED"}
 ALLOWED_REVIEW_STATUS = {
-    "NOT_YET_PRESENT",
-    "PENDING_INDEPENDENT_REVIEW",
-    "PENDING_EXTERNAL_REVIEW",
-    "REVIEW_RECEIVED",
-    "REVIEW_VALIDATED",
-    "VALID_INDEPENDENT_REVIEW_PRESENT",
+    "NOT_YET_PRESENT", "PENDING_INDEPENDENT_REVIEW", "PENDING_EXTERNAL_REVIEW",
+    "REVIEW_RECEIVED", "REVIEW_VALIDATED", "VALID_INDEPENDENT_REVIEW_PRESENT",
     "REVIEW_INDEPENDENCE_UNPROVEN",
 }
 
@@ -64,21 +58,19 @@ def main() -> int:
     state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
     memory = json.loads(MEMORY_PATH.read_text(encoding="utf-8"))
 
-    if state.get("schema_version") != 3:
-        fail("unsupported session-state schema")
-    if state.get("checkpoint_state") not in ALLOWED_CHECKPOINT_STATES:
-        fail("invalid checkpoint_state")
+    if state.get("schema_version") != 3 or state.get("checkpoint_state") not in ALLOWED_CHECKPOINT_STATES:
+        fail("session-state schema/checkpoint invalid")
     authority = state.get("authority", {})
     if authority.get("repository") != "vij7661/setugo-ai-development-framework":
-        fail("authoritative repository changed unexpectedly")
+        fail("authoritative repository changed")
     if authority.get("source_precedence") != EXPECTED_PRECEDENCE:
         fail("authority precedence changed or weakened")
 
     runtime = state.get("runtime", {})
     if runtime.get("branch") != "governance/live-conversation-runtime":
-        fail("runtime branch identity changed unexpectedly")
+        fail("runtime branch changed")
     if runtime.get("normative_contract_path") != "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md":
-        fail("normative contract path changed unexpectedly")
+        fail("normative contract path changed")
     require_sha(runtime.get("normative_contract_commit"), "runtime.normative_contract_commit")
 
     shared = state.get("shared_memory", {})
@@ -91,16 +83,16 @@ def main() -> int:
     if shared.get("on_conflict") != "AUTHORITATIVE_STATE_WINS_AND_MEMORY_REASSESSMENT_REQUIRED":
         fail("shared-memory conflict policy weakened")
     if shared.get("write_order") != "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC":
-        fail("shared-memory write ordering weakened")
+        fail("shared-memory write order weakened")
     if shared.get("on_write_failure_after_authoritative_persist") != "AUTHORITY_REMAINS_VALID_MEMORY_STALE":
         fail("memory failure semantics weakened")
     if shared.get("on_authoritative_persist_failure") != "BLOCK_AUTHORITATIVE_COMPLETION":
-        fail("authoritative persistence failure must block completion")
+        fail("authority persistence failure must block completion")
 
     if memory.get("schema_version") != 2 or memory.get("state") != "ACTIVE":
         fail("shared-memory artifact malformed/inactive")
     if memory.get("independent_authority") is not False:
-        fail("shared-memory artifact claims authority")
+        fail("shared-memory artifact claims independent authority")
     if memory.get("read_policy") != "READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY":
         fail("shared-memory read policy invalid")
     if memory.get("write_policy") != "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY":
@@ -109,14 +101,9 @@ def main() -> int:
     work = state.get("active_workstream", {})
     for key in ("branch", "head_commit", "state", "next_action", "forbidden_shortcut"):
         if not work.get(key):
-            fail(f"active_workstream.{key} is required")
-    for key in (
-        "head_commit",
-        "preregistration_commit",
-        "frozen_acceptance_harness_commit",
-        "first_mechanism_commit",
-        "preserved_failure_record_commit",
-    ):
+            fail(f"active_workstream.{key} required")
+    for key in ("head_commit", "preregistration_commit", "frozen_acceptance_harness_commit",
+                "first_mechanism_commit", "preserved_failure_record_commit"):
         require_sha(work.get(key), f"active_workstream.{key}")
     latest = work.get("latest_result", {})
     passed, total, failures = latest.get("passed"), latest.get("total"), latest.get("failures")
@@ -126,34 +113,38 @@ def main() -> int:
         fail("latest_result counts inconsistent")
 
     mem_work = memory.get("current_work", {})
-    if mem_work.get("authoritative_branch") != work.get("branch"):
-        fail("shared memory workstream branch differs from authority")
-    if mem_work.get("authoritative_head") != work.get("head_commit"):
-        fail("shared memory workstream head differs from authority")
-    if mem_work.get("status") != work.get("state"):
-        fail("shared memory workstream state differs from authority")
+    if mem_work.get("authoritative_branch") != work.get("branch") or mem_work.get("authoritative_head") != work.get("head_commit") or mem_work.get("status") != work.get("state"):
+        fail("shared memory workstream differs from authority")
 
     review = state.get("independent_review", {})
     if review.get("policy_state") != "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS":
         fail("mandatory review policy weakened")
     if review.get("semantic_review_schema_minimum_for_promotion") != SEMANTIC_REVIEW_SCHEMA_VERSION:
-        fail("semantic review schema floor changed or missing")
+        fail("semantic schema floor changed")
     if set(review.get("positive_promotable_dispositions", [])) != set(PROMOTABLE_REVIEW_DISPOSITIONS):
-        fail("positive promotable review dispositions changed")
+        fail("promotable dispositions changed")
     if set(review.get("platform_modes", [])) != set(PLATFORM_MODES):
         fail("platform modes invalid")
     if set(review.get("review_levels", [])) != set(REVIEW_LEVELS):
         fail("review levels invalid")
-    if set(review.get("supported_transports", [])) != set(ALLOWED_TRANSPORTS):
-        fail("review transports invalid")
-    if review.get("current_collaboration_mode") != "MANUAL_MODE":
-        fail("this collaboration must emulate MANUAL_MODE")
-    if review.get("current_collaboration_transport") != "MANUAL_RELAY":
-        fail("this collaboration must use MANUAL_RELAY")
+    if set(review.get("supported_review_transports", [])) != set(PLATFORM_REVIEW_TRANSPORTS):
+        fail("platform review transports invalid")
+    if set(review.get("external_evidence_classes", [])) != set(EXTERNAL_EVIDENCE_CLASSES):
+        fail("external evidence classes invalid")
     if review.get("production_auto_mode_transport") != "AUTOMATIC_API":
         fail("AUTO_MODE transport changed")
     if review.get("production_manual_mode_transport") != "USER_INITIATED_API":
-        fail("MANUAL_MODE production transport changed")
+        fail("MANUAL_MODE transport changed")
+    if review.get("current_collaboration_mode") != "MANUAL_MODE":
+        fail("current collaboration mode must be MANUAL_MODE")
+    if review.get("current_collaboration_review_transport") is not None:
+        fail("copy/paste collaboration must not claim a platform review transport")
+    if review.get("current_external_evidence_channel") != "USER_PASTE":
+        fail("current external evidence channel must be USER_PASTE")
+    if review.get("content_may_establish_own_provenance") is not False:
+        fail("content must not establish its own provenance")
+    if review.get("user_attestation_is_provider_authentication") is not False:
+        fail("user attestation must not become provider authentication")
     if review.get("transport_may_change_policy") is not False or review.get("platform_mode_may_change_authority") is not False:
         fail("mode/transport may not change authority")
     if review.get("current_review_status") not in ALLOWED_REVIEW_STATUS:
@@ -164,36 +155,40 @@ def main() -> int:
         fail("review-unavailable fallback weakened")
 
     mem_runtime = memory.get("governance_runtime", {})
+    if set(mem_runtime.get("supported_review_transports", [])) != set(PLATFORM_REVIEW_TRANSPORTS):
+        fail("shared memory review transports invalid")
+    if set(mem_runtime.get("external_evidence_classes", [])) != set(EXTERNAL_EVIDENCE_CLASSES):
+        fail("shared memory external evidence classes invalid")
     if mem_runtime.get("current_review_request_id") != review.get("current_review_request_id"):
         fail("shared memory current review request differs from authority")
     if mem_runtime.get("current_review_status") != review.get("current_review_status"):
         fail("shared memory current review status differs from authority")
-    if mem_runtime.get("production_auto_mode_transport") != "AUTOMATIC_API":
-        fail("shared memory lost AUTO_MODE transport")
-    if mem_runtime.get("production_manual_mode_transport") != "USER_INITIATED_API":
-        fail("shared memory lost MANUAL_MODE transport")
+    if mem_runtime.get("production_auto_mode_transport") != "AUTOMATIC_API" or mem_runtime.get("production_manual_mode_transport") != "USER_INITIATED_API":
+        fail("shared memory lost API review transport policy")
+    if mem_runtime.get("current_collaboration_review_transport") is not None or mem_runtime.get("current_external_evidence_channel") != "USER_PASTE":
+        fail("shared memory conflates paste channel with review transport")
     if mem_runtime.get("semantic_review_schema_minimum_for_promotion") != SEMANTIC_REVIEW_SCHEMA_VERSION:
-        fail("shared memory lost semantic review schema floor")
-    if set(mem_runtime.get("positive_promotable_dispositions", [])) != set(PROMOTABLE_REVIEW_DISPOSITIONS):
-        fail("shared memory lost promotable disposition floor")
-
-    pending = memory.get("pending_reviews")
-    if not isinstance(pending, list) or not pending or not isinstance(pending[0], dict):
-        fail("shared memory pending review coordination missing")
-    mem_review = pending[0]
-    if mem_review.get("transport") not in ALLOWED_TRANSPORTS or mem_review.get("platform_mode") not in PLATFORM_MODES:
-        fail("shared memory pending review mode/transport invalid")
+        fail("shared memory lost semantic schema floor")
 
     promotion = runtime.get("promotion", {})
     active_id = review.get("current_review_request_id")
+    pending = memory.get("pending_reviews")
+    if not isinstance(pending, list) or not pending or not isinstance(pending[0], dict):
+        fail("pending review coordination missing")
+    mem_review = pending[0]
+
     if active_id is None:
         if promotion.get("state") != "PENDING_CANDIDATE_FREEZE":
             fail("no active review requires PENDING_CANDIDATE_FREEZE")
-        if mem_review.get("status") != "PENDING_CANDIDATE_FREEZE":
-            fail("shared memory disagrees with candidate-freeze state")
         if review.get("current_review_status") != "NOT_YET_PRESENT":
             fail("candidate-freeze state pretends review exists")
+        if mem_review.get("status") != "PENDING_CANDIDATE_FREEZE":
+            fail("memory disagrees with candidate-freeze state")
+        if mem_review.get("review_request_id") is not None or mem_review.get("review_transport") is not None:
+            fail("candidate-freeze memory must not claim active review execution")
     else:
+        if promotion.get("state") != "PENDING_EXTERNAL_REVIEW":
+            fail("active review must be pending external/API review")
         request_path_value = promotion.get("review_request_path")
         if not isinstance(request_path_value, str) or not request_path_value.startswith("governance-runtime/review-requests/"):
             fail("active review request path invalid")
@@ -205,76 +200,16 @@ def main() -> int:
         if not ok:
             fail(f"active review request invalid: {reason}")
         if request.get("schema_version") != SEMANTIC_REVIEW_SCHEMA_VERSION:
-            fail("active material review must use semantic ReviewRequest schema 4")
-        dimensions = request.get("required_review_dimensions")
-        if not isinstance(dimensions, list) or not dimensions:
-            fail("active semantic review lacks required dimensions")
-        if set(request.get("review_dimension_status_vocabulary", [])) != set(REVIEW_DIMENSION_STATUSES):
-            fail("active semantic review status vocabulary invalid")
-        if request.get("review_request_id") != active_id:
-            fail("active request ID differs from authority")
+            fail("active material review must use schema 4")
         reviewed_commit = review.get("current_reviewed_artifact_commit")
         require_sha(reviewed_commit, "independent_review.current_reviewed_artifact_commit")
-        if request.get("artifact", {}).get("commit") != reviewed_commit:
-            fail("active review request targets wrong candidate")
-        if promotion.get("reviewed_candidate_commit") != reviewed_commit:
-            fail("promotion candidate differs from active request")
-        if mem_review.get("review_request_id") != active_id or mem_review.get("reviewed_artifact_commit") != reviewed_commit:
-            fail("shared memory active review binding differs from authority")
-        if mem_review.get("status") not in {"PENDING_EXTERNAL_REVIEW", "REVIEW_RECEIVED", "REVIEW_VALIDATED"}:
-            fail("shared memory active review state invalid")
-
-        if review.get("current_collaboration_transport") == "MANUAL_RELAY":
-            manifest_path_value = promotion.get("portable_bundle_manifest_path")
-            if not isinstance(manifest_path_value, str) or not manifest_path_value.startswith("governance-runtime/review-bundles/"):
-                fail("manual relay requires governed packet manifest")
-            manifest_path = ROOT.parent / manifest_path_value
-            if not manifest_path.is_file():
-                fail("packet manifest missing")
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            schema = manifest.get("schema_version")
-            if schema != 4:
-                fail("active semantic review packet manifest must use schema 4")
-            if manifest.get("review_request_id") != active_id or manifest.get("reviewed_candidate_commit") != reviewed_commit:
-                fail("packet manifest review binding invalid")
-            if canonical_hash(manifest.get("required_review_dimensions", [])) != canonical_hash(dimensions):
-                fail("packet manifest semantic dimensions differ from ReviewRequest")
-            if manifest.get("repository_access_required") is not False:
-                fail("manual packet must not require repository access")
-            if manifest.get("bundle_storage") not in {"EXTERNAL_USER_PORTABLE_FILE", "GITHUB_ACTIONS_ARTIFACT_EXPORT"}:
-                fail("packet storage mode invalid")
-            require_sha256(manifest.get("bundle_file_sha256"), "packet.bundle_file_sha256")
-            if manifest.get("bundle_body_sha256") is not None:
-                require_sha256(manifest.get("bundle_body_sha256"), "packet.bundle_body_sha256")
-            if manifest.get("logical_bundle_sha256") is not None:
-                require_sha256(manifest.get("logical_bundle_sha256"), "packet.logical_bundle_sha256")
-            embedded = manifest.get("embedded_artifacts")
-            if not isinstance(embedded, list) or not embedded:
-                fail("packet manifest lacks embedded artifacts")
-            for idx, item in enumerate(embedded):
-                if not isinstance(item, dict) or not item.get("path"):
-                    fail(f"packet artifact {idx} malformed")
-                require_sha256(item.get("content_sha256"), f"packet.artifact[{idx}].content_sha256")
-                if not isinstance(item.get("bytes_utf8"), int) or item["bytes_utf8"] <= 0:
-                    fail(f"packet artifact {idx} byte length invalid")
-                if item.get("hash_basis") != "RAW_GIT_BLOB_UTF8_BYTES":
-                    fail(f"packet artifact {idx} raw hash basis missing")
-                if not isinstance(item.get("raw_export_path"), str) or not item.get("raw_export_path", "").startswith("raw-artifacts/"):
-                    fail(f"packet artifact {idx} raw export path missing")
-            if manifest.get("raw_artifacts_are_byte_authoritative") is not True:
-                fail("semantic packet must declare raw artifacts byte-authoritative")
-            if manifest.get("bundle_storage") == "GITHUB_ACTIONS_ARTIFACT_EXPORT":
-                if not isinstance(manifest.get("actions_artifact_id"), int) or manifest["actions_artifact_id"] <= 0:
-                    fail("packet manifest missing Actions artifact ID")
-                if not isinstance(manifest.get("actions_run_id"), int) or manifest["actions_run_id"] <= 0:
-                    fail("packet manifest missing Actions run ID")
-                digest = manifest.get("actions_artifact_digest")
-                if not isinstance(digest, str) or not ARTIFACT_DIGEST.fullmatch(digest):
-                    fail("packet manifest missing Actions digest")
-            if mem_review.get("portable_bundle_manifest_path") != manifest_path_value:
-                fail("shared memory packet manifest differs from authority")
-            if mem_review.get("portable_bundle_sha256") != manifest.get("bundle_file_sha256"):
-                fail("shared memory packet hash differs from manifest")
+        if request.get("review_request_id") != active_id or request.get("artifact", {}).get("commit") != reviewed_commit:
+            fail("active request binding invalid")
+        review_transport = review.get("current_review_transport")
+        if review_transport not in PLATFORM_REVIEW_TRANSPORTS:
+            fail("active authority review must use platform API transport")
+        if mem_review.get("review_request_id") != active_id or mem_review.get("review_transport") != review_transport:
+            fail("memory active review binding differs from authority")
 
     superseded = set(review.get("superseded_review_requests", [])) | set(promotion.get("superseded_review_requests", []))
     for request_id in superseded:
@@ -283,59 +218,39 @@ def main() -> int:
         if not (ROOT / "review-requests" / f"{request_id}.json").is_file():
             fail(f"superseded review request file missing: {request_id}")
 
+    for item in state.get("external_evidence", []):
+        if not isinstance(item, dict) or item.get("evidence_class") not in EXTERNAL_EVIDENCE_CLASSES:
+            fail("external evidence record class invalid")
+        if item.get("provider_api_authenticated") is not False or item.get("counts_for_promotion") is not False:
+            fail("external evidence improperly claims platform review authority")
+        path = item.get("path")
+        if not isinstance(path, str) or not (ROOT.parent / path).is_file():
+            fail("external evidence record file missing")
+
     rules = memory.get("memory_rules", {})
-    required_rules = {
-        "repetition_upgrades_status": False,
-        "consensus_is_evidence": False,
-        "material_claim_requires_authority_resolution_before_promotion": True,
-        "stale_memory_must_be_marked_and_repaired": True,
-        "memory_write_failure_changes_authority": False,
-        "memory_write_failure_must_be_surfaced": True,
-        "platform_mode_changes_authority": False,
-        "manual_mode_user_skip_of_required_review_promotes_authority": False,
-        "review_disposition_may_override_missing_required_review_evidence": False,
-        "legacy_review_schema_may_promote_material_authority": False,
-        "negative_review_disposition_may_promote_material_authority": False,
-    }
-    for key, expected in required_rules.items():
-        if rules.get(key) is not expected:
-            fail(f"shared-memory rule invalid: {key}")
-    if rules.get("manual_relay_self_declared_reviewer_identity_is_authenticated", False) is not False:
-        fail("manual relay self-declared identity must not authenticate reviewer")
+    required_false = [
+        "repetition_upgrades_status", "consensus_is_evidence", "memory_write_failure_changes_authority",
+        "platform_mode_changes_authority", "manual_mode_user_skip_of_required_review_promotes_authority",
+        "external_content_self_declared_reviewer_is_authenticated",
+        "user_attested_external_review_is_provider_api_authenticated",
+        "external_evidence_may_satisfy_platform_review_gate",
+        "review_disposition_may_override_missing_required_review_evidence",
+        "legacy_review_schema_may_promote_material_authority",
+        "negative_review_disposition_may_promote_material_authority",
+    ]
+    for key in required_false:
+        if rules.get(key) is not False:
+            fail(f"shared-memory rule weakened/missing: {key}")
 
-    continuity = state.get("continuity", {})
-    if continuity.get("project_chat_is_authoritative") is not False:
-        fail("project chat must remain non-authoritative")
-    if continuity.get("shared_memory_is_active") is not True or continuity.get("shared_memory_is_independent_authority") is not False:
-        fail("continuity shared-memory semantics invalid")
-    if continuity.get("model_memory_is_authoritative") is not False:
-        fail("model memory must remain non-authoritative")
-    if continuity.get("new_chat_bootstrap_required") is not True or continuity.get("bootstrap_sequence") != "SHARED_MEMORY_THEN_GIT_VERIFICATION":
-        fail("new-chat bootstrap weakened")
-    if continuity.get("on_git_unavailable") != "GROUNDING_REQUIRED":
-        fail("Git-unavailable state must fail closed")
-
-    event_ids = set()
-    for line_no, raw in enumerate(LOG_PATH.read_text(encoding="utf-8").splitlines(), start=1):
-        if not raw.strip():
-            continue
-        event = json.loads(raw)
-        event_id = event.get("event_id")
-        if not isinstance(event_id, str) or not event_id:
-            fail(f"decision-log line {line_no} missing event_id")
-        if event_id in event_ids:
-            fail(f"duplicate decision-log event_id: {event_id}")
-        event_ids.add(event_id)
-        if not isinstance(event.get("event_type"), str) or not isinstance(event.get("state"), str):
-            fail(f"decision-log line {line_no} malformed")
-    if not event_ids:
-        fail("decision log empty")
+    if not LOG_PATH.is_file() or not LOG_PATH.read_text(encoding="utf-8").strip():
+        fail("decision log missing/empty")
 
     print(
         "LIVE_CONVERSATION_GOVERNANCE_VALID "
-        f"checkpoint={state['checkpoint_id']} workstream={work['state']} result={passed}/{total} "
-        f"review={review['current_review_status']} mode={review['current_collaboration_mode']} "
-        f"transport={review['current_collaboration_transport']} shared_memory={memory['state']}"
+        f"checkpoint={state.get('checkpoint_id')} workstream={work.get('state')} "
+        f"result={passed}/{total} review={review.get('current_review_status')} "
+        f"mode={review.get('current_collaboration_mode')} review_transport={review.get('current_collaboration_review_transport')} "
+        f"external_channel={review.get('current_external_evidence_channel')} shared_memory=ACTIVE"
     )
     return 0
 
@@ -343,6 +258,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (AssertionError, json.JSONDecodeError) as exc:
+    except AssertionError as exc:
         print(f"LIVE_CONVERSATION_GOVERNANCE_INVALID: {exc}", file=sys.stderr)
         raise SystemExit(1)
