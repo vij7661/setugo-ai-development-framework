@@ -30,10 +30,10 @@ jobs:
       - name: Validate checkpoint, shared memory, and decision log
         run: python governance-runtime/validate_runtime.py
 
-      - name: Test review, grounding, transport, selection, and fail-closed promotion invariants
+      - name: Test review, grounding, transport, selection, semantic consistency, and fail-closed promotion invariants
         run: |
           cd governance-runtime
-          python -m unittest -v test_review_protocol.py test_reviewer_selection.py
+          python -m unittest -v test_review_protocol.py test_reviewer_selection.py test_review_semantics.py
 
       - name: Verify authoritative references exist and active head is exact
         shell: bash
