@@ -15,21 +15,21 @@
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-    "status": "CONSTRUCTION_GREEN_REVIEW_RESPONSE_INVALID_CORRECTION_REQUIRED",
-    "continuity_summary": "Slice 3 candidate remains unchanged at 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 with 16/16 frozen tests. Supplemental reviewer substantively resolved S3-R-001..004 and claimed PASS, but the evidence envelope is invalid: missing reviewed_artifact_commit, wrong review_request_id, wrong candidate text ending 8666, and object-vs-array schema violations. The malformed PASS is preserved and non-promotable. Exact next action is corrected re-issuance from the same reviewer; do not modify candidate/harness or resume another workstream.",
+    "status": "BOUNDED_PASS",
+    "continuity_summary": "Slice 3 is a bounded scientific pass at exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. Frozen S3 harness is 16/16. Historical parent 325610d807eb88595231ec05af33e93f340ecb49 remains 14/16 with S3-03/S3-11 failures. Corrected pasted review is preserved as semantic PASS but non-promotable external evidence. Platform-authenticated Gemini review SLICE3-PLATFORM-AUTO-003 attempt 1 failed closed with HTTP 503 and was preserved; attempt 2 passed with exact candidate binding, zero findings, 12/12 mandatory dimensions supported, and valid deterministic validation. Next frontier is PR #5 candidate freeze and authenticated review.",
     "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
-    "prohibited_use": ["declare_slice3_pass_from_malformed_review","silently_correct_reviewer_identity_fields","change_frozen_expectations","grant_terminal_authority","infer_external_provider_from_payload_fields","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
+    "prohibited_use": ["grant_merge_release_deploy_remote_or_terminal_authority_from_slice3_pass","erase_14_of_16_failure","erase_provider_503_failure","treat_pasted_review_as_authenticated_platform_review","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
   },
   "execution_handoff": {
-    "sequence": 33,
+    "sequence": 34,
     "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-    "phase": "CONSTRUCTION_GREEN_REVIEW_RESPONSE_INVALID_CORRECTION_REQUIRED",
-    "next_required_action": "Obtain a corrected re-issuance from the same independent reviewer for the unchanged candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. Require review_request_id exactly SLICE3-REVIEW-4F1797B-SUPPLEMENT-002, reviewed_artifact_commit exactly equal to the frozen candidate, prior_finding_reassessment/findings/review_coverage as arrays, and no placeholder provenance claims. Then ingest and validate before scientific acceptance.",
-    "stop_condition": "INDEPENDENT_REVIEW_REQUIRED",
-    "manual_input_required": true,
-    "resume_rule": "Generic CONTINUE means execute the authoritative session-state execution_handoff.next_required_action after Git/evidence verification; never promote the malformed PASS or infer another frontier from memory/repository HEAD."
+    "phase": "BOUNDED_PASS",
+    "next_required_action": "Freeze the current live-conversation-governance PR #5 implementation as an immutable exact candidate, verify candidate CI and evidence binding, then obtain platform-authenticated independent review before PR #5 promotion. Preserve all earlier failed/superseded review history and do not infer downstream authority from the Slice 3 bounded pass.",
+    "stop_condition": "NONE",
+    "manual_input_required": false,
+    "resume_rule": "Generic CONTINUE means execute the authoritative session-state execution_handoff.next_required_action after Git/evidence verification; never reconstruct a different frontier from memory or repository HEAD."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
@@ -47,37 +47,41 @@
     "positive_promotable_dispositions": ["PASS","BOUNDED_PASS"],
     "selected_next_reviewer": null,
     "current_review_request_id": null,
-    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
-    "reviewed_candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-    "current_review_disposition": "INVALID_REVIEW_EVIDENCE",
-    "current_review_semantic_validation": "FAILED_ENVELOPE_BINDING_AND_SCHEMA",
-    "current_review_effective_state": "PENDING_CORRECTED_REISSUANCE",
-    "current_review_identity_assurance": "UNAUTHENTICATED_EXTERNAL_CONTENT",
+    "current_review_status": "NOT_YET_PRESENT",
+    "reviewed_candidate_commit": null,
+    "current_review_disposition": null,
+    "current_review_semantic_validation": null,
+    "current_review_effective_state": "PENDING_CANDIDATE_FREEZE",
+    "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
-    "construction_evidence": {"id":"SLICE3-REPAIR-CONSTRUCTION-GREEN-001","candidate_commit":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","workflow_run":34156635574,"tests":"16/16","state":"CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW"},
-    "features_under_review": ["exact candidate binding","schema-valid semantic coverage","review provenance","deterministic execution handoff"]
+    "construction_evidence": {"id":"SLICE3-REPAIR-CONSTRUCTION-GREEN-001","candidate_commit":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","workflow_run":34156635574,"tests":"16/16","state":"BOUNDED_PASS_AFTER_PLATFORM_REVIEW"},
+    "features_under_review": ["deterministic execution handoff","platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
   },
   "pending_reviews": [
     {
-      "purpose": "Corrected re-issuance of supplemental independent review for Slice 3 candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
-      "status": "PENDING_INDEPENDENT_REVIEW",
-      "platform_mode": "MANUAL_MODE",
+      "purpose": "Freeze and independently review the next live-conversation-governance PR #5 candidate",
+      "status": "PENDING_CANDIDATE_FREEZE",
+      "platform_mode": "AUTO_MODE",
       "review_request_id": null,
       "review_transport": null,
-      "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+      "reviewed_artifact_commit": null,
       "counts_for_current_promotion": false,
       "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011"]
     }
   ],
   "received_review_history": [
-    {"request_id":"SLICE3-REVIEW-4F1797B-SUPPLEMENT-002","origin":"user_pasted_external_content","claimed_disposition":"PASS","effective_disposition":"INVALID_REVIEW_EVIDENCE","reason":"missing reviewed_artifact_commit; invalid review_request_id; wrong candidate text ending 8666; required arrays returned as objects","counts_for_current_promotion":false}
+    {"request_id":"SLICE3-REVIEW-4F1797B-SUPPLEMENT-002","origin":"user_pasted_external_content","claimed_disposition":"PASS","effective_disposition":"VALID_EXTERNAL_SEMANTIC_PASS_NONPROMOTABLE","reviewed_candidate":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","counts_for_current_promotion":false},
+    {"request_id":"SLICE3-PLATFORM-AUTO-003","origin":"platform_authenticated_gemini_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","attempt1":"HTTP_503_UNAVAILABLE_PRESERVED","attempt2":"PASS","mandatory_dimensions":"12/12 TESTED_SUPPORTED","findings":0,"effective_disposition":"BOUNDED_PASS","provider_api_authenticated":true}
   ],
   "external_evidence_history": [
-    {"id":"SLICE3-SUPPLEMENT-002-INVALID-PASS","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-invalid.json","provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS"}
+    {"id":"SLICE3-SUPPLEMENT-002-INVALID-PASS","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-invalid.json","provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS"},
+    {"id":"SLICE3-SUPPLEMENT-002-CORRECTED-PASS","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-corrected.json","provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS"}
   ],
   "memory_conflict_history": [
     {"id":"LCG-F12","observed":"Assistant repeatedly resumed from stale model/project context or repository history instead of the true last operational checkpoint.","resolution":"GOV_HANDOFF_001_EXPLICIT_CANDIDATE_BOUND_EXECUTION_HANDOFF_ADDED","silent_merge":false},
-    {"id":"LCG-F13","observed":"Supplemental reviewer returned PASS with malformed request/candidate binding and response schema.","resolution":"MALFORMED_PASS_PRESERVED_NON_PROMOTABLE_CORRECTED_REISSUANCE_REQUIRED","silent_merge":false}
+    {"id":"LCG-F13","observed":"Supplemental reviewer returned PASS with malformed request/candidate binding and response schema.","resolution":"MALFORMED_PASS_PRESERVED_NON_PROMOTABLE_CORRECTED_REISSUANCE_REQUIRED","silent_merge":false},
+    {"id":"LCG-F14","observed":"Corrected pasted PASS was schema-valid but remained unauthenticated external evidence under platform review policy.","resolution":"EXTERNAL_SEMANTIC_PASS_PRESERVED_NONPROMOTABLE_PLATFORM_API_REVIEW_EXECUTED","silent_merge":false},
+    {"id":"LCG-F15","observed":"First platform-authenticated Slice 3 review attempt received Gemini HTTP 503 high-demand response.","resolution":"PROVIDER_FAILURE_PRESERVED_NO_AUTHORITY_EFFECT_SAME_REQUEST_RETRIED_AND_PASSED","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
