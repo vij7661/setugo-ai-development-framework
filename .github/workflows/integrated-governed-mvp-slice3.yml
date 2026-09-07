@@ -1,0 +1,28 @@
+name: Integrated Governed MVP Slice 3
+
+on:
+  push:
+    branches:
+      - feature/integrated-governed-mvp-slice3-repository-mutation-gateway
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  slice3-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout frozen construction branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run frozen Slice 3 acceptance harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice3.py
