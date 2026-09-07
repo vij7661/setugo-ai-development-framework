@@ -148,7 +148,6 @@ jobs:
           path=f"/tmp/{os.environ['NEXT_ID']}.json"
           with open(path,'w',encoding='utf-8') as f:
               json.dump(req,f,indent=2)
-          print(path)
           PY
           python governance-runtime/build_portable_review_packet.py \
             --request "/tmp/${NEXT_ID}.json" \
@@ -168,27 +167,34 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Build portable manual-review packet when an active request exists
+      - name: Rebuild active portable review packet from original candidate evidence
         id: portable_packet
         shell: bash
         run: |
           set -euo pipefail
-          REQUEST_PATH=$(python - <<'PY'
+          readarray -t META < <(python - <<'PY'
           import json
-          value=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion'].get('review_request_path')
-          print(value or '')
+          p=json.load(open('governance-runtime/session-state.json'))['runtime']['promotion']
+          print(p.get('review_request_path') or '')
+          print(p.get('candidate_ci_run') or '')
+          print(p.get('reviewed_candidate_commit') or '')
           PY
           )
+          REQUEST_PATH="${META[0]}"
+          ORIGINAL_CI_RUN="${META[1]}"
+          REVIEWED_COMMIT="${META[2]}"
           if [ -z "$REQUEST_PATH" ]; then
-            echo "No active review request; packet build skipped."
+            echo "No active review request; packet rebuild skipped."
             echo "has_packet=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          test -n "$ORIGINAL_CI_RUN"
+          test -n "$REVIEWED_COMMIT"
           python governance-runtime/build_portable_review_packet.py \
             --request "$REQUEST_PATH" \
             --output-dir review-output \
-            --ci-run-id "$GITHUB_RUN_ID" \
-            --builder-head "$GITHUB_SHA"
+            --ci-run-id "$ORIGINAL_CI_RUN" \
+            --builder-head "$REVIEWED_COMMIT"
           echo "has_packet=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload portable manual-review packet
