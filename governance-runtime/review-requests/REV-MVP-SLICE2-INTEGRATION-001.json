@@ -1,0 +1,50 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE2-INTEGRATION-001",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice2_integration_candidate",
+    "ref": "PR-8:base=feature/integrated-governed-mvp@5051ee242f4206c61e30c164230e562cec0324ac",
+    "commit": "eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "gemini", "model_class": "gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Verify from the supplied exact candidate evidence that Slice 2 is a bounded scientific pass and that its preserved failures/excluded evidence remain non-laundered.",
+    "Assess whether integrating candidate eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b into exact parent feature/integrated-governed-mvp at 5051ee242f4206c61e30c164230e562cec0324ac is lineage-correct and scope-exact.",
+    "Check that the bounded Slice 2 result does not itself mint terminal merge/release/deploy/production authority.",
+    "Check whether any mechanism or evidence file broadens authority when promoted into the parent stack.",
+    "Check that Slice 3 remains downstream and cannot skip the Slice 2 integration boundary.",
+    "Return an independent disposition without assuming proposer confidence or branch cleanliness is sufficient."
+  ],
+  "evidence_refs": [
+    {"type": "history", "ref": "PR8 base=5051ee242f4206c61e30c164230e562cec0324ac; head=eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b; compare status ahead 8, behind 0, six changed files"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE2_EXECUTION_GATEWAY_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE2-FREEZE.json"},
+    {"type": "file", "ref": "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE2.json"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_execution_gateway.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice2.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice2.yml"}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"integration_lineage_integrity","mandatory":true,"description":"The Slice 2 integration target must be its exact proven parent lineage; no unrelated base, missing parent state, or branch substitution may be accepted."},
+    {"id":"scientific_evidence_preservation","mandatory":true,"description":"The existing Slice 2 bounded-pass evidence must remain exact, including the frozen candidate and dedicated/full-regression correspondence."},
+    {"id":"failure_history_nonlaundering","mandatory":true,"description":"Earlier mechanism absence, 15/16 validation-order failure, and malformed green-but-ineligible freeze evidence remain preserved and cannot be laundered into clean history."},
+    {"id":"terminal_authority_boundary","mandatory":true,"description":"Slice 2 bounded scientific acceptance must not itself grant merge, release, deploy, production, remote-execution, or completion authority."},
+    {"id":"parent_dependency_integrity","mandatory":true,"description":"The Slice 2 mechanism must remain bound to the Integrated Governed MVP parent contract and must not silently broaden its upstream authority assumptions during integration."},
+    {"id":"transition_scope_exactness","mandatory":true,"description":"The integration transition must contain only the exact eight-commit Slice 2 delta and its six changed files relative to the parent head."},
+    {"id":"stack_order_preservation","mandatory":true,"description":"Slice 3 must remain downstream of Slice 2 and must not be promoted ahead of the Slice 2 parent integration boundary."},
+    {"id":"remaining_authority_bypass_search","mandatory":true,"description":"Adversarial search for any remaining integration-time authority bypass, false-green path, evidence laundering, or lineage substitution."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "ad7c0b444d90425b07dabb0c739ed3779c658008918085c1087eb1cb0cba1ac2"
+}
