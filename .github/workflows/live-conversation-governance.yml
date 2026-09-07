@@ -30,10 +30,10 @@ jobs:
       - name: Validate checkpoint, shared memory, and decision log
         run: python governance-runtime/validate_runtime.py
 
-      - name: Test review, grounding, transport, and fail-closed promotion invariants
+      - name: Test review, grounding, transport, selection, and fail-closed promotion invariants
         run: |
           cd governance-runtime
-          python -m unittest -v test_review_protocol.py
+          python -m unittest -v test_review_protocol.py test_reviewer_selection.py
 
       - name: Verify authoritative references exist and active head is exact
         shell: bash
@@ -127,7 +127,7 @@ jobs:
               'Assess whether production MANUAL_MODE using USER_INITIATED_API preserves the same provider API and governance semantics as AUTO_MODE/AUTOMATIC_API.',
               'Assess whether MANUAL_RELAY is safely limited to a fallback transport and cannot redesign or weaken production API review.',
               'Assess whether promotion validates actual ReviewEvidence and shared-memory grounding instead of caller-supplied authority flags.',
-              'Assess reviewer identity provenance, proposer-controlled trigger resistance, and superseded-review replay resistance.',
+              'Assess reviewer identity provenance, proposer-controlled trigger resistance, superseded-review replay resistance, and selected-reviewer binding.',
               'Assess whether CI-built self-contained review exports prove evidence coverage and raw-byte integrity for a reviewer with zero repository access.',
               'Assess shared project memory continuity and stale-memory conflict handling across chat/session boundaries.',
               'Identify any remaining authority bypass, false-green path, transport/mode divergence, evidence gap, reviewer-selection defect, or missing adversarial case.',
@@ -153,6 +153,7 @@ jobs:
                   {'type':'history','ref':'superseded review requests: ' + ','.join(prior)},
                   {'type':'file','ref':'governance-runtime/review_protocol.py'},
                   {'type':'file','ref':'governance-runtime/test_review_protocol.py'},
+                  {'type':'file','ref':'governance-runtime/test_reviewer_selection.py'},
                   {'type':'file','ref':'governance-runtime/session-state.json'},
                   {'type':'file','ref':'governance-runtime/shared-memory.json'},
                   {'type':'file','ref':'.github/workflows/live-conversation-governance.yml'}
