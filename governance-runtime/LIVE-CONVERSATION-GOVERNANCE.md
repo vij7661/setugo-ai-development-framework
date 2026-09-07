@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Apply governed-platform rules to the human–LLM development conversation so chat-window changes, model confidence, shared-memory drift, reviewer substitution, reviewer self-identification, review-delivery mode, packet representation, or reviewer-disposition overclaim cannot silently change authoritative project state.
+Apply governed-platform rules to the human–LLM development conversation so chat-window changes, model confidence, shared-memory drift, reviewer substitution, reviewer self-identification, review-delivery mode, pasted content, packet representation, or reviewer-disposition overclaim cannot silently change authoritative project state.
 
 This is an operational control for our collaboration. It does not claim that the ChatGPT product itself enforces these rules internally.
 
@@ -44,15 +44,52 @@ R1 may raise `NONE` to `RECOMMENDED`; R1 may not lower a protected transition to
 
 ### `AUTO_MODE`
 
-When review is recommended/required, the platform dispatches the configured provider API automatically via `AUTOMATIC_API`.
+When review is recommended/required, the platform dispatches the configured provider API automatically via `AUTOMATIC_API`. A successful authenticated execution is classified `PLATFORM_AUTO_API_REVIEW`.
 
 ### `MANUAL_MODE`
 
-R1 shows its answer first. When review is recommended/required, the UI shows controls such as `Ask Claude` / `Ask DeepSeek`. A user click dispatches the same provider adapter semantics through `USER_INITIATED_API`.
+R1 shows its answer first. When review is recommended/required, the UI shows controls such as `Ask Claude` / `Ask DeepSeek`. A user click dispatches the configured provider API through `USER_INITIATED_API`. A successful authenticated execution is classified `PLATFORM_USER_INITIATED_API_REVIEW`.
 
 For `RECOMMENDED`, the user may skip review. For `REQUIRED`, the user may decline the call, but the protected authoritative transition remains pending/non-authoritative.
 
-Changing AUTO ↔ MANUAL changes initiation only, never evidence, identity, independence, semantic review, or promotion rules.
+Changing AUTO ↔ MANUAL changes **who initiates the provider API call only**. It never changes evidence, identity, independence, semantic review, or promotion rules.
+
+## Review execution classes
+
+There are exactly two platform review execution classes:
+
+1. `PLATFORM_AUTO_API_REVIEW` — `AUTO_MODE` + `AUTOMATIC_API`.
+2. `PLATFORM_USER_INITIATED_API_REVIEW` — `MANUAL_MODE` user action + `USER_INITIATED_API`.
+
+Both use trusted provider adapters and the same ReviewRequest, semantic coverage, identity, independence, fail-closed, and promotion semantics. Neither class derives reviewer provenance from reviewer-authored content.
+
+Copy/paste is **not** a platform review transport.
+
+## External evidence ingestion
+
+User-pasted/copied material enters a separate evidence family.
+
+### `USER_PROVIDED_EXTERNAL_CONTENT`
+
+This is the default class for pasted review-shaped content when the user has not explicitly identified its source.
+
+- no provider/model origin is inferred from the payload;
+- fields such as `reviewer.provider` / `reviewer.model` are self-declared content claims only;
+- the content may expose defects or provide useful technical evidence;
+- it is not a platform review execution and cannot satisfy a mandatory platform review gate.
+
+### `USER_ATTESTED_EXTERNAL_LLM_REVIEW`
+
+Only after the user explicitly identifies pasted material as a review from an external LLM may it be reclassified to this class.
+
+- user attestation records the reported provider/model source;
+- user attestation is **not** provider-API authentication;
+- self-declared payload identity must never create or upgrade provenance;
+- the content remains external evidence and is non-promotable by itself.
+
+Core rule: **content cannot establish its own provenance**.
+
+Historical `MANUAL_RELAY` artifacts remain readable and preserved, but `MANUAL_RELAY` is no longer a platform review transport. Legacy manual-relay results are external evidence/history only.
 
 ## Material authority review floor
 
@@ -69,7 +106,7 @@ A proposer mislabel such as `ROUTINE_FORMATTING` cannot waive review at the mate
 
 ## ReviewRequest and current-state binding
 
-A mandatory review is represented by an integrity-bound `ReviewRequest` containing at least:
+A mandatory platform review is represented by an integrity-bound `ReviewRequest` containing at least:
 
 - request identity;
 - exact reviewed artifact commit;
@@ -80,9 +117,9 @@ A mandatory review is represented by an integrity-bound `ReviewRequest` containi
 - evidence references;
 - material/standard/path classification context.
 
-For material promotion, the current runtime additionally requires a **semantic review contract** (ReviewRequest schema 4+) containing machine-readable `required_review_dimensions`. A legacy review request without this semantic contract may be preserved as historical review content but cannot authorize a material promotion.
+For material promotion, the runtime additionally requires a semantic review contract (ReviewRequest schema 4+) containing machine-readable `required_review_dimensions`. A legacy review request without this semantic contract may be preserved as historical content but cannot authorize material promotion.
 
-Promotion must bind review evidence to the **currently authoritative review request and current reviewed artifact**. A valid review for a superseded request or older revision cannot be replayed into a later candidate.
+Promotion must bind review evidence to the currently authoritative review request and current reviewed artifact. A review for a superseded request or older revision cannot be replayed into a later candidate.
 
 ## Semantic review coverage and disposition consistency
 
@@ -95,7 +132,7 @@ Every schema-4 material ReviewRequest defines explicit review dimensions with:
 - description;
 - governed closed coverage-status vocabulary.
 
-ReviewEvidence must provide one `review_coverage` entry for **every** dimension, containing:
+ReviewEvidence must provide one `review_coverage` entry for every dimension, containing:
 
 - `dimension_id`;
 - status;
@@ -114,14 +151,14 @@ Allowed dimension statuses are:
 
 Semantic disposition rules are deterministic:
 
-- `PASS` requires **every** listed review dimension to be `TESTED_SUPPORTED`, with non-empty evidence for each.
+- `PASS` requires every listed review dimension to be `TESTED_SUPPORTED`, with non-empty evidence for each.
 - `BOUNDED_PASS` requires every `mandatory: true` dimension to be `TESTED_SUPPORTED`; only explicitly non-mandatory dimensions may remain bounded.
-- `NOT_TESTED` / `INSUFFICIENT_EVIDENCE` are the correct outcomes when one or more mandatory dimensions are unavailable, inaccessible, not tested, or insufficient.
+- `NOT_TESTED` / `INSUFFICIENT_EVIDENCE` are correct when one or more mandatory dimensions are unavailable, inaccessible, not tested, or insufficient.
 - `FAIL` / `CHANGES_REQUIRED` require at least one concrete finding and a contradicted, defective, or insufficient coverage state.
-- negative review outcomes can be valid review evidence but are **not promotable**.
+- negative review outcomes can be valid review evidence but are not promotable.
 - only semantically valid `PASS` or `BOUNDED_PASS` may satisfy the review side of material promotion.
 
-Free-text `evidence_assessment` explains structured coverage but cannot substitute for it. If free text contradicts an asserted `PASS`—for example, saying raw files were “not directly accessible” while structured coverage claims full support—the review fails closed. `REV-GOV-PR5-008` is a permanent regression fixture for this failure family.
+Free-text `evidence_assessment` explains structured coverage but cannot substitute for it. If free text contradicts an asserted `PASS`, the review fails closed. `REV-GOV-PR5-008` is a permanent regression fixture for this failure family.
 
 ## Reviewer identity provenance
 
@@ -133,17 +170,9 @@ Reviewer-authored JSON fields such as:
 
 are content claims, **not authentication**.
 
-### Production API transports
-
 `AUTOMATIC_API` and `USER_INITIATED_API` derive provider/model identity from the trusted configured provider adapter/execution envelope. Review content must agree with that trusted identity; disagreement fails closed.
 
-### `MANUAL_RELAY`
-
-`MANUAL_RELAY` is a fallback for collaborations/environments without direct reviewer APIs. Returned manual-relay content is recorded with `UNVERIFIED_MANUAL_RELAY` identity assurance unless independently authenticated provenance is available.
-
-Therefore manual relay may provide useful defect/review content, but **cannot satisfy a provider-specific mandatory-review requirement merely because the returned JSON claims a provider/model**.
-
-This distinction preserves production automation: production MANUAL_MODE remains `USER_INITIATED_API`, not manual copy/paste.
+Pasted external evidence has no platform-authenticated provider identity. If the user explicitly identifies the external source, that creates user-attested provenance only.
 
 ## Review execution to promotion wiring
 
@@ -154,11 +183,11 @@ Material promotion consumes all of these directly:
 3. grounded shared memory;
 4. current schema-4 ReviewRequest with required dimensions;
 5. ReviewEvidence with complete semantic coverage;
-6. review execution/provenance envelope.
+6. a trusted platform API execution/provenance envelope whose review class matches its API transport.
 
-No caller-provided boolean such as `valid_independent_review_present=True` can mint review validity.
+No caller-provided boolean such as `valid_independent_review_present=True`, no pasted JSON, and no user-attested external review can mint review validity.
 
-Review fails closed when execution is pending, errored, wrong request, wrong revision, unauthenticated for a provider-specific requirement, wrong provider/model, self-review, malformed, non-blind when blind review is required, semantically inconsistent with its own coverage/evidence assessment, negative/non-promotable in disposition, or conflicts with its trusted identity envelope.
+Review fails closed when execution is missing, pending, errored, non-platform transport, wrong request, wrong revision, unauthenticated, wrong provider/model, self-review, malformed, non-blind when blind review is required, semantically inconsistent, negative/non-promotable, or conflicts with its trusted execution identity.
 
 Consensus is metadata, not evidence, and cannot bypass deterministic evidence gates.
 
@@ -177,29 +206,27 @@ Stale/conflicted memory blocks material promotion until reconciled.
 
 Authoritative persistence occurs before memory synchronization. If memory synchronization later fails, authority remains valid and memory is marked stale. If authoritative persistence fails, authoritative completion is blocked.
 
-## Portable review export
+## Portable external review/evidence export
 
-A manual reviewer is assumed to have zero repository/browser/tool access.
+A portable packet may still be generated for advisory external review/evidence work when the external model has zero repository/browser/tool access. That export is an **external evidence transport artifact**, not a platform review execution and not a substitute for `AUTOMATIC_API` or `USER_INITIATED_API`.
 
-The Actions export must contain:
+A portable export should contain:
 
-- exact ReviewRequest;
+- exact ReviewRequest or review context;
 - exact reviewed candidate identity;
-- explicit required review dimensions;
+- explicit review dimensions;
 - detached manifest;
-- human-readable Markdown packet;
-- **raw canonical repository artifacts under `raw-artifacts/`**;
+- human-readable packet;
+- raw canonical repository artifacts where required;
 - per-artifact SHA-256 and exact byte length over raw Git blob UTF-8 bytes;
 - evidence-reference coverage;
 - CI/builder evidence;
-- whole-packet and logical-bundle hashes;
+- whole-packet/logical hashes;
 - `repository_access_required: false`.
 
-Raw files are byte-authoritative. Markdown fences are convenience only and are not the basis for independent byte-integrity verification. This avoids newline/fence reconstruction ambiguity.
+Raw files are byte-authoritative. Markdown fences are convenience only. If an external reviewer cannot inspect a mandatory dimension, its external result must not claim that dimension was tested.
 
-The packet must instruct reviewers that if a mandatory dimension such as raw-byte integrity cannot actually be inspected, they must mark that dimension inaccessible/not-tested/insufficient and must not return unqualified PASS.
-
-Incomplete artifact/evidence coverage, incomplete semantic dimension coverage, wrong revision, corrupted raw bytes, wrong request, or manifest mismatch fails closed.
+Portable-packet integrity makes external evidence more useful; it does **not** upgrade external evidence into a platform-authenticated review.
 
 ## Frozen evidence and repair discipline
 
@@ -224,7 +251,9 @@ At minimum preserve/surface:
 - `PROPOSER_CONTROLLED_REVIEW_CLASSIFICATION`
 - `MANDATORY_REVIEW_SKIPPED`
 - `REVIEWER_IDENTITY_SELF_ATTESTATION_ACCEPTED`
-- `MANUAL_RELAY_IDENTITY_UNVERIFIED`
+- `EXTERNAL_CONTENT_SELF_PROVENANCE_ACCEPTED`
+- `USER_ATTESTATION_TREATED_AS_PROVIDER_AUTHENTICATION`
+- `EXTERNAL_EVIDENCE_TREATED_AS_PLATFORM_REVIEW`
 - `REVIEW_INDEPENDENCE_UNPROVEN`
 - `REVIEW_WRONG_REVISION_ACCEPTED`
 - `SUPERSEDED_REVIEW_REPLAY_ACCEPTED`
@@ -254,15 +283,17 @@ At minimum preserve/surface:
 6. Execute narrow construction.
 7. Preserve first failures/revisions.
 8. Apply platform review policy.
-9. Use AUTO or MANUAL initiation without changing authority semantics.
-10. Bind reviewer identity from trusted execution provenance where required.
-11. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + execution envelope.
-12. Require a positive promotable disposition before review can satisfy material promotion.
-13. Apply deterministic governor/evidence gate.
-14. Persist authoritative checkpoint.
-15. Synchronize shared memory.
-16. New chat resumes from shared memory then verifies Git.
+9. In AUTO_MODE, dispatch `AUTOMATIC_API`; in MANUAL_MODE, show reviewer controls and dispatch `USER_INITIATED_API` only after user selection.
+10. Treat copy/paste as external evidence ingestion, initially `USER_PROVIDED_EXTERNAL_CONTENT`.
+11. Reclassify pasted content to `USER_ATTESTED_EXTERNAL_LLM_REVIEW` only when the user explicitly identifies the source; never equate that attestation with API authentication.
+12. Bind platform reviewer identity from trusted execution provenance.
+13. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + platform API execution envelope.
+14. Require a positive promotable disposition before platform review can satisfy material promotion.
+15. Apply deterministic governor/evidence gate.
+16. Persist authoritative checkpoint.
+17. Synchronize shared memory.
+18. New chat resumes from shared memory then verifies Git.
 
-## Known limitation
+## Current collaboration limitation
 
-This collaboration currently uses `MANUAL_RELAY`, so provider identity cannot be authenticated from pasted review JSON alone. Such reviews may expose defects but cannot satisfy a provider-specific mandatory-review rule. Production AUTO_MODE and production MANUAL_MODE avoid this limitation by using trusted provider API adapters (`AUTOMATIC_API` / `USER_INITIATED_API`).
+This chat can ingest pasted external evidence, but pasted content is not a platform review execution. Therefore it cannot satisfy a mandatory provider-authenticated PR #5 review gate. In the production platform, both AUTO_MODE and MANUAL_MODE avoid this limitation by using trusted provider API adapters (`AUTOMATIC_API` / `USER_INITIATED_API`).
