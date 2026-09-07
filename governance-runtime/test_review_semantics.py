@@ -114,6 +114,7 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
             reviewer_provider="deepseek",
             reviewer_model="deepseek-reasoner",
             identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
+            review_class="PLATFORM_AUTO_API_REVIEW",
         )
 
     def test_pass_with_required_dimension_not_tested_is_rejected(self):
@@ -237,6 +238,7 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
             reviewer_provider="deepseek",
             reviewer_model="deepseek-reasoner",
             identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
+            review_class="PLATFORM_AUTO_API_REVIEW",
         )
         state = deepcopy(self.authoritative_state)
         state["independent_review"]["current_review_request_id"] = "REV-LEGACY-001"
