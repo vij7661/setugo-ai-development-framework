@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-001",
   "classification": "REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
   "invariant": "A reviewer that shares the same effective provider/model runtime identity with another reviewer cannot satisfy an independent reviewer role merely by carrying a different foundation_lineage label.",
-  "status": "PRESERVED",
+  "status": "MECHANISM_REPAIRED",
   "independent_review_required": true,
   "first_failure": {
     "candidate_commit": "97387b0e729a446a1959bddfb7968f62a391f82d",
@@ -16,13 +16,15 @@
     "classification": "GENUINE_MECHANISM_FALSE_GREEN"
   },
   "first_failure_ref": "github-actions:34147695252/job/101823167241@97387b0e729a446a1959bddfb7968f62a391f82d",
-  "repair_ref": null,
-  "regression_ref": "review_engine/test_reviewer_independence_runtime_alias.py@97387b0e729a446a1959bddfb7968f62a391f82d",
+  "repair_ref": "commit:5786fc0e3780b522d0a61c5c355f387a3585aff8:review_engine/qualification.py",
+  "regression_ref": "review_engine/test_reviewer_independence_runtime_alias.py@dca30c9bce4dc5e2ce0d511efacea43499e742a7",
   "full_suite_ref": null,
   "independent_review_ref": null,
   "notes": [
-    "The first exposure is preserved before any production-mechanism repair.",
-    "The regression expectation must not be weakened to obtain green CI.",
-    "This bypass remains non-closed until the production mechanism is repaired, the frozen regression and full suite are green, and governed independent review is satisfied."
+    "The first exposure is preserved before production-mechanism repair.",
+    "The production repair is at the reviewer-capability issuance linearization point; no bypass flag or test-only exception was added.",
+    "Same provider+model across different reviewer roles is rejected for the same request; provider-ID aliases are also rejected when model and provider-binding fingerprint collide.",
+    "Same-role multi-phase reuse remains allowed for scoped correction/adjudication.",
+    "This bypass remains non-closed until the frozen regression and full suite are green and governed independent review is satisfied."
   ]
 }
