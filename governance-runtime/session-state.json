@@ -63,14 +63,10 @@
     "state": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
     "preregistration_commit": "47d3de5578dd65780f66fed1baedb9f0932b7670",
     "frozen_acceptance_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
-    "first_mechanism_commit": "ce6b88dc166c72d8f8fca9cdfc2a2bd8b53cb5e",
+    "first_mechanism_commit": "ce6b88dc166c72d8f8f8ca9cdfc2a2bd8b53cb5e",
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
-    "latest_result": {
-      "passed": 16,
-      "total": 16,
-      "failures": []
-    },
+    "latest_result": {"passed": 16, "total": 16, "failures": []},
     "next_action": "Independent review is the next required action. Do not modify the frozen harness or candidate while review is pending. On reviewer response, validate exact candidate binding, provenance, semantic coverage, findings, and disposition before any promotion or further repair.",
     "forbidden_shortcut": "Do not declare Slice 3 scientifically passed from 16/16 CI alone; do not erase the preserved 14/16 failure; do not resume EXP-I/EXP-K or another nearby workstream; do not infer next action from repository HEAD; do not treat pasted reviewer self-identification as provider authentication."
   },
