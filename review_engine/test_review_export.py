@@ -14,6 +14,7 @@ from review_engine.review_export import (
     ReviewExportSpec,
     build_review_export,
 )
+from review_engine.single_file_review_container import verify_single_file_review_container
 
 
 class ReviewExportTests(unittest.TestCase):
@@ -57,9 +58,15 @@ class ReviewExportTests(unittest.TestCase):
                 "review_engine/a.py",
                 "review_engine/b.md",
             ])
+            single_file = out / "SINGLE_FILE_REVIEW.txt"
+            self.assertTrue(single_file.is_file())
+            payload = verify_single_file_review_container(single_file.read_text(encoding="utf-8"))
+            self.assertEqual(len(payload["artifacts"]), 2)
+            self.assertEqual(len(result["single_file_sha256"]), 64)
             sums = (out / "SHA256SUMS.txt").read_text(encoding="utf-8")
             self.assertIn("raw-artifacts/review_engine/a.py", sums)
             self.assertIn("REVIEW_PACKET.md", sums)
+            self.assertIn("SINGLE_FILE_REVIEW.txt", sums)
             self.assertIn("TARGET_TRANSPORT.json", sums)
 
     def test_target_changes_only_convenience_metadata_not_raw_artifact_hashes(self):
@@ -84,7 +91,9 @@ class ReviewExportTests(unittest.TestCase):
                 self.assertEqual(transport["authority"], "CONVENIENCE_ONLY_NOT_REVIEW_EVIDENCE")
                 self.assertEqual(transport["api_family"], expected_api_families[target])
                 self.assertTrue(transport["documentation_basis"])
+                self.assertEqual(transport["manual_input_shape"], "ONE_UTF8_TEXT_FILE")
                 self.assertEqual(len(result["transport_profile_sha256"]), 64)
+                self.assertEqual(len(result["single_file_sha256"]), 64)
             self.assertEqual(raw_hash_sets[0], raw_hash_sets[1])
             self.assertEqual(raw_hash_sets[1], raw_hash_sets[2])
 
@@ -98,6 +107,7 @@ class ReviewExportTests(unittest.TestCase):
             self.assertIn(EXTERNAL_CONTENT_IDENTITY_ASSURANCE, packet)
             self.assertIn("USER_PROVIDED_EXTERNAL_CONTENT", packet)
             self.assertIn("Can satisfy platform API-review authority: `false`", packet)
+            self.assertIn("SINGLE_FILE_REVIEW.txt", packet)
             self.assertIn("TARGET_TRANSPORT.json", packet)
 
     def test_path_traversal_is_rejected(self):
