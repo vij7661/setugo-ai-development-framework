@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-001",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-5",
+    "commit": "64e6a9766ced9cfc1617d6ea3a54a9acee2f92cb"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "anthropic",
+    "model_class": "claude"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether the proposed live conversation governance runtime correctly uses shared project memory as an active continuity/coordination layer without allowing memory to confer authority.",
+    "Independently assess whether MANUAL_RELAY and AUTOMATIC_API are cleanly separated as review transports so manual operation in ChatGPT cannot weaken, disable, or redesign automatic provider API review in the production platform.",
+    "Identify any path by which proposer confidence, reviewer consensus, transport behavior, shared-memory state, API failure, or chat-window changes could bypass mandatory evidence/review/governor gates.",
+    "Assess whether the deterministic tests and CI invariants are sufficient for this bounded governance candidate, and list missing adversarial cases or design defects.",
+    "Return an independent disposition without assuming or using the proposer conclusion."
+  ],
+  "evidence_refs": [
+    {
+      "type": "git_commit",
+      "ref": "64e6a9766ced9cfc1617d6ea3a54a9acee2f92cb"
+    },
+    {
+      "type": "pull_request",
+      "ref": "PR-5"
+    },
+    {
+      "type": "ci_run",
+      "ref": "34115411249"
+    },
+    {
+      "type": "file",
+      "ref": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md"
+    },
+    {
+      "type": "file",
+      "ref": "governance-runtime/review_protocol.py"
+    },
+    {
+      "type": "file",
+      "ref": "governance-runtime/test_review_protocol.py"
+    },
+    {
+      "type": "file",
+      "ref": "governance-runtime/session-state.json"
+    },
+    {
+      "type": "file",
+      "ref": "governance-runtime/shared-memory.json"
+    },
+    {
+      "type": "file",
+      "ref": "governance-runtime/validate_runtime.py"
+    }
+  ],
+  "expected_output": {
+    "required_fields": [
+      "review_request_id",
+      "reviewed_artifact_commit",
+      "reviewer",
+      "disposition",
+      "findings",
+      "evidence_assessment",
+      "independence_attestation"
+    ],
+    "allowed_dispositions": [
+      "PASS",
+      "BOUNDED_PASS",
+      "FAIL",
+      "NOT_TESTED",
+      "INSUFFICIENT_EVIDENCE",
+      "CHANGES_REQUIRED"
+    ]
+  },
+  "state": "REVIEW_REQUIRED",
+  "request_hash": "b09310aeb46031cd515ff18d5e260e9573743bcb5eaacef11a6edd97d0930daa"
+}
