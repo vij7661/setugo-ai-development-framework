@@ -1,6 +1,6 @@
 {
-  "schema_version": 2,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-005",
+  "schema_version": 3,
+  "checkpoint_id": "LIVE-CONV-2026-09-07-006",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -16,17 +16,19 @@
   "runtime": {
     "branch": "governance/live-conversation-runtime",
     "normative_contract_path": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
-    "normative_contract_commit": "337c5953e84c0b95c857f2580e7f3cedc9d4578e",
+    "normative_contract_commit": "742497c673ef89a933bddf5e200e2ed51f7d68de",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_EXTERNAL_REVIEW",
-      "review_request_id": "REV-GOV-PR5-002",
-      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-002.json",
-      "reviewed_candidate_commit": "86ed86fd3fd3cecc2c62b63ce790dca98d009172",
-      "candidate_ci_run": 34115861126,
-      "candidate_ci_conclusion": "success",
+      "state": "PENDING_CANDIDATE_FREEZE",
+      "review_request_id": null,
+      "review_request_path": null,
+      "portable_bundle_path": null,
+      "reviewed_candidate_commit": null,
+      "candidate_ci_run": null,
+      "candidate_ci_conclusion": null,
       "superseded_review_requests": [
-        "REV-GOV-PR5-001"
+        "REV-GOV-PR5-001",
+        "REV-GOV-PR5-002"
       ]
     }
   },
@@ -71,7 +73,7 @@
         }
       ]
     },
-    "next_action": "Apply a narrow code-only validation-order/classification repair without changing S3-01..S3-16; rerun dedicated Slice 3 and full governed regression. If construction becomes fully green, create metadata-only freeze and use first complete workflows on the frozen SHA for scientific acceptance evidence. Any scientific adjudication then remains pending until valid independent review is recorded.",
+    "next_action": "Finish the live-governance mode/bundle candidate and external review first. Then apply a narrow Slice 3 code-only validation-order/classification repair without changing S3-01..S3-16.",
     "forbidden_shortcut": "Do not modify the frozen S3 harness or preregistration to obtain green."
   },
   "accepted_prior_boundary": {
@@ -83,20 +85,36 @@
   "independent_review": {
     "policy_state": "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS",
     "orchestrator_contract": "governance-runtime/review_protocol.py",
-    "supported_transports": [
-      "MANUAL_RELAY",
-      "AUTOMATIC_API"
+    "platform_modes": [
+      "AUTO_MODE",
+      "MANUAL_MODE"
     ],
+    "review_levels": [
+      "NONE",
+      "RECOMMENDED",
+      "REQUIRED"
+    ],
+    "supported_transports": [
+      "AUTOMATIC_API",
+      "USER_INITIATED_API",
+      "MANUAL_RELAY"
+    ],
+    "current_collaboration_mode": "MANUAL_MODE",
     "current_collaboration_transport": "MANUAL_RELAY",
-    "production_default_intent": "AUTOMATIC_API_WHEN_CONFIGURED",
+    "production_auto_mode_transport": "AUTOMATIC_API",
+    "production_manual_mode_transport": "USER_INITIATED_API",
+    "manual_relay_requires_portable_bundle": true,
+    "portable_bundle_repository_access_required": false,
     "transport_may_change_policy": false,
+    "platform_mode_may_change_authority": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 to main and any future Slice 3 scientific adjudication or material frozen-contract change",
-    "current_review_status": "PENDING_EXTERNAL_REVIEW",
-    "current_review_request_id": "REV-GOV-PR5-002",
+    "current_review_status": "NOT_YET_PRESENT",
+    "current_review_request_id": null,
     "current_requested_reviewer": "CLAUDE",
-    "current_reviewed_artifact_commit": "86ed86fd3fd3cecc2c62b63ce790dca98d009172",
+    "current_reviewed_artifact_commit": null,
     "superseded_review_requests": [
-      "REV-GOV-PR5-001"
+      "REV-GOV-PR5-001",
+      "REV-GOV-PR5-002"
     ],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
@@ -126,15 +144,18 @@
   "open_governance_items": [
     {
       "id": "GOV-IR-001",
-      "state": "PENDING_EXTERNAL_REVIEW",
-      "description": "Transport-neutral independent-review escalation with MANUAL_RELAY for this collaboration and AUTOMATIC_API provider adapters for the production platform.",
-      "review_request_id": "REV-GOV-PR5-002"
+      "state": "PENDING_CANDIDATE_FREEZE",
+      "description": "Independent-review escalation with AUTO_MODE and MANUAL_MODE above transport-neutral provider review semantics."
     },
     {
       "id": "GOV-MEM-001",
-      "state": "PENDING_EXTERNAL_REVIEW",
-      "description": "Treat shared project memory as an active governed coordination/continuity subsystem that is read first for navigation and verified against authoritative state before material use.",
-      "review_request_id": "REV-GOV-PR5-002"
+      "state": "PENDING_CANDIDATE_FREEZE",
+      "description": "Shared project memory is an active governed continuity/coordination subsystem verified against authority before material use."
+    },
+    {
+      "id": "GOV-PORTABLE-001",
+      "state": "PENDING_CANDIDATE_FREEZE",
+      "description": "MANUAL_RELAY assumes zero reviewer repository access and requires a self-contained integrity-bound review bundle."
     }
   ]
 }
