@@ -8,11 +8,11 @@ from review_engine.qualification import QualificationRecord, QualificationRegist
 
 
 def cfg(role, ref, model):
-    return ReviewerConfig(role, "p", model, "s", "api", f"{role}_KEY", f"lineage-{role}", ref)
+    return ReviewerConfig(role, f"p-{role.lower()}", model, "s", "api", f"{role}_KEY", f"lineage-{role}", ref)
 
 
 def qual(role, ref, model, *, status="QUALIFIED", max_risk="HIGH", epoch=1):
-    return QualificationRecord(ref, "p", model, "s", "api", role, status, epoch, f"lineage-{role}", max_risk, ("GENERAL",))
+    return QualificationRecord(ref, f"p-{role.lower()}", model, "s", "api", role, status, epoch, f"lineage-{role}", max_risk, ("GENERAL",))
 
 
 class GovernedAssuranceTests(unittest.TestCase):
