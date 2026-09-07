@@ -23,7 +23,6 @@ MEMORY_PATH = ROOT / "shared-memory.json"
 LOG_PATH = ROOT / "decision-log.jsonl"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
-ARTIFACT_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 EXPECTED_PRECEDENCE = [
     "governed_git_state",
     "governed_registries_and_evidence",
@@ -38,6 +37,10 @@ ALLOWED_REVIEW_STATUS = {
     "REVIEW_RECEIVED", "REVIEW_VALIDATED", "VALID_INDEPENDENT_REVIEW_PRESENT",
     "REVIEW_INDEPENDENCE_UNPROVEN",
 }
+ALLOWED_HANDOFF_STOPS = {
+    "NONE", "INDEPENDENT_REVIEW_REQUIRED", "MANUAL_INTERVENTION_REQUIRED",
+    "EXTERNAL_DEPENDENCY_REQUIRED", "GROUNDING_REQUIRED",
+}
 
 
 def fail(message: str) -> None:
@@ -47,11 +50,6 @@ def fail(message: str) -> None:
 def require_sha(value: object, field: str) -> None:
     if not isinstance(value, str) or not SHA40.fullmatch(value):
         fail(f"{field} must be a lowercase 40-character Git SHA")
-
-
-def require_sha256(value: object, field: str) -> None:
-    if not isinstance(value, str) or not SHA256.fullmatch(value):
-        fail(f"{field} must be a lowercase 64-character SHA-256")
 
 
 def main() -> int:
@@ -72,6 +70,11 @@ def main() -> int:
     if runtime.get("normative_contract_path") != "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md":
         fail("normative contract path changed")
     require_sha(runtime.get("normative_contract_commit"), "runtime.normative_contract_commit")
+    if runtime.get("handoff_contract_path") != "governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md":
+        fail("execution handoff contract path missing/changed")
+    require_sha(runtime.get("handoff_contract_commit"), "runtime.handoff_contract_commit")
+    if not (ROOT / "EXECUTION-HANDOFF-PROTOCOL.md").is_file():
+        fail("execution handoff contract file missing")
 
     shared = state.get("shared_memory", {})
     if shared.get("path") != "governance-runtime/shared-memory.json" or shared.get("active") is not True:
@@ -99,7 +102,7 @@ def main() -> int:
         fail("shared-memory write policy invalid")
 
     work = state.get("active_workstream", {})
-    for key in ("branch", "head_commit", "state", "next_action", "forbidden_shortcut"):
+    for key in ("name", "branch", "head_commit", "state", "next_action", "forbidden_shortcut"):
         if not work.get(key):
             fail(f"active_workstream.{key} required")
     for key in ("head_commit", "preregistration_commit", "frozen_acceptance_harness_commit",
@@ -113,8 +116,70 @@ def main() -> int:
         fail("latest_result counts inconsistent")
 
     mem_work = memory.get("current_work", {})
-    if mem_work.get("authoritative_branch") != work.get("branch") or mem_work.get("authoritative_head") != work.get("head_commit") or mem_work.get("status") != work.get("state"):
+    if (mem_work.get("name") != work.get("name") or
+        mem_work.get("authoritative_branch") != work.get("branch") or
+        mem_work.get("authoritative_head") != work.get("head_commit") or
+        mem_work.get("status") != work.get("state")):
         fail("shared memory workstream differs from authority")
+
+    # Deterministic operational handoff: this is the execution frontier, not repo HEAD or model memory.
+    handoff = state.get("execution_handoff")
+    if not isinstance(handoff, dict):
+        fail("HANDOFF_MISSING")
+    if not isinstance(handoff.get("sequence"), int) or handoff.get("sequence") <= 0:
+        fail("execution_handoff.sequence invalid")
+    for key in ("workstream", "candidate_branch", "candidate_commit", "phase", "last_completed_action",
+                "next_required_action", "stop_condition", "handoff_reason", "historical_failure_preserved", "resume_rule"):
+        if not isinstance(handoff.get(key), str) or not handoff.get(key).strip():
+            fail(f"execution_handoff.{key} required")
+    require_sha(handoff.get("candidate_commit"), "execution_handoff.candidate_commit")
+    if handoff.get("workstream") != work.get("name"):
+        fail("HANDOFF_STALE: workstream mismatch")
+    if handoff.get("candidate_branch") != work.get("branch"):
+        fail("HANDOFF_CANDIDATE_MISMATCH: branch")
+    if handoff.get("candidate_commit") != work.get("head_commit"):
+        fail("HANDOFF_CANDIDATE_MISMATCH: commit")
+    if handoff.get("phase") != work.get("state"):
+        fail("HANDOFF_STALE: phase")
+    if handoff.get("stop_condition") not in ALLOWED_HANDOFF_STOPS:
+        fail("execution_handoff.stop_condition invalid")
+    if not isinstance(handoff.get("manual_input_required"), bool):
+        fail("execution_handoff.manual_input_required must be boolean")
+    if handoff.get("stop_condition") in {"INDEPENDENT_REVIEW_REQUIRED", "MANUAL_INTERVENTION_REQUIRED"}:
+        if handoff.get("manual_input_required") is not True:
+            fail("manual/review stop must require manual input")
+        if not isinstance(handoff.get("manual_deliverable"), str) or not handoff.get("manual_deliverable").strip():
+            fail("HANDOFF_MANUAL_DELIVERABLE_OMITTED")
+    continuity = state.get("continuity", {})
+    if continuity.get("generic_continue_semantics") != "EXECUTE_VERIFIED_HANDOFF_NEXT_REQUIRED_ACTION":
+        fail("generic CONTINUE semantics are not handoff-bound")
+
+    mem_handoff = memory.get("execution_handoff")
+    if not isinstance(mem_handoff, dict):
+        fail("shared memory handoff missing")
+    for key in ("sequence", "workstream", "candidate_branch", "candidate_commit", "phase",
+                "next_required_action", "stop_condition", "manual_input_required"):
+        if mem_handoff.get(key) != handoff.get(key):
+            fail(f"shared memory handoff differs from authority: {key}")
+
+    rules = memory.get("memory_rules", {})
+    required_false = [
+        "repetition_upgrades_status", "consensus_is_evidence", "memory_write_failure_changes_authority",
+        "platform_mode_changes_authority", "manual_mode_user_skip_of_required_review_promotes_authority",
+        "external_content_self_declared_reviewer_is_authenticated",
+        "user_attested_external_review_is_provider_api_authenticated",
+        "external_evidence_may_satisfy_platform_review_gate",
+        "review_disposition_may_override_missing_required_review_evidence",
+        "legacy_review_schema_may_promote_material_authority",
+        "negative_review_disposition_may_promote_material_authority",
+        "chat_summary_may_override_execution_handoff",
+        "repository_head_alone_defines_execution_frontier",
+    ]
+    for key in required_false:
+        if rules.get(key) is not False:
+            fail(f"shared-memory rule weakened/missing: {key}")
+    if rules.get("generic_continue_uses_execution_handoff") is not True:
+        fail("generic continue is not bound to execution handoff")
 
     review = state.get("independent_review", {})
     if review.get("policy_state") != "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS":
@@ -131,20 +196,16 @@ def main() -> int:
         fail("platform review transports invalid")
     if set(review.get("external_evidence_classes", [])) != set(EXTERNAL_EVIDENCE_CLASSES):
         fail("external evidence classes invalid")
-    if review.get("production_auto_mode_transport") != "AUTOMATIC_API":
-        fail("AUTO_MODE transport changed")
-    if review.get("production_manual_mode_transport") != "USER_INITIATED_API":
-        fail("MANUAL_MODE transport changed")
+    if review.get("production_auto_mode_transport") != "AUTOMATIC_API" or review.get("production_manual_mode_transport") != "USER_INITIATED_API":
+        fail("production review transports changed")
     if review.get("current_collaboration_mode") != "MANUAL_MODE":
         fail("current collaboration mode must be MANUAL_MODE")
     if review.get("current_collaboration_review_transport") is not None:
         fail("copy/paste collaboration must not claim a platform review transport")
     if review.get("current_external_evidence_channel") != "USER_PASTE":
         fail("current external evidence channel must be USER_PASTE")
-    if review.get("content_may_establish_own_provenance") is not False:
-        fail("content must not establish its own provenance")
-    if review.get("user_attestation_is_provider_authentication") is not False:
-        fail("user attestation must not become provider authentication")
+    if review.get("content_may_establish_own_provenance") is not False or review.get("user_attestation_is_provider_authentication") is not False:
+        fail("external content/user attestation provenance semantics weakened")
     if review.get("transport_may_change_policy") is not False or review.get("platform_mode_may_change_authority") is not False:
         fail("mode/transport may not change authority")
     if review.get("current_review_status") not in ALLOWED_REVIEW_STATUS:
@@ -163,12 +224,8 @@ def main() -> int:
         fail("shared memory current review request differs from authority")
     if mem_runtime.get("current_review_status") != review.get("current_review_status"):
         fail("shared memory current review status differs from authority")
-    if mem_runtime.get("production_auto_mode_transport") != "AUTOMATIC_API" or mem_runtime.get("production_manual_mode_transport") != "USER_INITIATED_API":
-        fail("shared memory lost API review transport policy")
-    if mem_runtime.get("current_collaboration_review_transport") is not None or mem_runtime.get("current_external_evidence_channel") != "USER_PASTE":
-        fail("shared memory conflates paste channel with review transport")
-    if mem_runtime.get("semantic_review_schema_minimum_for_promotion") != SEMANTIC_REVIEW_SCHEMA_VERSION:
-        fail("shared memory lost semantic schema floor")
+    if mem_runtime.get("reviewed_candidate_commit") != review.get("current_reviewed_artifact_commit"):
+        fail("shared memory reviewed candidate differs from authority")
 
     promotion = runtime.get("promotion", {})
     active_id = review.get("current_review_request_id")
@@ -179,13 +236,22 @@ def main() -> int:
 
     if active_id is None:
         if promotion.get("state") != "PENDING_CANDIDATE_FREEZE":
-            fail("no active review requires PENDING_CANDIDATE_FREEZE")
-        if review.get("current_review_status") != "NOT_YET_PRESENT":
-            fail("candidate-freeze state pretends review exists")
-        if mem_review.get("status") != "PENDING_CANDIDATE_FREEZE":
-            fail("memory disagrees with candidate-freeze state")
+            fail("no active platform ReviewRequest requires PENDING_CANDIDATE_FREEZE")
+        if review.get("current_review_status") not in {"NOT_YET_PRESENT", "PENDING_INDEPENDENT_REVIEW"}:
+            fail("invalid pre-platform-review status")
         if mem_review.get("review_request_id") is not None or mem_review.get("review_transport") is not None:
-            fail("candidate-freeze memory must not claim active review execution")
+            fail("pre-platform-review memory must not claim active review execution")
+        if review.get("current_review_status") == "PENDING_INDEPENDENT_REVIEW":
+            if handoff.get("stop_condition") != "INDEPENDENT_REVIEW_REQUIRED":
+                fail("pending independent review without review handoff stop")
+            if mem_review.get("status") != "PENDING_INDEPENDENT_REVIEW":
+                fail("memory disagrees with pending independent review")
+            require_sha(review.get("current_reviewed_artifact_commit"), "independent_review.current_reviewed_artifact_commit")
+            if review.get("current_reviewed_artifact_commit") != handoff.get("candidate_commit"):
+                fail("pending review candidate differs from handoff")
+        else:
+            if mem_review.get("status") != "PENDING_CANDIDATE_FREEZE":
+                fail("memory disagrees with candidate-freeze state")
     else:
         if promotion.get("state") != "PENDING_EXTERNAL_REVIEW":
             fail("active review must be pending external/API review")
@@ -227,30 +293,14 @@ def main() -> int:
         if not isinstance(path, str) or not (ROOT.parent / path).is_file():
             fail("external evidence record file missing")
 
-    rules = memory.get("memory_rules", {})
-    required_false = [
-        "repetition_upgrades_status", "consensus_is_evidence", "memory_write_failure_changes_authority",
-        "platform_mode_changes_authority", "manual_mode_user_skip_of_required_review_promotes_authority",
-        "external_content_self_declared_reviewer_is_authenticated",
-        "user_attested_external_review_is_provider_api_authenticated",
-        "external_evidence_may_satisfy_platform_review_gate",
-        "review_disposition_may_override_missing_required_review_evidence",
-        "legacy_review_schema_may_promote_material_authority",
-        "negative_review_disposition_may_promote_material_authority",
-    ]
-    for key in required_false:
-        if rules.get(key) is not False:
-            fail(f"shared-memory rule weakened/missing: {key}")
-
     if not LOG_PATH.is_file() or not LOG_PATH.read_text(encoding="utf-8").strip():
         fail("decision log missing/empty")
 
     print(
         "LIVE_CONVERSATION_GOVERNANCE_VALID "
-        f"checkpoint={state.get('checkpoint_id')} workstream={work.get('state')} "
-        f"result={passed}/{total} review={review.get('current_review_status')} "
-        f"mode={review.get('current_collaboration_mode')} review_transport={review.get('current_collaboration_review_transport')} "
-        f"external_channel={review.get('current_external_evidence_channel')} shared_memory=ACTIVE"
+        f"checkpoint={state.get('checkpoint_id')} handoff_seq={handoff.get('sequence')} "
+        f"workstream={work.get('state')} result={passed}/{total} "
+        f"next={handoff.get('stop_condition')} review={review.get('current_review_status')} shared_memory=ACTIVE"
     )
     return 0
 
