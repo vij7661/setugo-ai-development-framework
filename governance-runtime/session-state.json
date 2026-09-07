@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-010",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-011",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -19,17 +19,17 @@
     "normative_contract_commit": "be9236ccbd191fef83ebfc81e7fb0f26cd39c2c3",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_CANDIDATE_FREEZE",
-      "next_review_request_id": "REV-GOV-PR5-007",
-      "review_request_id": null,
-      "review_request_path": null,
-      "portable_bundle_manifest_path": null,
-      "reviewed_candidate_commit": null,
-      "candidate_ci_run": null,
-      "candidate_ci_conclusion": null,
-      "actions_artifact_id": null,
-      "actions_artifact_digest": null,
-      "portable_bundle_sha256": null,
+      "state": "PENDING_EXTERNAL_REVIEW",
+      "next_review_request_id": null,
+      "review_request_id": "REV-GOV-PR5-007",
+      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-007.json",
+      "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-007.manifest.json",
+      "reviewed_candidate_commit": "956d71dfd23b19450ff3b61aa89131d885709c14",
+      "candidate_ci_run": 34122900153,
+      "candidate_ci_conclusion": "success",
+      "actions_artifact_id": 10018893528,
+      "actions_artifact_digest": "sha256:79f22d9253cd57d89d6aaa1058722a25e6c8dd4c2e433dd590dd689370d44d6c",
+      "portable_bundle_sha256": "bbab6f10e3072aa5261471a6b2529224b13cc52474d551589883056eb788cf26",
       "superseded_review_requests": [
         "REV-GOV-PR5-001",
         "REV-GOV-PR5-002",
@@ -70,7 +70,7 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "Use CI to build REV-GOV-PR5-007 against the exact post-freeze governance candidate. Then obtain fresh independent Claude review before PR #5 promotion. After governance review is resolved, resume the narrow Slice 3 code-only repair without changing S3-01..S3-16.",
+    "next_action": "Wait for and validate independent Claude review REV-GOV-PR5-007 of exact repaired candidate 956d71dfd23b19450ff3b61aa89131d885709c14. Do not promote PR #5 before valid review. After governance review is resolved, resume the narrow Slice 3 code-only repair without changing S3-01..S3-16.",
     "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts and do not count review evidence for a superseded governance candidate toward promotion."
   },
   "accepted_prior_boundary": {
@@ -94,10 +94,10 @@
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 to main and any future Slice 3 scientific adjudication or material frozen-contract change",
-    "current_review_status": "NOT_YET_PRESENT",
-    "current_review_request_id": null,
+    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_review_request_id": "REV-GOV-PR5-007",
     "current_requested_reviewer": "CLAUDE",
-    "current_reviewed_artifact_commit": null,
+    "current_reviewed_artifact_commit": "956d71dfd23b19450ff3b61aa89131d885709c14",
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006"],
     "received_review_evidence": [
       {
@@ -126,8 +126,8 @@
     {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"PENDING_CANDIDATE_FREEZE","description":"Repaired F1/F3/F4 plus promotion evidence validation require fresh independent review."},
-    {"id":"GOV-MEM-001","state":"PENDING_CANDIDATE_FREEZE","description":"Promotion now validates shared-memory grounding against authority; stale-memory regression repaired and awaits fresh review."},
-    {"id":"GOV-PORTABLE-001","state":"PENDING_CANDIDATE_FREEZE","description":"Portable packet now enforces ReviewRequest evidence-ref coverage and awaits fresh review."}
+    {"id":"GOV-IR-001","state":"PENDING_EXTERNAL_REVIEW","description":"Repaired promotion/reviewer/catch-all review enforcement is awaiting fresh independent Claude review REV-GOV-PR5-007."},
+    {"id":"GOV-MEM-001","state":"PENDING_EXTERNAL_REVIEW","description":"Promotion now validates shared-memory grounding against authority; stale-memory regression repaired and awaiting fresh review."},
+    {"id":"GOV-PORTABLE-001","state":"PENDING_EXTERNAL_REVIEW","description":"Portable packet now enforces ReviewRequest evidence-ref coverage; exact candidate packet is bound by CI artifact and governed manifest."}
   ]
 }
