@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-020",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-021",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -14,7 +14,7 @@
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
       "next_review_request_id": null,
-      "next_review_reviewer": null,
+      "next_review_reviewer": {"provider":"deepseek","model_class":"deepseek"},
       "review_request_id": null,
       "review_request_path": null,
       "portable_bundle_manifest_path": null,
@@ -57,7 +57,7 @@
         {"case":"S3-11","classification":"MECHANISM_VALIDATION_ORDER_CLASSIFICATION_DEFECT","observed":"DENIED_MANIFEST","expected":"DENIED_IDEMPOTENCY_REBIND","unauthorized_mutation_observed":false}
       ]
     },
-    "next_action": "GOV-SEM-001 is construction-green at e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f with 33/33 tests in workflow 34131579394. In MANUAL_MODE, wait for user reviewer selection before declaring the next exact ReviewRequest. PR #5 remains non-authoritative. After the governance boundary is handled, resume the narrow Slice 3 code-only repair without changing frozen S3-01..S3-16.",
+    "next_action": "User selected DeepSeek in MANUAL_MODE. Synchronize the reviewer selection, verify the selected-reviewer state, then declare the next schema-4 ReviewRequest against the exact resulting candidate commit. PR #5 remains non-authoritative.",
     "forbidden_shortcut": "Do not modify frozen Slice 3 acceptance artifacts; do not count REV-GOV-PR5-008 or any earlier superseded review as current; do not trust manual-relay provider self-claims; do not promote a legacy review schema, a negative review disposition, or a PASS with incomplete mandatory review coverage."
   },
   "accepted_prior_boundary": {
@@ -85,7 +85,7 @@
     "current_required_transition": "Promotion of live conversation governance PR #5 and future material governed authority transitions",
     "current_review_status": "NOT_YET_PRESENT",
     "current_review_request_id": null,
-    "current_requested_reviewer": null,
+    "current_requested_reviewer": "DEEPSEEK",
     "current_reviewed_artifact_commit": null,
     "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008"],
     "received_review_evidence": [
@@ -114,7 +114,7 @@
     {"id":"GOV-SEM-001-CONSTRUCTION-GREEN-001","path":"governance-runtime/construction-evidence/GOV-SEM-001.json","candidate_commit":"e8a0589b1bbd1e3c6881c81cf8f1eccbd3fc1e1f","workflow_run":34131579394,"tests":"33/33","state":"CONSTRUCTION_GREEN_BOUNDED"}
   ],
   "open_governance_items": [
-    {"id":"GOV-IR-001","state":"READY_FOR_REVIEWER_SELECTION","description":"Semantic repair construction is green; new current material ReviewRequest must be schema 4 and reviewer-bound after user selection."},
+    {"id":"GOV-IR-001","state":"REVIEWER_SELECTED_PENDING_REQUEST_FREEZE","description":"DeepSeek selected by user; synchronize selection before declaring the next exact schema-4 ReviewRequest."},
     {"id":"GOV-MEM-001","state":"CONSTRUCTION_GREEN","description":"Shared-memory grounding and stale/conflict blocking are enforced in material promotion."},
     {"id":"GOV-PORTABLE-001","state":"CONSTRUCTION_GREEN","description":"Portable review export includes semantic dimensions, raw canonical artifacts, and instructions that mandatory inaccessible dimensions cannot receive PASS."},
     {"id":"GOV-ID-001","state":"BLOCKED_IDENTITY_UNVERIFIED_IN_MANUAL_RELAY","description":"Manual relay provider identity remains non-authenticating; production API adapters remain the trusted identity path."},
