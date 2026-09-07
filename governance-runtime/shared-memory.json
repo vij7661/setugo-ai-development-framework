@@ -16,54 +16,82 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-PORTABLE-002 single-file mechanism passed 40/40; the REV-GOV-PR5-010 packet-build failure is preserved and superseded. REV-GOV-PR5-011 is now active for DeepSeek against exact candidate d808fdfbc334639fc0e78a1332f837c636b8923a and CI run 34135364859. Manual relay requires exactly one ordinary UTF-8 container whose SHA-256 is 518f130863f2a6c41378494eb135ad45d9927086940e56b0098ff8ca7ebb734f.",
-    "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
-    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity","accept_rev011_pass_with_incomplete_review_coverage","use_more_than_one_manual_relay_upload_for_rev011"]
+    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-REVIEW-CLASS-001 is migrating live governance to two platform API review classes plus external-evidence ingestion. REV-GOV-PR5-011 is superseded. The first REV011-shaped paste is unclassified USER_PROVIDED_EXTERNAL_CONTENT; the later result explicitly identified by the user as DeepSeek is USER_ATTESTED_EXTERNAL_LLM_REVIEW. Neither is provider-API-authenticated or promotable.",
+    "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
+    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","infer_external_provider_from_payload_fields","treat_user_attestation_as_provider_authentication","promote_pr5_from_external_pasted_evidence","reuse_rev011_for_new_candidate"]
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": 5,
-    "status": "PENDING_EXTERNAL_REVIEW",
+    "status": "PENDING_CANDIDATE_FREEZE",
     "platform_modes": ["AUTO_MODE","MANUAL_MODE"],
     "review_levels": ["NONE","RECOMMENDED","REQUIRED"],
+    "supported_review_transports": ["AUTOMATIC_API","USER_INITIATED_API"],
+    "external_evidence_classes": ["USER_PROVIDED_EXTERNAL_CONTENT","USER_ATTESTED_EXTERNAL_LLM_REVIEW"],
     "production_auto_mode_transport": "AUTOMATIC_API",
     "production_manual_mode_transport": "USER_INITIATED_API",
-    "current_collaboration_transport": "MANUAL_RELAY",
-    "manual_relay_requires_portable_bundle": true,
-    "manual_relay_preferred_attachment_count": 1,
-    "single_file_review_container": "REQUIRED_FOR_CURRENT_DEEPSEEK_MANUAL_RELAY",
+    "current_collaboration_review_transport": null,
+    "current_external_evidence_channel": "USER_PASTE",
     "semantic_review_schema_minimum_for_promotion": 4,
     "positive_promotable_dispositions": ["PASS","BOUNDED_PASS"],
     "selected_next_reviewer": null,
-    "current_review_request_id": "REV-GOV-PR5-011",
-    "current_review_status": "PENDING_EXTERNAL_REVIEW",
-    "reviewed_candidate_commit": "d808fdfbc334639fc0e78a1332f837c636b8923a",
+    "current_review_request_id": null,
+    "current_review_status": "NOT_YET_PRESENT",
+    "reviewed_candidate_commit": null,
     "current_review_disposition": null,
     "current_review_semantic_validation": null,
     "current_review_effective_state": null,
-    "current_review_identity_assurance": "MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY",
+    "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
-    "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-011.manifest.json",
-    "portable_bundle_sha256": "5df611dd0186d0a3daf36e4c15beb5822e276bcea7f9171acf2b6c9441046e98",
-    "single_file_container_sha256": "518f130863f2a6c41378494eb135ad45d9927086940e56b0098ff8ca7ebb734f",
-    "single_file_container_payload_sha256": "fb937bacf3bce2f4cd24417a0c89c7c0f544aa9f04700aed1342b9355877e55d",
-    "construction_evidence": {"id":"REV-GOV-PR5-011-CANDIDATE-CI","candidate_commit":"d808fdfbc334639fc0e78a1332f837c636b8923a","workflow_run":34135364859,"tests":"40/40","state":"CANDIDATE_PACKET_VERIFIED"},
-    "features_under_review": ["trusted reviewer identity provenance","material promotion always requires current authenticated review","schema-4 required review dimensions","semantic disposition/evidence consistency","positive-disposition promotion floor","governance-path and material review classification","promotion binds current ReviewRequest/ReviewEvidence/execution envelope","shared-memory grounding","single-file raw-artifact integrity","provider-neutral reviewer selection","AUTO_MODE/MANUAL_MODE authority equivalence"]
+    "features_under_review": ["platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
   },
   "pending_reviews": [
-    {"purpose":"Promotion of live conversation governance PR #5","status":"PENDING_EXTERNAL_REVIEW","preferred_reviewer":"DEEPSEEK","selected_reviewer":{"provider":"deepseek","model_class":"deepseek"},"platform_mode":"MANUAL_MODE","transport":"MANUAL_RELAY","review_request_id":"REV-GOV-PR5-011","review_request_path":"governance-runtime/review-requests/REV-GOV-PR5-011.json","portable_bundle_manifest_path":"governance-runtime/review-bundles/REV-GOV-PR5-011.manifest.json","portable_bundle_sha256":"5df611dd0186d0a3daf36e4c15beb5822e276bcea7f9171acf2b6c9441046e98","single_file_container_sha256":"518f130863f2a6c41378494eb135ad45d9927086940e56b0098ff8ca7ebb734f","reviewed_artifact_commit":"d808fdfbc334639fc0e78a1332f837c636b8923a","candidate_ci_run":34135364859,"repository_access_required":false,"manual_relay_upload_files_required":1,"identity_assurance_expected":"MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY","counts_for_current_promotion":false,"superseded_review_requests":["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010"]}
+    {
+      "purpose": "Promotion of live conversation governance PR #5",
+      "status": "PENDING_CANDIDATE_FREEZE",
+      "platform_mode": "MANUAL_MODE",
+      "review_request_id": null,
+      "review_transport": null,
+      "reviewed_artifact_commit": null,
+      "counts_for_current_promotion": false,
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011"]
+    }
   ],
   "received_review_history": [
     {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"deepseek","identity_assurance":"CORRECTED_AFTER_USER_DISCLOSURE","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
     {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"claimed_anthropic_claude","identity_assurance":"USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
-    {"request_id":"REV-GOV-PR5-008","reviewed_candidate":"4133bd86806631d246c943b7d79a84346500b827","origin":"self_declared_deepseek_manual_relay","identity_assurance":"MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY","disposition":"PASS","semantic_validation":"CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT","effective_state":"INSUFFICIENT_EVIDENCE_FOR_FULL_PASS","findings_count":0,"counts_for_current_promotion":false}
+    {"request_id":"REV-GOV-PR5-008","reviewed_candidate":"4133bd86806631d246c943b7d79a84346500b827","origin":"historical_manual_relay_external_content","disposition":"PASS","semantic_validation":"CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT","effective_state":"INSUFFICIENT_EVIDENCE_FOR_FULL_PASS","counts_for_current_promotion":false}
+  ],
+  "external_evidence_history": [
+    {
+      "id": "REV-GOV-PR5-011-EXTERNAL-PASTE-001",
+      "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-001.json",
+      "self_declared_reviewer": {"provider":"moonshot","model":"kimi"},
+      "user_attested_source": null,
+      "provider_api_authenticated": false,
+      "counts_for_promotion": false,
+      "claimed_disposition": "PASS",
+      "findings_count": 3
+    },
+    {
+      "id": "REV-GOV-PR5-011-EXTERNAL-PASTE-002",
+      "evidence_class": "USER_ATTESTED_EXTERNAL_LLM_REVIEW",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-002-deepseek-user-attested.json",
+      "user_attested_source": {"provider":"deepseek","model":"deepseek"},
+      "provider_api_authenticated": false,
+      "counts_for_promotion": false,
+      "claimed_disposition": "PASS",
+      "findings_count": 0
+    }
   ],
   "memory_conflict_history": [
     {"id":"LCG-F6","observed":"shared-memory.json lagged authoritative session-state.json at earlier review ingestion","resolution":"AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED","silent_merge":false},
-    {"id":"LCG-F7","observed":"manual-relay review JSON self-declared Anthropic/Claude identity although user later disclosed the content came from DeepSeek","resolution":"REVIEWER_IDENTITY_CLAIM_RETRACTED_AND_COMBINED_REPAIR_APPLIED","silent_merge":false},
-    {"id":"LCG-F8","observed":"REV-GOV-PR5-008 returned PASS while admitting raw files were not directly accessible","resolution":"REVIEW_PRESERVED_NONPROMOTABLE_AND_GOV_SEM_001_PREREGISTERED_IMPLEMENTED","silent_merge":false},
-    {"id":"LCG-F9","observed":"DeepSeek manual relay cannot accept ZIP and many-file ordinary upload is impractical","resolution":"SINGLE_FILE_CONTAINER_IMPLEMENTED","silent_merge":false},
-    {"id":"LCG-F10","observed":"REV-GOV-PR5-010 packet build omitted a ReviewRequest-referenced artifact","resolution":"FAILURE_PRESERVED_REV010_SUPERSEDED_NARROW_REPAIR_APPLIED","silent_merge":false}
+    {"id":"LCG-F7","observed":"review JSON self-declared a provider identity later contradicted by user disclosure","resolution":"CONTENT_SELF_PROVENANCE_REJECTED","silent_merge":false},
+    {"id":"LCG-F8","observed":"REV-GOV-PR5-008 returned PASS while admitting required raw evidence was inaccessible","resolution":"SEMANTIC_PASS_EVIDENCE_CONTRADICTION_REPAIRED","silent_merge":false},
+    {"id":"LCG-F9","observed":"DeepSeek could not accept ZIP and many-file manual upload was impractical","resolution":"SINGLE_FILE_EXTERNAL_EVIDENCE_CONTAINER_IMPLEMENTED","silent_merge":false},
+    {"id":"LCG-F10","observed":"REV-GOV-PR5-010 packet build omitted a ReviewRequest-referenced artifact","resolution":"FAILURE_PRESERVED_REV010_SUPERSEDED_NARROW_REPAIR_APPLIED","silent_merge":false},
+    {"id":"LCG-F11","observed":"Copy/paste MANUAL_RELAY was modeled as a review transport although production MANUAL_MODE uses provider API","resolution":"GOV_REVIEW_CLASS_001_SEPARATES_PLATFORM_API_REVIEW_FROM_EXTERNAL_EVIDENCE","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
@@ -74,7 +102,9 @@
     "memory_write_failure_must_be_surfaced": true,
     "platform_mode_changes_authority": false,
     "manual_mode_user_skip_of_required_review_promotes_authority": false,
-    "manual_relay_self_declared_reviewer_identity_is_authenticated": false,
+    "external_content_self_declared_reviewer_is_authenticated": false,
+    "user_attested_external_review_is_provider_api_authenticated": false,
+    "external_evidence_may_satisfy_platform_review_gate": false,
     "review_disposition_may_override_missing_required_review_evidence": false,
     "legacy_review_schema_may_promote_material_authority": false,
     "negative_review_disposition_may_promote_material_authority": false
