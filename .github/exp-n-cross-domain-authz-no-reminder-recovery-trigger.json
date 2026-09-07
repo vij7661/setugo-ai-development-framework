@@ -1,0 +1,16 @@
+{
+  "experiment": "EXP-N",
+  "pilot": "PILOT8-CROSS-DOMAIN-AUTHZ-NO-ANTI-DEFERENCE-REMINDER",
+  "policy_ref": "experiments/governed-platform/adjudication/EXP-N-PILOT8-RECOVERY-POLICY.json",
+  "policy_commit": "b3027bf3e334ac6e5496016a9e1d4414c78853e1",
+  "primary_workflow_run_id": 34008942457,
+  "replacement_slots_total": 9,
+  "provider": "openrouter",
+  "configured_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "temperature": 0.7,
+  "instruction_version": "exp-n-cross-domain-authz-no-reminder-v1",
+  "authority": "NONE",
+  "nonce": "pilot8-recovery-1",
+  "design_commit": "6448a9989836699b82aad4ffc3a1f7e56e3115be",
+  "created_at_utc": "2026-09-07T00:08:46Z"
+}
