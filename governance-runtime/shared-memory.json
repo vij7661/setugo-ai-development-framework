@@ -14,22 +14,22 @@
   "current_work": {
     "name": "Integrated Governed MVP Slice 4 - Isolated Tool Runner Gateway",
     "authoritative_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
-    "authoritative_head": "b4cc31394fff001f1c726ba8093da20114b324df",
-    "status": "CONSTRUCTION_DEDICATED_GREEN_FULL_REGRESSION_PENDING",
-    "continuity_summary": "Slice 2 and Slice 3 integration are complete in lineage order: PR #8 merged as ff55bb7a803cfffead3ecaf6ea7e171453ed436d and PR #9 merged as a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d after fresh CI plus authenticated exact-transition reviews. Slice 4 is preregistered at f78c5462193445ecb6675dcee4f8f3cc65e99d96, S4-01..S4-16 were frozen at 0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6, first expected mechanism-absence failure run 34166059723 is preserved by f9df961c3f05bdaa87f559c86de980f9e1dc6c37, and first mechanism b4cc31394fff001f1c726ba8093da20114b324df passes the dedicated frozen harness. Full governed construction run 34166171216 is still pending and must be green before freeze.",
+    "authoritative_head": "f6f04970d594292f21db648132afab7da4f263a6",
+    "status": "FROZEN_DEDICATED_SCIENTIFIC_GREEN_FULL_SCIENTIFIC_PENDING",
+    "continuity_summary": "Slice 2 and Slice 3 integrations are complete. Slice 4 contract was preregistered at f78c5462193445ecb6675dcee4f8f3cc65e99d96, S4-01..S4-16 frozen at 0ce97ba7f36fa03a715bf6b529a8e67da9bd16e6, first mechanism-absence failure preserved by f9df961c3f05bdaa87f559c86de980f9e1dc6c37, and first mechanism b4cc31394fff001f1c726ba8093da20114b324df passed dedicated construction run 34166171316 plus full governed construction run 34166171216. Exact scientific freeze is f6f04970d594292f21db648132afab7da4f263a6; dedicated scientific run 34166321103 is green and full scientific run 34166321130 is pending. Live governance run 34166285068 failed closed on a handoff-string mismatch and is preserved as continuity bookkeeping failure with no authority effect.",
     "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
-    "prohibited_use": ["declare_slice4_scientific_pass_from_construction_ci","modify_frozen_slice4_expectations_to_get_green","claim_arbitrary_code_sandbox_security","skip_slice4_independent_review","rewrite_prior_failures","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
+    "prohibited_use": ["declare_slice4_pass_from_dedicated_ci","modify_frozen_slice4_expectations","claim_arbitrary_code_sandbox_security","skip_independent_review","rewrite_prior_failures","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
   },
   "execution_handoff": {
-    "sequence": 38,
+    "sequence": 39,
     "workstream": "Integrated Governed MVP Slice 4 - Isolated Tool Runner Gateway",
     "candidate_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
-    "candidate_commit": "b4cc31394fff001f1c726ba8093da20114b324df",
-    "phase": "CONSTRUCTION_DEDICATED_GREEN_FULL_REGRESSION_PENDING",
-    "next_required_action": "Verify full governed construction run 34166171216 for exact Slice 4 mechanism commit b4cc31394fff001f1c726ba8093da20114b324df. If green, create an exact scientific freeze record without changing the frozen harness or mechanism and run both dedicated Slice 4 and complete governed-platform workflows on that frozen SHA before independent review/adjudication. If failed, preserve/classify before repair.",
+    "candidate_commit": "f6f04970d594292f21db648132afab7da4f263a6",
+    "phase": "FROZEN_DEDICATED_SCIENTIFIC_GREEN_FULL_SCIENTIFIC_PENDING",
+    "next_required_action": "Verify complete governed scientific run 34166321130 for exact frozen Slice 4 SHA f6f04970d594292f21db648132afab7da4f263a6. If it is green, verify direct job-log correspondence and exact checkout SHA, then create a schema-4 independent platform review request bound to the unchanged frozen candidate and execute authenticated review before any BOUNDED_PASS adjudication. If the scientific run fails, preserve and classify the failure before any repair.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "resume_rule": "Generic CONTINUE means verify exact Slice 4 handoff and construction run 34166171216; never skip to acceptance, edit the frozen harness, or infer another frontier from repository HEAD/model memory."
+    "resume_rule": "Generic CONTINUE means verify exact frozen Slice 4 SHA f6f04970d594292f21db648132afab7da4f263a6 and scientific run 34166321130; never skip required correspondence/review or infer another frontier from repository HEAD/model memory."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
@@ -54,12 +54,12 @@
     "current_review_effective_state": "PENDING_CANDIDATE_FREEZE",
     "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
-    "construction_evidence": {"id":"SLICE4-CONSTRUCTION-001","candidate_commit":"b4cc31394fff001f1c726ba8093da20114b324df","dedicated_run":34166171316,"dedicated_result":"16/16 GREEN","full_governed_run":34166171216,"full_governed_result":"PENDING","state":"CONSTRUCTION_PENDING_FULL_REGRESSION"},
+    "construction_evidence": {"id":"SLICE4-FROZEN-001","candidate_commit":"f6f04970d594292f21db648132afab7da4f263a6","construction_dedicated_run":34166171316,"construction_full_run":34166171216,"scientific_dedicated_run":34166321103,"scientific_full_run":34166321130,"scientific_full_result":"PENDING","state":"FROZEN_AWAITING_COMPLETE_SCIENTIFIC_REGRESSION"},
     "features_under_review": ["Slice 4 exact upstream binding","argv-only process execution","workspace confinement","environment minimization","timeout/output bounds","durable idempotency/crash/replay/concurrency","terminal authority separation"]
   },
   "pending_reviews": [
     {
-      "purpose": "Independent semantic/platform review of exact Slice 4 candidate after scientific freeze",
+      "purpose": "Independent platform review of exact frozen Slice 4 candidate after complete scientific CI correspondence",
       "status": "PENDING_CANDIDATE_FREEZE",
       "platform_mode": "AUTO_MODE",
       "review_request_id": null,
@@ -86,7 +86,8 @@
     {"id":"LCG-F14","observed":"Corrected pasted PASS was schema-valid but remained unauthenticated external evidence under platform review policy.","resolution":"EXTERNAL_SEMANTIC_PASS_PRESERVED_NONPROMOTABLE_PLATFORM_API_REVIEW_EXECUTED","silent_merge":false},
     {"id":"LCG-F15","observed":"First platform-authenticated Slice 3 review attempt received Gemini HTTP 503 high-demand response.","resolution":"PROVIDER_FAILURE_PRESERVED_NO_AUTHORITY_EFFECT_SAME_REQUEST_RETRIED_AND_PASSED","silent_merge":false},
     {"id":"LCG-F16","observed":"Authoritative handoff still pointed to PR #5 closure after PR #5 had already merged.","resolution":"POST_MERGE_HANDOFF_ADVANCED_TO_STACK_INTEGRATION_FRONTIER","silent_merge":false},
-    {"id":"LCG-F17","observed":"Authoritative handoff still pointed to pending Slice 2/3 integration after PR #8 and PR #9 had both merged.","resolution":"HANDOFF_ADVANCED_TO_PREREGISTERED_SLICE4_CONSTRUCTION_FRONTIER","silent_merge":false}
+    {"id":"LCG-F17","observed":"Authoritative handoff still pointed to pending Slice 2/3 integration after PR #8 and PR #9 had both merged.","resolution":"HANDOFF_ADVANCED_TO_PREREGISTERED_SLICE4_CONSTRUCTION_FRONTIER","silent_merge":false},
+    {"id":"LCG-F18","observed":"Checkpoint 038 and shared memory contained semantically equivalent but byte-different next_required_action strings, causing Live Conversation Governance run 34166285068 to fail closed.","resolution":"EXACT_HANDOFF_STRING_RECONCILIATION_CHECKPOINT_039","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
