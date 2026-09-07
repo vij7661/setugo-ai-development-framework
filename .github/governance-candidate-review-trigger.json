@@ -1,11 +1,19 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-SCIENTIFIC-001.json",
+  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-SCIENTIFIC-002.json",
   "reviewed_candidate_commit": "f6f04970d594292f21db648132afab7da4f263a6",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "REQUESTED"
+  "status": "REQUESTED_RETRY_AFTER_PROVIDER_503",
+  "preserved_prior_attempt": {
+    "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-001",
+    "workflow_run_id": 34167008144,
+    "job_id": 101879947558,
+    "artifact_id": 10034474473,
+    "failure": "Gemini HTTP 503 UNAVAILABLE: model high demand",
+    "authority_effect": "NONE"
+  }
 }
