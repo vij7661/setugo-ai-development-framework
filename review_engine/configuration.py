@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,7 +9,12 @@ from typing import Any
 from .anthropic_provider import AnthropicEndpoint, AnthropicProvider
 from .gemini_provider import GeminiEndpoint, GeminiProvider
 from .models import ReviewerConfig
-from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
+from .providers import (
+    OpenAICompatibleEndpoint,
+    OpenAICompatibleProvider,
+    ProviderRegistry,
+    validate_provider_base_url,
+)
 from .qualification import QualificationRecord, QualificationRegistry
 
 
@@ -36,6 +42,7 @@ QUALIFICATION_FIELDS = frozenset({
     "foundation_lineage",
     "max_risk",
     "task_types",
+    "provider_binding_fingerprint",
 })
 PROVIDER_FIELDS = {
     "openai_compatible": frozenset({
@@ -129,6 +136,69 @@ def _reject_unknown_fields(node: dict, *, path: str, allowed: frozenset[str]) ->
         raise ValueError(f"unsupported configuration field(s) at {path}: {', '.join(unknown)}")
 
 
+def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
+    """Return the canonical provider execution configuration used for qualification binding.
+
+    The binding deliberately includes endpoint identity and behavior-affecting
+    adapter settings. Changing any bound value requires a new retained
+    qualification rather than silently reusing qualification evidence gathered
+    against a different provider execution route/configuration.
+    """
+    adapter_type = spec.get("adapter")
+    if adapter_type == "openai_compatible":
+        return {
+            "adapter": adapter_type,
+            "base_url": validate_provider_base_url(str(spec.get("base_url", ""))),
+            "timeout_seconds": int(spec.get("timeout_seconds", 120)),
+            "max_attempts": int(spec.get("max_attempts", 3)),
+            "initial_backoff_seconds": float(spec.get("initial_backoff_seconds", 1.0)),
+            "max_backoff_seconds": float(spec.get("max_backoff_seconds", 10.0)),
+            "temperature": float(spec.get("temperature", 0.0)),
+        }
+    if adapter_type == "anthropic":
+        return {
+            "adapter": adapter_type,
+            "base_url": validate_provider_base_url(
+                str(spec.get("base_url", "https://api.anthropic.com/v1")),
+                label="anthropic provider",
+            ),
+            "anthropic_version": str(spec.get("anthropic_version", "2023-06-01")),
+            "timeout_seconds": int(spec.get("timeout_seconds", 120)),
+            "max_attempts": int(spec.get("max_attempts", 3)),
+            "max_tokens": int(spec.get("max_tokens", 4096)),
+            "temperature": float(spec.get("temperature", 0.0)),
+            "initial_backoff_seconds": float(spec.get("initial_backoff_seconds", 1.0)),
+            "max_backoff_seconds": float(spec.get("max_backoff_seconds", 10.0)),
+        }
+    if adapter_type == "gemini":
+        return {
+            "adapter": adapter_type,
+            "base_url": validate_provider_base_url(
+                str(spec.get("base_url", "https://generativelanguage.googleapis.com/v1beta")),
+                label="gemini provider",
+            ),
+            "timeout_seconds": int(spec.get("timeout_seconds", 120)),
+            "max_attempts": int(spec.get("max_attempts", 3)),
+            "temperature": float(spec.get("temperature", 0.0)),
+            "max_output_tokens": int(spec.get("max_output_tokens", 4096)),
+            "initial_backoff_seconds": float(spec.get("initial_backoff_seconds", 1.0)),
+            "max_backoff_seconds": float(spec.get("max_backoff_seconds", 10.0)),
+        }
+    raise ValueError(f"unsupported provider adapter: {adapter_type!r}")
+
+
+def provider_binding_fingerprint(spec: dict[str, Any]) -> str:
+    """Bind retained reviewer qualification to the exact configured provider route."""
+    canonical = json.dumps(
+        _effective_provider_binding(spec),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(data, dict):
@@ -164,9 +234,12 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
         if not isinstance(spec, dict):
             raise ValueError(f"reviewer {role} must be an object")
         _reject_unknown_fields(spec, path=f"root.reviewers.{role}", allowed=REVIEWER_FIELDS)
+        provider_id = str(spec.get("provider", ""))
+        if provider_id not in validated_provider_specs:
+            raise ValueError(f"reviewer {role} references unknown provider {provider_id}")
         config = ReviewerConfig(
             role=role,
-            provider=str(spec.get("provider", "")),
+            provider=provider_id,
             model=str(spec.get("model", "")),
             sku=str(spec.get("sku", "default")),
             deployment_path=str(spec.get("deployment_path", "api")),
@@ -174,10 +247,9 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
             foundation_lineage=str(spec.get("foundation_lineage", "")),
             qualification_ref=spec.get("qualification_ref"),
             enabled=bool(spec.get("enabled", True)),
+            provider_binding_fingerprint=provider_binding_fingerprint(validated_provider_specs[provider_id]),
         )
         config.validate()
-        if config.provider not in validated_provider_specs:
-            raise ValueError(f"reviewer {role} references unknown provider {config.provider}")
         reviewers[role] = config
     if "R1" not in reviewers:
         raise ValueError("R1 reviewer configuration is required")
@@ -193,6 +265,7 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
         task_types = item.get("task_types", ["*"])
         if not isinstance(task_types, list):
             raise ValueError("qualification task_types must be a list")
+        raw_provider_binding = item.get("provider_binding_fingerprint")
         record = QualificationRecord(
             qualification_ref=str(item.get("qualification_ref", "")),
             provider=str(item.get("provider", "")),
@@ -205,6 +278,9 @@ def load_configuration(path: str | Path) -> ReviewEngineConfiguration:
             foundation_lineage=str(item.get("foundation_lineage", "")),
             max_risk=str(item.get("max_risk", "LOW")),
             task_types=tuple(str(v) for v in task_types),
+            provider_binding_fingerprint=(
+                str(raw_provider_binding) if raw_provider_binding is not None else None
+            ),
         )
         record.validate()
         records.append(record)
@@ -267,4 +343,19 @@ def build_provider_registry(configuration: ReviewEngineConfiguration) -> Provide
 def build_qualification_registry(configuration: ReviewEngineConfiguration) -> QualificationRegistry | None:
     if not configuration.qualification_records:
         return None
+    for record in configuration.qualification_records:
+        if not record.provider_binding_fingerprint:
+            raise ValueError(
+                f"qualification {record.qualification_ref} requires provider binding fingerprint"
+            )
+        provider_spec = configuration.provider_specs.get(record.provider)
+        if provider_spec is None:
+            raise ValueError(
+                f"qualification {record.qualification_ref} references unknown provider {record.provider}"
+            )
+        current_binding = provider_binding_fingerprint(provider_spec)
+        if record.provider_binding_fingerprint != current_binding:
+            raise ValueError(
+                f"qualification {record.qualification_ref} provider binding fingerprint mismatch"
+            )
     return QualificationRegistry(configuration.qualification_records)
