@@ -1,18 +1,20 @@
 {
-  "enabled": false,
-  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-001.json",
+  "enabled": true,
+  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-002.json",
   "reviewed_candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "REJECTED_INVALID_REQUEST_HASH",
-  "workflow_run_id": 34167633377,
-  "job_id": 101881744220,
-  "artifact_id": 10034669354,
-  "artifact_digest": "sha256:dd6f909f4ca26950d3cb77efabdc8e1eef1b4a6ece863df5f6ad5cd8b30bc93e",
-  "evidence_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-001-invalid-request.json",
-  "authority_effect": "NONE",
-  "next_review_request_id": "REV-MVP-SLICE4-INTEGRATION-002"
+  "status": "REQUESTED_CORRECTED_AFTER_INVALID_REQUEST_001",
+  "preserved_prior_attempt": {
+    "review_request_id": "REV-MVP-SLICE4-INTEGRATION-001",
+    "workflow_run_id": 34167633377,
+    "job_id": 101881744220,
+    "artifact_id": 10034669354,
+    "artifact_digest": "sha256:dd6f909f4ca26950d3cb77efabdc8e1eef1b4a6ece863df5f6ad5cd8b30bc93e",
+    "classification": "INVALID_REVIEW_REQUEST_INTEGRITY_NONPROMOTABLE",
+    "authority_effect": "NONE"
+  }
 }
