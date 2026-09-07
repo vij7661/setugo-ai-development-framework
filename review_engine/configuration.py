@@ -9,12 +9,7 @@ from typing import Any
 from .anthropic_provider import AnthropicEndpoint, AnthropicProvider
 from .gemini_provider import GeminiEndpoint, GeminiProvider
 from .models import ReviewerConfig
-from .providers import (
-    OpenAICompatibleEndpoint,
-    OpenAICompatibleProvider,
-    ProviderRegistry,
-    validate_provider_base_url,
-)
+from .providers import OpenAICompatibleEndpoint, OpenAICompatibleProvider, ProviderRegistry
 from .qualification import QualificationRecord, QualificationRegistry
 
 
@@ -139,16 +134,17 @@ def _reject_unknown_fields(node: dict, *, path: str, allowed: frozenset[str]) ->
 def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
     """Return the canonical provider execution configuration used for qualification binding.
 
-    The binding deliberately includes endpoint identity and behavior-affecting
-    adapter settings. Changing any bound value requires a new retained
-    qualification rather than silently reusing qualification evidence gathered
-    against a different provider execution route/configuration.
+    Fingerprinting is intentionally separate from transport admission. It binds
+    the configured value exactly enough to detect later substitution, while the
+    provider adapter remains the authority that rejects insecure/invalid remote
+    endpoints during registry construction. This preserves fail-closed transport
+    tests without turning fingerprint calculation into a second transport gate.
     """
     adapter_type = spec.get("adapter")
     if adapter_type == "openai_compatible":
         return {
             "adapter": adapter_type,
-            "base_url": validate_provider_base_url(str(spec.get("base_url", ""))),
+            "base_url": str(spec.get("base_url", "")).strip(),
             "timeout_seconds": int(spec.get("timeout_seconds", 120)),
             "max_attempts": int(spec.get("max_attempts", 3)),
             "initial_backoff_seconds": float(spec.get("initial_backoff_seconds", 1.0)),
@@ -158,10 +154,7 @@ def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
     if adapter_type == "anthropic":
         return {
             "adapter": adapter_type,
-            "base_url": validate_provider_base_url(
-                str(spec.get("base_url", "https://api.anthropic.com/v1")),
-                label="anthropic provider",
-            ),
+            "base_url": str(spec.get("base_url", "https://api.anthropic.com/v1")).strip(),
             "anthropic_version": str(spec.get("anthropic_version", "2023-06-01")),
             "timeout_seconds": int(spec.get("timeout_seconds", 120)),
             "max_attempts": int(spec.get("max_attempts", 3)),
@@ -173,10 +166,7 @@ def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
     if adapter_type == "gemini":
         return {
             "adapter": adapter_type,
-            "base_url": validate_provider_base_url(
-                str(spec.get("base_url", "https://generativelanguage.googleapis.com/v1beta")),
-                label="gemini provider",
-            ),
+            "base_url": str(spec.get("base_url", "https://generativelanguage.googleapis.com/v1beta")).strip(),
             "timeout_seconds": int(spec.get("timeout_seconds", 120)),
             "max_attempts": int(spec.get("max_attempts", 3)),
             "temperature": float(spec.get("temperature", 0.0)),
