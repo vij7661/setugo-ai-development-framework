@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-006",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-007",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -16,19 +16,20 @@
   "runtime": {
     "branch": "governance/live-conversation-runtime",
     "normative_contract_path": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
-    "normative_contract_commit": "742497c673ef89a933bddf5e200e2ed51f7d68de",
+    "normative_contract_commit": "be9236ccbd191fef83ebfc81e7fb0f26cd39c2c3",
     "promotion": {
       "pull_request": 5,
       "state": "PENDING_CANDIDATE_FREEZE",
       "review_request_id": null,
       "review_request_path": null,
-      "portable_bundle_path": null,
+      "portable_bundle_manifest_path": null,
       "reviewed_candidate_commit": null,
       "candidate_ci_run": null,
       "candidate_ci_conclusion": null,
       "superseded_review_requests": [
         "REV-GOV-PR5-001",
-        "REV-GOV-PR5-002"
+        "REV-GOV-PR5-002",
+        "REV-GOV-PR5-003"
       ]
     }
   },
@@ -73,7 +74,7 @@
         }
       ]
     },
-    "next_action": "Finish the live-governance mode/bundle candidate and external review first. Then apply a narrow Slice 3 code-only validation-order/classification repair without changing S3-01..S3-16.",
+    "next_action": "Complete independent review of the live-governance AUTO_MODE/MANUAL_MODE and portable-review design. Then apply the narrow Slice 3 code-only validation-order/classification repair without changing S3-01..S3-16.",
     "forbidden_shortcut": "Do not modify the frozen S3 harness or preregistration to obtain green."
   },
   "accepted_prior_boundary": {
@@ -85,20 +86,9 @@
   "independent_review": {
     "policy_state": "MANDATORY_FOR_MATERIAL_AUTHORITY_TRANSITIONS",
     "orchestrator_contract": "governance-runtime/review_protocol.py",
-    "platform_modes": [
-      "AUTO_MODE",
-      "MANUAL_MODE"
-    ],
-    "review_levels": [
-      "NONE",
-      "RECOMMENDED",
-      "REQUIRED"
-    ],
-    "supported_transports": [
-      "AUTOMATIC_API",
-      "USER_INITIATED_API",
-      "MANUAL_RELAY"
-    ],
+    "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
+    "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
+    "supported_transports": ["AUTOMATIC_API", "USER_INITIATED_API", "MANUAL_RELAY"],
     "current_collaboration_mode": "MANUAL_MODE",
     "current_collaboration_transport": "MANUAL_RELAY",
     "production_auto_mode_transport": "AUTOMATIC_API",
@@ -112,10 +102,7 @@
     "current_review_request_id": null,
     "current_requested_reviewer": "CLAUDE",
     "current_reviewed_artifact_commit": null,
-    "superseded_review_requests": [
-      "REV-GOV-PR5-001",
-      "REV-GOV-PR5-002"
-    ],
+    "superseded_review_requests": ["REV-GOV-PR5-001", "REV-GOV-PR5-002", "REV-GOV-PR5-003"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
@@ -155,7 +142,7 @@
     {
       "id": "GOV-PORTABLE-001",
       "state": "PENDING_CANDIDATE_FREEZE",
-      "description": "MANUAL_RELAY assumes zero reviewer repository access and requires a self-contained integrity-bound review bundle."
+      "description": "MANUAL_RELAY assumes zero reviewer repository access and binds an external self-contained packet through a governed manifest/hash."
     }
   ]
 }
