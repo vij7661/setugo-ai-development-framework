@@ -33,10 +33,17 @@ def _provider_system_instruction() -> str:
 
 
 def _retrieval_query_text(request: ReviewRequest, artifact: ReviewArtifact | None) -> str:
-    """Platform-construct retrieval text from already-authorized reviewer inputs."""
-    if artifact is None:
-        return request.user_input
-    return request.user_input + "\n\n" + artifact.content
+    """Build admission text only from the user/platform request, never R1 output.
+
+    For R2/R3 the artifact remains independently bound into RetrievalQuery by
+    artifact id/version/hash and is shown directly to the reviewer, but its
+    proposer-authored content cannot decide which memory records are admitted.
+    This prevents R1 wording changes from suppressing or surfacing memory merely
+    through lexical overlap. Artifact-aware semantic retrieval can be added later
+    only as an additive/ranking signal that cannot lower this admission floor.
+    """
+    del artifact
+    return request.user_input
 
 
 class ContextCompiler:
