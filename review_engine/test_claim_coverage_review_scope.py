@@ -6,7 +6,7 @@ from pathlib import Path
 
 from review_engine.app import ReviewEngineApp
 from review_engine.claim_coverage import ClaimCoverageInventory, ClaimExtractorIdentity, CoverageClaim
-from review_engine.configuration import ReviewEngineConfiguration
+from review_engine.configuration import ReviewEngineConfiguration, provider_binding_fingerprint
 from review_engine.extractor_qualification import ExtractorQualificationRecord, ExtractorQualificationRegistry
 from review_engine.models import ReviewerConfig, ReviewerResponse, content_hash
 from review_engine.qualification import QualificationRecord
@@ -16,6 +16,8 @@ from review_engine.sqlite_work_bound_claim_coverage import SQLiteWorkOrderBoundC
 
 
 ARTIFACT = "A logically entails B."
+PROVIDER_SPEC = {"adapter": "openai_compatible", "base_url": "https://fake.example/v1"}
+PROVIDER_BINDING = provider_binding_fingerprint(PROVIDER_SPEC)
 
 
 def reviewer() -> ReviewerConfig:
@@ -28,13 +30,14 @@ def reviewer() -> ReviewerConfig:
         api_key_env="R1_KEY",
         foundation_lineage="reviewer-lineage",
         qualification_ref="r1-q1",
+        provider_binding_fingerprint=PROVIDER_BINDING,
     )
 
 
 def governed_configuration() -> ReviewEngineConfiguration:
     return ReviewEngineConfiguration(
         reviewers={"R1": reviewer()},
-        provider_specs={},
+        provider_specs={"fake": PROVIDER_SPEC},
         qualification_records=(
             QualificationRecord(
                 qualification_ref="r1-q1",
@@ -48,6 +51,7 @@ def governed_configuration() -> ReviewEngineConfiguration:
                 foundation_lineage="reviewer-lineage",
                 max_risk="HIGH",
                 task_types=("RESEARCH",),
+                provider_binding_fingerprint=PROVIDER_BINDING,
             ),
         ),
     )
