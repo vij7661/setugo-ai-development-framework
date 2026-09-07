@@ -1,10 +1,20 @@
 {
-  "enabled": true,
+  "enabled": false,
   "review_request_id": "REV-MVP-SLICE2-INTEGRATION-001",
   "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE2-INTEGRATION-001.json",
   "reviewed_candidate_commit": "eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
-  "transport": "AUTOMATIC_API"
+  "transport": "AUTOMATIC_API",
+  "status": "COMPLETED_PASS",
+  "workflow_run_id": 34165191377,
+  "successful_job_id": 101874913618,
+  "artifact_id": 10033932377,
+  "artifact_digest": "sha256:4ae83938c6353bb72ea2e1848539a0b4fff1ddb9b63998b7bfff26a3c8fb02a7",
+  "failed_attempts_preserved": [
+    {"job_id":101874736163,"result":"HTTP_503_UNAVAILABLE","artifact_id":10033912510},
+    {"job_id":101874817174,"result":"HTTP_503_UNAVAILABLE","artifact_id":10033919556}
+  ],
+  "evidence_path": "governance-runtime/review-evidence/REV-MVP-SLICE2-INTEGRATION-001-platform-review.json"
 }
