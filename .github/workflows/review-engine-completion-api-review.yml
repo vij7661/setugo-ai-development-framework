@@ -1,0 +1,120 @@
+name: Review Engine Completion API Review
+
+on:
+  push:
+    branches: [feature/review-engine-completion]
+    paths: [.github/review-engine-completion-review-trigger.json]
+
+permissions:
+  contents: read
+
+jobs:
+  completion-review:
+    name: Gemini authenticated completion review
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - name: Checkout trigger head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve governed review request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_ENV"
+          import json, re
+          from pathlib import Path
+          trigger=json.loads(Path('.github/review-engine-completion-review-trigger.json').read_text(encoding='utf-8'))
+          if trigger.get('enabled') is not True:
+              raise SystemExit('completion review trigger is not enabled')
+          if trigger.get('mode') != 'AUTO_MODE':
+              raise SystemExit('completion review must use AUTO_MODE')
+          if trigger.get('review_class') != 'PLATFORM_AUTO_API_REVIEW':
+              raise SystemExit('completion review class mismatch')
+          if trigger.get('transport') != 'AUTOMATIC_API':
+              raise SystemExit('completion review transport mismatch')
+          if trigger.get('provider') != 'gemini':
+              raise SystemExit('completion review provider mismatch')
+          for field in ('base_sha','candidate_sha'):
+              value=trigger.get(field)
+              if not isinstance(value,str) or not re.fullmatch(r'[0-9a-f]{40}', value):
+                  raise SystemExit(f'{field} must be exact lowercase commit SHA')
+          request_id=trigger.get('review_request_id')
+          model=trigger.get('model')
+          if not isinstance(request_id,str) or not request_id.strip():
+              raise SystemExit('review_request_id required')
+          if not isinstance(model,str) or not model.strip():
+              raise SystemExit('model required')
+          print('REVIEW_REQUEST_ID='+request_id)
+          print('BASE_SHA='+trigger['base_sha'])
+          print('CANDIDATE_SHA='+trigger['candidate_sha'])
+          print('GEMINI_REVIEW_MODEL='+model)
+          PY
+
+      - name: Require Gemini repository secret
+        shell: bash
+        run: |
+          test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY repository secret is required'; exit 2; }
+
+      - name: Validate candidate objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASE_SHA}^{commit}"
+          git cat-file -e "${CANDIDATE_SHA}^{commit}"
+          git merge-base --is-ancestor "$BASE_SHA" "$CANDIDATE_SHA"
+
+      - name: Execute authenticated Gemini review
+        id: review
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p completion-review-evidence
+          python -m review_engine.completion_api_review \
+            --repo-root . \
+            --output-dir completion-review-evidence \
+            --review-request-id "$REVIEW_REQUEST_ID" \
+            --base-sha "$BASE_SHA" \
+            --candidate-sha "$CANDIDATE_SHA" \
+            --model "$GEMINI_REVIEW_MODEL" \
+            2> >(tee completion-review-evidence/provider-error.log >&2)
+
+      - name: Record fail-closed workflow status
+        if: always()
+        shell: bash
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p completion-review-evidence
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          error=Path('completion-review-evidence/provider-error.log')
+          status={
+            'schema_version':1,
+            'review_request_id':os.environ.get('REVIEW_REQUEST_ID'),
+            'candidate_sha':os.environ.get('CANDIDATE_SHA'),
+            'trigger_sha':os.environ.get('GITHUB_SHA'),
+            'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
+            'review_class':'PLATFORM_AUTO_API_REVIEW',
+            'transport':'AUTOMATIC_API',
+            'provider':'gemini',
+            'model':os.environ.get('GEMINI_REVIEW_MODEL'),
+            'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
+            'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
+            'failure_detail':error.read_text(encoding='utf-8',errors='replace')[-2000:] if error.exists() else None,
+          }
+          Path('completion-review-evidence/workflow-status.json').write_text(json.dumps(status,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          PY
+
+      - name: Upload completion review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-engine-completion-api-review
+          path: completion-review-evidence/
+          if-no-files-found: error
