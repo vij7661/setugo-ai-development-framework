@@ -23,6 +23,7 @@ REVIEW_ARTIFACT_PATHS = [
     "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
     "governance-runtime/review_protocol.py",
     "governance-runtime/test_review_protocol.py",
+    "governance-runtime/test_reviewer_selection.py",
     "governance-runtime/validate_runtime.py",
     "governance-runtime/session-state.json",
     "governance-runtime/shared-memory.json",
@@ -136,6 +137,9 @@ def main() -> int:
     if not bundle_ok:
         raise SystemExit(f"INVALID_PORTABLE_BUNDLE:{bundle_reason}")
 
+    required_reviewer = request.get("required_reviewer", {})
+    requested_provider = str(required_reviewer.get("provider", "unspecified"))
+    requested_model = str(required_reviewer.get("model") or required_reviewer.get("model_class") or "unspecified")
     output_contract = {
         "review_request_id": review_id,
         "reviewed_artifact_commit": reviewed_commit,
@@ -151,6 +155,8 @@ def main() -> int:
         "",
         "## Reviewer instructions",
         "",
+        f"- Requested reviewer provider: `{requested_provider}`.",
+        f"- Requested reviewer model/model-class: `{requested_model}`.",
         "- Repository/browser access required: **NO**.",
         "- Review only this export and its raw-artifacts/ directory.",
         "- Do not assume the proposer conclusion.",
@@ -185,7 +191,6 @@ def main() -> int:
         f"Logical portable-bundle SHA-256: `{portable_bundle['bundle_hash']}`",
     ]
 
-    # Markdown copies are for reviewer convenience; hashes refer to raw exports above.
     for item in embedded:
         path, content = item["path"], item["content"]
         language = "python" if path.endswith(".py") else "json" if path.endswith((".json", ".jsonl")) else "yaml" if path.endswith((".yml", ".yaml")) else "markdown"
@@ -213,6 +218,7 @@ def main() -> int:
         "schema_version": 3,
         "review_request_id": review_id,
         "reviewed_candidate_commit": reviewed_commit,
+        "requested_reviewer": deepcopy(dict(required_reviewer)) if False else dict(required_reviewer),
         "repository_access_required": False,
         "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
         "bundle_filename": packet_name,
@@ -228,7 +234,6 @@ def main() -> int:
     }
     (output_dir / manifest_name).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
-    # Independent local reproducibility check over exported raw bytes.
     for item in manifest_entries:
         raw = (output_dir / item["raw_export_path"]).read_bytes()
         if sha256_bytes(raw) != item["content_sha256"] or len(raw) != item["bytes_utf8"]:
@@ -236,8 +241,8 @@ def main() -> int:
 
     print(
         "PORTABLE_REVIEW_EXPORT_BUILT "
-        f"request={review_id} candidate={reviewed_commit} file_sha256={packet_file_sha256} "
-        f"logical_bundle_sha256={portable_bundle['bundle_hash']} raw_artifacts={len(manifest_entries)}"
+        f"request={review_id} candidate={reviewed_commit} requested_provider={requested_provider} "
+        f"file_sha256={packet_file_sha256} logical_bundle_sha256={portable_bundle['bundle_hash']} raw_artifacts={len(manifest_entries)}"
     )
     return 0
 
