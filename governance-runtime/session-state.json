@@ -34,7 +34,7 @@
     "independent_authority": false,
     "bootstrap_order": "READ_THEN_VERIFY_AGAINST_GIT",
     "on_conflict": "AUTHORITATIVE_STATE_WINS_AND_MEMORY_REASSESSMENT_REQUIRED",
-    "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
+    "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
     "last_observed_conflict": "Review-shaped pasted content had been modeled as MANUAL_RELAY review execution. GOV-REVIEW-CLASS-001 now separates platform API review execution from external evidence ingestion; REV-GOV-PR5-011 is superseded and preserved."
@@ -46,7 +46,7 @@
     "state": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
     "preregistration_commit": "47d3de5578dd65780f66fed1baedb9f0932b7670",
     "frozen_acceptance_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
-    "first_mechanism_commit": "ce6b88dc166c72d8f8f8ca9cdfc2a2bd8b53cb5e",
+    "first_mechanism_commit": "ce6b88dc166c72d8f8fca9cdfc2a2bd8b53cb5e",
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
     "latest_result": {
