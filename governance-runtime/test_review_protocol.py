@@ -25,6 +25,18 @@ from review_protocol import (
 
 class ReviewProtocolTests(unittest.TestCase):
     def setUp(self) -> None:
+        self.dimensions = [
+            {
+                "id": "authority_path",
+                "mandatory": True,
+                "description": "Review authority and promotion bypass resistance.",
+            },
+            {
+                "id": "evidence_integrity",
+                "mandatory": True,
+                "description": "Review evidence and packet integrity enforcement.",
+            },
+        ]
         self.request = build_review_request(
             review_request_id="REV-TEST-001",
             trigger="MATERIAL_GOVERNANCE_CHANGE",
@@ -40,6 +52,7 @@ class ReviewProtocolTests(unittest.TestCase):
                 {"type": "ci_run", "ref": "12345"},
             ],
             changed_paths=["governance-runtime/review_protocol.py"],
+            required_review_dimensions=self.dimensions,
         )
         self.bundle = build_portable_review_bundle(
             request=self.request,
@@ -80,9 +93,23 @@ class ReviewProtocolTests(unittest.TestCase):
             "review_request_id": "REV-TEST-001",
             "reviewed_artifact_commit": "1" * 40,
             "reviewer": {"provider": provider, "model": model},
-            "disposition": "CHANGES_REQUIRED",
-            "findings": [{"id": "F1", "severity": "medium"}],
-            "evidence_assessment": "Deterministic gates remain necessary.",
+            "disposition": "PASS",
+            "findings": [],
+            "evidence_assessment": "All mandatory review dimensions were directly tested and supported.",
+            "review_coverage": [
+                {
+                    "dimension_id": "authority_path",
+                    "status": "TESTED_SUPPORTED",
+                    "evidence": ["evidence:authority_path"],
+                    "assessment": "Authority path tested and supported.",
+                },
+                {
+                    "dimension_id": "evidence_integrity",
+                    "status": "TESTED_SUPPORTED",
+                    "evidence": ["evidence:evidence_integrity"],
+                    "assessment": "Evidence integrity tested and supported.",
+                },
+            ],
             "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
         }
 
@@ -154,7 +181,7 @@ class ReviewProtocolTests(unittest.TestCase):
             )
         )
 
-    def test_trusted_api_review_can_satisfy_material_promotion(self) -> None:
+    def test_trusted_api_positive_review_can_satisfy_material_promotion(self) -> None:
         evidence = self._valid_evidence()
         execution = self._trusted_execution(evidence)
         self.assertTrue(
@@ -351,8 +378,13 @@ class ReviewProtocolTests(unittest.TestCase):
 
     def test_portable_bundle_missing_referenced_file_is_rejected(self) -> None:
         bundle = deepcopy(self.bundle)
-        bundle["artifacts"] = [item for item in bundle["artifacts"] if item["path"] != "governance-runtime/review_protocol.py"]
-        material = deepcopy(bundle); material.pop("bundle_hash"); bundle["bundle_hash"] = canonical_hash(material)
+        bundle["artifacts"] = [
+            item for item in bundle["artifacts"]
+            if item["path"] != "governance-runtime/review_protocol.py"
+        ]
+        material = deepcopy(bundle)
+        material.pop("bundle_hash")
+        bundle["bundle_hash"] = canonical_hash(material)
         ok, reason = verify_portable_review_bundle(request=self.request, bundle=bundle)
         self.assertFalse(ok)
         self.assertIn("missing referenced artifact", reason)
@@ -360,7 +392,9 @@ class ReviewProtocolTests(unittest.TestCase):
     def test_portable_bundle_missing_reference_summary_is_rejected(self) -> None:
         bundle = deepcopy(self.bundle)
         bundle["evidence_summary"]["reference_summaries"] = {}
-        material = deepcopy(bundle); material.pop("bundle_hash"); bundle["bundle_hash"] = canonical_hash(material)
+        material = deepcopy(bundle)
+        material.pop("bundle_hash")
+        bundle["bundle_hash"] = canonical_hash(material)
         ok, reason = verify_portable_review_bundle(request=self.request, bundle=bundle)
         self.assertFalse(ok)
         self.assertIn("missing evidence summary", reason)
