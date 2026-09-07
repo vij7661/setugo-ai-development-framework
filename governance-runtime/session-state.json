@@ -119,5 +119,9 @@
     "on_git_unavailable": "GROUNDING_REQUIRED",
     "user_repetition_required_when_governed_state_exists": false,
     "generic_continue_semantics": "EXECUTE_VERIFIED_HANDOFF_NEXT_REQUIRED_ACTION"
-  }
+  },
+  "applicable_standards": [
+    {"path":"standards/conversational-drift-contamination-control.md","branch":"main","blob_sha":"0908d676e172c89987305ca9f52078723ea1b6fe"},
+    {"path":"standards/external-evidence-semantic-validation.md","branch":"main","blob_sha":"b13287ecd12e5c76a83202ad2bf76a37cbd19270"}
+  ]
 }
