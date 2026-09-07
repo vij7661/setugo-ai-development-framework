@@ -5,8 +5,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from review_engine.review_execution_classification import (
+    EXTERNAL_EVIDENCE_RELAY,
+    USER_PROVIDED_EXTERNAL_CONTENT,
+)
 from review_engine.review_export import (
-    MANUAL_RELAY_IDENTITY_ASSURANCE,
+    EXTERNAL_CONTENT_IDENTITY_ASSURANCE,
     ReviewExportSpec,
     build_review_export,
 )
@@ -43,7 +47,12 @@ class ReviewExportTests(unittest.TestCase):
             )
             request = json.loads((out / "REVIEW_REQUEST.json").read_text(encoding="utf-8"))
             self.assertEqual(request["candidate_sha"], self.CANDIDATE)
-            self.assertEqual(request["reviewer_identity_assurance"], MANUAL_RELAY_IDENTITY_ASSURANCE)
+            self.assertEqual(request["content_classification"], USER_PROVIDED_EXTERNAL_CONTENT)
+            self.assertEqual(request["delivery_channel"], EXTERNAL_EVIDENCE_RELAY)
+            self.assertIsNone(request["platform_review_transport"])
+            self.assertFalse(request["provider_api_authenticated"])
+            self.assertFalse(request["can_satisfy_platform_review"])
+            self.assertEqual(request["reviewer_identity_assurance"], EXTERNAL_CONTENT_IDENTITY_ASSURANCE)
             self.assertEqual([entry["path"] for entry in request["raw_artifacts"]], [
                 "review_engine/a.py",
                 "review_engine/b.md",
@@ -67,8 +76,9 @@ class ReviewExportTests(unittest.TestCase):
                 result = build_review_export(root, out, self._spec(target))
                 raw_hash_sets.append(tuple((entry["path"], entry["sha256"]) for entry in result["raw_artifacts"]))
                 request = json.loads((out / "REVIEW_REQUEST.json").read_text(encoding="utf-8"))
-                self.assertEqual(request["intended_reviewer"], target)
-                self.assertEqual(request["transport"], "MANUAL_RELAY")
+                self.assertEqual(request["intended_external_reviewer"], target)
+                self.assertEqual(request["content_classification"], USER_PROVIDED_EXTERNAL_CONTENT)
+                self.assertEqual(request["delivery_channel"], EXTERNAL_EVIDENCE_RELAY)
                 transport = json.loads((out / "TARGET_TRANSPORT.json").read_text(encoding="utf-8"))
                 self.assertEqual(transport["intended_reviewer"], target)
                 self.assertEqual(transport["authority"], "CONVENIENCE_ONLY_NOT_REVIEW_EVIDENCE")
@@ -78,14 +88,16 @@ class ReviewExportTests(unittest.TestCase):
             self.assertEqual(raw_hash_sets[0], raw_hash_sets[1])
             self.assertEqual(raw_hash_sets[1], raw_hash_sets[2])
 
-    def test_packet_explicitly_rejects_self_attested_identity(self):
+    def test_packet_explicitly_rejects_self_attested_identity_and_review_authority(self):
         with tempfile.TemporaryDirectory() as td:
             root = self._repo(td)
             out = Path(td) / "out"
             build_review_export(root, out, self._spec("deepseek"))
             packet = (out / "REVIEW_PACKET.md").read_text(encoding="utf-8")
-            self.assertIn("Do not infer reviewer/provider/model identity from self-declared output metadata", packet)
-            self.assertIn(MANUAL_RELAY_IDENTITY_ASSURANCE, packet)
+            self.assertIn("self-declared reviewer/provider/model fields do not classify or authenticate it", packet)
+            self.assertIn(EXTERNAL_CONTENT_IDENTITY_ASSURANCE, packet)
+            self.assertIn("USER_PROVIDED_EXTERNAL_CONTENT", packet)
+            self.assertIn("Can satisfy platform API-review authority: `false`", packet)
             self.assertIn("TARGET_TRANSPORT.json", packet)
 
     def test_path_traversal_is_rejected(self):
