@@ -7,12 +7,12 @@ A public, reusable framework for disciplined software discovery, architecture, i
 - `prompt-framework/` — Setugo AI Development Prompt Framework v1.6 in public/shareable form.
 - `skills/failure-triage/` — native failure-triage skill source from the Claude experiment.
 - `claude-code/` — native Claude Code safeguards and configuration examples.
-- `standards/` — executable-governance-oriented standards, including external evidence semantic validation.
-- `experiments/governed-platform/` — falsification designs for the governed AI-development platform, including EXP-J semantic evidence gating.
+- `standards/` — executable-governance-oriented standards, including external evidence semantic validation and conversational-drift/contamination control.
+- `experiments/governed-platform/` — falsification designs for the governed AI-development platform, including EXP-J semantic evidence gating and EXP-K conversational drift/evidence contamination.
 
 ## Core idea
 
-Do not treat the current implementation, current test, current fixture, current documentation, external claim, or Judge verdict as automatically correct. Establish the intended contract first, then judge each artifact against that contract and require the evidence needed for promotion.
+Do not treat the current implementation, current test, current fixture, current documentation, external claim, conversational repetition, model consensus, or Judge verdict as automatically correct. Establish the intended contract first, then judge each artifact against that contract and require the evidence needed for promotion.
 
 The broader operating model is:
 
@@ -29,6 +29,8 @@ Start with the prompt framework. Individual prompts may reference Core Standards
 The Claude artifacts are included as native files rather than converted PDFs so developers can inspect, adapt, and use them directly. They are intended as examples of turning reasoning rules into executable safeguards, not as universal drop-in policy for every repository.
 
 For external research/evidence, lexical similarity is discovery evidence only. Before a material external finding is promoted, verify the actual domain, intended users, inputs, outputs, workflow/capabilities, claimed overlap, and authoritative support. A researcher or Judge verdict cannot substitute for missing mandatory evidence.
+
+For long-running or multi-agent work, conversation is not an authoritative database. Material claims should carry durable provenance and status, and downstream contexts should be reconstructed from governed state: verified claims, accepted decisions, unresolved hypotheses, retractions, and requirements. Repetition or model consensus does not upgrade evidentiary status. When a parent claim is retracted, dependent claims, decisions, and requirements must be traced and reassessed rather than silently preserved or rewritten.
 
 ## Relationship to Setugo
 
