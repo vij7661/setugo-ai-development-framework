@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-035",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-036",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -23,8 +23,8 @@
       "reviewed_candidate_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
       "candidate_ci_run": 34164220980,
       "candidate_ci_conclusion": "success",
-      "actions_artifact_id": null,
-      "actions_artifact_digest": null,
+      "actions_artifact_id": 10033683051,
+      "actions_artifact_digest": "sha256:f44aa5b873c7f39b8ba4a3bb6a4ae9e93bb70fdb3cdd3284178e922ab53eb1bc",
       "portable_bundle_sha256": null,
       "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"]
     }
@@ -39,22 +39,22 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "Slice 3 is closed as BOUNDED_PASS. PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 was frozen on review-candidate/live-conversation-governance-pr5-013 after live-governance CI run 34164220980 succeeded. ReviewRequest REV-GOV-PR5-013 is now active and exact-candidate bound."
+    "last_observed_conflict": "PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 received platform-authenticated Gemini review REV-GOV-PR5-013 via AUTOMATIC_API. Workflow 34164436416 succeeded; deterministic validation is valid, disposition PASS, 12/12 mandatory dimensions TESTED_SUPPORTED, findings 0."
   },
   "execution_handoff": {
-    "sequence": 35,
+    "sequence": 36,
     "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "phase": "BOUNDED_PASS",
-    "last_completed_action": "Closed Slice 3 as BOUNDED_PASS after exact-candidate platform-authenticated Gemini review. Then added the PR #5 platform-review runner/workflow, validated the live-conversation-governance candidate at commit 2ae09783c0c36d5b8cc66146c3445e131fd99971 with CI run 34164220980 SUCCESS, froze that exact commit on review-candidate/live-conversation-governance-pr5-013, and created schema-4 ReviewRequest REV-GOV-PR5-013 bound to that candidate.",
-    "next_required_action": "Execute the platform-authenticated AUTOMATIC_API review for REV-GOV-PR5-013 against exact frozen candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971, preserve provider/API failures fail-closed, deterministically validate the returned semantic coverage and exact candidate binding, then adjudicate PR #5 without rewriting superseded review history.",
+    "last_completed_action": "Completed platform-authenticated independent review REV-GOV-PR5-013 for exact PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971. Candidate CI run 34164220980 was SUCCESS. Gemini API review workflow 34164436416 was SUCCESS with provider_api_authenticated=true, exact request/candidate binding, PASS, zero findings, 12/12 mandatory dimensions TESTED_SUPPORTED, and deterministic validation valid. Evidence and adjudication were persisted and the trigger was deactivated.",
+    "next_required_action": "Run final closure-head validation for PR #5, update the stale PR #5 description with the exact candidate/review/closure evidence while preserving superseded history, then promote/merge only if the closure head is green and no governance rule or repository condition blocks the transition.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "manual_deliverable": "No manual input required while the authenticated PR #5 platform review can be dispatched automatically.",
-    "handoff_reason": "PR #5 material governance promotion is blocked on an exact-candidate provider-API-authenticated independent review.",
-    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider HTTP 503 attempt, malformed/corrected pasted reviews, and PR #5 superseded review requests REV-GOV-PR5-001..012 remain preserved and non-rewritten.",
-    "resume_rule": "On any new chat or generic CONTINUE request, verify this exact handoff and active ReviewRequest from Git before acting. Continue REV-GOV-PR5-013 platform review; do not return to stale Slice 3 correction, EXP-I/EXP-K, or infer a frontier from repository HEAD alone."
+    "manual_deliverable": "No manual input required unless GitHub merge permissions, repository policy, or a new failing closure check blocks promotion.",
+    "handoff_reason": "The required exact-candidate independent review is now valid and positive; only closure bookkeeping/validation remains before PR #5 promotion.",
+    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider HTTP 503 attempt, malformed/corrected pasted reviews, PR #5 superseded requests REV-GOV-PR5-001..012, and provisional candidate 012 remain preserved without rewriting.",
+    "resume_rule": "On generic CONTINUE, verify current PR #5 review evidence and closure-head CI, then complete PR #5 closure/promotion if permitted. Do not re-run superseded reviews or revert to stale workstreams."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
@@ -67,8 +67,8 @@
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
     "latest_result": {"passed": 16, "total": 16, "failures": []},
-    "next_action": "Complete authenticated ReviewRequest REV-GOV-PR5-013 for frozen PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 before any PR #5 promotion.",
-    "forbidden_shortcut": "Do not grant PR #5 promotion from CI, old pasted reviews, or Slice 3 PASS; only the current exact-candidate platform review may satisfy the required review boundary."
+    "next_action": "Final closure validation and promotion of live-conversation-governance PR #5 after authenticated REV-GOV-PR5-013 PASS.",
+    "forbidden_shortcut": "Do not merge on CI or pasted-review confidence alone; require exact candidate review evidence plus green closure head. Do not rewrite earlier failure/review history."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 3",
@@ -94,8 +94,8 @@
     "user_attestation_is_provider_authentication": false,
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
-    "current_required_transition": "Platform-authenticated independent review of live-conversation-governance PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971",
-    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_required_transition": "Final closure and promotion of live-conversation-governance PR #5 after valid REV-GOV-PR5-013",
+    "current_review_status": "VALID_INDEPENDENT_REVIEW_PRESENT",
     "current_review_request_id": "REV-GOV-PR5-013",
     "current_review_transport": "AUTOMATIC_API",
     "current_requested_reviewer": {"provider":"gemini","model_class":"gemini"},
