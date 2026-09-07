@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-036",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-037",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -13,20 +13,20 @@
     "handoff_contract_path": "governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md",
     "handoff_contract_commit": "2898d69688a9f14a541ebc7a2990a0a81c0d5591",
     "promotion": {
-      "pull_request": 5,
-      "state": "PENDING_EXTERNAL_REVIEW",
+      "pull_request": null,
+      "state": "PENDING_CANDIDATE_FREEZE",
       "next_review_request_id": null,
       "next_review_reviewer": null,
-      "review_request_id": "REV-GOV-PR5-013",
-      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-013.json",
+      "review_request_id": null,
+      "review_request_path": null,
       "portable_bundle_manifest_path": null,
-      "reviewed_candidate_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
-      "candidate_ci_run": 34164220980,
-      "candidate_ci_conclusion": "success",
-      "actions_artifact_id": 10033683051,
-      "actions_artifact_digest": "sha256:f44aa5b873c7f39b8ba4a3bb6a4ae9e93bb70fdb3cdd3284178e922ab53eb1bc",
+      "reviewed_candidate_commit": null,
+      "candidate_ci_run": null,
+      "candidate_ci_conclusion": null,
+      "actions_artifact_id": null,
+      "actions_artifact_digest": null,
       "portable_bundle_sha256": null,
-      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"]
+      "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013"]
     }
   },
   "shared_memory": {
@@ -39,22 +39,22 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 received platform-authenticated Gemini review REV-GOV-PR5-013 via AUTOMATIC_API. Workflow 34164436416 succeeded; deterministic validation is valid, disposition PASS, 12/12 mandatory dimensions TESTED_SUPPORTED, findings 0."
+    "last_observed_conflict": "PR #5 was successfully merged after exact-candidate CI, authenticated REV-GOV-PR5-013 PASS, deterministic semantic validation, and green closure-head validation. The stale pre-merge handoff is superseded by this post-merge checkpoint."
   },
   "execution_handoff": {
-    "sequence": 36,
+    "sequence": 37,
     "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "phase": "BOUNDED_PASS",
-    "last_completed_action": "Completed platform-authenticated independent review REV-GOV-PR5-013 for exact PR #5 candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971. Candidate CI run 34164220980 was SUCCESS. Gemini API review workflow 34164436416 was SUCCESS with provider_api_authenticated=true, exact request/candidate binding, PASS, zero findings, 12/12 mandatory dimensions TESTED_SUPPORTED, and deterministic validation valid. Evidence and adjudication were persisted and the trigger was deactivated.",
-    "next_required_action": "Run final closure-head validation for PR #5, update the stale PR #5 description with the exact candidate/review/closure evidence while preserving superseded history, then promote/merge only if the closure head is green and no governance rule or repository condition blocks the transition.",
+    "last_completed_action": "Merged live-conversation-governance PR #5 after candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971 passed CI run 34164220980, platform-authenticated ReviewRequest REV-GOV-PR5-013 passed workflow 34164436416 with 12/12 mandatory dimensions TESTED_SUPPORTED and zero findings, and closure head 98c156a724356cdd354e74b7960c43fd0ced01f4 passed run 34164599205. PR #5 merged successfully as f0bb95a5b4902b76efceca2f36e27d3512e0bbc7.",
+    "next_required_action": "Integrate the scientifically accepted Integrated Governed MVP stack in lineage order. Git proves Slice 2 head eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b is exactly 8 commits ahead of feature/integrated-governed-mvp, and Slice 3 head 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 is exactly 7 commits ahead of Slice 2 with no behind commits. Create and govern the Slice 2 integration transition first; after it is accepted, advance Slice 3 without skipping its parent lineage.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "manual_deliverable": "No manual input required unless GitHub merge permissions, repository policy, or a new failing closure check blocks promotion.",
-    "handoff_reason": "The required exact-candidate independent review is now valid and positive; only closure bookkeeping/validation remains before PR #5 promotion.",
-    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider HTTP 503 attempt, malformed/corrected pasted reviews, PR #5 superseded requests REV-GOV-PR5-001..012, and provisional candidate 012 remain preserved without rewriting.",
-    "resume_rule": "On generic CONTINUE, verify current PR #5 review evidence and closure-head CI, then complete PR #5 closure/promotion if permitted. Do not re-run superseded reviews or revert to stale workstreams."
+    "manual_deliverable": "No manual input required while exact branch lineage and platform-authenticated review are available.",
+    "handoff_reason": "Live conversation governance promotion is complete. The next unfinished authoritative frontier is integration of the already adjudicated stacked MVP slices in their proven Git ancestry order.",
+    "historical_failure_preserved": "Slice 3 parent 14/16 failure, Slice 3 provider HTTP 503 attempt, malformed/corrected pasted reviews, PR #5 superseded requests REV-GOV-PR5-001..012, provisional candidate 012, and REV-GOV-PR5-013 review/merge evidence remain preserved without rewriting.",
+    "resume_rule": "On generic CONTINUE, verify this post-merge handoff and branch ancestry from Git, then continue the Slice 2 -> integrated MVP transition before Slice 3. Never attempt PR #5 merge again and never infer a different frontier from repository HEAD/model memory."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
@@ -67,8 +67,8 @@
     "preserved_failure_record_commit": "325610d807eb88595231ec05af33e93f340ecb49",
     "frozen_cases": "S3-01..S3-16",
     "latest_result": {"passed": 16, "total": 16, "failures": []},
-    "next_action": "Final closure validation and promotion of live-conversation-governance PR #5 after authenticated REV-GOV-PR5-013 PASS.",
-    "forbidden_shortcut": "Do not merge on CI or pasted-review confidence alone; require exact candidate review evidence plus green closure head. Do not rewrite earlier failure/review history."
+    "next_action": "Integrate Slice 2 into feature/integrated-governed-mvp under the governed material-authority-transition path, then integrate Slice 3 on top of that accepted parent lineage.",
+    "forbidden_shortcut": "Do not merge Slice 3 ahead of its Slice 2 parent integration; do not target main merely because PR #5 merged; do not bypass material-transition review; do not rewrite earlier failure/review history."
   },
   "accepted_prior_boundary": {
     "name": "Integrated Governed MVP Slice 3",
@@ -94,13 +94,13 @@
     "user_attestation_is_provider_authentication": false,
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
-    "current_required_transition": "Final closure and promotion of live-conversation-governance PR #5 after valid REV-GOV-PR5-013",
-    "current_review_status": "VALID_INDEPENDENT_REVIEW_PRESENT",
-    "current_review_request_id": "REV-GOV-PR5-013",
-    "current_review_transport": "AUTOMATIC_API",
-    "current_requested_reviewer": {"provider":"gemini","model_class":"gemini"},
-    "current_reviewed_artifact_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
-    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012"],
+    "current_required_transition": "Governed integration of Slice 2 into feature/integrated-governed-mvp before Slice 3 integration",
+    "current_review_status": "NOT_YET_PRESENT",
+    "current_review_request_id": null,
+    "current_review_transport": null,
+    "current_requested_reviewer": null,
+    "current_reviewed_artifact_commit": null,
+    "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011","REV-GOV-PR5-012","REV-GOV-PR5-013"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
