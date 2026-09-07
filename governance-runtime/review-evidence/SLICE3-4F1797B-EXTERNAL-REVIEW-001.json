@@ -1,0 +1,61 @@
+{
+  "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+  "reviewers": [
+    {
+      "provider": "independent-falsification-reviewer",
+      "model": "exact model if known",
+      "independent_of_proposer": true
+    }
+  ],
+  "disposition": "INSUFFICIENT_EVIDENCE",
+  "findings": [
+    {
+      "id": "S3-R-001",
+      "severity": "HIGH",
+      "title": "Candidate SHA does not match CI evidence commit",
+      "evidence": "The packet states CI run 34156635574 checked out commit 417197b8d6da23f3bba9f68cc98a625cc9618666, but the candidate under review is 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. These are different commits. The 16/16 passing tests cannot be attributed to the candidate without confirmation.",
+      "impact": "The frozen acceptance evidence may have been produced on a different commit, invalidating the evidence chain for the reviewed artifact. Regression preservation cannot be confirmed.",
+      "required_change": "Re-run the frozen harness on the exact candidate SHA 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 and provide matching CI evidence, or correct the packet's CI log if it was a transcription error."
+    },
+    {
+      "id": "S3-R-002",
+      "severity": "HIGH",
+      "title": "attempted_binding_hash may omit required manifest fields",
+      "evidence": "The packet defines attempted_binding_hash = hash(slice2_result_hash, effect_contract_hash, manifest_hash, base_sha, patch_digest). The manifest_exact_binding dimension requires binding of Execution ID, Slice 2 receipt, base SHA, patch digest, changed files, target paths, action class, and tool ID. Changed files, target paths, action class, and tool ID are not explicitly listed in the hash composition. Unless manifest_hash or slice2_result_hash provably encapsulates all of these, the binding is incomplete.",
+      "impact": "A request with different changed files or target paths but identical manifest_hash and patch_digest could potentially reuse the same idempotency key, enabling semantic rebinding and violating exact-manifest binding.",
+      "required_change": "Explicitly include changed files, target paths, action class, and tool ID in the attempted_binding_hash computation, or provide evidence that manifest_hash already includes these fields with sufficient granularity."
+    },
+    {
+      "id": "S3-R-003",
+      "severity": "MEDIUM",
+      "title": "Validation order safety cannot be independently verified",
+      "evidence": "The packet provides only an abridged description of the inserted logic. It states that effect-contract substitution is classified as DENIED_CONTRACT before generic manifest validation, and that idempotency rebind is detected before manifest/current-contract checks. However, the complete control flow and all conditional branches are not shown. Cannot verify that an early DENIED_* classification does not prevent a stronger safety check from running on a different code path.",
+      "impact": "A crafted request might trigger an early denial classification, masking a different authority violation that should have been caught by a later check, creating a false sense of security.",
+      "required_change": "Provide the full exact diff and a control-flow diagram demonstrating the complete validation ordering and all reachable branches."
+    },
+    {
+      "id": "S3-R-004",
+      "severity": "MEDIUM",
+      "title": "Concurrency and crash consistency mechanics not demonstrated",
+      "evidence": "The packet provides no details on locking primitives, database transaction isolation levels, or recovery sequencing. While tests S3-12, S3-13, and S3-14 pass, the actual implementation mechanics for exactly-once semantics under concurrent identical and conflicting requests are not specified or inspectable from the abridged diff.",
+      "impact": "Without visibility into the locking/database sequence, cannot confirm that concurrent identical requests converge to exactly one mutation or that pre/post-commit crash paths have exactly-once semantics under all interleavings.",
+      "required_change": "Provide the full code for the durable-state update sequence, including locking primitives, transaction boundaries, and recovery logic."
+    }
+  ],
+  "evidence_assessment": "The packet provides an abridged description of the repair logic, CI evidence for a potentially different commit SHA, and frozen test results. The 16/16 passing tests are supportive but insufficient for independent verification given the SHA mismatch and abridged code. The historical 14/16 failure at 325610d807eb88595231ec05af33e93f340ecb49 is correctly preserved. Mandatory dimensions related to manifest binding, validation ordering, concurrency, crash consistency, and remote authority cannot be independently assessed from the provided evidence. The packet itself acknowledges it provides 'abridged' code, which prevents full adversarial analysis.",
+  "independence_attestation": "I independently assessed the supplied candidate and did not assume the proposer conclusion. The prior 14/16 failure at 325610d807eb88595231ec05af33e93f340ecb49 is preserved as required. Green CI was not treated as sufficient evidence of correctness.",
+  "review_coverage": [
+    {"dimension_id":"contract_substitution_classification","status":"INSUFFICIENT","evidence":"Abridged code provided; cannot verify no fall-through to generic manifest path across all branches."},
+    {"dimension_id":"idempotency_rebind_resistance","status":"INSUFFICIENT","evidence":"Hash comparison logic described but full implementation not provided; cannot verify against stale/conflicting durable states."},
+    {"dimension_id":"validation_order_safety","status":"INSUFFICIENT","evidence":"Abridged ordering described; cannot verify no bypass of stronger safety checks."},
+    {"dimension_id":"durable_state_fail_closed","status":"INSUFFICIENT","evidence":"BLOCKED_AMBIGUOUS_DURABLE_STATE mentioned but code for detection and fail-closed behavior not provided."},
+    {"dimension_id":"manifest_exact_binding","status":"INSUFFICIENT","evidence":"attempted_binding_hash omits changed files, target paths, action class, and tool ID as explicitly listed in the mandatory dimension."},
+    {"dimension_id":"repository_confinement","status":"INSUFFICIENT","evidence":"Tests S3-07 and S3-08 pass, but no code for traversal/symlink/remote-control checks provided."},
+    {"dimension_id":"atomicity_and_crash_consistency","status":"INSUFFICIENT","evidence":"Tests S3-12 and S3-13 pass, but no code for transaction boundaries or recovery sequencing."},
+    {"dimension_id":"replay_and_concurrency","status":"INSUFFICIENT","evidence":"Tests S3-10 and S3-14 pass, but no locking/database sequence details provided."},
+    {"dimension_id":"evidence_lineage","status":"INSUFFICIENT","evidence":"Test S3-15 passes, but actual evidence binding mechanism not shown."},
+    {"dimension_id":"remote_authority_boundary","status":"INSUFFICIENT","evidence":"Test S3-16 passes, but no code inspection for remote push denial."},
+    {"dimension_id":"regression_preservation","status":"INSUFFICIENT","evidence":"16/16 frozen tests reported passing, but CI checked-out commit 417197b8d6da23f3bba9f68cc98a625cc9618666 does not match candidate SHA 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. Evidence may not apply to candidate."},
+    {"dimension_id":"remaining_false_green_search","status":"INSUFFICIENT","evidence":"No adversarial analysis provided beyond the frozen test suite. Cannot rule out test-shaped implementation or untested edge cases."}
+  ]
+}
