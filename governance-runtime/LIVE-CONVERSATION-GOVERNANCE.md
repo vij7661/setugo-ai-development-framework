@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Apply governed-platform rules to the human–LLM development conversation so chat-window changes, model confidence, shared-memory drift, reviewer substitution, reviewer self-identification, review-delivery mode, or packet representation cannot silently change authoritative project state.
+Apply governed-platform rules to the human–LLM development conversation so chat-window changes, model confidence, shared-memory drift, reviewer substitution, reviewer self-identification, review-delivery mode, packet representation, or reviewer-disposition overclaim cannot silently change authoritative project state.
 
 This is an operational control for our collaboration. It does not claim that the ChatGPT product itself enforces these rules internally.
 
@@ -52,7 +52,7 @@ R1 shows its answer first. When review is recommended/required, the UI shows con
 
 For `RECOMMENDED`, the user may skip review. For `REQUIRED`, the user may decline the call, but the protected authoritative transition remains pending/non-authoritative.
 
-Changing AUTO ↔ MANUAL changes initiation only, never evidence, identity, independence, or promotion rules.
+Changing AUTO ↔ MANUAL changes initiation only, never evidence, identity, independence, semantic review, or promotion rules.
 
 ## Material authority review floor
 
@@ -80,7 +80,48 @@ A mandatory review is represented by an integrity-bound `ReviewRequest` containi
 - evidence references;
 - material/standard/path classification context.
 
+For material promotion, the current runtime additionally requires a **semantic review contract** (ReviewRequest schema 4+) containing machine-readable `required_review_dimensions`. A legacy review request without this semantic contract may be preserved as historical review content but cannot authorize a material promotion.
+
 Promotion must bind review evidence to the **currently authoritative review request and current reviewed artifact**. A valid review for a superseded request or older revision cannot be replayed into a later candidate.
+
+## Semantic review coverage and disposition consistency
+
+A reviewer conclusion is not valid merely because its `disposition` token is syntactically allowed.
+
+Every schema-4 material ReviewRequest defines explicit review dimensions with:
+
+- stable dimension ID;
+- `mandatory` boolean;
+- description;
+- governed closed coverage-status vocabulary.
+
+ReviewEvidence must provide one `review_coverage` entry for **every** dimension, containing:
+
+- `dimension_id`;
+- status;
+- concrete evidence references/observations where the dimension was tested;
+- a non-empty assessment of what was actually examined.
+
+Allowed dimension statuses are:
+
+- `TESTED_SUPPORTED`
+- `TESTED_DEFECT_FOUND`
+- `CONTRADICTED`
+- `NOT_TESTED`
+- `UNAVAILABLE`
+- `INACCESSIBLE`
+- `INSUFFICIENT`
+
+Semantic disposition rules are deterministic:
+
+- `PASS` requires **every** listed review dimension to be `TESTED_SUPPORTED`, with non-empty evidence for each.
+- `BOUNDED_PASS` requires every `mandatory: true` dimension to be `TESTED_SUPPORTED`; only explicitly non-mandatory dimensions may remain bounded.
+- `NOT_TESTED` / `INSUFFICIENT_EVIDENCE` are the correct outcomes when one or more mandatory dimensions are unavailable, inaccessible, not tested, or insufficient.
+- `FAIL` / `CHANGES_REQUIRED` require at least one concrete finding and a contradicted, defective, or insufficient coverage state.
+- negative review outcomes can be valid review evidence but are **not promotable**.
+- only semantically valid `PASS` or `BOUNDED_PASS` may satisfy the review side of material promotion.
+
+Free-text `evidence_assessment` explains structured coverage but cannot substitute for it. If free text contradicts an asserted `PASS`—for example, saying raw files were “not directly accessible” while structured coverage claims full support—the review fails closed. `REV-GOV-PR5-008` is a permanent regression fixture for this failure family.
 
 ## Reviewer identity provenance
 
@@ -111,13 +152,13 @@ Material promotion consumes all of these directly:
 1. deterministic gate result;
 2. authoritative checkpoint;
 3. grounded shared memory;
-4. current ReviewRequest;
-5. ReviewEvidence;
-6. Review execution/provenance envelope.
+4. current schema-4 ReviewRequest with required dimensions;
+5. ReviewEvidence with complete semantic coverage;
+6. review execution/provenance envelope.
 
 No caller-provided boolean such as `valid_independent_review_present=True` can mint review validity.
 
-Review fails closed when execution is pending, errored, wrong request, wrong revision, unauthenticated for a provider-specific requirement, wrong provider/model, self-review, malformed, non-blind when blind review is required, or conflicts with its trusted identity envelope.
+Review fails closed when execution is pending, errored, wrong request, wrong revision, unauthenticated for a provider-specific requirement, wrong provider/model, self-review, malformed, non-blind when blind review is required, semantically inconsistent with its own coverage/evidence assessment, negative/non-promotable in disposition, or conflicts with its trusted identity envelope.
 
 Consensus is metadata, not evidence, and cannot bypass deterministic evidence gates.
 
@@ -144,6 +185,7 @@ The Actions export must contain:
 
 - exact ReviewRequest;
 - exact reviewed candidate identity;
+- explicit required review dimensions;
 - detached manifest;
 - human-readable Markdown packet;
 - **raw canonical repository artifacts under `raw-artifacts/`**;
@@ -155,7 +197,9 @@ The Actions export must contain:
 
 Raw files are byte-authoritative. Markdown fences are convenience only and are not the basis for independent byte-integrity verification. This avoids newline/fence reconstruction ambiguity.
 
-Incomplete artifact/evidence coverage, wrong revision, corrupted raw bytes, wrong request, or manifest mismatch fails closed.
+The packet must instruct reviewers that if a mandatory dimension such as raw-byte integrity cannot actually be inspected, they must mark that dimension inaccessible/not-tested/insufficient and must not return unqualified PASS.
+
+Incomplete artifact/evidence coverage, incomplete semantic dimension coverage, wrong revision, corrupted raw bytes, wrong request, or manifest mismatch fails closed.
 
 ## Frozen evidence and repair discipline
 
@@ -189,6 +233,11 @@ At minimum preserve/surface:
 - `API_FAILURE_TREATED_AS_APPROVAL`
 - `REVIEW_ID_SEMANTIC_REBIND`
 - `CONSENSUS_AS_EVIDENCE`
+- `REVIEW_DISPOSITION_EVIDENCE_CONTRADICTION`
+- `REVIEW_REQUIRED_DIMENSION_OMITTED`
+- `REVIEW_PASS_WITH_UNTESTED_MANDATORY_DIMENSION`
+- `NEGATIVE_REVIEW_TREATED_AS_PROMOTABLE`
+- `LEGACY_REVIEW_SCHEMA_PROMOTED`
 - `PORTABLE_REVIEW_BUNDLE_TAMPERED`
 - `PORTABLE_REVIEW_MANIFEST_MISMATCH`
 - `PORTABLE_REVIEW_RAW_HASH_UNREPRODUCIBLE`
@@ -207,11 +256,12 @@ At minimum preserve/surface:
 8. Apply platform review policy.
 9. Use AUTO or MANUAL initiation without changing authority semantics.
 10. Bind reviewer identity from trusted execution provenance where required.
-11. Validate ReviewRequest + ReviewEvidence + execution envelope.
-12. Apply deterministic governor/evidence gate.
-13. Persist authoritative checkpoint.
-14. Synchronize shared memory.
-15. New chat resumes from shared memory then verifies Git.
+11. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + execution envelope.
+12. Require a positive promotable disposition before review can satisfy material promotion.
+13. Apply deterministic governor/evidence gate.
+14. Persist authoritative checkpoint.
+15. Synchronize shared memory.
+16. New chat resumes from shared memory then verifies Git.
 
 ## Known limitation
 
