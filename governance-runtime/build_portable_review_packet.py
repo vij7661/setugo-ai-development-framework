@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Build self-contained governed manual-review exports.
+"""Build deterministic review-context and external-evidence exports.
 
-Internal CI export retains raw canonical files for provenance. In addition, a
-single ordinary UTF-8 text file embeds the exact ReviewRequest, instructions,
-evidence summaries, and every required artifact as JSON strings with raw Git
-blob byte lengths and SHA-256 digests. Re-encoding each embedded `content`
-string as UTF-8 reconstructs the byte-authoritative review artifact.
+Platform review authority comes only from AUTOMATIC_API or USER_INITIATED_API
+execution through a trusted provider adapter. This builder creates integrity-
+bound context artifacts that may accompany or archive a ReviewRequest and may
+also be used for external evidence gathering. Possession, inspection, or return
+of an export never authenticates reviewer/provider identity and never creates a
+platform review execution.
+
+The historical single-file container field names are retained for backward
+compatibility with the frozen GOV-PORTABLE-002 tests. Their semantics are now
+explicitly external-evidence/context transport, not review authority.
 """
 from __future__ import annotations
 
@@ -17,17 +22,15 @@ from pathlib import Path
 import subprocess
 from typing import Any, Mapping
 
-from review_protocol import build_portable_review_bundle, verify_portable_review_bundle, verify_review_request
+from review_protocol import (
+    build_portable_review_bundle,
+    verify_portable_review_bundle,
+    verify_review_request,
+)
 
-REVIEW_ARTIFACT_PATHS = [
+BASE_CONTEXT_PATHS = [
     "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
     "governance-runtime/review_protocol.py",
-    "governance-runtime/test_review_protocol.py",
-    "governance-runtime/test_reviewer_selection.py",
-    "governance-runtime/test_review_semantics.py",
-    "governance-runtime/test_single_file_review_container.py",
-    "governance-runtime/repair-preregistrations/GOV-SEM-001.md",
-    "governance-runtime/repair-preregistrations/GOV-PORTABLE-002.md",
     "governance-runtime/validate_runtime.py",
     "governance-runtime/session-state.json",
     "governance-runtime/shared-memory.json",
@@ -64,6 +67,29 @@ def git_show_bytes(commit: str, path: str) -> bytes:
     return proc.stdout
 
 
+def required_context_paths(request: Mapping[str, Any]) -> list[str]:
+    """Derive exact context coverage from the ReviewRequest plus stable runtime files."""
+    paths: list[str] = []
+    seen: set[str] = set()
+
+    def add(path: str) -> None:
+        if path and path not in seen:
+            seen.add(path)
+            paths.append(path)
+
+    for path in BASE_CONTEXT_PATHS:
+        add(path)
+    for ref in request.get("evidence_refs", []):
+        if not isinstance(ref, Mapping):
+            raise ValueError("review request evidence ref is malformed")
+        if ref.get("type") in {"file", "artifact"}:
+            value = ref.get("ref")
+            if not isinstance(value, str) or not value:
+                raise ValueError("file evidence ref requires non-empty path")
+            add(value)
+    return paths
+
+
 def build_single_file_container(
     *,
     request: Mapping[str, Any],
@@ -91,12 +117,15 @@ def build_single_file_container(
     payload: dict[str, Any] = {
         "schema_version": 1,
         "container_type": "SINGLE_FILE_MANUAL_REVIEW_EXPORT",
+        "authority_class": "EXTERNAL_EVIDENCE_CONTEXT_EXPORT",
         "review_request_id": request["review_request_id"],
         "reviewed_candidate_commit": request["artifact"]["commit"],
         "repository_access_required": False,
         "manual_relay_upload_files_required": 1,
         "all_required_artifacts_embedded": True,
         "byte_reconstruction_rule": "UTF8_ENCODE_EACH_ARTIFACT_CONTENT_EXACTLY",
+        "content_cannot_authenticate_reviewer_identity": True,
+        "cannot_satisfy_platform_review_gate_by_itself": True,
         "review_request": deepcopy(dict(request)),
         "required_output": deepcopy(dict(output_contract)),
         "evidence_summary": deepcopy(dict(evidence_summary)),
@@ -175,8 +204,7 @@ def main() -> int:
     parser.add_argument("--builder-head", required=False, default="unknown")
     args = parser.parse_args()
 
-    request_path = Path(args.request)
-    request = json.loads(request_path.read_text(encoding="utf-8"))
+    request = json.loads(Path(args.request).read_text(encoding="utf-8"))
     ok, reason = verify_review_request(request)
     if not ok:
         raise SystemExit(f"INVALID_REVIEW_REQUEST: {reason}")
@@ -185,6 +213,11 @@ def main() -> int:
     reviewed_commit = request["artifact"]["commit"]
     subprocess.run(["git", "cat-file", "-e", f"{reviewed_commit}^{{commit}}"], check=True)
 
+    try:
+        context_paths = required_context_paths(request)
+    except ValueError as exc:
+        raise SystemExit(f"INVALID_CONTEXT_PATHS:{exc}") from exc
+
     output_dir = Path(args.output_dir)
     raw_root = output_dir / "raw-artifacts"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -192,8 +225,11 @@ def main() -> int:
 
     embedded: list[dict[str, str]] = []
     manifest_entries: list[dict[str, Any]] = []
-    for path in REVIEW_ARTIFACT_PATHS:
-        raw = git_show_bytes(reviewed_commit, path)
+    for path in context_paths:
+        try:
+            raw = git_show_bytes(reviewed_commit, path)
+        except subprocess.CalledProcessError as exc:
+            raise SystemExit(f"MISSING_REVIEW_CONTEXT_ARTIFACT:{path}") from exc
         try:
             content = raw.decode("utf-8")
         except UnicodeDecodeError as exc:
@@ -217,7 +253,7 @@ def main() -> int:
 
     reference_summaries: dict[str, Any] = {}
     for ref in request.get("evidence_refs", []):
-        if not isinstance(ref, dict):
+        if not isinstance(ref, Mapping):
             raise SystemExit("INVALID_EVIDENCE_REF")
         ref_type, ref_value = ref.get("type"), ref.get("ref")
         key = f"{ref_type}:{ref_value}"
@@ -232,7 +268,10 @@ def main() -> int:
                 "source": "GITHUB_ACTIONS_BOUND_RUN",
             }
         else:
-            reference_summaries[key] = {"ref": ref_value, "source": "REVIEW_REQUEST_EMBEDDED_REFERENCE"}
+            reference_summaries[key] = {
+                "ref": ref_value,
+                "source": "REVIEW_REQUEST_EMBEDDED_REFERENCE",
+            }
 
     evidence_summary = {
         "review_request_id": review_id,
@@ -245,6 +284,8 @@ def main() -> int:
         "raw_artifacts_authoritative_for_byte_integrity": True,
         "single_file_container_reconstructs_raw_utf8_bytes": True,
         "markdown_is_convenience_representation": True,
+        "authority_class": "EXTERNAL_EVIDENCE_CONTEXT_EXPORT",
+        "provider_identity_authenticated_by_export": False,
     }
 
     portable_bundle = build_portable_review_bundle(
@@ -252,21 +293,28 @@ def main() -> int:
         artifacts=embedded,
         evidence_summary=evidence_summary,
     )
-    bundle_ok, bundle_reason = verify_portable_review_bundle(request=request, bundle=portable_bundle)
+    bundle_ok, bundle_reason = verify_portable_review_bundle(
+        request=request,
+        bundle=portable_bundle,
+    )
     if not bundle_ok:
         raise SystemExit(f"INVALID_PORTABLE_BUNDLE:{bundle_reason}")
 
     required_reviewer = request.get("required_reviewer", {})
     requested_provider = str(required_reviewer.get("provider", "unspecified"))
-    requested_model = str(required_reviewer.get("model") or required_reviewer.get("model_class") or "unspecified")
+    requested_model = str(
+        required_reviewer.get("model")
+        or required_reviewer.get("model_class")
+        or "unspecified"
+    )
     required_dimensions = request.get("required_review_dimensions", [])
 
     output_contract: dict[str, Any] = {
         "review_request_id": review_id,
         "reviewed_artifact_commit": reviewed_commit,
         "reviewer": {
-            "provider": "<reviewer self-claim; not authentication>",
-            "model": "<reviewer self-claim; not authentication>",
+            "provider": "<content claim only>",
+            "model": "<content claim only>",
         },
         "disposition": "PASS | BOUNDED_PASS | FAIL | NOT_TESTED | INSUFFICIENT_EVIDENCE | CHANGES_REQUIRED",
         "findings": [{
@@ -300,55 +348,52 @@ def main() -> int:
     single_ok, single_reason = verify_single_file_container(
         request=request,
         container=single_container,
-        expected_paths=REVIEW_ARTIFACT_PATHS,
+        expected_paths=context_paths,
     )
     if not single_ok:
         raise SystemExit(f"INVALID_SINGLE_FILE_CONTAINER:{single_reason}")
 
     single_name = f"{review_id}-single-file-review.txt"
-    single_text = json.dumps(single_container, indent=2, ensure_ascii=False) + "\n"
     single_path = output_dir / single_name
-    single_path.write_text(single_text, encoding="utf-8", newline="")
+    single_path.write_text(
+        json.dumps(single_container, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="",
+    )
     persisted_single = json.loads(single_path.read_text(encoding="utf-8"))
     persisted_ok, persisted_reason = verify_single_file_container(
         request=request,
         container=persisted_single,
-        expected_paths=REVIEW_ARTIFACT_PATHS,
+        expected_paths=context_paths,
     )
     if not persisted_ok:
         raise SystemExit(f"PERSISTED_SINGLE_FILE_INVALID:{persisted_reason}")
     single_file_sha256 = sha256_bytes(single_path.read_bytes())
 
     parts = [
-        f"# Independent Review Packet — {review_id}",
+        f"# Review Context Export — {review_id}",
         "",
-        "## Reviewer instructions",
+        "## Provenance and authority notice",
         "",
-        f"- Requested reviewer provider: `{requested_provider}`.",
+        "- This export does not authenticate reviewer identity and does not create a platform review execution.",
+        "- Platform review authority requires AUTOMATIC_API or USER_INITIATED_API through a trusted provider adapter.",
+        "- If this export is manually given to another LLM, the returned material is external evidence. It remains USER_PROVIDED_EXTERNAL_CONTENT until the user explicitly identifies its source; user attestation still is not provider API authentication.",
+        f"- Requested platform reviewer provider: `{requested_provider}`.",
         f"- Requested reviewer model/model-class: `{requested_model}`.",
-        "- Repository/browser access required: **NO**.",
-        "- Preferred manual-relay handoff is the single ordinary text container generated with this export.",
-        "- The single-file container embeds every byte-authoritative UTF-8 artifact plus hash and byte length; separate ZIP/raw uploads are not required.",
-        "- Do not assume the proposer conclusion.",
-        "- Do not mark PASS merely because CI is green.",
-        f"- Exact reviewed candidate commit: `{reviewed_commit}`.",
-        f"- Exact review request: `{review_id}`.",
-        "- IMPORTANT: reviewer/provider/model fields in your JSON are content claims only. Manual relay does not authenticate provider identity.",
-        "- For byte-integrity review, inspect the single-file container's `artifacts` records. Re-encoding each `content` string as UTF-8 must match its declared `bytes_utf8` and `content_sha256`.",
+        f"- Exact candidate: `{reviewed_commit}`.",
+        f"- Exact ReviewRequest: `{review_id}`.",
+        "- Repository/browser access required for this context export: **NO**.",
+        "- Do not assume CI success or proposer conclusion proves correctness.",
+        "- Re-encoding each artifact `content` string as UTF-8 must match its `bytes_utf8` and `content_sha256`.",
     ]
     if required_dimensions:
         parts.extend([
-            "- Complete `review_coverage` for every machine-readable review dimension in the ReviewRequest.",
-            "- `PASS` is allowed only when every listed review dimension is directly tested and `TESTED_SUPPORTED` with non-empty evidence.",
-            "- `BOUNDED_PASS` cannot hide a gap in any dimension marked `mandatory: true`.",
-            "- If a mandatory dimension cannot be accessed, inspected, or tested, mark it `INACCESSIBLE`, `UNAVAILABLE`, `NOT_TESTED`, or `INSUFFICIENT` and use `INSUFFICIENT_EVIDENCE`/`NOT_TESTED`, not PASS.",
-            "- Free-text explanation must agree with structured review coverage; contradiction fails closed.",
+            "- Complete `review_coverage` for every required dimension if producing advisory external review content.",
+            "- Do not claim PASS when any mandatory dimension is inaccessible, unavailable, untested, contradicted, or insufficient.",
         ])
     parts.extend([
         "",
-        "## Required output",
-        "",
-        "Return exactly one JSON object matching:",
+        "## Expected review-shaped output contract",
         "```json",
         json.dumps(output_contract, indent=2, ensure_ascii=False),
         "```",
@@ -357,16 +402,6 @@ def main() -> int:
         "```json",
         json.dumps(request, indent=2, sort_keys=True, ensure_ascii=False),
         "```",
-    ])
-    if required_dimensions:
-        parts.extend([
-            "",
-            "## Required review dimensions",
-            "```json",
-            json.dumps(required_dimensions, indent=2, ensure_ascii=False),
-            "```",
-        ])
-    parts.extend([
         "",
         "## Evidence coverage summary",
         "```json",
@@ -378,10 +413,10 @@ def main() -> int:
         json.dumps(manifest_entries, indent=2, ensure_ascii=False),
         "```",
         "",
-        f"Single-file review container: `{single_name}`",
+        f"Single-file context container: `{single_name}`",
         f"Single-file SHA-256: `{single_file_sha256}`",
         f"Single-file canonical payload SHA-256: `{single_container['container_payload_sha256']}`",
-        f"Logical portable-bundle SHA-256: `{portable_bundle['bundle_hash']}`",
+        f"Logical context-bundle SHA-256: `{portable_bundle['bundle_hash']}`",
     ])
 
     for item in embedded:
@@ -392,7 +427,13 @@ def main() -> int:
             else "yaml" if path.endswith((".yml", ".yaml"))
             else "markdown"
         )
-        parts.extend(["", f"## Convenience copy: `{path}`", f"```{language}", content.rstrip("\n"), "```"])
+        parts.extend([
+            "",
+            f"## Convenience copy: `{path}`",
+            f"```{language}",
+            content.rstrip("\n"),
+            "```",
+        ])
 
     packet_body = "\n".join(parts) + "\n"
     packet_body_sha256 = sha256_text(packet_body)
@@ -406,14 +447,19 @@ def main() -> int:
         f"- reviewed_candidate_commit: `{reviewed_commit}`\n"
         "- repository_access_required: `false`\n"
         "- raw_artifacts_are_byte_authoritative: `true`\n"
-        "- manual_relay_upload_files_required: `1`\n"
+        "- authority_class: `EXTERNAL_EVIDENCE_CONTEXT_EXPORT`\n"
+        "- provider_identity_authenticated_by_export: `false`\n"
+        "- manual_relay_upload_files_required: `1` (legacy compatibility field only)\n"
     )
     packet_file_sha256 = sha256_text(packet)
     packet_name = f"{review_id}-portable-review-packet.md"
     manifest_name = f"{review_id}.manifest.json"
     request_name = f"{review_id}.request.json"
     (output_dir / packet_name).write_text(packet, encoding="utf-8")
-    (output_dir / request_name).write_text(json.dumps(request, indent=2) + "\n", encoding="utf-8")
+    (output_dir / request_name).write_text(
+        json.dumps(request, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     manifest = {
         "schema_version": 4 if required_dimensions else 3,
@@ -422,6 +468,8 @@ def main() -> int:
         "requested_reviewer": dict(required_reviewer),
         "required_review_dimensions": required_dimensions,
         "repository_access_required": False,
+        "authority_class": "EXTERNAL_EVIDENCE_CONTEXT_EXPORT",
+        "provider_identity_authenticated_by_export": False,
         "bundle_storage": "GITHUB_ACTIONS_ARTIFACT_EXPORT",
         "bundle_filename": packet_name,
         "request_filename": request_name,
@@ -441,7 +489,10 @@ def main() -> int:
         "builder_execution_head": args.builder_head,
         "builder_ci_run_id": str(args.ci_run_id),
     }
-    (output_dir / manifest_name).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (output_dir / manifest_name).write_text(
+        json.dumps(manifest, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     for item in manifest_entries:
         raw = (output_dir / item["raw_export_path"]).read_bytes()
@@ -449,11 +500,13 @@ def main() -> int:
             raise SystemExit(f"RAW_REPRODUCIBILITY_CHECK_FAILED:{item['path']}")
 
     print(
-        "PORTABLE_REVIEW_EXPORT_BUILT "
+        "REVIEW_CONTEXT_EXPORT_BUILT "
         f"request={review_id} candidate={reviewed_commit} requested_provider={requested_provider} "
         f"semantic_dimensions={len(required_dimensions)} file_sha256={packet_file_sha256} "
-        f"single_file_sha256={single_file_sha256} single_file_payload_sha256={single_container['container_payload_sha256']} "
-        f"logical_bundle_sha256={portable_bundle['bundle_hash']} raw_artifacts={len(manifest_entries)} upload_files=1"
+        f"single_file_sha256={single_file_sha256} "
+        f"single_file_payload_sha256={single_container['container_payload_sha256']} "
+        f"logical_bundle_sha256={portable_bundle['bundle_hash']} "
+        f"raw_artifacts={len(manifest_entries)} authority_class=EXTERNAL_EVIDENCE_CONTEXT_EXPORT"
     )
     return 0
 
