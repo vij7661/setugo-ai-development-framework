@@ -1,0 +1,30 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_3",
+  "status": "CONSTRUCTION_FAILURE_PRESERVED",
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+  "frozen_harness_commit": "aa91eda070a5f85c98845fec75dd57024feaa405",
+  "governed_workflow_run_id": 34109676496,
+  "governed_job_id": 101702752920,
+  "observed_boundary": {
+    "json_validation": "PASS",
+    "python_compilation": "PASS",
+    "scorer_tests": "PASS",
+    "runner_tests": "PASS",
+    "protected_truth_tests": "PASS",
+    "observability_tests": "PASS",
+    "continuation_tests": "PASS",
+    "full_governor_discovery": "FAIL"
+  },
+  "mechanism_presence_check": {
+    "path": "experiments/governed-platform/governance/integrated_governed_mvp_repository_gateway.py",
+    "ref": "aa91eda070a5f85c98845fec75dd57024feaa405",
+    "result": "404_NOT_FOUND"
+  },
+  "adjudication": "The first frozen Slice 3 construction exposure is classified as missing mechanism: the independently frozen S3 harness imports a repository mutation gateway that does not yet exist at the exact failing commit. Earlier governed validation stages passed before full test discovery reached the new boundary. No S3 fixture or acceptance expectation is changed by this classification.",
+  "evidence_limit": "The GitHub Actions job log was retrievable only as an oversized log response in this session, so the exact one-line Python exception was not separately extracted. The classification is therefore bound to the failed discovery step plus an authoritative 404 for the required module at the exact commit, not to an unobserved quoted exception.",
+  "repair_authority": "MECHANISM_ONLY",
+  "frozen_harness_may_change": false,
+  "acceptance_cases": "S3-01..S3-16 remain frozen",
+  "scientific_endpoint_reached": false
+}
