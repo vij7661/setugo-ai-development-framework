@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from .anthropic_provider import AnthropicEndpoint, AnthropicProvider
 from .gemini_provider import GeminiEndpoint, GeminiProvider
@@ -131,20 +132,55 @@ def _reject_unknown_fields(node: dict, *, path: str, allowed: frozenset[str]) ->
         raise ValueError(f"unsupported configuration field(s) at {path}: {', '.join(unknown)}")
 
 
+def _canonical_provider_base_url(value: object) -> str:
+    """Canonicalize cosmetic URL spelling differences for identity binding.
+
+    This function does not decide transport safety; provider endpoint adapters
+    still own credential/query/fragment/plain-HTTP admission. It only prevents
+    equivalent route spellings (host case, default port, trailing slash) from
+    producing different qualification fingerprints that could create false
+    reviewer independence.
+    """
+    raw = str(value).strip()
+    parts = urlsplit(raw)
+    if not parts.scheme or not parts.netloc:
+        return raw.rstrip("/")
+
+    scheme = parts.scheme.lower()
+    hostname = (parts.hostname or "").lower()
+    if ":" in hostname and not hostname.startswith("["):
+        hostname = f"[{hostname}]"
+    port = parts.port
+    if port is not None and not (
+        (scheme == "https" and port == 443) or (scheme == "http" and port == 80)
+    ):
+        hostname = f"{hostname}:{port}"
+
+    userinfo = ""
+    if parts.username is not None:
+        userinfo = parts.username
+        if parts.password is not None:
+            userinfo += f":{parts.password}"
+        userinfo += "@"
+
+    path = parts.path.rstrip("/")
+    return urlunsplit((scheme, userinfo + hostname, path, parts.query, parts.fragment))
+
+
 def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
-    """Return the canonical provider execution configuration used for qualification binding.
+    """Return canonical configured provider state used for qualification binding.
 
     Fingerprinting is intentionally separate from transport admission. It binds
-    the configured value exactly enough to detect later substitution, while the
-    provider adapter remains the authority that rejects insecure/invalid remote
-    endpoints during registry construction. This preserves fail-closed transport
-    tests without turning fingerprint calculation into a second transport gate.
+    the configured route and behavior-affecting adapter values closely enough to
+    detect later substitution, while the provider adapter remains the authority
+    that rejects insecure/invalid remote endpoints during registry construction.
+    The resulting hash is configuration-time evidence, not runtime attestation.
     """
     adapter_type = spec.get("adapter")
     if adapter_type == "openai_compatible":
         return {
             "adapter": adapter_type,
-            "base_url": str(spec.get("base_url", "")).strip(),
+            "base_url": _canonical_provider_base_url(spec.get("base_url", "")),
             "timeout_seconds": int(spec.get("timeout_seconds", 120)),
             "max_attempts": int(spec.get("max_attempts", 3)),
             "initial_backoff_seconds": float(spec.get("initial_backoff_seconds", 1.0)),
@@ -154,7 +190,7 @@ def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
     if adapter_type == "anthropic":
         return {
             "adapter": adapter_type,
-            "base_url": str(spec.get("base_url", "https://api.anthropic.com/v1")).strip(),
+            "base_url": _canonical_provider_base_url(spec.get("base_url", "https://api.anthropic.com/v1")),
             "anthropic_version": str(spec.get("anthropic_version", "2023-06-01")),
             "timeout_seconds": int(spec.get("timeout_seconds", 120)),
             "max_attempts": int(spec.get("max_attempts", 3)),
@@ -166,7 +202,7 @@ def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
     if adapter_type == "gemini":
         return {
             "adapter": adapter_type,
-            "base_url": str(spec.get("base_url", "https://generativelanguage.googleapis.com/v1beta")).strip(),
+            "base_url": _canonical_provider_base_url(spec.get("base_url", "https://generativelanguage.googleapis.com/v1beta")),
             "timeout_seconds": int(spec.get("timeout_seconds", 120)),
             "max_attempts": int(spec.get("max_attempts", 3)),
             "temperature": float(spec.get("temperature", 0.0)),
@@ -178,7 +214,7 @@ def _effective_provider_binding(spec: dict[str, Any]) -> dict[str, Any]:
 
 
 def provider_binding_fingerprint(spec: dict[str, Any]) -> str:
-    """Bind retained reviewer qualification to the exact configured provider route."""
+    """Bind retained reviewer qualification to canonical configured provider state."""
     canonical = json.dumps(
         _effective_provider_binding(spec),
         sort_keys=True,
