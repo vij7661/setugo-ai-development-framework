@@ -16,9 +16,9 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-PORTABLE-002 is construction-green at 302155699df010487a6579a5aa23cf36de3f6d62 with 40/40 tests in workflow 34134075461. DeepSeek remains the selected reviewer. The next review handoff will use one ordinary UTF-8 text attachment containing the exact ReviewRequest and all integrity-bound artifacts.",
+    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-PORTABLE-002 single-file tests passed 40/40, but REV-GOV-PR5-010 packet build failed because test_single_file_review_container.py was referenced by the ReviewRequest and omitted from REVIEW_ARTIFACT_PATHS. The failed run 34134573232 is preserved; unsent REV-GOV-PR5-010 is superseded. DeepSeek remains selected for a fresh request after the narrow repair.",
     "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
-    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity","accept_full_pass_when_required_review_area_not_tested","promote_legacy_review_schema","promote_negative_review_disposition","weaken_raw_byte_integrity_for_attachment_convenience"]
+    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated","promote_pr5_from_unverified_manual_relay_identity","remove_missing_evidence_ref_to_make_packet_green","reuse_rev010_for_changed_candidate"]
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
@@ -45,11 +45,11 @@
     "current_review_counts_for_promotion": false,
     "portable_bundle_manifest_path": null,
     "portable_bundle_sha256": null,
-    "construction_evidence": {"id":"GOV-PORTABLE-002-CONSTRUCTION-GREEN-001","candidate_commit":"302155699df010487a6579a5aa23cf36de3f6d62","workflow_run":34134075461,"tests":"40/40","state":"CONSTRUCTION_GREEN_BOUNDED"},
+    "construction_evidence": {"id":"GOV-PORTABLE-002-PACKET-FAILURE-001","candidate_commit":"ed6fa1e1f79165d317c47e6d6a7fee061d2d7fe0","workflow_run":34134573232,"state":"CONSTRUCTION_FAILURE_PRESERVED"},
     "features_under_review": ["trusted reviewer identity provenance","material promotion always requires current authenticated review","schema-4 required review dimensions","semantic disposition/evidence consistency","positive-disposition promotion floor","governance-path and material review classification","promotion binds current ReviewRequest/ReviewEvidence/execution envelope","shared-memory grounding","single-file raw-artifact integrity","provider-neutral reviewer selection","AUTO_MODE/MANUAL_MODE authority equivalence"]
   },
   "pending_reviews": [
-    {"purpose":"Promotion of live conversation governance PR #5","status":"PENDING_CANDIDATE_FREEZE","preferred_reviewer":"DEEPSEEK","selected_reviewer":{"provider":"deepseek","model_class":"deepseek"},"platform_mode":"MANUAL_MODE","transport":"MANUAL_RELAY","review_request_id":null,"review_request_path":null,"portable_bundle_manifest_path":null,"portable_bundle_sha256":null,"reviewed_artifact_commit":null,"repository_access_required":false,"manual_relay_upload_files_required":1,"identity_assurance_expected":"MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY","counts_for_current_promotion":false,"superseded_review_requests":["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009"]}
+    {"purpose":"Promotion of live conversation governance PR #5","status":"PENDING_CANDIDATE_FREEZE","preferred_reviewer":"DEEPSEEK","selected_reviewer":{"provider":"deepseek","model_class":"deepseek"},"platform_mode":"MANUAL_MODE","transport":"MANUAL_RELAY","review_request_id":null,"review_request_path":null,"portable_bundle_manifest_path":null,"portable_bundle_sha256":null,"reviewed_artifact_commit":null,"repository_access_required":false,"manual_relay_upload_files_required":1,"identity_assurance_expected":"MANUAL_RELAY_UNVERIFIED_PROVIDER_IDENTITY","counts_for_current_promotion":false,"superseded_review_requests":["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010"]}
   ],
   "received_review_history": [
     {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"deepseek","identity_assurance":"CORRECTED_AFTER_USER_DISCLOSURE","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
@@ -60,7 +60,8 @@
     {"id":"LCG-F6","observed":"shared-memory.json lagged authoritative session-state.json at earlier review ingestion","resolution":"AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED","silent_merge":false},
     {"id":"LCG-F7","observed":"manual-relay review JSON self-declared Anthropic/Claude identity although user later disclosed the content came from DeepSeek","resolution":"REVIEWER_IDENTITY_CLAIM_RETRACTED_AND_COMBINED_REPAIR_APPLIED","silent_merge":false},
     {"id":"LCG-F8","observed":"REV-GOV-PR5-008 returned PASS while admitting raw files were not directly accessible","resolution":"REVIEW_PRESERVED_NONPROMOTABLE_AND_GOV_SEM_001_PREREGISTERED_IMPLEMENTED","silent_merge":false},
-    {"id":"LCG-F9","observed":"DeepSeek manual relay cannot accept ZIP and many-file ordinary upload is impractical","resolution":"REV_GOV_PR5_009_SUPERSEDED_UNSENT_AND_SINGLE_FILE_CONTAINER_IMPLEMENTED","silent_merge":false}
+    {"id":"LCG-F9","observed":"DeepSeek manual relay cannot accept ZIP and many-file ordinary upload is impractical","resolution":"SINGLE_FILE_CONTAINER_IMPLEMENTED","silent_merge":false},
+    {"id":"LCG-F10","observed":"REV-GOV-PR5-010 packet build omitted a ReviewRequest-referenced artifact","resolution":"FAILURE_PRESERVED_REV010_SUPERSEDED_NARROW_REPAIR_PENDING","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
