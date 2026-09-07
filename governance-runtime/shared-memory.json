@@ -16,12 +16,12 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
     "authoritative_head": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
     "status": "PR10_INTEGRATION_REVIEW_REISSUANCE_REQUIRED",
-    "continuity_summary": "Slice 4 scientific boundary is BOUNDED_PASS on frozen subject f6f04970d594292f21db648132afab7da4f263a6. PR #10 integrates exact head f3b26a057ff862dc5f31794ec72c751a2b71f79b into parent a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d. PR transition CI run 34167372130/job 101880985712 passed 1183 tests including S4-01..S4-16 on merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852. Live governance run 34167628195 failed closed because checkpoint 039 still pointed to frozen SHA f6f04970d594292f21db648132afab7da4f263a6 after the authoritative feature branch advanced. Authenticated integration review workflow 34167633377 returned semantic PASS, but its request REV-MVP-SLICE4-INTEGRATION-001 carried an invalid canonical request_hash; that result is preserved as non-promotable and corrected request 002 must be executed.",
+    "continuity_summary": "Slice 4 scientific boundary is BOUNDED_PASS on frozen subject f6f04970d594292f21db648132afab7da4f263a6. PR #10 transition CI run 34167372130/job 101880985712 passed 1183 tests including S4-01..S4-16 on merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852. Live governance run 34167628195 preserved stale checkpoint 039 by failing closed. Authenticated integration review 001 returned semantic PASS but is non-promotable because its canonical request hash was invalid. Checkpoint 040 reconstructed Git continuity but misused live-governance packet-builder next-review fields, causing run 34167948693 to fail closed after core validation/reference checks passed. Checkpoint 041 clears those unrelated builder fields; corrected hash-valid product request REV-MVP-SLICE4-INTEGRATION-002 remains the next gate.",
     "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
     "prohibited_use": ["use_invalid_review_001_for_promotion","modify_frozen_slice4_expectations","claim_arbitrary_code_sandbox_security","skip_corrected_independent_review","rewrite_prior_failures","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
   },
   "execution_handoff": {
-    "sequence": 40,
+    "sequence": 41,
     "workstream": "Integrated Governed MVP Slice 4 - PR #10 Integration Transition",
     "candidate_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
     "candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
@@ -29,7 +29,7 @@
     "next_required_action": "Execute hash-valid authenticated review request REV-MVP-SLICE4-INTEGRATION-002 against exact PR #10 head f3b26a057ff862dc5f31794ec72c751a2b71f79b and parent a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d; preserve REV-MVP-SLICE4-INTEGRATION-001 as invalid/non-promotable, then deterministically ingest only a valid reviewed result before PR readiness or merge.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "resume_rule": "Generic CONTINUE means verify exact PR #10 base/head and execute corrected hash-valid REV-MVP-SLICE4-INTEGRATION-002; never use review 001, scientific PASS, or CI alone as merge authority."
+    "resume_rule": "Generic CONTINUE means verify exact PR #10 base/head and trigger corrected hash-valid REV-MVP-SLICE4-INTEGRATION-002 through the dedicated governance-candidate review trigger; never use review 001, scientific PASS, or CI alone as merge authority."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
@@ -90,7 +90,8 @@
     {"id":"LCG-F16","observed":"Authoritative handoff still pointed to PR #5 closure after PR #5 had already merged.","resolution":"POST_MERGE_HANDOFF_ADVANCED_TO_STACK_INTEGRATION_FRONTIER","silent_merge":false},
     {"id":"LCG-F17","observed":"Authoritative handoff still pointed to pending Slice 2/3 integration after PR #8 and PR #9 had both merged.","resolution":"HANDOFF_ADVANCED_TO_PREREGISTERED_SLICE4_CONSTRUCTION_FRONTIER","silent_merge":false},
     {"id":"LCG-F18","observed":"Checkpoint 038 and shared memory contained semantically equivalent but byte-different next_required_action strings, causing Live Conversation Governance run 34166285068 to fail closed.","resolution":"EXACT_HANDOFF_STRING_RECONCILIATION_CHECKPOINT_039","silent_merge":false},
-    {"id":"LCG-F19","observed":"Checkpoint 039 remained pinned to frozen scientific SHA after Slice 4 adjudication and PR #10 integration head advanced; live governance run 34167628195 failed closed. The first PR #10 review request also had an invalid canonical request_hash even though the API review workflow returned PASS.","resolution":"AUTHORITATIVE_GIT_RECONSTRUCTION_TO_CHECKPOINT_040_AND_INVALID_REVIEW_001_NONPROMOTABLE_CORRECTED_REVIEW_002_REQUIRED","silent_merge":false}
+    {"id":"LCG-F19","observed":"Checkpoint 039 remained pinned to frozen scientific SHA after Slice 4 adjudication and PR #10 integration head advanced; live governance run 34167628195 failed closed. The first PR #10 review request also had an invalid canonical request_hash even though the API review workflow returned PASS.","resolution":"AUTHORITATIVE_GIT_RECONSTRUCTION_TO_CHECKPOINT_040_AND_INVALID_REVIEW_001_NONPROMOTABLE_CORRECTED_REVIEW_002_REQUIRED","silent_merge":false},
+    {"id":"LCG-F20","observed":"Checkpoint 040 declared product review 002 through runtime.promotion.next_review_request_id and stored next_review_reviewer as a string, but the live-governance workflow interprets those fields as its own PR-5 candidate-packet builder metadata and requires a provider/model_class object. Run 34167948693 failed closed at packet construction after core runtime/reference checks passed.","resolution":"CLEAR_UNRELATED_LIVE_GOVERNANCE_PACKET_BUILDER_FIELDS_AND_KEEP_PRODUCT_REVIEW_002_ON_DEDICATED_TRIGGER_PATH","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,

@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-040",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-041",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -15,8 +15,8 @@
     "promotion": {
       "pull_request": 10,
       "state": "PENDING_CANDIDATE_FREEZE",
-      "next_review_request_id": "REV-MVP-SLICE4-INTEGRATION-002",
-      "next_review_reviewer": "gemini",
+      "next_review_request_id": null,
+      "next_review_reviewer": null,
       "review_request_id": null,
       "review_request_path": null,
       "portable_bundle_manifest_path": null,
@@ -39,22 +39,22 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "Checkpoint 039 remained pinned to frozen scientific SHA f6f04970d594292f21db648132afab7da4f263a6 after authoritative Slice 4 scientific adjudication and PR #10 head advanced to f3b26a057ff862dc5f31794ec72c751a2b71f79b. Live governance run 34167628195 failed closed on the stale head pointer. The first integration review request also carried an invalid canonical request_hash; its authenticated API PASS is preserved but non-promotable. Authority remains Git/evidence and the checkpoint is reconstructed here before corrected review reissuance."
+    "last_observed_conflict": "Checkpoint 040 successfully reconstructed the authoritative PR #10 head but incorrectly populated runtime.promotion.next_review_reviewer as a string and declared a product-review next ID in a field whose workflow is reserved for live-governance candidate packet generation. Live governance run 34167948693 failed closed at candidate packet construction. No product authority changed. Checkpoint 041 clears those unrelated builder fields while retaining the separate corrected product review request REV-MVP-SLICE4-INTEGRATION-002."
   },
   "execution_handoff": {
-    "sequence": 40,
+    "sequence": 41,
     "workstream": "Integrated Governed MVP Slice 4 - PR #10 Integration Transition",
     "candidate_branch": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
     "candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
     "phase": "PR10_INTEGRATION_REVIEW_REISSUANCE_REQUIRED",
-    "last_completed_action": "Verified PR #10 exact base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d and head f3b26a057ff862dc5f31794ec72c751a2b71f79b, exactly seven changed files, no comments/reviews/threads, and PR transition CI run 34167372130/job 101880985712 SUCCESS with 1183 tests OK and S4-01..S4-16 passing on merge-ref 43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852. Authenticated review workflow 34167633377 returned semantic PASS, but review request REV-MVP-SLICE4-INTEGRATION-001 had an invalid canonical request_hash and cannot count for promotion. Live governance run 34167628195 independently exposed stale checkpoint 039 and failed closed before reference verification completed.",
+    "last_completed_action": "Reconstructed stale checkpoint 039 from authoritative Git, preserved invalid integration review request 001 as non-promotable, created hash-valid corrected request REV-MVP-SLICE4-INTEGRATION-002, and verified core runtime validation plus authoritative-reference checks on live-governance run 34167948693. That run then failed closed only because checkpoint 040 incorrectly used the live-governance candidate-packet next-review fields for this separate product review workflow; the data-shape/routing defect is preserved and those fields are cleared here.",
     "next_required_action": "Execute hash-valid authenticated review request REV-MVP-SLICE4-INTEGRATION-002 against exact PR #10 head f3b26a057ff862dc5f31794ec72c751a2b71f79b and parent a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d; preserve REV-MVP-SLICE4-INTEGRATION-001 as invalid/non-promotable, then deterministically ingest only a valid reviewed result before PR readiness or merge.",
     "stop_condition": "NONE",
     "manual_input_required": false,
     "manual_deliverable": "No manual input required while GitHub Actions and authenticated platform review remain available.",
-    "handoff_reason": "PR #10 transition CI is green, but continuity reconstruction and a corrected hash-valid independent review are mandatory because the first review request integrity contract was invalid.",
-    "historical_failure_preserved": "Slice 3 parent 14/16 failure, prior provider/review history, Slice 4 construction mechanism-absence failure, scientific review HTTP 503 attempts, continuity failure run 34166285068, stale-checkpoint failure run 34167628195, and invalid integration review request REV-MVP-SLICE4-INTEGRATION-001 remain preserved without rewriting.",
-    "resume_rule": "On generic CONTINUE, verify PR #10 still has base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d and head f3b26a057ff862dc5f31794ec72c751a2b71f79b, then execute corrected REV-MVP-SLICE4-INTEGRATION-002. Never treat review 001, scientific PASS, or CI alone as merge authority."
+    "handoff_reason": "PR #10 transition CI is green and continuity is reconstructed; corrected product review 002 remains the next authority gate. Live-governance packet-builder metadata is intentionally not used for this product review.",
+    "historical_failure_preserved": "Slice 3 parent 14/16 failure, prior provider/review history, Slice 4 construction mechanism-absence failure, scientific review HTTP 503 attempts, continuity failure run 34166285068, stale-checkpoint failure run 34167628195, invalid integration review request REV-MVP-SLICE4-INTEGRATION-001, and packet-builder routing failure run 34167948693 remain preserved without rewriting.",
+    "resume_rule": "On generic CONTINUE, verify PR #10 still has base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d and head f3b26a057ff862dc5f31794ec72c751a2b71f79b, then trigger corrected REV-MVP-SLICE4-INTEGRATION-002 through the dedicated governance-candidate platform review trigger. Never treat review 001, scientific PASS, or CI alone as merge authority."
   },
   "active_workstream": {
     "name": "Integrated Governed MVP Slice 4 - PR #10 Integration Transition",
@@ -67,7 +67,7 @@
     "preserved_failure_record_commit": "f9df961c3f05bdaa87f559c86de980f9e1dc6c37",
     "frozen_cases": "S4-01..S4-16",
     "latest_result": {"passed": 1183, "total": 1183, "failures": []},
-    "next_action": "Execute corrected hash-valid authenticated PR #10 integration review REV-MVP-SLICE4-INTEGRATION-002, then ingest valid evidence before merge.",
+    "next_action": "Trigger corrected hash-valid authenticated PR #10 integration review REV-MVP-SLICE4-INTEGRATION-002, then ingest valid evidence before merge.",
     "forbidden_shortcut": "Do not use invalid review request 001 for promotion; do not alter frozen S4-01..S4-16 or scientific subject f6f04970d594292f21db648132afab7da4f263a6; do not claim arbitrary-code sandbox security; do not treat CI/scientific PASS as merge or terminal authority."
   },
   "accepted_prior_boundary": {
