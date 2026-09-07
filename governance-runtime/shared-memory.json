@@ -16,7 +16,7 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. Governance PR #5 is back in combined repair after DeepSeek-origin review content, actual Claude manual-relay review, and a reviewer-identity spoof test exposed additional governance gaps. REV-GOV-PR5-007 was superseded before external review.",
+    "continuity_summary": "Slice 3 remains frozen at 14/16. Governance PR #5 combined repair is construction-green with 21/21 review-protocol tests. Manual-relay reviewer identity spoofing, proposer-controlled trigger classification, superseded-review replay, shared-memory grounding, and raw packet integrity are now explicitly controlled. PR #5 is ready for reviewer selection but remains non-authoritative.",
     "allowed_use": ["session_resume","task_routing","context_preparation","review_packet_preparation"],
     "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","treat_manual_relay_self_declared_identity_as_authenticated"]
   },
@@ -37,10 +37,11 @@
     "portable_bundle_sha256": null,
     "features_under_review": [
       "trusted reviewer identity provenance",
-      "platform-owned review classification",
-      "promotion consumes review request/evidence/provenance directly",
+      "material promotion always requires current authenticated review",
+      "governance-path and material review classification",
+      "promotion binds current ReviewRequest/ReviewEvidence/execution envelope",
       "shared-memory grounding",
-      "portable packet raw canonical artifact integrity",
+      "raw canonical portable packet integrity",
       "AUTO_MODE/MANUAL_MODE authority equivalence"
     ]
   },
@@ -61,36 +62,12 @@
     }
   ],
   "received_review_history": [
-    {
-      "request_id": "REV-GOV-PR5-003",
-      "reviewed_candidate": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
-      "origin": "deepseek",
-      "identity_assurance": "CORRECTED_AFTER_USER_DISCLOSURE",
-      "disposition": "CHANGES_REQUIRED",
-      "counts_for_current_promotion": false
-    },
-    {
-      "request_id": "REV-GOV-PR5-003",
-      "reviewed_candidate": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
-      "origin": "claimed_anthropic_claude",
-      "identity_assurance": "USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED",
-      "disposition": "CHANGES_REQUIRED",
-      "counts_for_current_promotion": false
-    }
+    {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"deepseek","identity_assurance":"CORRECTED_AFTER_USER_DISCLOSURE","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false},
+    {"request_id":"REV-GOV-PR5-003","reviewed_candidate":"e412d9ff7617ecc01ad53d06eb1df0714372c215","origin":"claimed_anthropic_claude","identity_assurance":"USER_ATTESTED_NOT_PROVIDER_AUTHENTICATED","disposition":"CHANGES_REQUIRED","counts_for_current_promotion":false}
   ],
   "memory_conflict_history": [
-    {
-      "id": "LCG-F6",
-      "observed": "shared-memory.json lagged authoritative session-state.json at earlier review ingestion",
-      "resolution": "AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED",
-      "silent_merge": false
-    },
-    {
-      "id": "LCG-F7",
-      "observed": "manual-relay review JSON self-declared Anthropic/Claude identity although user later disclosed the content came from DeepSeek",
-      "resolution": "REVIEWER_IDENTITY_CLAIM_RETRACTED_AND_COMBINED_REPAIR_PREREGISTERED",
-      "silent_merge": false
-    }
+    {"id":"LCG-F6","observed":"shared-memory.json lagged authoritative session-state.json at earlier review ingestion","resolution":"AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED","silent_merge":false},
+    {"id":"LCG-F7","observed":"manual-relay review JSON self-declared Anthropic/Claude identity although user later disclosed the content came from DeepSeek","resolution":"REVIEWER_IDENTITY_CLAIM_RETRACTED_AND_COMBINED_REPAIR_APPLIED","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
