@@ -16,7 +16,7 @@
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
     "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
     "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-REVIEW-CLASS-001 is migrating live governance to two platform API review classes plus external-evidence ingestion. REV-GOV-PR5-011 is superseded. The first REV011-shaped paste is unclassified USER_PROVIDED_EXTERNAL_CONTENT; the later result explicitly identified by the user as DeepSeek is USER_ATTESTED_EXTERNAL_LLM_REVIEW. Neither is provider-API-authenticated or promotable.",
+    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-REVIEW-CLASS-001 is construction-green at candidate 22996852efcf0b82d7d13f03c747dc375bce60cd, run 34141285547, 50/50. Platform review execution is now only AUTOMATIC_API or USER_INITIATED_API. The first REV011-shaped paste is USER_PROVIDED_EXTERNAL_CONTENT; the later result explicitly identified by the user as DeepSeek is USER_ATTESTED_EXTERNAL_LLM_REVIEW. Neither is provider-API-authenticated or promotable. Resume the narrow Slice 3 S3-03/S3-11 repair.",
     "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
     "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","infer_external_provider_from_payload_fields","treat_user_attestation_as_provider_authentication","promote_pr5_from_external_pasted_evidence","reuse_rev011_for_new_candidate"]
   },
@@ -43,6 +43,7 @@
     "current_review_effective_state": null,
     "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
+    "construction_evidence": {"id":"GOV-REVIEW-CLASS-001-CONSTRUCTION-GREEN-001","candidate_commit":"22996852efcf0b82d7d13f03c747dc375bce60cd","workflow_run":34141285547,"tests":"50/50","state":"CONSTRUCTION_GREEN_BOUNDED"},
     "features_under_review": ["platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
   },
   "pending_reviews": [
@@ -63,27 +64,8 @@
     {"request_id":"REV-GOV-PR5-008","reviewed_candidate":"4133bd86806631d246c943b7d79a84346500b827","origin":"historical_manual_relay_external_content","disposition":"PASS","semantic_validation":"CONTRADICTED_BY_REVIEW_EVIDENCE_ASSESSMENT","effective_state":"INSUFFICIENT_EVIDENCE_FOR_FULL_PASS","counts_for_current_promotion":false}
   ],
   "external_evidence_history": [
-    {
-      "id": "REV-GOV-PR5-011-EXTERNAL-PASTE-001",
-      "evidence_class": "USER_PROVIDED_EXTERNAL_CONTENT",
-      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-001.json",
-      "self_declared_reviewer": {"provider":"moonshot","model":"kimi"},
-      "user_attested_source": null,
-      "provider_api_authenticated": false,
-      "counts_for_promotion": false,
-      "claimed_disposition": "PASS",
-      "findings_count": 3
-    },
-    {
-      "id": "REV-GOV-PR5-011-EXTERNAL-PASTE-002",
-      "evidence_class": "USER_ATTESTED_EXTERNAL_LLM_REVIEW",
-      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-002-deepseek-user-attested.json",
-      "user_attested_source": {"provider":"deepseek","model":"deepseek"},
-      "provider_api_authenticated": false,
-      "counts_for_promotion": false,
-      "claimed_disposition": "PASS",
-      "findings_count": 0
-    }
+    {"id":"REV-GOV-PR5-011-EXTERNAL-PASTE-001","evidence_class":"USER_PROVIDED_EXTERNAL_CONTENT","path":"governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-001.json","self_declared_reviewer":{"provider":"moonshot","model":"kimi"},"user_attested_source":null,"provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS","findings_count":3},
+    {"id":"REV-GOV-PR5-011-EXTERNAL-PASTE-002","evidence_class":"USER_ATTESTED_EXTERNAL_LLM_REVIEW","path":"governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-002-deepseek-user-attested.json","user_attested_source":{"provider":"deepseek","model":"deepseek"},"provider_api_authenticated":false,"counts_for_promotion":false,"claimed_disposition":"PASS","findings_count":0}
   ],
   "memory_conflict_history": [
     {"id":"LCG-F6","observed":"shared-memory.json lagged authoritative session-state.json at earlier review ingestion","resolution":"AUTHORITATIVE_STATE_WON_AND_MEMORY_REPAIRED","silent_merge":false},
