@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from threading import Barrier, Thread
 
 from review_engine.models import ReviewerConfig
 from review_engine.qualification import QualificationRecord, QualificationRegistry, reviewer_context_hash
@@ -207,6 +208,96 @@ class QualificationTests(unittest.TestCase):
         )
         self.assertFalse(next_decision.eligible)
         self.assertIsNone(next_capability)
+
+    def test_concurrent_cross_role_issue_allows_only_one_correlated_runtime_capability(self):
+        r1_cfg = cfg(ref="q-r1", role="R1", lineage="lineage-r1")
+        r2_cfg = cfg(ref="q-r2", role="R2", lineage="lineage-r2")
+        registry = QualificationRegistry((
+            record(
+                qualification_ref="q-r1",
+                role="R1",
+                foundation_lineage="lineage-r1",
+            ),
+            record(
+                qualification_ref="q-r2",
+                role="R2",
+                foundation_lineage="lineage-r2",
+            ),
+        ))
+        barrier = Barrier(3)
+        results = []
+
+        def worker(config: ReviewerConfig, phase: str) -> None:
+            barrier.wait()
+            results.append(
+                registry.issue_capability(
+                    config,
+                    risk="HIGH",
+                    request_id="req-concurrent-role",
+                    phase=phase,
+                    context_hash=reviewer_context_hash({"phase": phase, "request_id": "req-concurrent-role"}),
+                    artifact_hash="artifact-a",
+                )
+            )
+
+        threads = [
+            Thread(target=worker, args=(r1_cfg, "R1_INITIAL")),
+            Thread(target=worker, args=(r2_cfg, "R2_INDEPENDENT")),
+        ]
+        for thread in threads:
+            thread.start()
+        barrier.wait()
+        for thread in threads:
+            thread.join()
+
+        self.assertEqual(len(results), 2)
+        capabilities = [capability for _, capability in results if capability is not None]
+        rejected = [decision for decision, capability in results if capability is None]
+        self.assertEqual(len(capabilities), 1)
+        self.assertEqual(len(rejected), 1)
+        self.assertFalse(rejected[0].eligible)
+        self.assertIn("runtime identity", rejected[0].reason)
+
+    def test_concurrent_consumers_cannot_both_consume_one_capability(self):
+        registry = QualificationRegistry((record(),))
+        ctx_hash = context_hash("req-concurrent-consume")
+        _, capability = registry.issue_capability(
+            cfg(),
+            risk="HIGH",
+            request_id="req-concurrent-consume",
+            phase="R2_INDEPENDENT",
+            context_hash=ctx_hash,
+            artifact_hash="artifact-a",
+        )
+        assert capability is not None
+        barrier = Barrier(3)
+        outcomes: list[str] = []
+
+        def consume() -> None:
+            barrier.wait()
+            try:
+                registry.consume_capability(
+                    capability.capability_id,
+                    cfg(),
+                    risk="HIGH",
+                    request_id="req-concurrent-consume",
+                    phase="R2_INDEPENDENT",
+                    context_hash=ctx_hash,
+                    artifact_hash="artifact-a",
+                )
+                outcomes.append("CONSUMED")
+            except ValueError as exc:
+                outcomes.append(str(exc))
+
+        threads = [Thread(target=consume), Thread(target=consume)]
+        for thread in threads:
+            thread.start()
+        barrier.wait()
+        for thread in threads:
+            thread.join()
+
+        self.assertEqual(outcomes.count("CONSUMED"), 1)
+        self.assertEqual(sum("already consumed" in outcome for outcome in outcomes), 1)
 
     def test_context_hash_is_canonical_for_equivalent_json_objects(self):
         left = reviewer_context_hash({"b": [2, 3], "a": {"x": True}})
