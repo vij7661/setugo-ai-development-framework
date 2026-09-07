@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-002",
   "classification": "RESIDUAL_REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
   "invariant": "Reviewer independence must fail closed when two reviewer roles may resolve to the same effective runtime, even if provider aliases, URL spellings, or model labels differ.",
-  "status": "MECHANISM_REPAIRED",
+  "status": "REGRESSION_FROZEN",
   "independent_review_required": true,
   "source_external_content_sha256": "681dafb1206cc6945e6d88b21086bf330eacf4a3fd75fe5de17d8f27cbff520d",
   "source_classification": "USER_PROVIDED_EXTERNAL_CONTENT",
@@ -29,6 +29,6 @@
   "notes": [
     "Runtime correlation now fails closed if provider id, model label, or non-empty configuration-time provider binding matches.",
     "Provider base URLs are canonically normalized for cosmetic host/scheme/default-port/trailing-slash variance before qualification fingerprinting.",
-    "Provider binding remains configuration-time evidence and is explicitly not described as cryptographic remote-runtime attestation."
+    "The adversarial regressions remain unchanged from the preserved red exposure."
   ]
 }
