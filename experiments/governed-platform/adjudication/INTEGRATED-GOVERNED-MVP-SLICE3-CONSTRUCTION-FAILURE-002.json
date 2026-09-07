@@ -1,0 +1,37 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_3",
+  "status": "CONSTRUCTION_FAILURE_PRESERVED",
+  "classification": "CODE_DEFECT_VALIDATION_ORDER_CLASSIFICATION",
+  "branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+  "candidate_commit": "ce6b88dc166c72d8f8f8ca9cdfc2a2bd8b53cb5e",
+  "dedicated_workflow_run_id": 34110894828,
+  "dedicated_job_id": 101706637339,
+  "acceptance_result": "14/16",
+  "passed_cases": [
+    "S3-01","S3-02","S3-04","S3-05","S3-06","S3-07","S3-08","S3-09",
+    "S3-10","S3-12","S3-13","S3-14","S3-15","S3-16"
+  ],
+  "failed_cases": [
+    {
+      "case": "S3-03",
+      "expected": "DENIED_CONTRACT",
+      "observed": "DENIED_MANIFEST",
+      "classification": "VALIDATION_CLASSIFICATION_ORDER",
+      "effect_observed": false,
+      "reason": "A manifest-to-contract identity/hash substitution was classified as a generic manifest mismatch instead of the frozen contract-boundary denial."
+    },
+    {
+      "case": "S3-11",
+      "expected": "DENIED_IDEMPOTENCY_REBIND",
+      "observed": "DENIED_MANIFEST",
+      "classification": "IDEMPOTENCY_PRECEDENCE_ORDER",
+      "effect_observed": false,
+      "reason": "The gateway evaluated current manifest/base cross-binding before consulting the already durable idempotency binding, masking semantic rebinding as a generic manifest mismatch."
+    }
+  ],
+  "adjudication": "This is a gateway code defect in deterministic validation ordering/classification. The frozen S3 fixture and expectations remain valid and unchanged. The narrow repair authority is limited to making contract-substitution classification explicit and ensuring an existing durable idempotency binding is consulted before mutable cross-binding checks can mask rebinding.",
+  "repair_authority": "MECHANISM_ONLY_VALIDATION_ORDER",
+  "frozen_harness_may_change": false,
+  "acceptance_cases": "S3-01..S3-16 remain frozen",
+  "scientific_endpoint_reached": false
+}
