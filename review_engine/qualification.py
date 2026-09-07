@@ -116,6 +116,10 @@ def reviewer_context_hash(context: dict) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def _valid_sha256(value: str) -> bool:
+    return len(value) == 64 and all(ch in "0123456789abcdef" for ch in value)
+
+
 @dataclass(frozen=True)
 class QualificationRecord:
     qualification_ref: str
@@ -129,6 +133,7 @@ class QualificationRecord:
     foundation_lineage: str
     max_risk: str
     task_types: tuple[str, ...] = ("*",)
+    provider_binding_fingerprint: str | None = None
 
     def validate(self) -> None:
         if not self.qualification_ref:
@@ -143,6 +148,8 @@ class QualificationRecord:
             raise ValueError("qualification_epoch must be positive")
         if not self.task_types:
             raise ValueError("qualification task_types cannot be empty")
+        if self.provider_binding_fingerprint is not None and not _valid_sha256(self.provider_binding_fingerprint):
+            raise ValueError("qualification provider_binding_fingerprint must be a sha256 hex digest")
 
 
 @dataclass(frozen=True)
@@ -159,8 +166,9 @@ class ReviewerCapability:
 
     The capability is the linearization point between qualification state and one
     governed provider invocation. It is bound to the exact retained qualification
-    epoch, reviewer identity, risk/task, request/phase/artifact scope and the
-    canonical hash of the exact model-visible context.
+    epoch, reviewer identity, risk/task, request/phase/artifact scope, configured
+    provider execution fingerprint, and the canonical hash of the exact
+    model-visible context.
 
     Revocation before issuance prevents issuance; a later revocation applies to
     future capabilities rather than retroactively rewriting authority that was
@@ -185,6 +193,7 @@ class ReviewerCapability:
     phase: str
     context_hash: str
     artifact_hash: str | None = None
+    provider_binding_fingerprint: str | None = None
 
     def validate(self) -> None:
         if not self.capability_id:
@@ -203,10 +212,12 @@ class ReviewerCapability:
             raise ValueError("reviewer capability request_id required")
         if not self.phase:
             raise ValueError("reviewer capability phase required")
-        if len(self.context_hash) != 64 or any(ch not in "0123456789abcdef" for ch in self.context_hash):
+        if not _valid_sha256(self.context_hash):
             raise ValueError("reviewer capability context_hash must be a sha256 hex digest")
         if self.artifact_hash is not None and not self.artifact_hash:
             raise ValueError("reviewer capability artifact_hash cannot be empty")
+        if self.provider_binding_fingerprint is not None and not _valid_sha256(self.provider_binding_fingerprint):
+            raise ValueError("reviewer capability provider_binding_fingerprint must be a sha256 hex digest")
 
 
 class QualificationRegistry:
@@ -251,6 +262,10 @@ class QualificationRegistry:
             "deployment_path": (record.deployment_path, config.deployment_path),
             "role": (record.role, config.role),
             "foundation_lineage": (record.foundation_lineage, config.foundation_lineage),
+            "provider_binding_fingerprint": (
+                record.provider_binding_fingerprint,
+                config.provider_binding_fingerprint,
+            ),
         }
         for name, (expected, actual) in bindings.items():
             if expected != actual:
@@ -285,7 +300,7 @@ class QualificationRegistry:
             raise ValueError("reviewer capability request_id required")
         if not phase:
             raise ValueError("reviewer capability phase required")
-        if len(context_hash) != 64 or any(ch not in "0123456789abcdef" for ch in context_hash):
+        if not _valid_sha256(context_hash):
             raise ValueError("reviewer capability context_hash must be a sha256 hex digest")
         if artifact_hash is not None and not artifact_hash:
             raise ValueError("reviewer capability artifact_hash cannot be empty")
@@ -315,6 +330,7 @@ class QualificationRegistry:
                 phase=phase,
                 context_hash=context_hash,
                 artifact_hash=artifact_hash,
+                provider_binding_fingerprint=record.provider_binding_fingerprint,
             )
             capability.validate()
             self._capabilities[capability.capability_id] = capability
@@ -347,6 +363,10 @@ class QualificationRegistry:
                 "role": (capability.role, config.role),
                 "foundation_lineage": (capability.foundation_lineage, config.foundation_lineage),
                 "qualification_ref": (capability.qualification_ref, config.qualification_ref),
+                "provider_binding_fingerprint": (
+                    capability.provider_binding_fingerprint,
+                    config.provider_binding_fingerprint,
+                ),
                 "risk": (capability.risk, risk),
                 "task_type": (capability.task_type, task_type),
                 "request_id": (capability.request_id, request_id),
