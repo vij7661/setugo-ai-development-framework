@@ -1,0 +1,95 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_2",
+  "status": "BOUNDED_PASS",
+  "branch": "feature/integrated-governed-mvp-slice2-execution-gateway",
+  "preregistered_contract": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE2_EXECUTION_GATEWAY_CONTRACT.md",
+  "freeze_artifact": "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE2-FREEZE.json",
+  "preregistration_commit": "8398b046e27d18e607ec7cc4006a62528e227006",
+  "acceptance_harness_commit": "b58f805367d3a17eb5bbc9721fe45e83c37fb0a5",
+  "execution_workflow_commit": "554db55b767d9e13e57aee215e15d67eb197bb34",
+  "implementation_commit": "afbd2860c0ef903d60c7dfb80ade91decff8488a",
+  "construction_head": "1802a1454570ca42101357a3e78ea8e7b6de0366",
+  "frozen_sha": "026e895c117b4be1303d898293335ea796ac2d2c",
+  "scientific_slice2_run_id": 34108874197,
+  "scientific_slice2_job_id": 101700175307,
+  "scientific_governed_run_id": 34108874191,
+  "scientific_governed_job_id": 101700175408,
+  "evidence_correspondence": {
+    "exact_frozen_sha_checked_out": true,
+    "acceptance_cases": "S2-01..S2-16 explicitly ok in the exact frozen dedicated job log",
+    "dedicated_acceptance": "16/16 OK on the exact frozen SHA",
+    "governed_regression": "1151/1151 OK on the same exact frozen SHA",
+    "post_exposure_mechanism_repair": false,
+    "ci_green_used_as_sole_evidence": false,
+    "direct_dedicated_job_log_correspondence_verified": true,
+    "direct_governed_job_log_correspondence_verified": true
+  },
+  "preserved_construction_history": [
+    {
+      "candidate": "554db55b767d9e13e57aee215e15d67eb197bb34",
+      "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+      "result": "The frozen Slice 2 harness reached the intentionally missing execution-gateway import after pre-existing governed checks remained green. This was a construction/mechanism absence, not a fixture defect."
+    },
+    {
+      "candidate": "afbd2860c0ef903d60c7dfb80ade91decff8488a",
+      "classification": "CODE_DEFECT_VALIDATION_ORDER_CLASSIFICATION",
+      "result": "15/16 frozen Slice 2 cases passed. S2-02 misclassified a correctly hashed non-authorizing upstream decision as DENIED_UPSTREAM_INTEGRITY instead of DENIED_UPSTREAM. No consequential effect occurred. The fixture and frozen expectation were not changed."
+    },
+    {
+      "candidate": "1802a1454570ca42101357a3e78ea8e7b6de0366",
+      "classification": "CONSTRUCTION_GREEN_NOT_SCIENTIFIC_ACCEPTANCE",
+      "result": "Dedicated Slice 2 construction run passed 16/16 and the full governed construction regression passed 1151/1151, but this pre-freeze green was used only to qualify the candidate for freeze and was not counted as scientific acceptance."
+    }
+  ],
+  "excluded_freeze_evidence": [
+    {
+      "freeze_commit": "78a2575badbc74154605a8b86b9cae7b9cebb2b8",
+      "classification": "FREEZE_METADATA_PROVENANCE_DEFECT",
+      "reason": "The first freeze record used a placeholder-expanded execution_workflow_commit instead of the authoritative full workflow SHA.",
+      "workflow_results": {
+        "slice2_run": 34108699377,
+        "governed_run": 34108699361,
+        "observed_status": "GREEN_BUT_INELIGIBLE"
+      },
+      "adjudication": "Excluded from scientific acceptance regardless of green workflow results. The defect and green-but-ineligible results remain preserved in Git history rather than being silently rewritten or laundered into evidence."
+    }
+  ],
+  "supported_bounded_claims": [
+    "A clean exact Slice 1 bound decision can cause one local reference execution effect only after fresh use-time revalidation of the frozen authorization and current capability/state bindings.",
+    "Non-authorizing upstream states are denied before any effect.",
+    "Decision, action, artifact, and request substitution against the upstream binding fail closed before effect.",
+    "Fresh capability revocation, expiry, and qualification drift fail closed at use time.",
+    "Exact replay returns the original durable result without a duplicate effect.",
+    "An idempotency key cannot be rebound to different semantics after its durable binding is established.",
+    "A crash before effect commit leaves zero committed effect and an exact retry can execute once.",
+    "A crash after effect commit can recover the durable result without duplicating the effect.",
+    "Restart preserves exact idempotency and semantic non-rebinding behavior.",
+    "Worker output, including terminal-action claims, cannot mint terminal authority.",
+    "Release, deploy, merge, and other terminal actions remain behind a separate external authority gate.",
+    "Malformed, partial, or conflicting durable gateway state fails closed.",
+    "Concurrent identical retries converge on one durable effect/result binding.",
+    "Current artifact-binding drift is detected before effect.",
+    "Execution evidence retains exact decision, capability, effect, idempotency, and result lineage.",
+    "A fresh second authorized request remains live after prior crash/recovery/idempotency history."
+  ],
+  "claim_boundary": "A positive Slice 2 result supports only that, in the tested local reference gateway, an exact externally authorized development effect can be performed at most once under the frozen bindings with replay/restart handling and exact evidence lineage. It does not establish production sandbox security, distributed trust-domain independence, external certification, or terminal/release/deploy authority.",
+  "nonclaims": [
+    "production repository writes",
+    "production shell/browser/network access",
+    "container or VM escape resistance",
+    "remote multi-host atomicity",
+    "distributed consensus",
+    "cloud KMS/HSM production authority",
+    "provider attestation",
+    "physical power-loss/storage-controller durability",
+    "third-party independent certification",
+    "release, deploy, merge, production, or completion authority"
+  ],
+  "retained_hygiene": [
+    "Historical subprocess ResourceWarnings remain visible in the full governed regression log; they did not fail the frozen run and are not treated as proof of mechanism correctness.",
+    "The malformed first freeze and its green workflows remain visible as excluded evidence; green CI is not sufficient when provenance metadata is invalid."
+  ],
+  "program_adjudication_independence": "PROJECT_INTERNAL_NOT_THIRD_PARTY",
+  "next_target": "UNSET_REQUIRES_SEPARATE_PREREGISTRATION",
+  "manual_intervention_required": false
+}
