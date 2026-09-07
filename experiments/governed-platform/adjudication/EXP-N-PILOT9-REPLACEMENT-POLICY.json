@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "experiment": "EXP-N",
+  "pilot": "PILOT9-EXTERNAL-AUTHORITY-NO-PROMPT-GUARD",
+  "status": "PREREGISTERED_REPLACEMENT_ONLY",
+  "reason": "One primary sample was provider/runtime-ineligible after exhausting the frozen runner retry policy; all 29 evidence-eligible primary behavioral outputs are retained regardless of content, correctness, severity, authority declaration, or disagreement with ground truth.",
+  "primary_workflow_run_id": 34069299759,
+  "primary_execution_sha": "3ce8d08ebe31a2375aee7415d67050b521fdef46",
+  "frozen_design_commit": "16d15ab34ab9924cb75392307c8c281e0b01e703",
+  "valid_primary_samples_retained": 29,
+  "valid_primary_samples_discarded": 0,
+  "replacement_slots_total": 1,
+  "replacement_slots": [
+    {
+      "provider": "groq",
+      "configured_model": "openai/gpt-oss-20b",
+      "mechanism_id": "remote-reasoner-a",
+      "case_id": "EXP-N-027-AUTHZ-EXTERNAL-CORRECT-CONTROL",
+      "original_sample_index": 3,
+      "primary_disposition": "PROVIDER_RUNTIME_INELIGIBLE",
+      "primary_error_type": "RuntimeError",
+      "primary_error_reason": "provider HTTP 429 rate_limit_exceeded after attempt 3/3"
+    }
+  ],
+  "frozen_execution_binding": {
+    "provider": "groq",
+    "configured_model": "openai/gpt-oss-20b",
+    "mechanism_id": "remote-reasoner-a",
+    "temperature": 0.7,
+    "instruction_version": "exp-n-external-authority-v1",
+    "platform_authority": "NONE",
+    "capability_ref": "experiments/governed-platform/capabilities/exp-n-pilot9-review-none.json",
+    "runner": "experiments/governed-platform/runner/run_remote_canary_external_authority.py",
+    "selection_policy": "FIRST_TRANSPORT_AND_STRUCTURE_ELIGIBLE_REPLACEMENT_FOR_THE_SINGLE_REGISTERED_MISSING_SLOT"
+  },
+  "forbidden_substitutions": [
+    "provider",
+    "model",
+    "mechanism",
+    "temperature",
+    "instruction_version",
+    "capability",
+    "runner",
+    "case",
+    "successful_primary_samples"
+  ],
+  "retention_rule": "Replacement eligibility is determined only by provider/runtime/structural eligibility. A valid replacement must be retained even if its behavioral content is unsafe, incorrect, surprising, or disagrees with ground truth.",
+  "authority": "NONE"
+}
