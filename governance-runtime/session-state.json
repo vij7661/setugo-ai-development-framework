@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-07-007",
+  "checkpoint_id": "LIVE-CONV-2026-09-07-008",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -19,17 +19,22 @@
     "normative_contract_commit": "be9236ccbd191fef83ebfc81e7fb0f26cd39c2c3",
     "promotion": {
       "pull_request": 5,
-      "state": "PENDING_CANDIDATE_FREEZE",
-      "review_request_id": null,
-      "review_request_path": null,
-      "portable_bundle_manifest_path": null,
-      "reviewed_candidate_commit": null,
-      "candidate_ci_run": null,
-      "candidate_ci_conclusion": null,
+      "state": "PENDING_EXTERNAL_REVIEW",
+      "review_request_id": "REV-GOV-PR5-006",
+      "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-006.json",
+      "portable_bundle_manifest_path": "governance-runtime/review-bundles/REV-GOV-PR5-006.manifest.json",
+      "reviewed_candidate_commit": "e40f31951b6013a155472223d77469be25bbecb8",
+      "candidate_ci_run": 34121555924,
+      "candidate_ci_conclusion": "success",
+      "actions_artifact_id": 10018372901,
+      "actions_artifact_digest": "sha256:53477ab805c54a8e56903066b994058eb7d28515554e1bcab3e9e9d2c0c26d72",
+      "portable_bundle_sha256": "13535b8ddc2a04602c5d4449ffa7a2fab0ca038d34474d13e17a150619d6e7da",
       "superseded_review_requests": [
         "REV-GOV-PR5-001",
         "REV-GOV-PR5-002",
-        "REV-GOV-PR5-003"
+        "REV-GOV-PR5-003",
+        "REV-GOV-PR5-004",
+        "REV-GOV-PR5-005"
       ]
     }
   },
@@ -74,7 +79,7 @@
         }
       ]
     },
-    "next_action": "Complete independent review of the live-governance AUTO_MODE/MANUAL_MODE and portable-review design. Then apply the narrow Slice 3 code-only validation-order/classification repair without changing S3-01..S3-16.",
+    "next_action": "Wait for and validate independent Claude review REV-GOV-PR5-006. Do not promote PR #5. After governance review is resolved, apply the narrow Slice 3 code-only validation-order/classification repair without changing S3-01..S3-16.",
     "forbidden_shortcut": "Do not modify the frozen S3 harness or preregistration to obtain green."
   },
   "accepted_prior_boundary": {
@@ -98,11 +103,11 @@
     "transport_may_change_policy": false,
     "platform_mode_may_change_authority": false,
     "current_required_transition": "Promotion of live conversation governance PR #5 to main and any future Slice 3 scientific adjudication or material frozen-contract change",
-    "current_review_status": "NOT_YET_PRESENT",
-    "current_review_request_id": null,
+    "current_review_status": "PENDING_EXTERNAL_REVIEW",
+    "current_review_request_id": "REV-GOV-PR5-006",
     "current_requested_reviewer": "CLAUDE",
-    "current_reviewed_artifact_commit": null,
-    "superseded_review_requests": ["REV-GOV-PR5-001", "REV-GOV-PR5-002", "REV-GOV-PR5-003"],
+    "current_reviewed_artifact_commit": "e40f31951b6013a155472223d77469be25bbecb8",
+    "superseded_review_requests": ["REV-GOV-PR5-001", "REV-GOV-PR5-002", "REV-GOV-PR5-003", "REV-GOV-PR5-004", "REV-GOV-PR5-005"],
     "fallback_if_unavailable": "PENDING_INDEPENDENT_REVIEW",
     "consensus_is_evidence": false
   },
@@ -131,18 +136,18 @@
   "open_governance_items": [
     {
       "id": "GOV-IR-001",
-      "state": "PENDING_CANDIDATE_FREEZE",
+      "state": "PENDING_EXTERNAL_REVIEW",
       "description": "Independent-review escalation with AUTO_MODE and MANUAL_MODE above transport-neutral provider review semantics."
     },
     {
       "id": "GOV-MEM-001",
-      "state": "PENDING_CANDIDATE_FREEZE",
+      "state": "PENDING_EXTERNAL_REVIEW",
       "description": "Shared project memory is an active governed continuity/coordination subsystem verified against authority before material use."
     },
     {
       "id": "GOV-PORTABLE-001",
-      "state": "PENDING_CANDIDATE_FREEZE",
-      "description": "MANUAL_RELAY assumes zero reviewer repository access and binds an external self-contained packet through a governed manifest/hash."
+      "state": "PENDING_EXTERNAL_REVIEW",
+      "description": "MANUAL_RELAY assumes zero reviewer repository access and binds an externally exported self-contained packet through CI artifact provenance and a governed manifest/hash."
     }
   ]
 }
