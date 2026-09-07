@@ -6,7 +6,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from review_engine.configuration import build_provider_registry, build_qualification_registry, load_configuration
+from review_engine.configuration import (
+    build_provider_registry,
+    build_qualification_registry,
+    load_configuration,
+    provider_binding_fingerprint,
+)
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -31,8 +36,9 @@ class ConfigurationTests(unittest.TestCase):
 
     @staticmethod
     def _qualified_config_data():
+        provider = {"adapter": "openai_compatible", "base_url": "https://p.example/v1"}
         return {
-            "providers": {"p": {"adapter": "openai_compatible", "base_url": "https://p.example/v1"}},
+            "providers": {"p": provider},
             "reviewers": {
                 "R1": {
                     "provider": "p",
@@ -52,6 +58,7 @@ class ConfigurationTests(unittest.TestCase):
                 "qualification_epoch": 1,
                 "max_risk": "LOW",
                 "task_types": ["GENERAL"],
+                "provider_binding_fingerprint": provider_binding_fingerprint(provider),
             }],
         }
 
@@ -71,6 +78,10 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(config.reviewer("R2").api_key_env, "KEY_B")
         self.assertIsNone(config.reviewer("R3"))
         self.assertEqual(config.assurance_mode, "EXPERIMENTAL_UNQUALIFIED")
+        self.assertEqual(
+            config.reviewer("R1").provider_binding_fingerprint,
+            provider_binding_fingerprint(config.provider_specs["p1"]),
+        )
 
     def test_native_anthropic_and_gemini_adapters_can_be_registered(self):
         path = self._write({
@@ -97,13 +108,31 @@ class ConfigurationTests(unittest.TestCase):
         approved = self._qualified_config_data()
         approved_config = load_configuration(self._write(approved))
         self.assertEqual(approved_config.assurance_mode, "GOVERNED")
+        self.assertIsNotNone(build_qualification_registry(approved_config))
 
         substituted = copy.deepcopy(approved)
         substituted["providers"]["p"]["base_url"] = "https://different-provider.example/v1"
         substituted_config = load_configuration(self._write(substituted))
 
-        with self.assertRaisesRegex(ValueError, "deployment|provider.*binding|fingerprint|qualification"):
+        with self.assertRaisesRegex(ValueError, "provider binding fingerprint|qualification"):
             build_qualification_registry(substituted_config)
+
+    def test_provider_behavior_setting_substitution_cannot_reuse_old_qualification(self):
+        approved = self._qualified_config_data()
+        substituted = copy.deepcopy(approved)
+        substituted["providers"]["p"]["temperature"] = 0.8
+        substituted_config = load_configuration(self._write(substituted))
+
+        with self.assertRaisesRegex(ValueError, "provider binding fingerprint|qualification"):
+            build_qualification_registry(substituted_config)
+
+    def test_governed_qualification_without_provider_binding_fails_closed(self):
+        data = self._qualified_config_data()
+        del data["qualifications"][0]["provider_binding_fingerprint"]
+        config = load_configuration(self._write(data))
+        self.assertEqual(config.assurance_mode, "GOVERNED")
+        with self.assertRaisesRegex(ValueError, "requires provider binding fingerprint"):
+            build_qualification_registry(config)
 
     def test_raw_api_key_field_is_rejected(self):
         path = self._write(self._minimal(provider_extra={"api_key": "secret"}))
