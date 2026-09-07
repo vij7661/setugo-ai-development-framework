@@ -1,0 +1,69 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_2",
+  "status": "FROZEN_AWAITING_FIRST_EXPOSURE",
+  "branch": "feature/integrated-governed-mvp-slice2-execution-gateway",
+  "preregistered_contract": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE2_EXECUTION_GATEWAY_CONTRACT.md",
+  "preregistration_commit": "8398b046e27d18e607ec7cc4006a62528e227006",
+  "acceptance_harness_commit": "b58f805367d3a17eb5bbc9721fe45e83c37fb0a5",
+  "execution_workflow_commit": "554db55b00000000000000000000000000000000",
+  "implementation_commit": "afbd2860c0ef903d60c7dfb80ade91decff8488a",
+  "construction_head": "1802a1454570ca42101357a3e78ea8e7b6de0366",
+  "construction_evidence": {
+    "slice2_workflow_run": 34107499634,
+    "slice2_job": 101695780881,
+    "acceptance_cases": "S2-01..S2-16 explicit ok",
+    "governed_workflow_run": 34107499728,
+    "governed_job": 101695781592,
+    "governed_regression": "1151/1151 OK"
+  },
+  "preserved_construction_history": [
+    {
+      "candidate": "554db55b",
+      "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+      "result": "Frozen Slice 2 harness could not import the intentionally missing execution gateway; pre-existing governed checks remained green up to the missing mechanism boundary."
+    },
+    {
+      "candidate": "afbd2860c0ef903d60c7dfb80ade91decff8488a",
+      "classification": "CODE_DEFECT_VALIDATION_ORDER_CLASSIFICATION",
+      "result": "15/16 frozen Slice 2 cases passed; S2-02 classified a correctly hashed non-authorizing upstream decision as DENIED_UPSTREAM_INTEGRITY instead of DENIED_UPSTREAM. No consequential effect occurred."
+    }
+  ],
+  "frozen_acceptance_cases": [
+    "S2-01",
+    "S2-02",
+    "S2-03",
+    "S2-04",
+    "S2-05",
+    "S2-06",
+    "S2-07",
+    "S2-08",
+    "S2-09",
+    "S2-10",
+    "S2-11",
+    "S2-12",
+    "S2-13",
+    "S2-14",
+    "S2-15",
+    "S2-16"
+  ],
+  "scientific_acceptance": {
+    "require_exact_frozen_sha": true,
+    "require_all_acceptance_cases_explicit_ok": true,
+    "require_complete_governed_regression_same_sha": true,
+    "expected_test_count_if_metadata_only_freeze": 1151,
+    "preserve_first_frozen_result_before_any_repair": true
+  },
+  "claim_boundary": "A positive Slice 2 result supports only that, in the tested local reference gateway, an exact externally authorized development effect can be performed at most once under the frozen bindings with replay/restart handling and exact evidence lineage. It does not establish production sandbox security, distributed trust-domain independence, external certification, or terminal/release/deploy authority.",
+  "nonclaims": [
+    "production repository writes",
+    "production shell/browser/network access",
+    "container or VM escape resistance",
+    "remote multi-host atomicity",
+    "distributed consensus",
+    "cloud KMS/HSM production authority",
+    "provider attestation",
+    "physical power-loss/storage-controller durability",
+    "third-party independent certification",
+    "release, deploy, merge, production, or completion authority"
+  ]
+}
