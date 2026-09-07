@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-001",
   "classification": "REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
   "invariant": "A reviewer that shares the same effective provider/model runtime identity with another reviewer cannot satisfy an independent reviewer role merely by carrying a different foundation_lineage label.",
-  "status": "REGRESSION_FROZEN",
+  "status": "FULL_SUITE_GREEN",
   "independent_review_required": true,
   "first_failure": {
     "candidate_commit": "97387b0e729a446a1959bddfb7968f62a391f82d",
@@ -18,7 +18,7 @@
   "first_failure_ref": "github-actions:34147695252/job/101823167241@97387b0e729a446a1959bddfb7968f62a391f82d",
   "repair_ref": "commit:5786fc0e3780b522d0a61c5c355f387a3585aff8:review_engine/qualification.py",
   "regression_ref": "review_engine/test_reviewer_independence_runtime_alias.py@dca30c9bce4dc5e2ce0d511efacea43499e742a7",
-  "full_suite_ref": null,
+  "full_suite_ref": "review-engine-ci:34148085233=SUCCESS(274/274);governed-platform-review-engine-harness:34148085217=SUCCESS@5786fc0e3780b522d0a61c5c355f387a3585aff8",
   "independent_review_ref": null,
   "regression_family": [
     "same provider/model with a forged different foundation-lineage label cannot satisfy R2 independence",
@@ -26,8 +26,8 @@
     "R3 cannot reuse R1 effective runtime identity under a new foundation-lineage label"
   ],
   "notes": [
-    "The first red exposure and its expected rejection are preserved unchanged.",
-    "The regression family tests the invariant rather than one attack spelling.",
-    "This bypass remains non-closed until full-suite evidence and governed independent review are present."
+    "Review Engine CI passed 274/274 tests after the production repair.",
+    "The integrated Governed Platform + Review Engine Harness also passed at the repair commit.",
+    "RE-BYP-001 is intentionally not CLOSED; governed independent review is still required for this authority-boundary repair."
   ]
 }
