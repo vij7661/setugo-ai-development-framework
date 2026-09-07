@@ -14,11 +14,22 @@
   "current_work": {
     "name": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
     "authoritative_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
-    "authoritative_head": "325610d807eb88595231ec05af33e93f340ecb49",
-    "status": "CONSTRUCTION_FAILURE_PRESERVED_REPAIR_PENDING",
-    "continuity_summary": "Slice 3 remains frozen at 14/16. GOV-REVIEW-CLASS-001 is construction-green at candidate 22996852efcf0b82d7d13f03c747dc375bce60cd, run 34141285547, 50/50. Platform review execution is now only AUTOMATIC_API or USER_INITIATED_API. The first REV011-shaped paste is USER_PROVIDED_EXTERNAL_CONTENT; the later result explicitly identified by the user as DeepSeek is USER_ATTESTED_EXTERNAL_LLM_REVIEW. Neither is provider-API-authenticated or promotable. Resume the narrow Slice 3 S3-03/S3-11 repair.",
+    "authoritative_head": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+    "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+    "continuity_summary": "Slice 3 narrow repair is construction-green at exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6. Frozen Slice 3 harness passed 16/16 and broader governed platform experiment harness passed at the same SHA. Historical parent 325610d807eb88595231ec05af33e93f340ecb49 remains preserved as 14/16 with S3-03 and S3-11 failures. The exact next operational action is independent review of 4f1797b; reviewer prompt and PDF packet were delivered. Do not resume EXP-I/EXP-K or infer the frontier from repository HEAD.",
     "allowed_use": ["session_resume","task_routing","context_preparation","external_evidence_reference"],
-    "prohibited_use": ["declare_slice3_pass","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","infer_external_provider_from_payload_fields","treat_user_attestation_as_provider_authentication","promote_pr5_from_external_pasted_evidence","reuse_rev011_for_new_candidate"]
+    "prohibited_use": ["declare_slice3_pass_from_ci","change_frozen_expectations","grant_terminal_authority","treat_superseded_review_as_current","infer_external_provider_from_payload_fields","treat_user_attestation_as_provider_authentication","promote_pr5_from_external_pasted_evidence","reuse_rev011_for_new_candidate","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head"]
+  },
+  "execution_handoff": {
+    "sequence": 32,
+    "workstream": "Integrated Governed MVP Slice 3 - Repository Mutation Gateway",
+    "candidate_branch": "feature/integrated-governed-mvp-slice3-repository-mutation-gateway",
+    "candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+    "phase": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+    "next_required_action": "Wait for the independent reviewer response for exact candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6, then ingest raw result, classify provenance, validate semantic coverage/disposition, adjudicate findings, and advance or repair Slice 3.",
+    "stop_condition": "INDEPENDENT_REVIEW_REQUIRED",
+    "manual_input_required": true,
+    "resume_rule": "Generic CONTINUE means execute the authoritative session-state execution_handoff.next_required_action after Git/evidence verification; never reconstruct a different frontier from memory or repository HEAD."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
@@ -36,24 +47,24 @@
     "positive_promotable_dispositions": ["PASS","BOUNDED_PASS"],
     "selected_next_reviewer": null,
     "current_review_request_id": null,
-    "current_review_status": "NOT_YET_PRESENT",
-    "reviewed_candidate_commit": null,
+    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
+    "reviewed_candidate_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
     "current_review_disposition": null,
     "current_review_semantic_validation": null,
     "current_review_effective_state": null,
     "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
-    "construction_evidence": {"id":"GOV-REVIEW-CLASS-001-CONSTRUCTION-GREEN-001","candidate_commit":"22996852efcf0b82d7d13f03c747dc375bce60cd","workflow_run":34141285547,"tests":"50/50","state":"CONSTRUCTION_GREEN_BOUNDED"},
-    "features_under_review": ["platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
+    "construction_evidence": {"id":"SLICE3-REPAIR-CONSTRUCTION-GREEN-001","candidate_commit":"4f1797b8d6da23f3bba9f68cc98a625cc96186e6","workflow_run":34156635574,"tests":"16/16","state":"CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW"},
+    "features_under_review": ["deterministic execution handoff","platform API review classes","external evidence provenance separation","trusted reviewer identity provenance","schema-4 semantic coverage","promotion binding","shared-memory grounding","AUTO_MODE/MANUAL_MODE authority equivalence"]
   },
   "pending_reviews": [
     {
-      "purpose": "Promotion of live conversation governance PR #5",
-      "status": "PENDING_CANDIDATE_FREEZE",
+      "purpose": "Independent adjudication of Slice 3 candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
+      "status": "PENDING_INDEPENDENT_REVIEW",
       "platform_mode": "MANUAL_MODE",
       "review_request_id": null,
       "review_transport": null,
-      "reviewed_artifact_commit": null,
+      "reviewed_artifact_commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6",
       "counts_for_current_promotion": false,
       "superseded_review_requests": ["REV-GOV-PR5-001","REV-GOV-PR5-002","REV-GOV-PR5-003","REV-GOV-PR5-004","REV-GOV-PR5-005","REV-GOV-PR5-006","REV-GOV-PR5-007","REV-GOV-PR5-008","REV-GOV-PR5-009","REV-GOV-PR5-010","REV-GOV-PR5-011"]
     }
@@ -73,7 +84,8 @@
     {"id":"LCG-F8","observed":"REV-GOV-PR5-008 returned PASS while admitting required raw evidence was inaccessible","resolution":"SEMANTIC_PASS_EVIDENCE_CONTRADICTION_REPAIRED","silent_merge":false},
     {"id":"LCG-F9","observed":"DeepSeek could not accept ZIP and many-file manual upload was impractical","resolution":"SINGLE_FILE_EXTERNAL_EVIDENCE_CONTAINER_IMPLEMENTED","silent_merge":false},
     {"id":"LCG-F10","observed":"REV-GOV-PR5-010 packet build omitted a ReviewRequest-referenced artifact","resolution":"FAILURE_PRESERVED_REV010_SUPERSEDED_NARROW_REPAIR_APPLIED","silent_merge":false},
-    {"id":"LCG-F11","observed":"Copy/paste MANUAL_RELAY was modeled as a review transport although production MANUAL_MODE uses provider API","resolution":"GOV_REVIEW_CLASS_001_SEPARATES_PLATFORM_API_REVIEW_FROM_EXTERNAL_EVIDENCE","silent_merge":false}
+    {"id":"LCG-F11","observed":"Copy/paste MANUAL_RELAY was modeled as a review transport although production MANUAL_MODE uses provider API","resolution":"GOV_REVIEW_CLASS_001_SEPARATES_PLATFORM_API_REVIEW_FROM_EXTERNAL_EVIDENCE","silent_merge":false},
+    {"id":"LCG-F12","observed":"Assistant repeatedly resumed from stale model/project context or repository history instead of the true last operational checkpoint, causing EXP-I/EXP-K and other stale frontiers to be proposed after work had advanced.","resolution":"GOV_HANDOFF_001_EXPLICIT_CANDIDATE_BOUND_EXECUTION_HANDOFF_ADDED","silent_merge":false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
@@ -89,6 +101,9 @@
     "external_evidence_may_satisfy_platform_review_gate": false,
     "review_disposition_may_override_missing_required_review_evidence": false,
     "legacy_review_schema_may_promote_material_authority": false,
-    "negative_review_disposition_may_promote_material_authority": false
+    "negative_review_disposition_may_promote_material_authority": false,
+    "chat_summary_may_override_execution_handoff": false,
+    "repository_head_alone_defines_execution_frontier": false,
+    "generic_continue_uses_execution_handoff": true
   }
 }
