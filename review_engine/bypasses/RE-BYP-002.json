@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-002",
   "classification": "RESIDUAL_REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
   "invariant": "Reviewer independence must fail closed when two reviewer roles may resolve to the same effective runtime, even if provider aliases, URL spellings, or model labels differ.",
-  "status": "PRESERVED",
+  "status": "MECHANISM_REPAIRED",
   "independent_review_required": true,
   "source_external_content_sha256": "681dafb1206cc6945e6d88b21086bf330eacf4a3fd75fe5de17d8f27cbff520d",
   "source_classification": "USER_PROVIDED_EXTERNAL_CONTENT",
@@ -19,13 +19,16 @@
   ],
   "first_failure_actual": "Both attacks reached CONVERGED_PASS instead of HUMAN_REQUIRED.",
   "suite_result": "290 tests run; 285 passed; 5 newly frozen regressions failed; no unrelated prior regression failed.",
-  "repair_ref": null,
+  "repair_ref": "commit:c5ed12dff40d7403a4f3a9cc5bd992fb66774792:review_engine/qualification.py",
+  "repair_supporting_refs": [
+    "commit:7b4acfd290ebf028a24cae8cb50ec7d04d055b3e:review_engine/configuration.py"
+  ],
   "regression_ref": "review_engine/test_reviewer_independence_runtime_alias.py@e312b8d7b9a86432198ffd88dabe06eadb322d32",
   "full_suite_ref": null,
   "independent_review_ref": null,
   "notes": [
-    "This is a residual family discovered while RE-BYP-001 was FULL_SUITE_GREEN but not CLOSED.",
-    "The external content is useful defect evidence but is not provider-authenticated review evidence.",
-    "The first red exposure is preserved before changing the production runtime-independence mechanism."
+    "Runtime correlation now fails closed if provider id, model label, or non-empty configuration-time provider binding matches.",
+    "Provider base URLs are canonically normalized for cosmetic host/scheme/default-port/trailing-slash variance before qualification fingerprinting.",
+    "Provider binding remains configuration-time evidence and is explicitly not described as cryptographic remote-runtime attestation."
   ]
 }
