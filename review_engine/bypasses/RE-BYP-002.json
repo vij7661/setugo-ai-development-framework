@@ -2,7 +2,7 @@
   "bypass_id": "RE-BYP-002",
   "classification": "RESIDUAL_REVIEWER_RUNTIME_ALIAS_FALSE_INDEPENDENCE",
   "invariant": "Reviewer independence must fail closed when two reviewer roles may resolve to the same effective runtime, even if provider aliases, URL spellings, or model labels differ.",
-  "status": "DISCOVERED",
+  "status": "PRESERVED",
   "independent_review_required": true,
   "source_external_content_sha256": "681dafb1206cc6945e6d88b21086bf330eacf4a3fd75fe5de17d8f27cbff520d",
   "source_classification": "USER_PROVIDED_EXTERNAL_CONTENT",
@@ -12,14 +12,20 @@
     "provider aliases pointing at canonically equivalent base URLs must not count as independent",
     "different model labels on the same provider execution binding must not automatically count as independent"
   ],
-  "first_failure_ref": null,
+  "first_failure_ref": "github-actions:34152235527/job/101836715329@e312b8d7b9a86432198ffd88dabe06eadb322d32",
+  "first_failure_tests": [
+    "test_reviewer_independence_runtime_alias.ReviewerRuntimeAliasIndependenceTests.test_provider_aliases_with_canonically_equivalent_urls_are_not_independent",
+    "test_reviewer_independence_runtime_alias.ReviewerRuntimeAliasIndependenceTests.test_same_provider_binding_with_different_model_labels_is_not_independent"
+  ],
+  "first_failure_actual": "Both attacks reached CONVERGED_PASS instead of HUMAN_REQUIRED.",
+  "suite_result": "290 tests run; 285 passed; 5 newly frozen regressions failed; no unrelated prior regression failed.",
   "repair_ref": null,
-  "regression_ref": null,
+  "regression_ref": "review_engine/test_reviewer_independence_runtime_alias.py@e312b8d7b9a86432198ffd88dabe06eadb322d32",
   "full_suite_ref": null,
   "independent_review_ref": null,
   "notes": [
     "This is a residual family discovered while RE-BYP-001 was FULL_SUITE_GREEN but not CLOSED.",
     "The external content is useful defect evidence but is not provider-authenticated review evidence.",
-    "Freeze adversarial tests before changing the production runtime-independence mechanism."
+    "The first red exposure is preserved before changing the production runtime-independence mechanism."
   ]
 }
