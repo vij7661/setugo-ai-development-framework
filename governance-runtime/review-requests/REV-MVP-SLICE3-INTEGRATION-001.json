@@ -1,0 +1,52 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE3-INTEGRATION-001",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice3_integration_candidate",
+    "ref": "PR-9:base=feature/integrated-governed-mvp@ff55bb7a803cfffead3ecaf6ea7e171453ed436d",
+    "commit": "4f1797b8d6da23f3bba9f68cc98a625cc96186e6"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "gemini", "model_class": "gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Verify from the supplied exact candidate evidence that Slice 3's repaired repository-mutation gateway is consistent with its frozen contract and preserved construction failures.",
+    "Assess whether integrating candidate 4f1797b8d6da23f3bba9f68cc98a625cc96186e6 into current parent feature/integrated-governed-mvp at ff55bb7a803cfffead3ecaf6ea7e171453ed436d is lineage-correct given merge base eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b, ahead 7, behind 1, with the one behind commit being the accepted Slice 2 merge.",
+    "Check that the integration transition contains only the exact six Slice 3 files and does not smuggle unrelated authority.",
+    "Check contract substitution classification, manifest exact binding, idempotency rebinding resistance, repository confinement, crash consistency, replay/concurrency, and evidence lineage.",
+    "Check that local repository mutation does not mint remote push, merge, release, deploy, production, or completion authority.",
+    "Check that the historical 14/16 parent failure remains preserved by the construction-failure records and is not laundered by the repaired candidate.",
+    "Identify any remaining integration-time authority bypass, false-green path, provenance defect, stale durable-state ambiguity, or stack-order issue.",
+    "Return an independent disposition without assuming proposer confidence, prior scientific adjudication, or green CI is sufficient."
+  ],
+  "evidence_refs": [
+    {"type":"history","ref":"PR9 base=ff55bb7a803cfffead3ecaf6ea7e171453ed436d; head=4f1797b8d6da23f3bba9f68cc98a625cc96186e6; merge-base=eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b; compare ahead 7 behind 1; six changed files; PR CI run 34165458218 success"},
+    {"type":"file","ref":"experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE3_REPOSITORY_MUTATION_GATEWAY_CONTRACT.md"},
+    {"type":"file","ref":"experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE3-CONSTRUCTION-FAILURE-001.json"},
+    {"type":"file","ref":"experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE3-CONSTRUCTION-FAILURE-002.json"},
+    {"type":"file","ref":"experiments/governed-platform/governance/integrated_governed_mvp_repository_gateway.py"},
+    {"type":"file","ref":"experiments/governed-platform/governance/test_integrated_governed_mvp_slice3.py"},
+    {"type":"file","ref":".github/workflows/integrated-governed-mvp-slice3.yml"}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"integration_lineage_integrity","mandatory":true,"description":"The Slice 3 candidate is integrated only after the accepted Slice 2 transition and the one-commit behind state is exactly the accepted parent merge wrapper, not missing functional ancestry."},
+    {"id":"transition_scope_exactness","mandatory":true,"description":"The transition is confined to the exact seven-commit, six-file Slice 3 delta and contains no unrelated authority-bearing change."},
+    {"id":"contract_and_manifest_binding","mandatory":true,"description":"Contract substitution classification, manifest self-hash/exact field binding, patch digest, changed-file binding, and idempotency rebinding resistance fail closed."},
+    {"id":"repository_confinement","mandatory":true,"description":"Local repository mutation is confined against traversal, absolute paths, .git control paths, and symlink escapes."},
+    {"id":"atomicity_replay_concurrency","mandatory":true,"description":"Durable INTENT/COMMITTED handling, crash recovery, exact replay, concurrent retries, and ambiguous-state fail-closed behavior preserve at-most-once semantics."},
+    {"id":"terminal_and_remote_authority_boundary","mandatory":true,"description":"Slice 3 cannot mint remote push, merge, release, deploy, production, or completion authority."},
+    {"id":"failure_history_nonlaundering","mandatory":true,"description":"The exposed 14/16 parent failure and repair history remain preserved and are not rewritten into a false-green history."},
+    {"id":"remaining_authority_bypass_search","mandatory":true,"description":"Adversarial review finds no remaining material integration-time authority bypass, provenance defect, stale-state ambiguity, or false-green path."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "1dce8d7b565a5f87ce8fd98b75e34d4c317e747a1eada2cee43d4da2c7e7e4b9"
+}
