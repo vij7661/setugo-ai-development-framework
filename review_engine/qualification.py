@@ -131,23 +131,26 @@ def _same_effective_runtime(
 ) -> bool:
     """Conservatively detect reviewer aliases for independence purposes.
 
-    Same provider+model is never accepted as independent merely because role,
-    SKU, deployment labels or foundation-lineage labels differ. Provider aliases
-    are also treated as the same runtime when the model and platform-derived
-    provider execution fingerprint are identical.
+    Independence fails closed when any strong correlation signal says two roles
+    may be the same effective reviewer path: the same provider id, the same
+    model label, or the same platform-derived configuration-time provider
+    binding. No one signal is allowed to act as an AND-gate that another alias
+    can bypass by changing only a label.
 
-    This is a fail-closed bookkeeping invariant, not a universal cryptographic
-    statement that two different-looking runtimes are truly independent.
+    The provider binding is a configuration-time hash of the configured route
+    and behavior-affecting adapter settings. It is not cryptographic proof of
+    remote runtime identity. Therefore this check intentionally errs toward
+    rejecting potentially-correlated reviewers until stronger runtime identity
+    evidence exists.
     """
-    if left_model != right_model:
-        return False
-    if left_provider == right_provider:
-        return True
-    return bool(
+    same_provider = left_provider == right_provider
+    same_model = left_model == right_model
+    same_binding = bool(
         left_provider_binding
         and right_provider_binding
         and left_provider_binding == right_provider_binding
     )
+    return same_provider or same_model or same_binding
 
 
 @dataclass(frozen=True)
@@ -196,9 +199,9 @@ class ReviewerCapability:
 
     The capability is the linearization point between qualification state and one
     governed provider invocation. It is bound to the exact retained qualification
-    epoch, reviewer identity, risk/task, request/phase/artifact scope, configured
-    provider execution fingerprint, and the canonical hash of the exact
-    model-visible context.
+    epoch, reviewer identity, risk/task, request/phase/artifact scope,
+    configuration-time provider binding fingerprint, and the canonical hash of
+    the exact model-visible context.
 
     Revocation before issuance prevents issuance; a later revocation applies to
     future capabilities rather than retroactively rewriting authority that was
