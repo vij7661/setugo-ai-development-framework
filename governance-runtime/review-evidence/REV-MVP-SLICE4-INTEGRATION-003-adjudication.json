@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "transition": "PR #10 Slice 4 -> feature/integrated-governed-mvp",
+  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-003",
+  "candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
+  "current_parent_commit": "a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d",
+  "merge_ref_commit": "43fb9b3b5610c8ccb93b7d5fb7f532f5a6f0c852",
+  "pr_number": 10,
+  "transition_ci": {
+    "workflow_run_id": 34167372130,
+    "job_id": 101880985712,
+    "conclusion": "success",
+    "tests": "1183/1183",
+    "slice4_cases": "S4-01..S4-16 PASS",
+    "exact_merge_ref_verified": true
+  },
+  "review_evidence": {
+    "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-003-platform-review.json",
+    "workflow_run_id": 34168261336,
+    "job_id": 101883498584,
+    "artifact_id": 10034862695,
+    "artifact_digest": "sha256:52878c5e31163af54513fe0a227d95d9c8a543fe5ede31696a08c5b1a0c0a6d5",
+    "request_hash": "77795f8416b0f9d4573a2b13f11d1707fc41880bd2a6b8ab63340beb90d98211",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "transport": "AUTOMATIC_API",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "semantic_validation_valid": true,
+    "mandatory_dimensions_supported": "8/8",
+    "findings": 0,
+    "disposition": "PASS"
+  },
+  "preserved_history": {
+    "invalid_review_001": "Authenticated API content returned PASS but the ReviewRequest canonical hash was invalid; preserved as INVALID_REVIEW_EVIDENCE with authority effect NONE.",
+    "review_002": "Hash-valid corrected request reached authenticated platform review but Gemini returned HTTP 503 UNAVAILABLE/high demand; preserved with authority effect NONE.",
+    "stale_checkpoint_run": 34167628195,
+    "packet_builder_routing_failure_run": 34167948693,
+    "history_rewritten": false
+  },
+  "scientific_subject": "f6f04970d594292f21db648132afab7da4f263a6",
+  "scientific_state": "BOUNDED_PASS",
+  "transition_state": "VALID_INDEPENDENT_REVIEW_PRESENT_PENDING_PR_CLOSURE",
+  "history_preserved": true,
+  "terminal_authority": false,
+  "release_completion_authority": false,
+  "limitations": [
+    "Remote Gemini model identity is not cryptographically proven; authenticated platform API execution establishes provider-call provenance.",
+    "Slice 4 proves only the frozen bounded reference tool-runner boundary, not arbitrary-code sandbox security, kernel/container escape resistance, production network isolation, or production credential safety.",
+    "Scientific PASS and integration review PASS do not independently grant remote push, merge, release, deploy, production, or completion authority."
+  ],
+  "next_required_action": "Verify PR #10 remains open, draft, mergeable, base a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d, head f3b26a057ff862dc5f31794ec72c751a2b71f79b, with no unresolved comments/review threads or repository blockers; update PR description with exact CI/review evidence, mark ready, and merge only with expected head f3b26a057ff862dc5f31794ec72c751a2b71f79b."
+}
