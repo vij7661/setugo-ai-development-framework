@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR5-013",
+  "reviewed_artifact_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+  "candidate_ci": {"workflow_run_id":34164220980,"conclusion":"success","candidate_exact":true},
+  "review_evidence": {
+    "path":"governance-runtime/review-evidence/REV-GOV-PR5-013-platform-review.json",
+    "workflow_run_id":34164436416,
+    "review_class":"PLATFORM_AUTO_API_REVIEW",
+    "transport":"AUTOMATIC_API",
+    "provider":"gemini",
+    "model":"gemini-3.6-flash",
+    "provider_api_authenticated":true,
+    "semantic_validation_valid":true,
+    "mandatory_dimensions_supported":"12/12",
+    "findings":0,
+    "disposition":"PASS"
+  },
+  "effective_state":"VALID_INDEPENDENT_REVIEW_PRESENT",
+  "promotion_gate_result":"ELIGIBLE_FOR_PR5_PROMOTION_SUBJECT_TO_FINAL_CLOSURE_HEAD_VALIDATION",
+  "limitations":[
+    "Remote Gemini model identity is not cryptographically proven; authenticated provider API execution envelope establishes review-call provenance.",
+    "Review is bound to exact candidate 2ae09783c0c36d5b8cc66146c3445e131fd99971. Later commits may only carry review evidence, trigger deactivation, authoritative status/continuity bookkeeping, or other explicitly non-mechanism closure metadata unless re-reviewed."
+  ],
+  "history_preserved":"REV-GOV-PR5-001..012 remain superseded/non-authoritative as applicable; no earlier failure or conflicting external review is rewritten."
+}
