@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "event_type": "REVIEWER_IDENTITY_CORRECTION",
+  "review_request_id": "REV-GOV-PR5-003",
+  "reviewed_artifact_commit": "e412d9ff7617ecc01ad53d06eb1df0714372c215",
+  "previous_evidence_path": "governance-runtime/review-evidence/REV-GOV-PR5-003-claude.json",
+  "previous_claimed_reviewer": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-20250514"
+  },
+  "corrected_origin": {
+    "provider": "deepseek",
+    "model": "UNKNOWN_EXACT_MODEL",
+    "provenance": "USER_DISCLOSED_AFTER_VALIDATION",
+    "cryptographic_provider_identity_verified": false
+  },
+  "classification": "REVIEWER_IDENTITY_SELF_ATTESTATION_ACCEPTED",
+  "severity": "CRITICAL",
+  "effect": {
+    "previous_review_content_remains_evidence_about_the_old_candidate": true,
+    "previous_anthropic_identity_claim_is_retracted": true,
+    "counts_as_anthropic_review": false,
+    "counts_for_current_promotion": false
+  },
+  "required_control": "Reviewer identity must come from a trusted execution/provenance envelope rather than reviewer-authored JSON fields. Manual relay without authenticated provenance must be marked identity-unverified and cannot satisfy a provider-specific mandatory-review policy.",
+  "history_rewritten": false
+}
