@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_4",
+  "effective_scientific_state": "BOUNDED_PASS",
+  "frozen_candidate": "f6f04970d594292f21db648132afab7da4f263a6",
+  "frozen_acceptance_cases": "S4-01..S4-16",
+  "scientific_evidence": {
+    "dedicated_run_id": 34166321103,
+    "dedicated_result": "16/16 PASS",
+    "complete_governed_run_id": 34166321130,
+    "complete_governed_job_id": 101877945483,
+    "complete_governed_result": "1183 tests OK",
+    "exact_candidate_checkout_verified": true,
+    "direct_job_log_correspondence_verified": true
+  },
+  "independent_review": {
+    "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-003",
+    "governance_branch": "governance/live-conversation-runtime",
+    "review_workflow_run_id": 34167130365,
+    "review_job_id": 101880290858,
+    "review_artifact_id": 10034515777,
+    "review_artifact_digest": "sha256:37f7e7b86a7d0c7ad4b88c4590ccd772eea9816793f7d2a82898bf3bc87ab81c",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "transport": "AUTOMATIC_API",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "semantic_validation_valid": true,
+    "mandatory_dimensions_supported": "9/9",
+    "findings": 0,
+    "disposition": "PASS",
+    "governance_evidence_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-platform-review.json",
+    "governance_adjudication_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-adjudication.json"
+  },
+  "preserved_history": [
+    "First frozen construction failure remains at experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json.",
+    "Authenticated review REV-MVP-SLICE4-SCIENTIFIC-001 failed only because Gemini returned HTTP 503 high demand; no authority effect.",
+    "Authenticated review REV-MVP-SLICE4-SCIENTIFIC-002 failed only because Gemini returned HTTP 503 high demand; no authority effect."
+  ],
+  "bounded_claim": "Under the frozen tested reference conditions, one exact platform-authorized argv-form subprocess is constrained to the bound executable, workspace, environment, timeout/output limits, durable replay identity, and evidence lineage; adverse process, replay, crash, concurrency, and model/worker authority-claim cases do not widen authority.",
+  "nonclaims": [
+    "arbitrary-code sandbox security",
+    "kernel/OS/container/VM escape resistance",
+    "production network isolation",
+    "production credential safety",
+    "remote repository mutation authority",
+    "release, deploy, merge, production, or completion authority"
+  ],
+  "terminal_authority": false,
+  "release_completion_authority": false,
+  "next_required_action": "Govern the exact Slice 4 integration transition into the current feature/integrated-governed-mvp parent with fresh transition CI and independent authenticated review before merge."
+}
