@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+from review_engine.configuration import provider_binding_fingerprint
 from review_engine.models import ReviewFinding, ReviewerConfig, ReviewerResponse, ReviewRequest
 from review_engine.orchestrator import ReviewEngine
 from review_engine.qualification import QualificationRecord, QualificationRegistry
@@ -51,31 +52,40 @@ def registry_for(*configs: ReviewerConfig) -> QualificationRegistry:
     ))
 
 
+def run_two_reviewer_case(*, request_id: str, r1: ReviewerConfig, r2: ReviewerConfig) -> tuple[object, list[str]]:
+    calls: list[str] = []
+
+    def invoke(config, context):
+        calls.append(config.role)
+        if config.role == "R1":
+            return ReviewerResponse("R1", None, "candidate")
+        return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "clean")
+
+    decision = ReviewEngine(
+        invoke,
+        qualification_registry=registry_for(r1, r2),
+    ).run(
+        ReviewRequest(
+            request_id=request_id,
+            user_input="material review",
+            risk="MEDIUM",
+            materiality="MATERIAL",
+        ),
+        r1=r1,
+        r2=r2,
+        r3=None,
+    )
+    return decision, calls
+
+
 class ReviewerRuntimeAliasIndependenceTests(unittest.TestCase):
     def test_same_runtime_identity_cannot_masquerade_as_independent_via_lineage_label(self):
         r1 = alias_config("R1", "declared-lineage-a")
         r2 = alias_config("R2", "declared-lineage-b")
-        calls: list[str] = []
-
-        def invoke(config, context):
-            calls.append(config.role)
-            if config.role == "R1":
-                return ReviewerResponse("R1", None, "candidate")
-            return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "clean")
-
-        decision = ReviewEngine(
-            invoke,
-            qualification_registry=registry_for(r1, r2),
-        ).run(
-            ReviewRequest(
-                request_id="runtime-alias-independence",
-                user_input="material review",
-                risk="MEDIUM",
-                materiality="MATERIAL",
-            ),
+        decision, calls = run_two_reviewer_case(
+            request_id="runtime-alias-independence",
             r1=r1,
             r2=r2,
-            r3=None,
         )
 
         self.assertEqual(decision.state, "HUMAN_REQUIRED")
@@ -95,27 +105,66 @@ class ReviewerRuntimeAliasIndependenceTests(unittest.TestCase):
             provider="provider-alias-b",
             binding=SAME_PROVIDER_BINDING,
         )
-        calls: list[str] = []
-
-        def invoke(config, context):
-            calls.append(config.role)
-            if config.role == "R1":
-                return ReviewerResponse("R1", None, "candidate")
-            return ReviewerResponse("R2", context["artifact"]["artifact_hash"], "clean")
-
-        decision = ReviewEngine(
-            invoke,
-            qualification_registry=registry_for(r1, r2),
-        ).run(
-            ReviewRequest(
-                request_id="provider-alias-independence",
-                user_input="material review",
-                risk="MEDIUM",
-                materiality="MATERIAL",
-            ),
+        decision, calls = run_two_reviewer_case(
+            request_id="provider-alias-independence",
             r1=r1,
             r2=r2,
-            r3=None,
+        )
+
+        self.assertEqual(decision.state, "HUMAN_REQUIRED")
+        self.assertEqual(calls, ["R1"])
+        self.assertIn("runtime identity", decision.reasons[0])
+
+    def test_provider_aliases_with_canonically_equivalent_urls_are_not_independent(self):
+        binding_a = provider_binding_fingerprint({
+            "adapter": "openai_compatible",
+            "base_url": "https://gateway.internal/v1",
+        })
+        binding_b = provider_binding_fingerprint({
+            "adapter": "openai_compatible",
+            "base_url": "https://gateway.internal/v1/",
+        })
+        r1 = alias_config(
+            "R1",
+            "lineage-a",
+            provider="gateway-a",
+            binding=binding_a,
+        )
+        r2 = alias_config(
+            "R2",
+            "lineage-b",
+            provider="gateway-b",
+            binding=binding_b,
+        )
+        decision, calls = run_two_reviewer_case(
+            request_id="canonical-url-runtime-alias",
+            r1=r1,
+            r2=r2,
+        )
+
+        self.assertEqual(decision.state, "HUMAN_REQUIRED")
+        self.assertEqual(calls, ["R1"])
+        self.assertIn("runtime identity", decision.reasons[0])
+
+    def test_same_provider_binding_with_different_model_labels_is_not_independent(self):
+        r1 = alias_config(
+            "R1",
+            "lineage-a",
+            provider="same-provider",
+            model="model-version-pinned",
+            binding=SAME_PROVIDER_BINDING,
+        )
+        r2 = alias_config(
+            "R2",
+            "lineage-b",
+            provider="same-provider",
+            model="model-rolling-alias",
+            binding=SAME_PROVIDER_BINDING,
+        )
+        decision, calls = run_two_reviewer_case(
+            request_id="model-label-runtime-alias",
+            r1=r1,
+            r2=r2,
         )
 
         self.assertEqual(decision.state, "HUMAN_REQUIRED")
