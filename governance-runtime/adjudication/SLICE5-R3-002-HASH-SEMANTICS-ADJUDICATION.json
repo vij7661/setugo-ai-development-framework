@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "SLICE5-R3-002-HASH-SEMANTICS-ADJUDICATION",
+  "candidate_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+  "r3_review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-002",
+  "r3_workflow_run_id": 34252149785,
+  "r3_artifact_id": 10066555053,
+  "r3_disposition": "FAIL",
+  "r3_supported_dimensions": 9,
+  "r3_total_dimensions": 10,
+  "r3_findings": 1,
+  "finding_classification": "REVIEW_FALSE_POSITIVE_HASH_SEMANTICS_MISINTERPRETATION",
+  "finding_authority_effect": "NONE_FOR_CANDIDATE_DEFECT_CLASSIFICATION_PENDING_CORRECTED_R3",
+  "r3_claimed_whole_file_sha256": "sha256:cb5d468afc4dbd7593218f20976d7b05a0d22748a9a62e0dc52f4201dc62676a",
+  "protocol_handoff_self_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+  "hash_semantics": "handoff_hash is SHA-256 of canonical JSON payload after removing the handoff_hash field; it is not SHA-256 of serialized file bytes including the self-hash field",
+  "deterministic_verification": {
+    "workflow_run_id": 34252830218,
+    "job_id": 102151180079,
+    "conclusion": "success",
+    "computed_canonical_self_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+    "stored_handoff_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+    "whole_file_byte_hash": "sha256:cb5d468afc4dbd7593218f20976d7b05a0d22748a9a62e0dc52f4201dc62676a",
+    "self_hash_matches_stored": true,
+    "self_hash_matches_expected": true,
+    "whole_file_hash_is_not_protocol_self_hash": true,
+    "provider_credentials_or_calls": false
+  },
+  "candidate_changed": false,
+  "r2_changed": false,
+  "handoff_changed": false,
+  "required_next_step": "Dispatch corrected R3 with explicit handoff hash semantics and preserve R3-002 as non-authoritative contradictory reviewer evidence."
+}
