@@ -1,0 +1,29 @@
+name: EXP-L L7 Review Kernel Bootstrap
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/**
+      - governance-runtime/exp-l/test_l7_review_kernel_bootstrap.py
+      - governance-runtime/exp-l/L7-REVIEW-KERNEL-BOOTSTRAP-PREREG.json
+      - .github/workflows/exp-l-l7-review-kernel.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l7:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L7 mutation tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l7_review_kernel_bootstrap.py
