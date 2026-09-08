@@ -1,0 +1,37 @@
+{
+  "authority_effect": "R2_EVIDENCE_ONLY_PENDING_R3_AND_FINAL_ADJUDICATION",
+  "candidate_sha": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+  "corpus_hash": "sha256:a31e666ee106c7fdad676ee524f5c4f74c6347e92724ba5522f3a2ae25a71218",
+  "evidence_manifest_hash": "sha256:1bb5a601b758a9fb0552b4087e811c1881d95f6b587d6b79f0f611158744928e",
+  "handoff_hash": "sha256:5aebbdd249042a4ab8013a2f9235d5965808fe976e84e2e52d2cad9f339d1b0f",
+  "handoff_type": "AUTHENTICATED_PLATFORM_R2_TO_R3",
+  "provider_api_authenticated": true,
+  "r1_middle_opinion": null,
+  "r2_raw": {
+    "disposition": "PASS",
+    "evidence_assessment": "The repaired candidate commit d9459af74533fbb60477dfcec00b30e82a0e2534 replaces the earlier false-green audit implementation with v2 authoritative audit logic in authoritative_state_ledger_v2.py. Independent inspection confirms that audit() now reconstructs command_digest from persisted project, idempotency, command, payload, expected version, and effect parameters, recomputes current project_state.state_digest, and validates that project_state.state matches event replay lineage. Augmented tests in test_slice5_authoritative_state_ledger_v2.py verify detection of command payload tampering, current state JSON tampering, effect payload tampering, and missing event lineage while inheriting tests S5-01 through S5-15. CI run 34229441085 is bound to exact candidate commit d9459af74533fbb60477dfcec00b30e82a0e2534 and passes all 16 Slice 5 tests and 16 Slice 4 regression tests.",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "review_coverage": [
+      {"assessment":"Exact candidate d9459af74533fbb60477dfcec00b30e82a0e2534 remains bound to the frozen Slice 5 contract INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md and preserves historical false-green lineage without relying on prior unauthenticated or invalid PASS claims.","dimension_id":"preregistration_and_subject_integrity","evidence":["experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md","Prior candidate 93632f63342387170c997d017ae79b9c4c301df6 received authenticated R2 PASS but deterministic adjudication found audit false-green defects: stored command_digest was not reconstructed and current project_state.state_digest was not verified. That PASS has authority NONE. Candidate d9459af74533fbb60477dfcec00b30e82a0e2534 is a new repaired subject and must be reviewed fresh."],"status":"TESTED_SUPPORTED"},
+      {"assessment":"AuthoritativeStateLedger in authoritative_state_ledger_v2.py inherits core transaction, idempotency, versioning, crash rollback/recovery, outbox, and concurrency mechanisms from v1 without regression.","dimension_id":"atomic_transaction_and_core_regression","evidence":["experiments/governed-platform/governance/authoritative_state_ledger.py","experiments/governed-platform/governance/authoritative_state_ledger_v2.py","experiments/governed-platform/test_slice5_authoritative_state_ledger.py"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"authoritative_state_ledger_v2.py audit() reconstructs command_digest from persisted command_type, payload_json, expected_version, project_id, idempotency_key, effect_type, and effect_payload_json, detecting payload or effect tampering.","dimension_id":"command_digest_reconstruction","evidence":["experiments/governed-platform/governance/authoritative_state_ledger_v2.py"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"authoritative_state_ledger_v2.py audit() recomputes state_digest for current project_state, replays event transitions to verify result states, and checks current state consistency against event replay lineage.","dimension_id":"current_state_digest_and_replay_lineage","evidence":["experiments/governed-platform/governance/authoritative_state_ledger_v2.py"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"test_slice5_authoritative_state_ledger_v2.py extends S5-16 to independently attack stored command payload, current project state, outbox effect payload, and deleted event lineage, confirming fail-closed detection across all attack vectors.","dimension_id":"strengthened_s5_16_adversarial_coverage","evidence":["experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Authority claims provided by worker/model outputs in apply_command and complete_outbox are explicitly rejected (AuthorityClaimRejected), and outbox completion evidence rebinding fails closed.","dimension_id":"completion_and_worker_authority_separation","evidence":["experiments/governed-platform/governance/authoritative_state_ledger.py","experiments/governed-platform/test_slice5_authoritative_state_ledger.py"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"The frozen contract and implementation clearly acknowledge bounded nonclaims: local SQLite single-database reference only, no distributed consensus, no multi-host atomicity, no cryptographic tamper-proofing, and no production durability guarantees.","dimension_id":"bounded_tamper_claims","evidence":["experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md","experiments/governed-platform/governance/authoritative_state_ledger_v2.py"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Slice 4 regression suite runs cleanly (16/16 tests) alongside Slice 5, and the candidate adds no deployment, tool dispatch, release, or merge authority.","dimension_id":"slice4_regression_and_scope_nonexpansion","evidence":[".github/workflows/integrated-governed-mvp-slice5.yml","34229441085"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"CI run 34229441085 is bound to candidate commit d9459af74533fbb60477dfcec00b30e82a0e2534 and completed successfully with 16/16 Slice 5 tests and 16/16 Slice 4 regression tests.","dimension_id":"ci_candidate_binding","evidence":["34229441085",".github/workflows/integrated-governed-mvp-slice5.yml"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Adversarial inspection of authoritative_state_ledger_v2.py confirms that command digest reconstruction, state digest verification, replay lineage reconciliation, outbox integrity checks, and version continuity checks leave no material false-green paths within the single-database SQLite reference boundary.","dimension_id":"remaining_false_green_search","evidence":["experiments/governed-platform/governance/authoritative_state_ledger_v2.py","experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py"],"status":"TESTED_SUPPORTED"}
+    ],
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
+    "reviewed_artifact_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+    "reviewer": {"model":"gemini-3.6-flash","provider":"gemini"}
+  },
+  "r2_raw_hash": "sha256:c532bcfd42154e9beff73c5c84adc0752977c5961196f1b12759ddcf64bb7ecf",
+  "r3_required": true,
+  "review_request_hash": "sha256:2ccbf52f08f0c4a957ecf4dd2054af698ca9c59fcb4759daa0fc2c27cddbd530",
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
+  "routing_policy_hash": "sha256:27911b1bbd214dcc816f4fc9a9ddd29085915e96a66b360962f8ac7439154ff0",
+  "schema_version": 2
+}
