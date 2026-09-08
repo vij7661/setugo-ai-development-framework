@@ -48,13 +48,38 @@ jobs:
       - name: Execute authenticated governance review through materialization v2
         shell: bash
         run: |
-          set -o pipefail
+          set -u -o pipefail
           mkdir -p governance-review-evidence
-          python governance-runtime/platform_candidate_review_v2.py \
-            --request "$REVIEW_REQUEST_PATH" \
-            --output-dir governance-review-evidence \
-            --model "$GEMINI_REVIEW_MODEL" \
-            2> >(tee governance-review-evidence/provider-error.log >&2)
+          : > governance-review-evidence/provider-error.log
+          rc=1
+          for attempt in 1 2 3; do
+            echo "provider_attempt=${attempt}" | tee -a governance-review-evidence/provider-attempts.log
+            : > governance-review-evidence/provider-error-attempt.log
+            set +e
+            python governance-runtime/platform_candidate_review_v2.py \
+              --request "$REVIEW_REQUEST_PATH" \
+              --output-dir governance-review-evidence \
+              --model "$GEMINI_REVIEW_MODEL" \
+              2> >(tee governance-review-evidence/provider-error-attempt.log >&2)
+            rc=$?
+            set -e
+            cat governance-review-evidence/provider-error-attempt.log >> governance-review-evidence/provider-error.log
+            if [ "$rc" -eq 0 ]; then
+              echo "provider_attempt_result=success" | tee -a governance-review-evidence/provider-attempts.log
+              break
+            fi
+            if grep -Eqi '503|high demand|temporarily unavailable|service unavailable' governance-review-evidence/provider-error-attempt.log; then
+              echo "provider_attempt_result=transient_unavailable" | tee -a governance-review-evidence/provider-attempts.log
+              if [ "$attempt" -lt 3 ]; then
+                sleep $((attempt * 20))
+                continue
+              fi
+            else
+              echo "provider_attempt_result=nonretryable_failure" | tee -a governance-review-evidence/provider-attempts.log
+            fi
+            break
+          done
+          exit "$rc"
       - name: Record fail-closed status
         if: always()
         shell: bash
@@ -67,11 +92,13 @@ jobs:
           from pathlib import Path
           t=json.loads(Path('.github/governance-candidate-review-trigger.json').read_text(encoding='utf-8'))
           err=Path('governance-review-evidence/provider-error.log')
+          attempts=Path('governance-review-evidence/provider-attempts.log')
           status={
-            'schema_version':2,
+            'schema_version':3,
             'review_request_path':t.get('review_request_path'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
+            'workflow_run_attempt':os.environ.get('GITHUB_RUN_ATTEMPT'),
             'review_class':'PLATFORM_AUTO_API_REVIEW',
             'transport':'AUTOMATIC_API',
             'provider':'gemini',
@@ -79,7 +106,8 @@ jobs:
             'materialization_version':'GOV-EVIDENCE-MATERIALIZATION-001',
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
             'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
-            'failure_detail':err.read_text(encoding='utf-8',errors='replace')[-2000:] if err.exists() else None,
+            'provider_attempt_log':attempts.read_text(encoding='utf-8',errors='replace')[-2000:] if attempts.exists() else None,
+            'failure_detail':err.read_text(encoding='utf-8',errors='replace')[-4000:] if err.exists() else None,
           }
           Path('governance-review-evidence/workflow-status.json').write_text(json.dumps(status,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           PY
