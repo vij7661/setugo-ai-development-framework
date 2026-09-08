@@ -1,20 +1,25 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-002",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-INTEGRATION-R2-002.json",
+  "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-INTEGRATION-R3-002.json",
   "reviewed_candidate_commit": "964ba7162fa3950b93576f553f26b83580555bc2",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_REPAIRED_INTEGRATION_R2_REQUESTED",
-  "request_hash": "c868a3136dc1df9491a3951293a8812b7555cc6ae4224e44413a58d87a46352c",
-  "authority_effect": "NONE_PENDING_R2_DETERMINISTIC_INGESTION",
-  "preserved_prior_r3": {
-    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-001",
-    "workflow_run_id": 34247110619,
-    "disposition": "BOUNDED_PASS",
-    "classification": "INVALID_REVIEW_EVIDENCE_WITH_R3_FINDINGS",
-    "authority_effect": "NONE"
+  "status": "AUTHENTICATED_SLICE5_REPAIRED_INTEGRATION_R3_REQUESTED",
+  "request_hash": "20e1c105ce706724c5736b78664a542bc87ed7c1b0f005f23e6e434a34de7549",
+  "authority_effect": "NONE_PENDING_R3_DETERMINISTIC_INGESTION",
+  "r3_role": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+  "r2_handoff_commit": "ab68e3024b8b1cefce63a56c8d70f4927f038223",
+  "r2_handoff_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+  "r2_raw_hash": "sha256:49194ed723aa4f1f2e9ebb7ec68816aa26badcb8bf7f9e9264eabb89a57c9790",
+  "preserved_r2": {
+    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-002",
+    "workflow_run_id": 34250541201,
+    "disposition": "PASS",
+    "mandatory_dimensions_supported": "10/10",
+    "findings": 0,
+    "authority_effect": "R2_EVIDENCE_ONLY_PENDING_R3_AND_FINAL_ADJUDICATION"
   }
 }
