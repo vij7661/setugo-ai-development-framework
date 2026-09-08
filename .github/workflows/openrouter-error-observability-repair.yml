@@ -1,0 +1,31 @@
+name: OpenRouter Error Observability Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/platform_candidate_review_v5.py
+      - governance-runtime/test_platform_candidate_review_v5.py
+      - governance-runtime/repair-preregistrations/GOV-OPENROUTER-ERROR-OBSERVABILITY-001.md
+      - .github/workflows/openrouter-error-observability-repair.yml
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-v5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run prior OpenRouter deterministic suite
+        run: python governance-runtime/test_platform_candidate_review_v4.py
+      - name: Run v5 error-observability suite
+        run: python governance-runtime/test_platform_candidate_review_v5.py
+      - name: Assert no real provider/network call in v5 test file
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'OPENROUTER_API_KEY.*os\.environ|https://openrouter\.ai/api/v1/chat/completions' governance-runtime/test_platform_candidate_review_v5.py
