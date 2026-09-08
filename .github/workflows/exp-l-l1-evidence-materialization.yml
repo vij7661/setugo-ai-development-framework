@@ -1,0 +1,29 @@
+name: EXP-L L1 Evidence Materialization
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/materialization_v2.py
+      - governance-runtime/exp-l/test_l1_evidence_materialization.py
+      - governance-runtime/exp-l/L1-EVIDENCE-MATERIALIZATION-PREREG.json
+      - .github/workflows/exp-l-l1-evidence-materialization.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L1 materialization tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l1_evidence_materialization.py
