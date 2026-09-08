@@ -1,0 +1,13 @@
+{
+  "qualification_id": "IQR1",
+  "stage": "R2_MANUAL_REVIEW_REQUIRED",
+  "review_id": "IQR1-PR11-R2",
+  "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+  "evidence_manifest_commit": "afedfa8406107bce6d76eaf0f49f08155800798c",
+  "manual_packet_sha256": "sha256:1629066f0cdaf9f3132b9ae1dd98d7808228b9787074f4e9ea6d4bbe6549b046",
+  "required_next_action": "Run the frozen blind R2 packet in a completely fresh independent reviewer chat and return the single JSON output. Do not run R3 before R2 is frozen into the deterministic handoff.",
+  "promotion_effect": "NONE",
+  "pr11_status": "DRAFT_FAIL_CLOSED",
+  "manual_input_required": true
+}
