@@ -1,0 +1,70 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-005",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py",
+    ".github/workflows/integrated-governed-mvp-slice6-terminal-authority.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice6_terminal_authority_candidate",
+    "ref": "PR-15",
+    "commit": "d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently review the amended Slice 6 terminal-authority candidate after authoritative Option A. Reconstruct the evidence from the exact candidate; do not rely on prior reviewer conclusions.",
+    "Verify the amended S6-I05 is internally consistent with the frozen per-input schemas: request/execution/authority share project-task-effect-artifact lineage; review_gate binds exact action/artifact/evidence; current_state binds exact project/state-version.",
+    "Verify S6-25 locks Option A by proving review_gate and current_state need no invented task/effect/artifact fields beyond their frozen schemas.",
+    "Re-verify exact authority_record state_version binding to terminal_request.expected_state_version and current authoritative state, including S6-23.",
+    "Verify model/worker/researcher/judge claims, green CI, stale review, moved artifact, action substitution, lineage substitution, stale/future state versions, malformed/tampered evidence, and expired authority fail closed.",
+    "Verify successful authorization remains deterministic, self-hash bound, authorization-only, and performs no merge/release/deploy/production/completion side effect.",
+    "Treat CI run 34279738152 as exact-candidate execution evidence only, never semantic or terminal authority.",
+    "Adversarially search for any remaining contract contradiction, false-green, stale-state, schema-expansion, conversation-memory, or claimant-controlled terminal-authority bypass."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34279738152"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice6-terminal-authority.yml"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md"},
+    {"type": "history", "ref": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001 authenticated Gemini PASS was later rejected as false-green after missing authority state-version binding was exposed; authority effect NONE."},
+    {"type": "history", "ref": "Defect exposure b06fa91b1767c552b8b84c2709bb118650ba8296 preceded mechanism repair 58458e0cb86680b9e25c490f43b94324e67ec5ec; repaired candidate CI 34277699140 passed."},
+    {"type": "history", "ref": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004 authenticated OpenRouter/DeepSeek PASS was later blocked because deterministic review-of-review found the original S6-I05 wording internally contradicted the frozen schemas; authority effect NONE."},
+    {"type": "history", "ref": "Authoritative requirement decision selected Option A: preserve per-input schemas and narrow S6-I05. Contract amendment e49b3722d01a3791b4cbf9678e5653a8b59c6098 and S6-25 regression d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a implement that decision without changing the Slice6 mechanism."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "option_a_contract_consistency", "mandatory": true, "description": "Amended S6-I05 exactly matches the frozen per-input schemas and removes the prior internal contradiction without widening them."},
+    {"id": "option_a_schema_preservation", "mandatory": true, "description": "S6-25 confirms review_gate and current_state remain minimal and no absent task/effect/artifact fields are invented or required."},
+    {"id": "terminal_authority_externality", "mandatory": true, "description": "Terminal authority remains external to model, worker, researcher, judge, CI, and isolated-execution success."},
+    {"id": "exact_terminal_binding", "mandatory": true, "description": "Request, execution evidence, and authority record preserve exact project/task/effect/artifact lineage; action/artifact/state-version bindings cannot widen."},
+    {"id": "authority_state_version_binding", "mandatory": true, "description": "Authority record state_version must exactly equal request expected_state_version and the request must equal current authoritative state version."},
+    {"id": "authority_freshness_and_expiry", "mandatory": true, "description": "Future-issued, expired, malformed, tampered, or mismatched authority records fail closed."},
+    {"id": "review_dependency", "mandatory": true, "description": "Review gate must be CLEAR and exact-action/artifact/evidence bound; review cannot itself mint authority."},
+    {"id": "receipt_integrity_and_nonexecution", "mandatory": true, "description": "Authorized receipts are deterministic/self-hash bound and assert no terminal side effect occurred."},
+    {"id": "candidate_bound_ci_non_authority", "mandatory": true, "description": "CI is exact-candidate execution evidence only and does not become semantic or terminal authority."},
+    {"id": "prior_slice_regression_preservation", "mandatory": true, "description": "Accepted Slice 1 through Slice 5 boundaries remain green and unchanged."},
+    {"id": "remaining_authority_bypass_search", "mandatory": true, "description": "Adversarial review finds no remaining contract contradiction, false-green, stale-state, schema-expansion, replay, or claimant-controlled terminal-authority bypass in scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "6ccf9470e14b1668186ab8b463e4407640e37f5439c3582dadc1d008840edcbf"
+}
