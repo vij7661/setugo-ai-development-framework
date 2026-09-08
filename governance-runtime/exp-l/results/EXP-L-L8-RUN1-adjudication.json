@@ -1,0 +1,21 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L8_CONTRADICTION_RECONSTRUCTION",
+  "run": "RUN1",
+  "date": "2026-09-08",
+  "candidate_sha": "8ced6ab3ba9137c98a48cd0bbf353c363252e662",
+  "workflow_run_id": 34213976570,
+  "status": "BOUNDED_PASS",
+  "deterministic_tests": 10,
+  "deterministic_failures": 0,
+  "provider_api_calls": false,
+  "bounded_claim": "The deterministic hierarchy resolves lower-authority contradictions, honors explicit supersession, and fails closed on same-rank unresolved authoritative conflicts without proposer conclusions.",
+  "limitations": [
+    "This does not yet establish reviewer behavioral reconstruction on raw contradictory evidence.",
+    "The source-priority ordering is a preregistered prototype and remains subject to broader governance validation.",
+    "No authority or promotion is granted by this bounded pass."
+  ],
+  "authority_effect": "NONE",
+  "pr11_effect": "NONE",
+  "slice5_effect": "NONE"
+}
