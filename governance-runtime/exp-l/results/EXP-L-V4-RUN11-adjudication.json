@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "benchmark": "V4",
+  "run": {
+    "workflow_run_id": 34194706785,
+    "job_id": 101959805898,
+    "artifact_id": 10043503816,
+    "artifact_digest": "sha256:11359bc82bb97a9a19cedc3607d9d76722f8b7a0f6dd19d1a05103620ee790e0",
+    "model": "gemini-3.5-flash"
+  },
+  "scores": {
+    "P1": {"authority_decisions":"8/8","seeded_findings":"12/12","full_recall_cases":"8/8","unsupported_blocking":0,"false_greens":0,"false_blocks":0},
+    "P2": {"authority_decisions":"8/8","seeded_findings":"12/12","full_recall_cases":"8/8","unsupported_blocking":0,"false_greens":0,"false_blocks":0},
+    "P3": {"authority_decisions":"8/8","seeded_findings":"12/12","full_recall_cases":"8/8","unsupported_blocking":0,"false_greens":0,"false_blocks":0}
+  },
+  "classification": "PROMPT_ARMS_TIED_AT_CEILING_ON_SAME_MODEL",
+  "scientific_conclusion": "V4 provides no same-model evidence that P1, P2 or P3 is superior. Cross-model partial scores must not be used to infer prompt superiority.",
+  "authority_effect": "NONE_PROMPT_BENCHMARK_ONLY"
+}
