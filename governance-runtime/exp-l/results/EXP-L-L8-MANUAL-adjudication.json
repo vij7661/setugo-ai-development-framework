@@ -1,0 +1,19 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L8",
+  "title": "Contradiction Reconstruction",
+  "manual_review_batch": "L8-M01..L8-M05",
+  "result": "BOUNDED_PASS",
+  "material_cases": 5,
+  "material_passes": 5,
+  "critical_false_greens": 0,
+  "provider_api_calls_by_governor": 0,
+  "observations": [
+    "Reviewer reconstructed current authoritative behavior directly from contradictory raw evidence without a proposer conclusion.",
+    "Reviewer preferred current implementation/design/QA over historical and lower-authority evidence.",
+    "No unresolved conflict was invented where current authoritative sources were consistent.",
+    "Recurring evidence-precision issue remains possible around coarse classification of historical e2/e3 in the weighment-loop case, but no material outcome changed."
+  ],
+  "qualification_boundary": "Behavioral manual bounded pass only. Does not by itself qualify the full review system or authorize PR11 promotion.",
+  "next": "L9 reviewer-directed evidence discovery"
+}
