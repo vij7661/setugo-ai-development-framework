@@ -1,0 +1,29 @@
+name: EXP-L L10 Sequential Multi-Review
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/sequential_review_v1.py
+      - governance-runtime/exp-l/test_l10_sequential_multi_review.py
+      - governance-runtime/exp-l/L10-SEQUENTIAL-MULTI-REVIEW-PREREG.json
+      - .github/workflows/exp-l-l10-sequential-multi-review.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l10:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L10 sequential multi-review tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l10_sequential_multi_review.py
