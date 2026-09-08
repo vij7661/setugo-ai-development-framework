@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "review_id": "IQR1-PR11-R3",
+  "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "r2_adjudication_commit": "ef511562ddf3cc739de7c59c6728d7853a64a7c4",
+  "r3_disposition": "AGREE_CHANGES_REQUIRED",
+  "r2_finding_assessment": "CORRECT",
+  "promotion_blocking_defect": true,
+  "defect": "legacy build_corpus silently skips non-file evidence_refs",
+  "required_change": "Repair candidate to explicitly materialize supported non-file refs or fail closed; do not silently ignore any declared evidence ref.",
+  "reviewer_provenance": {
+    "provider": "Anthropic, Claude.ai",
+    "model": "Claude Sonnet 5",
+    "runtime": "fresh independent reviewer chat",
+    "provider_api_authenticated": false
+  },
+  "authority_effect": "NONE_PR11_REMAINS_BLOCKED"
+}
