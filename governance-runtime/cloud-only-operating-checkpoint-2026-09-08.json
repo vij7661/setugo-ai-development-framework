@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "checkpoint_id": "CLOUD-ONLY-2026-09-08-001",
+  "mode": "CLOUD_ONLY_GITHUB_CAPABLE",
+  "reason": "User laptop temporarily unavailable for repair. Continue all work that can be completed through GitHub, GitHub Actions, authenticated provider APIs, and remote review. Do not request local-machine intervention unless a genuinely local-only boundary is reached.",
+  "source_precedence": [
+    "governed_git_state",
+    "governed_review_evidence_and_ci",
+    "this_checkpoint",
+    "conversation_context"
+  ],
+  "cloud_work_allowed": [
+    "GitHub repository reads and writes",
+    "GitHub Actions workflow construction and deterministic CI",
+    "authenticated provider review through governed workflows",
+    "review artifact ingestion and deterministic adjudication",
+    "R2/R3 governance routing",
+    "pull request creation, metadata validation and guarded merge when all gates are satisfied",
+    "documentation and durable checkpoints",
+    "batched repository inspection and compact orchestration summaries"
+  ],
+  "local_only_work_deferred_until_laptop_returns": [
+    "local Codex CLI or IDE execution requiring the user's filesystem",
+    "local Flutter or Android emulator/device builds",
+    "Docker or local database execution specifically requiring the user's machine",
+    "USB/device debugging or other direct hardware access",
+    "inspection of files that exist only on the user's laptop and are not in GitHub or uploaded"
+  ],
+  "review_orchestration_optimization": {
+    "summary_script": "governance-runtime/review_orchestration_summary.py",
+    "workflow": ".github/workflows/governance-candidate-platform-review.yml",
+    "compact_artifact": "governance-review-summary",
+    "full_artifact": "governance-candidate-platform-review",
+    "rule": "Inspect compact summary first. Fetch full artifact/logs only for semantic adjudication, contradiction checks, defects, ambiguous failure classification, or final authority decisions."
+  },
+  "slice5": {
+    "branch": "feature/integrated-governed-mvp-slice5-authoritative-state-ledger",
+    "current_scientific_candidate": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+    "construction_run": 34229441085,
+    "construction_result": "16/16 repaired Slice5 plus 16/16 accepted Slice4 regression",
+    "active_review_request": "REV-MVP-SLICE5-SCIENTIFIC-003",
+    "active_request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0",
+    "reviewed_candidate": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+    "review_run_id": 34231160152,
+    "review_attempt_1": "PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503; authority NONE",
+    "review_attempt_2": "IN_PROGRESS at checkpoint creation",
+    "prior_false_green_candidate": "93632f63342387170c997d017ae79b9c4c301df6",
+    "prior_false_green_authority": "NONE",
+    "promotion_state": "BLOCKED_PENDING_FRESH_REPAIRED_R2_AND_MANDATORY_R3"
+  },
+  "resume_rule": "On CONTINUE, verify GitHub state first. If repaired R2 has completed, inspect compact summary, then full semantic evidence as required. Preserve outcome. Run mandatory R3 only if R2 is scientifically valid. Do not reuse the false-green R2 for candidate 93632f63342387170c997d017ae79b9c4c301df6.",
+  "laptop_return_rule": "When the user says the laptop is back, reassess deferred local-only tasks from current Git state; do not restart completed cloud work."
+}
