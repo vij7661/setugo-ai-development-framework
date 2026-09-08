@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-003",
+  "reviewed_artifact_commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec",
+  "request_hash": "dce46e9232bf813a92bc278ba30e716097c85c9887395d87367971f9c65a215f",
+  "workflow_run_id": 34278452371,
+  "job_id": 102237153307,
+  "provider": "groq",
+  "model": "qwen/qwen3.6-27b",
+  "classification": "PROVIDER_ACCOUNT_TIER_INPUT_TOKEN_LIMIT_HTTP_413",
+  "root_cause_classification": "ENVIRONMENT-TOOLING DEFECT",
+  "provider_attempts": 1,
+  "semantic_disposition": null,
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "authority_effect": "NONE",
+  "evidence": "Groq rejected the request before semantic review with HTTP 413. The frozen corpus requested 17805 input tokens while the account/model tier permitted 7000 input tokens per minute. The workflow correctly treated this as nonretryable and failed closed.",
+  "next_action": "Preserve the frozen corpus rather than deleting evidence to fit the provider limit, and fail over the same exact repaired candidate to the next independent provider."
+}
