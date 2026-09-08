@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "REV-MVP-SLICE5-FINAL-R1-ADJUDICATION",
+  "candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+  "construction_run": 34229441085,
+  "construction_result": "16/16 Slice5 + 16/16 Slice4 regression PASS",
+  "r2": {
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "disposition": "PASS",
+    "mandatory_dimensions_supported": "10/10",
+    "findings": 0,
+    "authority_effect_before_r3": "NONE"
+  },
+  "r3": {
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-R3-002",
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "upstream_provider": "Nvidia",
+    "disposition": "PASS",
+    "mandatory_dimensions_supported": "10/10",
+    "findings": 0,
+    "independence_attestation": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+    "workflow_run_id": 34240949834,
+    "artifact_id": 10062194777,
+    "artifact_digest": "sha256:630fba1ec64b6a053685d1649bba55a42430ee3aceb5b380054dabbb3efc21d8"
+  },
+  "preserved_failures": [
+    "Initial Slice5 authenticated R2 false-green against candidate 93632f63342387170c997d017ae79b9c4c301df6; deterministic adjudication found missing command-digest reconstruction and current-state digest verification; authority NONE.",
+    "Repair harness import-path failure occurred before scientific assertions; classified harness defect and preserved.",
+    "Gemini-bound R3 request REV-MVP-SLICE5-SCIENTIFIC-R3-001 remained blocked by repeated provider HTTP 503 availability failures; authority NONE. It was not rewritten or silently substituted."
+  ],
+  "deterministic_cross_check": {
+    "candidate_branch_head_reverified": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+    "r2_raw_hash": "sha256:c532bcfd42154e9beff73c5c84adc0752977c5961196f1b12759ddcf64bb7ecf",
+    "r2_to_r3_handoff_hash": "sha256:5aebbdd249042a4ab8013a2f9235d5965808fe976e84e2e52d2cad9f339d1b0f",
+    "r3_request_hash": "17abcffa03fecebd4b1b1c5997b9b51c5ed0e5d80fe1b7d146602cc6591ecd08",
+    "r3_validation_valid": true,
+    "remaining_material_false_green_found": false
+  },
+  "effective_disposition": "PASS_ELIGIBLE_FOR_INTEGRATION_SUBJECT_TO_EXACT_HEAD_MERGE_GUARD",
+  "authority_effect": "SLICE5_INTEGRATION_ELIGIBLE",
+  "next_step": "Integrate candidate only through tracked PR/merge using exact expected head d9459af74533fbb60477dfcec00b30e82a0e2534; any candidate movement invalidates this merge authorization."
+}
