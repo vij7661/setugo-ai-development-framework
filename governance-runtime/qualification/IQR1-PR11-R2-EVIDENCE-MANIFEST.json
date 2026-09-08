@@ -1,0 +1,32 @@
+{
+  "qualification_id": "IQR1",
+  "review_stage": "R2",
+  "review_id": "IQR1-PR11-R2",
+  "source_review_request": {
+    "id": "REV-GOV-PR11-003",
+    "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+    "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+    "request_hash": "88c6179b2763f80879850ce1c046e3a578652e621023df370d733bade7b2bbd5",
+    "request_blob_sha": "d2fa53140b1088a7c292524cd7e074341999238d"
+  },
+  "blind_review_required": true,
+  "decision_target": "Independently determine whether the frozen PR11 candidate satisfies all mandatory REV-GOV-PR11-003 dimensions and is promotable under the qualified evidence path. Do not assume any prior reviewer PASS or proposer conclusion is correct.",
+  "mandatory_evidence_ids": ["e01","e02","e03","e04","e05","e06","e07","e08","e09","e10","e11","e12"],
+  "evidence": [
+    {"evidence_id":"e01","type":"ci_run","ref":"34189633886","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","conclusion":"success","materialized":true},
+    {"evidence_id":"e02","type":"file","path":"governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md","blob_sha":"5bfad09fb75abc2ad2cfdece8e4aecddf82e02b4","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e03","type":"file","path":"governance-runtime/session-state.json","blob_sha":"30e7b5c9f73f1a8c5d8431479bc60547f3322115","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e04","type":"file","path":"governance-runtime/shared-memory.json","blob_sha":"fc7142710a9ea645c4158e4b36e0bb71781f2c0b","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e05","type":"file","path":"governance-runtime/review-evidence/REV-GOV-PR11-001-adjudication.json","blob_sha":"c8e8deccdea9b2f9312860305ba0c06e6ba85f89","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e06","type":"file","path":"governance-runtime/review-evidence/REV-GOV-PR11-001-supersession.json","blob_sha":"2e6c7931ed416a4add9c22e041b1b7ce0f1d18ef","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e07","type":"file","path":"governance-runtime/review-evidence/REV-GOV-PR11-002-platform-review.json","blob_sha":"ab5ea75c9c7b329ab166857daa8cba98e75a860a","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e08","type":"file","path":"governance-runtime/review-evidence/REV-GOV-PR11-002-adjudication.json","blob_sha":"4c2cbf6dfc214980a4d1864409d5a609c742b31a","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e09","type":"file","path":"governance-runtime/platform_candidate_review.py","blob_sha":"b6a3f8be0c2a59993e207fb5b6a75ecbd01e9f8b","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e10","type":"file","path":"governance-runtime/test_platform_candidate_review_request_integrity.py","blob_sha":"bc8c43f0cd312808a736a81c478c3f14460f1401","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e11","type":"file","path":"governance-runtime/validate_runtime.py","blob_sha":"c1981bc16ae5d6fd064b39b059facab6e11b8a09","candidate_sha":"b3abfed189504721b30c9ed647b2ffe79f27f85c","materialized":true},
+    {"evidence_id":"e12","type":"history","refs":["PR10_MERGE:a2fcd2ba9bc0e5828ee69056c23207fb431ecea6","REV-GOV-PR11-001_FALSE_NEGATIVE:e05+e06","REV-GOV-PR11-002_FALSE_GREEN:e07+e08"],"pr10_merge_verified_signature":true,"materialized":true}
+  ],
+  "materialization_rule": "Every original REV-GOV-PR11-003 evidence ref is represented; non-file CI/history refs are not dropped.",
+  "memory_authority": "NONE_INDEPENDENT",
+  "promotion_effect": "NONE_UNTIL_R2_R3_AND_FINAL_DETERMINISTIC_ADJUDICATION"
+}
