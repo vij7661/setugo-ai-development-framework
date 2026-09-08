@@ -22,9 +22,9 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run frozen Slice 5 acceptance harness
+      - name: Run repaired frozen Slice 5 acceptance harness
         run: |
-          python -m unittest -v experiments/governed-platform/test_slice5_authoritative_state_ledger.py
+          python -m unittest -v experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py
 
       - name: Run accepted Slice 4 regression harness
         run: |
