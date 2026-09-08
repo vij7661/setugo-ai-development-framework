@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
+  "reviewed_artifact_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+  "request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "workflow_run_id": 34232976825,
+  "artifact_id": 10058615057,
+  "artifact_digest": "sha256:b178d0cd8929afc05a502346a80a9ceabafa8b236e1d4d371430089228d8f3e4",
+  "summary_artifact_id": 10058613953,
+  "summary_artifact_digest": "sha256:53f870018ba0a4ac2df40e837e3e06ed6e3f05084d8c66b0f64a238282249404",
+  "corpus_sha256": "a31e666ee106c7fdad676ee524f5c4f74c6347e92724ba5522f3a2ae25a71218",
+  "evidence_ref_count": 9,
+  "materialized_evidence_count": 9,
+  "disposition": "PASS",
+  "mandatory_dimensions_supported": 10,
+  "mandatory_dimensions_total": 10,
+  "findings_count": 0,
+  "validation_valid": true,
+  "authority_effect": "R2_EVIDENCE_ONLY_R3_MANDATORY",
+  "preserved_provider_failures": [
+    {"model":"gemini-3.8-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_AFTER_BOUNDED_RETRIES","authority_effect":"NONE"},
+    {"model":"gemini-3.7-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_AFTER_BOUNDED_RETRIES","authority_effect":"NONE"}
+  ],
+  "preserved_false_green": {
+    "review_request_id":"REV-MVP-SLICE5-SCIENTIFIC-002",
+    "reviewed_candidate_commit":"93632f63342387170c997d017ae79b9c4c301df6",
+    "classification":"REVIEW_FALSE_GREEN_EVIDENCE_COVERAGE_DEFECT",
+    "authority_effect":"NONE"
+  }
+}
