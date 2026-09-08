@@ -1,0 +1,78 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-PR11-001",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    ".github/workflows/governance-review-request-integrity.yml",
+    "governance-runtime/platform_candidate_review.py",
+    "governance-runtime/repair-preregistrations/GOV-REQUEST-INTEGRITY-001.md",
+    "governance-runtime/repairs/GOV-REQUEST-INTEGRITY-001.json",
+    "governance-runtime/test_platform_candidate_review_request_integrity.py",
+    "governance-runtime/session-state.json",
+    "governance-runtime/shared-memory.json"
+  ],
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-11",
+    "commit": "331822da78be228aaddb2148f35f2ec091b0caa9"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "gemini",
+    "model_class": "gemini"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether ReviewRequest canonical integrity is verified before any provider invocation and whether an invalid or malformed request fails closed with no reviewer authority effect.",
+    "Assess whether the pre-invocation integrity repair can be bypassed through request mutation, trigger metadata, alternate platform transport, direct runner invocation, or stale request replay.",
+    "Assess whether the repaired platform candidate review runner preserves exact request ID, artifact commit, reviewer provider/model constraint, review class, and transport binding through execution and evidence ingestion.",
+    "Assess whether historical invalid ReviewRequest REV-MVP-SLICE4-INTEGRATION-001 remains non-promotable and cannot be upgraded by its returned PASS or by later corrected-review consensus.",
+    "Assess whether provider/API failures remain non-authoritative and retry semantics preserve exact-request binding without rewriting failed history.",
+    "Assess whether session-state/shared-memory continuity and product-review versus live-governance review routing remain separated so stale or misrouted metadata cannot silently authorize a transition.",
+    "Assess whether the new integrity workflow and regression tests actually exercise pre-provider rejection rather than only post-response validation.",
+    "Assess reviewer provenance and identity claims, including that authenticated provider API execution does not overclaim cryptographic remote-model identity.",
+    "Identify any remaining authority bypass, false-green path, request-integrity defect, TOCTOU/mutation gap, review-routing defect, provenance gap, or fail-open behavior introduced or left open by this repair.",
+    "Return an independent disposition without assuming or using the proposer conclusion."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34168850755"},
+    {"type":"ci_run","ref":"34168810328"},
+    {"type":"file","ref":"governance-runtime/platform_candidate_review.py"},
+    {"type":"file","ref":"governance-runtime/test_platform_candidate_review_request_integrity.py"},
+    {"type":"file","ref":".github/workflows/governance-review-request-integrity.yml"},
+    {"type":"file","ref":"governance-runtime/repair-preregistrations/GOV-REQUEST-INTEGRITY-001.md"},
+    {"type":"file","ref":"governance-runtime/repairs/GOV-REQUEST-INTEGRITY-001.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-001-invalid-request.json"},
+    {"type":"file","ref":"governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-001.json"},
+    {"type":"file","ref":"governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-003.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-003-adjudication.json"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"},
+    {"type":"file","ref":"governance-runtime/review_protocol.py"},
+    {"type":"file","ref":".github/workflows/governance-candidate-platform-review.yml"}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"pre_provider_request_integrity","mandatory":true,"description":"Canonical ReviewRequest integrity must be verified before provider invocation; invalid or malformed requests have no authority effect."},
+    {"id":"request_mutation_and_toctou_resistance","mandatory":true,"description":"Verified request identity, bytes/semantics, artifact binding, and reviewer constraints cannot be changed or substituted between validation and provider invocation."},
+    {"id":"exact_candidate_and_request_binding","mandatory":true,"description":"Review execution and evidence remain bound to the exact current ReviewRequest and reviewed candidate commit."},
+    {"id":"invalid_history_nonpromotion","mandatory":true,"description":"Historical invalid review evidence remains non-promotable even when its provider output claimed PASS."},
+    {"id":"provider_failure_fail_closed","mandatory":true,"description":"Provider/API failure and retry behavior preserves failed history, exact-request binding, and no authority effect until valid evidence exists."},
+    {"id":"review_routing_separation","mandatory":true,"description":"Product review and live-governance packet/review routing metadata cannot be confused to authorize the wrong transition."},
+    {"id":"executable_regression_strength","mandatory":true,"description":"Regression tests and CI exercise the actual pre-provider rejection mechanism, not merely post-response validation."},
+    {"id":"reviewer_provenance_honesty","mandatory":true,"description":"Provider API authentication and reviewer identity claims are accurately bounded and do not overclaim remote-model cryptographic identity."},
+    {"id":"continuity_grounding","mandatory":true,"description":"Stale session/shared-memory state cannot override Git/evidence or silently advance the review/promotion frontier."},
+    {"id":"remaining_authority_bypass_search","mandatory":true,"description":"Adversarial search for remaining request-integrity, mutation, replay, routing, provenance, or fail-open authority bypasses."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "e13865a3d2f0b9bf4218b7bb511ffaf9bee5879c0f619b6178fb455d6743b94f"
+}
