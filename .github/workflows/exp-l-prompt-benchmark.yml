@@ -24,13 +24,13 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import hashlib,json
+          import json,subprocess
           from pathlib import Path
           t=json.loads(Path('.github/exp-l-prompt-benchmark-trigger.json').read_text())
           if t.get('enabled') is not True: raise SystemExit('trigger disabled')
           if t.get('benchmark_id')!='EXP-L-PROMPT-BENCHMARK-V1': raise SystemExit('benchmark mismatch')
-          for key,path in [('benchmark_sha256','governance-runtime/exp-l/benchmark-v1.json'),('ground_truth_sha256','governance-runtime/exp-l/ground-truth-v1.json'),('runner_sha256','governance-runtime/exp-l/run_prompt_benchmark.py')]:
-              got=hashlib.sha256(Path(path).read_bytes()).hexdigest()
+          for key,path in [('benchmark_blob_sha','governance-runtime/exp-l/benchmark-v1.json'),('ground_truth_blob_sha','governance-runtime/exp-l/ground-truth-v1.json'),('runner_blob_sha','governance-runtime/exp-l/run_prompt_benchmark.py')]:
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
               if got!=t.get(key): raise SystemExit(f'{key} mismatch: {got}')
           PY
       - name: Validate benchmark runner construction
@@ -64,10 +64,11 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import hashlib,json,os
+          import hashlib,json,os,subprocess
           from pathlib import Path
           out=Path('exp-l-results'); out.mkdir(exist_ok=True)
           def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          def blob(p): return subprocess.check_output(['git','hash-object',p],text=True).strip()
           env={
             'schema_version':1,
             'experiment':'EXP-L',
@@ -77,6 +78,9 @@ jobs:
             'provider':'gemini',
             'model':'gemini-3.8-flash',
             'temperature':0.0,
+            'benchmark_blob_sha':blob('governance-runtime/exp-l/benchmark-v1.json'),
+            'ground_truth_blob_sha':blob('governance-runtime/exp-l/ground-truth-v1.json'),
+            'runner_blob_sha':blob('governance-runtime/exp-l/run_prompt_benchmark.py'),
             'benchmark_sha256':sha('governance-runtime/exp-l/benchmark-v1.json'),
             'ground_truth_sha256':sha('governance-runtime/exp-l/ground-truth-v1.json'),
             'runner_sha256':sha('governance-runtime/exp-l/run_prompt_benchmark.py'),
