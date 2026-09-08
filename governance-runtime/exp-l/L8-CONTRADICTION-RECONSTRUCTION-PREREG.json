@@ -1,0 +1,23 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L8_CONTRADICTION_RECONSTRUCTION",
+  "objective": "Falsify whether the review mechanism can reconstruct authoritative truth from contradictory raw evidence without proposer conclusions.",
+  "hypothesis": "A deterministic hierarchy can identify admissible authority and expose unresolved contradictions; the reviewer can then reconstruct the winning current claim without relying on a proposer summary.",
+  "source_priority": ["AUTHORITATIVE_IMPLEMENTATION", "AUTHORITATIVE_DESIGN", "AUTHORITATIVE_QA", "ACCEPTED_DECISION", "HISTORICAL_DISCUSSION", "NON_AUTHORITATIVE_REASONING"],
+  "rules": [
+    "Explicit supersession beats older evidence within the same authority lineage.",
+    "Current authoritative implementation/design/QA outrank historical discussion and model reasoning.",
+    "A contradiction between same-rank current authoritative objects must remain unresolved and non-promotable unless a deterministic supersession relation resolves it.",
+    "Proposer conclusions are not inputs to the reconstruction function.",
+    "Missing provenance or malformed source class fails closed."
+  ],
+  "failure_conditions": [
+    "historical or non-authoritative evidence defeats current authoritative evidence",
+    "same-rank unresolved contradiction is silently collapsed",
+    "superseded evidence is treated as current",
+    "proposer conclusion is required to choose a winner",
+    "malformed authority metadata is accepted"
+  ],
+  "provider_api_calls": false,
+  "authority_effect": "NONE"
+}
