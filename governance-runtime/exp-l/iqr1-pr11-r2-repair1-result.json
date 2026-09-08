@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "qualification_id": "IQR1",
+  "review_id": "IQR1-PR11-R2-REPAIR1",
+  "candidate_sha": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+  "disposition": "PASS",
+  "mandatory_dimensions": 12,
+  "supported_dimensions": 12,
+  "findings": [],
+  "uncertainties": [],
+  "reviewer": {
+    "provider_identity": "Anthropic",
+    "model_identity": "Claude 3.5 Sonnet",
+    "runtime_identity": "fresh independent reviewer chat",
+    "provider_api_authenticated": false
+  },
+  "semantic_effect": "R2_SEMANTIC_PASS_PENDING_MANDATORY_R3_AND_R1_FINAL",
+  "promotion_effect": "NONE",
+  "notes": [
+    "Branch head was independently rechecked before preservation and exactly matched the reviewed candidate SHA.",
+    "This user-relayed manual review provides semantic evidence but does not itself establish provider-API-authenticated provenance.",
+    "R3 remains mandatory because the transition is promotion-authoritative/high risk."
+  ]
+}
