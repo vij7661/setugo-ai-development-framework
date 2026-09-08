@@ -1,8 +1,10 @@
 # Integrated Governed MVP — Slice 6 Terminal Authority / Release-Completion Gate Contract
 
-Status: **PRE-IMPLEMENTATION FROZEN BOUNDARY**
+Status: **FROZEN BOUNDARY — AMENDED BY AUTHORITATIVE REQUIREMENT DECISION A**
 
 Parent authoritative integration commit: `f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0` (accepted Slice 5 authoritative state ledger).
+
+Amendment basis: deterministic review-of-review of `REV-MVP-SLICE6-TERMINAL-AUTHORITY-004` exposed an internal contradiction between the original broad wording of S6-I05 and the already-frozen per-input schemas. The authoritative decision is to preserve those schemas and narrow S6-I05 accordingly. No implementation field expansion is authorized by this amendment.
 
 ## 1. Goal
 
@@ -38,6 +40,7 @@ A terminal decision consumes explicit bound inputs only:
    - `source_class` — `HUMAN` or `PLATFORM_POLICY`
    - `decision` — `APPROVE` or `DENY`
    - exact project/task/effect/action/artifact binding
+   - exact `state_version`
    - `issued_at_epoch`
    - `expires_at_epoch`
    - immutable/frozen `evidence_refs`
@@ -59,7 +62,7 @@ No ambient conversation history, provider/model label, worker assertion, prior w
 
 **S6-I04 Exact artifact binding** — approval/review for one artifact SHA cannot authorize a different artifact SHA or a changed branch head.
 
-**S6-I05 Exact lineage binding** — project, task, effect, and artifact identities must match across request, execution evidence, review gate, authority record, and current state.
+**S6-I05 Scoped exact lineage binding** — bindings are enforced according to each frozen input schema, without inferring absent fields: `terminal_request`, `execution_evidence`, and `authority_record` must share exact project/task/effect/artifact lineage; `review_gate` must bind the exact terminal action and artifact SHA with immutable evidence references; `current_state` must bind the exact project ID and authoritative state version. No task/effect/artifact fields are required in `current_state`, and no project/task/effect fields are required in `review_gate` unless a later separately approved contract explicitly changes those schemas.
 
 **S6-I06 Current authoritative version** — request `expected_state_version` must equal current authoritative `state_version`; stale/future versions fail closed.
 
@@ -116,7 +119,7 @@ Only `AUTHORIZED_FOR_TERMINAL_ACTION` may set `authorized`, `terminal_authority`
 - `S6-06` model/worker authority source is denied.
 - `S6-07` action substitution is denied.
 - `S6-08` artifact SHA substitution / moved head is denied.
-- `S6-09` project/task/effect lineage mismatch is denied.
+- `S6-09` project/task/effect lineage mismatch is denied where those fields are present in the frozen input schema.
 - `S6-10` stale expected authoritative state version is denied.
 - `S6-11` future expected authoritative state version is denied.
 - `S6-12` `REVIEW_REQUIRED` cannot authorize.
@@ -130,12 +133,13 @@ Only `AUTHORIZED_FOR_TERMINAL_ACTION` may set `authorized`, `terminal_authority`
 - `S6-20` execution evidence attempting terminal authority is denied.
 - `S6-21` identical replay returns identical decision body and receipt hash.
 - `S6-22` green-CI/model-success fields in auxiliary evidence cannot authorize without valid authority record.
-- `S6-23` authority identity/hash cannot be rebound to a changed artifact/action and remain valid.
+- `S6-23` authority identity/hash cannot be rebound to a changed artifact/action/state version and remain valid.
 - `S6-24` authorized receipt contains no claim that merge/deploy/release/completion actually occurred.
+- `S6-25` Option-A schema preservation: a valid authorization succeeds with `review_gate` containing only its frozen action/artifact/evidence fields and `current_state` containing only project/state-version fields; absent non-schema task/effect/artifact fields must not be invented or required.
 
 ## 6. Acceptance criteria
 
-A bounded Slice 6 pass requires all `S6-01..S6-24` deterministic tests to pass on one exact candidate SHA and the accepted Slice 1→Slice 5 regression chain to remain green.
+A bounded Slice 6 pass requires all `S6-01..S6-25` deterministic tests to pass on one exact candidate SHA and the accepted Slice 1→Slice 5 regression chain to remain green.
 
 Independent integration review remains mandatory before promotion into `main`.
 
@@ -149,8 +153,13 @@ Independent integration review remains mandatory before promotion into `main`.
 - do not weaken review requirements to obtain a pass;
 - do not infer human identity from a string label;
 - do not claim the terminal action occurred merely because the gate authorized it;
+- do not invent or require fields outside the frozen per-input schemas to satisfy an over-broad interpretation of lineage;
 - do not modify accepted Slice 1→Slice 5 behavior to accommodate this slice.
 
 ## 8. Claim boundary
 
-A bounded pass proves only a deterministic reference terminal-authorization gate with exact action/artifact/lineage/state-version binding, explicit external approval input, review-gate dependency, freshness checks, and model/worker non-authority. It does not prove production identity authentication, cryptographic signatures, IAM/KMS correctness, remote side-effect safety, deployment safety, or organizational release policy correctness.
+A bounded pass proves only a deterministic reference terminal-authorization gate with scoped per-input action/artifact/lineage/state-version binding, explicit external approval input, review-gate dependency, freshness checks, and model/worker non-authority. It does not prove production identity authentication, cryptographic signatures, IAM/KMS correctness, remote side-effect safety, deployment safety, or organizational release policy correctness.
+
+## 9. Preserved contradiction and decision history
+
+The original S6-I05 wording remains part of repository history and is not rewritten retroactively. `REV-MVP-SLICE6-TERMINAL-AUTHORITY-004` returned semantic PASS but deterministic adjudication classified the contract contradiction as `REQUIREMENT_UNRESOLVED_CONTRACT_INTERNAL_CONTRADICTION` with authority effect `NONE`. The authoritative requirement decision selected Option A: preserve the frozen input schemas and narrow S6-I05 to those per-object bindings. All earlier review outcomes, provider failures, defect exposure, and repair commits remain historical evidence and do not authorize promotion of this amended candidate.
