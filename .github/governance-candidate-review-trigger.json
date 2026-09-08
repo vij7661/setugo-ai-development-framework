@@ -1,19 +1,21 @@
 {
   "enabled": true,
-  "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001",
-  "review_request_path": "governance-runtime/review-requests/REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001.json",
-  "reviewed_candidate_commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651",
+  "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-002",
+  "review_request_path": "governance-runtime/review-requests/REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-002.json",
+  "reviewed_candidate_commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_WEB_PRODUCTION_PROMOTION_BOUNDARY_R2_RETRY_AFTER_TRANSIENT_502",
-  "request_hash": "78eb039f9e06d4fd39f948a1a8b0a50bf00cd852d0c063215795744d18444ec3",
+  "status": "AUTHENTICATED_REPAIRED_WEB_PRODUCTION_PROMOTION_BOUNDARY_R2_REQUESTED",
+  "request_hash": "20df574b7cc808e488ba1eb0bdcb4168bb6a193c92b139de75780a8bc3434481",
   "authority_effect": "NONE_PENDING_R2_DETERMINISTIC_INGESTION",
   "r2_role": "BLIND_TO_PROPOSER_CONCLUSION",
-  "preserved_failure": {
-    "workflow_run_id": 34269375451,
-    "classification": "TRANSIENT_PROVIDER_AVAILABILITY_AND_RETRY_CLASSIFIER_GAP",
-    "authority_effect": "NONE"
+  "preserved_prior_review": {
+    "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001",
+    "workflow_run_id": 34269571081,
+    "disposition": "PASS",
+    "classification_after_post_review_challenge": "REVIEW_FALSE_GREEN_UNTRUSTED_AUTHORITY_INPUTS",
+    "authority_effect": "NONE_FOR_REPAIRED_CANDIDATE"
   }
 }
