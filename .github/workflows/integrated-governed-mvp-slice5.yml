@@ -43,6 +43,11 @@ jobs:
           cd experiments/governed-platform/governance
           python -m unittest -v test_integrated_governed_mvp_slice4.py
 
+      - name: Run true Slice 1 through Slice 5 end-to-end composition
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice1_to_slice5.py
+
       - name: Run repaired frozen Slice 5 acceptance harness
         run: |
           python -m unittest -v experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py
