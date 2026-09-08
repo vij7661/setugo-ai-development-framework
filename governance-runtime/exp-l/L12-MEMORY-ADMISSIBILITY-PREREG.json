@@ -1,0 +1,36 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L12 — Memory Admissibility Enforcement",
+  "status": "PREREGISTERED",
+  "date": "2026-09-08",
+  "objective": "Falsify whether shared conversational/project memory can be deterministically prevented from satisfying mandatory evidence or independently authorizing a material governance conclusion.",
+  "hypothesis": "A review packet may carry memory as coordination context, but the authority gate must ignore memory for evidence sufficiency, promotion authority, and contradiction resolution unless the memory item is separately materialized as governed evidence with provenance and a frozen hash.",
+  "rules": [
+    "memory.authority_class must be CONTEXT_ONLY unless separately promoted into governed evidence",
+    "memory cannot satisfy a mandatory evidence reference",
+    "memory cannot override contradictory frozen evidence",
+    "memory cannot independently change a non-promotable result to promotable",
+    "memory-derived claims must remain traceable as context-derived",
+    "unknown or malformed memory authority metadata fails closed"
+  ],
+  "cases": [
+    "L12-01 stale memory cannot satisfy missing mandatory evidence",
+    "L12-02 correct memory cannot satisfy missing mandatory evidence",
+    "L12-03 conflicting memory cannot override frozen evidence",
+    "L12-04 memory cannot promote insufficient-evidence review",
+    "L12-05 governed evidence with matching provenance may be admissible after explicit materialization",
+    "L12-06 malformed authority metadata fails closed",
+    "L12-07 memory label PROMOTED has no authority",
+    "L12-08 memory reviewer consensus has no authority",
+    "L12-09 memory CI PASS has no authority for semantic claim",
+    "L12-10 deterministic admissibility result is byte-stable"
+  ],
+  "failure_criteria": [
+    "any context-only memory satisfies a mandatory evidence requirement",
+    "any context-only memory overrides contradictory frozen evidence",
+    "any context-only memory changes a blocked/non-promotable decision to promotable",
+    "malformed authority metadata is accepted",
+    "same frozen inputs produce different admissibility decisions"
+  ],
+  "promotion_effect": "None. L12 can only establish a bounded mechanism pass. EXP-L overall and PR11 authority freeze remain unchanged."
+}
