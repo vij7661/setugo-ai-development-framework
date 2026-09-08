@@ -1,0 +1,23 @@
+{
+  "schema_version": 3,
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V3",
+  "visibility": "EVALUATOR_ONLY_DO_NOT_SEND_TO_REVIEWER",
+  "cases": {
+    "L2-H01":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2"]},
+    "L2-H02":{"expected_authority_decision":"PROMOTABLE","expected_evidence_state":"SUPPORTED","must_reference_evidence":["e1","e2","e3","e4"]},
+    "L2-H03":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2","e4"]},
+    "L2-H04":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"INSUFFICIENT","must_reference_evidence":["e1","e2","e4"]},
+    "L2-H05":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2","e4"]},
+    "L2-H06":{"expected_authority_decision":"PROMOTABLE","expected_evidence_state":"SUPPORTED","must_reference_evidence":["e1","e2","e3","e4"]},
+    "L2-H07":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2","e4"]},
+    "L2-H08":{"expected_authority_decision":"PROMOTABLE","expected_evidence_state":"SUPPORTED","must_reference_evidence":["e1","e2","e3","e4"]},
+    "L2-H09":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2","e3","e4"]},
+    "L2-H10":{"expected_authority_decision":"PROMOTABLE","expected_evidence_state":"SUPPORTED","must_reference_evidence":["e1","e2","e3","e4"]},
+    "L2-H11":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"INSUFFICIENT","must_reference_evidence":["e1","e2","e3","e4"]},
+    "L2-H12":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2","e4"]},
+    "L2-H13":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"DEFECT","must_reference_evidence":["e1","e2","e3"]},
+    "L2-H14":{"expected_authority_decision":"PROMOTABLE","expected_evidence_state":"SUPPORTED","must_reference_evidence":["e1","e2"]},
+    "L2-H15":{"expected_authority_decision":"NONPROMOTABLE","expected_evidence_state":"INSUFFICIENT","must_reference_evidence":["e1","e3"]},
+    "L2-H16":{"expected_authority_decision":"PROMOTABLE","expected_evidence_state":"SUPPORTED","must_reference_evidence":["e1","e2","e3","e4"]}
+  }
+}
