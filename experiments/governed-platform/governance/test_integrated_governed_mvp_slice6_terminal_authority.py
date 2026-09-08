@@ -51,6 +51,7 @@ class TerminalAuthorityGateTests(unittest.TestCase):
             "effect_id": "effect-1",
             "action": "RELEASE",
             "artifact_sha": "abc123",
+            "state_version": 7,
             "issued_at_epoch": self.now - 100,
             "expires_at_epoch": self.now + 100,
             "evidence_refs": ["human-approval:authority-1"],
@@ -208,11 +209,16 @@ class TerminalAuthorityGateTests(unittest.TestCase):
         result = self._evaluate(execution_evidence=execution, authority_record=None)
         self.assertEqual("DENY_AUTHORITY_RECORD", result["state"])
 
-    def test_s6_23_authority_hash_cannot_be_rebound_to_changed_artifact(self):
-        authority = deepcopy(self.authority)
-        authority["artifact_sha"] = "new-sha-with-old-hash"
-        result = self._evaluate(authority_record=authority)
-        self.assertEqual("DENY_AUTHORITY_RECORD", result["state"])
+    def test_s6_23_authority_identity_cannot_be_rebound_to_changed_binding(self):
+        tampered = deepcopy(self.authority)
+        tampered["artifact_sha"] = "new-sha-with-old-hash"
+        self.assertEqual("DENY_AUTHORITY_RECORD", self._evaluate(authority_record=tampered)["state"])
+
+        changed_action = self._authority(action="MERGE")
+        self.assertEqual("DENY_AUTHORITY_RECORD", self._evaluate(authority_record=changed_action)["state"])
+
+        changed_state_version = self._authority(state_version=6)
+        self.assertEqual("DENY_AUTHORITY_RECORD", self._evaluate(authority_record=changed_state_version)["state"])
 
     def test_s6_24_authorized_receipt_does_not_claim_side_effect_occurred(self):
         result = self._evaluate()
