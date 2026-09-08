@@ -7,6 +7,7 @@ on:
       - 'governance-runtime/platform_candidate_review_v2.py'
       - 'governance-runtime/test_platform_candidate_review_v2_materialization.py'
       - 'governance-runtime/repair-preregistrations/GOV-EVIDENCE-MATERIALIZATION-001.md'
+      - '.github/workflows/governance-candidate-platform-review.yml'
       - '.github/workflows/pr11-evidence-materialization-repair.yml'
   workflow_dispatch:
 
