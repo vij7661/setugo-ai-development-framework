@@ -6,9 +6,10 @@
   "ground_truth_blob_sha": "9ec5793b98e03147aae8835f4ab1ceeb92cca678",
   "runner_blob_sha": "8e961d172822ea5726828ad1dd6eaa4ea3c028f8",
   "provider": "gemini",
-  "model": "gemini-3.8-flash",
+  "model": "gemini-3.7-flash",
   "temperature": 0.0,
   "prompt_arms": ["P1", "P2", "P3"],
-  "run_nonce": 2,
+  "run_nonce": 3,
+  "preserved_provider_failures": [34192364158, 34192394195],
   "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
 }
