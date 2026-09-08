@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L1_EVIDENCE_MATERIALIZATION_COMPLETENESS",
+  "status": "PREREGISTERED_BEFORE_REPAIR",
+  "known_pre_repair_defect": "Current corpus builder silently skips evidence_refs whose type is not file.",
+  "hypothesis": "Every mandatory evidence reference must either materialize into immutable reviewer-visible evidence with a hash, or fail closed explicitly as unavailable/unsupported; no declared evidence may disappear silently.",
+  "cases": [
+    {"id":"L1-01","input":"file ref exists at exact candidate commit","required":"materialized bytes + sha256 + candidate binding"},
+    {"id":"L1-02","input":"file ref missing","required":"explicit materialization failure"},
+    {"id":"L1-03","input":"ci_run ref without trusted resolver","required":"explicit materialization failure; never identifier-only success"},
+    {"id":"L1-04","input":"ci_run ref with trusted resolver","required":"materialized structured payload + sha256"},
+    {"id":"L1-05","input":"unknown evidence type","required":"explicit unsupported-type failure"},
+    {"id":"L1-06","input":"mixed refs","required":"materialized count equals declared count or entire operation fails closed"}
+  ],
+  "pass_criteria": [
+    "zero silently skipped refs",
+    "every materialized object has deterministic sha256",
+    "candidate file refs are bound to exact candidate commit",
+    "non-file evidence requires a trusted resolver/broker",
+    "missing/unsupported mandatory evidence cannot produce a promotable corpus"
+  ],
+  "provider_api_required": false,
+  "authority_effect": "NONE_EXPERIMENT_ONLY"
+}
