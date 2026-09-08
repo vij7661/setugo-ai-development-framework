@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L7_REVIEW_KERNEL_BOOTSTRAP",
+  "run": {
+    "workflow_run_id": 34199256006,
+    "job_id": 101974021057,
+    "head_sha": "9f538afdc777824b9f864ef84068afbba1a87b7c",
+    "trusted_kernel_commit": "be3dc453c38f53a8a9868e11951d41ed257e835e",
+    "provider_api_used": false
+  },
+  "tests": {
+    "L7-01_candidate_collector_omission": "PASS",
+    "L7-02_candidate_validator_force_pass": "PASS",
+    "L7-03_candidate_import_shadowing": "PASS",
+    "L7-04_candidate_side_workflow_authority": "PASS"
+  },
+  "count": "4/4",
+  "classification": "BOUNDED_PASS_TRUST_KERNEL_ISOLATION_PROTOTYPE",
+  "limits": [
+    "This run proves a frozen exact-commit kernel can ignore candidate-controlled collector/validator code.",
+    "It does not yet qualify the complete production review path.",
+    "Evidence materialization, retry freezing, hidden-change completeness, prompt isolation, evidence discovery and kernel-upgrade governance remain separately unqualified.",
+    "Candidate-side workflows remain authority NONE; future authoritative execution must bind a separately governed frozen kernel identity."
+  ],
+  "authority_effect": "NONE_EXP_L_STILL_OPEN"
+}
