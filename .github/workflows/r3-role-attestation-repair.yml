@@ -1,0 +1,30 @@
+name: R3 Role Attestation Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/platform_candidate_review.py
+      - governance-runtime/test_platform_review_role_attestation.py
+      - governance-runtime/repair-preregistrations/GOV-R3-ROLE-ATTESTATION-001.md
+      - .github/workflows/r3-role-attestation-repair.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-role-attestation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen R3 role/attestation tests
+        run: python -m unittest -v governance-runtime/test_platform_review_role_attestation.py
+      - name: Assert tests make no provider call
+        shell: bash
+        run: |
+          ! grep -Eqi 'GEMINI_API_KEY|urlopen\(|curl |requests\.|httpx' governance-runtime/test_platform_review_role_attestation.py
