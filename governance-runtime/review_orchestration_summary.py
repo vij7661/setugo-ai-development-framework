@@ -40,6 +40,27 @@ def _dimension_summary(review: dict[str, Any] | None) -> dict[str, Any]:
     return {"total": supported + unsupported, "supported": supported, "unsupported": unsupported, "ids": ids}
 
 
+def _classify_failure(detail: str | None, *, validation_valid: Any, job_status: str) -> str | None:
+    if job_status.lower() == "success" and validation_valid is True:
+        return None
+    text = (detail or "").lower()
+    if "http error 503" in text or "gemini http 503" in text or "high demand" in text:
+        return "PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503"
+    if "candidate evidence file unavailable" in text:
+        return "REQUEST_FIXTURE_CANDIDATE_FILE_PATH_DEFECT"
+    if "ci_run candidate mismatch" in text or "head_sha" in text and "candidate" in text and "mismatch" in text:
+        return "REQUEST_FIXTURE_CI_RUN_CANDIDATE_BINDING_DEFECT"
+    if "unsupported evidence ref type" in text or "malformed" in text:
+        return "EVIDENCE_MATERIALIZATION_FAIL_CLOSED"
+    if "request hash" in text or "integrity" in text and "request" in text:
+        return "REQUEST_INTEGRITY_REJECTED"
+    if validation_valid is False:
+        return "SEMANTIC_REVIEW_SCHEMA_OR_COVERAGE_INVALID"
+    if job_status.lower() == "failure":
+        return "UNCLASSIFIED_FAIL_CLOSED_REVIEW_FAILURE"
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--request", required=True)
@@ -57,13 +78,15 @@ def main() -> None:
     corpus = _read_json(evidence_dir / "corpus.json") or {}
     error_path = evidence_dir / "provider-error.log"
     error_text = error_path.read_text(encoding="utf-8", errors="replace")[-2000:] if error_path.exists() else None
+    failure_detail = error_text or workflow_status.get("failure_detail")
+    validation_valid = validation.get("valid") if validation else None
 
     findings = review.get("findings", []) if review else []
     if not isinstance(findings, list):
         findings = []
 
     summary = {
-        "schema_version": 1,
+        "schema_version": 2,
         "summary_type": "GOVERNED_REVIEW_ORCHESTRATION_SUMMARY",
         "review_request_id": request.get("review_request_id"),
         "review_request_path": args.request,
@@ -80,12 +103,13 @@ def main() -> None:
         "evidence_ref_count": envelope.get("evidence_ref_count", corpus.get("evidence_ref_count")),
         "materialized_evidence_count": envelope.get("materialized_evidence_count", corpus.get("materialized_evidence_count")),
         "corpus_sha256": envelope.get("corpus_sha256", corpus.get("corpus_sha256")),
-        "validation_valid": validation.get("valid") if validation else None,
+        "validation_valid": validation_valid,
         "disposition": review.get("disposition") if review else None,
         "dimensions": _dimension_summary(review),
         "findings_count": len(findings),
         "uncertainties_count": len(review.get("uncertainties", [])) if review and isinstance(review.get("uncertainties", []), list) else 0,
-        "failure_detail": error_text or workflow_status.get("failure_detail"),
+        "failure_classification": _classify_failure(failure_detail, validation_valid=validation_valid, job_status=args.job_status),
+        "failure_detail": failure_detail,
         "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
         "semantic_authority_note": "This summary is deterministic orchestration evidence only. It does not itself grant promotion authority.",
     }
