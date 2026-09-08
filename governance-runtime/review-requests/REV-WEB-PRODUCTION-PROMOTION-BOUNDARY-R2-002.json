@@ -1,0 +1,60 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-002",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    ".github/workflows/web-production-promotion-boundary.yml",
+    "experiments/governed-platform/WEB_PRODUCTION_PROMOTION_BOUNDARY_CONTRACT.md",
+    "experiments/governed-platform/repair-preregistrations/WEB-PROMOTION-AUTHORITY-SOURCE-REPAIR-001.md",
+    "experiments/governed-platform/adjudication/WEB-PROMOTION-R2-FALSE-GREEN-AUTHORITY-SOURCE-001.json",
+    "experiments/governed-platform/governance/production_promotion_gate.py",
+    "experiments/governed-platform/governance/production_promotion_gate_v2.py",
+    "experiments/governed-platform/governance/test_production_promotion_gate.py",
+    "experiments/governed-platform/governance/test_production_promotion_gate_v2.py"
+  ],
+  "artifact": {"type": "web_first_production_promotion_boundary_repaired_candidate", "ref": "feature/web-production-promotion-boundary", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "openrouter", "model": "nvidia/nemotron-3-ultra-550b-a55b:free"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently falsify the repaired web-first TESTING→RELEASE_CANDIDATE→PRODUCTION boundary. Do not inherit authority from R2-001 PASS; that review was later falsified by an authority-source defect.",
+    "Verify v2 no longer accepts caller-declared production credential domain or current-head strings as authority and instead validates platform-owned HMAC attestations.",
+    "Verify Production Authorization issuance requires exact bound authorization evidence and cannot be forged/rebound without the platform authority key.",
+    "Verify production receipts can only be minted from an actually production-eligible decision and rollback requires a valid signed prior production receipt rather than an unused authorization.",
+    "Verify original build-once/artifact-continuity, evidence/provenance binding, ordered transition, expiry, model non-authority and deterministic replay semantics remain regression-clean.",
+    "Verify CI run 34270161942 is bound to exact candidate 6a4a729144e33fc5b7e8c5048935676d6f88d814 and both PB-01..PB-16 and PB2-01..PB2-18 pass.",
+    "Search specifically for HMAC trust-root misuse, record-type confusion, signature replay across namespaces, authorization/receipt rebinding, stale head/credential attestations, arbitrary authority issuance paths, and overclaim beyond a reference trust boundary.",
+    "Return PASS only if every mandatory dimension is TESTED_SUPPORTED and no MEDIUM/HIGH/CRITICAL finding remains."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34270161942"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/WEB_PRODUCTION_PROMOTION_BOUNDARY_CONTRACT.md", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/repair-preregistrations/WEB-PROMOTION-AUTHORITY-SOURCE-REPAIR-001.md", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/adjudication/WEB-PROMOTION-R2-FALSE-GREEN-AUTHORITY-SOURCE-001.json", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/governance/production_promotion_gate.py", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/governance/production_promotion_gate_v2.py", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/governance/test_production_promotion_gate.py", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/governance/test_production_promotion_gate_v2.py", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "frozen_file", "ref": ".github/workflows/web-production-promotion-boundary.yml", "commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814"},
+    {"type": "history", "ref": "Candidate bb2a591d6fa9d6da507d6ff6aa8f444784a57651 passed authenticated R2-001, but post-review adversarial inspection found HIGH authority-source false-green: caller-supplied credential_domain/current_head_sha and arbitrary authorization evidence digest could appear authoritative. That PASS grants no authority to this repaired candidate."},
+    {"type": "history", "ref": "Initial R2-001 provider attempt run 34269375451 failed with OpenRouter/Nvidia 502 temporarily overloaded; authority NONE. Retry classifier was repaired narrowly and exact request retry run 34269571081 passed before the later semantic false-green was discovered."}
+  ],
+  "expected_output": {"required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"], "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]},
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "repaired_exact_candidate_and_scope", "mandatory": true, "description": "Exact repaired candidate is based on Slice5 main and contains the frozen promotion boundary plus preregistered authority-source repair, preserved false-green evidence, v2 mechanism/tests and workflow."},
+    {"id": "platform_owned_head_authority", "mandatory": true, "description": "Production eligibility requires a valid platform-signed head attestation for the exact source SHA; caller-declared head strings cannot satisfy authority."},
+    {"id": "platform_owned_credential_authority", "mandatory": true, "description": "Production credential authority requires a valid platform-signed credential attestation for production domain/environment; testing or forged credentials fail closed."},
+    {"id": "production_authorization_issuance_and_binding", "mandatory": true, "description": "Production Authorization is platform-issued, signature-bound to exact RC/source/artifact and bound PRODUCTION_AUTHORIZATION evidence; forgery/rebinding is denied."},
+    {"id": "production_receipt_and_rollback", "mandatory": true, "description": "Production receipt is platform-signed and mintable only from a production-eligible decision; rollback requires a signed prior production receipt and unused authorization alone is insufficient."},
+    {"id": "artifact_evidence_and_transition_regression", "mandatory": true, "description": "Original build-once exact-artifact continuity, exact evidence/provenance binding, ordered TESTING→RC→PRODUCTION transition, expiry and head-drift semantics remain enforced."},
+    {"id": "model_reviewer_and_untrusted_input_non_authority", "mandatory": true, "description": "Model/reviewer claims and untrusted caller strings cannot mint or widen production authority."},
+    {"id": "hmac_record_integrity_and_namespace", "mandatory": true, "description": "HMAC records enforce record type and authority namespace and tamper/rebinding attempts fail closed; trust-root assumptions remain explicitly bounded."},
+    {"id": "ci_exact_candidate_binding_and_falsification_quality", "mandatory": true, "description": "Run 34270161942 is bound to exact candidate and executes both original 16 and repaired 18 adversarial cases without provider/production secrets."},
+    {"id": "bounded_claims_and_remaining_false_green_search", "mandatory": true, "description": "Claims remain a deterministic reference trust/promotion boundary only, not production KMS/HSM/hosting/deployment/security; adversarial inspection finds no material remaining bypass."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "20df574b7cc808e488ba1eb0bdcb4168bb6a193c92b139de75780a8bc3434481"
+}
