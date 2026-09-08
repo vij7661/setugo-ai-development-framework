@@ -102,6 +102,14 @@ jobs:
             cat /tmp/review-orchestration-summary.json
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload compact governance review summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-review-summary
+          path: governance-review-evidence/orchestration-summary.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload governance review evidence
         if: always()
         uses: actions/upload-artifact@v4
