@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L1_EVIDENCE_MATERIALIZATION_COMPLETENESS",
+  "run": {
+    "workflow_run_id": 34199473272,
+    "job_id": 101974717781,
+    "head_sha": "bef4e6e1ca248d909f7f8ede18f7cc1eb159980e",
+    "provider_api_used": false
+  },
+  "tests": {
+    "L1-01_file_materialized_candidate_bound": "PASS",
+    "L1-02_missing_file_fails_closed": "PASS",
+    "L1-03_ci_without_resolver_fails_closed": "PASS",
+    "L1-04_ci_with_resolver_materialized_hashed": "PASS",
+    "L1-05_unknown_type_fails_closed": "PASS",
+    "L1-06_mixed_refs_all_or_fail": "PASS"
+  },
+  "count": "6/6",
+  "classification": "BOUNDED_PASS_FAIL_CLOSED_MATERIALIZATION_PROTOTYPE",
+  "limits": [
+    "The prototype proves silent skipping is eliminated for the tested materialization contract.",
+    "Production trusted resolvers for GitHub CI/history evidence are not yet integrated into the authoritative review path.",
+    "The proposed materialization_v2 module is not yet promoted into a frozen trust-kernel version."
+  ],
+  "authority_effect": "NONE_EXP_L_STILL_OPEN"
+}
