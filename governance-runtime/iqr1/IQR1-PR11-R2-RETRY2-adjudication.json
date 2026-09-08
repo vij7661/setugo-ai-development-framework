@@ -1,0 +1,22 @@
+{
+  "qualification_id": "IQR1",
+  "review_id": "IQR1-PR11-R2",
+  "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+  "packet_sha256": "sha256:bfc9f0b34d5bf879e818f6396fb4418a770c90d3fed6ed9de936b8aecea9114c",
+  "semantic_disposition": "CHANGES_REQUIRED",
+  "supported_dimensions": 9,
+  "defect_dimensions": 1,
+  "finding": {
+    "id": "F1",
+    "severity": "MEDIUM",
+    "title": "Non-file evidence refs are silently skipped by legacy corpus builder",
+    "evidence_ids": ["e09", "e10"],
+    "required_change": "Handle every declared evidence ref explicitly or fail closed; no silent skip of non-file refs."
+  },
+  "reviewer_identity_status": "UNRESOLVED",
+  "semantic_result_usable_for_falsification": true,
+  "counts_for_pr11_promotion": false,
+  "r3_required": true,
+  "authority_effect": "NONE_PENDING_R3_AND_REPAIR"
+}
