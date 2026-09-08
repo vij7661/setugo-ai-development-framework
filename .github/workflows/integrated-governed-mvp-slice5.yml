@@ -1,0 +1,47 @@
+name: Integrated Governed MVP Slice 5 Clean Integration
+
+on:
+  push:
+    branches:
+      - integration/slice5-product-foundation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  slice1-through-slice5-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout clean integration candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run accepted Slice 1 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp.py
+
+      - name: Run accepted Slice 2 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice2.py
+
+      - name: Run accepted Slice 3 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice3.py
+
+      - name: Run accepted Slice 4 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice4.py
+
+      - name: Run repaired frozen Slice 5 acceptance harness
+        run: |
+          python -m unittest -v experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py
