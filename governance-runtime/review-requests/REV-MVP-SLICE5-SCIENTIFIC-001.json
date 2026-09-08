@@ -1,0 +1,60 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-001",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    ".github/workflows/integrated-governed-mvp-slice5.yml",
+    "experiments/governed-platform/integrated-mvp-slice5-authoritative-state-ledger-prereg.json",
+    "experiments/governed-platform/governance/authoritative_state_ledger.py",
+    "experiments/governed-platform/test_slice5_authoritative_state_ledger.py"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice5_scientific_candidate",
+    "ref": "feature/integrated-governed-mvp-slice5-authoritative-state-ledger",
+    "commit": "93632f63342387170c997d017ae79b9c4c301df6"
+  },
+  "proposer": {"provider":"openai","model":"gpt-5.6-sol"},
+  "required_reviewer": {"provider":"gemini","model_class":"gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently verify that the frozen Slice 5 preregistration is satisfied by the exact reviewed candidate without weakening or silently changing S5-01 through S5-16.",
+    "Verify atomic persistence: accepted event identity, idempotency binding, resulting authoritative state version, and required outbox side-effect intent commit in one transaction, with no partial authority after injected pre-commit failures.",
+    "Verify exact-retry idempotency and semantic rebinding resistance: identical retries converge to the original outcome while reuse of an idempotency key with changed command or effect semantics fails closed.",
+    "Verify optimistic version authority and concurrency: stale/future expected versions fail without mutation, concurrent identical submissions converge, and concurrent distinct same-version commands permit at most one authoritative commit.",
+    "Verify crash-after-commit behavior preserves committed state/event/outbox and reopening the ledger deterministically recovers pending outbox work without fabricating external exactly-once guarantees.",
+    "Verify outbox completion evidence is idempotent and cannot itself advance authoritative state or accept worker/model authority claims.",
+    "Verify persisted command/result/effect digests and event-state-outbox lineage are stable and audit detects tampering or missing lineage.",
+    "Verify the accepted Slice 4 regression remains green and Slice 5 does not widen tool, deployment, merge, release, completion, production, or external side-effect authority.",
+    "Search adversarially for false-green paths, partial commits, replay amplification, state-version races, outbox/state divergence, authority laundering, digest/provenance defects, and misleading production claims.",
+    "Return an independent disposition based on the materialized evidence; green CI or proposer confidence alone is not promotion authority."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34227873186"},
+    {"type":"file","ref":"experiments/governed-platform/integrated-mvp-slice5-authoritative-state-ledger-prereg.json"},
+    {"type":"file","ref":"experiments/governed-platform/governance/authoritative_state_ledger.py"},
+    {"type":"file","ref":"experiments/governed-platform/test_slice5_authoritative_state_ledger.py"},
+    {"type":"file","ref":".github/workflows/integrated-governed-mvp-slice5.yml"},
+    {"type":"history","ref":"Slice 5 candidate is intentionally based on accepted Slice 4 product integration a2fcd2ba9bc0e5828ee69056c23207fb431ecea6; PR11 governance merge d46db1173db7db5b42459bf49f7fa28ef3dd105a qualified review infrastructure but is not reused as Slice 5 semantic authority."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"preregistration_and_subject_integrity","mandatory":true,"description":"The exact reviewed candidate remains bound to the frozen Slice 5 preregistration and S5-01..S5-16 without post hoc weakening."},
+    {"id":"atomic_event_state_outbox_transaction","mandatory":true,"description":"Accepted event, idempotency identity, resulting state version, and outbox intent are atomic and injected pre-commit failures leave no partial authoritative state."},
+    {"id":"idempotency_and_rebinding_resistance","mandatory":true,"description":"Exact retry returns the original outcome without duplicate mutation while semantic rebinding under the same key fails closed."},
+    {"id":"version_and_concurrency_control","mandatory":true,"description":"Expected-version validation and concurrent submissions cannot create multiple authoritative commits from the same state version."},
+    {"id":"crash_recovery_and_outbox_durability","mandatory":true,"description":"Crash after commit preserves durable state/event/outbox and reopen recovers pending work deterministically without overclaiming exactly-once external effects."},
+    {"id":"completion_and_worker_authority_separation","mandatory":true,"description":"Outbox completion is idempotent, does not advance authoritative state, and worker/model authority claims cannot mutate authority directly."},
+    {"id":"digest_lineage_and_tamper_detection","mandatory":true,"description":"Persisted digests and event-state-outbox lineage remain stable and audit detects tampered or missing lineage."},
+    {"id":"slice4_regression_and_scope_nonexpansion","mandatory":true,"description":"Accepted Slice 4 behavior remains green and Slice 5 does not widen tool, merge, release, deploy, completion, production, or remote side-effect authority."},
+    {"id":"ci_candidate_binding","mandatory":true,"description":"Construction CI is bound to the exact reviewed candidate and demonstrates S5-01..S5-16 plus accepted Slice 4 regression without substituting CI for semantic review."},
+    {"id":"remaining_false_green_search","mandatory":true,"description":"Adversarial review finds no material partial-commit, replay, concurrency, outbox-divergence, provenance, authority-laundering, or false-green path within the bounded SQLite mechanism."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "faee1c88027f28f810cf05d6a36c33b27e974b8146101d9da201951faae1bb18"
+}
