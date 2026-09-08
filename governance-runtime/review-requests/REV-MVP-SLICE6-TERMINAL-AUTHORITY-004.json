@@ -1,0 +1,70 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py",
+    ".github/workflows/integrated-governed-mvp-slice6-terminal-authority.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice6_terminal_authority_candidate",
+    "ref": "PR-15",
+    "commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently review the repaired Slice 6 terminal-authority candidate. Do not rely on the prior Gemini false-green PASS, Gemini 503 attempt, or Groq request-size failure; reconstruct the candidate evidence independently.",
+    "Verify that authority_record structurally requires state_version and authorization requires authority_record.state_version to exactly equal terminal_request.expected_state_version.",
+    "Verify a valid self-hashed authority record for state version 6 cannot authorize a request/current authoritative state at version 7, including the strengthened S6-23 regression.",
+    "Re-verify exact binding of project_id, task_id, effect_id, terminal action, target artifact SHA, authoritative state version, review evidence, and authority freshness/expiry.",
+    "Verify malformed, stale, expired, mismatched, unsupported, or model/worker/researcher/judge-supplied authority records fail closed and cannot mint a terminal-action authorization receipt.",
+    "Verify successful authorization remains deterministic, self-hash bound, and authorization-only: this slice performs no merge/release/deploy/production/completion side effect.",
+    "Treat candidate-bound CI as execution evidence only, not semantic or terminal authority; adversarially inspect for any remaining false-green, stale-state, conversation-memory, or claimant-controlled authority path.",
+    "Return an independent disposition based on the repaired exact candidate and materialized evidence, not on proposer or prior reviewer conclusions."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34277699140"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice6-terminal-authority.yml"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md"},
+    {"type": "history", "ref": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001 returned authenticated Gemini PASS for candidate 53100095dadf28d600e92a2b45323db372831347, but review-of-review exposed missing authority state-version binding. That PASS was adjudicated REVIEW_FALSE_GREEN_EVIDENCE_CONTRADICTION with authority effect NONE."},
+    {"type": "history", "ref": "Defect exposure commit b06fa91b1767c552b8b84c2709bb118650ba8296 made S6-23 fail on CI run 34277555226; repair commit 58458e0cb86680b9e25c490f43b94324e67ec5ec passed CI run 34277699140."},
+    {"type": "history", "ref": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-002 attempted fresh authenticated Gemini review of repaired candidate but workflow run 34277864401 exhausted three retries with HTTP 503 high-demand responses. No semantic disposition; authority effect NONE."},
+    {"type": "history", "ref": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-003 attempted Groq review using qwen/qwen3.6-27b, but workflow run 34278452371 failed before semantic review with HTTP 413 because the frozen corpus requested 17805 input tokens against a 7000 ITPM account/model-tier limit. No semantic disposition; authority effect NONE."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "terminal_authority_externality", "mandatory": true, "description": "Terminal authority remains external to model, worker, researcher, judge, CI, and isolated-execution success."},
+    {"id": "exact_terminal_binding", "mandatory": true, "description": "Authorization binds exact project/task/effect/action/artifact SHA/state version/review evidence and cannot widen across substitutions."},
+    {"id": "authority_state_version_binding_repair", "mandatory": true, "description": "Authority records structurally carry state_version and only authorize when it exactly equals the terminal request expected authoritative state version; the prior false-green defect is closed."},
+    {"id": "authority_freshness_and_expiry", "mandatory": true, "description": "Stale, future-invalid, expired, malformed, or mismatched authority records fail closed."},
+    {"id": "review_dependency", "mandatory": true, "description": "Required review evidence and review state are independently checked and cannot be bypassed by terminal authority claims."},
+    {"id": "receipt_integrity_and_determinism", "mandatory": true, "description": "Authorized receipts are deterministic, self-hash bound, and mutation of bound fields invalidates or changes the receipt."},
+    {"id": "authorization_only_nonexecution", "mandatory": true, "description": "The slice performs no merge/release/deploy/production/completion side effect and makes no broader execution claim."},
+    {"id": "candidate_bound_ci_non_authority", "mandatory": true, "description": "CI evidence is exact-candidate execution evidence only and does not become semantic or terminal authority."},
+    {"id": "replay_substitution_resistance", "mandatory": true, "description": "Replay or substitution of action, artifact, state version, identity, or evidence cannot mint widened terminal authority."},
+    {"id": "prior_slice_regression_preservation", "mandatory": true, "description": "Slice 1→5 accepted authority boundaries remain preserved by the candidate."},
+    {"id": "remaining_authority_bypass_search", "mandatory": true, "description": "Adversarial review finds no remaining false-green, stale-state, conversation-memory, or claimant-controlled terminal-authority bypass within the frozen scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "8ae7bd13e09a595e8bea3a3f8e9123cfa06815ec27a82e4cb6a5415b6c4d9efb"
+}
