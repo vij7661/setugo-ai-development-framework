@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "repair_id": "GOV-OPENROUTER-REVIEW-RUNNER-001",
+  "status": "BOUNDED_DETERMINISTIC_PASS",
+  "preregistration_commit": "1923d7af8b8eeae91a88f8951c84cdd143f73a11",
+  "implementation_commit": "fce47c9c5cfc44ef770cf91618fcafa0a9d6a127",
+  "tests_commit": "99865e55f82b20e191bf0154efc46393eb40a685",
+  "workflow_commit": "db06280c31f4df9ed7f6c27dba0dc7cef777b6b0",
+  "workflow_run_id": 34240022587,
+  "deterministic_result": "10/10_PASS_NO_PROVIDER_CALL",
+  "supported_provider": "openrouter",
+  "exact_model_binding": true,
+  "returned_model_mismatch_fails_closed": true,
+  "r2_r3_attestation_preserved": true,
+  "evidence_materialization_version": "GOV-EVIDENCE-MATERIALIZATION-001",
+  "promotion_effect": "NONE_RUNNER_CAPABILITY_ONLY"
+}
