@@ -1,0 +1,15 @@
+{
+  "failure_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001-PROVIDER-502-001",
+  "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001",
+  "reviewed_candidate_commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651",
+  "workflow_run_id": 34269375451,
+  "provider": "openrouter",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "classification": "TRANSIENT_PROVIDER_AVAILABILITY_AND_RETRY_CLASSIFIER_GAP",
+  "observed_error": "OpenRouter provider error code=502 message='Upstream error from Nvidia: Service temporarily overloaded'",
+  "review_semantic_result": null,
+  "provider_invocation_reached": true,
+  "candidate_authority_effect": "NONE",
+  "governance_finding": "The workflow transient retry classifier recognized 503/429/high-demand/unavailable/rate-limit patterns but did not recognize HTTP 502 or the phrase temporarily overloaded, so a retryable upstream availability failure was classified nonretryable.",
+  "repair_scope": "Expand retry classification only; do not alter candidate, request, evidence, reviewer model, semantic validation, or promotion authority."
+}
