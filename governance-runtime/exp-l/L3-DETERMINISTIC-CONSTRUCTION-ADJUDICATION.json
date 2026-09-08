@@ -1,0 +1,22 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L3_BLINDNESS_AND_ANCHORING",
+  "layer": "DETERMINISTIC_PACKET_CONSTRUCTION",
+  "status": "BOUNDED_PASS",
+  "candidate_sha": "479efd6c464f431a1f2ac8b7804eea759f9a0852",
+  "workflow_run": 34215609661,
+  "tests": "10/10",
+  "provider_llm_api_calls": 0,
+  "mechanism_properties": [
+    "blind packet strips proposer identity",
+    "blind packet strips proposer conclusion and recommended disposition",
+    "blind packet strips prior reviewer verdict, consensus, promotion and approval labels",
+    "decision target and frozen evidence are preserved",
+    "unknown new fields fail closed",
+    "manual anchor leakage is detectable",
+    "blind and exposed packet identities are separately hashed"
+  ],
+  "authority_effect": "NONE",
+  "behavioral_status": "PENDING_MANUAL_BLIND_VS_EXPOSED_COMPARISON",
+  "notes": "Construction pass does not establish model anchoring resistance and does not qualify EXP-L overall."
+}
