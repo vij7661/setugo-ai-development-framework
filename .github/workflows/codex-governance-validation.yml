@@ -1,0 +1,65 @@
+name: Codex Governance Validation
+
+on:
+  push:
+    branches:
+      - feature/integrated-governed-mvp-slice6-codex-execution-agent
+  pull_request:
+    paths:
+      - AGENTS.md
+      - codex/**
+      - skills/codex-execution/**
+      - skills/failure-triage/**
+      - experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_CODEX_EXECUTION_AGENT_CONTRACT.md
+      - .github/workflows/codex-governance-validation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codex-governance-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate Codex governance contract
+        run: python codex/validate_codex_agent.py
+
+      - name: Run Codex governance regression tests
+        run: python -m unittest -v codex/test_validate_codex_agent.py
+
+      - name: Run accepted Slice 1 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp.py
+
+      - name: Run accepted Slice 2 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice2.py
+
+      - name: Run accepted Slice 3 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice3.py
+
+      - name: Run accepted Slice 4 regression harness
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice4.py
+
+      - name: Run true Slice 1 through Slice 5 composition regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice1_to_slice5.py
+
+      - name: Run accepted Slice 5 ledger regression harness
+        run: python -m unittest -v experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py
