@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "closure_id": "SLICE5-CLOSURE",
+  "status": "CLOSED_MERGED_BOUNDED_QUALIFICATION",
+  "candidate_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+  "candidate_branch": "integration/slice5-product-foundation-v2",
+  "base_sha_before_merge": "d46db1173db7db5b42459bf49f7fa28ef3dd105a",
+  "pull_request": 13,
+  "pull_request_state": "closed",
+  "pull_request_merged": true,
+  "merge_commit_sha": "f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0",
+  "main_sha_after_merge": "f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0",
+  "exact_head_guard": {
+    "required_head_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+    "satisfied": true
+  },
+  "merge_surface": {
+    "commits": 8,
+    "changed_files": 24,
+    "additions": 4938,
+    "deletions": 0,
+    "behind_by_before_merge": 0,
+    "unrelated_historical_topology_imported": false
+  },
+  "qualification": {
+    "construction_run": 34250241541,
+    "construction_conclusion": "PASS",
+    "r2_request": "REV-MVP-SLICE5-INTEGRATION-R2-002",
+    "r2_run": 34250541201,
+    "r2_disposition": "PASS",
+    "r2_dimensions": "10/10",
+    "r2_findings": 0,
+    "r3_002_preserved_disposition": "FAIL",
+    "r3_002_classification": "REVIEW_FALSE_POSITIVE_HASH_SEMANTICS_MISINTERPRETATION",
+    "hash_semantics_adjudication_run": 34252830218,
+    "hash_semantics_adjudication": "PASS",
+    "r3_request": "REV-MVP-SLICE5-INTEGRATION-R3-003",
+    "r3_run": 34253101868,
+    "r3_disposition": "PASS",
+    "r3_dimensions": "10/10",
+    "r3_findings": 0,
+    "r3_attestation": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+    "final_r1": "PASS_ELIGIBLE_FOR_INTEGRATION_SUBJECT_TO_EXACT_HEAD_MERGE_GUARD"
+  },
+  "preserved_false_green_discoveries": [
+    "Slice5 v1 audit trusted persisted command_digest and did not verify current project_state.state_digest; repaired in authoritative_state_ledger_v2.py.",
+    "Synthetic Slice4 receipt fixtures masked a real Slice3-to-Slice4 receipt incompatibility; true Slice1-to-Slice5 composition exposed and repaired it with integrated_governed_mvp_repository_gateway_v2.py.",
+    "R3-002 misinterpreted protocol handoff self-hash as whole-file byte hash; deterministic no-provider adjudication preserved and resolved the contradiction."
+  ],
+  "claim_boundary": "Closure qualifies only the merged bounded local-reference Slice1-to-Slice5 governed MVP mechanisms. It does not establish distributed consensus, cryptographic tamper-proofing, production durability, production sandbox security, autonomous release/deploy/merge authority, or production readiness.",
+  "next_work_authorized": false,
+  "stop_after_closure": true
+}
