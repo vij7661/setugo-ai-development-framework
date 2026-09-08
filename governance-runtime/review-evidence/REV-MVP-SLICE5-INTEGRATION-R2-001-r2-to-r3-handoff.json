@@ -1,0 +1,37 @@
+{
+  "authority_effect": "R2_EVIDENCE_ONLY_PENDING_R3_AND_FINAL_ADJUDICATION",
+  "candidate_sha": "c79c0bcf56717b7c27e89280cf65461b48ce479c",
+  "corpus_hash": "sha256:ce3765c694382113d611ba966af78175b90a747c119aa68b36c8d24296c3a7dd",
+  "evidence_manifest_hash": "sha256:3b2a265ffe1cb7c7055b5906acf6dc8baed04956df6268216f8a370f1138c824",
+  "handoff_hash": "sha256:b5ca047fa7c84b0f7aa3b0d03a6db6dbc381a1447e016482ba3d1b7f9a5a70cf",
+  "handoff_type": "AUTHENTICATED_PLATFORM_R2_TO_R3",
+  "provider_api_authenticated": true,
+  "r1_middle_opinion": null,
+  "r2_raw": {
+    "disposition": "PASS",
+    "evidence_assessment": "All mandatory dimensions are TESTED_SUPPORTED. The clean integration candidate c79c0bcf56717b7c27e89280cf65461b48ce479c is based on current main lineage (base d46db11) and does not import unrelated topology. Slice1 through Slice4 accepted foundation and the repaired Slice5 ledger are present, cross-slice dependencies remain bounded, CI run 34244720233 is bound to the exact candidate and passes all S1-S5 steps, and bounded nonclaims/terminal-authority separation remain intact.",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "review_coverage": [
+      {"assessment":"Clean candidate is based on current main lineage and avoids unrelated old branch topology.","dimension_id":"clean_integration_subject_and_topology","evidence":["candidate c79c0bcf56717b7c27e89280cf65461b48ce479c","base d46db1173db7db5b42459bf49f7fa28ef3dd105a","preserved topology-mismatch history"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Accepted Slice1 foundation and prerequisite primitives are present and preserve external authority.","dimension_id":"accepted_slice1_foundation","evidence":["INTEGRATED_GOVERNED_MVP_CONTRACT.md","integrated_governed_mvp.py","authority_binding.py","capability_guard.py","qualification_guard.py","test_integrated_governed_mvp.py","34244720233"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Accepted Slice2 idempotency/crash/replay/terminal-separation behavior remains intact.","dimension_id":"accepted_slice2_gateway","evidence":["INTEGRATED_GOVERNED_MVP_SLICE2_EXECUTION_GATEWAY_CONTRACT.md","integrated_governed_mvp_execution_gateway.py","test_integrated_governed_mvp_slice2.py","34244720233"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Accepted bounded local repository mutation gateway remains intact.","dimension_id":"accepted_slice3_repository_gateway","evidence":["INTEGRATED_GOVERNED_MVP_SLICE3_REPOSITORY_MUTATION_GATEWAY_CONTRACT.md","integrated_governed_mvp_repository_gateway.py","test_integrated_governed_mvp_slice3.py","34244720233"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Accepted isolated tool-runner behavior and terminal separation remain intact.","dimension_id":"accepted_slice4_tool_runner","evidence":["INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md","integrated_governed_mvp_tool_runner_gateway.py","test_integrated_governed_mvp_slice4.py","34244720233"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Repaired v2 audit reconstructs command digest, verifies current-state digest and replay lineage, and retains atomic ledger behavior.","dimension_id":"repaired_slice5_ledger","evidence":["INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md","authoritative_state_ledger.py","authoritative_state_ledger_v2.py","test_slice5_authoritative_state_ledger.py","test_slice5_authoritative_state_ledger_v2.py","34244720233"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Cross-slice dependencies bind only to accepted modules and do not widen authority.","dimension_id":"cross_slice_dependency_integrity","evidence":["Slice2->Slice1 evaluate_governed_execution","Slice4->Slice3 canonical_hash","no unexpected cross-slice imports"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"Exact candidate c79c0bc passes Slice1 through Slice5 in one workflow run.","dimension_id":"ci_exact_candidate_end_to_end","evidence":["34244720233",".github/workflows/integrated-governed-mvp-slice5.yml"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"No production/distributed/tamper-proof overclaim and no release/deploy/merge/completion authority introduced.","dimension_id":"bounded_claims_and_terminal_authority","evidence":["Slice1-Slice5 contracts and mechanisms"],"status":"TESTED_SUPPORTED"},
+      {"assessment":"No remaining material false-green, topology, lineage, regression, or authority-bypass defect found.","dimension_id":"remaining_false_green_search","evidence":["all materialized contract/mechanism/test/CI/history evidence"],"status":"TESTED_SUPPORTED"}
+    ],
+    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-001",
+    "reviewed_artifact_commit": "c79c0bcf56717b7c27e89280cf65461b48ce479c",
+    "reviewer": {"model":"nvidia/nemotron-3-ultra-550b-a55b:free","provider":"openrouter"}
+  },
+  "r2_raw_hash": "sha256:8dabd7a60e3a824ed83809d2fdf4d2f15d2f3b07df0dcd39677f31c31100d39d",
+  "r3_required": true,
+  "review_request_hash": "sha256:d1856b080917cd70543ed07ff390f878b522ff8e475864dba377307476fde542",
+  "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-001",
+  "routing_policy_hash": "sha256:f317a3eabbb2e2ba76700b19a8c00d791c8d0ccecf92f51480d6c16f1641b29e",
+  "schema_version": 2
+}
