@@ -1,22 +1,17 @@
 {
-  "enabled": false,
-  "review_request_id": "REV-MVP-SLICE4-INTEGRATION-003",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-003.json",
-  "reviewed_candidate_commit": "f3b26a057ff862dc5f31794ec72c751a2b71f79b",
+  "enabled": true,
+  "review_request_id": "REV-GOV-PR11-001",
+  "review_request_path": "governance-runtime/review-requests/REV-GOV-PR11-001.json",
+  "reviewed_candidate_commit": "331822da78be228aaddb2148f35f2ec091b0caa9",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "COMPLETED_PASS_INGESTED",
-  "workflow_run_id": 34168261336,
-  "successful_job_id": 101883498584,
-  "artifact_id": 10034862695,
-  "artifact_digest": "sha256:52878c5e31163af54513fe0a227d95d9c8a543fe5ede31696a08c5b1a0c0a6d5",
-  "request_hash": "77795f8416b0f9d4573a2b13f11d1707fc41880bd2a6b8ab63340beb90d98211",
-  "evidence_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-003-platform-review.json",
-  "adjudication_path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-003-adjudication.json",
+  "status": "PENDING_EXECUTION",
+  "request_hash": "e13865a3d2f0b9bf4218b7bb511ffaf9bee5879c0f619b6178fb455d6743b94f",
   "preserved_prior_attempts": [
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-001","classification":"INVALID_REVIEW_REQUEST_INTEGRITY_NONPROMOTABLE","authority_effect":"NONE"},
-    {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-002","workflow_run_id":34168148380,"job_id":101883188607,"artifact_id":10034834006,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE","authority_effect":"NONE"}
+    {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-002","workflow_run_id":34168148380,"job_id":101883188607,"artifact_id":10034834006,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE","authority_effect":"NONE"},
+    {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-003","workflow_run_id":34168261336,"classification":"VALID_PRODUCT_INTEGRATION_REVIEW_HISTORICAL","authority_effect":"BOUNDED_TO_PR10_ONLY"}
   ]
 }
