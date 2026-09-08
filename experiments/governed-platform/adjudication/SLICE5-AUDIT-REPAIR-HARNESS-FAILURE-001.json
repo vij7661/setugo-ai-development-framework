@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "failure_id": "SLICE5-AUDIT-REPAIR-HARNESS-FAILURE-001",
+  "candidate_head": "225396288e1936061823659c5f1d1762f2d83dc5",
+  "workflow_run_id": 34229291670,
+  "job_id": 102071101403,
+  "classification": "HARNESS_IMPORT_DEFECT_PRE_SCIENTIFIC_ENDPOINT",
+  "mechanism_exercised": false,
+  "failed_before_assertions": true,
+  "error": "ModuleNotFoundError: No module named 'test_slice5_authoritative_state_ledger'",
+  "root_cause": "The v2 harness added the governance module directory to sys.path but omitted the harness directory containing the v1 test module it subclasses.",
+  "authority_effect": "NONE",
+  "repair_scope": "Add the current harness directory to sys.path only; do not alter mechanism behavior or S5 expectations.",
+  "preserve": true
+}
