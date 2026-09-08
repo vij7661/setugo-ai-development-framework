@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L4_RETRY_CORPUS_REPRODUCIBILITY",
+  "status": "PREREGISTERED_BEFORE_REPAIR",
+  "known_pre_repair_defect": "Current corpus builder computes merge-base against origin/main at execution time, so an unchanged ReviewRequest retry can observe a different base and corpus after main moves.",
+  "hypothesis": "A frozen review attempt must bind exact base commit, candidate commit, evidence manifest and corpus hash so retries with unchanged governed input are byte-identical even if main changes.",
+  "cases": [
+    {"id":"L4-01","mutation":"main advances after first failed attempt","required":"retry base remains original frozen base"},
+    {"id":"L4-02","mutation":"main advances with unrelated files","required":"corpus bytes/hash unchanged"},
+    {"id":"L4-03","mutation":"candidate unchanged but evidence manifest differs","required":"classified as new governed input, not retry"},
+    {"id":"L4-04","mutation":"candidate SHA differs","required":"classified as new governed input, not retry"},
+    {"id":"L4-05","mutation":"same request/candidate/base/manifest","required":"retry identity and corpus hash exactly match"}
+  ],
+  "pass_criteria": [
+    "base_commit is explicit frozen input, never recomputed from moving main for retry",
+    "same frozen inputs produce identical canonical corpus bytes/hash",
+    "candidate/base/manifest change invalidates retry identity",
+    "provider failure remains authority NONE and does not mutate governed inputs"
+  ],
+  "provider_api_required": false,
+  "authority_effect": "NONE_EXPERIMENT_ONLY"
+}
