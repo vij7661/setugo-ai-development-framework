@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V4",
+  "workflow_run_id": 34194341441,
+  "job_id": 101958704104,
+  "head_sha": "db274fb12ceb1de5a9335658ef6850e4f679f3d4",
+  "artifact_id": 10043319381,
+  "artifact_digest": "sha256:509ffb1f39948832075ffba71680635c4b1ddd206f3d9e0fbff2f28fdfff12cd",
+  "provider": "gemini",
+  "model": "gemini-3.7-flash",
+  "arm_order": ["P2", "P1", "P3"],
+  "construction_checks": "PASS",
+  "workflow_conclusion": "failure",
+  "failure_classification": "PROVIDER_QUOTA_EXHAUSTED_BEFORE_SEMANTIC_RESULT",
+  "provider_error": {
+    "http_code": 429,
+    "status": "RESOURCE_EXHAUSTED",
+    "quota_metric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",
+    "quota_id": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",
+    "quota_value": 20,
+    "model": "gemini-3.7-flash"
+  },
+  "completed_arms": [],
+  "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
+}
