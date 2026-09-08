@@ -1,28 +1,20 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-INTEGRATION-R3-001.json",
-  "reviewed_candidate_commit": "c79c0bcf56717b7c27e89280cf65461b48ce479c",
+  "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-INTEGRATION-R2-002.json",
+  "reviewed_candidate_commit": "964ba7162fa3950b93576f553f26b83580555bc2",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_CLEAN_INTEGRATION_R3_RETRY_AFTER_REQUEST_HASH_REPAIR",
-  "request_hash": "b0e99023dd9e6270a2a57194f00383c3879f6ed93c906c321933e758b7f76eb9",
-  "authority_effect": "NONE_PENDING_R3_DETERMINISTIC_INGESTION",
-  "r3_role": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
-  "r2_handoff_hash": "sha256:b5ca047fa7c84b0f7aa3b0d03a6db6dbc381a1447e016482ba3d1b7f9a5a70cf",
-  "r2_raw_hash": "sha256:8dabd7a60e3a824ed83809d2fdf4d2f15d2f3b07df0dcd39677f31c31100d39d",
-  "preserved_failed_r3_attempt": {
-    "workflow_run_id": 34246860023,
-    "classification": "R3_REQUEST_FIXTURE_HASH_DEFECT",
-    "provider_invoked": false,
+  "status": "AUTHENTICATED_SLICE5_REPAIRED_INTEGRATION_R2_REQUESTED",
+  "request_hash": "c868a3136dc1df9491a3951293a8812b7555cc6ae4224e44413a58d87a46352c",
+  "authority_effect": "NONE_PENDING_R2_DETERMINISTIC_INGESTION",
+  "preserved_prior_r3": {
+    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-001",
+    "workflow_run_id": 34247110619,
+    "disposition": "BOUNDED_PASS",
+    "classification": "INVALID_REVIEW_EVIDENCE_WITH_R3_FINDINGS",
     "authority_effect": "NONE"
-  },
-  "preserved_r2": {
-    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-001",
-    "workflow_run_id": 34245742184,
-    "disposition": "PASS",
-    "authority_effect": "R2_EVIDENCE_ONLY_PENDING_R3_AND_FINAL_ADJUDICATION"
   }
 }
