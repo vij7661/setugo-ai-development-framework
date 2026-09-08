@@ -10,6 +10,7 @@ import tempfile
 import unittest
 
 from integrated_governed_mvp_repository_gateway import canonical_hash
+from integrated_governed_mvp_repository_gateway_v2 import RepositoryMutationGateway as RepositoryMutationGatewayV2
 from integrated_governed_mvp_tool_runner_gateway import ToolRunnerGateway
 from test_integrated_governed_mvp_slice3 import IntegratedGovernedMVPSlice3Tests
 
@@ -32,14 +33,18 @@ class IntegratedGovernedMVPSlice1To5Tests(unittest.TestCase):
         try:
             # Slice1 is evaluated and consumed by the real Slice2 gateway inside
             # _make_slice2_receipt(); Slice2's exact receipt is then consumed by
-            # the real Slice3 repository gateway below.
+            # the repaired real Slice3 gateway below.
             slice2_receipt = deepcopy(s3_fixture.slice2_receipt)
             self.assertIn(slice2_receipt["result"]["state"], {"EXECUTED", "REPLAYED", "RECOVERED_AND_EXECUTED", "RECOVERED_REPLAY"})
             self.assertFalse(slice2_receipt["result"]["terminal_authority"])
 
-            slice3_result = s3_fixture._mutate()
+            slice3_gateway = RepositoryMutationGatewayV2(s3_fixture.repo_db)
+            slice3_result = s3_fixture._mutate(gateway=slice3_gateway)
             self.assertEqual(slice3_result["state"], "COMMITTED")
             self.assertFalse(slice3_result["terminal_authority"])
+            for field in ("project_id", "task_id", "execution_id", "plan_step_id"):
+                self.assertIsInstance(slice3_result[field], str)
+                self.assertTrue(slice3_result[field])
             with sqlite3.connect(s3_fixture.repo_db) as con:
                 row = con.execute(
                     "SELECT evidence_json FROM repository_mutations WHERE idempotency_key=?",
@@ -51,7 +56,7 @@ class IntegratedGovernedMVPSlice1To5Tests(unittest.TestCase):
             slice3_receipt["receipt_hash"] = canonical_hash(slice3_receipt)
             self.assertEqual(slice3_evidence["slice2_result_hash"], slice2_receipt["receipt_hash"])
 
-            # Slice4 consumes the exact Slice3 receipt produced above.
+            # Slice4 consumes the exact real Slice3 receipt produced above.
             tool_fixture = s3_fixture.workspace / "chain_tool.py"
             tool_fixture.write_text("print('chain-ok')\n", encoding="utf-8")
             tool_db = str(s3_fixture.root / "slice4.sqlite3")
@@ -76,7 +81,7 @@ class IntegratedGovernedMVPSlice1To5Tests(unittest.TestCase):
                 "tool_id": "python-chain-runner",
                 "idempotency_key": "tool-chain-idem",
                 "executable": sys.executable,
-                "argv": [str(tool_fixture),],
+                "argv": [str(tool_fixture)],
                 "workspace_path": str(s3_fixture.workspace.resolve()),
                 "input_digest": hashlib.sha256(tool_fixture.read_bytes()).hexdigest(),
                 "environment": {},
