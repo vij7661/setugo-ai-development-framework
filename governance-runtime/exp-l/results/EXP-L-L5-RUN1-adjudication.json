@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L5_HIDDEN_CHANGE_DETECTION",
+  "run": {
+    "workflow_run_id": 34199718677,
+    "job_id": 101975499538,
+    "head_sha": "c1bf860f50c2c7f1a6cdf137573945e68936ae44",
+    "provider_api_used": false
+  },
+  "tests": {
+    "L5-01_gate_change_surfaced": "PASS",
+    "L5-02_hidden_trigger_change_surfaced": "PASS",
+    "L5-03_nested_policy_change_surfaced": "PASS",
+    "L5-04_rename_represented": "PASS",
+    "L5-05_deletion_represented": "PASS"
+  },
+  "count": "5/5",
+  "classification": "BOUNDED_PASS_COMPLETE_CHANGE_INVENTORY_PROTOTYPE",
+  "limits": [
+    "The prototype proves complete Git name-status discovery across the full frozen base-to-candidate diff.",
+    "Deterministic policy for any future exclusions and production integration remain unqualified.",
+    "The proposed changed_files_v2 module is not yet promoted into a frozen production trust-kernel version."
+  ],
+  "authority_effect": "NONE_EXP_L_STILL_OPEN"
+}
