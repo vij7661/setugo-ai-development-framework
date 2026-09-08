@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "review_request_id": "REV-GOV-PR11-006",
+  "reviewed_artifact_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34225541084,
+  "job_id": 102058634999,
+  "trigger_sha": "da1d883dd3a119f461389924f4439f7b97fc14fc",
+  "artifact_id": 10055532985,
+  "artifact_digest": "sha256:f91959a20f5aa85c4234bed04696baf47db643982f58b38a1bea98af5585d4a9",
+  "request_hash": "eee1483c988cf529d86b822c6fb69de26389c461cacdfdc66bf4105d12c33bb5",
+  "corpus_sha256": "481f081d3aba7284e7cff78a1b6f6499c1577e1d5a464e878ba3c3439310a84d",
+  "materialization_version": "GOV-EVIDENCE-MATERIALIZATION-001",
+  "evidence_ref_count": 18,
+  "materialized_evidence_count": 18,
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "review": {
+    "disposition": "PASS",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "mandatory_dimensions": "12/12 TESTED_SUPPORTED",
+    "evidence_assessment": "Exact candidate 456f0ddb7df4a3e2adf8bbe667ed036d4e38e793 was assessed with all 18 declared refs materialized. Reviewer supported v2 non-file evidence materialization, exact candidate binding, legacy-path non-authority, retained review001/review002 contradiction history, request-integrity ordering, continuity grounding, and fail-closed promotion gating."
+  },
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_ADJUDICATION",
+  "limitations": [
+    "Remote Gemini model identity is not cryptographically proven; the authenticated provider API execution envelope establishes review-call provenance.",
+    "Authority is bound to exact reviewed candidate 456f0ddb7df4a3e2adf8bbe667ed036d4e38e793 and exact ReviewRequest hash eee1483c988cf529d86b822c6fb69de26389c461cacdfdc66bf4105d12c33bb5."
+  ]
+}
