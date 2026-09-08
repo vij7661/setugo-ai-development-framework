@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "qualification_id": "IQR1",
+  "review_id": "IQR1-PR11-R3-REPAIR1",
+  "reviewed_candidate": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "r2_preservation_commit": "0d263f7f85f74b9ed0422a9b92aeb1fb4b7ffb79",
+  "evidence_class": "USER_RELAYED_EXTERNAL_LLM_REVIEW",
+  "provider_api_authenticated": false,
+  "reported_provider": "OpenAI",
+  "reported_model": "GPT-4",
+  "disposition": "AGREE_PASS",
+  "r2_assessment": "CORRECT",
+  "promotion_blocking_defect": false,
+  "additional_findings": [],
+  "semantic_assessment": "R3 agrees that the authoritative v2 review path closes the silent non-file evidence omission defect and finds no remaining material bypass in the supplied repaired evidence.",
+  "authority_effect": "NONE_PENDING_R1_AND_PRODUCTION_PROVENANCE_GATE"
+}
