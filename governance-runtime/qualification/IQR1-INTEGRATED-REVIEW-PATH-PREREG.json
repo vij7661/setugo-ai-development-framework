@@ -1,0 +1,39 @@
+{
+  "qualification_id": "IQR1",
+  "title": "Integrated Review Path Qualification",
+  "created_at": "2026-09-08",
+  "trusted_branch": "qualification/exp-l-integrated-review-path",
+  "trusted_parent": "708d5a1e228dcf67ebfb832346ea0f39f5f1fc3f",
+  "live_target": {
+    "review_request_id": "REV-GOV-PR11-003",
+    "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+    "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+    "source_freeze": "governance-runtime/exp-l-pr11-freeze.json@f74bbb4117e68648bb3cb87fc5b056c3554d9175"
+  },
+  "risk_policy": {
+    "risk_class": "PROMOTION_AUTHORITY",
+    "promotion_authoritative": true,
+    "policy_requires_dual_review": true
+  },
+  "mechanisms_required": [
+    "blind_packet_v1",
+    "evidence_prompt_isolation_v1",
+    "memory_admissibility_v1",
+    "sequential_review_v1",
+    "evidence_discovery_broker_v2_when_needed"
+  ],
+  "failure_conditions": [
+    "candidate or base identity changes after freeze",
+    "blind packet leaks proposer/reviewer/promotion anchor fields",
+    "evidence is not explicitly typed as untrusted data",
+    "context-only memory satisfies mandatory evidence",
+    "promotion-authoritative routing skips R3 for any R2 disposition",
+    "R1-middle adds opinion or silently drops unknown material R2 fields",
+    "missing mandatory evidence remains promotable",
+    "final authority is issued before required reviewer stages complete"
+  ],
+  "construction_success": "all deterministic integrated-path tests pass with zero provider LLM API calls",
+  "behavioral_success": "fresh R2 and R3 reviews over the same frozen integrated packet complete, are evidence-grounded, and deterministic final adjudication does not contradict mandatory evidence",
+  "promotion_effect_before_behavioral_success": "NONE",
+  "pr11_status_before_success": "DRAFT_FAIL_CLOSED"
+}
