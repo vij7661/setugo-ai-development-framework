@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "qualification_id": "IQR1",
+  "candidate_sha": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+  "r2_preservation_commit": "0d263f7f85f74b9ed0422a9b92aeb1fb4b7ffb79",
+  "r3_preservation_commit": "635ca1af9bd71210ee877ea762cec0b543278e48",
+  "r2_disposition": "PASS",
+  "r3_disposition": "AGREE_PASS",
+  "r1_semantic_adjudication": "BOUNDED_PASS",
+  "integrated_path_result": "BOUNDED_PASS_SEMANTIC_AND_MECHANISM",
+  "promotion_blocking_semantic_defect": false,
+  "production_promotion_authorized": false,
+  "production_block_reason": "The successful R2 and R3 reviews were user-relayed external LLM reviews and are not provider-API-authenticated review evidence. Under the platform production provenance rules, semantic agreement cannot substitute for authenticated qualified review provenance.",
+  "pr11_required_state": "DRAFT_FAIL_CLOSED_PENDING_AUTHENTICATED_QUALIFIED_REVIEW",
+  "slice5_effect": "REMAINS_BLOCKED",
+  "history_policy": "All earlier PR11 false-greens, provider failures, IQR1 invalid transport attempt, R2/R3 CHANGES_REQUIRED discovery, repair, and repaired PASSes remain preserved without rewrite.",
+  "next_required_action": "Run an authenticated qualified review against exact candidate 456f0ddb7df4a3e2adf8bbe667ed036d4e38e793 through the promotion-authoritative v2 review path, then perform exact-head closure validation before readiness/merge."
+}
