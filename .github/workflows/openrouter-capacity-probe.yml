@@ -1,0 +1,36 @@
+name: OpenRouter Full-Size Capacity Probe
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/openrouter_capacity_probe.py
+      - governance-runtime/repair-preregistrations/GOV-OPENROUTER-CAPACITY-PROBE-001.md
+      - .github/workflows/openrouter-capacity-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  capacity-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require OpenRouter secret
+        run: test -n "$OPENROUTER_API_KEY" || { echo 'OPENROUTER_API_KEY repository secret required'; exit 2; }
+      - name: Send one full-size request
+        run: python governance-runtime/openrouter_capacity_probe.py
+      - name: Upload capacity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openrouter-capacity-probe
+          path: openrouter-capacity-probe/
+          if-no-files-found: error
+          retention-days: 30
