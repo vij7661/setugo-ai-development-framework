@@ -1,0 +1,23 @@
+name: IQR1 Integrated Review Path
+
+on:
+  push:
+    branches:
+      - qualification/exp-l-integrated-review-path
+    paths:
+      - 'governance-runtime/review-trust-kernel/integrated_review_path_v1.py'
+      - 'governance-runtime/qualification/**'
+      - '.github/workflows/iqr1-integrated-review-path.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-iqr1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trusted qualification branch
+        uses: actions/checkout@v4
+      - name: Run integrated review path tests without provider APIs
+        run: python -m unittest governance-runtime/qualification/test_iqr1_integrated_review_path.py -v
