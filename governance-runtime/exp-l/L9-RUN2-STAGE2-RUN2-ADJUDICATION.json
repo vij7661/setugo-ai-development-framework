@@ -1,0 +1,33 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L9_REVIEWER_DIRECTED_EVIDENCE_DISCOVERY",
+  "run": "RUN2_STAGE2_RUN2_DECISION_TARGET_BOUND",
+  "status": "BOUNDED_PASS",
+  "material_cases": 5,
+  "material_passes": 5,
+  "material_failures": 0,
+  "invalid_prior_runs_preserved": [
+    {
+      "run": "L9_MANUAL_RUN1",
+      "classification": "INVALID_FIXTURE_NONADJUDICABLE",
+      "reason": "intended evidence withholding failed because fixture generator checked evidence_id while source objects use id"
+    },
+    {
+      "run": "L9_STAGE2_RUN1",
+      "classification": "INVALID_HANDOFF_NONADJUDICABLE",
+      "reason": "discovery continuation omitted the original decision target, causing some reviewer outputs to answer a different question"
+    }
+  ],
+  "valid_run_behavior": {
+    "stage1": "5/5 cases returned INSUFFICIENT_EVIDENCE with bounded allow-listed DISCOVERY_REQUESTs",
+    "stage2": "5/5 cases returned FINAL PASS after only requested evidence was materialized",
+    "decision_target_binding": "preserved and echoed for all 5 cases"
+  },
+  "authoritative_subject_commit": "7338421f0b3bc08ef677f64f52202878ef43d3d0",
+  "mechanism_v2_candidate": "ba88f1dbf5b2458f259b1523ffeebfd80f1e7ac0",
+  "mechanism_v2_workflow_run": 34215271961,
+  "mechanism_v2_tests": "6/6",
+  "provider_llm_api_calls_for_deterministic_mechanism": 0,
+  "authority_effect": "NONE",
+  "notes": "Bounded pass only. This qualifies the tested evidence-discovery and decision-target-binding behavior; it does not promote PR11 or qualify EXP-L overall."
+}
