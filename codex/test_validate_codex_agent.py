@@ -48,7 +48,7 @@ class CodexGovernanceValidationTests(unittest.TestCase):
         self.assertTrue(any("terminal authority grant detected" in error for error in errors))
 
     def test_missing_requirement_unresolved_gate_fails(self) -> None:
-        bad = self.skill.replace("REQUIREMENT UNRESOLVED", "UNKNOWN", 1)
+        bad = self.skill.replace("REQUIREMENT UNRESOLVED", "UNKNOWN")
         errors = validator.validate_texts(self.agents, bad)
         self.assertTrue(any("REQUIREMENT UNRESOLVED" in error for error in errors))
 
