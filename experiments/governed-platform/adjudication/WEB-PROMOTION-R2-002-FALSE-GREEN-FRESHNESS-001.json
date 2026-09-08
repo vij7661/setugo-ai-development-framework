@@ -1,0 +1,14 @@
+{
+  "failure_id": "WEB-PROMOTION-R2-002-FALSE-GREEN-FRESHNESS-001",
+  "candidate_commit": "6a4a729144e33fc5b7e8c5048935676d6f88d814",
+  "r2_review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-002",
+  "r2_workflow_run_id": 34270449260,
+  "r2_disposition": "PASS",
+  "r2_supported_dimensions": "10/10",
+  "classification": "REVIEW_FALSE_GREEN_SIGNED_BUT_STALE_AUTHORITY",
+  "severity": "HIGH",
+  "candidate_authority_effect": "NONE",
+  "finding": "v2 proves origin/integrity of head and credential attestations but does not prove freshness. A previously signed HEAD_ATTESTATION remains acceptable after authoritative head movement. Credential attestations have no expiry/revocation epoch. Authorization expiry is evaluated against caller-supplied now_iso, allowing clock rollback by an untrusted caller.",
+  "violated_invariants": ["PB-I10 Exact-head/freeze", "PB-I08 Credential-domain separation", "PB-I12 Provenance completeness"],
+  "repair_boundary": "Evaluation must derive current head and time from platform-owned registry state, not caller input. Head/credential/authorization attestations must bind a monotonic authority epoch; current-authority records from an older epoch must fail closed. Credential expiry/revocation must be checked against platform-owned time/state. Production receipts may remain historical rollback evidence across later epochs if their signature is valid."
+}
