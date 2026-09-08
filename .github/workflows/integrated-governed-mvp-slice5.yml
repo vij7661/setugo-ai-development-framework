@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - integration/slice5-product-foundation
+      - integration/slice5-product-foundation-v2
   workflow_dispatch:
 
 permissions:
