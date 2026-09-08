@@ -83,6 +83,25 @@ jobs:
           }
           Path('governance-review-evidence/workflow-status.json').write_text(json.dumps(status,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           PY
+      - name: Emit compact governed orchestration summary
+        if: always()
+        shell: bash
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          python governance-runtime/review_orchestration_summary.py \
+            --request "$REVIEW_REQUEST_PATH" \
+            --evidence-dir governance-review-evidence \
+            --output governance-review-evidence/orchestration-summary.json \
+            --job-status "$JOB_STATUS" \
+            | tee /tmp/review-orchestration-summary.json
+          {
+            echo '### Governed review orchestration summary'
+            echo '```json'
+            cat /tmp/review-orchestration-summary.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload governance review evidence
         if: always()
         uses: actions/upload-artifact@v4
