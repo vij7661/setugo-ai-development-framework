@@ -1,0 +1,11 @@
+{
+  "experiment": "EXP-L L9 Reviewer-Directed Evidence Discovery",
+  "run": "MANUAL-RUN1",
+  "status": "INVALID_FIXTURE",
+  "classification": "FIXTURE_CONSTRUCTION_DEFECT",
+  "material_observation": "The initial manual packet was intended to withhold decisive evidence so the reviewer would have to request bounded additional evidence. The generator filtered on key 'evidence_id', but the source evidence objects use key 'id'. As a result, no decisive evidence was withheld and all five cases were actually complete.",
+  "scientific_disposition": "NONPROMOTABLE_NONADJUDICABLE",
+  "review_outputs": "Reviewer returned FINAL/PASS for all five cases, citing decisive evidence that was visibly present in the packet. These outputs are not reviewer failures and are not counted as L9 success because the intended falsification condition was never reached.",
+  "repair_scope": "Repair only the fixture generator to filter on the actual 'id' field, preserve the same cases/allow-lists, and rerun the manual initial-discovery stage.",
+  "preserve_failure": true
+}
