@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "ADJ-REV-MVP-SLICE6-TERMINAL-AUTHORITY-005",
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-005",
+  "candidate_commit": "d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a",
+  "exact_parent_commit": "f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0",
+  "pr_number": 15,
+  "candidate_ci_run": 34279738152,
+  "candidate_ci_conclusion": "success",
+  "review_workflow_run": 34279888227,
+  "review_artifact": {
+    "artifact_id": 10077306784,
+    "artifact_digest": "sha256:abff4cbf38ee9e5f898527b774b09d591b8aa5160147f0d80ee119291aa03fb5"
+  },
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "upstream_provider_reported": "Alibaba"
+  },
+  "request_hash": "6ccf9470e14b1668186ab8b463e4407640e37f5439c3582dadc1d008840edcbf",
+  "review_corpus_sha256": "12a8e2f453c94458232bf2a4ee9fd82fc6b1e02af9e65bf37e1606755ab5f027",
+  "semantic_disposition": "PASS",
+  "deterministic_validation": {
+    "valid": true,
+    "mandatory_dimensions_supported": 11,
+    "mandatory_dimensions_total": 11,
+    "findings_count": 0,
+    "uncertainties_count": 0
+  },
+  "review_of_review": {
+    "option_a_contract_consistency": "SUPPORTED: amended S6-I05 matches the frozen per-object schemas and no longer requires fields those schemas do not contain.",
+    "option_a_schema_preservation": "SUPPORTED: S6-25 explicitly proves review_gate and current_state remain minimal and can authorize without invented project/task/effect/artifact fields outside their schemas.",
+    "state_version_repair": "SUPPORTED: authority_record.state_version is structurally required and must equal terminal_request.expected_state_version, while the request expected version must equal current_state.state_version.",
+    "terminal_authority_externality": "SUPPORTED: MODEL/WORKER/RESEARCHER/JUDGE sources are denied; green CI and execution success cannot replace the external authority record.",
+    "review_dependency": "SUPPORTED: review_gate must be CLEAR and exact action/artifact/evidence bound, but review evidence alone cannot mint terminal authority.",
+    "receipt_nonexecution": "SUPPORTED: authorization receipt sets actual_side_effect_performed false and does not claim merge/release/deploy/completion occurred.",
+    "prior_slice_regression": "SUPPORTED by exact-candidate CI run 34279738152; accepted Slice 1 through Slice 5 regression steps passed.",
+    "provider_identity_nonclaim": "PRESERVED: provider API authentication is evidence of the authenticated transport/account path only; remote model identity is not cryptographically proven and no broader identity claim is promoted.",
+    "remaining_evidence_contradiction": false
+  },
+  "preserved_history": [
+    "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001 semantic PASS was later rejected as false-green after missing authority state-version binding was exposed; authority effect NONE.",
+    "Defect exposure commit b06fa91b1767c552b8b84c2709bb118650ba8296 preceded mechanism repair 58458e0cb86680b9e25c490f43b94324e67ec5ec.",
+    "REV-MVP-SLICE6-TERMINAL-AUTHORITY-002 failed after three Gemini HTTP 503 high-demand attempts; no semantic authority.",
+    "REV-MVP-SLICE6-TERMINAL-AUTHORITY-003 failed before semantic review on Groq account/model input-token limit; no semantic authority.",
+    "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004 semantic PASS was blocked by deterministic discovery of the original S6-I05 contract contradiction; authority effect NONE.",
+    "Authoritative requirement decision A narrowed S6-I05 to the already-frozen per-object schemas; contract amendment e49b3722d01a3791b4cbf9678e5653a8b59c6098 and S6-25 regression d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a preserve that decision."
+  ],
+  "effective_disposition": "PASS",
+  "transition_state": "VALID_INDEPENDENT_REVIEW_PRESENT_PENDING_PR_CLOSURE",
+  "counts_for_slice6_promotion": true,
+  "history_preserved": true,
+  "terminal_authority": false,
+  "release_completion_authority": false,
+  "next_required_action": "Verify PR #15 head is exactly d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a, base main is still f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0, there are no unresolved review threads or repository blockers, update the PR description with exact CI/review/adjudication evidence, mark ready, and merge only with expected head d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a. Then verify main advanced exactly to the merge result before starting the next slice."
+}
