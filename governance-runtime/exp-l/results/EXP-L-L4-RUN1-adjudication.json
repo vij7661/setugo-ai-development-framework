@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L4_RETRY_CORPUS_REPRODUCIBILITY",
+  "run": {
+    "workflow_run_id": 34199594540,
+    "job_id": 101975110123,
+    "head_sha": "26c1965c4eaba0f49e36769837a55da8223fc493",
+    "provider_api_used": false
+  },
+  "tests": {
+    "L4-01_main_advance_keeps_frozen_base": "PASS",
+    "L4-02_unrelated_main_change_keeps_corpus_hash": "PASS",
+    "L4-03_manifest_change_requires_new_input": "PASS",
+    "L4-04_candidate_change_requires_new_input": "PASS",
+    "L4-05_identical_inputs_exact_retry_identity": "PASS"
+  },
+  "count": "5/5",
+  "classification": "BOUNDED_PASS_FROZEN_RETRY_IDENTITY_PROTOTYPE",
+  "limits": [
+    "The deterministic prototype proves moving main need not affect retry identity when base/corpus are frozen inputs.",
+    "The production review request schema and authoritative execution path are not yet migrated to require these frozen fields.",
+    "Provider/API retry behavior remains outside this deterministic run."
+  ],
+  "authority_effect": "NONE_EXP_L_STILL_OPEN"
+}
