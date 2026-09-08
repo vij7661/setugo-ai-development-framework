@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "experiment": "EXP-L",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V2",
+  "workflow_run_id": 34192786080,
+  "job_id": 101954095148,
+  "artifact_id": 10042802899,
+  "artifact_digest": "sha256:5fa40b53e242a22502e37bb9f41eb21482cdbc6f9235af5de1f058936fce45fa",
+  "provider": "gemini",
+  "model": "gemini-3.7-flash",
+  "temperature": 0.0,
+  "completed_arms": ["P1","P2"],
+  "incomplete_arms": ["P3"],
+  "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY",
+  "results": {
+    "P1": {"authority_decision_correct":"6/6","evidence_state_correct":"6/6","required_evidence_cited":"6/6","false_greens":0,"false_blocks":0,"provider_attempts":1},
+    "P2": {"authority_decision_correct":"6/6","evidence_state_correct":"6/6","required_evidence_cited":"6/6","false_greens":0,"false_blocks":0,"provider_attempts":2,"transient_failures":["HTTP_503_HIGH_DEMAND"]}
+  },
+  "P3_failure": "Transient Gemini availability failures exhausted the bounded retry policy before a result was produced.",
+  "scientific_adjudication": {
+    "prompt_winner": null,
+    "reason": "P1 and P2 both reached the benchmark ceiling while P3 did not complete. The six-case dataset therefore cannot discriminate prompt framing even if P3 later also reaches 6/6.",
+    "next_required_action": "Preserve V2, create a harder neutralized benchmark with clean controls, contradictory evidence, authority hierarchy, substitution/replay cases and misleading-but-nonauthoritative distractors before selecting a prompt style."
+  }
+}
