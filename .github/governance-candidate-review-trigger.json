@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "review_request_id": "REV-GOV-PR11-003",
   "review_request_path": "governance-runtime/review-requests/REV-GOV-PR11-003.json",
   "reviewed_candidate_commit": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
@@ -7,9 +7,9 @@
   "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "PENDING_EVIDENCE_RECONCILIATION_REVIEW_ALTERNATE_MODEL_WITHIN_GEMINI_CLASS",
+  "status": "FROZEN_NONPROMOTABLE_PENDING_EXP_L_REVIEW_MECHANISM_QUALIFICATION",
   "request_hash": "88c6179b2763f80879850ce1c046e3a578652e621023df370d733bade7b2bbd5",
-  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+  "authority_effect": "NONE",
   "preserved_prior_attempts": [
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-001","classification":"INVALID_REVIEW_REQUEST_INTEGRITY_NONPROMOTABLE","authority_effect":"NONE"},
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-002","workflow_run_id":34168148380,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE","authority_effect":"NONE"},
@@ -19,6 +19,7 @@
     {"review_request_id":"REV-GOV-PR11-003","workflow_run_id":34189854582,"job_id":101945504077,"artifact_id":10041803851,"model":"gemini-3.6-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
     {"review_request_id":"REV-GOV-PR11-003","workflow_run_id":34189854582,"job_id":101945637570,"artifact_id":10041817089,"model":"gemini-3.6-flash","classification":"PROVIDER_RESOURCE_EXHAUSTED_HTTP_429_FREE_TIER_REQUEST_QUOTA","authority_effect":"NONE"},
     {"review_request_id":"REV-GOV-PR11-003","workflow_run_id":34189854582,"job_id":101945740603,"artifact_id":10041836774,"model":"gemini-3.6-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
-    {"review_request_id":"REV-GOV-PR11-003","workflow_run_id":34189854582,"job_id":101946046786,"artifact_id":10041894419,"model":"gemini-3.6-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"}
+    {"review_request_id":"REV-GOV-PR11-003","workflow_run_id":34189854582,"job_id":101946046786,"artifact_id":10041894419,"model":"gemini-3.6-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
+    {"review_request_id":"REV-GOV-PR11-003","workflow_run_id":34190249538,"job_id":101946669694,"artifact_id":10041941354,"artifact_digest":"sha256:ebbec139f535a91db0dcbd89adbad666e5b88c5400f147a579deaca8bf96b348","model":"gemini-3.8-flash","classification":"AUTHENTICATED_SCHEMA_VALID_PASS_NONPROMOTABLE_PENDING_EXP_L","authority_effect":"NONE"}
   ]
 }
