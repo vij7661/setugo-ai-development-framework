@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-001",
+  "reviewed_artifact_commit": "331822da78be228aaddb2148f35f2ec091b0caa9",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34182708263,
+  "job_id": 101942117811,
+  "trigger_sha": "1b60d8c7c2f91f513c332b1a674381e4d27a0c15",
+  "artifact_id": 10041414684,
+  "artifact_digest": "sha256:08b2043be8d74f080a6b5161bc597323d34cccc893ad94e4be28f8de6da0f520",
+  "request_hash": "e13865a3d2f0b9bf4218b7bb511ffaf9bee5879c0f619b6178fb455d6743b94f",
+  "corpus_sha256": "9592742821c44c15af665d5593f311b614711f2c5694471df601e127d7b91ec4",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "review": {
+    "disposition": "PASS",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "evidence_assessment": "Independent adversarial review of candidate commit 331822da78be228aaddb2148f35f2ec091b0caa9 found the pre-provider ReviewRequest integrity gate correctly wired before corpus construction or provider invocation, preserved invalid prior review history as non-promotable, retained fail-closed provider failure handling, and found no remaining blocking authority bypass in the reviewed surface.",
+    "mandatory_dimensions": "10/10 TESTED_SUPPORTED"
+  },
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+  "preserved_provider_failures": [
+    {"workflow_run_id":34182379982,"artifact_id":10039349853,"classification":"HTTP_503_UNAVAILABLE","authority_effect":"NONE"},
+    {"workflow_run_id":34182462961,"artifact_id":10039366226,"classification":"HTTP_503_UNAVAILABLE","authority_effect":"NONE"},
+    {"workflow_run_id":34182529263,"artifact_id":10039385860,"classification":"HTTP_503_UNAVAILABLE","authority_effect":"NONE"},
+    {"workflow_run_id":34182708263,"job_id":101924847566,"artifact_id":10039453081,"classification":"HTTP_503_UNAVAILABLE","authority_effect":"NONE"}
+  ]
+}
