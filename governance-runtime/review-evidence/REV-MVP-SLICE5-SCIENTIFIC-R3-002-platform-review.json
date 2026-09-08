@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-R3-002",
+  "reviewed_candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+  "provider": "openrouter",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "openrouter_upstream_provider": "Nvidia",
+  "provider_api_authenticated": true,
+  "remote_returned_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "request_hash": "17abcffa03fecebd4b1b1c5997b9b51c5ed0e5d80fe1b7d146602cc6591ecd08",
+  "workflow_run_id": 34240949834,
+  "artifact_id": 10062194777,
+  "artifact_digest": "sha256:630fba1ec64b6a053685d1649bba55a42430ee3aceb5b380054dabbb3efc21d8",
+  "corpus_sha256": "28c7a1a96a7322afd827477046c67e02b07b06b5786a2911a05ce81b99965ffb",
+  "evidence_ref_count": 10,
+  "materialized_evidence_count": 10,
+  "disposition": "PASS",
+  "mandatory_dimensions_total": 10,
+  "mandatory_dimensions_supported": 10,
+  "findings_count": 0,
+  "uncertainties_count": 0,
+  "independence_attestation": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+  "provider_usage": {
+    "prompt_tokens": 27418,
+    "completion_tokens": 11128,
+    "reasoning_tokens": 9725,
+    "total_tokens": 38546,
+    "cost": 0
+  },
+  "authority_effect": "NONE_PENDING_FINAL_R1_ADJUDICATION",
+  "preserved_prior_r3": {
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-R3-001",
+    "provider": "gemini",
+    "classification": "PROVIDER_AVAILABILITY_BLOCKED",
+    "authority_effect": "NONE"
+  }
+}
