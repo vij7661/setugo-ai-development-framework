@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-005",
+  "reviewed_artifact_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "workflow_run_id": 34225039051,
+  "job_id": 102056967883,
+  "artifact_id": 10055318244,
+  "artifact_digest": "sha256:86292055a27dd78968e472ea22fbc546ddfaa325c9e0905ab9f34913c46803ec",
+  "model": "gemini-3.8-flash",
+  "provider_invoked": false,
+  "failure_stage": "EVIDENCE_MATERIALIZATION_BEFORE_PROVIDER",
+  "classification": "REQUEST_FIXTURE_CANDIDATE_FILE_PATH_DEFECT",
+  "failure_detail": "ReviewRequest referenced governance-runtime/review-evidence/GOV-EVIDENCE-MATERIALIZATION-001-adjudication.json, but the exact reviewed candidate contains governance-runtime/repairs/GOV-EVIDENCE-MATERIALIZATION-001.json instead. platform_candidate_review_v2.py rejected the unavailable candidate file before provider invocation.",
+  "mechanism_assessment": "FAIL_CLOSED_AS_DESIGNED",
+  "authority_effect": "NONE",
+  "next_required_action": "Issue a new exact-candidate ReviewRequest using the verified repair artifact path governance-runtime/repairs/GOV-EVIDENCE-MATERIALIZATION-001.json.",
+  "history_policy": "Preserve this request-fixture failure; do not rewrite it as provider unavailability or review evidence."
+}
