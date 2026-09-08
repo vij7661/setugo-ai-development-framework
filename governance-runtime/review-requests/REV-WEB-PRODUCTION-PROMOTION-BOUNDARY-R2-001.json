@@ -1,0 +1,57 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    ".github/workflows/web-production-promotion-boundary.yml",
+    "experiments/governed-platform/WEB_PRODUCTION_PROMOTION_BOUNDARY_CONTRACT.md",
+    "experiments/governed-platform/governance/production_promotion_gate.py",
+    "experiments/governed-platform/governance/test_production_promotion_gate.py"
+  ],
+  "artifact": {
+    "type": "web_first_production_promotion_boundary_candidate",
+    "ref": "feature/web-production-promotion-boundary",
+    "commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "openrouter", "model": "nvidia/nemotron-3-ultra-550b-a55b:free"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently falsify the web-first TESTING→RELEASE_CANDIDATE→PRODUCTION promotion boundary. Assume false-green and do not treat PB-01..PB-16 green CI as sufficient evidence.",
+    "Verify build-once/promote-same-artifact semantics are deterministic and cannot be bypassed by same-SHA rebuilds, artifact substitution, head drift, environment-label substitution, reviewer/model claims, or stale evidence.",
+    "Verify production authorization is separate from release-candidate qualification and that non-production credential domains cannot satisfy production eligibility.",
+    "Verify rollback is limited to previously production-authorized artifacts and that replay/rebinding behavior fails closed.",
+    "Check CI run 34269085847 is bound to exact candidate bb2a591d6fa9d6da507d6ff6aa8f444784a57651 and PB-01..PB-16 executed.",
+    "Search for missing identity bindings, canonical-digest ambiguity, authorization replay/rebinding, expiry edge cases, environment confusion, rollback bypasses, and claims that exceed the reference gate.",
+    "Return PASS only if every mandatory dimension is TESTED_SUPPORTED and no MEDIUM/HIGH/CRITICAL finding remains."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34269085847"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/WEB_PRODUCTION_PROMOTION_BOUNDARY_CONTRACT.md", "commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/governance/production_promotion_gate.py", "commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651"},
+    {"type": "frozen_file", "ref": "experiments/governed-platform/governance/test_production_promotion_gate.py", "commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651"},
+    {"type": "frozen_file", "ref": ".github/workflows/web-production-promotion-boundary.yml", "commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651"},
+    {"type": "history", "ref": "Slice5 merged cleanly to main at f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0. This new boundary is a separate production-readiness phase and has no production authority yet."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "exact_candidate_and_scope", "mandatory": true, "description": "Exact candidate is the four-file web-first promotion-boundary change based on merged Slice5 main and does not itself deploy or provision production."},
+    {"id": "build_once_artifact_continuity", "mandatory": true, "description": "Source SHA and immutable artifact digest remain exactly bound across testing, release candidate and production; same-SHA rebuild substitution is denied."},
+    {"id": "evidence_and_provenance_binding", "mandatory": true, "description": "Testing, review, adjudication and build provenance evidence are exact-candidate/artifact bound and stale or incomplete evidence fails closed."},
+    {"id": "ordered_environment_transition", "mandatory": true, "description": "Direct TESTING→PRODUCTION and environment-label substitution are impossible; RELEASE_CANDIDATE is a mandatory intermediate state."},
+    {"id": "production_authorization_separation", "mandatory": true, "description": "Release-candidate qualification does not itself grant production eligibility; exact production authorization is separately required and validated."},
+    {"id": "credential_domain_and_model_non_authority", "mandatory": true, "description": "Non-production credential domain, reviewer PASS, model claims and workflow labels cannot manufacture production authority."},
+    {"id": "replay_rebinding_and_expiry", "mandatory": true, "description": "Exact replay is deterministic while promotion/authorization rebinding, head drift, malformed/expired authorization fail closed."},
+    {"id": "rollback_authorization", "mandatory": true, "description": "Rollback target must be a previously valid production-authorized artifact and arbitrary historical artifacts are denied."},
+    {"id": "ci_exact_binding_and_test_quality", "mandatory": true, "description": "CI run 34269085847 is bound to exact candidate and the 16 adversarial cases genuinely test the frozen invariants rather than only labels."},
+    {"id": "bounded_claims_and_remaining_false_green_search", "mandatory": true, "description": "The implementation claims only deterministic promotion-policy authority and does not imply real production environment, hosting, secret manager, deployment runtime or security; adversarial review finds no material bypass."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "78eb039f9e06d4fd39f948a1a8b0a50bf00cd852d0c063215795744d18444ec3"
+}
