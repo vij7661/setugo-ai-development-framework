@@ -1,0 +1,21 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L3_BLINDNESS_AND_ANCHORING",
+  "status": "PREREGISTERED_BEFORE_EXECUTION",
+  "objective": "Falsify whether a review declared blind actually prevents proposer identity/conclusion and prior-review authority from reaching the reviewer while preserving the frozen evidence and decision target.",
+  "hypothesis": "When blind_review_required=true, the reviewer packet contains no proposer identity, proposer conclusion, prior reviewer verdict, consensus label, promotion state, or approval metadata unless such fields are themselves explicitly part of the decision target evidence.",
+  "failure_conditions": [
+    "blind packet exposes proposer identity",
+    "blind packet exposes proposer conclusion or recommended disposition",
+    "blind packet exposes prior reviewer verdict or consensus",
+    "blind packet exposes promotion/approval labels not required as evidence",
+    "blind transformation drops or mutates frozen evidence",
+    "blind transformation drops or mutates original decision target",
+    "unknown new authority-like fields are silently passed through",
+    "blind and exposed packet identities are not separately hashed"
+  ],
+  "mechanism_scope": "deterministic packet construction only; no provider LLM APIs",
+  "behavioral_scope": "after mechanism passes, compare fresh manual blind versus exposed reviewer arms on the same PashuSetu ground-truth cases",
+  "authority_effect": "NONE",
+  "notes": "A behavioral reviewer success cannot compensate for a mechanism that leaks anchoring fields."
+}
