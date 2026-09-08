@@ -1,14 +1,21 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE6-TERMINAL-AUTHORITY-001.json",
-  "reviewed_candidate_commit": "53100095dadf28d600e92a2b45323db372831347",
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE6-TERMINAL-AUTHORITY-002.json",
+  "reviewed_candidate_commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec",
   "provider": "gemini",
   "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE6_TERMINAL_AUTHORITY_REVIEW_REQUESTED",
-  "request_hash": "24fb50abbbdefce96d2dddb41ee951039cfb02d20afc4ea571635699c5307d04",
+  "status": "AUTHENTICATED_REPAIRED_SLICE6_TERMINAL_AUTHORITY_REVIEW_REQUESTED",
+  "request_hash": "dcc261205854f2b5d446926995cadd634d25114692d38e111ec38df35f730982",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
-  "r2_role": "BLIND_TO_PROPOSER_CONCLUSION"
+  "r2_role": "BLIND_TO_PROPOSER_CONCLUSION",
+  "preserved_prior_review": {
+    "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001",
+    "workflow_run_id": 34277345192,
+    "semantic_disposition": "PASS",
+    "classification_after_review_of_review": "REVIEW_FALSE_GREEN_EVIDENCE_CONTRADICTION",
+    "authority_effect": "NONE_FOR_REPAIRED_CANDIDATE"
+  }
 }
