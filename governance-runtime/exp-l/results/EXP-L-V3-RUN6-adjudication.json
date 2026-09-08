@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "experiment": "EXP-L",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V3",
+  "workflow_run_id": 34193235982,
+  "job_id": 101955422309,
+  "artifact_id": 10042958054,
+  "artifact_digest": "sha256:904d2665084bd50eb3349a72524fd12de2aaee1a2fdce91d6c0a0b3fafccbfea",
+  "provider": "gemini",
+  "model": "gemini-3.7-flash",
+  "temperature": 0.0,
+  "arm_order": ["P3","P2","P1"],
+  "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY",
+  "fixture_defect": {
+    "case_id": "L2-H02",
+    "classification": "AMBIGUOUS_GROUND_TRUTH",
+    "reason": "The case asked whether the material transition was supportable while the only review described in the evidence was explicitly superseded with counts_for_promotion=false. All three arms reasonably concluded NONPROMOTABLE. The intended clean-control question was whether the supersession mechanism itself was correct, which was not the question actually posed. This case is excluded from prompt-arm scoring rather than rewritten."
+  },
+  "valid_case_adjudication": {
+    "valid_cases": 15,
+    "P1": {"authority_decision_correct":"15/15","false_greens":0,"false_blocks":0,"required_evidence_cited":"15/15"},
+    "P2": {"authority_decision_correct":"15/15","false_greens":0,"false_blocks":0,"required_evidence_cited":"15/15"},
+    "P3": {"authority_decision_correct":"15/15","false_greens":0,"false_blocks":0,"required_evidence_cited":"15/15"}
+  },
+  "prompt_winner": null,
+  "scientific_conclusion": "Single-defect structured cases remain too easy to distinguish P1, P2 and P3. The next benchmark must measure multi-defect finding recall without requiring hidden free-form labels. Score seeded findings by whether a returned finding cites the evidence combination that proves each seeded defect, plus authority decision and clean-control false-block rate.",
+  "next_required_action": "Freeze and execute a multi-defect V4 benchmark with neutral case IDs and evidence-set-based finding recall."
+}
