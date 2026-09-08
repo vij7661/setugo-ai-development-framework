@@ -1,0 +1,29 @@
+name: Multi Provider Review Runner Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/platform_candidate_review_v3.py
+      - governance-runtime/test_platform_candidate_review_v3.py
+      - governance-runtime/repair-preregistrations/GOV-MULTI-PROVIDER-REVIEW-RUNNER-001.md
+      - .github/workflows/multi-provider-review-runner-repair.yml
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-multi-provider:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen multi-provider tests
+        run: python governance-runtime/test_platform_candidate_review_v3.py
+      - name: Assert deterministic repair test has no provider secret dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'GEMINI_API_KEY\|GROQ_API_KEY' governance-runtime/test_platform_candidate_review_v3.py
