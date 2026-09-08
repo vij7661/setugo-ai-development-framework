@@ -1,0 +1,24 @@
+name: EXP-L L3 Blindness and Anchoring
+
+on:
+  push:
+    branches:
+      - experiment/exp-l-independent-review-evidence-prompt
+    paths:
+      - 'governance-runtime/review-trust-kernel/blind_packet_v1.py'
+      - 'governance-runtime/exp-l/test_l3_blindness_anchoring.py'
+      - 'governance-runtime/exp-l/L3-BLINDNESS-ANCHORING-PREREG.json'
+      - '.github/workflows/exp-l-l3-blindness-anchoring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+      - name: Run L3 blindness tests without provider APIs
+        run: python -m unittest governance-runtime/exp-l/test_l3_blindness_anchoring.py -v
