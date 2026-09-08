@@ -7,9 +7,14 @@
   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_CLEAN_INTEGRATION_R2_REQUESTED",
+  "status": "AUTHENTICATED_SLICE5_CLEAN_INTEGRATION_R2_RETRY_AFTER_OBSERVABILITY_REPAIR",
   "request_hash": "2ee50ad162c0bfc4103d09d18e5c3afeb258619e18dd7c808ef63a0d5c57fd50",
   "authority_effect": "NONE_PENDING_R2_DETERMINISTIC_INGESTION",
+  "preserved_failed_attempt": {
+    "workflow_run_id": 34245299365,
+    "classification": "OPENROUTER_RESPONSE_OBSERVABILITY_DEFECT_RETURNED_MODEL_NONE",
+    "authority_effect": "NONE"
+  },
   "preserved_prior_slice5_reviews": {
     "scientific_candidate": "d9459af74533fbb60477dfcec00b30e82a0e2534",
     "classification": "VALID_FOR_OLD_CANDIDATE_ONLY_NOT_REUSED",
