@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L5_HIDDEN_CHANGE_DETECTION",
+  "status": "PREREGISTERED_BEFORE_REPAIR",
+  "known_pre_repair_defect": "Current review corpus diff is restricted to hard-coded paths and can omit governance-relevant changes elsewhere.",
+  "hypothesis": "Changed-file discovery must start from the complete Git diff between frozen base and candidate; exclusions, if any, must be deterministic and explicit rather than implicit path omission.",
+  "cases": [
+    {"id":"L5-01","mutation":"change governance-runtime/gate.py","required":"surfaced"},
+    {"id":"L5-02","mutation":"change .github/review-trigger.json outside old hard-coded scope","required":"surfaced"},
+    {"id":"L5-03","mutation":"change nested policy/standards file","required":"surfaced"},
+    {"id":"L5-04","mutation":"rename governance-relevant file","required":"old/new path represented"},
+    {"id":"L5-05","mutation":"delete governance-relevant file","required":"deletion represented"}
+  ],
+  "pass_criteria": [
+    "complete Git change inventory is derived before any filtering",
+    "no governance-relevant change can disappear because it is outside a hard-coded path list",
+    "renames and deletions remain visible",
+    "inventory is bound to exact frozen base and candidate commits"
+  ],
+  "provider_api_required": false,
+  "authority_effect": "NONE_EXPERIMENT_ONLY"
+}
