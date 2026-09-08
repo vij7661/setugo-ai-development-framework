@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE2-INTEGRATION-001",
+  "reviewed_artifact_commit": "eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34165191377,
+  "attempt_history": [
+    {
+      "attempt": 1,
+      "job_id": 101874736163,
+      "result": "PROVIDER_UNAVAILABLE_HTTP_503",
+      "authority_effect": "NONE",
+      "artifact_id": 10033912510,
+      "artifact_digest": "sha256:19d89e137aa461d6b4dbe8b84881d4e785e00ed865ffcd231366d1f6e7202f0d"
+    },
+    {
+      "attempt": 2,
+      "job_id": 101874817174,
+      "result": "PROVIDER_UNAVAILABLE_HTTP_503",
+      "authority_effect": "NONE",
+      "artifact_id": 10033919556,
+      "artifact_digest": "sha256:b53f929190c69f726a3a22a5c68ececc654bcccd67c4fdf61f7d93a68752d569"
+    },
+    {
+      "attempt": 3,
+      "job_id": 101874913618,
+      "result": "SUCCESS",
+      "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+      "artifact_id": 10033932377,
+      "artifact_digest": "sha256:4ae83938c6353bb72ea2e1848539a0b4fff1ddb9b63998b7bfff26a3c8fb02a7"
+    }
+  ],
+  "request_hash": "ad7c0b444d90425b07dabb0c739ed3779c658008918085c1087eb1cb0cba1ac2",
+  "corpus_sha256": "c1083cb058f1b764eae79d64c91b0f33e5d90ec1f20c09600c2c3fc831b46f3d",
+  "review": {
+    "review_request_id": "REV-MVP-SLICE2-INTEGRATION-001",
+    "reviewed_artifact_commit": "eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b",
+    "reviewer": {"provider": "gemini", "model": "gemini-3.6-flash"},
+    "disposition": "PASS",
+    "findings": [],
+    "evidence_assessment": "The candidate commit eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b incorporates exact parent lineage at 5051ee242f4206c61e30c164230e562cec0324ac with an exact 8-commit, 6-file scope transition. All failure history, including mechanism absence, validation order defects, and metadata provenance failures, is preserved in the adjudication records without evidence laundering. Terminal authority remains strictly bounded and isolated from release, deploy, or merge permissions.",
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "review_coverage": [
+      {"dimension_id":"integration_lineage_integrity","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"scientific_evidence_preservation","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"failure_history_nonlaundering","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"terminal_authority_boundary","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"parent_dependency_integrity","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"transition_scope_exactness","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"stack_order_preservation","status":"TESTED_SUPPORTED"},
+      {"dimension_id":"remaining_authority_bypass_search","status":"TESTED_SUPPORTED"}
+    ]
+  },
+  "deterministic_validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "authority_effect": "VALID_INDEPENDENT_REVIEW_EVIDENCE_FOR_EXACT_TRANSITION_ONLY"
+}

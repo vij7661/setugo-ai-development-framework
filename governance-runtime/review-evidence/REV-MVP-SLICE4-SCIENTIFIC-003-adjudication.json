@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-003",
+  "reviewed_artifact_commit": "f6f04970d594292f21db648132afab7da4f263a6",
+  "scientific_evidence": {
+    "dedicated_workflow_run_id": 34166321103,
+    "frozen_tests": "16/16",
+    "complete_governed_workflow_run_id": 34166321130,
+    "complete_governed_job_id": 101877945483,
+    "complete_governed_tests": 1183,
+    "candidate_exact": true,
+    "direct_job_log_correspondence_verified": true
+  },
+  "review_evidence": {
+    "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-platform-review.json",
+    "workflow_run_id": 34167130365,
+    "job_id": 101880290858,
+    "artifact_id": 10034515777,
+    "artifact_digest": "sha256:37f7e7b86a7d0c7ad4b88c4590ccd772eea9816793f7d2a82898bf3bc87ab81c",
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "transport": "AUTOMATIC_API",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "semantic_validation_valid": true,
+    "mandatory_dimensions_supported": "9/9",
+    "findings": 0,
+    "disposition": "PASS"
+  },
+  "preserved_history": {
+    "construction_failure": "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json",
+    "platform_review_attempt1": "REV-MVP-SLICE4-SCIENTIFIC-001 provider HTTP 503 UNAVAILABLE; preserved with no authority effect",
+    "platform_review_attempt2": "REV-MVP-SLICE4-SCIENTIFIC-002 provider HTTP 503 UNAVAILABLE; preserved with no authority effect",
+    "attempt1_evidence": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-001-provider-failure.json",
+    "attempt2_evidence": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-002-provider-failure.json"
+  },
+  "effective_scientific_state": "BOUNDED_PASS",
+  "scope": "Integrated Governed MVP Slice 4 Isolated Tool Runner Gateway at exact frozen candidate f6f04970d594292f21db648132afab7da4f263a6 and frozen S4-01..S4-16 acceptance harness.",
+  "limitations": [
+    "The result proves only the tested bounded reference argv-form subprocess runner; it does not establish arbitrary-code sandbox, kernel/OS/container/VM escape resistance, production network isolation, or production credential safety.",
+    "Remote Gemini model identity is not cryptographically proven; authenticated platform API execution establishes provider-call provenance.",
+    "The result grants no remote repository push, merge, release, deploy, production, or completion authority."
+  ],
+  "promotion_authority": "Slice 4 scientific boundary may advance to BOUNDED_PASS; any integration or downstream authority transition remains independently governed.",
+  "terminal_authority": false,
+  "release_completion_authority": false
+}

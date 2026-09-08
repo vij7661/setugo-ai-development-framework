@@ -1,0 +1,60 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-001",
+  "trigger": "MATERIAL_EXECUTION_BOUNDARY_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": true,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py",
+    ".github/workflows/integrated-governed-mvp-slice4.yml",
+    "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json",
+    "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice4_scientific_candidate",
+    "ref": "feature/integrated-governed-mvp-slice4-isolated-tool-runner-gateway",
+    "commit": "f6f04970d594292f21db648132afab7da4f263a6"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "gemini", "model_class": "gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether the exact frozen Slice 4 candidate satisfies the preregistered S4-01..S4-16 tool-runner boundary without relying on proposer confidence, green CI, or prior summaries.",
+    "Verify that the mechanism is only a bounded argv-form subprocess runner and does not overclaim arbitrary-code sandbox, kernel/container escape resistance, production network isolation, credential safety, remote repository authority, or release/deploy/merge/production/completion authority.",
+    "Check exact Slice 3 lineage and platform-owned Tool Execution Contract/Manifest binding, including executable, argv, workspace, environment, input digest, idempotency identity, and hashes.",
+    "Adversarially inspect shell=False/no-shell semantics, executable confinement, workspace traversal/symlink defenses, minimized environment, timeout/process termination, bounded output, process-outcome honesty, and evidence lineage.",
+    "Check durable idempotency/non-rebinding across replay/restart, crash before launch, crash after durable result before response, and concurrent identical request convergence.",
+    "Verify that the preserved first construction failure remains historical evidence and has not been rewritten or laundered by the repaired candidate.",
+    "Treat scientific workflow success as evidence only when bound to exact candidate f6f04970d594292f21db648132afab7da4f263a6; direct verified evidence is dedicated run 34166321103 with S4-01..S4-16 explicit pass and complete governed regression run 34166321130 with 1183 tests OK, both exact checkout SHA f6f04970d594292f21db648132afab7da4f263a6.",
+    "Search for any remaining material authority bypass, stale-state ambiguity, process double-launch path, semantic rebinding, provenance defect, or false-green route."
+  ],
+  "evidence_refs": [
+    {"type": "history", "ref": "Frozen candidate f6f04970d594292f21db648132afab7da4f263a6. Dedicated scientific run 34166321103: exact checkout SHA verified and S4-01..S4-16 explicit pass. Complete governed scientific run 34166321130, job 101877945483: exact checkout SHA verified; Ran 1183 tests in 77.035s; OK; Slice 4 acceptance cases explicit pass."},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json"},
+    {"type": "file", "ref": "experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice4.yml"}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "frozen_scope_and_nonclaim_integrity", "mandatory": true, "description": "The exact candidate remains within the preregistered bounded tool-runner scope and does not claim arbitrary-code sandbox or production authority."},
+    {"id": "slice3_lineage_and_contract_manifest_binding", "mandatory": true, "description": "Execution requires exact successful Slice 3 lineage plus platform-owned contract/manifest binding for identities, hashes, executable, argv, workspace, environment, input digest, and idempotency."},
+    {"id": "shell_executable_workspace_environment_confinement", "mandatory": true, "description": "No shell interpretation or executable widening occurs; workspace escape and ambient environment leakage fail closed."},
+    {"id": "runtime_output_and_process_outcome_honesty", "mandatory": true, "description": "Timeout, process termination, output bounds/truncation, nonzero exit, malformed or ambiguous outcome cannot become success."},
+    {"id": "idempotency_replay_crash_concurrency", "mandatory": true, "description": "Durable replay identity prevents semantic rebinding/double launch across restart, crashes, retries, and concurrent identical requests."},
+    {"id": "evidence_lineage_and_authority_separation", "mandatory": true, "description": "Evidence exactly binds upstream authorization through process result while tool/model output cannot mint remote/release/deploy/merge/production/completion authority."},
+    {"id": "failure_history_nonlaundering", "mandatory": true, "description": "The first frozen construction failure remains preserved and is not rewritten into false-green history."},
+    {"id": "scientific_candidate_and_run_binding", "mandatory": true, "description": "The scientific evidence is bound to exact candidate f6f04970d594292f21db648132afab7da4f263a6 and both dedicated and full governed runs correspond to that SHA."},
+    {"id": "remaining_authority_bypass_search", "mandatory": true, "description": "Adversarial review finds no remaining material authority bypass, stale-state ambiguity, provenance defect, semantic rebinding, double-launch, or false-green path in the bounded reference mechanism."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "9b8e10aaeef197680a540f4859fe7ab60efbb4368853a1d1c6d6461102785bec"
+}

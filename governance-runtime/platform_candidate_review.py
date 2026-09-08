@@ -7,6 +7,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
+from review_protocol import verify_review_request
+
 HEX40=re.compile(r"^[0-9a-f]{40}$")
 ALLOWED_STATUSES={"CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"}
 ALLOWED_DISPOSITIONS={"PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"}
@@ -18,6 +20,12 @@ def git(root,*args):
     cp=subprocess.run(["git",*args],cwd=root,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding="utf-8",errors="strict")
     if cp.returncode: raise RuntimeError(cp.stderr.strip() or "git failed")
     return cp.stdout
+
+def verify_request_integrity(request):
+    ok, reason = verify_review_request(request)
+    if not ok:
+        raise ValueError(reason)
+    return request
 
 def require_commit(root,sha,label):
     if not HEX40.fullmatch(sha): raise ValueError(f"{label} invalid")
@@ -105,7 +113,7 @@ def validate(review,request,model):
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--request",required=True); ap.add_argument("--output-dir",required=True); ap.add_argument("--model",required=True); args=ap.parse_args()
-    request=json.loads(Path(args.request).read_text(encoding="utf-8")); root=Path("."); out=Path(args.output_dir); out.mkdir(parents=True,exist_ok=True)
+    request=json.loads(Path(args.request).read_text(encoding="utf-8")); verify_request_integrity(request); root=Path("."); out=Path(args.output_dir); out.mkdir(parents=True,exist_ok=True)
     corpus=build_corpus(root,request); prompt=build_prompt(request,corpus,args.model); key=os.environ.get("GEMINI_API_KEY","")
     if not key: raise RuntimeError("GEMINI_API_KEY repository secret required")
     provider,review=invoke(key,args.model,prompt); validation=validate(review,request,args.model)

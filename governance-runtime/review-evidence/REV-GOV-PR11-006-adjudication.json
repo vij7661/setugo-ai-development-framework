@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-006",
+  "reviewed_artifact_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "authenticated_review_evidence": "governance-runtime/review-evidence/REV-GOV-PR11-006-platform-review.json",
+  "deterministic_cross_checks": {
+    "request_hash_matches": true,
+    "candidate_binding_matches": true,
+    "provider_api_authenticated": true,
+    "schema_validation_valid": true,
+    "disposition": "PASS",
+    "mandatory_dimensions_supported": "12/12",
+    "findings": 0,
+    "evidence_ref_count": 18,
+    "materialized_evidence_count": 18,
+    "corpus_contains_review001_original_and_supersession": true,
+    "corpus_contains_review002_pass_and_false_green_adjudication": true,
+    "ci_run_typed_non_semantic_authority": true,
+    "history_refs_typed_non_authoritative": true,
+    "legacy_promotion_workflow_path_unreachable": true,
+    "evidence_contradiction_found": false
+  },
+  "independent_adjudication": {
+    "classification": "AUTHENTICATED_SEMANTIC_PASS_VALID_AFTER_DETERMINISTIC_INGESTION",
+    "effective_disposition": "PASS",
+    "counts_for_pr11_promotion": true,
+    "authority_effect": "ELIGIBLE_SUBJECT_TO_FINAL_CLOSURE_HEAD_VALIDATION"
+  },
+  "limitations": [
+    "Remote model identity is not cryptographically proven; provider API provenance is authenticated.",
+    "Promotion remains fail-closed until all post-candidate commits are classified as allowed closure metadata and the final closure head passes deterministic governance validation."
+  ],
+  "history_policy": "REV-GOV-PR11-004 and REV-GOV-PR11-005 fixture failures plus both earlier REV-GOV-PR11-006 HTTP 503 provider failures remain preserved with authority effect NONE. Manual IQR1 R2/R3 reviews remain supporting semantic evidence only."
+}

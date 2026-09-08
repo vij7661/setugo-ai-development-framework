@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-001",
+  "reviewed_artifact_commit": "331822da78be228aaddb2148f35f2ec091b0caa9",
+  "supersedes_authority_effect_of": "governance-runtime/review-evidence/REV-GOV-PR11-001-adjudication.json",
+  "original_adjudication_preserved": true,
+  "original_adjudication_claim": "ELIGIBLE_FOR_PR11_PROMOTION_SUBJECT_TO_FINAL_CLOSURE_HEAD_VALIDATION",
+  "contradictory_authoritative_evidence": {
+    "pr10_merge_commit": "a2fcd2ba9bc0e5828ee69056c23207fb431ecea6",
+    "stale_checkpoint": "LIVE-CONV-2026-09-07-041",
+    "defect": "At reviewed candidate 331822da78be228aaddb2148f35f2ec091b0caa9, PR #10 was already merged while durable checkpoint/shared-memory still described PR #10 integration review reissuance as the current execution frontier."
+  },
+  "reassessment": {
+    "continuity_dimension": "CONTRADICTED",
+    "request_integrity_dimensions": "RETAINED_AS_BOUNDED_SUPPORT_WHERE_NOT_DEPENDENT_ON_STALE_CONTINUITY",
+    "counts_for_pr11_promotion": false,
+    "effective_state": "SUPERSEDED_FOR_PROMOTION_REVIEW_FALSE_NEGATIVE_PRESERVED"
+  },
+  "repair_contract": "governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md",
+  "history_policy": "The original adjudication is not deleted or rewritten. This later supersession record is authoritative for current promotion use."
+}

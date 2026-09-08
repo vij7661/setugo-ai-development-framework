@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "repair_id": "GOV-REQUEST-INTEGRITY-001",
+  "status": "REPAIRED_AND_REGRESSION_GREEN",
+  "observed_defect": "Authenticated platform review could invoke the provider before deterministic ReviewRequest integrity verification. REV-MVP-SLICE4-INTEGRATION-001 returned semantic PASS despite an invalid canonical request_hash and was later rejected as non-promotable.",
+  "preregistration_commit": "7eb00abef9d52d90ba2296dc183a91cbdaff7785",
+  "frozen_test_commit": "809e47b6095e29a71abe6c8a69ceff2fc965eb2c",
+  "frozen_workflow_commit": "6ebfd2109515c54f1e16dcdaf120b4d63dc96382",
+  "first_frozen_exposure": {
+    "workflow_run_id": 34168756689,
+    "job_id": 101884896211,
+    "result": "FAIL",
+    "cases": {
+      "GRI-01": "ERROR_EXPECTED_MECHANISM_ABSENCE",
+      "GRI-02": "ERROR_EXPECTED_MECHANISM_ABSENCE",
+      "GRI-03": "ERROR_EXPECTED_MECHANISM_ABSENCE",
+      "GRI-04": "ERROR_EXPOSED_MAIN_PATH_REACHES_CORPUS_BEFORE_INTEGRITY_GATE",
+      "GRI-05": "PASS_EXISTING_VALID_PROVIDER_PATH"
+    },
+    "classification": "MECHANISM_DEFECT_CONFIRMED"
+  },
+  "repair_commit": "2616d44f1e1fa21e059e1717bdae0f9d849f6740",
+  "repair": "platform_candidate_review.py now imports review_protocol.verify_review_request(), exposes a narrow verify_request_integrity() gate, and calls it immediately after request JSON load and before corpus construction, prompt construction, credential use, or provider invocation.",
+  "post_repair_evidence": {
+    "integrity_workflow_run_id": 34168810328,
+    "integrity_job_id": 101885042531,
+    "gri_cases": "GRI-01..GRI-05 PASS",
+    "live_governance_workflow_run_id": 34168810330,
+    "live_governance_job_id": 101885042597,
+    "live_governance_result": "SUCCESS"
+  },
+  "history_preserved": [
+    "REV-MVP-SLICE4-INTEGRATION-001 remains INVALID_REVIEW_EVIDENCE_NONPROMOTABLE with authority effect NONE.",
+    "Frozen first regression failure run 34168756689 remains preserved.",
+    "No frozen test expectation was weakened during repair."
+  ],
+  "claim_boundary": "The tested repository entrypoint now rejects invalid ReviewRequests before provider invocation. This does not cryptographically prove remote model identity or external provider implementation identity."
+}

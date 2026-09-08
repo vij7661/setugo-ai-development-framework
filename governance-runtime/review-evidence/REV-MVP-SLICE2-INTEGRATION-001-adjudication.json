@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "transition": "PR8 Slice 2 -> feature/integrated-governed-mvp",
+  "review_request_id": "REV-MVP-SLICE2-INTEGRATION-001",
+  "candidate_commit": "eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b",
+  "exact_parent_commit": "5051ee242f4206c61e30c164230e562cec0324ac",
+  "pr_number": 8,
+  "pr_ci_run": 34164954965,
+  "pr_ci_conclusion": "success",
+  "review_workflow_run": 34165191377,
+  "provider_attempts": [
+    {"attempt":1,"result":"HTTP_503_UNAVAILABLE","authority_effect":"NONE"},
+    {"attempt":2,"result":"HTTP_503_UNAVAILABLE","authority_effect":"NONE"},
+    {"attempt":3,"result":"PASS","mandatory_dimensions":"8/8 TESTED_SUPPORTED","findings":0,"deterministic_validation":"VALID","provider_api_authenticated":true}
+  ],
+  "effective_disposition": "PASS",
+  "transition_state": "VALID_INDEPENDENT_REVIEW_PRESENT_PENDING_PR_CLOSURE",
+  "history_preserved": true,
+  "terminal_authority": false,
+  "release_completion_authority": false,
+  "next_required_action": "Verify PR #8 has no unresolved review threads or repository blocker, update PR description with exact review/CI evidence, mark ready, and merge only with expected head eccd4fc2f1a9a7363d614b0b0fdccf7ef9e6f55b. Then verify parent branch advanced exactly before opening Slice 3 integration."
+}

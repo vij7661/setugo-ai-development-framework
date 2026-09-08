@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-003",
+  "reviewed_artifact_commit": "f6f04970d594292f21db648132afab7da4f263a6",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34167130365,
+  "run_attempt": 1,
+  "job_id": 101880290858,
+  "trigger_sha": "27f13286ba3a2f05675152f6b181b16aca2c5962",
+  "artifact_id": 10034515777,
+  "artifact_digest": "sha256:37f7e7b86a7d0c7ad4b88c4590ccd772eea9816793f7d2a82898bf3bc87ab81c",
+  "request_hash": "01ab6c49b5a776707deba9f8a218b7861a8d350fcf762d380e24821b178778f3",
+  "corpus_sha256": "b56901b191aa2185b3d4f2df12d3deb830d4b8fbd56635e42eda418e39e8be35",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "review": {
+    "disposition": "PASS",
+    "evidence_assessment": "The candidate commit f6f04970d594292f21db648132afab7da4f263a6 was independently inspected alongside the contract, execution gateway implementation, unit test suite, workflow definition, and adjudication history records. Direct evidence confirms that all S4-01..S4-16 acceptance criteria pass cleanly. Upstream Slice 3 lineage, platform contract/manifest hash bindings, executable allowlisting, workspace directory confinement, minimized environment inheritance, shell-free subprocess launching, process timeout/termination, output truncation, crash resilience, idempotency lock handling, and concurrent execution convergence are deterministically enforced. The candidate retains explicit non-claims regarding arbitrary-code sandboxing and terminal release authority, while preserving the first exposed construction failure record without history laundering. Dedicated run 34166321103 and full governed regression run 34166321130 both explicitly bind to SHA f6f04970d594292f21db648132afab7da4f263a6.",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "reviewer": {"provider": "gemini", "model": "gemini-3.6-flash"},
+    "review_coverage": [
+      {"dimension_id":"frozen_scope_and_nonclaim_integrity","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md","experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json"]},
+      {"dimension_id":"slice3_lineage_and_contract_manifest_binding","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"]},
+      {"dimension_id":"shell_executable_workspace_environment_confinement","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"]},
+      {"dimension_id":"runtime_output_and_process_outcome_honesty","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"]},
+      {"dimension_id":"idempotency_replay_crash_concurrency","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"]},
+      {"dimension_id":"evidence_lineage_and_authority_separation","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py::test_s4_16_evidence_lineage_and_fresh_liveness"]},
+      {"dimension_id":"failure_history_nonlaundering","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-CONSTRUCTION-FAILURE-001.json","experiments/governed-platform/adjudication/INTEGRATED-GOVERNED-MVP-SLICE4-FREEZE.json"]},
+      {"dimension_id":"scientific_candidate_and_run_binding","status":"TESTED_SUPPORTED","evidence":["scientific workflow run 34166321103","governed workflow run 34166321130"]},
+      {"dimension_id":"remaining_authority_bypass_search","status":"TESTED_SUPPORTED","evidence":["experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","experiments/governed-platform/governance/test_integrated_governed_mvp_slice4.py"]}
+    ]
+  },
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+}

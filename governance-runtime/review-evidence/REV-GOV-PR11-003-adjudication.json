@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-003",
+  "reviewed_artifact_commit": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "source_review_path": "governance-runtime/review-evidence/REV-GOV-PR11-003-platform-review.json",
+  "source_disposition": "PASS",
+  "classification": "AUTHENTICATED_PASS_NONPROMOTABLE_REVIEW_MECHANISM_UNQUALIFIED",
+  "effective_disposition": "CHANGES_REQUIRED",
+  "counts_for_pr11_promotion": false,
+  "authority_effect": "NONE",
+  "reason": "After the authenticated schema-valid PASS was produced, independent governance analysis identified unqualified review-evidence and trust-boundary mechanisms: non-file evidence refs can be declared but silently omitted from corpus materialization; blind-review metadata can coexist with proposer identity/conclusion exposure; the mutable candidate branch supplies the review runner/corpus builder; merge-base is resolved at execution time so retries may observe different corpus state; candidate evidence is embedded as untrusted LLM input without a qualified prompt-injection boundary; reviewer evidence citations are not yet machine-grounded to frozen hashed objects. These defects mean PASS cannot establish sufficient independent evidence for a material authority transition until EXP-L qualifies the review path.",
+  "preservation": {
+    "semantic_pass_preserved": true,
+    "provider_provenance_preserved": true,
+    "workflow_run_id": 34190249538,
+    "job_id": 101946669694,
+    "artifact_id": 10041941354,
+    "artifact_digest": "sha256:ebbec139f535a91db0dcbd89adbad666e5b88c5400f147a579deaca8bf96b348",
+    "request_hash": "88c6179b2763f80879850ce1c046e3a578652e621023df370d733bade7b2bbd5",
+    "corpus_sha256": "f23b14d36571a1a48fc7a9e46af4fccd1dcb3a0f565d61e2ca25a472277f8979"
+  },
+  "required_next_gate": "EXP-L Independent Review Evidence & Prompt Governance Falsification must qualify a review path before a fresh PR11 promotion review may count for authority."
+}

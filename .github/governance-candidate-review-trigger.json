@@ -1,15 +1,30 @@
 {
   "enabled": false,
-  "review_request_id": "REV-GOV-PR5-013",
-  "review_request_path": "governance-runtime/review-requests/REV-GOV-PR5-013.json",
-  "reviewed_candidate_commit": "2ae09783c0c36d5b8cc66146c3445e131fd99971",
+  "review_request_id": "REV-GOV-PR11-006",
+  "review_request_path": "governance-runtime/review-requests/REV-GOV-PR11-006.json",
+  "reviewed_candidate_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
   "provider": "gemini",
-  "model": "gemini-3.6-flash",
+  "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "COMPLETED_PASS",
-  "workflow_run_id": 34164436416,
-  "artifact_id": 10033683051,
-  "artifact_digest": "sha256:f44aa5b873c7f39b8ba4a3bb6a4ae9e93bb70fdb3cdd3284178e922ab53eb1bc",
-  "evidence_path": "governance-runtime/review-evidence/REV-GOV-PR5-013-platform-review.json"
+  "status": "AUTHENTICATED_PASS_INGESTED_TRIGGER_FROZEN",
+  "request_hash": "eee1483c988cf529d86b822c6fb69de26389c461cacdfdc66bf4105d12c33bb5",
+  "authority_effect": "ELIGIBLE_SUBJECT_TO_FINAL_CLOSURE_HEAD_VALIDATION",
+  "successful_review": {
+    "workflow_run_id": 34225541084,
+    "job_id": 102058634999,
+    "artifact_id": 10055532985,
+    "artifact_digest": "sha256:f91959a20f5aa85c4234bed04696baf47db643982f58b38a1bea98af5585d4a9",
+    "corpus_sha256": "481f081d3aba7284e7cff78a1b6f6499c1577e1d5a464e878ba3c3439310a84d",
+    "disposition": "PASS",
+    "mandatory_dimensions": "12/12 TESTED_SUPPORTED",
+    "findings": 0,
+    "provider_api_authenticated": true
+  },
+  "preserved_prior_attempts": [
+    {"review_request_id":"REV-GOV-PR11-004","workflow_run_id":34224800460,"classification":"REQUEST_FIXTURE_CI_RUN_CANDIDATE_BINDING_DEFECT_PROVIDER_NOT_INVOKED","authority_effect":"NONE"},
+    {"review_request_id":"REV-GOV-PR11-005","workflow_run_id":34225039051,"classification":"REQUEST_FIXTURE_CANDIDATE_FILE_PATH_DEFECT_PROVIDER_NOT_INVOKED","authority_effect":"NONE"},
+    {"review_request_id":"REV-GOV-PR11-006","workflow_run_id":34225284517,"job_id":102057774242,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
+    {"review_request_id":"REV-GOV-PR11-006","workflow_run_id":34225430167,"job_id":102058267327,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"}
+  ]
 }

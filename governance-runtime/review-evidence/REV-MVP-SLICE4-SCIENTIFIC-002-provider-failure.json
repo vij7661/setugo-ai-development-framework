@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE4-SCIENTIFIC-002",
+  "reviewed_artifact_commit": "f6f04970d594292f21db648132afab7da4f263a6",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "workflow_run_id": 34167064296,
+  "job_id": 101880103624,
+  "artifact_id": 10034492859,
+  "artifact_digest": "sha256:4b9fa2bacee7dbc344c5519937c04ba1086002d0caae7839441d663132c0bfeb",
+  "trigger_sha": "52aea55c8f34874fcc685b543e39add2e2c4bad6",
+  "failure_class": "PROVIDER_TEMPORARILY_UNAVAILABLE",
+  "provider_error": "Gemini HTTP 503 UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+  "review_received": false,
+  "semantic_validation_performed": false,
+  "authority_effect": "NONE",
+  "history_preserved": true
+}

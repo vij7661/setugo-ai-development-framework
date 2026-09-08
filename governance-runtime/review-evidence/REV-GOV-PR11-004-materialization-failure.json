@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-004",
+  "reviewed_artifact_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "workflow_run_id": 34224800460,
+  "job_id": 102056184206,
+  "artifact_id": 10055219897,
+  "artifact_digest": "sha256:a836c47bb222c3584129d530fdb62255b93fa359348971ba2e53fa51d19f293b",
+  "model": "gemini-3.8-flash",
+  "provider_invoked": false,
+  "failure_stage": "EVIDENCE_MATERIALIZATION_BEFORE_PROVIDER",
+  "classification": "REQUEST_FIXTURE_CI_RUN_CANDIDATE_BINDING_DEFECT",
+  "failure_detail": "ReviewRequest included ci_run 34218114499 whose head 632d5cf69aa2277115b7c3b8c88df6756c05901e did not equal reviewed candidate 456f0ddb7df4a3e2adf8bbe667ed036d4e38e793. platform_candidate_review_v2.py rejected the mismatch before provider invocation.",
+  "mechanism_assessment": "FAIL_CLOSED_AS_DESIGNED",
+  "authority_effect": "NONE",
+  "next_required_action": "Issue a new exact-candidate ReviewRequest without mis-bound ci_run evidence. Preserve the earlier repair run only as historical/non-authoritative context unless candidate binding is exact.",
+  "history_policy": "This failed attempt remains preserved and must not be rewritten as a provider failure or successful review."
+}

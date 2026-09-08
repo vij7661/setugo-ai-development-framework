@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-002",
+  "reviewed_artifact_commit": "3aea6767e9f6ad528af7c7ef230eba00b395e83d",
+  "review_evidence": {
+    "path": "governance-runtime/review-evidence/REV-GOV-PR11-002-platform-review.json",
+    "workflow_run_id": 34189474640,
+    "job_id": 101944387466,
+    "provider_api_authenticated": true,
+    "deterministic_schema_validation": "VALID",
+    "claimed_disposition": "PASS",
+    "claimed_mandatory_dimensions": "10/10 TESTED_SUPPORTED",
+    "findings": 0
+  },
+  "independent_adjudication": {
+    "evidence_contradiction_found": true,
+    "contradicted_claim": "REV-GOV-PR11-001 had already been bounded/rejected as promotion authority in the retained adjudication evidence.",
+    "actual_retained_evidence": "governance-runtime/review-evidence/REV-GOV-PR11-001-adjudication.json still stated VALID_INDEPENDENT_REVIEW_PRESENT and ELIGIBLE_FOR_PR11_PROMOTION_SUBJECT_TO_FINAL_CLOSURE_HEAD_VALIDATION at the reviewed candidate.",
+    "classification": "REVIEW_FALSE_GREEN_EVIDENCE_CONTRADICTION",
+    "effective_disposition": "CHANGES_REQUIRED",
+    "counts_for_pr11_promotion": false,
+    "authority_effect": "NONE"
+  },
+  "repair": {
+    "supersession_record": "governance-runtime/review-evidence/REV-GOV-PR11-001-supersession.json",
+    "next_required_action": "Re-review the fully reconciled evidence state after explicit supersession of review001 promotion eligibility."
+  },
+  "history_policy": "The authenticated PASS and deterministic schema validation are preserved exactly as received. They are not upgraded to promotion authority because authoritative retained evidence contradicts a mandatory review claim."
+}

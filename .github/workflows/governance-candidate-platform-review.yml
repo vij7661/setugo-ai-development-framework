@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   governance-review:
@@ -15,6 +16,7 @@ jobs:
     timeout-minutes: 15
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout trigger head
         uses: actions/checkout@v4
@@ -25,7 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY' >> "$GITHUB_ENV"
-          import json,re
+          import json
           from pathlib import Path
           t=json.loads(Path('.github/governance-candidate-review-trigger.json').read_text(encoding='utf-8'))
           if t.get('enabled') is not True: raise SystemExit('trigger not enabled')
@@ -43,12 +45,12 @@ jobs:
         run: |
           test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY repository secret required'; exit 2; }
           test -f "$REVIEW_REQUEST_PATH"
-      - name: Execute authenticated governance review
+      - name: Execute authenticated governance review through materialization v2
         shell: bash
         run: |
           set -o pipefail
           mkdir -p governance-review-evidence
-          python governance-runtime/platform_candidate_review.py \
+          python governance-runtime/platform_candidate_review_v2.py \
             --request "$REVIEW_REQUEST_PATH" \
             --output-dir governance-review-evidence \
             --model "$GEMINI_REVIEW_MODEL" \
@@ -66,7 +68,7 @@ jobs:
           t=json.loads(Path('.github/governance-candidate-review-trigger.json').read_text(encoding='utf-8'))
           err=Path('governance-review-evidence/provider-error.log')
           status={
-            'schema_version':1,
+            'schema_version':2,
             'review_request_path':t.get('review_request_path'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
@@ -74,6 +76,7 @@ jobs:
             'transport':'AUTOMATIC_API',
             'provider':'gemini',
             'model':os.environ.get('GEMINI_REVIEW_MODEL'),
+            'materialization_version':'GOV-EVIDENCE-MATERIALIZATION-001',
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
             'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
             'failure_detail':err.read_text(encoding='utf-8',errors='replace')[-2000:] if err.exists() else None,

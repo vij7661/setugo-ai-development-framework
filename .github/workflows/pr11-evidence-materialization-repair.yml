@@ -1,0 +1,38 @@
+name: PR11 Evidence Materialization Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - 'governance-runtime/platform_candidate_review_v2.py'
+      - 'governance-runtime/test_platform_candidate_review_v2_materialization.py'
+      - 'governance-runtime/repair-preregistrations/GOV-EVIDENCE-MATERIALIZATION-001.md'
+      - '.github/workflows/governance-candidate-platform-review.yml'
+      - '.github/workflows/pr11-evidence-materialization-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deterministic-repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout PR11 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run evidence materialization regression tests
+        run: |
+          cd governance-runtime
+          python -m unittest -v test_platform_candidate_review_v2_materialization.py
+      - name: Assert authoritative workflow uses v2 and legacy path is not invoked
+        run: |
+          grep -q 'platform_candidate_review_v2.py' .github/workflows/governance-candidate-platform-review.yml
+          ! grep -q 'python governance-runtime/platform_candidate_review.py ' .github/workflows/governance-candidate-platform-review.yml

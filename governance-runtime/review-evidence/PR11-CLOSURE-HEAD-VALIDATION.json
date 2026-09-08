@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "pull_request": 11,
+  "reviewed_mechanism_candidate": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "closure_head": "aeae8a89cb60eacf189ddb7507e94b2916594c7c",
+  "authenticated_review_request_id": "REV-GOV-PR11-006",
+  "authenticated_review_run_id": 34225541084,
+  "authenticated_review_job_id": 102058634999,
+  "authenticated_review_artifact_id": 10055532985,
+  "authenticated_review_artifact_digest": "sha256:f91959a20f5aa85c4234bed04696baf47db643982f58b38a1bea98af5585d4a9",
+  "authenticated_disposition": "PASS",
+  "mandatory_dimensions": "12/12 TESTED_SUPPORTED",
+  "findings": 0,
+  "post_candidate_changed_paths_classification": "ALLOWED_CLOSURE_METADATA_ONLY",
+  "post_candidate_changed_paths": [
+    ".github/governance-candidate-review-trigger.json",
+    "governance-runtime/review-requests/REV-GOV-PR11-004.json",
+    "governance-runtime/review-requests/REV-GOV-PR11-005.json",
+    "governance-runtime/review-requests/REV-GOV-PR11-006.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-004-materialization-failure.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-005-materialization-failure.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-006-provider-failure-001.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-006-provider-failure-002.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-006-platform-review.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-006-adjudication.json",
+    "governance-runtime/session-state.json",
+    "governance-runtime/shared-memory.json"
+  ],
+  "closure_validation_run_id": 34226464585,
+  "closure_validation_conclusion": "success",
+  "promotion_gate_result": "ELIGIBLE_FOR_PR11_MERGE_AT_EXACT_CLOSURE_HEAD",
+  "expected_merge_head": "aeae8a89cb60eacf189ddb7507e94b2916594c7c"
+}

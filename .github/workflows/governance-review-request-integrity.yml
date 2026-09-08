@@ -1,0 +1,34 @@
+name: Governance Review Request Integrity
+
+on:
+  push:
+    branches:
+      - governance/live-conversation-runtime
+    paths:
+      - 'governance-runtime/platform_candidate_review.py'
+      - 'governance-runtime/review_protocol.py'
+      - 'governance-runtime/test_platform_candidate_review_request_integrity.py'
+      - 'governance-runtime/repair-preregistrations/GOV-REQUEST-INTEGRITY-001.md'
+      - '.github/workflows/governance-review-request-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-request-integrity-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout governance branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run frozen GRI-01..GRI-05 regressions
+        run: |
+          cd governance-runtime
+          python -m unittest -v test_platform_candidate_review_request_integrity.py

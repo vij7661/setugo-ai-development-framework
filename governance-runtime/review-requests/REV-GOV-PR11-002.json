@@ -1,0 +1,64 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-PR11-002",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "governance-runtime/session-state.json",
+    "governance-runtime/shared-memory.json",
+    "governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md"
+  ],
+  "artifact": {
+    "type": "live_conversation_governance_runtime_candidate",
+    "ref": "PR-11",
+    "commit": "3aea6767e9f6ad528af7c7ef230eba00b395e83d"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "gemini", "model_class": "gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether checkpoint 042 correctly reconciles PR #10's already-merged state and eliminates the stale PR #10 review-reissuance frontier.",
+    "Verify that shared-memory coordination exactly mirrors the authoritative handoff and cannot override Git-backed state.",
+    "Assess whether verified Git merge evidence deterministically outranks stale checkpoint text and a prior reviewer PASS.",
+    "Assess whether generic CONTINUE now routes to corrected PR #11 re-review before any Slice 5 mechanism construction.",
+    "Assess the handling of REV-GOV-PR11-001: its request-integrity evidence may remain useful, but its contradicted continuity conclusion must not count for PR #11 promotion.",
+    "Verify prior failures and reviews remain preserved and non-laundered.",
+    "Re-check that GOV-REQUEST-INTEGRITY-001 still rejects invalid ReviewRequests before corpus/provider invocation.",
+    "Assess whether PR #11 promotion remains fail-closed until corrected independent review and final closure validation.",
+    "Assess provider-failure fail-closed behavior and review replay/substitution resistance.",
+    "Search adversarially for any remaining authority bypass, stale-state false-green, continuity defect, or promotion path that can ignore contradictory Git evidence.",
+    "Return an independent disposition without assuming the proposer conclusion."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34189167942"},
+    {"type":"file","ref":"governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"},
+    {"type":"file","ref":"governance-runtime/validate_runtime.py"},
+    {"type":"file","ref":"governance-runtime/platform_candidate_review.py"},
+    {"type":"file","ref":"governance-runtime/test_platform_candidate_review_request_integrity.py"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-GOV-PR11-001-platform-review.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-GOV-PR11-001-adjudication.json"},
+    {"type":"history","ref":"PR #10 merged at a2fcd2ba9bc0e5828ee69056c23207fb431ecea6 after REV-MVP-SLICE4-INTEGRATION-003 PASS; checkpoint 041 remained stale; four PR11 Gemini 503 attempts preserved with authority effect NONE."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"post_merge_handoff_freshness","mandatory":true,"description":"A merged/closed governed transition invalidates older pending-review or pending-merge handoffs and the durable frontier advances only from verified Git state."},
+    {"id":"shared_memory_exact_mirroring","mandatory":true,"description":"Shared memory exactly mirrors the authoritative handoff fields required by the validator and remains non-authoritative independently."},
+    {"id":"git_merge_evidence_precedence","mandatory":true,"description":"Verified Git merge/PR state outranks stale checkpoint text, model recollection, and prior reviewer assertions."},
+    {"id":"generic_continue_routing","mandatory":true,"description":"Generic CONTINUE resolves to the repaired handoff and cannot resume the superseded PR #10 review action."},
+    {"id":"review_false_negative_resistance","mandatory":true,"description":"A prior PASS that conflicts with authoritative Git evidence is bounded/reassessed rather than used to promote the contradicted dimension."},
+    {"id":"prior_history_preservation","mandatory":true,"description":"PR #10 review history, PR #11 provider failures, and REV-GOV-PR11-001 remain preserved without rewrite or laundering."},
+    {"id":"request_integrity_gate_unchanged","mandatory":true,"description":"The pre-provider ReviewRequest integrity gate remains intact and invalid requests still fail before provider invocation."},
+    {"id":"promotion_wiring","mandatory":true,"description":"PR #11 promotion remains blocked until corrected exact-candidate independent review and closure validation are valid."},
+    {"id":"provider_failure_fail_closed","mandatory":true,"description":"Provider unavailability remains authority-neutral and cannot synthesize review success."},
+    {"id":"remaining_authority_bypass_search","mandatory":true,"description":"Adversarial search for any remaining stale-state, review-replay, continuity, or promotion false-green path."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "cebe3e71e3e4b4ccacee858a8aac707a3863af8d362fe7e42fb709f9055ea684"
+}
