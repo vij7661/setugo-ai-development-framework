@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repair_id": "GOV-R3-PLATFORM-HANDOFF-001",
+  "status": "BOUNDED_DETERMINISTIC_PASS",
+  "preregistration_commit": "293b9a40b08e93e3302766906d6dbbb815f74832",
+  "implementation_commit": "9fa9c3a0e9c73d5b31598846864109dbc6e28a4a",
+  "test_commit": "6e827d8599704d8be88ea6de5eeee89a081f46be",
+  "workflow_commit": "113d16db100adc8837b623d2f3756ea0e6f5c493",
+  "workflow_run_id": 34233776654,
+  "job_id": 102086174605,
+  "tests": "10/10 PASS",
+  "provider_api_invocations": 0,
+  "no_provider_api_assertion": "PASS",
+  "defect_closed": "Authenticated platform R2 material fields can now be carried losslessly into the R3 handoff with exact ReviewRequest/candidate binding and full raw-R2 hashing.",
+  "authority_effect": "HANDOFF_MECHANISM_QUALIFIED_FOR_BOUNDED_SLICE5_R3_ROUTING_ONLY",
+  "slice5_candidate_changed": false,
+  "slice5_r2_changed": false,
+  "r3_required": true
+}
