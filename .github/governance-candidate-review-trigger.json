@@ -7,9 +7,15 @@
   "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_REQUESTED",
+  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_BOUNDED_PROVIDER_RETRY",
   "request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+  "retry_policy": {
+    "max_attempts": 3,
+    "retryable_only": ["HTTP_503", "HIGH_DEMAND", "TEMPORARILY_UNAVAILABLE", "SERVICE_UNAVAILABLE"],
+    "request_semantics_unchanged": true,
+    "candidate_unchanged": true
+  },
   "preserved_false_green": {
     "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
     "reviewed_candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
