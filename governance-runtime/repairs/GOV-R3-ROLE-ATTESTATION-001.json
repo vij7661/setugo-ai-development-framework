@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "repair_id": "GOV-R3-ROLE-ATTESTATION-001",
+  "status": "BOUNDED_PASS",
+  "preregistration_commit": "18f049ebdeae44cd790d9058bd8dc2d88f23f740",
+  "implementation_commit": "b8d7e112e1a0c5f0408e3b3ea2f666c8443c21c4",
+  "test_commit": "206ced08cbfa4ef7fbabe2cd570036c82699f7e4",
+  "workflow_commit": "f4d07c0a1398450cb730f3a25fd9924e04e93686",
+  "workflow_run_id": 34234646121,
+  "job_id": 102089114460,
+  "deterministic_tests": "6/6",
+  "provider_api_calls": 0,
+  "verified_properties": [
+    "blind R2 requires BLIND_TO_PROPOSER_CONCLUSION",
+    "R3 review-of-review requires REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+    "R3 prompt explicitly states it is not independent of R2",
+    "R3 is instructed to falsify rather than defer to R2",
+    "R2 cannot masquerade as R3",
+    "R3 cannot masquerade as independent R2"
+  ],
+  "authority_scope": "ROLE_ATTESTATION_MECHANISM_ONLY",
+  "does_not_authorize_slice5": true
+}
