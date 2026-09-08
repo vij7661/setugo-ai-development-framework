@@ -1,0 +1,62 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-PR11-003",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "governance-runtime/session-state.json",
+    "governance-runtime/shared-memory.json",
+    "governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md",
+    "governance-runtime/review-evidence/REV-GOV-PR11-001-supersession.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-002-platform-review.json",
+    "governance-runtime/review-evidence/REV-GOV-PR11-002-adjudication.json"
+  ],
+  "artifact": {"type":"live_conversation_governance_runtime_candidate","ref":"PR-11","commit":"b3abfed189504721b30c9ed647b2ffe79f27f85c"},
+  "proposer": {"provider":"openai","model":"gpt-5.6-sol"},
+  "required_reviewer": {"provider":"gemini","model_class":"gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently verify the post-merge continuity reconciliation and do not assume either prior reviewer PASS is correct.",
+    "Verify from retained files that REV-GOV-PR11-001's original eligibility adjudication remains preserved but is explicitly superseded for promotion by REV-GOV-PR11-001-supersession.json.",
+    "Verify that REV-GOV-PR11-002 is preserved as an authenticated semantic PASS but independently adjudicated non-promotable because its claim about review001's retained adjudication contradicted the repository.",
+    "Confirm checkpoint 042 and shared memory no longer route generic CONTINUE to PR #10 and instead block Slice 5 construction until PR #11 governance closure.",
+    "Verify Git merge evidence for PR #10 outranks stale checkpoint/reviewer statements and that contradictory review evidence cannot promote authority.",
+    "Verify shared memory exactly mirrors the authoritative handoff and remains non-authoritative independently.",
+    "Re-check that the pre-provider ReviewRequest integrity gate remains wired before corpus construction/provider invocation.",
+    "Verify provider failures remain authority-neutral and review replay/substitution cannot satisfy the current review gate.",
+    "Verify PR #11 promotion is fail-closed until this exact review is ingested and final closure-head validation succeeds.",
+    "Adversarially search for any remaining stale-state, supersession, evidence-laundering, review-false-green, or promotion bypass.",
+    "Return an independent disposition without assuming proposer or prior reviewer conclusions."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34189633886"},
+    {"type":"file","ref":"governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md"},
+    {"type":"file","ref":"governance-runtime/session-state.json"},
+    {"type":"file","ref":"governance-runtime/shared-memory.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-GOV-PR11-001-adjudication.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-GOV-PR11-001-supersession.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-GOV-PR11-002-platform-review.json"},
+    {"type":"file","ref":"governance-runtime/review-evidence/REV-GOV-PR11-002-adjudication.json"},
+    {"type":"file","ref":"governance-runtime/platform_candidate_review.py"},
+    {"type":"file","ref":"governance-runtime/test_platform_candidate_review_request_integrity.py"},
+    {"type":"file","ref":"governance-runtime/validate_runtime.py"},
+    {"type":"history","ref":"PR #10 merged at a2fcd2ba9bc0e5828ee69056c23207fb431ecea6; review001 continuity false-negative and review002 evidence-contradiction false-green are preserved and non-promotable."}
+  ],
+  "expected_output": {"required_fields":["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],"allowed_dispositions":["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]},
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"post_merge_handoff_freshness","mandatory":true,"description":"Merged PR #10 invalidates stale pending PR #10 handoffs and the repaired durable frontier is current."},
+    {"id":"review001_supersession_integrity","mandatory":true,"description":"Original review001 adjudication remains preserved while an explicit later supersession makes it non-promotable for PR #11."},
+    {"id":"review002_false_green_adjudication","mandatory":true,"description":"Review002 authenticated PASS is preserved but non-promotable because a mandatory evidence claim contradicted retained repository evidence."},
+    {"id":"git_evidence_precedence","mandatory":true,"description":"Verified Git state and retained evidence outrank stale checkpoint text and reviewer assertions."},
+    {"id":"shared_memory_and_continue_routing","mandatory":true,"description":"Shared memory mirrors authority and generic CONTINUE routes to PR #11 closure before Slice 5 construction."},
+    {"id":"request_integrity_gate_unchanged","mandatory":true,"description":"Invalid ReviewRequests still fail before corpus/provider invocation."},
+    {"id":"history_nonlaundering","mandatory":true,"description":"Prior invalid reviews, provider failures, PASSes, contradictions, and supersessions are retained without silent rewrite."},
+    {"id":"review_replay_and_substitution_resistance","mandatory":true,"description":"Only the current exact ReviewRequest/candidate/provider binding may satisfy promotion."},
+    {"id":"promotion_fail_closed","mandatory":true,"description":"PR #11 cannot promote until exact current review evidence and closure-head validation are valid."},
+    {"id":"remaining_authority_bypass_search","mandatory":true,"description":"Adversarial search for remaining stale-state, supersession, evidence, review, or promotion false-green paths."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "88c6179b2763f80879850ce1c046e3a578652e621023df370d733bade7b2bbd5"
+}
