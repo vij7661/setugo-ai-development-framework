@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-001",
+  "reviewed_artifact_commit": "331822da78be228aaddb2148f35f2ec091b0caa9",
+  "candidate_ci": {
+    "workflow_run_id": 34168850755,
+    "conclusion": "success",
+    "candidate_exact": true
+  },
+  "review_evidence": {
+    "path": "governance-runtime/review-evidence/REV-GOV-PR11-001-platform-review.json",
+    "workflow_run_id": 34182708263,
+    "job_id": 101942117811,
+    "review_class": "PLATFORM_AUTO_API_REVIEW",
+    "transport": "AUTOMATIC_API",
+    "provider": "gemini",
+    "model": "gemini-3.6-flash",
+    "provider_api_authenticated": true,
+    "semantic_validation_valid": true,
+    "mandatory_dimensions_supported": "10/10",
+    "findings": 0,
+    "disposition": "PASS"
+  },
+  "effective_state": "VALID_INDEPENDENT_REVIEW_PRESENT",
+  "promotion_gate_result": "ELIGIBLE_FOR_PR11_PROMOTION_SUBJECT_TO_FINAL_CLOSURE_HEAD_VALIDATION",
+  "limitations": [
+    "Remote Gemini model identity is not cryptographically proven; the authenticated provider API execution envelope establishes review-call provenance.",
+    "Review authority is bound to exact mechanism candidate 331822da78be228aaddb2148f35f2ec091b0caa9. Later commits may only carry the frozen request, provider-failure history, review evidence, trigger deactivation, status/continuity reconciliation, or other explicitly non-mechanism closure metadata unless independently re-reviewed."
+  ],
+  "history_preserved": "Four prior REV-GOV-PR11-001 Gemini HTTP 503 attempts remain preserved with authority effect NONE; REV-MVP-SLICE4-INTEGRATION-001 remains invalid/non-promotable; no prior failure is rewritten."
+}
