@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "probe_id": "GOV-OPENROUTER-CAPACITY-PROBE-001",
+  "status": "BOUNDED_CAPACITY_PASS",
+  "workflow_run_id": 34239601859,
+  "artifact_id": 10061363308,
+  "artifact_digest": "sha256:6bc666b52fd1ed8e7c9573d3dba459d730357527438f39004ad676f5540e48af",
+  "provider": "openrouter",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "upstream_provider": "Nvidia",
+  "http_status": 200,
+  "observed_prompt_tokens": 173870,
+  "cost": 0,
+  "latency_seconds": 13.1,
+  "scientific_claim": "One full-size request substantially larger than the project's typical 40k-60k governed review packets completed without truncation or request-size rejection.",
+  "nonclaims": [
+    "Does not prove semantic reviewer quality.",
+    "Does not guarantee future free-tier availability or rate limits.",
+    "Does not authorize any product or governance transition by itself."
+  ],
+  "authority_effect": "PROVIDER_CAPACITY_EVIDENCE_ONLY"
+}
