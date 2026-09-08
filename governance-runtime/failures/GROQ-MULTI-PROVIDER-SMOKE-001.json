@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "failure_id": "GROQ-MULTI-PROVIDER-SMOKE-001",
+  "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-001",
+  "workflow_run_id": 34238108276,
+  "trigger_sha": "9612a74eaf10b13b013d9217c9f9439b3c47332d",
+  "reviewed_candidate_commit": "809d975ac394ec8ba54c9dd5beb9e333a1b1a9fd",
+  "provider": "groq",
+  "model": "openai/gpt-oss-120b",
+  "provider_secret_present": true,
+  "provider_reached": true,
+  "classification": "PROVIDER_CONTEXT_BUDGET_EXCEEDED_HTTP_413",
+  "provider_error": "Requested approximately 48633 tokens while the current on-demand TPM limit reported by Groq was 8000.",
+  "semantic_review_produced": false,
+  "authority_effect": "NONE",
+  "mechanism_observation": "Provider routing/authentication succeeded. The smoke ReviewRequest was too large because the corpus included a broad governance candidate diff plus multiple full evidence files.",
+  "repair_rule": "Do not truncate or mutate the frozen request. Use a new bounded smoke subject/request for transport qualification and separately add fail-closed context-budget classification/guarding for future Groq reviews.",
+  "slice5_effect": "NONE"
+}
