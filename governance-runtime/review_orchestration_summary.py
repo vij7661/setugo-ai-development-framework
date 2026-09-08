@@ -20,7 +20,12 @@ def _read_json(path: Path) -> dict[str, Any] | None:
 def _dimension_summary(review: dict[str, Any] | None) -> dict[str, Any]:
     if not review:
         return {"total": 0, "supported": 0, "unsupported": 0, "ids": []}
-    rows = review.get("mandatory_dimensions") or review.get("dimension_assessments") or []
+    rows = (
+        review.get("mandatory_dimensions")
+        or review.get("dimension_assessments")
+        or review.get("review_coverage")
+        or []
+    )
     if not isinstance(rows, list):
         rows = []
     ids: list[str] = []
