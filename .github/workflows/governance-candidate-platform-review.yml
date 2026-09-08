@@ -79,7 +79,7 @@ jobs:
               echo "provider_attempt_result=success" | tee -a governance-review-evidence/provider-attempts.log
               break
             fi
-            if grep -Eqi '503|429|high demand|temporarily unavailable|service unavailable|rate limit|too many requests' governance-review-evidence/provider-error-attempt.log; then
+            if grep -Eqi '502|503|429|high demand|temporarily unavailable|temporarily overloaded|service unavailable|upstream error|rate limit|too many requests' governance-review-evidence/provider-error-attempt.log; then
               echo "provider_attempt_result=transient_unavailable" | tee -a governance-review-evidence/provider-attempts.log
               if [ "$attempt" -lt 3 ]; then
                 sleep $((attempt * 20))
