@@ -1,0 +1,33 @@
+{
+  "adjudication_id": "ADJ-REV-MVP-SLICE6-TERMINAL-AUTHORITY-001",
+  "independent_adjudication": {
+    "actual_retained_evidence": "At candidate 53100095dadf28d600e92a2b45323db372831347, authority_record shape and matching did not require or compare state_version, so a valid self-hashed authority record for state version 6 authorized a request/current state at version 7.",
+    "authority_effect": "NONE",
+    "classification": "REVIEW_FALSE_GREEN_EVIDENCE_CONTRADICTION",
+    "contract_violation": "Frozen S6-I14 and the Slice 6 claim boundary require state-version rebinding rejection and exact state-version binding.",
+    "contradicted_claim": "The review marked exact_terminal_binding TESTED_SUPPORTED and stated terminal authority was exactly bound to the authoritative state version.",
+    "counts_for_promotion": false,
+    "effective_disposition": "CHANGES_REQUIRED",
+    "evidence_contradiction_found": true,
+    "root_cause_classification": "CODE DEFECT"
+  },
+  "original_semantic_disposition": "PASS",
+  "preserved_evidence": {
+    "authenticated_review_run": 34277345192,
+    "defect_exposure_ci_run": 34277555226,
+    "defect_exposure_commit": "b06fa91b1767c552b8b84c2709bb118650ba8296",
+    "observed_failure": "S6-23 expected DENY_AUTHORITY_RECORD for authority state_version=6 but received AUTHORIZED_FOR_TERMINAL_ACTION.",
+    "original_candidate_ci_run": 34276598612,
+    "repair_ci_run": 34277699140,
+    "repair_commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec"
+  },
+  "promotion_rule": "The original authenticated PASS remains preserved as historical review evidence but cannot satisfy promotion for the original or repaired candidate. A new exact-candidate independent review is required for 58458e0cb86680b9e25c490f43b94324e67ec5ec.",
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001",
+  "review_workflow_run_id": 34277345192,
+  "reviewed_artifact_commit": "53100095dadf28d600e92a2b45323db372831347",
+  "reviewer": {
+    "model": "gemini-3.8-flash",
+    "provider": "gemini"
+  },
+  "schema_version": 1
+}
