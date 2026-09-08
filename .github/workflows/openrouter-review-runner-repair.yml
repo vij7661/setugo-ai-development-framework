@@ -1,0 +1,29 @@
+name: OpenRouter Review Runner Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/platform_candidate_review_v4.py
+      - governance-runtime/test_platform_candidate_review_v4.py
+      - governance-runtime/repair-preregistrations/GOV-OPENROUTER-REVIEW-RUNNER-001.md
+      - .github/workflows/openrouter-review-runner-repair.yml
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-openrouter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen OpenRouter runner tests
+        run: python governance-runtime/test_platform_candidate_review_v4.py
+      - name: Assert deterministic tests make no real provider call
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'OPENROUTER_API_KEY.*os\.environ|https://openrouter\.ai/api/v1/chat/completions' governance-runtime/test_platform_candidate_review_v4.py
