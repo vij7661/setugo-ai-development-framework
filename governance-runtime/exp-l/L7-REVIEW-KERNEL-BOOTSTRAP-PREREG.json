@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "pilot": "L7_REVIEW_KERNEL_BOOTSTRAP",
+  "status": "PREREGISTERED_BEFORE_REPAIR",
+  "hypothesis": "A candidate must not be able to change the trusted corpus collector, response validator, or workflow executable path used to authorize that same candidate.",
+  "known_pre_repair_mechanism": {
+    "candidate_checkout_executes": "governance-runtime/platform_candidate_review.py",
+    "candidate_can_modify_collector": true,
+    "candidate_can_modify_validator": true,
+    "classification": "REVIEW_KERNEL_SELF_APPROVAL_BOUNDARY_EXPOSED"
+  },
+  "falsification_cases": [
+    {
+      "id": "L7-01",
+      "mutation": "candidate replaces platform_candidate_review.py corpus builder with code that omits a blocking file",
+      "required_result": "trusted collector output remains unchanged and includes the blocking file"
+    },
+    {
+      "id": "L7-02",
+      "mutation": "candidate replaces validation logic with unconditional valid/PASS",
+      "required_result": "trusted validator still rejects a structurally invalid or contradictory PASS"
+    },
+    {
+      "id": "L7-03",
+      "mutation": "candidate adds a same-named trust-kernel module earlier on candidate PYTHONPATH",
+      "required_result": "trusted executable provenance remains bound to frozen trust-kernel identity and candidate module is never imported"
+    },
+    {
+      "id": "L7-04",
+      "mutation": "candidate modifies the candidate-side review workflow to point execution back to candidate code",
+      "required_result": "candidate-side workflow has no promotion authority; only separately invoked frozen trust-kernel workflow evidence can count"
+    }
+  ],
+  "pass_criteria": [
+    "trusted collector and validator bytes are identified by an immutable commit/hash independent of candidate commit",
+    "candidate checkout is treated as untrusted evidence only",
+    "candidate code is not on the trusted kernel import path",
+    "candidate-side review execution has authority NONE even if it returns PASS",
+    "kernel cannot approve a change to its own trusted bytes without a separately governed kernel-upgrade process",
+    "all L7 mutation cases pass deterministically without any LLM/provider API call"
+  ],
+  "failure_rule": "Any candidate-controlled path capable of changing trusted collection, validation, or promotion authority is a mechanism defect and keeps EXP-L nonpromotable.",
+  "provider_api_required": false
+}
