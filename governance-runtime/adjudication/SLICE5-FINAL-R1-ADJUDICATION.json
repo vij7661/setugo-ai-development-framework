@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "SLICE5-FINAL-R1-ADJUDICATION",
+  "scope": "Integrated Governed MVP Slice5 authoritative state ledger clean integration",
+  "candidate_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+  "candidate_branch": "integration/slice5-product-foundation-v2",
+  "base_branch": "main",
+  "base_sha": "d46db1173db7db5b42459bf49f7fa28ef3dd105a",
+  "candidate_topology": {
+    "ahead_by": 8,
+    "behind_by": 0,
+    "changed_files": 24,
+    "merge_base_sha": "d46db1173db7db5b42459bf49f7fa28ef3dd105a",
+    "bounded_scope": true,
+    "unrelated_historical_topology_imported": false
+  },
+  "construction_evidence": {
+    "workflow_run_id": 34250241541,
+    "candidate_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+    "conclusion": "success",
+    "slice1_regression": "PASS",
+    "slice2_regression": "PASS",
+    "slice3_v1_regression": "PASS",
+    "slice4_regression": "PASS",
+    "true_slice1_to_slice5_composition": "PASS",
+    "repaired_slice5_v2_acceptance": "PASS"
+  },
+  "r2": {
+    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-002",
+    "workflow_run_id": 34250541201,
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "provider_api_authenticated": true,
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "disposition": "PASS",
+    "mandatory_dimensions_supported": 10,
+    "mandatory_dimensions_total": 10,
+    "findings": 0,
+    "materialized_evidence_count": 28,
+    "evidence_ref_count": 28,
+    "r2_raw_hash": "sha256:49194ed723aa4f1f2e9ebb7ec68816aa26badcb8bf7f9e9264eabb89a57c9790"
+  },
+  "r2_to_r3_handoff": {
+    "commit": "ab68e3024b8b1cefce63a56c8d70f4927f038223",
+    "candidate_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+    "r1_middle_opinion": null,
+    "r3_required": true,
+    "handoff_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+    "hash_semantics": "canonical self-hash excluding handoff_hash"
+  },
+  "preserved_r3_002": {
+    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-002",
+    "workflow_run_id": 34252149785,
+    "disposition": "FAIL",
+    "supported_dimensions": 9,
+    "total_dimensions": 10,
+    "findings": 1,
+    "classification": "REVIEW_FALSE_POSITIVE_HASH_SEMANTICS_MISINTERPRETATION",
+    "deterministic_adjudication_run_id": 34252830218,
+    "deterministic_adjudication_job_id": 102151180079,
+    "candidate_authority_effect": "NONE"
+  },
+  "hash_semantics_adjudication": {
+    "workflow_run_id": 34252830218,
+    "conclusion": "success",
+    "computed_canonical_self_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+    "stored_handoff_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
+    "whole_file_byte_hash": "sha256:cb5d468afc4dbd7593218f20976d7b05a0d22748a9a62e0dc52f4201dc62676a",
+    "protocol_self_hash_valid": true,
+    "provider_calls": false
+  },
+  "r3": {
+    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-003",
+    "workflow_run_id": 34253101868,
+    "artifact_id": 10066922552,
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "provider_api_authenticated": true,
+    "independence_attestation": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+    "disposition": "PASS",
+    "mandatory_dimensions_supported": 10,
+    "mandatory_dimensions_total": 10,
+    "findings": 0,
+    "materialized_evidence_count": 30,
+    "evidence_ref_count": 30,
+    "validation_valid": true
+  },
+  "independent_r1_checks": {
+    "candidate_head_unchanged": true,
+    "base_head_unchanged": true,
+    "candidate_exact_ci_binding": true,
+    "real_cross_slice_composition_present": true,
+    "slice3_to_slice4_synthetic_fixture_masking_repaired": true,
+    "slice5_audit_false_green_repaired": true,
+    "r3_002_contradiction_preserved_and_deterministically_resolved": true,
+    "no_terminal_release_deploy_merge_completion_authority_minted_by_mechanisms": true,
+    "bounded_nonclaims_preserved": true,
+    "review_consensus_used_as_sufficient_evidence": false
+  },
+  "final_disposition": "PASS_ELIGIBLE_FOR_INTEGRATION_SUBJECT_TO_EXACT_HEAD_MERGE_GUARD",
+  "merge_conditions": {
+    "required_candidate_head_sha": "964ba7162fa3950b93576f553f26b83580555bc2",
+    "required_base_sha_before_pr": "d46db1173db7db5b42459bf49f7fa28ef3dd105a",
+    "required_changed_file_count": 24,
+    "required_ahead_by": 8,
+    "required_behind_by": 0,
+    "merge_if_any_condition_drifts": false
+  },
+  "claim_boundary": "This adjudication qualifies only the bounded local-reference Slice1-to-Slice5 integration represented by the exact candidate. It does not establish distributed consensus, cryptographic tamper-proofing, production durability, production sandbox security, autonomous deployment/release authority, or production readiness."
+}
