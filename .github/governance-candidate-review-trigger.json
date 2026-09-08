@@ -4,10 +4,10 @@
   "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-003.json",
   "reviewed_candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
   "provider": "gemini",
-  "model": "gemini-3.8-flash",
+  "model": "gemini-3.7-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_BOUNDED_PROVIDER_RETRY",
+  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_MODEL_CLASS_FAILOVER_GEMINI_3_7",
   "request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "retry_policy": {
@@ -15,6 +15,12 @@
     "retryable_only": ["HTTP_503", "HIGH_DEMAND", "TEMPORARILY_UNAVAILABLE", "SERVICE_UNAVAILABLE"],
     "request_semantics_unchanged": true,
     "candidate_unchanged": true
+  },
+  "model_failover": {
+    "from": "gemini-3.8-flash",
+    "to": "gemini-3.7-flash",
+    "reason": "gemini-3.8-flash returned repeated HTTP 503 high-demand responses including bounded internal retries",
+    "required_reviewer_model_class_preserved": "gemini"
   },
   "preserved_false_green": {
     "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
