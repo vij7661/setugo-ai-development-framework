@@ -17,6 +17,7 @@ jobs:
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout trigger head
@@ -35,7 +36,7 @@ jobs:
           if t.get('review_class')!='PLATFORM_AUTO_API_REVIEW': raise SystemExit('review class mismatch')
           if t.get('transport')!='AUTOMATIC_API': raise SystemExit('transport mismatch')
           provider=t.get('provider')
-          if provider not in {'gemini','groq'}: raise SystemExit('unsupported provider')
+          if provider not in {'gemini','groq','openrouter'}: raise SystemExit('unsupported provider')
           for f in ('review_request_path','model'):
             v=t.get(f)
             if not isinstance(v,str) or not v.strip(): raise SystemExit(f'{f} required')
@@ -51,9 +52,10 @@ jobs:
           case "$REVIEW_PROVIDER" in
             gemini) test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY repository secret required'; exit 2; } ;;
             groq) test -n "$GROQ_API_KEY" || { echo 'GROQ_API_KEY repository secret required'; exit 2; } ;;
+            openrouter) test -n "$OPENROUTER_API_KEY" || { echo 'OPENROUTER_API_KEY repository secret required'; exit 2; } ;;
             *) echo 'unsupported provider'; exit 2 ;;
           esac
-      - name: Execute authenticated governance review through provider-neutral v3
+      - name: Execute authenticated governance review through provider-neutral v4
         shell: bash
         run: |
           set -u -o pipefail
@@ -64,7 +66,7 @@ jobs:
             echo "provider_attempt=${attempt}" | tee -a governance-review-evidence/provider-attempts.log
             : > governance-review-evidence/provider-error-attempt.log
             set +e
-            python governance-runtime/platform_candidate_review_v3.py \
+            python governance-runtime/platform_candidate_review_v4.py \
               --request "$REVIEW_REQUEST_PATH" \
               --output-dir governance-review-evidence \
               --provider "$REVIEW_PROVIDER" \
@@ -103,7 +105,7 @@ jobs:
           err=Path('governance-review-evidence/provider-error.log')
           attempts=Path('governance-review-evidence/provider-attempts.log')
           status={
-            'schema_version':4,
+            'schema_version':5,
             'review_request_path':t.get('review_request_path'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
@@ -113,7 +115,7 @@ jobs:
             'provider':os.environ.get('REVIEW_PROVIDER'),
             'model':os.environ.get('REVIEW_MODEL'),
             'materialization_version':'GOV-EVIDENCE-MATERIALIZATION-001',
-            'runner_version':'GOV-MULTI-PROVIDER-REVIEW-RUNNER-001',
+            'runner_version':'GOV-OPENROUTER-REVIEW-RUNNER-001',
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
             'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
             'provider_attempt_log':attempts.read_text(encoding='utf-8',errors='replace')[-2000:] if attempts.exists() else None,
