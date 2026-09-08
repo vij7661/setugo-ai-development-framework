@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "checkpoint_id": "LIVE-CONV-2026-09-08-043",
+  "authority_transition": "PR11_REVIEW_PATH_FROZEN_PENDING_EXP_L",
+  "pr": 11,
+  "pr_state": "DRAFT_FAIL_CLOSED",
+  "review_request_id": "REV-GOV-PR11-003",
+  "reviewed_candidate_commit": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "latest_authenticated_review": {
+    "workflow_run_id": 34190249538,
+    "job_id": 101946669694,
+    "artifact_id": 10041941354,
+    "artifact_digest": "sha256:ebbec139f535a91db0dcbd89adbad666e5b88c5400f147a579deaca8bf96b348",
+    "provider": "gemini",
+    "model": "gemini-3.8-flash",
+    "semantic_disposition": "PASS",
+    "schema_valid": true,
+    "promotion_effect": "NONE"
+  },
+  "freeze_reason": [
+    "declared non-file evidence may not be materialized into reviewer corpus",
+    "blind-review declaration does not prove proposer identity/conclusion blindness",
+    "mutable candidate branch supplies review runner/corpus builder",
+    "execution-time merge-base permits retry corpus drift",
+    "candidate evidence is untrusted LLM input without a qualified injection boundary",
+    "reviewer evidence citations are not yet machine-grounded to frozen hashed objects"
+  ],
+  "experiment": {
+    "id": "EXP-L",
+    "branch": "experiment/exp-l-independent-review-evidence-prompt",
+    "preregistration_commit": "d7b45fcdfae0f129cc354b9efe799c12b8bf4491",
+    "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V1"
+  },
+  "next_required_action": "Continue EXP-L falsification and qualify an independent review evidence/prompt path. Only then issue a fresh PR11 promotion review through the qualified path.",
+  "forbidden_shortcuts": [
+    "Do not promote PR11 from REV-GOV-PR11-003 PASS.",
+    "Do not re-enable the superseded PR11 review trigger as promotion authority.",
+    "Do not start Slice 5 mechanism construction before PR11 closes through the qualified review path."
+  ],
+  "generic_continue_semantics": "Resume EXP-L from authoritative experiment branch and evidence; do not execute the superseded checkpoint-042 review003 action.",
+  "manual_input_required": false,
+  "authority_effect": "BLOCK_PR11_PROMOTION_AND_SLICE5_CONSTRUCTION"
+}
