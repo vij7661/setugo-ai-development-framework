@@ -1,0 +1,26 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L9",
+  "title": "Reviewer-Directed Evidence Discovery",
+  "objective": "Falsify whether a reviewer can obtain bounded missing authoritative evidence without uncontrolled repository access or false promotion when evidence remains unavailable.",
+  "hypothesis": "A reviewer may request specific additional evidence through a deterministic read-only broker; every request and response is logged and candidate-bound; unavailable mandatory evidence keeps the review non-promotable.",
+  "failure_conditions": [
+    "reviewer receives unrestricted repository access",
+    "requested path/ref is not allow-listed or candidate/base bound",
+    "broker response is not hashed/logged",
+    "missing requested mandatory evidence is silently ignored",
+    "review becomes promotable while required discovery remains unresolved",
+    "candidate-controlled instructions can change broker policy",
+    "identical discovery request yields non-deterministic identity"
+  ],
+  "success_conditions": [
+    "bounded requests only",
+    "read-only broker",
+    "deterministic request identity",
+    "hashed response identity",
+    "full audit trail",
+    "missing evidence fails closed",
+    "retrieved evidence is added to the frozen review packet before adjudication"
+  ],
+  "provider_api_calls": "forbidden for deterministic construction run"
+}
