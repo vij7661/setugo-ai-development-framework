@@ -7,12 +7,13 @@
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "RETRY_SAME_REQUEST_AFTER_PROVIDER_503",
+  "status": "RETRY_SAME_REQUEST_AFTER_SECOND_PROVIDER_503",
   "request_hash": "e13865a3d2f0b9bf4218b7bb511ffaf9bee5879c0f619b6178fb455d6743b94f",
   "preserved_prior_attempts": [
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-001","classification":"INVALID_REVIEW_REQUEST_INTEGRITY_NONPROMOTABLE","authority_effect":"NONE"},
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-002","workflow_run_id":34168148380,"job_id":101883188607,"artifact_id":10034834006,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE","authority_effect":"NONE"},
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-003","workflow_run_id":34168261336,"classification":"VALID_PRODUCT_INTEGRATION_REVIEW_HISTORICAL","authority_effect":"BOUNDED_TO_PR10_ONLY"},
-    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182379982,"job_id":101923886594,"artifact_id":10039349853,"artifact_digest":"sha256:b0fe6cd2efd3806c660c96d717e4b0dfe52957bab20a7457cb3ea62391bcf79d","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"}
+    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182379982,"job_id":101923886594,"artifact_id":10039349853,"artifact_digest":"sha256:b0fe6cd2efd3806c660c96d717e4b0dfe52957bab20a7457cb3ea62391bcf79d","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
+    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182462961,"job_id":101924131637,"artifact_id":10039366226,"artifact_digest":"sha256:a54dd8a5b56e218a67204708d6c85ae4dc000dd4740840bdf1d6b06cf31be4ac","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"}
   ]
 }
