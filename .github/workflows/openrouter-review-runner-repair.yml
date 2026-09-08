@@ -8,6 +8,7 @@ on:
       - governance-runtime/test_platform_candidate_review_v4.py
       - governance-runtime/repair-preregistrations/GOV-OPENROUTER-REVIEW-RUNNER-001.md
       - .github/workflows/openrouter-review-runner-repair.yml
+      - .github/workflows/governance-candidate-platform-review.yml
 
 permissions:
   contents: read
@@ -27,3 +28,10 @@ jobs:
         run: |
           set -euo pipefail
           ! grep -Eq 'OPENROUTER_API_KEY.*os\.environ|https://openrouter\.ai/api/v1/chat/completions' governance-runtime/test_platform_candidate_review_v4.py
+      - name: Assert authoritative workflow routes OpenRouter through v4
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "provider not in {'gemini','groq','openrouter'}" .github/workflows/governance-candidate-platform-review.yml
+          grep -q 'OPENROUTER_API_KEY' .github/workflows/governance-candidate-platform-review.yml
+          grep -q 'platform_candidate_review_v4.py' .github/workflows/governance-candidate-platform-review.yml
