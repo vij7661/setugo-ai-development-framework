@@ -28,11 +28,11 @@ jobs:
           from pathlib import Path
           t=json.loads(Path('.github/exp-l-prompt-benchmark-trigger.json').read_text())
           if t.get('enabled') is not True: raise SystemExit('trigger disabled')
-          if t.get('benchmark_id')!='EXP-L-PROMPT-BENCHMARK-V1': raise SystemExit('benchmark mismatch')
+          if t.get('benchmark_id')!='EXP-L-PROMPT-BENCHMARK-V2': raise SystemExit('benchmark mismatch')
           if t.get('provider')!='gemini': raise SystemExit('provider mismatch')
           model=t.get('model')
           if not isinstance(model,str) or not model.startswith('gemini-'): raise SystemExit('model required')
-          for key,path in [('benchmark_blob_sha','governance-runtime/exp-l/benchmark-v1.json'),('ground_truth_blob_sha','governance-runtime/exp-l/ground-truth-v1.json'),('runner_blob_sha','governance-runtime/exp-l/run_prompt_benchmark.py')]:
+          for key,path in [('benchmark_blob_sha','governance-runtime/exp-l/benchmark-v2.json'),('ground_truth_blob_sha','governance-runtime/exp-l/ground-truth-v2.json'),('runner_blob_sha','governance-runtime/exp-l/run_prompt_benchmark_v2.py')]:
               got=subprocess.check_output(['git','hash-object',path],text=True).strip()
               if got!=t.get(key): raise SystemExit(f'{key} mismatch: {got}')
           print('EXP_L_MODEL='+model)
@@ -41,17 +41,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile governance-runtime/exp-l/run_prompt_benchmark.py
+          python -m py_compile governance-runtime/exp-l/run_prompt_benchmark_v2.py
           python - <<'PY'
           import json
           from pathlib import Path
-          b=json.loads(Path('governance-runtime/exp-l/benchmark-v1.json').read_text())
-          g=json.loads(Path('governance-runtime/exp-l/ground-truth-v1.json').read_text())
+          b=json.loads(Path('governance-runtime/exp-l/benchmark-v2.json').read_text())
+          g=json.loads(Path('governance-runtime/exp-l/ground-truth-v2.json').read_text())
           ids=[x['case_id'] for x in b['cases']]
           assert len(ids)==6 and len(set(ids))==6
           assert set(ids)==set(g['cases'])
-          assert sum(1 for x in g['cases'].values() if x['pass_is_promotable'])==1
-          assert sum(1 for x in g['cases'].values() if not x['pass_is_promotable'])==5
+          assert sum(1 for x in g['cases'].values() if x['expected_authority_decision']=='PROMOTABLE')==1
+          assert sum(1 for x in g['cases'].values() if x['expected_authority_decision']=='NONPROMOTABLE')==5
           PY
       - name: Execute P1 P2 P3 on identical frozen cases
         shell: bash
@@ -59,7 +59,7 @@ jobs:
           set -o pipefail
           test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY required'; exit 2; }
           mkdir -p exp-l-results
-          python governance-runtime/exp-l/run_prompt_benchmark.py \
+          python governance-runtime/exp-l/run_prompt_benchmark_v2.py \
             --model "$EXP_L_MODEL" \
             --output-dir exp-l-results \
             2> >(tee exp-l-results/provider-error.log >&2)
@@ -74,20 +74,20 @@ jobs:
           def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
           def blob(p): return subprocess.check_output(['git','hash-object',p],text=True).strip()
           env={
-            'schema_version':1,
+            'schema_version':2,
             'experiment':'EXP-L',
-            'benchmark_id':'EXP-L-PROMPT-BENCHMARK-V1',
+            'benchmark_id':'EXP-L-PROMPT-BENCHMARK-V2',
             'head_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
             'provider':'gemini',
             'model':os.environ.get('EXP_L_MODEL'),
             'temperature':0.0,
-            'benchmark_blob_sha':blob('governance-runtime/exp-l/benchmark-v1.json'),
-            'ground_truth_blob_sha':blob('governance-runtime/exp-l/ground-truth-v1.json'),
-            'runner_blob_sha':blob('governance-runtime/exp-l/run_prompt_benchmark.py'),
-            'benchmark_sha256':sha('governance-runtime/exp-l/benchmark-v1.json'),
-            'ground_truth_sha256':sha('governance-runtime/exp-l/ground-truth-v1.json'),
-            'runner_sha256':sha('governance-runtime/exp-l/run_prompt_benchmark.py'),
+            'benchmark_blob_sha':blob('governance-runtime/exp-l/benchmark-v2.json'),
+            'ground_truth_blob_sha':blob('governance-runtime/exp-l/ground-truth-v2.json'),
+            'runner_blob_sha':blob('governance-runtime/exp-l/run_prompt_benchmark_v2.py'),
+            'benchmark_sha256':sha('governance-runtime/exp-l/benchmark-v2.json'),
+            'ground_truth_sha256':sha('governance-runtime/exp-l/ground-truth-v2.json'),
+            'runner_sha256':sha('governance-runtime/exp-l/run_prompt_benchmark_v2.py'),
             'authority_effect':'NONE_EXPERIMENTAL_EVIDENCE_ONLY'
           }
           (out/'execution-envelope.json').write_text(json.dumps(env,indent=2,sort_keys=True)+'\n')
@@ -96,7 +96,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: exp-l-prompt-benchmark-v1
+          name: exp-l-prompt-benchmark-v2
           path: exp-l-results/
           if-no-files-found: error
           retention-days: 30
