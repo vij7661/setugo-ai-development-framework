@@ -1,35 +1,14 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-003",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-INTEGRATION-R3-003.json",
-  "reviewed_candidate_commit": "964ba7162fa3950b93576f553f26b83580555bc2",
+  "review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001",
+  "review_request_path": "governance-runtime/review-requests/REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001.json",
+  "reviewed_candidate_commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_REPAIRED_INTEGRATION_R3_CORRECTED_HASH_SEMANTICS_REQUESTED",
-  "request_hash": "6ec7bf9c528210880bced39764d9ed7f23aae925b25a8620ee6036067a347236",
-  "authority_effect": "NONE_PENDING_R3_DETERMINISTIC_INGESTION",
-  "r3_role": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
-  "r2_handoff_commit": "ab68e3024b8b1cefce63a56c8d70f4927f038223",
-  "r2_handoff_hash": "sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419",
-  "r2_raw_hash": "sha256:49194ed723aa4f1f2e9ebb7ec68816aa26badcb8bf7f9e9264eabb89a57c9790",
-  "preserved_r3_002": {
-    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R3-002",
-    "workflow_run_id": 34252149785,
-    "disposition": "FAIL",
-    "supported_dimensions": "9/10",
-    "findings": 1,
-    "classification": "REVIEW_FALSE_POSITIVE_HASH_SEMANTICS_MISINTERPRETATION",
-    "deterministic_adjudication_run_id": 34252830218,
-    "authority_effect": "NONE_FOR_CANDIDATE_DEFECT_CLASSIFICATION"
-  },
-  "preserved_r2": {
-    "review_request_id": "REV-MVP-SLICE5-INTEGRATION-R2-002",
-    "workflow_run_id": 34250541201,
-    "disposition": "PASS",
-    "mandatory_dimensions_supported": "10/10",
-    "findings": 0,
-    "authority_effect": "R2_EVIDENCE_ONLY_PENDING_R3_AND_FINAL_ADJUDICATION"
-  }
+  "status": "AUTHENTICATED_WEB_PRODUCTION_PROMOTION_BOUNDARY_R2_REQUESTED",
+  "request_hash": "78eb039f9e06d4fd39f948a1a8b0a50bf00cd852d0c063215795744d18444ec3",
+  "authority_effect": "NONE_PENDING_R2_DETERMINISTIC_INGESTION",
+  "r2_role": "BLIND_TO_PROPOSER_CONCLUSION"
 }
