@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-003",
+  "reviewed_artifact_commit": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "transport": "AUTOMATIC_API",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "provider_api_authenticated": true,
+  "remote_model_identity_cryptographically_proven": false,
+  "workflow_run_id": 34190249538,
+  "job_id": 101946669694,
+  "trigger_sha": "31ba95a0d16ec1cb81cec8c8d477901c6e3c22e3",
+  "artifact_id": 10041941354,
+  "artifact_digest": "sha256:ebbec139f535a91db0dcbd89adbad666e5b88c5400f147a579deaca8bf96b348",
+  "request_hash": "88c6179b2763f80879850ce1c046e3a578652e621023df370d733bade7b2bbd5",
+  "corpus_sha256": "f23b14d36571a1a48fc7a9e46af4fccd1dcb3a0f565d61e2ca25a472277f8979",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "effective_disposition": "PASS",
+    "all_mandatory_dimensions_supported": true
+  },
+  "review": {
+    "disposition": "PASS",
+    "findings": [],
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
+    "mandatory_dimensions": "10/10 TESTED_SUPPORTED",
+    "evidence_assessment": "Reviewer asserted that checkpoint 042, review001 supersession, review002 false-green adjudication, Git evidence precedence, shared-memory routing, request-integrity gate, history preservation, replay resistance and promotion fail-closed behavior were all supported."
+  },
+  "authority_effect": "NONE_PENDING_EXP_L_REVIEW_MECHANISM_QUALIFICATION"
+}
