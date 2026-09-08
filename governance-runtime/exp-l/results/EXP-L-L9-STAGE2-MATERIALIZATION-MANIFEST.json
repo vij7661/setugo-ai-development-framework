@@ -1,0 +1,19 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L9",
+  "stage": "DISCOVERY_MATERIALIZATION",
+  "source_repo": "vij7661/pashusetu",
+  "source_commit": "7338421f0b3bc08ef677f64f52202878ef43d3d0",
+  "materialized_files": [
+    {"path":"docs/FARMER_MANUAL_QA.md","blob_sha":"a3c4590e7c34cbb50db42214b842079be3258600"},
+    {"path":"apps/farmer_mobile/README.md","blob_sha":"22e41cb06de1a1d3a83e937c94789e32f99ead79"},
+    {"path":"docs/TD3_VERIFIED_WEIGHMENT.md","blob_sha":"49c21f03e8914f793fc1e070e8a0ef17dd0a77eb"},
+    {"path":"backend/app/weighment/service.py","blob_sha":"417cb4706b36785cbe665855f86552bc76522047"},
+    {"path":"apps/operator_mobile/lib/src/features/weighment/farmer_review_screen.dart","blob_sha":"21227a33818cb814a83449e350767c8f0ce463e4"}
+  ],
+  "rules": [
+    "Only reviewer-requested allow-listed paths were materialized.",
+    "No memory or unrequested repository evidence is admissible.",
+    "Stage 2 remains pending manual reviewer adjudication."
+  ]
+}
