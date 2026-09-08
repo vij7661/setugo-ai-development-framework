@@ -1,0 +1,31 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L12 — Memory Admissibility Enforcement",
+  "status": "BOUNDED_PASS",
+  "date": "2026-09-08",
+  "candidate_sha": "f4b81d6520916330e4af6e8c6eec5fd6b8c3e151",
+  "workflow_run_id": 34212907611,
+  "job_id": 102017840093,
+  "workflow_conclusion": "success",
+  "tests_expected": 12,
+  "tests_passed": 12,
+  "provider_api_calls": 0,
+  "mechanism_properties_established": [
+    "context-only stale memory cannot satisfy missing mandatory evidence",
+    "context-only correct memory cannot satisfy missing mandatory evidence",
+    "conflicting context-only memory cannot override frozen governed evidence",
+    "memory cannot promote an insufficient-evidence disposition",
+    "memory becomes admissible only after explicit governed-evidence materialization with evidence ID, provenance, and content hash",
+    "unknown or malformed memory authority metadata fails closed",
+    "PROMOTED labels, reviewer consensus, and CI PASS carried only in memory have no semantic authority",
+    "admissibility decisions are deterministic for identical inputs",
+    "context-only memory is explicitly reported as non-authoritative"
+  ],
+  "adjudication": "L12 establishes a bounded deterministic enforcement mechanism for the memory rule observed behaviorally in L11. Shared conversational/project memory may be carried as context, but it cannot independently satisfy mandatory evidence, override contradictory frozen evidence, or authorize promotion. A memory item may participate as evidence only after explicit governed materialization with provenance and a frozen content hash.",
+  "limits": [
+    "This is a prototype trust-kernel mechanism, not yet integrated into the production review path.",
+    "The test does not measure hidden product-memory internals.",
+    "The test does not establish semantic correctness of evidence promoted into GOVERNED_EVIDENCE; EXP-J evidence validation still applies.",
+    "EXP-L overall remains open and PR11/Slice5 authority freezes remain unchanged."
+  ]
+}
