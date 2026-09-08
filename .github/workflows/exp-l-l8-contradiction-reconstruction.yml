@@ -1,0 +1,29 @@
+name: EXP-L L8 Contradiction Reconstruction
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/contradiction_reconstruction_v1.py
+      - governance-runtime/exp-l/test_l8_contradiction_reconstruction.py
+      - governance-runtime/exp-l/L8-CONTRADICTION-RECONSTRUCTION-PREREG.json
+      - .github/workflows/exp-l-l8-contradiction-reconstruction.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l8:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L8 contradiction reconstruction tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l8_contradiction_reconstruction.py
