@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-GOV-PR11-006",
+  "reviewed_artifact_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
+  "request_hash": "eee1483c988cf529d86b822c6fb69de26389c461cacdfdc66bf4105d12c33bb5",
+  "workflow_run_id": 34225284517,
+  "job_id": 102057774242,
+  "artifact_id": 10055423957,
+  "artifact_digest": "sha256:eb684e3f0a3bd936383400f2aff282cccb65a4c96502881840e8d07642d25e90",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "provider_invoked": true,
+  "materialization_succeeded": true,
+  "classification": "PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND",
+  "provider_status": "UNAVAILABLE",
+  "authority_effect": "NONE",
+  "retry_policy": "Same exact ReviewRequest and candidate may be retried; provider failure cannot satisfy review or change authority."
+}
