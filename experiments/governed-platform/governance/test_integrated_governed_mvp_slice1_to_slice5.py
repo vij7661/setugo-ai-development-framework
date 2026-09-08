@@ -41,6 +41,7 @@ class IntegratedGovernedMVPSlice1To5Tests(unittest.TestCase):
             slice3_gateway = RepositoryMutationGatewayV2(s3_fixture.repo_db)
             slice3_result = s3_fixture._mutate(gateway=slice3_gateway)
             self.assertEqual(slice3_result["state"], "COMMITTED")
+            self.assertTrue(slice3_result["success"])
             self.assertFalse(slice3_result["terminal_authority"])
             for field in ("project_id", "task_id", "execution_id", "plan_step_id"):
                 self.assertIsInstance(slice3_result[field], str)
@@ -102,8 +103,8 @@ class IntegratedGovernedMVPSlice1To5Tests(unittest.TestCase):
             self.assertFalse(slice4_result["release_completion_authority"])
 
             # Slice5 persists an authoritative state transition whose payload is
-            # explicitly bound to the exact Slice4 result hash. The ledger's
-            # audit must reconstruct and validate that persisted lineage.
+            # explicitly bound to the exact Slice4 result hash. TransitionResult
+            # is the ledger's typed API; no terminal authority is part of it.
             with tempfile.TemporaryDirectory() as ledger_tmp:
                 ledger = AuthoritativeStateLedger(str(Path(ledger_tmp) / "ledger.sqlite3"))
                 slice4_hash = canonical_hash(slice4_result)
@@ -116,8 +117,13 @@ class IntegratedGovernedMVPSlice1To5Tests(unittest.TestCase):
                     effect_type="NOTIFY",
                     effect_payload={"slice4_result_hash": slice4_hash},
                 )
-                self.assertEqual(accepted["state"], "ACCEPTED")
-                self.assertFalse(accepted.get("terminal_authority", False))
+                self.assertEqual(accepted.project_id, slice3_result["project_id"])
+                self.assertEqual(accepted.version, 1)
+                self.assertFalse(accepted.replayed)
+                self.assertEqual(accepted.state["status"], "verified")
+                self.assertEqual(accepted.state["slice4_result_hash"], slice4_hash)
+                self.assertTrue(accepted.event_id)
+                self.assertTrue(accepted.outbox_id)
                 audit = ledger.audit(slice3_result["project_id"])
                 self.assertTrue(audit["valid"], audit)
                 self.assertEqual(audit["final_version"], 1)
