@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repair_id": "GOV-MULTI-PROVIDER-REVIEW-RUNNER-001",
+  "status": "BOUNDED_DETERMINISTIC_PASS_READY_FOR_PROVIDER_SMOKE",
+  "preregistration_commit": "4523b37abdc5361999c5eeaf6950861bed2a8462",
+  "implementation_commit": "199c0c103b92d0313a5fcbd4b4fc7d3ee0970731",
+  "frozen_tests_commit": "2737d5eca648c5fd89b15c3396af1189b0e73405",
+  "initial_harness_failure_run": 34237604732,
+  "initial_harness_failure_classification": "HARNESS_META_ASSERTION_DEFECT",
+  "corrected_deterministic_run": 34237736376,
+  "corrected_deterministic_result": "10/10_PASS_NO_PROVIDER_CALL",
+  "production_wiring_commit": "dfdb1ea78c814f1b73c33580cc57bad3e868d0f5",
+  "production_wiring_qualification_commit": "2acee682f6524d0db1f30d9509cb5c8ba0194b86",
+  "production_wiring_run": 34237902190,
+  "production_wiring_result": "PASS",
+  "supported_providers": ["gemini", "groq"],
+  "default_future_single_provider_test_preference": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "note": "Preference applies only when a new ReviewRequest is explicitly frozen for Groq. Existing frozen requests are never substituted."
+  },
+  "invariants": [
+    "trigger provider must match frozen ReviewRequest provider",
+    "exact model constraint is enforced when present",
+    "evidence materialization remains v2 and completes before provider invocation",
+    "R2/R3 attestation semantics are provider-independent",
+    "unknown provider or missing secret fails closed",
+    "provider response has authority NONE until deterministic ingestion"
+  ],
+  "slice5_effect": "NONE_SLICE5_REMAINS_BLOCKED_PENDING_FROZEN_GEMINI_R3",
+  "next_step": "Run independent Groq-bound smoke ReviewRequest against provider-neutral runner; smoke result cannot authorize Slice5."
+}
