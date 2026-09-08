@@ -5,8 +5,12 @@ on:
     branches: [feature/web-production-promotion-boundary]
     paths:
       - experiments/governed-platform/WEB_PRODUCTION_PROMOTION_BOUNDARY_CONTRACT.md
+      - experiments/governed-platform/repair-preregistrations/WEB-PROMOTION-AUTHORITY-SOURCE-REPAIR-001.md
+      - experiments/governed-platform/adjudication/WEB-PROMOTION-R2-FALSE-GREEN-AUTHORITY-SOURCE-001.json
       - experiments/governed-platform/governance/production_promotion_gate.py
+      - experiments/governed-platform/governance/production_promotion_gate_v2.py
       - experiments/governed-platform/governance/test_production_promotion_gate.py
+      - experiments/governed-platform/governance/test_production_promotion_gate_v2.py
       - .github/workflows/web-production-promotion-boundary.yml
 
 permissions:
@@ -21,12 +25,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run frozen PB-01 through PB-16
+      - name: Run original frozen PB-01 through PB-16
         working-directory: experiments/governed-platform/governance
         run: python test_production_promotion_gate.py
+      - name: Run authority-source repair PB2-01 through PB2-18
+        working-directory: experiments/governed-platform/governance
+        run: python test_production_promotion_gate_v2.py
       - name: Assert qualification is provider- and production-secret-free
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -Eq 'GEMINI_API_KEY|GROQ_API_KEY|OPENROUTER_API_KEY|AWS_SECRET|AZURE_|GOOGLE_APPLICATION_CREDENTIALS' experiments/governed-platform/governance/test_production_promotion_gate.py
-          ! grep -Eq 'urlopen|requests\.|subprocess\.|os\.environ' experiments/governed-platform/governance/test_production_promotion_gate.py
+          ! grep -Eq 'GEMINI_API_KEY|GROQ_API_KEY|OPENROUTER_API_KEY|AWS_SECRET|AZURE_|GOOGLE_APPLICATION_CREDENTIALS' experiments/governed-platform/governance/test_production_promotion_gate.py experiments/governed-platform/governance/test_production_promotion_gate_v2.py
+          ! grep -Eq 'urlopen|requests\.|subprocess\.|os\.environ' experiments/governed-platform/governance/test_production_promotion_gate.py experiments/governed-platform/governance/test_production_promotion_gate_v2.py
