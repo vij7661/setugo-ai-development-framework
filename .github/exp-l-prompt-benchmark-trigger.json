@@ -6,12 +6,12 @@
   "ground_truth_blob_sha": "85e47c7e81c4c15df53ff8ce9f588800ded22196",
   "runner_blob_sha": "a069a7ed639779668225e5d60734f49c981a2238",
   "provider": "gemini",
-  "model": "gemini-3.8-flash",
+  "model": "gemini-3.6-flash",
   "temperature": 0.0,
   "prompt_arms": ["P1", "P2", "P3"],
   "arm_order": "P2,P1,P3",
   "transient_retry_policy": {"max_attempts_per_arm":3,"retry_http_codes":[429,503],"backoff_seconds":[3,6]},
-  "preserved_runs": [34192364158,34192394195,34192465484,34192786080,34193157830,34193235982,34194196407,34194341441],
-  "run_nonce": 9,
+  "preserved_runs": [34192364158,34192394195,34192465484,34192786080,34193157830,34193235982,34194196407,34194341441,34194415630],
+  "run_nonce": 10,
   "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
 }
