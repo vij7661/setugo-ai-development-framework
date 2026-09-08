@@ -1,0 +1,15 @@
+{
+  "schema_version": 4,
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V4",
+  "visibility": "EVALUATOR_ONLY_DO_NOT_SEND_TO_REVIEWER",
+  "cases": {
+    "L2-M01":{"expected_authority_decision":"NONPROMOTABLE","required_finding_evidence_sets":[["e1","e2"],["e3","e4","e5"],["e6","e7","e8"]]},
+    "L2-M02":{"expected_authority_decision":"NONPROMOTABLE","required_finding_evidence_sets":[["e1","e2","e3"],["e4","e5","e6"],["e7","e8","e9"]]},
+    "L2-M03":{"expected_authority_decision":"PROMOTABLE","required_finding_evidence_sets":[]},
+    "L2-M04":{"expected_authority_decision":"NONPROMOTABLE","required_finding_evidence_sets":[["e1","e2","e3"],["e4","e5","e6"]]},
+    "L2-M05":{"expected_authority_decision":"NONPROMOTABLE","required_finding_evidence_sets":[["e1","e2","e3","e4"]]},
+    "L2-M06":{"expected_authority_decision":"NONPROMOTABLE","required_finding_evidence_sets":[["e1","e2","e3"],["e4","e5","e6"]]},
+    "L2-M07":{"expected_authority_decision":"NONPROMOTABLE","required_finding_evidence_sets":[["e1","e2","e3","e4"]]},
+    "L2-M08":{"expected_authority_decision":"PROMOTABLE","required_finding_evidence_sets":[]}
+  }
+}
