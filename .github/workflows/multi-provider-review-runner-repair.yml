@@ -7,6 +7,7 @@ on:
       - governance-runtime/platform_candidate_review_v3.py
       - governance-runtime/test_platform_candidate_review_v3.py
       - governance-runtime/repair-preregistrations/GOV-MULTI-PROVIDER-REVIEW-RUNNER-001.md
+      - .github/workflows/governance-candidate-platform-review.yml
       - .github/workflows/multi-provider-review-runner-repair.yml
 
 permissions:
@@ -27,3 +28,13 @@ jobs:
         run: |
           set -euo pipefail
           ! grep -Eq 'urlopen\(|https://api\.groq\.com|generativelanguage\.googleapis\.com|\.invoke\(' governance-runtime/test_platform_candidate_review_v3.py
+      - name: Assert production workflow uses provider-neutral v3 and exact provider routing
+        shell: bash
+        run: |
+          set -euo pipefail
+          wf=.github/workflows/governance-candidate-platform-review.yml
+          grep -q 'platform_candidate_review_v3.py' "$wf"
+          grep -q -- '--provider "$REVIEW_PROVIDER"' "$wf"
+          grep -q 'provider not in' "$wf"
+          grep -q "groq) test -n \"\$GROQ_API_KEY\"" "$wf"
+          grep -q "gemini) test -n \"\$GEMINI_API_KEY\"" "$wf"
