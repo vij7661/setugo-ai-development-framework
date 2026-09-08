@@ -1,0 +1,65 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    ".github/workflows/integrated-governed-mvp-slice5.yml",
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md",
+    "experiments/governed-platform/governance/authoritative_state_ledger.py",
+    "experiments/governed-platform/governance/authoritative_state_ledger_v2.py",
+    "experiments/governed-platform/test_slice5_authoritative_state_ledger.py",
+    "experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice5_scientific_candidate",
+    "ref": "feature/integrated-governed-mvp-slice5-authoritative-state-ledger",
+    "commit": "d9459af74533fbb60477dfcec00b30e82a0e2534"
+  },
+  "proposer": {"provider":"openai","model":"gpt-5.6-sol"},
+  "required_reviewer": {"provider":"gemini","model_class":"gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently verify the repaired exact Slice 5 candidate against the frozen contract and all S5-01 through S5-16 without relying on the earlier false-green PASS.",
+    "Verify v2 changes only audit reconstruction while preserving v1 transaction, replay, concurrency, version, crash, outbox, and worker/model non-authority behavior.",
+    "Verify command_digest is reconstructed from persisted project/idempotency/command/payload/expected-version/effect semantics rather than trusted as an opaque stored digest.",
+    "Verify current project_state.state_digest is recomputed and current state is reconciled against deterministic replay of accepted event lineage.",
+    "Verify strengthened S5-16 independently attacks stored command payload, current state, effect payload, and missing event lineage, while inherited S5-01..S5-15 still execute against the repaired ledger class.",
+    "Verify exact retry idempotency, effect-semantic rebinding resistance, stale/future version rejection, concurrency convergence/conflict, crash rollback/recovery, and completion-evidence rebinding resistance remain fail-closed.",
+    "Verify CI run 34229441085 is bound to exact candidate d9459af74533fbb60477dfcec00b30e82a0e2534 and shows repaired Slice5 16/16 plus accepted Slice4 16/16.",
+    "Search specifically for another false-green in audit reconstruction: internally consistent tampering that the bounded digest/replay mechanism cannot detect, missing outbox semantics, state/result divergence, or claims exceeding an unsigned local SQLite reference ledger.",
+    "Verify the contract's bounded nonclaims remain explicit: no distributed consensus, no multi-host atomicity, no cryptographic tamper-proofing, no external exactly-once side-effect guarantee, and no production durability claim.",
+    "Return an independent disposition from materialized evidence; prior R2 PASS, proposer adjudication, and green CI are context, not authority."
+  ],
+  "evidence_refs": [
+    {"type":"ci_run","ref":"34229441085"},
+    {"type":"file","ref":"experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md"},
+    {"type":"file","ref":"experiments/governed-platform/governance/authoritative_state_ledger.py"},
+    {"type":"file","ref":"experiments/governed-platform/governance/authoritative_state_ledger_v2.py"},
+    {"type":"file","ref":"experiments/governed-platform/test_slice5_authoritative_state_ledger.py"},
+    {"type":"file","ref":"experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py"},
+    {"type":"file","ref":".github/workflows/integrated-governed-mvp-slice5.yml"},
+    {"type":"history","ref":"Prior candidate 93632f63342387170c997d017ae79b9c4c301df6 received authenticated R2 PASS but deterministic adjudication found audit false-green defects: stored command_digest was not reconstructed and current project_state.state_digest was not verified. That PASS has authority NONE. Candidate d9459af74533fbb60477dfcec00b30e82a0e2534 is a new repaired subject and must be reviewed fresh."},
+    {"type":"history","ref":"Repair run 34229291670 failed before scientific assertions due a harness import-path defect; failure is preserved. Import-only repair then produced exact-candidate run 34229441085 with 16/16 repaired Slice5 and 16/16 Slice4 regression."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"preregistration_and_subject_integrity","mandatory":true,"description":"Exact repaired candidate remains bound to the original frozen Slice5 contract and preserves the earlier false-green subject/history."},
+    {"id":"atomic_transaction_and_core_regression","mandatory":true,"description":"V1 atomic event/state/outbox transaction, idempotency, version, crash and concurrency semantics remain supported under the v2 class."},
+    {"id":"command_digest_reconstruction","mandatory":true,"description":"Audit reconstructs command digest from persisted command and effect semantics and detects payload/effect tampering or missing expected effect lineage."},
+    {"id":"current_state_digest_and_replay_lineage","mandatory":true,"description":"Audit recomputes current state digest and reconciles current state/result lineage by replaying accepted events."},
+    {"id":"strengthened_s5_16_adversarial_coverage","mandatory":true,"description":"S5-16 attacks command payload, current state, effect payload and missing event lineage while inherited S5-01..15 still execute."},
+    {"id":"completion_and_worker_authority_separation","mandatory":true,"description":"Completion evidence rebinding fails closed and worker/model authority claims cannot mutate authoritative state or completion."},
+    {"id":"bounded_tamper_claims","mandatory":true,"description":"Candidate does not overclaim cryptographic tamper-proofing; limitations of internally consistent full-database rewrite remain acknowledged by bounded local-digest design."},
+    {"id":"slice4_regression_and_scope_nonexpansion","mandatory":true,"description":"Accepted Slice4 behavior remains green and Slice5 adds no tool/deploy/merge/release/production authority."},
+    {"id":"ci_candidate_binding","mandatory":true,"description":"Construction CI is bound to d9459af74533fbb60477dfcec00b30e82a0e2534 and demonstrates 16/16 repaired Slice5 plus 16/16 Slice4."},
+    {"id":"remaining_false_green_search","mandatory":true,"description":"Adversarial review finds no remaining material false-green path within the stated local SQLite reference boundary."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0"
+}
