@@ -1,0 +1,29 @@
+name: EXP-L L12 Memory Admissibility
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/memory_admissibility_v1.py
+      - governance-runtime/exp-l/test_l12_memory_admissibility.py
+      - governance-runtime/exp-l/L12-MEMORY-ADMISSIBILITY-PREREG.json
+      - .github/workflows/exp-l-l12-memory-admissibility.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l12:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L12 memory-admissibility tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l12_memory_admissibility.py
