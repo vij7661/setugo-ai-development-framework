@@ -1,23 +1,20 @@
 {
   "enabled": true,
-  "review_request_id": "REV-GOV-PR11-002",
-  "review_request_path": "governance-runtime/review-requests/REV-GOV-PR11-002.json",
-  "reviewed_candidate_commit": "3aea6767e9f6ad528af7c7ef230eba00b395e83d",
+  "review_request_id": "REV-GOV-PR11-003",
+  "review_request_path": "governance-runtime/review-requests/REV-GOV-PR11-003.json",
+  "reviewed_candidate_commit": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
   "provider": "gemini",
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "PENDING_CORRECTED_CONTINUITY_REVIEW",
-  "request_hash": "cebe3e71e3e4b4ccacee858a8aac707a3863af8d362fe7e42fb709f9055ea684",
+  "status": "PENDING_EVIDENCE_RECONCILIATION_REVIEW",
+  "request_hash": "88c6179b2763f80879850ce1c046e3a578652e621023df370d733bade7b2bbd5",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "preserved_prior_attempts": [
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-001","classification":"INVALID_REVIEW_REQUEST_INTEGRITY_NONPROMOTABLE","authority_effect":"NONE"},
-    {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-002","workflow_run_id":34168148380,"job_id":101883188607,"artifact_id":10034834006,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE","authority_effect":"NONE"},
+    {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-002","workflow_run_id":34168148380,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE","authority_effect":"NONE"},
     {"review_request_id":"REV-MVP-SLICE4-INTEGRATION-003","workflow_run_id":34168261336,"classification":"VALID_PRODUCT_INTEGRATION_REVIEW_HISTORICAL","authority_effect":"BOUNDED_TO_PR10_ONLY"},
-    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182379982,"job_id":101923886594,"artifact_id":10039349853,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
-    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182462961,"job_id":101924131637,"artifact_id":10039366226,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
-    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182529263,"artifact_id":10039385860,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
-    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182708263,"job_id":101924847566,"artifact_id":10039453081,"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"},
-    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182708263,"job_id":101942117811,"artifact_id":10041414684,"classification":"PASS_BUT_CONTINUITY_DIMENSION_CONTRADICTED_BY_AUTHORITATIVE_GIT","authority_effect":"NONPROMOTABLE_FOR_PR11"}
+    {"review_request_id":"REV-GOV-PR11-001","workflow_run_id":34182708263,"job_id":101942117811,"artifact_id":10041414684,"classification":"PASS_CONTINUITY_FALSE_NEGATIVE_SUPERSEDED_FOR_PROMOTION","authority_effect":"NONPROMOTABLE_FOR_PR11"},
+    {"review_request_id":"REV-GOV-PR11-002","workflow_run_id":34189474640,"job_id":101944387466,"artifact_id":10041690823,"classification":"AUTHENTICATED_PASS_ADJUDICATED_FALSE_GREEN_EVIDENCE_CONTRADICTION","authority_effect":"NONE"}
   ]
 }
