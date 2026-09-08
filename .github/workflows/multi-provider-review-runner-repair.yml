@@ -22,8 +22,8 @@ jobs:
           python-version: '3.12'
       - name: Run frozen multi-provider tests
         run: python governance-runtime/test_platform_candidate_review_v3.py
-      - name: Assert deterministic repair test has no provider secret dependency
+      - name: Assert deterministic test file makes no network/provider call
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -q 'GEMINI_API_KEY\|GROQ_API_KEY' governance-runtime/test_platform_candidate_review_v3.py
+          ! grep -Eq 'urlopen\(|https://api\.groq\.com|generativelanguage\.googleapis\.com|\.invoke\(' governance-runtime/test_platform_candidate_review_v3.py
