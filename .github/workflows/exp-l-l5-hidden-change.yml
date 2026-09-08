@@ -1,0 +1,29 @@
+name: EXP-L L5 Hidden Change Detection
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/changed_files_v2.py
+      - governance-runtime/exp-l/test_l5_hidden_change_detection.py
+      - governance-runtime/exp-l/L5-HIDDEN-CHANGE-DETECTION-PREREG.json
+      - .github/workflows/exp-l-l5-hidden-change.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L5 hidden-change tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l5_hidden_change_detection.py
