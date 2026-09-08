@@ -1,0 +1,14 @@
+{
+  "failure_id": "WEB-PROMOTION-R2-FALSE-GREEN-AUTHORITY-SOURCE-001",
+  "candidate_commit": "bb2a591d6fa9d6da507d6ff6aa8f444784a57651",
+  "r2_review_request_id": "REV-WEB-PRODUCTION-PROMOTION-BOUNDARY-R2-001",
+  "r2_workflow_run_id": 34269571081,
+  "r2_disposition": "PASS",
+  "r2_supported_dimensions": "10/10",
+  "classification": "REVIEW_FALSE_GREEN_UNTRUSTED_AUTHORITY_INPUTS",
+  "severity": "HIGH",
+  "candidate_authority_effect": "NONE",
+  "finding": "The deterministic gate checks credential_domain and current_head_sha as caller-supplied strings, and build_production_authorization accepts an arbitrary nonempty authorization_evidence_digest. A caller can therefore present values that look production-authoritative without the gate proving they came from platform-owned authority state.",
+  "why_r2_is_not_authority": "R2 consensus cannot promote a candidate when a later deterministic/adversarial inspection finds an untested authority-source bypass.",
+  "repair_boundary": "Production evaluation must consume platform-owned authority registry state for current head, production credential capability, and production authorization issuance. Untrusted caller strings/model/reviewer output must not be accepted as authority inputs. Preserve exact artifact/evidence semantics and all prior failures."
+}
