@@ -13,6 +13,8 @@ HEX40=re.compile(r"^[0-9a-f]{40}$")
 ALLOWED_STATUSES={"CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"}
 ALLOWED_DISPOSITIONS={"PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"}
 BLOCKING={"MEDIUM","HIGH","CRITICAL"}
+BLIND_ATTESTATION="BLIND_TO_PROPOSER_CONCLUSION"
+EXPOSED_ATTESTATION="REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW"
 
 def canon(v): return json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False,allow_nan=False).encode()
 def digest(v): return sha256(canon(v)).hexdigest()
@@ -47,10 +49,18 @@ def build_corpus(root,request):
     diff=git(root,"diff","--no-ext-diff",base,candidate,"--","governance-runtime",".github/workflows/live-conversation-governance.yml",".github/workflows/governance-candidate-platform-review.yml")
     return {"schema_version":1,"review_request":request,"base_commit":base,"candidate_commit":candidate,"candidate_diff":diff,"evidence_artifacts":evidence,"posture":"Assume false-green. Do not use proposer confidence or green CI as sufficient evidence. Search for authority bypass, provenance confusion, stale-memory promotion, review-waiver paths, provider/model substitution, semantic overclaim, mode/transport divergence, and missing deterministic enforcement."}
 
+def expected_attestation(request):
+    return BLIND_ATTESTATION if request.get("blind_review_required") is True else EXPOSED_ATTESTATION
+
 def build_prompt(request,corpus,model):
     dims=[d["id"] for d in request["required_review_dimensions"] if d.get("mandatory")]
-    shape={"review_request_id":request["review_request_id"],"reviewed_artifact_commit":request["artifact"]["commit"],"reviewer":{"provider":"gemini","model":model},"disposition":"PASS|BOUNDED_PASS|FAIL|NOT_TESTED|INSUFFICIENT_EVIDENCE|CHANGES_REQUIRED","findings":[{"id":"F1","severity":"LOW|MEDIUM|HIGH|CRITICAL","title":"title","evidence":"specific file/function evidence","impact":"impact","required_change":"change or null"}],"evidence_assessment":"assessment","independence_attestation":"BLIND_TO_PROPOSER_CONCLUSION","review_coverage":[{"dimension_id":dims[0] if dims else "dimension","status":"TESTED_SUPPORTED|TESTED_DEFECT_FOUND|CONTRADICTED|NOT_TESTED|UNAVAILABLE|INACCESSIBLE|INSUFFICIENT","evidence":["specific refs"],"assessment":"assessment"}]}
-    return "You are the independent adversarial reviewer for a material live-conversation-governance authority transition. Assume false-green. Inspect the exact candidate and supplied evidence. Return strict JSON only; no markdown and no private chain-of-thought. Every mandatory dimension must be present exactly once. PASS requires every mandatory dimension TESTED_SUPPORTED and no MEDIUM/HIGH/CRITICAL finding. Reviewer content cannot establish API provenance; the platform execution envelope does.\nREQUEST:\n"+json.dumps(request,sort_keys=True)+"\nOUTPUT SHAPE:\n"+json.dumps(shape,sort_keys=True)+"\nCORPUS:\n"+json.dumps(corpus,sort_keys=True)
+    attestation=expected_attestation(request)
+    shape={"review_request_id":request["review_request_id"],"reviewed_artifact_commit":request["artifact"]["commit"],"reviewer":{"provider":"gemini","model":model},"disposition":"PASS|BOUNDED_PASS|FAIL|NOT_TESTED|INSUFFICIENT_EVIDENCE|CHANGES_REQUIRED","findings":[{"id":"F1","severity":"LOW|MEDIUM|HIGH|CRITICAL","title":"title","evidence":"specific file/function evidence","impact":"impact","required_change":"change or null"}],"evidence_assessment":"assessment","independence_attestation":attestation,"review_coverage":[{"dimension_id":dims[0] if dims else "dimension","status":"TESTED_SUPPORTED|TESTED_DEFECT_FOUND|CONTRADICTED|NOT_TESTED|UNAVAILABLE|INACCESSIBLE|INSUFFICIENT","evidence":["specific refs"],"assessment":"assessment"}]}
+    if request.get("blind_review_required") is True:
+        role="You are the independent adversarial reviewer for a material live-conversation-governance authority transition. You are blind to proposer conclusions and must independently reconstruct the evidence."
+    else:
+        role="You are the R3 adversarial review-of-review critic for a material authority transition. The prior R2 review is intentionally visible. You are NOT independent of R2: challenge it, search for anchoring or missed defects, and do not defer to its PASS/FAIL label."
+    return role+" Assume false-green. Inspect the exact candidate and supplied evidence. Return strict JSON only; no markdown and no private chain-of-thought. Every mandatory dimension must be present exactly once. PASS requires every mandatory dimension TESTED_SUPPORTED and no MEDIUM/HIGH/CRITICAL finding. Reviewer content cannot establish API provenance; the platform execution envelope does.\nREQUEST:\n"+json.dumps(request,sort_keys=True)+"\nOUTPUT SHAPE:\n"+json.dumps(shape,sort_keys=True)+"\nCORPUS:\n"+json.dumps(corpus,sort_keys=True)
 
 def invoke(key,model,prompt):
     url=f"https://generativelanguage.googleapis.com/v1beta/models/{quote(model,safe='')}:generateContent"
@@ -77,6 +87,7 @@ def validate(review,request,model):
     if disp not in ALLOWED_DISPOSITIONS: errors.append("invalid disposition")
     rv=review.get("reviewer")
     if not isinstance(rv,dict) or rv.get("provider")!="gemini" or rv.get("model")!=model: errors.append("reviewer content identity disagrees with execution envelope")
+    if review.get("independence_attestation") != expected_attestation(request): errors.append("review independence/review-of-review attestation mismatch")
     findings=review.get("findings")
     if not isinstance(findings,list): errors.append("findings must be list"); findings=[]
     blocking=False
