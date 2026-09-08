@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V4",
+  "workflow_run_id": 34194497617,
+  "job_id": 101959170800,
+  "head_sha": "1b9404641fd62602004bb1a59b64d51e357ff70f",
+  "artifact_id": 10043399760,
+  "artifact_digest": "sha256:4de7c2c48fe94e079c974fb11d132c267087442837f00a08e7adb3702b4fb516",
+  "provider": "gemini",
+  "model": "gemini-3.6-flash",
+  "arm_order": ["P2", "P1", "P3"],
+  "construction_checks": "PASS",
+  "workflow_conclusion": "failure",
+  "failure_classification": "PROVIDER_QUOTA_FAILURE_AFTER_PARTIAL_VALID_RESULT",
+  "completed_arms": {
+    "P2": {
+      "provider_attempts": 2,
+      "validation_errors": [],
+      "authority_decision_correct": 8,
+      "total_cases": 8,
+      "required_findings_caught": 11,
+      "required_findings_total": 12,
+      "full_recall_cases": 7,
+      "unsupported_blocking_findings": 0,
+      "false_greens": 0,
+      "false_blocks": 0,
+      "missed_seeded_finding": {
+        "case_id": "L2-M01",
+        "evidence_set": ["e1", "e2"],
+        "description": "stale post-merge continuity contradiction"
+      }
+    }
+  },
+  "incomplete_arms": {
+    "P1": "quota exhausted before semantic result",
+    "P3": "not reached"
+  },
+  "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
+}
