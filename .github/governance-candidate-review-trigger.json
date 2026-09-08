@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-R3-001",
   "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-R3-001.json",
   "reviewed_candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
@@ -7,13 +7,14 @@
   "model": "gemini-3.5-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_R3_REVIEW_OF_REVIEW_GEMINI35_FAILOVER",
+  "status": "BLOCKED_PENDING_R3_PROVIDER_AVAILABILITY_NO_FURTHER_GEMINI_RETRIES_FOR_NOW",
   "request_hash": "3207a05d5163dbe12227f2bc4374cc8232ad6e1bcf625a840e5eeac314da6dd6",
-  "authority_effect": "NONE_PENDING_R3_DETERMINISTIC_INGESTION",
+  "authority_effect": "NONE_R3_MANDATORY_SLICE5_NOT_PROMOTABLE",
   "r3_role": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
   "r2_handoff_hash": "sha256:5aebbdd249042a4ab8013a2f9235d5965808fe976e84e2e52d2cad9f339d1b0f",
   "r2_raw_hash": "sha256:c532bcfd42154e9beff73c5c84adc0752977c5961196f1b12759ddcf64bb7ecf",
   "preserved_r3_provider_failures": [
     {"model":"gemini-3.6-flash","workflow_run_id":34236057292,"attempts":[1,2],"classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503","authority_effect":"NONE"}
-  ]
+  ],
+  "operating_decision": "Pause Gemini R3 attempts. Continue only independent cloud work that does not assume Slice5 promotion. Retry this exact frozen R3 later without changing candidate, R2 handoff, or request semantics."
 }
