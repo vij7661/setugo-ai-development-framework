@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "ADJ-REV-MVP-SLICE6-TERMINAL-AUTHORITY-004",
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004",
+  "reviewed_artifact_commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec",
+  "review_workflow_run_id": 34278654939,
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813"
+  },
+  "original_semantic_disposition": "PASS",
+  "independent_adjudication": {
+    "classification": "REQUIREMENT_UNRESOLVED_CONTRACT_INTERNAL_CONTRADICTION",
+    "effective_disposition": "BLOCKED_REQUIREMENT_DECISION_REQUIRED",
+    "counts_for_promotion": false,
+    "authority_effect": "NONE",
+    "evidence_contradiction_found": true,
+    "contract_conflict": {
+      "broad_invariant": "S6-I05 states that project, task, effect, and artifact identities must match across request, execution evidence, review gate, authority record, and current state.",
+      "frozen_review_gate_schema": "Section 2 defines review_gate with state, evidence_refs, artifact_sha, and action only; it has no project_id, task_id, or effect_id.",
+      "frozen_current_state_schema": "Section 2 defines current_state with project_id and state_version only; it has no task_id, effect_id, or artifact_sha.",
+      "narrow_review_invariant": "S6-I07 separately requires review_gate to be bound to the exact action and artifact, matching the implemented review-gate behavior.",
+      "implementation_state": "The repaired candidate binds request/execution/authority project-task-effect-artifact lineage, request/current-state project and state_version, and review_gate action/artifact, but cannot enforce fields the frozen review_gate/current_state schemas do not contain."
+    },
+    "review_false_green_note": "The authenticated DeepSeek PASS marked exact-terminal-binding supported but did not identify the frozen contract's internal inconsistency. The PASS is preserved as review evidence but is not sufficient for promotion until the contract ambiguity is resolved by an authoritative human decision.",
+    "root_cause_classification": "REQUIREMENT UNRESOLVED"
+  },
+  "preserved_evidence": {
+    "candidate_ci_run": 34277699140,
+    "candidate_head": "58458e0cb86680b9e25c490f43b94324e67ec5ec",
+    "authenticated_review_run": 34278654939,
+    "request_hash": "8ae7bd13e09a595e8bea3a3f8e9123cfa06815ec27a82e4cb6a5415b6c4d9efb",
+    "review_corpus_sha256": "8a219df829fc1eb02028d459b3e20b511deb51612c5dd6bab347fde1dbdaac08",
+    "review_dimensions_supported": 11,
+    "review_findings_count": 0
+  },
+  "promotion_rule": "Do not promote or modify implementation to guess the intended contract. Resolve whether S6-I05 should require project/task/effect lineage inside review_gate/current_state, or whether S6-I05 should be narrowed to the per-input bindings already specified in Section 2 and S6-I07. After the decision, amend/freeze the contract explicitly, add corresponding regression coverage, and requalify an exact candidate with fresh independent review."
+}
