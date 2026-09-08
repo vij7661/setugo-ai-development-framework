@@ -1,15 +1,21 @@
 {
   "enabled": true,
-  "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-001",
-  "review_request_path": "governance-runtime/review-requests/REV-GOV-MULTI-PROVIDER-SMOKE-001.json",
-  "reviewed_candidate_commit": "809d975ac394ec8ba54c9dd5beb9e333a1b1a9fd",
+  "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-002",
+  "review_request_path": "governance-runtime/review-requests/REV-GOV-MULTI-PROVIDER-SMOKE-002.json",
+  "reviewed_candidate_commit": "a65a861226f222df7af691fc6802aa3996b81c96",
   "provider": "groq",
   "model": "openai/gpt-oss-120b",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "GROQ_MULTI_PROVIDER_RUNNER_SMOKE_REQUESTED",
-  "request_hash": "b65b68353bfb6a8c1b1c07fdd3713c85fb084bae3f041f6275155a5cf1f21d55",
+  "status": "GROQ_BOUNDED_TRANSPORT_SMOKE_REQUESTED",
+  "request_hash": "be5f7cfde261c1fe6ec42c2852524de1fde69563a93895a3aa55d085f0fae317",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
-  "scope": "RUNNER_QUALIFICATION_ONLY_NOT_SLICE5",
+  "scope": "PROVIDER_TRANSPORT_SMOKE_ONLY_NOT_SLICE5",
+  "preserved_prior_smoke_failure": {
+    "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-001",
+    "workflow_run_id": 34238108276,
+    "classification": "PROVIDER_CONTEXT_BUDGET_EXCEEDED_HTTP_413",
+    "authority_effect": "NONE"
+  },
   "slice5_checkpoint": "governance-runtime/checkpoints/SLICE5-R3-PROVIDER-BLOCK-2026-09-08.json"
 }
