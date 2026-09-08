@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "failure_id": "MULTI-PROVIDER-RUNNER-HARNESS-FAILURE-001",
+  "workflow_run_id": 34237604732,
+  "head_sha": "ca986159bf02d2b85ca0a6d75834fe534cf6b1f9",
+  "classification": "HARNESS_META_ASSERTION_DEFECT",
+  "scientific_endpoint_reached": true,
+  "deterministic_test_result": "10/10 PASSED",
+  "failed_step": "Assert deterministic repair test has no provider secret dependency",
+  "root_cause": "The CI meta-check grepped for literal GEMINI_API_KEY/GROQ_API_KEY strings. The deterministic tests intentionally reference those strings to assert required_secret_name() behavior, so the guard rejected valid test source despite no provider invocation.",
+  "mechanism_defect": false,
+  "provider_invoked": false,
+  "authority_effect": "NONE",
+  "repair_scope": "Change only the CI meta-check to prohibit network/provider invocation primitives in the deterministic test file; do not change v3 mechanism or frozen MPR-01..MPR-10 expectations."
+}
