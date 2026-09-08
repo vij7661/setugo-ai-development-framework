@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "failure_id": "SLICE5-MAIN-PRODUCT-LINEAGE-OMISSION-001",
+  "classification": "MAIN_PRODUCT_LINEAGE_OMISSION_INTEGRATION_BASE_DEFECT",
+  "current_main": "d46db1173db7db5b42459bf49f7fa28ef3dd105a",
+  "clean_transplant_candidate": "1cd3a727650ea053349fbe4b19d67c44df307a82",
+  "workflow_run_id": 34243655184,
+  "job_id": 102119959285,
+  "scientific_observations": {
+    "slice5_acceptance_step": "PASS",
+    "slice4_regression_step": "FAIL",
+    "slice4_test_file_present_on_current_main": false,
+    "slice1_runtime_module_present_on_current_main": false
+  },
+  "root_cause": "Current main follows the governance-runtime lineage and does not contain the accepted Integrated Governed MVP Slice1-Slice4 executable foundation that Slice5 was built and reviewed against. The failure is therefore an integration-base lineage omission, not a Slice5 mechanism defect and not a bad regression expectation.",
+  "accepted_product_lineage": {
+    "slice1_preregistration": "ced5cbdc52b998bfb2017da981850deeaf75be28",
+    "slice1_bounded_pass": "7dd56c2a6e8733fb599055385a014a957a7498a4",
+    "slice2_merge": "ff55bb7a803cfffead3ecaf6ea7e171453ed436d",
+    "slice3_merge": "a720fabd25ea21cf7a2c559dfa1ce3d68e8bb22d",
+    "slice4_merge": "a2fcd2ba9bc0e5828ee69056c23207fb431ecea6"
+  },
+  "repair_scope": "Restore only the accepted Slice1-Slice4 contracts, mechanisms, and acceptance harnesses onto current main, then layer the exact reviewed Slice5 files and rerun S1-S5. Do not merge the divergent product branch wholesale and do not weaken Slice4 regression.",
+  "pr12_effect": "NON_MERGEABLE_TOPOLOGY_MISMATCH",
+  "slice5_authority_effect": "NONE_PENDING_CLEAN_INTEGRATION_REQUALIFICATION"
+}
