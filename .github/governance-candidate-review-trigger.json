@@ -1,15 +1,21 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-001.json",
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-002.json",
   "reviewed_candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
   "provider": "gemini",
   "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_SCIENTIFIC_REVIEW_REQUESTED",
-  "request_hash": "faee1c88027f28f810cf05d6a36c33b27e974b8146101d9da201951faae1bb18",
+  "status": "AUTHENTICATED_SLICE5_SCIENTIFIC_REVIEW_REQUESTED_CORRECTED_FIXTURE",
+  "request_hash": "8392f7988b2af134d46e5b80fe0561fe90755d293b7d66436df8e211fa99993b",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+  "preserved_prior_attempt": {
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-001",
+    "workflow_run_id": 34228190255,
+    "classification": "INVALID_REQUEST_FIXTURE_CANDIDATE_FILE_PATH_DEFECT_PROVIDER_NOT_INVOKED",
+    "authority_effect": "NONE"
+  },
   "preserved_prior_review": {
     "review_request_id": "REV-GOV-PR11-006",
     "reviewed_candidate_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
