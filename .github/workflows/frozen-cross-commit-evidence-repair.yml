@@ -1,0 +1,31 @@
+name: Frozen Cross-Commit Evidence Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/platform_candidate_evidence_v3.py
+      - governance-runtime/platform_candidate_review_v6.py
+      - governance-runtime/test_platform_candidate_evidence_v3.py
+      - governance-runtime/repair-preregistrations/GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001.md
+      - .github/workflows/frozen-cross-commit-evidence-repair.yml
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-frozen-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen cross-commit evidence tests
+        run: python governance-runtime/test_platform_candidate_evidence_v3.py
+      - name: Assert qualification has no provider credentials
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'OPENROUTER_API_KEY|GEMINI_API_KEY|GROQ_API_KEY' governance-runtime/test_platform_candidate_evidence_v3.py
