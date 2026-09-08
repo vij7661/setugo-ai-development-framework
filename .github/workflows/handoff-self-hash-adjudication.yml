@@ -1,0 +1,30 @@
+name: Handoff Self-Hash Adjudication
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/verify_handoff_self_hash.py
+      - .github/workflows/handoff-self-hash-adjudication.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify-handoff-self-hash:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen handoff canonical self-hash
+        run: |
+          git show ab68e3024b8b1cefce63a56c8d70f4927f038223:governance-runtime/review-evidence/REV-MVP-SLICE5-INTEGRATION-R2-002-r2-to-r3-handoff.json > /tmp/handoff.json
+          python governance-runtime/verify_handoff_self_hash.py /tmp/handoff.json --expected sha256:694a70b956d4824eecac8e18d36d596e3a904e16a883d9795183a4f92f5db419
+      - name: Assert no provider credentials or calls
+        run: |
+          ! grep -R "GEMINI_API_KEY\|GROQ_API_KEY\|OPENROUTER_API_KEY\|urlopen\|requests\." governance-runtime/verify_handoff_self_hash.py
