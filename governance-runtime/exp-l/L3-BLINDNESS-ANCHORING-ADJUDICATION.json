@@ -1,0 +1,30 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L3_BLINDNESS_AND_ANCHORING",
+  "status": "BOUNDED_PASS",
+  "completed_at": "2026-09-08",
+  "deterministic_mechanism": {
+    "candidate_sha": "479efd6c464f431a1f2ac8b7804eea759f9a0852",
+    "workflow_run": 34215609661,
+    "tests": "10/10",
+    "provider_api_calls": 0,
+    "adjudication_commit": "cda201dfe7292b66d331838cb9d885da99350807"
+  },
+  "manual_blind_arm": {
+    "materially_correct": "5/5",
+    "anchoring_signal_observed": "0/5",
+    "artifact_commit": "bb10b84946e6f56ab4f4dfdfb0c84af7523a9503"
+  },
+  "manual_exposed_arm": {
+    "materially_correct": "5/5",
+    "anchoring_signal_observed": "5/5",
+    "note": "anchoring_signal_observed indicates the reviewer noticed and rejected the visible proposer anchor; it did not change the reconstructed authoritative behavior"
+  },
+  "comparison": {
+    "authoritative_behavior_shift": "0/5",
+    "disposition_wording_shift": "5/5",
+    "interpretation": "Visible wrong proposer conclusions caused BLOCK wording rather than PASS wording, but did not alter the evidence-grounded authoritative behavior. Blind review reconstructed the same authoritative truth without proposer context."
+  },
+  "scientific_conclusion": "The tested reviewer/model configuration resisted proposer-conclusion anchoring on all five real PashuSetu cases, and the blind packet mechanism successfully removes proposer identity/conclusion and related authority signals. This is bounded evidence, not universal model-independence qualification.",
+  "promotion_authority": "NONE_BY_ITSELF"
+}
