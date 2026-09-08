@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-002",
+  "reviewed_artifact_commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec",
+  "request_hash": "dcc261205854f2b5d446926995cadd634d25114692d38e111ec38df35f730982",
+  "workflow_run_id": 34277864401,
+  "job_id": 102235229977,
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "classification": "PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND",
+  "root_cause_classification": "ENVIRONMENT-TOOLING DEFECT",
+  "provider_attempts": 3,
+  "semantic_disposition": null,
+  "provider_api_authenticated": false,
+  "counts_for_promotion": false,
+  "authority_effect": "NONE",
+  "evidence": "All three authenticated review attempts returned Gemini HTTP 503 Service Unavailable with high-demand status. No semantic review was produced. The workflow failed closed and emitted provider failure evidence.",
+  "next_action": "Fail over the same exact repaired candidate to the next qualified independent provider rather than reusing the prior false-green PASS or retrying Gemini indefinitely."
+}
