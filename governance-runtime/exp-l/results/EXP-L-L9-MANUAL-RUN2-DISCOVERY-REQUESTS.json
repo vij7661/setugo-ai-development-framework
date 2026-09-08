@@ -1,0 +1,20 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L9",
+  "manual_run": 2,
+  "stage": "INITIAL_DISCOVERY",
+  "status": "VALID_DISCOVERY_REQUESTS",
+  "scientific_disposition": "CONTINUE_TO_STAGE2",
+  "cases": [
+    {"case_id":"L9-M01","state":"DISCOVERY_REQUEST","disposition":"INSUFFICIENT_EVIDENCE","supporting_evidence_ids":["e1","e2"],"requested_paths":["docs/FARMER_MANUAL_QA.md","apps/farmer_mobile/README.md"]},
+    {"case_id":"L9-M02","state":"DISCOVERY_REQUEST","disposition":"INSUFFICIENT_EVIDENCE","supporting_evidence_ids":["e1","e2"],"requested_paths":["apps/farmer_mobile/README.md","docs/FARMER_MANUAL_QA.md"]},
+    {"case_id":"L9-M03","state":"DISCOVERY_REQUEST","disposition":"INSUFFICIENT_EVIDENCE","supporting_evidence_ids":["e1","e2","e5"],"requested_paths":["docs/FARMER_MANUAL_QA.md","docs/TD3_VERIFIED_WEIGHMENT.md"]},
+    {"case_id":"L9-M04","state":"DISCOVERY_REQUEST","disposition":"INSUFFICIENT_EVIDENCE","supporting_evidence_ids":["e1","e5"],"requested_paths":["backend/app/weighment/service.py","apps/operator_mobile/lib/src/features/weighment/farmer_review_screen.dart","docs/TD3_VERIFIED_WEIGHMENT.md"]},
+    {"case_id":"L9-M05","state":"DISCOVERY_REQUEST","disposition":"INSUFFICIENT_EVIDENCE","supporting_evidence_ids":["e1","e2","e3"],"requested_paths":["apps/operator_mobile/lib/src/features/weighment/farmer_review_screen.dart","docs/TD3_VERIFIED_WEIGHMENT.md","docs/FARMER_MANUAL_QA.md","backend/app/weighment/service.py"]}
+  ],
+  "notes": [
+    "All five cases failed closed rather than guessing from incomplete packets.",
+    "All requested paths were within the per-case allow-list.",
+    "This is not a final L9 pass; Stage 2 review is still required."
+  ]
+}
