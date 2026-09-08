@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/integrated-governed-mvp-slice5-authoritative-state-ledger
+      - integration/slice5-clean-transplant-v2
   workflow_dispatch:
 
 permissions:
