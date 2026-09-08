@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V4",
+  "workflow_run_id": 34194415630,
+  "job_id": 101958927665,
+  "head_sha": "10c6fb919d672d60ab436a3625053a0aeefff29f",
+  "artifact_id": 10043343883,
+  "artifact_digest": "sha256:95e82c91baa12f186e74cf4be52cd9c2bd243777555aefd9f4072c540ba6f1f3",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "arm_order": ["P2", "P1", "P3"],
+  "construction_checks": "PASS",
+  "workflow_conclusion": "failure",
+  "failure_classification": "PROVIDER_TRANSIENT_UNAVAILABLE_BEFORE_SEMANTIC_RESULT",
+  "provider_error": {"http_code": 503,"status":"UNAVAILABLE","attempts":3},
+  "completed_arms": [],
+  "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
+}
