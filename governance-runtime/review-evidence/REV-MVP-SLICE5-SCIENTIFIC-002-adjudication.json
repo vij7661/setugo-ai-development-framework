@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
+  "candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
+  "authenticated_r2": {
+    "workflow_run_id": 34228573362,
+    "job_id": 102068676622,
+    "artifact_id": 10056776209,
+    "artifact_digest": "sha256:9dad3654f01f62436c28438adafc8bef04a60689079c0eaefeadc1848fa8e7fe",
+    "review_sha256": "396bcd28408e1a8e18f362f6358647f28f1243c724f0523dd7c6384b3e1228d9",
+    "disposition": "PASS",
+    "mandatory_dimensions": "10/10 TESTED_SUPPORTED",
+    "findings": 0
+  },
+  "deterministic_post_review_adjudication": {
+    "classification": "REVIEW_FALSE_GREEN_EVIDENCE_COVERAGE_DEFECT",
+    "effective_disposition": "CHANGES_REQUIRED",
+    "promotion_authority": "NONE",
+    "r3_status": "NOT_DISPATCHED_CANDIDATE_ALREADY_DEFECTIVE",
+    "defects": [
+      {
+        "id": "S5-FG-01",
+        "severity": "MATERIAL",
+        "scope": "digest_lineage_and_tamper_detection",
+        "description": "audit() trusts accepted_events.command_digest instead of reconstructing it from persisted command_type/payload/expected-version/effect material. Tampering payload_json while leaving command_digest unchanged is not detected.",
+        "contract_impact": "Violates the intended S5-I13/S5-16 evidence-lineage/tamper-detection boundary and makes the current S5-16 test materially incomplete."
+      },
+      {
+        "id": "S5-FG-02",
+        "severity": "MATERIAL",
+        "scope": "current_authoritative_state_integrity",
+        "description": "audit() checks current project_state.version but does not recompute and verify project_state.state_digest against state_json. Current authoritative state content can be modified without audit detection if the version is left unchanged.",
+        "contract_impact": "Undermines reconstruction of why the current authoritative state exists and contradicts the broad tamper-detection claim made by R2."
+      }
+    ]
+  },
+  "preserved_history": {
+    "r2_pass_retained": true,
+    "r2_not_rewritten": true,
+    "prior_invalid_request_retained": true,
+    "prior_provider_503_retained": true
+  },
+  "next_required_action": "Repair audit reconstruction and extend frozen-case S5-16 adversarial coverage without weakening the frozen contract; rerun exact construction CI; issue a fresh candidate-bound R2. R3 is required only after a non-defective fresh R2 candidate exists."
+}
