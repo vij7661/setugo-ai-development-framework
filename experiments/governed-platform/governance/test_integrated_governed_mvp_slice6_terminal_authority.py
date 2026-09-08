@@ -229,6 +229,24 @@ class TerminalAuthorityGateTests(unittest.TestCase):
         self.assertNotIn("released", result)
         self.assertNotIn("completed", result)
 
+    def test_s6_25_option_a_preserves_per_object_schema_scopes(self):
+        review_gate = {
+            "state": "CLEAR",
+            "action": "RELEASE",
+            "artifact_sha": "abc123",
+            "evidence_refs": ["review:exact-artifact:abc123"],
+        }
+        current_state = {"project_id": "project-1", "state_version": 7}
+        self.assertNotIn("project_id", review_gate)
+        self.assertNotIn("task_id", review_gate)
+        self.assertNotIn("effect_id", review_gate)
+        self.assertNotIn("task_id", current_state)
+        self.assertNotIn("effect_id", current_state)
+        self.assertNotIn("artifact_sha", current_state)
+        result = self._evaluate(review_gate=review_gate, current_state=current_state)
+        self.assertEqual("AUTHORIZED_FOR_TERMINAL_ACTION", result["state"])
+        self.assertTrue(result["authorized"])
+
 
 if __name__ == "__main__":
     unittest.main()
