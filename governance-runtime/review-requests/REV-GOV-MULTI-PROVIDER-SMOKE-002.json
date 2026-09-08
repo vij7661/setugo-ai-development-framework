@@ -1,0 +1,36 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-002",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": false,
+  "standard_requires_review": true,
+  "changed_paths": ["governance-runtime/fixtures/groq-provider-smoke-subject.json"],
+  "artifact": {
+    "type": "groq_provider_smoke_subject",
+    "ref": "qualification/groq-provider-smoke",
+    "commit": "a65a861226f222df7af691fc6802aa3996b81c96"
+  },
+  "proposer": {"provider":"openai","model":"gpt-5.6-sol"},
+  "required_reviewer": {"provider":"groq","model":"openai/gpt-oss-120b"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Verify the supplied smoke subject is exactly bound to candidate a65a861226f222df7af691fc6802aa3996b81c96 and that its stated expected_truth contains no hidden authority grant.",
+    "Return a schema-valid independent review using the frozen Groq provider/model identity.",
+    "Confirm this smoke review has no authority effect on Slice5 or any product merge."
+  ],
+  "evidence_refs": [
+    {"type":"file","ref":"governance-runtime/fixtures/groq-provider-smoke-subject.json"},
+    {"type":"history","ref":"This is a provider-transport smoke test only. The provider-neutral runner was deterministically qualified separately; Slice5 remains blocked pending its frozen Gemini R3."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"candidate_and_provider_binding","mandatory":true,"description":"Review is bound to the exact candidate and frozen Groq provider/model."},
+    {"id":"authority_nonexpansion","mandatory":true,"description":"Smoke subject and review do not grant Slice5, merge, release, deploy, or product authority."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "be5f7cfde261c1fe6ec42c2852524de1fde69563a93895a3aa55d085f0fae317"
+}
