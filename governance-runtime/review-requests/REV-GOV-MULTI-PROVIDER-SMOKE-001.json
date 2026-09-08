@@ -1,0 +1,53 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-001",
+  "trigger": "MATERIAL_GOVERNANCE_CHANGE",
+  "material_authority_transition": false,
+  "standard_requires_review": true,
+  "changed_paths": [
+    "governance-runtime/platform_candidate_review_v3.py",
+    "governance-runtime/test_platform_candidate_review_v3.py",
+    ".github/workflows/governance-candidate-platform-review.yml",
+    "governance-runtime/repairs/GOV-MULTI-PROVIDER-REVIEW-RUNNER-001.json"
+  ],
+  "artifact": {
+    "type": "governance_multi_provider_review_runner",
+    "ref": "governance/live-conversation-runtime",
+    "commit": "809d975ac394ec8ba54c9dd5beb9e333a1b1a9fd"
+  },
+  "proposer": {"provider":"openai","model":"gpt-5.6-sol"},
+  "required_reviewer": {"provider":"groq","model":"openai/gpt-oss-120b"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently assess whether provider-neutral v3 preserves exact ReviewRequest provider/model binding and cannot silently substitute Groq for Gemini or vice versa.",
+    "Verify Groq and Gemini share the same v2 evidence materialization and semantic validation contract while provider invocation and authenticated execution envelopes remain distinct.",
+    "Verify R2 blind and R3 review-of-review attestation semantics remain enforced for Groq.",
+    "Verify unknown providers, provider mismatch, missing secret, malformed evidence, and unsupported evidence refs fail closed before semantic authority.",
+    "Search for a false-green path where workflow configuration, reviewer-supplied identity, or model-class flexibility could authorize a provider/model not frozen by the ReviewRequest.",
+    "This is a smoke/qualification review of the runner only; it must not grant Slice5 authority."
+  ],
+  "evidence_refs": [
+    {"type":"file","ref":"governance-runtime/repair-preregistrations/GOV-MULTI-PROVIDER-REVIEW-RUNNER-001.md"},
+    {"type":"file","ref":"governance-runtime/platform_candidate_review_v3.py"},
+    {"type":"file","ref":"governance-runtime/test_platform_candidate_review_v3.py"},
+    {"type":"file","ref":".github/workflows/governance-candidate-platform-review.yml"},
+    {"type":"file","ref":".github/workflows/multi-provider-review-runner-repair.yml"},
+    {"type":"file","ref":"governance-runtime/repairs/GOV-MULTI-PROVIDER-REVIEW-RUNNER-001.json"},
+    {"type":"history","ref":"Deterministic run 34237736376 passed 10/10 provider-neutral tests with no provider call after preserving initial harness meta-assertion failure 34237604732."},
+    {"type":"history","ref":"Production wiring qualification run 34237902190 passed. Slice5 remains separately blocked pending its frozen Gemini R3 and cannot inherit authority from this Groq smoke review."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id","reviewed_artifact_commit","reviewer","disposition","findings","evidence_assessment","independence_attestation","review_coverage"],
+    "allowed_dispositions": ["PASS","BOUNDED_PASS","FAIL","NOT_TESTED","INSUFFICIENT_EVIDENCE","CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id":"provider_binding_integrity","mandatory":true,"description":"Trigger provider/model cannot substitute or weaken the frozen ReviewRequest reviewer constraint."},
+    {"id":"shared_materialization_and_semantic_contract","mandatory":true,"description":"Groq and Gemini use the same fail-closed evidence materialization and semantic review validation contract."},
+    {"id":"role_attestation_integrity","mandatory":true,"description":"R2/R3 role attestation remains deterministic and provider-independent."},
+    {"id":"failure_isolation_and_provenance","mandatory":true,"description":"Provider errors, missing secrets, identity mismatch, or malformed evidence cannot become promotion authority."},
+    {"id":"remaining_provider_substitution_false_green_search","mandatory":true,"description":"Adversarial search finds no remaining provider/model substitution or reviewer-identity authority bypass within the bounded runner."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"],
+  "request_hash": "b65b68353bfb6a8c1b1c07fdd3713c85fb084bae3f041f6275155a5cf1f21d55"
+}
