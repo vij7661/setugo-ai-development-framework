@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-001",
+  "reviewed_candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
+  "workflow_run_id": 34228190255,
+  "job_id": 102067412848,
+  "artifact_id": 10056610399,
+  "artifact_digest": "sha256:9f3447cd83ddbe0ae0f7cd866ee311c2d9be550e46ff6e2a68d28eb166460489",
+  "classification": "INVALID_REQUEST_FIXTURE_CANDIDATE_FILE_PATH_DEFECT",
+  "failed_ref": "experiments/governed-platform/integrated-mvp-slice5-authoritative-state-ledger-prereg.json",
+  "correct_authoritative_path": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md",
+  "provider_invoked": false,
+  "candidate_mechanism_changed": false,
+  "scientific_disposition": "NONADJUDICABLE",
+  "authority_effect": "NONE",
+  "preservation_rule": "Keep the invalid request and failure evidence; correct only the ReviewRequest fixture and rerun against the same candidate."
+}
