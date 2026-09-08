@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "qualification_id": "IQR1",
+  "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "r2_commit": "ef511562ddf3cc739de7c59c6728d7853a64a7c4",
+  "r3_commit": "25455ff25e55ecb75dc13a9288b12f649ddb85a0",
+  "final_disposition": "CHANGES_REQUIRED",
+  "classification": "INTEGRATED_REVIEW_PATH_FOUND_LIVE_CANDIDATE_DEFECT",
+  "finding": "PR11 candidate platform_candidate_review.py silently skips declared evidence refs whose type is not file, including ci_run/history in REV-GOV-PR11-003.",
+  "scientific_interpretation": "The trusted IQR1 path successfully exposed a defect that earlier review architecture could miss. This is evidence for the qualification path, not a PR11 pass.",
+  "next_required_action": "Preregister and repair non-file evidence materialization on PR11 candidate, rerun deterministic validation, then issue a fresh candidate-bound review through the qualified path.",
+  "pr11_promotion_effect": "BLOCKED",
+  "slice5_effect": "BLOCKED"
+}
