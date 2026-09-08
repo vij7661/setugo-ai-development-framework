@@ -1,0 +1,27 @@
+{
+  "experiment": "EXP-L",
+  "pilot": "L9",
+  "title": "Reviewer-Directed Evidence Discovery",
+  "phase": "deterministic construction",
+  "candidate_sha": "8606f407bd6288f8bba4b53d1db94fa26339aeb8",
+  "workflow_run_id": 34214384415,
+  "job_id": 102022577242,
+  "result": "BOUNDED_PASS",
+  "tests_passed": 12,
+  "tests_total": 12,
+  "provider_api_calls": 0,
+  "demonstrated": [
+    "discovery requests are bounded to read-only file reads",
+    "path traversal and out-of-allowlist access are rejected",
+    "requests are candidate/base bound and byte-deterministic",
+    "responses carry content and response hashes",
+    "missing mandatory discovery blocks promotion",
+    "resolved discovery cannot promote a non-PASS reviewer disposition"
+  ],
+  "not_demonstrated": [
+    "reviewer behavior when static evidence is intentionally incomplete",
+    "quality/minimality of reviewer-selected discovery requests",
+    "end-to-end broker retrieval against authoritative repository state"
+  ],
+  "next": "manual initial discovery-request batch L9-M01..L9-M05"
+}
