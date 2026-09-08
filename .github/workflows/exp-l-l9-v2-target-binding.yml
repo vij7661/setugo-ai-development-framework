@@ -1,0 +1,28 @@
+name: EXP-L L9 V2 Decision Target Binding
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/evidence_discovery_broker_v2.py
+      - governance-runtime/exp-l/test_l9_discovery_target_binding_v2.py
+      - .github/workflows/exp-l-l9-v2-target-binding.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l9-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L9 v2 target-binding tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l9_discovery_target_binding_v2.py
