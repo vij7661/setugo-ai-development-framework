@@ -1,14 +1,14 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE6-TERMINAL-AUTHORITY-004.json",
-  "reviewed_candidate_commit": "58458e0cb86680b9e25c490f43b94324e67ec5ec",
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-005",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE6-TERMINAL-AUTHORITY-005.json",
+  "reviewed_candidate_commit": "d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a",
   "provider": "openrouter",
   "model": "deepseek/deepseek-v4-pro-0813",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_OPENROUTER_DEEPSEEK_FAILOVER_REVIEW_REQUESTED",
-  "request_hash": "8ae7bd13e09a595e8bea3a3f8e9123cfa06815ec27a82e4cb6a5415b6c4d9efb",
+  "status": "AUTHENTICATED_OPTION_A_FRESH_REVIEW_REQUESTED",
+  "request_hash": "6ccf9470e14b1668186ab8b463e4407640e37f5439c3582dadc1d008840edcbf",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "r2_role": "BLIND_TO_PROPOSER_CONCLUSION",
   "preserved_prior_attempts": [
@@ -31,6 +31,13 @@
       "workflow_run_id": 34278452371,
       "classification": "PROVIDER_ACCOUNT_TIER_INPUT_TOKEN_LIMIT_HTTP_413",
       "semantic_disposition": null,
+      "authority_effect": "NONE"
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004",
+      "workflow_run_id": 34278654939,
+      "semantic_disposition": "PASS",
+      "classification_after_review_of_review": "REQUIREMENT_UNRESOLVED_CONTRACT_INTERNAL_CONTRADICTION",
       "authority_effect": "NONE"
     }
   ]
