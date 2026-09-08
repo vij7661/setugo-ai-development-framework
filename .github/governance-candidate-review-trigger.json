@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
   "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-003.json",
   "reviewed_candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
@@ -7,32 +7,30 @@
   "model": "gemini-3.6-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_MODEL_CLASS_FAILOVER_GEMINI_3_6",
+  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_PASS_INGESTED_TRIGGER_FROZEN_R3_REQUIRED",
   "request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0",
-  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
-  "retry_policy": {
-    "max_attempts": 3,
-    "retryable_only": ["HTTP_503", "HIGH_DEMAND", "TEMPORARILY_UNAVAILABLE", "SERVICE_UNAVAILABLE"],
-    "request_semantics_unchanged": true,
-    "candidate_unchanged": true
+  "authority_effect": "R2_EVIDENCE_ONLY_R3_MANDATORY",
+  "successful_review": {
+    "workflow_run_id": 34232976825,
+    "artifact_id": 10058615057,
+    "artifact_digest": "sha256:b178d0cd8929afc05a502346a80a9ceabafa8b236e1d4d371430089228d8f3e4",
+    "summary_artifact_id": 10058613953,
+    "summary_artifact_digest": "sha256:53f870018ba0a4ac2df40e837e3e06ed6e3f05084d8c66b0f64a238282249404",
+    "corpus_sha256": "a31e666ee106c7fdad676ee524f5c4f74c6347e92724ba5522f3a2ae25a71218",
+    "disposition": "PASS",
+    "mandatory_dimensions": "10/10 TESTED_SUPPORTED",
+    "findings": 0,
+    "provider_api_authenticated": true
   },
-  "model_failover": {
-    "prior_models": ["gemini-3.8-flash", "gemini-3.7-flash"],
-    "to": "gemini-3.6-flash",
-    "reason": "prior stable Gemini Flash models returned repeated HTTP 503 high-demand responses after bounded retries",
-    "required_reviewer_model_class_preserved": "gemini"
-  },
+  "preserved_model_failures": [
+    {"model":"gemini-3.8-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_AFTER_BOUNDED_RETRIES","authority_effect":"NONE"},
+    {"model":"gemini-3.7-flash","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_AFTER_BOUNDED_RETRIES","authority_effect":"NONE"}
+  ],
   "preserved_false_green": {
     "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
     "reviewed_candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
     "disposition": "PASS",
     "classification": "REVIEW_FALSE_GREEN_EVIDENCE_COVERAGE_DEFECT",
     "authority_effect": "NONE"
-  },
-  "preserved_prior_review": {
-    "review_request_id": "REV-GOV-PR11-006",
-    "reviewed_candidate_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
-    "disposition": "PASS",
-    "authority_scope": "PR11_ONLY_NOT_REUSED_FOR_SLICE5"
   }
 }
