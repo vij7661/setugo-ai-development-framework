@@ -1,0 +1,29 @@
+name: EXP-L L4 Retry Corpus Reproducibility
+
+on:
+  push:
+    branches: [experiment/exp-l-independent-review-evidence-prompt]
+    paths:
+      - governance-runtime/review-trust-kernel/retry_freeze_v2.py
+      - governance-runtime/exp-l/test_l4_retry_corpus_reproducibility.py
+      - governance-runtime/exp-l/L4-RETRY-CORPUS-REPRODUCIBILITY-PREREG.json
+      - .github/workflows/exp-l-l4-retry-reproducibility.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-l4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout experiment history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run L4 retry reproducibility tests without provider APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v governance-runtime/exp-l/test_l4_retry_corpus_reproducibility.py
