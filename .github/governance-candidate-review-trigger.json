@@ -1,35 +1,25 @@
 {
-  "enabled": false,
-  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-002.json",
-  "reviewed_candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
+  "enabled": true,
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-003",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-003.json",
+  "reviewed_candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
   "provider": "gemini",
   "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE5_R2_PASS_INGESTED_TRIGGER_FROZEN_R3_REQUIRED",
-  "request_hash": "8392f7988b2af134d46e5b80fe0561fe90755d293b7d66436df8e211fa99993b",
-  "authority_effect": "R2_EVIDENCE_ONLY_R3_STILL_MANDATORY",
-  "successful_review": {
-    "workflow_run_id": 34228573362,
-    "job_id": 102068676622,
-    "artifact_id": 10056776209,
-    "artifact_digest": "sha256:9dad3654f01f62436c28438adafc8bef04a60689079c0eaefeadc1848fa8e7fe",
-    "corpus_sha256": "044c45851e665ac5c9e446d7eba440373a575e6d41eaa6f5db666ad832dbd75f",
-    "review_sha256": "396bcd28408e1a8e18f362f6358647f28f1243c724f0523dd7c6384b3e1228d9",
+  "status": "AUTHENTICATED_SLICE5_REPAIRED_R2_REQUESTED",
+  "request_hash": "8515a491e3fcc6eacc6ebc78c210c75662ffadac76fd424a39f8adf0b8f5dad0",
+  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
+  "preserved_false_green": {
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-002",
+    "reviewed_candidate_commit": "93632f63342387170c997d017ae79b9c4c301df6",
     "disposition": "PASS",
-    "mandatory_dimensions": "10/10 TESTED_SUPPORTED",
-    "findings": 0,
-    "provider_api_authenticated": true
+    "classification": "REVIEW_FALSE_GREEN_EVIDENCE_COVERAGE_DEFECT",
+    "authority_effect": "NONE"
   },
-  "preserved_prior_attempts": [
-    {"review_request_id":"REV-MVP-SLICE5-SCIENTIFIC-001","workflow_run_id":34228190255,"classification":"INVALID_REQUEST_FIXTURE_CANDIDATE_FILE_PATH_DEFECT_PROVIDER_NOT_INVOKED","authority_effect":"NONE"},
-    {"review_request_id":"REV-MVP-SLICE5-SCIENTIFIC-002","workflow_run_id":34228426607,"job_id":102068193960,"artifact_id":10056716267,"artifact_digest":"sha256:dc8086741d7a607e3050a2423f0e333b3db9b3f2731c9ec5bd1c5fef75a1a2c4","classification":"PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND","authority_effect":"NONE"}
-  ],
   "preserved_prior_review": {
     "review_request_id": "REV-GOV-PR11-006",
     "reviewed_candidate_commit": "456f0ddb7df4a3e2adf8bbe667ed036d4e38e793",
-    "workflow_run_id": 34225541084,
     "disposition": "PASS",
     "authority_scope": "PR11_ONLY_NOT_REUSED_FOR_SLICE5"
   }
