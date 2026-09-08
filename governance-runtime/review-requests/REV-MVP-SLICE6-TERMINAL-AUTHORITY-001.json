@@ -1,0 +1,154 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py",
+    ".github/workflows/integrated-governed-mvp-slice6-terminal-authority.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice6_terminal_authority_candidate",
+    "ref": "PR-15",
+    "commit": "53100095dadf28d600e92a2b45323db372831347"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "gemini",
+    "model_class": "gemini"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently verify that the Slice 6 terminal-authority gate satisfies the frozen contract without deriving release, deploy, merge, production, or completion authority from model/worker/reviewer claims or green CI.",
+    "Verify exact binding of project_id, task_id, effect_id, terminal action, target artifact SHA, authoritative state version, review evidence, and authority expiry/current-time inputs.",
+    "Verify malformed, stale, expired, mismatched, unsupported, or model/worker-supplied authority records fail closed and cannot mint a terminal-action authorization receipt.",
+    "Verify successful authorization is deterministic, self-hash bound, and remains authorization-only: this slice must not execute merge/release/deploy/production/completion side effects.",
+    "Verify replay/substitution attempts across action, artifact SHA, state version, task/effect identity, or evidence refs are rejected or produce non-equivalent receipts rather than widening authority.",
+    "Verify the 24-case Slice 6 suite and candidate-bound CI are evidence of implementation execution only and do not become semantic or terminal authority.",
+    "Adversarially inspect for any path that would let terminal authority be inferred from stale conversation state, worker/model assertions, prior green runs, or unbound external evidence.",
+    "Return an independent disposition without relying on the proposer conclusion or the PR description."
+  ],
+  "evidence_refs": [
+    {
+      "type": "ci_run",
+      "ref": "34276598612"
+    },
+    {
+      "type": "file",
+      "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md"
+    },
+    {
+      "type": "file",
+      "ref": "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py"
+    },
+    {
+      "type": "file",
+      "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py"
+    },
+    {
+      "type": "file",
+      "ref": ".github/workflows/integrated-governed-mvp-slice6-terminal-authority.yml"
+    },
+    {
+      "type": "file",
+      "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_CONTRACT.md"
+    },
+    {
+      "type": "file",
+      "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE5_AUTHORITATIVE_STATE_LEDGER_CONTRACT.md"
+    },
+    {
+      "type": "history",
+      "ref": "Candidate 53100095dadf28d600e92a2b45323db372831347 was created from authoritative main f67e0dfb4fe9b4bb67c76dbd43f1485861c96fc0. CI run 34276598612 passed the frozen 24-case Slice 6 suite and accepted Slice 1→5 regressions. This history is context only; it is not semantic or terminal authority."
+    }
+  ],
+  "expected_output": {
+    "required_fields": [
+      "review_request_id",
+      "reviewed_artifact_commit",
+      "reviewer",
+      "disposition",
+      "findings",
+      "evidence_assessment",
+      "independence_attestation",
+      "review_coverage"
+    ],
+    "allowed_dispositions": [
+      "PASS",
+      "BOUNDED_PASS",
+      "FAIL",
+      "NOT_TESTED",
+      "INSUFFICIENT_EVIDENCE",
+      "CHANGES_REQUIRED"
+    ]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {
+      "id": "terminal_authority_externality",
+      "mandatory": true,
+      "description": "Terminal authority remains external to model, worker, researcher, judge, CI, and isolated-execution success."
+    },
+    {
+      "id": "exact_terminal_binding",
+      "mandatory": true,
+      "description": "Authorization binds exact project/task/effect/action/artifact SHA/state version/review evidence and cannot widen across substitutions."
+    },
+    {
+      "id": "authority_freshness_and_expiry",
+      "mandatory": true,
+      "description": "Stale, future-invalid, expired, malformed, or mismatched authority records fail closed."
+    },
+    {
+      "id": "review_dependency",
+      "mandatory": true,
+      "description": "Required review evidence and review state are independently checked and cannot be bypassed by terminal authority claims."
+    },
+    {
+      "id": "receipt_integrity_and_determinism",
+      "mandatory": true,
+      "description": "Authorized receipts are deterministic, self-hash bound, and mutation of bound fields invalidates or changes the receipt."
+    },
+    {
+      "id": "authorization_only_nonexecution",
+      "mandatory": true,
+      "description": "The slice performs no merge/release/deploy/production/completion side effect and makes no broader execution claim."
+    },
+    {
+      "id": "candidate_bound_ci_non_authority",
+      "mandatory": true,
+      "description": "CI evidence is exact-candidate execution evidence only and does not become semantic or terminal authority."
+    },
+    {
+      "id": "replay_substitution_resistance",
+      "mandatory": true,
+      "description": "Replay or substitution of action, artifact, state version, identity, or evidence cannot mint widened terminal authority."
+    },
+    {
+      "id": "prior_slice_regression_preservation",
+      "mandatory": true,
+      "description": "Slice 1→5 accepted authority boundaries remain preserved by the candidate."
+    },
+    {
+      "id": "remaining_authority_bypass_search",
+      "mandatory": true,
+      "description": "Adversarial review finds no remaining false-green, stale-state, conversation-memory, or claimant-controlled terminal-authority bypass within the frozen scope."
+    }
+  ],
+  "review_dimension_status_vocabulary": [
+    "CONTRADICTED",
+    "INACCESSIBLE",
+    "INSUFFICIENT",
+    "NOT_TESTED",
+    "TESTED_DEFECT_FOUND",
+    "TESTED_SUPPORTED",
+    "UNAVAILABLE"
+  ],
+  "request_hash": "24fb50abbbdefce96d2dddb41ee951039cfb02d20afc4ea571635699c5307d04"
+}
