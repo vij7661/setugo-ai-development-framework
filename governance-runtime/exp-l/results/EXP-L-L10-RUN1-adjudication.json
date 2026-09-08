@@ -1,0 +1,39 @@
+{
+  "experiment_id": "EXP-L-L10",
+  "run_id": 34209879340,
+  "job_id": 102008076264,
+  "workflow": "EXP-L L10 Sequential Multi-Review",
+  "workflow_id": 352987853,
+  "head_sha": "18206c0afffa1b9438c9e7a4ec5182cc6a43f453",
+  "event": "push",
+  "provider_api_calls": 0,
+  "test_count": 12,
+  "passed": 12,
+  "failed": 0,
+  "classification": "BOUNDED_PASS",
+  "scope": "Deterministic prototype routing and R1-middle frozen-handoff mechanism only.",
+  "established": [
+    "High-risk R2 PASS cannot bypass R3.",
+    "High-risk R2 failure cannot bypass R3.",
+    "Policy-required dual review deterministically routes R3.",
+    "Low-risk no-trigger path may stop after R2.",
+    "R2 normalization is deterministic.",
+    "Registered R2 material fields cannot be silently omitted.",
+    "Frozen packet mutation invalidates the handoff.",
+    "Handoff binds review-request, packet, evidence/corpus, routing-policy, raw-R2, and normalized-R2 identities.",
+    "R1-middle opinion/recommendation fields are forbidden by the prototype.",
+    "Changed routing policy inputs change routing identity.",
+    "Unregistered future material fields fail closed rather than being dropped.",
+    "High-risk routing is independent of R2 disposition."
+  ],
+  "not_established": [
+    "Production trust-kernel qualification",
+    "Semantic correctness of R2 or R3",
+    "Shared-memory isolation/admissibility",
+    "Provider/model independence",
+    "PR11 promotion authority"
+  ],
+  "authority": "NONE",
+  "pr11_remains_frozen": true,
+  "next_boundary": "EXP-L L11 shared-memory contamination manual/control results, followed by implementation-level memory admissibility enforcement."
+}
