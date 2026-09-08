@@ -1,0 +1,30 @@
+name: R3 Platform Handoff Repair
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - governance-runtime/review-trust-kernel/sequential_review_v2.py
+      - governance-runtime/test_sequential_review_v2.py
+      - governance-runtime/repair-preregistrations/GOV-R3-PLATFORM-HANDOFF-001.md
+      - .github/workflows/r3-platform-handoff-repair.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-handoff-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen v2 handoff tests
+        run: python -m unittest -v governance-runtime/test_sequential_review_v2.py
+      - name: Assert no provider API is referenced
+        shell: bash
+        run: |
+          ! grep -Eqi 'GEMINI_API_KEY|MISTRAL_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|requests\.|urllib.request|httpx|curl ' governance-runtime/review-trust-kernel/sequential_review_v2.py
