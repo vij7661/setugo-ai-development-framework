@@ -9,9 +9,9 @@
   "model": "gemini-3.7-flash",
   "temperature": 0.0,
   "prompt_arms": ["P1", "P2", "P3"],
-  "arm_order": "P3,P2,P1",
+  "arm_order": "P2,P1,P3",
   "transient_retry_policy": {"max_attempts_per_arm":3,"retry_http_codes":[429,503],"backoff_seconds":[3,6]},
-  "preserved_runs": [34192364158,34192394195,34192465484,34192786080,34193157830,34193235982],
-  "run_nonce": 7,
+  "preserved_runs": [34192364158,34192394195,34192465484,34192786080,34193157830,34193235982,34194196407],
+  "run_nonce": 8,
   "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
 }
