@@ -1,17 +1,17 @@
 {
   "enabled": true,
   "experiment": "EXP-L",
-  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V3",
-  "benchmark_blob_sha": "5240312ef4ddace88a05bbbd9e23dde966df8f12",
-  "ground_truth_blob_sha": "a088a1b9b7fc6fb9d100735687cbe54d0331eab5",
-  "runner_blob_sha": "5bf38eb8083cb20c0167e55325de872c848c5a94",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V4",
+  "benchmark_blob_sha": "b2543a676e4d038a46f261e036f495d01c969792",
+  "ground_truth_blob_sha": "85e47c7e81c4c15df53ff8ce9f588800ded22196",
+  "runner_blob_sha": "a069a7ed639779668225e5d60734f49c981a2238",
   "provider": "gemini",
   "model": "gemini-3.7-flash",
   "temperature": 0.0,
   "prompt_arms": ["P1", "P2", "P3"],
   "arm_order": "P3,P2,P1",
   "transient_retry_policy": {"max_attempts_per_arm":3,"retry_http_codes":[429,503],"backoff_seconds":[3,6]},
-  "preserved_runs": [34192364158,34192394195,34192465484,34192786080,34193157830],
-  "run_nonce": 6,
+  "preserved_runs": [34192364158,34192394195,34192465484,34192786080,34193157830,34193235982],
+  "run_nonce": 7,
   "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY"
 }
