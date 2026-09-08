@@ -158,6 +158,9 @@ def _authority_record_shape_valid(authority_record: Mapping[str, Any]) -> bool:
     ):
         if not _nonempty_string(authority_record.get(field)):
             return False
+    state_version = authority_record.get("state_version")
+    if not isinstance(state_version, int) or isinstance(state_version, bool) or state_version < 0:
+        return False
     issued = authority_record.get("issued_at_epoch")
     expires = authority_record.get("expires_at_epoch")
     if not isinstance(issued, int) or isinstance(issued, bool):
@@ -241,10 +244,14 @@ def evaluate_terminal_authority(
     authority_evidence_refs = list(authority_record.get("evidence_refs", []))
     authority_id = authority_record.get("authority_id")
 
-    if not _lineage_matches(terminal_request, authority_record) or authority_record.get("action") != terminal_request.get("action"):
+    if (
+        not _lineage_matches(terminal_request, authority_record)
+        or authority_record.get("action") != terminal_request.get("action")
+        or authority_record.get("state_version") != terminal_request.get("expected_state_version")
+    ):
         return _decision(
             "DENY_AUTHORITY_RECORD",
-            "authority record is not bound to the exact project/task/effect/action/artifact lineage",
+            "authority record is not bound to the exact project/task/effect/action/artifact/state-version lineage",
             terminal_request,
             authority_id=authority_id,
             review_evidence_refs=list(review_gate.get("evidence_refs", [])),
