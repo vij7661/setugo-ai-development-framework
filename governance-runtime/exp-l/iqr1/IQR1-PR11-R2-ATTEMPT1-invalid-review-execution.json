@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "qualification_id": "IQR1",
+  "review_id": "IQR1-PR11-R2",
+  "attempt": 1,
+  "candidate_sha": "b3abfed189504721b30c9ed647b2ffe79f27f85c",
+  "base_sha": "f0bb95a5b4902b76efceca2f36e27d3512e0bbc7",
+  "frozen_packet_sha256": "sha256:1629066f0cdaf9f3132b9ae1dd98d7808228b9787074f4e9ea6d4bbe6549b046",
+  "received_result_class": "NON_SCHEMA_PROSE_INSUFFICIENT_EVIDENCE",
+  "received_summary": "Reviewer asserted the packet contained only schema/identifiers/dimension descriptions and no repository/review evidence, then returned prose INSUFFICIENT_EVIDENCE rather than the required JSON output contract.",
+  "adjudication": {
+    "classification": "REVIEW_EXECUTION_OR_TRANSPORT_FAILURE",
+    "scientific_validity": "NON_ADJUDICABLE",
+    "counts_as_r2_result": false,
+    "counts_against_candidate": false,
+    "counts_for_promotion": false,
+    "reason": [
+      "The frozen packet actually contains evidence objects e01 through e12 with concrete Git/review/state excerpts.",
+      "The reviewer claimed those evidence objects were absent.",
+      "The reviewer did not return the required single JSON object defined by output_contract.",
+      "Therefore the attempt cannot distinguish candidate insufficiency from reviewer/transport failure."
+    ]
+  },
+  "next_action": "Retry R2 using a compact self-contained packet with explicit evidence delimiters and the same frozen candidate, decision target, and evidence semantics. Preserve this attempt unchanged."
+}
