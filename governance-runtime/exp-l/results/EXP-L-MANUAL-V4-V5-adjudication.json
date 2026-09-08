@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "execution_mode": "MANUAL_COPY_PASTE_NO_PROVIDER_API",
+  "provider_api_calls_used": false,
+  "github_workflows_triggered_by_manual_test": false,
+  "v4": {
+    "claude": {
+      "P1": {"authority_decisions":"8/8","mechanical_seeded_findings":"11/12","false_greens":0,"false_blocks":0,"note":"M07 semantically detected but split across findings, exposing scorer granularity rigidity."},
+      "P2": {"authority_decisions":"8/8","seeded_findings":"11/12","false_greens":0,"false_blocks":0,"miss":"M01 stale post-merge continuity contradiction."},
+      "P3": {"authority_decisions":"8/8","seeded_findings":"12/12","false_greens":0,"false_blocks":0}
+    },
+    "deepseek": {
+      "P1": {"authority_decisions":"7/8","seeded_findings":"11/12","false_greens":0,"false_blocks":1,"unsupported_blocking":1,"note":"False-blocked clean M03 by inventing missing semantic-review prerequisite."},
+      "P2": {"authority_decisions":"8/8","seeded_findings":"11/12","false_greens":0,"false_blocks":0,"miss":"M01 stale post-merge continuity contradiction."},
+      "P3": {"authority_decisions":"8/8","mechanical_seeded_findings":"8/12","false_greens":0,"false_blocks":0,"note":"Mechanical under-credit caused by exact evidence-set requirements; semantic defect recognition was materially stronger than the mechanical score indicates."}
+    },
+    "scorer_finding": "V4 exact citation-set matching is too rigid to serve as the sole proxy for semantic defect recall. Defect recognition, evidence sufficiency and citation completeness must be scored separately."
+  },
+  "v5": {
+    "purpose": "Targeted P2-vs-P3 discrimination on domain judgment, authority hierarchy, anti-overreach, evidence sufficiency and trust-boundary reasoning.",
+    "claude": {
+      "P2": {"authority_decisions":"8/8","required_semantic_findings":"4/4","evidence_sufficiency":"4/4","false_greens":0,"false_blocks":0,"unsupported_blocking":0},
+      "P3": {"authority_decisions":"8/8","required_semantic_findings":"4/4","evidence_sufficiency":"4/4","false_greens":0,"false_blocks":0,"unsupported_blocking":0}
+    },
+    "deepseek": {
+      "P2": {"authority_decisions":"8/8","required_semantic_findings":"4/4","evidence_sufficiency":"4/4","false_greens":0,"false_blocks":0,"unsupported_blocking":0},
+      "P3": {"authority_decisions":"8/8","required_semantic_findings":"4/4","evidence_sufficiency":"4/4","false_greens":0,"false_blocks":0,"unsupported_blocking":0}
+    },
+    "result": "P2_AND_P3_TIE_AT_CEILING_ON_V5"
+  },
+  "current_prompt_selection": {
+    "default_candidate": "P3",
+    "control_arm": "P2",
+    "baseline": "P1",
+    "rationale": "Across V4 and V5, P3 has the strongest aggregate support: clean Claude V4 12/12, zero false blocks in tested manual runs, and ceiling performance on V5. P2 is very close and remains the regression control.",
+    "qualification": "P3 is the best-supported current candidate, not universally proven superior."
+  },
+  "authority_effect": "NONE_PROMPT_RESEARCH_ONLY"
+}
