@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "experiment": "EXP-L",
+  "benchmark_id": "EXP-L-PROMPT-BENCHMARK-V1",
+  "workflow_run_id": 34192465484,
+  "job_id": 101953144548,
+  "artifact_id": 10042686909,
+  "artifact_digest": "sha256:799e11f923f5faa37d2e75de70fd348a8505c95bacbcc764009323bae8cc485f",
+  "provider": "gemini",
+  "model": "gemini-3.7-flash",
+  "temperature": 0.0,
+  "completed_arms": ["P1", "P2"],
+  "incomplete_arms": ["P3"],
+  "provider_failure": "HTTP_503_HIGH_DEMAND_DURING_P3",
+  "authority_effect": "NONE_EXPERIMENTAL_EVIDENCE_ONLY",
+  "observations": {
+    "P1": {
+      "false_greens": 0,
+      "required_evidence_cited": "6/6 cases",
+      "clean_control": "PASS",
+      "all_seeded_nonpromotable_cases_kept_nonpromotable": true
+    },
+    "P2": {
+      "false_greens": 0,
+      "required_evidence_cited": "6/6 cases",
+      "clean_control": "PASS",
+      "all_seeded_nonpromotable_cases_kept_nonpromotable": true
+    }
+  },
+  "evaluator_defect": {
+    "classification": "EXP_L_V1_SCORING_CONTRACT_DEFECT",
+    "description": "The deterministic scorer requires exact disposition labels and exact free-form defect IDs even when the model gives semantically equivalent negative dispositions and defect descriptions. Examples include FAIL vs CHANGES_REQUIRED and STALE_STATE vs STALE_POST_MERGE_HANDOFF. This creates false scoring negatives unrelated to prompt quality.",
+    "impact": "V1 aggregate disposition/defect scores are not scientifically valid for selecting a prompt arm. False-green status and exact supplied-evidence citation checks remain directly interpretable.",
+    "required_repair": "Freeze a V2 evaluation contract based primarily on promotable/nonpromotable authority decision, disposition families, exact evidence citation coverage, clean-control false-positive rate, and seeded authority-bypass detection without requiring the reviewer to guess hidden evaluator labels. Preserve V1 unchanged."
+  },
+  "comparison_status": "NO_PROMPT_WINNER_ADJUDICATED",
+  "next_required_action": "Freeze EXP-L benchmark/evaluator V2, rerun P1/P2/P3 on identical inputs and one model, and only then compare prompt framing."
+}
