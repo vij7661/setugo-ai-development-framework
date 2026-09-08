@@ -1,21 +1,22 @@
 {
   "enabled": true,
-  "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-002",
-  "review_request_path": "governance-runtime/review-requests/REV-GOV-MULTI-PROVIDER-SMOKE-002.json",
-  "reviewed_candidate_commit": "a65a861226f222df7af691fc6802aa3996b81c96",
-  "provider": "groq",
-  "model": "openai/gpt-oss-120b",
+  "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-R3-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE5-SCIENTIFIC-R3-002.json",
+  "reviewed_candidate_commit": "d9459af74533fbb60477dfcec00b30e82a0e2534",
+  "provider": "openrouter",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "GROQ_BOUNDED_TRANSPORT_SMOKE_REQUESTED",
-  "request_hash": "be5f7cfde261c1fe6ec42c2852524de1fde69563a93895a3aa55d085f0fae317",
-  "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
-  "scope": "PROVIDER_TRANSPORT_SMOKE_ONLY_NOT_SLICE5",
-  "preserved_prior_smoke_failure": {
-    "review_request_id": "REV-GOV-MULTI-PROVIDER-SMOKE-001",
-    "workflow_run_id": 34238108276,
-    "classification": "PROVIDER_CONTEXT_BUDGET_EXCEEDED_HTTP_413",
+  "status": "AUTHENTICATED_SLICE5_R3_OPENROUTER_REVIEW_OF_REVIEW_REQUESTED",
+  "request_hash": "17abcffa03fecebd4b1b1c5997b9b51c5ed0e5d80fe1b7d146602cc6591ecd08",
+  "authority_effect": "NONE_PENDING_R3_DETERMINISTIC_INGESTION",
+  "r3_role": "REVIEW_OF_REVIEW_EXPOSED_TO_PRIOR_REVIEW",
+  "r2_handoff_hash": "sha256:5aebbdd249042a4ab8013a2f9235d5965808fe976e84e2e52d2cad9f339d1b0f",
+  "r2_raw_hash": "sha256:c532bcfd42154e9beff73c5c84adc0752977c5961196f1b12759ddcf64bb7ecf",
+  "preserved_prior_r3": {
+    "review_request_id": "REV-MVP-SLICE5-SCIENTIFIC-R3-001",
+    "provider": "gemini",
+    "classification": "PROVIDER_AVAILABILITY_BLOCKED",
     "authority_effect": "NONE"
-  },
-  "slice5_checkpoint": "governance-runtime/checkpoints/SLICE5-R3-PROVIDER-BLOCK-2026-09-08.json"
+  }
 }
