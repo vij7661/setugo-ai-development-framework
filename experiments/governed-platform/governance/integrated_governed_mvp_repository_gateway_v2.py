@@ -71,6 +71,7 @@ class RepositoryMutationGateway(V1RepositoryMutationGateway):
         enriched = deepcopy(result)
         enriched.update(
             {
+                "success": True,
                 "project_id": project_id,
                 "task_id": task_id,
                 "execution_id": execution_id,
