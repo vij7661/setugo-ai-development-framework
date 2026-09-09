@@ -73,6 +73,10 @@ class SimulatedCrash(RuntimeError):
     pass
 
 
+class ProviderIdempotencyRebind(RuntimeError):
+    pass
+
+
 class ReferenceExternalProvider:
     """Safe deterministic provider whose committed-effect state is caller-external."""
 
@@ -130,6 +134,8 @@ class ReferenceExternalProvider:
 
     def dispatch(self, request: Mapping[str, Any]) -> dict[str, Any]:
         key = str(request["external_idempotency_key"])
+        binding = {field: deepcopy(request.get(field)) for field in IDEMPOTENCY_FIELDS}
+        binding_hash = canonical_hash(binding)
         self._record_dispatch(key, {
             "provider_id": request.get("provider_id"),
             "endpoint_id": request.get("endpoint_id"),
@@ -153,9 +159,10 @@ class ReferenceExternalProvider:
             }
 
         existing = self.lookup(key)
+        if existing is not None and existing.get("binding_hash") != binding_hash:
+            raise ProviderIdempotencyRebind("provider external idempotency key already bound to different request")
+
         if existing is None:
-            binding = {field: deepcopy(request.get(field)) for field in IDEMPOTENCY_FIELDS}
-            binding_hash = canonical_hash(binding)
             result = {
                 "http_status": 200,
                 "provider_status": "SUCCESS",
@@ -178,9 +185,11 @@ class ReferenceExternalProvider:
                 if cursor.rowcount == 1:
                     existing = result
                 else:
-                    row = con.execute("SELECT result_json FROM effects WHERE external_idempotency_key=?", (key,)).fetchone()
+                    row = con.execute("SELECT binding_hash,result_json FROM effects WHERE external_idempotency_key=?", (key,)).fetchone()
                     if row is None:
                         raise RuntimeError("provider idempotency race lost without durable effect")
+                    if row["binding_hash"] != binding_hash:
+                        raise ProviderIdempotencyRebind("provider external idempotency race resolved to different binding")
                     existing = json.loads(row["result_json"])
 
         if self.mode == "timeout_after_commit":
@@ -428,7 +437,6 @@ class ExternalSideEffectGateway:
             return self._result("DENY_UPSTREAM_LINEAGE", reason="canonical accepted Slice8 lineage required")
         if not isinstance(side_effect_request, Mapping) or self._raw_secret_supplied(side_effect_request):
             return self._result("DENY_AUTHORITY_OR_LEASE", reason="malformed request or raw secret input")
-
         lease_bound = lease_result.get("bound_lease") if isinstance(lease_result, Mapping) else None
         if not isinstance(lease_bound, Mapping):
             return self._result("DENY_AUTHORITY_OR_LEASE", reason="valid Slice9 lease material required")
@@ -487,9 +495,29 @@ class ExternalSideEffectGateway:
         except TimeoutAfterCommit as exc:
             self._set_status(expected_key, "UNKNOWN")
             return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", reason=str(exc), external_idempotency_key=expected_key)
+        except ProviderIdempotencyRebind as exc:
+            self._set_status(expected_key, "UNKNOWN")
+            return self._result("DENY_RESPONSE_INTEGRITY", reason=_sanitize_text(str(exc)), external_idempotency_key=expected_key)
         except Exception as exc:
+            reason = _sanitize_text(str(exc))
+            try:
+                committed = self.provider.lookup(expected_key)
+            except Exception as lookup_exc:
+                self._set_status(expected_key, "UNKNOWN")
+                return self._result(
+                    "OUTCOME_UNKNOWN_RECONCILE_REQUIRED",
+                    reason=f"{reason}; reconciliation lookup failed: {_sanitize_text(str(lookup_exc))}",
+                    external_idempotency_key=expected_key,
+                )
+            if committed is not None:
+                self._set_status(expected_key, "UNKNOWN")
+                return self._result(
+                    "OUTCOME_UNKNOWN_RECONCILE_REQUIRED",
+                    reason=reason,
+                    external_idempotency_key=expected_key,
+                )
             self._set_status(expected_key, "FAILED")
-            return self._result("REFERENCE_EFFECT_FAILED", reason=_sanitize_text(str(exc)), external_idempotency_key=expected_key)
+            return self._result("REFERENCE_EFFECT_FAILED", reason=reason, external_idempotency_key=expected_key)
 
         if crash_point == "after_dispatch_before_response":
             raise SimulatedCrash("after provider dispatch before response interpretation")
@@ -528,11 +556,18 @@ class ExternalSideEffectGateway:
             "production_side_effect_claimed": False,
             "terminal_authority_granted": False,
         })
-
         if existing["status"] == "COMPLETED" and existing["evidence"] is not None:
             return self._result("REFERENCE_EFFECT_REPLAYED", evidence=existing["evidence"], external_idempotency_key=key, reason="completed effect already durable")
 
-        response = self.provider.lookup(key)
+        try:
+            response = self.provider.lookup(key)
+        except Exception as exc:
+            self._set_status(key, "UNKNOWN")
+            return self._result(
+                "OUTCOME_UNKNOWN_RECONCILE_REQUIRED",
+                reason=_sanitize_text(str(exc)),
+                external_idempotency_key=key,
+            )
         if response is not None:
             if not self._provider_response_valid(response, side_effect_request):
                 return self._result("DENY_RESPONSE_INTEGRITY", reason="reconciled provider state mismatches frozen binding", external_idempotency_key=key)
