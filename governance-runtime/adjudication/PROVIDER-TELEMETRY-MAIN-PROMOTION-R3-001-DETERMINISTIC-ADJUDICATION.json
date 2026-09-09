@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "PROVIDER-TELEMETRY-MAIN-PROMOTION-R3-001-DETERMINISTIC-ADJUDICATION",
+  "review_request_id": "REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001",
+  "reviewed_candidate_commit": "7c51e729edf3c0dcf2893b4caaee42d34ca31249",
+  "candidate_base_commit": "3a19eff0a735f702bac2807040f361b2dc7a37b6",
+  "candidate_ci_run_id": 34334069709,
+  "review_workflow_run_id": 34334344769,
+  "review_artifact_id": 10097081172,
+  "review_artifact_digest": "sha256:ca905443a89d38b36be06c45ea78efe937f392710469889b30664dc195b19aef",
+  "review_request_hash": "ef922d2f131eef030bf1367a4feb8b6895d17d32e1c7aa44ed45b2826f161ddf",
+  "corpus_sha256": "5f4c429b49190d2d4882350fa432cc9f75185e7415d92762d5d9d3f58ebea696",
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "slot": "R3",
+    "requested_serving_provider": "deepinfra",
+    "returned_serving_provider": "DeepInfra",
+    "fallbacks_allowed": false,
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false
+  },
+  "semantic_review": {
+    "disposition": "PASS",
+    "validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "mandatory_dimensions_supported": 14,
+    "mandatory_dimensions_total": 14,
+    "findings_count": 0,
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION"
+  },
+  "telemetry": {
+    "attempt_count": 1,
+    "retry_count": 0,
+    "http_status": 200,
+    "attempt_outcome": "SUCCESS",
+    "provider_latency_ms": 26493.736,
+    "total_elapsed_latency_ms": 26684,
+    "request_started_at": "2026-09-09T09:22:42.879285Z",
+    "provider_call_started_at": "2026-09-09T09:22:43.069874Z",
+    "first_response_at": "2026-09-09T09:23:09.563615Z",
+    "completion_time": "2026-09-09T09:23:09.563615Z",
+    "semantic_disposition": "PASS",
+    "validation_valid": true,
+    "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+  },
+  "provider_usage": {"prompt_tokens": 37286, "completion_tokens": 1902, "total_tokens": 39188, "cost": 0.0228274},
+  "deterministic_checks": {
+    "candidate_commit_exact_match": true,
+    "candidate_base_exact_match": true,
+    "ci_run_exact_candidate_qualified": true,
+    "request_hash_bound": true,
+    "corpus_hash_present": true,
+    "provider_and_model_match_execution_envelope": true,
+    "requested_and_returned_serving_provider_match_case_insensitively": true,
+    "fallback_disabled": true,
+    "review_validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "blocking_findings_absent": true,
+    "review_self_grants_no_authority": true,
+    "telemetry_authority_effect_unchanged": true
+  },
+  "adjudication": "VALID_INDEPENDENT_REVIEW_EVIDENCE_PRESENT",
+  "promotion_effect": "REVIEW_GATE_SATISFIED_PENDING_EXACT_HEAD_MERGE_TO_MAIN_AND_POST_MERGE_PAGES_VALIDATION",
+  "notes": [
+    "Workflow success alone is not authority; this adjudication consumes validated semantic review evidence and execution provenance.",
+    "The review independently evaluates the exact main-deployment topology; prior telemetry Review 003 is context only.",
+    "The telemetry candidate remains observability-only and does not widen review, promotion, deploy, or terminal-action authority.",
+    "Live Pages publication must be validated after merge before claiming the user-visible dashboard requirement is delivered."
+  ],
+  "adjudication_hash": "3bc6513a8e40cd40cd557b4996e97b3c8e5c8be61650948dad0965f8d028ceca"
+}
