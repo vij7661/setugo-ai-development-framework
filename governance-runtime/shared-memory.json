@@ -6,129 +6,14 @@
   "independent_authority": false,
   "read_policy": "READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY",
   "write_policy": "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
-  "sources": [
-    {"class": "governed_checkpoint", "path": "governance-runtime/session-state.json", "use": "verified continuity pointer"},
-    {"class": "chatgpt_project_memory_and_context", "use": "shared working continuity input subject to reconciliation"},
-    {"class": "external_agent_memory_or_review", "use": "working/reviewer input with provenance; never authority by repetition"}
-  ],
-  "phase_policy": {
-    "active_phase": "TESTING",
-    "branches": {
-      "development": "main",
-      "testing": "phase/testing",
-      "release": "phase/release",
-      "production": "phase/production"
-    },
-    "promotion_order": ["main", "phase/testing", "phase/release", "phase/production"],
-    "testing_code_quality_target": "RELEASE_LEVEL",
-    "testing_review_default": "MANUAL",
-    "testing_external_api_default": "OFF",
-    "testing_api_exception": "API_BOUNDARY_UNDER_TEST_OR_USER_APPROVED",
-    "ask_user_when_review_needed": true,
-    "production_strength_review_protocol_preserved": true,
-    "raw_findings_require_adjudication": true,
-    "testing_pass_means": "READY_TO_BEGIN_RELEASE_QUALIFICATION",
-    "testing_pass_does_not_mean": "PRODUCTION_READY"
-  },
-  "current_work": {
-    "name": "Governed Platform - TESTING Phase Active",
-    "authoritative_branch": "phase/testing",
-    "authoritative_head": "a996426cc523b24f4e213525880d83c8ae8e30da",
-    "status": "TESTING_ACTIVE",
-    "continuity_summary": "The governed platform is now explicitly in TESTING. Code quality remains release-level, external API calls are off by default, review is manual by default, and review requests are phase-scoped so production-only concerns do not incorrectly block testing. The production-strength review protocol is preserved for later authority transitions.",
-    "allowed_use": ["session_resume", "task_routing", "context_preparation", "manual_review_packet_generation", "testing_falsification", "phase_promotion_preparation"],
-    "prohibited_use": ["claim_testing_is_production_ready", "auto_call_reviewer_api_without_phase_justification_and_user_approval", "promote_raw_reviewer_finding_to_rule", "skip_phase_release", "advance_release_or_production_without_exact_sha_qualification", "override_execution_handoff_from_chat_summary", "infer_execution_frontier_from_repository_head_alone"]
-  },
-  "execution_handoff": {
-    "sequence": 51,
-    "workstream": "Governed Platform - TESTING Phase Active",
-    "candidate_branch": "phase/testing",
-    "candidate_commit": "a996426cc523b24f4e213525880d83c8ae8e30da",
-    "phase": "TESTING_ACTIVE",
-    "next_required_action": "Continue testing from exact phase/testing head a996426cc523b24f4e213525880d83c8ae8e30da. Use release-level code quality, local/deterministic falsification first, no external API by default, and ask the user when review is needed. Do not promote to phase/release until overall testing pass criteria are satisfied.",
-    "stop_condition": "NONE",
-    "manual_input_required": false,
-    "resume_rule": "Verify phase/testing and latest checkpoint timestamp first; continue TESTING rules until an explicit governed phase promotion occurs."
-  },
-  "governance_runtime": {
-    "branch": "governance/live-conversation-runtime",
-    "pull_request": null,
-    "status": "NOT_YET_PRESENT",
-    "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
-    "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
-    "supported_review_transports": ["AUTOMATIC_API", "USER_INITIATED_API"],
-    "external_evidence_classes": ["USER_PROVIDED_EXTERNAL_CONTENT", "USER_ATTESTED_EXTERNAL_LLM_REVIEW"],
-    "production_auto_mode_transport": "AUTOMATIC_API",
-    "production_manual_mode_transport": "USER_INITIATED_API",
-    "current_collaboration_review_transport": null,
-    "current_external_evidence_channel": "USER_PASTE",
-    "semantic_review_schema_minimum_for_promotion": 4,
-    "positive_promotable_dispositions": ["PASS", "BOUNDED_PASS"],
-    "selected_next_reviewer": null,
-    "current_review_request_id": null,
-    "current_review_status": "NOT_YET_PRESENT",
-    "reviewed_candidate_commit": null,
-    "current_review_disposition": null,
-    "current_review_semantic_validation": null,
-    "current_review_effective_state": "PENDING_CANDIDATE_FREEZE",
-    "current_review_identity_assurance": null,
-    "current_review_counts_for_promotion": false,
-    "construction_evidence": {
-      "slice10_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0",
-      "slice10_exact_ci": "34358448341",
-      "slice10_merge": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
-      "main_administrative_cleanup_head": "a5726dcb9236e31028ec70603bee35b30b9dbe66",
-      "phase_testing_branch_created_from": "a5726dcb9236e31028ec70603bee35b30b9dbe66",
-      "phase_release_branch_created_from": "a5726dcb9236e31028ec70603bee35b30b9dbe66",
-      "phase_production_branch_created_from": "a5726dcb9236e31028ec70603bee35b30b9dbe66",
-      "phase_policy_contract": "46bee15010ad533dbf64044c56164db03d68c932",
-      "accelerator_candidate": "455d9db5fefb963cd7d860b0db87be8e324e27d0",
-      "accelerator_ci": "34404034281",
-      "phase_testing_merge": "a996426cc523b24f4e213525880d83c8ae8e30da"
-    },
-    "features_under_review": []
-  },
-  "pending_reviews": [
-    {
-      "purpose": "No active review; ask the user when a TESTING review is judged necessary",
-      "status": "PENDING_CANDIDATE_FREEZE",
-      "platform_mode": "MANUAL_MODE",
-      "review_request_id": null,
-      "review_transport": null,
-      "reviewed_artifact_commit": null,
-      "counts_for_current_promotion": false,
-      "superseded_review_requests": []
-    }
-  ],
-  "received_review_history": [
-    {"request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-008", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299", "workflow_run": 34326385606, "disposition": "PASS", "mandatory_dimensions": "15/15 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE7_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
-    {"request_id": "REV-MVP-SLICE8-REMOTE-TRANSPORT-001", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "4873d7a11383b5ba684cb92e399b18cfe2ffb304", "workflow_run": 34328209242, "disposition": "PASS", "mandatory_dimensions": "17/17 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE8_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
-    {"request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1", "workflow_run": 34346202247, "disposition": "PASS", "mandatory_dimensions": "16/16 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE9_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION_AND_SHA_PINNED_MERGE", "counts_for_current_promotion": false}
-  ],
-  "external_evidence_history": [
-    {"request_id": "MANUAL-R3-SLICE10-003", "origin": "user_pasted_deepseek_manual_review", "review_class": "USER_PROVIDED_EXTERNAL_CONTENT", "reviewed_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0", "disposition": "BOUNDED_PASS", "findings": 0, "provider_api_authenticated": false, "effective_use": "TESTING_FALSIFICATION_AND_BOUNDED_REVIEW_EVIDENCE", "counts_for_current_promotion": false}
-  ],
-  "memory_conflict_history": [
-    {"id": "LCG-SLICE10-MANUAL-REVIEW-PROMOTION-FALSE-GREEN", "observed": "Production-style authenticated-review authority was over-applied during testing and manual review was inconsistently interpreted.", "resolution": "PHASE_AWARE_POLICY_TESTING_MANUAL_DEFAULT_PRODUCTION_PROTOCOL_PRESERVED", "silent_merge": false},
-    {"id": "LCG-ACCELERATOR-NOOP-TOOLING-ERROR", "observed": "A temporary noop file was accidentally committed to main during accelerator branch setup and immediately removed.", "resolution": "DELETE_NOOP_PRESERVE_HISTORY_ADVANCE_ADMINISTRATIVE_HEAD", "silent_merge": false}
-  ],
-  "memory_rules": {
-    "repetition_upgrades_status": false,
-    "consensus_is_evidence": false,
-    "material_claim_requires_authority_resolution_before_promotion": true,
-    "stale_memory_must_be_marked_and_repaired": true,
-    "memory_write_failure_changes_authority": false,
-    "memory_write_failure_must_be_surfaced": true,
-    "platform_mode_changes_authority": false,
-    "manual_mode_user_skip_of_required_review_promotes_authority": false,
-    "external_content_self_declared_reviewer_is_authenticated": false,
-    "user_attested_external_review_is_provider_api_authenticated": false,
-    "external_evidence_may_satisfy_platform_review_gate": false,
-    "review_disposition_may_override_missing_required_review_evidence": false,
-    "legacy_review_schema_may_promote_material_authority": false,
-    "negative_review_disposition_may_promote_material_authority": false,
-    "chat_summary_may_override_execution_handoff": false,
-    "repository_head_alone_defines_execution_frontier": false,
-    "generic_continue_uses_execution_handoff": true
-  }
+  "sources": [{"class":"governed_checkpoint","path":"governance-runtime/session-state.json","use":"verified continuity pointer"},{"class":"chatgpt_project_memory_and_context","use":"shared working continuity input subject to reconciliation"},{"class":"external_agent_memory_or_review","use":"working/reviewer input with provenance; never authority by repetition"}],
+  "phase_policy": {"active_phase":"TESTING","branches":{"development":"main","testing":"phase/testing","release":"phase/release","production":"phase/production"},"promotion_order":["main","phase/testing","phase/release","phase/production"],"testing_code_quality_target":"RELEASE_LEVEL","testing_review_default":"MANUAL","testing_external_api_default":"OFF","testing_api_exception":"API_BOUNDARY_UNDER_TEST_OR_USER_APPROVED","ask_user_when_review_needed":true,"production_strength_review_protocol_preserved":true,"raw_findings_require_adjudication":true,"testing_pass_means":"READY_TO_BEGIN_RELEASE_QUALIFICATION","testing_pass_does_not_mean":"PRODUCTION_READY"},
+  "current_work": {"name":"Governed Platform - TESTING Phase Active / Slice11 Coding Agent Adapter Bounded Pass","authoritative_branch":"phase/testing","authoritative_head":"0286a8f8e6ba8c1b10efe6ab721f28d91591dab5","status":"TESTING_ACTIVE","continuity_summary":"Slice11 added a provider-neutral CodingAgentAdapter boundary. Contract c167cb5a and red-first harness d0856a2d preceded implementation; RED run 34406222786 preserved MECHANISM_NOT_IMPLEMENTED; candidate 75797d46 passed 18/18 adapter cases plus all existing regressions in 34406365514 and merged to phase/testing at 0286a8f8. No external reviewer/API call was made. Named agents remain replaceable adapters, never governance special cases.","allowed_use":["session_resume","task_routing","context_preparation","manual_review_packet_generation","testing_falsification","phase_promotion_preparation","coding_agent_adapter_attachment"],"prohibited_use":["claim_testing_is_production_ready","hard_code_named_coding_agent_into_governance","let_agent_self_approve_merge_release_deploy_or_promote","auto_call_reviewer_api_without_phase_justification_and_user_approval","promote_raw_reviewer_finding_to_rule","skip_phase_release","advance_release_or_production_without_exact_sha_qualification","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head_alone"]},
+  "execution_handoff": {"sequence":52,"workstream":"Governed Platform - TESTING Phase Active / Slice11 Coding Agent Adapter Bounded Pass","candidate_branch":"phase/testing","candidate_commit":"0286a8f8e6ba8c1b10efe6ab721f28d91591dab5","phase":"TESTING_ACTIVE","next_required_action":"Create and freeze the Testing Phase Completion Map from exact phase/testing head 0286a8f8e6ba8c1b10efe6ab721f28d91591dab5, explicitly including remaining coding-agent integration/adversarial boundaries and overall TESTING_EXIT_GATE. Continue release-level code quality, local/deterministic falsification first, no external API by default, and ask the user when review is needed.","stop_condition":"NONE","manual_input_required":false,"resume_rule":"Verify phase/testing and latest checkpoint timestamp first; continue TESTING rules until an explicit governed phase promotion occurs."},
+  "governance_runtime": {"branch":"governance/live-conversation-runtime","pull_request":null,"status":"NOT_YET_PRESENT","platform_modes":["AUTO_MODE","MANUAL_MODE"],"review_levels":["NONE","RECOMMENDED","REQUIRED"],"supported_review_transports":["AUTOMATIC_API","USER_INITIATED_API"],"external_evidence_classes":["USER_PROVIDED_EXTERNAL_CONTENT","USER_ATTESTED_EXTERNAL_LLM_REVIEW"],"production_auto_mode_transport":"AUTOMATIC_API","production_manual_mode_transport":"USER_INITIATED_API","current_collaboration_review_transport":null,"current_external_evidence_channel":"USER_PASTE","semantic_review_schema_minimum_for_promotion":4,"positive_promotable_dispositions":["PASS","BOUNDED_PASS"],"selected_next_reviewer":null,"current_review_request_id":null,"current_review_status":"NOT_YET_PRESENT","reviewed_candidate_commit":null,"current_review_disposition":null,"current_review_semantic_validation":null,"current_review_effective_state":"PENDING_CANDIDATE_FREEZE","current_review_identity_assurance":null,"current_review_counts_for_promotion":false,"construction_evidence":{"slice10_candidate":"0e5ec197bd2f725a79f415ff31862fb4664c67c0","slice10_exact_ci":"34358448341","slice10_merge":"58b3d19da3d4f7094213ffeebdc1d1b301aa82d7","main_administrative_cleanup_head":"a5726dcb9236e31028ec70603bee35b30b9dbe66","phase_testing_branch_created_from":"a5726dcb9236e31028ec70603bee35b30b9dbe66","phase_release_branch_created_from":"a5726dcb9236e31028ec70603bee35b30b9dbe66","phase_production_branch_created_from":"a5726dcb9236e31028ec70603bee35b30b9dbe66","phase_testing_accelerator_merge":"a996426cc523b24f4e213525880d83c8ae8e30da","slice11_contract":"c167cb5afbc1f4fbfc7342d38452e19d4c5bee0e","slice11_harness":"d0856a2dc60321caf8f8724a920703a229b21ff4","slice11_red_run":"34406222786","slice11_candidate":"75797d46463e3f393bdf0685cab8f640d24c8f54","slice11_qualification_run":"34406365514","slice11_merge":"0286a8f8e6ba8c1b10efe6ab721f28d91591dab5"},"features_under_review":[]},
+  "pending_reviews": [{"purpose":"No active review; ask the user when a TESTING review is judged necessary","status":"PENDING_CANDIDATE_FREEZE","platform_mode":"MANUAL_MODE","review_request_id":null,"review_transport":null,"reviewed_artifact_commit":null,"counts_for_current_promotion":false,"superseded_review_requests":[]}],
+  "received_review_history": [{"request_id":"REV-MVP-SLICE7-TERMINAL-EXECUTOR-008","origin":"platform_authenticated_openrouter_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"a4ad8bdd5b995e97529b08f12a7b3a7c6c924299","workflow_run":34326385606,"disposition":"PASS","mandatory_dimensions":"15/15 TESTED_SUPPORTED","findings":0,"provider_api_authenticated":true,"effective_use":"SLICE7_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION","counts_for_current_promotion":false},{"request_id":"REV-MVP-SLICE8-REMOTE-TRANSPORT-001","origin":"platform_authenticated_openrouter_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"4873d7a11383b5ba684cb92e399b18cfe2ffb304","workflow_run":34328209242,"disposition":"PASS","mandatory_dimensions":"17/17 TESTED_SUPPORTED","findings":0,"provider_api_authenticated":true,"effective_use":"SLICE8_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION","counts_for_current_promotion":false},{"request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-015","origin":"platform_authenticated_openrouter_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"16ae65c9d4939efc05aeff76f0ae2e708428b3b1","workflow_run":34346202247,"disposition":"PASS","mandatory_dimensions":"16/16 TESTED_SUPPORTED","findings":0,"provider_api_authenticated":true,"effective_use":"SLICE9_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION_AND_SHA_PINNED_MERGE","counts_for_current_promotion":false}],
+  "external_evidence_history": [{"request_id":"MANUAL-R3-SLICE10-003","origin":"user_pasted_deepseek_manual_review","review_class":"USER_PROVIDED_EXTERNAL_CONTENT","reviewed_candidate":"0e5ec197bd2f725a79f415ff31862fb4664c67c0","disposition":"BOUNDED_PASS","findings":0,"provider_api_authenticated":false,"effective_use":"TESTING_FALSIFICATION_AND_BOUNDED_REVIEW_EVIDENCE","counts_for_current_promotion":false}],
+  "memory_conflict_history": [{"id":"LCG-SLICE10-MANUAL-REVIEW-PROMOTION-FALSE-GREEN","observed":"Production-style authenticated-review authority was over-applied during testing and manual review was inconsistently interpreted.","resolution":"PHASE_AWARE_POLICY_TESTING_MANUAL_DEFAULT_PRODUCTION_PROTOCOL_PRESERVED","silent_merge":false},{"id":"LCG-ACCELERATOR-NOOP-TOOLING-ERROR","observed":"A temporary noop file was accidentally committed to main during accelerator branch setup and immediately removed.","resolution":"DELETE_NOOP_PRESERVE_HISTORY_ADVANCE_ADMINISTRATIVE_HEAD","silent_merge":false}],
+  "memory_rules": {"repetition_upgrades_status":false,"consensus_is_evidence":false,"material_claim_requires_authority_resolution_before_promotion":true,"stale_memory_must_be_marked_and_repaired":true,"memory_write_failure_changes_authority":false,"memory_write_failure_must_be_surfaced":true,"platform_mode_changes_authority":false,"manual_mode_user_skip_of_required_review_promotes_authority":false,"external_content_self_declared_reviewer_is_authenticated":false,"user_attested_external_review_is_provider_api_authenticated":false,"external_evidence_may_satisfy_platform_review_gate":false,"review_disposition_may_override_missing_required_review_evidence":false,"legacy_review_schema_may_promote_material_authority":false,"negative_review_disposition_may_promote_material_authority":false,"chat_summary_may_override_execution_handoff":false,"repository_head_alone_defines_execution_frontier":false,"generic_continue_uses_execution_handoff":true}
 }
