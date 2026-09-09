@@ -1,0 +1,61 @@
+{
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_9_CREDENTIAL_LEASE_GATE",
+  "candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-004",
+  "workflow_run_id": 34341963676,
+  "review_artifact_id": 10100114662,
+  "review_corpus_sha256": "56a30889468b9b32a50445e7317e6f4c2b5ab2c535a76a33079ceeaa01ce8a5c",
+  "claimed_disposition": "PASS",
+  "claimed_validation_valid": true,
+  "claimed_dimensions_supported": 16,
+  "claimed_dimensions_total": 16,
+  "effective_disposition": "INVALID_REVIEW_EVIDENCE_OVERCLAIM",
+  "counts_for_promotion": false,
+  "authority_effect": "NONE",
+  "classification": [
+    "SEMANTIC_REVIEW_EVIDENCE_OVERCLAIM",
+    "REVIEW_COVERAGE_NOT_SUBSET_OF_MATERIALIZED_CORPUS",
+    "FALSE_GREEN_REVIEW_PREVENTED_BY_DETERMINISTIC_REVIEW_OF_REVIEW"
+  ],
+  "reasons": [
+    "The authenticated OpenRouter/DeepInfra review itself completed successfully, reviewed the exact candidate commit, returned PASS, had zero findings, and passed the structural validator.",
+    "However, the residual_contract_bypass_search dimension cites 'Full code review of integrated_governed_mvp_credential_lease.py and test suite' as its evidence and marks that dimension TESTED_SUPPORTED.",
+    "The materialized review corpus for REV-MVP-SLICE9-CREDENTIAL-LEASE-004 contains the Slice9 contract, Slice9 mechanism source, real-Slice8 integration test, exact-head CI evidence, and history records, but deliberately does not contain experiments/governed-platform/governance/test_integrated_governed_mvp_slice9_credential_lease.py.",
+    "Therefore the review claims direct access to a full test suite that was not materialized. Model confidence and validator shape checks cannot substitute for evidence-presence verification.",
+    "The overclaim does not establish a candidate defect. It establishes that the semantic PASS cannot be promoted without a corrected evidence-bounded review."
+  ],
+  "materialized_direct_source_files": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE9_CREDENTIAL_LEASE_GATE_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_credential_lease.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice9_real_slice8_integrity.py"
+  ],
+  "explicitly_not_materialized": [
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice9_credential_lease.py",
+    "experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py"
+  ],
+  "provider_execution": {
+    "gateway": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "requested_serving_provider": "deepinfra",
+    "returned_serving_provider": "DeepInfra",
+    "fallbacks_allowed": false,
+    "provider_call_started_at": "2026-09-09T10:45:58.436574Z",
+    "provider_call_completed_at": "2026-09-09T10:46:34.093651Z",
+    "provider_latency_ms": 35657.077,
+    "http_status": 200
+  },
+  "candidate_change_required": false,
+  "frozen_harness_change_required": false,
+  "next_action": "Request a corrected blind independent review against the same exact candidate using the same capacity-bounded direct-evidence corpus. Explicitly tell the reviewer that the full generic Slice9 acceptance-harness source and full Slice8 transport source are not present; it must not claim to have reviewed them. Each TESTED_SUPPORTED dimension must cite only evidence actually materialized. Exact-head CI may be used as execution evidence but not as a substitute for absent source semantics.",
+  "historical_failures_preserved": [
+    "34339080182 pre-mechanism red boundary",
+    "34339328915 initial mechanism false green",
+    "34339776553 real-Slice8 defect exposure",
+    "34340184306 stale-fixture isolation",
+    "34340992573 review -001 pre-inference output-credit refusal",
+    "34341301527 review -002 pre-inference prompt-credit refusal",
+    "34341675347 review -003 pre-inference prompt-credit refusal",
+    "34341963676 review -004 semantic PASS invalidated by deterministic evidence-overclaim check"
+  ],
+  "scientific_endpoint_reached": false
+}
