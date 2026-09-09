@@ -1,24 +1,22 @@
 {
   "enabled": true,
-  "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003",
-  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003.json",
-  "reviewed_candidate_commit": "b0d8be7b6f082726ed54c14be19f304ac876f02b",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-001",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-001.json",
+  "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_PUBLIC_TELEMETRY_PRIVACY_HOTFIX_R3_DEEPINFRA_PINNED_5500_REVIEW_REQUESTED",
-  "request_hash": "972888dfe0f9f3b4e8e813e8a16d49ae77bfe661c90f42b8fc56bcedf58f4c30",
+  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_DEEPINFRA_PINNED_5500_REVIEW_REQUESTED",
+  "request_hash": "796b75effb5b0c13f7cc915a64c2d6cd34c2d637bf8b6ebf68cc05160ee519ac",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
-    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-001","workflow_run_id":34331594467,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-002","workflow_run_id":34332001989,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OVERBROAD_PROMPT_141557_GT_48906","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34332608256,"result":"VALIDATED_PASS_18_OF_18_WITH_ATTEMPT1_DEEPINFRA_429_ATTEMPT2_SUCCESS","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34333520880,"result":"POST_MERGE_OBSERVABILITY_SMOKE_OPENROUTER_HTTP_402_WITH_NORMALIZED_TELEMETRY","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001","workflow_run_id":34334344769,"result":"VALIDATED_PASS_14_OF_14_MAIN_DASHBOARD_PROMOTION","semantic_authority":false,"note":"Prior deployment review only; does not substitute for this exact hotfix review."},
-    {"review_request_id":"REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-001","workflow_run_id":34336362859,"result":"PRE_INFERENCE_EVIDENCE_MATERIALIZATION_CI_HEAD_MISMATCH","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-002","workflow_run_id":34336734551,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_7000_GT_6146","semantic_authority":false}
+    {"workflow_run_id":34339080182,"result":"MECHANISM_NOT_IMPLEMENTED_RED_BOUNDARY","semantic_authority":false},
+    {"workflow_run_id":34339328915,"result":"FALSE_GREEN_SYNTHETIC_SLICE8_FIXTURE","semantic_authority":false},
+    {"workflow_run_id":34339776553,"result":"REAL_SLICE8_INTEGRATION_DEFECT_EXPOSED_4_OF_4_FAIL","semantic_authority":false},
+    {"workflow_run_id":34340184306,"result":"MECHANISM_REPAIRED_FIXTURE_DEFECT_REMAINED","semantic_authority":false},
+    {"workflow_run_id":34340343645,"result":"EXACT_HEAD_QUALIFICATION_SUCCESS","semantic_authority":false}
   ]
 }
