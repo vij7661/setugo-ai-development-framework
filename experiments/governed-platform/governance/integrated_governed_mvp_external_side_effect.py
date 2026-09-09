@@ -174,8 +174,14 @@ class ReferenceExternalProvider:
             }
             result["provider_result_digest"] = canonical_hash({k: deepcopy(v) for k, v in result.items() if k != "provider_result_digest"})
             with self._connect() as con:
-                con.execute("INSERT INTO effects VALUES(?,?,?)", (key, binding_hash, _canon(result)))
-            existing = result
+                cursor = con.execute("INSERT OR IGNORE INTO effects VALUES(?,?,?)", (key, binding_hash, _canon(result)))
+                if cursor.rowcount == 1:
+                    existing = result
+                else:
+                    row = con.execute("SELECT result_json FROM effects WHERE external_idempotency_key=?", (key,)).fetchone()
+                    if row is None:
+                        raise RuntimeError("provider idempotency race lost without durable effect")
+                    existing = json.loads(row["result_json"])
 
         if self.mode == "timeout_after_commit":
             raise TimeoutAfterCommit("reference timeout after provider commit")
@@ -461,6 +467,9 @@ class ExternalSideEffectGateway:
                     return self._result("REFERENCE_EFFECT_REPLAYED", evidence=raced["evidence"], external_idempotency_key=expected_key, reason="concurrent exact completed external effect replay")
                 return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", external_idempotency_key=expected_key, reason="concurrent exact intent already in progress; reconcile before retry")
 
+        if not self._lease_current_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
+            self._set_status(expected_key, "FAILED")
+            return self._result("DENY_AUTHORITY_OR_LEASE", reason="authority or credential lease changed before provider dispatch", external_idempotency_key=expected_key)
         if crash_point == "before_dispatch":
             raise SimulatedCrash("before provider dispatch")
         self._record({
@@ -478,6 +487,9 @@ class ExternalSideEffectGateway:
         except TimeoutAfterCommit as exc:
             self._set_status(expected_key, "UNKNOWN")
             return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", reason=str(exc), external_idempotency_key=expected_key)
+        except Exception as exc:
+            self._set_status(expected_key, "FAILED")
+            return self._result("REFERENCE_EFFECT_FAILED", reason=_sanitize_text(str(exc)), external_idempotency_key=expected_key)
 
         if crash_point == "after_dispatch_before_response":
             raise SimulatedCrash("after provider dispatch before response interpretation")
