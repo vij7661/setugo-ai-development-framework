@@ -1,0 +1,56 @@
+name: Provider Review Telemetry Falsification
+
+on:
+  pull_request:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md"
+      - "governance-runtime/provider_review_telemetry.py"
+      - "governance-runtime/platform_candidate_review_v7.py"
+      - "governance-runtime/review_orchestration_summary.py"
+      - "governance-runtime/test_provider_review_telemetry.py"
+      - "governance-runtime/test_platform_candidate_review_v7_telemetry.py"
+      - "governance-runtime/test_provider_review_dashboard_integration.py"
+      - ".github/workflows/governance-candidate-platform-review.yml"
+      - ".github/workflows/governed-platform-dashboard-pages.yml"
+      - ".github/workflows/provider-review-telemetry.yml"
+      - "experiments/governed-platform/observability/dashboard/**"
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-provider-telemetry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Run frozen TEL-01 through TEL-24
+        working-directory: governance-runtime
+        run: python -m unittest -v test_provider_review_telemetry.py
+      - name: Expose and qualify reviewer v7 telemetry integration
+        working-directory: governance-runtime
+        run: python -m unittest -v test_platform_candidate_review_v7_telemetry.py
+      - name: Expose and qualify telemetry dashboard publication
+        working-directory: governance-runtime
+        run: python -m unittest -v test_provider_review_dashboard_integration.py
+      - name: Existing review governance regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v test_platform_candidate_review_request_integrity.py
+          python -m unittest -v test_review_protocol.py
+          python -m unittest -v test_review_semantics.py
+      - name: Forbid provider-specific telemetry renderer branches
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          paths=[Path('governance-runtime/provider_review_telemetry.py')]
+          for path in paths:
+            if not path.exists():
+              continue
+            text=path.read_text(encoding='utf-8').lower()
+            for needle in ('if provider == "openrouter"','if provider == "gemini"','if provider == "groq"',"if provider == 'openrouter'","if provider == 'gemini'","if provider == 'groq'"):
+              if needle in text:
+                raise SystemExit(f'provider-specific telemetry branch forbidden: {needle}')
+          PY

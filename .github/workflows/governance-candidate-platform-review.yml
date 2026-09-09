@@ -91,6 +91,8 @@ jobs:
               --output-dir governance-review-evidence \
               --provider "$REVIEW_PROVIDER" \
               --model "$REVIEW_MODEL" \
+              --attempt-index "$attempt" \
+              --credential-profile "$REVIEW_CREDENTIAL_PROFILE" \
               2> >(tee governance-review-evidence/provider-error-attempt.log >&2)
             rc=$?
             set -e
@@ -99,7 +101,18 @@ jobs:
               echo "provider_attempt_result=success" | tee -a governance-review-evidence/provider-attempts.log
               break
             fi
-            if grep -Eqi '502|503|429|high demand|temporarily unavailable|temporarily overloaded|service unavailable|upstream error|rate limit|too many requests' governance-review-evidence/provider-error-attempt.log; then
+            retryable="false"
+            if [ -f "governance-review-evidence/telemetry-attempt-${attempt}.json" ]; then
+              retryable="$(python - "$attempt" <<'PY'
+          import json,sys
+          from pathlib import Path
+          attempt=sys.argv[1]
+          row=json.loads(Path(f'governance-review-evidence/telemetry-attempt-{attempt}.json').read_text(encoding='utf-8'))
+          print('true' if row.get('retryable') is True else 'false')
+          PY
+              )"
+            fi
+            if [ "$retryable" = "true" ]; then
               echo "provider_attempt_result=transient_unavailable" | tee -a governance-review-evidence/provider-attempts.log
               if [ "$attempt" -lt 3 ]; then
                 sleep $((attempt * 20))
@@ -110,6 +123,19 @@ jobs:
             fi
             break
           done
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'governance-runtime')
+          import provider_review_telemetry as telemetry
+          rows=[]
+          for path in sorted(Path('governance-review-evidence').glob('telemetry-attempt-*.json')):
+              rows.append(json.loads(path.read_text(encoding='utf-8')))
+          summary=telemetry.aggregate_attempts(rows)
+          Path('governance-review-evidence/provider-review-telemetry.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          dashboard=telemetry.build_dashboard_data(rows)
+          Path('governance-review-evidence/provider-review-telemetry-dashboard.json').write_text(json.dumps(dashboard,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          PY
           exit "$rc"
       - name: Record fail-closed status
         if: always()
@@ -131,8 +157,9 @@ jobs:
           if not isinstance(policy,dict): policy={}
           err=Path('governance-review-evidence/provider-error.log')
           attempts=Path('governance-review-evidence/provider-attempts.log')
+          telemetry_path=Path('governance-review-evidence/provider-review-telemetry.json')
           status={
-            'schema_version':8,
+            'schema_version':9,
             'review_request_path':t.get('review_request_path'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
@@ -152,6 +179,7 @@ jobs:
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
             'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
             'provider_attempt_log':attempts.read_text(encoding='utf-8',errors='replace')[-2000:] if attempts.exists() else None,
+            'provider_telemetry_present':telemetry_path.exists(),
             'failure_detail':err.read_text(encoding='utf-8',errors='replace')[-4000:] if err.exists() else None,
           }
           Path('governance-review-evidence/workflow-status.json').write_text(json.dumps(status,indent=2,sort_keys=True)+'\n',encoding='utf-8')
