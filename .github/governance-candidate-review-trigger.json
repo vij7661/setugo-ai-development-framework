@@ -1,20 +1,21 @@
 {
   "enabled": true,
-  "review_request_id": "REV-PROVIDER-REVIEW-TELEMETRY-003",
-  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-REVIEW-TELEMETRY-003.json",
-  "reviewed_candidate_commit": "fad6c8257701381053955e58c893f13ae28bdd5b",
+  "review_request_id": "REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001",
+  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001.json",
+  "reviewed_candidate_commit": "7c51e729edf3c0dcf2893b4caaee42d34ca31249",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "POST_MERGE_PROVIDER_TELEMETRY_SMOKE_REQUESTED",
-  "request_hash": "13b5fb2836d2c6c5cf8536b1284d428157fac76032f2aa44a4096a858439b890",
+  "status": "AUTHENTICATED_TELEMETRY_MAIN_PROMOTION_R3_DEEPINFRA_PINNED_7000_REVIEW_REQUESTED",
+  "request_hash": "ef922d2f131eef030bf1367a4feb8b6895d17d32e1c7aa44ed45b2826f161ddf",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
     {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-001","workflow_run_id":34331594467,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY","semantic_authority":false},
     {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-002","workflow_run_id":34332001989,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OVERBROAD_PROMPT_141557_GT_48906","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34332608256,"result":"VALIDATED_PASS_18_OF_18_WITH_ATTEMPT1_DEEPINFRA_429_ATTEMPT2_SUCCESS","semantic_authority":false,"note":"Preserved as independent review evidence; this smoke does not create additional promotion authority."}
+    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34332608256,"result":"VALIDATED_PASS_18_OF_18_WITH_ATTEMPT1_DEEPINFRA_429_ATTEMPT2_SUCCESS","semantic_authority":false},
+    {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34333520880,"result":"POST_MERGE_OBSERVABILITY_SMOKE_OPENROUTER_HTTP_402_WITH_NORMALIZED_TELEMETRY","semantic_authority":false}
   ]
 }
