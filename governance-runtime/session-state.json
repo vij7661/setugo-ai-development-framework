@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "checkpoint_id": "LIVE-CONV-2026-09-09-047",
+  "checkpoint_id": "LIVE-CONV-2026-09-09-048",
   "checkpoint_state": "ACTIVE",
   "authority": {
     "repository": "vij7661/setugo-ai-development-framework",
@@ -40,45 +40,45 @@
     "write_order": "AUTHORITATIVE_PERSIST_FIRST_THEN_MEMORY_SYNC",
     "on_write_failure_after_authoritative_persist": "AUTHORITY_REMAINS_VALID_MEMORY_STALE",
     "on_authoritative_persist_failure": "BLOCK_AUTHORITATIVE_COMPLETION",
-    "last_observed_conflict": "Post-telemetry promotion continuity pointers lagged main and were repaired before privacy-hotfix review; privacy false-green and all review/provider failures remain preserved."
+    "last_observed_conflict": "Slice9 review required multiple fail-closed provider/reviewer attempts; final R2 full-harness Review 015 was accepted only after deterministic adjudication. Prior failures remain preserved."
   },
   "execution_handoff": {
-    "sequence": 47,
-    "workstream": "Provider Review Telemetry - Privacy Hotfix Closed",
+    "sequence": 48,
+    "workstream": "Integrated Governed MVP Slice9 - External Credential Lease Gate Closed",
     "candidate_branch": "main",
-    "candidate_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
-    "phase": "BOUNDED_ACCEPTED_LIVE",
-    "last_completed_action": "PR20 merged exact privacy-hotfix candidate b0d8be7b6f082726ed54c14be19f304ac876f02b to main at 417e60aab4f8d220e3de889e5683e6642ddd3431 after exact-head CI 34335165103, independent R3 PASS 12/12, deterministic adjudication, Pages deployment 34337388108, and artifact-level redaction verification.",
-    "next_required_action": "Reconcile the accepted integrated governed-platform frontier and freeze the next bounded workstream contract before implementation; do not infer the next mechanism from conversational memory alone.",
+    "candidate_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+    "phase": "BOUNDED_ACCEPTED",
+    "last_completed_action": "PR21 merged exact Slice9 candidate 16ae65c9d4939efc05aeff76f0ae2e708428b3b1 to main at ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 after exact-head CI 34340343645, independent full-harness R2 Review 015 PASS 16/16, deterministic adjudication 7a7e522204790e79f925fd7e13f3c5b52d4a0df0, and exact merge-parent verification.",
+    "next_required_action": "Reconcile the accepted integrated governed-platform frontier at main ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 and freeze the next bounded workstream contract from repository evidence before implementation; do not infer the next mechanism from conversational memory alone.",
     "stop_condition": "NONE",
     "manual_input_required": false,
     "manual_deliverable": "No manual input required.",
-    "handoff_reason": "Provider-neutral reviewer telemetry and its public privacy hotfix are now bounded accepted/live; next work must begin from the verified main frontier.",
-    "historical_failure_preserved": "Preserve telemetry deployment false-green a8c666a0, privacy red exposure 1711f29f/run34334884029, HOTFIX-001 pre-inference materialization failure 34336362859, HOTFIX-002 OpenRouter HTTP402 capacity failure 34336734551, plus earlier telemetry/provider failures.",
-    "resume_rule": "On generic CONTINUE, first verify main is 417e60aab4f8d220e3de889e5683e6642ddd3431 or identify any newer timestamped authoritative state, then execute the verified handoff next action."
+    "handoff_reason": "Slice9 is bounded accepted and merged; the next workstream must start from the verified post-merge frontier.",
+    "historical_failure_preserved": "Preserve Slice9 pre-mechanism RED 34339080182; false green cd610023/34339328915; real-Slice8 defect exposure 34339776553; fixture defect run 34340184306; R3 capacity/schema failures; Review004 evidence-overclaim adjudication c0229bc7; Review013 overclaim block; Review014 truncation.",
+    "resume_rule": "On generic CONTINUE, first verify main is ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 or identify any newer timestamped authoritative state, then execute the verified handoff next action."
   },
   "active_workstream": {
-    "name": "Provider Review Telemetry - Privacy Hotfix Closed",
+    "name": "Integrated Governed MVP Slice9 - External Credential Lease Gate Closed",
     "branch": "main",
-    "head_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
-    "state": "BOUNDED_ACCEPTED_LIVE",
-    "preregistration_commit": "09054454e2177a56d312dd6e5fcee8a2ba23cfd2",
-    "frozen_acceptance_harness_commit": "1e45e307d6a472e4f3b1828e729caec20cd0ab24",
-    "first_mechanism_commit": "fad6c8257701381053955e58c893f13ae28bdd5b",
-    "preserved_failure_record_commit": "1711f29f7fb5f373c30c4bb8c1d99b0c0004c807",
-    "frozen_cases": "TEL-01..TEL-24 plus public legacy principal/account identifier re-sanitization regression",
+    "head_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+    "state": "BOUNDED_ACCEPTED",
+    "preregistration_commit": "c45cf1338960ce60c20d1a96e17de1e8f94d9565",
+    "frozen_acceptance_harness_commit": "98e6f62e555ba479b2fffacfc6b31842bf40acd1",
+    "first_mechanism_commit": "cd610023264f78516a44d573e5a3bd228739f331",
+    "preserved_failure_record_commit": "25016c3ec8ceb675a1d98cb9be1d6539d4191dd5",
+    "frozen_cases": "S9-01..S9-25 plus deterministic lease-ID/future-provider and real-Slice8 integrity supplemental cases",
     "latest_result": {
-      "passed": 1,
-      "total": 1,
+      "passed": 27,
+      "total": 27,
       "failures": []
     },
     "next_action": "Reconcile accepted integrated frontier and freeze the next bounded workstream before implementation.",
-    "forbidden_shortcut": "Do not hard-code provider dashboard rows; do not persist or publicly republish secret/principal identifiers; do not infer success or authority from telemetry; do not select the next mechanism from stale chat memory."
+    "forbidden_shortcut": "Do not treat credential possession as authority; do not persist or expose raw secrets; do not claim production secret-manager/IAM/provider safety; do not select the next mechanism from stale chat memory."
   },
   "accepted_prior_boundary": {
-    "name": "Provider-neutral reviewer telemetry with public privacy hotfix",
-    "scientific_freeze_commit": "b0d8be7b6f082726ed54c14be19f304ac876f02b",
-    "bounded_adjudication_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
+    "name": "Integrated Governed MVP Slice9 - deterministic local reference external credential lease gate",
+    "scientific_freeze_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
+    "bounded_adjudication_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
     "state": "BOUNDED_PASS"
   },
   "independent_review": {

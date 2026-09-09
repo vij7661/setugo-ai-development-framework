@@ -12,24 +12,24 @@
     {"class": "external_agent_memory_or_review", "use": "working/reviewer input with provenance; never authority by repetition"}
   ],
   "current_work": {
-    "name": "Provider Review Telemetry - Privacy Hotfix Closed",
+    "name": "Integrated Governed MVP Slice9 - External Credential Lease Gate Closed",
     "authoritative_branch": "main",
-    "authoritative_head": "417e60aab4f8d220e3de889e5683e6642ddd3431",
-    "status": "BOUNDED_ACCEPTED_LIVE",
-    "continuity_summary": "Provider-neutral reviewer telemetry is live on the dashboard. The public privacy false-green was exposed, repaired, independently reviewed, SHA-pinned merged, redeployed, and artifact-verified: historical 402 failures remain visible while provider-side principal/account identifiers are redacted.",
+    "authoritative_head": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+    "status": "BOUNDED_ACCEPTED",
+    "continuity_summary": "Slice9 is merged as a bounded deterministic local reference credential-lease gate after red-first falsification, real-Slice8 integration repair, exact-head qualification, full-harness independent R2 PASS 16/16, deterministic adjudication, and SHA-pinned merge. No production secret-manager/IAM/provider or real external side-effect safety is claimed.",
     "allowed_use": ["session_resume", "task_routing", "context_preparation", "external_evidence_reference"],
-    "prohibited_use": ["hard_code_provider_dashboard_rows", "persist_api_secret_values", "publicly_republish_provider_principal_identifiers", "treat_latency_as_authority", "rewrite_prior_failures", "override_execution_handoff_from_chat_summary", "infer_execution_frontier_from_repository_head_alone"]
+    "prohibited_use": ["treat_credential_as_authority", "persist_raw_secret_values", "claim_production_secret_manager_or_iam_safety", "rewrite_prior_failures", "override_execution_handoff_from_chat_summary", "infer_execution_frontier_from_repository_head_alone"]
   },
   "execution_handoff": {
-    "sequence": 47,
-    "workstream": "Provider Review Telemetry - Privacy Hotfix Closed",
+    "sequence": 48,
+    "workstream": "Integrated Governed MVP Slice9 - External Credential Lease Gate Closed",
     "candidate_branch": "main",
-    "candidate_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
-    "phase": "BOUNDED_ACCEPTED_LIVE",
-    "next_required_action": "Reconcile the accepted integrated governed-platform frontier and freeze the next bounded workstream contract before implementation; do not infer the next mechanism from conversational memory alone.",
+    "candidate_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+    "phase": "BOUNDED_ACCEPTED",
+    "next_required_action": "Reconcile the accepted integrated governed-platform frontier at main ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 and freeze the next bounded workstream contract from repository evidence before implementation; do not infer the next mechanism from conversational memory alone.",
     "stop_condition": "NONE",
     "manual_input_required": false,
-    "resume_rule": "On generic CONTINUE, first verify main is 417e60aab4f8d220e3de889e5683e6642ddd3431 or identify any newer timestamped authoritative state, then execute the verified handoff next action."
+    "resume_rule": "On generic CONTINUE, first verify main is ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 or identify any newer timestamped authoritative state, then execute the verified handoff next action."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
@@ -55,15 +55,15 @@
     "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
     "construction_evidence": {
-      "telemetry_main_merge": "a8c666a0862e3338bf3858644e79466980b11fce",
-      "privacy_red_commit": "1711f29f7fb5f373c30c4bb8c1d99b0c0004c807",
-      "privacy_red_run": "34334884029",
-      "privacy_repair_candidate": "b0d8be7b6f082726ed54c14be19f304ac876f02b",
-      "privacy_exact_ci": "34335165103",
-      "privacy_review": "34336948191",
-      "privacy_adjudication": "078a812308113a68d4c1e9b642e8c2cf7afb8da3",
-      "privacy_merge": "417e60aab4f8d220e3de889e5683e6642ddd3431",
-      "privacy_pages_run": "34337388108"
+      "slice9_pr": 21,
+      "slice9_contract": "c45cf1338960ce60c20d1a96e17de1e8f94d9565",
+      "slice9_candidate": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
+      "slice9_exact_ci": "34340343645",
+      "slice9_review": "34346202247",
+      "slice9_review_request": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015",
+      "slice9_review_artifact": "10101800112",
+      "slice9_adjudication": "7a7e522204790e79f925fd7e13f3c5b52d4a0df0",
+      "slice9_merge": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137"
     },
     "features_under_review": []
   },
@@ -83,15 +83,16 @@
     {"request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-008", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299", "workflow_run": 34326385606, "disposition": "PASS", "mandatory_dimensions": "15/15 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE7_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
     {"request_id": "REV-MVP-SLICE8-REMOTE-TRANSPORT-001", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "4873d7a11383b5ba684cb92e399b18cfe2ffb304", "workflow_run": 34328209242, "disposition": "PASS", "mandatory_dimensions": "17/17 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE8_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
     {"request_id": "REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "7c51e729edf3c0dcf2893b4caaee42d34ca31249", "workflow_run": 34334344769, "disposition": "PASS", "mandatory_dimensions": "14/14 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "TELEMETRY_DASHBOARD_ACCEPTED_BEFORE_POST_DEPLOY_PRIVACY_FALSE_GREEN", "counts_for_current_promotion": false},
-    {"request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "b0d8be7b6f082726ed54c14be19f304ac876f02b", "workflow_run": 34336948191, "disposition": "PASS", "mandatory_dimensions": "12/12 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "PRIVACY_HOTFIX_ACCEPTED_AFTER_POST_MERGE_ARTIFACT_VALIDATION", "counts_for_current_promotion": false}
+    {"request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "b0d8be7b6f082726ed54c14be19f304ac876f02b", "workflow_run": 34336948191, "disposition": "PASS", "mandatory_dimensions": "12/12 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "PRIVACY_HOTFIX_ACCEPTED_AFTER_POST_MERGE_ARTIFACT_VALIDATION", "counts_for_current_promotion": false},
+    {"request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1", "workflow_run": 34346202247, "disposition": "PASS", "mandatory_dimensions": "16/16 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE9_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION_AND_SHA_PINNED_MERGE", "counts_for_current_promotion": false}
   ],
   "external_evidence_history": [],
   "memory_conflict_history": [
     {"id": "LCG-F21", "observed": "Earlier PR10/PR11 checkpoint drift was repaired historically.", "resolution": "PRESERVED_HISTORY", "silent_merge": false},
     {"id": "LCG-SLICE8-STALE-044", "observed": "Checkpoint 044 still pointed to Slice5/PR11 while authoritative integrated lineage had advanced through Slice7 and Slice8.", "resolution": "CHECKPOINT_045_RECONCILE_TO_VERIFIED_GIT_FRONTIER", "silent_merge": false},
-    {"id": "LCG-SLICE8-045-WORDING", "observed": "Checkpoint 045 and shared-memory handoff used semantically equivalent but non-identical next-action wording.", "resolution": "EXACT_STRING_ALIGNMENT_THEN_GREEN_RUN_34328725505", "silent_merge": false},
-    {"id": "LCG-TELEMETRY-POST-PROMOTION-STALE-MAIN", "observed": "Session/shared continuity still pointed to pre-telemetry main while main had advanced to a8c666a0.", "resolution": "SYNCHRONIZED_BEFORE_PRIVACY_HOTFIX_REVIEW", "silent_merge": false},
-    {"id": "LCG-TELEMETRY-PRIVACY-FALSE-GREEN", "observed": "Public Pages artifact contained a provider-side principal identifier inside historical HTTP 402 error detail despite prior semantic PASS.", "resolution": "RED_TEST_NARROW_REPAIR_FRESH_R3_REVIEW_SHA_PINNED_MERGE_POST_MERGE_ARTIFACT_VERIFICATION", "silent_merge": false}
+    {"id": "LCG-TELEMETRY-PRIVACY-FALSE-GREEN", "observed": "Public Pages artifact contained a provider-side principal identifier inside historical HTTP 402 error detail despite prior semantic PASS.", "resolution": "RED_TEST_NARROW_REPAIR_FRESH_R3_REVIEW_SHA_PINNED_MERGE_POST_MERGE_ARTIFACT_VERIFICATION", "silent_merge": false},
+    {"id": "LCG-SLICE9-SYNTHETIC-S8-FALSE-GREEN", "observed": "Initial Slice9 green suite used an invented upstream Slice8 fixture shape and did not prove accepted Slice8 compatibility.", "resolution": "REAL_SLICE8_INTEGRITY_TESTS_RED_FIRST_MECHANISM_REPAIR_FIXTURE_CORRECTION_FULL_REQUALIFICATION", "silent_merge": false},
+    {"id": "LCG-SLICE9-REVIEW-EVIDENCE-OVERCLAIMS", "observed": "R3 Review004 and R2 Review013 returned PASS labels whose wording exceeded materialized evidence; both were denied promotion.", "resolution": "FULL_S9_HARNESS_MATERIALIZED_IN_REVIEW015_AND_DETERMINISTIC_REVIEW_OF_REVIEW", "silent_merge": false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "closure_id": "SLICE9-POST-MERGE-CLOSURE-001",
+  "workstream": "Integrated Governed MVP Slice9 - External Credential Lease Gate",
+  "pull_request": 21,
+  "base_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
+  "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
+  "merge_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+  "merge_timestamp_utc": "2026-09-09T11:39:28Z",
+  "candidate_ci_run": 34340343645,
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015",
+  "review_run": 34346202247,
+  "review_result": "PASS_16_OF_16_TESTED_SUPPORTED_ZERO_FINDINGS",
+  "deterministic_adjudication_commit": "7a7e522204790e79f925fd7e13f3c5b52d4a0df0",
+  "adjudication_validation_run": 34346498143,
+  "merge_guard": "EXPECTED_HEAD_SHA_ENFORCED",
+  "post_merge_checks": {
+    "main_equals_merge_commit": true,
+    "first_parent_equals_pre_merge_main": true,
+    "second_parent_equals_exact_reviewed_candidate": true,
+    "post_merge_workflows_configured_for_merge_sha": false,
+    "unresolved_pr_review_threads": 0
+  },
+  "bounded_result": "PASS",
+  "nonclaims": [
+    "No production secret-manager safety is proven.",
+    "No cloud IAM safety is proven.",
+    "No production credential/provider security is proven.",
+    "No real GitHub/cloud/provider terminal side effect is proven.",
+    "No review, CI, credential, or lease possession grants terminal authority."
+  ],
+  "preserved_history": [
+    "34339080182 pre-mechanism RED boundary",
+    "cd610023/34339328915 synthetic-Slice8 false green",
+    "34339776553 real-Slice8 integration defect exposure",
+    "34340184306 stale fixture defect isolation",
+    "c0229bc7 Review004 evidence-overclaim block",
+    "34343605514 reviewer output-schema defect",
+    "34344903224 R3 prompt-credit capacity block",
+    "34345442861 R2 Review013 PASS not promoted due execution-evidence overclaim",
+    "34345922227 R2 Review014 output truncation"
+  ]
+}
