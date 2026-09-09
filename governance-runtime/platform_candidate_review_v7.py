@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
+import re
+import time
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 import platform_candidate_review as legacy
 import platform_candidate_evidence_v3 as evidence_v3
 import platform_candidate_review_v5 as v5
+import provider_review_telemetry as telemetry
 
 SUPPORTED_PROVIDERS = set(v5.SUPPORTED_PROVIDERS)
 OPENROUTER_URL = v5.OPENROUTER_URL
@@ -19,6 +23,13 @@ required_secret_name = v5.required_secret_name
 build_prompt = v5.build_prompt
 validate = v5.validate
 execution_envelope = v5.execution_envelope
+
+_HTTP_STATUS = re.compile(r"\bHTTP(?:\s+error)?\s+(\d{3})\b", re.IGNORECASE)
+_RETRYABLE_HTTP = {408, 425, 429, 500, 502, 503, 504}
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _normalized_provider(value: str) -> str:
@@ -162,14 +173,96 @@ def invoke(
     return v5.invoke(provider, key, model, prompt)
 
 
+def classify_attempt_failure(exc: BaseException) -> tuple[bool, int | None, str]:
+    """Classify attempt failures from transport/error shape, never provider identity."""
+    text = str(exc)
+    low = text.lower()
+    match = _HTTP_STATUS.search(text)
+    status = int(match.group(1)) if match else None
+    if status is not None:
+        return status in _RETRYABLE_HTTP, status, f"HTTP_{status}"
+    if "serving provider mismatch" in low:
+        return False, None, "SERVING_PROVIDER_MISMATCH"
+    if "model mismatch" in low:
+        return False, None, "MODEL_MISMATCH"
+    if "timeout" in low or "timed out" in low:
+        return True, None, "TRANSPORT_TIMEOUT"
+    if any(token in low for token in ("temporarily unavailable", "temporarily overloaded", "high demand", "rate limit", "too many requests", "upstream error")):
+        return True, None, "TRANSIENT_PROVIDER_UNAVAILABLE"
+    if any(token in low for token in ("connection failed", "connection reset", "connection refused", "network is unreachable")):
+        return True, None, "TRANSPORT_CONNECTION_FAILURE"
+    return False, None, "NONRETRYABLE_PROVIDER_ATTEMPT_FAILURE"
+
+
+def build_attempt_telemetry(
+    *,
+    request: dict,
+    provider: str,
+    model: str,
+    credential_profile: str,
+    attempt_index: int,
+    request_started_at: str,
+    provider_call_started_at: str,
+    first_response_at: str | None,
+    provider_call_completed_at: str,
+    provider_latency_ms: int | float,
+    outcome: str,
+    retryable: bool,
+    http_status: int | None,
+    error_classification: str | None,
+    error_detail: str | None,
+    policy: dict,
+    provider_response: dict | None,
+    review: dict | None,
+    validation: dict | None,
+) -> dict:
+    artifact = request.get("artifact") if isinstance(request, dict) else None
+    candidate = artifact.get("commit") if isinstance(artifact, dict) else None
+    event = {
+        "schema_version": telemetry.SCHEMA_VERSION,
+        "event_type": telemetry.EVENT_TYPE,
+        "review_request_id": request.get("review_request_id"),
+        "reviewed_candidate_commit": candidate,
+        "reviewer_slot": request.get("reviewer_slot"),
+        "gateway_provider": provider,
+        "model": model,
+        "credential_profile": credential_profile,
+        "requested_serving_provider": policy.get("serving_provider") if isinstance(policy, dict) else None,
+        "returned_serving_provider": provider_response.get("provider") if isinstance(provider_response, dict) else None,
+        "attempt_index": attempt_index,
+        "request_started_at": request_started_at,
+        "provider_call_started_at": provider_call_started_at,
+        "first_response_at": first_response_at,
+        "provider_call_completed_at": provider_call_completed_at,
+        "provider_latency_ms": provider_latency_ms,
+        "attempt_outcome": outcome,
+        "retryable": retryable,
+        "http_status": http_status,
+        "error_classification": error_classification,
+        "error_detail": error_detail,
+        "semantic_disposition": review.get("disposition") if isinstance(review, dict) else None,
+        "validation_valid": validation.get("valid") if isinstance(validation, dict) else None,
+        "authority_effect": telemetry.AUTHORITY_EFFECT,
+    }
+    return telemetry.validate_attempt_event(event)
+
+
+def _write_attempt_event(out: Path, attempt_index: int, event: dict) -> None:
+    path = out / f"telemetry-attempt-{attempt_index}.json"
+    path.write_text(json.dumps(event, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--request", required=True)
     ap.add_argument("--output-dir", required=True)
     ap.add_argument("--provider", required=True)
     ap.add_argument("--model", required=True)
+    ap.add_argument("--attempt-index", required=True, type=int)
+    ap.add_argument("--credential-profile", required=True)
     args = ap.parse_args()
 
+    request_started_at = _utc_now()
     request = json.loads(Path(args.request).read_text(encoding="utf-8"))
     legacy.verify_request_integrity(request)
     policy = verify_route_binding(request, args.provider, args.model)
@@ -184,20 +277,111 @@ def main() -> None:
         raise RuntimeError(f"{secret_name} repository secret required")
 
     raw_path = out / "provider-response-raw.json"
-    provider_response, review = invoke(
-        args.provider,
-        key,
-        args.model,
-        prompt,
-        policy,
-        raw_path if args.provider == "openrouter" else None,
+    provider_response: dict | None = None
+    review: dict | None = None
+    validation: dict | None = None
+    provider_call_started_at = _utc_now()
+    monotonic_started = time.monotonic()
+    try:
+        provider_response, review = invoke(
+            args.provider,
+            key,
+            args.model,
+            prompt,
+            policy,
+            raw_path if args.provider == "openrouter" else None,
+        )
+    except Exception as exc:
+        provider_call_completed_at = _utc_now()
+        latency_ms = round((time.monotonic() - monotonic_started) * 1000, 3)
+        retryable, http_status, classification = classify_attempt_failure(exc)
+        event = build_attempt_telemetry(
+            request=request,
+            provider=args.provider,
+            model=args.model,
+            credential_profile=args.credential_profile,
+            attempt_index=args.attempt_index,
+            request_started_at=request_started_at,
+            provider_call_started_at=provider_call_started_at,
+            first_response_at=provider_call_completed_at if http_status is not None else None,
+            provider_call_completed_at=provider_call_completed_at,
+            provider_latency_ms=latency_ms,
+            outcome="FAILURE",
+            retryable=retryable,
+            http_status=http_status,
+            error_classification=classification,
+            error_detail=str(exc),
+            policy=policy,
+            provider_response=None,
+            review=None,
+            validation=None,
+        )
+        _write_attempt_event(out, args.attempt_index, event)
+        raise
+
+    provider_call_completed_at = _utc_now()
+    latency_ms = round((time.monotonic() - monotonic_started) * 1000, 3)
+    # The current adapters return a response as one materialized object. Until an
+    # adapter exposes an earlier byte/header timestamp, the first usable response
+    # observed by the governed runner is the provider-call completion timestamp.
+    first_response_at = provider_call_completed_at
+
+    try:
+        validation = validate(review, request, args.provider, args.model)
+    except Exception:
+        event = build_attempt_telemetry(
+            request=request,
+            provider=args.provider,
+            model=args.model,
+            credential_profile=args.credential_profile,
+            attempt_index=args.attempt_index,
+            request_started_at=request_started_at,
+            provider_call_started_at=provider_call_started_at,
+            first_response_at=first_response_at,
+            provider_call_completed_at=provider_call_completed_at,
+            provider_latency_ms=latency_ms,
+            outcome="SUCCESS",
+            retryable=False,
+            http_status=200,
+            error_classification=None,
+            error_detail=None,
+            policy=policy,
+            provider_response=provider_response,
+            review=review,
+            validation={"valid": False},
+        )
+        _write_attempt_event(out, args.attempt_index, event)
+        raise
+
+    event = build_attempt_telemetry(
+        request=request,
+        provider=args.provider,
+        model=args.model,
+        credential_profile=args.credential_profile,
+        attempt_index=args.attempt_index,
+        request_started_at=request_started_at,
+        provider_call_started_at=provider_call_started_at,
+        first_response_at=first_response_at,
+        provider_call_completed_at=provider_call_completed_at,
+        provider_latency_ms=latency_ms,
+        outcome="SUCCESS",
+        retryable=False,
+        http_status=200,
+        error_classification=None,
+        error_detail=None,
+        policy=policy,
+        provider_response=provider_response,
+        review=review,
+        validation=validation,
     )
-    validation = validate(review, request, args.provider, args.model)
+    _write_attempt_event(out, args.attempt_index, event)
+
     envelope = execution_envelope(request, corpus, args.provider, args.model, provider_response)
     envelope["runner_version"] = "GOV-REVIEWER-SERVING-PROVIDER-PIN-001"
     envelope["materialization_version"] = "GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001"
     envelope["reviewer_slot"] = request["reviewer_slot"]
     envelope["review_execution_policy"] = policy
+    envelope["provider_attempt_telemetry_file"] = f"telemetry-attempt-{args.attempt_index}.json"
     if args.provider == "openrouter":
         envelope["requested_serving_provider"] = policy["serving_provider"]
         envelope["returned_serving_provider"] = provider_response.get("provider")
