@@ -17,6 +17,7 @@ from typing import Any, Mapping
 
 TERMINAL_ACTIONS = frozenset({"RELEASE", "DEPLOY", "MERGE", "COMPLETE"})
 SUCCESS_STATES = frozenset({"TERMINAL_EXECUTION_COMPLETED", "TERMINAL_EXECUTION_REPLAYED", "TERMINAL_EXECUTION_RECOVERED"})
+REFERENCE_ADAPTER_SUCCESS_STATUS = "LOCAL_REFERENCE_APPLIED"
 
 
 def canonical_hash(value: Any) -> str:
@@ -188,6 +189,8 @@ def _completion_evidence(
 def _adapter_result_valid(adapter_result: Mapping[str, Any], binding: Mapping[str, Any]) -> bool:
     if not isinstance(adapter_result, Mapping):
         return False
+    if adapter_result.get("status") != REFERENCE_ADAPTER_SUCCESS_STATUS:
+        return False
     for field in ("project_id", "task_id", "effect_id", "action", "artifact_sha", "state_version"):
         if field in adapter_result and adapter_result.get(field) != binding.get(field):
             return False
@@ -224,11 +227,7 @@ class TerminalExecutor:
                 """
             )
 
-    def _persist_completion(
-        self,
-        execution_id: str,
-        completion: Mapping[str, Any],
-    ) -> None:
+    def _persist_completion(self, execution_id: str, completion: Mapping[str, Any]) -> None:
         with self._connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
             conn.execute(
@@ -301,9 +300,6 @@ class TerminalExecutor:
         binding_hash = canonical_hash(binding)
         execution_id = terminal_request["terminal_execution_id"]
 
-        # First persist the exact execution intent locally. This record is not a
-        # completion claim; it exists so restart/retry can distinguish an
-        # interrupted attempt from a new/rebound identity.
         with self._connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
             row = conn.execute(
@@ -337,8 +333,6 @@ class TerminalExecutor:
         if crash_point == "before_adapter":
             raise SimulatedExecutorCrash("simulated crash before terminal adapter invocation")
 
-        # The adapter is a separately durable idempotency boundary. Recovery is
-        # checked before every execute_once call, including after process restart.
         try:
             recovered = adapter.recover(execution_id, binding_hash)
         except Exception as exc:
@@ -353,8 +347,6 @@ class TerminalExecutor:
             try:
                 adapter_result = adapter.execute_once(execution_id, binding_hash, deepcopy(binding))
             except Exception as exc:
-                # A durable adapter can have committed its side effect before its
-                # response path failed. Check recovery once before declaring failure.
                 try:
                     recovered_after_error = adapter.recover(execution_id, binding_hash)
                 except Exception:
@@ -367,7 +359,7 @@ class TerminalExecutor:
                 recovered_from_adapter = True
 
         if not _adapter_result_valid(adapter_result, binding):
-            reason = "terminal adapter returned malformed or widened bound fields"
+            reason = "terminal adapter returned failure, malformed result, or widened bound fields"
             self._mark_failed(execution_id, reason)
             return _result("TERMINAL_EXECUTION_FAILED", reason, terminal_request, current_authority)
 
