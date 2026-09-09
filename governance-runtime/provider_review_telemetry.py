@@ -1,8 +1,8 @@
 """Provider-neutral governed reviewer telemetry.
 
-The module intentionally knows no provider names. Provider adapters emit normalized
-attempt records; this layer validates, sanitizes, aggregates, and renders those
-records without changing review or authority semantics.
+Provider adapters emit normalized attempt records. This layer knows no provider
+names; it validates, sanitizes, aggregates and renders without changing review
+or authority semantics.
 """
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ import html
 import re
 from typing import Any, Iterable, Mapping
 
-
 SCHEMA_VERSION = 1
 EVENT_TYPE = "REVIEW_PROVIDER_ATTEMPT"
 AUTHORITY_EFFECT = "NONE_PENDING_DETERMINISTIC_INGESTION"
@@ -20,8 +19,6 @@ OUTCOMES = frozenset({"SUCCESS", "FAILURE"})
 SLOTS = frozenset({"R1", "R2", "R3"})
 PROMOTABLE_DISPOSITIONS = frozenset({"PASS", "BOUNDED_PASS"})
 _SHA40 = re.compile(r"^[0-9a-f]{40}$")
-
-# Sanitization is deliberately value-pattern based rather than provider-name based.
 _AUTH_BEARER = re.compile(r"(?i)(authorization\s*:\s*bearer\s+)([^\s,;]+)")
 _BEARER = re.compile(r"(?i)(bearer\s+)([^\s,;]+)")
 _SK_TOKEN = re.compile(r"(?i)\bsk-[A-Za-z0-9._-]{6,}\b")
@@ -41,27 +38,17 @@ def sanitize_error_detail(value: str | None, *, limit: int = 2000) -> str | None
 
 def _secret_like_identity(value: str) -> bool:
     low = value.lower()
-    return (
-        "authorization:" in low
-        or "bearer " in low
-        or low.startswith("sk-")
-        or "api_key=" in low
-        or "apikey=" in low
-        or "secret=" in low
-    )
+    return any(x in low for x in ("authorization:", "bearer ", "api_key=", "apikey=", "secret=")) or low.startswith("sk-")
 
 
-def _parse_utc(value: str, field: str) -> datetime:
+def _parse_utc(value: Any, field: str) -> datetime:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field} must be a UTC ISO-8601 string")
-    raw = value.strip()
     try:
-        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
     except ValueError as exc:
         raise ValueError(f"{field} must be ISO-8601") from exc
-    if dt.tzinfo is None or dt.utcoffset() is None:
-        raise ValueError(f"{field} must be timezone-aware")
-    if dt.utcoffset().total_seconds() != 0:
+    if dt.tzinfo is None or dt.utcoffset() is None or dt.utcoffset().total_seconds() != 0:
         raise ValueError(f"{field} must be UTC")
     return dt.astimezone(timezone.utc)
 
@@ -77,10 +64,8 @@ def validate_attempt_event(value: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(value, Mapping):
         raise ValueError("telemetry event must be an object")
     row = deepcopy(dict(value))
-    if row.get("schema_version") != SCHEMA_VERSION:
-        raise ValueError("unsupported telemetry schema_version")
-    if row.get("event_type") != EVENT_TYPE:
-        raise ValueError("invalid telemetry event_type")
+    if row.get("schema_version") != SCHEMA_VERSION or row.get("event_type") != EVENT_TYPE:
+        raise ValueError("invalid telemetry schema/event type")
 
     request_id = _required_string(row, "review_request_id")
     candidate = _required_string(row, "reviewed_candidate_commit")
@@ -95,32 +80,25 @@ def validate_attempt_event(value: Mapping[str, Any]) -> dict[str, Any]:
     if any(_secret_like_identity(x) for x in (provider, model, profile)):
         raise ValueError("provider/model/credential identity contains secret-like material")
 
-    attempt_index = row.get("attempt_index")
-    if not isinstance(attempt_index, int) or isinstance(attempt_index, bool) or attempt_index <= 0:
+    index = row.get("attempt_index")
+    if not isinstance(index, int) or isinstance(index, bool) or index <= 0:
         raise ValueError("attempt_index must be a positive integer")
-
     request_started = _parse_utc(row.get("request_started_at"), "request_started_at")
     provider_started = _parse_utc(row.get("provider_call_started_at"), "provider_call_started_at")
     completed = _parse_utc(row.get("provider_call_completed_at"), "provider_call_completed_at")
     first_raw = row.get("first_response_at")
     first_response = None if first_raw is None else _parse_utc(first_raw, "first_response_at")
-    if provider_started < request_started:
-        raise ValueError("provider_call_started_at precedes request_started_at")
-    if completed < provider_started:
-        raise ValueError("provider_call_completed_at precedes provider start")
+    if provider_started < request_started or completed < provider_started:
+        raise ValueError("invalid telemetry timestamp ordering")
     if first_response is not None and not (provider_started <= first_response <= completed):
         raise ValueError("first_response_at outside provider call interval")
 
     latency = row.get("provider_latency_ms")
     if not isinstance(latency, (int, float)) or isinstance(latency, bool) or latency < 0:
         raise ValueError("provider_latency_ms must be nonnegative")
-
     outcome = row.get("attempt_outcome")
-    if outcome not in OUTCOMES:
-        raise ValueError("attempt_outcome invalid")
-    retryable = row.get("retryable")
-    if not isinstance(retryable, bool):
-        raise ValueError("retryable must be boolean")
+    if outcome not in OUTCOMES or not isinstance(row.get("retryable"), bool):
+        raise ValueError("invalid attempt outcome/retryable")
     http_status = row.get("http_status")
     if http_status is not None and (not isinstance(http_status, int) or isinstance(http_status, bool) or not 100 <= http_status <= 599):
         raise ValueError("http_status invalid")
@@ -136,37 +114,42 @@ def validate_attempt_event(value: Mapping[str, Any]) -> dict[str, Any]:
     if row.get("authority_effect") != AUTHORITY_EFFECT:
         raise ValueError("telemetry may not change authority effect")
 
-    for optional_identity in ("requested_serving_provider", "returned_serving_provider"):
-        identity = row.get(optional_identity)
+    for field in ("requested_serving_provider", "returned_serving_provider"):
+        identity = row.get(field)
         if identity is not None:
             if not isinstance(identity, str) or not identity.strip() or _secret_like_identity(identity):
-                raise ValueError(f"{optional_identity} invalid")
-            row[optional_identity] = identity.strip()
+                raise ValueError(f"{field} invalid")
+            row[field] = identity.strip()
 
-    row["review_request_id"] = request_id
-    row["reviewed_candidate_commit"] = candidate
-    row["reviewer_slot"] = slot
-    row["gateway_provider"] = provider
-    row["model"] = model
-    row["credential_profile"] = profile
-    row["error_detail"] = sanitize_error_detail(row.get("error_detail"))
+    row.update(
+        review_request_id=request_id,
+        reviewed_candidate_commit=candidate,
+        reviewer_slot=slot,
+        gateway_provider=provider,
+        model=model,
+        credential_profile=profile,
+        error_detail=sanitize_error_detail(row.get("error_detail")),
+    )
     return row
 
 
-def _review_key(row: Mapping[str, Any]) -> tuple[str, str, str, str, str, str]:
-    return (
-        str(row["review_request_id"]),
-        str(row["reviewed_candidate_commit"]),
-        str(row["reviewer_slot"]),
-        str(row["gateway_provider"]),
-        str(row["model"]),
-        str(row["credential_profile"]),
-    )
+def _review_key(row: Mapping[str, Any]) -> tuple[str, str, str]:
+    # Routing metadata belongs to attempts. It must not create a new review
+    # execution identity and thereby permit duplicate attempt indices.
+    return (str(row["review_request_id"]), str(row["reviewed_candidate_commit"]), str(row["reviewer_slot"]))
+
+
+def _attempt_counts_by_review(rows: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str, str], int]:
+    counts: dict[tuple[str, str, str], int] = {}
+    for row in rows:
+        key = _review_key(row)
+        counts[key] = counts.get(key, 0) + 1
+    return counts
 
 
 def aggregate_attempts(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     rows = [validate_attempt_event(x) for x in events]
-    grouped: dict[tuple[str, str, str, str, str, str], list[dict[str, Any]]] = {}
+    grouped: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
     for row in rows:
         grouped.setdefault(_review_key(row), []).append(row)
 
@@ -176,24 +159,21 @@ def aggregate_attempts(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
         indices = [x["attempt_index"] for x in attempts]
         if len(indices) != len(set(indices)):
             raise ValueError("attempt_index must be unique within one review execution")
-        if indices != sorted(indices):
-            raise ValueError("attempt indices invalid")
         final = attempts[-1]
-        successful = [x for x in attempts if x["attempt_outcome"] == "SUCCESS"]
-        first_success_response = successful[0].get("first_response_at") if successful else None
+        successes = [x for x in attempts if x["attempt_outcome"] == "SUCCESS"]
         start_dt = min(_parse_utc(x["request_started_at"], "request_started_at") for x in attempts)
         end_dt = max(_parse_utc(x["provider_call_completed_at"], "provider_call_completed_at") for x in attempts)
         reviews.append({
             "review_request_id": key[0],
             "reviewed_candidate_commit": key[1],
             "reviewer_slot": key[2],
-            "provider": key[3],
-            "model": key[4],
-            "credential_profile": key[5],
+            "provider": final["gateway_provider"],
+            "model": final["model"],
+            "credential_profile": final["credential_profile"],
             "attempt_count": len(attempts),
             "retry_count": max(0, len(attempts) - 1),
             "first_attempt_start": min(x["request_started_at"] for x in attempts),
-            "first_successful_response_at": first_success_response,
+            "first_successful_response_at": successes[0].get("first_response_at") if successes else None,
             "completion_time": max(x["provider_call_completed_at"] for x in attempts),
             "total_elapsed_latency_ms": max(0, int(round((end_dt - start_dt).total_seconds() * 1000))),
             "final_outcome": final["attempt_outcome"],
@@ -207,11 +187,10 @@ def aggregate_attempts(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     provider_rows: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         provider_rows.setdefault(row["gateway_provider"], []).append(row)
-
     providers: list[dict[str, Any]] = []
     for provider in sorted(provider_rows):
         attempts = provider_rows[provider]
-        review_ids = {(x["review_request_id"], x["reviewed_candidate_commit"], x["reviewer_slot"]) for x in attempts}
+        review_ids = {_review_key(x) for x in attempts}
         successes = [x for x in attempts if x["attempt_outcome"] == "SUCCESS"]
         failures = [x for x in attempts if x["attempt_outcome"] == "FAILURE"]
         latest = max(attempts, key=lambda x: (_parse_utc(x["provider_call_completed_at"], "provider_call_completed_at"), x["review_request_id"], x["attempt_index"]))
@@ -224,9 +203,7 @@ def aggregate_attempts(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             "success_count": len(successes),
             "failure_count": len(failures),
             "retry_count": sum(max(0, count - 1) for count in _attempt_counts_by_review(attempts).values()),
-            "average_successful_provider_latency_ms": (
-                round(sum(float(x["provider_latency_ms"]) for x in successes) / len(successes), 3) if successes else None
-            ),
+            "average_successful_provider_latency_ms": round(sum(float(x["provider_latency_ms"]) for x in successes) / len(successes), 3) if successes else None,
             "latest_event_time": latest["provider_call_completed_at"],
             "latest_outcome": latest["attempt_outcome"],
             "latest_error_classification": latest.get("error_classification"),
@@ -242,22 +219,14 @@ def aggregate_attempts(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _attempt_counts_by_review(rows: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str, str], int]:
-    counts: dict[tuple[str, str, str], int] = {}
-    for row in rows:
-        key = (str(row["review_request_id"]), str(row["reviewed_candidate_commit"]), str(row["reviewer_slot"]))
-        counts[key] = counts.get(key, 0) + 1
-    return counts
-
-
 def build_dashboard_data(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
-    aggregated = aggregate_attempts(events)
+    aggregate = aggregate_attempts(events)
     return {
         "schema_version": 1,
         "data_type": "PROVIDER_REVIEW_TELEMETRY_DASHBOARD",
-        "providers": deepcopy(aggregated["providers"]),
-        "reviews": deepcopy(aggregated["reviews"]),
-        "event_count": aggregated["event_count"],
+        "providers": deepcopy(aggregate["providers"]),
+        "reviews": deepcopy(aggregate["reviews"]),
+        "event_count": aggregate["event_count"],
         "authority_effect": AUTHORITY_EFFECT,
     }
 
@@ -266,9 +235,7 @@ def render_provider_table(data: Mapping[str, Any]) -> str:
     providers = data.get("providers") if isinstance(data, Mapping) else []
     if not isinstance(providers, list):
         providers = []
-    parts = [
-        "<table><thead><tr><th>Provider</th><th>Models</th><th>Credential profiles</th><th>Reviews</th><th>Attempts</th><th>Success</th><th>Failure</th><th>Retries</th><th>Avg success latency ms</th><th>Latest</th></tr></thead><tbody>"
-    ]
+    parts = ["<table><thead><tr><th>Provider</th><th>Models</th><th>Credential profiles</th><th>Reviews</th><th>Attempts</th><th>Success</th><th>Failure</th><th>Retries</th><th>Avg success latency ms</th><th>Latest</th></tr></thead><tbody>"]
     for row in providers:
         if not isinstance(row, Mapping):
             continue
@@ -276,13 +243,9 @@ def render_provider_table(data: Mapping[str, Any]) -> str:
             row.get("provider"),
             ", ".join(str(x) for x in (row.get("models") or [])),
             ", ".join(str(x) for x in (row.get("credential_profiles") or [])),
-            row.get("review_count"),
-            row.get("attempt_count"),
-            row.get("success_count"),
-            row.get("failure_count"),
-            row.get("retry_count"),
-            row.get("average_successful_provider_latency_ms"),
-            row.get("latest_event_time"),
+            row.get("review_count"), row.get("attempt_count"), row.get("success_count"),
+            row.get("failure_count"), row.get("retry_count"),
+            row.get("average_successful_provider_latency_ms"), row.get("latest_event_time"),
         ]
         parts.append("<tr>" + "".join(f"<td>{html.escape('' if v is None else str(v))}</td>" for v in values) + "</tr>")
     parts.append("</tbody></table>")
