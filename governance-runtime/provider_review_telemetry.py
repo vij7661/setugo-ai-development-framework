@@ -23,6 +23,12 @@ _AUTH_BEARER = re.compile(r"(?i)(authorization\s*:\s*bearer\s+)([^\s,;]+)")
 _BEARER = re.compile(r"(?i)(bearer\s+)([^\s,;]+)")
 _SK_TOKEN = re.compile(r"(?i)\bsk-[A-Za-z0-9._-]{6,}\b")
 _API_ASSIGNMENT = re.compile(r"(?i)\b(api[_-]?key|token|secret)\s*[=:]\s*([^\s,;]+)")
+_PUBLIC_PRINCIPAL_ID_JSON = re.compile(
+    r'(?i)(["\'](?:user|account|customer|tenant|organization|org)[_-]?id["\']\s*:\s*["\'])([^"\']+)(["\'])'
+)
+_PUBLIC_PRINCIPAL_ID_ASSIGNMENT = re.compile(
+    r"(?i)\b((?:user|account|customer|tenant|organization|org)[_-]?id)\s*=\s*([^\s,;]+)"
+)
 
 
 def sanitize_error_detail(value: str | None, *, limit: int = 2000) -> str | None:
@@ -33,6 +39,8 @@ def sanitize_error_detail(value: str | None, *, limit: int = 2000) -> str | None
     text = _BEARER.sub(r"\1[REDACTED]", text)
     text = _SK_TOKEN.sub("[REDACTED]", text)
     text = _API_ASSIGNMENT.sub(lambda m: f"{m.group(1)}=[REDACTED]", text)
+    text = _PUBLIC_PRINCIPAL_ID_JSON.sub(r"\1[REDACTED]\3", text)
+    text = _PUBLIC_PRINCIPAL_ID_ASSIGNMENT.sub(lambda m: f"{m.group(1)}=[REDACTED]", text)
     return text[:limit]
 
 
@@ -236,7 +244,9 @@ def merge_run_summaries(run_summaries: Iterable[Mapping[str, Any]]) -> dict[str,
 
     Each workflow run is an execution envelope around one normalized review
     sequence. This preserves separate reruns of the same ReviewRequest while
-    keeping the frozen provider-attempt event schema unchanged.
+    keeping the frozen provider-attempt event schema unchanged. Public merging
+    also re-sanitizes legacy error details so old artifacts cannot republish
+    provider account/principal identifiers that were not removed at emission.
     """
     envelopes: list[tuple[str, dict[str, Any]]] = []
     for value in run_summaries:
@@ -271,6 +281,18 @@ def merge_run_summaries(run_summaries: Iterable[Mapping[str, Any]]) -> dict[str,
             if not isinstance(review, Mapping):
                 raise ValueError("review summary row must be an object")
             row = deepcopy(dict(review))
+            attempts = row.get("attempts")
+            if attempts is not None:
+                if not isinstance(attempts, list):
+                    raise ValueError("review attempts must be an array")
+                sanitized_attempts: list[dict[str, Any]] = []
+                for attempt in attempts:
+                    if not isinstance(attempt, Mapping):
+                        raise ValueError("review attempt row must be an object")
+                    attempt_copy = deepcopy(dict(attempt))
+                    attempt_copy["error_detail"] = sanitize_error_detail(attempt_copy.get("error_detail"))
+                    sanitized_attempts.append(attempt_copy)
+                row["attempts"] = sanitized_attempts
             row["workflow_run_id"] = run_id
             row["authority_effect"] = AUTHORITY_EFFECT
             reviews.append(row)
