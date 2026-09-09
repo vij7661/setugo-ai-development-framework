@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "closure_id": "PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-POST-MERGE-CLOSURE-001",
+  "boundary": "provider-neutral reviewer telemetry public privacy hotfix",
+  "main_merge_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
+  "merged_candidate_commit": "b0d8be7b6f082726ed54c14be19f304ac876f02b",
+  "merge_parent_base": "a8c666a0862e3338bf3858644e79466980b11fce",
+  "candidate_ci_run_id": 34335165103,
+  "independent_review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003",
+  "independent_review_run_id": 34336948191,
+  "independent_review_disposition": "PASS",
+  "mandatory_dimensions_supported": "12/12 TESTED_SUPPORTED",
+  "findings_count": 0,
+  "deterministic_adjudication_commit": "078a812308113a68d4c1e9b642e8c2cf7afb8da3",
+  "deterministic_adjudication_hash": "5bea1e88b96ecf311f09029802ce28472508a3d96bbbf046b77d3f3cf40e3803",
+  "pages_workflow_run_id": 34337388108,
+  "pages_workflow_conclusion": "success",
+  "pages_artifact_id": 10098267603,
+  "pages_artifact_digest": "sha256:79c8d10ac31a9609a55b9f15c3e5552ed9588b98d116041d242287ab7d4cc778",
+  "artifact_validation": {
+    "provider_review_telemetry_dashboard_json_present": true,
+    "historical_http_402_failures_preserved": true,
+    "historical_failure_operational_fields_preserved": true,
+    "historical_failure_provider_model_profile_preserved": true,
+    "historical_failure_timing_preserved": true,
+    "historical_failure_authority_effect_preserved": true,
+    "provider_principal_identifier_value_absent": true,
+    "provider_principal_identifier_field_value_redacted": true,
+    "authorization_bearer_material_absent": true,
+    "api_key_secret_material_absent": true,
+    "hotfix_003_successful_review_present_dynamically": true,
+    "observed_provider_set": ["openrouter"],
+    "published_run_count": 5,
+    "published_attempt_event_count": 4,
+    "redacted_marker_count": 2
+  },
+  "preserved_failures": [
+    {
+      "commit": "a8c666a0862e3338bf3858644e79466980b11fce",
+      "classification": "DEPLOYED_FALSE_GREEN_PUBLIC_PRIVACY_GAP"
+    },
+    {
+      "commit": "1711f29f7fb5f373c30c4bb8c1d99b0c0004c807",
+      "run_id": 34334884029,
+      "classification": "CODE_PRIVACY_DEFECT_PUBLIC_LEGACY_IDENTIFIER_LEAK"
+    },
+    {
+      "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-001",
+      "run_id": 34336362859,
+      "classification": "PRE_INFERENCE_EVIDENCE_MATERIALIZATION_CI_HEAD_MISMATCH"
+    },
+    {
+      "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-002",
+      "run_id": 34336734551,
+      "classification": "OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_7000_GT_6146"
+    }
+  ],
+  "bounded_result": "PASS",
+  "accepted_claim": "The tested public dashboard publication path preserves governed reviewer telemetry and historical transport failures while redacting tested provider-side principal/account identifier values from legacy error detail before public publication, without changing review or authority semantics.",
+  "explicit_non_claims": [
+    "Does not prove all possible provider error payload formats are free of every category of sensitive metadata.",
+    "Does not prove provider uptime, model quality, billing correctness, or cryptographic remote model identity.",
+    "Does not grant review, promotion, release, deploy, merge, or terminal-action authority.",
+    "Does not make the governed platform production-ready."
+  ],
+  "next_boundary": "Reconcile the accepted integrated governed-platform frontier and freeze the next bounded workstream contract before implementation."
+}
