@@ -1,16 +1,26 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE11-REPAIR-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-001.json",
+  "review_request_id": "REV-MVP-SLICE11-REPAIR-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-002.json",
   "reviewed_candidate_commit": "78b500d408ba0ce4b33edebdfdb22cae3668c3c3",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE11_REPAIR_R3_REVIEW_REQUESTED",
-  "request_hash": "5568fa229aa55b5e873719e4693069176879cac466dfe41916fa9226d69cba0d",
+  "status": "AUTHENTICATED_SLICE11_REPAIR_R3_REVIEW_REISSUED",
+  "request_hash": "27387d20e43ab6d1a82fb57d1cb7ad5ca96308a8bff5d0f6a964095ed8e0246e",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
-  "preserved_prior_attempts": []
+  "preserved_prior_attempts": [
+    {
+      "review_request_id": "REV-MVP-SLICE11-REPAIR-001",
+      "workflow_run_id": 34412042718,
+      "classification": "PRE_PROVIDER_EVIDENCE_BASE_INVALID",
+      "provider_invoked": false,
+      "authority_effect": "NONE",
+      "artifact_id": 10127606676,
+      "artifact_digest": "sha256:293c218aba33813fa85c624c3478d33d24fe74372b1c576b3edc325188fdbbcd"
+    }
+  ]
 }
