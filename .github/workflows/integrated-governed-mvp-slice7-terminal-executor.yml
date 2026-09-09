@@ -10,6 +10,7 @@ on:
       - experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py
       - experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py
       - experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_option_b.py
+      - experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_adapter_failure_result.py
       - .github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml
   workflow_dispatch:
 
@@ -38,6 +39,11 @@ jobs:
         run: |
           cd experiments/governed-platform/governance
           python -m unittest -v test_integrated_governed_mvp_slice7_option_b.py
+
+      - name: Run Slice7 structured adapter-failure laundering case
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice7_adapter_failure_result.py
 
       - name: Run accepted Slice6 terminal authority regression
         run: |
