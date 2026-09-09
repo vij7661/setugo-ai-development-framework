@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from threading import Barrier
 import unittest
 
 from integrated_governed_mvp_external_side_effect import (
     ExternalSideEffectGateway,
+    IDEMPOTENCY_FIELDS,
     ReferenceExternalProvider,
+    canonical_hash,
     derive_external_idempotency_key,
 )
 from test_integrated_governed_mvp_slice10_external_side_effect import Slice10ExternalSideEffectTests
@@ -42,6 +45,12 @@ class _SecretExceptionProvider(ReferenceExternalProvider):
 
     def dispatch(self, request):
         raise RuntimeError(f"provider exception token={self._secret_value}")
+
+
+class _PostCommitExceptionProvider(ReferenceExternalProvider):
+    def dispatch(self, request):
+        super().dispatch(request)
+        raise RuntimeError("provider response processing failed after durable commit")
 
 
 class Slice10ManualR3FalsificationTests(unittest.TestCase):
@@ -149,6 +158,79 @@ class Slice10ManualR3FalsificationTests(unittest.TestCase):
         self.assertEqual("REFERENCE_EFFECT_FAILED", result["state"])
         self.assertNotIn(secret, str(result))
         self.assertNotIn(secret, str(gateway.governed_records()))
+
+    def test_r3_rq_f001_provider_same_key_different_binding_never_returns_mismatched_winner(self):
+        barrier = Barrier(2)
+        provider = _BarrierLookupProvider(
+            self.h.provider_db,
+            allowed_targets={("provider-a", "endpoint-a")},
+            barrier=barrier,
+        )
+        first = self.h._request()
+        second = deepcopy(first)
+        # Deliberately bypass the gateway-derived-key check to attack the provider's
+        # own one-key/one-binding enforcement under a same-key race.
+        second["resource_id"] = "repository:different-binding"
+        second["payload_digest"] = "different-payload"
+        second["external_idempotency_key"] = first["external_idempotency_key"]
+
+        def invoke(request):
+            try:
+                return provider.dispatch(request)
+            except Exception as exc:  # a governed rejection is acceptable; mismatch is not
+                return exc
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(invoke, (first, second)))
+
+        self.assertEqual(1, provider.effect_count())
+        for request, result in zip((first, second), results):
+            if isinstance(result, Exception):
+                continue
+            expected_binding_hash = canonical_hash({field: deepcopy(request.get(field)) for field in IDEMPOTENCY_FIELDS})
+            self.assertEqual(
+                expected_binding_hash,
+                result.get("binding_hash"),
+                "provider must not return the winner's committed result for a different same-key binding",
+            )
+
+    def test_r3_rq_f003_post_commit_unexpected_exception_is_ambiguous_not_failed(self):
+        upstream = self.h._upstream()
+        profile = self.h._profile()
+        lease = self.h._lease(upstream=upstream, profile=profile)
+        authority = self.h._authority()
+        request = self.h._request(upstream=upstream, lease=lease)
+        provider = _PostCommitExceptionProvider(
+            self.h.provider_db,
+            allowed_targets={("provider-a", "endpoint-a")},
+        )
+        gateway = ExternalSideEffectGateway(self.h.gateway_db, provider)
+
+        result = gateway.execute(
+            upstream_result=upstream,
+            lease_result=lease,
+            current_profile=profile,
+            current_authority=authority,
+            side_effect_request=request,
+            now_epoch=101,
+        )
+
+        self.assertEqual(1, provider.effect_count(), "provider committed before raising")
+        self.assertEqual(
+            "OUTCOME_UNKNOWN_RECONCILE_REQUIRED",
+            result["state"],
+            "post-dispatch unexpected exception cannot be laundered into definite failure",
+        )
+        recovered = gateway.recover(
+            upstream_result=upstream,
+            lease_result=lease,
+            current_profile=profile,
+            current_authority=authority,
+            side_effect_request=request,
+            now_epoch=102,
+        )
+        self.assertEqual("RECONCILED_EXISTING_EFFECT", recovered["state"])
+        self.assertEqual(1, provider.effect_count())
 
 
 if __name__ == "__main__":
