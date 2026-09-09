@@ -1,0 +1,24 @@
+name: Review Evidence Diff Base Falsification
+
+on:
+  push:
+    branches: [governance/live-conversation-runtime]
+    paths:
+      - "governance-runtime/platform_candidate_evidence_v3.py"
+      - "governance-runtime/test_platform_candidate_evidence_v3_diff_base.py"
+      - ".github/workflows/review-evidence-diff-base-falsification.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-diff-base:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Run frozen candidate diff-base cases
+        working-directory: governance-runtime
+        run: python -m unittest -v test_platform_candidate_evidence_v3_diff_base.py
