@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "review_request_id": "MANUAL-R3-SLICE10-002",
+  "reviewer_slot": "R3",
+  "reviewer_provider": "deepseek-manual",
+  "reviewed_candidate": "e894ca0f280ea190a599c8da39b960996cb13041",
+  "reviewer_disposition": "BOUNDED_PASS",
+  "deterministic_adjudication": "CHANGES_REQUIRED_ON_REVIEWED_SHA",
+  "counts_for_promotion": false,
+  "reviewer_findings": {
+    "R3-S10-RQ-F001": "REPRODUCED_CODE_DEFECT_PROVIDER_SAME_KEY_DIFFERENT_BINDING",
+    "R3-S10-RQ-F002": "REJECTED_REVIEWER_EVIDENCE_ERROR_GOLDEN_TEST_ALREADY_CALLS_PRODUCTION_HELPER",
+    "R3-S10-RQ-F003": "REPRODUCED_CODE_DEFECT_POST_COMMIT_EXCEPTION_LAUNDERED_AS_FAILURE"
+  },
+  "red_exposure": {
+    "test_commit": "a602ffdd36700021006748a084b8eab08ea768dc",
+    "run_id": 34357942688,
+    "result": "FAILURE",
+    "reproduced": ["R3-S10-RQ-F001", "R3-S10-RQ-F003"]
+  },
+  "repair": {
+    "candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0",
+    "provider_same_key_binding_guard": "binding_hash checked both existing path and INSERT OR IGNORE race-loser reload",
+    "unexpected_exception_semantics": "non-mutating provider lookup distinguishes deterministic no-commit reference failure from committed/unknown outcome",
+    "qualification_run": 34358448341,
+    "qualification_result": "SUCCESS"
+  },
+  "authority_effect": "NONE_PENDING_FRESH_EXACT_CANDIDATE_R3_REQUALIFICATION",
+  "preservation_note": "The DeepSeek BOUNDED_PASS is preserved as reviewer evidence but cannot promote the repaired SHA because it reviewed the predecessor candidate."
+}
