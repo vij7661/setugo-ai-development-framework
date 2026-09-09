@@ -6,7 +6,10 @@ on:
     paths:
       - governance-runtime/platform_candidate_review_v3.py
       - governance-runtime/test_platform_candidate_review_v3.py
+      - governance-runtime/platform_candidate_review_v7.py
+      - governance-runtime/test_platform_candidate_review_v7.py
       - governance-runtime/repair-preregistrations/GOV-MULTI-PROVIDER-REVIEW-RUNNER-001.md
+      - governance-runtime/repair-preregistrations/GOV-REVIEWER-SERVING-PROVIDER-PIN-001.md
       - .github/workflows/governance-candidate-platform-review.yml
       - .github/workflows/multi-provider-review-runner-repair.yml
 
@@ -22,19 +25,23 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run frozen multi-provider tests
-        run: python governance-runtime/test_platform_candidate_review_v3.py
-      - name: Assert deterministic test file makes no network/provider call
+        run: |
+          python governance-runtime/test_platform_candidate_review_v3.py
+          python governance-runtime/test_platform_candidate_review_v7.py
+      - name: Assert deterministic test files make no real provider call
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -Eq 'urlopen\(|https://api\.groq\.com|generativelanguage\.googleapis\.com|\.invoke\(' governance-runtime/test_platform_candidate_review_v3.py
-      - name: Assert production workflow uses provider-neutral v3 and exact provider routing
+          ! grep -Eq 'https://api\.groq\.com|generativelanguage\.googleapis\.com' governance-runtime/test_platform_candidate_review_v3.py
+          ! grep -Eq 'OPENROUTER_API_KEY.*os\.environ|https://openrouter\.ai/api/v1/chat/completions' governance-runtime/test_platform_candidate_review_v7.py
+      - name: Assert production workflow uses provider-neutral v7 and exact provider routing
         shell: bash
         run: |
           set -euo pipefail
           wf=.github/workflows/governance-candidate-platform-review.yml
-          grep -q 'platform_candidate_review_v3.py' "$wf"
+          grep -q 'platform_candidate_review_v7.py' "$wf"
           grep -q -- '--provider "$REVIEW_PROVIDER"' "$wf"
           grep -q 'provider not in' "$wf"
           grep -q "groq) test -n \"\$GROQ_API_KEY\"" "$wf"
           grep -q "gemini) test -n \"\$GEMINI_API_KEY\"" "$wf"
+          grep -q 'REVIEWER_SLOT' "$wf"
