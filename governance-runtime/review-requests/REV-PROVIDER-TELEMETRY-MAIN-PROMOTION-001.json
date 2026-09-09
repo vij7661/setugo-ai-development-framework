@@ -1,0 +1,81 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md",
+    "governance-runtime/provider_review_telemetry.py",
+    "governance-runtime/test_provider_review_telemetry.py",
+    "governance-runtime/test_provider_review_dashboard_integration.py",
+    ".github/workflows/governed-platform-dashboard-pages.yml",
+    ".github/workflows/provider-review-telemetry-main-promotion.yml",
+    "experiments/governed-platform/observability/dashboard/index.html"
+  ],
+  "artifact": {
+    "type": "provider_review_telemetry_live_dashboard_promotion_candidate",
+    "ref": "PR-19",
+    "commit": "7c51e729edf3c0dcf2893b4caaee42d34ca31249"
+  },
+  "candidate_diff_base_commit": "3a19eff0a735f702bac2807040f361b2dc7a37b6",
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "openrouter", "model": "nvidia/nemotron-3-ultra-550b-a55b"},
+  "reviewer_slot": "R3",
+  "review_execution_policy": {
+    "serving_provider": "deepinfra",
+    "allow_fallbacks": false,
+    "reasoning_max_tokens": 4096,
+    "max_output_tokens": 7000,
+    "response_format": "json_object"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Act as Reviewer 3 and independently review PR 19 candidate 7c51e729edf3c0dcf2893b4caaee42d34ca31249. Do not rely on proposer conclusions or prior PASS labels.",
+    "Verify this is a bounded promotion from exact main base 3a19eff0a735f702bac2807040f361b2dc7a37b6 containing only the telemetry consumer/dashboard slice and no review runner or unrelated governance runtime.",
+    "Verify arbitrary provider values, including an unknown future provider, are discovered from telemetry data and rendered/aggregated without provider-specific display branches or fixed provider lists.",
+    "Verify separate workflow reruns of the same review remain separate run envelopes and do not collide merely because each begins at attempt_index 1.",
+    "Verify retries and failures remain visible, timing fields remain ordered/validated, provider latency and total elapsed latency are not used to infer semantic PASS, and failure cannot carry promotable semantic success.",
+    "Verify secret-like credential/error material is rejected or sanitized and only credential profile identity can be displayed.",
+    "Verify telemetry cannot alter review semantics, validation, independence, promotion, or terminal authority and always remains NONE_PENDING_DETERMINISTIC_INGESTION within this contract.",
+    "Verify the Pages publisher collects Governance Candidate Platform Review artifacts generically, merges validated per-run telemetry summaries, and publishes provider-review-telemetry-dashboard.json without corrupting existing execution-status/history publication.",
+    "Verify the browser dashboard consumes the telemetry JSON generically, handles absent telemetry fail-soft, escapes rendered values, and does not hard-code provider names.",
+    "Verify main-promotion qualification run 34334069709 passed frozen telemetry/dashboard tests and arbitrary-provider/no-provider-branch guards on this exact candidate.",
+    "Search adversarially for artifact confusion, untrusted telemetry laundering, duplicate-run collapse, provider omission, secret exposure, stale-data overclaim, execution-history corruption, Pages deployment regressions, or authority widening."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34334069709"},
+    {"type": "file", "ref": "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md"},
+    {"type": "file", "ref": "governance-runtime/provider_review_telemetry.py"},
+    {"type": "file", "ref": "governance-runtime/test_provider_review_telemetry.py"},
+    {"type": "file", "ref": "governance-runtime/test_provider_review_dashboard_integration.py"},
+    {"type": "file", "ref": ".github/workflows/governed-platform-dashboard-pages.yml"},
+    {"type": "file", "ref": ".github/workflows/provider-review-telemetry-main-promotion.yml"},
+    {"type": "file", "ref": "experiments/governed-platform/observability/dashboard/index.html"},
+    {"type": "history", "ref": "Underlying telemetry candidate fad6c8257701381053955e58c893f13ae28bdd5b received validated Review 003 PASS 18/18 with zero findings, but this request independently reviews the new main deployment topology."},
+    {"type": "history", "ref": "Post-merge real-provider smoke run 34333520880 produced a non-authoritative OpenRouter HTTP 402 failure while emitting normalized telemetry; this is historical context only, not semantic authority."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "bounded_main_promotion_scope", "mandatory": true, "description": "Candidate is exactly one bounded telemetry/dashboard promotion from the declared main base and excludes unrelated governance/review-runner authority."},
+    {"id": "provider_neutral_discovery_and_rendering", "mandatory": true, "description": "Arbitrary provider/model/profile values flow through aggregation and dashboard without fixed provider lists or provider-specific renderer branches."},
+    {"id": "workflow_run_envelope_separation", "mandatory": true, "description": "Separate workflow reruns remain distinct execution envelopes even when attempt indices restart at one."},
+    {"id": "retry_failure_and_latency_integrity", "mandatory": true, "description": "Retries/failures and timing fields are preserved and validated; latency cannot create semantic success."},
+    {"id": "secret_safe_telemetry", "mandatory": true, "description": "Secret-like credential and error material cannot persist/render while credential profile identity remains observable."},
+    {"id": "semantic_and_authority_isolation", "mandatory": true, "description": "Telemetry cannot replace semantic validation/independence or widen promotion/terminal authority."},
+    {"id": "pages_artifact_collection_integrity", "mandatory": true, "description": "Pages publication collects governed review telemetry artifacts generically without confusing them with authoritative execution state."},
+    {"id": "historical_run_merge_integrity", "mandatory": true, "description": "Per-run summaries merge deterministically without duplicate-attempt collisions or silent loss of rerun history."},
+    {"id": "dashboard_consumption_and_escape_safety", "mandatory": true, "description": "Browser dashboard consumes telemetry generically, escapes values, and handles missing telemetry without false state."},
+    {"id": "existing_execution_dashboard_preservation", "mandatory": true, "description": "Existing execution status, provider routing, jobs, freshness, and case-history publication remain intact."},
+    {"id": "exact_head_qualification", "mandatory": true, "description": "CI run 34334069709 qualifies this exact candidate and frozen provider-neutral dashboard cases."},
+    {"id": "prior_review_non_substitution", "mandatory": true, "description": "Prior Review 003/history is context only and does not substitute for independent review of this exact main-promotion topology."},
+    {"id": "live_pages_claim_boundary", "mandatory": true, "description": "Candidate only enables telemetry publication/rendering; it does not prove provider uptime, model quality, semantic correctness, or production action authority."},
+    {"id": "remaining_dashboard_bypass_search", "mandatory": true, "description": "Adversarial search finds no material artifact-confusion, provider-omission, secret-leak, rerun-collapse, stale-state, deployment-regression, or authority-widening bypass within scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "ef922d2f131eef030bf1367a4feb8b6895d17d32e1c7aa44ed45b2826f161ddf"
+}
