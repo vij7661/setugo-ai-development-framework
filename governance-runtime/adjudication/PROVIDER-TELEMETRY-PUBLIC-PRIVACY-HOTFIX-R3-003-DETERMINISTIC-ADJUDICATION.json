@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-R3-003-DETERMINISTIC-ADJUDICATION",
+  "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003",
+  "reviewed_candidate_commit": "b0d8be7b6f082726ed54c14be19f304ac876f02b",
+  "candidate_base_commit": "a8c666a0862e3338bf3858644e79466980b11fce",
+  "candidate_ci_run_id": 34335165103,
+  "review_workflow_run_id": 34336948191,
+  "review_artifact_id": 10098104856,
+  "review_artifact_digest": "sha256:eff49e28dfcafe41c73d85ad66591aa2e34037a865f1974be2fad0e89353aa44",
+  "review_request_hash": "972888dfe0f9f3b4e8e813e8a16d49ae77bfe661c90f42b8fc56bcedf58f4c30",
+  "corpus_sha256": "12d5af235fc893499944c43c81e52676cd029d7c2d167d98de28c2e01d3fd88d",
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "slot": "R3",
+    "requested_serving_provider": "deepinfra",
+    "returned_serving_provider": "DeepInfra",
+    "fallbacks_allowed": false,
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false
+  },
+  "semantic_review": {
+    "disposition": "PASS",
+    "validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "mandatory_dimensions_supported": 12,
+    "mandatory_dimensions_total": 12,
+    "findings_count": 0,
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION"
+  },
+  "telemetry": {
+    "attempt_count": 1,
+    "retry_count": 0,
+    "http_status": 200,
+    "attempt_outcome": "SUCCESS",
+    "provider_latency_ms": 25829.186,
+    "total_elapsed_latency_ms": 26077,
+    "request_started_at": "2026-09-09T09:50:26.640001Z",
+    "provider_call_started_at": "2026-09-09T09:50:26.887474Z",
+    "first_response_at": "2026-09-09T09:50:52.716659Z",
+    "completion_time": "2026-09-09T09:50:52.716659Z",
+    "semantic_disposition": "PASS",
+    "validation_valid": true,
+    "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+  },
+  "provider_usage": {
+    "prompt_tokens": 15485,
+    "completion_tokens": 1337,
+    "total_tokens": 16822,
+    "cost": 0.0106839
+  },
+  "preserved_failures": [
+    {
+      "commit": "1711f29f7fb5f373c30c4bb8c1d99b0c0004c807",
+      "run_id": 34334884029,
+      "classification": "CODE_PRIVACY_DEFECT_PUBLIC_LEGACY_IDENTIFIER_LEAK",
+      "semantic_authority": false
+    },
+    {
+      "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-001",
+      "run_id": 34336362859,
+      "classification": "PRE_INFERENCE_EVIDENCE_MATERIALIZATION_CI_HEAD_MISMATCH",
+      "semantic_authority": false
+    },
+    {
+      "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-002",
+      "run_id": 34336734551,
+      "classification": "OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_7000_GT_6146",
+      "semantic_authority": false
+    }
+  ],
+  "deterministic_checks": {
+    "candidate_commit_exact_match": true,
+    "candidate_base_exact_match": true,
+    "ci_run_exact_candidate_qualified": true,
+    "historical_red_run_not_misbound_as_candidate_ci": true,
+    "request_hash_bound": true,
+    "corpus_hash_present": true,
+    "provider_and_model_match_execution_envelope": true,
+    "requested_and_returned_serving_provider_match_case_insensitively": true,
+    "fallback_disabled": true,
+    "review_validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "blocking_findings_absent": true,
+    "review_self_grants_no_authority": true,
+    "telemetry_authority_effect_unchanged": true
+  },
+  "adjudication": "VALID_INDEPENDENT_REVIEW_EVIDENCE_PRESENT",
+  "promotion_effect": "REVIEW_GATE_SATISFIED_PENDING_EXACT_HEAD_MERGE_TO_MAIN_AND_POST_MERGE_PAGES_PRIVACY_VALIDATION",
+  "notes": [
+    "Workflow success alone is not authority; this adjudication consumes validated semantic review evidence and execution provenance.",
+    "The pre-repair public identifier leak remains preserved as a false-green privacy finding and red test; historical evidence is not rewritten.",
+    "HOTFIX-001 failed before provider inference due evidence typing; HOTFIX-002 reached OpenRouter but was refused for credit capacity; neither produced semantic authority.",
+    "The hotfix remains observability/privacy-only and does not widen review, promotion, deploy, or terminal-action authority.",
+    "Post-merge Pages artifact validation must prove the historical 402 failure remains represented while provider-side account/principal identifiers are redacted."
+  ],
+  "adjudication_hash": "5bea1e88b96ecf311f09029802ce28472508a3d96bbbf046b77d3f3cf40e3803"
+}
