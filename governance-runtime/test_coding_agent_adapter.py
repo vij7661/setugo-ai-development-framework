@@ -215,6 +215,35 @@ class CodingAgentAdapterTests(unittest.TestCase):
         self.assertEqual([], called)
         self.assertEqual("MANUAL_REVIEW_IF_REQUESTED", out["review_effect"])
 
+    def test_s11_fg_01_unreported_forbidden_mutation_rejected_by_observed_diff(self):
+        a = FakeAdapter("a", "agent")
+        gateway = caa.CodingAgentExecutionGateway.from_adapters(
+            [a], observed_changes=lambda: ["src/a.py", "governance-runtime/x.py"]
+        )
+        with self.assertRaises(caa.ScopeViolation):
+            gateway.execute("a", task(), execution_id="FG1")
+
+    def test_s11_fg_02_stop_condition_overshoot_rejected(self):
+        a = FakeAdapter("a", "agent", native_result={
+            "execution_id":"FG2","completion_state":"COMPLETED","changed_artifacts":["src/a.py"],
+            "commands_run":[],"test_results":[],"failure_classification":"NONE",
+            "execution_events":[
+                {"seq":1,"kind":"STARTED"},
+                {"seq":2,"kind":"REQUIREMENT_UNRESOLVED"},
+                {"seq":3,"kind":"FILE_EDIT","path":"src/a.py"},
+                {"seq":4,"kind":"COMPLETED"},
+            ]})
+        with self.assertRaises(caa.StopConditionViolation):
+            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="FG2")
+
+    def test_s11_fg_03_agent_governance_validation_token_is_rejected_evidence(self):
+        a = FakeAdapter("a", "agent", native_result={
+            "execution_id":"FG3","completion_state":"COMPLETED","changed_artifacts":["src/a.py"],
+            "commands_run":[],"test_results":[{"name":"governance-validation","status":"PASS","qualification_token":"PASS"}],
+            "failure_classification":"NONE","execution_events":[]})
+        with self.assertRaises(caa.AuthorityViolation):
+            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="FG3")
+
 
 if __name__ == "__main__":
     unittest.main()
