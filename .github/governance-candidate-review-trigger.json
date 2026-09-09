@@ -1,44 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-005",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE6-TERMINAL-AUTHORITY-005.json",
-  "reviewed_candidate_commit": "d9bfa40d6ffc1e8c6aacaf8a8245a04048df557a",
+  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-001",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE7-TERMINAL-EXECUTOR-001.json",
+  "reviewed_candidate_commit": "c94d8aab9128a5dac418492697bc42992b219a37",
   "provider": "openrouter",
   "model": "deepseek/deepseek-v4-pro-0813",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_OPTION_A_FRESH_REVIEW_REQUESTED",
-  "request_hash": "6ccf9470e14b1668186ab8b463e4407640e37f5439c3582dadc1d008840edcbf",
+  "status": "AUTHENTICATED_SLICE7_TERMINAL_EXECUTOR_REVIEW_REQUESTED",
+  "request_hash": "f2fe70a76ed4c131e2c52e36b451bd6ea3eab2747ba90ddfacdd5fd153b55464",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "r2_role": "BLIND_TO_PROPOSER_CONCLUSION",
-  "preserved_prior_attempts": [
-    {
-      "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-001",
-      "workflow_run_id": 34277345192,
-      "semantic_disposition": "PASS",
-      "classification_after_review_of_review": "REVIEW_FALSE_GREEN_EVIDENCE_CONTRADICTION",
-      "authority_effect": "NONE"
-    },
-    {
-      "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-002",
-      "workflow_run_id": 34277864401,
-      "classification": "PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503_HIGH_DEMAND",
-      "semantic_disposition": null,
-      "authority_effect": "NONE"
-    },
-    {
-      "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-003",
-      "workflow_run_id": 34278452371,
-      "classification": "PROVIDER_ACCOUNT_TIER_INPUT_TOKEN_LIMIT_HTTP_413",
-      "semantic_disposition": null,
-      "authority_effect": "NONE"
-    },
-    {
-      "review_request_id": "REV-MVP-SLICE6-TERMINAL-AUTHORITY-004",
-      "workflow_run_id": 34278654939,
-      "semantic_disposition": "PASS",
-      "classification_after_review_of_review": "REQUIREMENT_UNRESOLVED_CONTRACT_INTERNAL_CONTRADICTION",
-      "authority_effect": "NONE"
-    }
-  ]
+  "preserved_prior_attempts": []
 }
