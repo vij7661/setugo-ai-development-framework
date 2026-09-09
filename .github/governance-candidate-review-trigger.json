@@ -1,20 +1,18 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-012",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-012.json",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-013",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-013.json",
   "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
-  "credential_profile": "r3",
+  "credential_profile": "primary",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_MINIMUM_VALID_R1800_O2200_REVIEW_REQUESTED",
-  "request_hash": "a6a2046b37653cb705cd1ebe4febcfb85ce0505fb9dec160f65742a48bf7f8bf",
+  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R2_CAPACITY_AND_REVIEW_REQUESTED",
+  "request_hash": "fe00dd5d23e061d8eba0fb0b41e477f73d97f1a0e293a0824f49324a048a2f3c",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
-  "reviewer_slot": "R3",
+  "reviewer_slot": "R2",
   "preserved_prior_attempts": [
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-004","workflow_run_id":34341963676,"result":"SEMANTIC_PASS_INVALIDATED_BY_DETERMINISTIC_EVIDENCE_OVERCLAIM","semantic_authority":false,"adjudication_commit":"c0229bc7cf23b5cc61201c71030ad09a6405b950"},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-008","workflow_run_id":34343605514,"result":"AUTHENTICATED_REVIEWER_OUTPUT_SCHEMA_DEFECT_DIMENSION_ARRAY_ONLY","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-011","workflow_run_id":34344531852,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_14391_GT_12665","semantic_authority":false}
+    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-012","workflow_run_id":34344903224,"result":"R3_OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_13888_GT_12665","semantic_authority":false}
   ]
 }
