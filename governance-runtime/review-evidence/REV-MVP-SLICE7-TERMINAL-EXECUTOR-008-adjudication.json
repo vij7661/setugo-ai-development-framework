@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "ADJ-REV-MVP-SLICE7-TERMINAL-EXECUTOR-008",
+  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-008",
+  "candidate_commit": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299",
+  "exact_parent_commit": "922a9a0c2c898f5605b1ac1b491e41e494c91ccc",
+  "pr_number": 16,
+  "candidate_ci_run": 34322174602,
+  "candidate_ci_conclusion": "success",
+  "review_workflow_run": 34326385606,
+  "review_artifact": {
+    "artifact_id": 10093938462,
+    "artifact_digest": "sha256:bde67954ecea3bb303eb2ae2b87676b682373984bf59ea3457be025cdf0e42cf"
+  },
+  "reviewer": {
+    "reviewer_slot": "R3",
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "requested_serving_provider": "deepinfra",
+    "upstream_provider_reported": "DeepInfra",
+    "fallbacks_allowed": false
+  },
+  "request_hash": "06a95175dcf4ddf33de1ba2ceee0ec1fe8bc28338091753937076375e02f8f9b",
+  "review_corpus_sha256": "88b9d65ec046e2515d63bc4ab70eaba436783efec018ac265fb3f797e1d41664",
+  "semantic_disposition": "PASS",
+  "deterministic_validation": {
+    "valid": true,
+    "mandatory_dimensions_supported": 15,
+    "mandatory_dimensions_total": 15,
+    "findings_count": 0,
+    "uncertainties_count": 0
+  },
+  "review_of_review": {
+    "exact_candidate_binding": "SUPPORTED: ReviewRequest, review, validation, execution envelope, and exact-head CI all bind candidate a4ad8bdd5b995e97529b08f12a7b3a7c6c924299.",
+    "use_time_authority_repair": "SUPPORTED: current authority snapshot plus explicit now_epoch are mandatory, hash/ACTIVE/window/authority-id/lineage/state bindings are checked before adapter execution; S7-22..S7-25 and S7-30 cover expiry, revocation, not-before, tamper, lineage, and completion binding.",
+    "durable_adapter_recovery": "SUPPORTED: recover/execute_once durable protocol and exact terminal_execution_id+binding_hash identity cover side-effect-before-local-completion crash recovery, reopen recovery, rebinding rejection, and plain-callable rejection; S7-26..S7-29 and existing replay/concurrency tests passed.",
+    "structured_failure_non_laundering": "SUPPORTED: the repaired candidate requires platform-owned LOCAL_REFERENCE_APPLIED and rejects structured FAILED/malformed/widened results from completion; dedicated defect-exposure history and repaired test are preserved.",
+    "completion_integrity": "SUPPORTED: completion evidence binds receipt hash, authority snapshot hash, exact lineage, adapter result digest, and deterministic completion hash.",
+    "external_authority_boundary": "SUPPORTED: model, worker, reviewer, CI, and conversation claims do not replace authority/current state/adapter effect evidence; successful result remains reference-only with production_side_effect_claimed=false.",
+    "prior_slice_regression": "SUPPORTED by exact-candidate CI run 34322174602; accepted Slice1 through Slice6 regression steps passed.",
+    "serving_provider_binding": "SUPPORTED: request was pinned to DeepInfra with allow_fallbacks=false and returned provider DeepInfra. Provider API authentication proves the transport/account path only; remote model identity remains explicitly not cryptographically proven.",
+    "review_output_integrity": "SUPPORTED: strict JSON review validated with all 15 mandatory dimensions TESTED_SUPPORTED, zero findings, zero uncertainties, and blind independence attestation.",
+    "remaining_evidence_contradiction": false
+  },
+  "review_telemetry": {
+    "provider_attempts": 1,
+    "provider_attempt_started_at_utc": "2026-09-09T07:56:01.3969574Z",
+    "provider_attempt_completed_at_utc": "2026-09-09T07:56:36.9362211Z",
+    "semantic_review_latency_seconds": 35.5392637,
+    "prompt_tokens": 25308,
+    "completion_tokens": 2864,
+    "total_tokens": 28172,
+    "cost_usd": 0.0189548
+  },
+  "preserved_history": [
+    "Initial candidate c94d8aab9128a5dac418492697bc42992b219a37 passed S7-01..S7-21 and Gemini review 002 returned PASS, but deterministic review-of-review exposed missing use-time authority freshness/revocation and nontransactional side-effect-before-local-completion crash recovery; authority effect NONE.",
+    "Option B was approved for both uncovered boundaries. Defect-exposure candidate 78bda890a34d4ada78236882d17a24a1a4c42fa4 preserved original greens while S7-22..S7-30 failed before repair.",
+    "Intermediate repaired candidate 022ca352cfc9ccbc37fdab2fbc0ef4c9356120e2 passed S7-01..S7-30 but was superseded after deterministic discovery that structured adapter status FAILED could be laundered into completion.",
+    "Structured-failure exposure candidate 8c46e79d92d92060a4fb821980c039c82fc45ffc failed the new laundering test; repair a4ad8bdd5b995e97529b08f12a7b3a7c6c924299 requires LOCAL_REFERENCE_APPLIED and passed full exact-head qualification run 34322174602.",
+    "Review 001 failed closed on OpenRouter HTTP 402 credit limit; no semantic authority.",
+    "Review 002 Gemini PASS was a false green on the original candidate; authority effect NONE.",
+    "Reviews 003 and 004 failed closed after Gemini HTTP 503 responses; no semantic authority.",
+    "Review 005 Groq failed before semantic review on account-tier output/input token limits; no semantic authority.",
+    "Review 006 reached OpenRouter but DeepSeek consumed the full completion budget as reasoning and returned no assistant content; no semantic authority.",
+    "Review 007 pinned Nemotron to DeepInfra but failed before inference on OpenRouter credit capacity because max_tokens=16384 exceeded the account's then-affordable 14332; no semantic authority.",
+    "Review 008 retained the same pinned Nemotron/DeepInfra route, lowered max output to 12000 with reasoning cap 4096, completed successfully in one provider attempt, and passed deterministic semantic validation."
+  ],
+  "effective_disposition": "PASS",
+  "transition_state": "VALID_INDEPENDENT_REVIEW_PRESENT_PENDING_PR_CLOSURE",
+  "counts_for_slice7_promotion": true,
+  "history_preserved": true,
+  "terminal_authority": false,
+  "release_completion_authority": false,
+  "next_required_action": "Verify PR #16 head is exactly a4ad8bdd5b995e97529b08f12a7b3a7c6c924299, base main is still 922a9a0c2c898f5605b1ac1b491e41e494c91ccc, exact-head qualification remains success, there are no unresolved review threads or repository blockers, update PR metadata with Review 008/adjudication evidence, mark ready, and merge only with expected head a4ad8bdd5b995e97529b08f12a7b3a7c6c924299. Then verify main advanced exactly to the merge result before starting the next slice."
+}
