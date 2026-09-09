@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-001",
-  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-001.json",
+  "review_request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-002",
+  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-002.json",
   "reviewed_candidate_commit": "b0d8be7b6f082726ed54c14be19f304ac876f02b",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_PUBLIC_TELEMETRY_PRIVACY_HOTFIX_R3_DEEPINFRA_PINNED_7000_REVIEW_REQUESTED",
-  "request_hash": "feb9dc9aaf9e1b0a939fa0064b9c12a2a237c5c5c0c720fcba93fa56cb4768de",
+  "status": "AUTHENTICATED_PUBLIC_TELEMETRY_PRIVACY_HOTFIX_R3_DEEPINFRA_PINNED_7000_REVIEW_REQUESTED_CORRECTED_EVIDENCE_TYPING",
+  "request_hash": "075f8a1ed16d10566634204ae093a4a73c08d5a678c259979dcf84a513d2d323",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
@@ -17,6 +17,7 @@
     {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-002","workflow_run_id":34332001989,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OVERBROAD_PROMPT_141557_GT_48906","semantic_authority":false},
     {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34332608256,"result":"VALIDATED_PASS_18_OF_18_WITH_ATTEMPT1_DEEPINFRA_429_ATTEMPT2_SUCCESS","semantic_authority":false},
     {"review_request_id":"REV-PROVIDER-REVIEW-TELEMETRY-003","workflow_run_id":34333520880,"result":"POST_MERGE_OBSERVABILITY_SMOKE_OPENROUTER_HTTP_402_WITH_NORMALIZED_TELEMETRY","semantic_authority":false},
-    {"review_request_id":"REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001","workflow_run_id":34334344769,"result":"VALIDATED_PASS_14_OF_14_MAIN_DASHBOARD_PROMOTION","semantic_authority":false,"note":"Preserved as prior deployment review; it does not substitute for this exact privacy-hotfix review."}
+    {"review_request_id":"REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001","workflow_run_id":34334344769,"result":"VALIDATED_PASS_14_OF_14_MAIN_DASHBOARD_PROMOTION","semantic_authority":false,"note":"Prior deployment review only; does not substitute for this exact hotfix review."},
+    {"review_request_id":"REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-001","workflow_run_id":34336362859,"result":"PRE_INFERENCE_EVIDENCE_MATERIALIZATION_CI_HEAD_MISMATCH","semantic_authority":false,"note":"Historical red CI was incorrectly typed as candidate-bound ci_run; no provider inference, no semantic disposition."}
   ]
 }
