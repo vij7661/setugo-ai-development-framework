@@ -375,9 +375,13 @@ class ExternalSideEffectGateway:
             "evidence": None if row["evidence_json"] is None else json.loads(row["evidence_json"]),
         }
 
-    def _store_intent(self, key: str, binding: Mapping[str, Any]) -> None:
+    def _store_intent(self, key: str, binding: Mapping[str, Any]) -> bool:
         with self._connect() as con:
-            con.execute("INSERT INTO intents(external_idempotency_key,binding_json,status,evidence_json) VALUES(?,?,?,NULL)", (key, _canon(binding), "IN_PROGRESS"))
+            cursor = con.execute(
+                "INSERT OR IGNORE INTO intents(external_idempotency_key,binding_json,status,evidence_json) VALUES(?,?,?,NULL)",
+                (key, _canon(binding), "IN_PROGRESS"),
+            )
+            return cursor.rowcount == 1
 
     def _set_status(self, key: str, status: str, evidence=None) -> None:
         with self._connect() as con:
@@ -446,7 +450,16 @@ class ExternalSideEffectGateway:
             if existing["status"] in {"UNKNOWN", "IN_PROGRESS"}:
                 return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", external_idempotency_key=expected_key, reason="existing ambiguous provider outcome requires reconciliation")
         else:
-            self._store_intent(expected_key, binding)
+            created = self._store_intent(expected_key, binding)
+            if not created:
+                raced = self._load_intent(expected_key)
+                if raced is None:
+                    return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", external_idempotency_key=expected_key, reason="concurrent intent creation requires reconciliation")
+                if raced["binding"] != binding:
+                    return self._result("DENY_IDEMPOTENCY_REBIND", reason="concurrent external idempotency key rebind", external_idempotency_key=expected_key)
+                if raced["status"] == "COMPLETED" and raced["evidence"] is not None:
+                    return self._result("REFERENCE_EFFECT_REPLAYED", evidence=raced["evidence"], external_idempotency_key=expected_key, reason="concurrent exact completed external effect replay")
+                return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", external_idempotency_key=expected_key, reason="concurrent exact intent already in progress; reconcile before retry")
 
         if crash_point == "before_dispatch":
             raise SimulatedCrash("before provider dispatch")
