@@ -1,0 +1,56 @@
+name: Integrated Governed MVP Slice11 Coding Agent Adapter
+
+on:
+  pull_request:
+    branches: ['phase/testing']
+    paths:
+      - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE11_CODING_AGENT_ADAPTER_CONTRACT.md'
+      - 'governance-runtime/coding_agent_adapter.py'
+      - 'governance-runtime/test_coding_agent_adapter.py'
+      - '.github/workflows/integrated-governed-mvp-slice11-coding-agent-adapter.yml'
+  workflow_dispatch:
+
+jobs:
+  slice11-adapter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Slice11 coding-agent adapter acceptance
+        run: python -m unittest -v governance-runtime/test_coding_agent_adapter.py
+
+  regress-existing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Existing phase and accelerator regressions
+        run: |
+          python -m unittest -v governance-runtime/test_phase_policy.py governance-runtime/test_governed_accelerator.py
+      - name: Slice1-10 regressions
+        working-directory: experiments/governed-platform/governance
+        run: |
+          python -m unittest -v test_integrated_governed_mvp.py test_integrated_governed_mvp_slice2.py test_integrated_governed_mvp_slice3.py test_integrated_governed_mvp_slice4.py test_integrated_governed_mvp_slice1_to_slice5.py
+          python -m unittest -v test_integrated_governed_mvp_slice6_terminal_authority.py
+          python -m unittest -v test_integrated_governed_mvp_slice7_terminal_executor.py test_integrated_governed_mvp_slice7_option_b.py test_integrated_governed_mvp_slice7_adapter_failure_result.py
+          python -m unittest -v test_integrated_governed_mvp_slice8_remote_transport.py
+          python -m unittest -v test_integrated_governed_mvp_slice9_real_slice8_integrity.py test_integrated_governed_mvp_slice9_credential_lease.py
+          python -m unittest -v test_integrated_governed_mvp_slice10_manual_r3_falsification.py test_integrated_governed_mvp_slice10_external_review_falsification.py test_integrated_governed_mvp_slice10_reconciliation_integrity.py test_integrated_governed_mvp_slice10_external_side_effect.py
+
+  aggregate:
+    if: always()
+    needs: [slice11-adapter, regress-existing]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail closed unless both jobs pass
+        env:
+          S11: ${{ needs.slice11-adapter.result }}
+          REG: ${{ needs.regress-existing.result }}
+        run: |
+          echo "slice11=$S11 existing=$REG"
+          test "$S11" = success
+          test "$REG" = success
