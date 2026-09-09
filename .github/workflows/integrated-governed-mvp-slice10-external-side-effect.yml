@@ -8,6 +8,7 @@ on:
       - 'experiments/governed-platform/governance/test_integrated_governed_mvp_slice10_external_side_effect.py'
       - 'experiments/governed-platform/governance/test_integrated_governed_mvp_slice10_reconciliation_integrity.py'
       - 'experiments/governed-platform/governance/test_integrated_governed_mvp_slice10_external_review_falsification.py'
+      - 'experiments/governed-platform/governance/test_integrated_governed_mvp_slice10_manual_r3_falsification.py'
       - '.github/workflows/integrated-governed-mvp-slice10-external-side-effect.yml'
   workflow_dispatch:
 
@@ -19,6 +20,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Run manual R3 Slice10 falsification cases
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice10_manual_r3_falsification.py
       - name: Run external-review-derived Slice10 falsification cases
         working-directory: experiments/governed-platform/governance
         run: python -m unittest -v test_integrated_governed_mvp_slice10_external_review_falsification.py
