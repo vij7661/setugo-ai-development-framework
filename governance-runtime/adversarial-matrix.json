@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "required_attack_classes": [
+    "before_operation",
+    "after_dispatch_before_response",
+    "remote_commit_before_local_persist",
+    "after_local_persist",
+    "restart_recovery",
+    "concurrent_duplicate",
+    "same_key_different_binding",
+    "changed_upstream_lineage",
+    "changed_lease_identity",
+    "revocation_between_checks",
+    "exact_expiry_boundary",
+    "malformed_response",
+    "unexpected_exception",
+    "post_commit_exception",
+    "secret_bearing_error"
+  ],
+  "rule": "Every new material slice must explicitly map each applicable class to a frozen test or document why it is out of scope before candidate freeze.",
+  "authority_effect": "NONE"
+}
