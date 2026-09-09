@@ -1,0 +1,43 @@
+name: Integrated Governed MVP Slice10 External Side-Effect Gateway
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE10_EXTERNAL_SIDE_EFFECT_GATEWAY_CONTRACT.md'
+      - 'experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py'
+      - 'experiments/governed-platform/governance/test_integrated_governed_mvp_slice10_external_side_effect.py'
+      - '.github/workflows/integrated-governed-mvp-slice10-external-side-effect.yml'
+  workflow_dispatch:
+
+jobs:
+  falsify-slice10:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen Slice10 S10-01 through S10-26
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice10_external_side_effect.py
+      - name: Accepted Slice9 regression
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice9_real_slice8_integrity.py test_integrated_governed_mvp_slice9_credential_lease.py
+      - name: Accepted Slice8 regression
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice8_remote_transport.py
+      - name: Accepted Slice7 regressions
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice7_terminal_executor.py test_integrated_governed_mvp_slice7_option_b.py test_integrated_governed_mvp_slice7_adapter_failure_result.py
+      - name: Accepted Slice6 regression
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice6_terminal_authority.py
+      - name: Accepted Slice1 through Slice4 regressions
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp.py test_integrated_governed_mvp_slice2.py test_integrated_governed_mvp_slice3.py test_integrated_governed_mvp_slice4.py
+      - name: Accepted Slice1 through Slice5 composition and ledger regressions
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice1_to_slice5.py
+          cd ..
+          python -m unittest -v test_slice5_authoritative_state_ledger.py test_slice5_authoritative_state_ledger_v2.py
