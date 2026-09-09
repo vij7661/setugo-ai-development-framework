@@ -1,0 +1,74 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-003",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_option_b.py",
+    ".github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice7_terminal_executor_candidate",
+    "ref": "PR-16",
+    "commit": "022ca352cfc9ccbc37fdab2fbc0ef4c9356120e2"
+  },
+  "proposer": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol"
+  },
+  "required_reviewer": {
+    "provider": "gemini",
+    "model_class": "gemini"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently review repaired Slice 7 candidate 022ca352cfc9ccbc37fdab2fbc0ef4c9356120e2. Do not rely on the prior Gemini PASS for c94d8aab9128a5dac418492697bc42992b219a37; deterministic review-of-review found two false-green gaps after that review.",
+    "Verify the executor now requires an externally supplied current terminal-authority snapshot plus explicit now_epoch and rejects expired, revoked, not-yet-valid, tampered, replaced, or lineage-mismatched authority before adapter invocation.",
+    "Verify a historical hash-valid Slice 6 authorization receipt cannot execute after current authority expires or is revoked, and that CI/model/reviewer/conversation state cannot substitute for use-time authority.",
+    "Verify the terminal adapter is no longer a plain callable: it must implement durable recover(terminal_execution_id,binding_hash) and execute_once(terminal_execution_id,binding_hash,binding) semantics and reject identity rebinding.",
+    "Adversarially inspect the crash window after the adapter durably applies a side effect but before the executor commits local completion. Verify retry/reopen recovers the durable adapter result and does not apply a second side effect.",
+    "Inspect S7-22..S7-30 specifically, including the preserved failing defect-exposure candidate 78bda890a34d4ada78236882d17a24a1a4c42fa4 where the Option B suite failed before mechanism repair.",
+    "Verify completion evidence binds authority_snapshot_hash in addition to Slice 6 receipt hash and exact project/task/effect/action/artifact/state-version lineage.",
+    "Verify adapter failure/self-report cannot widen target/action or launder failure into completion, and that local COMPLETED/REPLAYED/RECOVERED states do not claim a real production side effect.",
+    "Verify exact-head CI run 34321684000 is execution evidence only: S7-01..S7-30 plus accepted Slice 1→6 regressions passed on exact candidate 022ca352cfc9ccbc37fdab2fbc0ef4c9356120e2.",
+    "Search for any remaining authority freshness, idempotency, crash/retry, stale-state, claimant-controlled, or false-green path within the amended frozen reference scope. Return an independent disposition based only on the exact repaired candidate and materialized evidence."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34321684000"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_option_b.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml"},
+    {"type": "history", "ref": "Pre-amendment candidate c94d8aab9128a5dac418492697bc42992b219a37 passed S7-01..S7-21 and authenticated Gemini review REV-MVP-SLICE7-TERMINAL-EXECUTOR-002 returned PASS, but deterministic review-of-review found two uncovered defects: no use-time current-authority freshness/revocation input, and no protection for crash after external adapter side-effect success but before local completion commit. That PASS has authority_effect NONE."},
+    {"type": "history", "ref": "Option B defect-exposure candidate 78bda890a34d4ada78236882d17a24a1a4c42fa4 preserved original S7-01..S7-21 PASS while S7-22..S7-30 failed because TerminalExecutor lacked the current_authority/now_epoch interface. Mechanism repair began only afterward."},
+    {"type": "history", "ref": "OpenRouter review attempt REV-MVP-SLICE7-TERMINAL-EXECUTOR-001 failed closed with HTTP 402 credit limit and has no semantic disposition or authority effect."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "slice6_receipt_integrity_and_binding", "mandatory": true, "description": "Exact valid Slice 6 receipt remains necessary and request lineage cannot be substituted."},
+    {"id": "use_time_authority_freshness", "mandatory": true, "description": "Current authority snapshot and explicit current time are validated at terminal use time; expired/revoked/not-yet-valid/replaced authority fails closed."},
+    {"id": "authority_snapshot_integrity_and_lineage", "mandatory": true, "description": "Authority snapshot is self-hash bound and exactly matches authority id, project/task/effect/action/artifact/state-version."},
+    {"id": "current_state_and_artifact_revalidation", "mandatory": true, "description": "Current project/state version/artifact still match immediately before terminal execution."},
+    {"id": "durable_adapter_idempotency", "mandatory": true, "description": "Adapter protocol durably binds terminal execution identity to one exact binding/result and rejects rebinding."},
+    {"id": "side_effect_precompletion_crash_recovery", "mandatory": true, "description": "Crash after durable adapter effect but before local completion cannot duplicate the side effect on retry/reopen."},
+    {"id": "local_completion_and_response_crash_recovery", "mandatory": true, "description": "Crash after local durable completion but before response recovers without duplicate execution."},
+    {"id": "concurrent_identical_convergence", "mandatory": true, "description": "Concurrent identical requests converge to one durable adapter side effect/result."},
+    {"id": "adapter_failure_and_non_authority", "mandatory": true, "description": "Adapter failure/self-report cannot widen bound fields or mint successful completion."},
+    {"id": "completion_evidence_integrity", "mandatory": true, "description": "Completion evidence binds Slice 6 receipt hash, authority snapshot hash, exact lineage, adapter-result digest, and deterministic completion hash."},
+    {"id": "model_ci_reviewer_non_authority", "mandatory": true, "description": "Model, worker, reviewer, green CI, and conversation state cannot replace current terminal authority or effect evidence."},
+    {"id": "reference_only_nonproduction_claim", "mandatory": true, "description": "Reference completion never claims a real production merge/release/deploy/completion occurred."},
+    {"id": "prior_slice_regression_preservation", "mandatory": true, "description": "Accepted Slice 1→6 boundaries remain preserved on the exact repaired candidate."},
+    {"id": "remaining_terminal_execution_bypass_search", "mandatory": true, "description": "Adversarial review finds no remaining false-green/stale-authority/idempotency/crash claimant-controlled bypass within frozen scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "c58bd27bbfc88d5c5c82018da18b34126670aece1b83a635b792355d90623129"
+}
