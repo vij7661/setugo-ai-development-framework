@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "PROVIDER-REVIEW-TELEMETRY-R3-003-DETERMINISTIC-ADJUDICATION",
+  "review_request_id": "REV-PROVIDER-REVIEW-TELEMETRY-003",
+  "reviewed_candidate_commit": "fad6c8257701381053955e58c893f13ae28bdd5b",
+  "candidate_ci_run_id": 34331298217,
+  "review_workflow_run_id": 34332608256,
+  "review_artifact_id": 10096401547,
+  "review_artifact_digest": "sha256:1b1931e7b9056e2d6f4f09cc85a3045b591b8e7eeeb33e5e489722299518c13a",
+  "review_request_hash": "13b5fb2836d2c6c5cf8536b1284d428157fac76032f2aa44a4096a858439b890",
+  "corpus_sha256": "f58c0a2333d97139eddaa6be01d4cffc3a1e803a97200fc550bdc4b5e1686c44",
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "slot": "R3",
+    "requested_serving_provider": "deepinfra",
+    "returned_serving_provider": "DeepInfra",
+    "fallbacks_allowed": false,
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false
+  },
+  "transport": "AUTOMATIC_API",
+  "review_class": "PLATFORM_AUTO_API_REVIEW",
+  "semantic_review": {
+    "disposition": "PASS",
+    "validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "mandatory_dimensions_supported": 18,
+    "mandatory_dimensions_total": 18,
+    "findings_count": 0,
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION"
+  },
+  "attempt_history": [
+    {
+      "attempt_index": 1,
+      "result": "TRANSIENT_UNAVAILABLE",
+      "provider": "openrouter",
+      "upstream_provider": "DeepInfra",
+      "http_code": 429,
+      "classification": "UPSTREAM_PROVIDER_SHARED_POOL_ENGINE_OVERLOADED",
+      "semantic_authority": false
+    },
+    {
+      "attempt_index": 2,
+      "result": "SUCCESS",
+      "provider": "openrouter",
+      "upstream_provider": "DeepInfra",
+      "semantic_disposition": "PASS"
+    }
+  ],
+  "provider_usage": {
+    "prompt_tokens": 54331,
+    "completion_tokens": 2118,
+    "total_tokens": 56449,
+    "cost": 0.0318251
+  },
+  "authority_effect_from_review": "NONE_PENDING_DETERMINISTIC_INGESTION",
+  "deterministic_checks": {
+    "candidate_commit_exact_match": true,
+    "ci_run_exact_candidate_qualified": true,
+    "request_hash_bound": true,
+    "corpus_hash_present": true,
+    "provider_and_model_match_execution_envelope": true,
+    "requested_and_returned_serving_provider_match_case_insensitively": true,
+    "fallback_disabled": true,
+    "review_validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "blocking_findings_absent": true,
+    "review_self_grants_no_authority": true,
+    "prior_failed_attempt_preserved": true
+  },
+  "adjudication": "VALID_INDEPENDENT_REVIEW_EVIDENCE_PRESENT",
+  "promotion_effect": "REVIEW_GATE_SATISFIED_PENDING_CLEAN_CURRENT-BASE_MERGE_AND_POST-MERGE_VALIDATION",
+  "notes": [
+    "Workflow-level success is not itself semantic authority; this adjudication is based on the validated review artifact and execution envelope.",
+    "Review attempts 001 and 002 remain preserved as pre-inference HTTP 402 capacity failures.",
+    "Review 003 attempt 1 remains preserved as transient DeepInfra HTTP 429; attempt 2 produced the validated PASS.",
+    "The reviewed telemetry candidate remains observability-only and does not acquire terminal-action authority."
+  ],
+  "adjudication_hash": "c4a0f65fa7b35bfad3529c7291956d24392a36fbb6dc098f5a144bc69b930948"
+}
