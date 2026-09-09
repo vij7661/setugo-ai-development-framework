@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "SLICE9-R2-015-DETERMINISTIC-ADJUDICATION",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015",
+  "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
+  "candidate_base_commit": "417e60aab4f8d220e3de889e5683e6642ddd3431",
+  "candidate_ci_run_id": 34340343645,
+  "review_workflow_run_id": 34346202247,
+  "review_artifact_id": 10101800112,
+  "review_artifact_digest": "sha256:faf9a621ec59828ceef29fd653ab88fc68ef632d09e3aa1d87f29be151dc2533",
+  "review_request_hash": "41d137b4d99d37bdb3fed40a28491353bea06a444ac56f59118f2c2b358bc22b",
+  "corpus_sha256": "884ea87f90d2283b27780011ef10f1cc248bf65a0edcb25a3c933db7e13ac178",
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "slot": "R2",
+    "credential_profile": "primary",
+    "requested_serving_provider": "deepinfra",
+    "returned_serving_provider": "DeepInfra",
+    "fallbacks_allowed": false,
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false
+  },
+  "semantic_review": {
+    "disposition": "PASS",
+    "validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "mandatory_dimensions_supported": 16,
+    "mandatory_dimensions_total": 16,
+    "findings_count": 0,
+    "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION"
+  },
+  "telemetry": {
+    "attempt_count": 1,
+    "retry_count": 0,
+    "http_status": 200,
+    "attempt_outcome": "SUCCESS",
+    "provider_latency_ms": 28708.92,
+    "total_elapsed_latency_ms": 28972,
+    "request_started_at": "2026-09-09T11:33:42.592949Z",
+    "provider_call_started_at": "2026-09-09T11:33:42.856328Z",
+    "first_response_at": "2026-09-09T11:34:11.565248Z",
+    "completion_time": "2026-09-09T11:34:11.565248Z",
+    "semantic_disposition": "PASS",
+    "validation_valid": true,
+    "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+  },
+  "provider_usage": {
+    "prompt_tokens": 21528,
+    "completion_tokens": 2695,
+    "total_tokens": 24223,
+    "cost": 0.016693
+  },
+  "preserved_failures": [
+    {
+      "run_id": 34339080182,
+      "classification": "MECHANISM_NOT_IMPLEMENTED_RED_BOUNDARY",
+      "semantic_authority": false
+    },
+    {
+      "commit": "cd610023264f78516a44d573e5a3bd228739f331",
+      "run_id": 34339328915,
+      "classification": "FALSE_GREEN_SYNTHETIC_SLICE8_FIXTURE",
+      "semantic_authority": false
+    },
+    {
+      "run_id": 34339776553,
+      "classification": "REAL_SLICE8_INTEGRATION_DEFECT_EXPOSED_4_OF_4_FAIL",
+      "semantic_authority": false
+    },
+    {
+      "run_id": 34340184306,
+      "classification": "MECHANISM_REPAIRED_FIXTURE_DEFECT_REMAINED",
+      "semantic_authority": false
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-004",
+      "run_id": 34341963676,
+      "classification": "SEMANTIC_PASS_INVALIDATED_BY_DETERMINISTIC_EVIDENCE_OVERCLAIM",
+      "semantic_authority": false,
+      "adjudication_commit": "c0229bc7cf23b5cc61201c71030ad09a6405b950"
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-008",
+      "run_id": 34343605514,
+      "classification": "AUTHENTICATED_REVIEWER_OUTPUT_SCHEMA_DEFECT_DIMENSION_ARRAY_ONLY",
+      "semantic_authority": false
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-012",
+      "run_id": 34344903224,
+      "classification": "R3_OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_13888_GT_12665",
+      "semantic_authority": false
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-013",
+      "run_id": 34345442861,
+      "classification": "R2_PASS_NOT_PROMOTED_PENDING_STRONGER_DIRECT_EXECUTION_EVIDENCE",
+      "semantic_authority": false
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-014",
+      "run_id": 34345922227,
+      "classification": "R2_FULL_HARNESS_OUTPUT_TRUNCATED_AT_2200_NO_VALID_JSON",
+      "semantic_authority": false
+    }
+  ],
+  "deterministic_checks": {
+    "candidate_commit_exact_match": true,
+    "candidate_base_exact_match": true,
+    "ci_run_exact_candidate_qualified": true,
+    "request_hash_bound": true,
+    "corpus_hash_present": true,
+    "full_s9_acceptance_harness_materialized": true,
+    "real_slice8_integrity_test_materialized": true,
+    "provider_and_model_match_execution_envelope": true,
+    "requested_and_returned_serving_provider_match_case_insensitively": true,
+    "fallback_disabled": true,
+    "review_validation_valid": true,
+    "all_mandatory_dimensions_supported": true,
+    "blocking_findings_absent": true,
+    "prior_evidence_overclaim_not_repeated": true,
+    "review_self_grants_no_authority": true,
+    "telemetry_authority_effect_unchanged": true
+  },
+  "adjudication": "VALID_INDEPENDENT_REVIEW_EVIDENCE_PRESENT",
+  "promotion_effect": "REVIEW_GATE_SATISFIED_PENDING_EXACT_HEAD_PR_CLOSURE_MERGE_AND_POST_MERGE_VALIDATION",
+  "notes": [
+    "Workflow success alone is not authority; this adjudication consumes validated semantic review evidence and execution provenance.",
+    "Review 015 includes the full frozen S9 acceptance harness, the real-Slice8 integrity test, the exact implementation, frozen contract, exact-head CI evidence, and preserved failure history.",
+    "Review 013 was not used for promotion because its provider-neutrality wording exceeded the compact execution evidence; Review 014 then carried the full harness but was truncated before valid JSON.",
+    "The accepted claim remains bounded to deterministic local reference credential leasing. It does not prove production secret-manager, IAM, external-provider, or real terminal-side-effect safety.",
+    "All prior false greens/provider/reviewer failures remain historical non-authoritative evidence."
+  ],
+  "adjudication_hash": "37bf87291a28b436cf73d9aa098f0dcceb91dacd034971e70372cb4ef331669d"
+}
