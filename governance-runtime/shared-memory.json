@@ -12,29 +12,29 @@
     {"class": "external_agent_memory_or_review", "use": "working/reviewer input with provenance; never authority by repetition"}
   ],
   "current_work": {
-    "name": "Integrated Governed MVP Slice9 - External Credential Lease Gate Closed",
+    "name": "Integrated Governed MVP Slice10 - Merged Pending Platform Independent Review",
     "authoritative_branch": "main",
-    "authoritative_head": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
-    "status": "BOUNDED_ACCEPTED",
-    "continuity_summary": "Slice9 is merged as a bounded deterministic local reference credential-lease gate after red-first falsification, real-Slice8 integration repair, exact-head qualification, full-harness independent R2 PASS 16/16, deterministic adjudication, and SHA-pinned merge. No production secret-manager/IAM/provider or real external side-effect safety is claimed.",
+    "authoritative_head": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
+    "status": "MERGED_PENDING_INDEPENDENT_REVIEW",
+    "continuity_summary": "Slice10 code is merged at 58b3d19d after extensive red-first falsification and exact-head qualification, but manual R3 relay is external evidence only under the platform review protocol. Governance acceptance remains pending a platform-authenticated independent review.",
     "allowed_use": ["session_resume", "task_routing", "context_preparation", "external_evidence_reference"],
-    "prohibited_use": ["treat_credential_as_authority", "persist_raw_secret_values", "claim_production_secret_manager_or_iam_safety", "rewrite_prior_failures", "override_execution_handoff_from_chat_summary", "infer_execution_frontier_from_repository_head_alone"]
+    "prohibited_use": ["upgrade_manual_review_to_platform_authority", "erase_premature_promotion_history", "claim_production_external_provider_safety", "start_material_slice11_promotion_before_review_stop", "override_execution_handoff_from_chat_summary", "infer_execution_frontier_from_repository_head_alone"]
   },
   "execution_handoff": {
-    "sequence": 48,
-    "workstream": "Integrated Governed MVP Slice9 - External Credential Lease Gate Closed",
+    "sequence": 49,
+    "workstream": "Integrated Governed MVP Slice10 - Merged Pending Platform Independent Review",
     "candidate_branch": "main",
-    "candidate_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
-    "phase": "BOUNDED_ACCEPTED",
-    "next_required_action": "Reconcile the accepted integrated governed-platform frontier at main ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 and freeze the next bounded workstream contract from repository evidence before implementation; do not infer the next mechanism from conversational memory alone.",
-    "stop_condition": "NONE",
-    "manual_input_required": false,
-    "resume_rule": "On generic CONTINUE, first verify main is ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137 or identify any newer timestamped authoritative state, then execute the verified handoff next action."
+    "candidate_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
+    "phase": "MERGED_PENDING_INDEPENDENT_REVIEW",
+    "next_required_action": "Obtain a platform-authenticated independent review for the exact merged Slice10 content boundary before declaring Slice10 governance-accepted or beginning another material slice. Speed-accelerator tooling may be prepared on a draft branch but must not weaken or bypass this stop.",
+    "stop_condition": "INDEPENDENT_REVIEW_REQUIRED",
+    "manual_input_required": true,
+    "resume_rule": "On generic CONTINUE, first verify main is 58b3d19da3d4f7094213ffeebdc1d1b301aa82d7 or identify newer timestamped governed state, then satisfy the platform-authenticated independent-review stop before any material Slice11 promotion."
   },
   "governance_runtime": {
     "branch": "governance/live-conversation-runtime",
     "pull_request": null,
-    "status": "NOT_YET_PRESENT",
+    "status": "PENDING_INDEPENDENT_REVIEW",
     "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
     "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
     "supported_review_transports": ["AUTOMATIC_API", "USER_INITIATED_API"],
@@ -47,34 +47,31 @@
     "positive_promotable_dispositions": ["PASS", "BOUNDED_PASS"],
     "selected_next_reviewer": null,
     "current_review_request_id": null,
-    "current_review_status": "NOT_YET_PRESENT",
-    "reviewed_candidate_commit": null,
+    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
+    "reviewed_candidate_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
     "current_review_disposition": null,
     "current_review_semantic_validation": null,
-    "current_review_effective_state": "PENDING_CANDIDATE_FREEZE",
+    "current_review_effective_state": "PENDING_INDEPENDENT_REVIEW",
     "current_review_identity_assurance": null,
     "current_review_counts_for_promotion": false,
     "construction_evidence": {
-      "slice9_pr": 21,
-      "slice9_contract": "c45cf1338960ce60c20d1a96e17de1e8f94d9565",
-      "slice9_candidate": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
-      "slice9_exact_ci": "34340343645",
-      "slice9_review": "34346202247",
-      "slice9_review_request": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015",
-      "slice9_review_artifact": "10101800112",
-      "slice9_adjudication": "7a7e522204790e79f925fd7e13f3c5b52d4a0df0",
-      "slice9_merge": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137"
+      "slice10_pr": 22,
+      "slice10_contract": "c848adea834fec08349eb7663dd33de53198984c",
+      "slice10_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0",
+      "slice10_exact_ci": "34358448341",
+      "slice10_merge": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
+      "slice10_manual_r3_adjudication": "3d2b2f308600defa8afce590f99659c9a3326195"
     },
-    "features_under_review": []
+    "features_under_review": ["Slice10 platform-authenticated independent review"]
   },
   "pending_reviews": [
     {
-      "purpose": "Next material candidate not yet frozen",
-      "status": "PENDING_CANDIDATE_FREEZE",
-      "platform_mode": "AUTO_MODE",
+      "purpose": "Platform-authenticated review required for merged Slice10 boundary",
+      "status": "PENDING_INDEPENDENT_REVIEW",
+      "platform_mode": "MANUAL_MODE",
       "review_request_id": null,
       "review_transport": null,
-      "reviewed_artifact_commit": null,
+      "reviewed_artifact_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
       "counts_for_current_promotion": false,
       "superseded_review_requests": []
     }
@@ -82,17 +79,13 @@
   "received_review_history": [
     {"request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-008", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299", "workflow_run": 34326385606, "disposition": "PASS", "mandatory_dimensions": "15/15 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE7_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
     {"request_id": "REV-MVP-SLICE8-REMOTE-TRANSPORT-001", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "4873d7a11383b5ba684cb92e399b18cfe2ffb304", "workflow_run": 34328209242, "disposition": "PASS", "mandatory_dimensions": "17/17 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE8_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
-    {"request_id": "REV-PROVIDER-TELEMETRY-MAIN-PROMOTION-001", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "7c51e729edf3c0dcf2893b4caaee42d34ca31249", "workflow_run": 34334344769, "disposition": "PASS", "mandatory_dimensions": "14/14 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "TELEMETRY_DASHBOARD_ACCEPTED_BEFORE_POST_DEPLOY_PRIVACY_FALSE_GREEN", "counts_for_current_promotion": false},
-    {"request_id": "REV-PROVIDER-TELEMETRY-PUBLIC-PRIVACY-HOTFIX-003", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "b0d8be7b6f082726ed54c14be19f304ac876f02b", "workflow_run": 34336948191, "disposition": "PASS", "mandatory_dimensions": "12/12 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "PRIVACY_HOTFIX_ACCEPTED_AFTER_POST_MERGE_ARTIFACT_VALIDATION", "counts_for_current_promotion": false},
     {"request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1", "workflow_run": 34346202247, "disposition": "PASS", "mandatory_dimensions": "16/16 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE9_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION_AND_SHA_PINNED_MERGE", "counts_for_current_promotion": false}
   ],
-  "external_evidence_history": [],
+  "external_evidence_history": [
+    {"request_id": "MANUAL-R3-SLICE10-003", "origin": "user_pasted_deepseek_manual_review", "review_class": "USER_PROVIDED_EXTERNAL_CONTENT", "reviewed_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0", "disposition": "BOUNDED_PASS", "findings": 0, "provider_api_authenticated": false, "effective_use": "FALSIFICATION_AND_ADVISORY_ONLY", "counts_for_current_promotion": false}
+  ],
   "memory_conflict_history": [
-    {"id": "LCG-F21", "observed": "Earlier PR10/PR11 checkpoint drift was repaired historically.", "resolution": "PRESERVED_HISTORY", "silent_merge": false},
-    {"id": "LCG-SLICE8-STALE-044", "observed": "Checkpoint 044 still pointed to Slice5/PR11 while authoritative integrated lineage had advanced through Slice7 and Slice8.", "resolution": "CHECKPOINT_045_RECONCILE_TO_VERIFIED_GIT_FRONTIER", "silent_merge": false},
-    {"id": "LCG-TELEMETRY-PRIVACY-FALSE-GREEN", "observed": "Public Pages artifact contained a provider-side principal identifier inside historical HTTP 402 error detail despite prior semantic PASS.", "resolution": "RED_TEST_NARROW_REPAIR_FRESH_R3_REVIEW_SHA_PINNED_MERGE_POST_MERGE_ARTIFACT_VERIFICATION", "silent_merge": false},
-    {"id": "LCG-SLICE9-SYNTHETIC-S8-FALSE-GREEN", "observed": "Initial Slice9 green suite used an invented upstream Slice8 fixture shape and did not prove accepted Slice8 compatibility.", "resolution": "REAL_SLICE8_INTEGRITY_TESTS_RED_FIRST_MECHANISM_REPAIR_FIXTURE_CORRECTION_FULL_REQUALIFICATION", "silent_merge": false},
-    {"id": "LCG-SLICE9-REVIEW-EVIDENCE-OVERCLAIMS", "observed": "R3 Review004 and R2 Review013 returned PASS labels whose wording exceeded materialized evidence; both were denied promotion.", "resolution": "FULL_S9_HARNESS_MATERIALIZED_IN_REVIEW015_AND_DETERMINISTIC_REVIEW_OF_REVIEW", "silent_merge": false}
+    {"id": "LCG-SLICE10-MANUAL-REVIEW-PROMOTION-FALSE-GREEN", "observed": "Manual R3 external content was treated as if it satisfied the mandatory platform-authenticated independent-review gate before PR22 merge.", "resolution": "PRESERVE_MERGE_AND_CODE_EVIDENCE_MARK_GOVERNANCE_ACCEPTANCE_PENDING_PLATFORM_AUTHENTICATED_REVIEW", "silent_merge": false}
   ],
   "memory_rules": {
     "repetition_upgrades_status": false,
