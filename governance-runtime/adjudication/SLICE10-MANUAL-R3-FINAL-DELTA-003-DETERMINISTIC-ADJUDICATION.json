@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "SLICE10-MANUAL-R3-FINAL-DELTA-003-DETERMINISTIC-ADJUDICATION",
+  "slice": "Slice10 external side-effect gateway",
+  "candidate_commit": "0e5ec197bd2f725a79f415ff31862fb4664c67c0",
+  "base_main_commit": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+  "pull_request": 22,
+  "exact_head_qualification_run": 34358448341,
+  "review": {
+    "review_request_id": "MANUAL-R3-SLICE10-003",
+    "slot": "R3",
+    "provider": "deepseek-manual",
+    "model": "unknown",
+    "reviewer_disposition": "BOUNDED_PASS",
+    "findings_count": 0,
+    "prior_findings_reassessment": {
+      "R3-S10-RQ-F001": "RESOLVED",
+      "R3-S10-RQ-F002": "REVIEWER_ERROR_CONFIRMED",
+      "R3-S10-RQ-F003": "RESOLVED"
+    }
+  },
+  "deterministic_review_of_review": {
+    "effective_disposition": "BOUNDED_PASS",
+    "counts_for_promotion": true,
+    "reviewer_output_is_authority": false,
+    "ci_is_authority": false,
+    "reason": "The final delta review is accepted cumulatively with the prior full manual R3 evidence chain and exact-head qualification. The two material findings from the prior R3 round were reproduced in RED run 34357942688, repaired in candidate 0e5ec197bd2f725a79f415ff31862fb4664c67c0, and requalified in run 34358448341. The prior golden-vector criticism was deterministically rejected because the test calls the production derive_external_idempotency_key(request) helper and compares it to an independently pinned literal. The final delta review reports no new material finding. Its recommended new falsification tests are retained as future hardening ideas; none currently demonstrates violation of a frozen Slice10 invariant.",
+    "coverage_interpretation": "The final delta packet intentionally did not rematerialize the entire Slice10 corpus. Therefore its 22 TESTED_SUPPORTED labels are not accepted merely from the labels themselves; unchanged dimensions are supported cumulatively by the earlier full review packet, frozen S10-01..S10-26 and supplemental falsification suites, and exact-head qualification 34358448341.",
+    "bounded_claim": "Within the deterministic local/reference Slice10 boundary, exact accepted Slice8/Slice9 lineage plus current authority/lease checks can drive one bounded external reference side effect with deterministic idempotency, one-key/one-binding enforcement, ambiguity/reconciliation handling, crash recovery, secret redaction, and no conversion of provider/model/reviewer/CI success into terminal authority.",
+    "explicit_nonclaims": [
+      "no real GitHub/cloud/deploy/payment mutation",
+      "no production IAM/secret-manager proof",
+      "no TLS/PKI/DNS/provider cryptographic identity proof",
+      "no multi-region/global exactly-once proof",
+      "no malicious-host/root-compromise resistance",
+      "no autonomous merge/deploy/release authority"
+    ]
+  },
+  "preserved_failure_evidence": [
+    34348416080,
+    34348966968,
+    34349691694,
+    34350302141,
+    34352142030,
+    34354003957,
+    34355491605,
+    34357942688
+  ],
+  "promotion_prerequisites_satisfied": true,
+  "merge_must_be_sha_pinned": true,
+  "expected_head_sha": "0e5ec197bd2f725a79f415ff31862fb4664c67c0"
+}
