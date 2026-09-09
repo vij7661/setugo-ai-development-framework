@@ -1,48 +1,21 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE11-REPAIR-004",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-004.json",
+  "review_request_id": "REV-MVP-SLICE11-REPAIR-005",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-005.json",
   "reviewed_candidate_commit": "78b500d408ba0ce4b33edebdfdb22cae3668c3c3",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE11_REPAIR_R3_REVIEW_REISSUED_COMPACT_CORPUS",
-  "request_hash": "89091293ad26e773a90935356dccd07b0fe3202c58fb92d23a53d72517c9063d",
+  "status": "AUTHENTICATED_SLICE11_REPAIR_R3_REVIEW_REISSUED_COMPACT_CORPUS_HASH_CORRECTED",
+  "request_hash": "3444a5a6df6a83a3dcc564e2f1de13688f02dd3cec20ff2d46545d2694f4ab7f",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
-    {
-      "review_request_id": "REV-MVP-SLICE11-REPAIR-001",
-      "workflow_run_id": 34412042718,
-      "classification": "PRE_PROVIDER_EVIDENCE_BASE_INVALID",
-      "provider_invoked": false,
-      "authority_effect": "NONE",
-      "artifact_id": 10127606676,
-      "artifact_digest": "sha256:293c218aba33813fa85c624c3478d33d24fe74372b1c576b3edc325188fdbbcd"
-    },
-    {
-      "review_request_id": "REV-MVP-SLICE11-REPAIR-002",
-      "workflow_run_id": 34412196748,
-      "classification": "PROVIDER_CREDIT_OUTPUT_BUDGET_REJECTED",
-      "provider_invoked": true,
-      "successful_review_response": false,
-      "http_status": 402,
-      "authority_effect": "NONE",
-      "artifact_id": 10127665278,
-      "artifact_digest": "sha256:39993994101c56a0a22e4220f8851ae2b13d0ca3ee2f9f5f454759b54fe94137"
-    },
-    {
-      "review_request_id": "REV-MVP-SLICE11-REPAIR-003",
-      "workflow_run_id": 34412268123,
-      "classification": "PROVIDER_CREDIT_PROMPT_BUDGET_REJECTED",
-      "provider_invoked": true,
-      "successful_review_response": false,
-      "http_status": 402,
-      "authority_effect": "NONE",
-      "artifact_id": 10127689654,
-      "artifact_digest": "sha256:19f6989cd8ab797d5b4eb0751ceeacb779d310aafaecc9a7e4b70b2606f90a6a"
-    }
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-001","workflow_run_id":34412042718,"classification":"PRE_PROVIDER_EVIDENCE_BASE_INVALID","provider_invoked":false,"authority_effect":"NONE","artifact_id":10127606676,"artifact_digest":"sha256:293c218aba33813fa85c624c3478d33d24fe74372b1c576b3edc325188fdbbcd"},
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-002","workflow_run_id":34412196748,"classification":"PROVIDER_CREDIT_OUTPUT_BUDGET_REJECTED","provider_invoked":true,"successful_review_response":false,"http_status":402,"authority_effect":"NONE","artifact_id":10127665278,"artifact_digest":"sha256:39993994101c56a0a22e4220f8851ae2b13d0ca3ee2f9f5f454759b54fe94137"},
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-003","workflow_run_id":34412268123,"classification":"PROVIDER_CREDIT_PROMPT_BUDGET_REJECTED","provider_invoked":true,"successful_review_response":false,"http_status":402,"authority_effect":"NONE","artifact_id":10127689654,"artifact_digest":"sha256:19f6989cd8ab797d5b4eb0751ceeacb779d310aafaecc9a7e4b70b2606f90a6a"},
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-004","workflow_run_id":34412393088,"classification":"REQUEST_INTEGRITY_REJECTED","provider_invoked":false,"authority_effect":"NONE","artifact_id":10127735949,"artifact_digest":"sha256:042a2ff1df223138e6bc712765cdf5788284179dadd7c8ff8aee462b456cc8d0"}
   ]
 }
