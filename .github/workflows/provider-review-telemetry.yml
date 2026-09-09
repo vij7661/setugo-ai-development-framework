@@ -9,6 +9,7 @@ on:
       - "governance-runtime/platform_candidate_review_v7.py"
       - "governance-runtime/review_orchestration_summary.py"
       - "governance-runtime/test_provider_review_telemetry.py"
+      - "governance-runtime/test_platform_candidate_review_v7_telemetry.py"
       - ".github/workflows/governance-candidate-platform-review.yml"
       - ".github/workflows/governed-platform-dashboard-pages.yml"
       - ".github/workflows/provider-review-telemetry.yml"
@@ -27,6 +28,9 @@ jobs:
       - name: Run frozen TEL-01 through TEL-24
         working-directory: governance-runtime
         run: python -m unittest -v test_provider_review_telemetry.py
+      - name: Expose and qualify reviewer v7 telemetry integration
+        working-directory: governance-runtime
+        run: python -m unittest -v test_platform_candidate_review_v7_telemetry.py
       - name: Existing review governance regressions
         working-directory: governance-runtime
         run: |
