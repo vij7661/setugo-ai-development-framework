@@ -1,0 +1,63 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-002",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py",
+    ".github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice7_terminal_executor_candidate",
+    "ref": "PR-16",
+    "commit": "c94d8aab9128a5dac418492697bc42992b219a37"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "gemini", "model_class": "gemini"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently review the exact Slice 7 terminal-executor candidate. Reconstruct evidence from the candidate; do not rely on the proposer conclusion or the failed OpenRouter attempt.",
+    "Verify terminal execution is unreachable without an exact valid Slice 6 AUTHORIZED_FOR_TERMINAL_ACTION receipt whose hash and bound lineage match the request.",
+    "Verify current project, artifact SHA, and authoritative state version are revalidated immediately before adapter execution so moved/stale targets fail closed.",
+    "Verify terminal_execution_id provides durable idempotency/non-rebind across exact replay, changed binding, restart, and concurrent identical requests.",
+    "Verify crash before adapter invocation cannot create completion and crash after durable adapter success/before response recovers without duplicate adapter invocation.",
+    "Verify adapter exception/failure, adapter self-report, model/worker/reviewer claims, or green CI cannot widen action/artifact/lineage or create successful completion evidence.",
+    "Verify completion evidence deterministically binds the Slice 6 receipt hash, terminal execution identity, project/task/effect/action/artifact/state-version, and adapter result digest.",
+    "Verify the local reference adapter boundary makes no claim that a real GitHub merge, cloud deploy, production release, or production completion occurred.",
+    "Treat CI run 34320481427 as exact-candidate execution evidence only, never semantic or terminal authority.",
+    "Adversarially search for any false-green, replay, stale-state, claimant-controlled, crash-window, concurrency, or evidence-integrity bypass within the frozen scope."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34320481427"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_CONTRACT.md"},
+    {"type": "history", "ref": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-001 attempted OpenRouter DeepSeek review of exact candidate c94d8aab9128a5dac418492697bc42992b219a37, but workflow run 34320642451 failed before semantic review with HTTP 402 due insufficient OpenRouter credits/output budget. No semantic disposition; authority effect NONE."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "slice6_authorization_receipt_binding", "mandatory": true, "description": "Exact valid Slice 6 authorization receipt and receipt hash are required and bound to the terminal request."},
+    {"id": "current_state_and_artifact_revalidation", "mandatory": true, "description": "Current project/state-version/artifact identity are revalidated immediately before terminal execution."},
+    {"id": "terminal_execution_idempotency", "mandatory": true, "description": "Execution identity is durable, replay-safe, non-rebindable, and preserved across restart."},
+    {"id": "crash_window_non_amplification", "mandatory": true, "description": "Pre-adapter and post-durable-execution crash windows cannot duplicate or fabricate completion."},
+    {"id": "concurrent_identical_convergence", "mandatory": true, "description": "Concurrent identical requests converge to one durable adapter execution/result."},
+    {"id": "adapter_failure_non_authority", "mandatory": true, "description": "Adapter failure or self-report cannot widen execution or become successful completion."},
+    {"id": "model_ci_reviewer_non_authority", "mandatory": true, "description": "Model, worker, reviewer, and CI success claims cannot replace Slice 6 authority or alter completion."},
+    {"id": "completion_evidence_integrity", "mandatory": true, "description": "Completion evidence is deterministic and self-hash bound to exact authorization/execution lineage and adapter result."},
+    {"id": "reference_only_nonproduction_claim", "mandatory": true, "description": "Local reference execution does not claim a real remote/production merge, release, deploy, or completion occurred."},
+    {"id": "prior_slice_regression_preservation", "mandatory": true, "description": "Accepted Slice 1 through Slice 6 authority boundaries remain green and unchanged."},
+    {"id": "remaining_terminal_execution_bypass_search", "mandatory": true, "description": "Adversarial review finds no remaining false-green, replay, stale-state, claimant-controlled, crash-window, concurrency, or evidence-integrity bypass in scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "575b08a9c3a05f62de3814eb4c405e88c9ea68db0b2ffebbfe8066ba8675b7f4"
+}
