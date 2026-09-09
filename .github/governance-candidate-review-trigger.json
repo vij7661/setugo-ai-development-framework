@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-010",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-010.json",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-011",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-011.json",
   "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_STRICT_OBJECT_R2200_O2600_REVIEW_REQUESTED",
-  "request_hash": "cb6461f19c5eb04ffca3adc95d4b4ae3b5740b17174e57117f8aafdce24139b4",
+  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_ULTRA_COMPACT_R2000_O2400_REVIEW_REQUESTED",
+  "request_hash": "f1cea08e45c55db81000d677c86db63a7c82588a3be583b4a05feecd33837279",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
@@ -26,6 +26,7 @@
     {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-006","workflow_run_id":34342919333,"result":"LOCAL_REVIEW_REQUEST_POLICY_REJECTED_REASONING_4096_GT_OUTPUT_3500","semantic_authority":false},
     {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-007","workflow_run_id":34343131140,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_17739_GT_17048","semantic_authority":false},
     {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-008","workflow_run_id":34343605514,"result":"AUTHENTICATED_REVIEWER_OUTPUT_SCHEMA_DEFECT_DIMENSION_ARRAY_ONLY","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-009","workflow_run_id":34343863948,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_3000_GT_2878","semantic_authority":false}
+    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-009","workflow_run_id":34343863948,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_3000_GT_2878","semantic_authority":false},
+    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-010","workflow_run_id":34344165301,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_16620_GT_12665","semantic_authority":false}
   ]
 }
