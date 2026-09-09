@@ -1,0 +1,67 @@
+name: Integrated Governed MVP Slice7 Terminal Executor
+
+on:
+  push:
+    branches:
+      - feature/integrated-governed-mvp-slice7-terminal-executor-gateway
+  pull_request:
+    paths:
+      - experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md
+      - experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py
+      - experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py
+      - .github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  slice7-terminal-executor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Slice7 terminal executor falsification suite
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice7_terminal_executor.py
+
+      - name: Run accepted Slice6 terminal authority regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice6_terminal_authority.py
+
+      - name: Run accepted Slice1 regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp.py
+
+      - name: Run accepted Slice2 regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice2.py
+
+      - name: Run accepted Slice3 regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice3.py
+
+      - name: Run accepted Slice4 regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice4.py
+
+      - name: Run true Slice1-to-Slice5 composition regression
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice1_to_slice5.py
+
+      - name: Run accepted Slice5 ledger regression
+        run: python -m unittest -v experiments/governed-platform/test_slice5_authoritative_state_ledger_v2.py
