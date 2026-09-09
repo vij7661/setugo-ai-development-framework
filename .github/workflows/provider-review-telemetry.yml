@@ -10,6 +10,7 @@ on:
       - "governance-runtime/review_orchestration_summary.py"
       - "governance-runtime/test_provider_review_telemetry.py"
       - "governance-runtime/test_platform_candidate_review_v7_telemetry.py"
+      - "governance-runtime/test_provider_review_dashboard_integration.py"
       - ".github/workflows/governance-candidate-platform-review.yml"
       - ".github/workflows/governed-platform-dashboard-pages.yml"
       - ".github/workflows/provider-review-telemetry.yml"
@@ -31,6 +32,9 @@ jobs:
       - name: Expose and qualify reviewer v7 telemetry integration
         working-directory: governance-runtime
         run: python -m unittest -v test_platform_candidate_review_v7_telemetry.py
+      - name: Expose and qualify telemetry dashboard publication
+        working-directory: governance-runtime
+        run: python -m unittest -v test_provider_review_dashboard_integration.py
       - name: Existing review governance regressions
         working-directory: governance-runtime
         run: |
