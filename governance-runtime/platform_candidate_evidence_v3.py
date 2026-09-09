@@ -57,6 +57,25 @@ def materialize_evidence_ref(root: Path, candidate: str, ref: dict) -> dict:
     return v2.materialize_evidence_ref(root, candidate, ref)
 
 
+def _candidate_diff_base(root: Path, request: dict, candidate: str) -> tuple[str, str]:
+    pinned = request.get("candidate_diff_base_commit")
+    if pinned is None:
+        # Backward compatibility for already-frozen requests. New non-main
+        # candidates should pin an exact base so unrelated history cannot enter
+        # the independent-review corpus.
+        return legacy.git(root, "merge-base", "origin/main", candidate).strip(), "LEGACY_ORIGIN_MAIN_MERGE_BASE"
+    if not isinstance(pinned, str) or not HEX40.fullmatch(pinned):
+        raise ValueError("candidate_diff_base_commit must be exact lowercase 40-character Git SHA")
+    resolved = legacy.git(root, "rev-parse", f"{pinned}^{{commit}}").strip()
+    if resolved != pinned:
+        raise ValueError("candidate_diff_base_commit does not resolve exactly")
+    try:
+        legacy.git(root, "merge-base", "--is-ancestor", pinned, candidate)
+    except RuntimeError as exc:
+        raise ValueError("candidate_diff_base_commit must be an ancestor of candidate") from exc
+    return pinned, "FROZEN_REQUEST_EXACT_ANCESTOR"
+
+
 def build_corpus(root: Path, request: dict) -> dict:
     candidate = request["artifact"]["commit"]
     legacy.require_commit(root, candidate, "candidate")
@@ -66,7 +85,7 @@ def build_corpus(root: Path, request: dict) -> dict:
     evidence = [materialize_evidence_ref(root, candidate, ref) for ref in refs]
     if len(evidence) != len(refs):
         raise RuntimeError("evidence materialization count mismatch")
-    base = legacy.git(root, "merge-base", "origin/main", candidate).strip()
+    base, base_source = _candidate_diff_base(root, request, candidate)
     diff = legacy.git(
         root,
         "diff",
@@ -83,6 +102,7 @@ def build_corpus(root: Path, request: dict) -> dict:
         "materialization_version": "GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001",
         "review_request": request,
         "base_commit": base,
+        "base_commit_source": base_source,
         "candidate_commit": candidate,
         "candidate_diff": diff,
         "evidence_artifacts": evidence,
