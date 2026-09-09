@@ -1,14 +1,14 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-003",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE7-TERMINAL-EXECUTOR-003.json",
-  "reviewed_candidate_commit": "022ca352cfc9ccbc37fdab2fbc0ef4c9356120e2",
+  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-004",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE7-TERMINAL-EXECUTOR-004.json",
+  "reviewed_candidate_commit": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299",
   "provider": "gemini",
   "model": "gemini-3.8-flash",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_REPAIRED_SLICE7_OPTION_B_REVIEW_REQUESTED",
-  "request_hash": "55aa2db74e6272976da0de87eabd57b61060ff3b5cf8dad0802b9ef4d079f341",
+  "status": "AUTHENTICATED_FINAL_SLICE7_REVIEW_REQUESTED",
+  "request_hash": "53786b84b2880b728c93c398d440467cfb9252d6d542c82f1a1f427b61230f73",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "r2_role": "BLIND_TO_PROPOSER_CONCLUSION",
   "preserved_prior_attempts": [
@@ -24,6 +24,13 @@
       "workflow_run_id": 34320777526,
       "semantic_disposition": "PASS",
       "classification_after_review_of_review": "REVIEW_FALSE_GREEN_TWO_UNCOVERED_BOUNDARIES",
+      "authority_effect": "NONE"
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-003",
+      "workflow_run_id": 34321902478,
+      "classification": "PROVIDER_TEMPORARILY_UNAVAILABLE_HTTP_503",
+      "semantic_disposition": null,
       "authority_effect": "NONE"
     }
   ]
