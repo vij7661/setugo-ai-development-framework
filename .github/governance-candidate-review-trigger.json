@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE11-REPAIR-002",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-002.json",
+  "review_request_id": "REV-MVP-SLICE11-REPAIR-003",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-003.json",
   "reviewed_candidate_commit": "78b500d408ba0ce4b33edebdfdb22cae3668c3c3",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE11_REPAIR_R3_REVIEW_REISSUED",
-  "request_hash": "27387d20e43ab6d1a82fb57d1cb7ad5ca96308a8bff5d0f6a964095ed8e0246e",
+  "status": "AUTHENTICATED_SLICE11_REPAIR_R3_REVIEW_REISSUED_BUDGET_BOUNDED",
+  "request_hash": "3007b8c75bc0e429947417ab3ca2fa1452a94e784cdd2d37668fb9399e3303b4",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
@@ -21,6 +21,17 @@
       "authority_effect": "NONE",
       "artifact_id": 10127606676,
       "artifact_digest": "sha256:293c218aba33813fa85c624c3478d33d24fe74372b1c576b3edc325188fdbbcd"
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE11-REPAIR-002",
+      "workflow_run_id": 34412196748,
+      "classification": "PROVIDER_CREDIT_BUDGET_REJECTED",
+      "provider_invoked": true,
+      "successful_review_response": false,
+      "http_status": 402,
+      "authority_effect": "NONE",
+      "artifact_id": 10127665278,
+      "artifact_digest": "sha256:39993994101c56a0a22e4220f8851ae2b13d0ca3ee2f9f5f454759b54fe94137"
     }
   ]
 }
