@@ -18,6 +18,7 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_R3_API_KEY: ${{ secrets.OPENROUTER_R3_API_KEY }}
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout trigger head
@@ -37,12 +38,16 @@ jobs:
           if t.get('transport')!='AUTOMATIC_API': raise SystemExit('transport mismatch')
           provider=t.get('provider')
           if provider not in {'gemini','groq','openrouter'}: raise SystemExit('unsupported provider')
+          profile=t.get('credential_profile','primary')
+          if profile not in {'primary','r3'}: raise SystemExit('unsupported credential profile')
+          if provider != 'openrouter' and profile != 'primary': raise SystemExit('alternate credential profile only supported for openrouter')
           for f in ('review_request_path','model'):
             v=t.get(f)
             if not isinstance(v,str) or not v.strip(): raise SystemExit(f'{f} required')
           print('REVIEW_REQUEST_PATH='+t['review_request_path'])
           print('REVIEW_PROVIDER='+provider)
           print('REVIEW_MODEL='+t['model'])
+          print('REVIEW_CREDENTIAL_PROFILE='+profile)
           PY
       - name: Require provider secret and request file
         shell: bash
@@ -52,13 +57,22 @@ jobs:
           case "$REVIEW_PROVIDER" in
             gemini) test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY repository secret required'; exit 2; } ;;
             groq) test -n "$GROQ_API_KEY" || { echo 'GROQ_API_KEY repository secret required'; exit 2; } ;;
-            openrouter) test -n "$OPENROUTER_API_KEY" || { echo 'OPENROUTER_API_KEY repository secret required'; exit 2; } ;;
+            openrouter)
+              if [ "$REVIEW_CREDENTIAL_PROFILE" = "r3" ]; then
+                test -n "$OPENROUTER_R3_API_KEY" || { echo 'OPENROUTER_R3_API_KEY repository secret required'; exit 2; }
+              else
+                test -n "$OPENROUTER_API_KEY" || { echo 'OPENROUTER_API_KEY repository secret required'; exit 2; }
+              fi
+              ;;
             *) echo 'unsupported provider'; exit 2 ;;
           esac
       - name: Execute authenticated governance review through provider-neutral v6
         shell: bash
         run: |
           set -u -o pipefail
+          if [ "$REVIEW_PROVIDER" = "openrouter" ] && [ "$REVIEW_CREDENTIAL_PROFILE" = "r3" ]; then
+            export OPENROUTER_API_KEY="$OPENROUTER_R3_API_KEY"
+          fi
           mkdir -p governance-review-evidence
           : > governance-review-evidence/provider-error.log
           rc=1
@@ -114,6 +128,7 @@ jobs:
             'transport':'AUTOMATIC_API',
             'provider':os.environ.get('REVIEW_PROVIDER'),
             'model':os.environ.get('REVIEW_MODEL'),
+            'credential_profile':os.environ.get('REVIEW_CREDENTIAL_PROFILE','primary'),
             'materialization_version':'GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001',
             'runner_version':'GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001',
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
