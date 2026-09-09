@@ -28,17 +28,16 @@ jobs:
         working-directory: governance-runtime
         run: python -m unittest -v test_provider_review_telemetry.py
       - name: Existing review governance regressions
+        working-directory: governance-runtime
         run: |
-          python -m unittest -v governance-runtime/test_platform_candidate_review_request_integrity.py
-          python -m unittest -v governance-runtime/test_review_protocol.py
-          python -m unittest -v governance-runtime/test_review_semantics.py
+          python -m unittest -v test_platform_candidate_review_request_integrity.py
+          python -m unittest -v test_review_protocol.py
+          python -m unittest -v test_review_semantics.py
       - name: Forbid provider-specific telemetry renderer branches
         run: |
           python - <<'PY'
           from pathlib import Path
-          paths=[
-            Path('governance-runtime/provider_review_telemetry.py'),
-          ]
+          paths=[Path('governance-runtime/provider_review_telemetry.py')]
           for path in paths:
             if not path.exists():
               continue
