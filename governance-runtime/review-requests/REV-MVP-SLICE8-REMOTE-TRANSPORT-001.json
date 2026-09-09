@@ -1,0 +1,78 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE8-REMOTE-TRANSPORT-001",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE8_REMOTE_TERMINAL_TRANSPORT_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice8_remote_transport.py",
+    ".github/workflows/integrated-governed-mvp-slice8-remote-transport.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice8_remote_transport_candidate",
+    "ref": "PR-17",
+    "commit": "4873d7a11383b5ba684cb92e399b18cfe2ffb304"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "openrouter", "model": "nvidia/nemotron-3-ultra-550b-a55b"},
+  "reviewer_slot": "R3",
+  "review_execution_policy": {
+    "serving_provider": "deepinfra",
+    "allow_fallbacks": false,
+    "reasoning_max_tokens": 4096,
+    "max_output_tokens": 12000,
+    "response_format": "json_object"
+  },
+  "blind_review_required": true,
+  "review_questions": [
+    "Act as Reviewer 3 and independently review Slice 8 candidate 4873d7a11383b5ba684cb92e399b18cfe2ffb304. Do not rely on proposer conclusions or prior model PASS claims.",
+    "Verify the tested boundary is real loopback HTTP transport rather than direct in-process service calls, and that no production remote side effect is claimed.",
+    "Verify the platform derives the remote idempotency key from the exact Slice 7 terminal execution identity and binding, rejects caller replacement/rebinding, and preserves one remote effect for exact retries.",
+    "Verify commit-before-ack and timeout-after-commit are treated as ambiguous outcomes, not immediate success, and reconciliation can recover the committed remote receipt without a second remote effect.",
+    "Verify remote durable state survives restart/reopen and exact reconciliation remains idempotent.",
+    "Verify concurrent identical HTTP deliveries converge to one remote effect and deterministic compatible results.",
+    "Verify malformed, missing, structured-failure, or lineage-widening remote responses cannot mint successful remote completion evidence.",
+    "Verify the input Slice 7 result is self-hash and completion-evidence bound; mutation of state, lineage, or hashes fails closed before remote effect.",
+    "Verify remote completion evidence binds exact lineage, remote idempotency key, remote receipt digest/receipt, and deterministic completion hash.",
+    "Verify exact-head CI run 34327847983 passed S8-01..S8-20 and the accepted Slice1→Slice7 regression chain on candidate 4873d7a11383b5ba684cb92e399b18cfe2ffb304.",
+    "Search adversarially for remaining retry amplification, ambiguity laundering, response spoofing, caller-controlled idempotency, concurrency, restart, or false-green bypasses inside the frozen reference-only scope."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34327847983"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE8_REMOTE_TERMINAL_TRANSPORT_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice8_remote_transport.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice8-remote-transport.yml"},
+    {"type": "history", "ref": "Contract-first commit 09054454e2177a56d312dd6e5fcee8a2ba23cfd2 preregistered Slice 8 before implementation."},
+    {"type": "history", "ref": "Initial red harness run 34327564616 failed because integrated_governed_mvp_remote_transport did not exist; this preserved the pre-mechanism boundary."},
+    {"type": "history", "ref": "Harness was strengthened before mechanism implementation at commit 1e45e307d6a472e4f3b1828e729caec20cd0ab24 to require real loopback HTTP delivery rather than direct service invocation."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "slice7_completion_integrity_and_binding", "mandatory": true, "description": "Exact successful Slice 7 result and completion evidence remain self-hash and lineage bound before remote delivery."},
+    {"id": "actual_http_transport_boundary", "mandatory": true, "description": "The tested terminal transport crosses a real loopback HTTP request/response boundary rather than direct in-process invocation."},
+    {"id": "platform_derived_remote_idempotency", "mandatory": true, "description": "Remote idempotency key is platform-derived from exact terminal execution identity/binding and caller replacement or rebinding fails closed."},
+    {"id": "pre_accept_failure_retry_safety", "mandatory": true, "description": "Failure before remote acceptance produces no remote effect and exact retry may apply once."},
+    {"id": "commit_before_ack_ambiguity", "mandatory": true, "description": "Remote commit before acknowledgment is represented as ambiguous rather than falsely completed."},
+    {"id": "timeout_after_commit_ambiguity", "mandatory": true, "description": "Timeout after remote commit cannot directly mint successful completion evidence."},
+    {"id": "reconciliation_without_amplification", "mandatory": true, "description": "Explicit retry/reconciliation recovers the durable remote receipt without applying a second effect."},
+    {"id": "restart_recovery", "mandatory": true, "description": "Remote/client durable state survives restart and reconciliation remains one-effect."},
+    {"id": "concurrent_duplicate_convergence", "mandatory": true, "description": "Concurrent identical HTTP deliveries converge to one remote effect/result lineage."},
+    {"id": "remote_response_widening_rejection", "mandatory": true, "description": "Remote response cannot widen action/target/project/task/effect/state binding."},
+    {"id": "structured_remote_failure_non_laundering", "mandatory": true, "description": "Structured failure or missing/malformed receipt cannot mint successful remote completion evidence."},
+    {"id": "remote_receipt_integrity", "mandatory": true, "description": "Successful remote receipt is deterministically integrity-bound and exact-binding checked."},
+    {"id": "remote_completion_evidence_integrity", "mandatory": true, "description": "Completion evidence binds remote idempotency key, lineage, receipt digest/receipt, and deterministic completion hash."},
+    {"id": "self_report_non_authority", "mandatory": true, "description": "Model/caller/service self-report cannot replace valid Slice 7 evidence or valid remote receipt."},
+    {"id": "reference_only_nonproduction_claim", "mandatory": true, "description": "No result claims real GitHub/cloud/deployment/release remote side effect occurred."},
+    {"id": "prior_slice_regression_preservation", "mandatory": true, "description": "Accepted Slice 1 through Slice 7 boundaries remain green on the exact candidate."},
+    {"id": "remaining_remote_transport_bypass_search", "mandatory": true, "description": "Adversarial search finds no retry, ambiguity, idempotency, response, concurrency, restart, or false-green bypass within scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "bc48f8ff3df87e6b4058ad1938daf0158fcc1f26254cca5cb0f4fbd27d36385f"
+}
