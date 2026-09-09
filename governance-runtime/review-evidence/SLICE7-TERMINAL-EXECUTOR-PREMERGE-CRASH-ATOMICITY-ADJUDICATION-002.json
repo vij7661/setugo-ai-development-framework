@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "ADJ-SLICE7-TERMINAL-EXECUTOR-PREMERGE-002",
+  "candidate_commit": "c94d8aab9128a5dac418492697bc42992b219a37",
+  "candidate_ci_run": 34320481427,
+  "pr_number": 16,
+  "classification": "MECHANISM_AND_CONTRACT_GAP_NONTRANSACTIONAL_ADAPTER_CRASH_WINDOW",
+  "effective_disposition": "FAIL_CORRECTIVE_DEVELOPMENT_REQUIRED_AFTER_REQUIREMENT_DECISION",
+  "counts_for_promotion": false,
+  "authority_effect": "NONE",
+  "deterministic_defect": {
+    "contract_goal": "Slice 7 Goal states crash/retry must not duplicate or widen terminal execution, and Included scope states crash representation after adapter success/before response.",
+    "implementation_order": "The reference executor invokes adapter(binding) while the SQLite transaction is open, then constructs completion evidence, writes status=COMPLETED, and only then commits SQLite.",
+    "uncovered_window": "A process death after the adapter side effect succeeds but before the SQLite COMPLETED update/commit rolls back the local IN_PROGRESS transaction while leaving any nontransactional adapter side effect outside SQLite intact.",
+    "retry_consequence": "After reopen, no durable completed row proves the prior side effect occurred, so exact retry may invoke the adapter again and duplicate the terminal action.",
+    "test_gap": "S7-13 injects crash only after the COMPLETED row has already been durably committed. It does not test adapter-success-before-ledger-commit."
+  },
+  "root_cause_classification": "CODE DEFECT + ACCEPTANCE-COVERAGE DEFECT UNDER BROAD FROZEN CRASH CLAIM",
+  "scientific_effect": "The first green S7-01..S7-21 run remains preserved but is false-green with respect to the broader crash/retry claim. It remains valid only for the explicitly exercised post-durable-record crash point.",
+  "remediation_options": {
+    "option_a": "Narrow the Slice 7 crash claim to exclude a nontransactional adapter-success-before-ledger-commit window. Keep production/remote exactly-once execution explicitly untested.",
+    "option_b": "Keep the broad crash/retry non-amplification goal. Require the terminal adapter itself to accept terminal_execution_id as a durable idempotency key and expose a recover/query-by-idempotency mechanism (or equivalent transactional protocol). Add a frozen crash case after adapter effect but before local completion commit; retry must recover/converge without applying the adapter effect twice."
+  },
+  "recommendation": "OPTION_B",
+  "recommendation_reason": "A terminal executor is exactly where irreversible side effects occur. Narrowing away the most dangerous crash window would leave the principal operational failure mode ungoverned. Provider/model/CI success cannot compensate for that gap.",
+  "review_context": {
+    "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-002",
+    "review_workflow_run_id": 34320777526,
+    "semantic_disposition": "PASS",
+    "mandatory_dimensions_supported": "11/11",
+    "findings": 0,
+    "classification_after_review_of_review": "REVIEW_FALSE_GREEN_MECHANISM_AND_COVERAGE_GAP",
+    "authority_effect": "NONE"
+  },
+  "promotion_rule": "Do not merge PR #16. Resolve the authority-freshness requirement and this crash-atomicity boundary, amend/freeze the contract, expose the new case before mechanism repair, repair without weakening the case, requalify a new exact candidate, and obtain fresh independent review plus deterministic review-of-review."
+}
