@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "SLICE10-MANUAL-R3-001-DETERMINISTIC-ADJUDICATION",
+  "review_request_id": "MANUAL-R3-SLICE10-001",
+  "reviewer_slot": "R3",
+  "reviewer_provider": "claude-manual",
+  "reviewer_model": "claude-sonnet-5",
+  "reviewed_candidate_commit": "8dbd2d3577fca0c3a63182bd3e1a28de4fe64915",
+  "review_disposition": "CHANGES_REQUIRED",
+  "authority_effect": "NONE",
+  "deterministic_adjudication": {
+    "R3-S10-F001": {
+      "review_classification": "EVIDENCE_GAP",
+      "adjudicated_classification": "CODE_DEFECT",
+      "status": "CONFIRMED_BY_RED_FALSIFICATION",
+      "red_run_id": 34355491605,
+      "evidence": "revocation after initial use-time check before dispatch produced REFERENCE_EFFECT_APPLIED instead of DENY_AUTHORITY_OR_LEASE"
+    },
+    "R3-S10-F002": {
+      "review_classification": "EVIDENCE_GAP",
+      "adjudicated_classification": "CODE_DEFECT",
+      "status": "CONFIRMED_BY_RED_FALSIFICATION",
+      "red_run_id": 34355491605,
+      "evidence": "concurrent direct provider dispatch with same key escaped sqlite3.IntegrityError on effects.external_idempotency_key"
+    },
+    "R3-S10-F003": {
+      "review_classification": "TEST_DEFECT",
+      "adjudicated_classification": "TEST_HARDENING_GAP",
+      "status": "GOLDEN_VECTOR_ADDED_AND_ALREADY_GREEN",
+      "red_run_id": 34355491605,
+      "evidence": "pinned external-idempotency golden vector passed on pre-repair candidate; no mechanism defect reproduced"
+    },
+    "R3-S10-F004": {
+      "review_classification": "EVIDENCE_GAP",
+      "adjudicated_classification": "CODE_DEFECT_SECRET_DISCLOSURE_PATH",
+      "status": "CONFIRMED_BY_RED_FALSIFICATION",
+      "red_run_id": 34355491605,
+      "evidence": "unexpected provider RuntimeError containing synthetic token value escaped unsanitized into traceback"
+    }
+  },
+  "repair_candidate_commit": "e894ca0f280ea190a599c8da39b960996cb13041",
+  "repair_scope": [
+    "second authority/lease/profile revalidation immediately before mutating provider dispatch",
+    "provider-side atomic INSERT OR IGNORE plus authoritative reload for same-key concurrency",
+    "catch and sanitize unexpected provider exceptions into governed REFERENCE_EFFECT_FAILED",
+    "retain pinned golden idempotency vector"
+  ],
+  "repair_qualification": {
+    "workflow_run_id": 34356090108,
+    "conclusion": "SUCCESS",
+    "manual_r3_falsification_cases": "PASS",
+    "external_review_falsification_cases": "PASS",
+    "reconciliation_integrity": "PASS",
+    "s10_01_to_s10_26": "PASS",
+    "slice1_to_slice9_regressions": "PASS"
+  },
+  "promotion_status": "NOT_AUTHORIZED_REQUIRES_MANUAL_R3_REQUALIFICATION_ON_REPAIR_SHA",
+  "bounded_claim_note": "No production external-provider, GitHub, cloud, payment, IAM, secret-manager, TLS/PKI, multi-region or autonomous terminal-authority claim is established."
+}
