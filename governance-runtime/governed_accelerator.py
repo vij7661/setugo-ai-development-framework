@@ -9,6 +9,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from phase_policy import (
+    build_phase_review_boundary,
+    classify_finding_for_phase,
+    testing_phase_pass_requirements,
+    validate_phase,
+    validate_promotion,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 GOV = ROOT / "governance-runtime"
 SHA40 = __import__("re").compile(r"^[0-9a-f]{40}$")
@@ -39,7 +47,8 @@ def cmd_status(args: argparse.Namespace) -> int:
     expected = args.expected_sha or work["head_commit"]
     ok = head == expected
     out = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "phase": None if args.phase is None else validate_phase(args.phase),
         "checkout_head": head,
         "expected_head": expected,
         "head_match": ok,
@@ -65,6 +74,10 @@ def read_manifest(path: Path) -> dict[str, Any]:
     files = m.get("required_files")
     if not isinstance(files, list) or not files or len(set(files)) != len(files):
         raise ValueError("required_files must be unique non-empty list")
+    validate_phase(m.get("phase", ""))
+    for key in ("review_scope", "mandatory_dimensions", "explicit_nonclaims", "out_of_scope_dimensions", "allowed_evidence"):
+        if not isinstance(m.get(key), list):
+            raise ValueError(f"{key} must be a list")
     return m
 
 
@@ -84,15 +97,28 @@ def cmd_packet(args: argparse.Namespace) -> int:
     head = git_head()
     if head != m["candidate_sha"]:
         raise ValueError(f"checkout {head} != manifest candidate {m['candidate_sha']}")
+    boundary = build_phase_review_boundary(
+        phase=m["phase"],
+        review_scope=m["review_scope"],
+        required_dimensions=m["mandatory_dimensions"],
+        explicit_nonclaims=m["explicit_nonclaims"],
+        out_of_scope_dimensions=m["out_of_scope_dimensions"],
+        allowed_evidence=m["allowed_evidence"],
+        api_boundary_under_test=bool(m.get("api_boundary_under_test", False)),
+        user_approved_api=bool(m.get("user_approved_api", False)),
+    )
     artifacts = build_artifacts(m)
     packet: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "packet_type": args.mode.upper(),
         "candidate_sha": m["candidate_sha"],
+        "review_phase": boundary["phase"],
+        "review_boundary": boundary,
         "included_files": [a["path"] for a in artifacts],
         "omitted_files": m.get("omitted_files", []),
-        "mandatory_dimensions": m.get("mandatory_dimensions", []),
+        "mandatory_dimensions": m["mandatory_dimensions"],
         "artifacts": artifacts,
+        "production_readiness_claimed": False,
         "promotion_authority_granted": False,
     }
     if args.mode == "delta":
@@ -105,15 +131,27 @@ def cmd_packet(args: argparse.Namespace) -> int:
     manifest_view = {k: v for k, v in packet.items() if k != "artifacts"}
     packet["packet_manifest_sha256"] = sha256_bytes(canon(manifest_view))
     Path(args.output).write_text(json.dumps(packet, indent=2, sort_keys=True), encoding="utf-8")
-    print(json.dumps({"output": args.output, "candidate_sha": m["candidate_sha"], "packet_manifest_sha256": packet["packet_manifest_sha256"], "files": len(artifacts)}, sort_keys=True))
+    print(json.dumps({
+        "output": args.output,
+        "candidate_sha": m["candidate_sha"],
+        "review_phase": boundary["phase"],
+        "review_transport_default": boundary["review_transport_policy"]["default_transport"],
+        "external_api_allowed": boundary["review_transport_policy"]["external_api_allowed"],
+        "packet_manifest_sha256": packet["packet_manifest_sha256"],
+        "files": len(artifacts),
+    }, sort_keys=True))
     return 0
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
+    phase = validate_phase(args.phase)
     review = load_json(Path(args.review))
     expected = args.candidate_sha
     if review.get("reviewed_artifact_commit") != expected:
         raise ValueError("review candidate mismatch")
+    review_phase = str(review.get("review_phase", review.get("phase", ""))).upper()
+    if review_phase != phase:
+        raise ValueError("review phase mismatch")
     required = list(args.dimension)
     coverage = review.get("review_coverage")
     if not isinstance(coverage, list):
@@ -126,36 +164,112 @@ def cmd_ingest(args: argparse.Namespace) -> int:
     for row in coverage:
         if not isinstance(row.get("evidence"), str) or not row["evidence"].strip():
             raise ValueError(f"empty evidence for {row.get('dimension_id')}")
+
+    adjudication_queue = []
+    deferred_release = 0
+    deferred_production = 0
+    for idx, finding in enumerate(review.get("findings", []), start=1):
+        if not isinstance(finding, dict):
+            raise ValueError("finding must be an object")
+        finding_phase = finding.get("finding_phase", phase)
+        violates = bool(finding.get("violates_current_contract", False))
+        classification = classify_finding_for_phase(
+            phase=phase,
+            finding_phase=finding_phase,
+            violates_current_contract=violates,
+        )
+        if classification == "DEFERRED_TO_RELEASE":
+            deferred_release += 1
+        elif classification == "DEFERRED_TO_PRODUCTION":
+            deferred_production += 1
+        adjudication_queue.append({
+            "finding_id": finding.get("finding_id", f"finding-{idx}"),
+            "phase_classification": classification,
+            "raw_finding_becomes_rule": False,
+            "requires_adjudication": True,
+        })
+
     out = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "phase": phase,
         "candidate_sha": expected,
         "disposition": review.get("disposition"),
         "findings_count": len(review.get("findings", [])),
         "dimensions": len(ids),
         "structurally_valid": True,
-        "counts_for_promotion": False,
+        "counts_for_production_qualification": False,
+        "phase_review_evidence_only": True,
         "requires_deterministic_adjudication": True,
+        "raw_findings_promoted_to_governance_rules": False,
+        "deferred_to_release": deferred_release,
+        "deferred_to_production": deferred_production,
+        "adjudication_queue": adjudication_queue,
     }
     print(json.dumps(out, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_promote_check(args: argparse.Namespace) -> int:
+    if not SHA40.fullmatch(args.source_sha) or not SHA40.fullmatch(args.qualified_sha):
+        raise ValueError("promotion SHAs must be lowercase SHA40")
+    out = validate_promotion(
+        source_phase=args.source_phase,
+        destination_phase=args.destination_phase,
+        source_branch=args.source_branch,
+        destination_branch=args.destination_branch,
+        source_sha=args.source_sha,
+        qualified_sha=args.qualified_sha,
+    )
+    out.update({
+        "qualification_evidence_ref": args.evidence_ref,
+        "decision_ref": args.decision_ref,
+        "promotion_authority_granted": False,
+        "requires_explicit_promotion_action": True,
+    })
+    print(json.dumps(out, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_testing_pass_requirements(_: argparse.Namespace) -> int:
+    print(json.dumps(testing_phase_pass_requirements(), indent=2, sort_keys=True))
     return 0
 
 
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
+
     s = sub.add_parser("status")
     s.add_argument("--expected-sha")
+    s.add_argument("--phase", choices=["TESTING", "RELEASE", "PRODUCTION"])
     s.set_defaults(func=cmd_status)
+
     q = sub.add_parser("packet")
     q.add_argument("--manifest", required=True)
     q.add_argument("--output", required=True)
     q.add_argument("--mode", choices=["full", "delta"], default="full")
     q.set_defaults(func=cmd_packet)
+
     i = sub.add_parser("ingest")
     i.add_argument("--review", required=True)
     i.add_argument("--candidate-sha", required=True)
+    i.add_argument("--phase", required=True, choices=["TESTING", "RELEASE", "PRODUCTION"])
     i.add_argument("--dimension", action="append", default=[])
     i.set_defaults(func=cmd_ingest)
+
+    r = sub.add_parser("promote-check")
+    r.add_argument("--source-phase", required=True, choices=["TESTING", "RELEASE"])
+    r.add_argument("--destination-phase", required=True, choices=["RELEASE", "PRODUCTION"])
+    r.add_argument("--source-branch", required=True)
+    r.add_argument("--destination-branch", required=True)
+    r.add_argument("--source-sha", required=True)
+    r.add_argument("--qualified-sha", required=True)
+    r.add_argument("--evidence-ref", required=True)
+    r.add_argument("--decision-ref", required=True)
+    r.set_defaults(func=cmd_promote_check)
+
+    t = sub.add_parser("testing-pass-requirements")
+    t.set_defaults(func=cmd_testing_pass_requirements)
     return p
 
 
