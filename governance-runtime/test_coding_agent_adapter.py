@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 import unittest
@@ -76,6 +75,11 @@ def task(**overrides):
     return caa.GovernedCodingTask(**base)
 
 
+def gateway_for(adapter, **kwargs):
+    kwargs.setdefault("observed_changes", lambda: list(adapter.native_result.get("changed_artifacts", [])))
+    return caa.CodingAgentExecutionGateway.from_adapters([adapter], **kwargs)
+
+
 class CodingAgentAdapterTests(unittest.TestCase):
     def test_s11_01_generic_registration_and_descriptor(self):
         r = caa.AdapterRegistry()
@@ -89,12 +93,13 @@ class CodingAgentAdapterTests(unittest.TestCase):
         one = FakeAdapter("codex-adapter", "codex")
         two = FakeAdapter("other-adapter", "future-agent")
         r.register(one); r.register(two)
-        engine = caa.CodingAgentExecutionGateway(r)
+        engine = caa.CodingAgentExecutionGateway(r, observed_changes=lambda: ["src/a.py"])
         a = engine.execute("codex-adapter", task(), execution_id="E1")
         b = engine.execute("other-adapter", task(), execution_id="E2")
         self.assertEqual(a["task_contract_hash"], b["task_contract_hash"])
         self.assertEqual("NONE", a["authority_effect"])
         self.assertEqual("NONE", b["authority_effect"])
+        self.assertTrue(a["independent_change_observation"])
 
     def test_s11_03_exact_sha_required_and_mismatch_rejected(self):
         with self.assertRaises(caa.AdapterContractError):
@@ -104,41 +109,42 @@ class CodingAgentAdapterTests(unittest.TestCase):
         bad["candidate_sha"] = "b" * 40
         a.native_result = bad
         with self.assertRaises(caa.AdapterContractError):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="E3")
+            gateway_for(a).execute("a", task(), execution_id="E3")
 
     def test_s11_04_missing_capability_fails_before_dispatch(self):
         a = FakeAdapter("a", "agent", capabilities={"EDIT_FILES"})
-        gateway = caa.CodingAgentExecutionGateway.from_adapters([a])
+        gateway = gateway_for(a)
         with self.assertRaises(caa.AdapterContractError):
             gateway.execute("a", task(), execution_id="E4")
         self.assertEqual(0, a.dispatch_count)
 
     def test_s11_05_allowed_change_accepted(self):
-        out = caa.CodingAgentExecutionGateway.from_adapters([FakeAdapter("a", "agent")]).execute("a", task(), execution_id="E5")
+        a = FakeAdapter("a", "agent")
+        out = gateway_for(a).execute("a", task(), execution_id="E5")
         self.assertEqual(["src/a.py"], out["changed_artifacts"])
+        self.assertEqual(["src/a.py"], out["observed_changed_artifacts"])
 
     def test_s11_06_out_of_scope_change_rejected(self):
         a = FakeAdapter("a", "agent", native_result={
             "execution_id":"E6","completion_state":"COMPLETED","changed_artifacts":["docs/x.md"],
             "commands_run":[],"test_results":[],"failure_classification":"NONE","execution_events":[]})
         with self.assertRaises(caa.ScopeViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="E6")
+            gateway_for(a).execute("a", task(), execution_id="E6")
 
     def test_s11_07_governance_path_rejected_by_default(self):
         a = FakeAdapter("a", "agent", native_result={
             "execution_id":"E7","completion_state":"COMPLETED","changed_artifacts":["governance-runtime/x.json"],
             "commands_run":[],"test_results":[],"failure_classification":"NONE","execution_events":[]})
         with self.assertRaises(caa.ScopeViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(allowed_paths=("governance-runtime/",)), execution_id="E7")
+            gateway_for(a).execute("a", task(allowed_paths=("governance-runtime/",)), execution_id="E7")
 
     def test_s11_08_required_test_mutation_requires_explicit_authorization(self):
         a = FakeAdapter("a", "agent", native_result={
             "execution_id":"E8","completion_state":"COMPLETED","changed_artifacts":["tests/test_a.py"],
             "commands_run":[],"test_results":[],"failure_classification":"NONE","execution_events":[]})
         with self.assertRaises(caa.TestIntegrityViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute(
-                "a", task(allowed_paths=("tests/",), forbidden_changes=()), execution_id="E8")
-        ok = caa.CodingAgentExecutionGateway.from_adapters([a]).execute(
+            gateway_for(a).execute("a", task(allowed_paths=("tests/",), forbidden_changes=()), execution_id="E8")
+        ok = gateway_for(a).execute(
             "a", task(allowed_paths=("tests/",), forbidden_changes=(), authorized_test_changes=("tests/test_a.py",)), execution_id="E8b")
         self.assertTrue(ok["material_test_change_requires_adjudication"])
 
@@ -146,7 +152,7 @@ class CodingAgentAdapterTests(unittest.TestCase):
         a = FakeAdapter("a", "agent", native_result={
             "execution_id":"E9","completion_state":"REQUIREMENT_UNRESOLVED","changed_artifacts":[],
             "commands_run":[],"test_results":[],"failure_classification":"REQUIREMENT UNRESOLVED","execution_events":[]})
-        out = caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="E9")
+        out = gateway_for(a).execute("a", task(), execution_id="E9")
         self.assertEqual("REQUIREMENT_UNRESOLVED", out["completion_state"])
         self.assertEqual("REQUIREMENT UNRESOLVED", out["failure_classification"])
 
@@ -155,18 +161,19 @@ class CodingAgentAdapterTests(unittest.TestCase):
             "execution_id":"E10","completion_state":"FAILED","changed_artifacts":[],"commands_run":["export API_KEY=sk-secret-value"],
             "test_results":[],"failure_classification":"ENVIRONMENT-TOOLING DEFECT","execution_events":[]})
         with self.assertRaises(caa.SecretContainmentViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="E10")
+            gateway_for(a).execute("a", task(), execution_id="E10")
 
     def test_s11_11_agent_declared_terminal_authority_rejected(self):
         a = FakeAdapter("a", "agent", native_result={
             "execution_id":"E11","completion_state":"COMPLETED","changed_artifacts":[],"commands_run":[],"test_results":[],
             "failure_classification":"NONE","execution_events":[],"authority_effect":"DEPLOY","merge_authorized":True})
         with self.assertRaises(caa.AuthorityViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="E11")
+            gateway_for(a).execute("a", task(), execution_id="E11")
 
     def test_s11_12_13_idempotent_identical_and_conflicting_ingestion(self):
         store = caa.InMemoryExecutionStore()
-        gateway = caa.CodingAgentExecutionGateway.from_adapters([FakeAdapter("a", "agent")], store=store)
+        adapter = FakeAdapter("a", "agent")
+        gateway = gateway_for(adapter, store=store)
         first = gateway.execute("a", task(), execution_id="E12")
         again = gateway.ingest_result(first)
         self.assertEqual(first["result_hash"], again["result_hash"])
@@ -179,10 +186,13 @@ class CodingAgentAdapterTests(unittest.TestCase):
         fail = FakeAdapter("a", "agent", native_result={
             "execution_id":"EF","completion_state":"FAILED","changed_artifacts":[],"commands_run":[],"test_results":[],
             "failure_classification":"CODE DEFECT","execution_events":[]})
-        gateway = caa.CodingAgentExecutionGateway.from_adapters([fail], store=store)
+        active = [fail]
+        gateway = caa.CodingAgentExecutionGateway.from_adapters(
+            [fail], store=store, observed_changes=lambda: list(active[0].native_result.get("changed_artifacts", [])))
         gateway.execute("a", task(task_id="T"), execution_id="EF")
         success = FakeAdapter("b", "agent2")
         gateway.registry.register(success)
+        active[0] = success
         gateway.execute("b", task(task_id="T"), execution_id="ES")
         hist = store.history_for_task("T")
         self.assertEqual(["FAILED", "COMPLETED"], [x["completion_state"] for x in hist])
@@ -190,11 +200,13 @@ class CodingAgentAdapterTests(unittest.TestCase):
     def test_s11_15_malformed_output_rejected(self):
         a = FakeAdapter("a", "agent", native_result={"execution_id":"E15","completion_state":"COMPLETED"})
         with self.assertRaises(caa.AdapterContractError):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="E15")
+            gateway_for(a).execute("a", task(), execution_id="E15")
 
     def test_s11_16_normal_schema_is_provider_neutral(self):
-        a = caa.CodingAgentExecutionGateway.from_adapters([FakeAdapter("one", "codex")]).execute("one", task(), execution_id="E16a")
-        b = caa.CodingAgentExecutionGateway.from_adapters([FakeAdapter("two", "claude-code")]).execute("two", task(), execution_id="E16b")
+        one = FakeAdapter("one", "codex")
+        two = FakeAdapter("two", "claude-code")
+        a = gateway_for(one).execute("one", task(), execution_id="E16a")
+        b = gateway_for(two).execute("two", task(), execution_id="E16b")
         self.assertEqual(set(a.keys()), set(b.keys()))
         self.assertNotIn("provider_specific", a)
 
@@ -202,15 +214,16 @@ class CodingAgentAdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "executions.jsonl"
             store = caa.JsonlExecutionStore(path)
-            gateway = caa.CodingAgentExecutionGateway.from_adapters([FakeAdapter("a", "agent")], store=store)
+            adapter = FakeAdapter("a", "agent")
+            gateway = gateway_for(adapter, store=store)
             out = gateway.execute("a", task(), execution_id="E17")
             recovered = caa.JsonlExecutionStore(path).get("E17")
             self.assertEqual(out["result_hash"], recovered["result_hash"])
 
     def test_s11_18_testing_execution_never_dispatches_reviewer_api(self):
         called = []
-        gateway = caa.CodingAgentExecutionGateway.from_adapters(
-            [FakeAdapter("a", "agent")], reviewer_dispatch=lambda *_: called.append(True), phase="TESTING")
+        adapter = FakeAdapter("a", "agent")
+        gateway = gateway_for(adapter, reviewer_dispatch=lambda *_: called.append(True), phase="TESTING")
         out = gateway.execute("a", task(), execution_id="E18")
         self.assertEqual([], called)
         self.assertEqual("MANUAL_REVIEW_IF_REQUESTED", out["review_effect"])
@@ -234,7 +247,7 @@ class CodingAgentAdapterTests(unittest.TestCase):
                 {"seq":4,"kind":"COMPLETED"},
             ]})
         with self.assertRaises(caa.StopConditionViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="FG2")
+            gateway_for(a).execute("a", task(), execution_id="FG2")
 
     def test_s11_fg_03_agent_governance_validation_token_is_rejected_evidence(self):
         a = FakeAdapter("a", "agent", native_result={
@@ -242,7 +255,13 @@ class CodingAgentAdapterTests(unittest.TestCase):
             "commands_run":[],"test_results":[{"name":"governance-validation","status":"PASS","qualification_token":"PASS"}],
             "failure_classification":"NONE","execution_events":[]})
         with self.assertRaises(caa.AuthorityViolation):
-            caa.CodingAgentExecutionGateway.from_adapters([a]).execute("a", task(), execution_id="FG3")
+            gateway_for(a).execute("a", task(), execution_id="FG3")
+
+    def test_s11_fg_04_missing_independent_observer_fails_closed(self):
+        a = FakeAdapter("a", "agent")
+        gateway = caa.CodingAgentExecutionGateway.from_adapters([a])
+        with self.assertRaises(caa.ScopeViolation):
+            gateway.execute("a", task(), execution_id="FG4")
 
 
 if __name__ == "__main__":
