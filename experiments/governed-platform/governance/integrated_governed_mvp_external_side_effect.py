@@ -56,9 +56,7 @@ def _sanitize_value(value: Any) -> Any:
         return _sanitize_text(value)
     if isinstance(value, Mapping):
         return {str(k): _sanitize_value(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_sanitize_value(v) for v in value]
-    if isinstance(value, tuple):
+    if isinstance(value, (list, tuple)):
         return [_sanitize_value(v) for v in value]
     return deepcopy(value)
 
@@ -76,7 +74,7 @@ class SimulatedCrash(RuntimeError):
 
 
 class ReferenceExternalProvider:
-    """Safe local provider with durable effect state separate from caller state."""
+    """Safe deterministic provider whose committed-effect state is caller-external."""
 
     def __init__(self, db_path: str | Path, *, allowed_targets: set[tuple[str, str]]):
         self.db_path = Path(db_path)
@@ -105,10 +103,12 @@ class ReferenceExternalProvider:
     def accepts_target(self, provider_id: str, endpoint_id: str) -> bool:
         return (provider_id, endpoint_id) in self.allowed_targets
 
-    def _record_dispatch(self, key: str, record: Mapping[str, Any]) -> None:
-        serialized = _canon(_sanitize_value(record))
+    def _record_dispatch(self, key: str, value: Mapping[str, Any]) -> None:
         with self._connect() as con:
-            con.execute("INSERT INTO dispatches(external_idempotency_key,record_json) VALUES(?,?)", (key, serialized))
+            con.execute(
+                "INSERT INTO dispatches(external_idempotency_key,record_json) VALUES(?,?)",
+                (key, _canon(_sanitize_value(value))),
+            )
 
     def dispatch_count(self) -> int:
         with self._connect() as con:
@@ -130,7 +130,12 @@ class ReferenceExternalProvider:
 
     def dispatch(self, request: Mapping[str, Any]) -> dict[str, Any]:
         key = str(request["external_idempotency_key"])
-        self._record_dispatch(key, {"provider_id": request.get("provider_id"), "endpoint_id": request.get("endpoint_id"), "mode": self.mode, "detail": self.failure_detail})
+        self._record_dispatch(key, {
+            "provider_id": request.get("provider_id"),
+            "endpoint_id": request.get("endpoint_id"),
+            "mode": self.mode,
+            "detail": self.failure_detail,
+        })
         if self.failure_detail is not None:
             return {"http_status": 500, "provider_status": "ERROR", "provider_committed": False, "detail": _sanitize_text(self.failure_detail)}
         if self.mode == "timeout_before_commit":
@@ -149,17 +154,16 @@ class ReferenceExternalProvider:
 
         existing = self.lookup(key)
         if existing is None:
-            binding_material = {field: deepcopy(request.get(field)) for field in IDEMPOTENCY_FIELDS}
-            binding_hash = canonical_hash(binding_material)
-            effect_id = "reference-effect-" + canonical_hash({"key": key, "binding_hash": binding_hash})[:24]
-            result_body = {
+            binding = {field: deepcopy(request.get(field)) for field in IDEMPOTENCY_FIELDS}
+            binding_hash = canonical_hash(binding)
+            result = {
                 "http_status": 200,
                 "provider_status": "SUCCESS",
                 "provider_committed": True,
                 "provider_id": request.get("provider_id"),
                 "endpoint_id": request.get("endpoint_id"),
                 "external_idempotency_key": key,
-                "external_effect_id": effect_id,
+                "external_effect_id": "reference-effect-" + canonical_hash({"key": key, "binding_hash": binding_hash})[:24],
                 "action": request.get("action"),
                 "resource_id": request.get("resource_id"),
                 "artifact_sha": request.get("artifact_sha"),
@@ -168,10 +172,11 @@ class ReferenceExternalProvider:
                 "credential_lease_id": request.get("credential_lease_id"),
                 "binding_hash": binding_hash,
             }
-            result_body["provider_result_digest"] = canonical_hash({k: deepcopy(v) for k, v in result_body.items() if k != "provider_result_digest"})
+            result["provider_result_digest"] = canonical_hash({k: deepcopy(v) for k, v in result.items() if k != "provider_result_digest"})
             with self._connect() as con:
-                con.execute("INSERT INTO effects VALUES(?,?,?)", (key, binding_hash, _canon(result_body)))
-            existing = result_body
+                con.execute("INSERT INTO effects VALUES(?,?,?)", (key, binding_hash, _canon(result)))
+            existing = result
+
         if self.mode == "timeout_after_commit":
             raise TimeoutAfterCommit("reference timeout after provider commit")
         if self.mode == "mismatched_response":
@@ -198,10 +203,9 @@ class ExternalSideEffectGateway:
             con.execute("CREATE TABLE IF NOT EXISTS intents (external_idempotency_key TEXT PRIMARY KEY, binding_json TEXT NOT NULL, status TEXT NOT NULL, evidence_json TEXT)")
             con.execute("CREATE TABLE IF NOT EXISTS governed_events (id INTEGER PRIMARY KEY AUTOINCREMENT, event_json TEXT NOT NULL)")
 
-    def _record(self, record: Mapping[str, Any]) -> None:
-        serialized = _canon(_sanitize_value(record))
+    def _record(self, value: Mapping[str, Any]) -> None:
         with self._connect() as con:
-            con.execute("INSERT INTO governed_events(event_json) VALUES(?)", (serialized,))
+            con.execute("INSERT INTO governed_events(event_json) VALUES(?)", (_canon(_sanitize_value(value)),))
 
     def governed_records(self) -> list[dict[str, Any]]:
         with self._connect() as con:
@@ -230,24 +234,48 @@ class ExternalSideEffectGateway:
         evidence = upstream.get("remote_completion_evidence")
         if not isinstance(bound, Mapping) or not isinstance(evidence, Mapping) or not _hash_valid(evidence, "remote_completion_hash"):
             return False
-        if evidence.get("binding_hash") != canonical_hash({k: deepcopy(v) for k, v in bound.items() if k != "remote_idempotency_key"}):
+        binding_hash = evidence.get("binding_hash")
+        if binding_hash != canonical_hash({k: deepcopy(v) for k, v in bound.items() if k != "remote_idempotency_key"}):
             return False
-        expected_remote_key = canonical_hash({"domain": "integrated-governed-mvp-slice8-remote-idempotency", "terminal_execution_id": bound.get("terminal_execution_id"), "binding_hash": evidence.get("binding_hash")})
-        return bound.get("remote_idempotency_key") == expected_remote_key and evidence.get("remote_idempotency_key") == expected_remote_key
+        expected_key = canonical_hash({
+            "domain": "integrated-governed-mvp-slice8-remote-idempotency",
+            "terminal_execution_id": bound.get("terminal_execution_id"),
+            "binding_hash": binding_hash,
+        })
+        if bound.get("remote_idempotency_key") != expected_key or evidence.get("remote_idempotency_key") != expected_key:
+            return False
+        remote_result = evidence.get("remote_result")
+        if not isinstance(remote_result, Mapping) or remote_result.get("status") != "REMOTE_REFERENCE_APPLIED":
+            return False
+        if remote_result.get("production_remote_side_effect_claimed") is not False:
+            return False
+        return evidence.get("remote_result_digest") == canonical_hash(remote_result)
 
-    def _profile_valid(self, profile: Mapping[str, Any], now_epoch: float) -> bool:
-        if not isinstance(profile, Mapping) or profile.get("profile_status") != "ACTIVE":
+    def _upstream_matches_request(self, upstream: Mapping[str, Any], request: Mapping[str, Any]) -> bool:
+        if not self._valid_upstream(upstream):
+            return False
+        bound = upstream["bound_remote_execution"]
+        return all(request.get(field) == bound.get(field) for field in (
+            "project_id", "task_id", "effect_id", "terminal_execution_id", "remote_idempotency_key",
+            "action", "artifact_sha", "state_version",
+        ))
+
+    def _profile_hash_valid(self, profile: Mapping[str, Any]) -> bool:
+        if not isinstance(profile, Mapping):
             return False
         material = deepcopy(dict(profile))
         supplied = material.pop("profile_snapshot_hash", None)
-        if supplied != canonical_hash(material):
+        return isinstance(supplied, str) and supplied == canonical_hash(material)
+
+    def _profile_current_valid(self, profile: Mapping[str, Any], now_epoch: float) -> bool:
+        if not self._profile_hash_valid(profile) or profile.get("profile_status") != "ACTIVE":
             return False
         try:
             return float(profile["not_before_epoch"]) <= float(now_epoch) < float(profile["expires_at_epoch"])
         except Exception:
             return False
 
-    def _lease_valid(self, lease: Mapping[str, Any], profile: Mapping[str, Any], upstream: Mapping[str, Any], request: Mapping[str, Any], now_epoch: float) -> bool:
+    def _lease_identity_valid(self, lease: Mapping[str, Any], upstream: Mapping[str, Any], request: Mapping[str, Any]) -> bool:
         if not isinstance(lease, Mapping) or lease.get("state") not in LEASE_SUCCESS_STATES or lease.get("successful_lease") is not True or lease.get("production_side_effect_claimed") is not False:
             return False
         bound = lease.get("bound_lease")
@@ -256,27 +284,51 @@ class ExternalSideEffectGateway:
             return False
         if evidence.get("production_side_effect_claimed") is not False:
             return False
-        if evidence.get("lease_evidence_hash") != request.get("lease_evidence_hash"):
+        binding_hash = bound.get("lease_binding_hash")
+        binding_material = {k: deepcopy(v) for k, v in bound.items() if k not in {"opaque_secret_handle", "lease_binding_hash"}}
+        if not isinstance(binding_hash, str) or binding_hash != canonical_hash(binding_material):
             return False
-        if request.get("credential_lease_id") != bound.get("credential_lease_id") or request.get("credential_profile_id") != bound.get("credential_profile_id") or request.get("provider_id") != bound.get("provider_id"):
-            return False
-        if profile.get("provider_id") != bound.get("provider_id") or profile.get("credential_profile_id") != bound.get("credential_profile_id") or profile.get("profile_epoch") != bound.get("profile_epoch") or profile.get("profile_snapshot_hash") != bound.get("profile_snapshot_hash"):
-            return False
-        if not self._profile_valid(profile, now_epoch):
-            return False
-        try:
-            if not (float(bound["lease_not_before_epoch"]) <= float(now_epoch) < float(bound["lease_expires_at_epoch"])):
+        for key, value in bound.items():
+            if evidence.get(key) != value:
                 return False
-        except Exception:
+        if request.get("lease_evidence_hash") != evidence.get("lease_evidence_hash"):
+            return False
+        if request.get("credential_lease_id") != bound.get("credential_lease_id"):
+            return False
+        if request.get("credential_profile_id") != bound.get("credential_profile_id") or request.get("provider_id") != bound.get("provider_id"):
+            return False
+        if not self._valid_upstream(upstream):
             return False
         remote = upstream["bound_remote_execution"]
         terminal_binding_hash = upstream["remote_completion_evidence"]["binding_hash"]
-        checks = {
-            "project_id": remote.get("project_id"), "task_id": remote.get("task_id"), "effect_id": remote.get("effect_id"),
-            "action": remote.get("action"), "artifact_sha": remote.get("artifact_sha"), "state_version": remote.get("state_version"),
-            "terminal_execution_id": remote.get("terminal_execution_id"), "terminal_binding_hash": terminal_binding_hash,
+        expected = {
+            "project_id": remote.get("project_id"),
+            "task_id": remote.get("task_id"),
+            "effect_id": remote.get("effect_id"),
+            "action": remote.get("action"),
+            "artifact_sha": remote.get("artifact_sha"),
+            "state_version": remote.get("state_version"),
+            "terminal_execution_id": remote.get("terminal_execution_id"),
+            "terminal_binding_hash": terminal_binding_hash,
         }
-        return all(bound.get(k) == v for k, v in checks.items())
+        return all(bound.get(k) == v for k, v in expected.items())
+
+    def _lease_current_valid(self, lease: Mapping[str, Any], profile: Mapping[str, Any], upstream: Mapping[str, Any], request: Mapping[str, Any], now_epoch: float) -> bool:
+        if not self._lease_identity_valid(lease, upstream, request) or not self._profile_current_valid(profile, now_epoch):
+            return False
+        bound = lease["bound_lease"]
+        if profile.get("provider_id") != bound.get("provider_id") or profile.get("credential_profile_id") != bound.get("credential_profile_id"):
+            return False
+        if profile.get("profile_epoch") != bound.get("profile_epoch") or profile.get("profile_snapshot_hash") != bound.get("profile_snapshot_hash"):
+            return False
+        if request.get("project_id") not in profile.get("allowed_project_ids", []) or request.get("action") not in profile.get("allowed_actions", []):
+            return False
+        if bound.get("resource_class") not in profile.get("allowed_resource_classes", []):
+            return False
+        try:
+            return float(bound["lease_not_before_epoch"]) <= float(now_epoch) < float(bound["lease_expires_at_epoch"])
+        except Exception:
+            return False
 
     def _authority_valid(self, authority: Mapping[str, Any], request: Mapping[str, Any], now_epoch: float) -> bool:
         if not isinstance(authority, Mapping) or authority.get("authority_status") != "ACTIVE":
@@ -290,7 +342,9 @@ class ExternalSideEffectGateway:
                 return False
         except Exception:
             return False
-        return all(authority.get(field) == request.get(field) for field in ("project_id", "task_id", "effect_id", "action", "artifact_sha", "state_version"))
+        return all(authority.get(field) == request.get(field) for field in (
+            "project_id", "task_id", "effect_id", "action", "artifact_sha", "state_version",
+        ))
 
     def _raw_secret_supplied(self, request: Mapping[str, Any]) -> bool:
         return any(str(k).lower().replace("-", "_") in RAW_SECRET_FIELDS and v not in (None, "") for k, v in request.items())
@@ -299,24 +353,27 @@ class ExternalSideEffectGateway:
         return {field: deepcopy(request.get(field)) for field in IDEMPOTENCY_FIELDS}
 
     def _scope_valid(self, upstream: Mapping[str, Any], lease: Mapping[str, Any], request: Mapping[str, Any]) -> bool:
-        remote = upstream["bound_remote_execution"]
-        bound_lease = lease["bound_lease"]
-        for field in ("project_id", "task_id", "effect_id", "terminal_execution_id", "remote_idempotency_key", "action", "artifact_sha", "state_version"):
-            if request.get(field) != remote.get(field):
-                return False
+        if not self._upstream_matches_request(upstream, request):
+            return False
+        bound_lease = lease.get("bound_lease") if isinstance(lease, Mapping) else None
+        if not isinstance(bound_lease, Mapping):
+            return False
         if request.get("credential_lease_id") != bound_lease.get("credential_lease_id") or request.get("credential_profile_id") != bound_lease.get("credential_profile_id"):
             return False
         if request.get("resource_id") != f"repository:{request.get('artifact_sha')}":
             return False
-        expected_payload = canonical_hash({"artifact_sha": request.get("artifact_sha"), "action": request.get("action")})
-        return request.get("payload_digest") == expected_payload
+        return request.get("payload_digest") == canonical_hash({"artifact_sha": request.get("artifact_sha"), "action": request.get("action")})
 
     def _load_intent(self, key: str):
         with self._connect() as con:
             row = con.execute("SELECT binding_json,status,evidence_json FROM intents WHERE external_idempotency_key=?", (key,)).fetchone()
         if row is None:
             return None
-        return {"binding": json.loads(row["binding_json"]), "status": row["status"], "evidence": None if row["evidence_json"] is None else json.loads(row["evidence_json"])}
+        return {
+            "binding": json.loads(row["binding_json"]),
+            "status": row["status"],
+            "evidence": None if row["evidence_json"] is None else json.loads(row["evidence_json"]),
+        }
 
     def _store_intent(self, key: str, binding: Mapping[str, Any]) -> None:
         with self._connect() as con:
@@ -349,7 +406,12 @@ class ExternalSideEffectGateway:
         return {**body, "external_effect_evidence_hash": canonical_hash(body)}
 
     def validate_external_effect_evidence(self, evidence: Mapping[str, Any]) -> bool:
-        return _hash_valid(evidence, "external_effect_evidence_hash") and evidence.get("provider_committed") is True and evidence.get("production_side_effect_claimed") is False and evidence.get("terminal_authority_granted") is False
+        return (
+            _hash_valid(evidence, "external_effect_evidence_hash")
+            and evidence.get("provider_committed") is True
+            and evidence.get("production_side_effect_claimed") is False
+            and evidence.get("terminal_authority_granted") is False
+        )
 
     def execute(self, *, upstream_result: Mapping[str, Any], lease_result: Mapping[str, Any], current_profile: Mapping[str, Any], current_authority: Mapping[str, Any], side_effect_request: Mapping[str, Any], now_epoch: float, crash_point: str | None = None) -> dict[str, Any]:
         if not self._valid_upstream(upstream_result):
@@ -373,10 +435,9 @@ class ExternalSideEffectGateway:
         existing = self._load_intent(expected_key)
         if existing is not None and existing["binding"] != binding:
             return self._result("DENY_IDEMPOTENCY_REBIND", reason="external idempotency key rebind", external_idempotency_key=expected_key)
-
         if not self._scope_valid(upstream_result, lease_result, side_effect_request):
             return self._result("DENY_SCOPE_WIDENING", reason="external side-effect scope or payload widened", external_idempotency_key=expected_key)
-        if not self._lease_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
+        if not self._lease_current_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
             return self._result("DENY_AUTHORITY_OR_LEASE", reason="current authority and credential lease required", external_idempotency_key=expected_key)
 
         if existing is not None:
@@ -389,6 +450,13 @@ class ExternalSideEffectGateway:
 
         if crash_point == "before_dispatch":
             raise SimulatedCrash("before provider dispatch")
+        self._record({
+            "state": "EXTERNAL_DISPATCH_ATTEMPTED",
+            "external_idempotency_key": expected_key,
+            "binding_hash": canonical_hash(binding),
+            "production_side_effect_claimed": False,
+            "terminal_authority_granted": False,
+        })
         try:
             response = self.provider.dispatch(side_effect_request)
         except TimeoutBeforeCommit as exc:
@@ -397,14 +465,17 @@ class ExternalSideEffectGateway:
         except TimeoutAfterCommit as exc:
             self._set_status(expected_key, "UNKNOWN")
             return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", reason=str(exc), external_idempotency_key=expected_key)
+
         if crash_point == "after_provider_commit_before_local_completion" and isinstance(response, Mapping) and response.get("provider_committed") is True:
             raise SimulatedCrash("after provider commit before local completion")
         if not isinstance(response, Mapping) or int(response.get("http_status", 500)) >= 500 or response.get("provider_committed") is not True:
             self._set_status(expected_key, "FAILED")
-            return self._result("REFERENCE_EFFECT_FAILED", reason=str(response.get("detail", "provider did not commit reference effect")) if isinstance(response, Mapping) else "provider response malformed", external_idempotency_key=expected_key)
+            reason = str(response.get("detail", "provider did not commit reference effect")) if isinstance(response, Mapping) else "provider response malformed"
+            return self._result("REFERENCE_EFFECT_FAILED", reason=reason, external_idempotency_key=expected_key)
         if not self._provider_response_valid(response, side_effect_request):
             self._set_status(expected_key, "UNKNOWN")
             return self._result("DENY_RESPONSE_INTEGRITY", reason="provider response does not match frozen external binding", external_idempotency_key=expected_key)
+
         evidence = self._make_evidence(side_effect_request, response)
         self._set_status(expected_key, "COMPLETED", evidence)
         return self._result("REFERENCE_EFFECT_APPLIED", evidence=evidence, external_idempotency_key=expected_key, reason="safe reference external effect applied")
@@ -416,8 +487,22 @@ class ExternalSideEffectGateway:
         existing = self._load_intent(key)
         if existing is None or existing["binding"] != self._binding(side_effect_request):
             return self._result("DENY_IDEMPOTENCY_REBIND", reason="no exact durable intent for recovery", external_idempotency_key=key)
+        if not self._upstream_matches_request(upstream_result, side_effect_request):
+            return self._result("DENY_UPSTREAM_LINEAGE", reason="recovery lineage differs from durable external intent", external_idempotency_key=key)
+        if not self._lease_identity_valid(lease_result, upstream_result, side_effect_request):
+            return self._result("DENY_AUTHORITY_OR_LEASE", reason="recovery lease identity/evidence differs from durable external intent", external_idempotency_key=key)
+
+        self._record({
+            "state": "EXTERNAL_RECONCILIATION_ATTEMPTED",
+            "external_idempotency_key": key,
+            "binding_hash": canonical_hash(existing["binding"]),
+            "production_side_effect_claimed": False,
+            "terminal_authority_granted": False,
+        })
+
         if existing["status"] == "COMPLETED" and existing["evidence"] is not None:
             return self._result("REFERENCE_EFFECT_REPLAYED", evidence=existing["evidence"], external_idempotency_key=key, reason="completed effect already durable")
+
         response = self.provider.lookup(key)
         if response is not None:
             if not self._provider_response_valid(response, side_effect_request):
@@ -425,6 +510,7 @@ class ExternalSideEffectGateway:
             evidence = self._make_evidence(side_effect_request, response)
             self._set_status(key, "COMPLETED", evidence)
             return self._result("RECONCILED_EXISTING_EFFECT", evidence=evidence, external_idempotency_key=key, reason="provider-side committed effect reconciled without mutation retry")
-        if not self._valid_upstream(upstream_result) or not self._lease_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
+
+        if not self._lease_current_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
             return self._result("DENY_AUTHORITY_OR_LEASE", reason="no committed effect found and current authority/lease does not permit retry", external_idempotency_key=key)
         return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", reason="no committed provider state found; mutating retry requires explicit new execution path", external_idempotency_key=key)
