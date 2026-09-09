@@ -44,10 +44,16 @@ jobs:
           for f in ('review_request_path','model'):
             v=t.get(f)
             if not isinstance(v,str) or not v.strip(): raise SystemExit(f'{f} required')
+          req=json.loads(Path(t['review_request_path']).read_text(encoding='utf-8'))
+          slot=req.get('reviewer_slot')
+          if slot not in {'R1','R2','R3'}: raise SystemExit('frozen reviewer_slot required')
+          policy=req.get('review_execution_policy')
+          if not isinstance(policy,dict): raise SystemExit('frozen review_execution_policy required')
           print('REVIEW_REQUEST_PATH='+t['review_request_path'])
           print('REVIEW_PROVIDER='+provider)
           print('REVIEW_MODEL='+t['model'])
           print('REVIEW_CREDENTIAL_PROFILE='+profile)
+          print('REVIEWER_SLOT='+slot)
           PY
       - name: Require provider secret and request file
         shell: bash
@@ -66,7 +72,7 @@ jobs:
               ;;
             *) echo 'unsupported provider'; exit 2 ;;
           esac
-      - name: Execute authenticated governance review through provider-neutral v6
+      - name: Execute authenticated governance review through provider-neutral v7
         shell: bash
         run: |
           set -u -o pipefail
@@ -80,7 +86,7 @@ jobs:
             echo "provider_attempt=${attempt}" | tee -a governance-review-evidence/provider-attempts.log
             : > governance-review-evidence/provider-error-attempt.log
             set +e
-            python governance-runtime/platform_candidate_review_v6.py \
+            python governance-runtime/platform_candidate_review_v7.py \
               --request "$REVIEW_REQUEST_PATH" \
               --output-dir governance-review-evidence \
               --provider "$REVIEW_PROVIDER" \
@@ -116,10 +122,17 @@ jobs:
           import json,os
           from pathlib import Path
           t=json.loads(Path('.github/governance-candidate-review-trigger.json').read_text(encoding='utf-8'))
+          req={}
+          try:
+            req=json.loads(Path(t.get('review_request_path','')).read_text(encoding='utf-8'))
+          except Exception:
+            pass
+          policy=req.get('review_execution_policy') if isinstance(req,dict) else None
+          if not isinstance(policy,dict): policy={}
           err=Path('governance-review-evidence/provider-error.log')
           attempts=Path('governance-review-evidence/provider-attempts.log')
           status={
-            'schema_version':7,
+            'schema_version':8,
             'review_request_path':t.get('review_request_path'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
@@ -129,8 +142,13 @@ jobs:
             'provider':os.environ.get('REVIEW_PROVIDER'),
             'model':os.environ.get('REVIEW_MODEL'),
             'credential_profile':os.environ.get('REVIEW_CREDENTIAL_PROFILE','primary'),
+            'reviewer_slot':req.get('reviewer_slot') if isinstance(req,dict) else None,
+            'serving_provider':policy.get('serving_provider'),
+            'allow_fallbacks':policy.get('allow_fallbacks'),
+            'reasoning_max_tokens':policy.get('reasoning_max_tokens'),
+            'max_output_tokens':policy.get('max_output_tokens'),
             'materialization_version':'GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001',
-            'runner_version':'GOV-FROZEN-CROSS-COMMIT-EVIDENCE-001',
+            'runner_version':'GOV-REVIEWER-SERVING-PROVIDER-PIN-001',
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
             'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
             'provider_attempt_log':attempts.read_text(encoding='utf-8',errors='replace')[-2000:] if attempts.exists() else None,
