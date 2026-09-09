@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 
-from governance_runtime_import import phase_policy
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+
+import phase_policy
 
 
 class PhasePolicyTests(unittest.TestCase):
