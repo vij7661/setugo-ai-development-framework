@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "ADJ-REV-MVP-SLICE8-REMOTE-TRANSPORT-001",
+  "review_request_id": "REV-MVP-SLICE8-REMOTE-TRANSPORT-001",
+  "candidate_commit": "4873d7a11383b5ba684cb92e399b18cfe2ffb304",
+  "exact_parent_commit": "8d95e59c453e8499cf8079acc8e54818eb131fdc",
+  "pr_number": 17,
+  "candidate_ci_run": 34327847983,
+  "candidate_ci_conclusion": "success",
+  "review_workflow_run": 34328209242,
+  "review_artifact": {
+    "artifact_id": 10094663554,
+    "artifact_digest": "sha256:362666784357d7523f8efb6940dfb4634fc63c57b243d0cbf1d1ec0ae0e75c71"
+  },
+  "reviewer": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "provider_api_authenticated": true,
+    "remote_model_identity_cryptographically_proven": false,
+    "upstream_provider_reported": "DeepInfra",
+    "serving_provider_pinned": true,
+    "fallbacks_allowed": false
+  },
+  "request_hash": "bc48f8ff3df87e6b4058ad1938daf0158fcc1f26254cca5cb0f4fbd27d36385f",
+  "review_corpus_sha256": "8bf2226e3a3c9057dc8e3492b1778581ebb8a87c24b8d9804d1c1d73115ab5af",
+  "semantic_disposition": "PASS",
+  "deterministic_validation": {
+    "valid": true,
+    "mandatory_dimensions_supported": 17,
+    "mandatory_dimensions_total": 17,
+    "findings_count": 0,
+    "uncertainties_count": 0
+  },
+  "review_of_review": {
+    "slice7_input_integrity": "SUPPORTED: Slice7 result and completion evidence are self-hash checked and exact-lineage matched before remote delivery.",
+    "actual_http_boundary": "SUPPORTED: the reference path uses ThreadingHTTPServer on loopback and urllib HTTP requests; strengthened pre-mechanism tests require observed HTTP traffic.",
+    "platform_derived_idempotency": "SUPPORTED: remote idempotency key is derived from terminal_execution_id plus exact binding hash; caller replacement and rebinding fail closed.",
+    "ambiguous_outcome_non_laundering": "SUPPORTED: commit-before-ack and timeout-after-commit remain REMOTE_OUTCOME_AMBIGUOUS with no successful completion evidence until reconciliation.",
+    "reconciliation_and_restart": "SUPPORTED: durable remote/client ledgers recover exact committed result after retry/reopen without second effect.",
+    "concurrency": "SUPPORTED: identical concurrent HTTP requests converge on one durable remote effect.",
+    "response_failure_non_laundering": "SUPPORTED: widened, malformed, missing-receipt, or structured-failure responses cannot mint successful remote completion evidence.",
+    "completion_evidence_integrity": "SUPPORTED: completion binds exact lineage, remote idempotency key, remote receipt/result digests and deterministic completion hash.",
+    "prior_slice_regression": "SUPPORTED by exact-candidate CI run 34327847983; accepted Slice1 through Slice7 regression steps passed.",
+    "production_nonclaim": "PRESERVED: this proves only a deterministic loopback HTTP reference remote boundary; no real GitHub/cloud/release/deploy side effect or production credential safety is claimed.",
+    "provider_identity_nonclaim": "PRESERVED: OpenRouter API authentication and reported DeepInfra routing are evidence of the authenticated transport path; remote model identity is not cryptographically proven.",
+    "remaining_evidence_contradiction": false
+  },
+  "preserved_history": [
+    "Contract-first Slice8 preregistration commit 09054454e2177a56d312dd6e5fcee8a2ba23cfd2 preceded mechanism implementation.",
+    "Initial red CI run 34327564616 failed at the missing integrated_governed_mvp_remote_transport module, preserving the pre-mechanism boundary.",
+    "Harness commit 1e45e307d6a472e4f3b1828e729caec20cd0ab24 strengthened the frozen tests before mechanism implementation to require real loopback HTTP delivery rather than direct in-process invocation.",
+    "Review run 34328209242 attempt 1 received a transient OpenRouter/DeepInfra HTTP 429 engine_overloaded response; attempt 2 succeeded on the same pinned provider route. The 429 has no semantic authority and remains preserved as provider telemetry/failure evidence.",
+    "Live Conversation Governance run 34328195370 exposed stale checkpoint 044 still pointing at old Slice5/PR11 state; authority effect remained blocked.",
+    "Checkpoint repair commit f1db3113f0d84ce6eca39356544cbd7f5ec27395 initially exposed a narrow shared-memory handoff wording mismatch in run 34328659414; coordination-data repair 3ce2e5bc2bca5a13a6fcb2e636e71efc924ac7a4 then passed Live Conversation Governance run 34328725505."
+  ],
+  "effective_disposition": "PASS",
+  "transition_state": "VALID_INDEPENDENT_REVIEW_PRESENT_PENDING_PR_CLOSURE",
+  "counts_for_slice8_promotion": true,
+  "history_preserved": true,
+  "terminal_authority": false,
+  "production_remote_side_effect_authority": false,
+  "next_required_action": "Verify PR #17 head is exactly 4873d7a11383b5ba684cb92e399b18cfe2ffb304, base main is still 8d95e59c453e8499cf8079acc8e54818eb131fdc, there are no unresolved review threads or repository blockers, update PR description with exact CI/review/adjudication evidence, mark ready, and merge only with expected head 4873d7a11383b5ba684cb92e399b18cfe2ffb304. Then verify main advanced exactly to the merge result before defining the next slice."
+}
