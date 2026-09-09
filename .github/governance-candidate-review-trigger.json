@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE11-REPAIR-007",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-007.json",
+  "review_request_id": "REV-MVP-SLICE11-REPAIR-008",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-008.json",
   "reviewed_candidate_commit": "6cdab1a5f96ce1d809d92362c5f3f583c2b900e1",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE11_ADAPTER_SEGMENT_R3_REVIEW_REISSUED_AFTER_TRANSIENT_OVERLOAD",
-  "request_hash": "2242d4776f43d3d62dff42a34006fcb20de6b6f6f7ee0f6aa56a71989cb27e5a",
+  "status": "AUTHENTICATED_SLICE11_ADAPTER_SEGMENT_R3_REVIEW_REISSUED_BASETEN",
+  "request_hash": "3ce91ff290ecb46322f3d745908e3fcda1dda627b45468e49f5f24969196e4e7",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
@@ -18,6 +18,7 @@
     {"review_request_id":"REV-MVP-SLICE11-REPAIR-003","workflow_run_id":34412268123,"classification":"PROVIDER_CREDIT_PROMPT_BUDGET_REJECTED","provider_invoked":true,"successful_review_response":false,"http_status":402,"authority_effect":"NONE","artifact_id":10127689654,"artifact_digest":"sha256:19f6989cd8ab797d5b4eb0751ceeacb779d310aafaecc9a7e4b70b2606f90a6a"},
     {"review_request_id":"REV-MVP-SLICE11-REPAIR-004","workflow_run_id":34412393088,"classification":"REQUEST_INTEGRITY_REJECTED","provider_invoked":false,"authority_effect":"NONE","artifact_id":10127735949,"artifact_digest":"sha256:042a2ff1df223138e6bc712765cdf5788284179dadd7c8ff8aee462b456cc8d0"},
     {"review_request_id":"REV-MVP-SLICE11-REPAIR-005","workflow_run_id":34412484422,"classification":"PROVIDER_CREDIT_PROMPT_BUDGET_REJECTED","provider_invoked":true,"successful_review_response":false,"http_status":402,"authority_effect":"NONE","artifact_id":10127770242,"artifact_digest":"sha256:c2e205177e3dbb3b3bbd8fae320ee625865df5fdacfd11b8236e13e4b1a72176"},
-    {"review_request_id":"REV-MVP-SLICE11-REPAIR-006","workflow_run_id":34412645696,"classification":"PROVIDER_TRANSIENT_UPSTREAM_RATE_LIMIT","provider_invoked":true,"successful_review_response":false,"http_status":429,"attempts":3,"authority_effect":"NONE","artifact_id":10127859995,"artifact_digest":"sha256:0c720c29de28137ca16eeececd19c4893244f16cb305741c30459bc7ec0586bd"}
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-006","workflow_run_id":34412645696,"classification":"PROVIDER_TRANSIENT_UPSTREAM_RATE_LIMIT","provider_invoked":true,"successful_review_response":false,"http_status":429,"attempts":3,"serving_provider":"deepinfra","authority_effect":"NONE","artifact_id":10127859995,"artifact_digest":"sha256:0c720c29de28137ca16eeececd19c4893244f16cb305741c30459bc7ec0586bd"},
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-007","workflow_run_id":34412857873,"classification":"PROVIDER_TRANSIENT_UPSTREAM_RATE_LIMIT","provider_invoked":true,"successful_review_response":false,"http_status":429,"attempts":3,"serving_provider":"deepinfra","authority_effect":"NONE","artifact_id":10127940058,"artifact_digest":"sha256:05d7fd02b21db84cdcca06bfcefe2de49321c46990be91a4f74d16dce65d5364"}
   ]
 }
