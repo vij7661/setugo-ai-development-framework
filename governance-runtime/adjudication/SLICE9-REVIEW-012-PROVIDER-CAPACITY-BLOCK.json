@@ -1,0 +1,28 @@
+{
+  "account_prompt_token_ceiling": 12665,
+  "candidate_change_required": false,
+  "candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
+  "classification": "OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY",
+  "counts_for_promotion": false,
+  "effective_disposition": "BLOCKED_PROVIDER_CREDIT_CAPACITY",
+  "evidence_reduction_permitted": false,
+  "next_action": [
+    "Replenish credits for OPENROUTER_R3_API_KEY, or configure a fresh OpenRouter R3 credential with sufficient capacity.",
+    "Then reissue a fresh immutable review request against the unchanged exact candidate and retained direct evidence."
+  ],
+  "observed_prompt_tokens": 13888,
+  "preserved_false_green": {
+    "adjudication_commit": "c0229bc7cf23b5cc61201c71030ad09a6405b950",
+    "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-004",
+    "workflow_run_id": 34341963676
+  },
+  "provider_inference_reached": false,
+  "reason": "The minimum-valid review packet still exceeds the current R3 OpenRouter credit-derived prompt ceiling. Further compaction would require dropping direct semantic evidence or materially weakening traceability; that is not an acceptable path to a promotion review.",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-012",
+  "scientific_endpoint_reached": false,
+  "semantic_disposition": null,
+  "shortfall_tokens": 1223,
+  "stage": "INTEGRATED_GOVERNED_MVP_SLICE_9",
+  "workflow_job_id": 102444085961,
+  "workflow_run_id": 34344903224
+}
