@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import unittest
 
 import provider_review_telemetry as telemetry
@@ -45,6 +46,28 @@ class ProviderReviewDashboardIntegrationTests(unittest.TestCase):
         self.assertEqual(2, len(merged["reviews"]))
         self.assertEqual(["future-provider-x", "provider-a"], [p["provider"] for p in merged["providers"]])
         self.assertEqual({"100", "101"}, {str(r["workflow_run_id"]) for r in merged["reviews"]})
+
+    def test_public_merge_resanitizes_legacy_provider_account_identifiers(self):
+        failed = self._event("provider-a", "model-a")
+        failed.update({
+            "attempt_outcome": "FAILURE",
+            "http_status": 402,
+            "first_response_at": "2026-09-09T08:00:02Z",
+            "retryable": False,
+            "error_classification": "HTTP_402",
+            "error_detail": '{"error":{"message":"billing failure"},"user_id":"internal-user-123","account_id":"acct-456"}',
+            "semantic_disposition": None,
+            "validation_valid": None,
+        })
+        summary = telemetry.aggregate_attempts([failed])
+        # Simulate a legacy already-persisted summary created before public
+        # publication added account-identifier sanitization.
+        summary["reviews"][0]["attempts"][0]["error_detail"] = '{"user_id":"internal-user-123","account_id":"acct-456"}'
+        merged = telemetry.merge_run_summaries([{"workflow_run_id": "200", "summary": summary}])
+        blob = json.dumps(merged, sort_keys=True)
+        self.assertNotIn("internal-user-123", blob)
+        self.assertNotIn("acct-456", blob)
+        self.assertIn("[REDACTED]", blob)
 
     def test_dashboard_page_consumes_provider_telemetry_data(self):
         page = Path("../experiments/governed-platform/observability/dashboard/index.html").read_text(encoding="utf-8")
