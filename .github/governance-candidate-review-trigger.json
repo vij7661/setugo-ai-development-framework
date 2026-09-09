@@ -1,16 +1,23 @@
 {
   "enabled": true,
-  "review_request_id": "REV-PROVIDER-REVIEW-TELEMETRY-001",
-  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-REVIEW-TELEMETRY-001.json",
+  "review_request_id": "REV-PROVIDER-REVIEW-TELEMETRY-002",
+  "review_request_path": "governance-runtime/review-requests/REV-PROVIDER-REVIEW-TELEMETRY-002.json",
   "reviewed_candidate_commit": "fad6c8257701381053955e58c893f13ae28bdd5b",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_PROVIDER_TELEMETRY_R3_NEMOTRON_DEEPINFRA_PINNED_12000_REVIEW_REQUESTED",
-  "request_hash": "90a021b7d37345753b8a8fe89f3d0ee6d87cba34d844c00fc375e14c0ff21404",
+  "status": "AUTHENTICATED_PROVIDER_TELEMETRY_R3_NEMOTRON_DEEPINFRA_PINNED_10000_REVIEW_REQUESTED",
+  "request_hash": "606b11050797074f9585ecbe9abb9247d6f8c77a6a27e2c091886afaad24e997",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
-  "preserved_prior_attempts": []
+  "preserved_prior_attempts": [
+    {
+      "review_request_id": "REV-PROVIDER-REVIEW-TELEMETRY-001",
+      "workflow_run_id": 34331594467,
+      "result": "OPENROUTER_HTTP_402_PRE_INFERENCE_ACCOUNT_CREDIT_CAPACITY",
+      "semantic_authority": false
+    }
+  ]
 }
