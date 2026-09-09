@@ -466,6 +466,8 @@ class ExternalSideEffectGateway:
             self._set_status(expected_key, "UNKNOWN")
             return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", reason=str(exc), external_idempotency_key=expected_key)
 
+        if crash_point == "after_dispatch_before_response":
+            raise SimulatedCrash("after provider dispatch before response interpretation")
         if crash_point == "after_provider_commit_before_local_completion" and isinstance(response, Mapping) and response.get("provider_committed") is True:
             raise SimulatedCrash("after provider commit before local completion")
         if not isinstance(response, Mapping) or int(response.get("http_status", 500)) >= 500 or response.get("provider_committed") is not True:
@@ -478,6 +480,8 @@ class ExternalSideEffectGateway:
 
         evidence = self._make_evidence(side_effect_request, response)
         self._set_status(expected_key, "COMPLETED", evidence)
+        if crash_point == "after_local_completion":
+            raise SimulatedCrash("after durable local completion before caller response")
         return self._result("REFERENCE_EFFECT_APPLIED", evidence=evidence, external_idempotency_key=expected_key, reason="safe reference external effect applied")
 
     def recover(self, *, upstream_result: Mapping[str, Any], lease_result: Mapping[str, Any], current_profile: Mapping[str, Any], current_authority: Mapping[str, Any], side_effect_request: Mapping[str, Any], now_epoch: float) -> dict[str, Any]:
