@@ -8,12 +8,14 @@ on:
     branches: [main]
     paths:
       - "experiments/governed-platform/observability/dashboard/**"
+      - "governance-runtime/provider_review_telemetry.py"
       - ".github/workflows/governed-platform-dashboard-pages.yml"
   workflow_run:
     workflows:
       - "Governed Platform Remote Pilot"
       - "Governed Platform Gemini Qualification"
       - "Governed Platform Mistral Qualification"
+      - "Governance Candidate Platform Review"
     types: [completed]
 
 permissions:
@@ -41,8 +43,8 @@ jobs:
           mkdir -p _site
           cp experiments/governed-platform/observability/dashboard/index.html _site/index.html
           cp experiments/governed-platform/observability/dashboard/execution-status.json _site/execution-status.json
-      - name: Resolve governed execution artifact when explicitly bound to a run
-        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && inputs.source_run_id != '') }}
+      - name: Resolve governed execution artifact when explicitly bound to an execution run
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.source_run_id != '') || (github.event_name == 'workflow_run' && github.event.workflow_run.name != 'Governance Candidate Platform Review') }}
         env:
           GH_TOKEN: ${{ github.token }}
           WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -96,6 +98,35 @@ jobs:
             item={'case_id':case,'experiment':s.get('experiment'),'execution_result':result,'execution_status':ex,'scientific_status':s.get('scientific_status'),'failure_classification':s.get('failure_classification'),'failure_reason':reason,'controller_decision':s.get('controller_decision'),'human_required':bool(s.get('human_required')),'run_id':rid,'execution_sha':s.get('execution_sha'),'updated_at':s.get('updated_at') or s.get('event_time'),'jobs':jobs}
             if case not in latest or rid>=latest[case]['run_id']:latest[case]=item
           Path('_site/execution-history.json').write_text(json.dumps({'cases':sorted(latest.values(),key=lambda x:x['run_id'],reverse=True)},indent=2)+'\n')
+          PY
+      - name: Build provider-neutral reviewer telemetry history
+        env: {GH_TOKEN: "${{ github.token }}"}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _review_telemetry; mkdir -p _review_telemetry/runs
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=100" --jq '.workflow_runs[] | select(.status=="completed") | select(.name=="Governance Candidate Platform Review") | .id' > _review_telemetry/run-ids.txt
+          while read -r RUN_ID; do
+            [ -n "$RUN_ID" ] || continue
+            DEST="_review_telemetry/runs/$RUN_ID"; mkdir -p "$DEST"
+            gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name governance-candidate-platform-review --dir "$DEST" >/dev/null 2>&1 || true
+          done < _review_telemetry/run-ids.txt
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'governance-runtime')
+          import provider_review_telemetry as telemetry
+          envelopes=[]
+          root=Path('_review_telemetry/runs')
+          for run_dir in sorted(root.iterdir() if root.exists() else []):
+            if not run_dir.is_dir(): continue
+            paths=list(run_dir.rglob('provider-review-telemetry.json'))
+            if not paths: continue
+            try: summary=json.loads(paths[0].read_text(encoding='utf-8'))
+            except Exception: continue
+            envelopes.append({'workflow_run_id':run_dir.name,'summary':summary})
+          merged=telemetry.merge_run_summaries(envelopes)
+          Path('_site/provider-review-telemetry-dashboard.json').write_text(json.dumps(merged,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
