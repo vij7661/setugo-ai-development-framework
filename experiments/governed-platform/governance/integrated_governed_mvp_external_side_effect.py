@@ -44,8 +44,23 @@ def _hash_valid(value: Mapping[str, Any], hash_field: str) -> bool:
 
 
 def _sanitize_text(text: str) -> str:
-    text = re.sub(r"(?i)(api[_-]?key|token|password|secret|raw[_-]?secret)\s*[=:]\s*[^\s,;]+", r"\1=[REDACTED]", str(text))
-    return text
+    return re.sub(
+        r"(?i)(api[_-]?key|token|password|secret|raw[_-]?secret)\s*[=:]\s*([^\s,;\"'}]+)",
+        r"\1=[REDACTED]",
+        str(text),
+    )
+
+
+def _sanitize_value(value: Any) -> Any:
+    if isinstance(value, str):
+        return _sanitize_text(value)
+    if isinstance(value, Mapping):
+        return {str(k): _sanitize_value(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_value(v) for v in value]
+    if isinstance(value, tuple):
+        return [_sanitize_value(v) for v in value]
+    return deepcopy(value)
 
 
 class TimeoutBeforeCommit(RuntimeError):
@@ -91,9 +106,9 @@ class ReferenceExternalProvider:
         return (provider_id, endpoint_id) in self.allowed_targets
 
     def _record_dispatch(self, key: str, record: Mapping[str, Any]) -> None:
-        sanitized = _sanitize_text(_canon(record))
+        serialized = _canon(_sanitize_value(record))
         with self._connect() as con:
-            con.execute("INSERT INTO dispatches(external_idempotency_key,record_json) VALUES(?,?)", (key, sanitized))
+            con.execute("INSERT INTO dispatches(external_idempotency_key,record_json) VALUES(?,?)", (key, serialized))
 
     def dispatch_count(self) -> int:
         with self._connect() as con:
@@ -184,9 +199,9 @@ class ExternalSideEffectGateway:
             con.execute("CREATE TABLE IF NOT EXISTS governed_events (id INTEGER PRIMARY KEY AUTOINCREMENT, event_json TEXT NOT NULL)")
 
     def _record(self, record: Mapping[str, Any]) -> None:
-        sanitized = _sanitize_text(_canon(record))
+        serialized = _canon(_sanitize_value(record))
         with self._connect() as con:
-            con.execute("INSERT INTO governed_events(event_json) VALUES(?)", (sanitized,))
+            con.execute("INSERT INTO governed_events(event_json) VALUES(?)", (serialized,))
 
     def governed_records(self) -> list[dict[str, Any]]:
         with self._connect() as con:
@@ -315,8 +330,7 @@ class ExternalSideEffectGateway:
         if not isinstance(response, Mapping) or response.get("provider_committed") is not True:
             return False
         for field in ("provider_id", "endpoint_id", "external_idempotency_key", "action", "resource_id", "artifact_sha", "state_version", "payload_digest", "credential_lease_id"):
-            expected = request.get(field) if field != "external_idempotency_key" else request.get("external_idempotency_key")
-            if response.get(field) != expected:
+            if response.get(field) != request.get(field):
                 return False
         digest = response.get("provider_result_digest")
         material = {k: deepcopy(v) for k, v in response.items() if k != "provider_result_digest"}
@@ -342,27 +356,37 @@ class ExternalSideEffectGateway:
             return self._result("DENY_UPSTREAM_LINEAGE", reason="canonical accepted Slice8 lineage required")
         if not isinstance(side_effect_request, Mapping) or self._raw_secret_supplied(side_effect_request):
             return self._result("DENY_AUTHORITY_OR_LEASE", reason="malformed request or raw secret input")
-        if not self._lease_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
-            return self._result("DENY_AUTHORITY_OR_LEASE", reason="current authority and credential lease required")
-        if side_effect_request.get("provider_id") != lease_result["bound_lease"].get("provider_id") or not self.provider.accepts_target(str(side_effect_request.get("provider_id")), str(side_effect_request.get("endpoint_id"))):
+
+        lease_bound = lease_result.get("bound_lease") if isinstance(lease_result, Mapping) else None
+        if not isinstance(lease_bound, Mapping):
+            return self._result("DENY_AUTHORITY_OR_LEASE", reason="valid Slice9 lease material required")
+        if side_effect_request.get("provider_id") != lease_bound.get("provider_id") or side_effect_request.get("credential_profile_id") != lease_bound.get("credential_profile_id"):
+            return self._result("DENY_TARGET_SUBSTITUTION", reason="provider or credential profile substitution")
+        if not self.provider.accepts_target(str(side_effect_request.get("provider_id")), str(side_effect_request.get("endpoint_id"))):
             return self._result("DENY_TARGET_SUBSTITUTION", reason="provider or endpoint substitution")
-        if not self._scope_valid(upstream_result, lease_result, side_effect_request):
-            return self._result("DENY_SCOPE_WIDENING", reason="external side-effect scope or payload widened")
+
         expected_key = derive_external_idempotency_key(side_effect_request)
         supplied_key = side_effect_request.get("external_idempotency_key")
         if supplied_key != expected_key:
             return self._result("DENY_IDEMPOTENCY_REBIND", reason="external idempotency key is not platform-derived", external_idempotency_key=supplied_key)
         binding = self._binding(side_effect_request)
         existing = self._load_intent(expected_key)
+        if existing is not None and existing["binding"] != binding:
+            return self._result("DENY_IDEMPOTENCY_REBIND", reason="external idempotency key rebind", external_idempotency_key=expected_key)
+
+        if not self._scope_valid(upstream_result, lease_result, side_effect_request):
+            return self._result("DENY_SCOPE_WIDENING", reason="external side-effect scope or payload widened", external_idempotency_key=expected_key)
+        if not self._lease_valid(lease_result, current_profile, upstream_result, side_effect_request, now_epoch) or not self._authority_valid(current_authority, side_effect_request, now_epoch):
+            return self._result("DENY_AUTHORITY_OR_LEASE", reason="current authority and credential lease required", external_idempotency_key=expected_key)
+
         if existing is not None:
-            if existing["binding"] != binding:
-                return self._result("DENY_IDEMPOTENCY_REBIND", reason="external idempotency key rebind", external_idempotency_key=expected_key)
             if existing["status"] == "COMPLETED" and existing["evidence"] is not None:
                 return self._result("REFERENCE_EFFECT_REPLAYED", evidence=existing["evidence"], external_idempotency_key=expected_key, reason="exact completed external effect replay")
             if existing["status"] in {"UNKNOWN", "IN_PROGRESS"}:
                 return self._result("OUTCOME_UNKNOWN_RECONCILE_REQUIRED", external_idempotency_key=expected_key, reason="existing ambiguous provider outcome requires reconciliation")
         else:
             self._store_intent(expected_key, binding)
+
         if crash_point == "before_dispatch":
             raise SimulatedCrash("before provider dispatch")
         try:
