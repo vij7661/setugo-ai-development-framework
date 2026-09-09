@@ -231,6 +231,110 @@ def build_dashboard_data(events: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def merge_run_summaries(run_summaries: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
+    """Merge already-validated per-workflow summaries without rekeying attempts.
+
+    Each workflow run is an execution envelope around one normalized review
+    sequence. This preserves separate reruns of the same ReviewRequest while
+    keeping the frozen provider-attempt event schema unchanged.
+    """
+    envelopes: list[tuple[str, dict[str, Any]]] = []
+    for value in run_summaries:
+        if not isinstance(value, Mapping):
+            raise ValueError("run summary envelope must be an object")
+        run_id = value.get("workflow_run_id")
+        if run_id is None or not str(run_id).strip():
+            raise ValueError("workflow_run_id required")
+        summary = value.get("summary")
+        if not isinstance(summary, Mapping):
+            raise ValueError("summary required")
+        summary_copy = deepcopy(dict(summary))
+        if summary_copy.get("summary_type") != "PROVIDER_REVIEW_TELEMETRY_SUMMARY":
+            raise ValueError("invalid provider telemetry summary_type")
+        if summary_copy.get("authority_effect") != AUTHORITY_EFFECT:
+            raise ValueError("run summary may not change authority effect")
+        reviews = summary_copy.get("reviews")
+        providers = summary_copy.get("providers")
+        if not isinstance(reviews, list) or not isinstance(providers, list):
+            raise ValueError("run summary reviews/providers must be arrays")
+        envelopes.append((str(run_id), summary_copy))
+
+    reviews: list[dict[str, Any]] = []
+    provider_parts: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+    event_count = 0
+    for run_id, summary in sorted(envelopes, key=lambda x: x[0]):
+        raw_count = summary.get("event_count", 0)
+        if not isinstance(raw_count, int) or isinstance(raw_count, bool) or raw_count < 0:
+            raise ValueError("event_count invalid")
+        event_count += raw_count
+        for review in summary["reviews"]:
+            if not isinstance(review, Mapping):
+                raise ValueError("review summary row must be an object")
+            row = deepcopy(dict(review))
+            row["workflow_run_id"] = run_id
+            row["authority_effect"] = AUTHORITY_EFFECT
+            reviews.append(row)
+        for provider in summary["providers"]:
+            if not isinstance(provider, Mapping):
+                raise ValueError("provider summary row must be an object")
+            name = provider.get("provider")
+            if not isinstance(name, str) or not name.strip() or _secret_like_identity(name):
+                raise ValueError("provider summary identity invalid")
+            provider_parts.setdefault(name.strip(), []).append((run_id, deepcopy(dict(provider))))
+
+    providers: list[dict[str, Any]] = []
+    for name in sorted(provider_parts):
+        parts = provider_parts[name]
+        models = sorted({str(model) for _, row in parts for model in (row.get("models") or [])})
+        profiles = sorted({str(profile) for _, row in parts for profile in (row.get("credential_profiles") or [])})
+        review_count = sum(int(row.get("review_count", 0) or 0) for _, row in parts)
+        attempt_count = sum(int(row.get("attempt_count", 0) or 0) for _, row in parts)
+        success_count = sum(int(row.get("success_count", 0) or 0) for _, row in parts)
+        failure_count = sum(int(row.get("failure_count", 0) or 0) for _, row in parts)
+        retry_count = sum(int(row.get("retry_count", 0) or 0) for _, row in parts)
+        weighted_latency = 0.0
+        weighted_successes = 0
+        for _, row in parts:
+            avg = row.get("average_successful_provider_latency_ms")
+            successes = int(row.get("success_count", 0) or 0)
+            if avg is not None and successes > 0:
+                weighted_latency += float(avg) * successes
+                weighted_successes += successes
+        latest_run_id, latest = max(
+            parts,
+            key=lambda item: (
+                _parse_utc(item[1].get("latest_event_time"), "latest_event_time"),
+                item[0],
+            ),
+        )
+        providers.append({
+            "provider": name,
+            "models": models,
+            "credential_profiles": profiles,
+            "review_count": review_count,
+            "attempt_count": attempt_count,
+            "success_count": success_count,
+            "failure_count": failure_count,
+            "retry_count": retry_count,
+            "average_successful_provider_latency_ms": round(weighted_latency / weighted_successes, 3) if weighted_successes else None,
+            "latest_event_time": latest.get("latest_event_time"),
+            "latest_outcome": latest.get("latest_outcome"),
+            "latest_error_classification": latest.get("latest_error_classification"),
+            "latest_workflow_run_id": latest_run_id,
+        })
+
+    reviews.sort(key=lambda row: (str(row.get("completion_time") or ""), str(row.get("workflow_run_id"))), reverse=True)
+    return {
+        "schema_version": 1,
+        "data_type": "PROVIDER_REVIEW_TELEMETRY_DASHBOARD",
+        "run_count": len(envelopes),
+        "event_count": event_count,
+        "reviews": reviews,
+        "providers": providers,
+        "authority_effect": AUTHORITY_EFFECT,
+    }
+
+
 def render_provider_table(data: Mapping[str, Any]) -> str:
     providers = data.get("providers") if isinstance(data, Mapping) else []
     if not isinstance(providers, list):
