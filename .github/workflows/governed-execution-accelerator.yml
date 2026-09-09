@@ -1,0 +1,100 @@
+name: Governed Execution Accelerator
+
+on:
+  pull_request:
+    paths:
+      - 'governance-runtime/governed_accelerator.py'
+      - 'governance-runtime/phase_policy.py'
+      - 'governance-runtime/test_governed_accelerator.py'
+      - 'governance-runtime/test_phase_policy.py'
+      - 'governance-runtime/adversarial-matrix.json'
+      - 'experiments/governed-platform/GOVERNED_EXECUTION_ACCELERATOR_CONTRACT.md'
+      - 'experiments/governed-platform/PHASED_GOVERNANCE_AND_REVIEW_POLICY.md'
+      - '.github/workflows/governed-execution-accelerator.yml'
+  workflow_dispatch:
+
+jobs:
+  accelerator-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Accelerator and phase-policy acceptance tests
+        run: python -m unittest -v governance-runtime/test_governed_accelerator.py governance-runtime/test_phase_policy.py
+
+  regress-slice10:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Slice10 regressions
+        working-directory: experiments/governed-platform/governance
+        run: |
+          python -m unittest -v test_integrated_governed_mvp_slice10_manual_r3_falsification.py
+          python -m unittest -v test_integrated_governed_mvp_slice10_external_review_falsification.py
+          python -m unittest -v test_integrated_governed_mvp_slice10_reconciliation_integrity.py
+          python -m unittest -v test_integrated_governed_mvp_slice10_external_side_effect.py
+
+  regress-slice8-9:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Slice8-9 regressions
+        working-directory: experiments/governed-platform/governance
+        run: |
+          python -m unittest -v test_integrated_governed_mvp_slice9_real_slice8_integrity.py test_integrated_governed_mvp_slice9_credential_lease.py
+          python -m unittest -v test_integrated_governed_mvp_slice8_remote_transport.py
+
+  regress-slice6-7:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Slice6-7 regressions
+        working-directory: experiments/governed-platform/governance
+        run: |
+          python -m unittest -v test_integrated_governed_mvp_slice7_terminal_executor.py test_integrated_governed_mvp_slice7_option_b.py test_integrated_governed_mvp_slice7_adapter_failure_result.py
+          python -m unittest -v test_integrated_governed_mvp_slice6_terminal_authority.py
+
+  regress-slice1-5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Slice1-5 regressions
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp.py test_integrated_governed_mvp_slice2.py test_integrated_governed_mvp_slice3.py test_integrated_governed_mvp_slice4.py test_integrated_governed_mvp_slice1_to_slice5.py
+          cd ..
+          python -m unittest -v test_slice5_authoritative_state_ledger.py test_slice5_authoritative_state_ledger_v2.py
+
+  aggregate:
+    if: always()
+    needs: [accelerator-tests, regress-slice10, regress-slice8-9, regress-slice6-7, regress-slice1-5]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail closed unless every required job succeeded
+        env:
+          ACC: ${{ needs.accelerator-tests.result }}
+          S10: ${{ needs.regress-slice10.result }}
+          S89: ${{ needs.regress-slice8-9.result }}
+          S67: ${{ needs.regress-slice6-7.result }}
+          S15: ${{ needs.regress-slice1-5.result }}
+        run: |
+          printf 'accelerator=%s slice10=%s slice8-9=%s slice6-7=%s slice1-5=%s\n' "$ACC" "$S10" "$S89" "$S67" "$S15"
+          test "$ACC" = success
+          test "$S10" = success
+          test "$S89" = success
+          test "$S67" = success
+          test "$S15" = success
