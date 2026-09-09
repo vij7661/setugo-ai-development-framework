@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE11-REPAIR-011",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-011.json",
-  "reviewed_candidate_commit": "6cdab1a5f96ce1d809d92362c5f3f583c2b900e1",
+  "review_request_id": "REV-MVP-SLICE11-REPAIR-012",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE11-REPAIR-012.json",
+  "reviewed_candidate_commit": "78b500d408ba0ce4b33edebdfdb22cae3668c3c3",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE11_ADAPTER_SEGMENT_R3_REVIEW_REISSUED_CANONICAL_HASH",
-  "request_hash": "5ca3c014e21d4da7079f7a2922981120a9a1a2b8b186703a4feed959fe56f7bd",
+  "status": "AUTHENTICATED_SLICE11_REPAIR_FINAL_R3_REVIEW_REQUESTED",
+  "request_hash": "5d95d6d6f5a923de507867bbc171c9bfef2d1fbcdf086e0861f91b192f1f9f06",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
@@ -22,6 +22,7 @@
     {"review_request_id":"REV-MVP-SLICE11-REPAIR-007","workflow_run_id":34412857873,"classification":"PROVIDER_TRANSIENT_UPSTREAM_RATE_LIMIT","provider_invoked":true,"successful_review_response":false,"http_status":429,"attempts":3,"serving_provider":"deepinfra","authority_effect":"NONE","artifact_id":10127940058,"artifact_digest":"sha256:05d7fd02b21db84cdcca06bfcefe2de49321c46990be91a4f74d16dce65d5364"},
     {"review_request_id":"REV-MVP-SLICE11-REPAIR-008","workflow_run_id":34413096087,"classification":"SERVING_PROVIDER_PARAMETER_INCOMPATIBLE","provider_invoked":true,"successful_review_response":false,"http_status":404,"attempts":1,"serving_provider":"baseten","authority_effect":"NONE","artifact_id":10127994132,"artifact_digest":"sha256:b16897786412ca0827e5dd8ae096166b073376a5e87f73dce8e789d5527530c8"},
     {"review_request_id":"REV-MVP-SLICE11-REPAIR-009","workflow_run_id":34413184610,"classification":"PROVIDER_CREDIT_OUTPUT_BUDGET_REJECTED","provider_invoked":true,"successful_review_response":false,"http_status":402,"attempts":1,"serving_provider":"venice","authority_effect":"NONE","artifact_id":10128025919,"artifact_digest":"sha256:8a1d6bd45261937fd51d5694376ee9a29b2772abdb338bc098beeea042de3f12"},
-    {"review_request_id":"REV-MVP-SLICE11-REPAIR-010","workflow_run_id":34413317281,"classification":"REQUEST_INTEGRITY_REJECTED","provider_invoked":false,"successful_review_response":false,"authority_effect":"NONE","artifact_id":10128074911,"artifact_digest":"sha256:c3dc86b50c9b6583a56b65042ff16cd7ffd74a8f13c40039d39b633eef3cab21"}
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-010","workflow_run_id":34413317281,"classification":"REQUEST_INTEGRITY_REJECTED","provider_invoked":false,"successful_review_response":false,"authority_effect":"NONE","artifact_id":10128074911,"artifact_digest":"sha256:c3dc86b50c9b6583a56b65042ff16cd7ffd74a8f13c40039d39b633eef3cab21"},
+    {"review_request_id":"REV-MVP-SLICE11-REPAIR-011","workflow_run_id":34413426459,"classification":"AUTHENTICATED_BOUNDED_SEGMENT_PASS","provider_invoked":true,"successful_review_response":true,"serving_provider":"venice","disposition":"PASS","mandatory_dimensions_supported":5,"mandatory_dimensions_total":5,"findings_count":0,"validation_valid":true,"authority_effect":"NONE_EVIDENCE_ONLY","artifact_id":10128119530,"artifact_digest":"sha256:4b254f08cf83cd7126e76b4d0766d6bd12acae27228ade9612f7be83e6b6a159"}
   ]
 }
