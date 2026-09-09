@@ -1,0 +1,69 @@
+name: Provider Review Telemetry Main Promotion Qualification
+
+on:
+  push:
+    branches: [feature/provider-review-telemetry-dashboard-main]
+    paths:
+      - "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md"
+      - "governance-runtime/provider_review_telemetry.py"
+      - "governance-runtime/test_provider_review_telemetry.py"
+      - "governance-runtime/test_provider_review_dashboard_integration.py"
+      - ".github/workflows/governed-platform-dashboard-pages.yml"
+      - ".github/workflows/provider-review-telemetry-main-promotion.yml"
+      - "experiments/governed-platform/observability/dashboard/index.html"
+  pull_request:
+    branches: [main]
+    paths:
+      - "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md"
+      - "governance-runtime/provider_review_telemetry.py"
+      - "governance-runtime/test_provider_review_telemetry.py"
+      - "governance-runtime/test_provider_review_dashboard_integration.py"
+      - ".github/workflows/governed-platform-dashboard-pages.yml"
+      - ".github/workflows/provider-review-telemetry-main-promotion.yml"
+      - "experiments/governed-platform/observability/dashboard/index.html"
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-telemetry-dashboard-promotion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Run frozen provider-neutral telemetry cases
+        working-directory: governance-runtime
+        run: python -m unittest -v test_provider_review_telemetry.py test_provider_review_dashboard_integration.py
+      - name: Prove arbitrary provider reaches dashboard data without renderer branch
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import json
+          import provider_review_telemetry as t
+          row={
+            'schema_version':1,'event_type':'REVIEW_PROVIDER_ATTEMPT',
+            'review_request_id':'REV-MAIN-PROMO-001','reviewed_candidate_commit':'a'*40,
+            'reviewer_slot':'R3','gateway_provider':'future-provider-x','model':'future-model-x',
+            'credential_profile':'future-profile','requested_serving_provider':None,
+            'returned_serving_provider':None,'attempt_index':1,
+            'request_started_at':'2026-09-09T09:00:00Z','provider_call_started_at':'2026-09-09T09:00:00Z',
+            'first_response_at':'2026-09-09T09:00:01Z','provider_call_completed_at':'2026-09-09T09:00:02Z',
+            'provider_latency_ms':2000,'attempt_outcome':'SUCCESS','retryable':False,'http_status':200,
+            'error_classification':None,'error_detail':None,'semantic_disposition':'PASS','validation_valid':True,
+            'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION'}
+          data=t.build_dashboard_data([row])
+          assert data['providers'][0]['provider']=='future-provider-x'
+          assert 'future-provider-x' in t.render_provider_table(data)
+          print(json.dumps(data,sort_keys=True))
+          PY
+      - name: Forbid provider-specific dashboard/aggregator branches
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for path in [Path('governance-runtime/provider_review_telemetry.py'),Path('experiments/governed-platform/observability/dashboard/index.html'),Path('.github/workflows/governed-platform-dashboard-pages.yml')]:
+              text=path.read_text(encoding='utf-8').lower()
+              for needle in ('if provider == "openrouter"','if provider == "gemini"','if provider == "groq"',"if provider == 'openrouter'","if provider == 'gemini'","if provider == 'groq'"):
+                  if needle in text:
+                      raise SystemExit(f'provider-specific dashboard branch forbidden in {path}: {needle}')
+          PY
