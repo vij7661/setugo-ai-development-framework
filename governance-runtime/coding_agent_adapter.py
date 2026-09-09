@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
@@ -36,6 +36,10 @@ REQUIRED_NATIVE_FIELDS = frozenset({
     "completion_state", "changed_artifacts", "commands_run", "test_results",
     "failure_classification", "execution_events",
 })
+GOVERNANCE_VALIDATION_MARKERS = frozenset({
+    "governance-validation", "governance_validation", "qualification", "qualification-validation",
+    "acceptance-validation", "promotion-validation",
+})
 
 
 class AdapterContractError(ValueError):
@@ -47,6 +51,10 @@ class ScopeViolation(AdapterContractError):
 
 
 class TestIntegrityViolation(AdapterContractError):
+    pass
+
+
+class StopConditionViolation(AdapterContractError):
     pass
 
 
@@ -86,6 +94,23 @@ def _contains_secret(value: Any) -> bool:
     if not isinstance(value, str):
         return False
     return any(p.search(value) for p in SECRET_PATTERNS)
+
+
+def _contains_agent_qualification_claim(value: Any) -> bool:
+    if isinstance(value, Mapping):
+        keys = {str(k).strip().lower() for k in value.keys()}
+        if keys & {"qualification_token", "promotion_token", "governance_pass", "acceptance_token"}:
+            return True
+        name = str(value.get("name", "")).strip().lower()
+        kind = str(value.get("kind", "")).strip().lower()
+        if name in GOVERNANCE_VALIDATION_MARKERS or kind in GOVERNANCE_VALIDATION_MARKERS:
+            status = str(value.get("status", value.get("result", ""))).strip().upper()
+            if status in {"PASS", "PASSED", "QUALIFIED", "APPROVED", "ACCEPTED"}:
+                return True
+        return any(_contains_agent_qualification_claim(v) for v in value.values())
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return any(_contains_agent_qualification_claim(v) for v in value)
+    return False
 
 
 @dataclass(frozen=True)
@@ -261,10 +286,12 @@ class JsonlExecutionStore(InMemoryExecutionStore):
 
 class CodingAgentExecutionGateway:
     def __init__(self, registry: AdapterRegistry, *, store: InMemoryExecutionStore | None = None,
-                 reviewer_dispatch: Callable[..., Any] | None = None, phase: str = "TESTING") -> None:
+                 reviewer_dispatch: Callable[..., Any] | None = None, phase: str = "TESTING",
+                 observed_changes: Callable[[], Sequence[str]] | None = None) -> None:
         self.registry = registry
         self.store = store or InMemoryExecutionStore()
         self.reviewer_dispatch = reviewer_dispatch
+        self.observed_changes = observed_changes
         self.phase = str(phase).upper()
         if self.phase not in {"TESTING", "RELEASE", "PRODUCTION"}:
             raise AdapterContractError(f"unsupported phase: {phase}")
@@ -289,6 +316,8 @@ class CodingAgentExecutionGateway:
             raise AdapterContractError("native result candidate_sha does not match governed task")
         if _contains_secret(native):
             raise SecretContainmentViolation("raw secret-like material detected in agent result")
+        if _contains_agent_qualification_claim(native):
+            raise AuthorityViolation("agent-produced governance/qualification PASS is REJECTED_EVIDENCE")
         authority = native.get("authority_effect")
         if authority not in (None, "", "NONE"):
             raise AuthorityViolation("agent attempted to assert authority")
@@ -306,7 +335,7 @@ class CodingAgentExecutionGateway:
             raise AdapterContractError("adapter normalize() must return a mapping")
         out = dict(raw)
         out.update({
-            "schema_version": 1,
+            "schema_version": 2,
             "execution_id": execution_id,
             "task_id": task.task_id,
             "candidate_sha": task.candidate_sha,
@@ -339,11 +368,37 @@ class CodingAgentExecutionGateway:
             raise AdapterContractError("changed_artifacts must contain non-empty paths")
         if _contains_secret(out):
             raise SecretContainmentViolation("raw secret-like material detected after normalization")
+        if _contains_agent_qualification_claim(out):
+            raise AuthorityViolation("agent-produced governance/qualification PASS is REJECTED_EVIDENCE")
         return out
 
-    def _validate_scope_and_test_integrity(self, task: GovernedCodingTask, out: dict[str, Any]) -> None:
+    def _validate_stop_conditions(self, task: GovernedCodingTask, out: dict[str, Any]) -> None:
+        events = out["execution_events"]
+        hit_index = None
+        hit_name = None
+        stop_set = {str(x).strip().upper() for x in task.stop_conditions}
+        for idx, event in enumerate(events):
+            if not isinstance(event, Mapping):
+                continue
+            kind = str(event.get("kind", event.get("state", ""))).strip().upper()
+            if kind in stop_set:
+                hit_index = idx
+                hit_name = kind
+                break
+        if hit_index is None:
+            return
+        later = events[hit_index + 1:]
+        if later or out["completion_state"] == "COMPLETED":
+            raise StopConditionViolation(
+                f"agent continued after governed stop condition {hit_name}"
+            )
+
+    def _validate_scope_and_test_integrity(self, task: GovernedCodingTask, out: dict[str, Any],
+                                           changed_paths: Sequence[str]) -> None:
         material_test_change = False
-        for path in out["changed_artifacts"]:
+        for path in changed_paths:
+            if not isinstance(path, str) or not path:
+                raise AdapterContractError("observed changed paths must contain non-empty strings")
             if not any(_path_matches(path, allowed) for allowed in task.allowed_paths):
                 raise ScopeViolation(f"changed artifact outside allowed scope: {path}")
             if any(_path_matches(path, denied) for denied in task.forbidden_paths):
@@ -361,6 +416,21 @@ class CodingAgentExecutionGateway:
                 material_test_change = True
         out["material_test_change_requires_adjudication"] = material_test_change
 
+    def _observe_and_validate_changes(self, task: GovernedCodingTask, out: dict[str, Any]) -> None:
+        if self.observed_changes is None:
+            raise ScopeViolation("independent changed-artifact observation is required")
+        observed = list(self.observed_changes())
+        reported = list(out["changed_artifacts"])
+        if set(observed) != set(reported):
+            missing = sorted(set(observed) - set(reported))
+            phantom = sorted(set(reported) - set(observed))
+            raise ScopeViolation(
+                f"agent changed-artifact report differs from independent observation; unreported={missing}, unobserved={phantom}"
+            )
+        self._validate_scope_and_test_integrity(task, out, observed)
+        out["independent_change_observation"] = True
+        out["observed_changed_artifacts"] = sorted(observed)
+
     def execute(self, adapter_id: str, task: GovernedCodingTask, *, execution_id: str) -> dict[str, Any]:
         if not isinstance(task, GovernedCodingTask):
             raise AdapterContractError("task must be GovernedCodingTask")
@@ -371,7 +441,8 @@ class CodingAgentExecutionGateway:
         native = adapter.execute(task)
         self._validate_native_pre_normalization(native, task)
         out = self._normalize(adapter, task, native, execution_id)
-        self._validate_scope_and_test_integrity(task, out)
+        self._validate_stop_conditions(task, out)
+        self._observe_and_validate_changes(task, out)
         saved = self.store.put(out)
         # Coding-agent execution is never a reviewer dispatch side effect. Review is a separate governed action.
         return saved
@@ -381,6 +452,10 @@ class CodingAgentExecutionGateway:
             raise AdapterContractError("result must be a mapping")
         if result.get("authority_effect") != "NONE":
             raise AuthorityViolation("ingested result cannot carry authority")
+        if result.get("independent_change_observation") is not True:
+            raise ScopeViolation("ingested result lacks independent changed-artifact observation")
+        if _contains_agent_qualification_claim(result):
+            raise AuthorityViolation("agent-produced governance/qualification PASS is REJECTED_EVIDENCE")
         if _contains_secret(result):
             raise SecretContainmentViolation("raw secret-like material detected in ingested result")
         return self.store.put(result)
