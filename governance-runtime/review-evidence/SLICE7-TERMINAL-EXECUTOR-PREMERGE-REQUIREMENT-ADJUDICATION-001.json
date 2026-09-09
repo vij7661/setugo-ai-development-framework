@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "adjudication_id": "ADJ-SLICE7-TERMINAL-EXECUTOR-PREMERGE-001",
+  "candidate_commit": "c94d8aab9128a5dac418492697bc42992b219a37",
+  "candidate_ci_run": 34320481427,
+  "pr_number": 16,
+  "classification": "REQUIREMENT_UNRESOLVED_CONTRACT_FRESHNESS_GAP",
+  "effective_disposition": "BLOCKED_REQUIREMENT_DECISION_REQUIRED",
+  "counts_for_promotion": false,
+  "authority_effect": "NONE",
+  "deterministic_contradiction": {
+    "broad_goal": "Slice 7 Goal states terminal execution must not allow stale authority to duplicate or widen terminal execution.",
+    "input_contract": "Slice 7 terminal execution request carries only the Slice 6 authorization receipt; current authoritative state carries project_id/state_version/artifact_sha. No now_epoch, authority_record, authority expiry, revocation state, or receipt expiry is supplied.",
+    "implemented_behavior": "The executor validates the Slice 6 receipt hash/bound lineage and current state/artifact, but cannot determine whether the underlying external authority has expired or been revoked after the Slice 6 authorization decision.",
+    "consequence": "An authorization receipt that remains hash-valid and whose project/state/artifact remain unchanged can be replayed after the underlying external authority's expiry because freshness information is unavailable at terminal-execution time."
+  },
+  "root_cause_classification": "REQUIREMENT UNRESOLVED",
+  "preserved_provider_attempts": [
+    {
+      "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-001",
+      "workflow_run_id": 34320642451,
+      "classification": "PROVIDER_ACCOUNT_CREDIT_LIMIT_HTTP_402",
+      "semantic_disposition": null,
+      "authority_effect": "NONE"
+    },
+    {
+      "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-002",
+      "workflow_run_id": 34320777526,
+      "status_at_adjudication": "IN_PROGRESS",
+      "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION"
+    }
+  ],
+  "authoritative_decision_required": {
+    "option_a": "Define a Slice 6 authorization receipt as durable authority that remains valid until project/state/artifact binding changes; remove the broad stale-authority claim from Slice 7. This means underlying authority expiry/revocation after receipt issuance does not invalidate the receipt.",
+    "option_b": "Require use-time authority freshness at terminal execution. Add an explicit time/freshness input and authority expiry/revocation evidence (or a bounded receipt expiry) so the executor can fail closed when external authority is no longer current."
+  },
+  "recommendation": "OPTION_B",
+  "recommendation_reason": "Use-time revalidation is consistent with the platform's existing governance principle that prior validity cannot substitute for validation at consequential use, and prevents an old terminal authorization receipt from outliving its external authority.",
+  "promotion_rule": "Do not merge PR #16 or modify implementation to guess the intended authority lifetime. Obtain an authoritative requirement decision, amend/freeze the contract, add a falsification case for authority expiry/revocation after authorization but before terminal execution, requalify an exact candidate, and obtain fresh independent review."
+}
