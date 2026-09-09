@@ -19,13 +19,32 @@ class CountingAdapter:
         self.fail = fail
         self.override = override or {}
         self.lock = threading.Lock()
+        self._results: dict[str, tuple[str, dict]] = {}
 
-    def __call__(self, binding):
+    def recover(self, terminal_execution_id: str, binding_hash: str):
         with self.lock:
+            stored = self._results.get(terminal_execution_id)
+            if stored is None:
+                return None
+            stored_hash, result = stored
+            if stored_hash != binding_hash:
+                raise ValueError("adapter idempotency identity rebound")
+            return deepcopy(result)
+
+    def execute_once(self, terminal_execution_id: str, binding_hash: str, binding):
+        with self.lock:
+            stored = self._results.get(terminal_execution_id)
+            if stored is not None:
+                stored_hash, result = stored
+                if stored_hash != binding_hash:
+                    raise ValueError("adapter idempotency identity rebound")
+                return deepcopy(result)
+            if self.fail:
+                raise RuntimeError("adapter boom")
+            result = {"status": "LOCAL_REFERENCE_APPLIED", **self.override}
+            self._results[terminal_execution_id] = (binding_hash, deepcopy(result))
             self.count += 1
-        if self.fail:
-            raise RuntimeError("adapter boom")
-        return {"status": "LOCAL_REFERENCE_APPLIED", **self.override}
+            return result
 
 
 class TerminalExecutorTests(unittest.TestCase):
@@ -33,6 +52,7 @@ class TerminalExecutorTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.db_path = Path(self.tmp.name) / "terminal-executor.sqlite3"
         self.executor = TerminalExecutor(self.db_path)
+        self.now_epoch = 100
         self.request = {
             "terminal_execution_id": "term-exec-1",
             "project_id": "project-1",
@@ -48,6 +68,7 @@ class TerminalExecutorTests(unittest.TestCase):
             "state_version": 7,
             "artifact_sha": "abc123",
         }
+        self.current_authority = self._authority()
 
     def tearDown(self) -> None:
         self.tmp.cleanup()
@@ -76,10 +97,28 @@ class TerminalExecutorTests(unittest.TestCase):
         }
         return {**body, "receipt_hash": canonical_hash(body)}
 
+    def _authority(self, **overrides):
+        body = {
+            "authority_id": "authority-1",
+            "status": "ACTIVE",
+            "not_before_epoch": 50,
+            "expires_at_epoch": 150,
+            "project_id": "project-1",
+            "task_id": "task-1",
+            "effect_id": "effect-1",
+            "action": "RELEASE",
+            "artifact_sha": "abc123",
+            "state_version": 7,
+        }
+        body.update(overrides)
+        return {**body, "authority_snapshot_hash": canonical_hash(body)}
+
     def _run(self, adapter=None, **overrides):
         values = {
             "terminal_request": self.request,
             "current_state": self.current_state,
+            "current_authority": self.current_authority,
+            "now_epoch": self.now_epoch,
             "adapter": adapter or CountingAdapter(),
         }
         values.update(overrides)
@@ -95,21 +134,21 @@ class TerminalExecutorTests(unittest.TestCase):
     def test_s7_02_merge_executes_only_merge(self):
         adapter = CountingAdapter()
         req = {**self.request, "action": "MERGE", "authorization_receipt": self._receipt(action="MERGE")}
-        result = self._run(adapter, terminal_request=req)
+        result = self._run(adapter, terminal_request=req, current_authority=self._authority(action="MERGE"))
         self.assertEqual("TERMINAL_EXECUTION_COMPLETED", result["state"])
         self.assertEqual("MERGE", result["bound_execution"]["action"])
 
     def test_s7_03_deploy_executes_only_deploy(self):
         adapter = CountingAdapter()
         req = {**self.request, "action": "DEPLOY", "authorization_receipt": self._receipt(action="DEPLOY")}
-        result = self._run(adapter, terminal_request=req)
+        result = self._run(adapter, terminal_request=req, current_authority=self._authority(action="DEPLOY"))
         self.assertEqual("TERMINAL_EXECUTION_COMPLETED", result["state"])
         self.assertEqual("DEPLOY", result["bound_execution"]["action"])
 
     def test_s7_04_complete_executes_only_complete(self):
         adapter = CountingAdapter()
         req = {**self.request, "action": "COMPLETE", "authorization_receipt": self._receipt(action="COMPLETE")}
-        result = self._run(adapter, terminal_request=req)
+        result = self._run(adapter, terminal_request=req, current_authority=self._authority(action="COMPLETE"))
         self.assertEqual("TERMINAL_EXECUTION_COMPLETED", result["state"])
         self.assertEqual("COMPLETE", result["bound_execution"]["action"])
 
@@ -170,7 +209,11 @@ class TerminalExecutorTests(unittest.TestCase):
             "action": "MERGE",
             "authorization_receipt": self._receipt(action="MERGE"),
         }
-        result = self._run(second_adapter, terminal_request=req)
+        result = self._run(
+            second_adapter,
+            terminal_request=req,
+            current_authority=self._authority(action="MERGE"),
+        )
         self.assertEqual("DENY_IDEMPOTENCY_REBIND", result["state"])
         self.assertEqual(0, second_adapter.count)
 
@@ -269,6 +312,8 @@ class TerminalExecutorTests(unittest.TestCase):
         result = reopened.execute(
             terminal_request=self.request,
             current_state=self.current_state,
+            current_authority=self.current_authority,
+            now_epoch=self.now_epoch,
             adapter=second_adapter,
         )
         self.assertEqual("TERMINAL_EXECUTION_REPLAYED", result["state"])
