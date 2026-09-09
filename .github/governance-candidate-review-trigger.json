@@ -1,32 +1,20 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-011",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-011.json",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-012",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-012.json",
   "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_ULTRA_COMPACT_R2000_O2400_REVIEW_REQUESTED",
-  "request_hash": "f1cea08e45c55db81000d677c86db63a7c82588a3be583b4a05feecd33837279",
+  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_MINIMUM_VALID_R1800_O2200_REVIEW_REQUESTED",
+  "request_hash": "a6a2046b37653cb705cd1ebe4febcfb85ce0505fb9dec160f65742a48bf7f8bf",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
-    {"workflow_run_id":34339080182,"result":"MECHANISM_NOT_IMPLEMENTED_RED_BOUNDARY","semantic_authority":false},
-    {"workflow_run_id":34339328915,"result":"FALSE_GREEN_SYNTHETIC_SLICE8_FIXTURE","semantic_authority":false},
-    {"workflow_run_id":34339776553,"result":"REAL_SLICE8_INTEGRATION_DEFECT_EXPOSED_4_OF_4_FAIL","semantic_authority":false},
-    {"workflow_run_id":34340184306,"result":"MECHANISM_REPAIRED_FIXTURE_DEFECT_REMAINED","semantic_authority":false},
-    {"workflow_run_id":34340343645,"result":"EXACT_HEAD_QUALIFICATION_SUCCESS","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-001","workflow_run_id":34340992573,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_5500_GT_5175","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-002","workflow_run_id":34341301527,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_29444_GT_22771","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-003","workflow_run_id":34341675347,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_25332_GT_22771","semantic_authority":false},
     {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-004","workflow_run_id":34341963676,"result":"SEMANTIC_PASS_INVALIDATED_BY_DETERMINISTIC_EVIDENCE_OVERCLAIM","semantic_authority":false,"adjudication_commit":"c0229bc7cf23b5cc61201c71030ad09a6405b950"},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-005","workflow_run_id":34342486565,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_5000_GT_3874","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-006","workflow_run_id":34342919333,"result":"LOCAL_REVIEW_REQUEST_POLICY_REJECTED_REASONING_4096_GT_OUTPUT_3500","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-007","workflow_run_id":34343131140,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_17739_GT_17048","semantic_authority":false},
     {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-008","workflow_run_id":34343605514,"result":"AUTHENTICATED_REVIEWER_OUTPUT_SCHEMA_DEFECT_DIMENSION_ARRAY_ONLY","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-009","workflow_run_id":34343863948,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_3000_GT_2878","semantic_authority":false},
-    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-010","workflow_run_id":34344165301,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_16620_GT_12665","semantic_authority":false}
+    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-011","workflow_run_id":34344531852,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_PROMPT_CREDIT_CAPACITY_14391_GT_12665","semantic_authority":false}
   ]
 }
