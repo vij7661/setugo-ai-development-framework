@@ -1,0 +1,74 @@
+{
+  "schema_version": 4,
+  "review_request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-005",
+  "trigger": "MATERIAL_AUTHORITY_TRANSITION",
+  "material_authority_transition": true,
+  "standard_requires_review": false,
+  "changed_paths": [
+    "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md",
+    "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_option_b.py",
+    "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_adapter_failure_result.py",
+    ".github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml"
+  ],
+  "artifact": {
+    "type": "integrated_governed_mvp_slice7_terminal_executor_candidate",
+    "ref": "PR-16",
+    "commit": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299"
+  },
+  "proposer": {"provider": "openai", "model": "gpt-5.6-sol"},
+  "required_reviewer": {"provider": "groq", "model": "qwen/qwen3.6-27b", "model_class": "qwen"},
+  "blind_review_required": true,
+  "review_questions": [
+    "Independently review final repaired Slice 7 candidate a4ad8bdd5b995e97529b08f12a7b3a7c6c924299 as the Groq failover reviewer. Do not rely on any prior reviewer conclusion; Gemini review 004 failed closed due provider 503 and supplied no semantic disposition.",
+    "Verify use-time authority freshness/revocation: current authority snapshot plus explicit now_epoch are mandatory, self-hash checked, ACTIVE, within not-before/expiry, authority_id-bound, and exact project/task/effect/action/artifact/state-version matched before adapter execution.",
+    "Verify durable adapter idempotency/recovery keyed by terminal_execution_id plus exact binding hash prevents duplicate side effects across replay, restart, concurrency, and the crash window after durable adapter effect but before local completion.",
+    "Verify a plain callable cannot execute and adapter identity rebinding fails closed.",
+    "Verify structured adapter failure results cannot be laundered into completion: only the platform-owned reference success marker LOCAL_REFERENCE_APPLIED can pass adapter-result validation; exceptions, malformed/widened fields, and status FAILED produce TERMINAL_EXECUTION_FAILED with no completion evidence.",
+    "Inspect preserved defect evidence: original c94d8aab green + Gemini false-green, Option B exposure 78bda890 failure, intermediate 022ca352 green, structured failure exposure 8c46e79 failure, and repair a4ad8bdd.",
+    "Verify completion evidence binds authorization receipt hash, authority snapshot hash, exact lineage, adapter result/digest, and deterministic completion hash.",
+    "Verify model/worker/reviewer/CI/conversation claims cannot replace authority, current state, adapter effect evidence, or completion evidence.",
+    "Verify exact-head CI run 34322174602 passed the original Slice7 suite, Option B suite, structured failure case, and accepted Slice1→6 regressions on a4ad8bdd5b995e97529b08f12a7b3a7c6c924299.",
+    "Search adversarially for remaining stale-authority, replay/idempotency, failure-laundering, crash/retry, concurrency, claimant-controlled, or false-green bypasses inside the frozen reference-only scope."
+  ],
+  "evidence_refs": [
+    {"type": "ci_run", "ref": "34322174602"},
+    {"type": "file", "ref": "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE7_TERMINAL_EXECUTOR_GATEWAY_CONTRACT.md"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_terminal_executor.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_option_b.py"},
+    {"type": "file", "ref": "experiments/governed-platform/governance/test_integrated_governed_mvp_slice7_adapter_failure_result.py"},
+    {"type": "file", "ref": ".github/workflows/integrated-governed-mvp-slice7-terminal-executor.yml"},
+    {"type": "history", "ref": "Pre-amendment candidate c94d8aab9128a5dac418492697bc42992b219a37 passed S7-01..S7-21 and authenticated Gemini review returned PASS, but deterministic review-of-review found missing use-time authority freshness/revocation and the side-effect-before-local-completion crash window; that review has authority effect NONE."},
+    {"type": "history", "ref": "Option B defect-exposure candidate 78bda890a34d4ada78236882d17a24a1a4c42fa4 kept S7-01..S7-21 green while S7-22..S7-30 failed before mechanism repair."},
+    {"type": "history", "ref": "Intermediate repaired candidate 022ca352cfc9ccbc37fdab2fbc0ef4c9356120e2 passed S7-01..S7-30 but its fresh Gemini review failed closed after three HTTP 503 high-demand responses and has no semantic authority."},
+    {"type": "history", "ref": "Structured adapter-failure exposure candidate 8c46e79d92d92060a4fb821980c039c82fc45ffc failed because status FAILED was incorrectly accepted as completion; repair a4ad8bdd5b995e97529b08f12a7b3a7c6c924299 now requires LOCAL_REFERENCE_APPLIED."},
+    {"type": "history", "ref": "OpenRouter review attempt for Slice7 failed closed with HTTP 402 account credit limit and has no semantic disposition or authority effect."},
+    {"type": "history", "ref": "Final-candidate Gemini attempt REV-MVP-SLICE7-TERMINAL-EXECUTOR-004, workflow 34322439708, failed closed after three HTTP 503 high-demand responses; no semantic disposition or authority effect."}
+  ],
+  "expected_output": {
+    "required_fields": ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings", "evidence_assessment", "independence_attestation", "review_coverage"],
+    "allowed_dispositions": ["PASS", "BOUNDED_PASS", "FAIL", "NOT_TESTED", "INSUFFICIENT_EVIDENCE", "CHANGES_REQUIRED"]
+  },
+  "state": "REVIEW_REQUIRED",
+  "required_review_dimensions": [
+    {"id": "slice6_receipt_integrity_and_binding", "mandatory": true, "description": "Exact valid Slice6 authorization receipt and exact request lineage remain required."},
+    {"id": "use_time_authority_freshness", "mandatory": true, "description": "Current external authority and now_epoch are validated at actual terminal use time; revoked/expired/not-yet-valid/replaced authority fails closed."},
+    {"id": "authority_snapshot_integrity_and_lineage", "mandatory": true, "description": "Current authority snapshot is self-hash bound and exactly matches authority id plus project/task/effect/action/artifact/state-version."},
+    {"id": "current_state_and_artifact_revalidation", "mandatory": true, "description": "Current authoritative project/state/artifact match immediately before terminal execution."},
+    {"id": "durable_adapter_idempotency", "mandatory": true, "description": "Adapter recover/execute_once protocol durably maps one execution identity to one exact binding/result and rejects rebinding."},
+    {"id": "side_effect_precompletion_crash_recovery", "mandatory": true, "description": "A durable adapter side effect followed by crash before local completion is recovered without duplicate effect."},
+    {"id": "local_completion_response_recovery", "mandatory": true, "description": "Crash after local completion before response recovers without duplicate effect."},
+    {"id": "concurrent_identical_convergence", "mandatory": true, "description": "Concurrent identical requests converge to one adapter side effect/result."},
+    {"id": "structured_adapter_failure_non_laundering", "mandatory": true, "description": "Only LOCAL_REFERENCE_APPLIED is a success marker; structured FAILED/malformed/widened adapter results cannot mint completion."},
+    {"id": "adapter_exception_and_non_authority", "mandatory": true, "description": "Adapter exception/self-report cannot widen authority or create successful completion."},
+    {"id": "completion_evidence_integrity", "mandatory": true, "description": "Completion binds receipt hash, authority snapshot hash, exact lineage, adapter result digest, and deterministic completion hash."},
+    {"id": "model_ci_reviewer_non_authority", "mandatory": true, "description": "Model, worker, reviewer, CI, and conversation state cannot replace current authority or side-effect evidence."},
+    {"id": "reference_only_nonproduction_claim", "mandatory": true, "description": "No successful result claims real production merge/release/deploy/completion."},
+    {"id": "prior_slice_regression_preservation", "mandatory": true, "description": "Accepted Slice1→6 authority boundaries remain preserved."},
+    {"id": "remaining_terminal_execution_bypass_search", "mandatory": true, "description": "Adversarial review finds no remaining false-green/stale-authority/idempotency/failure-laundering/crash bypass within scope."}
+  ],
+  "review_dimension_status_vocabulary": ["CONTRADICTED", "INACCESSIBLE", "INSUFFICIENT", "NOT_TESTED", "TESTED_DEFECT_FOUND", "TESTED_SUPPORTED", "UNAVAILABLE"],
+  "request_hash": "026230c447a47fdd7e72cbd363f2c5cb926aae9a27a51854ab2e919bda79f9b2"
+}
