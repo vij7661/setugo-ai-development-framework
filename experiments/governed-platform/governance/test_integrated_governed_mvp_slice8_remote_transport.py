@@ -22,10 +22,12 @@ class Slice8RemoteTransportTests(unittest.TestCase):
         self.remote_db = root / "remote.sqlite3"
         self.client_db = root / "client.sqlite3"
         self.service = RemoteTerminalService(self.remote_db)
-        self.transport = RemoteTerminalTransport(self.client_db, self.service)
+        self.service.start()
+        self.transport = RemoteTerminalTransport(self.client_db, self.service.base_url)
         self.completion = self._slice7_completion()
 
     def tearDown(self) -> None:
+        self.service.stop()
         self.tmp.cleanup()
 
     def _slice7_completion(self, **overrides):
@@ -66,6 +68,7 @@ class Slice8RemoteTransportTests(unittest.TestCase):
         self.assertEqual("REMOTE_EXECUTION_COMPLETED", result["state"])
         self.assertEqual(1, self.service.effect_count())
         self.assertTrue(result["successful_remote_completion"])
+        self.assertGreater(self.service.http_request_count(), 0)
 
     def test_s8_02_merge_only_merge(self):
         completion = self._slice7_completion(action="MERGE")
@@ -88,6 +91,7 @@ class Slice8RemoteTransportTests(unittest.TestCase):
         result = self._run(invalid)
         self.assertEqual("DENY_SLICE7_BINDING", result["state"])
         self.assertEqual(0, self.service.effect_count())
+        self.assertEqual(0, self.service.http_request_count())
 
     def test_s8_06_changed_lineage_denies(self):
         changed = deepcopy(self.completion)
@@ -95,11 +99,13 @@ class Slice8RemoteTransportTests(unittest.TestCase):
         result = self._run(changed)
         self.assertEqual("DENY_SLICE7_BINDING", result["state"])
         self.assertEqual(0, self.service.effect_count())
+        self.assertEqual(0, self.service.http_request_count())
 
     def test_s8_07_caller_replacement_idempotency_key_rejected(self):
         result = self._run(remote_idempotency_key="caller-chosen")
         self.assertEqual("DENY_REMOTE_IDEMPOTENCY_REBIND", result["state"])
         self.assertEqual(0, self.service.effect_count())
+        self.assertEqual(0, self.service.http_request_count())
 
     def test_s8_08_same_key_changed_binding_rejected(self):
         first = self._run()
@@ -113,6 +119,7 @@ class Slice8RemoteTransportTests(unittest.TestCase):
         with self.assertRaises(SimulatedRemoteTransportFailure):
             self._run(failure_point="before_remote_accept")
         self.assertEqual(0, self.service.effect_count())
+        self.assertEqual(0, self.service.http_request_count())
         result = self._run()
         self.assertEqual("REMOTE_EXECUTION_COMPLETED", result["state"])
         self.assertEqual(1, self.service.effect_count())
@@ -172,11 +179,18 @@ class Slice8RemoteTransportTests(unittest.TestCase):
 
     def test_s8_17_restart_after_commit_before_ack_reconciles(self):
         self._run(failure_point="after_remote_commit_before_ack")
+        self.service.stop()
         service2 = RemoteTerminalService(self.remote_db)
-        transport2 = RemoteTerminalTransport(self.client_db, service2)
-        result = transport2.reconcile(self.completion)
-        self.assertEqual("REMOTE_EXECUTION_RECONCILED", result["state"])
-        self.assertEqual(1, service2.effect_count())
+        service2.start()
+        try:
+            transport2 = RemoteTerminalTransport(self.client_db, service2.base_url)
+            result = transport2.reconcile(self.completion)
+            self.assertEqual("REMOTE_EXECUTION_RECONCILED", result["state"])
+            self.assertEqual(1, service2.effect_count())
+        finally:
+            service2.stop()
+            self.service = RemoteTerminalService(self.remote_db)
+            self.service.start()
 
     def test_s8_18_completion_hash_binds_all_fields(self):
         result = self._run()
@@ -194,6 +208,7 @@ class Slice8RemoteTransportTests(unittest.TestCase):
         invalid["successful_completion"] = True
         result = self._run(invalid)
         self.assertEqual("DENY_SLICE7_BINDING", result["state"])
+        self.assertEqual(0, self.service.http_request_count())
 
     def test_s8_20_no_production_remote_claim(self):
         result = self._run()
@@ -202,7 +217,16 @@ class Slice8RemoteTransportTests(unittest.TestCase):
 
     def test_platform_owned_idempotency_key_is_deterministic(self):
         bound = self.completion["bound_execution"]
-        binding_hash = canonical_hash(bound)
+        binding_hash = canonical_hash({
+            "terminal_execution_id": bound["terminal_execution_id"],
+            "project_id": bound["project_id"],
+            "task_id": bound["task_id"],
+            "effect_id": bound["effect_id"],
+            "action": bound["action"],
+            "artifact_sha": bound["artifact_sha"],
+            "state_version": bound["state_version"],
+            "slice7_completion_hash": self.completion["completion_evidence"]["completion_hash"],
+        })
         key1 = derive_remote_idempotency_key(bound["terminal_execution_id"], binding_hash)
         key2 = derive_remote_idempotency_key(bound["terminal_execution_id"], binding_hash)
         self.assertEqual(key1, key2)
