@@ -1,109 +1,18 @@
 {
-  "schema_version": 2,
-  "memory_id": "GOVERNED-SHARED-PROJECT-MEMORY-001",
-  "state": "ACTIVE",
-  "role": "CROSS_AGENT_CONTINUITY_AND_COORDINATION",
-  "independent_authority": false,
-  "read_policy": "READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY",
-  "write_policy": "AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
-  "sources": [
-    {"class": "governed_checkpoint", "path": "governance-runtime/session-state.json", "use": "verified continuity pointer"},
-    {"class": "chatgpt_project_memory_and_context", "use": "shared working continuity input subject to reconciliation"},
-    {"class": "external_agent_memory_or_review", "use": "working/reviewer input with provenance; never authority by repetition"}
-  ],
-  "current_work": {
-    "name": "Integrated Governed MVP Slice10 - Merged Pending Platform Independent Review",
-    "authoritative_branch": "main",
-    "authoritative_head": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
-    "status": "MERGED_PENDING_INDEPENDENT_REVIEW",
-    "continuity_summary": "Slice10 code is merged at 58b3d19d after extensive red-first falsification and exact-head qualification, but manual R3 relay is external evidence only under the platform review protocol. Governance acceptance remains pending a platform-authenticated independent review.",
-    "allowed_use": ["session_resume", "task_routing", "context_preparation", "external_evidence_reference"],
-    "prohibited_use": ["upgrade_manual_review_to_platform_authority", "erase_premature_promotion_history", "claim_production_external_provider_safety", "start_material_slice11_promotion_before_review_stop", "override_execution_handoff_from_chat_summary", "infer_execution_frontier_from_repository_head_alone"]
-  },
-  "execution_handoff": {
-    "sequence": 49,
-    "workstream": "Integrated Governed MVP Slice10 - Merged Pending Platform Independent Review",
-    "candidate_branch": "main",
-    "candidate_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
-    "phase": "MERGED_PENDING_INDEPENDENT_REVIEW",
-    "next_required_action": "Obtain a platform-authenticated independent review for the exact merged Slice10 content boundary before declaring Slice10 governance-accepted or beginning another material slice. Speed-accelerator tooling may be prepared on a draft branch but must not weaken or bypass this stop.",
-    "stop_condition": "INDEPENDENT_REVIEW_REQUIRED",
-    "manual_input_required": true,
-    "resume_rule": "On generic CONTINUE, first verify main is 58b3d19da3d4f7094213ffeebdc1d1b301aa82d7 or identify newer timestamped governed state, then satisfy the platform-authenticated independent-review stop before any material Slice11 promotion."
-  },
-  "governance_runtime": {
-    "branch": "governance/live-conversation-runtime",
-    "pull_request": null,
-    "status": "PENDING_INDEPENDENT_REVIEW",
-    "platform_modes": ["AUTO_MODE", "MANUAL_MODE"],
-    "review_levels": ["NONE", "RECOMMENDED", "REQUIRED"],
-    "supported_review_transports": ["AUTOMATIC_API", "USER_INITIATED_API"],
-    "external_evidence_classes": ["USER_PROVIDED_EXTERNAL_CONTENT", "USER_ATTESTED_EXTERNAL_LLM_REVIEW"],
-    "production_auto_mode_transport": "AUTOMATIC_API",
-    "production_manual_mode_transport": "USER_INITIATED_API",
-    "current_collaboration_review_transport": null,
-    "current_external_evidence_channel": "USER_PASTE",
-    "semantic_review_schema_minimum_for_promotion": 4,
-    "positive_promotable_dispositions": ["PASS", "BOUNDED_PASS"],
-    "selected_next_reviewer": null,
-    "current_review_request_id": null,
-    "current_review_status": "PENDING_INDEPENDENT_REVIEW",
-    "reviewed_candidate_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
-    "current_review_disposition": null,
-    "current_review_semantic_validation": null,
-    "current_review_effective_state": "PENDING_INDEPENDENT_REVIEW",
-    "current_review_identity_assurance": null,
-    "current_review_counts_for_promotion": false,
-    "construction_evidence": {
-      "slice10_pr": 22,
-      "slice10_contract": "c848adea834fec08349eb7663dd33de53198984c",
-      "slice10_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0",
-      "slice10_exact_ci": "34358448341",
-      "slice10_merge": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
-      "slice10_manual_r3_adjudication": "3d2b2f308600defa8afce590f99659c9a3326195"
-    },
-    "features_under_review": ["Slice10 platform-authenticated independent review"]
-  },
-  "pending_reviews": [
-    {
-      "purpose": "Platform-authenticated review required for merged Slice10 boundary",
-      "status": "PENDING_INDEPENDENT_REVIEW",
-      "platform_mode": "MANUAL_MODE",
-      "review_request_id": null,
-      "review_transport": null,
-      "reviewed_artifact_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
-      "counts_for_current_promotion": false,
-      "superseded_review_requests": []
-    }
-  ],
-  "received_review_history": [
-    {"request_id": "REV-MVP-SLICE7-TERMINAL-EXECUTOR-008", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "a4ad8bdd5b995e97529b08f12a7b3a7c6c924299", "workflow_run": 34326385606, "disposition": "PASS", "mandatory_dimensions": "15/15 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE7_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
-    {"request_id": "REV-MVP-SLICE8-REMOTE-TRANSPORT-001", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "4873d7a11383b5ba684cb92e399b18cfe2ffb304", "workflow_run": 34328209242, "disposition": "PASS", "mandatory_dimensions": "17/17 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE8_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION", "counts_for_current_promotion": false},
-    {"request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-015", "origin": "platform_authenticated_openrouter_api", "review_class": "PLATFORM_AUTO_API_REVIEW", "transport": "AUTOMATIC_API", "reviewed_candidate": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1", "workflow_run": 34346202247, "disposition": "PASS", "mandatory_dimensions": "16/16 TESTED_SUPPORTED", "findings": 0, "provider_api_authenticated": true, "effective_use": "SLICE9_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION_AND_SHA_PINNED_MERGE", "counts_for_current_promotion": false}
-  ],
-  "external_evidence_history": [
-    {"request_id": "MANUAL-R3-SLICE10-003", "origin": "user_pasted_deepseek_manual_review", "review_class": "USER_PROVIDED_EXTERNAL_CONTENT", "reviewed_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0", "disposition": "BOUNDED_PASS", "findings": 0, "provider_api_authenticated": false, "effective_use": "FALSIFICATION_AND_ADVISORY_ONLY", "counts_for_current_promotion": false}
-  ],
-  "memory_conflict_history": [
-    {"id": "LCG-SLICE10-MANUAL-REVIEW-PROMOTION-FALSE-GREEN", "observed": "Manual R3 external content was treated as if it satisfied the mandatory platform-authenticated independent-review gate before PR22 merge.", "resolution": "PRESERVE_MERGE_AND_CODE_EVIDENCE_MARK_GOVERNANCE_ACCEPTANCE_PENDING_PLATFORM_AUTHENTICATED_REVIEW", "silent_merge": false}
-  ],
-  "memory_rules": {
-    "repetition_upgrades_status": false,
-    "consensus_is_evidence": false,
-    "material_claim_requires_authority_resolution_before_promotion": true,
-    "stale_memory_must_be_marked_and_repaired": true,
-    "memory_write_failure_changes_authority": false,
-    "memory_write_failure_must_be_surfaced": true,
-    "platform_mode_changes_authority": false,
-    "manual_mode_user_skip_of_required_review_promotes_authority": false,
-    "external_content_self_declared_reviewer_is_authenticated": false,
-    "user_attested_external_review_is_provider_api_authenticated": false,
-    "external_evidence_may_satisfy_platform_review_gate": false,
-    "review_disposition_may_override_missing_required_review_evidence": false,
-    "legacy_review_schema_may_promote_material_authority": false,
-    "negative_review_disposition_may_promote_material_authority": false,
-    "chat_summary_may_override_execution_handoff": false,
-    "repository_head_alone_defines_execution_frontier": false,
-    "generic_continue_uses_execution_handoff": true
-  }
+  "schema_version":2,
+  "memory_id":"GOVERNED-SHARED-PROJECT-MEMORY-001",
+  "state":"ACTIVE",
+  "role":"CROSS_AGENT_CONTINUITY_AND_COORDINATION",
+  "independent_authority":false,
+  "read_policy":"READ_AT_SESSION_START_THEN_VERIFY_MATERIAL_POINTERS_AGAINST_AUTHORITY",
+  "write_policy":"AUTHORITATIVE_PERSIST_FIRST_THEN_SYNCHRONIZE_MEMORY",
+  "sources":[{"class":"governed_checkpoint","path":"governance-runtime/session-state.json","use":"verified continuity pointer"},{"class":"chatgpt_project_memory_and_context","use":"shared working continuity input subject to reconciliation"},{"class":"external_agent_memory_or_review","use":"working/reviewer input with provenance; never authority by repetition"}],
+  "current_work":{"name":"Integrated Governed MVP Slice10 - Merged Pending Platform Independent Review","authoritative_branch":"main","authoritative_head":"a5726dcb9236e31028ec70603bee35b30b9dbe66","status":"MERGED_PENDING_INDEPENDENT_REVIEW","continuity_summary":"Slice10 code remains merged and exact-head qualified. Manual R3 is external evidence only; authenticated platform review remains required. Administrative noop mistake was removed at a5726dcb with no lasting file/content change.","allowed_use":["session_resume","task_routing","context_preparation","external_evidence_reference"],"prohibited_use":["upgrade_manual_review_to_platform_authority","erase_premature_promotion_history","claim_production_external_provider_safety","start_material_slice11_promotion_before_review_stop","override_execution_handoff_from_chat_summary","infer_execution_frontier_from_repository_head_alone"]},
+  "execution_handoff":{"sequence":50,"workstream":"Integrated Governed MVP Slice10 - Merged Pending Platform Independent Review","candidate_branch":"main","candidate_commit":"a5726dcb9236e31028ec70603bee35b30b9dbe66","phase":"MERGED_PENDING_INDEPENDENT_REVIEW","next_required_action":"Obtain a platform-authenticated independent review for exact current main a5726dcb9236e31028ec70603bee35b30b9dbe66 before declaring Slice10 governance-accepted. Draft accelerator PR23 may continue qualification but cannot bypass this stop.","stop_condition":"INDEPENDENT_REVIEW_REQUIRED","manual_input_required":true,"resume_rule":"Verify current main/checkpoint first; authenticated Slice10 review remains the material stop; PR23 accelerator work is draft tooling only."},
+  "governance_runtime":{"branch":"governance/live-conversation-runtime","pull_request":null,"status":"PENDING_INDEPENDENT_REVIEW","platform_modes":["AUTO_MODE","MANUAL_MODE"],"review_levels":["NONE","RECOMMENDED","REQUIRED"],"supported_review_transports":["AUTOMATIC_API","USER_INITIATED_API"],"external_evidence_classes":["USER_PROVIDED_EXTERNAL_CONTENT","USER_ATTESTED_EXTERNAL_LLM_REVIEW"],"production_auto_mode_transport":"AUTOMATIC_API","production_manual_mode_transport":"USER_INITIATED_API","current_collaboration_review_transport":null,"current_external_evidence_channel":"USER_PASTE","semantic_review_schema_minimum_for_promotion":4,"positive_promotable_dispositions":["PASS","BOUNDED_PASS"],"selected_next_reviewer":null,"current_review_request_id":null,"current_review_status":"PENDING_INDEPENDENT_REVIEW","reviewed_candidate_commit":"a5726dcb9236e31028ec70603bee35b30b9dbe66","current_review_disposition":null,"current_review_semantic_validation":null,"current_review_effective_state":"PENDING_INDEPENDENT_REVIEW","current_review_identity_assurance":null,"current_review_counts_for_promotion":false,"construction_evidence":{"slice10_pr":22,"slice10_contract":"c848adea834fec08349eb7663dd33de53198984c","slice10_candidate":"0e5ec197bd2f725a79f415ff31862fb4664c67c0","slice10_exact_ci":"34358448341","slice10_merge":"58b3d19da3d4f7094213ffeebdc1d1b301aa82d7","administrative_cleanup_head":"a5726dcb9236e31028ec70603bee35b30b9dbe66","accelerator_draft_pr":23},"features_under_review":["Slice10 platform-authenticated independent review"]},
+  "pending_reviews":[{"purpose":"Platform-authenticated review required for merged Slice10 boundary","status":"PENDING_INDEPENDENT_REVIEW","platform_mode":"MANUAL_MODE","review_request_id":null,"review_transport":null,"reviewed_artifact_commit":"a5726dcb9236e31028ec70603bee35b30b9dbe66","counts_for_current_promotion":false,"superseded_review_requests":[]}],
+  "received_review_history":[{"request_id":"REV-MVP-SLICE7-TERMINAL-EXECUTOR-008","origin":"platform_authenticated_openrouter_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"a4ad8bdd5b995e97529b08f12a7b3a7c6c924299","workflow_run":34326385606,"disposition":"PASS","mandatory_dimensions":"15/15 TESTED_SUPPORTED","findings":0,"provider_api_authenticated":true,"effective_use":"SLICE7_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION","counts_for_current_promotion":false},{"request_id":"REV-MVP-SLICE8-REMOTE-TRANSPORT-001","origin":"platform_authenticated_openrouter_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"4873d7a11383b5ba684cb92e399b18cfe2ffb304","workflow_run":34328209242,"disposition":"PASS","mandatory_dimensions":"17/17 TESTED_SUPPORTED","findings":0,"provider_api_authenticated":true,"effective_use":"SLICE8_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION","counts_for_current_promotion":false},{"request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-015","origin":"platform_authenticated_openrouter_api","review_class":"PLATFORM_AUTO_API_REVIEW","transport":"AUTOMATIC_API","reviewed_candidate":"16ae65c9d4939efc05aeff76f0ae2e708428b3b1","workflow_run":34346202247,"disposition":"PASS","mandatory_dimensions":"16/16 TESTED_SUPPORTED","findings":0,"provider_api_authenticated":true,"effective_use":"SLICE9_ACCEPTED_AFTER_DETERMINISTIC_ADJUDICATION_AND_SHA_PINNED_MERGE","counts_for_current_promotion":false}],
+  "external_evidence_history":[{"request_id":"MANUAL-R3-SLICE10-003","origin":"user_pasted_deepseek_manual_review","review_class":"USER_PROVIDED_EXTERNAL_CONTENT","reviewed_candidate":"0e5ec197bd2f725a79f415ff31862fb4664c67c0","disposition":"BOUNDED_PASS","findings":0,"provider_api_authenticated":false,"effective_use":"FALSIFICATION_AND_ADVISORY_ONLY","counts_for_current_promotion":false}],
+  "memory_conflict_history":[{"id":"LCG-SLICE10-MANUAL-REVIEW-PROMOTION-FALSE-GREEN","observed":"Manual R3 external content was treated as satisfying the mandatory authenticated review gate before merge.","resolution":"PRESERVE_MERGE_AND_CODE_EVIDENCE_MARK_GOVERNANCE_ACCEPTANCE_PENDING_PLATFORM_AUTHENTICATED_REVIEW","silent_merge":false},{"id":"LCG-ACCELERATOR-NOOP-TOOLING-ERROR","observed":"A temporary noop file was accidentally committed to main during accelerator branch setup and immediately removed.","resolution":"DELETE_NOOP_PRESERVE_HISTORY_ADVANCE_ADMINISTRATIVE_HEAD","silent_merge":false}],
+  "memory_rules":{"repetition_upgrades_status":false,"consensus_is_evidence":false,"material_claim_requires_authority_resolution_before_promotion":true,"stale_memory_must_be_marked_and_repaired":true,"memory_write_failure_changes_authority":false,"memory_write_failure_must_be_surfaced":true,"platform_mode_changes_authority":false,"manual_mode_user_skip_of_required_review_promotes_authority":false,"external_content_self_declared_reviewer_is_authenticated":false,"user_attested_external_review_is_provider_api_authenticated":false,"external_evidence_may_satisfy_platform_review_gate":false,"review_disposition_may_override_missing_required_review_evidence":false,"legacy_review_schema_may_promote_material_authority":false,"negative_review_disposition_may_promote_material_authority":false,"chat_summary_may_override_execution_handoff":false,"repository_head_alone_defines_execution_frontier":false,"generic_continue_uses_execution_handoff":true}
 }
