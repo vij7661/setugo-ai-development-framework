@@ -1,15 +1,15 @@
 {
   "enabled": true,
-  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-001",
-  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-001.json",
+  "review_request_id": "REV-MVP-SLICE9-CREDENTIAL-LEASE-002",
+  "review_request_path": "governance-runtime/review-requests/REV-MVP-SLICE9-CREDENTIAL-LEASE-002.json",
   "reviewed_candidate_commit": "16ae65c9d4939efc05aeff76f0ae2e708428b3b1",
   "provider": "openrouter",
   "model": "nvidia/nemotron-3-ultra-550b-a55b",
   "credential_profile": "r3",
   "review_class": "PLATFORM_AUTO_API_REVIEW",
   "transport": "AUTOMATIC_API",
-  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_DEEPINFRA_PINNED_5500_REVIEW_REQUESTED",
-  "request_hash": "796b75effb5b0c13f7cc915a64c2d6cd34c2d637bf8b6ebf68cc05160ee519ac",
+  "status": "AUTHENTICATED_SLICE9_CREDENTIAL_LEASE_R3_DEEPINFRA_PINNED_5000_REVIEW_REQUESTED",
+  "request_hash": "a114cadbbc668b6e4406beab4759bfc005d2e2bf9cbf138acd5f503ec97d2ad4",
   "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
   "reviewer_slot": "R3",
   "preserved_prior_attempts": [
@@ -17,6 +17,7 @@
     {"workflow_run_id":34339328915,"result":"FALSE_GREEN_SYNTHETIC_SLICE8_FIXTURE","semantic_authority":false},
     {"workflow_run_id":34339776553,"result":"REAL_SLICE8_INTEGRATION_DEFECT_EXPOSED_4_OF_4_FAIL","semantic_authority":false},
     {"workflow_run_id":34340184306,"result":"MECHANISM_REPAIRED_FIXTURE_DEFECT_REMAINED","semantic_authority":false},
-    {"workflow_run_id":34340343645,"result":"EXACT_HEAD_QUALIFICATION_SUCCESS","semantic_authority":false}
+    {"workflow_run_id":34340343645,"result":"EXACT_HEAD_QUALIFICATION_SUCCESS","semantic_authority":false},
+    {"review_request_id":"REV-MVP-SLICE9-CREDENTIAL-LEASE-001","workflow_run_id":34340992573,"result":"OPENROUTER_HTTP_402_PRE_INFERENCE_OUTPUT_CREDIT_CAPACITY_5500_GT_5175","semantic_authority":false}
   ]
 }
