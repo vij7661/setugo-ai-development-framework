@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "closure_id": "SLICE10-POST-MERGE-CLOSURE-001",
+  "slice": "Slice10 external side-effect gateway",
+  "merged": true,
+  "merge_commit": "58b3d19da3d4f7094213ffeebdc1d1b301aa82d7",
+  "merged_at_utc": "2026-09-09T15:43:13Z",
+  "previous_main": "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+  "reviewed_candidate": "0e5ec197bd2f725a79f415ff31862fb4664c67c0",
+  "merge_parents": [
+    "ab3454a84a5afbfeeb9a15bcf87f0be8d4e8a137",
+    "0e5ec197bd2f725a79f415ff31862fb4664c67c0"
+  ],
+  "exact_head_qualification_run": 34358448341,
+  "final_manual_r3_review": {
+    "review_request_id": "MANUAL-R3-SLICE10-003",
+    "provider": "deepseek-manual",
+    "model": "unknown",
+    "disposition": "BOUNDED_PASS",
+    "findings_count": 0
+  },
+  "deterministic_adjudication_commit": "3d2b2f308600defa8afce590f99659c9a3326195",
+  "deterministic_adjudication_validation_run": 34371938915,
+  "preserved_red_and_failure_runs": [
+    34348416080,
+    34348966968,
+    34349691694,
+    34350302141,
+    34352142030,
+    34354003957,
+    34355491605,
+    34357942688
+  ],
+  "bounded_claim": "The tested deterministic local/reference Slice10 external side-effect gateway enforces exact lineage/target binding, durable idempotency, one-key/one-binding, ambiguity reconciliation, crash recovery, current authority/lease checks, provider response integrity, and secret non-disclosure for the frozen and supplemental falsification cases.",
+  "explicit_nonclaims": [
+    "no real GitHub/cloud/deploy/payment mutation",
+    "no production IAM/secret-manager proof",
+    "no TLS/PKI/DNS/provider cryptographic identity proof",
+    "no multi-region/global exactly-once proof",
+    "no malicious-host/root-compromise resistance",
+    "no autonomous merge/deploy/release authority"
+  ],
+  "next_frontier_rule": "Do not start Slice11 from conversational memory alone. First verify main and this closure/checkpoint timestamp. Before Slice11 implementation, consider the governed-execution accelerator workstream to automate status aggregation, review packet generation, review ingestion, contract-to-test attack matrices, CI parallelization, and delta requalification without weakening governance."
+}
