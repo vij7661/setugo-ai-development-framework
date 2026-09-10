@@ -14,13 +14,13 @@ PHASE_BRANCH = {
 PHASE_ORDER = {name: i for i, name in enumerate(PHASES)}
 
 DEFAULT_REVIEW_TRANSPORT = {
-    "TESTING": "MANUAL",
+    "TESTING": "MANUAL_ONLY",
     "RELEASE": "MANUAL_OR_API_WHEN_JUSTIFIED",
     "PRODUCTION": "AUTHENTICATED_API_OR_OTHER_TRUSTED_PROVENANCE",
 }
 
 DEFAULT_API_POLICY = {
-    "TESTING": "NO_EXTERNAL_API_BY_DEFAULT",
+    "TESTING": "EXTERNAL_API_PROHIBITED",
     "RELEASE": "API_ALLOWED_WHEN_BOUNDARY_IS_READY_FOR_REAL_INTEGRATION",
     "PRODUCTION": "REAL_API_AND_ENVIRONMENT_QUALIFICATION_REQUIRED_WHERE_APPLICABLE",
 }
@@ -33,9 +33,11 @@ PHASE_PROMOTION_TARGET = {
 
 TESTING_REVIEW_INSTRUCTION = (
     "This is a TESTING/FALSIFICATION review of release-quality code, not a production-readiness review. "
-    "Focus on the frozen testing contract, correctness, false-green risk, crash/concurrency/recovery/security behavior, "
-    "test quality, regressions, and bounded implementation claims. Production-only gaps that do not violate the current "
-    "testing contract must be recorded as DEFERRED_TO_RELEASE or DEFERRED_TO_PRODUCTION rather than blocking TESTING."
+    "TESTING reviews are manual-only: no external reviewer API may be invoked in this phase, including when a user approves an API call "
+    "or when an API boundary is itself under test. Focus on the frozen testing contract, correctness, false-green risk, "
+    "crash/concurrency/recovery/security behavior, test quality, regressions, and bounded implementation claims. "
+    "Production-only gaps that do not violate the current testing contract must be recorded as DEFERRED_TO_RELEASE or "
+    "DEFERRED_TO_PRODUCTION rather than blocking TESTING."
 )
 
 RELEASE_REVIEW_INSTRUCTION = (
@@ -74,12 +76,13 @@ def phase_branch(phase: str) -> str:
 def review_transport_policy(phase: str, *, api_boundary_under_test: bool = False, user_approved_api: bool = False) -> dict[str, Any]:
     p = validate_phase(phase)
     if p == "TESTING":
-        api_allowed = bool(api_boundary_under_test or user_approved_api)
         return {
-            "default_transport": "MANUAL",
-            "external_api_allowed": api_allowed,
-            "external_api_reason_required": api_allowed,
+            "default_transport": "MANUAL_ONLY",
+            "external_api_allowed": False,
+            "external_api_reason_required": False,
             "automatic_api_dispatch": False,
+            "api_boundary_under_test_overrides_prohibition": False,
+            "user_approval_overrides_prohibition": False,
             "ask_user_before_review": True,
             "manual_review_can_satisfy_phase_review_gate": True,
             "manual_review_can_establish_production_qualification": False,
@@ -184,7 +187,8 @@ def testing_phase_pass_requirements() -> dict[str, Any]:
             "relevant_regressions_pass",
             "all_observed_failures_classified",
             "no_unresolved_material_code_test_fixture_or_requirement_defect",
-            "review_performed_when_requested_or_required_by_testing_policy",
+            "manual_review_performed_when_requested_or_required_by_testing_policy",
+            "no_external_reviewer_api_invoked_in_testing",
             "review_findings_adjudicated",
             "material_valid_findings_falsified_where_practical",
             "exact_candidate_sha_requalified_after_last_repair",
