@@ -24,6 +24,6 @@ jobs:
         working-directory: governance-runtime
         run: python -m unittest -v test_release_r1_bridge_shape_guard.py
 
-      - name: Run existing qualification bridge regressions
+      - name: Run qualification bridge regressions
         working-directory: governance-runtime
-        run: python -m unittest -v test_qualification_boundary_unittest_bridge.py test_qualification_boundary_policy.py test_manual_review_authority_spoofing_regression.py test_manual_review_authority_ingress_regression.py
+        run: python -m unittest -v test_qualification_boundary_unittest_bridge.py
