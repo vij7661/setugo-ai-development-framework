@@ -22,8 +22,28 @@ def _fixture():
     return attestation, signature_b64
 
 
+def _historical_policy_binding(attestation):
+    return {
+        "qualification_policy_id": attestation["qualification_policy_id"],
+        "qualification_policy_version": attestation["qualification_policy_version"],
+        "qualification_policy_hash": attestation["qualification_policy_hash"],
+    }
+
+
 class HumanSignedManualAuthorityAttestationTests(unittest.TestCase):
-    def test_real_human_signed_attestation_verifies_for_exact_signed_candidate(self):
+    def test_historical_v4_human_signature_remains_cryptographically_valid_as_history(self):
+        attestation, signature_b64 = _fixture()
+        ok, reason = verify_manual_authority_attestation(
+            attestation,
+            signature_b64,
+            candidate_sha=SIGNED_SHA,
+            required_authority_class=AUTHORITY,
+            required_scope=SCOPE,
+            qualification_policy_binding=_historical_policy_binding(attestation),
+        )
+        self.assertTrue(ok, reason)
+
+    def test_historical_v4_attestation_cannot_authorize_under_current_v5_policy(self):
         attestation, signature_b64 = _fixture()
         ok, reason = verify_authority_binding(
             {"attestation": attestation, "signature_b64": signature_b64},
@@ -31,7 +51,8 @@ class HumanSignedManualAuthorityAttestationTests(unittest.TestCase):
             required_authority_class=AUTHORITY,
             required_scope=SCOPE,
         )
-        self.assertTrue(ok, reason)
+        self.assertFalse(ok)
+        self.assertIn("stale or rebound", reason)
 
     def test_signed_attestation_cannot_replay_to_another_candidate_sha(self):
         attestation, signature_b64 = _fixture()
@@ -73,13 +94,13 @@ class HumanSignedManualAuthorityAttestationTests(unittest.TestCase):
             candidate_sha=SIGNED_SHA,
             required_authority_class=AUTHORITY,
             required_scope=SCOPE,
-            qualification_policy_binding=policy_binding(),
+            qualification_policy_binding=_historical_policy_binding(attestation),
         )
         self.assertFalse(ok)
 
     def test_stale_or_rebound_policy_binding_is_rejected(self):
         attestation, signature_b64 = _fixture()
-        rebound_policy = dict(policy_binding())
+        rebound_policy = _historical_policy_binding(attestation)
         rebound_policy["qualification_policy_hash"] = "0" * 64
         ok, _ = verify_manual_authority_attestation(
             attestation,
@@ -101,7 +122,7 @@ class HumanSignedManualAuthorityAttestationTests(unittest.TestCase):
             candidate_sha=SIGNED_SHA,
             required_authority_class=AUTHORITY,
             required_scope=SCOPE,
-            qualification_policy_binding=policy_binding(),
+            qualification_policy_binding=_historical_policy_binding(attestation),
         )
         self.assertFalse(ok)
 
@@ -115,7 +136,7 @@ class HumanSignedManualAuthorityAttestationTests(unittest.TestCase):
             candidate_sha=SIGNED_SHA,
             required_authority_class=AUTHORITY,
             required_scope=SCOPE,
-            qualification_policy_binding=policy_binding(),
+            qualification_policy_binding=_historical_policy_binding(attestation),
         )
         self.assertFalse(ok)
 
