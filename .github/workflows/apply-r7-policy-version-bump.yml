@@ -1,0 +1,58 @@
+name: Apply R7 policy version bump
+
+on:
+  push:
+    branches:
+      - repair/testing-qualification-refalsification-007
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[r7-policy-v6-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/testing-qualification-refalsification-007
+          fetch-depth: 0
+      - name: Bind material authority semantic change to policy v6
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          policy = Path('governance-runtime/qualification_boundary_policy_v4.py')
+          s = policy.read_text()
+          if 'POLICY_VERSION = 5' not in s:
+              raise SystemExit('expected policy v5 before bounded bump')
+          s = s.replace('POLICY_VERSION = 5', 'POLICY_VERSION = 6', 1)
+          s = s.replace('Qualification-boundary policy v5:', 'Qualification-boundary policy v6:', 1)
+          policy.write_text(s)
+
+          p = Path('governance-runtime/test_qualification_boundary_policy.py')
+          t = p.read_text()
+          if 'qualification_policy_version"] == 5' not in t:
+              raise SystemExit('expected v5 policy regression')
+          p.write_text(t.replace('qualification_policy_version"] == 5', 'qualification_policy_version"] == 6', 1))
+
+          p = Path('governance-runtime/test_external_root_policy_binding.py')
+          t = p.read_text()
+          if 'self.assertEqual(policy.POLICY_VERSION, 5)' not in t:
+              raise SystemExit('expected v5 external-root policy regression')
+          p.write_text(t.replace('self.assertEqual(policy.POLICY_VERSION, 5)', 'self.assertEqual(policy.POLICY_VERSION, 6)', 1))
+          PY
+      - name: Run focused policy regressions
+        shell: bash
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v test_external_root_policy_binding.py test_qualification_boundary_unittest_bridge.py
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          rm .github/workflows/apply-r7-policy-version-bump.yml
+          git config user.name 'setugo-governance-construction'
+          git config user.email '58181021+vij7661@users.noreply.github.com'
+          git add -A
+          git commit -m 'Bind R7 authority repair to qualification policy v6 [r7-policy-v6-applied]'
+          git push origin HEAD:repair/testing-qualification-refalsification-007
