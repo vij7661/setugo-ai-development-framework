@@ -9,17 +9,18 @@ import json
 import re
 from typing import Any, Callable, Mapping, Protocol, Sequence
 
-SHA40 = re.compile(r"^[0-9a-f]{40}$")
-MANDATORY_REVIEW_TRIGGERS = frozenset({
-    "EXPERIMENT_ADJUDICATION", "MATERIAL_FAILURE_CLASSIFICATION",
-    "FROZEN_ARTIFACT_CHANGE_AFTER_EXPOSURE", "MATERIAL_GOVERNANCE_CHANGE",
-    "MATERIAL_EXTERNAL_EVIDENCE_PROMOTION", "AUTHORITATIVE_RETRACTION_OR_SUPERSESSION",
-    "GOVERNED_REQUIREMENT_ACCEPTANCE", "TERMINAL_ACTION",
-    "MATERIAL_DISAGREEMENT_RESOLUTION", "MATERIAL_AUTHORITY_TRANSITION",
-})
-GOVERNANCE_RELEVANT_PATH_PREFIXES = (
-    "governance-runtime/", "standards/", "experiments/governed-platform/", ".github/workflows/",
+from qualification_boundary_policy import (
+    GOVERNANCE_RELEVANT_PATH_PREFIXES,
+    REVIEW_REQUIRED_TRIGGERS,
+    merge_review_dimensions,
+    policy_binding,
+    resolve_review_profile,
+    review_required as platform_review_required,
+    verify_review_dimensions,
 )
+
+SHA40 = re.compile(r"^[0-9a-f]{40}$")
+MANDATORY_REVIEW_TRIGGERS = REVIEW_REQUIRED_TRIGGERS
 PLATFORM_MODES = frozenset({"AUTO_MODE", "MANUAL_MODE"})
 REVIEW_LEVELS = frozenset({"NONE", "RECOMMENDED", "REQUIRED"})
 PLATFORM_REVIEW_TRANSPORTS = frozenset({"AUTOMATIC_API", "USER_INITIATED_API"})
@@ -65,9 +66,12 @@ def content_hash(text: str) -> str:
 def review_required(trigger: str, *, material_authority_transition: bool = False,
                     standard_requires_review: bool = False,
                     changed_paths: Sequence[str] | None = None) -> bool:
-    protected = any(isinstance(p, str) and p.startswith(GOVERNANCE_RELEVANT_PATH_PREFIXES)
-                    for p in tuple(changed_paths or ()))
-    return trigger in MANDATORY_REVIEW_TRIGGERS or bool(material_authority_transition) or bool(standard_requires_review) or protected
+    return platform_review_required(
+        trigger=trigger,
+        material_authority_transition=material_authority_transition,
+        standard_requires_review=standard_requires_review,
+        changed_paths=changed_paths,
+    )
 
 
 def evaluate_review_level(*, trigger: str, r1_recommends_review: bool,
@@ -141,7 +145,15 @@ def build_review_request(*, review_request_id: str, trigger: str, artifact_type:
         raise ValueError("required reviewer model or model_class is required")
     if not review_questions:
         raise ValueError("at least one review question is required")
-    dimensions = None if required_review_dimensions is None else _normalize_required_review_dimensions(required_review_dimensions)
+
+    if required_review_dimensions is None:
+        dimensions = None
+        review_profile_id = None
+    else:
+        requested = _normalize_required_review_dimensions(required_review_dimensions)
+        review_profile_id = resolve_review_profile(trigger=trigger, artifact_type=artifact_type)
+        dimensions = merge_review_dimensions(review_profile_id, requested)
+
     schema = SEMANTIC_REVIEW_SCHEMA_VERSION if dimensions is not None else 3
     fields = ["review_request_id", "reviewed_artifact_commit", "reviewer", "disposition", "findings",
               "evidence_assessment", "independence_attestation"]
@@ -162,6 +174,8 @@ def build_review_request(*, review_request_id: str, trigger: str, artifact_type:
     if dimensions is not None:
         request["required_review_dimensions"] = dimensions
         request["review_dimension_status_vocabulary"] = sorted(REVIEW_DIMENSION_STATUSES)
+        request["review_profile_id"] = review_profile_id
+        request["qualification_policy_binding"] = policy_binding()
     request["request_hash"] = canonical_hash(request)
     return request
 
@@ -194,6 +208,14 @@ def verify_review_request(request: Mapping[str, Any]) -> tuple[bool, str]:
         if request.get("state") not in ALLOWED_REQUEST_STATES:
             return False, "review request state is invalid"
         if schema == SEMANTIC_REVIEW_SCHEMA_VERSION:
+            if request.get("qualification_policy_binding") != policy_binding():
+                return False, "semantic review request qualification policy binding is missing, stale, or rebound"
+            expected_profile = resolve_review_profile(
+                trigger=str(request.get("trigger", "")),
+                artifact_type=str(artifact.get("type", "")),
+            )
+            if request.get("review_profile_id") != expected_profile:
+                return False, "semantic review request profile was rebound"
             dimensions = request.get("required_review_dimensions")
             if not isinstance(dimensions, list):
                 return False, "semantic review request lacks required review dimensions"
@@ -203,6 +225,9 @@ def verify_review_request(request: Mapping[str, Any]) -> tuple[bool, str]:
                 return False, str(exc)
             if canonical_hash(normalized) != canonical_hash(dimensions):
                 return False, "semantic review dimensions are not normalized"
+            owned, owned_reason = verify_review_dimensions(expected_profile, dimensions)
+            if not owned:
+                return False, owned_reason
             if set(request.get("review_dimension_status_vocabulary", [])) != set(REVIEW_DIMENSION_STATUSES):
                 return False, "semantic review status vocabulary is invalid"
             if "review_coverage" not in request.get("expected_output", {}).get("required_fields", []):
