@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Qualification-boundary policy v4: verification-only manual authority ingress."""
+"""Qualification-boundary policy v5: external-root-bound manual authority ingress.
+
+The filename is retained for compatibility; POLICY_VERSION is authoritative.
+"""
 from __future__ import annotations
 
 from copy import deepcopy
@@ -11,10 +14,16 @@ from manual_authority_verifier import (
     TRUST_ROOT_ID,
     verify_manual_authority_attestation,
 )
+from external_governance_root import (
+    EXTERNAL_REPOSITORY,
+    EXTERNAL_REPOSITORY_ID,
+    EXTERNAL_ROOT_COMMIT,
+    EXPECTED_PUBLIC_KEY_DER_SHA256,
+)
 
 POLICY_ID = "QUALIFICATION_BOUNDARY_OWNERSHIP"
-POLICY_VERSION = 4
-TRUST_ROOT_PUBLIC_KEY_DER_SHA256 = "2b1b97ab0bf99e71f4a93f51fd8e6c3eb30063d83ba2eb4c091492a95f9c11f2"
+POLICY_VERSION = 5
+TRUST_ROOT_PUBLIC_KEY_DER_SHA256 = EXPECTED_PUBLIC_KEY_DER_SHA256
 
 REVIEW_REQUIRED_TRIGGERS = frozenset({
     "EXPERIMENT_ADJUDICATION",
@@ -129,6 +138,11 @@ def _policy_material() -> dict[str, Any]:
         "terminal_authority_policy": TERMINAL_AUTHORITY_POLICY,
         "manual_authority_trust_root_id": TRUST_ROOT_ID,
         "manual_authority_public_key_der_sha256": TRUST_ROOT_PUBLIC_KEY_DER_SHA256,
+        "manual_authority_external_repository": EXTERNAL_REPOSITORY,
+        "manual_authority_external_repository_id": EXTERNAL_REPOSITORY_ID,
+        "manual_authority_external_root_commit": EXTERNAL_ROOT_COMMIT,
+        "manual_authority_external_root_must_be_public": True,
+        "manual_authority_external_root_must_be_archived": True,
     }
 
 
