@@ -8,14 +8,17 @@ on:
       - 'governance-runtime/qualification_boundary_policy.py'
       - 'governance-runtime/qualification_boundary_policy_v4.py'
       - 'governance-runtime/manual_authority_verifier.py'
+      - 'governance-runtime/verify_external_trust_root_control.py'
       - 'governance-runtime/trust-roots/governance-public.pem'
       - 'governance-runtime/manual-attestations/**'
+      - 'governance-runtime/external-control-evidence/**'
       - 'governance-runtime/review_protocol.py'
       - 'governance-runtime/phase_policy.py'
       - 'governance-runtime/test_phase_policy.py'
       - 'governance-runtime/test_qualification_boundary_policy.py'
       - 'governance-runtime/test_manual_authority_verifier.py'
       - 'governance-runtime/test_manual_authority_signed_attestation.py'
+      - 'governance-runtime/test_external_trust_root_control.py'
       - 'governance-runtime/test_manual_review_authority_spoofing_regression.py'
       - 'governance-runtime/test_manual_review_authority_ingress_regression.py'
       - 'governance-runtime/test_qualification_boundary_unittest_bridge.py'
@@ -30,10 +33,20 @@ on:
       - 'standards/qualification-boundary-ownership.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-OWNERSHIP-001.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-AUTHORITY-SPOOFING-002.md'
+      - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-TRUST-ROOT-ANCHOR-004.md'
       - 'governance-runtime/manual-reviews/TESTING-QUALIFICATION-OWNERSHIP-MANUAL-REVIEW-001.md'
       - 'governance-runtime/manual-reviews/TESTING-QUALIFICATION-OWNERSHIP-MANUAL-REVIEW-002.md'
       - 'governance-runtime/failures/TESTING-QUALIFICATION-OWNERSHIP-HARNESS-FALSE-GREEN-001.md'
       - 'governance-runtime/construction-evidence/TESTING-QUALIFICATION-OWNERSHIP-CONSTRUCTION-001.md'
+      - '.github/workflows/testing-qualification-boundary-ownership.yml'
+  pull_request:
+    branches:
+      - phase/testing
+    paths:
+      - 'governance-runtime/**'
+      - 'standards/qualification-boundary-ownership.md'
+      - 'experiments/governed-platform/governance/**'
+      - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md'
       - '.github/workflows/testing-qualification-boundary-ownership.yml'
   workflow_dispatch:
 
@@ -44,6 +57,8 @@ jobs:
   falsify-qualification-boundary:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout exact candidate
         uses: actions/checkout@v4
@@ -56,13 +71,17 @@ jobs:
       - name: Record exact candidate SHA
         run: echo "candidate_sha=$(git rev-parse HEAD)"
 
-      - name: Run ownership, manual-authority, phase-policy, manual-RED, and review-protocol regressions
+      - name: Verify live external trust-root ruleset
+        run: python governance-runtime/verify_external_trust_root_control.py
+
+      - name: Run ownership, manual-authority, external-control, phase-policy, manual-RED, and review-protocol regressions
         run: |
           cd governance-runtime
           python -m unittest -v \
             test_phase_policy.py \
             test_manual_authority_verifier.py \
             test_manual_authority_signed_attestation.py \
+            test_external_trust_root_control.py \
             test_qualification_boundary_unittest_bridge.py \
             test_review_protocol.py \
             test_review_semantics.py \
