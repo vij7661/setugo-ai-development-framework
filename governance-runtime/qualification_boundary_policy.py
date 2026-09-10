@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Compatibility facade for the active qualification-boundary policy."""
-from qualification_boundary_policy_v4 import *  # noqa: F401,F403
+from qualification_boundary_policy_v7 import *  # noqa: F401,F403
 
 
 def _issue_authority_binding_for_platform_ingress(**_kwargs):
