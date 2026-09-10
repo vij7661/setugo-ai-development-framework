@@ -1,4 +1,5 @@
 from qualification_boundary_policy import (
+    _issue_authority_binding_for_platform_ingress,
     acceptance_boundary_change_allowed,
     acceptance_boundary_record,
     phase_disposition,
@@ -11,25 +12,32 @@ from qualification_boundary_policy import (
     root_cause_classification_allowed,
     terminal_authority_allowed,
     testing_matrix_binding,
+    verify_authority_binding,
     verify_review_dimensions,
     verify_testing_matrix_results,
 )
+
+CANDIDATE_SHA = "a" * 40
+
+
+def _binding(authority_class, scope):
+    return _issue_authority_binding_for_platform_ingress(
+        candidate_sha=CANDIDATE_SHA,
+        authority_class=authority_class,
+        decision_scope=scope,
+        evidence_ref="manual-attestation:test-only",
+    )
 
 
 def test_policy_binding_is_deterministic_and_nonempty():
     binding = policy_binding()
     assert binding["qualification_policy_hash"] == qualification_policy_hash()
     assert len(binding["qualification_policy_hash"]) == 64
-    assert binding["qualification_policy_version"] == 2
+    assert binding["qualification_policy_version"] == 3
 
 
 def test_candidate_cannot_lower_governance_review_floor_with_benign_trigger():
-    assert review_required(
-        trigger="ROUTINE_FORMATTING",
-        material_authority_transition=False,
-        standard_requires_review=False,
-        changed_paths=["governance-runtime/review_protocol.py"],
-    )
+    assert review_required(trigger="ROUTINE_FORMATTING", changed_paths=["governance-runtime/review_protocol.py"])
 
 
 def test_unresolved_materiality_fails_closed_to_review():
@@ -47,7 +55,6 @@ def test_candidate_cannot_delete_or_downgrade_mandatory_dimension():
     deleted = [d for d in dimensions if d["id"] != "qualification_boundary_ownership"]
     ok, reason = verify_review_dimensions("GOVERNANCE_MATERIAL", deleted)
     assert not ok and "missing platform-mandatory" in reason
-
     dimensions[0]["mandatory"] = False
     ok, reason = verify_review_dimensions("GOVERNANCE_MATERIAL", dimensions)
     assert not ok and "rebound or weakened" in reason
@@ -98,12 +105,13 @@ def test_platform_not_candidate_decides_preregistration_floor():
     assert preregistration_required(artifact_type="README", candidate_override=True)
 
 
-def test_exposed_acceptance_boundary_cannot_be_rewritten_after_first_exposure():
+def test_platform_binding_allows_governed_acceptance_boundary_and_freezes_after_exposure():
+    authority = _binding("HUMAN_GOVERNANCE_OWNER", "ACCEPTANCE_BOUNDARY_APPROVAL")
     original = acceptance_boundary_record(
         artifact_type="FALSIFICATION_CONTRACT",
-        artifact_sha="a" * 40,
+        artifact_sha=CANDIDATE_SHA,
         boundary_hash="b" * 64,
-        approved_by="HUMAN_GOVERNANCE_OWNER",
+        authority_binding=authority,
         exposed=True,
     )
     proposed = {**original, "boundary_hash": "c" * 64}
@@ -111,22 +119,40 @@ def test_exposed_acceptance_boundary_cannot_be_rewritten_after_first_exposure():
     assert not ok and "immutable" in reason
 
 
-def test_candidate_cannot_approve_its_own_acceptance_boundary():
+def test_naked_acceptance_role_string_is_rejected():
     try:
         acceptance_boundary_record(
             artifact_type="FALSIFICATION_CONTRACT",
-            artifact_sha="a" * 40,
+            artifact_sha=CANDIDATE_SHA,
             boundary_hash="b" * 64,
-            approved_by="CANDIDATE_IMPLEMENTATION",
+            approved_by="HUMAN_GOVERNANCE_OWNER",
         )
     except ValueError as exc:
-        assert "governance-owner" in str(exc)
+        assert "naked" in str(exc)
     else:
-        raise AssertionError("candidate self-approval unexpectedly accepted")
+        raise AssertionError("naked privileged role unexpectedly accepted")
 
 
-def test_material_root_cause_requires_independent_adjudicator_and_bound_evidence():
-    for role in ("CANDIDATE_IMPLEMENTATION", "REVIEWER", "CODING_AGENT", "ORCHESTRATOR"):
+def test_authority_binding_is_exact_sha_policy_and_scope_bound():
+    authority = _binding("HUMAN_GOVERNANCE_OWNER", "ACCEPTANCE_BOUNDARY_APPROVAL")
+    ok, reason = verify_authority_binding(
+        authority,
+        candidate_sha=CANDIDATE_SHA,
+        required_authority_class="HUMAN_GOVERNANCE_OWNER",
+        required_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
+    )
+    assert ok, reason
+    ok, _ = verify_authority_binding(
+        authority,
+        candidate_sha="b" * 40,
+        required_authority_class="HUMAN_GOVERNANCE_OWNER",
+        required_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
+    )
+    assert not ok
+
+
+def test_material_root_cause_requires_sealed_independent_adjudicator_and_bound_evidence():
+    for role in ("CANDIDATE_IMPLEMENTATION", "REVIEWER", "CODING_AGENT", "ORCHESTRATOR", "INDEPENDENT_GOVERNANCE_ADJUDICATOR"):
         ok, _ = root_cause_classification_allowed(
             classification="CODE_DEFECT",
             material=True,
@@ -134,26 +160,21 @@ def test_material_root_cause_requires_independent_adjudicator_and_bound_evidence
             independent_evidence_bound=True,
         )
         assert not ok
-
+    authority = _binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "MATERIAL_ROOT_CAUSE_CLASSIFICATION")
     ok, _ = root_cause_classification_allowed(
-        classification="CODE_DEFECT",
-        material=True,
-        classifier_role="INDEPENDENT_GOVERNANCE_ADJUDICATOR",
-        independent_evidence_bound=False,
+        classification="CODE_DEFECT", material=True, candidate_sha=CANDIDATE_SHA,
+        authority_binding=authority, independent_evidence_bound=False,
     )
     assert not ok
-
     ok, reason = root_cause_classification_allowed(
-        classification="CODE_DEFECT",
-        material=True,
-        classifier_role="INDEPENDENT_GOVERNANCE_ADJUDICATOR",
-        independent_evidence_bound=True,
+        classification="CODE_DEFECT", material=True, candidate_sha=CANDIDATE_SHA,
+        authority_binding=authority, independent_evidence_bound=True,
     )
     assert ok, reason
 
 
-def test_candidate_or_reviewer_cannot_terminally_adjudicate_review_finding():
-    for adjudicator in ("CANDIDATE_IMPLEMENTATION", "REVIEWER_R2"):
+def test_review_finding_requires_sealed_independent_adjudicator():
+    for adjudicator in ("CANDIDATE_IMPLEMENTATION", "REVIEWER_R2", "INDEPENDENT_GOVERNANCE_ADJUDICATOR"):
         ok, _ = reviewer_finding_adjudication_allowed(
             adjudicator_role=adjudicator,
             candidate_role="CANDIDATE_IMPLEMENTATION",
@@ -162,9 +183,10 @@ def test_candidate_or_reviewer_cannot_terminally_adjudicate_review_finding():
             raw_finding_preserved=True,
         )
         assert not ok
-
+    authority = _binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "REVIEW_FINDING_ADJUDICATION")
     ok, reason = reviewer_finding_adjudication_allowed(
-        adjudicator_role="INDEPENDENT_GOVERNANCE_ADJUDICATOR",
+        candidate_sha=CANDIDATE_SHA,
+        authority_binding=authority,
         candidate_role="CANDIDATE_IMPLEMENTATION",
         reviewer_role="REVIEWER_R2",
         exact_sha_bound=True,
@@ -174,9 +196,11 @@ def test_candidate_or_reviewer_cannot_terminally_adjudicate_review_finding():
 
 
 def test_review_adjudication_requires_exact_sha_and_raw_finding_preservation():
-    for exact_sha, preserved in ((False, True), (True, False)):
+    authority = _binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "REVIEW_FINDING_ADJUDICATION")
+    for exact_sha, preserved in ((False, True), (True,False)):
         ok, _ = reviewer_finding_adjudication_allowed(
-            adjudicator_role="INDEPENDENT_GOVERNANCE_ADJUDICATOR",
+            candidate_sha=CANDIDATE_SHA,
+            authority_binding=authority,
             candidate_role="CANDIDATE_IMPLEMENTATION",
             reviewer_role="REVIEWER_R2",
             exact_sha_bound=exact_sha,
@@ -188,67 +212,49 @@ def test_review_adjudication_requires_exact_sha_and_raw_finding_preservation():
 def test_candidate_cannot_defer_current_testing_contract_defect():
     disposition, _ = phase_disposition(
         current_phase="TESTING",
-        violated_contract_phase="TESTING",
+        violated_rule_id="TESTING_QUALIFICATION_BOUNDARY_OWNERSHIP",
         material=True,
     )
     assert disposition == "BLOCK_TESTING"
 
 
-def test_only_later_phase_contract_defects_are_deferred():
+def test_only_platform_mapped_later_phase_rules_are_deferred():
     disposition, _ = phase_disposition(
-        current_phase="TESTING",
-        violated_contract_phase="RELEASE",
-        material=True,
+        current_phase="TESTING", violated_rule_id="RELEASE_INTEGRATION_QUALIFICATION", material=True
     )
     assert disposition == "DEFERRED_TO_RELEASE"
-
     disposition, _ = phase_disposition(
-        current_phase="TESTING",
-        violated_contract_phase="PRODUCTION",
-        material=True,
+        current_phase="TESTING", violated_rule_id="PRODUCTION_ENVIRONMENT_QUALIFICATION", material=True
     )
     assert disposition == "DEFERRED_TO_PRODUCTION"
 
 
-def test_uncertain_phase_applicability_cannot_be_silently_deferred():
-    disposition, _ = phase_disposition(
-        current_phase="TESTING",
-        violated_contract_phase=None,
-        material=True,
-        uncertainty=True,
-    )
+def test_unknown_or_caller_selected_phase_cannot_be_silently_deferred():
+    disposition, _ = phase_disposition(current_phase="TESTING", violated_rule_id="UNKNOWN", material=True)
+    assert disposition == "REQUIREMENT_UNRESOLVED"
+    disposition, _ = phase_disposition(current_phase="TESTING", violated_contract_phase="RELEASE", material=True)
     assert disposition == "REQUIREMENT_UNRESOLVED"
 
 
 def test_model_or_reviewer_cannot_self_appoint_terminal_authority():
     for issuer in ("MODEL", "REVIEWER", "CODING_AGENT", "CI_JOB", "ORCHESTRATOR", "PLATFORM_POLICY", "HUMAN", None):
         ok, _ = terminal_authority_allowed(
-            phase="TESTING",
-            action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
-            issuer_class=issuer,
-            provenance_verified=True,
-            current=True,
+            phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+            issuer_class=issuer, provenance_verified=True, current=True,
         )
         assert not ok
 
 
 def test_testing_terminal_authority_is_narrowly_scoped():
     ok, reason = terminal_authority_allowed(
-        phase="TESTING",
-        action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
-        issuer_class="HUMAN_GOVERNANCE_OWNER",
-        provenance_verified=True,
-        current=True,
+        phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+        issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
     )
     assert ok, reason
-
     for forbidden in ("DEPLOY_PRODUCTION", "MERGE_RELEASE_CANDIDATE", "BEGIN_PRODUCTION_QUALIFICATION"):
         ok, _ = terminal_authority_allowed(
-            phase="TESTING",
-            action=forbidden,
-            issuer_class="HUMAN_GOVERNANCE_OWNER",
-            provenance_verified=True,
-            current=True,
+            phase="TESTING", action=forbidden,
+            issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
         )
         assert not ok
 
@@ -256,10 +262,7 @@ def test_testing_terminal_authority_is_narrowly_scoped():
 def test_terminal_authority_requires_verified_current_provenance():
     for verified, current in ((False, True), (True, False)):
         ok, _ = terminal_authority_allowed(
-            phase="TESTING",
-            action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
-            issuer_class="HUMAN_GOVERNANCE_OWNER",
-            provenance_verified=verified,
-            current=current,
+            phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+            issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=verified, current=current,
         )
         assert not ok
