@@ -1,6 +1,6 @@
 # TESTING Qualification Boundary Ownership — Construction Evidence 001
 
-Status: `OPEN_BLOCKED_ON_MANUAL_AUTHORITY_TRUST_BOUNDARY`
+Status: `OPEN_AWAITING_INDEPENDENT_REFALSIFICATION`
 Phase: `TESTING`
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -11,35 +11,53 @@ Authority effect: `NONE_EVIDENCE_ONLY`
 3. The unittest bridge repaired collection without weakening the frozen attacks.
 4. Genuine RED: run `34438867816` at `d415d60cbb29d1943ef926fea384aa91c9be2043` failed exactly four frozen MR-001/MR-002 attacks.
 5. Construction repair introduced exact-SHA/policy/scope authority bindings and platform-owned governed-rule phase mapping.
-6. Genuine construction green: run `34439504323` at `9fcce813ac92b369d5ce30bb7e9afbd197fffa6c` ran 68 governance tests successfully, including the bridge/frozen spoofing attacks; terminal-authority regressions ran 26 tests successfully.
+6. Genuine construction green: run `34439504323` at `9fcce813ac92b369d5ce30bb7e9afbd197fffa6c` ran 68 governance tests successfully; terminal-authority regressions ran 26 tests successfully.
 7. Manual re-falsification then attacked the trust boundary itself and froze MR-003/MR-004.
 8. RED: run `34439769044` at `5897ffae47f0cb17b06c0c13ee9095bc351516ba` ran 69 tests and failed exactly two frozen tests: candidate-callable authority issuer and contradictory legacy phase label.
 9. MR-004 was narrowly repaired by rejecting every non-null caller-supplied legacy phase label.
-10. Post-MR-004 run `34439904660` at `11d6734fae37520f77f7e9598ac104d4b1d4fcb6` ran 69 tests and failed exactly one frozen attack: candidate-callable authority issuer. The contradictory-phase attack passed.
+10. Post-MR-004 run `34439904660` at `11d6734fae37520f77f7e9598ac104d4b1d4fcb6` ran 69 tests and failed exactly one frozen attack: candidate-callable authority issuer.
+11. Verification-only Ed25519 v4 removed the candidate-callable issuer. A real human-controlled private key remained off-repository. Historical construction green at `f81eb5f3cbde819d60c134ba73287dedc6b67e0b`, run `34441939120`, executed 77 governance tests and 26 terminal-authority tests successfully, including the corrected signed-attestation harness.
+12. Manual re-falsification identified MR-005: the public trust root and its policy pin were still candidate-modifiable in the evaluated repository.
+13. A first MR-005 repair attempted an externally enforced GitHub branch ruleset requiring one approving review. In the actual single-owner repository this requirement was not satisfiable without a genuinely independent collaborator.
+14. PR #27 was merged as `6fb96bb8fd0dd4c5ed9c065a2e4350eec0e0cf67`. Post-merge run `34449284629` correctly went RED with `FAIL_CLOSED: at least one approving review is required`. This RED is preserved; it was not reinterpreted as a pass.
+15. Because no independent collaborator exists, a replacement mechanism was preregistered in `TESTING-QUALIFICATION-EXTERNAL-GOVERNANCE-ROOT-005.md` before changing the trust-source mechanism.
+16. The user created `vij7661/setugo-governance-root`, made it public, and archived it. It contains only public Ed25519 verification material and metadata; no private key. The pinned exact external-root commit is `5f470774ec8c17f5519da8db2aaae59af114cef9`, repository numeric ID `1363676838`.
+17. The production manual-authority verifier was changed to retrieve the public key from that exact external root. Candidate-local PEM material is no longer the production authority source.
+18. PR #28 initial construction run `34451220505` passed with 103 governance tests and 26 terminal-authority tests. This was construction evidence only.
+19. Further falsification found MR-006: policy v4 did not bind the external repository identity, numeric ID, exact root commit, or public/archived requirement in the signed policy hash.
+20. MR-006 was preregistered before mechanism repair in `TESTING-QUALIFICATION-EXTERNAL-ROOT-POLICY-BINDING-006.md`.
+21. Genuine MR-006 RED: run `34451357447` at PR head `4d444718650a314751041de25777aa98f4ef3e76` executed the frozen external-root policy-binding tests. The governance suite ran 105 tests and failed with exactly one assertion failure and one error: policy version remained 4 and the external-root repository field was absent from policy material. Terminal-authority tests were skipped after the RED.
+22. The qualification policy was then bumped to v5 and its policy hash now binds the external repository full name, repository ID, exact external-root commit, trust-root ID, DER fingerprint, and public/archived requirements. Historical v4 signatures remain preserved as historical cryptographic evidence but are rejected as current v5 authority.
+23. Real repaired construction green: run `34451635830` at PR head `81dfbcdcf4f684677c57ce92fa3fdaf5734d4546` completed successfully. The live external governance boundary passed, 106 governance tests passed, and 26 terminal-authority tests passed. Logs explicitly collected the external-root substitution/rebinding tests, external-root policy-binding tests, historical-v4/current-v5 distinction tests, and earlier frozen harness/authority tests.
 
 ## Current adjudication
 
-- QO-01..QO-04: not defeated by the recent manual attacks; not independently closed.
+- QO-01..QO-08: construction mechanisms and regressions are present; they are **not independently/scientifically closed**.
 - MR-001 raw privileged role spoofing: construction-repaired.
 - MR-002 caller-selected phase deferral: construction-repaired.
+- MR-003 candidate-callable authority issuer: construction-repaired by verification-only Ed25519 ingress; still requires independent refalsification of the full resulting boundary.
 - MR-004 contradictory legacy phase label: construction-repaired and frozen regression passes.
-- MR-003 authority ingress trust-domain separation: **OPEN / BLOCK_TESTING**.
+- MR-005 candidate-modifiable trust root: replacement construction now uses exact-commit public archived external governance root plus protected TESTING branch; **construction-repaired, awaiting independent refalsification**.
+- MR-006 external root absent from signed policy binding: construction-repaired in policy v5; genuine RED and later green preserved; **awaiting independent refalsification**.
 
-## MR-003 blocking fact
+## Current trust boundary
 
-`_issue_authority_binding_for_platform_ingress(...)` and the HMAC signing capability reside in the same importable Python module as the verifier. A leading underscore is not access control. Code able to execute/import within that trust domain can invoke the issuer and mint a verifier-accepted privileged binding.
+The configured manual-governance private key is external/off-repository and is not available to candidate/runtime code. Production verification retrieves only the public key from exact external repository commit `5f470774ec8c17f5519da8db2aaae59af114cef9`. The external repository is required to remain public and archived, and its repository identity, numeric ID, exact commit, root ID and public-key fingerprint are bound into qualification policy v5.
 
-Therefore current construction does not establish that the evaluated actor is unable to mint its own authority. TESTING completion and promotion remain blocked.
+`phase/testing` remains governed by an active repository ruleset requiring pull-request flow, strict `falsify-qualification-boundary` status checking, deletion protection, non-fast-forward protection, review-thread resolution and no bypass actors. The single-owner profile uses zero mandatory GitHub approvals; this is a replacement preregistered mechanism, not a reinterpretation of the earlier one-approval RED.
 
-## Required next boundary
+The external root demonstrates control of the configured private key when a valid signature is produced. It does not independently establish a real-world human identity.
 
-The issuer/signing authority must be outside candidate-callable code. The evaluated runtime should receive only verification capability/material and an already-created manual-governance attestation. Establishing that trusted manual authority source requires a human-controlled credential or equivalent external trust root that the candidate runtime cannot access.
+## Remaining scientific boundary
 
-No external reviewer API may be used to satisfy this requirement in TESTING.
+Construction green does not close TESTING qualification. Independent manual falsification must attack QO-01..QO-08 and the full current authority boundary, including candidate-local key/pin substitution, external-root repository/commit rebinding, archived-state loss, signature/payload tampering, stale v4 replay, policy v5 binding, ruleset weakening, phase relabeling, and harness omission.
+
+Any newly exposed material defect must remain BLOCK_TESTING until repaired and independently refalsified.
 
 ## Nonclaims
 
 - No CI success here is terminal authority.
-- No assistant/manual review performed by the implementer is independent acceptance.
-- The in-process HMAC design does not cryptographically prove human identity.
-- QO-01..QO-08 are not declared scientifically closed.
+- No assistant/implementer review is independent acceptance.
+- Historical REDs and false greens remain part of the evidence history.
+- A valid Ed25519 signature proves possession/control of the configured private key, not human identity by itself.
+- No TESTING completion, RELEASE qualification, or PRODUCTION qualification is claimed by this construction evidence.
