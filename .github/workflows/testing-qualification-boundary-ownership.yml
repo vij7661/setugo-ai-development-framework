@@ -10,6 +10,7 @@ on:
       - 'governance-runtime/phase_policy.py'
       - 'governance-runtime/test_phase_policy.py'
       - 'governance-runtime/test_qualification_boundary_policy.py'
+      - 'governance-runtime/test_manual_review_authority_spoofing_regression.py'
       - 'governance-runtime/test_review_protocol.py'
       - 'governance-runtime/test_review_semantics.py'
       - 'governance-runtime/test_review_classification.py'
@@ -20,6 +21,7 @@ on:
       - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md'
       - 'standards/qualification-boundary-ownership.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-OWNERSHIP-001.md'
+      - 'governance-runtime/manual-reviews/TESTING-QUALIFICATION-OWNERSHIP-MANUAL-REVIEW-001.md'
       - '.github/workflows/testing-qualification-boundary-ownership.yml'
   workflow_dispatch:
 
@@ -42,12 +44,13 @@ jobs:
       - name: Record exact candidate SHA
         run: echo "candidate_sha=$(git rev-parse HEAD)"
 
-      - name: Run ownership, phase-policy, and review-protocol regressions
+      - name: Run ownership, phase-policy, manual-RED, and review-protocol regressions
         run: |
           cd governance-runtime
           python -m unittest -v \
             test_phase_policy.py \
             test_qualification_boundary_policy.py \
+            test_manual_review_authority_spoofing_regression.py \
             test_review_protocol.py \
             test_review_semantics.py \
             test_review_classification.py \
