@@ -1,3 +1,4 @@
+# R10-B adversarial fixture: intentional blob-identity substitution; test count/names preserved.
 from qualification_boundary_policy import (
     acceptance_boundary_record,
     phase_disposition,
