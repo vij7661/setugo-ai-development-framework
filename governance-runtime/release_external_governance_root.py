@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -98,15 +99,23 @@ def validate_release_public_key_bytes(pem_bytes: bytes) -> tuple[bool, str]:
     return True, "release governance-root public key fingerprint matches frozen contract"
 
 
-def _fetch_json(url: str) -> Mapping[str, Any]:
-    request = Request(
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "setugo-release-governance-root",
-        },
+def _github_api_headers() -> dict[str, str]:
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "setugo-release-governance-root",
+    }
+    token = (
+        os.environ.get("GOVERNANCE_GITHUB_TOKEN", "").strip()
+        or os.environ.get("GITHUB_TOKEN", "").strip()
     )
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def _fetch_json(url: str) -> Mapping[str, Any]:
+    request = Request(url, headers=_github_api_headers())
     try:
         with urlopen(request, timeout=10) as response:
             raw = response.read()
