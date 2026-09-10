@@ -12,20 +12,27 @@ import phase_policy
 
 
 class PhasePolicyTests(unittest.TestCase):
-    def test_testing_defaults_manual_and_no_api(self):
+    def test_testing_defaults_manual_only_and_no_api(self):
         p = phase_policy.review_transport_policy("TESTING")
-        self.assertEqual("MANUAL", p["default_transport"])
+        self.assertEqual("MANUAL_ONLY", p["default_transport"])
         self.assertFalse(p["external_api_allowed"])
         self.assertFalse(p["automatic_api_dispatch"])
         self.assertTrue(p["ask_user_before_review"])
         self.assertTrue(p["manual_review_can_satisfy_phase_review_gate"])
         self.assertFalse(p["manual_review_can_establish_production_qualification"])
 
-    def test_testing_api_requires_explicit_boundary_or_user_approval(self):
-        self.assertTrue(phase_policy.review_transport_policy("TESTING", api_boundary_under_test=True)["external_api_allowed"])
-        self.assertTrue(phase_policy.review_transport_policy("TESTING", user_approved_api=True)["external_api_allowed"])
+    def test_testing_api_prohibition_cannot_be_overridden(self):
+        for kwargs in (
+            {"api_boundary_under_test": True},
+            {"user_approved_api": True},
+            {"api_boundary_under_test": True, "user_approved_api": True},
+        ):
+            p = phase_policy.review_transport_policy("TESTING", **kwargs)
+            self.assertFalse(p["external_api_allowed"])
+            self.assertFalse(p["api_boundary_under_test_overrides_prohibition"])
+            self.assertFalse(p["user_approval_overrides_prohibition"])
 
-    def test_testing_review_instruction_rejects_production_scope_creep(self):
+    def test_testing_review_instruction_requires_manual_only(self):
         b = phase_policy.build_phase_review_boundary(
             phase="TESTING",
             review_scope=["bounded falsification"],
@@ -33,8 +40,12 @@ class PhasePolicyTests(unittest.TestCase):
             explicit_nonclaims=["production readiness"],
             out_of_scope_dimensions=["production IAM"],
             allowed_evidence=["embedded source"],
+            api_boundary_under_test=True,
+            user_approved_api=True,
         )
         self.assertIn("not a production-readiness review", b["reviewer_instruction"])
+        self.assertIn("manual-only", b["reviewer_instruction"])
+        self.assertFalse(b["review_transport_policy"]["external_api_allowed"])
         self.assertEqual("RELEASE", b["promotion_target"])
         self.assertFalse(b["raw_finding_becomes_governance_rule_automatically"])
 
@@ -82,8 +93,10 @@ class PhasePolicyTests(unittest.TestCase):
                 qualified_sha="b" * 40,
             )
 
-    def test_testing_pass_means_release_qualification_not_production(self):
+    def test_testing_pass_requires_manual_review_and_no_external_reviewer_api(self):
         r = phase_policy.testing_phase_pass_requirements()
+        self.assertIn("manual_review_performed_when_requested_or_required_by_testing_policy", r["required"])
+        self.assertIn("no_external_reviewer_api_invoked_in_testing", r["required"])
         self.assertEqual("READY_TO_BEGIN_RELEASE_QUALIFICATION", r["means"])
         self.assertEqual("PRODUCTION_READY", r["does_not_mean"])
 
