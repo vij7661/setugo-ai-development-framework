@@ -4,6 +4,7 @@ from copy import deepcopy
 import unittest
 
 from integrated_governed_mvp_terminal_authority import (
+    AUTHORITY_SOURCE_CLASS_BY_ACTION,
     evaluate_terminal_authority,
     with_self_hash,
 )
@@ -42,14 +43,15 @@ class TerminalAuthorityGateTests(unittest.TestCase):
         self.authority = self._authority()
 
     def _authority(self, **overrides):
+        action = overrides.get("action", "RELEASE")
         record = {
             "authority_id": "authority-1",
-            "source_class": "HUMAN",
+            "source_class": AUTHORITY_SOURCE_CLASS_BY_ACTION[action],
             "decision": "APPROVE",
             "project_id": "project-1",
             "task_id": "task-1",
             "effect_id": "effect-1",
-            "action": "RELEASE",
+            "action": action,
             "artifact_sha": "abc123",
             "state_version": 7,
             "issued_at_epoch": self.now - 100,
@@ -107,17 +109,32 @@ class TerminalAuthorityGateTests(unittest.TestCase):
         self.assertEqual("DENY_AUTHORITY_RECORD", result["state"])
         self.assertFalse(result["authorized"])
 
-    def test_s6_06_model_or_worker_source_is_denied(self):
-        for source in ("MODEL", "WORKER", "RESEARCHER", "JUDGE"):
+    def test_s6_06_model_worker_reviewer_or_platform_policy_source_is_denied(self):
+        for source in ("MODEL", "WORKER", "RESEARCHER", "JUDGE", "REVIEWER", "PLATFORM_POLICY", "HUMAN"):
             with self.subTest(source=source):
                 result = self._evaluate(authority_record=self._authority(source_class=source))
+                self.assertEqual("DENY_AUTHORITY_SOURCE", result["state"])
+
+    def test_s6_06b_wrong_human_authority_role_for_action_is_denied(self):
+        wrong_by_action = {
+            "RELEASE": "HUMAN_PRODUCTION_AUTHORITY",
+            "MERGE": "HUMAN_GOVERNANCE_OWNER",
+            "DEPLOY": "HUMAN_RELEASE_AUTHORITY",
+            "COMPLETE": "HUMAN_RELEASE_AUTHORITY",
+        }
+        for action, source in wrong_by_action.items():
+            with self.subTest(action=action, source=source):
+                request = {**self.request, "action": action}
+                review = {**self.review, "action": action}
+                authority = self._authority(action=action, source_class=source)
+                result = self._evaluate(terminal_request=request, review_gate=review, authority_record=authority)
                 self.assertEqual("DENY_AUTHORITY_SOURCE", result["state"])
 
     def test_s6_07_action_substitution_is_denied(self):
         request = {**self.request, "action": "MERGE"}
         review = {**self.review, "action": "MERGE"}
         result = self._evaluate(terminal_request=request, review_gate=review)
-        self.assertEqual("DENY_AUTHORITY_RECORD", result["state"])
+        self.assertIn(result["state"], {"DENY_AUTHORITY_SOURCE", "DENY_AUTHORITY_RECORD"})
 
     def test_s6_08_artifact_sha_substitution_is_denied(self):
         request = {**self.request, "artifact_sha": "moved456"}
@@ -215,7 +232,7 @@ class TerminalAuthorityGateTests(unittest.TestCase):
         self.assertEqual("DENY_AUTHORITY_RECORD", self._evaluate(authority_record=tampered)["state"])
 
         changed_action = self._authority(action="MERGE")
-        self.assertEqual("DENY_AUTHORITY_RECORD", self._evaluate(authority_record=changed_action)["state"])
+        self.assertIn(self._evaluate(authority_record=changed_action)["state"], {"DENY_AUTHORITY_SOURCE", "DENY_AUTHORITY_RECORD"})
 
         changed_state_version = self._authority(state_version=6)
         self.assertEqual("DENY_AUTHORITY_RECORD", self._evaluate(authority_record=changed_state_version)["state"])
