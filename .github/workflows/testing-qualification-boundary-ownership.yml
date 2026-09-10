@@ -1,0 +1,49 @@
+name: TESTING Qualification Boundary Ownership
+
+on:
+  push:
+    branches:
+      - phase/testing
+    paths:
+      - 'governance-runtime/qualification_boundary_policy.py'
+      - 'governance-runtime/review_protocol.py'
+      - 'governance-runtime/test_qualification_boundary_policy.py'
+      - 'governance-runtime/test_review_protocol.py'
+      - 'governance-runtime/test_review_semantics.py'
+      - 'governance-runtime/test_review_classification.py'
+      - 'governance-runtime/test_single_file_review_container.py'
+      - 'governance-runtime/test_platform_candidate_review_request_integrity.py'
+      - 'standards/qualification-boundary-ownership.md'
+      - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-OWNERSHIP-001.md'
+      - '.github/workflows/testing-qualification-boundary-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-qualification-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record exact candidate SHA
+        run: echo "candidate_sha=$(git rev-parse HEAD)"
+
+      - name: Run ownership and review-protocol regressions
+        run: |
+          cd governance-runtime
+          python -m unittest -v \
+            test_qualification_boundary_policy.py \
+            test_review_protocol.py \
+            test_review_semantics.py \
+            test_review_classification.py \
+            test_single_file_review_container.py \
+            test_platform_candidate_review_request_integrity.py
