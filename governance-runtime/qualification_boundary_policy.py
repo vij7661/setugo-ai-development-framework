@@ -9,12 +9,15 @@ and terminal-authority issuer/action scope.
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 import hashlib
+import hmac
 import json
+import secrets
 from typing import Any, Mapping, Sequence
 
 POLICY_ID = "QUALIFICATION_BOUNDARY_OWNERSHIP"
-POLICY_VERSION = 2
+POLICY_VERSION = 3
 
 REVIEW_REQUIRED_TRIGGERS = frozenset({
     "EXPERIMENT_ADJUDICATION",
@@ -38,26 +41,14 @@ GOVERNANCE_RELEVANT_PATH_PREFIXES = (
 
 REVIEW_PROFILES: dict[str, tuple[dict[str, Any], ...]] = {
     "GOVERNANCE_MATERIAL": (
-        {
-            "id": "authority_path",
-            "mandatory": True,
-            "description": "Authority, self-grant, waiver and promotion-bypass resistance.",
-        },
-        {
-            "id": "evidence_integrity",
-            "mandatory": True,
-            "description": "Evidence provenance, exact-revision binding and replay resistance.",
-        },
-        {
-            "id": "qualification_boundary_ownership",
-            "mandatory": True,
-            "description": "The evaluated actor cannot define or lower its own qualification boundary.",
-        },
-        {
-            "id": "phase_separation",
-            "mandatory": True,
-            "description": "TESTING cannot acquire RELEASE or PRODUCTION authority.",
-        },
+        {"id": "authority_path", "mandatory": True,
+         "description": "Authority, self-grant, waiver and promotion-bypass resistance."},
+        {"id": "evidence_integrity", "mandatory": True,
+         "description": "Evidence provenance, exact-revision binding and replay resistance."},
+        {"id": "qualification_boundary_ownership", "mandatory": True,
+         "description": "The evaluated actor cannot define or lower its own qualification boundary."},
+        {"id": "phase_separation", "mandatory": True,
+         "description": "TESTING cannot acquire RELEASE or PRODUCTION authority."},
     ),
 }
 
@@ -73,34 +64,36 @@ TESTING_ADVERSARIAL_MATRIX: tuple[dict[str, str], ...] = (
 )
 
 PREREGISTRATION_REQUIRED_ARTIFACT_TYPES = frozenset({
-    "FALSIFICATION_CONTRACT",
-    "ACCEPTANCE_MATRIX",
-    "QUALIFICATION_POLICY",
-    "GOVERNANCE_STANDARD",
-    "PROMOTION_CONTRACT",
+    "FALSIFICATION_CONTRACT", "ACCEPTANCE_MATRIX", "QUALIFICATION_POLICY",
+    "GOVERNANCE_STANDARD", "PROMOTION_CONTRACT",
 })
 
 ROOT_CAUSE_CLASSES = frozenset({
-    "CODE_DEFECT",
-    "FIXTURE_DATA_DEFECT",
-    "TEST_DEFECT",
-    "ENVIRONMENT_TOOLING_DEFECT",
-    "GOVERNANCE_PROCESS_DEFECT",
-    "REQUIREMENT_UNRESOLVED",
-    "REVIEWER_EVIDENCE_ERROR",
+    "CODE_DEFECT", "FIXTURE_DATA_DEFECT", "TEST_DEFECT",
+    "ENVIRONMENT_TOOLING_DEFECT", "GOVERNANCE_PROCESS_DEFECT",
+    "REQUIREMENT_UNRESOLVED", "REVIEWER_EVIDENCE_ERROR",
 })
 
 ROOT_CAUSE_AUTHORITY = {
     "material": "INDEPENDENT_GOVERNANCE_ADJUDICATOR",
     "non_material": "PLATFORM_DETERMINISTIC_CLASSIFIER",
 }
-
 REVIEW_ADJUDICATION_AUTHORITY = "INDEPENDENT_GOVERNANCE_ADJUDICATOR"
 
 PHASE_CONTRACT_OWNERS = {
     "TESTING": "PLATFORM_TESTING_CONTRACT",
     "RELEASE": "PLATFORM_RELEASE_CONTRACT",
     "PRODUCTION": "PLATFORM_PRODUCTION_CONTRACT",
+}
+
+# Platform-owned mapping. Callers identify the governed rule; they do not choose its phase.
+GOVERNED_RULE_PHASES = {
+    "TESTING_ACCEPTANCE_BOUNDARY": "TESTING",
+    "TESTING_ROOT_CAUSE_CLASSIFICATION": "TESTING",
+    "TESTING_REVIEW_ADJUDICATION": "TESTING",
+    "TESTING_QUALIFICATION_BOUNDARY_OWNERSHIP": "TESTING",
+    "RELEASE_INTEGRATION_QUALIFICATION": "RELEASE",
+    "PRODUCTION_ENVIRONMENT_QUALIFICATION": "PRODUCTION",
 }
 
 TERMINAL_AUTHORITY_POLICY: dict[str, Any] = {
@@ -136,6 +129,7 @@ def _policy_material() -> dict[str, Any]:
         "root_cause_authority": ROOT_CAUSE_AUTHORITY,
         "review_adjudication_authority": REVIEW_ADJUDICATION_AUTHORITY,
         "phase_contract_owners": PHASE_CONTRACT_OWNERS,
+        "governed_rule_phases": GOVERNED_RULE_PHASES,
         "terminal_authority_policy": TERMINAL_AUTHORITY_POLICY,
     }
 
@@ -233,7 +227,7 @@ def testing_matrix_binding() -> dict[str, Any]:
     matrix_hash = hashlib.sha256(_canonical(matrix).encode("utf-8")).hexdigest()
     return {
         "matrix_id": "TESTING_STANDARD_ADVERSARIAL_MATRIX",
-        "matrix_version": 2,
+        "matrix_version": 3,
         "matrix_hash": matrix_hash,
         "required_case_ids": [item["id"] for item in matrix],
     }
@@ -251,25 +245,133 @@ def verify_testing_matrix_results(binding: Mapping[str, Any], case_results: Mapp
 
 
 def preregistration_required(*, artifact_type: str, candidate_override: bool | None = None) -> bool:
-    """Platform decides preregistration; caller override cannot lower the floor."""
     platform_floor = artifact_type in PREREGISTRATION_REQUIRED_ARTIFACT_TYPES
     return platform_floor or candidate_override is True
 
 
+@dataclass(frozen=True)
+class AuthorityBinding:
+    candidate_sha: str
+    authority_class: str
+    decision_scope: str
+    evidence_ref: str
+    source_kind: str
+    qualification_policy_id: str
+    qualification_policy_version: int
+    qualification_policy_hash: str
+    seal: str
+
+
+# Process-local capability key. Durable evidence is the manual attestation reference; a trusted
+# platform ingress reconstitutes a fresh in-process binding when needed. Raw caller data cannot
+# manufacture a valid seal merely by copying privileged labels.
+_AUTHORITY_CAPABILITY_KEY = secrets.token_bytes(32)
+
+
+def _binding_payload(*, candidate_sha: str, authority_class: str,
+                     decision_scope: str, evidence_ref: str,
+                     source_kind: str) -> dict[str, Any]:
+    return {
+        "candidate_sha": candidate_sha,
+        "authority_class": authority_class,
+        "decision_scope": decision_scope,
+        "evidence_ref": evidence_ref,
+        "source_kind": source_kind,
+        **policy_binding(),
+    }
+
+
+def _issue_authority_binding_for_platform_ingress(*, candidate_sha: str,
+                                                   authority_class: str,
+                                                   decision_scope: str,
+                                                   evidence_ref: str,
+                                                   source_kind: str = "MANUAL_GOVERNANCE_ATTESTATION") -> AuthorityBinding:
+    """Trusted-ingress constructor; not a candidate/request payload API.
+
+    In TESTING this represents an already-recorded manual governance attestation. It does not
+    itself prove a human identity and therefore must never be exposed as a candidate-callable
+    endpoint. The capability only separates trusted ingress state from naked caller content.
+    """
+    if not all(isinstance(v, str) and v for v in (
+        candidate_sha, authority_class, decision_scope, evidence_ref, source_kind
+    )):
+        raise ValueError("authority binding fields must be non-empty strings")
+    payload = _binding_payload(
+        candidate_sha=candidate_sha,
+        authority_class=authority_class,
+        decision_scope=decision_scope,
+        evidence_ref=evidence_ref,
+        source_kind=source_kind,
+    )
+    seal = hmac.new(
+        _AUTHORITY_CAPABILITY_KEY,
+        _canonical(payload).encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    return AuthorityBinding(seal=seal, **payload)
+
+
+def verify_authority_binding(binding: Any, *, candidate_sha: str,
+                             required_authority_class: str,
+                             required_scope: str) -> tuple[bool, str]:
+    if not isinstance(binding, AuthorityBinding):
+        return False, "privileged authority requires a platform-issued authority binding"
+    payload = _binding_payload(
+        candidate_sha=binding.candidate_sha,
+        authority_class=binding.authority_class,
+        decision_scope=binding.decision_scope,
+        evidence_ref=binding.evidence_ref,
+        source_kind=binding.source_kind,
+    )
+    expected = hmac.new(
+        _AUTHORITY_CAPABILITY_KEY,
+        _canonical(payload).encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    if not hmac.compare_digest(binding.seal, expected):
+        return False, "authority binding seal is invalid"
+    if binding.candidate_sha != candidate_sha:
+        return False, "authority binding is not bound to the exact candidate SHA"
+    if binding.authority_class != required_authority_class:
+        return False, "authority binding class is outside required scope"
+    if binding.decision_scope != required_scope:
+        return False, "authority binding decision scope does not match"
+    current = policy_binding()
+    if (
+        binding.qualification_policy_id != current["qualification_policy_id"]
+        or binding.qualification_policy_version != current["qualification_policy_version"]
+        or binding.qualification_policy_hash != current["qualification_policy_hash"]
+    ):
+        return False, "authority binding policy is stale or rebound"
+    if binding.source_kind != "MANUAL_GOVERNANCE_ATTESTATION":
+        return False, "TESTING privileged authority requires manual governance attestation evidence"
+    return True, "authority binding is valid for exact candidate and decision scope"
+
+
 def acceptance_boundary_record(*, artifact_type: str, artifact_sha: str,
-                               boundary_hash: str, approved_by: str,
+                               boundary_hash: str, authority_binding: AuthorityBinding | None = None,
+                               approved_by: str | None = None,
                                exposed: bool = False) -> dict[str, Any]:
     if not preregistration_required(artifact_type=artifact_type):
         raise ValueError("artifact type does not require platform preregistration")
-    if approved_by != "HUMAN_GOVERNANCE_OWNER":
-        raise ValueError("acceptance boundary requires human governance-owner approval")
-    if not all(isinstance(v, str) and v for v in (artifact_sha, boundary_hash)):
-        raise ValueError("artifact_sha and boundary_hash are required")
+    if approved_by is not None:
+        raise ValueError("naked approved_by role strings are not authority")
+    ok, reason = verify_authority_binding(
+        authority_binding,
+        candidate_sha=artifact_sha,
+        required_authority_class="HUMAN_GOVERNANCE_OWNER",
+        required_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
+    )
+    if not ok:
+        raise ValueError(reason)
+    if not isinstance(boundary_hash, str) or not boundary_hash:
+        raise ValueError("boundary_hash is required")
     return {
         "artifact_type": artifact_type,
         "artifact_sha": artifact_sha,
         "boundary_hash": boundary_hash,
-        "approved_by": approved_by,
+        "approved_by": authority_binding.authority_class,
+        "authority_evidence_ref": authority_binding.evidence_ref,
         "exposed": bool(exposed),
         **policy_binding(),
     }
@@ -277,57 +379,97 @@ def acceptance_boundary_record(*, artifact_type: str, artifact_sha: str,
 
 def acceptance_boundary_change_allowed(*, original: Mapping[str, Any], proposed: Mapping[str, Any]) -> tuple[bool, str]:
     if original.get("exposed") is True:
-        immutable = ("artifact_type", "artifact_sha", "boundary_hash", "approved_by",
-                     "qualification_policy_id", "qualification_policy_version", "qualification_policy_hash")
+        immutable = (
+            "artifact_type", "artifact_sha", "boundary_hash", "approved_by",
+            "authority_evidence_ref", "qualification_policy_id",
+            "qualification_policy_version", "qualification_policy_hash",
+        )
         if any(original.get(field) != proposed.get(field) for field in immutable):
             return False, "exposed acceptance boundary is immutable; create a new preregistration lineage"
     return True, "acceptance boundary change is allowed"
 
 
 def root_cause_classification_allowed(*, classification: str, material: bool,
-                                      classifier_role: str,
-                                      independent_evidence_bound: bool) -> tuple[bool, str]:
+                                      candidate_sha: str | None = None,
+                                      authority_binding: AuthorityBinding | None = None,
+                                      classifier_role: str | None = None,
+                                      independent_evidence_bound: bool = False) -> tuple[bool, str]:
     if classification not in ROOT_CAUSE_CLASSES:
         return False, "unknown root-cause class"
     expected = ROOT_CAUSE_AUTHORITY["material" if material else "non_material"]
-    if classifier_role != expected:
+    if material:
+        if classifier_role is not None:
+            return False, "naked classifier role strings are not authority"
+        if not independent_evidence_bound:
+            return False, "material root-cause classification lacks bound independent evidence"
+        if not isinstance(candidate_sha, str) or not candidate_sha:
+            return False, "material root-cause classification requires exact candidate SHA"
+        return verify_authority_binding(
+            authority_binding,
+            candidate_sha=candidate_sha,
+            required_authority_class=expected,
+            required_scope="MATERIAL_ROOT_CAUSE_CLASSIFICATION",
+        )
+    if classifier_role not in {None, expected}:
         return False, "classifier role is not authorized for this failure materiality"
-    if material and not independent_evidence_bound:
-        return False, "material root-cause classification lacks bound independent evidence"
-    return True, "root-cause classification authority is valid"
+    return True, "non-material root cause may use platform deterministic classifier"
 
 
-def reviewer_finding_adjudication_allowed(*, adjudicator_role: str,
+def reviewer_finding_adjudication_allowed(*, candidate_sha: str | None = None,
+                                           authority_binding: AuthorityBinding | None = None,
+                                           adjudicator_role: str | None = None,
                                            candidate_role: str,
                                            reviewer_role: str,
                                            exact_sha_bound: bool,
                                            raw_finding_preserved: bool) -> tuple[bool, str]:
-    if adjudicator_role != REVIEW_ADJUDICATION_AUTHORITY:
-        return False, "review finding requires independent governance adjudicator"
-    if adjudicator_role in {candidate_role, reviewer_role}:
-        return False, "candidate or reviewer cannot terminally adjudicate its own review evidence"
+    if adjudicator_role is not None:
+        return False, "naked adjudicator role strings are not authority"
     if not exact_sha_bound:
         return False, "adjudication is not bound to exact candidate SHA"
     if not raw_finding_preserved:
         return False, "raw reviewer finding must be preserved before adjudication"
+    if not isinstance(candidate_sha, str) or not candidate_sha:
+        return False, "review adjudication requires exact candidate SHA"
+    ok, reason = verify_authority_binding(
+        authority_binding,
+        candidate_sha=candidate_sha,
+        required_authority_class=REVIEW_ADJUDICATION_AUTHORITY,
+        required_scope="REVIEW_FINDING_ADJUDICATION",
+    )
+    if not ok:
+        return False, reason
+    if authority_binding.authority_class in {candidate_role, reviewer_role}:
+        return False, "candidate or reviewer cannot terminally adjudicate its own review evidence"
     return True, "review finding adjudication authority is valid"
 
 
-def phase_disposition(*, current_phase: str, violated_contract_phase: str | None,
-                      material: bool, uncertainty: bool = False) -> tuple[str, str]:
-    """Derive blocker/defer status from platform phase contracts, never candidate choice."""
+def phase_disposition(*, current_phase: str,
+                      violated_rule_id: str | None = None,
+                      material: bool,
+                      uncertainty: bool = False,
+                      violated_contract_phase: str | None = None) -> tuple[str, str]:
+    """Resolve disposition from platform-owned rule-to-phase mapping.
+
+    `violated_contract_phase` remains only as a compatibility trap: caller-selected phase labels
+    cannot authorize deferral and therefore fail closed without a governed rule identifier.
+    """
     if current_phase not in PHASE_CONTRACT_OWNERS:
         return "BLOCKED", "current phase is unknown"
-    if uncertainty or violated_contract_phase is None:
+    if uncertainty:
         return "REQUIREMENT_UNRESOLVED", "phase applicability is uncertain"
-    if violated_contract_phase == current_phase and material:
-        return "BLOCK_TESTING" if current_phase == "TESTING" else f"BLOCK_{current_phase}", "material defect violates current phase contract"
+    if violated_rule_id is None:
+        if violated_contract_phase is not None:
+            return "REQUIREMENT_UNRESOLVED", "caller-selected phase label is not governed phase evidence"
+        return "REQUIREMENT_UNRESOLVED", "governed violated rule id is required"
+    violated_phase = GOVERNED_RULE_PHASES.get(violated_rule_id)
+    if violated_phase is None:
+        return "REQUIREMENT_UNRESOLVED", "violated rule id is not mapped by platform policy"
     order = {"TESTING": 0, "RELEASE": 1, "PRODUCTION": 2}
-    if violated_contract_phase not in order:
-        return "REQUIREMENT_UNRESOLVED", "violated contract phase is unknown"
-    if order[violated_contract_phase] > order[current_phase]:
-        return f"DEFERRED_TO_{violated_contract_phase}", "defect belongs to a later frozen phase contract"
-    return f"BLOCK_{current_phase}", "defect belongs to current or earlier contract"
+    if violated_phase == current_phase and material:
+        return f"BLOCK_{current_phase}", "material defect violates current frozen phase contract"
+    if order[violated_phase] > order[current_phase]:
+        return f"DEFERRED_TO_{violated_phase}", "defect belongs to a later platform-owned phase contract"
+    return f"BLOCK_{current_phase}", "defect belongs to current or earlier platform-owned contract"
 
 
 def terminal_authority_allowed(*, phase: str, action: str,
