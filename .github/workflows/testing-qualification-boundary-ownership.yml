@@ -20,6 +20,7 @@ on:
       - 'governance-runtime/test_manual_authority_verifier.py'
       - 'governance-runtime/test_manual_authority_signed_attestation.py'
       - 'governance-runtime/test_external_governance_root.py'
+      - 'governance-runtime/test_external_root_policy_binding.py'
       - 'governance-runtime/test_external_trust_root_control.py'
       - 'governance-runtime/test_manual_review_authority_spoofing_regression.py'
       - 'governance-runtime/test_manual_review_authority_ingress_regression.py'
@@ -37,6 +38,7 @@ on:
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-AUTHORITY-SPOOFING-002.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-TRUST-ROOT-ANCHOR-004.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-EXTERNAL-GOVERNANCE-ROOT-005.md'
+      - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-EXTERNAL-ROOT-POLICY-BINDING-006.md'
       - 'governance-runtime/manual-reviews/TESTING-QUALIFICATION-OWNERSHIP-MANUAL-REVIEW-001.md'
       - 'governance-runtime/manual-reviews/TESTING-QUALIFICATION-OWNERSHIP-MANUAL-REVIEW-002.md'
       - 'governance-runtime/failures/TESTING-QUALIFICATION-OWNERSHIP-HARNESS-FALSE-GREEN-001.md'
@@ -85,6 +87,7 @@ jobs:
             test_manual_authority_verifier.py \
             test_manual_authority_signed_attestation.py \
             test_external_governance_root.py \
+            test_external_root_policy_binding.py \
             test_external_trust_root_control.py \
             test_qualification_boundary_unittest_bridge.py \
             test_review_protocol.py \
