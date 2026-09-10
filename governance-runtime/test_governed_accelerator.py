@@ -55,13 +55,14 @@ class GovernedAcceleratorTests(unittest.TestCase):
             body = json.loads(out.read_text())
             self.assertEqual(head, body["candidate_sha"])
             self.assertEqual("TESTING", body["review_phase"])
-            self.assertEqual("MANUAL", body["review_boundary"]["review_transport_policy"]["default_transport"])
-            self.assertFalse(body["review_boundary"]["review_transport_policy"]["external_api_allowed"])
+            policy = body["review_boundary"]["review_transport_policy"]
+            self.assertEqual("MANUAL_ONLY", policy["default_transport"])
+            self.assertFalse(policy["external_api_allowed"])
             self.assertIn("not a production-readiness review", body["review_boundary"]["reviewer_instruction"])
             self.assertEqual(64, len(body["artifacts"][0]["sha256"]))
             self.assertFalse(body["production_readiness_claimed"])
 
-    def test_acc03b_testing_api_allowed_only_when_explicitly_justified(self):
+    def test_acc03b_testing_api_boundary_cannot_override_prohibition(self):
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
         with tempfile.TemporaryDirectory() as td:
             m = manifest(head)
@@ -71,8 +72,10 @@ class GovernedAcceleratorTests(unittest.TestCase):
             p = self.run_cli("packet", "--manifest", str(mp), "--output", str(out))
             self.assertEqual(0, p.returncode, p.stderr)
             body = json.loads(out.read_text())
-            self.assertTrue(body["review_boundary"]["review_transport_policy"]["external_api_allowed"])
-            self.assertFalse(body["review_boundary"]["review_transport_policy"]["automatic_api_dispatch"])
+            policy = body["review_boundary"]["review_transport_policy"]
+            self.assertFalse(policy["external_api_allowed"])
+            self.assertFalse(policy["automatic_api_dispatch"])
+            self.assertFalse(policy["api_boundary_under_test_overrides_prohibition"])
 
     def test_acc04_missing_required_file_fails(self):
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
