@@ -450,16 +450,17 @@ def phase_disposition(*, current_phase: str,
                       violated_contract_phase: str | None = None) -> tuple[str, str]:
     """Resolve disposition from platform-owned rule-to-phase mapping.
 
-    `violated_contract_phase` remains only as a compatibility trap: caller-selected phase labels
-    cannot authorize deferral and therefore fail closed without a governed rule identifier.
+    `violated_contract_phase` is a compatibility trap only. Any caller-supplied phase label is
+    rejected even when a governed rule ID is also supplied, so the platform map remains the
+    single authoritative phase source.
     """
     if current_phase not in PHASE_CONTRACT_OWNERS:
         return "BLOCKED", "current phase is unknown"
     if uncertainty:
         return "REQUIREMENT_UNRESOLVED", "phase applicability is uncertain"
+    if violated_contract_phase is not None:
+        return "REQUIREMENT_UNRESOLVED", "caller-selected phase label is not governed phase evidence"
     if violated_rule_id is None:
-        if violated_contract_phase is not None:
-            return "REQUIREMENT_UNRESOLVED", "caller-selected phase label is not governed phase evidence"
         return "REQUIREMENT_UNRESOLVED", "governed violated rule id is required"
     violated_phase = GOVERNED_RULE_PHASES.get(violated_rule_id)
     if violated_phase is None:
