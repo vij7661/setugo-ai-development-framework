@@ -44,16 +44,46 @@ def valid_ruleset():
 
 
 class ExternalTrustRootControlTests(unittest.TestCase):
-    def assert_rejected(self, mutate, expected_fragment):
+    def assert_rejected(self, mutate, expected_fragment, *, require_admin_bypass_visibility=True):
         payload = valid_ruleset()
         mutate(payload)
-        ok, reason = validate_ruleset_document(payload)
+        ok, reason = validate_ruleset_document(
+            payload,
+            require_admin_bypass_visibility=require_admin_bypass_visibility,
+        )
         self.assertFalse(ok)
         self.assertIn(expected_fragment, reason)
 
     def test_valid_external_ruleset_contract_is_supported(self):
         ok, reason = validate_ruleset_document(valid_ruleset())
         self.assertTrue(ok, reason)
+
+    def test_strict_admin_evidence_missing_bypass_state_fails_closed(self):
+        payload = valid_ruleset()
+        del payload["bypass_actors"]
+        ok, reason = validate_ruleset_document(payload)
+        self.assertFalse(ok)
+        self.assertIn("bypass state is missing", reason)
+
+    def test_runner_visible_mode_does_not_claim_unobservable_bypass_state(self):
+        payload = valid_ruleset()
+        del payload["bypass_actors"]
+        ok, reason = validate_ruleset_document(
+            payload,
+            require_admin_bypass_visibility=False,
+        )
+        self.assertTrue(ok, reason)
+        self.assertIn("runner-visible", reason)
+
+    def test_runner_visible_mode_still_rejects_visible_nonempty_bypass_state(self):
+        payload = valid_ruleset()
+        payload["bypass_actors"] = [{"actor_type": "Integration", "actor_id": 1}]
+        ok, reason = validate_ruleset_document(
+            payload,
+            require_admin_bypass_visibility=False,
+        )
+        self.assertFalse(ok)
+        self.assertIn("bypass actors", reason)
 
     def test_inactive_ruleset_fails_closed(self):
         self.assert_rejected(lambda p: p.__setitem__("enforcement", "disabled"), "not active")
@@ -108,8 +138,6 @@ class ExternalTrustRootControlTests(unittest.TestCase):
         self.assert_rejected(mutate, "required status context")
 
     def test_simultaneous_candidate_pem_and_pin_change_cannot_satisfy_external_contract_by_itself(self):
-        # Candidate-local key/pin substitutions do not alter the external ruleset document.
-        # The governing external contract remains independently required and must still validate.
         payload = copy.deepcopy(valid_ruleset())
         attacker_local_change = {
             "repo_pem_replaced": True,
