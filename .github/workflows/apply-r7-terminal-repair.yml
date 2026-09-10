@@ -23,28 +23,11 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           policy = Path('governance-runtime/qualification_boundary_policy_v4.py')
           text = policy.read_text()
-          old = '''def terminal_authority_allowed(*, phase: str, action: str,
-                                         issuer_class: str | None,
-                                         provenance_verified: bool,
-                                         current: bool) -> tuple[bool, str]:
-              phase_policy = TERMINAL_AUTHORITY_POLICY.get(phase)
-              if not isinstance(phase_policy, Mapping):
-                  return False, "unknown phase has no terminal-authority policy"
-              if not provenance_verified:
-                  return False, "terminal-authority issuer provenance is unverified"
-              if not current:
-                  return False, "terminal authorization is stale or not valid at use time"
-              if issuer_class not in phase_policy["permitted_issuer_classes"]:
-                  return False, "issuer class is not authorized for this phase"
-              if action not in phase_policy["permitted_actions"]:
-                  return False, "terminal action is outside the authority scope for this phase"
-              return True, "terminal authority is permitted by platform-owned policy"
-          '''
-          old = old.replace('                                         ', '                               ').replace('              ', '    ')
-          new = '''def terminal_authority_allowed(*, phase: str, action: str,
+          replacement = '''def terminal_authority_allowed(*, phase: str, action: str,
                                          candidate_sha: str | None = None,
                                          authority_binding: Any = None,
                                          issuer_class: str | None = None,
@@ -79,28 +62,16 @@ jobs:
               if not ok:
                   return False, reason
               return True, "terminal authority is permitted by signed exact-candidate governance attestation"
-          '''
-          new = new.replace('                                         ', '                               ').replace('              ', '    ')
-          if old not in text:
-              raise SystemExit('frozen old terminal function not found; refuse ambiguous repair')
-          policy.write_text(text.replace(old, new))
+          '''.replace('                                         ', '                               ').replace('              ', '    ')
+          pattern = r'def terminal_authority_allowed\(\*, phase: str, action: str,.*?\n\n\n__all__ ='
+          new_text, count = re.subn(pattern, replacement + '\n\n__all__ =', text, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit(f'expected one terminal function, replaced {count}')
+          policy.write_text(new_text)
 
           tests = Path('governance-runtime/test_qualification_boundary_policy.py')
           t = tests.read_text()
-          old_test = '''def test_testing_terminal_authority_is_narrowly_scoped():
-              ok, reason = terminal_authority_allowed(
-                  phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
-                  issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
-              )
-              assert ok, reason
-              for forbidden in ("DEPLOY_PRODUCTION", "MERGE_RELEASE_CANDIDATE", "BEGIN_PRODUCTION_QUALIFICATION"):
-                  ok, _ = terminal_authority_allowed(
-                      phase="TESTING", action=forbidden,
-                      issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
-                  )
-                  assert not ok
-          '''.replace('              ', '    ')
-          new_test = '''def test_testing_terminal_authority_cannot_use_naked_role_or_booleans():
+          replacement_test = '''def test_testing_terminal_authority_cannot_use_naked_role_or_booleans():
               ok, _ = terminal_authority_allowed(
                   phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
                   issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
@@ -126,9 +97,11 @@ jobs:
                   )
                   assert not ok
           '''.replace('              ', '    ')
-          if old_test not in t:
-              raise SystemExit('frozen old terminal test not found; refuse ambiguous test rewrite')
-          tests.write_text(t.replace(old_test, new_test))
+          test_pattern = r'def test_testing_terminal_authority_is_narrowly_scoped\(\):.*?\n\n\ndef test_terminal_authority_requires_verified_current_provenance'
+          new_t, count = re.subn(test_pattern, replacement_test + '\n\ndef test_terminal_authority_requires_verified_current_provenance', t, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit(f'expected one positive naked-authority test, replaced {count}')
+          tests.write_text(new_t)
           PY
 
       - name: Run focused frozen regression
