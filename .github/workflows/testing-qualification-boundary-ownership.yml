@@ -6,10 +6,14 @@ on:
       - phase/testing
     paths:
       - 'governance-runtime/qualification_boundary_policy.py'
+      - 'governance-runtime/qualification_boundary_policy_v4.py'
+      - 'governance-runtime/manual_authority_verifier.py'
+      - 'governance-runtime/trust-roots/governance-public.pem'
       - 'governance-runtime/review_protocol.py'
       - 'governance-runtime/phase_policy.py'
       - 'governance-runtime/test_phase_policy.py'
       - 'governance-runtime/test_qualification_boundary_policy.py'
+      - 'governance-runtime/test_manual_authority_verifier.py'
       - 'governance-runtime/test_manual_review_authority_spoofing_regression.py'
       - 'governance-runtime/test_manual_review_authority_ingress_regression.py'
       - 'governance-runtime/test_qualification_boundary_unittest_bridge.py'
@@ -50,11 +54,12 @@ jobs:
       - name: Record exact candidate SHA
         run: echo "candidate_sha=$(git rev-parse HEAD)"
 
-      - name: Run ownership, phase-policy, manual-RED, and review-protocol regressions
+      - name: Run ownership, manual-authority, phase-policy, manual-RED, and review-protocol regressions
         run: |
           cd governance-runtime
           python -m unittest -v \
             test_phase_policy.py \
+            test_manual_authority_verifier.py \
             test_qualification_boundary_unittest_bridge.py \
             test_review_protocol.py \
             test_review_semantics.py \
