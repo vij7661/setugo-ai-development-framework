@@ -10,6 +10,8 @@ on:
       - '.gitignore'
       - '.github/workflows/release-r1-hardening.yml'
       - '.github/workflows/testing-qualification-boundary-ownership.yml'
+      - '.github/workflows/governed-execution-accelerator.yml'
+      - '.github/workflows/integrated-governed-mvp-slice11-coding-agent-adapter.yml'
 
 permissions:
   contents: read
@@ -32,6 +34,10 @@ jobs:
       - name: Run frozen REL-R1-01 regression
         working-directory: governance-runtime
         run: python -m unittest -v test_release_r1_bridge_shape_guard.py
+
+      - name: Run immutable third-party action pinning regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_release_r1_action_pinning.py
 
       - name: Run qualification bridge regressions
         working-directory: governance-runtime
