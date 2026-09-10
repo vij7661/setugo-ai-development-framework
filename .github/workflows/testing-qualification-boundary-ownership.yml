@@ -13,6 +13,9 @@ on:
       - 'governance-runtime/test_review_classification.py'
       - 'governance-runtime/test_single_file_review_container.py'
       - 'governance-runtime/test_platform_candidate_review_request_integrity.py'
+      - 'experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py'
+      - 'experiments/governed-platform/governance/test_integrated_governed_mvp_slice6_terminal_authority.py'
+      - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md'
       - 'standards/qualification-boundary-ownership.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-OWNERSHIP-001.md'
       - '.github/workflows/testing-qualification-boundary-ownership.yml'
@@ -47,3 +50,8 @@ jobs:
             test_review_classification.py \
             test_single_file_review_container.py \
             test_platform_candidate_review_request_integrity.py
+
+      - name: Run terminal-authority ownership regressions
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice6_terminal_authority.py
