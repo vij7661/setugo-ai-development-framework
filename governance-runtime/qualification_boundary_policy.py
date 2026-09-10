@@ -133,6 +133,19 @@ def review_required(*, trigger: str, material_authority_transition: bool = False
     )
 
 
+def resolve_review_profile(*, trigger: str, artifact_type: str) -> str:
+    """Resolve the profile from platform policy, never from caller preference.
+
+    Version 1 deliberately has one conservative material profile. Future profile
+    splits must be added here and therefore change the qualification policy hash.
+    """
+    if not isinstance(trigger, str) or not trigger:
+        raise ValueError("review trigger is required for platform profile resolution")
+    if not isinstance(artifact_type, str) or not artifact_type:
+        raise ValueError("artifact type is required for platform profile resolution")
+    return "GOVERNANCE_MATERIAL"
+
+
 def review_dimensions(profile_id: str) -> list[dict[str, Any]]:
     try:
         return [deepcopy(item) for item in REVIEW_PROFILES[profile_id]]
