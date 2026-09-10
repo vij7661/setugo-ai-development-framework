@@ -1,0 +1,46 @@
+name: Package TESTING Review Bundle
+
+on:
+  push:
+    branches:
+      - package/testing-review-2fee17ad
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: 2fee17adc147ef0b1e6ddd5d02ce9f7fe9ee45d1
+          fetch-depth: 1
+      - name: Assemble exact review bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bundle/testing-review-2fee17ad
+          git archive 2fee17adc147ef0b1e6ddd5d02ce9f7fe9ee45d1 governance-runtime .github/workflows/testing-qualification-boundary-ownership.yml standards/qualification-boundary-ownership.md | tar -x -C bundle/testing-review-2fee17ad
+          mkdir -p bundle/testing-review-2fee17ad/external-governance-root
+          curl -fsSL https://github.com/vij7661/setugo-governance-root/archive/5f470774ec8c17f5519da8db2aaae59af114cef9.tar.gz | tar -xz --strip-components=1 -C bundle/testing-review-2fee17ad/external-governance-root
+          cat > bundle/testing-review-2fee17ad/EXACT-CANDIDATE.txt <<'EOF'
+          Repository: vij7661/setugo-ai-development-framework
+          Candidate SHA: 2fee17adc147ef0b1e6ddd5d02ce9f7fe9ee45d1
+          Post-merge CI run: 34452469174
+          External governance root:
+            repository: vij7661/setugo-governance-root
+            commit: 5f470774ec8c17f5519da8db2aaae59af114cef9
+          Review posture: independent falsification
+          Authority effect of supplied CI: NONE_EVIDENCE_ONLY
+          EOF
+          cd bundle
+          zip -r ../TESTING-QUALIFICATION-REVIEW-2fee17ad.zip testing-review-2fee17ad >/dev/null
+      - name: Upload review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: TESTING-QUALIFICATION-REVIEW-2fee17ad
+          path: TESTING-QUALIFICATION-REVIEW-2fee17ad.zip
+          if-no-files-found: error
+          retention-days: 7
