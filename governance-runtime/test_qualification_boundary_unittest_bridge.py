@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import unittest
 
+import test_manual_authority_verifier as manual_verifier
 import test_manual_review_authority_ingress_regression as ingress
 import test_manual_review_authority_spoofing_regression as spoofing
 import test_qualification_boundary_policy as ownership
@@ -44,6 +45,13 @@ class QualificationBoundaryModuleFunctionBridgeTests(unittest.TestCase):
         self.assertGreaterEqual(len(tests), 15, "ownership module unexpectedly exposes too few tests")
         for name, fn in tests:
             with self.subTest(module=ownership.__name__, test=name):
+                _execute_sync_test_function(fn)
+
+    def test_all_manual_authority_verifier_module_tests_are_executed(self):
+        tests = _module_tests(manual_verifier)
+        self.assertEqual(2, len(tests), "manual-authority verifier regression count changed")
+        for name, fn in tests:
+            with self.subTest(module=manual_verifier.__name__, test=name):
                 _execute_sync_test_function(fn)
 
     def test_all_frozen_manual_spoofing_regressions_are_executed(self):
