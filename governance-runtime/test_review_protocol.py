@@ -91,6 +91,15 @@ class ReviewProtocolTests(unittest.TestCase):
         }
 
     def _valid_evidence(self, *, provider="anthropic", model="claude-sonnet-5") -> dict:
+        coverage = [
+            {
+                "dimension_id": dimension["id"],
+                "status": "TESTED_SUPPORTED",
+                "evidence": [f"evidence:{dimension['id']}"],
+                "assessment": f"{dimension['id']} tested and supported.",
+            }
+            for dimension in self.request["required_review_dimensions"]
+        ]
         return {
             "review_request_id": "REV-TEST-001",
             "reviewed_artifact_commit": "1" * 40,
@@ -98,20 +107,7 @@ class ReviewProtocolTests(unittest.TestCase):
             "disposition": "PASS",
             "findings": [],
             "evidence_assessment": "All mandatory review dimensions were directly tested and supported.",
-            "review_coverage": [
-                {
-                    "dimension_id": "authority_path",
-                    "status": "TESTED_SUPPORTED",
-                    "evidence": ["evidence:authority_path"],
-                    "assessment": "Authority path tested and supported.",
-                },
-                {
-                    "dimension_id": "evidence_integrity",
-                    "status": "TESTED_SUPPORTED",
-                    "evidence": ["evidence:evidence_integrity"],
-                    "assessment": "Evidence integrity tested and supported.",
-                },
-            ],
+            "review_coverage": coverage,
             "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
         }
 
