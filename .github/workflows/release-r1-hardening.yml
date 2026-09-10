@@ -1,0 +1,29 @@
+name: RELEASE R1 Hardening
+
+on:
+  push:
+    branches:
+      - release/r1-hardening
+  pull_request:
+    paths:
+      - 'governance-runtime/**'
+      - '.github/workflows/release-r1-hardening.yml'
+      - '.github/workflows/testing-qualification-boundary-ownership.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  r1-hardening:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Run frozen REL-R1-01 regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_release_r1_bridge_shape_guard.py
+
+      - name: Run existing qualification bridge regressions
+        working-directory: governance-runtime
+        run: python -m unittest -v test_qualification_boundary_unittest_bridge.py test_qualification_boundary_policy.py test_manual_review_authority_spoofing_regression.py test_manual_review_authority_ingress_regression.py
