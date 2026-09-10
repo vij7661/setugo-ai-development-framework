@@ -1,0 +1,148 @@
+name: Apply R7 terminal repair
+
+on:
+  push:
+    branches:
+      - repair/testing-qualification-refalsification-007
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[r7-terminal-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/testing-qualification-refalsification-007
+          fetch-depth: 0
+
+      - name: Apply frozen R7-01 repair
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          policy = Path('governance-runtime/qualification_boundary_policy_v4.py')
+          text = policy.read_text()
+          old = '''def terminal_authority_allowed(*, phase: str, action: str,
+                                         issuer_class: str | None,
+                                         provenance_verified: bool,
+                                         current: bool) -> tuple[bool, str]:
+              phase_policy = TERMINAL_AUTHORITY_POLICY.get(phase)
+              if not isinstance(phase_policy, Mapping):
+                  return False, "unknown phase has no terminal-authority policy"
+              if not provenance_verified:
+                  return False, "terminal-authority issuer provenance is unverified"
+              if not current:
+                  return False, "terminal authorization is stale or not valid at use time"
+              if issuer_class not in phase_policy["permitted_issuer_classes"]:
+                  return False, "issuer class is not authorized for this phase"
+              if action not in phase_policy["permitted_actions"]:
+                  return False, "terminal action is outside the authority scope for this phase"
+              return True, "terminal authority is permitted by platform-owned policy"
+          '''
+          old = old.replace('                                         ', '                               ').replace('              ', '    ')
+          new = '''def terminal_authority_allowed(*, phase: str, action: str,
+                                         candidate_sha: str | None = None,
+                                         authority_binding: Any = None,
+                                         issuer_class: str | None = None,
+                                         provenance_verified: bool = False,
+                                         current: bool = False) -> tuple[bool, str]:
+              """Authorize only from a signed exact-candidate governance authority binding.
+
+              Legacy issuer/provenance/current inputs are retained so older callers fail
+              closed rather than crash. They are evidence only and cannot produce True.
+              """
+              phase_policy = TERMINAL_AUTHORITY_POLICY.get(phase)
+              if not isinstance(phase_policy, Mapping):
+                  return False, "unknown phase has no terminal-authority policy"
+              if action not in phase_policy["permitted_actions"]:
+                  return False, "terminal action is outside the authority scope for this phase"
+              if not isinstance(candidate_sha, str) or not candidate_sha:
+                  return False, "terminal authority requires exact candidate SHA"
+              if not isinstance(authority_binding, Mapping):
+                  return False, "terminal authority requires signed manual governance attestation"
+
+              permitted = tuple(phase_policy["permitted_issuer_classes"])
+              if len(permitted) != 1:
+                  return False, "terminal-authority policy has ambiguous issuer ownership"
+              required_authority_class = permitted[0]
+              required_scope = f"TERMINAL_ACTION:{phase}:{action}"
+              ok, reason = verify_authority_binding(
+                  authority_binding,
+                  candidate_sha=candidate_sha,
+                  required_authority_class=required_authority_class,
+                  required_scope=required_scope,
+              )
+              if not ok:
+                  return False, reason
+              return True, "terminal authority is permitted by signed exact-candidate governance attestation"
+          '''
+          new = new.replace('                                         ', '                               ').replace('              ', '    ')
+          if old not in text:
+              raise SystemExit('frozen old terminal function not found; refuse ambiguous repair')
+          policy.write_text(text.replace(old, new))
+
+          tests = Path('governance-runtime/test_qualification_boundary_policy.py')
+          t = tests.read_text()
+          old_test = '''def test_testing_terminal_authority_is_narrowly_scoped():
+              ok, reason = terminal_authority_allowed(
+                  phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+                  issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
+              )
+              assert ok, reason
+              for forbidden in ("DEPLOY_PRODUCTION", "MERGE_RELEASE_CANDIDATE", "BEGIN_PRODUCTION_QUALIFICATION"):
+                  ok, _ = terminal_authority_allowed(
+                      phase="TESTING", action=forbidden,
+                      issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
+                  )
+                  assert not ok
+          '''.replace('              ', '    ')
+          new_test = '''def test_testing_terminal_authority_cannot_use_naked_role_or_booleans():
+              ok, _ = terminal_authority_allowed(
+                  phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+                  issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
+              )
+              assert not ok
+
+              forged = _untrusted_binding(
+                  "HUMAN_GOVERNANCE_OWNER",
+                  "TERMINAL_ACTION:TESTING:READY_TO_BEGIN_RELEASE_QUALIFICATION",
+              )
+              ok, _ = terminal_authority_allowed(
+                  phase="TESTING",
+                  action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+                  candidate_sha=CANDIDATE_SHA,
+                  authority_binding=forged,
+              )
+              assert not ok
+
+              for forbidden in ("DEPLOY_PRODUCTION", "MERGE_RELEASE_CANDIDATE", "BEGIN_PRODUCTION_QUALIFICATION"):
+                  ok, _ = terminal_authority_allowed(
+                      phase="TESTING", action=forbidden,
+                      candidate_sha=CANDIDATE_SHA, authority_binding=forged,
+                  )
+                  assert not ok
+          '''.replace('              ', '    ')
+          if old_test not in t:
+              raise SystemExit('frozen old terminal test not found; refuse ambiguous test rewrite')
+          tests.write_text(t.replace(old_test, new_test))
+          PY
+
+      - name: Run focused frozen regression
+        shell: bash
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v test_qualification_boundary_unittest_bridge.py
+
+      - name: Remove temporary repair workflow and commit
+        shell: bash
+        run: |
+          rm .github/workflows/apply-r7-terminal-repair.yml
+          git config user.name 'setugo-governance-construction'
+          git config user.email '58181021+vij7661@users.noreply.github.com'
+          git add -A
+          git commit -m 'Require signed exact-SHA terminal authority [r7-terminal-applied]'
+          git push origin HEAD:repair/testing-qualification-refalsification-007
