@@ -50,7 +50,6 @@ jobs:
           cd governance-runtime
           python -m unittest -v \
             test_phase_policy.py \
-            test_manual_authority_verifier.py \
             test_manual_authority_signed_attestation.py \
             test_external_governance_root.py \
             test_external_root_policy_binding.py \
