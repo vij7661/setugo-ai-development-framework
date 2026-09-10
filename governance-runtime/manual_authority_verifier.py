@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Verification-only manual governance authority ingress.
 
-This module contains no signing key and exposes no privileged issuer. It verifies
-Ed25519 signatures against the human-controlled public trust root committed under
-``trust-roots/governance-public.pem``.
+Production governance decisions verify Ed25519 signatures against a public key
+resolved from the pinned, public, archived external governance-root repository.
+No private signing key or privileged issuer exists in this module.
 """
 from __future__ import annotations
 
@@ -15,9 +15,13 @@ import subprocess
 import tempfile
 from typing import Any, Mapping
 
+from external_governance_root import (
+    ExternalGovernanceRootError,
+    TRUST_ROOT_ID,
+    fetch_external_public_key,
+)
+
 SCHEMA_VERSION = 1
-TRUST_ROOT_ID = "SETUGO_MANUAL_GOVERNANCE_ED25519_V1"
-TRUSTED_PUBLIC_KEY_PATH = Path(__file__).resolve().parent / "trust-roots" / "governance-public.pem"
 REQUIRED_FIELDS = frozenset({
     "schema_version",
     "candidate_sha",
@@ -41,14 +45,15 @@ def canonical_attestation_bytes(attestation: Mapping[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
-def _verify_ed25519_signature(*, payload: bytes, signature: bytes,
-                              public_key_path: Path) -> tuple[bool, str]:
-    if not public_key_path.is_file():
-        return False, "manual governance public trust root is missing"
+def _verify_ed25519_signature_bytes(*, payload: bytes, signature: bytes,
+                                    public_key_bytes: bytes) -> tuple[bool, str]:
     try:
         with tempfile.TemporaryDirectory(prefix="setugo-governance-verify-") as td:
-            payload_path = Path(td) / "attestation.json"
-            signature_path = Path(td) / "attestation.sig"
+            root = Path(td)
+            public_key_path = root / "governance-public.pem"
+            payload_path = root / "attestation.json"
+            signature_path = root / "attestation.sig"
+            public_key_path.write_bytes(public_key_bytes)
             payload_path.write_bytes(payload)
             signature_path.write_bytes(signature)
             result = subprocess.run(
@@ -70,6 +75,17 @@ def _verify_ed25519_signature(*, payload: bytes, signature: bytes,
     return True, "manual governance Ed25519 signature is valid"
 
 
+def _verify_ed25519_signature(*, payload: bytes, signature: bytes,
+                              public_key_path: Path) -> tuple[bool, str]:
+    if not public_key_path.is_file():
+        return False, "manual governance public trust root is missing"
+    return _verify_ed25519_signature_bytes(
+        payload=payload,
+        signature=signature,
+        public_key_bytes=public_key_path.read_bytes(),
+    )
+
+
 def verify_manual_authority_attestation(
     attestation: Any,
     signature_b64: Any,
@@ -79,7 +95,7 @@ def verify_manual_authority_attestation(
     required_scope: str,
     qualification_policy_binding: Mapping[str, Any],
 ) -> tuple[bool, str]:
-    """Verify one human-signed authority attestation against the fixed trust root."""
+    """Verify one human-signed authority attestation against the external trust root."""
     if not isinstance(attestation, Mapping):
         return False, "manual governance attestation must be a mapping"
     supplied = dict(attestation)
@@ -118,10 +134,15 @@ def verify_manual_authority_attestation(
     if len(signature) != 64:
         return False, "manual governance Ed25519 signature length is invalid"
 
-    return _verify_ed25519_signature(
+    try:
+        external_public_key = fetch_external_public_key()
+    except ExternalGovernanceRootError as exc:
+        return False, f"external governance root unavailable or invalid: {exc}"
+
+    return _verify_ed25519_signature_bytes(
         payload=canonical_attestation_bytes(supplied),
         signature=signature,
-        public_key_path=TRUSTED_PUBLIC_KEY_PATH,
+        public_key_bytes=external_public_key,
     )
 
 
