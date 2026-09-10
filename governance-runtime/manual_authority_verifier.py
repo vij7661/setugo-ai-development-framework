@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Verification-only manual governance authority ingress.
+"""Verification-only TESTING manual governance authority ingress.
 
-Production governance decisions verify Ed25519 signatures against a public key
-resolved from the pinned, public, archived external governance-root repository.
-No private signing key or privileged issuer exists in this module.
+This verifier is bound to the TESTING governance root. RELEASE and PRODUCTION
+terminal authority must use their own phase-scoped roots. No private signing key
+or privileged issuer exists in this module.
 """
 from __future__ import annotations
 
@@ -33,6 +33,10 @@ REQUIRED_FIELDS = frozenset({
     "qualification_policy_version",
     "qualification_policy_hash",
     "trust_root_id",
+})
+TESTING_PERMITTED_AUTHORITY_CLASSES = frozenset({
+    "HUMAN_GOVERNANCE_OWNER",
+    "INDEPENDENT_GOVERNANCE_ADJUDICATOR",
 })
 
 
@@ -95,7 +99,9 @@ def verify_manual_authority_attestation(
     required_scope: str,
     qualification_policy_binding: Mapping[str, Any],
 ) -> tuple[bool, str]:
-    """Verify one human-signed authority attestation against the external trust root."""
+    """Verify one TESTING-scoped human-signed governance attestation."""
+    if required_authority_class not in TESTING_PERMITTED_AUTHORITY_CLASSES:
+        return False, "TESTING trust root cannot satisfy RELEASE or PRODUCTION authority"
     if not isinstance(attestation, Mapping):
         return False, "manual governance attestation must be a mapping"
     supplied = dict(attestation)
