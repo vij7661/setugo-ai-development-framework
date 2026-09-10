@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "review_id": "GOV-TESTING-REVIEW-001",
+  "review_class": "USER_ATTESTED_EXTERNAL_LLM_REVIEW",
+  "phase": "TESTING",
+  "received_at": "2026-09-10T03:35:20Z",
+  "review_disposition": "CHANGES_REQUIRED",
+  "authority_effect": "NONE",
+  "candidate_branch": "phase/testing",
+  "candidate_sha": "0286a8f8e6ba8c1b10efe6ab721f28d91591dab5",
+  "review_scope": "Governed rules and phase-aware testing governance",
+  "findings": [
+    {"id":"T-001","claimed_severity":"Critical","summary":"Testing review-required trigger is not deterministic.","initial_adjudication":"VALID_GAP"},
+    {"id":"T-002","claimed_severity":"High","summary":"No general durable adjudication-record schema binds finding, candidate and evidence.","initial_adjudication":"VALID_GAP"},
+    {"id":"T-003","claimed_severity":"High","summary":"Promotion does not explicitly reject TESTING to PRODUCTION.","initial_adjudication":"REVIEWER_EVIDENCE_ERROR_ALREADY_ENFORCED"},
+    {"id":"T-004","claimed_severity":"High","summary":"Agent-invoked governance-validation PASS could be confused with qualification.","initial_adjudication":"PARTIAL_VALID_GAP"},
+    {"id":"T-005","claimed_severity":"High","summary":"Adjudication reproduction requirement is underspecified.","initial_adjudication":"VALID_GAP"},
+    {"id":"T-006","claimed_severity":"Medium","summary":"Testing API approval is not structurally scoped/bound.","initial_adjudication":"VALID_DEFERRED_TESTING_BOUNDARY"},
+    {"id":"T-007","claimed_severity":"Medium","summary":"Invalid reviewer findings are not explicitly required to remain preserved.","initial_adjudication":"VALID_CLARIFICATION_GAP"},
+    {"id":"T-008","claimed_severity":"Medium","summary":"Shared-memory-only rule may be treated as authority after failed Git persist.","initial_adjudication":"REVIEWER_EVIDENCE_ERROR_ALREADY_BLOCKED_BY_PRECEDENCE"}
+  ],
+  "notes": [
+    "This review is evidence only and does not itself change governance authority.",
+    "T-003 is already deterministically rejected by phase_policy.validate_promotion and its regression test.",
+    "T-008 is already covered by Git-first authority precedence and persistence-before-memory synchronization; shared memory is never independently authoritative.",
+    "All remaining accepted gaps require frozen tests before repair."
+  ]
+}
