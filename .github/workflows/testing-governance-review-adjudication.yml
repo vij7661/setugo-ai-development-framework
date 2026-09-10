@@ -1,0 +1,45 @@
+name: Testing Governance Review Adjudication
+
+on:
+  pull_request:
+    branches:
+      - phase/testing
+    paths:
+      - 'governance-runtime/**'
+      - '.github/workflows/testing-governance-review-adjudication.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  review-derived-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frozen review-derived governance tests
+        run: python -m unittest -v governance-runtime/test_governance_review_adjudication.py
+
+  existing-phase-regressions:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Existing phase policy tests
+        run: python -m unittest -v governance-runtime/test_phase_policy.py
+      - name: Existing coding-agent adapter tests
+        run: python -m unittest -v governance-runtime/test_coding_agent_adapter.py
+
+  aggregate:
+    runs-on: ubuntu-24.04
+    needs: [review-derived-tests, existing-phase-regressions]
+    if: always()
+    steps:
+      - name: Fail closed unless both jobs pass
+        run: |
+          test "${{ needs.review-derived-tests.result }}" = "success"
+          test "${{ needs.existing-phase-regressions.result }}" = "success"
