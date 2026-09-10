@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
 import re
-from typing import Any, Callable, Iterable, Mapping, Sequence
+from typing import Any, Callable, Iterable, Mapping
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SECRET_PATTERNS = (
@@ -31,6 +31,15 @@ GOVERNANCE_PREFIXES = (
 TERMINAL_AUTHORITY_KEYS = frozenset({
     "merge_authorized", "release_authorized", "deploy_authorized", "promotion_authorized",
     "terminal_authority", "authority_granted",
+})
+AGENT_FORBIDDEN_EVIDENCE_KEYS = frozenset({
+    "agent_claimed_governance_validation",
+    "governance_validation",
+    "qualification_status",
+    "qualification_pass",
+    "acceptance_status",
+    "review_approval",
+    "promotion_approval",
 })
 REQUIRED_NATIVE_FIELDS = frozenset({
     "completion_state", "changed_artifacts", "commands_run", "test_results",
@@ -86,6 +95,12 @@ def _contains_secret(value: Any) -> bool:
     if not isinstance(value, str):
         return False
     return any(p.search(value) for p in SECRET_PATTERNS)
+
+
+def _reject_agent_claimed_governance_evidence(value: Mapping[str, Any]) -> None:
+    for key in AGENT_FORBIDDEN_EVIDENCE_KEYS:
+        if key in value and value.get(key) not in (None, False, "", "NONE", "NOT_APPLICABLE"):
+            raise AuthorityViolation(f"agent-provided {key} is REJECTED_EVIDENCE")
 
 
 @dataclass(frozen=True)
@@ -289,6 +304,7 @@ class CodingAgentExecutionGateway:
             raise AdapterContractError("native result candidate_sha does not match governed task")
         if _contains_secret(native):
             raise SecretContainmentViolation("raw secret-like material detected in agent result")
+        _reject_agent_claimed_governance_evidence(native)
         authority = native.get("authority_effect")
         if authority not in (None, "", "NONE"):
             raise AuthorityViolation("agent attempted to assert authority")
@@ -305,6 +321,7 @@ class CodingAgentExecutionGateway:
         if not isinstance(raw, Mapping):
             raise AdapterContractError("adapter normalize() must return a mapping")
         out = dict(raw)
+        _reject_agent_claimed_governance_evidence(out)
         out.update({
             "schema_version": 1,
             "execution_id": execution_id,
@@ -373,12 +390,13 @@ class CodingAgentExecutionGateway:
         out = self._normalize(adapter, task, native, execution_id)
         self._validate_scope_and_test_integrity(task, out)
         saved = self.store.put(out)
-        # Coding-agent execution is never a reviewer dispatch side effect. Review is a separate governed action.
+        # Coding-agent execution is never a reviewer dispatch or governance qualification side effect.
         return saved
 
     def ingest_result(self, result: Mapping[str, Any]) -> dict[str, Any]:
         if not isinstance(result, Mapping):
             raise AdapterContractError("result must be a mapping")
+        _reject_agent_claimed_governance_evidence(result)
         if result.get("authority_effect") != "NONE":
             raise AuthorityViolation("ingested result cannot carry authority")
         if _contains_secret(result):
