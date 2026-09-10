@@ -15,7 +15,7 @@ from external_governance_root import (
 
 class ExternalRootPolicyBindingRegressionTests(unittest.TestCase):
     def test_policy_version_is_bumped_for_material_external_root_change(self):
-        self.assertEqual(policy.POLICY_VERSION, 5)
+        self.assertEqual(policy.POLICY_VERSION, 6)
 
     def test_policy_hash_material_binds_exact_external_root(self):
         material = policy._policy_material()

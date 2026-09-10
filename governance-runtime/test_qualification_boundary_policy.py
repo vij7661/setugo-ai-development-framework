@@ -34,7 +34,7 @@ def test_policy_binding_is_deterministic_and_nonempty():
     binding = policy_binding()
     assert binding["qualification_policy_hash"] == qualification_policy_hash()
     assert len(binding["qualification_policy_hash"]) == 64
-    assert binding["qualification_policy_version"] == 5
+    assert binding["qualification_policy_version"] == 6
 
 
 def test_candidate_cannot_lower_governance_review_floor_with_benign_trigger():

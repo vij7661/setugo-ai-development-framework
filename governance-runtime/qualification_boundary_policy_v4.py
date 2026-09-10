@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Qualification-boundary policy v5: external-root-bound manual authority ingress.
+"""Qualification-boundary policy v6: external-root-bound manual authority ingress.
 
 The filename is retained for compatibility; POLICY_VERSION is authoritative.
 """
@@ -22,7 +22,7 @@ from external_governance_root import (
 )
 
 POLICY_ID = "QUALIFICATION_BOUNDARY_OWNERSHIP"
-POLICY_VERSION = 5
+POLICY_VERSION = 6
 TRUST_ROOT_PUBLIC_KEY_DER_SHA256 = EXPECTED_PUBLIC_KEY_DER_SHA256
 
 REVIEW_REQUIRED_TRIGGERS = frozenset({
