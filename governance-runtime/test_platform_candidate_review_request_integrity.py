@@ -39,22 +39,24 @@ def valid_request(request_id: str = "GRI-VALID-001") -> dict:
     )
 
 
-def valid_review(request_id: str = "GRI-VALID-001") -> dict:
+def valid_review(request: dict) -> dict:
     return {
-        "review_request_id": request_id,
-        "reviewed_artifact_commit": CANDIDATE,
+        "review_request_id": request["review_request_id"],
+        "reviewed_artifact_commit": request["artifact"]["commit"],
         "reviewer": {"provider": "gemini", "model": "gemini-3.6-flash"},
         "disposition": "PASS",
         "findings": [],
-        "evidence_assessment": "Exact request integrity and bounded review path supported.",
+        "evidence_assessment": "Exact request integrity and all platform-owned review dimensions supported.",
         "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
         "review_coverage": [
             {
-                "dimension_id": "request_integrity",
+                "dimension_id": dimension["id"],
                 "status": "TESTED_SUPPORTED",
-                "evidence": ["frozen regression"],
+                "evidence": [f"evidence:{dimension['id']}"],
                 "assessment": "supported",
             }
+            for dimension in request["required_review_dimensions"]
+            if dimension.get("mandatory")
         ],
     }
 
@@ -101,7 +103,7 @@ class PlatformCandidateReviewRequestIntegrityTests(unittest.TestCase):
 
     def test_gri_05_valid_request_still_reaches_existing_provider_path(self):
         request = valid_request("GRI-MAIN-VALID")
-        review = valid_review("GRI-MAIN-VALID")
+        review = valid_review(request)
         corpus = {
             "schema_version": 1,
             "review_request": request,
