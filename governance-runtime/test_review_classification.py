@@ -43,15 +43,16 @@ class ReviewClassificationTests(unittest.TestCase):
             "reviewer": {"provider": "deepseek", "model": "deepseek-reasoner"},
             "disposition": "PASS",
             "findings": [],
-            "evidence_assessment": "The mandatory authority dimension was directly tested and supported.",
+            "evidence_assessment": "All required dimensions were directly tested and supported.",
             "independence_attestation": "BLIND_TO_PROPOSER_CONCLUSION",
             "review_coverage": [
                 {
-                    "dimension_id": "authority",
+                    "dimension_id": dimension["id"],
                     "status": "TESTED_SUPPORTED",
-                    "evidence": ["review_protocol.py authority gate"],
-                    "assessment": "Authority boundary directly tested.",
+                    "evidence": [f"evidence:{dimension['id']}"],
+                    "assessment": f"{dimension['id']} directly tested.",
                 }
+                for dimension in self.request["required_review_dimensions"]
             ],
         }
         self.authoritative_state = {
