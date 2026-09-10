@@ -25,7 +25,7 @@ def valid_ruleset():
             {
                 "type": "pull_request",
                 "parameters": {
-                    "required_approving_review_count": 1,
+                    "required_approving_review_count": 0,
                     "require_code_owner_review": True,
                     "required_review_thread_resolution": True,
                 },
@@ -54,7 +54,7 @@ class ExternalTrustRootControlTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn(expected_fragment, reason)
 
-    def test_valid_external_ruleset_contract_is_supported(self):
+    def test_valid_single_owner_ruleset_contract_is_supported(self):
         ok, reason = validate_ruleset_document(valid_ruleset())
         self.assertTrue(ok, reason)
 
@@ -68,20 +68,14 @@ class ExternalTrustRootControlTests(unittest.TestCase):
     def test_runner_visible_mode_does_not_claim_unobservable_bypass_state(self):
         payload = valid_ruleset()
         del payload["bypass_actors"]
-        ok, reason = validate_ruleset_document(
-            payload,
-            require_admin_bypass_visibility=False,
-        )
+        ok, reason = validate_ruleset_document(payload, require_admin_bypass_visibility=False)
         self.assertTrue(ok, reason)
         self.assertIn("runner-visible", reason)
 
     def test_runner_visible_mode_still_rejects_visible_nonempty_bypass_state(self):
         payload = valid_ruleset()
         payload["bypass_actors"] = [{"actor_type": "Integration", "actor_id": 1}]
-        ok, reason = validate_ruleset_document(
-            payload,
-            require_admin_bypass_visibility=False,
-        )
+        ok, reason = validate_ruleset_document(payload, require_admin_bypass_visibility=False)
         self.assertFalse(ok)
         self.assertIn("bypass actors", reason)
 
@@ -105,10 +99,10 @@ class ExternalTrustRootControlTests(unittest.TestCase):
             "pull-request protection",
         )
 
-    def test_zero_required_approvals_fails_closed(self):
+    def test_nonzero_required_approval_count_is_rejected_in_single_owner_profile(self):
         def mutate(p):
-            next(r for r in p["rules"] if r["type"] == "pull_request")["parameters"]["required_approving_review_count"] = 0
-        self.assert_rejected(mutate, "approving review")
+            next(r for r in p["rules"] if r["type"] == "pull_request")["parameters"]["required_approving_review_count"] = 1
+        self.assert_rejected(mutate, "single-owner")
 
     def test_missing_review_thread_resolution_fails_closed(self):
         def mutate(p):
