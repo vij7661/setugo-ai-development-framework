@@ -140,6 +140,38 @@ def review_dimensions(profile_id: str) -> list[dict[str, Any]]:
         raise ValueError(f"unknown platform review profile: {profile_id}") from exc
 
 
+def merge_review_dimensions(profile_id: str, requested: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Resolve a request to the immutable platform floor plus caller-added scope.
+
+    When a caller reuses a platform-owned dimension id, the platform definition
+    wins. Extra dimensions may only increase review scope; they cannot replace,
+    delete, downgrade, or narrow the platform floor.
+    """
+    platform = review_dimensions(profile_id)
+    platform_ids = {item["id"] for item in platform}
+    extras: list[dict[str, Any]] = []
+    seen = set(platform_ids)
+    for item in requested:
+        if not isinstance(item, Mapping):
+            raise ValueError("review dimension must be a mapping")
+        did = item.get("id")
+        mandatory = item.get("mandatory")
+        description = item.get("description")
+        if not isinstance(did, str) or not did:
+            raise ValueError("review dimension id is required")
+        if did in platform_ids:
+            continue
+        if did in seen:
+            raise ValueError(f"duplicate review dimension id: {did}")
+        if not isinstance(mandatory, bool):
+            raise ValueError(f"review dimension mandatory flag is required: {did}")
+        if not isinstance(description, str) or not description:
+            raise ValueError(f"review dimension description is required: {did}")
+        seen.add(did)
+        extras.append({"id": did, "mandatory": mandatory, "description": description})
+    return platform + extras
+
+
 def verify_review_dimensions(profile_id: str, supplied: Sequence[Mapping[str, Any]]) -> tuple[bool, str]:
     """Verify supplied request dimensions preserve the complete platform floor.
 
