@@ -407,21 +407,40 @@ def phase_disposition(*, current_phase: str,
 
 
 def terminal_authority_allowed(*, phase: str, action: str,
-                               issuer_class: str | None,
-                               provenance_verified: bool,
-                               current: bool) -> tuple[bool, str]:
+           candidate_sha: str | None = None,
+           authority_binding: Any = None,
+           issuer_class: str | None = None,
+           provenance_verified: bool = False,
+           current: bool = False) -> tuple[bool, str]:
+    """Authorize only from a signed exact-candidate governance authority binding.
+
+    Legacy issuer/provenance/current inputs are retained so older callers fail
+    closed rather than crash. They are evidence only and cannot produce True.
+    """
     phase_policy = TERMINAL_AUTHORITY_POLICY.get(phase)
     if not isinstance(phase_policy, Mapping):
         return False, "unknown phase has no terminal-authority policy"
-    if not provenance_verified:
-        return False, "terminal-authority issuer provenance is unverified"
-    if not current:
-        return False, "terminal authorization is stale or not valid at use time"
-    if issuer_class not in phase_policy["permitted_issuer_classes"]:
-        return False, "issuer class is not authorized for this phase"
     if action not in phase_policy["permitted_actions"]:
         return False, "terminal action is outside the authority scope for this phase"
-    return True, "terminal authority is permitted by platform-owned policy"
+    if not isinstance(candidate_sha, str) or not candidate_sha:
+        return False, "terminal authority requires exact candidate SHA"
+    if not isinstance(authority_binding, Mapping):
+        return False, "terminal authority requires signed manual governance attestation"
+
+    permitted = tuple(phase_policy["permitted_issuer_classes"])
+    if len(permitted) != 1:
+        return False, "terminal-authority policy has ambiguous issuer ownership"
+    required_authority_class = permitted[0]
+    required_scope = f"TERMINAL_ACTION:{phase}:{action}"
+    ok, reason = verify_authority_binding(
+        authority_binding,
+        candidate_sha=candidate_sha,
+        required_authority_class=required_authority_class,
+        required_scope=required_scope,
+    )
+    if not ok:
+        return False, reason
+    return True, "terminal authority is permitted by signed exact-candidate governance attestation"
 
 
 __all__ = [name for name in globals() if not name.startswith("_")]

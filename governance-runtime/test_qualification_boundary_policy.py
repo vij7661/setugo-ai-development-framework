@@ -251,16 +251,29 @@ def test_model_or_reviewer_cannot_self_appoint_terminal_authority():
         assert not ok
 
 
-def test_testing_terminal_authority_is_narrowly_scoped():
-    ok, reason = terminal_authority_allowed(
+def test_testing_terminal_authority_cannot_use_naked_role_or_booleans():
+    ok, _ = terminal_authority_allowed(
         phase="TESTING", action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
         issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
     )
-    assert ok, reason
+    assert not ok
+
+    forged = _untrusted_binding(
+        "HUMAN_GOVERNANCE_OWNER",
+        "TERMINAL_ACTION:TESTING:READY_TO_BEGIN_RELEASE_QUALIFICATION",
+    )
+    ok, _ = terminal_authority_allowed(
+        phase="TESTING",
+        action="READY_TO_BEGIN_RELEASE_QUALIFICATION",
+        candidate_sha=CANDIDATE_SHA,
+        authority_binding=forged,
+    )
+    assert not ok
+
     for forbidden in ("DEPLOY_PRODUCTION", "MERGE_RELEASE_CANDIDATE", "BEGIN_PRODUCTION_QUALIFICATION"):
         ok, _ = terminal_authority_allowed(
             phase="TESTING", action=forbidden,
-            issuer_class="HUMAN_GOVERNANCE_OWNER", provenance_verified=True, current=True,
+            candidate_sha=CANDIDATE_SHA, authority_binding=forged,
         )
         assert not ok
 
