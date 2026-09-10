@@ -22,8 +22,10 @@ on:
       - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md'
       - 'standards/qualification-boundary-ownership.md'
       - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-OWNERSHIP-001.md'
+      - 'governance-runtime/repair-preregistrations/TESTING-QUALIFICATION-AUTHORITY-SPOOFING-002.md'
       - 'governance-runtime/manual-reviews/TESTING-QUALIFICATION-OWNERSHIP-MANUAL-REVIEW-001.md'
       - 'governance-runtime/failures/TESTING-QUALIFICATION-OWNERSHIP-HARNESS-FALSE-GREEN-001.md'
+      - 'governance-runtime/construction-evidence/TESTING-QUALIFICATION-OWNERSHIP-CONSTRUCTION-001.md'
       - '.github/workflows/testing-qualification-boundary-ownership.yml'
   workflow_dispatch:
 
