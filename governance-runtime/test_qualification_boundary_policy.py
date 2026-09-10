@@ -2,6 +2,7 @@ from qualification_boundary_policy import (
     _issue_authority_binding_for_platform_ingress,
     acceptance_boundary_change_allowed,
     acceptance_boundary_record,
+    build_unsigned_manual_attestation,
     phase_disposition,
     policy_binding,
     preregistration_required,
@@ -20,12 +21,12 @@ from qualification_boundary_policy import (
 CANDIDATE_SHA = "a" * 40
 
 
-def _binding(authority_class, scope):
+def _untrusted_binding(authority_class, scope):
     return _issue_authority_binding_for_platform_ingress(
         candidate_sha=CANDIDATE_SHA,
         authority_class=authority_class,
         decision_scope=scope,
-        evidence_ref="manual-attestation:test-only",
+        evidence_ref="candidate-invented",
     )
 
 
@@ -33,7 +34,7 @@ def test_policy_binding_is_deterministic_and_nonempty():
     binding = policy_binding()
     assert binding["qualification_policy_hash"] == qualification_policy_hash()
     assert len(binding["qualification_policy_hash"]) == 64
-    assert binding["qualification_policy_version"] == 3
+    assert binding["qualification_policy_version"] == 4
 
 
 def test_candidate_cannot_lower_governance_review_floor_with_benign_trigger():
@@ -105,15 +106,32 @@ def test_platform_not_candidate_decides_preregistration_floor():
     assert preregistration_required(artifact_type="README", candidate_override=True)
 
 
-def test_platform_binding_allows_governed_acceptance_boundary_and_freezes_after_exposure():
-    authority = _binding("HUMAN_GOVERNANCE_OWNER", "ACCEPTANCE_BOUNDARY_APPROVAL")
-    original = acceptance_boundary_record(
-        artifact_type="FALSIFICATION_CONTRACT",
-        artifact_sha=CANDIDATE_SHA,
-        boundary_hash="b" * 64,
-        authority_binding=authority,
-        exposed=True,
+def test_unsigned_attestation_builder_does_not_create_authority():
+    attestation = build_unsigned_manual_attestation(
+        candidate_sha=CANDIDATE_SHA,
+        authority_class="HUMAN_GOVERNANCE_OWNER",
+        decision_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
+        evidence_ref="manual-review:pending",
     )
+    ok, _ = verify_authority_binding(
+        {"attestation": attestation, "signature_b64": ""},
+        candidate_sha=CANDIDATE_SHA,
+        required_authority_class="HUMAN_GOVERNANCE_OWNER",
+        required_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
+    )
+    assert not ok
+
+
+def test_exposed_acceptance_boundary_freezes_without_reissuing_authority():
+    original = {
+        "artifact_type": "FALSIFICATION_CONTRACT",
+        "artifact_sha": CANDIDATE_SHA,
+        "boundary_hash": "b" * 64,
+        "approved_by": "HUMAN_GOVERNANCE_OWNER",
+        "authority_evidence_ref": "manual-evidence:historical",
+        "exposed": True,
+        **policy_binding(),
+    }
     proposed = {**original, "boundary_hash": "c" * 64}
     ok, reason = acceptance_boundary_change_allowed(original=original, proposed=proposed)
     assert not ok and "immutable" in reason
@@ -133,25 +151,18 @@ def test_naked_acceptance_role_string_is_rejected():
         raise AssertionError("naked privileged role unexpectedly accepted")
 
 
-def test_authority_binding_is_exact_sha_policy_and_scope_bound():
-    authority = _binding("HUMAN_GOVERNANCE_OWNER", "ACCEPTANCE_BOUNDARY_APPROVAL")
-    ok, reason = verify_authority_binding(
-        authority,
-        candidate_sha=CANDIDATE_SHA,
-        required_authority_class="HUMAN_GOVERNANCE_OWNER",
-        required_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
-    )
-    assert ok, reason
+def test_candidate_callable_issuer_cannot_create_valid_authority():
+    authority = _untrusted_binding("HUMAN_GOVERNANCE_OWNER", "ACCEPTANCE_BOUNDARY_APPROVAL")
     ok, _ = verify_authority_binding(
         authority,
-        candidate_sha="b" * 40,
+        candidate_sha=CANDIDATE_SHA,
         required_authority_class="HUMAN_GOVERNANCE_OWNER",
         required_scope="ACCEPTANCE_BOUNDARY_APPROVAL",
     )
     assert not ok
 
 
-def test_material_root_cause_requires_sealed_independent_adjudicator_and_bound_evidence():
+def test_material_root_cause_requires_external_signed_attestation_and_bound_evidence():
     for role in ("CANDIDATE_IMPLEMENTATION", "REVIEWER", "CODING_AGENT", "ORCHESTRATOR", "INDEPENDENT_GOVERNANCE_ADJUDICATOR"):
         ok, _ = root_cause_classification_allowed(
             classification="CODE_DEFECT",
@@ -160,20 +171,15 @@ def test_material_root_cause_requires_sealed_independent_adjudicator_and_bound_e
             independent_evidence_bound=True,
         )
         assert not ok
-    authority = _binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "MATERIAL_ROOT_CAUSE_CLASSIFICATION")
+    authority = _untrusted_binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "MATERIAL_ROOT_CAUSE_CLASSIFICATION")
     ok, _ = root_cause_classification_allowed(
-        classification="CODE_DEFECT", material=True, candidate_sha=CANDIDATE_SHA,
-        authority_binding=authority, independent_evidence_bound=False,
-    )
-    assert not ok
-    ok, reason = root_cause_classification_allowed(
         classification="CODE_DEFECT", material=True, candidate_sha=CANDIDATE_SHA,
         authority_binding=authority, independent_evidence_bound=True,
     )
-    assert ok, reason
+    assert not ok
 
 
-def test_review_finding_requires_sealed_independent_adjudicator():
+def test_review_finding_requires_external_signed_independent_adjudicator():
     for adjudicator in ("CANDIDATE_IMPLEMENTATION", "REVIEWER_R2", "INDEPENDENT_GOVERNANCE_ADJUDICATOR"):
         ok, _ = reviewer_finding_adjudication_allowed(
             adjudicator_role=adjudicator,
@@ -183,8 +189,8 @@ def test_review_finding_requires_sealed_independent_adjudicator():
             raw_finding_preserved=True,
         )
         assert not ok
-    authority = _binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "REVIEW_FINDING_ADJUDICATION")
-    ok, reason = reviewer_finding_adjudication_allowed(
+    authority = _untrusted_binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "REVIEW_FINDING_ADJUDICATION")
+    ok, _ = reviewer_finding_adjudication_allowed(
         candidate_sha=CANDIDATE_SHA,
         authority_binding=authority,
         candidate_role="CANDIDATE_IMPLEMENTATION",
@@ -192,12 +198,12 @@ def test_review_finding_requires_sealed_independent_adjudicator():
         exact_sha_bound=True,
         raw_finding_preserved=True,
     )
-    assert ok, reason
+    assert not ok
 
 
 def test_review_adjudication_requires_exact_sha_and_raw_finding_preservation():
-    authority = _binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "REVIEW_FINDING_ADJUDICATION")
-    for exact_sha, preserved in ((False, True), (True,False)):
+    authority = _untrusted_binding("INDEPENDENT_GOVERNANCE_ADJUDICATOR", "REVIEW_FINDING_ADJUDICATION")
+    for exact_sha, preserved in ((False, True), (True, False)):
         ok, _ = reviewer_finding_adjudication_allowed(
             candidate_sha=CANDIDATE_SHA,
             authority_binding=authority,
