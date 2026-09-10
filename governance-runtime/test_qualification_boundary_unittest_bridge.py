@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import unittest
 
+import test_manual_review_authority_ingress_regression as ingress
 import test_manual_review_authority_spoofing_regression as spoofing
 import test_qualification_boundary_policy as ownership
 
@@ -28,6 +29,13 @@ class QualificationBoundaryModuleFunctionBridgeTests(unittest.TestCase):
         self.assertEqual(4, len(tests), "frozen manual spoofing regression count changed")
         for name, fn in tests:
             with self.subTest(module=spoofing.__name__, test=name):
+                fn()
+
+    def test_all_frozen_authority_ingress_regressions_are_executed(self):
+        tests = _module_tests(ingress)
+        self.assertEqual(2, len(tests), "frozen authority-ingress regression count changed")
+        for name, fn in tests:
+            with self.subTest(module=ingress.__name__, test=name):
                 fn()
 
 
