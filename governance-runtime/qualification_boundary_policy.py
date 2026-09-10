@@ -3,6 +3,7 @@
 
 This module owns qualification floors that an evaluated actor must not be able to
 weaken: review triggers, mandatory review dimensions, TESTING adversarial cases,
+acceptance-boundary freezing, root-cause/adjudication authority, phase deferral,
 and terminal-authority issuer/action scope.
 """
 from __future__ import annotations
@@ -13,7 +14,7 @@ import json
 from typing import Any, Mapping, Sequence
 
 POLICY_ID = "QUALIFICATION_BOUNDARY_OWNERSHIP"
-POLICY_VERSION = 1
+POLICY_VERSION = 2
 
 REVIEW_REQUIRED_TRIGGERS = frozenset({
     "EXPERIMENT_ADJUDICATION",
@@ -65,7 +66,42 @@ TESTING_ADVERSARIAL_MATRIX: tuple[dict[str, str], ...] = (
     {"id": "QO-02", "description": "Mandatory review dimensions cannot be deleted, downgraded or rebound by the candidate."},
     {"id": "QO-03", "description": "Required TESTING adversarial cases cannot be omitted or replaced by a weaker matrix."},
     {"id": "QO-04", "description": "A candidate/model/reviewer cannot self-appoint terminal authority."},
+    {"id": "QO-05", "description": "The evaluated actor cannot choose whether its acceptance boundary must be preregistered or change it after exposure."},
+    {"id": "QO-06", "description": "The evaluated actor cannot terminally classify its own material failure into a less consequential root-cause class."},
+    {"id": "QO-07", "description": "The evaluated actor or reviewer cannot terminally adjudicate reviewer evidence about that actor."},
+    {"id": "QO-08", "description": "The evaluated actor cannot defer a TESTING-contract defect into RELEASE or PRODUCTION."},
 )
+
+PREREGISTRATION_REQUIRED_ARTIFACT_TYPES = frozenset({
+    "FALSIFICATION_CONTRACT",
+    "ACCEPTANCE_MATRIX",
+    "QUALIFICATION_POLICY",
+    "GOVERNANCE_STANDARD",
+    "PROMOTION_CONTRACT",
+})
+
+ROOT_CAUSE_CLASSES = frozenset({
+    "CODE_DEFECT",
+    "FIXTURE_DATA_DEFECT",
+    "TEST_DEFECT",
+    "ENVIRONMENT_TOOLING_DEFECT",
+    "GOVERNANCE_PROCESS_DEFECT",
+    "REQUIREMENT_UNRESOLVED",
+    "REVIEWER_EVIDENCE_ERROR",
+})
+
+ROOT_CAUSE_AUTHORITY = {
+    "material": "INDEPENDENT_GOVERNANCE_ADJUDICATOR",
+    "non_material": "PLATFORM_DETERMINISTIC_CLASSIFIER",
+}
+
+REVIEW_ADJUDICATION_AUTHORITY = "INDEPENDENT_GOVERNANCE_ADJUDICATOR"
+
+PHASE_CONTRACT_OWNERS = {
+    "TESTING": "PLATFORM_TESTING_CONTRACT",
+    "RELEASE": "PLATFORM_RELEASE_CONTRACT",
+    "PRODUCTION": "PLATFORM_PRODUCTION_CONTRACT",
+}
 
 TERMINAL_AUTHORITY_POLICY: dict[str, Any] = {
     "TESTING": {
@@ -95,6 +131,11 @@ def _policy_material() -> dict[str, Any]:
         "governance_relevant_path_prefixes": list(GOVERNANCE_RELEVANT_PATH_PREFIXES),
         "review_profiles": REVIEW_PROFILES,
         "testing_adversarial_matrix": TESTING_ADVERSARIAL_MATRIX,
+        "preregistration_required_artifact_types": sorted(PREREGISTRATION_REQUIRED_ARTIFACT_TYPES),
+        "root_cause_classes": sorted(ROOT_CAUSE_CLASSES),
+        "root_cause_authority": ROOT_CAUSE_AUTHORITY,
+        "review_adjudication_authority": REVIEW_ADJUDICATION_AUTHORITY,
+        "phase_contract_owners": PHASE_CONTRACT_OWNERS,
         "terminal_authority_policy": TERMINAL_AUTHORITY_POLICY,
     }
 
@@ -115,11 +156,6 @@ def review_required(*, trigger: str, material_authority_transition: bool = False
                     standard_requires_review: bool = False,
                     changed_paths: Sequence[str] | None = None,
                     unresolved_materiality: bool = False) -> bool:
-    """Return the platform-owned review floor.
-
-    Inputs may report facts, but no input provides a waiver. Unknown materiality
-    at a consequential boundary escalates to review rather than lowering it.
-    """
     protected = any(
         isinstance(path, str) and path.startswith(GOVERNANCE_RELEVANT_PATH_PREFIXES)
         for path in tuple(changed_paths or ())
@@ -134,11 +170,6 @@ def review_required(*, trigger: str, material_authority_transition: bool = False
 
 
 def resolve_review_profile(*, trigger: str, artifact_type: str) -> str:
-    """Resolve the profile from platform policy, never from caller preference.
-
-    Version 1 deliberately has one conservative material profile. Future profile
-    splits must be added here and therefore change the qualification policy hash.
-    """
     if not isinstance(trigger, str) or not trigger:
         raise ValueError("review trigger is required for platform profile resolution")
     if not isinstance(artifact_type, str) or not artifact_type:
@@ -154,12 +185,6 @@ def review_dimensions(profile_id: str) -> list[dict[str, Any]]:
 
 
 def merge_review_dimensions(profile_id: str, requested: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """Resolve a request to the immutable platform floor plus caller-added scope.
-
-    When a caller reuses a platform-owned dimension id, the platform definition
-    wins. Extra dimensions may only increase review scope; they cannot replace,
-    delete, downgrade, or narrow the platform floor.
-    """
     platform = review_dimensions(profile_id)
     platform_ids = {item["id"] for item in platform}
     extras: list[dict[str, Any]] = []
@@ -186,11 +211,6 @@ def merge_review_dimensions(profile_id: str, requested: Sequence[Mapping[str, An
 
 
 def verify_review_dimensions(profile_id: str, supplied: Sequence[Mapping[str, Any]]) -> tuple[bool, str]:
-    """Verify supplied request dimensions preserve the complete platform floor.
-
-    Extra dimensions are allowed. Platform dimensions must be present exactly;
-    in particular a caller cannot downgrade `mandatory` or narrow description.
-    """
     required = {item["id"]: item for item in review_dimensions(profile_id)}
     seen: dict[str, Mapping[str, Any]] = {}
     for item in supplied:
@@ -213,7 +233,7 @@ def testing_matrix_binding() -> dict[str, Any]:
     matrix_hash = hashlib.sha256(_canonical(matrix).encode("utf-8")).hexdigest()
     return {
         "matrix_id": "TESTING_STANDARD_ADVERSARIAL_MATRIX",
-        "matrix_version": 1,
+        "matrix_version": 2,
         "matrix_hash": matrix_hash,
         "required_case_ids": [item["id"] for item in matrix],
     }
@@ -228,6 +248,86 @@ def verify_testing_matrix_results(binding: Mapping[str, Any], case_results: Mapp
         if case_results.get(case_id) not in allowed_pass:
             return False, f"required testing adversarial case is not supported: {case_id}"
     return True, "all platform-owned testing adversarial cases are supported"
+
+
+def preregistration_required(*, artifact_type: str, candidate_override: bool | None = None) -> bool:
+    """Platform decides preregistration; caller override cannot lower the floor."""
+    platform_floor = artifact_type in PREREGISTRATION_REQUIRED_ARTIFACT_TYPES
+    return platform_floor or candidate_override is True
+
+
+def acceptance_boundary_record(*, artifact_type: str, artifact_sha: str,
+                               boundary_hash: str, approved_by: str,
+                               exposed: bool = False) -> dict[str, Any]:
+    if not preregistration_required(artifact_type=artifact_type):
+        raise ValueError("artifact type does not require platform preregistration")
+    if approved_by != "HUMAN_GOVERNANCE_OWNER":
+        raise ValueError("acceptance boundary requires human governance-owner approval")
+    if not all(isinstance(v, str) and v for v in (artifact_sha, boundary_hash)):
+        raise ValueError("artifact_sha and boundary_hash are required")
+    return {
+        "artifact_type": artifact_type,
+        "artifact_sha": artifact_sha,
+        "boundary_hash": boundary_hash,
+        "approved_by": approved_by,
+        "exposed": bool(exposed),
+        **policy_binding(),
+    }
+
+
+def acceptance_boundary_change_allowed(*, original: Mapping[str, Any], proposed: Mapping[str, Any]) -> tuple[bool, str]:
+    if original.get("exposed") is True:
+        immutable = ("artifact_type", "artifact_sha", "boundary_hash", "approved_by",
+                     "qualification_policy_id", "qualification_policy_version", "qualification_policy_hash")
+        if any(original.get(field) != proposed.get(field) for field in immutable):
+            return False, "exposed acceptance boundary is immutable; create a new preregistration lineage"
+    return True, "acceptance boundary change is allowed"
+
+
+def root_cause_classification_allowed(*, classification: str, material: bool,
+                                      classifier_role: str,
+                                      independent_evidence_bound: bool) -> tuple[bool, str]:
+    if classification not in ROOT_CAUSE_CLASSES:
+        return False, "unknown root-cause class"
+    expected = ROOT_CAUSE_AUTHORITY["material" if material else "non_material"]
+    if classifier_role != expected:
+        return False, "classifier role is not authorized for this failure materiality"
+    if material and not independent_evidence_bound:
+        return False, "material root-cause classification lacks bound independent evidence"
+    return True, "root-cause classification authority is valid"
+
+
+def reviewer_finding_adjudication_allowed(*, adjudicator_role: str,
+                                           candidate_role: str,
+                                           reviewer_role: str,
+                                           exact_sha_bound: bool,
+                                           raw_finding_preserved: bool) -> tuple[bool, str]:
+    if adjudicator_role != REVIEW_ADJUDICATION_AUTHORITY:
+        return False, "review finding requires independent governance adjudicator"
+    if adjudicator_role in {candidate_role, reviewer_role}:
+        return False, "candidate or reviewer cannot terminally adjudicate its own review evidence"
+    if not exact_sha_bound:
+        return False, "adjudication is not bound to exact candidate SHA"
+    if not raw_finding_preserved:
+        return False, "raw reviewer finding must be preserved before adjudication"
+    return True, "review finding adjudication authority is valid"
+
+
+def phase_disposition(*, current_phase: str, violated_contract_phase: str | None,
+                      material: bool, uncertainty: bool = False) -> tuple[str, str]:
+    """Derive blocker/defer status from platform phase contracts, never candidate choice."""
+    if current_phase not in PHASE_CONTRACT_OWNERS:
+        return "BLOCKED", "current phase is unknown"
+    if uncertainty or violated_contract_phase is None:
+        return "REQUIREMENT_UNRESOLVED", "phase applicability is uncertain"
+    if violated_contract_phase == current_phase and material:
+        return "BLOCK_TESTING" if current_phase == "TESTING" else f"BLOCK_{current_phase}", "material defect violates current phase contract"
+    order = {"TESTING": 0, "RELEASE": 1, "PRODUCTION": 2}
+    if violated_contract_phase not in order:
+        return "REQUIREMENT_UNRESOLVED", "violated contract phase is unknown"
+    if order[violated_contract_phase] > order[current_phase]:
+        return f"DEFERRED_TO_{violated_contract_phase}", "defect belongs to a later frozen phase contract"
+    return f"BLOCK_{current_phase}", "defect belongs to current or earlier contract"
 
 
 def terminal_authority_allowed(*, phase: str, action: str,
