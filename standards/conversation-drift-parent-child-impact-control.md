@@ -1,141 +1,216 @@
 # Workflow Drift and Parent-Child Impact Control
 
-Status: **PROPOSED V4 — REVIEW REQUIRED — NON-AUTHORITATIVE**
+Status: **PROPOSED V5 — REVIEW REQUIRED — NON-AUTHORITATIVE**
 
 Authority effect: **NONE_EVIDENCE_ONLY**
 
-Purpose: prevent workflow drift, context loss, blocking dependencies, nested subtasks, operator redirection, or automated orchestration from silently replacing, mutating, invalidating, or bypassing a governed parent workflow. This revision makes R1 accountable for drift awareness and user disclosure while preventing R1 from becoming the authority that validates its own drift decisions.
+Purpose: prevent workflow drift, context loss, child-task substitution, reviewer contamination, stale-state replay, or R1 self-drift from changing governed workflow state without an independently verifiable authorization path.
 
-> Status labels do not enforce any rule. A PASS, BLOCKED, REVIEWED, or similar label has no authority unless the named platform mechanism below commits the required state/event under the bound policy.
+> Labels are never enforcement. `PASS`, `BLOCKED`, `REVIEWED`, `DELIVERED`, `UNAFFECTED`, or any other status has no authority unless the named owner commits the required signed record under this contract.
 
-## 1. Platform scope
+## 1. Scope and operating modes
 
-The production platform supports API-backed governed execution only.
+Production execution is API-backed only.
 
-Supported orchestration modes:
+- `MANUAL_GOVERNED`: a human principal authorizes policy-eligible transitions through platform UI/API.
+- `AUTOMATIC_GOVERNED`: a qualified policy authorizes policy-eligible transitions without synchronous human approval.
 
-- `MANUAL_GOVERNED`: a human principal approves/selects governed transitions through platform UI/API.
-- `AUTOMATIC_GOVERNED`: a qualified policy authorizes eligible transitions automatically.
+Both modes use the same authoritative state, policy, drift-validation, evidence, idempotency, reviewer-isolation, and authority mechanisms. Copy/paste reviewer/worker transport is not a normal runtime execution mode.
 
-Both modes MUST use the same authoritative workflow state, policy/role registry, drift validator, evidence/governance ledger, exact-artifact binding, idempotency controls, reviewer isolation, and authority gates. Manual copy/paste transport of reviewer/worker results is not a supported runtime execution mode.
+Current development/testing review of this candidate is manual-only. Manual review evidence may qualify this design for the next design stage only; it MUST NOT be represented as runtime API enforcement evidence.
 
-The present development/testing review of this candidate is manual-only and MUST NOT use external reviewer/model API calls to qualify the draft.
+## 2. Trust domains and service identities
 
-## 2. Named enforcement components
+The following logical trust domains are normative:
 
-The following logical components are normative. They may share deployment infrastructure, but their authority boundaries MUST remain independently enforceable.
+- `WSA` — Workflow State Authority
+- `DGV` — Drift Guard Validator
+- `PRR` — Policy & Role Registry
+- `RCB` — Reviewer Context Builder
+- `DR` — Disclosure Recorder
+- `GEL` — Governance/Evidence Ledger
+- `WAS` — Witness Anchor Service
 
-### 2.1 Workflow State Authority (`WSA`)
+They may share physical infrastructure, but qualification requires separate service identities, non-overlapping write credentials, and distinct signing-key handles for `WSA`, `DGV`, and `PRR`.
 
-The `WSA` owns authoritative workflow/task-graph state, checkpoint sequence, candidate binding, active children, pending gates, and current permitted-action set. R1 cannot directly write authoritative WSA state.
+R1 MUST NOT possess:
 
-### 2.2 Drift Guard Validator (`DGV`)
+- WSA state-write credentials;
+- WSA/PRR/DGV signing keys;
+- PRR policy-write credentials;
+- DGV decision-write credentials;
+- GEL administrative rewrite credentials;
+- WAS anchoring keys.
 
-The `DGV` is the deterministic enforcement boundary outside R1. It validates every consequential R1 proposal against the current WSA state and bound policy before state mutation or external side effect.
+DGV may read WSA + PRR and write DGV decisions, but may not modify PRR policy or WSA state directly. WSA may commit a consequential transition only when it validates a current DGV decision token for the exact pre-state/action. PRR policy changes require a separately authorized governance path and cannot be written by R1/DGV as part of action evaluation.
 
-The DGV MUST NOT trust R1's classification as authority. It recomputes eligibility from WSA state plus the Policy & Role Registry.
+A shared process/container does not satisfy independence if one compromise principal can write WSA state, PRR policy, and DGV decisions or use all three signing keys.
 
-### 2.3 Policy & Role Registry (`PRR`)
+## 3. Cryptographic object contract
 
-The `PRR` owns versioned policy identities, policy digests, role identities, permissions, downgrade authority, impact-decision authority, fallback authority, and transition mappings. A policy/role is qualified only when an exact active registry entry exists for the current workflow scope and revision.
+All signed governance objects use:
 
-### 2.4 Reviewer Context Builder (`RCB`)
+- canonical JSON: RFC 8785 JSON Canonicalization Scheme;
+- digest: SHA-256 over canonical bytes;
+- signature: Ed25519;
+- key reference: `key_id` in the `GovernanceKeyRegistry`;
+- identity binding: `service_principal_id` + `key_id` + allowed object type.
 
-The `RCB` constructs machine-facing context for R2/R3/other independent reviewers from WSA/ledger state. It does not accept R1 narrative as authoritative input.
+The `GovernanceKeyRegistry` is versioned and append-only. Every key entry contains:
 
-### 2.5 Disclosure Recorder (`DR`)
+- `key_id`
+- `service_principal_id`
+- public key
+- allowed object types
+- `not_before_sequence`
+- optional `not_after_sequence`
+- status `ACTIVE | RETIRING | REVOKED`
+- revocation sequence/reason where applicable
+- predecessor registry digest
+- registry signature
 
-The `DR` durably records required user-facing material-drift disclosures and their delivery state. Disclosure and approval are distinct objects.
+A key cannot sign an object type outside its registry scope. A WCE or decision presented for new consequential use is rejected if its signing key is revoked or outside its active sequence range. Historical objects remain verifiable as historical evidence if they were valid at their recorded issuance sequence; they do not regain current action authority.
 
-### 2.6 Governance/Evidence Ledger (`GEL`)
+## 4. Authoritative state objects
 
-The `GEL` is append-only for authoritative workflow events, R1 proposals, DGV decisions, disclosures, reviewer-context records, impact records, rejected attempts, and preserved RED history.
+### 4.1 WSA StateSnapshot
 
-## 3. Deterministic definitions
+WSA signs a `StateSnapshot` containing:
 
-For this standard:
+- `snapshot_id`
+- `schema_version`
+- `root_workflow_id`
+- `workflow_graph_digest`
+- current task/parent IDs
+- phase
+- checkpoint ID/sequence
+- candidate manifest digest
+- dependency graph root digest
+- bound policy ID/version/digest
+- pending gate set digest
+- approval set digest
+- active child set digest
+- authority-state digest
+- permitted-state-transition basis digest
+- WSA high-water sequence
+- predecessor snapshot digest
+- issuer/key/signature
 
-- **Consequential action**: any action that can mutate authoritative workflow/task/candidate/policy/evidence/approval/authority state, issue or reconcile an external worker/reviewer/model request, create/cancel/supersede a child, mark evidence stale/valid, or cause an external side effect.
-- **Material workflow drift**: a proposed change that would change root/parent/task identity, phase, candidate binding, policy binding, pending gate set, authority state, exact permitted-action set, or create a child with consequential scope. Pure explanation/read-only assistance that cannot affect those fields is not material drift.
-- **Information-only child**: a child whose policy scope contains no consequential permission and whose completion cannot mutate parent state without a separate governed impact transition.
-- **Qualified policy**: an active PRR entry bound by policy ID, version, digest, scope, effective sequence, and permitted transition set.
-- **Authorized role**: a principal/service role present in the bound PRR version with an exact permission for the requested transition.
-- **Exact next permitted action**: the set computed by DGV from WSA state machine + bound PRR policy; not prose supplied by R1.
-- **Unaffected**: a result established by deterministic dependency comparison showing no changed parent candidate digest, policy dependency, gate dependency, evidence dependency, authority dependency, or acceptance/falsification dependency. Absence of a discovered change is not sufficient.
-- **Stale evidence**: evidence whose bound candidate/policy/identity/gate/assumption dependency no longer matches current authoritative dependencies.
+WSA sequence is monotonically increasing per workflow root and persisted atomically with the state transition. WSA restart MUST recover the maximum committed sequence; rollback is forbidden.
 
-If a required term cannot be deterministically resolved from WSA/PRR/GEL state, DGV returns `DRIFT_CONFLICT_OR_INSUFFICIENT_STATE` and consequential progression is blocked.
+### 4.2 PRR PolicySnapshot
 
-## 4. Core invariant
+PRR signs a `PolicySnapshot` containing:
 
-Conversation, UI focus, device, chat/session, model memory, user-memory summaries, agent reasoning, or the most recently active task are continuity aids only. They do not change workflow authority.
+- policy ID/version/digest;
+- workflow scope;
+- role definitions and principal/key bindings;
+- allowed transitions;
+- gate prerequisites;
+- relationship-classification rules;
+- downgrade permissions/quorum;
+- impact-decision permissions/quorum;
+- approval rules;
+- disclosure timing rules;
+- fallback activation rules;
+- external request/result rules;
+- migration/continuation rules;
+- effective and superseding sequences;
+- predecessor policy digest;
+- issuer/key/signature.
 
-A parent remains bound to its exact checkpoint, candidate, evidence, approvals, reviewer/test barriers, and permitted-action set until WSA commits an authorized transition.
+A policy is `qualified` only if the exact signed PRR snapshot is active for the current WSA state.
 
 ## 5. Workflow Context Envelope (`WCE`)
 
-Before R1 performs or proposes a consequential action, it MUST receive a WSA-issued `WorkflowContextEnvelope`.
+Before any consequential R1 proposal, WSA issues a one-use WCE bound to the current snapshot.
 
 Required fields:
 
 - `envelope_id`
 - `schema_version`
-- `root_workflow_id`
-- `parent_workflow_id`
-- `current_task_id`
-- `current_phase`
-- `checkpoint_id`
-- `checkpoint_sequence`
-- `workflow_graph_digest`
-- `candidate_manifest_digest`
-- `policy_id`
-- `policy_version`
-- `policy_digest`
-- `pending_gate_set_digest`
-- `active_children_digest`
-- `permitted_action_set_digest`
-- `prohibited_action_set_digest` where applicable
+- root/parent/task IDs
+- phase
+- checkpoint ID/sequence
+- WSA snapshot digest
+- workflow graph digest
+- candidate manifest digest
+- dependency graph root digest
+- policy ID/version/digest
+- pending gate digest
+- active child digest
+- permitted-action-basis digest
+- prohibited-action-basis digest where applicable
 - `issued_authority_sequence`
+- `envelope_nonce`
 - `issued_at`
-- `expires_at` or policy-defined maximum age
-- `issuer_id = WSA`
-- `key_id`
-- integrity signature/MAC over the canonical envelope
+- `expires_at`
+- WSA issuer/key/signature
 
-The signing/MAC key MUST be inaccessible to R1. The envelope schema/version and key identity are validated by DGV.
+DGV keeps a durable per-workflow high-water mark and a consumed-envelope set. Before evaluation it MUST verify:
 
-### 5.1 WCE validation algorithm
+1. RFC8785 canonical bytes/signature;
+2. WSA key active for WCE object type;
+3. supported schema version;
+4. workflow/task scope match;
+5. WCE checkpoint/WSA sequence equals current WSA snapshot;
+6. candidate/policy/graph/gate digests equal current authoritative values;
+7. envelope not expired beyond policy clock-skew tolerance;
+8. envelope nonce not previously consumed;
+9. envelope sequence is not lower than DGV high-water mark;
+10. no key revocation/superseding snapshot invalidates current use.
 
-Before a consequential action, DGV MUST verify:
+Failure emits signed `CONTEXT_ENVELOPE_REJECTED` and blocks consequential work. Time is never the sole freshness signal; sequence/digest equality is mandatory.
 
-1. schema version supported;
-2. issuer is the authorized WSA identity;
-3. signature/MAC valid;
-4. envelope workflow/task IDs match the submitted action;
-5. checkpoint sequence equals the current WSA checkpoint for that action scope;
-6. candidate/policy/graph/gate/action-set digests match current WSA/PRR state;
-7. envelope is not expired/stale/replayed beyond policy;
-8. action idempotency/nonce is valid;
-9. no newer conflicting WSA sequence supersedes the envelope.
+After DGV accepts a proposal for evaluation, the WCE nonce is consumed atomically with the DGV decision record. Replaying the WCE for another proposal is rejected.
 
-Any failure emits `CONTEXT_ENVELOPE_REJECTED`, returns `DRIFT_CONFLICT_OR_INSUFFICIENT_STATE`, and blocks the consequential action.
+## 6. Formal dependency graph and staleness
 
-Time alone is never sufficient freshness proof; authoritative sequence/digest comparison is mandatory.
+WSA maintains a signed `DependencyGraphSnapshot` whose canonical root digest is included in StateSnapshot/WCE.
 
-## 6. R1 drift-sentinel responsibility
+Node types include at minimum:
 
-R1 is the designated user-facing drift sentinel. R1 owns:
+- candidate artifact;
+- policy;
+- gate;
+- review/test evidence;
+- approval;
+- authority source;
+- identity/credential;
+- provider/model qualification;
+- acceptance/falsification criterion;
+- external request/result;
+- workflow transition.
 
-- drift awareness;
-- proposed drift classification;
-- explicit material-drift disclosure content;
-- explanation of parent checkpoint/resume point;
-- proposal to open/classify a child;
-- proposal to preserve/return to parent.
+Every edge contains:
 
-R1 does not own workflow truth, impact authority, downgrade authority, reviewer-isolation authority, or terminal authority.
+- parent node ID/digest;
+- child/dependent node ID/digest;
+- dependency type;
+- validation predicate ID/version;
+- materiality flag;
+- policy owner.
 
-R1 classifies intent as one of:
+DGV staleness algorithm:
+
+1. compute changed-node set from old/new signed snapshots;
+2. traverse reverse dependency closure;
+3. execute each bound predicate against current signed inputs;
+4. classify each dependent node `UNCHANGED_VALID | STALE | REVALIDATION_REQUIRED | INSUFFICIENT_DEPENDENCY_EVIDENCE`;
+5. produce signed `DependencyImpactRecord` listing changed, affected, unaffected, stale, and insufficient sets plus graph root/digest inputs.
+
+`PARENT_UNAFFECTED` is valid only if the complete required dependency closure has no `STALE`, `REVALIDATION_REQUIRED`, or `INSUFFICIENT_DEPENDENCY_EVIDENCE` nodes relevant to parent progression. Empty affected sets without this record are invalid.
+
+## 7. Deterministic R1 drift classification
+
+Definitions:
+
+- **Consequential action**: any action capable of mutating authoritative workflow/task/candidate/policy/evidence/approval/authority state; issuing/reconciling external reviewer/worker/model work; creating/cancelling/superseding a child; changing evidence validity; or causing an external side effect.
+- **Material workflow drift**: a proposal that changes root/parent/task identity, phase, candidate/policy binding, pending gates, authority state, permitted-action basis, or creates a consequential child.
+- **Information-only child**: no consequential permission and no shared mutable dependency with parent.
+- **Exact next permitted action**: action set computed by DGV from signed WSA StateSnapshot + signed PRR PolicySnapshot, never from R1 prose.
+
+R1 may propose:
 
 - `SAME_WORKFLOW`
 - `INFORMATION_ONLY_CHILD`
@@ -145,289 +220,334 @@ R1 classifies intent as one of:
 - `INCIDENT_CHILD`
 - `DRIFT_CONFLICT_OR_INSUFFICIENT_STATE`
 
-This classification is always a proposal until DGV validates any consequential effect.
+R1 classification has zero state authority until DGV evaluation.
 
-## 7. R1 Drift Decision Proposal
+## 8. R1 proposal and deterministic DGV evaluation
 
-Every consequential R1 proposal MUST be durably preserved before execution with:
+Every consequential R1 proposal is first persisted immutably as `R1Proposal` with:
 
-- `proposal_id`
-- `r1_identity`
-- `WCE.envelope_id`
-- user/operator intent digest
-- proposed action type
-- proposed relationship classification
-- proposed parent/child IDs
-- proposed candidate/policy binding
-- rationale digest or structured reason code
-- request nonce/idempotency key
-- creation sequence/time
+- proposal ID;
+- R1 principal/model identity;
+- WCE ID/digest;
+- user/operator intent digest;
+- action type + normalized action digest;
+- proposed relationship;
+- parent/child IDs;
+- candidate/policy/checkpoint bindings;
+- rationale reason code/digest;
+- idempotency key;
+- creation sequence/time.
 
-The original proposal is immutable evidence even when DGV rejects it or R1 later corrects itself.
+DGV evaluation algorithm is fixed:
 
-## 8. Independent R1 self-drift enforcement
+1. validate WCE;
+2. load exact signed WSA StateSnapshot referenced by WCE;
+3. load exact active signed PRR PolicySnapshot;
+4. compute permitted transition set from `(state, phase, gates, authority, relationship, policy)`;
+5. validate actor role/key and approval/disclosure prerequisites;
+6. validate concurrency lease/fencing token when mutation is requested;
+7. validate dependency-impact prerequisites;
+8. produce one signed DGV decision: `ALLOW | DENY | INSUFFICIENT_STATE` with reason code and exact pre-state/action digest;
+9. consume WCE nonce and persist decision atomically.
 
-DGV recomputes the allowed action from current WSA/PRR state.
+WSA accepts a consequential transition only when an `ALLOW` decision exactly matches current WSA pre-state digest, policy digest, action digest, actor, and unused decision nonce.
 
-If R1 proposes `SAME_WORKFLOW` or another classification but the action is outside the permitted action set, DGV MUST:
+If R1 says `SAME_WORKFLOW` but DGV denies the action as outside the permitted set, DGV emits `R1_SELF_DRIFT_BLOCKED`; WSA state remains unchanged. The raw R1Proposal and denial remain immutable even if a later proposal succeeds.
 
-1. perform no consequential transition/side effect;
-2. append `R1_SELF_DRIFT_BLOCKED` to GEL;
-3. bind the rejected `proposal_id`, WCE, expected WSA scope, conflicting action, candidate/policy/checkpoint identities, and rejection reason;
-4. preserve the parent/child graph and checkpoint unchanged;
-5. expose the corrected authoritative state to R1/user;
-6. preserve the RED event permanently even if a later retry succeeds.
+## 9. Relationship downgrade and impact quorum
 
-`R1_SELF_DRIFT_BLOCKED` is an event schema, not a model label.
+A change from `BLOCKING_CHILD | DEPENDENCY_CHILD | INCIDENT_CHILD` to `NON_BLOCKING_CHILD | INFORMATION_ONLY_CHILD` that weakens/removes a gate is a gate-reducing downgrade.
 
-Minimum event fields:
+Gate-reducing downgrade requires:
 
-- `event_id`
-- `event_type = R1_SELF_DRIFT_BLOCKED`
-- `proposal_id`
-- `r1_identity`
-- `root_workflow_id`
-- `parent_workflow_id`
-- `checkpoint_sequence`
-- `candidate_manifest_digest`
-- `policy_id/version/digest`
-- `expected_permitted_action_set_digest`
-- attempted action digest/type
-- rejection reason code
-- WSA sequence before and after (must prove no unauthorized transition)
-- predecessor event digest
-- authoritative event sequence
+- PRR permission `RELATIONSHIP_DOWNGRADE`;
+- signed `RelationshipDowngradeDecision`;
+- at least two distinct confirmer principals/keys when a mandatory gate is removed;
+- proposer MUST NOT be a confirmer;
+- R1 MUST NOT be a confirmer;
+- child worker/reviewer whose result benefits from downgrade MUST NOT be sole confirmer;
+- no confirmer keys sharing the same principal identity;
+- all confirmer roles active/not revoked at final commit sequence.
 
-## 9. Task relationship model
+If quorum/separation fails: `RELATIONSHIP_DOWNGRADE_REJECTED`.
 
-Every material diversion is one of:
+Permissive ChildImpact classes that resume progression (`PARENT_UNAFFECTED` or removal of a blocking condition) use the same dual-control rule when they eliminate a mandatory gate. Original classifications/history are never overwritten.
 
-- `NON_BLOCKING_CHILD`
-- `BLOCKING_CHILD`
-- `DEPENDENCY_CHILD`
-- `INCIDENT_CHILD`
-- `INFORMATION_ONLY_CHILD`
+## 10. ChildImpactRecord contract
 
-Every child binds child/parent IDs, relationship type, reason, initiating principal/service, orchestration mode, parent checkpoint, candidate manifest, policy/schema, pending gates, parent authority state, return condition, authority scope, creation nonce/idempotency identity, and predecessor event digest.
-
-A child cannot become root because it is newest, longest-running, or visible in the UI.
-
-## 10. Classification authority and downgrade control
-
-R1 may propose a relationship. DGV validates it against PRR policy.
-
-A transition from `BLOCKING_CHILD`, `DEPENDENCY_CHILD`, or `INCIDENT_CHILD` to `NON_BLOCKING_CHILD`/`INFORMATION_ONLY_CHILD` that removes or weakens a gate is a **relationship downgrade**.
-
-A relationship downgrade requires:
-
-- a PRR permission explicitly named `RELATIONSHIP_DOWNGRADE` for that workflow/policy scope;
-- a `RelationshipDowngradeDecision` bound to parent/child IDs, original class, proposed class, candidate/policy/checkpoint, reason code, nonce/idempotency key, predecessor digest, and policy version;
-- confirmation by an authorized principal/policy component that is independent from the original proposer when the downgrade removes a mandatory gate;
-- preservation of the original blocking classification/history.
-
-R1 alone can never satisfy the independent confirmation requirement.
-
-Unauthorized downgrade emits `RELATIONSHIP_DOWNGRADE_REJECTED`. Authorized downgrade emits `RELATIONSHIP_DOWNGRADE_ACCEPTED`.
-
-## 11. Parent suspension and return
-
-Opening a blocking/dependency child commits `PARENT_PAUSED_PENDING_CHILD_IMPACT` (or a more specific policy-defined paused state) and preserves the exact resume checkpoint.
-
-A child may return control only after:
-
-1. child stopping condition reached;
-2. required child evidence preserved;
-3. required `ChildImpactRecord` accepted;
-4. candidate/checkpoint binding revalidated;
-5. stale evidence explicitly marked;
-6. sibling/blocking children evaluated;
-7. DGV computes the exact next permitted parent action.
-
-Accepted return emits `PARENT_RESUMED_FROM_CHILD` with immediate graph-edge IDs. Nested return MUST proceed one graph edge at a time.
-
-## 12. ChildImpactRecord and impact authority
-
-Allowed impact classes:
-
-- `PARENT_UNAFFECTED`
-- `PARENT_BLOCKED`
-- `PARENT_CONSTRAINT_ADDED`
-- `PARENT_EVIDENCE_STALE`
-- `PARENT_REVIEW_RESTART_REQUIRED`
-- `PARENT_POLICY_REBIND_REQUIRED`
-- `PARENT_CANDIDATE_INVALIDATED`
-- `PARENT_ABORT_REQUIRED`
-
-Required fields:
+Each record binds:
 
 - impact record ID;
 - parent/child workflow IDs;
-- parent checkpoint ID/sequence;
-- parent candidate manifest digest;
-- child result/candidate digest;
-- child disposition;
+- parent checkpoint/WSA sequence;
+- parent candidate digest;
+- child result digest;
+- dependency graph root;
+- `DependencyImpactRecord` ID/digest;
 - impact class;
-- affected/unaffected/stale artifact/evidence/gate IDs;
-- dependency comparison evidence;
+- affected/unaffected/stale/insufficient sets;
 - required re-review/re-test/rebind actions;
-- exact next permitted parent action identifier;
-- deciding authorized role/policy component;
-- independent confirmer where policy requires one;
-- orchestration mode;
-- decision nonce/idempotency key;
+- next permitted action identifier;
 - policy ID/version/digest;
-- predecessor record/event digest;
+- deciding role/principal/key;
+- required confirmer signatures/quorum;
+- nonce/idempotency identity;
+- predecessor impact/event digest;
 - authoritative sequence/time.
 
-PRR defines which roles/policies may issue each impact class. An impact record cannot grant terminal authority merely by containing a permissive class.
+Replay against changed checkpoint/candidate/policy/dependency root is rejected as `CHILD_IMPACT_RECORD_REJECTED`.
 
-`PARENT_UNAFFECTED` requires deterministic dependency comparison; an empty affected set by itself is insufficient.
+## 11. Disclosure and approval protocols
 
-A stale/replayed impact record is rejected as `CHILD_IMPACT_RECORD_REJECTED`.
+### 11.1 DriftDisclosureRecord
 
-## 13. Evidence staleness
+DR creates a signed record containing:
 
-Evidence staleness is dependency-specific. DGV evaluates candidate digest, policy digest, reviewer independence, acceptance/falsification criteria, identity/credential binding, stage prerequisites, provider/model qualification, request/result binding, and authority-source dependencies.
+- disclosure ID;
+- authenticated user principal ID;
+- root/parent/child workflow IDs;
+- checkpoint/WSA sequence;
+- candidate/policy digest;
+- relationship classification;
+- parent paused/unaffected state;
+- impact-handling-required flag;
+- orchestration mode;
+- canonical disclosure content digest;
+- required delivery class;
+- delivery target identity;
+- delivery state `PENDING | SENT | DELIVERED | FAILED | TIMED_OUT`;
+- issued/delivery sequences and timestamps;
+- related R1Proposal/DGV event IDs;
+- approval-required flag;
+- issuer/key/signature.
 
-A process-only change does not automatically invalidate candidate evidence. A candidate change does not automatically invalidate unrelated process evidence. The exact affected/unaffected/stale sets MUST be recorded.
+`DELIVERED` requires a signed `DeliveryReceipt` from an authorized delivery service binding disclosure ID, authenticated/verified recipient principal or verified channel ID, workflow/checkpoint, delivery proof type, and delivery time/sequence.
 
-## 14. User drift disclosure object
+For MANUAL_GOVERNED material drift requiring approval: `DELIVERED` MUST precede approval creation and consequential transition.
 
-Material drift requires a durable `DriftDisclosureRecord` created by DR.
+For AUTOMATIC_GOVERNED:
 
-Fields:
+- if `async_disclosure_allowed=false`, `DELIVERED` precedes transition;
+- if true, transition and disclosure record must be committed atomically; delivery may remain pending only until policy `max_delivery_age`;
+- pending/failed/timed-out disclosure can never be reported as disclosure PASS;
+- on timeout, DR emits `DISCLOSURE_TIMEOUT`; PRR defines whether subsequent consequential transitions pause/escalate, but the timeout cannot be interpreted as approval/no-impact.
 
-- `disclosure_id`
-- `user_principal_id`
-- `root_workflow_id`
-- `parent_workflow_id`
-- `parent_checkpoint_id/sequence`
-- `child_workflow_id` if created/proposed
-- relationship classification
-- parent paused/unaffected state
-- impact-handling-required flag
-- orchestration mode
-- normalized disclosure content digest
-- delivery target/channel identity
-- `delivery_state` = `PENDING | DELIVERED | FAILED`
-- record sequence/time
-- delivery sequence/time when delivered
-- related proposal/event IDs
-- `approval_required` boolean
-- separate `approval_object_id` when applicable
+Wrong recipient/workflow/checkpoint receipt fails as `DISCLOSURE_GATE_FAILED`.
 
-Disclosure is not approval. User acknowledgement of disclosure is not approval unless a separately valid approval object exists.
+### 11.2 ApprovalObject
 
-### 14.1 MANUAL_GOVERNED timing
+Approval is separate from disclosure/acknowledgement. `ApprovalObject` binds:
 
-For material drift that requires user approval, `DISCLOSURE_DELIVERED` MUST occur before approval capture and before the diverted consequential transition. Wrong recipient/workflow/checkpoint or late disclosure fails the disclosure gate.
+- approval ID;
+- authenticated principal ID/key/session assurance level;
+- workflow/parent/child IDs;
+- checkpoint/WSA sequence;
+- candidate/policy digest;
+- exact action type/digest;
+- disclosure ID where required;
+- nonce;
+- issued/expiry sequence/time;
+- issuer/authentication-service signature.
 
-### 14.2 AUTOMATIC_GOVERNED timing
+DGV verifies approval at final decision sequence. Expired, replayed, wrong-action, wrong-policy, or post-revocation approval is rejected.
 
-If bound policy has `async_disclosure_allowed = false`, disclosure delivery precedes the transition.
+## 12. R1 fallback activation
 
-If bound policy has `async_disclosure_allowed = true`, the authoritative transition and `DRIFT_DISCLOSURE_RECORDED` MUST be committed atomically, delivery enters `PENDING`, and the user-facing surface MUST deliver the disclosure at the next available interaction/notification cycle. The workflow transition may remain valid, but the disclosure/UX test remains failed until `DELIVERED`; it cannot be reported as a clean disclosure PASS while pending/failed.
+Fallback role `R1_FALLBACK_ORCHESTRATOR` exists only through a signed PRR `FallbackActivation` object binding principal/key, workflow scope, allowed actions, activation sequence, expiry sequence/time, reason, and predecessor policy digest.
 
-## 15. R1 unavailability and fallback
+DGV validates activation independently. No active valid fallback => `R1_UNAVAILABLE_BLOCKED`.
 
-PRR may define a role `R1_FALLBACK_ORCHESTRATOR` with an exact workflow scope and expiry/effective sequence.
+Fallback cannot self-activate and is subject to the same WCE/DGV/disclosure rules as R1.
 
-If R1 is unavailable and no active qualified fallback exists, DGV emits `R1_UNAVAILABLE_BLOCKED` and blocks consequential orchestration that requires the R1 drift-sentinel function.
+## 13. Reviewer Context Builder isolation
 
-No model, reviewer, UI session, operator, or child inherits R1 authority implicitly.
-
-A fallback is subject to the same WCE, DGV, disclosure, and self-drift rules and cannot validate its own authority.
-
-## 16. R2/R3 reviewer context isolation
-
-RCB constructs a `ReviewerWorkflowContext` directly from WSA/GEL/PRR.
-
-Allowed fields by default:
+RCB uses a strict versioned whitelist schema with `additionalProperties=false`. Default allowed fields:
 
 - reviewer identity/role;
 - review workflow/task ID;
 - parent workflow ID;
-- parent checkpoint ID/sequence;
-- parent active/paused status;
-- existence/type of blocking child when necessary;
-- candidate manifest digest and policy identity;
-- reviewer's own pending/completed status;
+- parent checkpoint/sequence;
+- parent active/paused state;
+- blocking-child existence/type when required;
+- candidate manifest digest;
+- policy identity;
+- reviewer's own status;
 - unresolved impact status;
-- explicitly authorized evidence/artifact scope.
+- explicitly authorized artifact/evidence scope.
 
-Prohibited before cross-review/adjudication authorization:
+Before cross-review/adjudication authorization, prohibited content includes another reviewer's finding/disposition, R1 rationale/narrative, expected agreement, majority state, adjudication conclusion, golden/test oracle, and free-form arbitrary metadata.
 
-- another reviewer's substantive findings/disposition;
-- R1 persuasive narrative/rationale;
-- expected agreement/majority;
-- adjudication conclusion;
-- hidden golden/test-oracle result.
+RCB validation:
 
-RCB records `ReviewerContextRecord` with schema version, allowed-field policy, payload digest, source WSA sequence, reviewer identity, and delivery event.
+1. source fields must come from signed WSA/PRR/GEL records;
+2. schema rejects unknown/free-form metadata;
+3. artifact payloads use an explicit allowlist and provenance tag;
+4. context is canonicalized/digested;
+5. a forbidden-origin scan checks provenance tags/field classes, not semantic guessing alone;
+6. test fixtures use opaque randomized handles so fixture names cannot reveal expected outcome;
+7. signed `ReviewerContextRecord` binds source sequence, schema, field allowlist digest, payload digest, reviewer identity, and delivery event.
 
-A prohibited field or source mismatch emits `REVIEW_CONTEXT_REJECTED_LEAKAGE`; the contaminated payload cannot count as independent review evidence.
+Violation emits `REVIEW_CONTEXT_REJECTED_LEAKAGE`; contaminated context cannot count as independent review evidence.
 
-## 17. Cross-standard linkage with EXP-K
+Timing/provider side channels are treated as separate falsification targets; reviewer context APIs MUST NOT expose other-reviewer completion counts/timing where independence policy forbids them.
 
-Workflow/task drift and claim/evidence contamination remain separate controls but share correlated ledger identities when one incident crosses both domains.
+## 14. External request/result lifecycle
 
-A cross-domain event MUST bind:
+Every runtime external request has durable lifecycle:
 
-- `workflow_drift_event_id` where applicable;
-- related EXP-K `claim_id`/continuity-failure ID(s);
-- parent/child workflow IDs;
+`CREATED -> DISPATCHED -> ACKNOWLEDGED -> {COMPLETED | TIMED_OUT | CANCELLED}`
+
+Every received result has:
+
+`RECEIVED -> BINDING_VALIDATED -> {ELIGIBLE | QUARANTINED_STALE | QUARANTINED_INVALID} -> EFFECT_APPLIED`
+
+Required bindings: workflow/task/parent IDs, candidate digest, policy digest, provider/model/worker identity, request ID, intent-level idempotency key, payload digest, WSA sequence, evidence visibility scope.
+
+A unique persistent constraint on `(workflow_id, intent_idempotency_key)` prevents duplicate intents. A unique effect record on `intent_id` permits at most one governance effect. Late success after timeout/cancel/retry is preserved but cannot create another effect. WSA restart does not clear idempotency/effect tables.
+
+Policy/candidate/checkpoint mismatch at result validation emits `STALE_RESULT_REJECTED`.
+
+## 15. Policy migration and role revocation
+
+Policy migration requires signed `PolicyRebindDecision` stating:
+
+- old/new policy IDs/versions/digests;
+- workflow/checkpoint/candidate binding;
+- whether each in-flight request class is `CONTINUE_OLD_POLICY | CANCEL_AND_REISSUE | REVALIDATE_ON_RETURN`;
+- evidence/approval/disclosure revalidation requirements;
+- deciding authority/quorum;
+- effective WSA sequence.
+
+No implicit default migration.
+
+Role/key revocation is checked again at final DGV/WSA commit. A principal valid at proposal time but revoked before commit cannot authorize the transition unless PRR explicitly defines grandfathering for that exact action class.
+
+## 16. Concurrency, leases, CAS, and restart-safe fencing
+
+WSA maintains a durable monotonic fencing counter per mutation scope in the same transactional/consensus state as checkpoint sequence.
+
+`WriteLease` fields:
+
+- lease ID;
+- workflow/task scope;
+- checkpoint sequence;
+- candidate digest;
+- fencing token;
+- issued sequence;
+- expiry time/sequence;
+- holder principal;
+- issuer/signature.
+
+On every mutation WSA requires token == current authorized token and checkpoint/pre-state match. Any token lower than current is `STALE_WORKFLOW_WRITER_REJECTED`.
+
+Restart recovery loads the maximum committed fencing token and MUST NOT issue a lower/reused token. Lease expiry never converts a blocked transition into approval; a new lease gets a higher token.
+
+Manual/automatic races, parent/child races, cancellation/supersession races, and child/sibling races use the same ordering rule.
+
+## 17. WSA/GEL atomicity and crash recovery
+
+Each consequential WSA transition and its GEL event are committed through one transactional boundary or durable outbox that binds the same transition ID/pre-state/post-state digest.
+
+Recovery rules:
+
+- WSA snapshot sequence is authoritative for executable state;
+- GEL must contain or reconstruct the corresponding event for every committed transition;
+- missing/mismatched event enters `STATE_LEDGER_DIVERGENCE_BLOCKED`;
+- no component may choose whichever source is more permissive;
+- recovery reconciles from signed transition/outbox records and blocks consequential work until digests match.
+
+## 18. GEL tamper evidence and external witness anchoring
+
+Every GEL record contains predecessor event digest and authoritative sequence. Batches produce a Merkle root.
+
+WAS periodically signs `{workflow_scope, start_sequence, end_sequence, merkle_root, previous_anchor_digest}` with a key not available to GEL administrators and stores the signed anchor in an external append-only/write-once witness store.
+
+Qualification requires anchor verification for RED-preservation tests. Rewriting/deleting a historical `R1_SELF_DRIFT_BLOCKED` or other event changes the Merkle root and yields `LEDGER_ANCHOR_MISMATCH`.
+
+WAS does not grant workflow authority; it provides tamper evidence only.
+
+## 19. Endpoint/Event registry
+
+Every matrix endpoint is a signed record, not a prose label. All events share:
+
+`event_id, event_type, schema_version, owner_service, workflow/root/parent/task IDs as applicable, actor_principal, pre_state_digest, post_state_digest, WSA_sequence, candidate_digest, policy_digest, related_object_ids, reason_code, predecessor_event_digest, created_at, key_id, signature`.
+
+Normative owner/payload additions:
+
+- `NO_GOVERNED_TRANSITION` — DGV; proposal/action digest + unchanged WSA snapshot digest.
+- `WORKFLOW_DRIFT_DETECTED` — DGV; proposed action/class + expected scope.
+- `R1_SELF_DRIFT_BLOCKED` — DGV; R1Proposal ID + permitted-set digest + unchanged WSA sequence proof.
+- `CONTEXT_ENVELOPE_REJECTED` — DGV; WCE ID + validation failure code.
+- `DRIFT_CONFLICT_OR_INSUFFICIENT_STATE` — DGV; missing/conflicting signed object IDs.
+- `PARENT_PAUSED_PENDING_CHILD_IMPACT` — WSA; child edge + preserved resume checkpoint.
+- `PARENT_RESUMED_FROM_CHILD` — WSA; accepted impact ID + resume transition.
+- `CHILD_RETURN_EDGE_ACCEPTED` — WSA; immediate from/to graph edge.
+- `RELATIONSHIP_DOWNGRADE_REJECTED/ACCEPTED` — DGV/WSA; downgrade object + quorum proof.
+- `CHILD_IMPACT_RECORD_REJECTED` — DGV; impact record ID + binding/quorum/dependency failure.
+- `R1_UNAVAILABLE_BLOCKED` — DGV; required R1 role + absent/invalid fallback proof.
+- `DRIFT_DISCLOSURE_RECORDED`, `DISCLOSURE_DELIVERED`, `DISCLOSURE_TIMEOUT`, `DISCLOSURE_GATE_FAILED` — DR; disclosure/receipt/recipient/checkpoint data.
+- `REVIEW_CONTEXT_REJECTED_LEAKAGE`, `REVIEW_CONTEXT_DELIVERED` — RCB; context digest + schema/field/provenance result.
+- `STALE_WORKFLOW_WRITER_REJECTED` — WSA; lease/fencing/current-token proof.
+- `STALE_RESULT_REJECTED` — DGV; request/result and mismatched binding.
+- `POLICY_REBIND_REQUIRED/ACCEPTED` — PRR/WSA; old/new policy and migration decision.
+- `CANCELLATION_ACCEPTED`, `SUPERSESSION_ACCEPTED`, `CONFLICTING_TRANSITION_REJECTED` — WSA; competing transition IDs/sequences.
+- `EXTERNAL_EFFECT_DEDUPLICATED` — WSA/GEL effect reconciler; intent/effect IDs.
+- `ADMIN_EVIDENCE_IMPORT_REJECTED` — DGV; transport mode + attempted evidence binding.
+- `CROSS_STANDARD_INCIDENT_LINKED` — GEL cross-standard linker; workflow event IDs + EXP-K claim/continuity IDs + separate dispositions.
+- `INSUFFICIENT_TEST_INDEPENDENCE` — test governor; fixture ID + leak channel + invalidation proof.
+- `STATE_LEDGER_DIVERGENCE_BLOCKED` — WSA recovery controller; mismatched sequence/digests.
+- `LEDGER_ANCHOR_MISMATCH` — WAS verifier; batch/anchor/Merkle mismatch.
+
+An endpoint claimed without its owner-signed required record is `INSUFFICIENT_EVIDENCE`, not PASS.
+
+## 20. Cross-standard EXP-K incident contract
+
+`CrossStandardIncidentRecord` binds:
+
+- workflow drift event ID(s);
+- EXP-K claim ID(s)/continuity-failure ID(s);
+- root/parent/child workflow IDs;
 - candidate/policy/checkpoint identities;
-- separate workflow disposition and claim/evidence status;
-- rule that neither disposition authorizes the other.
+- workflow disposition;
+- claim/evidence status;
+- separate deciding authorities;
+- explicit flags `workflow_authorizes_claim=false` and `claim_authorizes_workflow=false`;
+- predecessor digest/sequence/signature.
 
-Workflow recovery cannot validate a claim. Claim validation cannot authorize a workflow transition.
+Neither standard can infer completion from the other.
 
-## 18. Concurrency, leases, and fencing
+## 21. Manual testing versus runtime qualification
 
-Consequential writes use a WSA-issued write lease or compare-and-swap token containing workflow/task ID, checkpoint sequence, candidate digest, and monotonic fencing token.
+Every test evidence record MUST contain `execution_evidence_class` exactly one of:
 
-WSA accepts only the highest current fencing token for the exact scope. A stale writer emits `STALE_WORKFLOW_WRITER_REJECTED`; both writes cannot commit.
+- `DESIGN_MANUAL_REVIEW`
+- `RUNTIME_SIMULATION`
+- `RUNTIME_IMPLEMENTATION`
 
-Manual/automatic races, parent/child races, cancellation/supersession races, and late external results use the same authoritative sequence/fencing rule.
+During the current testing phase, external reviews are `DESIGN_MANUAL_REVIEW` and use no reviewer/model API calls.
 
-## 19. External request/result binding
+A runtime enforcement case cannot receive runtime PASS from `DESIGN_MANUAL_REVIEW` evidence. Attempting that emits/records `INSUFFICIENT_EVIDENCE_FOR_RUNTIME_QUALIFICATION` in the test governor.
 
-Every external worker/reviewer/model request in eventual runtime binds workflow/task/parent IDs, candidate manifest, policy/schema, provider/model identity, request ID, intent-level idempotency key, payload digest, lifecycle state, evidence-visibility scope, effect/reconciliation state, and authoritative sequence.
+## 22. Source precedence during development and runtime
 
-Timeout/retry/late success/device/UI restart must reconcile to one intent/effect. A result bound to an older candidate/policy/checkpoint cannot advance a newer state.
+Current development/testing: exact frozen GitHub/project artifacts and committed checkpoints are the durable recovery source. Memory/chat is advisory and cannot override them.
 
-This runtime rule does not authorize reviewer/model API calls during the current manual testing phase.
+Eventual runtime: WSA + PRR + GEL under the signed/recovery rules above are authoritative. GitHub is not the live runtime state authority.
 
-## 20. Cancellation, supersession, policy migration, and graph returns
+If authoritative source reconstruction is incomplete/conflicting, fail closed; do not ask memory/chat to decide the state.
 
-Cancellation and supersession are explicit mutually ordered transitions. The first accepted transition at the authoritative WSA sequence wins; later conflicting attempts are rejected and preserved.
-
-Policy migration requires an explicit `POLICY_REBIND_DECISION` or bound-policy continuation decision before new-policy rules affect an in-flight workflow.
-
-Nested child return emits one `CHILD_RETURN_EDGE_ACCEPTED` per immediate graph edge. Sibling completion cannot erase another sibling or its impact record.
-
-## 21. Development/testing source precedence vs runtime authority
-
-During the present development/testing stage, exact frozen GitHub/project artifacts and committed checkpoints are the durable recovery source. R1 memory/chat may help locate them but cannot override them.
-
-If memory conflicts with the frozen project checkpoint, the conflict is surfaced and the durable checkpoint wins. If the exact durable state cannot be established, the development workflow fails closed rather than guessing.
-
-In the eventual runtime platform, GitHub is not the workflow authority. WSA + PRR + GEL are the runtime authority under their qualified recovery rules.
-
-## 22. Current project application
-
-For the present governed-platform design work:
+## 23. Current project application
 
 - Parent: MVP independent-review workflow.
 - Parent state: `PARENT_PAUSED_PENDING_CHILD_IMPACT`.
 - Child 1: continuity/resumption governance.
 - Child 2: workflow-drift and parent-child impact governance.
-- Parent reviewer barriers remain pending and unchanged unless a separately governed impact decision says otherwise.
+- Parent reviewer barriers remain pending unless a separately governed impact decision changes them.
 
-DeepSeek review evidence against the prior candidate `fafbdc74bb54808095603994a687be55624f7215` remains immutable evidence for that prior candidate only. This V4 candidate is a new revision and requires a fresh independent review binding.
+Prior reviews remain immutable evidence only for their exact candidate SHAs. V5 is a new candidate and requires fresh exact-revision review.
 
-## 23. Freeze condition
+## 24. Freeze condition
 
-This standard MUST NOT be frozen until its V4 falsification matrix is independently reviewed and executed to the required policy threshold.
+V5 MUST NOT be frozen for execution until its paired V5 falsification matrix is independently reviewed against this exact revision and the governing policy threshold is satisfied.
 
-No label, model statement, review, child impact record, disclosure record, or R1 proposal grants merge, release, production, qualification, adjudication, or terminal authority unless a separately qualified governing policy explicitly grants that exact transition.
+No R1 statement, review, policy label, endpoint label, impact record, disclosure, majority, or model agreement grants merge, release, production, qualification, adjudication, or terminal authority except through a separately qualified exact transition contract.
