@@ -13,7 +13,12 @@ from typing import Any, Mapping
 
 
 TERMINAL_ACTIONS = frozenset({"RELEASE", "DEPLOY", "MERGE", "COMPLETE"})
-AUTHORITY_SOURCE_CLASSES = frozenset({"HUMAN", "PLATFORM_POLICY"})
+AUTHORITY_SOURCE_CLASS_BY_ACTION = {
+    "RELEASE": "HUMAN_RELEASE_AUTHORITY",
+    "MERGE": "HUMAN_RELEASE_AUTHORITY",
+    "DEPLOY": "HUMAN_PRODUCTION_AUTHORITY",
+    "COMPLETE": "HUMAN_GOVERNANCE_OWNER",
+}
 EXECUTION_SUCCESS_STATES = frozenset(
     {
         "EXECUTED",
@@ -223,10 +228,11 @@ def evaluate_terminal_authority(
         )
 
     source_class = authority_record.get("source_class")
-    if source_class not in AUTHORITY_SOURCE_CLASSES:
+    required_source_class = AUTHORITY_SOURCE_CLASS_BY_ACTION.get(terminal_request.get("action"))
+    if source_class != required_source_class:
         return _decision(
             "DENY_AUTHORITY_SOURCE",
-            "authority source class is not permitted to mint terminal authority",
+            "authority source class is not the platform-owned issuer class for this terminal action",
             terminal_request,
             authority_id=authority_record.get("authority_id") if _nonempty_string(authority_record.get("authority_id")) else None,
             review_evidence_refs=list(review_gate.get("evidence_refs", [])),
@@ -301,7 +307,7 @@ def evaluate_terminal_authority(
 
     return _decision(
         "AUTHORIZED_FOR_TERMINAL_ACTION",
-        "exact execution lineage, review gate, state version, artifact, action, and external approval are current and bound",
+        "exact execution lineage, review gate, state version, artifact, action, and platform-owned external issuer approval are current and bound",
         terminal_request,
         authority_id=authority_id,
         review_evidence_refs=list(review_gate.get("evidence_refs", [])),

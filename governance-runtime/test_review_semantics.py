@@ -76,12 +76,15 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
         }
 
     def coverage(self, authority="TESTED_SUPPORTED", raw="TESTED_SUPPORTED", optional="TESTED_SUPPORTED"):
+        overrides = {
+            "authority_path": authority,
+            "raw_byte_integrity": raw,
+            "optional_usability": optional,
+        }
         rows = []
-        for dimension_id, status in (
-            ("authority_path", authority),
-            ("raw_byte_integrity", raw),
-            ("optional_usability", optional),
-        ):
+        for dimension in self.request["required_review_dimensions"]:
+            dimension_id = dimension["id"]
+            status = overrides.get(dimension_id, "TESTED_SUPPORTED")
             rows.append(
                 {
                     "dimension_id": dimension_id,
@@ -189,7 +192,8 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
 
     def test_tested_supported_requires_nonempty_evidence(self):
         coverage = self.coverage()
-        coverage[1]["evidence"] = []
+        target = next(i for i, row in enumerate(coverage) if row["dimension_id"] == "raw_byte_integrity")
+        coverage[target]["evidence"] = []
         evidence = self.evidence(coverage=coverage)
         ok, reason = validate_review_semantics(request=self.request, evidence=evidence)
         self.assertFalse(ok)
@@ -256,7 +260,3 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
                 review_execution=execution,
             )
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

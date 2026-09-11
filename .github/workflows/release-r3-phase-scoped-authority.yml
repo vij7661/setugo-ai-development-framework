@@ -1,0 +1,44 @@
+name: RELEASE R3 Phase-Scoped Authority
+
+on:
+  push:
+    branches:
+      - 'release/**'
+    paths:
+      - 'governance-runtime/**'
+      - '.github/workflows/release-r3-phase-scoped-authority.yml'
+  pull_request:
+    branches:
+      - phase/release
+    paths:
+      - 'governance-runtime/**'
+      - '.github/workflows/release-r3-phase-scoped-authority.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  phase-scoped-authority:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          printf 'candidate_sha=%s\n' "$GITHUB_SHA"
+      - name: Run RELEASE R3 cross-phase falsification
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          python -m unittest -v test_release_r3_phase_scoped_authority.py
+          python - <<'PY'
+          import release_external_governance_root as r
+          pem = r.fetch_release_external_public_key()
+          ok, reason = r.validate_release_public_key_bytes(pem)
+          assert ok, reason
+          print('RELEASE_R3_EXTERNAL_ROOT_PASS')
+          PY

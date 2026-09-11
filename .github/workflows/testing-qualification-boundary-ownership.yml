@@ -1,0 +1,67 @@
+name: TESTING Qualification Boundary Ownership
+
+on:
+  push:
+    branches:
+      - phase/testing
+    paths:
+      - 'governance-runtime/**'
+      - 'experiments/governed-platform/governance/**'
+      - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md'
+      - 'standards/qualification-boundary-ownership.md'
+      - '.github/workflows/testing-qualification-boundary-ownership.yml'
+  pull_request:
+    branches:
+      - phase/testing
+    paths:
+      - 'governance-runtime/**'
+      - 'standards/qualification-boundary-ownership.md'
+      - 'experiments/governed-platform/governance/**'
+      - 'experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE6_TERMINAL_AUTHORITY_GATE_CONTRACT.md'
+      - '.github/workflows/testing-qualification-boundary-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-qualification-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Record exact candidate SHA
+        run: echo "candidate_sha=$(git rev-parse HEAD)"
+
+      - name: Verify live external governance boundary
+        run: python governance-runtime/verify_external_trust_root_control.py
+
+      - name: Run ownership, manual-authority, external-root, phase-policy, manual-RED, and review-protocol regressions
+        run: |
+          cd governance-runtime
+          python -m unittest -v \
+            test_phase_policy.py \
+            test_manual_authority_signed_attestation.py \
+            test_external_governance_root.py \
+            test_external_root_policy_binding.py \
+            test_external_trust_root_control.py \
+            test_qualification_boundary_unittest_bridge.py \
+            test_review_protocol.py \
+            test_review_semantics.py \
+            test_review_classification.py \
+            test_single_file_review_container.py \
+            test_platform_candidate_review_request_integrity.py
+
+      - name: Run terminal-authority ownership regressions
+        run: |
+          cd experiments/governed-platform/governance
+          python -m unittest -v test_integrated_governed_mvp_slice6_terminal_authority.py
