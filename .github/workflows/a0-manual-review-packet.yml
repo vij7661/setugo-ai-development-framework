@@ -1,0 +1,53 @@
+name: A0 Manual Review Packet
+
+on:
+  push:
+    branches:
+      - automation/a0-governance-baseline
+    paths:
+      - 'governance-runtime/a0/a0-review-manifest.json'
+      - '.github/workflows/a0-manual-review-packet.yml'
+      - 'governance-runtime/a0/governance_automation.py'
+
+permissions:
+  contents: read
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate frozen review manifest
+        run: python governance-runtime/a0/governance_automation.py validate-manifest governance-runtime/a0/a0-review-manifest.json
+
+      - name: Materialize exact reviewed candidate
+        run: |
+          git cat-file -e 688ee9e91a130dad8e0f664c221eef3ece7518fb^{commit}
+          git worktree add --detach /tmp/a0-reviewed 688ee9e91a130dad8e0f664c221eef3ece7518fb
+
+      - name: Build portable manual review packet
+        run: |
+          python governance-runtime/a0/governance_automation.py build-review-packet \
+            governance-runtime/a0/a0-review-manifest.json \
+            --repo /tmp/a0-reviewed \
+            --path .github/workflows/a0-governance-automation.yml \
+            --path governance-runtime/a0/README.md \
+            --path governance-runtime/a0/a0-falsification-matrix.json \
+            --path governance-runtime/a0/execution-manifest.schema.json \
+            --path governance-runtime/a0/governance_automation.py \
+            --path governance-runtime/a0/test_governance_automation.py \
+            --output A0-MANUAL-INDEPENDENT-REVIEW-PACKET.md
+          sha256sum A0-MANUAL-INDEPENDENT-REVIEW-PACKET.md | tee A0-MANUAL-INDEPENDENT-REVIEW-PACKET.sha256
+
+      - name: Upload manual review packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: a0-manual-independent-review-packet
+          path: |
+            A0-MANUAL-INDEPENDENT-REVIEW-PACKET.md
+            A0-MANUAL-INDEPENDENT-REVIEW-PACKET.sha256
+          if-no-files-found: error
