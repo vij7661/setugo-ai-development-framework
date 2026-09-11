@@ -1,0 +1,52 @@
+name: A0 Governance Automation
+
+on:
+  pull_request:
+    paths:
+      - 'governance-runtime/a0/**'
+      - '.github/workflows/a0-governance-automation.yml'
+  push:
+    branches:
+      - automation/a0-governance-baseline
+    paths:
+      - 'governance-runtime/a0/**'
+      - '.github/workflows/a0-governance-automation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  falsification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compile A0 automation
+        run: python -m py_compile governance-runtime/a0/governance_automation.py governance-runtime/a0/test_governance_automation.py
+
+      - name: Validate frozen falsification matrix shape
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('governance-runtime/a0/a0-falsification-matrix.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['schema_version'] == 1
+          assert d['family'] == 'A0_GOVERNANCE_AUTOMATION_BASELINE'
+          assert d['frozen_before_repair'] is True
+          ids=[c['id'] for c in d['cases']]
+          assert ids == [f'A0-{i:02d}' for i in range(1,17)]
+          assert len(ids) == len(set(ids))
+          print('A0_FALSIFICATION_MATRIX_VALID')
+          PY
+
+      - name: Run A0 fail-closed tests
+        run: python governance-runtime/a0/test_governance_automation.py
+
+      - name: Prove private-key and signing interfaces are absent
+        run: |
+          ! grep -R --line-number -E 'BEGIN (EC |RSA |OPENSSH )?PRIVATE KEY|pkeyutl -sign|private_key[[:space:]]*=' governance-runtime/a0
+          echo 'A0_NO_PRIVATE_KEY_OR_SIGNING_INTERFACE'
