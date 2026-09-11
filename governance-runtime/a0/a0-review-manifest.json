@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "phase": "A0_GOVERNANCE_AUTOMATION_BASELINE",
+  "repository": "vij7661/setugo-ai-development-framework",
+  "authoritative_source_sha": "2d8c8cc9ef8d4ecde4f549de953edb59eeab2fcc",
+  "candidate_sha": "688ee9e91a130dad8e0f664c221eef3ece7518fb",
+  "checker_sha": "d390f5daa1ba695ed4edf94bc218a206a70fa9b7",
+  "policy_id": "QUALIFICATION_BOUNDARY_OWNERSHIP",
+  "policy_version": 7,
+  "policy_hash": "3a1936d3e8956b2521908189139ee73868c48f29be13fcacea84f839ca6b2258",
+  "required_checks": [
+    "A0 Governance Automation",
+    "RELEASE R1 Hardening",
+    "RELEASE R3 Phase-Scoped Authority"
+  ],
+  "required_review_type": "MANUAL_INDEPENDENT_REVIEW",
+  "authority_required": false,
+  "environment": "pre-production-governance-automation",
+  "artifact_digest": "sha256:9840e970506633bb931afff67becded8faf6051af950bb4b13870c4f607a1942",
+  "known_reds": [],
+  "open_findings": [],
+  "next_action": "REQUEST_MANUAL_INDEPENDENT_REVIEW"
+}
