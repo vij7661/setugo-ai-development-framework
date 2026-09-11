@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "family": "A0_GOVERNANCE_AUTOMATION_BASELINE",
+  "frozen_before_repair": true,
+  "cases": [
+    {"id": "A0-01", "attack": "candidate SHA does not equal repository HEAD", "expected": "FAIL_CLOSED"},
+    {"id": "A0-02", "attack": "authoritative source is not ancestor of candidate", "expected": "FAIL_CLOSED"},
+    {"id": "A0-03", "attack": "wrong expected branch", "expected": "FAIL_CLOSED"},
+    {"id": "A0-04", "attack": "policy hash malformed or stale-shaped", "expected": "FAIL_CLOSED"},
+    {"id": "A0-05", "attack": "manifest contains undeclared field", "expected": "FAIL_CLOSED"},
+    {"id": "A0-06", "attack": "duplicate required status context", "expected": "FAIL_CLOSED"},
+    {"id": "A0-07", "attack": "duplicate evidence reference", "expected": "FAIL_CLOSED"},
+    {"id": "A0-08", "attack": "signature Base64 invalid", "expected": "FAIL_CLOSED"},
+    {"id": "A0-09", "attack": "signature decodes to non-64-byte value", "expected": "FAIL_CLOSED"},
+    {"id": "A0-10", "attack": "manual review required but not VERIFIED_PASS", "expected": "READINESS_BLOCKED"},
+    {"id": "A0-11", "attack": "human authority required but not VERIFIED", "expected": "READINESS_BLOCKED"},
+    {"id": "A0-12", "attack": "required check missing or non-success", "expected": "READINESS_BLOCKED"},
+    {"id": "A0-13", "attack": "attempt to derive unsigned authority from non-sha256 evidence", "expected": "FAIL_CLOSED"},
+    {"id": "A0-14", "attack": "automation attempts to sign or mint terminal authority", "expected": "CAPABILITY_ABSENT_BY_DESIGN"},
+    {"id": "A0-15", "attack": "historical/superseded PR presented as active", "expected": "DETERMINISTIC_CLASSIFICATION"},
+    {"id": "A0-16", "attack": "known RED history omitted from readiness count", "expected": "TEST_FAILURE"}
+  ]
+}
