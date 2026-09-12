@@ -1,0 +1,16 @@
+{
+  "record_type": "ECCDerivedConstructionFailure",
+  "record_id": "ECC-DERIVED-CONSTRUCTION-RED-001",
+  "program_baseline": "290ac043959f30db12c9ae16826eda1dd5bcbdfb",
+  "test_commit": "5c322b6aaee03ee442352ee201e1c2574b575db1",
+  "workflow_run_id": 34688772054,
+  "job_id": 103540276688,
+  "workflow": "ECC Derived Parallel Falsification",
+  "checkout_sha_verified": "5c322b6aaee03ee442352ee201e1c2574b575db1",
+  "conclusion": "FAILURE_EXPECTED_PRE_MECHANISM",
+  "failure_classification": "MECHANISM_ABSENT",
+  "failure_detail": "ModuleNotFoundError: No module named 'ecc_governance'",
+  "tests_committed_before_mechanism": true,
+  "history_must_be_preserved_after_repair": true,
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
