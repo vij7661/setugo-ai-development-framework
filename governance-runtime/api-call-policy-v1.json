@@ -1,0 +1,64 @@
+{
+  "phase_rules": {
+    "ARCHITECTURE_DESIGN": {
+      "allowed_call_classes": [
+        "REVIEW_API",
+        "RESEARCH_API",
+        "READ_ONLY_API"
+      ],
+      "allowed_transports": [
+        "AUTOMATIC_API",
+        "USER_INITIATED_API"
+      ],
+      "manual_review_only": false
+    },
+    "DESIGN_REVIEW": {
+      "allowed_call_classes": [
+        "REVIEW_API",
+        "RESEARCH_API",
+        "READ_ONLY_API"
+      ],
+      "allowed_transports": [
+        "AUTOMATIC_API",
+        "USER_INITIATED_API"
+      ],
+      "manual_review_only": false
+    },
+    "IMPLEMENTATION": {
+      "allowed_call_classes": [
+        "REVIEW_API",
+        "RESEARCH_API",
+        "READ_ONLY_API",
+        "MUTATING_API"
+      ],
+      "allowed_transports": [
+        "AUTOMATIC_API",
+        "USER_INITIATED_API"
+      ],
+      "manual_review_only": false
+    },
+    "RELEASE_QUALIFICATION": {
+      "allowed_call_classes": [
+        "REVIEW_API",
+        "READ_ONLY_API"
+      ],
+      "allowed_transports": [
+        "AUTOMATIC_API",
+        "USER_INITIATED_API"
+      ],
+      "manual_review_only": false
+    },
+    "TESTING_FALSIFICATION": {
+      "allowed_call_classes": [
+        "READ_ONLY_API"
+      ],
+      "allowed_transports": [
+        "USER_INITIATED_API"
+      ],
+      "manual_review_only": true
+    }
+  },
+  "policy_hash": "873a33dad54fe1dc6152b7a728cf20f7c5e0424298c64bfe311b3de3205612e0",
+  "policy_id": "PLATFORM-API-CALL-POLICY-V1",
+  "schema_version": 1
+}

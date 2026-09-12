@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   governance-review:
-    name: Gemini authenticated governance candidate review
+    name: Governed authenticated candidate review
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Resolve review trigger
         shell: bash
         run: |
@@ -30,22 +31,31 @@ jobs:
           import json
           from pathlib import Path
           t=json.loads(Path('.github/governance-candidate-review-trigger.json').read_text(encoding='utf-8'))
-          if t.get('enabled') is not True: raise SystemExit('trigger not enabled')
-          if t.get('review_class')!='PLATFORM_AUTO_API_REVIEW': raise SystemExit('review class mismatch')
-          if t.get('transport')!='AUTOMATIC_API': raise SystemExit('transport mismatch')
-          if t.get('provider')!='gemini': raise SystemExit('provider mismatch')
-          for f in ('review_request_path','model'):
-            v=t.get(f)
-            if not isinstance(v,str) or not v.strip(): raise SystemExit(f'{f} required')
+          if t.get('enabled') is not True:
+              raise SystemExit('trigger not enabled')
+          if t.get('review_class')!='PLATFORM_AUTO_API_REVIEW':
+              raise SystemExit('review class mismatch')
+          if t.get('transport')!='AUTOMATIC_API':
+              raise SystemExit('transport mismatch')
+          if t.get('provider')!='gemini':
+              raise SystemExit('provider mismatch')
+          for f in ('review_request_path','model','phase'):
+              v=t.get(f)
+              if not isinstance(v,str) or not v.strip():
+                  raise SystemExit(f'{f} required')
           print('REVIEW_REQUEST_PATH='+t['review_request_path'])
           print('GEMINI_REVIEW_MODEL='+t['model'])
+          print('REVIEW_PHASE='+t['phase'])
           PY
-      - name: Require Gemini secret and request file
+
+      - name: Require provider secret and request file
         shell: bash
         run: |
           test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY repository secret required'; exit 2; }
           test -f "$REVIEW_REQUEST_PATH"
-      - name: Execute authenticated governance review through materialization v2
+          test -f governance-runtime/api-call-policy-v1.json
+
+      - name: Execute governed authenticated review
         shell: bash
         run: |
           set -o pipefail
@@ -54,7 +64,10 @@ jobs:
             --request "$REVIEW_REQUEST_PATH" \
             --output-dir governance-review-evidence \
             --model "$GEMINI_REVIEW_MODEL" \
+            --phase "$REVIEW_PHASE" \
+            --api-policy governance-runtime/api-call-policy-v1.json \
             2> >(tee governance-review-evidence/provider-error.log >&2)
+
       - name: Record fail-closed status
         if: always()
         shell: bash
@@ -67,9 +80,12 @@ jobs:
           from pathlib import Path
           t=json.loads(Path('.github/governance-candidate-review-trigger.json').read_text(encoding='utf-8'))
           err=Path('governance-review-evidence/provider-error.log')
+          pre=Path('governance-review-evidence/api-preflight.json')
+          receipt=Path('governance-review-evidence/api-receipt-validation.json')
           status={
-            'schema_version':2,
+            'schema_version':3,
             'review_request_path':t.get('review_request_path'),
+            'phase':t.get('phase'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
             'review_class':'PLATFORM_AUTO_API_REVIEW',
@@ -77,12 +93,17 @@ jobs:
             'provider':'gemini',
             'model':os.environ.get('GEMINI_REVIEW_MODEL'),
             'materialization_version':'GOV-EVIDENCE-MATERIALIZATION-001',
+            'api_gate_policy':'PLATFORM-API-CALL-POLICY-V1',
+            'api_preflight':json.loads(pre.read_text()) if pre.exists() else None,
+            'api_receipt_validation':json.loads(receipt.read_text()) if receipt.exists() else None,
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
             'authority_effect':'NONE_PENDING_DETERMINISTIC_INGESTION',
             'failure_detail':err.read_text(encoding='utf-8',errors='replace')[-2000:] if err.exists() else None,
           }
-          Path('governance-review-evidence/workflow-status.json').write_text(json.dumps(status,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          Path('governance-review-evidence/workflow-status.json').write_text(
+              json.dumps(status,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           PY
+
       - name: Upload governance review evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "packet_class": "CLEAN_INDEPENDENT_REVIEW",
+  "candidate_commit": "0000000000000000000000000000000000000000",
+  "review_prompt": "Audit only the exact embedded review surface. Return the required disposition and findings.",
+  "required_artifacts": [
+    {
+      "path": "standards/example.md",
+      "git_blob_sha": "0000000000000000000000000000000000000000",
+      "review_surface": "FULL_TEXT"
+    }
+  ],
+  "required_clause_ids": [
+    "EXAMPLE-01"
+  ],
+  "required_case_ids": [
+    "CASE-001"
+  ],
+  "forbidden_strings": [
+    "Overall disposition: CHANGES_REQUIRED"
+  ],
+  "reject_unlisted_artifacts": true,
+  "min_candidate_commit_occurrences": 1
+}

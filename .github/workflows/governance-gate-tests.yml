@@ -1,0 +1,41 @@
+name: Governance Gate Unit Tests
+
+on:
+  pull_request:
+    paths:
+      - 'governance-runtime/review_packet_preflight.py'
+      - 'governance-runtime/assemble_clean_review_packet.py'
+      - 'governance-runtime/api_call_gate.py'
+      - 'governance-runtime/api-call-policy-v1.json'
+      - 'governance-runtime/platform_candidate_review_v2.py'
+      - 'governance-runtime/test_review_packet_preflight.py'
+      - 'governance-runtime/test_api_call_gate.py'
+      - 'standards/review-packet-completeness-gate-v1.md'
+      - 'standards/governed-api-call-gate-v1.md'
+  push:
+    paths:
+      - 'governance-runtime/review_packet_preflight.py'
+      - 'governance-runtime/assemble_clean_review_packet.py'
+      - 'governance-runtime/api_call_gate.py'
+      - 'governance-runtime/api-call-policy-v1.json'
+      - 'governance-runtime/platform_candidate_review_v2.py'
+      - 'governance-runtime/test_review_packet_preflight.py'
+      - 'governance-runtime/test_api_call_gate.py'
+      - 'standards/review-packet-completeness-gate-v1.md'
+      - 'standards/governed-api-call-gate-v1.md'
+
+permissions:
+  contents: read
+
+jobs:
+  gate-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic governance-gate tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          python -m unittest -v test_review_packet_preflight.py test_api_call_gate.py
