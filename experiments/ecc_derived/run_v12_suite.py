@@ -26,6 +26,8 @@ SUPERSEDED_TEST_IDS = {
         "V6 patched the public verifier itself. V8 requires consumption to use a closure-held internal verifier and tests actual dependency tamper instead.",
     "test_ecc_governance_v6_eligibility_provenance.ECCV6EligibilityProvenance.test_boundary_failure_remains_ineligible_and_unsealed":
         "V6 induced policy failure by replacing the public verifier. V8 makes the public verifier diagnostic-only and retains fail-closed behavior through actual policy/dependency tamper tests.",
+    "test_ecc_governance_v9_verifier_primitive_integrity.ECCV9VerifierPrimitiveIntegrity.test_json_dumps_substitution_cannot_poison_new_candidate_seal":
+        "V9 treated boundary.json.dumps replacement as seal-only alias substitution that should not block issuance. V12 establishes that boundary.json and strict_core.json are the same module object, so replacing json.dumps also mutates the exact strict EXP-ECC-5 digest primitive. V12 therefore requires fail-closed behavior and replaces this positive assumption with transitive json.dumps tamper negatives plus an untampered EXP-ECC-5 positive control.",
 }
 
 
@@ -56,7 +58,7 @@ def main() -> int:
     add_with_supersession(suite, loader, V6_MODULE)
     suite.addTests(loader.loadTestsFromName(V7_MODULE))
     suite.addTests(loader.loadTestsFromName(V8_MODULE))
-    suite.addTests(loader.loadTestsFromName(V9_MODULE))
+    add_with_supersession(suite, loader, V9_MODULE)
     suite.addTests(loader.loadTestsFromName(V10_MODULE))
     suite.addTests(loader.loadTestsFromName(V11_MODULE))
     suite.addTests(loader.loadTestsFromName(V12_MODULE))
