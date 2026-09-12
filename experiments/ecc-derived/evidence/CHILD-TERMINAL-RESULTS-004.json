@@ -1,0 +1,34 @@
+{
+  "record_type": "ECCDerivedChildTerminalResults",
+  "record_id": "ECC-DERIVED-CHILD-TERMINAL-RESULTS-004",
+  "program_baseline": "290ac043959f30db12c9ae16826eda1dd5bcbdfb",
+  "reference_candidate_commit": "e10ee2dfb9f5c101615b897ceb569b06e7958f57",
+  "full_coverage_evidence": "ECC-DERIVED-FULL-COVERAGE-GREEN-003",
+  "workflow_run_id": 34689107571,
+  "job_id": 103541143491,
+  "all_children_terminal": true,
+  "results": [
+    {"experiment":"EXP-ECC-1","named_cases":13,"negative_cases":10,"positive_controls":3,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism"},
+    {"experiment":"EXP-ECC-2","named_cases":11,"negative_cases":8,"positive_controls":3,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism"},
+    {"experiment":"EXP-ECC-3","named_cases":11,"negative_cases":8,"positive_controls":3,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism"},
+    {"experiment":"EXP-ECC-4","named_cases":11,"negative_cases":8,"positive_controls":3,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism"},
+    {"experiment":"EXP-ECC-5","named_cases":12,"negative_cases":9,"positive_controls":3,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism"},
+    {"experiment":"EXP-ECC-6","named_cases":14,"negative_cases":10,"positive_controls":4,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism; no real external reviewer API transport used"},
+    {"experiment":"EXP-ECC-7","named_cases":14,"negative_cases":10,"positive_controls":4,"terminal_disposition":"BOUNDED_PASS","scope":"deterministic reference mechanism"}
+  ],
+  "preserved_history": [
+    "ECC-DERIVED-CONSTRUCTION-RED-001",
+    "ECC-DERIVED-REFERENCE-GREEN-001",
+    "ECC-DERIVED-FULL-COVERAGE-RED-002",
+    "ECC-DERIVED-FULL-COVERAGE-GREEN-003"
+  ],
+  "nonclaims": [
+    "No result is a claim of production/V18 integration.",
+    "No result proves live third-party hook or harness enforcement.",
+    "No result proves provider identity cryptographically.",
+    "No result satisfies independent manual review.",
+    "No result promotes an ECC-derived requirement into authoritative platform state.",
+    "No result grants merge, release, deploy, completion, or terminal authority."
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
