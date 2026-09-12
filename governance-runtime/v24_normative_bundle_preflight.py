@@ -12,6 +12,7 @@ from normative_control_catalog import (
     git_blob_sha_bytes,
     validate_normative_catalog,
 )
+from v24_legacy_inventory_candidate import derive_candidate_inventory
 
 H2 = re.compile(r"^## (.+)$", re.MULTILINE)
 
@@ -107,9 +108,8 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
             )
 
         extras = sorted(set(h2_values) - expected_headings)
-        if extras:
-            for heading in extras:
-                build_problems.append(f"UNDECLARED_LEVEL2_HEADING:{path}:{heading}")
+        for heading in extras:
+            build_problems.append(f"UNDECLARED_LEVEL2_HEADING:{path}:{heading}")
 
         manifest_artifacts.append(
             {
@@ -120,6 +120,13 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
             }
         )
 
+    legacy_candidate = derive_candidate_inventory(repo_root)
+    if legacy_candidate.get("problems"):
+        build_problems.extend(
+            f"LEGACY_CANDIDATE_SOURCE:{problem}" for problem in legacy_candidate["problems"]
+        )
+
+    legacy_inventory = legacy_candidate.get("legacy_clause_inventory", [])
     manifest = {
         "schema_version": 1,
         "governance_generation": generation,
@@ -137,7 +144,7 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
         "schema_version": 1,
         "governance_generation": generation,
         "requires_legacy_qualification": bool(source.get("requires_legacy_qualification", False)),
-        "legacy_clause_inventory": source.get("legacy_clause_inventory", []),
+        "legacy_clause_inventory": legacy_inventory,
         "records": source.get("legacy_qualification_records", []),
     }
 
@@ -165,7 +172,9 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
         "expected_control_count": expected_control_count,
         "generated_descriptor_count": len(descriptors),
         "manifest_artifact_count": len(manifest_artifacts),
+        "legacy_artifact_count": legacy_candidate.get("artifact_count", 0),
         "legacy_inventory_count": len(legacy["legacy_clause_inventory"]),
+        "legacy_current_drift_paths": legacy_candidate.get("current_drift_paths", []),
         "manifest": manifest,
         "catalog": catalog,
         "legacy_qualification": legacy,
@@ -195,12 +204,33 @@ def main() -> int:
         print(rendered)
 
     if args.expect_incomplete:
-        required = {
-            "LEGACY_CLAUSE_INVENTORY_REQUIRED",
-        }
-        prefix_present = any(x.startswith("DESCRIPTOR_SEMANTIC_MAPPING_PENDING:") for x in result["problems"])
-        correct_count = result["expected_control_count"] == 110 and result["generated_descriptor_count"] == 110
-        return 0 if (not result["qualified"] and required.issubset(result["problems"]) and prefix_present and correct_count) else 1
+        semantic_pending = [
+            x for x in result["problems"] if x.startswith("DESCRIPTOR_SEMANTIC_MAPPING_PENDING:")
+        ]
+        legacy_pending = [
+            x for x in result["problems"] if x.startswith("LEGACY_INVENTORY_UNQUALIFIED:")
+        ]
+        unexpected = [
+            x for x in result["problems"]
+            if not x.startswith("DESCRIPTOR_SEMANTIC_MAPPING_PENDING:")
+            and not x.startswith("LEGACY_INVENTORY_UNQUALIFIED:")
+        ]
+        correct_counts = (
+            result["expected_control_count"] == 110
+            and result["generated_descriptor_count"] == 110
+            and result["manifest_artifact_count"] == 9
+            and result["legacy_artifact_count"] == 46
+            and result["legacy_inventory_count"] == 535
+        )
+        ok = (
+            not result["qualified"]
+            and len(semantic_pending) == 110
+            and len(legacy_pending) == 535
+            and not unexpected
+            and correct_counts
+            and not result["legacy_current_drift_paths"]
+        )
+        return 0 if ok else 1
     return 0 if result["qualified"] else 1
 
 
