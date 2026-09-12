@@ -18,13 +18,19 @@ jobs:
       - name: Checkout packet branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Verify frozen experiment candidate ancestry
         run: |
-          test "$(git rev-parse HEAD^)" = "c45994259de99565faab54cf616058e218628846"
-          echo "FROZEN_EXPERIMENT_CANDIDATE=c45994259de99565faab54cf616058e218628846"
+          set -euo pipefail
+          FROZEN="c45994259de99565faab54cf616058e218628846"
+          git cat-file -e "${FROZEN}^{commit}"
+          git merge-base --is-ancestor "$FROZEN" HEAD
+          CHANGED="$(git diff --name-only "$FROZEN"..HEAD)"
+          test "$CHANGED" = ".github/workflows/build-ecc-external-review-packet.yml"
+          echo "FROZEN_EXPERIMENT_CANDIDATE=$FROZEN"
           echo "PACKET_BUILDER_HEAD=$(git rev-parse HEAD)"
+          echo "PACKAGING_ONLY_DIFF=$CHANGED"
 
       - name: Fetch frozen ECC audit evidence
         run: |
