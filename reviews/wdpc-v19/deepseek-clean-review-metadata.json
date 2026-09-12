@@ -1,0 +1,20 @@
+{
+  "record_type": "WDPC_V19_DEEPSEEK_CLEAN_REVIEW_EVIDENCE",
+  "reviewed_candidate_sha": "c64379c9a7c5b2f80cc979a19cc39b3429a53fc9",
+  "review_context": "CLEAN_PACKET_ONLY_CONTEXT",
+  "evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "raw_sha256": "530ce7cae2b7a71e51f9c9373f9b927ad3ad3abad1a85592fb3180f3b85eb2af",
+  "raw_bytes": 19223,
+  "overall_disposition": "CHANGES_REQUIRED",
+  "design_freeze_recommendation": "DO_NOT_FREEZE_FOR_DESIGN_FREEZE",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "critical_findings": [
+    "V19-C04 does not fully prohibit lowering the effective mutation threshold itself"
+  ],
+  "high_findings": [
+    "eligible_dependency_set derivation can be circular",
+    "OUTCOME_UNKNOWN reconciliation lacks deterministic precedence for contradictory evidence",
+    "witness currentness/independence lacks precise minimum proof rules"
+  ]
+}
