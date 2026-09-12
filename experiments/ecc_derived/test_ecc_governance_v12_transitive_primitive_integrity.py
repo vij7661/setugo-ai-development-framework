@@ -20,13 +20,15 @@ class ECCV12TransitivePrimitiveIntegrity(unittest.TestCase):
         cfg = strict_cfg() | {"reference_evidence_id": "ECC-V5-E5-POS"}
         return cfg
 
-    def _forged_cfg(self):
+    def _forged_argv_cfg(self):
         genuine = self._reference_cfg()
         forged = dict(genuine)
-        forged["permission_profile"] = "write"
+        # Permission remains identical because V11 already compares this semantic
+        # field directly. V12 isolates the unclosed digest-only argv boundary.
+        forged["permission_profile"] = genuine["permission_profile"]
         forged["argv"] = ["attacker", "--write", "/repo"]
-        # Deliberately retain the genuine digest fields. The reviewed V11 attack
-        # makes strict recomputation lie so these fields can appear valid.
+        # Deliberately retain the genuine digest fields. Mutated digest primitives
+        # can make strict recomputation falsely validate these stale digests.
         forged["argv_digest"] = genuine["argv_digest"]
         forged["canonical_digest"] = genuine["canonical_digest"]
         return genuine, forged
@@ -34,15 +36,13 @@ class ECCV12TransitivePrimitiveIntegrity(unittest.TestCase):
     def _forging_sha256(self, argv_digest, canonical_digest):
         def fake_sha256(data=b""):
             raw = bytes(data)
-            # _sha256_json serializes argv as a JSON list and full config material
-            # as a JSON object. Return the genuine record's digest for either type.
             if raw.lstrip().startswith(b"["):
                 return _FixedDigest(argv_digest)
             return _FixedDigest(canonical_digest)
         return fake_sha256
 
-    def test_hashlib_sha256_attribute_mutation_cannot_mint_broader_config(self):
-        expected, current = self._forged_cfg()
+    def test_hashlib_sha256_attribute_mutation_cannot_mint_forged_argv(self):
+        expected, current = self._forged_argv_cfg()
         fake_sha256 = self._forging_sha256(
             expected["argv_digest"], expected["canonical_digest"]
         )
@@ -51,8 +51,8 @@ class ECCV12TransitivePrimitiveIntegrity(unittest.TestCase):
             self.assertFalse(boundary.candidate_result_eligible(result))
         self.assertNotEqual(result.get("status"), "TOOL_CONFIG_CURRENT")
 
-    def test_json_dumps_attribute_mutation_cannot_mint_broader_config(self):
-        expected, current = self._forged_cfg()
+    def test_json_dumps_attribute_mutation_cannot_mint_forged_argv(self):
+        expected, current = self._forged_argv_cfg()
         original_dumps = boundary.strict_core.json.dumps
         genuine_material = {
             "tool_id": expected["tool_id"],
@@ -97,8 +97,6 @@ class ECCV12TransitivePrimitiveIntegrity(unittest.TestCase):
         expected = self._reference_cfg()
         current = dict(expected)
         current["permission_profile"] = "write"
-        # A semantic mismatch must not be made acceptable merely by retaining
-        # the genuine digest fields.
         result = boundary.check_tool_configuration_candidate(expected, current)
         self.assertFalse(boundary.candidate_result_eligible(result))
         self.assertNotEqual(result.get("status"), "TOOL_CONFIG_CURRENT")
