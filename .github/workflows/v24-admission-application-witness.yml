@@ -1,0 +1,19 @@
+name: V24 Admission Application Witness
+on:
+  push:
+    branches: [implementation/v24-i6-admission-application-witness]
+    paths:
+      - 'governance-runtime/v24_admission_application_witness.py'
+      - 'governance-runtime/test_v24_admission_application_witness.py'
+      - '.github/workflows/v24-admission-application-witness.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - working-directory: governance-runtime
+        run: python -m unittest -v test_v24_admission_application_witness.py
