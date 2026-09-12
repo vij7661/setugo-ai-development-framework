@@ -30,15 +30,16 @@ jobs:
         run: python -m unittest -v test_normative_control_catalog.py
       - name: Verify real V24 bundle remains explicitly incomplete until legacy and semantic mappings are supplied
         working-directory: governance-runtime
-        run: >-
-          python v24_normative_bundle_preflight.py
-          --repo-root ..
-          --source v24-normative-inventory-source.json
-          --report /tmp/v24-normative-preflight.json
-          --expect-incomplete
+        run: |
+          python v24_normative_bundle_preflight.py \
+            --repo-root .. \
+            --source v24-normative-inventory-source.json \
+            --report /tmp/v24-normative-preflight.json \
+            --expect-incomplete
       - name: Show bounded preflight result
         if: always()
-        run: python - <<'PY'
+        run: |
+          python - <<'PY'
           import json
           from pathlib import Path
           p = Path('/tmp/v24-normative-preflight.json')
