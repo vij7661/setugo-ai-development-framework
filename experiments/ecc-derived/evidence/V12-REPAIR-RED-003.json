@@ -1,0 +1,24 @@
+{
+  "record_type": "ECC_DERIVED_V12_REPAIR_RED",
+  "record_id": "V12-REPAIR-RED-003",
+  "exact_candidate_sha": "88fe4ab45903a3b9ba729e0906cac160fb653b30",
+  "mechanism_repair_sha": "c650d169c0581e60f21d2d54ee61344dc38528cb",
+  "workflow_run_id": 34699308868,
+  "workflow_job_id": 103568129139,
+  "result": {
+    "tests_run": 199,
+    "failures": 40,
+    "errors": 0,
+    "conclusion": "REPAIR_MECHANISM_RED_BASELINE_VERIFIER_INVALID"
+  },
+  "observations": [
+    "V12 forged-argv primitive attacks now fail closed.",
+    "Raw reference permission_profile and argv are present.",
+    "Untampered verify_runtime_policy returns false, causing broad positive-control regressions across V5-V12.",
+    "This is not acceptable block-all behavior and cannot be treated as GREEN."
+  ],
+  "classification": "GOVERNANCE_MECHANISM_REPAIR_DEFECT_RUNTIME_POLICY_BASELINE_MISMATCH",
+  "v12_assertions_modified_during_repair": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
