@@ -1,0 +1,20 @@
+{
+  "record_type": "ECCDerivedProgramExternalAIReviewMetadata",
+  "reviewed_candidate": "c45994259de99565faab54cf616058e218628846",
+  "raw_review_sha256": "09d5c00f7740cdbd771c6cd1d9393c7823292d7edd5d59e8702ca431beaca67d",
+  "review_context": "CLEAN_PACKET_ONLY_CONTEXT",
+  "evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "program_disposition": "CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION",
+  "freeze_recommendation": "DO_NOT_FREEZE_EXPERIMENT_EVIDENCE",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "impact_recommendations": {
+    "EXP-ECC-1": "NARROW_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-2": "NARROW_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-3": "NARROW_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-4": "NARROW_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-5": "NARROW_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-6": "DEFER_PENDING_INTEGRATION_EVIDENCE",
+    "EXP-ECC-7": "DEFER_PENDING_INTEGRATION_EVIDENCE"
+  }
+}
