@@ -1,0 +1,30 @@
+{
+  "record_type": "ECC_DERIVED_V12_TRANSITIVE_PRIMITIVE_RED",
+  "record_id": "V12-TRANSITIVE-PRIMITIVE-RED-001",
+  "exact_candidate_sha": "c80cdb4ff94229baea5836440a3efba7176c2417",
+  "workflow_run_id": 34699078195,
+  "workflow_job_id": 103567521590,
+  "result": {
+    "tests_run": 199,
+    "failures": 3,
+    "errors": 0,
+    "conclusion": "RED_WITH_ATTACK_FIXTURE_NARROWING_REQUIRED"
+  },
+  "genuine_failures": [
+    "STRICT_HASHLIB_SHA256_TRANSITIVE_ATTRIBUTE_NOT_RUNTIME_BOUND",
+    "STRICT_JSON_DUMPS_TRANSITIVE_ATTRIBUTE_NOT_RUNTIME_BOUND",
+    "REFERENCE_CONFIG_RECORD_MISSING_RAW_PERMISSION_PROFILE_AND_ARGV"
+  ],
+  "attack_fixture_finding": {
+    "classification": "TEST_FIXTURE_SCOPE_DEFECT_AND_REVIEW_PATH_NARROWING",
+    "description": "The initial forged-config helper changed both permission_profile and argv. V11 strict check_tool_configuration already compares permission_profile directly, so the two mint-attempt tests passed for the wrong reason before exercising the digest-only argv boundary.",
+    "review_correction": "The broader-permission subpath is already rejected by strict semantic field comparison. The remaining candidate false-green target is argv-only drift with permission_profile unchanged plus mutated digest primitives.",
+    "permitted_pre_repair_change": "TEST_FIXTURE_ONLY: keep genuine permission_profile, mutate actual argv, retain genuine digest fields. No mechanism change before rerun."
+  },
+  "v12_assertion_commit": "ead455cf0996076e0c838be29405282be4cd7311",
+  "mechanism_repair_started": false,
+  "review_evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
