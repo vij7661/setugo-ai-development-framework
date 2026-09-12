@@ -12,7 +12,7 @@
     {"component_id":"governed-execution-decision","path":"experiments/governed-platform/governance/integrated_governed_mvp.py","functional_classes":["AUTHORITY_DECISION"]},
     {"component_id":"execution-gateway","path":"experiments/governed-platform/governance/integrated_governed_mvp_execution_gateway.py","functional_classes":["AUTHORITY_EFFECT_GATEWAY"]},
     {"component_id":"repository-gateway","path":"experiments/governed-platform/governance/integrated_governed_mvp_repository_gateway.py","functional_classes":["REPOSITORY_MUTATION_GATEWAY"]},
-    {"component_id":"isolated-tool-runner","path":"experiments/governed-platform/governance/integrated_governed_mvp_tool_runner.py","functional_classes":["TOOL_EFFECT_GATEWAY"]},
+    {"component_id":"isolated-tool-runner","path":"experiments/governed-platform/governance/integrated_governed_mvp_tool_runner_gateway.py","functional_classes":["TOOL_EFFECT_GATEWAY"]},
     {"component_id":"terminal-authority","path":"experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py","functional_classes":["TERMINAL_AUTHORITY_DECISION"]},
     {"component_id":"terminal-executor","path":"experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py","functional_classes":["TERMINAL_EFFECT_GATEWAY"]},
     {"component_id":"remote-transport","path":"experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py","functional_classes":["REMOTE_EFFECT_TRANSPORT"]},
