@@ -1,0 +1,21 @@
+{
+  "record_type": "ECC_V3_OMISSION_HARDENING_RED",
+  "candidate_sha": "8472480d4e6be10f2d01c902617ad0bb10f765b8",
+  "frozen_test_commit": "4012eb6082aaeb3cd79bda77b77a892cbc05a375",
+  "workflow_run_id": 34690281109,
+  "job_id": 103544199688,
+  "checkout_verified": "8472480d4e6be10f2d01c902617ad0bb10f765b8",
+  "tests_run": 153,
+  "failures": 18,
+  "errors": 3,
+  "prior_132_suite_status": "PASS",
+  "mechanism_changed_before_red": false,
+  "failure_classes": [
+    "STRICT_REQUIREMENT_CANDIDATE_ENTRYPOINT_MISSING",
+    "OMISSION_BASED_ATTESTATION_FALLBACK",
+    "OMISSION_BASED_AUTHORITY_FALLBACK",
+    "OMISSION_BASED_GOVERNANCE_FALLBACK",
+    "SHARED_MODULE_TRUST_BOUNDARY_MANIFEST_MISSING"
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
