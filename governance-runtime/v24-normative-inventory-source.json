@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "governance_generation": "V24",
+  "frozen_candidate_commit": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "frozen_candidate_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "requires_legacy_qualification": true,
+  "artifacts": [
+    {
+      "path": "standards/platform-completeness-qualification-v24.md",
+      "blob_sha": "aabff869ed8d0389e3e5edf75758d51aa463c7ec",
+      "control_series": [{"prefix": "P24-", "start": 1, "end": 25, "width": 2}]
+    },
+    {
+      "path": "standards/platform-completeness-runtime-enforcement-v24-addendum.md",
+      "blob_sha": "ef66bf93eb11340742b1412480c1fe12d7cb19c0",
+      "control_series": [{"prefix": "P24-R", "start": 1, "end": 14, "width": 2}]
+    },
+    {
+      "path": "standards/platform-completeness-functional-closure-v24-addendum.md",
+      "blob_sha": "ec47cddb10c6cf89e0c326aa152471a0c3c12677",
+      "control_series": [{"prefix": "P24-F", "start": 1, "end": 9, "width": 2}]
+    },
+    {
+      "path": "standards/platform-completeness-bootstrap-perimeter-v24-addendum.md",
+      "blob_sha": "2cee544f2856e29785eba29722bca23a2dc6788b",
+      "control_series": [{"prefix": "P24-B", "start": 1, "end": 10, "width": 2}]
+    },
+    {
+      "path": "standards/external-manual-review-completeness-qualification-v24-addendum.md",
+      "blob_sha": "d169181b9f444f40be717daefb819594b6961928",
+      "control_series": [{"prefix": "MR24-", "start": 1, "end": 9, "width": 2}]
+    },
+    {
+      "path": "standards/conversation-drift-parent-child-impact-control-v24-completeness-qualification.md",
+      "blob_sha": "3ade93260e2ef39fe973a948f5fd67c2eea7aee5",
+      "control_series": [{"prefix": "V24-C", "start": 1, "end": 20, "width": 2}]
+    },
+    {
+      "path": "standards/conversation-drift-parent-child-impact-control-v24-runtime-completeness-addendum.md",
+      "blob_sha": "67638c923b0436de7091b5abc0cff42a812cdb96",
+      "control_series": [{"prefix": "V24-R", "start": 1, "end": 10, "width": 2}]
+    },
+    {
+      "path": "standards/conversation-drift-parent-child-impact-control-v24-functional-closure-addendum.md",
+      "blob_sha": "f1c12f5ba2bf7a3cb3ee2a30f2f587d425009b44",
+      "control_series": [{"prefix": "V24-F", "start": 1, "end": 6, "width": 2}]
+    },
+    {
+      "path": "standards/conversation-drift-parent-child-impact-control-v24-bootstrap-perimeter-addendum.md",
+      "blob_sha": "9629146885394ffd904794de2aa1db2aee59b930",
+      "control_series": [{"prefix": "V24-B", "start": 1, "end": 7, "width": 2}]
+    }
+  ],
+  "legacy_clause_inventory": [],
+  "legacy_qualification_records": [],
+  "construction_state": "LEGACY_AND_SEMANTIC_MAPPING_PENDING",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
