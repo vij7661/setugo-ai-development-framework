@@ -1,0 +1,36 @@
+{
+  "record_type": "ECCDerivedV2ReviewRemediationRed",
+  "record_id": "ECC-DERIVED-V2-REVIEW-RED-001",
+  "parent_reviewed_candidate": "c45994259de99565faab54cf616058e218628846",
+  "frozen_executable_harness_commit": "387a32ae3dba3b92fff28b747cd294827fdba893",
+  "workflow_run_id": 34689754450,
+  "job_id": 103542823956,
+  "checkout_sha_verified": "387a32ae3dba3b92fff28b747cd294827fdba893",
+  "tests_run": 132,
+  "failures": 17,
+  "errors": 2,
+  "mechanism_changed_before_run": false,
+  "classification": {
+    "fixture_defects": [
+      "E5 canonical-digest recomputation fixture omitted legacy required credential_profile field and therefore reached TOOL_CONFIG_UNKNOWN before the intended attestation check"
+    ],
+    "mechanism_gaps": [
+      "trusted execution receipt provenance",
+      "TOCTOU action-sequence binding",
+      "hook process identity",
+      "machine-derived executable semantics",
+      "hidden disable flag detection",
+      "per-capability non-ordinal qualification",
+      "harness identity attestation",
+      "authenticated activation authority",
+      "cross-project activation replay",
+      "activation revocation race",
+      "configuration attestation/rebinding",
+      "provider/gateway identity attestation",
+      "manual attestation principal authentication",
+      "egress consent sequence replay",
+      "learning governance evidence integration"
+    ]
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
