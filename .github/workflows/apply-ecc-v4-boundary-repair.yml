@@ -1,0 +1,45 @@
+name: Apply ECC V4 Boundary Repair
+
+on:
+  push:
+    branches:
+      - experiments/ecc-derived-parallel-v4-mandatory-boundary
+    paths:
+      - '.github/scripts/apply_ecc_v4_boundary_repair.py'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact repair branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record repair input
+        run: |
+          echo "REPAIR_INPUT_SHA=$(git rev-parse HEAD)"
+          git status --short
+
+      - name: Apply deterministic V4 boundary repair
+        run: python .github/scripts/apply_ecc_v4_boundary_repair.py
+
+      - name: Commit exact repair
+        run: |
+          set -euo pipefail
+          git diff --check
+          git status --short
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/ecc_derived/ecc_governance.py experiments/ecc_derived/ecc_governance_trust_manifest.json
+          git diff --cached --exit-code && { echo "No repair diff produced"; exit 1; } || true
+          git commit -m "Enforce ECC V4 historical classification and runtime policy"
+          git push origin HEAD:experiments/ecc-derived-parallel-v4-mandatory-boundary
