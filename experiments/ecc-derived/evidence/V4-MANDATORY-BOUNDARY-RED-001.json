@@ -1,0 +1,21 @@
+{
+  "evidence_id": "V4-MANDATORY-BOUNDARY-RED-001",
+  "candidate_sha": "2c6664c591605d23172d410442eae9964eea9d54",
+  "test_assertion_commit": "08a3ab7c4809722d6e149895e3d79c34554be93d",
+  "workflow_run_id": 34691517124,
+  "job_id": 103547476519,
+  "result": "RED",
+  "tests_run": 171,
+  "failures": 18,
+  "errors": 0,
+  "prior_153_suite": "PASS",
+  "failure_classes": [
+    "LEGACY_RESULTS_NOT_EXPLICITLY_HISTORICAL",
+    "MANDATORY_CANDIDATE_BOUNDARY_MISSING",
+    "CANDIDATE_RESULT_GATE_MISSING",
+    "RUNTIME_TRUST_MANIFEST_ENFORCEMENT_MISSING",
+    "INDEPENDENT_CROSSCHECK_EXP_ECC_1_TO_5_MISSING"
+  ],
+  "mechanism_changed_before_red": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
