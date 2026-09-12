@@ -9,6 +9,7 @@ on:
       - 'governance-runtime/test_normative_control_catalog.py'
       - 'governance-runtime/v24_normative_bundle_preflight.py'
       - 'governance-runtime/v24_legacy_inventory_candidate.py'
+      - 'governance-runtime/v24_legacy_v7_classifier.py'
       - 'governance-runtime/v24-normative-inventory-source.json'
       - 'governance-runtime/NORMATIVE-CONTROL-CATALOG-V24-CONTRACT.md'
       - 'standards/*v24*.md'
@@ -38,6 +39,13 @@ jobs:
             --repo-root .. \
             --report /tmp/v24-legacy-inventory.json \
             --expect-pending
+      - name: Classify V5-V7 predecessor controls from exact map evidence
+        working-directory: governance-runtime
+        run: |
+          python v24_legacy_v7_classifier.py \
+            --repo-root .. \
+            --report /tmp/v24-v5-v7-classification.json \
+            --expect-bounded-pass
       - name: Verify real V24 bundle remains explicitly incomplete until legacy and semantic mappings are supplied
         working-directory: governance-runtime
         run: |
@@ -65,6 +73,19 @@ jobs:
                   'current_drift_paths': d.get('current_drift_paths'),
                   'source_problem_count': len(d.get('problems', [])),
                   'source_problems': d.get('problems'),
+              }
+          tranche = Path('/tmp/v24-v5-v7-classification.json')
+          if tranche.exists():
+              d = json.loads(tranche.read_text())
+              output['v5_v7_classification'] = {
+                  'state': d.get('state'),
+                  'classified_count': d.get('classified_count'),
+                  'active_mapped_count': d.get('active_mapped_count'),
+                  'superseded_count': d.get('superseded_count'),
+                  'reference_only_count': d.get('reference_only_count'),
+                  'unresolved_legacy_count': d.get('unresolved_legacy_count'),
+                  'problem_count': len(d.get('problems', [])),
+                  'problems': d.get('problems'),
               }
           current = Path('/tmp/v24-normative-preflight.json')
           if current.exists():
