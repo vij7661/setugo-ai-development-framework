@@ -50,6 +50,12 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     }
     reference_lookup_fn = evidence_module.lookup_reference_evidence
 
+    # V12: module-object identity is insufficient when candidate-authoritative
+    # strict helpers dereference mutable attributes on those modules at runtime.
+    # Bind the exact transitive primitive callables used by _sha256_json.
+    strict_hashlib_sha256_fn = strict_module.hashlib.sha256
+    strict_json_dumps_fn = strict_module.json.dumps
+
     boundary_path = path_resolve_fn(path_type(boundary_file))
     here = boundary_path.parent
     manifest_path = here / "ecc_governance_trust_manifest.json"
@@ -187,7 +193,7 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
         except (OSError, ValueError, TypeError):
             return False
 
-        if manifest.get("record_type") != "ECC_GOVERNANCE_V11_MODULE_GLOBAL_INTEGRITY_MANIFEST":
+        if manifest.get("record_type") != "ECC_GOVERNANCE_V12_TRANSITIVE_PRIMITIVE_INTEGRITY_MANIFEST":
             return False
         if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
             return False
@@ -217,6 +223,18 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return False
         if manifest.get("module_global_dependency_policy") != "RECURSIVE_REFERENCED_GLOBALS_BOUND_AT_INITIALIZATION":
             return False
+        if manifest.get("transitive_module_attribute_policy") != "EXACT_STRICT_DIGEST_PRIMITIVE_CALLABLES_BOUND_AT_INITIALIZATION":
+            return False
+        if set(manifest.get("captured_strict_transitive_primitives") or []) != {
+            "strict_core.hashlib.sha256",
+            "strict_core.json.dumps",
+        }:
+            return False
+        if set(manifest.get("config_reference_semantic_fields") or []) != {
+            "permission_profile",
+            "argv",
+        }:
+            return False
         if manifest.get("checked_entrypoint_identity_policy") != "EXACT_FUNCTION_OBJECT_IDENTITY_REQUIRED":
             return False
         if manifest.get("public_covers_global_controls_candidate_authority") is not False:
@@ -245,6 +263,13 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return False
 
         if not entrypoint_identity_ok():
+            return False
+        # V12: fail closed if the exact digest primitives dereferenced through
+        # strict module globals have changed while the module objects themselves
+        # remain identical.
+        if getattr(strict_module.hashlib, "sha256", None) is not strict_hashlib_sha256_fn:
+            return False
+        if getattr(strict_module.json, "dumps", None) is not strict_json_dumps_fn:
             return False
         if not dependency_globals_ok():
             return False
@@ -462,6 +487,8 @@ def _build_candidate_api(runtime_verify, strict_module, evidence_module):
             record.get("harness_id") == expected.get("harness_id") == current.get("harness_id"),
             record.get("transport") == expected.get("transport") == current.get("transport"),
             record.get("endpoint") == expected.get("endpoint") == current.get("endpoint"),
+            record.get("permission_profile") == expected.get("permission_profile") == current.get("permission_profile"),
+            record.get("argv") == expected.get("argv") == current.get("argv"),
             record.get("argv_digest") == expected.get("argv_digest") == current.get("argv_digest"),
             record.get("canonical_digest") == expected.get("canonical_digest") == current.get("canonical_digest"),
             record.get("credential_profile_fingerprint") == expected.get("credential_profile_fingerprint") == current.get("credential_profile_fingerprint"),

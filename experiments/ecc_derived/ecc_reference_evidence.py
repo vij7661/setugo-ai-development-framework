@@ -68,6 +68,8 @@ _REFERENCE = {
         "harness_id": "h",
         "transport": "stdio",
         "endpoint": None,
+        "argv": ["x"],
+        "permission_profile": "r",
         "argv_digest": _sha256_json(["x"]),
         "canonical_digest": _sha256_json(_CONFIG_MATERIAL),
         "credential_profile_fingerprint": "cred-fp",
