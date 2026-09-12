@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - experiments/ecc-derived-parallel-v1
+      - experiments/ecc-derived-parallel-v2-remediation
     paths:
       - 'experiments/ecc-derived/**'
       - 'experiments/ecc_derived/**'
