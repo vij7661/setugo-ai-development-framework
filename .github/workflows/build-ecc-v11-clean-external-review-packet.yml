@@ -1,0 +1,59 @@
+name: Build ECC V11 Clean External Review Packet
+
+on:
+  push:
+    branches:
+      - review/ecc-derived-v11-clean-external-packet
+    paths:
+      - '.github/workflows/build-ecc-v11-clean-external-review-packet.yml'
+      - '.github/scripts/build_ecc_v11_clean_packet.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packaging branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify packaging-only diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE=39d19dbf4d62b2861128f00e62a7325ff1039fa6
+          mapfile -t CHANGED < <(git diff --name-only "$CANDIDATE"..HEAD | sort)
+          printf 'PACKAGING_HEAD=%s\n' "$(git rev-parse HEAD)"
+          printf 'CANDIDATE_SHA=%s\n' "$CANDIDATE"
+          printf 'CANDIDATE_TREE=%s\n' "$(git rev-parse "$CANDIDATE^{tree}")"
+          printf 'CHANGED=%s\n' "${CHANGED[*]}"
+          [[ ${#CHANGED[@]} -eq 2 ]]
+          [[ "${CHANGED[0]}" == ".github/scripts/build_ecc_v11_clean_packet.py" ]]
+          [[ "${CHANGED[1]}" == ".github/workflows/build-ecc-v11-clean-external-review-packet.yml" ]]
+
+      - name: Execute frozen V11 suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/ecc_derived/run_v11_suite.py > /tmp/ecc_v11_test_transcript.txt 2>&1
+          cat /tmp/ecc_v11_test_transcript.txt
+
+      - name: Build packet
+        run: python .github/scripts/build_ecc_v11_clean_packet.py
+
+      - name: Upload packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecc-derived-v11-clean-external-review-packet
+          path: ECC_Derived_V11_Clean_External_Review_Packet.md
+          if-no-files-found: error
+          retention-days: 30
