@@ -1,0 +1,49 @@
+{
+  "record_type": "ECC_DERIVED_V5_CLOSED_BOUNDARY_GREEN",
+  "record_id": "V5-CLOSED-BOUNDARY-GREEN-002",
+  "exact_candidate_sha": "64fa2ac71442d38a2127bcc4c7de688fbac46714",
+  "workflow_run_id": 34692826791,
+  "workflow_job_id": 103551010321,
+  "result": {
+    "tests_run": 144,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "GREEN_BOUNDED_REFERENCE_MECHANISM"
+  },
+  "closed_review_findings": [
+    "PUBLIC_SHARED_CORE_CALLER_SELECTABLE_STRICT_MODE_REMOVED",
+    "DIRECT_ALIAS_PARTIAL_WRAPPER_STRICT_BYPASS_BLOCKED",
+    "BARE_STRICT_CLASS_NO_LONGER_SUFFICIENT_FOR_ELIGIBILITY",
+    "STRICT_FAILURE_STATUSES_NOT_CANDIDATE_ELIGIBLE",
+    "SEPARATE_REFERENCE_EVIDENCE_SOURCE_REQUIRED_FOR_EXP_ECC_1_5_REFERENCE_POSITIVES",
+    "IMPORTED_MODULE_IDENTITY_BOUND_TO_EXPECTED_PATH_AND_SYS_MODULE_OBJECT",
+    "SELECTED_IN_MEMORY_STRICT_AND_REFERENCE_FUNCTION_CODE_BOUND",
+    "RUNTIME_POLICY_RECHECKED_BEFORE_POSITIVE_CANDIDATE_ELIGIBILITY",
+    "EXP_ECC_6_7_REMAIN_NON_ELIGIBLE_AND_DEFERRED"
+  ],
+  "historical_test_supersession": {
+    "test_ecc_governance_v3_omission_hardening": "Preserved unchanged; excluded from active V5 semantics because it encodes caller-selectable strict shared-core mode rejected by the V4 re-review.",
+    "test_ecc_governance_v4_mandatory_boundary": "Preserved unchanged; excluded from active V5 semantics because it encodes bare strict-class eligibility and same-fixture cross-check assumptions rejected by the V4 re-review."
+  },
+  "module_sha256": {
+    "public_core": "4817db8e7f7496c288431c5220b4f559c9757b0b0a12ecc9507bf0f95a3ceb51",
+    "strict_core": "2519065974e911adbedd55f645984ff3bf7f7e84d924204b74e659a328d4e7b2",
+    "candidate_boundary": "5e6d452a30522380d8fbb52ebf9567b59fe2699c6f7a293deec56d4c592726f1",
+    "reference_evidence": "ffbe5fd4974e99ddd9d70bd3084e12704038510c267f263d75d5013864f441c7",
+    "manifest": "e10cb5cac1b86ac8644e59ca0af62c0476869ab6d170cb823913f64e477b0f60"
+  },
+  "trust_source_class": "REFERENCE_REPO_BOUND_SIMULATION_ONLY",
+  "live_attestation_claimed": false,
+  "independent_production_trust_root_claimed": false,
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "open_higher_order_risk": {
+    "id": "V5-OPEN-ELIGIBILITY-PROVENANCE-001",
+    "class": "CALLER_FORGEABLE_CANDIDATE_ELIGIBILITY_MARKER",
+    "description": "candidate_result_eligible currently accepts a caller-constructed dictionary when evaluation_class, candidate_eligible, candidate_kind, and favorable status are syntactically valid. V5 proves reviewed marker/status logic but does not prove boundary provenance of that marker.",
+    "required_next_step": "SEPARATE_PROVENANCE_FALSIFICATION_BEFORE_FREEZE_OR_IMPACT_ADJUDICATION"
+  },
+  "freeze_effect": "DO_NOT_FREEZE_PENDING_PROVENANCE_FALSIFICATION_AND_EXTERNAL_REREVIEW",
+  "note": "V5 GREEN is bounded to the reviewed reference-mechanism fixes. It does not establish live platform attestation, independent production trust-root evidence, or qualifying manual review."
+}
