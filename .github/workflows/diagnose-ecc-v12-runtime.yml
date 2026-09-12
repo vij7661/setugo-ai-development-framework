@@ -1,0 +1,32 @@
+name: Diagnose ECC V12 Runtime Verifier
+
+on:
+  push:
+    branches:
+      - experiments/ecc-derived-parallel-v12-transitive-primitive-integrity
+    paths:
+      - '.github/scripts/diagnose_ecc_v12_runtime.py'
+      - '.github/workflows/diagnose-ecc-v12-runtime.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record exact checkout
+        run: echo "CHECKOUT_SHA=$(git rev-parse HEAD)"
+
+      - name: Diagnose V12 verifier baseline
+        run: python .github/scripts/diagnose_ecc_v12_runtime.py
