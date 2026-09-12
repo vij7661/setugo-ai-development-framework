@@ -1,0 +1,34 @@
+{
+  "record_type": "ECC_DERIVED_V11_MODULE_GLOBAL_INTEGRITY_RED",
+  "record_id": "V11-MODULE-GLOBAL-INTEGRITY-RED-001",
+  "parent_v10_candidate_sha": "63617dd1f01f0063b5534de128d5afce17f169be",
+  "external_review_evidence_commit": "76d8006f912683e332338f8f04a5aa456d320171",
+  "external_review_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "external_review_manual_threshold_contribution": 0,
+  "v11_assertion_commit": "d79df1078cdaae6048e1ca636406935c26316616",
+  "exact_candidate_sha": "9febf942842bd089a0d2c68c3d670d135b2377f0",
+  "workflow_run_id": 34697338898,
+  "workflow_job_id": 103562973730,
+  "result": {
+    "tests_run": 190,
+    "failures": 5,
+    "errors": 0,
+    "conclusion": "CLEAN_EXPECTED_PRE_REPAIR_RED"
+  },
+  "failure_classes": [
+    "STRICT_HELPER_PLUS_REFERENCE_STORE_MUTATION_CAN_MINT",
+    "REFERENCE_STORE_MUTATION_ALONE_CAN_MINT",
+    "ALLOWED_CAPABILITY_GLOBAL_MUTATION_CAN_PROMOTE_UNKNOWN_CAPABILITY",
+    "PUBLIC_COVERS_GLOBAL_CONTROLS_LEGITIMATE_CANDIDATE_AUTHORITY",
+    "SAME_CODE_NEW_FUNCTION_GLOBALS_CAN_MINT"
+  ],
+  "positive_controls": [
+    "LEGITIMATE_EXP_ECC_1_THROUGH_5_CANDIDATE_PATHS_REMAIN_POSITIVE",
+    "PUBLIC_DIAGNOSTIC_VERIFIER_REPORTS_CURRENT_POLICY_WHEN_UNTAMPERED"
+  ],
+  "retained_v1_v10_non_superseded_tests": "PASS",
+  "root_cause": "GOVERNANCE_MECHANISM_DEFECT_MODULE_GLOBAL_INTEGRITY_INCOMPLETE",
+  "mechanism_repair_started": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
