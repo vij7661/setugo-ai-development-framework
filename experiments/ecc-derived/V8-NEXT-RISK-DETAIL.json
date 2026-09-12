@@ -1,0 +1,12 @@
+{
+  "record_type": "ECC_DERIVED_NEXT_RISK_DETAIL",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "parent_bounded_green_ledger": "be28b37333156dfa5b86eec8322d4e7f1c3e4afc",
+  "next_family": "V9_VERIFIER_PRIMITIVE_INTEGRITY",
+  "attack_classes": [
+    "JSON_DUMPS_SUBSTITUTION_CAN_MASK_POST_ISSUANCE_RESULT_MUTATION",
+    "MARSHAL_DUMPS_SUBSTITUTION_CAN_MASK_STRICT_REFERENCE_CODE_TAMPER"
+  ],
+  "reason": "V8 closure-held authority captures mutable module objects whose attributes remain reachable and replaceable through ordinary module access.",
+  "v8_history_rewritten": false
+}
