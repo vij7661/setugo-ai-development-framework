@@ -1,0 +1,57 @@
+{
+  "record_type": "ECC_DERIVED_V7_SEAL_CAPABILITY_GREEN",
+  "record_id": "V7-SEAL-CAPABILITY-GREEN-003",
+  "exact_candidate_sha": "350fe3c174d563e45db726fd6f40e71d95635c92",
+  "workflow_run_id": 34694477250,
+  "workflow_job_id": 103555472942,
+  "result": {
+    "tests_run": 162,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "GREEN_BOUNDED_ORDINARY_MODULE_ACCESS_SEAL_CAPABILITY"
+  },
+  "sequence": {
+    "pre_repair_red": "062ffeb869310afcedbdde228855bb72451171c4",
+    "first_repair_mechanism": "1f8d04830837cfe2b38990bf81457370918b4aa1",
+    "first_repair_red": "6bd9d8ddfd3292e830ba29730b9f4643a4b056e8",
+    "repair_correction_mechanism": "40a095032d430bce5bd578d981e264047f74bc8d",
+    "corrected_green_candidate": "350fe3c174d563e45db726fd6f40e71d95635c92"
+  },
+  "candidate_boundary_sha256": "d70aaa0dea897a41a5689f00297ae6d795723d9f05738b7f2a631a02a83e645a",
+  "manifest_sha256": "9d128821d9fbc073e9aeee05f2270f649f28b35f43568027ca6b303116e15ac7",
+  "closed_v7_failure_classes": [
+    "MODULE_EXPORTS_RAW_SEAL_CAPABILITY",
+    "MODULE_EXPORTS_CANDIDATE_RESULT_CONSTRUCTOR",
+    "GENERIC_TYPED_HELPER_CAN_MINT_POSITIVE_AUTHORITY",
+    "FINISH_POSITIVE_HELPER_CAN_MINT_FROM_ARBITRARY_PAYLOAD",
+    "BOUNDARY_NAMESPACE_EXPOSES_CAPABILITY_BEARING_SHORTCUTS"
+  ],
+  "retained_controls": {
+    "v1_v2_active_suites": "PASS",
+    "non_superseded_v5_assertions": "PASS",
+    "v6_provenance_assertions": "PASS",
+    "legitimate_v7_candidate_entrypoint": "PASS",
+    "plain_forged_dictionary": "REJECTED"
+  },
+  "bounded_threat_model": "ORDINARY_PYTHON_MODULE_ATTRIBUTE_ACCESS",
+  "not_claimed": [
+    "REFLECTIVE_CLOSURE_CELL_EXTRACTION_RESISTANCE",
+    "BYTECODE_OR_INTERPRETER_COMPROMISE_RESISTANCE",
+    "NATIVE_PROCESS_MEMORY_COMPROMISE_RESISTANCE",
+    "DURABLE_CROSS_PROCESS_SIGNATURE",
+    "LIVE_PLATFORM_ATTESTATION",
+    "INDEPENDENT_PRODUCTION_TRUST_ROOT",
+    "EXP_ECC_6_7_PROMOTION",
+    "REQUIREMENT_ADOPTION"
+  ],
+  "open_higher_order_risk": {
+    "id": "V7-OPEN-RUNTIME-VERIFIER-SUBSTITUTION-001",
+    "class": "DYNAMIC_POLICY_VERIFIER_AND_DEPENDENCY_SUBSTITUTION",
+    "description": "Candidate entrypoints dynamically call the module-global verify_runtime_policy function. Ordinary module access can replace that verifier with an always-true function while replacing strict/reference dependencies. Existing V7 tests do not prove this combined substitution cannot mint sealed provenance.",
+    "required_next_step": "SEPARATE_FALSIFICATION_BEFORE_EXTERNAL_PACKET_OR_FREEZE"
+  },
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "freeze_effect": "NOT_FROZEN"
+}
