@@ -1,0 +1,19 @@
+name: V24 Generation Migration
+on:
+  push:
+    branches: [implementation/v24-i8-generation-migration-fencing]
+    paths:
+      - 'governance-runtime/v24_generation_migration.py'
+      - 'governance-runtime/test_v24_generation_migration.py'
+      - '.github/workflows/v24-generation-migration.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - working-directory: governance-runtime
+        run: python -m unittest -v test_v24_generation_migration.py
