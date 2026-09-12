@@ -32,5 +32,5 @@ jobs:
           echo "CHECKOUT_SHA=$(git rev-parse HEAD)"
           git status --short
 
-      - name: Run ECC-derived falsification harness
-        run: python -m unittest -v experiments/ecc_derived/test_ecc_governance.py
+      - name: Run ECC-derived representative and full named coverage
+        run: python -m unittest discover -v -s experiments/ecc_derived -p 'test_*.py'
