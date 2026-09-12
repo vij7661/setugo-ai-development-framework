@@ -48,6 +48,15 @@ jobs:
           print('REVIEW_PHASE='+t['phase'])
           PY
 
+      - name: Validate deliberate reviewer change-impact contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p governance-review-evidence
+          python governance-runtime/review_change_impact_gate.py \
+            --input "$REVIEW_REQUEST_PATH" \
+            > governance-review-evidence/review-change-impact-preflight.json
+
       - name: Require provider secret and request file
         shell: bash
         run: |
@@ -60,7 +69,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p governance-review-evidence
-          python governance-runtime/platform_candidate_review_v2.py \
+          python governance-runtime/platform_candidate_review_v3.py \
             --request "$REVIEW_REQUEST_PATH" \
             --output-dir governance-review-evidence \
             --model "$GEMINI_REVIEW_MODEL" \
@@ -82,8 +91,10 @@ jobs:
           err=Path('governance-review-evidence/provider-error.log')
           pre=Path('governance-review-evidence/api-preflight.json')
           receipt=Path('governance-review-evidence/api-receipt-validation.json')
+          change_pre=Path('governance-review-evidence/review-change-impact-preflight.json')
+          change_out=Path('governance-review-evidence/review-change-impact-output-validation.json')
           status={
-            'schema_version':3,
+            'schema_version':4,
             'review_request_path':t.get('review_request_path'),
             'phase':t.get('phase'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
@@ -94,6 +105,8 @@ jobs:
             'model':os.environ.get('GEMINI_REVIEW_MODEL'),
             'materialization_version':'GOV-EVIDENCE-MATERIALIZATION-001',
             'api_gate_policy':'PLATFORM-API-CALL-POLICY-V1',
+            'review_change_impact_preflight':json.loads(change_pre.read_text()) if change_pre.exists() else None,
+            'review_change_impact_output_validation':json.loads(change_out.read_text()) if change_out.exists() else None,
             'api_preflight':json.loads(pre.read_text()) if pre.exists() else None,
             'api_receipt_validation':json.loads(receipt.read_text()) if receipt.exists() else None,
             'workflow_status':os.environ.get('JOB_STATUS','failure').lower(),
