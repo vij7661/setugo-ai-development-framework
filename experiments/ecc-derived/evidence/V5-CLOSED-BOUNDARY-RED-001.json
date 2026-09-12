@@ -1,0 +1,36 @@
+{
+  "record_type": "ECC_DERIVED_V5_CLOSED_BOUNDARY_RED",
+  "record_id": "V5-CLOSED-BOUNDARY-RED-001",
+  "exact_candidate_sha": "2c839baad99f220cbe1537820a835be3e7720e28",
+  "workflow_run_id": 34692576280,
+  "workflow_job_id": 103550334507,
+  "result": {
+    "tests_run": 144,
+    "failures": 33,
+    "errors": 0,
+    "conclusion": "RED_EXPECTED"
+  },
+  "active_prior_suite_status": "V1_AND_V2_ACTIVE_TESTS_GREEN",
+  "superseded_test_modules": {
+    "test_ecc_governance_v3_omission_hardening": "Preserved historical evidence; superseded because it encodes caller-selectable strict shared-core mode rejected by V4 re-review.",
+    "test_ecc_governance_v4_mandatory_boundary": "Preserved historical evidence; superseded because it encodes bare strict-class eligibility and same-fixture cross-check assumptions rejected by V4 re-review."
+  },
+  "failure_classes": [
+    "PUBLIC_CORE_CALLER_SELECTABLE_STRICT_MODE",
+    "DIRECT_ALIAS_PARTIAL_WRAPPER_STRICT_BYPASS",
+    "BARE_STRICT_CLASS_ELIGIBILITY_FALSE_GREEN",
+    "PRIVATE_STRICT_CORE_MISSING",
+    "SEPARATE_REFERENCE_EVIDENCE_SOURCE_MISSING",
+    "SAME_FIXTURE_CROSSCHECK_NOT_INDEPENDENT",
+    "BOUNDARY_ELIGIBILITY_MARKER_MISSING",
+    "IMPORTED_MODULE_IDENTITY_NOT_BOUND",
+    "IN_MEMORY_MONKEYPATCH_NOT_DETECTED",
+    "PRE_ELIGIBILITY_POLICY_RECHECK_MISSING"
+  ],
+  "review_source_candidate_sha": "8cc79ed23e825f6971e6268b9524e9ed91138028",
+  "review_evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "note": "Frozen V5 assertions were committed before repair. No V5 mechanism repair had begun at this RED."
+}
