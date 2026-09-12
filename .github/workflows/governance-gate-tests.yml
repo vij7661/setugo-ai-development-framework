@@ -9,12 +9,16 @@ on:
       - 'governance-runtime/api-call-policy-v1.json'
       - 'governance-runtime/platform_candidate_review_v2.py'
       - 'governance-runtime/change_control_gate.py'
+      - 'governance-runtime/review_change_impact_gate.py'
+      - 'governance-runtime/reviewer_change_reconciliation_gate.py'
       - 'governance-runtime/test_review_packet_preflight.py'
       - 'governance-runtime/test_api_call_gate.py'
       - 'governance-runtime/test_change_control_gate.py'
+      - 'governance-runtime/test_review_change_impact_contract.py'
       - 'standards/review-packet-completeness-gate-v1.md'
       - 'standards/governed-api-call-gate-v1.md'
       - 'standards/review-finding-change-control-v1.md'
+      - 'standards/reviewer-change-impact-review-contract-v1.md'
   push:
     paths:
       - 'governance-runtime/review_packet_preflight.py'
@@ -23,12 +27,16 @@ on:
       - 'governance-runtime/api-call-policy-v1.json'
       - 'governance-runtime/platform_candidate_review_v2.py'
       - 'governance-runtime/change_control_gate.py'
+      - 'governance-runtime/review_change_impact_gate.py'
+      - 'governance-runtime/reviewer_change_reconciliation_gate.py'
       - 'governance-runtime/test_review_packet_preflight.py'
       - 'governance-runtime/test_api_call_gate.py'
       - 'governance-runtime/test_change_control_gate.py'
+      - 'governance-runtime/test_review_change_impact_contract.py'
       - 'standards/review-packet-completeness-gate-v1.md'
       - 'standards/governed-api-call-gate-v1.md'
       - 'standards/review-finding-change-control-v1.md'
+      - 'standards/reviewer-change-impact-review-contract-v1.md'
 
 permissions:
   contents: read
@@ -47,4 +55,5 @@ jobs:
           python -m unittest -v \
             test_review_packet_preflight.py \
             test_api_call_gate.py \
-            test_change_control_gate.py
+            test_change_control_gate.py \
+            test_review_change_impact_contract.py
