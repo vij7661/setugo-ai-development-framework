@@ -1,0 +1,49 @@
+name: Apply ECC V8 Verifier Substitution Repair
+
+on:
+  push:
+    branches:
+      - experiments/ecc-derived-parallel-v8-verifier-substitution
+    paths:
+      - '.github/scripts/apply_ecc_v8_verifier_substitution_repair.py'
+      - '.github/workflows/apply-ecc-v8-verifier-substitution-repair.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verifier-substitution-repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact V8 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record repair input
+        run: |
+          echo "REPAIR_INPUT_SHA=$(git rev-parse HEAD)"
+          git status --short
+
+      - name: Apply deterministic V8 verifier-substitution repair
+        run: python .github/scripts/apply_ecc_v8_verifier_substitution_repair.py
+
+      - name: Commit exact V8 repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git status --short
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            experiments/ecc_derived/ecc_candidate_boundary.py \
+            experiments/ecc_derived/ecc_governance_trust_manifest.json
+          git diff --cached --exit-code && { echo "No V8 repair diff produced"; exit 1; } || true
+          git commit -m "Repair ECC V8 verifier substitution boundary"
+          git push origin HEAD:experiments/ecc-derived-parallel-v8-verifier-substitution
