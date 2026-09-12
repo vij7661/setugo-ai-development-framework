@@ -1,0 +1,42 @@
+{
+  "record_type": "ECCDerivedV2ReviewRemediationGreen",
+  "record_id": "ECC-DERIVED-V2-REVIEW-GREEN-002",
+  "parent_reviewed_candidate": "c45994259de99565faab54cf616058e218628846",
+  "external_ai_review_sha256": "09d5c00f7740cdbd771c6cd1d9393c7823292d7edd5d59e8702ca431beaca67d",
+  "frozen_v2_executable_harness_commit": "387a32ae3dba3b92fff28b747cd294827fdba893",
+  "repair_candidate_commit": "e176df47dd1faca4eca5437095c5bc55b09e4a4d",
+  "workflow_run_id": 34689873921,
+  "job_id": 103543142617,
+  "checkout_sha_verified": "e176df47dd1faca4eca5437095c5bc55b09e4a4d",
+  "tests_run": 132,
+  "failures": 0,
+  "errors": 0,
+  "prior_red": {
+    "record_id": "ECC-DERIVED-V2-REVIEW-RED-001",
+    "checkout_sha": "387a32ae3dba3b92fff28b747cd294827fdba893",
+    "workflow_run_id": 34689754450,
+    "job_id": 103542823956,
+    "tests_run": 132,
+    "failures": 17,
+    "errors": 2
+  },
+  "dispositions": {
+    "EXP-ECC-1": "NARROWED_REFERENCE_MECHANISM_PASS",
+    "EXP-ECC-2": "NARROWED_REFERENCE_MECHANISM_PASS",
+    "EXP-ECC-3": "NARROWED_REFERENCE_MECHANISM_PASS",
+    "EXP-ECC-4": "NARROWED_REFERENCE_MECHANISM_PASS",
+    "EXP-ECC-5": "NARROWED_REFERENCE_MECHANISM_PASS",
+    "EXP-ECC-6": "DEFER_PENDING_INTEGRATION_EVIDENCE",
+    "EXP-ECC-7": "DEFER_PENDING_INTEGRATION_EVIDENCE"
+  },
+  "nonclaims": [
+    "No production or V18 integration is proven.",
+    "No live third-party hook or harness execution is proven.",
+    "No cryptographic provider identity is proven.",
+    "No real automated external-review transport is enabled in testing.",
+    "No independent human/manual review is satisfied.",
+    "No ECC-derived requirement is promoted automatically.",
+    "No merge, release, deploy, completion, or terminal authority is granted."
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
