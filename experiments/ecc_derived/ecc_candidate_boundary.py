@@ -28,8 +28,13 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     marshal_dumps_fn = marshal.dumps
     sys_modules = sys.modules
     path_type = Path
+    path_read_text_fn = Path.read_text
+    path_read_bytes_fn = Path.read_bytes
+    path_resolve_fn = Path.resolve
+    path_is_file_fn = Path.is_file
+    path_is_symlink_fn = Path.is_symlink
 
-    boundary_path = path_type(boundary_file).resolve()
+    boundary_path = path_resolve_fn(path_type(boundary_file))
     here = boundary_path.parent
     manifest_path = here / "ecc_governance_trust_manifest.json"
     public_path = here / "ecc_governance.py"
@@ -37,7 +42,7 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     evidence_path = here / "ecc_reference_evidence.py"
 
     def file_sha(path):
-        return sha256_fn(path.read_bytes()).hexdigest()
+        return sha256_fn(path_read_bytes_fn(path)).hexdigest()
 
     def code_sha(fn):
         try:
@@ -48,11 +53,11 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     def module_identity_ok(module, expected_path, expected_name):
         try:
             path = path_type(module.__file__)
-            resolved = path.resolve(strict=True)
-            expected = expected_path.resolve(strict=True)
+            resolved = path_resolve_fn(path, strict=True)
+            expected = path_resolve_fn(expected_path, strict=True)
         except (AttributeError, OSError, RuntimeError):
             return False
-        if path.is_symlink() or expected_path.is_symlink():
+        if path_is_symlink_fn(path) or path_is_symlink_fn(expected_path):
             return False
         if resolved != expected:
             return False
@@ -65,7 +70,7 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
         if not origin:
             return False
         try:
-            if path_type(origin).resolve(strict=True) != expected:
+            if path_resolve_fn(path_type(origin), strict=True) != expected:
                 return False
         except (OSError, RuntimeError):
             return False
@@ -74,16 +79,16 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     def runtime_verify():
         for path in (manifest_path, public_path, strict_path, boundary_path, evidence_path):
             try:
-                if path.is_symlink() or not path.is_file():
+                if path_is_symlink_fn(path) or not path_is_file_fn(path):
                     return False
             except OSError:
                 return False
         try:
-            manifest = json_loads_fn(manifest_path.read_text(encoding="utf-8"))
+            manifest = json_loads_fn(path_read_text_fn(manifest_path, encoding="utf-8"))
         except (OSError, ValueError, TypeError):
             return False
 
-        if manifest.get("record_type") != "ECC_GOVERNANCE_V9_VERIFIER_PRIMITIVE_INTEGRITY_MANIFEST":
+        if manifest.get("record_type") != "ECC_GOVERNANCE_V10_PATH_PRIMITIVE_INTEGRITY_MANIFEST":
             return False
         if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
             return False
@@ -107,6 +112,18 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return False
         if manifest.get("seal_primitive_policy") != "EXACT_CALLABLES_CAPTURED_AT_INITIALIZATION":
             return False
+        if manifest.get("path_primitive_policy") != "EXACT_PATH_CALLABLES_CAPTURED_AT_INITIALIZATION":
+            return False
+        if manifest.get("public_path_method_alias_controls_candidate_authority") is not False:
+            return False
+        if set(manifest.get("captured_path_primitives") or []) != {
+            "Path.read_text",
+            "Path.read_bytes",
+            "Path.resolve",
+            "Path.is_file",
+            "Path.is_symlink",
+        }:
+            return False
         if manifest.get("public_json_alias_controls_candidate_authority") is not False:
             return False
         if manifest.get("public_marshal_alias_controls_candidate_authority") is not False:
@@ -129,7 +146,7 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
         if not module_identity_ok(evidence_module, evidence_path, "ecc_reference_evidence"):
             return False
         try:
-            if boundary_path.resolve(strict=True) != path_type(boundary_file).resolve(strict=True):
+            if path_resolve_fn(boundary_path, strict=True) != path_resolve_fn(path_type(boundary_file), strict=True):
                 return False
         except (OSError, RuntimeError):
             return False
