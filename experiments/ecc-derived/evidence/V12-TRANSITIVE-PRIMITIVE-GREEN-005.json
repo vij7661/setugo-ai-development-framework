@@ -1,0 +1,46 @@
+{
+  "record_type": "ECC_DERIVED_V12_TRANSITIVE_PRIMITIVE_GREEN",
+  "record_id": "V12-TRANSITIVE-PRIMITIVE-GREEN-005",
+  "exact_candidate_sha": "210ad4fa3b8629141e6f7ee3531c2f5cc8d450a0",
+  "workflow_run_id": 34699645817,
+  "workflow_job_id": 103569016271,
+  "result": {
+    "tests_run": 198,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "GREEN_BOUNDED_TRANSITIVE_PRIMITIVE_INTEGRITY"
+  },
+  "closed_failure_classes": [
+    "HASHLIB_SHA256_TRANSITIVE_ATTRIBUTE_MUTATION_CAN_MINT_FORGED_ARGV",
+    "JSON_DUMPS_TRANSITIVE_ATTRIBUTE_MUTATION_CAN_MINT_FORGED_ARGV",
+    "STRICT_HASHLIB_SHA256_ATTRIBUTE_NOT_RUNTIME_BOUND",
+    "STRICT_JSON_DUMPS_ATTRIBUTE_NOT_RUNTIME_BOUND",
+    "REFERENCE_CONFIG_RECORD_MISSING_RAW_PERMISSION_PROFILE_AND_ARGV"
+  ],
+  "mechanism_repair_sha": "c650d169c0581e60f21d2d54ee61344dc38528cb",
+  "runtime_hash_correction_sha": "bd15d1dba0d3ebc068f048aa7622be388314650e",
+  "active_runner_sha": "210ad4fa3b8629141e6f7ee3531c2f5cc8d450a0",
+  "candidate_boundary_sha256": "81eebdd4e42a10940809f42647a391d7d3a63dc8613744e8b775aefe723f694e",
+  "reference_evidence_sha256": "bcf513496e2f7d17456ad7ee6feea7762828d331c91018ef70b3df1ad777b22d",
+  "manifest_sha256_after_runtime_hash_correction": "d89016612c39c9dc7b198f2ad6502854ade9e3e3b15f4d6565eaa4c8fadb0193",
+  "review_path_narrowing": {
+    "permission_profile_broader_attack": "ALREADY_BLOCKED_BY_DIRECT_STRICT_SEMANTIC_COMPARISON",
+    "repaired_false_green": "ARGV_ONLY_DRIFT_WITH_PERMISSION_UNCHANGED_PLUS_TRANSITIVE_DIGEST_PRIMITIVE_MUTATION"
+  },
+  "historical_supersession": {
+    "test": "test_ecc_governance_v9_verifier_primitive_integrity.ECCV9VerifierPrimitiveIntegrity.test_json_dumps_substitution_cannot_poison_new_candidate_seal",
+    "reason": "V9 treated boundary.json.dumps substitution as seal-only and expected issuance to remain positive. V12 establishes that boundary.json and strict_core.json reference the same module object, so this mutation also changes the strict EXP-ECC-5 digest primitive and must fail closed. The V9 source remains unchanged; the V12 runner records the supersession and replacement tests explicitly."
+  },
+  "positive_controls": {
+    "legitimate_exp_ecc_5": "PASS",
+    "permission_profile_drift_rejected": "PASS",
+    "argv_drift_rejected": "PASS",
+    "untampered_runtime_verifier": "PASS",
+    "retained_v1_v11_non_superseded_suite": "PASS"
+  },
+  "review_evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "freeze_effect": "NOT_FROZEN_PENDING_CLEAN_EXTERNAL_ENGINEERING_REREVIEW"
+}
