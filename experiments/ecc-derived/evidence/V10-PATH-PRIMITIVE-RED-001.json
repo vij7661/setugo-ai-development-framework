@@ -1,0 +1,30 @@
+{
+  "record_type": "ECC_DERIVED_V10_PATH_PRIMITIVE_RED",
+  "record_id": "V10-PATH-PRIMITIVE-RED-001",
+  "exact_candidate_sha": "c3d0773cc2259ae3f8bb5d1775e8d8b686843591",
+  "workflow_run_id": 34695969414,
+  "workflow_job_id": 103559389165,
+  "result": {
+    "tests_run": 183,
+    "failures": 6,
+    "errors": 0,
+    "conclusion": "CLEAN_EXPECTED_PRE_REPAIR_RED"
+  },
+  "legitimate_positive_control": "PASS",
+  "retained_v1_v9_non_superseded_tests": "PASS",
+  "failure_classes": [
+    "PATH_READ_TEXT_SUBSTITUTION_PLUS_DEPENDENCY_TAMPER_CAN_MINT",
+    "PATH_READ_TEXT_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_READ_BYTES_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_RESOLVE_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_IS_FILE_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_IS_SYMLINK_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY"
+  ],
+  "root_cause_classification": "GOVERNANCE_MECHANISM_DEFECT",
+  "v9_parent_ledger_sha": "978853924bf7f9317eb664ba7c20e93643b92771",
+  "v10_assertion_commit": "d4227c32be1344f769ff9e5bda00ac954669ad13",
+  "v10_runner_commit": "ee3b0473758e7037e495cacae4f2f792cb86856e",
+  "mechanism_repair_started": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
