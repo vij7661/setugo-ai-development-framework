@@ -1,0 +1,232 @@
+name: Build ECC V2 Remediation Review Packet
+
+on:
+  push:
+    branches:
+      - review/ecc-derived-v2-remediation-packet
+    paths:
+      - '.github/workflows/build-ecc-v2-remediation-review-packet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packet branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify frozen V2 remediation candidate
+        run: |
+          set -euo pipefail
+          FROZEN="2bea9dab240ac9b57b0e3e12fa96c8193ab2bbf8"
+          git cat-file -e "${FROZEN}^{commit}"
+          git merge-base --is-ancestor "$FROZEN" HEAD
+          CHANGED="$(git diff --name-only "$FROZEN"..HEAD)"
+          test "$CHANGED" = ".github/workflows/build-ecc-v2-remediation-review-packet.yml"
+          echo "FROZEN_V2_CANDIDATE=$FROZEN"
+          echo "PACKET_BUILDER_HEAD=$(git rev-parse HEAD)"
+          echo "PACKAGING_ONLY_DIFF=$CHANGED"
+
+      - name: Fetch preserved V1 external AI review
+        run: |
+          set -euo pipefail
+          git fetch origin review/ecc-derived-program-v1-ai-review --depth=1
+          git show FETCH_HEAD:reviews/ecc-derived-program-v1/external-ai-review-raw.md > /tmp/v1-review.md
+          git show FETCH_HEAD:reviews/ecc-derived-program-v1/review-metadata.json > /tmp/v1-review-metadata.json
+
+      - name: Build self-contained remediation packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/ECC_Derived_V2_Remediation_External_Review_Packet.md"
+          cat > "$OUT" <<'EOF'
+          # ECC-Derived V2 Remediation External Review Packet
+
+          **Packet class:** `AI_ENGINEERING_REMEDIATION_REVIEW_PACKET`
+          **Authority effect:** `NONE_EVIDENCE_ONLY`
+          **Parent reviewed experiment-family candidate:** `c45994259de99565faab54cf616058e218628846`
+          **Frozen V2 remediation candidate:** `2bea9dab240ac9b57b0e3e12fa96c8193ab2bbf8`
+          **Governed-platform baseline:** `290ac043959f30db12c9ae16826eda1dd5bcbdfb`
+          **Original review SHA-256:** `09d5c00f7740cdbd771c6cd1d9393c7823292d7edd5d59e8702ca431beaca67d`
+          **Original review evidence class:** `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+          **Manual-review threshold contribution:** `0`
+
+          ## Purpose
+
+          This is a targeted re-review of remediation performed after the original external AI review returned:
+
+          - `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+          - `DO_NOT_FREEZE_EXPERIMENT_EVIDENCE`
+          - `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+          Do not reinterpret the prior AI review as independent manual review. This re-review is also engineering evidence only if performed by an AI/model.
+
+          ## Key methodology repair
+
+          The original review found that the full executable 86-case harness had been implemented after the first mechanism existed. V2 therefore froze **all new executable remediation assertions before any mechanism repair**.
+
+          Frozen V2 executable-harness commit:
+          `387a32ae3dba3b92fff28b747cd294827fdba893`
+
+          Pre-repair run:
+          - workflow run `34689754450`
+          - job `103542823956`
+          - exact checkout verified: `387a32ae3dba3b92fff28b747cd294827fdba893`
+          - `132` tests run
+          - `17 failures + 2 errors`
+          - mechanism unchanged from the reviewed V1 family
+
+          Repair candidate:
+          `e176df47dd1faca4eca5437095c5bc55b09e4a4d`
+
+          Repair run:
+          - workflow run `34689873921`
+          - job `103543142617`
+          - exact checkout verified
+          - `132/132 PASS`
+
+          Frozen V2 ledger closure:
+          `2bea9dab240ac9b57b0e3e12fa96c8193ab2bbf8`
+
+          Closure run:
+          - workflow run `34689936081`
+          - job `103543299823`
+          - exact checkout verified: `2bea9dab240ac9b57b0e3e12fa96c8193ab2bbf8`
+          - `132/132 PASS`
+
+          ## V2 dispositions to review
+
+          - EXP-ECC-1: `NARROWED_REFERENCE_MECHANISM_PASS`
+          - EXP-ECC-2: `NARROWED_REFERENCE_MECHANISM_PASS`
+          - EXP-ECC-3: `NARROWED_REFERENCE_MECHANISM_PASS`
+          - EXP-ECC-4: `NARROWED_REFERENCE_MECHANISM_PASS`
+          - EXP-ECC-5: `NARROWED_REFERENCE_MECHANISM_PASS`
+          - EXP-ECC-6: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - EXP-ECC-7: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+
+          The last two are intentionally **not** claimed as integrated/production passes.
+
+          ## Mandatory review questions
+
+          1. Did V2 genuinely repair the preregistration/executable-harness sequencing defect by freezing the new executable assertions before mechanism changes?
+          2. Are the V2 tests materially stronger than status-string-only fixtures, or do they still leave a false-green path through caller-supplied evidence dictionaries?
+          3. For EXP-ECC-1, is the narrowed requirement now correctly framed around platform-attested enforcement-point receipts, action-sequence binding, and process identity? What live evidence is still required?
+          4. For EXP-ECC-2, does the reference now cover fail-open runtime semantics, hidden disable flags, documentation/runtime mismatch, unverified profiles, and alternate paths strongly enough for requirement-candidate impact adjudication?
+          5. For EXP-ECC-3, is replacing the global ordinal with per-capability allowed sets sufficient? Are capability dimensions still too coarse or self-asserted?
+          6. Does EXP-ECC-3 continue to preserve R1/R2/R3 as configurable governed roles rather than provider-hardcoded identities?
+          7. For EXP-ECC-4, does authenticated principal/authority/project/sequence/revocation checking sufficiently separate consent from authority at the reference level?
+          8. For EXP-ECC-5, are recomputed secret-safe configuration identity, credential attestation, and resolved-endpoint checks sufficient as a narrowed requirement candidate? What cryptographic/live state remains missing?
+          9. For EXP-ECC-6, is `DEFER_PENDING_INTEGRATION_EVIDENCE` the correct disposition given that real provider/gateway identity and authenticated manual-review evidence are still absent and testing transport remains manual-only?
+          10. For EXP-ECC-7, is `DEFER_PENDING_INTEGRATION_EVIDENCE` correct given that the reference now refuses self-asserted governance evidence but is not integrated with the real claim/dependency/retraction pipeline?
+          11. Did V2 preserve all prior RED history rather than replacing it with a green-only narrative?
+          12. Are the legacy compatibility paths in the reference module too permissive for future production requirements? If so, should they be explicitly scoped as historical-fixture compatibility only?
+          13. Are there remaining false-green paths caused by shared `ecc_governance.py` implementation coupling across the seven experiments?
+          14. Are EXP-ECC-1 through 5 now ready to enter **bounded governed impact adjudication as narrowed requirement candidates**, without implying production integration?
+          15. Should EXP-ECC-6 and 7 remain outside impact adjudication until integration/live evidence exists, or can their fail-closed deferred requirements themselves be adjudicated now?
+
+          ## Required output
+
+          ### A. Review evidence declaration
+          Choose exactly one:
+          - `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+          - `INDEPENDENT_MANUAL_REVIEW`
+
+          ### B. Program remediation disposition
+          Choose exactly one:
+          - `V2_REMEDIATION_SUPPORTS_BOUNDED_IMPACT_ADJUDICATION`
+          - `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+          - `INSUFFICIENT_EVIDENCE`
+
+          ### C. Per-experiment disposition
+          For each EXP-ECC-1 through EXP-ECC-7 choose exactly one:
+          - `READY_FOR_BOUNDED_IMPACT_ADJUDICATION`
+          - `NARROWING_STILL_REQUIRED`
+          - `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - `REJECT_REQUIREMENT_CANDIDATE`
+          - `INSUFFICIENT_EVIDENCE`
+
+          For each, state strongest supported claim, strongest unsupported claim, remaining false-green path, and next evidence boundary.
+
+          ### D. Preregistration / RED-history assessment
+          ### E. Shared-module coupling assessment
+          ### F. Legacy-compatibility risk assessment
+          ### G. R1/R2/R3 provider-neutral role assessment
+          ### H. Manual-review / provider-identity boundary assessment
+          ### I. Missing falsification cases
+          ### J. Impact-adjudication recommendation
+
+          Do not promote requirements. State which candidates may enter a separate governed impact-adjudication step.
+
+          ### K. Freeze recommendation
+          Choose exactly one:
+          - `SAFE_TO_FREEZE_V2_EXPERIMENT_EVIDENCE_FOR_BOUNDED_IMPACT_ADJUDICATION`
+          - `DO_NOT_FREEZE_V2_EXPERIMENT_EVIDENCE`
+          - `INSUFFICIENT_EVIDENCE_TO_FREEZE`
+
+          ### L. Authority limitation
+
+          End exactly with:
+          `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+          ---
+
+          # PACKET CONTENTS
+          EOF
+
+          append_file() {
+            local label="$1"
+            local path="$2"
+            {
+              echo
+              echo "---"
+              echo
+              echo "## BEGIN FILE: ${label}"
+              echo
+              cat "$path"
+              echo
+              echo "## END FILE: ${label}"
+              echo
+            } >> "$OUT"
+          }
+
+          append_file "Original V1 external AI review" "/tmp/v1-review.md"
+          append_file "Original V1 review metadata" "/tmp/v1-review-metadata.json"
+          append_file "V2 remediation ledger" "experiments/ecc-derived/V2-REVIEW-REMEDIATION-LEDGER.md"
+          append_file "V2 RED-001" "experiments/ecc-derived/evidence/V2-REVIEW-REMEDIATION-RED-001.json"
+          append_file "V2 RED-001 classification correction" "experiments/ecc-derived/evidence/V2-RED-001-CLASSIFICATION-CORRECTION.json"
+          append_file "V2 GREEN-002" "experiments/ecc-derived/evidence/V2-REVIEW-REMEDIATION-GREEN-002.json"
+          append_file "Frozen V2 executable remediation harness" "experiments/ecc_derived/test_ecc_governance_v2_review_remediation.py"
+          append_file "Reference mechanism after V2 repair" "experiments/ecc_derived/ecc_governance.py"
+          append_file "Original representative tests" "experiments/ecc_derived/test_ecc_governance.py"
+          append_file "Original 86-case full-coverage harness" "experiments/ecc_derived/test_ecc_governance_full_coverage.py"
+          append_file "Experiment workflow" ".github/workflows/ecc-derived-parallel.yml"
+          append_file "Program charter" "experiments/ecc-derived/PROGRAM-CHARTER.md"
+          append_file "EXP-ECC-1" "experiments/ecc-derived/EXP-ECC-1-enforcement-execution-attestation.md"
+          append_file "EXP-ECC-2" "experiments/ecc-derived/EXP-ECC-2-declared-vs-executable-enforcement-equivalence.md"
+          append_file "EXP-ECC-3" "experiments/ecc-derived/EXP-ECC-3-qualified-harness-capability-envelope.md"
+          append_file "EXP-ECC-4" "experiments/ecc-derived/EXP-ECC-4-capability-power-surface-activation-consent.md"
+          append_file "EXP-ECC-5" "experiments/ecc-derived/EXP-ECC-5-cross-harness-mcp-config-attestation-drift.md"
+          append_file "EXP-ECC-6" "experiments/ecc-derived/EXP-ECC-6-external-review-egress-provider-binding.md"
+          append_file "EXP-ECC-7" "experiments/ecc-derived/EXP-ECC-7-learned-artifact-proposal-promotion-boundary.md"
+          append_file "External evidence semantic validation standard" "standards/external-evidence-semantic-validation.md"
+          append_file "Conversational drift/contamination standard" "standards/conversational-drift-contamination-control.md"
+          append_file "V18 baseline hardening" "standards/conversation-drift-parent-child-impact-control-v18-atomicity-lineage-hardening.md"
+
+          sha256sum "$OUT" | tee "$RUNNER_TEMP/packet.sha256"
+          wc -c "$OUT"
+          mkdir -p packet-output
+          cp "$OUT" packet-output/
+          cp "$RUNNER_TEMP/packet.sha256" packet-output/
+
+      - name: Upload packet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecc-derived-v2-remediation-review-packet
+          path: packet-output/
+          if-no-files-found: error
+          retention-days: 30
