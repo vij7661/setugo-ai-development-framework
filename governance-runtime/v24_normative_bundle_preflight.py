@@ -12,7 +12,7 @@ from normative_control_catalog import (
     git_blob_sha_bytes,
     validate_normative_catalog,
 )
-from v24_legacy_inventory_candidate import derive_candidate_inventory
+from v24_legacy_continuity_manifest import build_legacy_continuity_manifest
 
 H2 = re.compile(r"^## (.+)$", re.MULTILINE)
 
@@ -48,19 +48,50 @@ def _heading_for(text: str, control_id: str) -> str | None:
     return "## " + matches[0]
 
 
+def _pending_descriptor(
+    *,
+    control_id: str,
+    path: str,
+    blob_sha: str,
+    locator_id: str,
+    heading: str,
+    clause_sha256: str,
+    generation: str,
+    sequence: int,
+    predecessors: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "control_id": control_id,
+        "normative_artifact_path": path,
+        "normative_artifact_blob_sha": blob_sha,
+        "clause_locator": {"locator_id": locator_id, "heading": heading},
+        "clause_sha256": clause_sha256,
+        "inherited_predecessor_control_ids": predecessors or [],
+        "authority_bearing_predicate_ids": [],
+        "phase_severity_endpoint_mappings": [],
+        "applicability_rules": [],
+        "required_proof_fields": [],
+        "protected_mutation_strength_class": "PENDING_EXPLICIT_MAPPING",
+        "effective_generation": generation,
+        "effective_sequence": sequence,
+        "descriptor_qualification_state": "SEMANTIC_MAPPING_PENDING",
+    }
+
+
 def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str, Any]:
     generation = source["governance_generation"]
     build_problems: list[str] = []
     manifest_artifacts: list[dict[str, Any]] = []
     descriptors: list[dict[str, Any]] = []
-    expected_control_count = 0
+    expected_current_control_count = 0
     sequence = 0
 
+    # Exact V24 controls.
     for artifact in source.get("artifacts", []):
         path = artifact["path"]
         expected_blob = artifact["blob_sha"]
         expected_ids = _expand_ids(artifact.get("control_series", []))
-        expected_control_count += len(expected_ids)
+        expected_current_control_count += len(expected_ids)
         raw = (repo_root / path).read_bytes()
         text = raw.decode("utf-8")
         actual_blob = git_blob_sha_bytes(raw)
@@ -89,22 +120,16 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
             locators.append(locator)
             sequence += 1
             descriptors.append(
-                {
-                    "control_id": control_id,
-                    "normative_artifact_path": path,
-                    "normative_artifact_blob_sha": expected_blob,
-                    "clause_locator": {"locator_id": control_id, "heading": heading},
-                    "clause_sha256": digest,
-                    "inherited_predecessor_control_ids": [],
-                    "authority_bearing_predicate_ids": [],
-                    "phase_severity_endpoint_mappings": [],
-                    "applicability_rules": [],
-                    "required_proof_fields": [],
-                    "protected_mutation_strength_class": "PENDING_EXPLICIT_MAPPING",
-                    "effective_generation": generation,
-                    "effective_sequence": sequence,
-                    "descriptor_qualification_state": "SEMANTIC_MAPPING_PENDING",
-                }
+                _pending_descriptor(
+                    control_id=control_id,
+                    path=path,
+                    blob_sha=expected_blob,
+                    locator_id=control_id,
+                    heading=heading,
+                    clause_sha256=digest,
+                    generation=generation,
+                    sequence=sequence,
+                )
             )
 
         extras = sorted(set(h2_values) - expected_headings)
@@ -120,13 +145,79 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
             }
         )
 
-    legacy_candidate = derive_candidate_inventory(repo_root)
-    if legacy_candidate.get("problems"):
+    # Exact inherited V5-V23 continuity surface.
+    continuity = build_legacy_continuity_manifest(repo_root)
+    if continuity.get("problems"):
         build_problems.extend(
-            f"LEGACY_CANDIDATE_SOURCE:{problem}" for problem in legacy_candidate["problems"]
+            f"LEGACY_CONTINUITY:{problem}" for problem in continuity["problems"]
         )
 
-    legacy_inventory = legacy_candidate.get("legacy_clause_inventory", [])
+    inventory_by_key = {
+        (x["artifact_path"], x["locator_id"]): x
+        for x in continuity.get("legacy_clause_inventory", [])
+    }
+    record_by_key = {
+        (x["artifact_path"], x["locator_id"]): x
+        for x in continuity.get("records", [])
+    }
+
+    active_by_path: dict[str, list[tuple[dict[str, Any], dict[str, Any]]]] = {}
+    for key, record in record_by_key.items():
+        if record.get("status") != "ACTIVE_MAPPED":
+            continue
+        item = inventory_by_key.get(key)
+        if item is None:
+            build_problems.append(f"ACTIVE_LEGACY_INVENTORY_MISSING:{key[0]}:{key[1]}")
+            continue
+        active_by_path.setdefault(key[0], []).append((item, record))
+
+    inherited_artifact_by_path = {
+        x["path"]: x for x in continuity.get("inherited_artifacts", [])
+    }
+    inherited_active_descriptor_count = 0
+    for path in sorted(active_by_path):
+        artifact = inherited_artifact_by_path.get(path)
+        if artifact is None:
+            build_problems.append(f"ACTIVE_LEGACY_ARTIFACT_SCOPE_MISSING:{path}")
+            continue
+        expected_blob = artifact["blob_sha"]
+        raw = (repo_root / path).read_bytes()
+        if git_blob_sha_bytes(raw) != expected_blob:
+            build_problems.append(f"ACTIVE_LEGACY_BLOB_MISMATCH:{path}")
+
+        locators: list[dict[str, Any]] = []
+        for item, record in sorted(active_by_path[path], key=lambda pair: pair[0]["locator_id"]):
+            control_id = record["target_control_id"]
+            locator = {
+                "locator_id": item["locator_id"],
+                "heading": item["heading"],
+                "clause_sha256": item["clause_sha256"],
+            }
+            locators.append(locator)
+            sequence += 1
+            inherited_active_descriptor_count += 1
+            descriptors.append(
+                _pending_descriptor(
+                    control_id=control_id,
+                    path=path,
+                    blob_sha=expected_blob,
+                    locator_id=item["locator_id"],
+                    heading=item["heading"],
+                    clause_sha256=item["clause_sha256"],
+                    generation=generation,
+                    sequence=sequence,
+                )
+            )
+
+        manifest_artifacts.append(
+            {
+                "path": path,
+                "blob_sha": expected_blob,
+                "classification": "AUTHORITATIVE_DESCRIPTOR_REQUIRED",
+                "required_clause_locators": locators,
+            }
+        )
+
     manifest = {
         "schema_version": 1,
         "governance_generation": generation,
@@ -144,8 +235,8 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
         "schema_version": 1,
         "governance_generation": generation,
         "requires_legacy_qualification": bool(source.get("requires_legacy_qualification", False)),
-        "legacy_clause_inventory": legacy_inventory,
-        "records": source.get("legacy_qualification_records", []),
+        "legacy_clause_inventory": continuity.get("legacy_clause_inventory", []),
+        "records": continuity.get("records", []),
     }
 
     base = validate_normative_catalog(
@@ -163,21 +254,31 @@ def build_candidate_bundle(repo_root: Path, source: dict[str, Any]) -> dict[str,
         if descriptor.get("descriptor_qualification_state") != "QUALIFIED":
             problems.append(f"DESCRIPTOR_SEMANTIC_MAPPING_PENDING:{descriptor['control_id']}")
 
+    for item in continuity.get("pending_semantic_dispositions", []):
+        problems.append(f"LEGACY_SEMANTIC_DISPOSITION_PENDING:{item}")
+
     problems = sorted(set(problems))
     state = "V24_NORMATIVE_BUNDLE_QUALIFIED" if not problems else "V24_NORMATIVE_BUNDLE_INCOMPLETE"
     return {
         "state": state,
         "qualified": not problems,
         "problems": problems,
-        "expected_control_count": expected_control_count,
+        "expected_current_control_count": expected_current_control_count,
         "generated_descriptor_count": len(descriptors),
+        "current_descriptor_count": expected_current_control_count,
+        "inherited_active_descriptor_count": inherited_active_descriptor_count,
         "manifest_artifact_count": len(manifest_artifacts),
-        "legacy_artifact_count": legacy_candidate.get("artifact_count", 0),
+        "current_manifest_artifact_count": len(source.get("artifacts", [])),
+        "inherited_manifest_artifact_count": len(active_by_path),
+        "legacy_artifact_count": continuity.get("inherited_artifact_count", 0),
+        "adjacent_separate_standard_count": continuity.get("adjacent_separate_standard_count", 0),
         "legacy_inventory_count": len(legacy["legacy_clause_inventory"]),
-        "legacy_current_drift_paths": legacy_candidate.get("current_drift_paths", []),
+        "legacy_pending_semantic_disposition_count": continuity.get("pending_semantic_disposition_count", 0),
+        "legacy_current_drift_paths": [],
         "manifest": manifest,
         "catalog": catalog,
         "legacy_qualification": legacy,
+        "legacy_continuity": continuity,
         "source_digest": _sha256_text(_canon(source)),
         "authority_effect": "NONE_EVIDENCE_ONLY",
     }
@@ -207,25 +308,31 @@ def main() -> int:
         semantic_pending = [
             x for x in result["problems"] if x.startswith("DESCRIPTOR_SEMANTIC_MAPPING_PENDING:")
         ]
-        legacy_pending = [
-            x for x in result["problems"] if x.startswith("LEGACY_INVENTORY_UNQUALIFIED:")
+        legacy_semantic = [
+            x for x in result["problems"] if x.startswith("LEGACY_SEMANTIC_DISPOSITION_PENDING:")
         ]
         unexpected = [
             x for x in result["problems"]
             if not x.startswith("DESCRIPTOR_SEMANTIC_MAPPING_PENDING:")
-            and not x.startswith("LEGACY_INVENTORY_UNQUALIFIED:")
+            and not x.startswith("LEGACY_SEMANTIC_DISPOSITION_PENDING:")
         ]
         correct_counts = (
-            result["expected_control_count"] == 110
-            and result["generated_descriptor_count"] == 110
-            and result["manifest_artifact_count"] == 9
-            and result["legacy_artifact_count"] == 46
-            and result["legacy_inventory_count"] == 535
+            result["expected_current_control_count"] == 110
+            and result["current_descriptor_count"] == 110
+            and result["inherited_active_descriptor_count"] == 493
+            and result["generated_descriptor_count"] == 603
+            and result["current_manifest_artifact_count"] == 9
+            and result["inherited_manifest_artifact_count"] == 42
+            and result["manifest_artifact_count"] == 51
+            and result["legacy_artifact_count"] == 42
+            and result["adjacent_separate_standard_count"] == 4
+            and result["legacy_inventory_count"] == 495
+            and result["legacy_pending_semantic_disposition_count"] == 426
         )
         ok = (
             not result["qualified"]
-            and len(semantic_pending) == 110
-            and len(legacy_pending) == 535
+            and len(semantic_pending) == 603
+            and len(legacy_semantic) == 426
             and not unexpected
             and correct_counts
             and not result["legacy_current_drift_paths"]
