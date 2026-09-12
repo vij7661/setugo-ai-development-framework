@@ -1,0 +1,155 @@
+1. `REVIEW_CONTEXT = CLEAN_PACKET_ONLY_CONTEXT`
+
+2. `EVIDENCE_DECLARATION = AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+
+3. Overall disposition: `CHANGES_REQUIRED`
+
+No V20 falsification case has been executed. V20 is directionally additive and generally narrows V19 in the fail-closed direction, but it still leaves several authority/evaluator/self-grant gaps and some non-deterministic expected endpoints.
+
+4. Critical / High / Medium / Low findings
+
+Critical
+- V20-C04 reconciliation lacks an explicit independent reconciliation evaluator/authority. The same caller/actor that caused `REVIEW_THRESHOLD_COMMIT_OUTCOME_UNKNOWN` can apparently evaluate the deterministic table. Even with a fixed table, if the evaluator is not independently bound and the evidence inputs are not independently authenticated, the actor can choose `NO_COMMIT_CONFIRMED` and retry with the same idempotency key, creating a self-grant/double-count path.
+- V20-C02 “same governed object class” does not prevent object-class redefinition, aliasing, splitting, or renaming so that the same underlying ledger is moved into a new class with a lower threshold. This can bypass absolute threshold non-weakening without an explicit threshold-lowering policy.
+
+High
+- V20-C05 introduces an independent `DependencyUniverseAuthority`, but no endpoint, independence record, or falsification case clearly prevents that authority from being controlled by the candidate, corpus/algorithm producer, beneficiary, or a root-threshold-capable subset. WDPC-311 only covers circular self-derivation by the corpus/algorithm under change.
+- V20-C07 defines exact witness quorum/currentness/key lifecycle, but does not clearly bind the witness quorum policy itself to V20-C02 anti-weakening. A witness quorum could be prospectively weakened unless the witness policy class is explicitly covered.
+- V20-C03 makes authority-bearing publication classification root-governed, but there is no case for sub-threshold mutation, local override, or self-classification of the `AuthorityPublicationClassRegistry`.
+- V20-C09 execution-attestation issuer binding says the implementation under test cannot self-grant unless policy permits it. There is no anti-weakening control on the attestation-issuer policy itself, so policy could be broadened to permit self-attestation.
+- V20-C10 secret-safe proof views depend on an approved non-reversible fingerprint scheme, but entropy/salt/reversibility criteria are not specified. Low-entropy credentials may remain recoverable from fingerprints.
+
+Medium
+- WDPC-310, WDPC-311, and WDPC-318 use “or” between expected endpoints. Deterministic falsifiability is weakened unless the condition selecting each endpoint is made exact and phase-bound.
+- Missing positive controls for: independent reconciliation evaluator; correct authority-publication classification; governed conflict resolution of conflicting independent-support exemptions; witness-quorum anti-weakening.
+- V20-C11 exact activation scope semantics depends on an “active activation-schema policy.” That policy is not visibly subject to anti-weakening or root-governed scope-schema integrity.
+- V20-C12 proof-view additions omit explicit fields for object-class identity/non-redefinition, reconciliation evaluator independence, witness-quorum policy version/anti-weakening, and activation-schema policy integrity.
+
+Low
+- V20-C14 adds only two new endpoints; several new controls do not have dedicated failure endpoints, e.g. dependency-universe authority independence failure, witness-quorum weakening, activation-schema weakening.
+- The V20 coverage map is useful but does not yet show unique-enforcement-path accounting for the new V20 controls.
+
+5. Clause-by-clause assessment of V20-C01…V20-C15
+
+- V20-C01: `ADEQUATE` — exact base/precedence is clear and non-authoritative.
+- V20-C02: `NEEDS_NARROWING` — absolute non-weakening is stronger than V19-C04 but does not prevent object-class redefinition/splitting/aliasing.
+- V20-C03: `NEEDS_NARROWING` — root-governed publication classification is good, but registry mutation/classification independence and runtime enforcement cases are missing.
+- V20-C04: `NEEDS_NARROWING` — deterministic table is good, but evaluator independence, evidence authentication, duplicate-identical-commit handling, and evaluator binding are missing.
+- V20-C05: `NEEDS_NARROWING` — independent dependency universe is a strong addition, but its independence proof and failure endpoint are under-specified.
+- V20-C06: `ADEQUATE` — freshness/conflict rules are fail-closed; add a positive conflict-resolution case.
+- V20-C07: `NEEDS_NARROWING` — witness quorum/currentness/key lifecycle is detailed, but witness-quorum policy anti-weakening is not explicit.
+- V20-C08: `ADEQUATE` — deterministic endpoint precedence for witness/migration/reset is clear, subject to C07 gaps.
+- V20-C09: `NEEDS_NARROWING` — anti-replay/issuer binding is good; issuer-policy anti-weakening and allowed-issuer independence need narrowing.
+- V20-C10: `NEEDS_NARROWING` — secret-safe predicate is good; fingerprint entropy/reversibility criteria and independent non-exposure verification are missing.
+- V20-C11: `NEEDS_NARROWING` — exact scope semantics are good; activation-schema policy integrity/anti-weakening is missing.
+- V20-C12: `NEEDS_NARROWING` — proof-view additions are useful but omit the new gaps above.
+- V20-C13: `ADEQUATE` — deferred boundaries and role neutrality are clear.
+- V20-C14: `ADEQUATE` — endpoints are listed, but additional endpoints may be needed for the gaps above.
+- V20-C15: `ADEQUATE` — freeze rule correctly remains design-only and non-authoritative.
+
+6. Audit narrowed inherited WDPC-284/285/287/288/290/291/292/299/308
+
+- WDPC-284: `ADEQUATE` — V20 correctly makes threshold-lowering invalid at the policy-change boundary itself.
+- WDPC-285: `ADEQUATE` — independent universe derivation is a real improvement; add a separate case for universe-authority independence/control-domain overlap.
+- WDPC-287: `ADEQUATE` — proven witness non-independence now maps exactly to `WITNESS_AUTHORITY_OR_CURRENTNESS_INVALID`.
+- WDPC-288: `ADEQUATE` — unavailable/unprovable witness currentness now maps exactly to `INSUFFICIENT_EVIDENCE`.
+- WDPC-290: `ADEQUATE` — migration while witness unavailable remains non-authoritative; exact endpoint is clear.
+- WDPC-291: `NEEDS_NARROWING` — deterministic table is good, but evaluator independence and duplicate-identical-commit handling are missing.
+- WDPC-292: `ADEQUATE` — weaker-threshold vs sub-threshold distinction is clear.
+- WDPC-299: `NEEDS_NARROWING` — replay hardening is good; issuer-policy anti-weakening is missing.
+- WDPC-308: `ADEQUATE` — secret-safe positive control is good; add entropy/reversibility criteria for fingerprints.
+
+7. Audit WDPC-309…326 for deterministic falsifiability and positive-control adequacy
+
+- WDPC-309: `ADEQUATE` — threshold lowering without immediate mutation is deterministically rejected.
+- WDPC-310: `NEEDS_NARROWING` — expected endpoint uses “or” and depends on phase; specify exact endpoint by classification-time vs commit-time failure. Missing positive control for correct publication classification.
+- WDPC-311: `NEEDS_NARROWING` — self-derived universe is rejected, but expected endpoint uses “or”; add independent universe-authority independence case.
+- WDPC-312: `ADEQUATE` — contradictory durable evidence maps exactly to `RECONCILIATION_CONFLICT`.
+- WDPC-313: `ADEQUATE` — ambiguous non-contradictory evidence maps exactly to `INSUFFICIENT_EVIDENCE`.
+- WDPC-314: `ADEQUATE` — hidden recovery-domain overlap maps to invalid witness.
+- WDPC-315: `ADEQUATE` — revoked/rotated witness checkpoint replay maps to invalid witness.
+- WDPC-316: `ADEQUATE` — exact lag-bound violation maps to invalid witness.
+- WDPC-317: `ADEQUATE` — expired/revoked/stale exemption reuse maps to invalid exemption.
+- WDPC-318: `NEEDS_NARROWING` — conflicting exemptions should deterministically be `REVALIDATION_REQUIRED` until governed conflict resolution; remove “or” ambiguity. Missing positive conflict-resolution case.
+- WDPC-319: `ADEQUATE` — action-instance replay is rejected.
+- WDPC-320: `ADEQUATE` — self-declared attestation by implementation under test is rejected.
+- WDPC-321: `ADEQUATE` — secret exposure is rejected.
+- WDPC-322: `ADEQUATE` — alias/wildcard/parent scope creep is rejected.
+- WDPC-323: `ADEQUATE` — threshold strengthening positive control is adequate.
+- WDPC-324: `ADEQUATE` — positive table exercises each reconciliation branch; add evaluator-independence predicate.
+- WDPC-325: `ADEQUATE` — witness key rotation/currentness recovery positive is adequate.
+- WDPC-326: `ADEQUATE` — independent universe and complete revalidation positive is adequate, but depends on C05 independence proof.
+
+Positive-control adequacy overall: good for most V20 controls, but missing positives for reconciliation evaluator independence, authority-publication classification, independent-support conflict resolution, and witness-quorum anti-weakening.
+
+8. Explicit false-green path tests
+
+- Absolute threshold non-weakening:  
+  False-green still possible via object-class redefinition, ledger renaming, class splitting, or alias creation that places the same governed ledger under a new class with a lower threshold. V20-C02 only protects “same governed object class.”
+
+- Authority-publication classification:  
+  False-green possible if local policy or implementation labels an authority-bearing publication as non-authority-bearing, or if the root registry is mutated/overridden without sub-threshold protection. Runtime may also fail to consult the registry before treating publication as optional.
+
+- Reconciliation precedence:  
+  False-green possible if the same caller evaluates `OUTCOME_UNKNOWN`; if duplicate identical commits exist; if publication is omitted from mandatory evidence; if a stale/unavailable witness is treated as consistent; or if signed evidence is not independently authenticated.
+
+- Independent dependency-universe derivation:  
+  False-green possible if the corpus/algorithm under change defines or filters its own eligible set, if the `DependencyUniverseAuthority` is controlled by candidate/beneficiary, or if its independence proof is missing.
+
+- Support-exemption freshness/conflicts:  
+  False-green possible via expired/revoked exemption reuse, conflicting exemptions, self-support through a different principal, or absence of an independent conflict-resolution authority.
+
+- Witness quorum/currentness/key lifecycle:  
+  False-green possible via witness-quorum policy weakening, key rotation without governed continuity, revoked-key checkpoint replay, lag-bound bypass, or control/admin/recovery-domain overlap hidden behind nominal identity separation.
+
+- Execution-attestation replay/issuer binding:  
+  False-green possible via replay across action instance, candidate, control version, or runtime path; via self-declared issuer; or via policy broadening of allowed issuer class.
+
+- Secret-safe proof views:  
+  False-green possible if fingerprints are reversible, low-entropy, unsalted, or if raw secret material appears in allowed metadata fields.
+
+- Activation scope semantics:  
+  False-green possible via alias, wildcard, parent-resource expansion, derived resource names, or activation-schema policy broadening.
+
+9. Remaining caller/evaluator/self-grant path
+
+- Reconciliation evaluator: the commit initiator may also evaluate `REVIEW_THRESHOLD_COMMIT_OUTCOME_UNKNOWN` and choose `NO_COMMIT_CONFIRMED`.
+- Authority-publication classification: local or root-policy misclassification can exclude publication from the atomic bound set.
+- Dependency-universe authority: no clear independence record/failure endpoint prevents candidate/beneficiary control.
+- Witness-quorum policy: no anti-weakening rule prevents prospective quorum weakening.
+- Execution-attestation issuer policy: no anti-weakening rule prevents broadening who may issue qualifying attestations.
+- Activation-schema policy: no anti-weakening rule prevents broadening exact activation scope semantics.
+- Object-class identity: no anti-redefinition rule prevents creating a new lower-threshold class for the same ledger.
+
+10. Missing negative/positive cases
+
+Missing negative cases
+- Sub-threshold mutation of `AuthorityPublicationClassRegistry`.
+- Object-class redefinition/renaming/splitting to evade root-threshold non-weakening.
+- Reconciliation evaluator self-grant or collusion with commit initiator.
+- Dependency-universe authority control-domain overlap with candidate/beneficiary/root-threshold-capable subset.
+- Witness-quorum policy weakening.
+- Execution-attestation issuer-policy weakening.
+- Activation-schema policy weakening/broadening.
+- Reversible or low-entropy credential fingerprint in secret-safe proof.
+
+Missing positive cases
+- Correct authority-publication classification and atomic inclusion under a valid registry.
+- Independent reconciliation evaluator correctly selects each terminal branch.
+- Governed conflict resolution of conflicting independent-support exemptions.
+- Witness-quorum policy same-or-stronger rotation.
+- Object-class identity preservation across root-policy rotations.
+- Attestation-issuer policy same-or-stronger rotation.
+- Activation-schema policy same-or-stronger rotation.
+
+11. Regression/precedence analysis against inherited V5–V19 controls
+
+V20 is additive and appears to narrow V19 in the fail-closed direction. V20-C02 is stricter than V19-C04 by rejecting threshold-lowering at the policy-change boundary. V20-C04 is stricter than V19-C03 by fixing a deterministic reconciliation precedence table. V20-C05 adds an independent dependency-universe requirement. V20-C06 tightens exemption freshness/conflicts. V20-C07 tightens witness quorum/currentness/key lifecycle. V20-C09–C11 add anti-replay, secret-safe proof, and exact activation-scope controls.
+
+No explicit weakening of V5–V19 controls is evident. However, the identified gaps are not covered by inherited controls and therefore remain live regression risks: object-class redefinition, reconciliation evaluator self-grant, witness-quorum weakening, attestation-issuer policy weakening, activation-schema policy weakening, and dependency-universe authority independence.
+
+12. Design-only freeze recommendation
+
+`DO_NOT_FREEZE` for execution or design-stage freeze until the Critical/High findings are resolved. The candidate is directionally stronger than V19 but still has unresolved authority/evaluator/self-grant paths and several non-deterministic expected endpoints. Recommended before any freeze: add exact controls/endpoints/cases for object-class identity preservation, independent reconciliation evaluation, dependency-universe authority independence, witness-quorum anti-weakening, attestation-issuer policy anti-weakening, activation-schema policy anti-weakening, and remove “or” ambiguity from WDPC-310/311/318.
+
+13. `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
