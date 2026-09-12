@@ -2,6 +2,7 @@ import unittest
 
 from review_change_impact_gate import validate_review_change_impact_contract
 from reviewer_change_reconciliation_gate import validate_reviewer_change_reconciliation
+from platform_candidate_review_v3 import validate_change_assessment_output
 
 CANDIDATE = "a" * 40
 
@@ -75,6 +76,38 @@ class ReviewChangeImpactContractTests(unittest.TestCase):
         obj["review_change_impact_contract"]["prior_reviewer_conclusions_included"] = True
         report = validate_review_change_impact_contract(obj, candidate_commit=CANDIDATE)
         self.assertIn("REVIEW_CHANGE_CLEAN_MODE_CONTAMINATION_FLAG_INVALID", report["errors"])
+
+
+def valid_review_output():
+    return {
+        "change_assessment": {
+            "changes_required": "YES",
+            "change_recommendations": [{
+                "finding_id": "F-1",
+                "minimum_required_change": "centralize generation guard",
+                "why_required": "predecessor state can bypass successor rules",
+                "affected_existing_surfaces": ["runtime/cache.py"],
+                "regression_risks": ["valid current-generation reads may be overblocked"],
+                "evidence_to_verify_fix": "negative stale read plus positive current read",
+            }],
+            "existing_system_impact": {"direct_code": ["runtime/cache.py"]},
+            "verification_requirements": ["negative stale read", "positive current read"],
+            "missing_evidence": [],
+        }
+    }
+
+
+class ReviewerOutputContractTests(unittest.TestCase):
+    def test_change_assessment_output_valid(self):
+        contract = base_review_surface()["review_change_impact_contract"]
+        report = validate_change_assessment_output(valid_review_output(), contract)
+        self.assertTrue(report["valid"], report["errors"])
+
+    def test_missing_change_assessment_rejected(self):
+        contract = base_review_surface()["review_change_impact_contract"]
+        report = validate_change_assessment_output({}, contract)
+        self.assertFalse(report["valid"])
+        self.assertIn("REVIEW_CHANGE_ASSESSMENT_OUTPUT_REQUIRED", report["errors"])
 
 
 def base_change_manifest():
