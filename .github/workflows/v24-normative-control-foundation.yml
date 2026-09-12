@@ -8,6 +8,7 @@ on:
       - 'governance-runtime/normative_control_catalog.py'
       - 'governance-runtime/test_normative_control_catalog.py'
       - 'governance-runtime/v24_normative_bundle_preflight.py'
+      - 'governance-runtime/v24_legacy_inventory_candidate.py'
       - 'governance-runtime/v24-normative-inventory-source.json'
       - 'governance-runtime/NORMATIVE-CONTROL-CATALOG-V24-CONTRACT.md'
       - 'standards/*v24*.md'
@@ -22,12 +23,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Run normative catalog tests
         working-directory: governance-runtime
         run: python -m unittest -v test_normative_control_catalog.py
+      - name: Derive conservative V23 legacy candidate inventory
+        working-directory: governance-runtime
+        run: |
+          python v24_legacy_inventory_candidate.py \
+            --repo-root .. \
+            --report /tmp/v24-legacy-inventory.json \
+            --expect-pending
       - name: Verify real V24 bundle remains explicitly incomplete until legacy and semantic mappings are supplied
         working-directory: governance-runtime
         run: |
@@ -36,16 +46,29 @@ jobs:
             --source v24-normative-inventory-source.json \
             --report /tmp/v24-normative-preflight.json \
             --expect-incomplete
-      - name: Show bounded preflight result
+      - name: Show bounded construction result
         if: always()
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          p = Path('/tmp/v24-normative-preflight.json')
-          if p.exists():
-              d = json.loads(p.read_text())
-              print(json.dumps({
+          output = {}
+          legacy = Path('/tmp/v24-legacy-inventory.json')
+          if legacy.exists():
+              d = json.loads(legacy.read_text())
+              output['legacy'] = {
+                  'state': d.get('state'),
+                  'qualified': d.get('qualified'),
+                  'artifact_count': d.get('artifact_count'),
+                  'candidate_clause_count': d.get('candidate_clause_count'),
+                  'artifacts_without_level2_headings': d.get('artifacts_without_level2_headings'),
+                  'current_drift_paths': d.get('current_drift_paths'),
+                  'problems': d.get('problems'),
+              }
+          current = Path('/tmp/v24-normative-preflight.json')
+          if current.exists():
+              d = json.loads(current.read_text())
+              output['v24_current'] = {
                   'state': d.get('state'),
                   'qualified': d.get('qualified'),
                   'expected_control_count': d.get('expected_control_count'),
@@ -54,5 +77,6 @@ jobs:
                   'legacy_inventory_count': d.get('legacy_inventory_count'),
                   'problem_count': len(d.get('problems', [])),
                   'non_semantic_problems': [x for x in d.get('problems', []) if not x.startswith('DESCRIPTOR_SEMANTIC_MAPPING_PENDING:')],
-              }, indent=2))
+              }
+          print(json.dumps(output, indent=2))
           PY
