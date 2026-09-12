@@ -164,7 +164,7 @@ Historical WDPC-357 remains unchanged. For V23 prospective evaluation, use V23-C
 
 - WDPC-01…406 remain inherited and historically preserved.
 - WDPC-407…430 are preregistered only and have not been executed.
-- No V23 artifact rewrites the V22 `PASS_FOR_NEXT_DESIGN_STAGE` review; that result remains bound only to exact V22.
+- Prior V22 reviewer dispositions are not inherited as V23 authority and are intentionally excluded from clean V23 reviewer context.
 - PASS on one V23 path cannot substitute for missing evidence on another.
 - R1/R2/R3 remain provider/model-neutral.
 - EXP-ECC-6 and EXP-ECC-7 remain deferred.
