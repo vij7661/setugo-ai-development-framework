@@ -4,7 +4,7 @@ Status: **PROPOSED — REVIEW REQUIRED — NON-AUTHORITATIVE**
 
 Authority effect: **NONE_EVIDENCE_ONLY**
 
-Purpose: ensure an external/manual reviewer can review the exact frozen candidate without requiring repository, GitHub, local filesystem, API, or prior-chat access.
+Purpose: ensure an external/manual reviewer can review the exact frozen candidate without requiring repository, GitHub, local filesystem, API, or prior-chat access, and ensure future authority-bearing reviews explicitly test root/meta-governance closure rather than only the immediate subsystem clauses.
 
 ## 1. Self-contained packet rule
 
@@ -67,7 +67,9 @@ Before presenting the packet, verify:
 3. the complete review prompt is present;
 4. no required content depends on inaccessible links;
 5. no prior reviewer findings have contaminated an independent-review packet;
-6. authority remains `NONE_EVIDENCE_ONLY` unless a separate qualified governance rule explicitly says otherwise.
+6. authority remains `NONE_EVIDENCE_ONLY` unless a separate qualified governance rule explicitly says otherwise;
+7. when the candidate contains or affects authority-bearing behavior, the applicable platform root/meta-governance standard is included in full or its exact required content is otherwise self-contained in the packet;
+8. the review prompt explicitly requires root/meta-governance closure attacks rather than merely clause-by-clause review.
 
 ## 8. Operating rule
 
@@ -77,4 +79,40 @@ For this project, when the user asks for an external review packet, default to:
 
 and assume **NO GITHUB ACCESS** unless access has been explicitly established.
 
+## 9. Platform-wide root/meta-governance closure review requirement
+
+For every future independent review of a candidate that creates, changes, qualifies, interprets, publishes, consumes, or can suppress authority-bearing state, the clean packet and prompt must apply the active platform root/meta-governance closure standard.
+
+At minimum, the reviewer must independently attack:
+
+- root bootstrap/genesis completeness and residual trust assumptions;
+- root-kernel or constitutional-rule in-place self-amendment;
+- mutation or substitution of the strength predicate/strength contract;
+- omission of a new authority-affecting object or policy from governance protection;
+- authority dependency cycles, self-parenting, or descendant control over an ancestor;
+- caller/candidate/beneficiary/reviewer-subject self-selection or self-qualification;
+- rename/reclassification/split/merge/migration identity escape;
+- cryptographically valid but non-qualifying, revoked, expired, compromised, wrong-generation, wrong-class, or wrong-bound evidence;
+- unsigned or insufficiently bound authority-bearing decision outputs;
+- conflict-resolution policy weakening;
+- retroactive authorization/scope broadening;
+- emergency, recovery, migration, repair, reset, and bootstrap bypasses;
+- proof-view omissions that could conceal any of these paths.
+
+The reviewer must not assume a manually enumerated protected-policy list is exhaustive. It must look for additional authority-affecting surfaces functionally and transitively.
+
+If the reviewer cannot determine where governance recursion terminates, cannot inspect the exact terminal trust assumption, or cannot determine whether a material authority cycle/self-grant path exists, the result for that boundary must be `INSUFFICIENT_EVIDENCE`, not PASS.
+
+## 10. Cross-phase applicability
+
+The root/meta-governance closure attack applies to architecture/design review, implementation review, testing/falsification review, qualification review, release/promotion review, and any later governed phase where the reviewed candidate can affect authority.
+
+A PASS from one phase does not waive root/meta-governance closure checks for a later changed candidate or later authority surface. Exact-artifact binding and review freshness still apply.
+
+## 11. Nonclaims
+
+This document does not itself approve the platform root/meta-governance design or any candidate that inherits it. It defines review-packet behavior only.
+
 This document grants no merge, release, production, qualification, adjudication, or terminal authority.
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
