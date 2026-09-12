@@ -1,0 +1,29 @@
+{
+  "record_type": "ECCDerivedFullCoverageBoundedResult",
+  "record_id": "ECC-DERIVED-FULL-COVERAGE-GREEN-003",
+  "program_baseline": "290ac043959f30db12c9ae16826eda1dd5bcbdfb",
+  "reference_candidate_commit": "e10ee2dfb9f5c101615b897ceb569b06e7958f57",
+  "workflow_run_id": 34689107571,
+  "job_id": 103541143491,
+  "checkout_sha_verified": "e10ee2dfb9f5c101615b897ceb569b06e7958f57",
+  "tests_run": 110,
+  "representative_tests": 24,
+  "named_preregistered_cases": 86,
+  "named_negative_cases": 63,
+  "named_positive_controls": 23,
+  "failures": 0,
+  "errors": 0,
+  "conclusion": "BOUNDED_REFERENCE_MECHANISM_GREEN",
+  "prior_red_records": [
+    "ECC-DERIVED-CONSTRUCTION-RED-001",
+    "ECC-DERIVED-FULL-COVERAGE-RED-002"
+  ],
+  "claim_boundary": [
+    "Proves only the bounded deterministic reference mechanisms under the committed fixtures.",
+    "Does not prove production integration into V18 or the runtime platform.",
+    "Does not prove live hook execution in external harnesses.",
+    "Does not prove real provider identity or real automated external-review transport.",
+    "Does not satisfy independent manual review or terminal authority."
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
