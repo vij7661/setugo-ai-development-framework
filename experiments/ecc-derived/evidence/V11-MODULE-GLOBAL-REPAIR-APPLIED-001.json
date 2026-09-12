@@ -1,0 +1,15 @@
+{
+  "record_type": "ECC_DERIVED_V11_MODULE_GLOBAL_REPAIR_APPLIED",
+  "repair_generated_sha": "a85a85e471b99b2800dd958896f1ab620ab6792f",
+  "repair_workflow_run_id": 34697622479,
+  "candidate_boundary_sha256": "fbbcdb89b0e7e547c749a226f0f7fd359dd513137b2480007c8b69bafa00b77d",
+  "module_global_dependency_policy": "RECURSIVE_REFERENCED_GLOBALS_BOUND_AT_INITIALIZATION",
+  "checked_entrypoint_identity_policy": "EXACT_FUNCTION_OBJECT_IDENTITY_REQUIRED",
+  "public_covers_global_controls_candidate_authority": false,
+  "module_global_mutation_fail_closed": true,
+  "same_code_new_function_object_fail_closed": true,
+  "v11_assertions_modified_during_repair": false,
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the unchanged V11 falsification runner after the workflow-token repair push."
+}
