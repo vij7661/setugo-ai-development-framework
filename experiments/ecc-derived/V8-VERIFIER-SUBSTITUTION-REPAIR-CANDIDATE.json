@@ -1,0 +1,14 @@
+{
+  "record_type": "ECC_DERIVED_V8_REPAIR_CANDIDATE_EVIDENCE",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "parent_v8_red_candidate": "28ece812654f544dd27848e89ddf47508963dbab",
+  "preserved_red_workflow_run": 34694716021,
+  "preserved_red_result": "170 tests; 5 failures; 0 errors",
+  "repair_workflow_input": "ff4b551e3b59fa4d8394dcfa4564931f5c48892c",
+  "repair_commit": "6d09bb16ca8c9c643df97bbb6681a1ccf51dfdb6",
+  "candidate_boundary_sha256": "ccfed9256263ccc9f3c37ff47391a9fa08d52f488af81c658fbfa92622668b30",
+  "trust_manifest_sha256": "ccba6b4d2add0a1e4dac1f9df939c6311ed3e8b6d0ae701a92a08e92f2986b4d",
+  "frozen_assertions_modified": false,
+  "expected_runner": "experiments/ecc_derived/run_v8_suite.py",
+  "status": "REPAIR_GENERATED_PENDING_FALSIFICATION"
+}
