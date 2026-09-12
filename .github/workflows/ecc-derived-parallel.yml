@@ -1,0 +1,36 @@
+name: ECC Derived Parallel Falsification
+
+on:
+  push:
+    branches:
+      - experiments/ecc-derived-parallel-v1
+    paths:
+      - 'experiments/ecc-derived/**'
+      - 'experiments/ecc_derived/**'
+      - '.github/workflows/ecc-derived-parallel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record exact checkout
+        run: |
+          echo "CHECKOUT_SHA=$(git rev-parse HEAD)"
+          git status --short
+
+      - name: Run ECC-derived falsification harness
+        run: python -m unittest -v experiments/ecc_derived/test_ecc_governance.py
