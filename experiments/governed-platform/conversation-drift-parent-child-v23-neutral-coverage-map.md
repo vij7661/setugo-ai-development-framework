@@ -12,7 +12,7 @@ Exact V22 base candidate: `61657e8c37b9aa2ac6582c9c284c2398437a7acf`.
 - `standards/platform-authority-endpoint-precedence-v23.md` — blob `2aa41f17baae3ca22a07519300eb4f7ea6cadbbc`
 - `standards/conversation-drift-parent-child-impact-control-v23-completeness-hardening.md` — blob `02a539da4c2d6bf76079eef11bea5c1da7740ff2`
 - `standards/conversation-drift-parent-child-impact-control-v23-endpoint-precedence-addendum.md` — blob `f87c45f6e464f1231a78e25f02c855aa24210778`
-- `experiments/governed-platform/conversation-drift-parent-child-falsification-v23-extension.md` — blob `fca27be61aeea36cb42e4d27ed9eadc59db0f8e0`
+- `experiments/governed-platform/conversation-drift-parent-child-falsification-v23-extension.md` — blob `2613e7b6385239efa2dabf789937f97de77cf2dd`
 
 This map contains no prior reviewer findings or disposition and grants no authority.
 
@@ -74,7 +74,7 @@ V23 includes legitimate non-overblocking controls for:
 - WDPC-407…430 are V23 preregistered cases only.
 - Historical WDPC-357 remains unchanged; V23 defines stricter prospective endpoint semantics through the exact endpoint-precedence table.
 - No historical RED/PASS/reviewer disposition is rewritten.
-- V22 review evidence does not authorize V23.
+- Prior V22 review evidence does not authorize V23 and is intentionally excluded from clean V23 reviewer context.
 
 ## Platform-wide inheritance intent
 
