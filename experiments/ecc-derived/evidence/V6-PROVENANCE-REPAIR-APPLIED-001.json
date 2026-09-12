@@ -1,0 +1,16 @@
+{
+  "record_type": "ECC_DERIVED_V6_PROVENANCE_REPAIR_APPLIED",
+  "repair_input_sha": "40dec44bdc2d682a397871a2628256fbad73b098",
+  "repair_generated_sha": "f445442b8727ac14b19f4fe6103bda69af14dbee",
+  "repair_workflow_run_id": 34693224638,
+  "repair_workflow_job_id": 103552117673,
+  "candidate_boundary_sha256": "72625006fa79efb013857b008b6ed0f2603751f08d3ef843520064626ccdf358",
+  "manifest_sha256": "9362fa6c2dde51d7bf0354ec6b0ccb0ec83b6e9e6880415aba888b7ca2578d22",
+  "provenance_policy": "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST",
+  "serialized_candidate_authority": "REJECT_UNSEALED_RECONSTRUCTION",
+  "process_local_provenance_only": true,
+  "durable_cross_process_signature_claimed": false,
+  "v6_assertions_modified_during_repair": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the frozen V6 falsification workflow after the GITHUB_TOKEN repair push."
+}
