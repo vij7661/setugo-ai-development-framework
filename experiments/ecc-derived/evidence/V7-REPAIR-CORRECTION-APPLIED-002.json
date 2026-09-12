@@ -1,0 +1,17 @@
+{
+  "record_type": "ECC_DERIVED_V7_REPAIR_CORRECTION_APPLIED",
+  "correction_input_sha": "35c60aef335d69e574327e53200c4d9677309fda",
+  "correction_generated_sha": "40a095032d430bce5bd578d981e264047f74bc8d",
+  "correction_workflow_run_id": 34694435708,
+  "correction_workflow_job_id": 103555362145,
+  "candidate_boundary_sha256": "d70aaa0dea897a41a5689f00297ae6d795723d9f05738b7f2a631a02a83e645a",
+  "manifest_sha256": "9d128821d9fbc073e9aeee05f2270f649f28b35f43568027ca6b303116e15ac7",
+  "corrected_defects": [
+    "V7_RUNTIME_VERIFIER_EXPECTS_V7_MANIFEST",
+    "DYNAMIC_RUNTIME_POLICY_RECHECK_RESTORED"
+  ],
+  "seal_capability_policy": "POSITIVE_SEAL_CAPABILITY_CLOSURE_LOCAL_ONLY",
+  "v7_assertions_modified": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the unchanged frozen V7 runner after correcting the first repair regression."
+}
