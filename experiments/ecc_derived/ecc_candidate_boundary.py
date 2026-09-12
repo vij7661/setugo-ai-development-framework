@@ -23,10 +23,10 @@ _FAVORABLE = {
 
 
 def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, boundary_file):
-    hashlib_module = hashlib
-    json_module = json
-    marshal_module = marshal
-    sys_module = sys
+    sha256_fn = hashlib.sha256
+    json_loads_fn = json.loads
+    marshal_dumps_fn = marshal.dumps
+    sys_modules = sys.modules
     path_type = Path
 
     boundary_path = path_type(boundary_file).resolve()
@@ -37,11 +37,11 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     evidence_path = here / "ecc_reference_evidence.py"
 
     def file_sha(path):
-        return hashlib_module.sha256(path.read_bytes()).hexdigest()
+        return sha256_fn(path.read_bytes()).hexdigest()
 
     def code_sha(fn):
         try:
-            return hashlib_module.sha256(marshal_module.dumps(fn.__code__)).hexdigest()
+            return sha256_fn(marshal_dumps_fn(fn.__code__)).hexdigest()
         except (AttributeError, TypeError, ValueError):
             return None
 
@@ -58,7 +58,7 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return False
         if module.__name__ != expected_name:
             return False
-        if sys_module.modules.get(expected_name) is not module:
+        if sys_modules.get(expected_name) is not module:
             return False
         spec = getattr(module, "__spec__", None)
         origin = getattr(spec, "origin", None)
@@ -79,11 +79,11 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             except OSError:
                 return False
         try:
-            manifest = json_module.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest = json_loads_fn(manifest_path.read_text(encoding="utf-8"))
         except (OSError, ValueError, TypeError):
             return False
 
-        if manifest.get("record_type") != "ECC_GOVERNANCE_V8_VERIFIER_SUBSTITUTION_MANIFEST":
+        if manifest.get("record_type") != "ECC_GOVERNANCE_V9_VERIFIER_PRIMITIVE_INTEGRITY_MANIFEST":
             return False
         if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
             return False
@@ -102,6 +102,14 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
         if manifest.get("public_verifier_substitution_affects_candidate_authority") is not False:
             return False
         if manifest.get("actual_dependency_tamper_fail_closed") is not True:
+            return False
+        if manifest.get("verifier_primitive_policy") != "EXACT_CALLABLES_CAPTURED_AT_INITIALIZATION":
+            return False
+        if manifest.get("seal_primitive_policy") != "EXACT_CALLABLES_CAPTURED_AT_INITIALIZATION":
+            return False
+        if manifest.get("public_json_alias_controls_candidate_authority") is not False:
+            return False
+        if manifest.get("public_marshal_alias_controls_candidate_authority") is not False:
             return False
         if manifest.get("public_core_policy") != "HISTORICAL_ONLY_NO_CALLER_STRICT_MODE":
             return False
@@ -214,17 +222,17 @@ def _build_candidate_api(runtime_verify, strict_module, evidence_module):
     issuer_token = object()
     strict_value = STRICT
     favorable = {key: frozenset(values) for key, values in _FAVORABLE.items()}
-    hashlib_module = hashlib
-    json_module = json
+    sha256_fn = hashlib.sha256
+    json_dumps_fn = json.dumps
 
     def canonical_result_digest(value):
         try:
-            payload = json_module.dumps(
+            payload = json_dumps_fn(
                 dict(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
             ).encode("utf-8")
         except (TypeError, ValueError):
             return None
-        return hashlib_module.sha256(payload).hexdigest()
+        return sha256_fn(payload).hexdigest()
 
     class CandidateEvaluationResult(dict):
         __slots__ = ("_issuer_token", "_sealed_digest")
@@ -348,7 +356,7 @@ def _build_candidate_api(runtime_verify, strict_module, evidence_module):
         if result.get("candidate_eligible") is not True:
             return False
         kind = result.get("candidate_kind")
-        allowed = _FAVORABLE.get(kind)
+        allowed = favorable.get(kind)
         if not allowed or result.get("status") not in allowed:
             return False
         return True
