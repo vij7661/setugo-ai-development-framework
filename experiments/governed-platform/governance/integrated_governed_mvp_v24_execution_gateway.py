@@ -1,10 +1,10 @@
 """V24 apply-time integration wrapper for the existing durable ExecutionGateway.
 
-Legacy callers remain on ExecutionGateway unchanged.  V24 callers use this
-wrapper, whose default delegate is the real durable gateway.  The V24 guard is
-checked once before entering the delegate and again at the worker boundary,
-which is the last unavoidable point before the external/deterministic effect.
-The second receipt and AuthorityApplicationRecord are persisted inside the
+Legacy callers remain on ExecutionGateway unchanged. V24 callers use this
+wrapper, whose default delegate is the real durable gateway. The V24 guard is
+checked before entering the delegate and then against freshly supplied current
+state at the worker boundary, the last unavoidable point before the effect.
+The final receipt and AuthorityApplicationRecord are persisted inside the
 existing gateway's durable result envelope.
 """
 from __future__ import annotations
@@ -27,9 +27,13 @@ class V24ExecutionGateway:
         db_path: str,
         worker: Callable[[Mapping[str, Any]], Mapping[str, Any]],
         *,
+        current_context_provider: Callable[[Mapping[str, Any]], Mapping[str, Any]],
         gateway_factory: Callable[..., Any] = ExecutionGateway,
     ):
+        if not callable(current_context_provider):
+            raise TypeError("current_context_provider is required")
         self._business_worker = worker
+        self._current_context_provider = current_context_provider
         self._local = threading.local()
         self._delegate = gateway_factory(db_path, self._guarded_worker)
 
@@ -43,13 +47,22 @@ class V24ExecutionGateway:
             "release_completion_authority": False,
         }
 
+    def _fresh_context(self, bound_context: Mapping[str, Any]) -> Mapping[str, Any]:
+        current = self._current_context_provider(deepcopy(dict(bound_context)))
+        if not isinstance(current, Mapping):
+            raise V24ApplyBlocked("current V24 context provider returned malformed state")
+        return current
+
     def _guarded_worker(self, effect_request: Mapping[str, Any]) -> Mapping[str, Any]:
-        context = getattr(self._local, "v24_apply_context", None)
-        if not isinstance(context, Mapping):
+        bound_context = getattr(self._local, "v24_apply_context", None)
+        if not isinstance(bound_context, Mapping):
             raise V24ApplyBlocked("V24 apply context is missing at worker boundary")
+        context = self._fresh_context(bound_context)
         guard = evaluate_v24_apply(context)
         if not guard.get("allowed", False):
+            self._local.last_v24_guard = deepcopy(dict(guard))
             raise V24ApplyBlocked("V24 apply context became unqualified before effect")
+        self._local.last_v24_guard = deepcopy(dict(guard))
 
         business_result = deepcopy(dict(self._business_worker(effect_request)))
         application_material = {
@@ -80,18 +93,25 @@ class V24ExecutionGateway:
         }
 
     def execute(self, *, v24_apply_context: Mapping[str, Any], **gateway_kwargs: Any) -> dict[str, Any]:
-        precheck = evaluate_v24_apply(v24_apply_context)
+        try:
+            initial_context = self._fresh_context(v24_apply_context)
+        except V24ApplyBlocked:
+            malformed = {"state": "V24_APPLY_BLOCKED", "allowed": False, "problems": ["V24_CURRENT_CONTEXT_UNAVAILABLE"]}
+            return self._deny(malformed)
+        precheck = evaluate_v24_apply(initial_context)
         if not precheck.get("allowed", False):
             return self._deny(precheck)
         self._local.v24_apply_context = deepcopy(dict(v24_apply_context))
+        self._local.last_v24_guard = deepcopy(dict(precheck))
         try:
             result = self._delegate.execute(**gateway_kwargs)
         except V24ApplyBlocked:
-            latest = evaluate_v24_apply(v24_apply_context)
+            latest = getattr(self._local, "last_v24_guard", precheck)
             return self._deny(latest)
         finally:
-            if hasattr(self._local, "v24_apply_context"):
-                del self._local.v24_apply_context
+            for name in ("v24_apply_context", "last_v24_guard"):
+                if hasattr(self._local, name):
+                    delattr(self._local, name)
 
         envelope = result.get("result") if isinstance(result, Mapping) else None
         if isinstance(envelope, Mapping) and envelope.get("v24_result_envelope") is True:
@@ -103,8 +123,7 @@ class V24ExecutionGateway:
         return result
 
     def get_v24_evidence(self, idempotency_key: str) -> dict[str, Any]:
-        evidence = self._delegate.get_evidence(idempotency_key)
-        return deepcopy(dict(evidence))
+        return deepcopy(dict(self._delegate.get_evidence(idempotency_key)))
 
     def effect_count(self) -> int:
         return self._delegate.effect_count()
