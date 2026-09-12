@@ -1,0 +1,34 @@
+{
+  "record_type": "ECC_DERIVED_V11_MODULE_GLOBAL_INTEGRITY_GREEN",
+  "record_id": "V11-MODULE-GLOBAL-INTEGRITY-GREEN-002",
+  "exact_candidate_sha": "5884af027191231c4625f8c913b2a4b1ea2e00ab",
+  "workflow_run_id": 34697656020,
+  "workflow_job_id": 103563800594,
+  "result": {
+    "tests_run": 190,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "GREEN_BOUNDED_MODULE_GLOBAL_INTEGRITY"
+  },
+  "closed_failure_classes": [
+    "STRICT_HELPER_PLUS_REFERENCE_STORE_MUTATION_CAN_MINT",
+    "REFERENCE_STORE_MUTATION_ALONE_CAN_MINT",
+    "ALLOWED_CAPABILITY_GLOBAL_MUTATION_CAN_PROMOTE_UNKNOWN_CAPABILITY",
+    "PUBLIC_COVERS_GLOBAL_CONTROLS_LEGITIMATE_CANDIDATE_AUTHORITY",
+    "SAME_CODE_NEW_FUNCTION_GLOBALS_CAN_MINT"
+  ],
+  "repair_generated_sha": "a85a85e471b99b2800dd958896f1ab620ab6792f",
+  "candidate_boundary_sha256": "fbbcdb89b0e7e547c749a226f0f7fd359dd513137b2480007c8b69bafa00b77d",
+  "module_global_dependency_policy": "RECURSIVE_REFERENCED_GLOBALS_BOUND_AT_INITIALIZATION",
+  "checked_entrypoint_identity_policy": "EXACT_FUNCTION_OBJECT_IDENTITY_REQUIRED",
+  "public_covers_global_controls_candidate_authority": false,
+  "module_global_mutation_fail_closed": true,
+  "same_code_new_function_object_fail_closed": true,
+  "retained_v1_v10_non_superseded_tests": "PASS",
+  "v11_positive_controls": "PASS",
+  "v11_assertions_modified_during_repair": false,
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "freeze_effect": "NOT_FROZEN_PENDING_CLEAN_EXTERNAL_ENGINEERING_REREVIEW"
+}
