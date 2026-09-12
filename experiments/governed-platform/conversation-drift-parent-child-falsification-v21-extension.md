@@ -40,19 +40,23 @@ Expected: exactly `INDEPENDENT_SUPPORT_EXEMPTION_CONFLICT`; dependent status bec
 
 ### WDPC-327 — Governed-object rename/alias threshold bypass
 
-Fault: a governed ledger is renamed or presented through a new alias/class label, then a lower threshold is proposed under the new label.
+Fault A: a governed ledger is renamed or presented through a new alias/class label and the new label is registered as a different governance identity to escape the inherited threshold floor.
 
-Expected: immutable `governed_object_id` remains unchanged and the lower threshold is rejected as `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED` or, when the same policy transition directly lowers the inherited floor, `ROOT_GOVERNANCE_THRESHOLD_WEAKENING_REJECTED` according to the phase-specific validator.
+Expected A: exactly `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED`; the original `governed_object_id` and floor remain authoritative.
+
+Fault B: the rename/alias correctly preserves the original `governed_object_id`, but a policy transition then proposes a lower threshold for that identity.
+
+Expected B: exactly `ROOT_GOVERNANCE_THRESHOLD_WEAKENING_REJECTED`; the prior threshold remains active.
 
 ### WDPC-328 — Governed-object split/merge threshold-floor bypass
 
 Fault A: governed object at threshold T is split and one authority-bearing descendant is assigned threshold T-1.
 
-Expected A: `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED`.
+Expected A: exactly `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED`.
 
 Fault B: two governed objects with floors T1 and T2 merge and the resulting object is assigned a floor lower than max(T1,T2).
 
-Expected B: `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED`.
+Expected B: exactly `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED`.
 
 ### WDPC-329 — Reconciliation evaluator self-selection/self-grant
 
@@ -76,7 +80,7 @@ Expected: exactly `RECONCILIATION_CONFLICT`; byte equality does not collapse dis
 
 Fault: sub-threshold principal set or local implementation attempts to mutate/override `AuthorityPublicationClassRegistry` so an authority-bearing class becomes optional/non-authority-bearing.
 
-Expected: mutation/override rejected; classification remains unchanged; `AUTHORITY_PUBLICATION_CLASSIFICATION_INVALID` for attempted unauthorized classification use.
+Expected: mutation/override is rejected; the prior classification remains current; any attempted use of the unauthorized classification returns exactly `AUTHORITY_PUBLICATION_CLASSIFICATION_INVALID`.
 
 ### WDPC-333 — Runtime skips current publication registry consultation
 
@@ -120,11 +124,15 @@ Fault: conflicting exemption records exist and implementation chooses one by maj
 
 Expected: exactly `INDEPENDENT_SUPPORT_EXEMPTION_CONFLICT`; dependent remains `REVALIDATION_REQUIRED`.
 
-### WDPC-340 — Authority-meta-policy renamed to evade anti-weakening
+### WDPC-340 — Authority-meta-policy rename/reclassification bypass
 
-Fault: witness/issuer/activation/reconciliation policy is renamed or moved to a new class/object identifier and then weakened.
+Fault A: an authority-meta-policy is renamed/moved and registered as a new governance identity to discard its prior strength floor.
 
-Expected: immutable governance ancestry preserves the policy identity/strength floor; `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED` or `AUTHORITY_META_POLICY_WEAKENING_REJECTED` according to phase.
+Expected A: exactly `GOVERNED_OBJECT_IDENTITY_RECLASSIFICATION_REJECTED`; original identity/ancestry remains authoritative.
+
+Fault B: identity/ancestry is correctly preserved but the proposed replacement policy is weaker than the immediately preceding effective policy.
+
+Expected B: exactly `AUTHORITY_META_POLICY_WEAKENING_REJECTED`; prior policy remains active.
 
 ## New positive controls
 
