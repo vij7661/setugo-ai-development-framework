@@ -91,7 +91,7 @@
   "remaining_verifier_boundary": "REFLECTIVE_CLOSURE_OR_INTERPRETER_COMPROMISE_OUTSIDE_V8_BOUNDED_THREAT_MODEL",
   "repair_defect_correction": "V7_RUNTIME_VERIFIER_MANIFEST_AND_DYNAMIC_RECHECK",
   "runtime_code_sha256": {
-    "reference.lookup_reference_evidence": "3ff864bbc1c50cac3600e483607557352de0220a1928216d8ded81cb43d318ce",
+    "reference.lookup_reference_evidence": "b49cd197dd367ccb7811a87c954e24fa0d003862c172dad228ef451682e823d9",
     "strict.assess_control_execution_candidate": "636635021b2c828851ab664e213c66332371c14b6b7752d6d0a142a1b8b69238",
     "strict.authorize_learning_promotion_candidate": "1413824952d3baeb6c0973888f0569a70362c07e03e0a074a5e2668e3a6d6575",
     "strict.authorize_power_activation_candidate": "8ef98161fcf5c8bb0bc4f053197b2409eb1c7a28f9de1c913586af967b705817",
@@ -106,5 +106,11 @@
   "serialized_candidate_authority": "REJECT_UNSEALED_RECONSTRUCTION",
   "transitive_digest_primitive_mutation_fail_closed": true,
   "transitive_module_attribute_policy": "EXACT_STRICT_DIGEST_PRIMITIVE_CALLABLES_BOUND_AT_INITIALIZATION",
+  "v12_reference_runtime_hash_correction": {
+    "corrected_hash": "b49cd197dd367ccb7811a87c954e24fa0d003862c172dad228ef451682e823d9",
+    "logic_change": false,
+    "previous_hash": "3ff864bbc1c50cac3600e483607557352de0220a1928216d8ded81cb43d318ce",
+    "reason": "REFERENCE_EVIDENCE_LINE_SHIFT_CHANGED_MARSHALLED_CODE_METADATA"
+  },
   "verifier_primitive_policy": "EXACT_CALLABLES_CAPTURED_AT_INITIALIZATION"
 }
