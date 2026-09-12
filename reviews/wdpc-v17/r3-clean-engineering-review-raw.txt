@@ -1,0 +1,318 @@
+A. Review-context contamination check: `CLEAN_PACKET_ONLY_CONTEXT`
+
+B. Review-evidence declaration: `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+
+C. Overall disposition: `PASS_FOR_NEXT_DESIGN_STAGE`
+
+D. Critical findings: None.
+
+E. High / Medium / Low findings:
+- **High:** The design’s root-of-trust boundary (GenesisTrustAssumption) remains an irreducible out-of-band assumption. While V8–V17 correctly bound and disclose it, no in-system proof can eliminate the real-world independence assumption of the genesis notaries. This is acknowledged and should remain an explicit qualification gate, not a hidden PASS.
+- **Medium:** The design relies on an extensive set of root-governed registries and independent authorities. While independence proofs are specified, the complexity increases the risk of misconfiguration or accidental authority overlap. The joint-independence checks (NRVA/RPAA, CAA/root, predicate auditors) are robust but must be mechanically enforced at every relevant commit boundary.
+- **Low:** Several falsification cases are duplicative in the enforcement path they exercise (e.g., WDPC-47/72, WDPC-53/68, WDPC-240/244). The design correctly notes that duplicate coverage cannot inflate unique-path confidence, but qualification reporting must consistently separate raw case count from unique mechanism coverage.
+- **Low:** The packet provides no live runtime attestations, which is expected for a `DESIGN_REVIEW_PACKET`. However, the proof view correctly marks absent live evidence as `NOT_PRESENT`, preventing silent omission.
+
+F. Threshold atomicity/ledger assessment: Adequate. V17-C02 removes the detached recheck fallback and mandates a single atomic operation that revalidates the qualification snapshot, writes the threshold record, enforces durable uniqueness, advances the threshold sequence, and commits all effects together or none. V17-C03 specifies a durable `ReviewThresholdConsumptionLedger` with idempotency keys. This closes the recheck-to-commit race and prevents divergence under crash/partial commit.
+
+G. Cross-gate reuse assessment: Adequate. V17-C04 sets default-deny cross-gate reuse (`CROSS_GATE_REUSE_DENIED`) and requires an exact allow rule binding evidence class/scope, source/destination gates, policy versions, compatibility, independence, maximum reuse count, reason, expiry, and approval. Unauthorized reuse emits `REVIEW_THRESHOLD_REUSE_NOT_AUTHORIZED`. The policy is root-governed, preventing self-grant or retroactive legalization.
+
+H. NRVA/RPAA joint-independence assessment: Adequate. V17-C05 requires a root-governed `NormativeReExpressionVerifierRegistry` and current `NRVAIndependenceRecord` plus `NRVA_RPAA_JointIndependenceProof`. The proof evaluates credential, recovery, identity, HSM/KMS/cloud-root, alias, beneficial-owner, super-admin, root-threshold-capable, delegated, and emergency control paths. Conflicting undeclared control evidence emits `NRVA_RPAA_JOINT_INDEPENDENCE_REJECTED`. V17-C06 binds NRVA independence into the exact qualification snapshot and revalidates it inside the atomic threshold transaction.
+
+I. Canonical conflict/corpus assessment: Adequate. V17-C07 specifies that conflicting active evidence classifying the same clause pair both `DISTINCT_OBLIGATIONS` and `SEMANTICALLY_EQUIVALENT` yields `CANONICAL_SEMANTIC_CONFLICT` with no permissive precedence; qualification becomes `INSUFFICIENT_EVIDENCE` until a governed new corpus/algorithm proof generation is produced. V17-C08 governs `CanonicalSemanticCorpusRegistry` with digest, fixtures, provenance, independent audit, activation/sunset, freshness, and contamination/retraction state. Stale or compromised corpus emits `CANONICAL_SEMANTIC_CORPUS_STALE`. This prevents permanent overblocking by requiring governed recovery and prevents a compromised corpus from creating false-positive or false-negative semantic decisions without detection.
+
+J. Endpoint-export replay assessment: Adequate. V17-C09 requires exact candidate-commit binding for authoritative endpoint exports. Identical tree/schema/registry/tuple digests do not authorize replay to another commit. Wrong-commit replay emits `REVIEW_ENDPOINT_EXPORT_REPLAY_REJECTED`. This closes the replay bypass.
+
+K. Packet-generation anti-fork assessment: Adequate. V17-C10 specifies a root-governed append-only `PacketGenerationLedger`. Only lineage genesis may have no predecessor. Later generations must bind the current predecessor and advance monotonically. Null-predecessor resets, sibling forks, reused generation numbers, or hidden alternate lineages emit `REVIEW_PACKET_GENERATION_FORK_REJECTED`. This prevents reset, fork, generation reuse, and hidden alternate lineage.
+
+L. Proof-view assessment: Adequate. V17-C11 requires the reviewer-safe proof view to expose atomic threshold commit, consumption-ledger currentness, cross-gate reuse, NRVA registry/joint independence, canonical conflict/corpus currentness, endpoint exact-commit binding, and packet anti-fork state. Missing values are `NOT_PRESENT`, never implicit PASS. This is fail-closed when live evidence is absent.
+
+M. Regression/precedence assessment: Adequate. V17 is an additive hardening layer over V16. It does not weaken any V5–V16 rule. V17-C12 tightens WDPC-237, WDPC-250, and WDPC-257 to require all active V17 predicates. The active-clause map and precedence audit rules from V7–V15 remain in force.
+
+N. Positive-control assessment: Adequate. WDPC-269 (atomic threshold consumption commits exactly once, retry idempotent), WDPC-270 (explicitly authorized cross-gate reuse records one destination-gate count), WDPC-271 (current conflict-free canonical corpus handles equivalent/distinct obligations correctly), and WDPC-272 (valid monotonic packet lineage advances from exact predecessor) provide sufficient positive controls for the new V17 mechanisms. Combined with earlier positives (e.g., WDPC-237, 250, 257), they help detect overblocking.
+
+O. WDPC-01..272 audit:
+- WDPC-01: ADEQUATE
+- WDPC-02: ADEQUATE
+- WDPC-03: ADEQUATE
+- WDPC-04: ADEQUATE
+- WDPC-05: ADEQUATE
+- WDPC-06: ADEQUATE
+- WDPC-07: DUPLICATIVE_BUT_USEFUL
+- WDPC-08: ADEQUATE
+- WDPC-09: ADEQUATE
+- WDPC-10: ADEQUATE
+- WDPC-11: ADEQUATE
+- WDPC-12: ADEQUATE
+- WDPC-13: ADEQUATE
+- WDPC-14: ADEQUATE
+- WDPC-15: ADEQUATE
+- WDPC-16: ADEQUATE
+- WDPC-17: ADEQUATE
+- WDPC-18: ADEQUATE
+- WDPC-19: DUPLICATIVE_BUT_USEFUL
+- WDPC-20: ADEQUATE
+- WDPC-21: ADEQUATE
+- WDPC-22: ADEQUATE
+- WDPC-23: ADEQUATE
+- WDPC-24: ADEQUATE
+- WDPC-25: ADEQUATE
+- WDPC-26: ADEQUATE
+- WDPC-27: ADEQUATE
+- WDPC-28: ADEQUATE
+- WDPC-29: ADEQUATE
+- WDPC-30: ADEQUATE
+- WDPC-31: ADEQUATE
+- WDPC-32: ADEQUATE
+- WDPC-33: ADEQUATE
+- WDPC-34: ADEQUATE
+- WDPC-35: ADEQUATE
+- WDPC-36: ADEQUATE
+- WDPC-37: ADEQUATE
+- WDPC-38: ADEQUATE
+- WDPC-39: ADEQUATE
+- WDPC-40: ADEQUATE
+- WDPC-41: ADEQUATE
+- WDPC-42: ADEQUATE
+- WDPC-43: ADEQUATE
+- WDPC-44: ADEQUATE
+- WDPC-45: ADEQUATE
+- WDPC-46: ADEQUATE
+- WDPC-47: DUPLICATIVE_BUT_USEFUL
+- WDPC-48: ADEQUATE
+- WDPC-49: ADEQUATE
+- WDPC-50: ADEQUATE
+- WDPC-51: ADEQUATE
+- WDPC-52: ADEQUATE
+- WDPC-53: DUPLICATIVE_BUT_USEFUL
+- WDPC-54: ADEQUATE
+- WDPC-55: ADEQUATE
+- WDPC-56: ADEQUATE
+- WDPC-57: ADEQUATE
+- WDPC-58: ADEQUATE
+- WDPC-59: ADEQUATE
+- WDPC-60: ADEQUATE
+- WDPC-61: ADEQUATE
+- WDPC-62: ADEQUATE
+- WDPC-63: ADEQUATE
+- WDPC-64: ADEQUATE
+- WDPC-65: ADEQUATE
+- WDPC-66: ADEQUATE
+- WDPC-67: ADEQUATE
+- WDPC-68: DUPLICATIVE_BUT_USEFUL
+- WDPC-69: ADEQUATE
+- WDPC-70: ADEQUATE
+- WDPC-71: ADEQUATE
+- WDPC-72: DUPLICATIVE_BUT_USEFUL
+- WDPC-73: ADEQUATE
+- WDPC-74: ADEQUATE
+- WDPC-75: ADEQUATE
+- WDPC-76: ADEQUATE
+- WDPC-77: ADEQUATE
+- WDPC-78: ADEQUATE
+- WDPC-79: ADEQUATE
+- WDPC-80: ADEQUATE
+- WDPC-81: ADEQUATE
+- WDPC-82: ADEQUATE
+- WDPC-83: ADEQUATE
+- WDPC-84: ADEQUATE
+- WDPC-85: ADEQUATE
+- WDPC-86: ADEQUATE
+- WDPC-87: ADEQUATE
+- WDPC-88: ADEQUATE
+- WDPC-89: ADEQUATE
+- WDPC-90: ADEQUATE
+- WDPC-91: ADEQUATE
+- WDPC-92: ADEQUATE
+- WDPC-93: ADEQUATE
+- WDPC-94: ADEQUATE
+- WDPC-95: ADEQUATE
+- WDPC-96: ADEQUATE
+- WDPC-97: ADEQUATE
+- WDPC-98: ADEQUATE
+- WDPC-99: ADEQUATE
+- WDPC-100: ADEQUATE
+- WDPC-101: ADEQUATE
+- WDPC-102: ADEQUATE
+- WDPC-103: ADEQUATE
+- WDPC-104: ADEQUATE
+- WDPC-105: ADEQUATE
+- WDPC-106: ADEQUATE
+- WDPC-107: ADEQUATE
+- WDPC-108: ADEQUATE
+- WDPC-109: ADEQUATE
+- WDPC-110: ADEQUATE
+- WDPC-111: ADEQUATE
+- WDPC-112: ADEQUATE
+- WDPC-113: ADEQUATE
+- WDPC-114: ADEQUATE
+- WDPC-115: ADEQUATE
+- WDPC-116: ADEQUATE
+- WDPC-117: ADEQUATE
+- WDPC-118: ADEQUATE
+- WDPC-119: ADEQUATE
+- WDPC-120: ADEQUATE
+- WDPC-121: ADEQUATE
+- WDPC-122: ADEQUATE
+- WDPC-123: ADEQUATE
+- WDPC-124: ADEQUATE
+- WDPC-125: ADEQUATE
+- WDPC-126: ADEQUATE
+- WDPC-127: ADEQUATE
+- WDPC-128: ADEQUATE
+- WDPC-129: ADEQUATE
+- WDPC-130: ADEQUATE
+- WDPC-131: ADEQUATE
+- WDPC-132: ADEQUATE
+- WDPC-133: ADEQUATE
+- WDPC-134: ADEQUATE
+- WDPC-135: ADEQUATE
+- WDPC-136: ADEQUATE
+- WDPC-137: ADEQUATE
+- WDPC-138: ADEQUATE
+- WDPC-139: ADEQUATE
+- WDPC-140: ADEQUATE
+- WDPC-141: ADEQUATE
+- WDPC-142: ADEQUATE
+- WDPC-143: ADEQUATE
+- WDPC-144: ADEQUATE
+- WDPC-145: ADEQUATE
+- WDPC-146: ADEQUATE
+- WDPC-147: ADEQUATE
+- WDPC-148: ADEQUATE
+- WDPC-149: ADEQUATE
+- WDPC-150: ADEQUATE
+- WDPC-151: ADEQUATE
+- WDPC-152: ADEQUATE
+- WDPC-153: ADEQUATE
+- WDPC-154: ADEQUATE
+- WDPC-155: ADEQUATE
+- WDPC-156: ADEQUATE
+- WDPC-157: ADEQUATE
+- WDPC-158: ADEQUATE
+- WDPC-159: ADEQUATE
+- WDPC-160: ADEQUATE
+- WDPC-161: ADEQUATE
+- WDPC-162: ADEQUATE
+- WDPC-163: ADEQUATE
+- WDPC-164: ADEQUATE
+- WDPC-165: ADEQUATE
+- WDPC-166: ADEQUATE
+- WDPC-167: ADEQUATE
+- WDPC-168: ADEQUATE
+- WDPC-169: ADEQUATE
+- WDPC-170: ADEQUATE
+- WDPC-171: ADEQUATE
+- WDPC-172: ADEQUATE
+- WDPC-173: ADEQUATE
+- WDPC-174: ADEQUATE
+- WDPC-175: ADEQUATE
+- WDPC-176: ADEQUATE
+- WDPC-177: ADEQUATE
+- WDPC-178: ADEQUATE
+- WDPC-179: ADEQUATE
+- WDPC-180: ADEQUATE
+- WDPC-181: ADEQUATE
+- WDPC-182: ADEQUATE
+- WDPC-183: ADEQUATE
+- WDPC-184: ADEQUATE
+- WDPC-185: ADEQUATE
+- WDPC-186: ADEQUATE
+- WDPC-187: ADEQUATE
+- WDPC-188: ADEQUATE
+- WDPC-189: ADEQUATE
+- WDPC-190: ADEQUATE
+- WDPC-191: ADEQUATE
+- WDPC-192: ADEQUATE
+- WDPC-193: ADEQUATE
+- WDPC-194: ADEQUATE
+- WDPC-195: ADEQUATE
+- WDPC-196: ADEQUATE
+- WDPC-197: ADEQUATE
+- WDPC-198: ADEQUATE
+- WDPC-199: ADEQUATE
+- WDPC-200: ADEQUATE
+- WDPC-201: ADEQUATE
+- WDPC-202: ADEQUATE
+- WDPC-203: ADEQUATE
+- WDPC-204: ADEQUATE
+- WDPC-205: ADEQUATE
+- WDPC-206: ADEQUATE
+- WDPC-207: ADEQUATE
+- WDPC-208: ADEQUATE
+- WDPC-209: ADEQUATE
+- WDPC-210: ADEQUATE
+- WDPC-211: ADEQUATE
+- WDPC-212: ADEQUATE
+- WDPC-213: ADEQUATE
+- WDPC-214: ADEQUATE
+- WDPC-215: ADEQUATE
+- WDPC-216: ADEQUATE
+- WDPC-217: ADEQUATE
+- WDPC-218: ADEQUATE
+- WDPC-219: ADEQUATE
+- WDPC-220: ADEQUATE
+- WDPC-221: ADEQUATE
+- WDPC-222: ADEQUATE
+- WDPC-223: ADEQUATE
+- WDPC-224: ADEQUATE
+- WDPC-225: ADEQUATE
+- WDPC-226: ADEQUATE
+- WDPC-227: ADEQUATE
+- WDPC-228: ADEQUATE
+- WDPC-229: ADEQUATE
+- WDPC-230: ADEQUATE
+- WDPC-231: ADEQUATE
+- WDPC-232: ADEQUATE
+- WDPC-233: ADEQUATE
+- WDPC-234: ADEQUATE
+- WDPC-235: ADEQUATE
+- WDPC-236: ADEQUATE
+- WDPC-237: ADEQUATE
+- WDPC-238: ADEQUATE
+- WDPC-239: ADEQUATE
+- WDPC-240: DUPLICATIVE_BUT_USEFUL
+- WDPC-241: ADEQUATE
+- WDPC-242: ADEQUATE
+- WDPC-243: ADEQUATE
+- WDPC-244: DUPLICATIVE_BUT_USEFUL
+- WDPC-245: ADEQUATE
+- WDPC-246: ADEQUATE
+- WDPC-247: ADEQUATE
+- WDPC-248: ADEQUATE
+- WDPC-249: ADEQUATE
+- WDPC-250: ADEQUATE
+- WDPC-251: ADEQUATE
+- WDPC-252: ADEQUATE
+- WDPC-253: ADEQUATE
+- WDPC-254: ADEQUATE
+- WDPC-255: ADEQUATE
+- WDPC-256: ADEQUATE
+- WDPC-257: ADEQUATE
+- WDPC-258: ADEQUATE
+- WDPC-259: ADEQUATE
+- WDPC-260: ADEQUATE
+- WDPC-261: ADEQUATE
+- WDPC-262: ADEQUATE
+- WDPC-263: ADEQUATE
+- WDPC-264: ADEQUATE
+- WDPC-265: ADEQUATE
+- WDPC-266: ADEQUATE
+- WDPC-267: ADEQUATE
+- WDPC-268: ADEQUATE
+- WDPC-269: ADEQUATE
+- WDPC-270: ADEQUATE
+- WDPC-271: ADEQUATE
+- WDPC-272: ADEQUATE
+
+P. Missing falsification cases:
+- A case testing crash between the atomic threshold transaction’s internal steps (e.g., ledger write succeeds but threshold sequence advance fails) to prove all-or-nothing commit and recovery.
+- A case testing that a root-governed registry update cannot be self-granted by a single root guardian or a colluding subset below threshold, specifically for the `ReviewThresholdConsumptionLedger` and `PacketGenerationLedger`.
+- A case testing that a cross-gate reuse allow rule cannot be retroactively applied to already-consumed threshold records.
+- A case testing that the canonical corpus update after a freeze requires re-validation of all dependent `PARENT_UNAFFECTED` and re-expression decisions.
+- A case testing that the `ReviewThresholdConsumptionLedger` itself cannot be rolled back or forked by a privileged actor without detection.
+
+Q. Freeze recommendation: `INSUFFICIENT_EVIDENCE_TO_FREEZE`
+
+R. Authority limitation: This review is `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY` and `NONE_EVIDENCE_ONLY`. It does not grant merge, release, production, qualification, adjudication, or terminal authority. No runtime implementation evidence is claimed. The design contracts appear to close the identified races, but freeze for execution requires independent manual review and live attestation evidence as specified by the governing policy.
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
