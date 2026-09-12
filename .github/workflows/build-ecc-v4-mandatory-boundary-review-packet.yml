@@ -1,0 +1,286 @@
+name: Build ECC V4 Mandatory Boundary Review Packet
+
+on:
+  push:
+    branches:
+      - review/ecc-derived-v4-mandatory-boundary-packet
+    paths:
+      - '.github/workflows/build-ecc-v4-mandatory-boundary-review-packet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packet branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify frozen V4 ledger candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          FROZEN="8cc79ed23e825f6971e6268b9524e9ed91138028"
+          git cat-file -e "${FROZEN}^{commit}"
+          git merge-base --is-ancestor "$FROZEN" HEAD
+          CHANGED="$(git diff --name-only "$FROZEN"..HEAD)"
+          test "$CHANGED" = ".github/workflows/build-ecc-v4-mandatory-boundary-review-packet.yml"
+          echo "FROZEN_V4_CANDIDATE=$FROZEN"
+          echo "PACKET_BUILDER_HEAD=$(git rev-parse HEAD)"
+          echo "PACKAGING_ONLY_DIFF=$CHANGED"
+
+      - name: Fetch preserved V3 external AI review
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin review/ecc-derived-v3-ai-review --depth=1
+          git show FETCH_HEAD:reviews/ecc-derived-v3/external-ai-review-raw.md > /tmp/v3-review.md
+          git show FETCH_HEAD:reviews/ecc-derived-v3/review-metadata.json > /tmp/v3-review-metadata.json
+
+      - name: Build self-contained V4 remediation packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/ECC_Derived_V4_Mandatory_Boundary_External_Review_Packet.md"
+          cat > "$OUT" <<'EOF'
+          # ECC-Derived V4 Mandatory Candidate-Boundary External Review Packet
+
+          **Packet class:** `AI_ENGINEERING_REMEDIATION_REVIEW_PACKET`
+          **Authority effect:** `NONE_EVIDENCE_ONLY`
+          **Parent reviewed V3 candidate:** `351f08c7f5236f73bec37f62ec53085af48d15c7`
+          **Frozen V4 ledger candidate:** `8cc79ed23e825f6971e6268b9524e9ed91138028`
+          **V4 ledger-head workflow run:** `34691919155`
+          **V4 ledger-head job:** `103548566190`
+          **V4 ledger-head result:** `171/171 PASS`
+          **Governed-platform V18 baseline:** `290ac043959f30db12c9ae16826eda1dd5bcbdfb`
+          **Manual-review threshold contribution of AI review:** `0`
+
+          ## Purpose
+
+          This is a targeted engineering re-review of V4 remediation. It is not a clean-room independent review. The prior V3 external AI review is intentionally included because V4 was built specifically to falsify and remediate that review's remaining findings.
+
+          If this review is performed by an AI/model, declare `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`; it contributes zero to any qualifying manual-review threshold and grants no authority.
+
+          V4 does not claim production integration, live platform attestation, requirement adoption, release authority, or completion of EXP-ECC-6/7. Review the bounded reference-mechanism claim only.
+
+          ## V3 finding V4 attempts to close
+
+          V3 had a stronger strict branch, but `requirement_candidate` defaulted to `False`, so a caller could omit the flag and route a new candidate through historical permissive behavior. The V3 trust manifest declared a strict policy but did not enforce it at runtime. A single shared implementation could also correlate false greens across experiments.
+
+          ## V4 hypothesis
+
+          V4 claims that new candidate evaluation is no longer caller-selectable between strict and historical modes at the reference-mechanism boundary:
+
+          1. legacy/public compatibility calls remain replayable but every result is explicitly tagged `HISTORICAL_REFERENCE`;
+          2. a separate candidate-boundary module exposes seven strict-only candidate entrypoints and exposes no `requirement_candidate` mode switch;
+          3. candidate eligibility rejects historical and unclassified results;
+          4. the candidate boundary verifies the exact runtime trust manifest before evaluation;
+          5. EXP-ECC-1 through EXP-ECC-5 favorable shared-core outcomes are independently cross-checked before being returned as candidate-eligible; and
+          6. strict positive controls still succeed, rejecting a block-all implementation.
+
+          This is a reference-mechanism hypothesis. Do not infer live attestation or production enforcement from fixture-level fields.
+
+          ## Preserved V4 RED → GREEN sequence
+
+          ### Frozen assertions
+          - V4 assertion commit: `08a3ab7c4809722d6e149895e3d79c34554be93d`
+          - V4 tests were frozen before repair and not modified during remediation.
+
+          ### RED-001
+          - Exact candidate: `2c6664c591605d23172d410442eae9964eea9d54`
+          - Run: `34691517124`
+          - Job: `103547476519`
+          - Result: `171 tests; 18 failures; 0 errors`
+          - Prior 153 tests: `PASS`
+
+          ### Stage A
+          - Candidate-boundary implementation commit: `0fbc855486e36f13543b9a8eba993fc7bff6b522`
+
+          ### RED-002
+          - Run: `34691697986`
+          - Job: `103547967933`
+          - Result: `171 tests; 14 failures; 0 errors`
+          - Strict-only API and class-gate tests passed; historical classification/runtime trust binding remained RED.
+
+          ### Stage B deterministic repair
+          - Repair input: `46c0e7a5b8455dc460004dd5e29e7caaad4a00eb`
+          - Repair workflow run: `34691762267`
+          - Repair job: `103548139153`
+          - Repair-generated mechanism commit: `40bf5f64971e8e4587d846f69aa86ccc734b6b8b`
+          - Core SHA-256: `298d36a2e5d513fd1c17624fa0dee0e9b14c6804afbf35845185403eea5c59ae`
+          - Candidate-boundary SHA-256: `1453c063d180cb0e897b678b871cfaa185c597159dac190456aa0a66617f82f8`
+
+          ### GREEN-003
+          - Exact tested candidate: `ae01a6d96d5b385e9747b43e00fc9b085f7552de`
+          - Run: `34691848982`
+          - Job: `103548379655`
+          - Result: `171/171 PASS`
+
+          ### Frozen V4 ledger head
+          - Exact candidate: `8cc79ed23e825f6971e6268b9524e9ed91138028`
+          - Run: `34691919155`
+          - Job: `103548566190`
+          - Result: `171/171 PASS`
+
+          ## Bounded dispositions under review
+
+          - EXP-ECC-1: `MANDATORY_BOUNDARY_REFERENCE_PASS_PENDING_REVIEW`
+          - EXP-ECC-2: `MANDATORY_BOUNDARY_REFERENCE_PASS_PENDING_REVIEW`
+          - EXP-ECC-3: `MANDATORY_BOUNDARY_REFERENCE_PASS_PENDING_REVIEW`
+          - EXP-ECC-4: `MANDATORY_BOUNDARY_REFERENCE_PASS_PENDING_REVIEW`
+          - EXP-ECC-5: `MANDATORY_BOUNDARY_REFERENCE_PASS_PENDING_REVIEW`
+          - EXP-ECC-6: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - EXP-ECC-7: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+
+          None is adopted or promoted. V4 remains evidence only.
+
+          ## Mandatory review questions
+
+          1. Does V4 actually close the V3 caller-selectable historical fallback for new requirement candidates at the reference-mechanism boundary?
+          2. Can any direct call, alias, wrapper, adapter, serialization layer, monkeypatch, metadata mismatch, or unclassified result still be laundered into candidate eligibility?
+          3. Is merely tagging direct legacy outputs `HISTORICAL_REFERENCE` sufficient, or can any downstream consumer ignore that class and recreate a false green outside `candidate_result_eligible`?
+          4. Is the strict-only `ecc_candidate_boundary.py` API structurally non-optional enough for a bounded impact-adjudication candidate, or is a still-higher authoritative routing boundary required before even bounded impact adjudication?
+          5. Does `verify_runtime_policy()` meaningfully enforce the trust manifest, including exact module hashes and declared policies, or are there mutation/TOCTOU/import-cache/symlink/path-replacement cases that can bypass it?
+          6. Are the EXP-ECC-1 through EXP-ECC-5 independent cross-checks sufficiently separate to reduce correlated false green, or are they merely duplicated logic in the same repository/process and therefore still too correlated for impact adjudication?
+          7. Can a forged favorable shared-core result bypass the cross-checks under any path not covered by the frozen V4 tests?
+          8. Do the strict positive controls sufficiently reject a block-all implementation?
+          9. For EXP-ECC-1, what live enforcement-point/process/TOCTOU evidence remains required after V4?
+          10. For EXP-ECC-2, what live executable extraction/path-discovery evidence remains required after V4?
+          11. For EXP-ECC-3, does V4 preserve provider-neutral R1/R2/R3 roles while still leaving self-asserted fixture identity unproven?
+          12. For EXP-ECC-4, what platform-issued authority/revocation/sequence evidence remains required?
+          13. For EXP-ECC-5, what cryptographic/live config, unreadable-config, DNS/rebinding evidence remains required?
+          14. Should EXP-ECC-6 and EXP-ECC-7 remain deferred pending live integration evidence?
+          15. Does the post-mechanism origin of the original V1 86-case harness still limit claims to the preregistered V4 boundary-hardening sequence?
+          16. Are there additional falsification cases required before EXP-ECC-1 through EXP-ECC-5 may enter a separate bounded governed impact-adjudication step?
+          17. Does any file in this packet accidentally imply adoption, production readiness, qualifying manual review, or authority that the evidence does not support?
+
+          ## Required output
+
+          ### A. Review evidence declaration
+          Choose exactly one:
+          - `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+          - `INDEPENDENT_MANUAL_REVIEW`
+
+          ### B. Program remediation disposition
+          Choose exactly one:
+          - `V4_REMEDIATION_SUPPORTS_BOUNDED_IMPACT_ADJUDICATION`
+          - `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+          - `INSUFFICIENT_EVIDENCE`
+
+          ### C. Per-experiment disposition
+          For EXP-ECC-1 through EXP-ECC-7 choose exactly one:
+          - `READY_FOR_BOUNDED_IMPACT_ADJUDICATION`
+          - `NARROWING_STILL_REQUIRED`
+          - `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - `REJECT_REQUIREMENT_CANDIDATE`
+          - `INSUFFICIENT_EVIDENCE`
+
+          For each experiment state:
+          - strongest supported claim;
+          - strongest unsupported claim;
+          - remaining false-green path; and
+          - next evidence boundary.
+
+          ### D. Mandatory-boundary bypass assessment
+          Determine whether any new candidate can still reach favorable candidate status through historical/unclassified/direct-call paths.
+
+          ### E. Runtime trust-manifest assessment
+          Assess exact-hash enforcement, mutation/TOCTOU/import/path risks, and fail-closed behavior.
+
+          ### F. Independent cross-check assessment
+          Assess whether V4's EXP-ECC-1..5 cross-checks materially reduce shared-core correlation and identify any remaining common-mode failures.
+
+          ### G. RED-history / preregistration assessment
+          Evaluate RED-001 → RED-002 → GREEN-003 and the original V1 post-mechanism limitation separately.
+
+          ### H. Positive-control / block-all assessment
+
+          ### I. R1/R2/R3 provider-neutral role assessment
+
+          ### J. Manual-review/provider-identity boundary assessment
+          AI/model review remains zero manual-threshold credit.
+
+          ### K. Missing falsification cases
+          List concrete new cases only; distinguish reference-mechanism cases from live-integration cases.
+
+          ### L. Impact-adjudication recommendation
+          Do not promote requirements. State only which experiments, if any, may enter a separate bounded governed impact-adjudication step.
+
+          ### M. Freeze recommendation
+          Choose exactly one:
+          - `SAFE_TO_FREEZE_V4_EXPERIMENT_EVIDENCE_FOR_BOUNDED_IMPACT_ADJUDICATION`
+          - `DO_NOT_FREEZE_V4_EXPERIMENT_EVIDENCE`
+          - `INSUFFICIENT_EVIDENCE_TO_FREEZE`
+
+          ### N. Authority limitation
+          End exactly with:
+          `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+          ---
+
+          # PACKET CONTENTS
+          EOF
+
+          append_file() {
+            local label="$1"
+            local path="$2"
+            {
+              echo
+              echo "---"
+              echo
+              echo "## BEGIN FILE: ${label}"
+              echo
+              cat "$path"
+              echo
+              echo "## END FILE: ${label}"
+              echo
+            } >> "$OUT"
+          }
+
+          append_file "V3 external AI review that triggered V4" "/tmp/v3-review.md"
+          append_file "V3 review metadata" "/tmp/v3-review-metadata.json"
+          append_file "V4 mandatory-boundary ledger" "experiments/ecc-derived/V4-MANDATORY-BOUNDARY-LEDGER.md"
+          append_file "V4 RED-001" "experiments/ecc-derived/evidence/V4-MANDATORY-BOUNDARY-RED-001.json"
+          append_file "V4 RED-002" "experiments/ecc-derived/evidence/V4-MANDATORY-BOUNDARY-RED-002.json"
+          append_file "V4 Stage-B repair-applied record" "experiments/ecc-derived/evidence/V4-STAGE-B-REPAIR-APPLIED.json"
+          append_file "V4 GREEN-003" "experiments/ecc-derived/evidence/V4-MANDATORY-BOUNDARY-GREEN-003.json"
+          append_file "Frozen V4 executable mandatory-boundary harness" "experiments/ecc_derived/test_ecc_governance_v4_mandatory_boundary.py"
+          append_file "V4 strict-only candidate boundary" "experiments/ecc_derived/ecc_candidate_boundary.py"
+          append_file "V4 shared governance core" "experiments/ecc_derived/ecc_governance.py"
+          append_file "V4 runtime trust-boundary manifest" "experiments/ecc_derived/ecc_governance_trust_manifest.json"
+          append_file "V4 deterministic repair script" ".github/scripts/apply_ecc_v4_boundary_repair.py"
+          append_file "V4 deterministic repair workflow" ".github/workflows/apply-ecc-v4-boundary-repair.yml"
+          append_file "ECC falsification workflow" ".github/workflows/ecc-derived-parallel.yml"
+          append_file "V3 omission-hardening harness" "experiments/ecc_derived/test_ecc_governance_v3_omission_hardening.py"
+          append_file "V2 remediation harness" "experiments/ecc_derived/test_ecc_governance_v2_review_remediation.py"
+          append_file "Original representative tests" "experiments/ecc_derived/test_ecc_governance.py"
+          append_file "Original 86-case full-coverage harness" "experiments/ecc_derived/test_ecc_governance_full_coverage.py"
+          append_file "Program charter" "experiments/ecc-derived/PROGRAM-CHARTER.md"
+          append_file "EXP-ECC-1" "experiments/ecc-derived/EXP-ECC-1-enforcement-execution-attestation.md"
+          append_file "EXP-ECC-2" "experiments/ecc-derived/EXP-ECC-2-declared-vs-executable-enforcement-equivalence.md"
+          append_file "EXP-ECC-3" "experiments/ecc-derived/EXP-ECC-3-qualified-harness-capability-envelope.md"
+          append_file "EXP-ECC-4" "experiments/ecc-derived/EXP-ECC-4-capability-power-surface-activation-consent.md"
+          append_file "EXP-ECC-5" "experiments/ecc-derived/EXP-ECC-5-cross-harness-mcp-config-attestation-drift.md"
+          append_file "EXP-ECC-6" "experiments/ecc-derived/EXP-ECC-6-external-review-egress-provider-binding.md"
+          append_file "EXP-ECC-7" "experiments/ecc-derived/EXP-ECC-7-learned-artifact-proposal-promotion-boundary.md"
+          append_file "External evidence semantic validation standard" "standards/external-evidence-semantic-validation.md"
+          append_file "Conversational drift/contamination standard" "standards/conversational-drift-contamination-control.md"
+          append_file "V18 baseline hardening" "standards/conversation-drift-parent-child-impact-control-v18-atomicity-lineage-hardening.md"
+
+          sha256sum "$OUT" | tee "$RUNNER_TEMP/packet.sha256"
+          wc -c "$OUT"
+          mkdir -p packet-output
+          cp "$OUT" packet-output/
+          cp "$RUNNER_TEMP/packet.sha256" packet-output/
+
+      - name: Upload packet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecc-derived-v4-mandatory-boundary-review-packet
+          path: packet-output/
+          if-no-files-found: error
+          retention-days: 30
