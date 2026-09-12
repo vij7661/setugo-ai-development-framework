@@ -1,0 +1,31 @@
+{
+  "evidence_id": "V4-MANDATORY-BOUNDARY-GREEN-003",
+  "candidate_sha": "ae01a6d96d5b385e9747b43e00fc9b085f7552de",
+  "repair_generated_sha": "40bf5f64971e8e4587d846f69aa86ccc734b6b8b",
+  "frozen_v4_assertion_commit": "08a3ab7c4809722d6e149895e3d79c34554be93d",
+  "workflow_run_id": 34691848982,
+  "job_id": 103548379655,
+  "result": "GREEN",
+  "tests_run": 171,
+  "failures": 0,
+  "errors": 0,
+  "prior_153_suite": "PASS",
+  "v4_assertions": "18_OF_18_PASS",
+  "bounded_claims": [
+    "LEGACY_RESULTS_EXPLICITLY_HISTORICAL_REFERENCE",
+    "STRICT_ONLY_CANDIDATE_ENTRYPOINTS_NO_CALLER_MODE_SWITCH",
+    "CANDIDATE_GATE_REJECTS_HISTORICAL_AND_UNCLASSIFIED_RESULTS",
+    "RUNTIME_TRUST_MANIFEST_ENFORCED",
+    "EXP_ECC_1_TO_5_SHARED_CORE_FAVORABLE_RESULTS_INDEPENDENTLY_CROSSCHECKED",
+    "STRICT_PATH_POSITIVE_CONTROLS_PASS"
+  ],
+  "not_proven": [
+    "LIVE_PLATFORM_ATTESTATION",
+    "PRODUCTION_INTEGRATION",
+    "QUALIFYING_MANUAL_REVIEW",
+    "EXP_ECC_6_LIVE_PROVIDER_OR_MANUAL_IDENTITY",
+    "EXP_ECC_7_LIVE_CLAIM_DEPENDENCY_RETRACTION_PIPELINE"
+  ],
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
