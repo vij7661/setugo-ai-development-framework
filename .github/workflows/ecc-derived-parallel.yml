@@ -8,6 +8,7 @@ on:
       - experiments/ecc-derived-parallel-v3-omission-hardening
       - experiments/ecc-derived-parallel-v4-mandatory-boundary
       - experiments/ecc-derived-parallel-v5-closed-boundary
+      - experiments/ecc-derived-parallel-v6-eligibility-provenance
     paths:
       - 'experiments/ecc-derived/**'
       - 'experiments/ecc_derived/**'
@@ -39,7 +40,9 @@ jobs:
       - name: Run ECC-derived falsification suite
         shell: bash
         run: |
-          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v5-closed-boundary" ]]; then
+          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v6-eligibility-provenance" ]]; then
+            python experiments/ecc_derived/run_v6_suite.py
+          elif [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v5-closed-boundary" ]]; then
             python experiments/ecc_derived/run_v5_suite.py
           else
             python -m unittest discover -v -s experiments/ecc_derived -p 'test_*.py'
