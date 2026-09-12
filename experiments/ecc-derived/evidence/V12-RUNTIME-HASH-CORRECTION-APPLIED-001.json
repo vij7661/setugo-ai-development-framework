@@ -1,0 +1,15 @@
+{
+  "record_type": "ECC_DERIVED_V12_RUNTIME_HASH_CORRECTION_APPLIED",
+  "correction_input_sha": "37aa49d37f71c3c5ddc4412dd4a40fa04a26b7ab",
+  "correction_generated_sha": "bd15d1dba0d3ebc068f048aa7622be388314650e",
+  "correction_workflow_run_id": 34699495930,
+  "correction_workflow_job_id": 103568617987,
+  "previous_reference_runtime_hash": "3ff864bbc1c50cac3600e483607557352de0220a1928216d8ded81cb43d318ce",
+  "corrected_reference_runtime_hash": "b49cd197dd367ccb7811a87c954e24fa0d003862c172dad228ef451682e823d9",
+  "corrected_manifest_sha256": "d89016612c39c9dc7b198f2ad6502854ade9e3e3b15f4d6565eaa4c8fadb0193",
+  "logic_change": false,
+  "v12_assertions_modified": false,
+  "candidate_mechanism_logic_modified_by_correction": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the unchanged V12 falsification suite after manifest runtime-hash correction."
+}
