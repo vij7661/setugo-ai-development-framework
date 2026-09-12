@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "artifact": "V24_IMPLEMENTATION_TRACEABILITY",
+  "status": "IMPLEMENTATION_PLANNING_ONLY",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "repository": "vij7661/setugo-ai-development-framework",
+  "frozen_v24_candidate": {
+    "commit": "db9e4b349fd26e128f4486878a4af64929000a7c",
+    "tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75"
+  },
+  "v23_runtime_baseline": {
+    "commit": "a0c780b516b83ff8a1d0cdfd3724545d7dd6668b",
+    "tree": "fafc42dcf7d2b234ef0219ccfbd9edc4d4541567"
+  },
+  "implementation_branch": "implementation/v24-i0-baseline-traceability",
+  "rules": {
+    "reviewer_suggestions_are_non_authoritative": true,
+    "design_change_requires_successor_candidate": true,
+    "missing_evidence_must_not_be_inferred": true,
+    "runtime_code_changes_allowed_in_i0": false,
+    "testing_falsification_reviews_manual_only": true,
+    "no_reviewer_api_for_testing_falsification": true
+  },
+  "control_families": [
+    {
+      "family_id": "V24-F01-NORMATIVE-CONTROL-FOUNDATION",
+      "planned_slice": "V24-I1",
+      "v24_controls": ["P24-16", "P24-R06", "P24-R07", "P24-F04"],
+      "wdpc_cases": ["WDPC-446", "WDPC-454", "WDPC-469", "WDPC-481", "WDPC-482", "WDPC-490", "WDPC-491", "WDPC-495"],
+      "existing_surfaces": [
+        "governance-runtime/validate_runtime.py",
+        "governance-runtime/review_protocol.py",
+        "standards/*",
+        "experiments/governed-platform/*"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": [
+        "NormativeArtifactManifest",
+        "NormativeControlCatalog",
+        "ControlDescriptor",
+        "LegacyControlContinuityManifest"
+      ],
+      "regression_surface": [
+        "governance-runtime/test_review_protocol.py",
+        "governance-runtime/test_review_classification.py",
+        "governance-runtime/test_review_semantics.py"
+      ],
+      "implementation_gate": "machine-readable catalog must not duplicate divergent policy logic"
+    },
+    {
+      "family_id": "V24-F02-AUTHORITY-UNIVERSE-FUNCTIONAL-CLOSURE",
+      "planned_slice": "V24-I2",
+      "v24_controls": ["P24-03", "P24-12", "P24-F01", "P24-F02", "P24-F03", "P24-F09"],
+      "wdpc_cases": ["WDPC-441", "WDPC-448", "WDPC-450", "WDPC-453", "WDPC-487", "WDPC-488", "WDPC-489", "WDPC-493", "WDPC-496", "WDPC-497"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/integrated_governed_mvp_execution_gateway.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_repository_gateway.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": [
+        "AuthoritySinkRegistry",
+        "ConsequentialEffectorRegistry",
+        "AuthorityDependencyGraph",
+        "AuthorityEffectPathAudit",
+        "ControlPlaneConformanceRecord"
+      ],
+      "regression_surface": [
+        "experiments/governed-platform/governance/test_integrated_governed_mvp.py",
+        "experiments/governed-platform/governance/test_integrated_governed_mvp_slice1_to_slice5.py",
+        "experiments/governed-platform/governance/test_integrated_governed_mvp_slice10_external_side_effect.py"
+      ],
+      "implementation_gate": "functional effect classification must catch unnamed/renamed authority paths"
+    },
+    {
+      "family_id": "V24-F03-EFFECTIVE-CONTROL-CAPABILITY-ATTESTATION",
+      "planned_slice": "V24-I3",
+      "v24_controls": ["P24-10", "P24-11", "P24-13", "P24-R08"],
+      "wdpc_cases": ["WDPC-432", "WDPC-436", "WDPC-437", "WDPC-451", "WDPC-452", "WDPC-462", "WDPC-466", "WDPC-486", "WDPC-494"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/capability_guard.py",
+        "experiments/governed-platform/governance/authority_binding.py",
+        "experiments/governed-platform/governance/qualification_guard.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_credential_lease.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": [
+        "EffectiveControlSourceRegistry",
+        "EffectiveControlRelationshipRegistry",
+        "EffectiveControlClosure",
+        "AuthorityCapabilityInventory",
+        "CapabilityInventoryEntryAttestation",
+        "IndependentDeploymentMeasurementRecord"
+      ],
+      "missing_evidence": [
+        "production cloud/root control sources",
+        "HSM/KMS control domains",
+        "secret-store/recovery authority",
+        "independent measurement sources"
+      ],
+      "implementation_gate": "silence is not negative relationship evidence"
+    },
+    {
+      "family_id": "V24-F04-COMPLETENESS-BOOTSTRAP",
+      "planned_slice": "V24-I4",
+      "v24_controls": ["P24-04", "P24-05", "P24-06", "P24-07", "P24-20", "P24-21", "P24-B01", "P24-B02", "P24-B03", "P24-B04", "P24-B05", "P24-B06", "P24-B07", "P24-B08", "P24-B09", "P24-B10", "P24-R03", "P24-R12"],
+      "wdpc_cases": ["WDPC-442", "WDPC-443", "WDPC-444", "WDPC-445", "WDPC-458", "WDPC-459", "WDPC-468", "WDPC-473", "WDPC-474", "WDPC-480", "WDPC-497", "WDPC-498", "WDPC-499", "WDPC-500", "WDPC-501", "WDPC-502", "WDPC-503", "WDPC-504", "WDPC-506"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/qualification_guard.py",
+        "governance-runtime/validate_runtime.py",
+        "experiments/governed-platform/governance/authoritative_state_ledger.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": [
+        "CompletenessQualificationRecord",
+        "CompletenessQualificationLedger",
+        "IndependentUniverseDerivationAuthority",
+        "UniverseDerivationDecisionRecord",
+        "BootstrapCompletenessAuthoritySet",
+        "GovernanceGenerationGenesisRecord"
+      ],
+      "missing_evidence": [
+        "actual IUDA identities",
+        "bootstrap authority identities",
+        "bootstrap ceremony evidence"
+      ],
+      "implementation_gate": "completeness machinery cannot self-qualify or self-activate"
+    },
+    {
+      "family_id": "V24-F05-COMPILED-ENDPOINT-PROOF",
+      "planned_slice": "V24-I5",
+      "v24_controls": ["P24-17", "P24-18"],
+      "wdpc_cases": ["WDPC-433", "WDPC-447", "WDPC-453", "WDPC-463", "WDPC-469"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/integrated_governed_mvp.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+        "governance-runtime/platform_candidate_review.py",
+        "governance-runtime/platform_candidate_review_v2.py",
+        "governance-runtime/provider_review_telemetry.py",
+        "governance-runtime/validate_runtime.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": ["AuthorityEndpointPrecedenceTable", "ProofViewCompletenessManifest"],
+      "implementation_gate": "one authoritative compiler/table; gateway-local logic may consume but not redefine precedence"
+    },
+    {
+      "family_id": "V24-F06-DURABLE-AUTHORITY-RECORDS-WITNESS",
+      "planned_slice": "V24-I6",
+      "v24_controls": ["P24-02", "P24-14", "P24-15", "P24-R01", "P24-R02", "P24-R09", "P24-R10", "P24-R14"],
+      "wdpc_cases": ["WDPC-440", "WDPC-449", "WDPC-456", "WDPC-460", "WDPC-467", "WDPC-470", "WDPC-471", "WDPC-477", "WDPC-479", "WDPC-485", "WDPC-505"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/authoritative_state_ledger.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_execution_gateway.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": [
+        "AuthorityAdmissionLedger",
+        "AdmissionPerimeterEnforcementRecord",
+        "AuthorityKernelDecisionLedger",
+        "AuthorityKernelDecisionRecord",
+        "AuthorityApplicationRecord",
+        "IndependentWitnessIntegration"
+      ],
+      "missing_evidence": ["external witness identity/control-domain separation", "HSM/KMS signer/control facts", "production per-sink IAM enforcement"],
+      "implementation_gate": "apply must revalidate admission/completeness and bind exact decision to exact sink/post-state"
+    },
+    {
+      "family_id": "V24-F07-AGGREGATE-AUTHORITY-BUDGET",
+      "planned_slice": "V24-I7",
+      "v24_controls": ["P24-08", "P24-09", "P24-R04", "P24-R05"],
+      "wdpc_cases": ["WDPC-431", "WDPC-434", "WDPC-439", "WDPC-461", "WDPC-464"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/authoritative_state_ledger.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": ["AggregateAuthorityBudgetLedger", "AggregateBudgetTransactionId", "AggregationDimensionCatalog"],
+      "missing_evidence": ["live aggregation state", "final persistence topology"],
+      "implementation_gate": "do not assume one SQLite database is sufficient before all keys/sinks are mapped"
+    },
+    {
+      "family_id": "V24-F08-GENERATION-MIGRATION-FENCING",
+      "planned_slice": "V24-I8",
+      "v24_controls": ["P24-19", "P24-R11"],
+      "wdpc_cases": ["WDPC-435", "WDPC-438", "WDPC-455", "WDPC-465", "WDPC-472", "WDPC-475"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/authoritative_state_ledger.py",
+        "experiments/governed-platform/governance/authoritative_state_ledger_v2.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_credential_lease.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py"
+      ],
+      "implementation_class": "MIXED_EXTEND_AND_NEW",
+      "new_surfaces": ["GenerationAuthorityObjectInventory", "LegacyPredecessorCompletenessQualification", "GenerationReadGuard", "GenerationFence"],
+      "missing_evidence": ["live cache/replica inventory", "migration dispositions"],
+      "implementation_gate": "repository absence of named caches/replicas does not prove production absence"
+    },
+    {
+      "family_id": "V24-F09-APPLY-TIME-INTEGRATION",
+      "planned_slice": "V24-I9",
+      "v24_controls": ["P24-22", "P24-23", "P24-R13", "P24-F05", "P24-F06", "P24-F07", "P24-F08"],
+      "wdpc_cases": ["WDPC-456", "WDPC-471", "WDPC-472", "WDPC-473", "WDPC-474", "WDPC-475", "WDPC-476", "WDPC-477", "WDPC-478", "WDPC-479", "WDPC-483", "WDPC-484"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/integrated_governed_mvp.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_execution_gateway.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_repository_gateway.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_credential_lease.py",
+        "experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py",
+        "governance-runtime/validate_runtime.py"
+      ],
+      "implementation_class": "EXTEND_EXISTING",
+      "implementation_gate": "all prerequisite registries/ledgers/compilers must exist before sink integration"
+    },
+    {
+      "family_id": "V24-F10-REVIEW-PROOF-AUDIT",
+      "planned_slice": "V24-I10",
+      "v24_controls": ["P24-18", "P24-24", "P24-25"],
+      "wdpc_cases": ["WDPC-447", "WDPC-469", "WDPC-481", "WDPC-482"],
+      "existing_surfaces": [
+        "governance-runtime/review_protocol.py",
+        "governance-runtime/platform_candidate_review.py",
+        "governance-runtime/platform_candidate_review_v2.py",
+        "governance-runtime/provider_review_telemetry.py",
+        "governance-runtime/validate_runtime.py"
+      ],
+      "implementation_class": "EXTEND_EXISTING",
+      "implementation_gate": "review-facing applicability cannot be producer-selected"
+    },
+    {
+      "family_id": "V24-F11-FALSIFICATION-REGRESSION",
+      "planned_slice": "V24-I11",
+      "v24_controls": ["P24-24", "P24-25"],
+      "wdpc_cases": ["WDPC-431..WDPC-506"],
+      "existing_surfaces": [
+        "experiments/governed-platform/governance/test_integrated_governed_mvp*.py",
+        "experiments/governed-platform/test_slice5_authoritative_state_ledger*.py",
+        "governance-runtime/test_review_*.py",
+        "governance-runtime/test_platform_candidate_review*.py",
+        ".github/workflows/integrated-governed-mvp-slice*.yml"
+      ],
+      "implementation_class": "EXTEND_TEST_EVIDENCE",
+      "implementation_gate": "manual independent review only in TESTING_FALSIFICATION; no reviewer API qualification"
+    }
+  ]
+}
