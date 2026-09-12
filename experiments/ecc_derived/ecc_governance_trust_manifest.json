@@ -1,8 +1,8 @@
 {
-  "record_type": "ECC_GOVERNANCE_SHARED_MODULE_TRUST_BOUNDARY_MANIFEST",
+  "record_type": "ECC_GOVERNANCE_V4_RUNTIME_TRUST_BOUNDARY_MANIFEST",
   "module_path": "experiments/ecc_derived/ecc_governance.py",
-  "module_sha256": "5609f0b7ba51246f6da017a3a47434be1e521ee25b6bb63e84897e385e26820d",
-  "module_git_blob_sha": "c03d1a45ef9a312c27ab975cbb7fce626edbf0fa",
+  "module_sha256": "298d36a2e5d513fd1c17624fa0dee0e9b14c6804afbf35845185403eea5c59ae",
+  "module_git_blob_sha": "16689d1e916bf31ba070499e0412e05b37ad8e05",
   "covers": [
     "EXP-ECC-1",
     "EXP-ECC-2",
@@ -15,5 +15,17 @@
   "legacy_path_policy": "HISTORICAL_REFERENCE_ONLY",
   "candidate_path_policy": "MANDATORY_STRICT_EVALUATION",
   "manual_review_threshold_contribution": 0,
-  "authority_effect": "NONE_EVIDENCE_ONLY"
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_boundary_module_path": "experiments/ecc_derived/ecc_candidate_boundary.py",
+  "candidate_boundary_module_sha256": "1453c063d180cb0e897b678b871cfaa185c597159dac190456aa0a66617f82f8",
+  "candidate_boundary_module_git_blob_sha": "a84ee40f9c143d6d25d92edf1509727f6efc8d21",
+  "candidate_boundary_policy": "STRICT_ONLY_NO_CALLER_MODE_SWITCH",
+  "historical_result_class": "HISTORICAL_REFERENCE",
+  "independent_crosscheck_covers": [
+    "EXP-ECC-1",
+    "EXP-ECC-2",
+    "EXP-ECC-3",
+    "EXP-ECC-4",
+    "EXP-ECC-5"
+  ]
 }

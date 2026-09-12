@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 
@@ -22,6 +23,7 @@ _CAPABILITY_RANK = {
 }
 
 _REQUIREMENT_CANDIDATE = "REQUIREMENT_CANDIDATE"
+_HISTORICAL_REFERENCE = "HISTORICAL_REFERENCE"
 
 
 def _sha256_json(value):
@@ -751,3 +753,37 @@ def authorize_learning_promotion(proposal, *, requirement_candidate=False):
         "advisory_allowed": True,
         "scope_preserved": scope_preserved,
     }
+
+# V4_HISTORICAL_RESULT_CLASSIFICATION_BOUNDARY
+# The historical compatibility functions remain replayable, but every result is
+# explicitly typed. Only the separate ecc_candidate_boundary module is eligible
+# to produce requirement-candidate evidence for new candidate evaluation.
+def _classify_public_evaluation_result(fn):
+    @functools.wraps(fn)
+    def wrapped(*args, **kwargs):
+        result = fn(*args, **kwargs)
+        if not isinstance(result, dict):
+            return result
+        if "evaluation_class" in result:
+            return result
+        classified = dict(result)
+        classified["evaluation_class"] = (
+            _REQUIREMENT_CANDIDATE
+            if kwargs.get("requirement_candidate", False)
+            else _HISTORICAL_REFERENCE
+        )
+        return classified
+
+    return wrapped
+
+
+for _public_name in (
+    "assess_control_execution",
+    "check_declared_executable_equivalence",
+    "qualify_role_binding",
+    "authorize_power_activation",
+    "check_tool_configuration",
+    "classify_review_binding",
+    "authorize_learning_promotion",
+):
+    globals()[_public_name] = _classify_public_evaluation_result(globals()[_public_name])
