@@ -1,0 +1,246 @@
+name: Build ECC External Review Packet
+
+on:
+  push:
+    branches:
+      - review/ecc-derived-external-packet-v1
+    paths:
+      - '.github/workflows/build-ecc-external-review-packet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packet branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Verify frozen experiment candidate ancestry
+        run: |
+          test "$(git rev-parse HEAD^)" = "c45994259de99565faab54cf616058e218628846"
+          echo "FROZEN_EXPERIMENT_CANDIDATE=c45994259de99565faab54cf616058e218628846"
+          echo "PACKET_BUILDER_HEAD=$(git rev-parse HEAD)"
+
+      - name: Fetch frozen ECC audit evidence
+        run: |
+          git fetch origin research/ecc-frozen-audit-v1 --depth=1
+          git show FETCH_HEAD:research/ecc-frozen-audit-v1.md > /tmp/ecc-audit.md
+
+      - name: Build self-contained packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/ECC_Derived_Seven_Experiment_External_Review_Packet.md"
+          cat > "$OUT" <<'EOF'
+          # ECC-Derived Seven-Experiment External Review Packet
+
+          **Packet class:** `EXTERNAL_PROGRAM_REVIEW_PACKET`
+          **Authority effect:** `NONE_EVIDENCE_ONLY`
+          **Frozen experiment-family candidate:** `c45994259de99565faab54cf616058e218628846`
+          **Governed-platform baseline:** `290ac043959f30db12c9ae16826eda1dd5bcbdfb`
+          **ECC research subject:** `affaan-m/ECC@b6ddd13a9f6ec2ccf55bc1773d52391c5afc05ab`
+          **ECC audit evidence commit:** `b8dcc17805aa984ae05db74fdd845d9c6f473fd8`
+          **Reference-mechanism repair candidate:** `e10ee2dfb9f5c101615b897ceb569b06e7958f57`
+          **Terminal closure head:** `c45994259de99565faab54cf616058e218628846`
+
+          ## Reviewer isolation and contamination rule
+
+          Perform a fresh review of this packet only. Do not use prior reviewer findings, dispositions, agreement signals, or adjudication conclusions.
+
+          Before substantive review, choose exactly one:
+
+          - `CLEAN_PACKET_ONLY_CONTEXT`
+          - `REVIEW_CONTAMINATED_PRIOR_REVIEW_CONTEXT`
+
+          If concrete prior reviewer findings or outcomes are present in your context and cannot be excluded, return `REVIEW_CONTAMINATED_PRIOR_REVIEW_CONTEXT` and end with `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`.
+
+          ## Evidence declaration
+
+          Declare exactly one:
+
+          - `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+          - `INDEPENDENT_MANUAL_REVIEW`
+
+          Use `INDEPENDENT_MANUAL_REVIEW` only if a human personally performs the substantive review without delegating the analysis to an AI/model/API. An AI response manually transported by a human remains `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY` and contributes zero to any manual-review threshold.
+
+          ## Review purpose
+
+          Seven ECC-derived candidate requirements were preregistered as isolated child experiments, then falsified against deterministic reference mechanisms. Your task is to review the **complete family after execution**, not to assume the green result proves production integration.
+
+          For each EXP-ECC-1 through EXP-ECC-7, decide exactly one impact recommendation:
+
+          - `ADOPT_REQUIREMENT_CANDIDATE`
+          - `NARROW_REQUIREMENT_CANDIDATE`
+          - `REJECT_REQUIREMENT_CANDIDATE`
+          - `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - `INSUFFICIENT_EVIDENCE`
+
+          These recommendations are evidence only. They do not promote requirements automatically.
+
+          ## Scientific history supplied in this packet
+
+          The history must be assessed as a sequence, not as green-only evidence:
+
+          1. **Construction RED** — test-first representative harness at `5c322b6aaee03ee442352ee201e1c2574b575db1`; run `34688772054`, job `103540276688`; exact checkout verified; failed because the mechanism module was absent (`ModuleNotFoundError: No module named 'ecc_governance'`).
+          2. **Intermediate representative GREEN** — reference mechanism at `5448088266d98e22364462e757770fa9954db826`; run `34688857128`, job `103540492136`; exact checkout verified; `24/24` representative tests passed. This result was explicitly recorded as nonterminal.
+          3. **Full-coverage expansion RED** — all 86 preregistered named cases wired into execution at `3306c41ff576e018db561d74480bcb1b3354d23c`; run `34689040136`, job `103540967038`; exact checkout verified; `110` total tests executed (24 representative + 86 named), with `28 failures + 14 errors`.
+          4. **Full-coverage repair GREEN** — narrow mechanism repair at `e10ee2dfb9f5c101615b897ceb569b06e7958f57`; run `34689107571`, job `103541143491`; exact checkout verified; `110/110 PASS`.
+          5. **Terminal closure GREEN** — exact terminal ledger head `c45994259de99565faab54cf616058e218628846`; run `34689192630`, job `103541361274`; exact checkout verified; `110/110 PASS` again.
+
+          Important methodology fact: the **experiment specifications and all 86 named cases were preregistered before the first mechanism implementation**, but only 24 representative cases were executable in the first test harness. The full executable 86-case harness was added after the first mechanism existed and before the full-coverage repair; it immediately produced RED-002. Assess whether this sequencing materially limits any conclusion.
+
+          ## Nonclaims that must remain intact
+
+          The seven terminal `BOUNDED_PASS` dispositions mean only that the deterministic reference mechanism survived the committed fixtures. They do **not** prove:
+
+          - integration into V18 or the production runtime;
+          - live execution of third-party hooks/harness controls;
+          - cryptographic provider identity;
+          - qualified real external reviewer API transport;
+          - independent human/manual review;
+          - automatic promotion of any ECC-derived requirement;
+          - merge/release/deploy/completion/terminal authority.
+
+          ## Mandatory adversarial questions
+
+          1. Do the seven experiment hypotheses represent genuinely distinct trust boundaries, or did the shared reference module create hidden coupling/false confidence?
+          2. Are all negative cases testing the intended mechanism rather than merely matching status strings?
+          3. Are the positive controls sufficient to detect block-all implementations?
+          4. Does EXP-ECC-1 prove anything beyond record validation, and what live enforcement evidence would still be required?
+          5. Does EXP-ECC-2 define declared-vs-executable semantic equivalence strongly enough, especially for implicit behavior and alternate paths?
+          6. Is EXP-ECC-3's capability ranking (`NATIVE > ADAPTER > INSTRUCTION > REFERENCE`) always valid, or must some capabilities be incomparable rather than ordinal?
+          7. Does EXP-ECC-3 correctly preserve the platform rule that R1/R2/R3 are configurable roles and not hardcoded providers/models?
+          8. Does EXP-ECC-4 distinguish user consent from platform authority strongly enough, and can consent be mistaken for authorization?
+          9. Can EXP-ECC-5's canonical/semantic digests collide, omit material runtime state, or create stale qualification blind spots?
+          10. Does EXP-ECC-6 preserve the current manual-only testing rule and avoid laundering AI feedback into manual review?
+          11. Does EXP-ECC-6 overclaim provider independence when gateway or serving-provider identity is not cryptographically authenticated?
+          12. Does EXP-ECC-7 correctly make confidence/repetition/consensus advisory only and preserve retraction/derived-claim reassessment semantics?
+          13. Did adding the full executable case set after the first mechanism create unacceptable post-hoc flexibility despite the cases being preregistered in prose beforehand?
+          14. Are there missing adversarial fixtures that could allow a reference mechanism to pass while a realistic integrated mechanism fails?
+          15. Which of the seven should be promoted to platform requirements now, and which should wait for integration/live evidence?
+          16. Are any proposed requirements already completely covered by the baseline platform, making promotion duplicative or harmful?
+          17. Does any result improperly infer production readiness from deterministic in-memory/reference fixtures?
+          18. Are the preserved REDs and repair history sufficient to prevent a green-only narrative?
+
+          ## Required output
+
+          ### A. Review-context contamination check
+          `CLEAN_PACKET_ONLY_CONTEXT` or `REVIEW_CONTAMINATED_PRIOR_REVIEW_CONTEXT`
+
+          ### B. Review-evidence declaration
+          `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY` or `INDEPENDENT_MANUAL_REVIEW`
+
+          ### C. Program-level disposition
+          Choose exactly one:
+          - `PROGRAM_EVIDENCE_SUPPORTS_IMPACT_ADJUDICATION`
+          - `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+          - `INSUFFICIENT_EVIDENCE`
+
+          ### D. Per-experiment assessment
+          For each EXP-ECC-1…7 include:
+          - impact recommendation from the five allowed values;
+          - strongest supported claim;
+          - strongest unsupported/overclaimed claim;
+          - concrete false-green path, if any;
+          - missing evidence or test, if any;
+          - narrow required change, if any.
+
+          ### E. Cross-experiment coupling / independence assessment
+
+          ### F. Test-design and preregistration assessment
+
+          ### G. RED/repair-history assessment
+
+          ### H. Positive-control / overblocking assessment
+
+          ### I. Production-integration gap assessment
+
+          ### J. R1/R2/R3 provider-neutral role-binding assessment
+
+          ### K. External-review/manual-evidence boundary assessment
+
+          ### L. Missing falsification cases
+
+          ### M. Impact-adjudication recommendation
+          State which requirements, if any, are ready to enter a separate governed impact-adjudication step. Do not promote them yourself.
+
+          ### N. Freeze recommendation
+          Choose exactly one:
+          - `SAFE_TO_FREEZE_EXPERIMENT_EVIDENCE_FOR_IMPACT_ADJUDICATION`
+          - `DO_NOT_FREEZE_EXPERIMENT_EVIDENCE`
+          - `INSUFFICIENT_EVIDENCE_TO_FREEZE`
+
+          ### O. Authority limitation
+
+          End exactly with:
+
+          `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+          ---
+
+          # PACKET CONTENTS
+          EOF
+
+          append_file() {
+            local label="$1"
+            local path="$2"
+            {
+              echo
+              echo "---"
+              echo
+              echo "## BEGIN FILE: ${label}"
+              echo
+              cat "$path"
+              echo
+              echo "## END FILE: ${label}"
+              echo
+            } >> "$OUT"
+          }
+
+          append_file "ECC frozen audit evidence" "/tmp/ecc-audit.md"
+          append_file "experiments/ecc-derived/PROGRAM-CHARTER.md" "experiments/ecc-derived/PROGRAM-CHARTER.md"
+          append_file "experiments/ecc-derived/EXP-ECC-1-enforcement-execution-attestation.md" "experiments/ecc-derived/EXP-ECC-1-enforcement-execution-attestation.md"
+          append_file "experiments/ecc-derived/EXP-ECC-2-declared-vs-executable-enforcement-equivalence.md" "experiments/ecc-derived/EXP-ECC-2-declared-vs-executable-enforcement-equivalence.md"
+          append_file "experiments/ecc-derived/EXP-ECC-3-qualified-harness-capability-envelope.md" "experiments/ecc-derived/EXP-ECC-3-qualified-harness-capability-envelope.md"
+          append_file "experiments/ecc-derived/EXP-ECC-4-capability-power-surface-activation-consent.md" "experiments/ecc-derived/EXP-ECC-4-capability-power-surface-activation-consent.md"
+          append_file "experiments/ecc-derived/EXP-ECC-5-cross-harness-mcp-config-attestation-drift.md" "experiments/ecc-derived/EXP-ECC-5-cross-harness-mcp-config-attestation-drift.md"
+          append_file "experiments/ecc-derived/EXP-ECC-6-external-review-egress-provider-binding.md" "experiments/ecc-derived/EXP-ECC-6-external-review-egress-provider-binding.md"
+          append_file "experiments/ecc-derived/EXP-ECC-7-learned-artifact-proposal-promotion-boundary.md" "experiments/ecc-derived/EXP-ECC-7-learned-artifact-proposal-promotion-boundary.md"
+          append_file "experiments/ecc-derived/FULL-COVERAGE-COMPLETION.md" "experiments/ecc-derived/FULL-COVERAGE-COMPLETION.md"
+          append_file "experiments/ecc-derived/RESULT-LEDGER.md" "experiments/ecc-derived/RESULT-LEDGER.md"
+          append_file "experiments/ecc-derived/evidence/CONSTRUCTION-RED-001.json" "experiments/ecc-derived/evidence/CONSTRUCTION-RED-001.json"
+          append_file "experiments/ecc-derived/evidence/REFERENCE-GREEN-001.json" "experiments/ecc-derived/evidence/REFERENCE-GREEN-001.json"
+          append_file "experiments/ecc-derived/evidence/FULL-COVERAGE-RED-002.json" "experiments/ecc-derived/evidence/FULL-COVERAGE-RED-002.json"
+          append_file "experiments/ecc-derived/evidence/FULL-COVERAGE-GREEN-003.json" "experiments/ecc-derived/evidence/FULL-COVERAGE-GREEN-003.json"
+          append_file "experiments/ecc-derived/evidence/CHILD-TERMINAL-RESULTS-004.json" "experiments/ecc-derived/evidence/CHILD-TERMINAL-RESULTS-004.json"
+          append_file "experiments/ecc_derived/ecc_governance.py" "experiments/ecc_derived/ecc_governance.py"
+          append_file "experiments/ecc_derived/test_ecc_governance.py" "experiments/ecc_derived/test_ecc_governance.py"
+          append_file "experiments/ecc_derived/test_ecc_governance_full_coverage.py" "experiments/ecc_derived/test_ecc_governance_full_coverage.py"
+          append_file ".github/workflows/ecc-derived-parallel.yml" ".github/workflows/ecc-derived-parallel.yml"
+          append_file "standards/conversation-drift-parent-child-impact-control-v18-atomicity-lineage-hardening.md" "standards/conversation-drift-parent-child-impact-control-v18-atomicity-lineage-hardening.md"
+          append_file "standards/conversation-continuity-and-resumption-control.md" "standards/conversation-continuity-and-resumption-control.md"
+          append_file "standards/conversational-drift-contamination-control.md" "standards/conversational-drift-contamination-control.md"
+          append_file "standards/external-evidence-semantic-validation.md" "standards/external-evidence-semantic-validation.md"
+          append_file "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md" "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE4_ISOLATED_TOOL_RUNNER_GATEWAY_CONTRACT.md"
+          append_file "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE10_EXTERNAL_SIDE_EFFECT_GATEWAY_CONTRACT.md" "experiments/governed-platform/INTEGRATED_GOVERNED_MVP_SLICE10_EXTERNAL_SIDE_EFFECT_GATEWAY_CONTRACT.md"
+          append_file "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md" "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md"
+          append_file "experiments/governed-platform/governance/capability_guard.py" "experiments/governed-platform/governance/capability_guard.py"
+
+          sha256sum "$OUT" | tee "$RUNNER_TEMP/packet.sha256"
+          wc -c "$OUT"
+          mkdir -p packet-output
+          cp "$OUT" packet-output/
+          cp "$RUNNER_TEMP/packet.sha256" packet-output/
+
+      - name: Upload packet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecc-derived-external-review-packet-v1
+          path: packet-output/
+          if-no-files-found: error
+          retention-days: 30
