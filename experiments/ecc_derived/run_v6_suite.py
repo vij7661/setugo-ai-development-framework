@@ -33,9 +33,9 @@ def main() -> int:
 
     v5_loaded = loader.loadTestsFromName(V5_MODULE)
     for test in flatten(v5_loaded):
-        short_id = test.id().split(".", 1)[-1]
-        if short_id in SUPERSEDED_TEST_IDS:
-            print(f"SUPERSEDED_TEST={short_id} REASON={SUPERSEDED_TEST_IDS[short_id]}")
+        full_id = test.id()
+        if full_id in SUPERSEDED_TEST_IDS:
+            print(f"SUPERSEDED_TEST={full_id} REASON={SUPERSEDED_TEST_IDS[full_id]}")
             continue
         suite.addTest(test)
 
