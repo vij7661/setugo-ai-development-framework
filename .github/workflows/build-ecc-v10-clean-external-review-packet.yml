@@ -1,0 +1,225 @@
+name: Build ECC V10 Clean External Review Packet
+
+on:
+  push:
+    branches:
+      - review/ecc-derived-v10-clean-external-packet
+    paths:
+      - '.github/workflows/build-ecc-v10-clean-external-review-packet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packaging branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify packaging-only diff from frozen V10 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE=63617dd1f01f0063b5534de128d5afce17f169be
+          EXPECTED=.github/workflows/build-ecc-v10-clean-external-review-packet.yml
+          git cat-file -e "$CANDIDATE^{commit}"
+          mapfile -t CHANGED < <(git diff --name-only "$CANDIDATE"..HEAD)
+          printf 'PACKAGING_HEAD=%s\n' "$(git rev-parse HEAD)"
+          printf 'CANDIDATE_SHA=%s\n' "$CANDIDATE"
+          printf 'CANDIDATE_TREE=%s\n' "$(git rev-parse "$CANDIDATE^{tree}")"
+          printf 'CHANGED=%s\n' "${CHANGED[*]}"
+          [[ ${#CHANGED[@]} -eq 1 ]]
+          [[ "${CHANGED[0]}" == "$EXPECTED" ]]
+
+      - name: Execute frozen V10 suite for packet evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/ecc_derived/run_v10_suite.py > /tmp/ecc_v10_test_transcript.txt 2>&1
+          cat /tmp/ecc_v10_test_transcript.txt
+
+      - name: Build self-contained clean review packet
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+          from pathlib import Path
+          import glob, hashlib, json, subprocess
+
+          ROOT = Path.cwd()
+          CANDIDATE = '63617dd1f01f0063b5534de128d5afce17f169be'
+          CANDIDATE_TREE = subprocess.check_output(['git','rev-parse',f'{CANDIDATE}^{{tree}}'], text=True).strip()
+          PACKAGING_HEAD = subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip()
+          OUT = ROOT / 'ECC_Derived_V10_Clean_External_Review_Packet.md'
+
+          patterns = [
+              'experiments/ecc-derived/PROGRAM-CHARTER.md',
+              'experiments/ecc-derived/FULL-COVERAGE-COMPLETION.md',
+              'experiments/ecc-derived/EXP-ECC-*.md',
+              'experiments/ecc-derived/V*-*.md',
+              'experiments/ecc-derived/evidence/*.json',
+              'experiments/ecc_derived/ecc_*.py',
+              'experiments/ecc_derived/ecc_*.json',
+              'experiments/ecc_derived/test_*.py',
+              'experiments/ecc_derived/run_v*.py',
+              '.github/scripts/apply_ecc_v*.py',
+              '.github/workflows/ecc-derived-parallel.yml',
+              '.github/workflows/apply-ecc-v*.yml',
+          ]
+
+          files = set()
+          for pattern in patterns:
+              for value in glob.glob(pattern):
+                  p = Path(value)
+                  if p.is_file():
+                      files.add(p)
+          files = sorted(files, key=lambda p: p.as_posix())
+          if not files:
+              raise SystemExit('No packet source files found')
+
+          transcript = Path('/tmp/ecc_v10_test_transcript.txt').read_text(encoding='utf-8', errors='replace')
+          if 'Ran 183 tests' not in transcript or '\nOK\n' not in transcript:
+              raise SystemExit('Frozen V10 suite transcript is not 183/183 green')
+
+          def sha256_bytes(data: bytes) -> str:
+              return hashlib.sha256(data).hexdigest()
+
+          manifest = []
+          for p in files:
+              raw = p.read_bytes()
+              manifest.append({
+                  'path': p.as_posix(),
+                  'bytes': len(raw),
+                  'sha256': sha256_bytes(raw),
+              })
+
+          header = f'''# ECC-Derived Seven-Experiment Program — V10 Clean External Engineering Review Packet
+
+## Packet identity
+
+- Packet class: `CLEAN_EXTERNAL_ENGINEERING_REVIEW_PACKET`
+- Review context requirement: `CLEAN_PACKET_ONLY_CONTEXT`
+- Frozen reviewed candidate SHA: `{CANDIDATE}`
+- Frozen reviewed candidate tree: `{CANDIDATE_TREE}`
+- Packaging branch head: `{PACKAGING_HEAD}`
+- Packaging branch allowed diff from candidate: only `.github/workflows/build-ecc-v10-clean-external-review-packet.yml`
+- Evidence authority: `NONE_EVIDENCE_ONLY`
+- Manual-review threshold contribution from any AI-generated review: `0`
+- Production qualification claimed: `NO`
+- V18 integration claimed: `NO`
+- Live platform attestation claimed: `NO`
+- Independent production trust-root claimed: `NO`
+- Durable signed cross-process provenance claimed: `NO`
+
+## Reviewer isolation instruction
+
+Review **only this packet**. Do not use prior conversations, cached review outputs, model memory, repository browsing, or earlier dispositions. Prior reviewer prose is intentionally excluded. The packet contains the frozen experiment contracts, current reference mechanism, falsification tests, preserved RED/GREEN evidence records, repair lineage, and fresh test transcript needed for this engineering review.
+
+If you are an AI reviewer, begin your response with exactly:
+
+`REVIEW_CONTEXT = CLEAN_PACKET_ONLY_CONTEXT`
+
+`EVIDENCE_DECLARATION = AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+
+Any AI review is engineering evidence only and contributes zero to a qualifying manual-review threshold.
+
+## Current bounded program posture
+
+The seven ECC-derived requirements remain evidence-only research candidates. Current intended interpretation before this review:
+
+- EXP-ECC-1..5: reference mechanisms have been progressively falsified/hardened through V10, but still require live platform/integration evidence before adoption.
+- EXP-ECC-6: `DEFER_PENDING_INTEGRATION_EVIDENCE` — no live automated reviewer transport/provider-identity/manual-review qualification is claimed.
+- EXP-ECC-7: `DEFER_PENDING_INTEGRATION_EVIDENCE` — no actual governed learning/retraction pipeline integration is claimed.
+- V10 reference mechanism: `BOUNDED_GREEN_PENDING_EXTERNAL_ENGINEERING_REREVIEW`.
+- Nothing in this packet grants release, merge, production, freeze, qualification, terminal, or policy authority.
+
+## What the reviewer must decide
+
+For each EXP-ECC-1 through EXP-ECC-7, assign exactly one disposition:
+
+- `ADOPT_REQUIREMENT_CANDIDATE`
+- `NARROW_REQUIREMENT_CANDIDATE`
+- `REJECT_REQUIREMENT_CANDIDATE`
+- `DEFER_PENDING_INTEGRATION_EVIDENCE`
+- `INSUFFICIENT_EVIDENCE`
+
+Then assess the complete family on all of the following:
+
+1. Does the preserved RED→repair→GREEN history support the claimed bounded reference-mechanism conclusions without laundering earlier failures?
+2. Are all test supersessions explicit, technically justified, and non-history-rewriting?
+3. Do the V5→V10 hardening generations close the demonstrated self-grant/false-green paths they claim to close?
+4. Does the current mechanism still contain a concrete false-green path **inside the stated V10 threat model** that should block impact adjudication?
+5. Are the remaining nonclaims (captured-callable mutation, deeper OS/runtime primitives, reflective/interpreter/native-memory compromise, repository/code-replacement authority, live platform attestation, independent trust roots, durable cross-process provenance) appropriately bounded, or does any one of them expose a design defect that must be fixed before bounded impact adjudication?
+6. Is the use of `REFERENCE_REPO_BOUND_SIMULATION_ONLY` evidence appropriately constrained, or is it being used as a substitute for live/independent evidence anywhere?
+7. Should EXP-ECC-6 and EXP-ECC-7 remain deferred?
+8. Is the seven-experiment family ready for **governed impact adjudication as requirement candidates**, while still remaining non-production and non-authoritative?
+
+## Required review output
+
+Provide:
+
+- Overall disposition: `READY_FOR_BOUNDED_IMPACT_ADJUDICATION`, `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`, or `INSUFFICIENT_EVIDENCE`.
+- Per-experiment disposition for EXP-ECC-1..7.
+- Findings ranked Critical / High / Medium / Low with exact artifact/function/test references.
+- Any false-green path as a concrete attack sequence.
+- Any missing negative and positive falsification cases.
+- Assessment of historical supersessions and RED preservation.
+- Assessment of whether remaining nonclaims are acceptable bounded exclusions.
+- Freeze recommendation: `SAFE_TO_FREEZE_EXPERIMENT_EVIDENCE_FOR_IMPACT_ADJUDICATION`, `DO_NOT_FREEZE`, or `INSUFFICIENT_EVIDENCE_TO_FREEZE`.
+- End with exactly: `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`.
+
+Do **not** grant production readiness, release authority, merge authority, policy authority, or manual-review qualification.
+
+## Artifact manifest
+
+```json
+{json.dumps(manifest, indent=2)}
+```
+
+## Fresh V10 execution transcript from packet build
+
+This transcript was generated on the packaging branch after a guard verified that the only diff from the exact frozen candidate is the packet-building workflow itself.
+
+```text
+{transcript}
+```
+
+## Frozen artifact contents
+'''
+
+          parts = [header]
+          for item in manifest:
+              path = Path(item['path'])
+              text = path.read_text(encoding='utf-8', errors='replace')
+              suffix = path.suffix.lower()
+              lang = 'json' if suffix == '.json' else ('python' if suffix == '.py' else ('yaml' if suffix in {'.yml','.yaml'} else 'text'))
+              parts.append(
+                  f"\n\n---\n\n### `{item['path']}`\n\n"
+                  f"SHA-256: `{item['sha256']}`  \nBytes: `{item['bytes']}`\n\n"
+                  f"```{lang}\n{text}\n```\n"
+              )
+
+          OUT.write_text(''.join(parts), encoding='utf-8')
+          packet = OUT.read_bytes()
+          print(f'PACKET_PATH={OUT.name}')
+          print(f'PACKET_BYTES={len(packet)}')
+          print(f'PACKET_SHA256={sha256_bytes(packet)}')
+          print(f'PACKET_ARTIFACT_COUNT={len(manifest)}')
+          PY
+
+      - name: Upload packet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecc-derived-v10-clean-external-review-packet
+          path: ECC_Derived_V10_Clean_External_Review_Packet.md
+          if-no-files-found: error
+          retention-days: 30
