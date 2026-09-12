@@ -1,0 +1,41 @@
+{
+  "record_type": "ECC_DERIVED_V7_SEAL_CAPABILITY_REPAIR_RED",
+  "record_id": "V7-SEAL-CAPABILITY-REPAIR-RED-002",
+  "exact_candidate_sha": "6bd9d8ddfd3292e830ba29730b9f4643a4b056e8",
+  "repair_generated_sha": "1f8d04830837cfe2b38990bf81457370918b4aa1",
+  "workflow_run_id": 34694344292,
+  "workflow_job_id": 103555122380,
+  "result": {
+    "tests_run": 162,
+    "failures": 16,
+    "errors": 0,
+    "conclusion": "RED_MECHANISM_REPAIR_DEFECT"
+  },
+  "original_v7_failure_classes_after_repair": {
+    "MODULE_EXPORTS_RAW_SEAL_CAPABILITY": "PASS",
+    "MODULE_EXPORTS_CANDIDATE_RESULT_CONSTRUCTOR": "PASS",
+    "GENERIC_TYPED_HELPER_CAN_MINT_POSITIVE_AUTHORITY": "PASS",
+    "FINISH_POSITIVE_HELPER_CAN_MINT_FROM_ARBITRARY_PAYLOAD": "PASS",
+    "BOUNDARY_NAMESPACE_EXPOSES_CAPABILITY_BEARING_SHORTCUTS": "PASS"
+  },
+  "repair_defects": [
+    {
+      "id": "V7-REPAIR-DEFECT-001",
+      "classification": "CODE_DEFECT",
+      "description": "verify_runtime_policy still expected ECC_GOVERNANCE_V6_ELIGIBILITY_PROVENANCE_MANIFEST while the repair changed the manifest record type to ECC_GOVERNANCE_V7_SEAL_CAPABILITY_MANIFEST, causing policy verification to fail closed for all legitimate paths."
+    },
+    {
+      "id": "V7-REPAIR-DEFECT-002",
+      "classification": "SEMANTIC_REGRESSION",
+      "description": "Candidate entrypoints captured the verifier function at factory creation, breaking retained V5/V6 assertions that the current module policy verifier is rechecked dynamically before issuance and consumption."
+    }
+  ],
+  "permitted_fix_scope": [
+    "UPDATE_RUNTIME_VERIFIER_TO_VALIDATE_V7_MANIFEST_FIELDS",
+    "RESTORE_DYNAMIC_VERIFY_RUNTIME_POLICY_CALLS_WITHOUT_REEXPOSING_SEAL_CAPABILITIES",
+    "UPDATE_MANIFEST_CANDIDATE_BOUNDARY_HASH_AFTER_CODE_CHANGE"
+  ],
+  "v7_assertions_modified": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
