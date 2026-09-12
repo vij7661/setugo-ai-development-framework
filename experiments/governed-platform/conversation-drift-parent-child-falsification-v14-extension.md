@@ -28,7 +28,7 @@ Expected: `REVIEW_HISTORY_METADATA_LEAKED`; packet ineligible until regenerated 
 Mechanisms: `MECH-HISTORY-NONDISCLOSURE`
 Profiles: `EP-BASE + EP-HISTORY-NONDISCLOSURE`
 
-Fault: reviewer-facing projection/manifest contains `HIST-*`, source history block IDs, filenames, reviewer identities, or outcome-bearing ordering metadata.
+Fault: reviewer-facing projection/manifest contains source history block identifiers, filenames, reviewer identities, or outcome-bearing ordering metadata.
 
 Expected: `REVIEW_HISTORY_METADATA_LEAKED`.
 
