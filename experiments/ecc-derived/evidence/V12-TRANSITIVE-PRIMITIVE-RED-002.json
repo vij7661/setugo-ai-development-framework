@@ -1,0 +1,36 @@
+{
+  "record_type": "ECC_DERIVED_V12_TRANSITIVE_PRIMITIVE_RED",
+  "record_id": "V12-TRANSITIVE-PRIMITIVE-RED-002",
+  "exact_candidate_sha": "2f76dd3a56dc12d7700badaee1ede15ac03504df",
+  "workflow_run_id": 34699141793,
+  "workflow_job_id": 103567689956,
+  "result": {
+    "tests_run": 199,
+    "failures": 5,
+    "errors": 0,
+    "conclusion": "CLEAN_EXPECTED_PRE_REPAIR_RED"
+  },
+  "failure_classes": [
+    "HASHLIB_SHA256_TRANSITIVE_ATTRIBUTE_MUTATION_CAN_MINT_FORGED_ARGV",
+    "JSON_DUMPS_TRANSITIVE_ATTRIBUTE_MUTATION_CAN_MINT_FORGED_ARGV",
+    "STRICT_HASHLIB_SHA256_ATTRIBUTE_NOT_RUNTIME_BOUND",
+    "STRICT_JSON_DUMPS_ATTRIBUTE_NOT_RUNTIME_BOUND",
+    "REFERENCE_CONFIG_RECORD_MISSING_RAW_PERMISSION_PROFILE_AND_ARGV"
+  ],
+  "review_path_narrowing": {
+    "permission_profile": "ALREADY_DIRECTLY_SEMANTICALLY_COMPARED_BY_STRICT_CHECK",
+    "remaining_false_green": "ARGV_ONLY_DRIFT_WITH_PERMISSION_UNCHANGED_AND_FORGED_DIGEST_RECOMPUTATION"
+  },
+  "positive_controls": {
+    "legitimate_exp_ecc_5": "PASS",
+    "permission_profile_drift_without_primitive_tamper": "PASS_REJECTED",
+    "argv_drift_without_primitive_tamper": "PASS_REJECTED",
+    "public_diagnostic_verifier_untampered": "PASS"
+  },
+  "v12_corrected_assertion_sha": "2f76dd3a56dc12d7700badaee1ede15ac03504df",
+  "mechanism_repair_started": false,
+  "review_evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
