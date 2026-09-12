@@ -1,0 +1,20 @@
+{
+  "record_type": "ECC_DERIVED_V5_REPAIR_APPLIED",
+  "repair_input_sha": "ec60882d699461f9dfd74b7a3a5625256531c9f0",
+  "repair_generated_sha": "0c36b0af0e802a4e0461b594a86b91df9909d466",
+  "repair_workflow_run_id": 34692787449,
+  "repair_workflow_job_id": 103550905667,
+  "module_sha256": {
+    "public_core": "4817db8e7f7496c288431c5220b4f559c9757b0b0a12ecc9507bf0f95a3ceb51",
+    "strict_core": "2519065974e911adbedd55f645984ff3bf7f7e84d924204b74e659a328d4e7b2",
+    "candidate_boundary": "5e6d452a30522380d8fbb52ebf9567b59fe2699c6f7a293deec56d4c592726f1",
+    "reference_evidence": "ffbe5fd4974e99ddd9d70bd3084e12704038510c267f263d75d5013864f441c7",
+    "manifest": "e10cb5cac1b86ac8644e59ca0af62c0476869ab6d170cb823913f64e477b0f60"
+  },
+  "trust_source_class": "REFERENCE_REPO_BOUND_SIMULATION_ONLY",
+  "live_attestation_claimed": false,
+  "independent_production_trust_root_claimed": false,
+  "test_assertions_modified_during_repair": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the frozen V5 falsification workflow after the GITHUB_TOKEN repair push."
+}
