@@ -1,0 +1,24 @@
+name: V24 Apply-Time Integration
+on:
+  push:
+    branches: [implementation/v24-i9-apply-time-integration]
+    paths:
+      - 'experiments/governed-platform/governance/v24_apply_guard.py'
+      - 'experiments/governed-platform/governance/integrated_governed_mvp_v24_execution_gateway.py'
+      - 'experiments/governed-platform/governance/test_integrated_governed_mvp_v24_apply.py'
+      - '.github/workflows/v24-apply-time-integration.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  integration-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Run V24 apply integration tests
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_v24_apply.py
+      - name: Run inherited Slice 2 gateway regression
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_slice2.py
