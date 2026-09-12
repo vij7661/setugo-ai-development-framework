@@ -10,6 +10,7 @@ on:
       - experiments/ecc-derived-parallel-v5-closed-boundary
       - experiments/ecc-derived-parallel-v6-eligibility-provenance
       - experiments/ecc-derived-parallel-v7-seal-capability
+      - experiments/ecc-derived-parallel-v8-verifier-substitution
     paths:
       - 'experiments/ecc-derived/**'
       - 'experiments/ecc_derived/**'
@@ -41,7 +42,9 @@ jobs:
       - name: Run ECC-derived falsification suite
         shell: bash
         run: |
-          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v7-seal-capability" ]]; then
+          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v8-verifier-substitution" ]]; then
+            python experiments/ecc_derived/run_v8_suite.py
+          elif [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v7-seal-capability" ]]; then
             python experiments/ecc_derived/run_v7_suite.py
           elif [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v6-eligibility-provenance" ]]; then
             python experiments/ecc_derived/run_v6_suite.py
