@@ -1,0 +1,42 @@
+{
+  "record_type": "ECC_DERIVED_V6_ELIGIBILITY_PROVENANCE_GREEN",
+  "record_id": "V6-ELIGIBILITY-PROVENANCE-GREEN-003",
+  "exact_candidate_sha": "e7341a273f5b37459007a93e3165bff9b5a1ed0e",
+  "workflow_run_id": 34693257804,
+  "workflow_job_id": 103552209262,
+  "result": {
+    "tests_run": 155,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "GREEN_BOUNDED_PROCESS_LOCAL_PROVENANCE"
+  },
+  "closed_failure_classes": [
+    "CALLER_CONSTRUCTED_PERFECT_DICTIONARY_ACCEPTED",
+    "GENUINE_RESULT_HAS_NO_OPAQUE_PROVENANCE_TYPE",
+    "PLAIN_DICT_COPY_RETAINS_ELIGIBILITY",
+    "JSON_ROUNDTRIP_RETAINS_ELIGIBILITY",
+    "PICKLE_CAN_LAUNDER_RESULT",
+    "POST_ISSUANCE_FIELD_MUTATION_UNDETECTED",
+    "POST_ISSUANCE_STATUS_SUBSTITUTION_UNDETECTED",
+    "POST_ISSUANCE_KIND_SUBSTITUTION_UNDETECTED",
+    "COPIED_SERIALIZED_FIELDS_RETAIN_ELIGIBILITY",
+    "ELIGIBILITY_CONSUMPTION_DOES_NOT_RECHECK_RUNTIME_POLICY",
+    "DIRECT_STRICT_CORE_RESULT_CAN_BE_UPGRADED_BY_MARKER_INJECTION"
+  ],
+  "repair_generated_sha": "f445442b8727ac14b19f4fe6103bda69af14dbee",
+  "candidate_boundary_sha256": "72625006fa79efb013857b008b6ed0f2603751f08d3ef843520064626ccdf358",
+  "manifest_sha256": "9362fa6c2dde51d7bf0354ec6b0ccb0ec83b6e9e6880415aba888b7ca2578d22",
+  "provenance_policy": "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST",
+  "serialized_candidate_authority": "REJECT_UNSEALED_RECONSTRUCTION",
+  "process_local_provenance_only": true,
+  "durable_cross_process_signature_claimed": false,
+  "remaining_provenance_boundary": "DURABLE_SIGNED_RECEIPT_OR_EXTERNAL_TRUST_SERVICE_FOR_CROSS_PROCESS_USE",
+  "live_attestation_claimed": false,
+  "independent_production_trust_root_claimed": false,
+  "superseded_v5_test": "test_ecc_governance_v5_closed_boundary.ECCV5ClosedCandidateBoundary.test_candidate_result_gate_requires_boundary_marker_kind_and_favorable_status",
+  "supersession_reason": "The V5 positive raw-dictionary eligibility assertion is invalid under V6 provenance semantics; V5 history remains unchanged and the supersession is explicit in the V6 runner.",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "freeze_effect": "NOT_FROZEN_PENDING_EXTERNAL_ENGINEERING_REREVIEW_AND_LIVE_INTEGRATION_BOUNDARIES"
+}
