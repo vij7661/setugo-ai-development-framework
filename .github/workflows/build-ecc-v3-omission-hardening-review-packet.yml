@@ -1,0 +1,271 @@
+name: Build ECC V3 Omission Hardening Review Packet
+
+on:
+  push:
+    branches:
+      - review/ecc-derived-v3-omission-hardening-packet
+    paths:
+      - '.github/workflows/build-ecc-v3-omission-hardening-review-packet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packet branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify frozen V3 remediation candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          FROZEN="351f08c7f5236f73bec37f62ec53085af48d15c7"
+          git cat-file -e "${FROZEN}^{commit}"
+          git merge-base --is-ancestor "$FROZEN" HEAD
+          CHANGED="$(git diff --name-only "$FROZEN"..HEAD)"
+          test "$CHANGED" = ".github/workflows/build-ecc-v3-omission-hardening-review-packet.yml"
+          echo "FROZEN_V3_CANDIDATE=$FROZEN"
+          echo "PACKET_BUILDER_HEAD=$(git rev-parse HEAD)"
+          echo "PACKAGING_ONLY_DIFF=$CHANGED"
+
+      - name: Fetch preserved V2 external AI review
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin review/ecc-derived-v2-ai-review --depth=1
+          git show FETCH_HEAD:reviews/ecc-derived-v2/external-ai-review-raw.md > /tmp/v2-review.md
+          git show FETCH_HEAD:reviews/ecc-derived-v2/review-metadata.json > /tmp/v2-review-metadata.json
+
+      - name: Build self-contained V3 remediation packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/ECC_Derived_V3_Omission_Hardening_External_Review_Packet.md"
+          cat > "$OUT" <<'EOF'
+          # ECC-Derived V3 Omission-Hardening External Review Packet
+
+          **Packet class:** `AI_ENGINEERING_REMEDIATION_REVIEW_PACKET`
+          **Authority effect:** `NONE_EVIDENCE_ONLY`
+          **Parent reviewed V2 candidate:** `2bea9dab240ac9b57b0e3e12fa96c8193ab2bbf8`
+          **Frozen V3 remediation candidate:** `351f08c7f5236f73bec37f62ec53085af48d15c7`
+          **Governed-platform baseline:** `290ac043959f30db12c9ae16826eda1dd5bcbdfb`
+          **V2 review SHA-256:** `374f8431eb5fbe3b452b5fa0b8b854f0a095d511402b055f2e5001a0fd6d9add`
+          **V2 review evidence class:** `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+          **Manual-review threshold contribution:** `0`
+
+          ## Purpose
+
+          This is a targeted engineering re-review of V3 remediation after the V2 external AI review returned:
+
+          - `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+          - EXP-ECC-1 through EXP-ECC-5: `NARROWING_STILL_REQUIRED`
+          - EXP-ECC-6 and EXP-ECC-7: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - `DO_NOT_FREEZE_V2_EXPERIMENT_EVIDENCE`
+          - `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+          This packet intentionally includes the prior V2 review because it is a remediation re-review, not an independent clean-room review. If this review is performed by an AI/model, it remains `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY` and contributes zero to any manual-review threshold.
+
+          ## V3 hypothesis
+
+          V2's main remaining defect was omission-based fallback: stronger checks existed, but a caller could omit the stronger fields and fall back to historical permissive behavior.
+
+          V3 introduces an explicit requirement-candidate evaluation class:
+
+          `requirement_candidate=True`
+
+          Historical calls without that flag remain only for replay of earlier V1/V2 bounded-reference evidence. The V3 trust manifest declares:
+
+          - `legacy_path_policy = HISTORICAL_REFERENCE_ONLY`
+          - `candidate_path_policy = MANDATORY_STRICT_EVALUATION`
+
+          Review whether that separation closes the omission false-green **at the reference-mechanism level** without laundering the historical compatibility path into new requirement qualification.
+
+          ## V3 preregistration and RED→GREEN history
+
+          ### Frozen assertions before repair
+          - Test commit: `4012eb6082aaeb3cd79bda77b77a892cbc05a375`
+          - Workflow-enabled pre-repair head: `8472480d4e6be10f2d01c902617ad0bb10f765b8`
+
+          ### RED-001
+          - Workflow run: `34690281109`
+          - Job: `103544199688`
+          - Exact checkout: `8472480d4e6be10f2d01c902617ad0bb10f765b8`
+          - Result: `153 tests; 18 failures + 3 errors`
+          - Earlier 132-test suite: `PASS`
+          - Mechanism unchanged from V2 before this RED.
+
+          ### Mechanism repair
+          - Commit: `1bf710e6f9825d264ef7f355f72f9c98d2f96376`
+          - Shared module blob: `c03d1a45ef9a312c27ab975cbb7fce626edbf0fa`
+          - Frozen V3 tests unchanged.
+
+          ### RED-002
+          - Workflow run: `34690496958`
+          - Job: `103544765124`
+          - Exact checkout: `1bf710e6f9825d264ef7f355f72f9c98d2f96376`
+          - Result: `153 tests; 152 PASS; 1 failure`
+          - Only remaining failure: shared-module trust-boundary manifest missing.
+
+          ### Trust-boundary manifest
+          - Added at candidate `0c2a48af3fd9af0d0e03df5bc42a109f360c011d`
+          - Binds exact `ecc_governance.py` SHA-256 and Git blob.
+
+          ### GREEN-003
+          - Workflow run: `34690527701`
+          - Job: `103544844775`
+          - Exact checkout: `0c2a48af3fd9af0d0e03df5bc42a109f360c011d`
+          - Result: `153/153 PASS`
+
+          ### Frozen V3 ledger closure
+          - Candidate: `351f08c7f5236f73bec37f62ec53085af48d15c7`
+          - Workflow run: `34690612349`
+          - Job: `103545060122`
+          - Exact checkout: `351f08c7f5236f73bec37f62ec53085af48d15c7`
+          - Result: `153/153 PASS`
+
+          ## V3 bounded dispositions under review
+
+          - EXP-ECC-1: `STRICT_REFERENCE_MECHANISM_PASS_PENDING_REVIEW`
+          - EXP-ECC-2: `STRICT_REFERENCE_MECHANISM_PASS_PENDING_REVIEW`
+          - EXP-ECC-3: `STRICT_REFERENCE_MECHANISM_PASS_PENDING_REVIEW`
+          - EXP-ECC-4: `STRICT_REFERENCE_MECHANISM_PASS_PENDING_REVIEW`
+          - EXP-ECC-5: `STRICT_REFERENCE_MECHANISM_PASS_PENDING_REVIEW`
+          - EXP-ECC-6: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - EXP-ECC-7: `DEFER_PENDING_INTEGRATION_EVIDENCE`
+
+          None is adopted or promoted. V3 is still reference-mechanism evidence only.
+
+          ## Mandatory review questions
+
+          1. Does V3 close the V2 omission-based false-green for new requirement candidates, or can a new candidate still reach a favorable result through an unmarked/legacy path?
+          2. Is `requirement_candidate=True` sufficiently non-optional at the requirement-candidate boundary, or must a higher-level API prevent callers from choosing the historical mode?
+          3. Does the trust manifest adequately expose the shared `ecc_governance.py` coupling, or does the common implementation still require independent cross-check/reference implementations before impact adjudication?
+          4. EXP-ECC-1: are platform enforcement-point attestation, exact action sequence, and process identity now mandatory in strict mode? What live evidence remains missing?
+          5. EXP-ECC-2: are machine-verified runtime fields and nonempty verified execution paths mandatory? Can declared-only dictionaries still qualify a new candidate?
+          6. EXP-ECC-3: are harness identity attestation and per-capability allowed sets mandatory while preserving R1/R2/R3 as provider-neutral user-selectable governed roles?
+          7. EXP-ECC-4: are authenticated authority, project, and sequence bindings mandatory in strict mode? Are revocation/TOCTOU semantics still under-specified?
+          8. EXP-ECC-5: is platform configuration attestation now mandatory in strict mode, and does legacy config comparison remain historical-only? What cryptographic/live-state evidence is still missing?
+          9. EXP-ECC-6: does strict mode now prevent provider-relationship confirmation or manual threshold credit when provider/manual-principal attestation is omitted? Should it remain deferred pending live integration?
+          10. EXP-ECC-7: does strict mode prevent self-asserted promotion and cap even fully supported reference evidence at `LEARNING_PROPOSAL_REFERENCE_ELIGIBLE` with `promotable=false`? Should it remain deferred pending the actual claim/dependency/retraction pipeline?
+          11. Is preserving the historical compatibility path in the same Python functions itself an unacceptable production-design risk even though the manifest marks it historical-only?
+          12. Does the fact that the original V1 86-case harness was post-mechanism still prevent bounded impact adjudication, despite V2 and V3 remediation tests being frozen pre-repair?
+          13. Are positive controls sufficient to reject a strict-mode block-all implementation?
+          14. Are there new missing omission, downgrade, replay, mutation, aliasing, or cross-mode-confusion cases?
+          15. Are EXP-ECC-1 through EXP-ECC-5 now ready to enter a separate **bounded governed impact-adjudication** step as narrowed requirement candidates, without implying production integration?
+          16. Should EXP-ECC-6 and EXP-ECC-7 remain outside impact adjudication until integration/live evidence exists?
+
+          ## Required output
+
+          ### A. Review evidence declaration
+          Choose exactly one:
+          - `AI_GENERATED_ENGINEERING_FEEDBACK_ONLY`
+          - `INDEPENDENT_MANUAL_REVIEW`
+
+          ### B. Program remediation disposition
+          Choose exactly one:
+          - `V3_REMEDIATION_SUPPORTS_BOUNDED_IMPACT_ADJUDICATION`
+          - `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+          - `INSUFFICIENT_EVIDENCE`
+
+          ### C. Per-experiment disposition
+          For each EXP-ECC-1 through EXP-ECC-7 choose exactly one:
+          - `READY_FOR_BOUNDED_IMPACT_ADJUDICATION`
+          - `NARROWING_STILL_REQUIRED`
+          - `DEFER_PENDING_INTEGRATION_EVIDENCE`
+          - `REJECT_REQUIREMENT_CANDIDATE`
+          - `INSUFFICIENT_EVIDENCE`
+
+          For each, state the strongest supported claim, strongest unsupported claim, remaining false-green path, and next evidence boundary.
+
+          ### D. Strict-vs-historical mode assessment
+          Determine whether a caller can accidentally or maliciously route a new requirement candidate through historical compatibility mode.
+
+          ### E. Shared-module coupling / trust-manifest assessment
+
+          ### F. Preregistration and RED-history assessment
+
+          ### G. Positive-control / block-all assessment
+
+          ### H. R1/R2/R3 provider-neutral role assessment
+
+          ### I. Manual-review/provider-identity boundary assessment
+
+          ### J. Missing falsification cases
+
+          ### K. Impact-adjudication recommendation
+          Do not promote requirements. State only which candidates may enter a separate governed impact-adjudication step.
+
+          ### L. Freeze recommendation
+          Choose exactly one:
+          - `SAFE_TO_FREEZE_V3_EXPERIMENT_EVIDENCE_FOR_BOUNDED_IMPACT_ADJUDICATION`
+          - `DO_NOT_FREEZE_V3_EXPERIMENT_EVIDENCE`
+          - `INSUFFICIENT_EVIDENCE_TO_FREEZE`
+
+          ### M. Authority limitation
+          End exactly with:
+          `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+          ---
+
+          # PACKET CONTENTS
+          EOF
+
+          append_file() {
+            local label="$1"
+            local path="$2"
+            {
+              echo
+              echo "---"
+              echo
+              echo "## BEGIN FILE: ${label}"
+              echo
+              cat "$path"
+              echo
+              echo "## END FILE: ${label}"
+              echo
+            } >> "$OUT"
+          }
+
+          append_file "V2 external AI review that triggered V3" "/tmp/v2-review.md"
+          append_file "V2 review metadata" "/tmp/v2-review-metadata.json"
+          append_file "V3 omission-hardening ledger" "experiments/ecc-derived/V3-OMISSION-HARDENING-LEDGER.md"
+          append_file "V3 RED-001" "experiments/ecc-derived/evidence/V3-OMISSION-HARDENING-RED-001.json"
+          append_file "V3 RED-002" "experiments/ecc-derived/evidence/V3-OMISSION-HARDENING-RED-002.json"
+          append_file "V3 GREEN-003" "experiments/ecc-derived/evidence/V3-OMISSION-HARDENING-GREEN-003.json"
+          append_file "Frozen V3 executable omission-hardening harness" "experiments/ecc_derived/test_ecc_governance_v3_omission_hardening.py"
+          append_file "V3 strict/historical reference mechanism" "experiments/ecc_derived/ecc_governance.py"
+          append_file "Shared module trust-boundary manifest" "experiments/ecc_derived/ecc_governance_trust_manifest.json"
+          append_file "V2 remediation harness" "experiments/ecc_derived/test_ecc_governance_v2_review_remediation.py"
+          append_file "Original representative tests" "experiments/ecc_derived/test_ecc_governance.py"
+          append_file "Original 86-case full-coverage harness" "experiments/ecc_derived/test_ecc_governance_full_coverage.py"
+          append_file "Experiment workflow" ".github/workflows/ecc-derived-parallel.yml"
+          append_file "Program charter" "experiments/ecc-derived/PROGRAM-CHARTER.md"
+          append_file "EXP-ECC-1" "experiments/ecc-derived/EXP-ECC-1-enforcement-execution-attestation.md"
+          append_file "EXP-ECC-2" "experiments/ecc-derived/EXP-ECC-2-declared-vs-executable-enforcement-equivalence.md"
+          append_file "EXP-ECC-3" "experiments/ecc-derived/EXP-ECC-3-qualified-harness-capability-envelope.md"
+          append_file "EXP-ECC-4" "experiments/ecc-derived/EXP-ECC-4-capability-power-surface-activation-consent.md"
+          append_file "EXP-ECC-5" "experiments/ecc-derived/EXP-ECC-5-cross-harness-mcp-config-attestation-drift.md"
+          append_file "EXP-ECC-6" "experiments/ecc-derived/EXP-ECC-6-external-review-egress-provider-binding.md"
+          append_file "EXP-ECC-7" "experiments/ecc-derived/EXP-ECC-7-learned-artifact-proposal-promotion-boundary.md"
+          append_file "External evidence semantic validation standard" "standards/external-evidence-semantic-validation.md"
+          append_file "Conversational drift/contamination standard" "standards/conversational-drift-contamination-control.md"
+          append_file "V18 baseline hardening" "standards/conversation-drift-parent-child-impact-control-v18-atomicity-lineage-hardening.md"
+
+          sha256sum "$OUT" | tee "$RUNNER_TEMP/packet.sha256"
+          wc -c "$OUT"
+          mkdir -p packet-output
+          cp "$OUT" packet-output/
+          cp "$RUNNER_TEMP/packet.sha256" packet-output/
+
+      - name: Upload packet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecc-derived-v3-omission-hardening-review-packet
+          path: packet-output/
+          if-no-files-found: error
+          retention-days: 30
