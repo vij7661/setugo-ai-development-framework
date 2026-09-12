@@ -1,0 +1,20 @@
+{
+  "record_type": "ECC_DERIVED_V11_AI_REREVIEW_EVIDENCE",
+  "reviewed_candidate_sha": "39d19dbf4d62b2861128f00e62a7325ff1039fa6",
+  "review_context": "CLEAN_PACKET_ONLY_CONTEXT",
+  "evidence_declaration": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "overall_disposition": "CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION",
+  "per_experiment": {
+    "EXP-ECC-1": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-2": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-3": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-4": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-5": "NARROW_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-6": "DEFER_PENDING_INTEGRATION_EVIDENCE",
+    "EXP-ECC-7": "DEFER_PENDING_INTEGRATION_EVIDENCE"
+  },
+  "freeze_recommendation": "DO_NOT_FREEZE",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "next_required_falsification": "TRANSITIVE_PRIMITIVE_ATTRIBUTE_INTEGRITY_FOR_EXP_ECC_5"
+}
