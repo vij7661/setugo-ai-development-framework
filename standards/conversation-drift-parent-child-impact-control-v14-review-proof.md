@@ -42,7 +42,7 @@ No actor may relabel a design-review packet as qualifying after review.
 Reviewer-facing packet/projection/proof material MUST NOT reveal:
 - excluded-history counts;
 - source-side history block IDs;
-- `HIST-*` identifiers;
+- source-side history block identifiers;
 - source history filenames;
 - prior reviewer identities;
 - prior dispositions/findings;
