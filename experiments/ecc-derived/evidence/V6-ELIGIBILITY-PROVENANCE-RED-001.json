@@ -1,0 +1,39 @@
+{
+  "record_type": "ECC_DERIVED_V6_ELIGIBILITY_PROVENANCE_RED",
+  "record_id": "V6-ELIGIBILITY-PROVENANCE-RED-001",
+  "exact_candidate_sha": "fcb41b8ae0e4d0a8bebec4020601d0ec0ba5c4ac",
+  "workflow_run_id": 34693050639,
+  "workflow_job_id": 103551624872,
+  "result": {
+    "tests_run": 156,
+    "failures": 11,
+    "errors": 0,
+    "conclusion": "RED_EXPECTED_WITH_RUNNER_SUPERSESSION_FILTER_DEFECT"
+  },
+  "mechanism_failure_classes": [
+    "CALLER_CONSTRUCTED_PERFECT_DICTIONARY_ACCEPTED",
+    "GENUINE_RESULT_HAS_NO_OPAQUE_PROVENANCE_TYPE",
+    "PLAIN_DICT_COPY_RETAINS_ELIGIBILITY",
+    "JSON_ROUNDTRIP_RETAINS_ELIGIBILITY",
+    "PICKLE_CAN_LAUNDER_RESULT",
+    "POST_ISSUANCE_FIELD_MUTATION_UNDETECTED",
+    "POST_ISSUANCE_STATUS_SUBSTITUTION_UNDETECTED",
+    "POST_ISSUANCE_KIND_SUBSTITUTION_UNDETECTED",
+    "COPIED_SERIALIZED_FIELDS_RETAIN_ELIGIBILITY",
+    "ELIGIBILITY_CONSUMPTION_DOES_NOT_RECHECK_RUNTIME_POLICY",
+    "DIRECT_STRICT_CORE_RESULT_CAN_BE_UPGRADED_BY_MARKER_INJECTION"
+  ],
+  "runner_defect": {
+    "id": "V6-RUNNER-SUPERSESSION-FILTER-001",
+    "classification": "TEST_HARNESS_DEFECT",
+    "description": "run_v6_suite.py intended to exclude the single V5 raw-dictionary positive assertion superseded by V6, but compared a module-qualified configured ID against a module-stripped runtime ID. The obsolete V5 test therefore still ran.",
+    "effect_on_red": "NONE_ON_11_MECHANISM_FAILURES; obsolete V5 assertion passed pre-repair but would become a false regression after repair.",
+    "permitted_fix_scope": "RUNNER_FILTER_ONLY_BEFORE_MECHANISM_REPAIR"
+  },
+  "v5_parent_ledger_sha": "3691af1642c1b68d7a1c9612a91bda4a49998de2",
+  "v6_assertion_commit": "f0c9889ca5dbb6c504344575150bcbf896c91daa",
+  "mechanism_repair_started": false,
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
