@@ -22,122 +22,152 @@ _FAVORABLE = {
 }
 
 
-def _file_sha(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, boundary_file):
+    hashlib_module = hashlib
+    json_module = json
+    marshal_module = marshal
+    sys_module = sys
+    path_type = Path
 
-
-def _code_sha(fn):
-    try:
-        return hashlib.sha256(marshal.dumps(fn.__code__)).hexdigest()
-    except (AttributeError, TypeError, ValueError):
-        return None
-
-
-def _module_identity_ok(module, expected_path, expected_name):
-    try:
-        path = Path(module.__file__)
-        resolved = path.resolve(strict=True)
-        expected = expected_path.resolve(strict=True)
-    except (AttributeError, OSError, RuntimeError):
-        return False
-    if path.is_symlink() or expected_path.is_symlink():
-        return False
-    if resolved != expected:
-        return False
-    if module.__name__ != expected_name:
-        return False
-    if sys.modules.get(expected_name) is not module:
-        return False
-    spec = getattr(module, "__spec__", None)
-    origin = getattr(spec, "origin", None)
-    if not origin:
-        return False
-    try:
-        if Path(origin).resolve(strict=True) != expected:
-            return False
-    except (OSError, RuntimeError):
-        return False
-    return True
-
-
-def verify_runtime_policy():
-    here = Path(__file__).resolve().parent
+    boundary_path = path_type(boundary_file).resolve()
+    here = boundary_path.parent
     manifest_path = here / "ecc_governance_trust_manifest.json"
     public_path = here / "ecc_governance.py"
     strict_path = here / "ecc_governance_strict.py"
-    boundary_path = here / "ecc_candidate_boundary.py"
     evidence_path = here / "ecc_reference_evidence.py"
-    for path in (manifest_path, public_path, strict_path, boundary_path, evidence_path):
+
+    def file_sha(path):
+        return hashlib_module.sha256(path.read_bytes()).hexdigest()
+
+    def code_sha(fn):
         try:
-            if path.is_symlink() or not path.is_file():
+            return hashlib_module.sha256(marshal_module.dumps(fn.__code__)).hexdigest()
+        except (AttributeError, TypeError, ValueError):
+            return None
+
+    def module_identity_ok(module, expected_path, expected_name):
+        try:
+            path = path_type(module.__file__)
+            resolved = path.resolve(strict=True)
+            expected = expected_path.resolve(strict=True)
+        except (AttributeError, OSError, RuntimeError):
+            return False
+        if path.is_symlink() or expected_path.is_symlink():
+            return False
+        if resolved != expected:
+            return False
+        if module.__name__ != expected_name:
+            return False
+        if sys_module.modules.get(expected_name) is not module:
+            return False
+        spec = getattr(module, "__spec__", None)
+        origin = getattr(spec, "origin", None)
+        if not origin:
+            return False
+        try:
+            if path_type(origin).resolve(strict=True) != expected:
                 return False
-        except OSError:
+        except (OSError, RuntimeError):
             return False
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (OSError, ValueError, TypeError):
-        return False
+        return True
 
-    if manifest.get("record_type") != "ECC_GOVERNANCE_V7_SEAL_CAPABILITY_MANIFEST":
-        return False
-    if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
-        return False
-    if manifest.get("serialized_candidate_authority") != "REJECT_UNSEALED_RECONSTRUCTION":
-        return False
-    if manifest.get("seal_capability_policy") != "POSITIVE_SEAL_CAPABILITY_CLOSURE_LOCAL_ONLY":
-        return False
-    if manifest.get("ordinary_module_access_can_mint_provenance") is not False:
-        return False
-    if manifest.get("candidate_entrypoints_use_dynamic_runtime_verifier") is not True:
-        return False
-    if manifest.get("public_core_policy") != "HISTORICAL_ONLY_NO_CALLER_STRICT_MODE":
-        return False
-    if manifest.get("candidate_boundary_policy") != "ONLY_PUBLIC_CANDIDATE_ELIGIBILITY_ISSUER":
-        return False
-    if manifest.get("reference_evidence_trust_source") != "REFERENCE_REPO_BOUND_SIMULATION_ONLY":
-        return False
-    if manifest.get("authority_effect") != "NONE_EVIDENCE_ONLY":
-        return False
-    if set(manifest.get("covers") or []) != _COVERS:
-        return False
-
-    if not _module_identity_ok(gov, public_path, "ecc_governance"):
-        return False
-    if not _module_identity_ok(strict_core, strict_path, "ecc_governance_strict"):
-        return False
-    if not _module_identity_ok(reference_evidence, evidence_path, "ecc_reference_evidence"):
-        return False
-    try:
-        if Path(__file__).resolve(strict=True) != boundary_path.resolve(strict=True):
+    def runtime_verify():
+        for path in (manifest_path, public_path, strict_path, boundary_path, evidence_path):
+            try:
+                if path.is_symlink() or not path.is_file():
+                    return False
+            except OSError:
+                return False
+        try:
+            manifest = json_module.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError):
             return False
-    except (OSError, RuntimeError):
-        return False
 
-    expected_hashes = manifest.get("module_sha256") or {}
-    actual_hashes = {
-        "public_core": _file_sha(public_path),
-        "strict_core": _file_sha(strict_path),
-        "candidate_boundary": _file_sha(boundary_path),
-        "reference_evidence": _file_sha(evidence_path),
-    }
-    if expected_hashes != actual_hashes:
-        return False
+        if manifest.get("record_type") != "ECC_GOVERNANCE_V8_VERIFIER_SUBSTITUTION_MANIFEST":
+            return False
+        if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
+            return False
+        if manifest.get("serialized_candidate_authority") != "REJECT_UNSEALED_RECONSTRUCTION":
+            return False
+        if manifest.get("seal_capability_policy") != "POSITIVE_SEAL_CAPABILITY_CLOSURE_LOCAL_ONLY":
+            return False
+        if manifest.get("ordinary_module_access_can_mint_provenance") is not False:
+            return False
+        if manifest.get("public_runtime_verifier_role") != "DIAGNOSTIC_WRAPPER_ONLY":
+            return False
+        if manifest.get("candidate_runtime_verifier_policy") != "CLOSURE_HELD_INTERNAL_VERIFIER":
+            return False
+        if manifest.get("candidate_dependencies_policy") != "CLOSURE_HELD_ORIGINAL_MODULE_OBJECTS":
+            return False
+        if manifest.get("public_verifier_substitution_affects_candidate_authority") is not False:
+            return False
+        if manifest.get("actual_dependency_tamper_fail_closed") is not True:
+            return False
+        if manifest.get("public_core_policy") != "HISTORICAL_ONLY_NO_CALLER_STRICT_MODE":
+            return False
+        if manifest.get("candidate_boundary_policy") != "ONLY_PUBLIC_CANDIDATE_ELIGIBILITY_ISSUER":
+            return False
+        if manifest.get("reference_evidence_trust_source") != "REFERENCE_REPO_BOUND_SIMULATION_ONLY":
+            return False
+        if manifest.get("authority_effect") != "NONE_EVIDENCE_ONLY":
+            return False
+        if set(manifest.get("covers") or []) != _COVERS:
+            return False
 
-    runtime = manifest.get("runtime_code_sha256") or {}
-    strict_functions = {
-        "strict.assess_control_execution_candidate": strict_core.assess_control_execution_candidate,
-        "strict.check_declared_executable_equivalence_candidate": strict_core.check_declared_executable_equivalence_candidate,
-        "strict.qualify_role_binding_candidate": strict_core.qualify_role_binding_candidate,
-        "strict.authorize_power_activation_candidate": strict_core.authorize_power_activation_candidate,
-        "strict.check_tool_configuration_candidate": strict_core.check_tool_configuration_candidate,
-        "strict.classify_review_binding_candidate": strict_core.classify_review_binding_candidate,
-        "strict.authorize_learning_promotion_candidate": strict_core.authorize_learning_promotion_candidate,
-        "reference.lookup_reference_evidence": reference_evidence.lookup_reference_evidence,
-    }
-    actual_runtime = {name: _code_sha(fn) for name, fn in strict_functions.items()}
-    if runtime != actual_runtime or any(value is None for value in actual_runtime.values()):
-        return False
-    return True
+        if not module_identity_ok(gov_module, public_path, "ecc_governance"):
+            return False
+        if not module_identity_ok(strict_module, strict_path, "ecc_governance_strict"):
+            return False
+        if not module_identity_ok(evidence_module, evidence_path, "ecc_reference_evidence"):
+            return False
+        try:
+            if boundary_path.resolve(strict=True) != path_type(boundary_file).resolve(strict=True):
+                return False
+        except (OSError, RuntimeError):
+            return False
+
+        expected_hashes = manifest.get("module_sha256") or {}
+        actual_hashes = {
+            "public_core": file_sha(public_path),
+            "strict_core": file_sha(strict_path),
+            "candidate_boundary": file_sha(boundary_path),
+            "reference_evidence": file_sha(evidence_path),
+        }
+        if expected_hashes != actual_hashes:
+            return False
+
+        runtime = manifest.get("runtime_code_sha256") or {}
+        strict_functions = {
+            "strict.assess_control_execution_candidate": strict_module.assess_control_execution_candidate,
+            "strict.check_declared_executable_equivalence_candidate": strict_module.check_declared_executable_equivalence_candidate,
+            "strict.qualify_role_binding_candidate": strict_module.qualify_role_binding_candidate,
+            "strict.authorize_power_activation_candidate": strict_module.authorize_power_activation_candidate,
+            "strict.check_tool_configuration_candidate": strict_module.check_tool_configuration_candidate,
+            "strict.classify_review_binding_candidate": strict_module.classify_review_binding_candidate,
+            "strict.authorize_learning_promotion_candidate": strict_module.authorize_learning_promotion_candidate,
+            "reference.lookup_reference_evidence": evidence_module.lookup_reference_evidence,
+        }
+        actual_runtime = {name: code_sha(fn) for name, fn in strict_functions.items()}
+        if runtime != actual_runtime or any(value is None for value in actual_runtime.values()):
+            return False
+        return True
+
+    return runtime_verify
+
+
+def _build_public_runtime_verifier(runtime_verify):
+    def diagnostic_verify_runtime_policy():
+        return runtime_verify()
+
+    diagnostic_verify_runtime_policy.__name__ = "verify_runtime_policy"
+    diagnostic_verify_runtime_policy.__qualname__ = "verify_runtime_policy"
+    return diagnostic_verify_runtime_policy
+
+
+_candidate_runtime_verifier = _build_runtime_policy_verifier(
+    gov, strict_core, reference_evidence, __file__
+)
+verify_runtime_policy = _build_public_runtime_verifier(_candidate_runtime_verifier)
 
 
 def _canonical_result_digest(value):
@@ -180,8 +210,21 @@ def _independent_failure_unsealed(kind, status):
     return _unsealed(kind, base)
 
 
-def _build_candidate_api():
+def _build_candidate_api(runtime_verify, strict_module, evidence_module):
     issuer_token = object()
+    strict_value = STRICT
+    favorable = {key: frozenset(values) for key, values in _FAVORABLE.items()}
+    hashlib_module = hashlib
+    json_module = json
+
+    def canonical_result_digest(value):
+        try:
+            payload = json_module.dumps(
+                dict(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            ).encode("utf-8")
+        except (TypeError, ValueError):
+            return None
+        return hashlib_module.sha256(payload).hexdigest()
 
     class CandidateEvaluationResult(dict):
         __slots__ = ("_issuer_token", "_sealed_digest")
@@ -191,7 +234,7 @@ def _build_candidate_api():
                 raise TypeError("candidate eligibility result may only be issued by governed entrypoints")
             super().__init__(payload)
             self._issuer_token = supplied_token
-            self._sealed_digest = _canonical_result_digest(self)
+            self._sealed_digest = canonical_result_digest(self)
             if self._sealed_digest is None:
                 raise TypeError("candidate result is not canonically sealable")
 
@@ -203,7 +246,7 @@ def _build_candidate_api():
 
     def typed(kind, result, eligible=False):
         out = dict(result) if isinstance(result, dict) else {"status": "CANDIDATE_RESULT_INVALID"}
-        out["evaluation_class"] = STRICT
+        out["evaluation_class"] = strict_value
         out["candidate_kind"] = kind
         out["candidate_eligible"] = bool(eligible)
         if not eligible:
@@ -216,11 +259,11 @@ def _build_candidate_api():
         if getattr(result, "_issuer_token", None) is not issuer_token:
             return False
         sealed = getattr(result, "_sealed_digest", None)
-        current = _canonical_result_digest(result)
+        current = canonical_result_digest(result)
         return isinstance(sealed, str) and sealed == current
 
     def core_favorable(kind, result):
-        if not isinstance(result, dict) or result.get("status") not in _FAVORABLE.get(kind, set()):
+        if not isinstance(result, dict) or result.get("status") not in favorable.get(kind, frozenset()):
             return False
         if kind == "execution": return result.get("verified") is True
         if kind == "equivalence": return result.get("equivalent") is True
@@ -230,7 +273,7 @@ def _build_candidate_api():
         return False
 
     def lookup(kind, evidence_id):
-        return reference_evidence.lookup_reference_evidence(kind, evidence_id)
+        return evidence_module.lookup_reference_evidence(kind, evidence_id)
 
     def execution_evidence_ok(record, control, event, candidate, action_id):
         return bool(record) and all((
@@ -291,16 +334,16 @@ def _build_candidate_api():
         ))
 
     def finish_positive(kind, result):
-        if not verify_runtime_policy():
+        if not runtime_verify():
             return _policy_failure_unsealed(kind)
         return typed(kind, result, True)
 
     def candidate_result_eligible(result):
-        if not verify_runtime_policy():
+        if not runtime_verify():
             return False
         if not valid_provenance(result):
             return False
-        if result.get("evaluation_class") != STRICT:
+        if result.get("evaluation_class") != strict_value:
             return False
         if result.get("candidate_eligible") is not True:
             return False
@@ -312,8 +355,8 @@ def _build_candidate_api():
 
     def assess_control_execution_candidate(control, event, *, candidate, action_id):
         kind = "execution"
-        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
-        result = strict_core.assess_control_execution_candidate(control, event, candidate=candidate, action_id=action_id)
+        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        result = strict_module.assess_control_execution_candidate(control, event, candidate=candidate, action_id=action_id)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = event.get("reference_evidence_id") if isinstance(event, dict) else None
         record = lookup(kind, evidence_id)
@@ -323,8 +366,8 @@ def _build_candidate_api():
 
     def check_declared_executable_equivalence_candidate(declared, executable):
         kind = "equivalence"
-        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
-        result = strict_core.check_declared_executable_equivalence_candidate(declared, executable)
+        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        result = strict_module.check_declared_executable_equivalence_candidate(declared, executable)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = executable.get("reference_evidence_id") if isinstance(executable, dict) else None
         record = lookup(kind, evidence_id)
@@ -334,8 +377,8 @@ def _build_candidate_api():
 
     def qualify_role_binding_candidate(role, selected_model, envelope, required_capabilities, *, prior_binding=None, revalidated=True, require_semantic_evidence=False):
         kind = "role"
-        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
-        result = strict_core.qualify_role_binding_candidate(role, selected_model, envelope, required_capabilities, prior_binding=prior_binding, revalidated=revalidated, require_semantic_evidence=require_semantic_evidence)
+        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        result = strict_module.qualify_role_binding_candidate(role, selected_model, envelope, required_capabilities, prior_binding=prior_binding, revalidated=revalidated, require_semantic_evidence=require_semantic_evidence)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = envelope.get("reference_evidence_id") if isinstance(envelope, dict) else None
         record = lookup(kind, evidence_id)
@@ -345,8 +388,8 @@ def _build_candidate_api():
 
     def authorize_power_activation_candidate(manifest, approval, requested_powers, *, role, requested_resources=None, current_sequence=None):
         kind = "activation"
-        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
-        result = strict_core.authorize_power_activation_candidate(manifest, approval, requested_powers, role=role, requested_resources=requested_resources, current_sequence=current_sequence)
+        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        result = strict_module.authorize_power_activation_candidate(manifest, approval, requested_powers, role=role, requested_resources=requested_resources, current_sequence=current_sequence)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = approval.get("reference_evidence_id") if isinstance(approval, dict) else None
         record = lookup(kind, evidence_id)
@@ -356,8 +399,8 @@ def _build_candidate_api():
 
     def check_tool_configuration_candidate(expected, current):
         kind = "config"
-        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
-        result = strict_core.check_tool_configuration_candidate(expected, current)
+        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        result = strict_module.check_tool_configuration_candidate(expected, current)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = expected.get("reference_evidence_id") if isinstance(expected, dict) else None
         record = lookup(kind, evidence_id)
@@ -366,15 +409,15 @@ def _build_candidate_api():
         return finish_positive(kind, result)
 
     def classify_review_binding_candidate(binding):
-        if not verify_runtime_policy(): return _policy_failure_unsealed("review")
-        result = strict_core.classify_review_binding_candidate(binding)
+        if not runtime_verify(): return _policy_failure_unsealed("review")
+        result = strict_module.classify_review_binding_candidate(binding)
         out = typed("review", result, False)
         out["manual_review_threshold_contribution"] = 0 if binding.get("evidence_class") == "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY" else out.get("manual_review_threshold_contribution", 0)
         return out
 
     def authorize_learning_promotion_candidate(proposal):
-        if not verify_runtime_policy(): return _policy_failure_unsealed("learning")
-        result = strict_core.authorize_learning_promotion_candidate(proposal)
+        if not runtime_verify(): return _policy_failure_unsealed("learning")
+        result = strict_module.authorize_learning_promotion_candidate(proposal)
         out = typed("learning", result, False)
         out["promotable"] = False
         return out
@@ -400,8 +443,14 @@ def _build_candidate_api():
     check_tool_configuration_candidate,
     classify_review_binding_candidate,
     authorize_learning_promotion_candidate,
-) = _build_candidate_api()
+) = _build_candidate_api(
+    _candidate_runtime_verifier, strict_core, reference_evidence
+)
 
-# The factory owns the issuer token and all positive-sealing helpers. Remove the
-# only ordinary module-level handle capable of constructing another issuer set.
+# Candidate authority uses closure-held verifier/dependencies. The public verifier
+# is diagnostic only. Delete temporary capability-bearing factories/handles after
+# all governed entrypoints have captured them.
+del _candidate_runtime_verifier
 del _build_candidate_api
+del _build_runtime_policy_verifier
+del _build_public_runtime_verifier
