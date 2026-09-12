@@ -63,20 +63,28 @@ jobs:
                   'candidate_clause_count': d.get('candidate_clause_count'),
                   'artifacts_without_level2_headings': d.get('artifacts_without_level2_headings'),
                   'current_drift_paths': d.get('current_drift_paths'),
-                  'problems': d.get('problems'),
+                  'source_problem_count': len(d.get('problems', [])),
+                  'source_problems': d.get('problems'),
               }
           current = Path('/tmp/v24-normative-preflight.json')
           if current.exists():
               d = json.loads(current.read_text())
+              problems = d.get('problems', [])
+              semantic = [x for x in problems if x.startswith('DESCRIPTOR_SEMANTIC_MAPPING_PENDING:')]
+              legacy_pending = [x for x in problems if x.startswith('LEGACY_INVENTORY_UNQUALIFIED:')]
+              unexpected = [x for x in problems if x not in semantic and x not in legacy_pending]
               output['v24_current'] = {
                   'state': d.get('state'),
                   'qualified': d.get('qualified'),
                   'expected_control_count': d.get('expected_control_count'),
                   'generated_descriptor_count': d.get('generated_descriptor_count'),
                   'manifest_artifact_count': d.get('manifest_artifact_count'),
+                  'legacy_artifact_count': d.get('legacy_artifact_count'),
                   'legacy_inventory_count': d.get('legacy_inventory_count'),
-                  'problem_count': len(d.get('problems', [])),
-                  'non_semantic_problems': [x for x in d.get('problems', []) if not x.startswith('DESCRIPTOR_SEMANTIC_MAPPING_PENDING:')],
+                  'semantic_mapping_pending_count': len(semantic),
+                  'legacy_unqualified_count': len(legacy_pending),
+                  'unexpected_problem_count': len(unexpected),
+                  'unexpected_problems': unexpected,
               }
           print(json.dumps(output, indent=2))
           PY
