@@ -1,0 +1,21 @@
+{
+  "record_type": "ECC_DERIVED_V12_REPAIR_DIAGNOSIS",
+  "record_id": "V12-REPAIR-DIAGNOSIS-001",
+  "diagnostic_checkout_sha": "eb48bd270bc9443e705e6090be2a3145b4b6c106",
+  "diagnostic_workflow_run_id": 34699433392,
+  "diagnostic_workflow_job_id": 103568458454,
+  "observed": {
+    "public_verify": false,
+    "runtime_verify": false,
+    "entrypoint_identity_ok": true,
+    "dependency_globals_ok": true,
+    "strict_hashlib_sha256_identity": true,
+    "strict_json_dumps_identity": true,
+    "module_hashes_match_manifest": true,
+    "all_printed_manifest_policy_checks": true
+  },
+  "root_cause": "REFERENCE_LOOKUP_RUNTIME_CODE_HASH_STALE_AFTER_REFERENCE_EVIDENCE_LINE_SHIFT",
+  "explanation": "V12 added raw argv and permission_profile fields before lookup_reference_evidence in ecc_reference_evidence.py. The function logic is unchanged, but marshal.dumps(function.__code__) includes code-object metadata such as line positioning. The V11 runtime_code_sha256 entry therefore no longer matches the imported function even though file/module/dependency integrity is otherwise correct.",
+  "permitted_correction": "Update only runtime_code_sha256.reference.lookup_reference_evidence to the hash of the exact V12 imported lookup function. Do not modify tests or candidate mechanism logic.",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
