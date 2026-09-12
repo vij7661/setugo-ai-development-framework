@@ -1,0 +1,42 @@
+{
+  "record_type": "ECC_DERIVED_V8_VERIFIER_SUBSTITUTION_RED",
+  "record_id": "V8-VERIFIER-SUBSTITUTION-RED-001",
+  "exact_candidate_sha": "28ece812654f544dd27848e89ddf47508963dbab",
+  "workflow_run_id": 34694716021,
+  "workflow_job_id": 103556106608,
+  "result": {
+    "tests_run": 170,
+    "failures": 5,
+    "errors": 0,
+    "conclusion": "CLEAN_EXPECTED_PRE_REPAIR_RED"
+  },
+  "parent_v7_ledger_sha": "58592c578e9176b49a508273c7239fcfb11ca48b",
+  "v8_assertion_commit": "9b58cdb427c1ec80dfed27a3c1982cd7fdba63bd",
+  "v8_runner_commit": "920297e487b3071cffc3f7094d064c819ad153c3",
+  "failure_classes": [
+    "ALWAYS_TRUE_PUBLIC_VERIFIER_PLUS_REFERENCE_FUNCTION_TAMPER_CAN_MINT",
+    "ALWAYS_TRUE_PUBLIC_VERIFIER_PLUS_STRICT_AND_REFERENCE_TAMPER_CAN_MINT",
+    "MODULE_ALIAS_SUBSTITUTION_PLUS_PUBLIC_VERIFIER_SUBSTITUTION_CAN_MINT",
+    "PUBLIC_VERIFIER_REPLACEMENT_CONTROLS_CANDIDATE_CONSUMPTION",
+    "PUBLIC_VERIFIER_REPLACEMENT_CONTROLS_CANDIDATE_ISSUANCE"
+  ],
+  "positive_and_negative_controls": {
+    "actual_reference_dependency_tamper_detected_by_real_verifier": "PASS",
+    "actual_strict_dependency_tamper_detected_by_real_verifier": "PASS",
+    "dependency_tamper_after_issuance_invalidates_consumption": "PASS",
+    "legitimate_candidate_path": "PASS",
+    "public_runtime_verifier_current_policy": "PASS",
+    "internal_runtime_verifier_known_handles_not_exported": "PASS"
+  },
+  "superseded_historical_assertions": [
+    "V5 public-verifier monkeypatch as policy-transition proxy",
+    "V6 public-verifier monkeypatch as issuance failure proxy",
+    "V6 public-verifier monkeypatch as consumption failure proxy"
+  ],
+  "supersession_effect": "HISTORICAL_FILES_UNCHANGED; V8 runner excludes only the three semantics invalidated by the newly falsified public-verifier authority model.",
+  "mechanism_repair_started": false,
+  "v8_assertions_modified_after_red": false,
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
