@@ -1,0 +1,54 @@
+name: V24 Authority Universe Foundation
+
+on:
+  push:
+    branches:
+      - implementation/v24-i2-authority-universe-functional-closure
+    paths:
+      - 'governance-runtime/v24_authority_universe.py'
+      - 'governance-runtime/test_v24_authority_universe.py'
+      - 'governance-runtime/v24_authority_surface_inventory.py'
+      - 'governance-runtime/v24-authority-surface-source.json'
+      - '.github/workflows/v24-authority-universe-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run I2 authority universe contract tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_authority_universe.py
+      - name: Verify exact repository authority surface inventory
+        working-directory: governance-runtime
+        run: |
+          python v24_authority_surface_inventory.py \
+            --repo-root .. \
+            --source v24-authority-surface-source.json \
+            --report /tmp/v24-authority-surface-inventory.json \
+            --expect-construction-complete
+      - name: Show bounded I2 construction evidence
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('/tmp/v24-authority-surface-inventory.json')
+          if p.exists():
+              d = json.loads(p.read_text())
+              print(json.dumps({
+                  'state': d.get('state'),
+                  'qualified': d.get('qualified'),
+                  'surface_count': d.get('surface_count'),
+                  'problem_count': len(d.get('problems', [])),
+                  'unresolved_production_evidence': d.get('unresolved_production_evidence'),
+                  'authority_effect': d.get('authority_effect'),
+              }, indent=2))
+          PY
