@@ -1,0 +1,38 @@
+{
+  "record_type": "ECC_DERIVED_V10_PATH_PRIMITIVE_GREEN",
+  "record_id": "V10-PATH-PRIMITIVE-GREEN-002",
+  "exact_candidate_sha": "3fcf51f993a26e6c8f921cc78c67f7765f856d63",
+  "workflow_run_id": 34696073501,
+  "workflow_job_id": 103559662284,
+  "result": {
+    "tests_run": 183,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "GREEN_BOUNDED_PATH_PRIMITIVE_INTEGRITY"
+  },
+  "closed_failure_classes": [
+    "PATH_READ_TEXT_SUBSTITUTION_PLUS_DEPENDENCY_TAMPER_CAN_MINT",
+    "PATH_READ_TEXT_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_READ_BYTES_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_RESOLVE_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_IS_FILE_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY",
+    "PATH_IS_SYMLINK_ALIAS_CONTROLS_LEGITIMATE_AUTHORITY"
+  ],
+  "repair_generated_sha": "70fcb4c",
+  "candidate_boundary_sha256": "7705eb56bb03c28c12db78f64c30d6c43972643bdfbce15167849d64e140a8b9",
+  "manifest_sha256": "a6abf9341eb28b04a07d3d0314e8fcbd97fa2db17f5b77ee8c09e21585f5df4d",
+  "path_primitive_policy": "EXACT_PATH_CALLABLES_CAPTURED_AT_INITIALIZATION",
+  "captured_path_primitives": [
+    "Path.read_text",
+    "Path.read_bytes",
+    "Path.resolve",
+    "Path.is_file",
+    "Path.is_symlink"
+  ],
+  "v10_assertions_modified_during_repair": false,
+  "remaining_boundary": "MUTATION_OF_CAPTURED_CALLABLE_OBJECTS_DEEPER_OS_FILESYSTEM_PRIMITIVES_REFLECTIVE_CLOSURE_OR_INTERPRETER_COMPROMISE_LIVE_ATTESTATION_AND_DURABLE_CROSS_PROCESS_PROVENANCE",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "freeze_effect": "NOT_FROZEN_PENDING_EXTERNAL_ENGINEERING_REREVIEW"
+}
