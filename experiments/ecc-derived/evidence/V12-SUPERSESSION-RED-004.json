@@ -1,0 +1,25 @@
+{
+  "record_type": "ECC_DERIVED_V12_SEMANTIC_SUPERSESSION_RED",
+  "record_id": "V12-SUPERSESSION-RED-004",
+  "exact_candidate_sha": "605fba752ea0de4b4956baedd544f58fa4b14109",
+  "workflow_run_id": 34699541584,
+  "workflow_job_id": 103568741013,
+  "result": {
+    "tests_run": 199,
+    "failures": 1,
+    "errors": 0,
+    "conclusion": "RED_SINGLE_HISTORICAL_SEMANTIC_CONFLICT"
+  },
+  "failing_test": "test_ecc_governance_v9_verifier_primitive_integrity.ECCV9VerifierPrimitiveIntegrity.test_json_dumps_substitution_cannot_poison_new_candidate_seal",
+  "classification": "HISTORICAL_EXPECTATION_SUPERSEDED_BY_STRONGER_TRANSITIVE_PRIMITIVE_INTEGRITY_RULE",
+  "reason": "The V9 test patches boundary.json.dumps and expects candidate issuance to remain positive because seal serialization captured its own json.dumps callable. boundary.json and strict_core.json are the same Python json module object, so this patch also replaces strict_core.json.dumps, which V12 correctly treats as a candidate-authoritative EXP-ECC-5 digest primitive. Under V12 semantics that mutation must fail closed; expecting VERIFIED would reopen the reviewed primitive-attribute bypass.",
+  "replacement_evidence": [
+    "test_ecc_governance_v12_transitive_primitive_integrity.ECCV12TransitivePrimitiveIntegrity.test_json_dumps_attribute_mutation_cannot_mint_forged_argv",
+    "test_ecc_governance_v12_transitive_primitive_integrity.ECCV12TransitivePrimitiveIntegrity.test_json_dumps_transitive_dependency_is_runtime_bound",
+    "test_ecc_governance_v12_transitive_primitive_integrity.ECCV12TransitivePrimitiveIntegrity.test_legitimate_exp_ecc_5_config_path_remains_positive"
+  ],
+  "historical_test_file_mutation": "NONE",
+  "permitted_change": "RUNNER_ONLY_EXCLUSION_WITH_EXPLICIT_SUPERSESSION_REASON",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE"
+}
