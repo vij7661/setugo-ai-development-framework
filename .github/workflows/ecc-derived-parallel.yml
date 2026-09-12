@@ -13,6 +13,7 @@ on:
       - experiments/ecc-derived-parallel-v8-verifier-substitution
       - experiments/ecc-derived-parallel-v9-verifier-primitive-integrity
       - experiments/ecc-derived-parallel-v10-path-primitive-integrity
+      - experiments/ecc-derived-parallel-v11-module-global-integrity
     paths:
       - 'experiments/ecc-derived/**'
       - 'experiments/ecc_derived/**'
@@ -44,7 +45,9 @@ jobs:
       - name: Run ECC-derived falsification suite
         shell: bash
         run: |
-          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v10-path-primitive-integrity" ]]; then
+          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v11-module-global-integrity" ]]; then
+            python experiments/ecc_derived/run_v11_suite.py
+          elif [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v10-path-primitive-integrity" ]]; then
             python experiments/ecc_derived/run_v10_suite.py
           elif [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v9-verifier-primitive-integrity" ]]; then
             python experiments/ecc_derived/run_v9_suite.py
