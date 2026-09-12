@@ -8,7 +8,7 @@ A public, reusable framework for disciplined software discovery, architecture, i
 - `skills/failure-triage/` — native failure-triage skill source from the Claude experiment.
 - `claude-code/` — native Claude Code safeguards and configuration examples.
 - `standards/` — executable-governance-oriented standards, including external evidence semantic validation and conversational-drift/contamination control.
-- `experiments/governed-platform/` — falsification designs for the governed AI-development platform, including EXP-J semantic evidence gating and EXP-K conversational drift/evidence contamination.
+- `experiments/governed-platform/` — falsification designs for the governed AI-development platform, including EXP-J semantic evidence gating, EXP-K conversational drift/evidence contamination, and competitive falsification baselines such as Everything Claude Code (ECC).
 
 ## Core idea
 
@@ -31,6 +31,8 @@ The Claude artifacts are included as native files rather than converted PDFs so 
 For external research/evidence, lexical similarity is discovery evidence only. Before a material external finding is promoted, verify the actual domain, intended users, inputs, outputs, workflow/capabilities, claimed overlap, and authoritative support. A researcher or Judge verdict cannot substitute for missing mandatory evidence.
 
 For long-running or multi-agent work, conversation is not an authoritative database. Material claims should carry durable provenance and status, and downstream contexts should be reconstructed from governed state: verified claims, accepted decisions, unresolved hypotheses, retractions, and requirements. Repetition or model consensus does not upgrade evidentiary status. When a parent claim is retracted, dependent claims, decisions, and requirements must be traced and reassessed rather than silently preserved or rewritten.
+
+Competitive comparisons are treated as falsification work, not marketing comparisons. Relevant external agent frameworks should be tested on matched tasks and deliberate false-green conditions, with exact source revisions and expected outcomes frozen before execution. The ECC competitive baseline is currently design-only and must not be described as executed evidence.
 
 ## Relationship to Setugo
 
