@@ -1,0 +1,14 @@
+{
+  "record_type": "ECC_DERIVED_V12_REPAIR_APPLIED",
+  "repair_input_sha": "4fec5bbcaf9058f3c15bab726e83016f873429d0",
+  "repair_generated_sha": "c650d169c0581e60f21d2d54ee61344dc38528cb",
+  "repair_workflow_run_id": 34699239535,
+  "repair_workflow_job_id": 103567942600,
+  "candidate_boundary_sha256": "81eebdd4e42a10940809f42647a391d7d3a63dc8613744e8b775aefe723f694e",
+  "reference_evidence_sha256": "bcf513496e2f7d17456ad7ee6feea7762828d331c91018ef70b3df1ad777b22d",
+  "manifest_sha256": "24fedfdc5a2bbc4987ecba54a41fd12f25aee60e36fe021e4e5cd59a47aaf86a",
+  "v12_assertions_modified_during_mechanism_repair": false,
+  "review_path_narrowing": "Permission-profile drift already fails direct semantic comparison; V12 mechanism repair targets argv-only digest primitive bypass plus raw config semantic reference binding.",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the unchanged V12 falsification suite after the workflow-token repair push."
+}
