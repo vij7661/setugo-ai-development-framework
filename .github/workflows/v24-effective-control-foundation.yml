@@ -1,0 +1,24 @@
+name: V24 Effective Control Foundation
+
+on:
+  push:
+    branches: [implementation/v24-i3-effective-control-capability]
+    paths:
+      - 'governance-runtime/v24_effective_control.py'
+      - 'governance-runtime/test_v24_effective_control.py'
+      - '.github/workflows/v24-effective-control-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Run I3 effective-control contract tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_effective_control.py
