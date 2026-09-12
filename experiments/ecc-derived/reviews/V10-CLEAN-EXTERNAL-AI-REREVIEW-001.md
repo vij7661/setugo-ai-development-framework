@@ -1,0 +1,160 @@
+REVIEW_CONTEXT = CLEAN_PACKET_ONLY_CONTEXT
+
+EVIDENCE_DECLARATION = AI_GENERATED_ENGINEERING_FEEDBACK_ONLY
+
+Overall disposition: `CHANGES_REQUIRED_BEFORE_IMPACT_ADJUDICATION`
+
+The packet preserves a substantial RED→repair→GREEN lineage and correctly maintains a non-production, evidence-only posture. However, the current V10 reference mechanism still contains a concrete false-green path inside its stated ordinary-module/monkeypatch threat model. That path is not covered by the V8/V9/V10 frozen assertions and is not listed among the bounded nonclaims. Therefore the seven-experiment family is not ready for governed impact adjudication as requirement candidates until the shared candidate-boundary integrity model is corrected and refalsified.
+
+## Per-experiment disposition
+
+| Experiment | Disposition |
+|---|---|
+| EXP-ECC-1 | `INSUFFICIENT_EVIDENCE` |
+| EXP-ECC-2 | `INSUFFICIENT_EVIDENCE` |
+| EXP-ECC-3 | `INSUFFICIENT_EVIDENCE` |
+| EXP-ECC-4 | `INSUFFICIENT_EVIDENCE` |
+| EXP-ECC-5 | `INSUFFICIENT_EVIDENCE` |
+| EXP-ECC-6 | `DEFER_PENDING_INTEGRATION_EVIDENCE` |
+| EXP-ECC-7 | `DEFER_PENDING_INTEGRATION_EVIDENCE` |
+
+EXP-ECC-1 through EXP-ECC-5 remain reference-only and still lack live platform/integration evidence. More importantly, the shared candidate-boundary mechanism used to adjudicate their bounded reference evidence is bypassable under ordinary module monkeypatching, so their current GREEN evidence cannot support even bounded impact adjudication as requirement candidates. EXP-ECC-6 and EXP-ECC-7 remain correctly deferred.
+
+## Findings
+
+### Critical
+
+**C1. Mutable module globals in dependency modules bypass the V8/V9 code-hash integrity check and allow candidate-authority minting.**
+
+Exact artifacts/functions:
+
+- `experiments/ecc_derived/ecc_candidate_boundary.py`
+  - `_build_runtime_policy_verifier(...).code_sha(fn)`
+  - `_build_runtime_policy_verifier(...).runtime_verify()`
+  - `_build_candidate_api(...).lookup(kind, evidence_id)`
+  - `_build_candidate_api(...).assess_control_execution_candidate(...)`
+  - `_build_candidate_api(...).execution_evidence_ok(...)`
+  - `_build_candidate_api(...).finish_positive(...)`
+- `experiments/ecc_derived/ecc_governance_strict.py`
+  - module-global `_strict(...)`
+- `experiments/ecc_derived/ecc_reference_evidence.py`
+  - module-global `_REFERENCE` dictionary
+- Missing falsification in:
+  - `experiments/ecc_derived/test_ecc_governance_v10_path_primitive_integrity.py`
+  - `experiments/ecc_derived/test_ecc_governance_v9_verifier_primitive_integrity.py`
+  - `experiments/ecc_derived/test_ecc_governance_v8_verifier_substitution.py`
+
+`runtime_verify()` verifies dependency functions by hashing only `fn.__code__` via `marshal.dumps(fn.__code__)`. It does not hash `fn.__globals__`, module-global helper state, module-global data, defaults, closure cells, or the identity of the function object as the originally captured function. The candidate API then calls `strict_module.assess_control_execution_candidate(...)` and `evidence_module.lookup_reference_evidence(...)` through the captured module objects, using ordinary attribute lookup at call time.
+
+Concrete attack sequence:
+
+1. Import `ecc_candidate_boundary` and its dependencies normally.
+2. Monkeypatch `boundary.strict_core._strict` to return a favorable result regardless of input, e.g. a dict with `status = "VERIFIED"`, `verified = True`, `allowed = True`, and `evaluation_class = "REQUIREMENT_CANDIDATE"`.
+3. Insert a forged record into `boundary.reference_evidence._REFERENCE` under a chosen `reference_evidence_id` that matches the attacker-controlled event, control, candidate, and action binding.
+4. Call `boundary.assess_control_execution_candidate(control, forged_event, candidate=..., action_id=...)`.
+5. `runtime_verify()` still passes because:
+   - file hashes are unchanged;
+   - module identities are unchanged;
+   - the checked function `strict_core.assess_control_execution_candidate` still has the original `__code__`;
+   - the checked function `reference_evidence.lookup_reference_evidence` still has the original `__code__`.
+6. `strict_core.assess_control_execution_candidate(...)` executes `assess_control_execution(...)`, which resolves `_strict` through its module globals. The monkeypatched `_strict` returns the favorable forged result.
+7. `core_favorable(...)` accepts the forged result.
+8. `lookup(...)` calls the unchanged `reference_evidence.lookup_reference_evidence(...)`, which reads the monkeypatched `_REFERENCE` dictionary and returns the forged matching record.
+9. `execution_evidence_ok(...)` accepts the forged record.
+10. `finish_positive(...)` calls the internal `runtime_verify()` again, which still passes, and seals a candidate-eligible result.
+11. `candidate_result_eligible(result)` returns `True` for an invalid or forged execution event.
+
+This is inside the stated ordinary-module/monkeypatch threat model. It does not require reflective closure extraction, bytecode rewriting, native-memory access, interpreter compromise, or repository/code-replacement authority. The V8/V9/V10 ledgers claim actual dependency tamper fail-closed, but the integrity check is incomplete for mutable module globals and module-global data used by the checked functions.
+
+### High
+
+**H1. `_COVERS` is a mutable module-global set used directly by `runtime_verify()` and is not captured in the verifier closure.**
+
+Exact artifact/function:
+
+- `experiments/ecc_derived/ecc_candidate_boundary.py`
+  - module-global `_COVERS`
+  - `_build_runtime_policy_verifier(...).runtime_verify()`
+  - check: `if set(manifest.get("covers") or []) != _COVERS: return False`
+
+`_COVERS` is not captured as an immutable closure value. If an attacker can combine this with a forged manifest path, patching `boundary._COVERS` can neutralize the covers check. This alone does not give a full mint because manifest file replacement is outside the ordinary module-access threat model, but it is a defense-in-depth defect in the candidate-boundary integrity model and should be corrected before adjudication.
+
+### Medium
+
+**M1. The V10 suite closes Path-method substitution but does not refalsify module-global dependency mutation.**
+
+Exact artifact/test:
+
+- `experiments/ecc_derived/test_ecc_governance_v10_path_primitive_integrity.py`
+  - tests only `Path.read_text`, `Path.read_bytes`, `Path.resolve`, `Path.is_file`, `Path.is_symlink`
+- `experiments/ecc_derived/test_ecc_governance_v9_verifier_primitive_integrity.py`
+  - tests `json.loads`, `json.dumps`, `marshal.dumps` aliasing
+- `experiments/ecc_derived/test_ecc_governance_v8_verifier_substitution.py`
+  - tests replacement of `strict_core.assess_control_execution_candidate` and `reference_evidence.lookup_reference_evidence` with new code objects
+
+None of these tests cover mutation of `ecc_governance_strict._strict`, `ecc_reference_evidence._REFERENCE`, `_ALLOWED_CAP_CLASSES`, `_CAPABILITY_RANK`, or other mutable module-global state used by the checked functions. The missing negative case is the direct cause of C1.
+
+### Low
+
+**L1. `REFERENCE_REPO_BOUND_SIMULATION_ONLY` is correctly declared but remains a hard dependency for EXP-ECC-1 through EXP-ECC-5 reference positives.**
+
+Exact artifact:
+
+- `experiments/ecc_derived/ecc_reference_evidence.py`
+  - `TRUST_SOURCE_CLASS = "REFERENCE_REPO_BOUND_SIMULATION_ONLY"`
+- `experiments/ecc_derived/ecc_governance_trust_manifest.json`
+  - `reference_evidence_trust_source`
+  - `live_attestation_claimed = false`
+  - `independent_production_trust_root_claimed = false`
+
+This is an acceptable bounded exclusion for a reference-mechanism packet, but it cannot substitute for live/independent evidence. The packet correctly does not claim otherwise.
+
+## Missing negative and positive falsification cases
+
+The following cases should be added before any freeze or impact-adjudication recommendation:
+
+- Negative: monkeypatch `ecc_governance_strict._strict` to return favorable results while leaving `assess_control_execution_candidate.__code__` unchanged. Must not mint candidate-eligible authority.
+- Negative: monkeypatch `ecc_reference_evidence._REFERENCE` to add a forged matching record while leaving `lookup_reference_evidence.__code__` unchanged. Must not mint.
+- Negative: monkeypatch `ecc_governance_strict._ALLOWED_CAP_CLASSES` or `_CAPABILITY_RANK` to accept an unsupported/unknown capability. Must fail closed for EXP-ECC-3 candidate paths.
+- Negative: monkeypatch `ecc_candidate_boundary._COVERS` while otherwise attempting manifest-cover substitution. Must not bypass the covers check.
+- Negative: replace a checked dependency function with a new function object that reuses the original `__code__` but changes `__globals__`, defaults, or closure. Must not mint.
+- Positive: legitimate candidate paths for EXP-ECC-1 through EXP-ECC-5 remain positive after adding protection for mutable module globals.
+- Positive: the public diagnostic verifier still reports current policy when dependencies are untampered.
+
+## Assessment of historical supersessions and RED preservation
+
+The packet preserves RED and repair history for V2 through V10. Superseded tests are explicitly printed by the active runners for V5/V6 semantics, and the reasons are technically justified:
+
+- V5 raw-dictionary positive eligibility superseded by V6 provenance sealing.
+- V5 public-verifier replacement proxy superseded by V8 closure-held internal verifier and actual dependency-tamper tests.
+- V6 public-verifier replacement proxy superseded by V8 diagnostic-only public verifier.
+
+No history rewriting was observed. V3 and V4 test files remain immutable historical evidence and are excluded from the active V10 runner as described in the V5 ledger. The preserved RED records are consistent with the claimed repair lineage.
+
+However, the C1 false-green path was not covered by any prior RED/GREEN cycle. It is a new unclosed defect, not a historical supersession issue.
+
+## Assessment of remaining nonclaims
+
+The following nonclaims are appropriately bounded for a reference-only packet:
+
+- captured-callable mutation;
+- deeper OS/runtime primitives;
+- reflective/interpreter/native-memory compromise;
+- repository/code-replacement authority;
+- live platform attestation;
+- independent production trust root;
+- durable signed cross-process provenance.
+
+They are acceptable as explicit exclusions from the V10 reference-mechanism claim. However, the mutable-module-global bypass in C1 is not within those exclusions. It is an ordinary module monkeypatch path, and the packet’s own V8/V9/V10 threat model claims ordinary module attribute replacement and monkeypatching are in scope. Therefore the nonclaims do not cover this design defect.
+
+## EXP-ECC-6 and EXP-ECC-7
+
+EXP-ECC-6 and EXP-ECC-7 should remain deferred. The packet provides no live automated reviewer transport, no authenticated provider identity, no qualifying manual-review evidence, and no actual governed learning/retraction pipeline integration. Their current reference-only handling is appropriately non-authoritative.
+
+## Freeze recommendation
+
+`DO_NOT_FREEZE`
+
+The V10 evidence corpus should not be frozen for bounded impact adjudication until the critical mutable-module-global false-green path is repaired, refalsified with frozen negative and positive cases, and externally re-reviewed.
+
+AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY
