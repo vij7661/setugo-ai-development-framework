@@ -6,6 +6,7 @@ on:
       - experiments/ecc-derived-parallel-v1
       - experiments/ecc-derived-parallel-v2-remediation
       - experiments/ecc-derived-parallel-v3-omission-hardening
+      - experiments/ecc-derived-parallel-v4-mandatory-boundary
     paths:
       - 'experiments/ecc-derived/**'
       - 'experiments/ecc_derived/**'
