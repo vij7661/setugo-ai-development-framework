@@ -1,0 +1,7 @@
+{
+  "record_type": "EvidenceClassificationCorrection",
+  "corrects_record": "ECC-DERIVED-V2-REVIEW-RED-001",
+  "correction": "The E5 credential_profile omission is not treated as a fixture defect. The v2 test intentionally moves secret-bearing credential identity to credential_profile_fingerprint/attestation. TOOL_CONFIG_UNKNOWN from the v1 mechanism therefore remains evidence of a schema/attestation compatibility gap.",
+  "history_rewritten": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
