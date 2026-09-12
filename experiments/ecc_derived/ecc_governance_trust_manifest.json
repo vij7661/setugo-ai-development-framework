@@ -1,0 +1,19 @@
+{
+  "record_type": "ECC_GOVERNANCE_SHARED_MODULE_TRUST_BOUNDARY_MANIFEST",
+  "module_path": "experiments/ecc_derived/ecc_governance.py",
+  "module_sha256": "5609f0b7ba51246f6da017a3a47434be1e521ee25b6bb63e84897e385e26820d",
+  "module_git_blob_sha": "c03d1a45ef9a312c27ab975cbb7fce626edbf0fa",
+  "covers": [
+    "EXP-ECC-1",
+    "EXP-ECC-2",
+    "EXP-ECC-3",
+    "EXP-ECC-4",
+    "EXP-ECC-5",
+    "EXP-ECC-6",
+    "EXP-ECC-7"
+  ],
+  "legacy_path_policy": "HISTORICAL_REFERENCE_ONLY",
+  "candidate_path_policy": "MANDATORY_STRICT_EVALUATION",
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
