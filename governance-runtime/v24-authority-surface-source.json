@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "base_commit": "80f11de73949688a3c535c871ea629ae489e2c49",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "production_control_plane_evidence": "NOT_VERIFIED",
+  "surfaces": [
+    {"component_id":"authoritative-state-ledger","path":"experiments/governed-platform/governance/authoritative_state_ledger.py","functional_classes":["AUTHORITATIVE_STATE_STORE"]},
+    {"component_id":"authoritative-state-ledger-v2","path":"experiments/governed-platform/governance/authoritative_state_ledger_v2.py","functional_classes":["AUTHORITATIVE_STATE_STORE"]},
+    {"component_id":"authority-binding","path":"experiments/governed-platform/governance/authority_binding.py","functional_classes":["AUTHORITY_BINDING"]},
+    {"component_id":"capability-guard","path":"experiments/governed-platform/governance/capability_guard.py","functional_classes":["AUTHORITY_QUALIFICATION_GUARD"]},
+    {"component_id":"qualification-guard","path":"experiments/governed-platform/governance/qualification_guard.py","functional_classes":["AUTHORITY_QUALIFICATION_GUARD"]},
+    {"component_id":"governed-execution-decision","path":"experiments/governed-platform/governance/integrated_governed_mvp.py","functional_classes":["AUTHORITY_DECISION"]},
+    {"component_id":"execution-gateway","path":"experiments/governed-platform/governance/integrated_governed_mvp_execution_gateway.py","functional_classes":["AUTHORITY_EFFECT_GATEWAY"]},
+    {"component_id":"repository-gateway","path":"experiments/governed-platform/governance/integrated_governed_mvp_repository_gateway.py","functional_classes":["REPOSITORY_MUTATION_GATEWAY"]},
+    {"component_id":"isolated-tool-runner","path":"experiments/governed-platform/governance/integrated_governed_mvp_tool_runner.py","functional_classes":["TOOL_EFFECT_GATEWAY"]},
+    {"component_id":"terminal-authority","path":"experiments/governed-platform/governance/integrated_governed_mvp_terminal_authority.py","functional_classes":["TERMINAL_AUTHORITY_DECISION"]},
+    {"component_id":"terminal-executor","path":"experiments/governed-platform/governance/integrated_governed_mvp_terminal_executor.py","functional_classes":["TERMINAL_EFFECT_GATEWAY"]},
+    {"component_id":"remote-transport","path":"experiments/governed-platform/governance/integrated_governed_mvp_remote_transport.py","functional_classes":["REMOTE_EFFECT_TRANSPORT"]},
+    {"component_id":"credential-lease","path":"experiments/governed-platform/governance/integrated_governed_mvp_credential_lease.py","functional_classes":["CREDENTIAL_AUTHORITY"]},
+    {"component_id":"external-side-effect","path":"experiments/governed-platform/governance/integrated_governed_mvp_external_side_effect.py","functional_classes":["EXTERNAL_EFFECT_GATEWAY"]}
+  ]
+}
