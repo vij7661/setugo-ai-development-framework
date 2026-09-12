@@ -67,27 +67,6 @@ This map contains no prior reviewer findings or disposition and grants no author
 | Enforced admission perimeter | P24-B01…B03 / V24-B01/B02/B06 | WDPC-497, 498, 504, 505 |
 | Non-circular bootstrap completeness authorities | P24-B04…B08 / V24-B03…B05 | WDPC-499–503, 506 |
 
-## V23 design-gap closure surfaces
-
-This map records design coverage only and intentionally contains no prior review conclusions.
-
-- initially incomplete aggregation keys/dimensions → independently derived dimension universe, conservative coverage, persistence semantics, functional catch-all, WDPC-431/439/461;
-- initially incomplete effective-control source universe → independent control-plane/source derivation, explicit per-subject source responses, WDPC-432/437/451/462/489/494;
-- initially incorrect endpoint table → completeness-qualified machine-readable predicate catalog, compiled phase/severity total ordering, independent correctness record, WDPC-433/453/463;
-- witness-controlled decision-ledger fork detection → independent multi-domain witness quorum, WDPC-449/460/467/477/484;
-- capability inventory self-attestation → independent attestation authority plus independent measurement/provenance and drift invalidation, WDPC-436/466/476/486;
-- circular proof-view control set → closed-world normative descriptors, qualified legacy continuity, compiled applicability, WDPC-446/447/469/481/482;
-- multi-key aggregate partial commit → one transaction identity plus outcome-unknown reconciliation, WDPC-434/464;
-- migration based on incomplete predecessor closure → independent legacy predecessor qualification, generation tags and cache/replica fencing, WDPC-435/438/455/465;
-- within-phase endpoint ambiguity → exact total order, no runtime “most specific” discretion, WDPC-433/453/463;
-- later-proven source invalidity → no retro-validation, WDPC-457;
-- application linkage ambiguity → exact `AuthorityApplicationRecord`, WDPC-440/456/470;
-- authority graph visible-subset acyclicity → completeness before acyclicity, WDPC-448;
-- new/unknown functionally authority-capable mechanisms → functional catch-all + effect-path conformance + deny-by-default admission, WDPC-487/488/493/497/505;
-- V5–V23 control loss during machine-readable migration → exact legacy continuity manifest and independent semantic continuity, WDPC-490/491/495;
-- completeness-authority bootstrap recursion → explicit out-of-band `BootstrapCompletenessAuthoritySet` and source contracts, WDPC-499…503/506;
-- discovery-only closed-world claim → independently evidenced deny-by-default sink perimeter, WDPC-497/498/504/505.
-
 ## Unique V24 enforcement-path accounting
 
 V24 requires independent evidence for at least these additional paths beyond V23:
