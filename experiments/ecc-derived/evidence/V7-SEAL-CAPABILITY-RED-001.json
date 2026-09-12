@@ -1,0 +1,33 @@
+{
+  "record_type": "ECC_DERIVED_V7_SEAL_CAPABILITY_RED",
+  "record_id": "V7-SEAL-CAPABILITY-RED-001",
+  "exact_candidate_sha": "062ffeb869310afcedbdde228855bb72451171c4",
+  "workflow_run_id": 34694186737,
+  "workflow_job_id": 103554703960,
+  "result": {
+    "tests_run": 162,
+    "failures": 5,
+    "errors": 0,
+    "conclusion": "CLEAN_EXPECTED_PRE_REPAIR_RED"
+  },
+  "parent_v6_ledger_sha": "a9a28a7d25ea97d79237fd9706659023314af507",
+  "v7_assertion_commit": "c7eeb35623ebe643106f56b2dd4486a37131cc95",
+  "v7_runner_commit": "f3ad428cb76c73be766c8edc7e31bc5516f2880f",
+  "failure_classes": [
+    "MODULE_EXPORTS_RAW_SEAL_CAPABILITY",
+    "MODULE_EXPORTS_CANDIDATE_RESULT_CONSTRUCTOR",
+    "GENERIC_TYPED_HELPER_CAN_MINT_POSITIVE_AUTHORITY",
+    "FINISH_POSITIVE_HELPER_CAN_MINT_FROM_ARBITRARY_PAYLOAD",
+    "BOUNDARY_NAMESPACE_EXPOSES_CAPABILITY_BEARING_SHORTCUTS"
+  ],
+  "positive_controls": {
+    "legitimate_candidate_entrypoint_still_eligible": "PASS",
+    "plain_forged_dictionary_still_ineligible": "PASS"
+  },
+  "mechanism_repair_started": false,
+  "v7_assertions_modified_after_red": false,
+  "manual_review_threshold_contribution": 0,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "adoption_effect": "NONE",
+  "note": "V6 bounded green is preserved unchanged. V7 falsifies a distinct ordinary-module-access capability leak: process-local provenance could be minted through exported helper functions without executing the governed candidate evidence checks."
+}
