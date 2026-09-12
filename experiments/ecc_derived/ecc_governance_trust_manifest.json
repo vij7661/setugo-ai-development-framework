@@ -24,6 +24,7 @@
     "json.loads",
     "marshal.dumps"
   ],
+  "checked_entrypoint_identity_policy": "EXACT_FUNCTION_OBJECT_IDENTITY_REQUIRED",
   "covers": [
     "EXP-ECC-1",
     "EXP-ECC-2",
@@ -44,6 +45,8 @@
   "interpreter_compromise_resistance_claimed": false,
   "live_attestation_claimed": false,
   "manual_review_threshold_contribution": 0,
+  "module_global_dependency_policy": "RECURSIVE_REFERENCED_GLOBALS_BOUND_AT_INITIALIZATION",
+  "module_global_mutation_fail_closed": true,
   "module_paths": {
     "candidate_boundary": "experiments/ecc_derived/ecc_candidate_boundary.py",
     "public_core": "experiments/ecc_derived/ecc_governance.py",
@@ -51,7 +54,7 @@
     "strict_core": "experiments/ecc_derived/ecc_governance_strict.py"
   },
   "module_sha256": {
-    "candidate_boundary": "7705eb56bb03c28c12db78f64c30d6c43972643bdfbce15167849d64e140a8b9",
+    "candidate_boundary": "fbbcdb89b0e7e547c749a226f0f7fd359dd513137b2480007c8b69bafa00b77d",
     "public_core": "4817db8e7f7496c288431c5220b4f559c9757b0b0a12ecc9507bf0f95a3ceb51",
     "reference_evidence": "ffbe5fd4974e99ddd9d70bd3084e12704038510c267f263d75d5013864f441c7",
     "strict_core": "2519065974e911adbedd55f645984ff3bf7f7e84d924204b74e659a328d4e7b2"
@@ -60,15 +63,17 @@
   "path_primitive_policy": "EXACT_PATH_CALLABLES_CAPTURED_AT_INITIALIZATION",
   "process_local_provenance_only": true,
   "public_core_policy": "HISTORICAL_ONLY_NO_CALLER_STRICT_MODE",
+  "public_covers_global_controls_candidate_authority": false,
   "public_json_alias_controls_candidate_authority": false,
   "public_marshal_alias_controls_candidate_authority": false,
   "public_path_method_alias_controls_candidate_authority": false,
   "public_runtime_verifier_role": "DIAGNOSTIC_WRAPPER_ONLY",
   "public_verifier_substitution_affects_candidate_authority": false,
-  "record_type": "ECC_GOVERNANCE_V10_PATH_PRIMITIVE_INTEGRITY_MANIFEST",
+  "record_type": "ECC_GOVERNANCE_V11_MODULE_GLOBAL_INTEGRITY_MANIFEST",
   "reference_evidence_trust_source": "REFERENCE_REPO_BOUND_SIMULATION_ONLY",
   "reflective_closure_extraction_resistance_claimed": false,
   "remaining_external_boundary": "LIVE_PLATFORM_ATTESTATION_AND_INDEPENDENT_TRUST_SOURCE",
+  "remaining_module_global_boundary": "CONCURRENT_TOCTOU_MUTATION_BETWEEN_VERIFY_AND_EXECUTION_AND_REFLECTIVE_CAPTURED_OBJECT_MUTATION_OUTSIDE_V11_BOUNDED_THREAT_MODEL",
   "remaining_path_boundary": "MUTATION_OF_CAPTURED_PATH_CALLABLE_OBJECTS_OR_DEEPER_OS_FILESYSTEM_PRIMITIVES_OUTSIDE_V10_BOUNDED_THREAT_MODEL",
   "remaining_primitive_boundary": "MUTATION_OF_CAPTURED_CALLABLE_OBJECTS_OR_OTHER_INTERPRETER_PRIMITIVES_OUTSIDE_V9_BOUNDED_THREAT_MODEL",
   "remaining_provenance_boundary": "DURABLE_SIGNED_RECEIPT_OR_EXTERNAL_TRUST_SERVICE_FOR_CROSS_PROCESS_USE",
@@ -85,6 +90,7 @@
     "strict.classify_review_binding_candidate": "2b6dc707c4c6e275a6afda841ea02097a3ccd116d9b52f08d1f1f201e0756275",
     "strict.qualify_role_binding_candidate": "1dbbeb6157df54292a676ac46fef952b107e4f8f13a15c87dae1c1630fc057b2"
   },
+  "same_code_new_function_object_fail_closed": true,
   "seal_capability_policy": "POSITIVE_SEAL_CAPABILITY_CLOSURE_LOCAL_ONLY",
   "seal_primitive_policy": "EXACT_CALLABLES_CAPTURED_AT_INITIALIZATION",
   "serialized_candidate_authority": "REJECT_UNSEALED_RECONSTRUCTION",

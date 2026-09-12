@@ -33,6 +33,22 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
     path_resolve_fn = Path.resolve
     path_is_file_fn = Path.is_file
     path_is_symlink_fn = Path.is_symlink
+    covers_expected = frozenset(_COVERS)
+
+    # Capture the exact candidate-authoritative entrypoint objects before any
+    # ordinary module monkeypatching can occur. Code equality alone is not
+    # sufficient because a new function object can reuse the same __code__
+    # with different globals/defaults.
+    strict_entrypoints = {
+        "assess_control_execution_candidate": strict_module.assess_control_execution_candidate,
+        "check_declared_executable_equivalence_candidate": strict_module.check_declared_executable_equivalence_candidate,
+        "qualify_role_binding_candidate": strict_module.qualify_role_binding_candidate,
+        "authorize_power_activation_candidate": strict_module.authorize_power_activation_candidate,
+        "check_tool_configuration_candidate": strict_module.check_tool_configuration_candidate,
+        "classify_review_binding_candidate": strict_module.classify_review_binding_candidate,
+        "authorize_learning_promotion_candidate": strict_module.authorize_learning_promotion_candidate,
+    }
+    reference_lookup_fn = evidence_module.lookup_reference_evidence
 
     boundary_path = path_resolve_fn(path_type(boundary_file))
     here = boundary_path.parent
@@ -49,6 +65,89 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return sha256_fn(marshal_dumps_fn(fn.__code__)).hexdigest()
         except (AttributeError, TypeError, ValueError):
             return None
+
+    def freeze_value(value):
+        if value is None or isinstance(value, (bool, int, float, str, bytes)):
+            return ("scalar", type(value).__name__, value)
+        if isinstance(value, dict):
+            items = [(freeze_value(k), freeze_value(v)) for k, v in value.items()]
+            items.sort(key=lambda item: repr(item[0]))
+            return ("dict", tuple(items))
+        if isinstance(value, (set, frozenset)):
+            items = [freeze_value(v) for v in value]
+            items.sort(key=repr)
+            return ("set", tuple(items))
+        if isinstance(value, (list, tuple)):
+            return (type(value).__name__, tuple(freeze_value(v) for v in value))
+        return None
+
+    dependency_specs = []
+    dependency_seen = set()
+
+    def capture_dependency(globals_dict, name):
+        key = (id(globals_dict), name)
+        if key in dependency_seen or name not in globals_dict:
+            return
+        dependency_seen.add(key)
+        value = globals_dict[name]
+        frozen = freeze_value(value)
+        if frozen is not None:
+            dependency_specs.append((globals_dict, name, "value", frozen))
+            return
+        code = getattr(value, "__code__", None)
+        fn_globals = getattr(value, "__globals__", None)
+        if code is not None and isinstance(fn_globals, dict):
+            dependency_specs.append((
+                globals_dict,
+                name,
+                "function",
+                value,
+                code_sha(value),
+                freeze_value(getattr(value, "__defaults__", None)),
+                freeze_value(getattr(value, "__kwdefaults__", None)),
+            ))
+            for child_name in code.co_names:
+                capture_dependency(fn_globals, child_name)
+            return
+        dependency_specs.append((globals_dict, name, "identity", value))
+
+    for fn in tuple(strict_entrypoints.values()) + (reference_lookup_fn,):
+        for dep_name in fn.__code__.co_names:
+            capture_dependency(fn.__globals__, dep_name)
+
+    def dependency_globals_ok():
+        for spec in dependency_specs:
+            globals_dict, name, mode = spec[:3]
+            if name not in globals_dict:
+                return False
+            current = globals_dict[name]
+            if mode == "value":
+                if freeze_value(current) != spec[3]:
+                    return False
+            elif mode == "identity":
+                if current is not spec[3]:
+                    return False
+            elif mode == "function":
+                expected_fn, expected_code, expected_defaults, expected_kwdefaults = spec[3:]
+                if current is not expected_fn:
+                    return False
+                if code_sha(current) != expected_code:
+                    return False
+                if freeze_value(getattr(current, "__defaults__", None)) != expected_defaults:
+                    return False
+                if freeze_value(getattr(current, "__kwdefaults__", None)) != expected_kwdefaults:
+                    return False
+            else:
+                return False
+        return True
+
+    def entrypoint_identity_ok():
+        for name, expected_fn in strict_entrypoints.items():
+            if getattr(strict_module, name, None) is not expected_fn:
+                return False
+        if getattr(evidence_module, "lookup_reference_evidence", None) is not reference_lookup_fn:
+            return False
+        return True
 
     def module_identity_ok(module, expected_path, expected_name):
         try:
@@ -88,7 +187,7 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
         except (OSError, ValueError, TypeError):
             return False
 
-        if manifest.get("record_type") != "ECC_GOVERNANCE_V10_PATH_PRIMITIVE_INTEGRITY_MANIFEST":
+        if manifest.get("record_type") != "ECC_GOVERNANCE_V11_MODULE_GLOBAL_INTEGRITY_MANIFEST":
             return False
         if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
             return False
@@ -116,6 +215,12 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return False
         if manifest.get("public_path_method_alias_controls_candidate_authority") is not False:
             return False
+        if manifest.get("module_global_dependency_policy") != "RECURSIVE_REFERENCED_GLOBALS_BOUND_AT_INITIALIZATION":
+            return False
+        if manifest.get("checked_entrypoint_identity_policy") != "EXACT_FUNCTION_OBJECT_IDENTITY_REQUIRED":
+            return False
+        if manifest.get("public_covers_global_controls_candidate_authority") is not False:
+            return False
         if set(manifest.get("captured_path_primitives") or []) != {
             "Path.read_text",
             "Path.read_bytes",
@@ -136,7 +241,12 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
             return False
         if manifest.get("authority_effect") != "NONE_EVIDENCE_ONLY":
             return False
-        if set(manifest.get("covers") or []) != _COVERS:
+        if frozenset(manifest.get("covers") or []) != covers_expected:
+            return False
+
+        if not entrypoint_identity_ok():
+            return False
+        if not dependency_globals_ok():
             return False
 
         if not module_identity_ok(gov_module, public_path, "ecc_governance"):
@@ -163,14 +273,14 @@ def _build_runtime_policy_verifier(gov_module, strict_module, evidence_module, b
 
         runtime = manifest.get("runtime_code_sha256") or {}
         strict_functions = {
-            "strict.assess_control_execution_candidate": strict_module.assess_control_execution_candidate,
-            "strict.check_declared_executable_equivalence_candidate": strict_module.check_declared_executable_equivalence_candidate,
-            "strict.qualify_role_binding_candidate": strict_module.qualify_role_binding_candidate,
-            "strict.authorize_power_activation_candidate": strict_module.authorize_power_activation_candidate,
-            "strict.check_tool_configuration_candidate": strict_module.check_tool_configuration_candidate,
-            "strict.classify_review_binding_candidate": strict_module.classify_review_binding_candidate,
-            "strict.authorize_learning_promotion_candidate": strict_module.authorize_learning_promotion_candidate,
-            "reference.lookup_reference_evidence": evidence_module.lookup_reference_evidence,
+            "strict.assess_control_execution_candidate": strict_entrypoints["assess_control_execution_candidate"],
+            "strict.check_declared_executable_equivalence_candidate": strict_entrypoints["check_declared_executable_equivalence_candidate"],
+            "strict.qualify_role_binding_candidate": strict_entrypoints["qualify_role_binding_candidate"],
+            "strict.authorize_power_activation_candidate": strict_entrypoints["authorize_power_activation_candidate"],
+            "strict.check_tool_configuration_candidate": strict_entrypoints["check_tool_configuration_candidate"],
+            "strict.classify_review_binding_candidate": strict_entrypoints["classify_review_binding_candidate"],
+            "strict.authorize_learning_promotion_candidate": strict_entrypoints["authorize_learning_promotion_candidate"],
+            "reference.lookup_reference_evidence": reference_lookup_fn,
         }
         actual_runtime = {name: code_sha(fn) for name, fn in strict_functions.items()}
         if runtime != actual_runtime or any(value is None for value in actual_runtime.values()):
