@@ -1,0 +1,250 @@
+REVIEW_CONTEXT = CLEAN_PACKET_ONLY_CONTEXT  
+EVIDENCE_DECLARATION = AI_GENERATED_ENGINEERING_FEEDBACK_ONLY  
+
+## 3. Overall disposition
+
+**CHANGES_REQUIRED**
+
+V19 is a substantial, mostly coherent additive hardening layer, and it does not weaken inherited V5–V18 controls on its face. However, the design still contains at least one critical anti-weakening ambiguity and several high/medium precision gaps around deterministic reconciliation, dependency-index completeness, and witness currentness. No V19 falsification case has been executed, so this is design-stage engineering feedback only.
+
+---
+
+## 4. Critical / High / Medium / Low findings
+
+### Critical
+
+**C-1 — V19-C04 does not fully prohibit root-threshold weakening.**  
+V19-C04 says a policy rotation may strengthen the threshold prospectively, and may not lower the threshold and then use the lowered threshold to mutate governed ledgers. But it does not clearly prohibit lowering the threshold itself under the old threshold. A rotation authorized under the old threshold could lower the future mutation threshold; later “normal” mutation could then occur under the weakened threshold. That defeats the anti-weakening intent. The invariant should be: any change affecting mutation authority for root-governed ledgers must retain or strengthen the effective mutation threshold, or be rejected.
+
+### High
+
+**H-1 — V19-C06 dependency-index completeness depends on a possibly circular `eligible_dependency_set`.**  
+The control requires comparison of eligible, indexed, and revalidated-or-exempt sets, but it does not clearly require the `eligible_dependency_set` itself to be derived by an authority independent of the corpus/algorithm generation being changed. If the same compromised or incomplete generation defines the eligible universe, dependents can be omitted from both eligible and indexed sets, and the set difference can remain empty.
+
+**H-2 — V19-C03 reconciliation determinism lacks explicit precedence when ledger, uniqueness, publication, and witness evidence conflict.**  
+The permitted terminal outcomes are sensible, but the design does not fully define the deterministic decision procedure when authoritative durable state, publication state, and witness/anchor state disagree. `RECONCILIATION_CONFLICT` and `INSUFFICIENT_EVIDENCE` exist, but the rule for choosing among them is not precise enough for all contradictory durable-state combinations.
+
+**H-3 — V19-C08 witness currentness and independence are policy-relative but lack precise minimum proof rules.**  
+The control says the witness must be independent across “policy-defined” domains and records a currentness window. It does not define how currentness is measured, maximum acceptable lag, required sequence/digest binding, or how witness key rotation/revocation/compromise affects currentness. A lagging witness can be classified as insufficient, but the exact disqualification boundary is under-specified.
+
+### Medium
+
+**M-1 — Several WDPC-283…308 cases use alternative expected endpoints instead of one deterministic endpoint.**  
+Examples include WDPC-287, WDPC-288, WDPC-290, WDPC-291, and WDPC-292. Alternatives may be reasonable operationally, but for falsification precision each injected fault should map to one primary endpoint, with fallback endpoints only under explicitly stated evidence conditions.
+
+**M-2 — V19-C11/C12 do not fully bind execution attestation to exact control version and action instance.**  
+C11 requires exact action/candidate-bound execution/verification evidence, but the clause could be strengthened by requiring the control version/digest, runtime path, and action-instance digest to be in the evidence. Without that, a stale but previously valid execution record could be replayed for a similar action.
+
+**M-3 — V19-C15 canonical configuration identity is strong but lacks a proof-view non-exposure rule for secrets.**  
+The clause says secrets must not be exposed merely to compute or display the canonical inventory, but it does not define a proof-view predicate proving redaction/non-exposure. WDPC-308 asserts no secret material is exposed by the proof view, but the design control should state how that is mechanically checked.
+
+**M-4 — V19-C02 requires authority-bearing publication state in the atomic bound set, but leaves “authority-bearing” classification to policy.**  
+Policy may not remove such state, but if policy misclassifies publication as non-authority-bearing, the bound set can still omit it. A root-governed authority-bearing publication registry or exact classification rule would close this.
+
+### Low
+
+**L-1 — V19-C16 correctly keeps ECC boundaries deferred.**  
+No issue.
+
+**L-2 — V19-C17 endpoint list appears internally consistent with the new cases.**  
+No immediate missing endpoint observed for WDPC-283…308, though the expected-outcome ambiguity in some cases is a precision issue rather than an endpoint registration issue.
+
+**L-3 — V19-C18 freeze rule is appropriately non-authoritative.**  
+No runtime qualification is inferred.
+
+---
+
+## 5. Clause-by-clause assessment of V19-C01…V19-C18
+
+| Clause | Assessment | Note |
+|---|---|---|
+| V19-C01 | ADEQUATE | Exact base binding and additive precedence are clear. |
+| V19-C02 | NEEDS_NARROWING | Atomic bound set should include a governed classification of authority-bearing audit/publication state. |
+| V19-C03 | NEEDS_NARROWING | Reconciliation outcomes are good, but precedence rules for contradictory durable/witness/publication evidence need tightening. |
+| V19-C04 | CHANGES_REQUIRED | Critical anti-weakening gap: threshold lowering itself must be prohibited unless same-or-stronger. |
+| V19-C05 | ADEQUATE | Immutable sequence and anti-remapping are well stated. |
+| V19-C06 | CHANGES_REQUIRED | Eligible dependency universe derivation must be independently governed and mechanically complete. |
+| V19-C07 | ADEQUATE | Independent-support exemption governance is well bounded, with identity, evidence, independence, expiry, and authority. |
+| V19-C08 | NEEDS_NARROWING | Witness independence/currentness needs precise lag, sequence, rotation, and disqualification rules. |
+| V19-C09 | ADEQUATE | Migration/compaction cannot become authoritative without current witness continuity. |
+| V19-C10 | ADEQUATE | Proof-view requirements cover the new controls. |
+| V19-C11 | ADEQUATE | Execution vs configured vs verified distinction is correct; could bind exact control version. |
+| V19-C12 | ADEQUATE | Declared-vs-executable equivalence is well targeted. |
+| V19-C13 | ADEQUATE | Provider-neutral role binding and capability envelope staleness are appropriate. |
+| V19-C14 | ADEQUATE | Capability possession vs activation consent is correctly separated. |
+| V19-C15 | NEEDS_NARROWING | Canonical config identity is strong; add secret non-exposure proof predicate. |
+| V19-C16 | ADEQUATE | Deferred ECC boundaries remain deferred. |
+| V19-C17 | ADEQUATE | Endpoint additions align with new controls. |
+| V19-C18 | ADEQUATE | Freeze rule correctly preserves design-only status. |
+
+---
+
+## 6. Assessment of narrowed WDPC-273, WDPC-276, WDPC-277
+
+### WDPC-273 — Crash inside atomic threshold commit / deterministic reconciliation
+
+**Assessment: ADEQUATE_WITH_NARROWING**
+
+The V19 narrowing correctly moves `REVIEW_THRESHOLD_COMMIT_OUTCOME_UNKNOWN` into a deterministic reconciliation state machine and prohibits acknowledgement loss from implying rollback. It binds idempotency key, candidate/gate, ledger records, lineage, witness currentness, and publication identity.
+
+Missing: a precise decision table for contradictory evidence among ledger lookup, uniqueness state, publication state, and witness currentness. Add exact precedence or a root-governed reconciliation predicate.
+
+### WDPC-276 — Corpus change dependency completeness / governed exemption
+
+**Assessment: NEEDS_NARROWING**
+
+The case correctly requires eligible/indexed/revalidated-or-exempt set comparison and governed independent-support exemptions. It blocks omitted dependents and ungoverned/self-support exemptions.
+
+Missing: independent derivation of the `eligible_dependency_set`. Without that, the case can be satisfied by a circularly defined eligible set that omits the very dependent at issue.
+
+### WDPC-277 — Threshold-ledger rollback/fork / witness independence
+
+**Assessment: NEEDS_NARROWING**
+
+The narrowing correctly requires witness independence and currentness, and rejects local/root assertion as a substitute.
+
+Missing: precise rules for witness quorum, key rotation, revocation, compromise, maximum lag, and how witness currentness maps to exact threshold-ledger sequence. Also need deterministic endpoint selection when witness is lagging vs non-independent vs unavailable.
+
+---
+
+## 7. Assessment of new WDPC-283…308
+
+Legend: **Precise?** = sufficiently precise/falsifiable under stated design boundary. **Type** = N negative, P positive.
+
+| Case | Type | Precise? | Assessment |
+|---|---:|---:|---|
+| WDPC-283 | N | Yes | Clear atomic publication omission fault and endpoint. |
+| WDPC-284 | N | Yes | Clear threshold-lowering fault, but C04 wording must be fixed to make it fully enforceable. |
+| WDPC-285 | N | Yes | Clear dependency-index omission. Needs H-1 fix for eligible-set independence. |
+| WDPC-286 | N | Yes | Good self-grant exemption fault. |
+| WDPC-287 | N | Partial | Alternative endpoints reduce precision; specify whether overlap yields invalid or insufficient. |
+| WDPC-288 | N | Partial | Lagging/unavailable witness alternatives should map to one primary endpoint under stated evidence. |
+| WDPC-289 | N | Yes | Sequence remapping/backdating is precise. |
+| WDPC-290 | N | Partial | “INSUFFICIENT_EVIDENCE or WITNESS…” should be deterministic by evidence condition. |
+| WDPC-291 | N | Partial | Fault is clear; expected outcome is descriptive rather than one exact endpoint. |
+| WDPC-292 | N | Partial | Weaker reset/repair threshold fault is good; two possible endpoints need precedence. |
+| WDPC-293 | P | Yes | Good atomic publication positive. |
+| WDPC-294 | P | Yes | Good same-or-stronger rotation positive. |
+| WDPC-295 | P | Yes | Good dependency-index completeness positive. |
+| WDPC-296 | P | Yes | Good independent-support exemption positive. |
+| WDPC-297 | P | Yes | Good witness-lag recovery positive. |
+| WDPC-298 | P | Yes | Good immutable sequence/prospective reuse positive. |
+| WDPC-299 | N | Yes | Configured-vs-executed negative is precise. |
+| WDPC-300 | P | Yes | Execution attestation positive is precise. |
+| WDPC-301 | N | Yes | Fail-open vs declared blocking is precise. |
+| WDPC-302 | P | Yes | Declared/executable equivalence positive is precise. |
+| WDPC-303 | N | Yes | Harness capability overclaim/silent swap is precise. |
+| WDPC-304 | P | Yes | Qualified harness envelope positive is precise. |
+| WDPC-305 | N | Yes | Capability without activation consent is precise. |
+| WDPC-306 | P | Yes | Capability activation positive is precise. |
+| WDPC-307 | N | Yes | Tool/MCP config drift with same name is precise. |
+| WDPC-308 | P | Yes | Config attestation positive is precise; add secret non-exposure proof-view predicate. |
+
+Overall: most new cases are precise and falsifiable. The main precision weakness is alternative expected endpoints in a minority of negative cases.
+
+---
+
+## 8. Explicit analysis of required V19 topics
+
+### Atomic authority/publication inclusion
+
+V19-C02 is directionally correct. It requires authority-bearing audit/event publication state to be in the mandatory atomic bound set. Weakness: “authority-bearing” remains policy-classified. A root-governed classification registry or exact rule would prevent misclassification.
+
+### `OUTCOME_UNKNOWN` reconciliation determinism/idempotency
+
+V19-C03 defines good terminal outcomes and forbids transport failure from implying rollback. Weakness: no exact precedence table for contradictory ledger/witness/publication evidence. Add deterministic reconciliation predicate and exact endpoint per branch.
+
+### Root-threshold anti-weakening
+
+V19-C04 has a critical gap. It must prohibit any lowering of the effective mutation threshold for governed ledgers and policy registries, not merely prohibit “lower then use.” The threshold change itself should be same-or-stronger.
+
+### Authoritative sequence immutability
+
+V19-C05 is adequate. It preserves original consumption sequence and prevents remapping/backdating across policy boundaries. Should also explicitly forbid alternate sequence namespaces from being treated as equivalent.
+
+### Dependency-index completeness
+
+V19-C06 is strong in set-difference mechanics but weak on independent derivation of `eligible_dependency_set`. Without independent eligibility computation, completeness can be circular.
+
+### Independent-support exemption governance
+
+V19-C07 is strong. It requires exact registry record, evidence class, independence threshold, conflict/self-support predicates, expiry, and governed authority. Add explicit stale-exemption test and conflict-between-exemptions rule.
+
+### Witness independence/currentness/recovery
+
+V19-C08/C09 correctly reject non-independent, lagging, unavailable, or stale witnesses and require recovery continuity. Missing precise maximum lag, sequence-binding, witness quorum, key rotation/revocation, and compromise rules.
+
+### Enforcement execution attestation
+
+V19-C11 correctly distinguishes configured, executed, verified, failed, and unknown. It should bind exact control version/digest and action-instance digest to prevent stale execution evidence replay.
+
+### Declared-vs-executable enforcement equivalence
+
+V19-C12 is adequate. It prevents documents, skills, or declarations from claiming stronger enforcement than executable paths provide.
+
+### Provider-neutral R1/R2/R3 capability envelopes
+
+V19-C13 is adequate. Roles remain provider/model-neutral, and harness/model/provider changes make bindings stale. This is a good correction against hardcoded provider roles.
+
+### Activation consent
+
+V19-C14 is adequate. Possession of a capability does not authorize activation; exact governed activation record is required.
+
+### Tool/MCP configuration attestation and drift
+
+V19-C15 is strong. Friendly names are not identity; canonical secret-safe config identity, endpoint, argv, permissions, credential profile, harness/runtime version, and digest drift are covered. Add secret non-exposure proof predicate.
+
+---
+
+## 9. Concrete false-green paths still possible inside the stated design boundary
+
+1. **Threshold weakening path.** Old threshold authorizes a rotation that lowers the future mutation threshold; later normal mutation occurs under the weakened threshold. V19-C04 as written may not block this.
+2. **Circular dependency eligibility.** The corpus/algorithm generation defines the eligible dependent universe and also omits a dependent; set differences remain empty, so a stale `PARENT_UNAFFECTED` decision survives.
+3. **Contradictory reconciliation evidence.** Ledger, uniqueness, publication, and witness evidence disagree; reconciliation chooses `INSUFFICIENT_EVIDENCE` or `CONFLICT` inconsistently without a fixed precedence table.
+4. **Witness domain omission.** Witness appears independent, but an unlisted control/recovery/credential domain allows ledger/root operator influence below the required threshold.
+5. **Independent-support stale exemption.** Exemption record exists but evidence is expired or no longer current; if registry lookup is not strictly revalidated at decision time, false exemption can persist.
+6. **Execution attestation replay.** A previously valid execution record for a similar control/action is reused for a new action because exact control version/action-instance binding is not enforced.
+7. **Secret exposure via canonical config proof.** Canonical config identity is correct, but proof view exposes secret material or a reversible fingerprint without a mechanical non-exposure check.
+8. **Capability activation scope creep.** Activation record exists, but powers/resources are interpreted more broadly than the exact project/resource/expiry scope.
+
+---
+
+## 10. Missing negative/positive falsification cases
+
+Recommended additions:
+
+- **Negative:** threshold rotation lowers mutation threshold, no immediate mutation occurs, then later normal mutation uses lowered threshold.
+- **Negative:** witness quorum includes a key controlled by ledger/root operator through an undeclared recovery domain.
+- **Negative:** witness key rotation/revocation occurs and old witness checkpoint is replayed as current.
+- **Negative:** dependency `eligible_dependency_set` is computed by the same corpus/algorithm being changed and omits a dependent.
+- **Negative:** independent-support exemption record is expired/stale but decision still treats it as valid.
+- **Negative:** canonical config proof view exposes secret material or reversible credential fingerprint.
+- **Negative:** control execution evidence is self-declared by implementation under test without independent attestation.
+- **Negative:** authority-bearing audit/publication state is misclassified as non-authority-bearing by policy.
+- **Positive:** `OUTCOME_UNKNOWN` reconciliation returns `COMMIT_CONFIRMED_EXISTING` exactly once.
+- **Positive:** `OUTCOME_UNKNOWN` reconciliation returns `NO_COMMIT_CONFIRMED` and one retry succeeds once.
+- **Positive:** root rotation strengthens threshold and then ledger migration succeeds.
+- **Positive:** witness currentness recovers after lag and continuity proof verifies.
+- **Positive:** independent-support exemption expires and is correctly revalidated.
+
+---
+
+## 11. Regression / precedence analysis against inherited V5–V18 controls
+
+- V19 adds exactly three files and modifies/deletes no inherited file, per packet integrity statement.
+- V19 inherits WDPC-01…282.
+- WDPC-273, 276, 277 are narrowed, not replaced; their V18 identity remains.
+- WDPC-274, 275, 278…282 remain inherited without weakening.
+- V19-C02 through C15 are generally additive or stricter.
+- **Potential regression risk:** V19-C04’s wording around root-threshold rotation could be read as permitting threshold lowering if authorized under the old threshold. If implemented that way, it would weaken V18-C03’s root-governed ledger anti-self-grant intent. This must be fixed before design freeze.
+- No evidence in the packet shows V19 weakening any active V5–V18 rule elsewhere.
+
+---
+
+## 12. Freeze recommendation for design only
+
+**DO_NOT_FREEZE_FOR_DESIGN_FREEZE / CHANGES_REQUIRED_BEFORE_DESIGN_FREEZE**
+
+V19 should not be frozen even for the next design stage until the critical root-threshold anti-weakening ambiguity is corrected and the high-severity dependency-index and reconciliation precision gaps are closed. This recommendation is design-only. It does not infer runtime qualification, implementation readiness, merge, release, production, adjudication, or terminal authority.
+
+AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY
