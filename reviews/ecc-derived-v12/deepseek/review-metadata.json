@@ -1,0 +1,54 @@
+{
+  "record_type": "ECC_DERIVED_V12_DEEPSEEK_CLEAN_REVIEW_EVIDENCE",
+  "reviewed_candidate_sha": "a87cccd803ce307c601b32e1ad47bfd45790d38c",
+  "reviewed_candidate_tree": "1b159c664a64ed6d3180613bb8ab6a3433bc1c57",
+  "review_context": "CLEAN_PACKET_ONLY_CONTEXT",
+  "evidence_declaration": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+  "manual_review_threshold_contribution": 0,
+  "overall_disposition": "READY_FOR_BOUNDED_IMPACT_ADJUDICATION",
+  "per_experiment": {
+    "EXP-ECC-1": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-2": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-3": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-4": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-5": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-6": "DEFER_PENDING_INTEGRATION_EVIDENCE",
+    "EXP-ECC-7": "DEFER_PENDING_INTEGRATION_EVIDENCE"
+  },
+  "freeze_recommendation": "SAFE_TO_FREEZE_EXPERIMENT_EVIDENCE_FOR_IMPACT_ADJUDICATION",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "critical_findings": 0,
+  "high_findings": 0,
+  "medium_findings": [
+    "M1_V9_RED_GREEN_EVIDENCE_ABSENT_FROM_NEUTRAL_LINEAGE_PROJECTION",
+    "M2_MARSHALLED_FUNCTION_CODE_HASH_SENSITIVE_TO_NONSEMANTIC_METADATA"
+  ],
+  "low_findings": [
+    "L1_NONCLAIMS_ACCEPTABLE_ONLY_FOR_BOUNDED_REFERENCE_ADJUDICATION",
+    "L2_EXP_ECC_6_7_NOT_INTEGRATION_QUALIFIED",
+    "L3_OPTIONAL_EXTRA_NEGATIVES_FOR_SHA256_JSON_AND_V2_CONFIG_MATERIAL"
+  ],
+  "uploaded_artifacts": {
+    "REVIEW.docx": {
+      "user_declared_role": "DEEPSEEK_CLEAN_EXTERNAL_REVIEW",
+      "sha256": "d439d8977c8e2d46bcf583102617a646bf5ca5acbbc098a78537bf39128618fb",
+      "bytes": 14836,
+      "git_blob_sha": "6664a5136f14193e221c941a539e179353880078"
+    },
+    "sol.docx": {
+      "user_declared_role": "DEEPSEEK_SOLUTION_GUIDANCE",
+      "sha256": "591079c5b8fc23ee8a72d37370e9a4ab1fb757666e9ca21a9bdfce48a5f93ed1",
+      "bytes": 14845,
+      "git_blob_sha": "fb28418de3c10fbb0ca49a7cb88b5da6c5353cda"
+    }
+  },
+  "text_equivalence_check": {
+    "review_extracted_text_sha256": "746a1d38193fff0383be91cc86a194e2beb6166d092a910f7d368d72d196b193",
+    "solution_extracted_text_sha256": "746a1d38193fff0383be91cc86a194e2beb6166d092a910f7d368d72d196b193",
+    "extracted_text_identical": true,
+    "interpretation": "The user designated sol.docx as solution guidance, but the uploaded file currently contains the same extracted review text as REVIEW.docx. It is preserved as a separately named binary artifact but is not treated as a second review or as distinct implementation guidance unless a distinct solution artifact is supplied later."
+  },
+  "adoption_effect": "NONE_UNTIL_BOUNDED_IMPACT_ADJUDICATION",
+  "v18_mutation_effect": "NONE",
+  "note": "This review may authorize bounded impact adjudication of requirement candidates but does not itself promote requirements into active standards, qualify production mechanisms, satisfy manual-review thresholds, or modify V18."
+}
