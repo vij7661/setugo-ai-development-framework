@@ -8,10 +8,13 @@ on:
       - 'governance-runtime/api_call_gate.py'
       - 'governance-runtime/api-call-policy-v1.json'
       - 'governance-runtime/platform_candidate_review_v2.py'
+      - 'governance-runtime/change_control_gate.py'
       - 'governance-runtime/test_review_packet_preflight.py'
       - 'governance-runtime/test_api_call_gate.py'
+      - 'governance-runtime/test_change_control_gate.py'
       - 'standards/review-packet-completeness-gate-v1.md'
       - 'standards/governed-api-call-gate-v1.md'
+      - 'standards/review-finding-change-control-v1.md'
   push:
     paths:
       - 'governance-runtime/review_packet_preflight.py'
@@ -19,10 +22,13 @@ on:
       - 'governance-runtime/api_call_gate.py'
       - 'governance-runtime/api-call-policy-v1.json'
       - 'governance-runtime/platform_candidate_review_v2.py'
+      - 'governance-runtime/change_control_gate.py'
       - 'governance-runtime/test_review_packet_preflight.py'
       - 'governance-runtime/test_api_call_gate.py'
+      - 'governance-runtime/test_change_control_gate.py'
       - 'standards/review-packet-completeness-gate-v1.md'
       - 'standards/governed-api-call-gate-v1.md'
+      - 'standards/review-finding-change-control-v1.md'
 
 permissions:
   contents: read
@@ -38,4 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           cd governance-runtime
-          python -m unittest -v test_review_packet_preflight.py test_api_call_gate.py
+          python -m unittest -v \
+            test_review_packet_preflight.py \
+            test_api_call_gate.py \
+            test_change_control_gate.py
