@@ -78,11 +78,17 @@ def verify_runtime_policy():
     except (OSError, ValueError, TypeError):
         return False
 
-    if manifest.get("record_type") != "ECC_GOVERNANCE_V6_ELIGIBILITY_PROVENANCE_MANIFEST":
+    if manifest.get("record_type") != "ECC_GOVERNANCE_V7_SEAL_CAPABILITY_MANIFEST":
         return False
     if manifest.get("eligibility_provenance_policy") != "PROCESS_LOCAL_OPAQUE_SEAL_AND_PAYLOAD_DIGEST":
         return False
     if manifest.get("serialized_candidate_authority") != "REJECT_UNSEALED_RECONSTRUCTION":
+        return False
+    if manifest.get("seal_capability_policy") != "POSITIVE_SEAL_CAPABILITY_CLOSURE_LOCAL_ONLY":
+        return False
+    if manifest.get("ordinary_module_access_can_mint_provenance") is not False:
+        return False
+    if manifest.get("candidate_entrypoints_use_dynamic_runtime_verifier") is not True:
         return False
     if manifest.get("public_core_policy") != "HISTORICAL_ONLY_NO_CALLER_STRICT_MODE":
         return False
@@ -174,7 +180,7 @@ def _independent_failure_unsealed(kind, status):
     return _unsealed(kind, base)
 
 
-def _build_candidate_api(runtime_verify):
+def _build_candidate_api():
     issuer_token = object()
 
     class CandidateEvaluationResult(dict):
@@ -285,12 +291,12 @@ def _build_candidate_api(runtime_verify):
         ))
 
     def finish_positive(kind, result):
-        if not runtime_verify():
+        if not verify_runtime_policy():
             return _policy_failure_unsealed(kind)
         return typed(kind, result, True)
 
     def candidate_result_eligible(result):
-        if not runtime_verify():
+        if not verify_runtime_policy():
             return False
         if not valid_provenance(result):
             return False
@@ -306,7 +312,7 @@ def _build_candidate_api(runtime_verify):
 
     def assess_control_execution_candidate(control, event, *, candidate, action_id):
         kind = "execution"
-        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
         result = strict_core.assess_control_execution_candidate(control, event, candidate=candidate, action_id=action_id)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = event.get("reference_evidence_id") if isinstance(event, dict) else None
@@ -317,7 +323,7 @@ def _build_candidate_api(runtime_verify):
 
     def check_declared_executable_equivalence_candidate(declared, executable):
         kind = "equivalence"
-        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
         result = strict_core.check_declared_executable_equivalence_candidate(declared, executable)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = executable.get("reference_evidence_id") if isinstance(executable, dict) else None
@@ -328,7 +334,7 @@ def _build_candidate_api(runtime_verify):
 
     def qualify_role_binding_candidate(role, selected_model, envelope, required_capabilities, *, prior_binding=None, revalidated=True, require_semantic_evidence=False):
         kind = "role"
-        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
         result = strict_core.qualify_role_binding_candidate(role, selected_model, envelope, required_capabilities, prior_binding=prior_binding, revalidated=revalidated, require_semantic_evidence=require_semantic_evidence)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = envelope.get("reference_evidence_id") if isinstance(envelope, dict) else None
@@ -339,7 +345,7 @@ def _build_candidate_api(runtime_verify):
 
     def authorize_power_activation_candidate(manifest, approval, requested_powers, *, role, requested_resources=None, current_sequence=None):
         kind = "activation"
-        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
         result = strict_core.authorize_power_activation_candidate(manifest, approval, requested_powers, role=role, requested_resources=requested_resources, current_sequence=current_sequence)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = approval.get("reference_evidence_id") if isinstance(approval, dict) else None
@@ -350,7 +356,7 @@ def _build_candidate_api(runtime_verify):
 
     def check_tool_configuration_candidate(expected, current):
         kind = "config"
-        if not runtime_verify(): return _policy_failure_unsealed(kind)
+        if not verify_runtime_policy(): return _policy_failure_unsealed(kind)
         result = strict_core.check_tool_configuration_candidate(expected, current)
         if not core_favorable(kind, result): return typed(kind, result, False)
         evidence_id = expected.get("reference_evidence_id") if isinstance(expected, dict) else None
@@ -360,14 +366,14 @@ def _build_candidate_api(runtime_verify):
         return finish_positive(kind, result)
 
     def classify_review_binding_candidate(binding):
-        if not runtime_verify(): return _policy_failure_unsealed("review")
+        if not verify_runtime_policy(): return _policy_failure_unsealed("review")
         result = strict_core.classify_review_binding_candidate(binding)
         out = typed("review", result, False)
         out["manual_review_threshold_contribution"] = 0 if binding.get("evidence_class") == "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY" else out.get("manual_review_threshold_contribution", 0)
         return out
 
     def authorize_learning_promotion_candidate(proposal):
-        if not runtime_verify(): return _policy_failure_unsealed("learning")
+        if not verify_runtime_policy(): return _policy_failure_unsealed("learning")
         result = strict_core.authorize_learning_promotion_candidate(proposal)
         out = typed("learning", result, False)
         out["promotable"] = False
@@ -394,7 +400,7 @@ def _build_candidate_api(runtime_verify):
     check_tool_configuration_candidate,
     classify_review_binding_candidate,
     authorize_learning_promotion_candidate,
-) = _build_candidate_api(verify_runtime_policy)
+) = _build_candidate_api()
 
 # The factory owns the issuer token and all positive-sealing helpers. Remove the
 # only ordinary module-level handle capable of constructing another issuer set.
