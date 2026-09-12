@@ -1,0 +1,20 @@
+{
+  "record_type": "ECC_DERIVED_V10_PATH_REPAIR_APPLIED",
+  "repair_input_sha": "d1afbf0855a1fc93f4c7584dbb970fa1a170b343",
+  "repair_generated_sha": "70fcb4c",
+  "repair_workflow_run_id": 34696046594,
+  "repair_workflow_job_id": 103559590557,
+  "candidate_boundary_sha256": "7705eb56bb03c28c12db78f64c30d6c43972643bdfbce15167849d64e140a8b9",
+  "manifest_sha256": "a6abf9341eb28b04a07d3d0314e8fcbd97fa2db17f5b77ee8c09e21585f5df4d",
+  "path_primitive_policy": "EXACT_PATH_CALLABLES_CAPTURED_AT_INITIALIZATION",
+  "captured_path_primitives": [
+    "Path.read_text",
+    "Path.read_bytes",
+    "Path.resolve",
+    "Path.is_file",
+    "Path.is_symlink"
+  ],
+  "v10_assertions_modified_during_repair": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "purpose": "Evidence-only user-token commit to trigger the frozen V10 falsification workflow after the GITHUB_TOKEN repair push."
+}
