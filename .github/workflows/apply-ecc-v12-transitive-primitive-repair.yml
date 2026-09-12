@@ -1,0 +1,50 @@
+name: Apply ECC V12 Transitive Primitive Repair
+
+on:
+  push:
+    branches:
+      - experiments/ecc-derived-parallel-v12-transitive-primitive-integrity
+    paths:
+      - '.github/scripts/apply_ecc_v12_transitive_primitive_repair.py'
+      - '.github/workflows/apply-ecc-v12-transitive-primitive-repair.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact V12 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record repair input
+        run: |
+          echo "REPAIR_INPUT_SHA=$(git rev-parse HEAD)"
+          git status --short
+
+      - name: Apply deterministic V12 repair
+        run: python .github/scripts/apply_ecc_v12_transitive_primitive_repair.py
+
+      - name: Commit exact repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git status --short
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            experiments/ecc_derived/ecc_candidate_boundary.py \
+            experiments/ecc_derived/ecc_reference_evidence.py \
+            experiments/ecc_derived/ecc_governance_trust_manifest.json
+          git diff --cached --exit-code && { echo "No repair diff produced"; exit 1; } || true
+          git commit -m "Bind ECC V12 transitive config primitives"
+          git push origin HEAD:experiments/ecc-derived-parallel-v12-transitive-primitive-integrity
