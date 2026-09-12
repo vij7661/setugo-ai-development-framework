@@ -1,0 +1,60 @@
+{
+  "record_type": "ECC_V12_BOUNDED_IMPACT_EVIDENCE_FREEZE",
+  "freeze_scope": "EXPERIMENT_EVIDENCE_FOR_BOUNDED_IMPACT_ADJUDICATION_ONLY",
+  "frozen_candidate_sha": "a87cccd803ce307c601b32e1ad47bfd45790d38c",
+  "frozen_candidate_tree": "1b159c664a64ed6d3180613bb8ab6a3433bc1c57",
+  "ledger_head_ci": {
+    "workflow_run_id": 34699718167,
+    "tests_run": 198,
+    "failures": 0,
+    "errors": 0,
+    "conclusion": "PASS"
+  },
+  "clean_packet": {
+    "sha256": "5fa323c1eab698d72c98bec89ce66a537f27597a565b0015d6575b87cea10c65",
+    "bytes": 504731,
+    "artifact_count": 99,
+    "neutral_evidence_record_count": 40,
+    "packet_builder_run_id": 34699806729
+  },
+  "deepseek_review": {
+    "preservation_branch": "review/ecc-derived-v12-deepseek-clean-review",
+    "preservation_commit": "42657d00fcbfa95834df67472c2da3af48563995",
+    "evidence_class": "AI_GENERATED_ENGINEERING_FEEDBACK_ONLY",
+    "manual_review_threshold_contribution": 0,
+    "overall_disposition": "READY_FOR_BOUNDED_IMPACT_ADJUDICATION",
+    "freeze_recommendation": "SAFE_TO_FREEZE_EXPERIMENT_EVIDENCE_FOR_IMPACT_ADJUDICATION",
+    "authority_effect": "NONE_EVIDENCE_ONLY"
+  },
+  "per_experiment_review_disposition": {
+    "EXP-ECC-1": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-2": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-3": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-4": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-5": "ADOPT_REQUIREMENT_CANDIDATE",
+    "EXP-ECC-6": "DEFER_PENDING_INTEGRATION_EVIDENCE",
+    "EXP-ECC-7": "DEFER_PENDING_INTEGRATION_EVIDENCE"
+  },
+  "accepted_nonclaims": [
+    "NO_LIVE_PLATFORM_ATTESTATION",
+    "NO_INDEPENDENT_PRODUCTION_TRUST_ROOT",
+    "NO_DURABLE_CROSS_PROCESS_PROVENANCE",
+    "NO_TOCTOU_OR_CONCURRENT_MUTATION_SECURITY_CLAIM",
+    "NO_REFLECTIVE_CLOSURE_EXTRACTION_SECURITY_CLAIM",
+    "NO_INTERPRETER_OR_NATIVE_MEMORY_COMPROMISE_SECURITY_CLAIM",
+    "NO_REPOSITORY_CODE_REPLACEMENT_AUTHORITY_CLAIM",
+    "NO_PRODUCTION_QUALIFICATION",
+    "NO_MANUAL_REVIEW_THRESHOLD_CREDIT"
+  ],
+  "review_follow_up_obligations": {
+    "M1": "Restore or reconstruct V9 verifier-primitive RED/GREEN evidence in the neutral lineage projection before production qualification/final archival closure. This is non-blocking for bounded impact adjudication.",
+    "M2": "Do not treat marshal.dumps(function.__code__) hash correction as semantic proof. Future implementation must use governed review discipline and preferably a more stable semantic/source/bytecode integrity strategy before production qualification.",
+    "L3": "Optional additional explicit negatives for _sha256_json and _v2_config_material identity may be added during implementation falsification but are not required to enter bounded impact adjudication."
+  },
+  "v18_sha": "290ac043959f30db12c9ae16826eda1dd5bcbdfb",
+  "v18_mutated": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "promotion_effect": "NONE",
+  "production_effect": "NONE",
+  "note": "This freeze makes the V12 experiment evidence immutable for bounded impact adjudication. It does not freeze or promote platform requirements, modify V18, qualify production mechanisms, or authorize release/merge/terminal action."
+}
