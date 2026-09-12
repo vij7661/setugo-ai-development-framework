@@ -7,6 +7,7 @@ on:
       - experiments/ecc-derived-parallel-v2-remediation
       - experiments/ecc-derived-parallel-v3-omission-hardening
       - experiments/ecc-derived-parallel-v4-mandatory-boundary
+      - experiments/ecc-derived-parallel-v5-closed-boundary
     paths:
       - 'experiments/ecc-derived/**'
       - 'experiments/ecc_derived/**'
@@ -35,5 +36,11 @@ jobs:
           echo "CHECKOUT_SHA=$(git rev-parse HEAD)"
           git status --short
 
-      - name: Run ECC-derived representative and full named coverage
-        run: python -m unittest discover -v -s experiments/ecc_derived -p 'test_*.py'
+      - name: Run ECC-derived falsification suite
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_NAME" == "experiments/ecc-derived-parallel-v5-closed-boundary" ]]; then
+            python experiments/ecc_derived/run_v5_suite.py
+          else
+            python -m unittest discover -v -s experiments/ecc_derived -p 'test_*.py'
+          fi
