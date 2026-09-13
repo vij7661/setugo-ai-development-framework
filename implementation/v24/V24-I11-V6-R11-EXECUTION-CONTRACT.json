@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "contract_id": "V24-I11-V6-R11-EXTERNAL-QUALIFICATION-EXECUTION",
+  "reviewed_predecessor": {
+    "commit": "2877081254fec80b6a7eefab7d74c0e9fae1a0c8",
+    "tree": "5034915e3d0d2f305ccc0caec7340d1a116060bc",
+    "manual_review_disposition": "NEEDS_REVISION"
+  },
+  "remediation_scope": [
+    "R10-A_EXTERNAL_TEST_RUNNER_ISOLATION",
+    "R10-B_EXTERNAL_TEST_AND_DEPENDENCY_BLOB_PINNING",
+    "R10_TRACEABILITY"
+  ],
+  "candidate_branch_preflight": {
+    "evidence_class": "CONSTRUCTION_ONLY",
+    "independent_qualification_evidence": false,
+    "authority_effect": "NONE_EVIDENCE_ONLY"
+  },
+  "external_execution_authority": {
+    "required": true,
+    "authority_origin": "EXTERNAL_REVIEW_BRANCH",
+    "candidate_may_edit_authority_pinset": false,
+    "candidate_may_edit_trusted_runner": false,
+    "exact_candidate_commit_and_tree_required": true,
+    "pin_every_admitted_python_file": true,
+    "pin_fields": [
+      "path",
+      "git_blob_sha1",
+      "raw_sha256",
+      "role"
+    ],
+    "reject_unpinned_python_file_in_execution_sandbox": true,
+    "reject_symlink_or_alternate_path": true,
+    "reject_reserved_or_stdlib_shadow_name": true,
+    "reject_post_pin_byte_change": true,
+    "fail_closed_before_test_execution": true
+  },
+  "interpreter_contract": {
+    "isolated_mode": true,
+    "safe_path": true,
+    "ignore_environment": true,
+    "no_site": true,
+    "trusted_runner_outside_candidate_tree": true,
+    "candidate_path_absent_at_interpreter_startup": true,
+    "candidate_bytes_staged_only_after_external_pin_verification": true
+  },
+  "mandatory_adversarial_probes": [
+    "CANDIDATE_UNITTEST_SHADOW_REJECTED",
+    "CANDIDATE_SITECUSTOMIZE_REJECTED",
+    "CANDIDATE_USERCUSTOMIZE_REJECTED",
+    "CANDIDATE_STDLIB_SHADOW_REJECTED",
+    "UNPINNED_PYTHON_FILE_REJECTED",
+    "PINNED_TEST_SAME_PATH_DIFFERENT_BYTES_REJECTED",
+    "SYMLINK_OR_ALTERNATE_PATH_REJECTED"
+  ],
+  "result_admission": {
+    "external_guard_pass_required_before_any_test_launch": true,
+    "external_guard_pass_required_before_any_pass_count": true,
+    "candidate_self_reported_pass_is_non_authoritative": true
+  },
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
