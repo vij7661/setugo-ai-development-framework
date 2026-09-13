@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "candidate": {
+    "commit": "2e875bb29be48d39c9be6f3525d4f4610869848c",
+    "tree": "d2c9c0c85564808941fdb54cfbbd53f51f5397ee",
+    "admitted_file_count": 190
+  },
+  "review_metadata_commit": "1171b15eae418feb736911e71e975753d67b5a0d",
+  "package_builder": {
+    "preserved_failed_run": "34776512860",
+    "preserved_failed_classification": "PACKAGE_BUILDER_ORDERING_VERIFIER_MISMATCH_AFTER_CONTENT_BINDING",
+    "successful_run": "34776597035",
+    "successful_workflow_commit": "c79b00046f28bf929835e443a6aeaa1d7a1576bb",
+    "deterministic_double_build": "PASS",
+    "content_reverification": "PASS",
+    "approved_design_reconstruction": "PASS"
+  },
+  "github_artifact": {
+    "id": "10323586833",
+    "name": "v24-v6-r15-clean-manual-review-package-v2",
+    "bytes": 316201,
+    "sha256": "cb9cf87cb72ce6142baf987a84cc9f63836ab3d8bc9ce24a5553336fb42fbd2f",
+    "expires_at": "2026-12-12T19:05:05Z"
+  },
+  "inner_review_zip": {
+    "name": "V24-I11-V6-R15-CLEAN-REVIEW.zip",
+    "bytes": 1453599,
+    "sha256": "c218d80951e112855f4a89234c4bfddbb651edb0be22de5d4dab87569ac5252d",
+    "entry_count": 216,
+    "unique_entry_count": 216,
+    "sorted_path_order": true,
+    "candidate_file_count": 190
+  },
+  "manifest": {
+    "listed_file_count": 215,
+    "sha256": "1a57743d94cf00c67a04c460c1ad380f2b5fe4dd57b8feb1af927dab5f0e09af",
+    "independent_recompute_mismatch_count": 0
+  },
+  "approved_design": {
+    "bytes": 19297,
+    "raw_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
+    "git_blob_sha1": "4a15d50a0488464816d235b273d1dbf808fdce94"
+  },
+  "external_pinset": {
+    "sha256": "e2f7689d4b9902823d94fe11e87c895e4036a080e0795aacfd9070354cf134b9",
+    "admitted_file_count": 190
+  },
+  "construction_evidence": {
+    "run": "34776147253",
+    "artifact_id": "10324065691",
+    "artifact_sha256": "0c16e6e523ce5b4d5e4da38ff01e0ed00f4024891554d5665c1a548fc5a02601",
+    "oracle_evidence_sha256": "99802aabf7b6d1451a7e698aaa6b540592a036f4870366fbe3fd577a333aebd8"
+  },
+  "stronger_falsification": {
+    "partial_alias_run": "34776271310",
+    "partial_alias_artifact_id": "10324245438",
+    "partial_alias_artifact_sha256": "5379104c453a61891c3419df777f7d548d7b3816dfafb96cec047c1520fcab9a",
+    "partial_alias_classification": "SYMLINK_ATTACK_HARNESS_PATH_DEFECT_BEFORE_REALPATH_ENDPOINT",
+    "corrected_symlink_run": "34776332464",
+    "corrected_symlink_artifact_id": "10323866558",
+    "corrected_symlink_artifact_sha256": "2218f9ca487d285262c98864e4b555db182dc0047426b954e6d3093bd2fb544c",
+    "corrected_symlink_result_sha256": "9b20518a57de68178efb1936b726b2d78d9f5822065f2c5bf26dff3f662489bf",
+    "false_green_reproduced": false
+  },
+  "independent_post_download_recomputation": {
+    "outer_artifact_sha256": "VERIFIED",
+    "inner_zip_sha256": "VERIFIED",
+    "manifest_all_entries": "VERIFIED",
+    "manifest_mismatch_count": 0,
+    "zip_unique_entries": "VERIFIED",
+    "zip_sorted_paths": "VERIFIED",
+    "approved_design": "VERIFIED",
+    "external_pinset": "VERIFIED"
+  },
+  "manual_successor_review_required": true,
+  "automated_external_reviewer_api_calls": false,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
