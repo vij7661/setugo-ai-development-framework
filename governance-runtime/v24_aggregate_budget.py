@@ -35,6 +35,8 @@ def validate_aggregate_bundle(b:Mapping[str,Any])->dict[str,Any]:
   elif len(absent)==len(keys) and len(keys)>0: outcome="NO_COMMIT_CONFIRMED"
   else: outcome="INSUFFICIENT_EVIDENCE"
   if tx.get("reconciliation_outcome")!=outcome:p.append(f"AGGREGATE_RECONCILIATION_OUTCOME_MISMATCH:{tid}:{outcome}")
-  if outcome not in {"COMMIT_CONFIRMED_EXISTING","NO_COMMIT_CONFIRMED"} and tx.get("authority_transition_state")=="SUCCESS":p.append(f"AGGREGATE_UNRESOLVED_CANNOT_SUCCEED:{tid}")
+  if tx.get("authority_transition_state")=="SUCCESS":
+   if outcome=="NO_COMMIT_CONFIRMED":p.append(f"AGGREGATE_NO_COMMIT_CANNOT_SUCCEED:{tid}")
+   elif outcome!="COMMIT_CONFIRMED_EXISTING":p.append(f"AGGREGATE_UNRESOLVED_CANNOT_SUCCEED:{tid}")
   if tx.get("generation_id")!=gen:p.append(f"AGGREGATE_TRANSACTION_GENERATION_MISMATCH:{tid}")
  p=sorted(set(p));return {"state":"AGGREGATE_BUDGET_CONSTRUCTION_VALID" if not p else "AGGREGATE_BUDGET_INCOMPLETE","qualified":False,"problems":p,"bundle_digest":dg(b),"authority_effect":AUTHORITY_EFFECT}
