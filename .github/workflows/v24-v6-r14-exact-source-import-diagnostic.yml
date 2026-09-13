@@ -1,0 +1,46 @@
+name: V24 V6 R14 Exact Source Import Diagnostic
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r14-native-observer
+    paths:
+      - '.github/workflows/v24-v6-r14-exact-source-import-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14'}
+      - name: Build diagnostic clone of exact native observer source
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='5a1fb005e9c58e30b1dcfaa473d603dde90df72c'; T='6e65609ac09b78bcffefb6d6560b640ba7696521'
+          git fetch --no-tags origin "$C"; test "$(git rev-parse "$C^{tree}")" = "$T"
+          S="$RUNNER_TEMP/r14-exact-diag"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          cp review/v24/r14_native_observer.c "$RUNNER_TEMP/diag.c"
+          python - "$RUNNER_TEMP/diag.c" <<'PY'
+          import pathlib,sys
+          p=pathlib.Path(sys.argv[1]); s=p.read_text()
+          old='PyObject *module=PyImport_ImportModule(mod);if(!module)child_die(outfd,"R14_CHILD_CANDIDATE_IMPORT_FAILED");'
+          new='PyObject *module=PyImport_ImportModule(mod);if(!module){fprintf(stderr,"R14_EXACT_IMPORT_EXCEPTION\\n");PyErr_Print();child_die(outfd,"R14_CHILD_CANDIDATE_IMPORT_FAILED");}'
+          assert old in s
+          p.write_text(s.replace(old,new,1))
+          PY
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          gcc -O2 -fPIE -pie -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(python3-config --includes) "$RUNNER_TEMP/diag.c" -o "$RUNNER_TEMP/diag" $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$RUNNER_TEMP/request.json"
+          set +e
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$RUNNER_TEMP/diag" --sandbox "$S" --request "$RUNNER_TEMP/request.json" > "$RUNNER_TEMP/out" 2> "$RUNNER_TEMP/err"
+          rc=$?; set -e
+          cat "$RUNNER_TEMP/err"
+          echo "R14_EXACT_SOURCE_DIAGNOSTIC_RC=$rc"
+          exit 0
