@@ -10,6 +10,10 @@ def validate_generation_migration(b:Mapping[str,Any])->dict[str,Any]:
  p=[];current=b.get("current_generation_id");prev=b.get("predecessor_generation_id")
  universe=set(b.get("independently_derived_predecessor_object_ids",[])) if isinstance(b.get("independently_derived_predecessor_object_ids"),list) else set()
  inv=b.get("migration_inventory") if isinstance(b.get("migration_inventory"),list) else []
+ if prev:
+  if not universe:p.append("PREDECESSOR_OBJECT_UNIVERSE_REQUIRED")
+  if not b.get("predecessor_universe_derivation_digest"):p.append("PREDECESSOR_UNIVERSE_DERIVATION_EVIDENCE_REQUIRED")
+  if not inv:p.append("MIGRATION_INVENTORY_REQUIRED_FOR_PREDECESSOR")
  byid={}
  for r in inv:
   if not isinstance(r,Mapping):p.append("MIGRATION_RECORD_MALFORMED");continue
@@ -36,10 +40,17 @@ def validate_generation_migration(b:Mapping[str,Any])->dict[str,Any]:
  for r in caches:
   if not isinstance(r,Mapping):p.append("CACHE_READ_MALFORMED");continue
   rid=r.get("read_id");og=r.get("object_generation_id")
-  if r.get("generation_guard_checked") is not True:p.append(f"CACHE_GENERATION_GUARD_REQUIRED:{rid}")
-  if og!=current and r.get("qualifying_disposition_checked") is not True:p.append(f"CACHE_PREDECESSOR_DISPOSITION_REQUIRED:{rid}")
-  if r.get("accepted") is True and og!=current and r.get("qualifying_disposition_checked") is not True:p.append(f"CACHE_PREDECESSOR_ACCEPT_BYPASS:{rid}")
+  guard_digest=r.get("generation_guard_evidence_digest")
+  if not isinstance(guard_digest,str) or not guard_digest:p.append(f"CACHE_GENERATION_GUARD_EVIDENCE_REQUIRED:{rid}")
+  if r.get("generation_guard_checked") is True and not guard_digest:p.append(f"CACHE_GENERATION_GUARD_BOOLEAN_NOT_EVIDENCE:{rid}")
+  if og!=current:
+   disp=byid.get(r.get("object_id"))
+   expected=dg(disp) if isinstance(disp,Mapping) else None
+   supplied=r.get("qualifying_disposition_record_digest")
+   if expected is None or supplied!=expected:p.append(f"CACHE_PREDECESSOR_DISPOSITION_EVIDENCE_REQUIRED:{rid}")
+   if r.get("accepted") is True and (expected is None or supplied!=expected):p.append(f"CACHE_PREDECESSOR_ACCEPT_BYPASS:{rid}")
  transitions=b.get("generation_transition_records") if isinstance(b.get("generation_transition_records"),list) else []
+ if prev and not transitions:p.append("GENERATION_TRANSITION_RECORD_REQUIRED_FOR_PREDECESSOR")
  for t in transitions:
   if not isinstance(t,Mapping):p.append("GENERATION_TRANSITION_MALFORMED");continue
   tid=t.get("transition_id")
