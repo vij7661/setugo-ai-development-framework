@@ -20,6 +20,12 @@ class AggTests(unittest.TestCase):
   b=valid_bundle();m(b);r=validate_aggregate_bundle(b);self.assertEqual(r["problems"],[])
  def test_unresolved_cannot_success(self):
   def m(b):b["transactions"][0]["key_records"][1]["state"]="UNKNOWN";b["transactions"][0]["reconciliation_outcome"]="INSUFFICIENT_EVIDENCE"
-  self.assertP(m,"AGGREGATE_UNRESOLVED_CANNOT_SUCCEED:TX1")
+  self.assertP(m,"AGGREGATE_SUCCESS_REQUIRES_COMMIT_CONFIRMED:TX1:INSUFFICIENT_EVIDENCE")
+ def test_no_commit_confirmed_cannot_success(self):
+  def m(b):
+   for row in b["transactions"][0]["key_records"]:
+    row["state"]="AUTHORITATIVE_ABSENT";row.pop("committed_identity",None)
+   b["transactions"][0]["reconciliation_outcome"]="NO_COMMIT_CONFIRMED"
+  self.assertP(m,"AGGREGATE_SUCCESS_REQUIRES_COMMIT_CONFIRMED:TX1:NO_COMMIT_CONFIRMED")
  def test_transaction_id_shared_across_keys(self):self.assertP(lambda b:b["transactions"][0]["key_records"][1].__setitem__("transaction_id","TX2"),"AGGREGATE_TRANSACTION_ID_MISMATCH:TX1")
 if __name__=="__main__":unittest.main()
