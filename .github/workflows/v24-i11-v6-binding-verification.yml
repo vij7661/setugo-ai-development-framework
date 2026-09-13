@@ -1,0 +1,69 @@
+name: V24 I11 V6 Binding Verification
+
+on:
+  push:
+    branches:
+      - adjudication/v24-i11-v6-binding-verification
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-binding:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact V6 packet and frozen objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKET='remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          EXPECT_RAW='96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62'
+          EXPECT_BODY='286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5'
+          EXPECT_BLOB='8682df137aa12d57927e7891c16048e90b04caac'
+          V24='db9e4b349fd26e128f4486878a4af64929000a7c'
+          V24_TREE='7986f7a016d97e6c9bbd03c035b3e9c63effda75'
+          I10='9836dc3ff233cca582f485434fc1c6494cf7eb05'
+          I10_TREE='d68cbccdceebad88715c8b37ddfcd524fc16ce8a'
+          HARNESS_BLOB='6573767ae85d7ca0cfaa8b7bbafa826a7ba0c5cb'
+
+          RAW=$(sha256sum "$PACKET" | awk '{print $1}')
+          test "$RAW" = "$EXPECT_RAW"
+
+          BODY=$(python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md').read_bytes()
+          sep=b'---\n\n'
+          if sep not in p:
+              raise SystemExit('BODY_SEPARATOR_MISSING')
+          print(hashlib.sha256(p.split(sep,1)[1]).hexdigest())
+          PY
+          )
+          test "$BODY" = "$EXPECT_BODY"
+
+          BLOB=$(git hash-object "$PACKET")
+          test "$BLOB" = "$EXPECT_BLOB"
+
+          test "$(git show -s --format=%T "$V24")" = "$V24_TREE"
+          test "$(git show -s --format=%T "$I10")" = "$I10_TREE"
+          test "$(git cat-file -t "$HARNESS_BLOB")" = 'blob'
+
+          for B in \
+            0f52617114f7d9d549d9822f11d5bc0156c6e676 \
+            ff8677ca1170f5cef6318662309ba119145e68cf \
+            17bfa33f6388934d47323cea3c375466c178aadf \
+            042b881795929f9e8d9ff5bb72f8eda8ca93fad0; do
+            test "$(git cat-file -t "$B")" = 'blob'
+          done
+
+          echo "RAW_PACKET_SHA256=$RAW"
+          echo "PLAN_BODY_SHA256=$BODY"
+          echo "PACKET_GIT_BLOB=$BLOB"
+          echo "V24_TREE=$(git show -s --format=%T "$V24")"
+          echo "I10_TREE=$(git show -s --format=%T "$I10")"
+          echo 'V6_REPOSITORY_BINDING_VERIFICATION=PASS'
