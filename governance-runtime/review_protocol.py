@@ -5,9 +5,14 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import hashlib
+import hmac
 import json
 import re
+import secrets
+from pathlib import Path
 from typing import Any, Callable, Mapping, Protocol, Sequence
+
+from governed_git_binding import verify_governed_commit
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 MANDATORY_REVIEW_TRIGGERS = frozenset({
@@ -38,6 +43,8 @@ ALLOWED_REQUEST_STATES = frozenset({
 TRUSTED_IDENTITY_ASSURANCE = frozenset({"PROVIDER_ADAPTER_AUTHENTICATED"})
 PROMOTABLE_REVIEW_STATES = frozenset({"REVIEW_RECEIVED", "REVIEW_VALIDATED", "VALID_INDEPENDENT_REVIEW_PRESENT"})
 PROMOTABLE_REVIEW_DISPOSITIONS = frozenset({"PASS", "BOUNDED_PASS"})
+PROMOTION_ELIGIBLE_REQUEST_STATES = frozenset({"REVIEW_REQUIRED", "PENDING_EXTERNAL_REVIEW", "REVIEW_RECEIVED", "REVIEW_VALIDATED"})
+GOVERNED_REPOSITORY = "vij7661/setugo-ai-development-framework"
 SEMANTIC_REVIEW_SCHEMA_VERSION = 4
 REVIEW_DIMENSION_STATUSES = frozenset({
     "TESTED_SUPPORTED", "TESTED_DEFECT_FOUND", "CONTRADICTED", "NOT_TESTED",
@@ -114,6 +121,8 @@ def _normalize_required_review_dimensions(dimensions: Sequence[Mapping[str, Any]
             raise ValueError(f"review dimension description is required: {did}")
         seen.add(did)
         out.append({"id": did, "mandatory": mandatory, "description": description})
+    if not any(row["mandatory"] is True for row in out):
+        raise ValueError("semantic review contract requires at least one mandatory review dimension")
     return out
 
 
@@ -300,6 +309,37 @@ class DispatchResult:
     reviewer_model: str | None = None
     identity_assurance: str = "UNVERIFIED"
     review_class: str | None = None
+    adapter_id: str | None = None
+    adapter_receipt: str | None = None
+
+
+def _make_adapter_receipt_codec():
+    secret = secrets.token_bytes(32)
+    def material(*, transport: str, state: str, review_request_id: str, payload_hash: str,
+                 response: Mapping[str, Any] | None, reviewer_provider: str | None,
+                 reviewer_model: str | None, review_class: str | None, adapter_id: str | None) -> bytes:
+        return canonical_hash({
+            "transport": transport, "state": state, "review_request_id": review_request_id,
+            "payload_hash": payload_hash, "response_hash": canonical_hash(response) if response is not None else None,
+            "reviewer_provider": reviewer_provider, "reviewer_model": reviewer_model,
+            "review_class": review_class, "adapter_id": adapter_id,
+        }).encode("ascii")
+    def issue(**kwargs: Any) -> str:
+        return hmac.new(secret, material(**kwargs), hashlib.sha256).hexdigest()
+    def verify(result: DispatchResult) -> bool:
+        if not isinstance(result.adapter_receipt, str) or not result.adapter_receipt:
+            return False
+        expected = issue(
+            transport=result.transport, state=result.state, review_request_id=result.review_request_id,
+            payload_hash=result.payload_hash, response=result.response,
+            reviewer_provider=result.reviewer_provider, reviewer_model=result.reviewer_model,
+            review_class=result.review_class, adapter_id=result.adapter_id,
+        )
+        return hmac.compare_digest(result.adapter_receipt, expected)
+    return issue, verify
+
+
+_issue_adapter_receipt, _verify_adapter_receipt = _make_adapter_receipt_codec()
 
 
 class ReviewTransport(Protocol):
@@ -359,14 +399,19 @@ class _APITransportBase:
     def __init__(self, provider_call: Callable[[Mapping[str, Any]], Mapping[str, Any]], *, provider: str, model: str):
         if not provider or not model: raise ValueError("trusted API adapter requires configured provider/model identity")
         self.provider_call, self.provider, self.model = provider_call, provider, model
+        self.adapter_id = canonical_hash({"transport": self.name, "provider": provider, "model": model})
     def dispatch(self, request: Mapping[str, Any]) -> DispatchResult:
         ok, reason = verify_review_request(request)
         if not ok: raise ValueError(reason)
         response = deepcopy(dict(self.provider_call(deepcopy(dict(request)))))
-        return DispatchResult(self.name, "REVIEW_RECEIVED", str(request["review_request_id"]), canonical_hash(request),
-                              response=response, reviewer_provider=self.provider, reviewer_model=self.model,
-                              identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-                              review_class=PLATFORM_REVIEW_CLASS_BY_TRANSPORT[self.name])
+        fields = {
+            "transport": self.name, "state": "REVIEW_RECEIVED",
+            "review_request_id": str(request["review_request_id"]), "payload_hash": canonical_hash(request),
+            "response": response, "reviewer_provider": self.provider, "reviewer_model": self.model,
+            "review_class": PLATFORM_REVIEW_CLASS_BY_TRANSPORT[self.name], "adapter_id": self.adapter_id,
+        }
+        receipt = _issue_adapter_receipt(**fields)
+        return DispatchResult(**fields, identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED", adapter_receipt=receipt)
 
 
 class AutomaticAPITransport(_APITransportBase): name = "AUTOMATIC_API"
@@ -377,6 +422,8 @@ class ReviewOrchestrator:
     def dispatch(self, request: Mapping[str, Any], transport: ReviewTransport) -> DispatchResult:
         ok, reason = verify_review_request(request)
         if not ok: raise ValueError(reason)
+        if type(transport) not in {AutomaticAPITransport, UserInitiatedAPITransport}:
+            raise ValueError("review transport is not a registered concrete platform adapter")
         if transport.name not in PLATFORM_REVIEW_TRANSPORTS:
             raise ValueError(f"unsupported review transport: {transport.name}")
         try:
@@ -420,7 +467,7 @@ def _coverage_map(evidence: Mapping[str, Any]) -> tuple[dict[str, Mapping[str, A
 def validate_review_semantics(*, request: Mapping[str, Any], evidence: Mapping[str, Any]) -> tuple[bool, str]:
     try:
         if request.get("schema_version", 0) < SEMANTIC_REVIEW_SCHEMA_VERSION:
-            return True, "legacy review has no semantic coverage contract; historical content only"
+            return False, "legacy review schema is historical and non-authoritative"
         dimensions = request.get("required_review_dimensions")
         if not isinstance(dimensions, list) or not dimensions: return False, "semantic review request lacks required review dimensions"
         by_id, err = _coverage_map(evidence)
@@ -440,8 +487,16 @@ def validate_review_semantics(*, request: Mapping[str, Any], evidence: Mapping[s
                 return False, "free-text evidence assessment contradicts PASS coverage"
             return True, "PASS semantic coverage validated"
         if disposition == "BOUNDED_PASS":
+            if not mandatory:
+                return False, "BOUNDED_PASS requires a non-empty mandatory review dimension set"
             if any(statuses.get(d) != "TESTED_SUPPORTED" for d in mandatory):
                 return False, "BOUNDED_PASS requires every mandatory review dimension to be TESTED_SUPPORTED"
+            if any(status in DEFECT_DIMENSION_STATUSES for status in statuses.values()):
+                return False, "BOUNDED_PASS cannot contain contradicted or defective review dimensions"
+            assessment = evidence.get("evidence_assessment")
+            if not isinstance(assessment, str): return False, "review evidence_assessment must be text"
+            if any(p.search(assessment) for p in PASS_CONTRADICTION_PATTERNS):
+                return False, "free-text evidence assessment contradicts BOUNDED_PASS coverage"
             return True, "BOUNDED_PASS semantic coverage validated"
         incomplete = any(statuses.get(d) in INCOMPLETE_DIMENSION_STATUSES for d in mandatory)
         if disposition in {"NOT_TESTED", "INSUFFICIENT_EVIDENCE"}:
@@ -463,6 +518,10 @@ def validate_review_evidence(*, request: Mapping[str, Any], evidence: Mapping[st
     ok, reason = verify_review_request(request)
     if not ok: return False, reason
     try:
+        if request.get("schema_version", 0) < SEMANTIC_REVIEW_SCHEMA_VERSION:
+            return False, "legacy review schema is historical and non-authoritative"
+        if not _verify_adapter_receipt(execution):
+            return False, "review execution lacks a verified trusted-adapter receipt"
         if execution.transport not in PLATFORM_REVIEW_TRANSPORTS:
             return False, "review execution did not use a platform API transport"
         expected_class = PLATFORM_REVIEW_CLASS_BY_TRANSPORT.get(execution.transport)
@@ -522,8 +581,8 @@ def validate_shared_memory_grounding(*, authoritative_state: Mapping[str, Any],
             if mem_work.get(key) != value: return False, f"shared memory is stale/conflicted at current_work.{key}"
         review, mem_runtime, pending = authoritative_state.get("independent_review"), shared_memory.get("governance_runtime"), shared_memory.get("pending_reviews")
         if not isinstance(review, Mapping) or not isinstance(mem_runtime, Mapping): return False, "review-state grounding is missing"
-        if not isinstance(pending, list) or not pending or not isinstance(pending[0], Mapping):
-            return False, "shared-memory pending review state is missing"
+        if not isinstance(pending, list) or len(pending) != 1 or not isinstance(pending[0], Mapping):
+            return False, "shared-memory pending review set must contain exactly one active coordination record"
         aid, ast = review.get("current_review_request_id"), review.get("current_review_status")
         first = pending[0]
         if mem_runtime.get("current_review_request_id") != aid: return False, "shared memory current review request differs from authority"
@@ -542,17 +601,29 @@ def validate_shared_memory_grounding(*, authoritative_state: Mapping[str, Any],
 def can_promote_material_transition(*, deterministic_gate_passed: bool, authoritative_state: Mapping[str, Any],
                                     shared_memory: Mapping[str, Any], review_request: Mapping[str, Any] | None,
                                     review_evidence: Mapping[str, Any] | None, review_execution: DispatchResult | None,
-                                    trigger: str | None = None) -> bool:
+                                    trigger: str | None = None, governed_repo_root: str | Path | None = None) -> bool:
     if not deterministic_gate_passed: return False
     grounded, _ = validate_shared_memory_grounding(authoritative_state=authoritative_state, shared_memory=shared_memory)
     if not grounded or review_request is None or review_evidence is None or review_execution is None: return False
     if review_request.get("schema_version", 0) < SEMANTIC_REVIEW_SCHEMA_VERSION: return False
+    if review_request.get("state") not in PROMOTION_ELIGIBLE_REQUEST_STATES: return False
+    if review_request.get("material_authority_transition") is not True: return False
     if review_evidence.get("disposition") not in PROMOTABLE_REVIEW_DISPOSITIONS: return False
     active = authoritative_state.get("independent_review")
-    if not isinstance(active, Mapping): return False
+    work = authoritative_state.get("active_workstream")
+    authority = authoritative_state.get("authority", {})
+    if not isinstance(active, Mapping) or not isinstance(work, Mapping) or not isinstance(authority, Mapping): return False
     if active.get("current_review_request_id") != review_request.get("review_request_id"): return False
     if active.get("current_review_status") not in PROMOTABLE_REVIEW_STATES: return False
+    if not isinstance(trigger, str) or not trigger: return False
+    if review_request.get("trigger") != trigger or active.get("current_review_trigger") != trigger: return False
     current_commit = active.get("current_reviewed_artifact_commit")
-    if current_commit is not None and current_commit != review_request.get("artifact", {}).get("commit"): return False
+    request_commit = review_request.get("artifact", {}).get("commit")
+    work_head = work.get("head_commit")
+    if not isinstance(current_commit, str) or current_commit != request_commit or current_commit != work_head: return False
+    if authority.get("repository") != GOVERNED_REPOSITORY or governed_repo_root is None: return False
+    git_ok, _ = verify_governed_commit(repo_root=governed_repo_root, expected_repository=GOVERNED_REPOSITORY,
+                                       commit=current_commit, expected_head=work_head)
+    if not git_ok: return False
     valid, _ = validate_review_evidence(request=review_request, evidence=review_evidence, execution=review_execution)
     return bool(valid)

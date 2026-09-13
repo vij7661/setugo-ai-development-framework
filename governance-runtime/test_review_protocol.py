@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path
+import subprocess
+import tempfile
 import unittest
 
 from review_protocol import (
@@ -27,6 +30,16 @@ from review_protocol import (
 
 class ReviewProtocolTests(unittest.TestCase):
     def setUp(self) -> None:
+        self._git_tmp = tempfile.TemporaryDirectory()
+        self.repo_root = Path(self._git_tmp.name)
+        subprocess.run(["git","init","-q",str(self.repo_root)],check=True)
+        subprocess.run(["git","-C",str(self.repo_root),"config","user.email","test@example.com"],check=True)
+        subprocess.run(["git","-C",str(self.repo_root),"config","user.name","Test"],check=True)
+        subprocess.run(["git","-C",str(self.repo_root),"remote","add","origin","https://github.com/vij7661/setugo-ai-development-framework.git"],check=True)
+        (self.repo_root/"candidate.txt").write_text("candidate",encoding="utf-8")
+        subprocess.run(["git","-C",str(self.repo_root),"add","candidate.txt"],check=True)
+        subprocess.run(["git","-C",str(self.repo_root),"commit","-q","-m","candidate"],check=True)
+        self.artifact_commit = subprocess.run(["git","-C",str(self.repo_root),"rev-parse","HEAD"],check=True,capture_output=True,text=True).stdout.strip()
         self.dimensions = [
             {
                 "id": "authority_path",
@@ -44,7 +57,7 @@ class ReviewProtocolTests(unittest.TestCase):
             trigger="MATERIAL_GOVERNANCE_CHANGE",
             artifact_type="pull_request_candidate",
             artifact_ref="PR-5",
-            artifact_commit="1" * 40,
+            artifact_commit=self.artifact_commit,
             proposer={"provider": "openai", "model": "gpt-5.6-sol"},
             required_reviewer={"provider": "anthropic", "model_class": "claude"},
             blind_review_required=True,
@@ -65,22 +78,24 @@ class ReviewProtocolTests(unittest.TestCase):
             evidence_summary={"reference_summaries": {"ci_run:12345": {"conclusion": "success"}}},
         )
         self.authoritative_state = {
+            "authority": {"repository": "vij7661/setugo-ai-development-framework"},
             "active_workstream": {
                 "branch": "feature/test",
-                "head_commit": "a" * 40,
+                "head_commit": self.artifact_commit,
                 "state": "CONSTRUCTION_GREEN",
             },
             "independent_review": {
                 "current_review_request_id": "REV-TEST-001",
                 "current_review_status": "REVIEW_RECEIVED",
-                "current_reviewed_artifact_commit": "1" * 40,
+                "current_reviewed_artifact_commit": self.artifact_commit,
+                "current_review_trigger": "MATERIAL_GOVERNANCE_CHANGE",
             },
         }
         self.shared_memory = {
             "independent_authority": False,
             "current_work": {
                 "authoritative_branch": "feature/test",
-                "authoritative_head": "a" * 40,
+                "authoritative_head": self.artifact_commit,
                 "status": "CONSTRUCTION_GREEN",
             },
             "governance_runtime": {
@@ -93,7 +108,7 @@ class ReviewProtocolTests(unittest.TestCase):
     def _valid_evidence(self, *, provider="anthropic", model="claude-sonnet-5") -> dict:
         return {
             "review_request_id": "REV-TEST-001",
-            "reviewed_artifact_commit": "1" * 40,
+            "reviewed_artifact_commit": self.artifact_commit,
             "reviewer": {"provider": provider, "model": model},
             "disposition": "PASS",
             "findings": [],
@@ -117,17 +132,13 @@ class ReviewProtocolTests(unittest.TestCase):
 
     def _trusted_execution(self, evidence=None, *, provider="anthropic", model="claude-sonnet-5") -> DispatchResult:
         evidence = evidence or self._valid_evidence(provider=provider, model=model)
-        return DispatchResult(
-            transport="AUTOMATIC_API",
-            state="REVIEW_RECEIVED",
-            review_request_id="REV-TEST-001",
-            payload_hash=canonical_hash(self.request),
-            response=deepcopy(evidence),
-            reviewer_provider=provider,
-            reviewer_model=model,
-            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-            review_class="PLATFORM_AUTO_API_REVIEW",
+        return ReviewOrchestrator().dispatch(
+            self.request,
+            AutomaticAPITransport(lambda _payload: deepcopy(evidence), provider=provider, model=model),
         )
+
+    def tearDown(self) -> None:
+        self._git_tmp.cleanup()
 
     def test_governance_path_cannot_be_downgraded_by_r1_trigger_label(self) -> None:
         self.assertEqual(
@@ -189,13 +200,14 @@ class ReviewProtocolTests(unittest.TestCase):
         execution = self._trusted_execution(evidence)
         self.assertTrue(
             can_promote_material_transition(
-                trigger="ROUTINE_FORMATTING",
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=self.authoritative_state,
                 shared_memory=self.shared_memory,
                 review_request=self.request,
                 review_evidence=evidence,
                 review_execution=execution,
+                governed_repo_root=self.repo_root,
             )
         )
 
@@ -302,6 +314,7 @@ class ReviewProtocolTests(unittest.TestCase):
             blind_review_required=False,
             review_questions=["Adjudicate independently."],
             evidence_refs=[],
+            required_review_dimensions=[{"id":"independence","mandatory":True,"description":"Review independence."}],
         )
         evidence = {
             "review_request_id": "REV-TEST-002",
@@ -310,18 +323,12 @@ class ReviewProtocolTests(unittest.TestCase):
             "disposition": "PASS",
             "findings": [],
             "evidence_assessment": "No defects found.",
+            "review_coverage": [{"dimension_id":"independence","status":"TESTED_SUPPORTED","evidence":["ev"],"assessment":"Independence reviewed."}],
             "independence_attestation": "NOT_BLIND",
         }
-        execution = DispatchResult(
-            transport="AUTOMATIC_API",
-            state="REVIEW_RECEIVED",
-            review_request_id="REV-TEST-002",
-            payload_hash=canonical_hash(request),
-            response=evidence,
-            reviewer_provider="openai",
-            reviewer_model="gpt-5.6-sol",
-            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-            review_class="PLATFORM_AUTO_API_REVIEW",
+        execution = ReviewOrchestrator().dispatch(
+            request,
+            AutomaticAPITransport(lambda _payload: deepcopy(evidence), provider="openai", model="gpt-5.6-sol"),
         )
         valid, reason = validate_review_evidence(request=request, evidence=evidence, execution=execution)
         self.assertFalse(valid)
@@ -405,7 +412,7 @@ class ReviewProtocolTests(unittest.TestCase):
         self.assertIn("missing evidence summary", reason)
 
     def test_manual_relay_is_not_a_platform_review_transport(self) -> None:
-        with self.assertRaisesRegex(ValueError, "unsupported review transport"):
+        with self.assertRaisesRegex(ValueError, "registered concrete platform adapter"):
             ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(self.bundle))
 
     def test_deterministic_gate_still_blocks_valid_authenticated_review(self) -> None:
@@ -420,6 +427,58 @@ class ReviewProtocolTests(unittest.TestCase):
                 review_execution=self._trusted_execution(evidence),
             )
         )
+
+    def test_directly_fabricated_dispatch_result_is_not_authenticated(self) -> None:
+        evidence=self._valid_evidence()
+        forged=DispatchResult(transport="AUTOMATIC_API",state="REVIEW_RECEIVED",review_request_id="REV-TEST-001",
+                              payload_hash=canonical_hash(self.request),response=evidence,reviewer_provider="anthropic",
+                              reviewer_model="claude-sonnet-5",identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
+                              review_class="PLATFORM_AUTO_API_REVIEW")
+        valid,reason=validate_review_evidence(request=self.request,evidence=evidence,execution=forged)
+        self.assertFalse(valid);self.assertIn("trusted-adapter receipt",reason)
+
+    def test_all_optional_semantic_dimensions_are_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError,"at least one mandatory"):
+            build_review_request(review_request_id="REV-OPTIONAL",trigger="MATERIAL_GOVERNANCE_CHANGE",
+                artifact_type="candidate",artifact_ref="X",artifact_commit=self.artifact_commit,
+                proposer={"provider":"openai","model":"gpt-5.6-sol"},
+                required_reviewer={"provider":"anthropic","model_class":"claude"},blind_review_required=True,
+                review_questions=["review"],evidence_refs=[],
+                required_review_dimensions=[{"id":"optional","mandatory":False,"description":"optional"}])
+
+    def test_extra_pending_review_entry_breaks_grounding(self) -> None:
+        memory=deepcopy(self.shared_memory)
+        memory["pending_reviews"].append({"status":"REVIEW_RECEIVED","review_request_id":"STALE"})
+        ok,reason=validate_shared_memory_grounding(authoritative_state=self.authoritative_state,shared_memory=memory)
+        self.assertFalse(ok);self.assertIn("exactly one",reason)
+
+    def test_rejected_request_state_cannot_promote(self) -> None:
+        request=deepcopy(self.request);request["state"]="REVIEW_REJECTED"
+        material=deepcopy(request);material.pop("request_hash");request["request_hash"]=canonical_hash(material)
+        evidence=self._valid_evidence();execution=ReviewOrchestrator().dispatch(
+            request,AutomaticAPITransport(lambda _payload: deepcopy(evidence),provider="anthropic",model="claude-sonnet-5"))
+        self.assertFalse(can_promote_material_transition(trigger="MATERIAL_GOVERNANCE_CHANGE",deterministic_gate_passed=True,
+            authoritative_state=self.authoritative_state,shared_memory=self.shared_memory,review_request=request,
+            review_evidence=evidence,review_execution=execution,governed_repo_root=self.repo_root))
+
+    def test_trigger_mismatch_cannot_promote(self) -> None:
+        evidence=self._valid_evidence();execution=self._trusted_execution(evidence)
+        self.assertFalse(can_promote_material_transition(trigger="TERMINAL_ACTION",deterministic_gate_passed=True,
+            authoritative_state=self.authoritative_state,shared_memory=self.shared_memory,review_request=self.request,
+            review_evidence=evidence,review_execution=execution,governed_repo_root=self.repo_root))
+
+    def test_sha_shaped_nonobject_cannot_promote(self) -> None:
+        state=deepcopy(self.authoritative_state);state["active_workstream"]["head_commit"]="f"*40
+        state["independent_review"]["current_reviewed_artifact_commit"]="f"*40
+        memory=deepcopy(self.shared_memory);memory["current_work"]["authoritative_head"]="f"*40
+        request=deepcopy(self.request);request["artifact"]["commit"]="f"*40
+        material=deepcopy(request);material.pop("request_hash");request["request_hash"]=canonical_hash(material)
+        evidence=self._valid_evidence();evidence["reviewed_artifact_commit"]="f"*40
+        execution=ReviewOrchestrator().dispatch(request,AutomaticAPITransport(lambda _payload: deepcopy(evidence),provider="anthropic",model="claude-sonnet-5"))
+        self.assertFalse(can_promote_material_transition(trigger="MATERIAL_GOVERNANCE_CHANGE",deterministic_gate_passed=True,
+            authoritative_state=state,shared_memory=memory,review_request=request,review_evidence=evidence,
+            review_execution=execution,governed_repo_root=self.repo_root))
+
 
 
 if __name__ == "__main__":

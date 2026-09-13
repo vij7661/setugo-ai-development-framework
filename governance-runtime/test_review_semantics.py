@@ -5,7 +5,9 @@ import unittest
 
 from test_single_file_review_container import SingleFileReviewContainerTests  # imported so current CI loader executes P2 cases
 from review_protocol import (
+    AutomaticAPITransport,
     DispatchResult,
+    ReviewOrchestrator,
     build_review_request,
     can_promote_material_transition,
     canonical_hash,
@@ -105,16 +107,9 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
         }
 
     def execution(self, evidence):
-        return DispatchResult(
-            transport="AUTOMATIC_API",
-            state="REVIEW_RECEIVED",
-            review_request_id="REV-SEM-001",
-            payload_hash=canonical_hash(self.request),
-            response=deepcopy(evidence),
-            reviewer_provider="deepseek",
-            reviewer_model="deepseek-reasoner",
-            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-            review_class="PLATFORM_AUTO_API_REVIEW",
+        return ReviewOrchestrator().dispatch(
+            self.request,
+            AutomaticAPITransport(lambda _payload: deepcopy(evidence), provider="deepseek", model="deepseek-reasoner"),
         )
 
     def test_pass_with_required_dimension_not_tested_is_rejected(self):
@@ -145,6 +140,20 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
         evidence = self.evidence(disposition="BOUNDED_PASS", coverage=self.coverage(optional="NOT_TESTED"))
         ok, reason = validate_review_semantics(request=self.request, evidence=evidence)
         self.assertTrue(ok, reason)
+
+    def test_bounded_pass_rejects_optional_contradiction(self):
+        evidence = self.evidence(disposition="BOUNDED_PASS", coverage=self.coverage(optional="CONTRADICTED"),
+                                 findings=[{"id":"F-OPT","severity":"LOW"}])
+        ok, reason = validate_review_semantics(request=self.request, evidence=evidence)
+        self.assertFalse(ok)
+        self.assertIn("contradicted or defective", reason)
+
+    def test_bounded_pass_rejects_contradictory_assessment_text(self):
+        evidence = self.evidence(disposition="BOUNDED_PASS", coverage=self.coverage(optional="NOT_TESTED"),
+                                 assessment="The raw artifacts were not directly accessible.")
+        ok, reason = validate_review_semantics(request=self.request, evidence=evidence)
+        self.assertFalse(ok)
+        self.assertIn("contradicts BOUNDED_PASS", reason)
 
     def test_insufficient_evidence_is_valid_content_but_nonpromotable(self):
         evidence = self.evidence(
@@ -246,6 +255,9 @@ class ReviewSemanticConsistencyTests(unittest.TestCase):
         memory = deepcopy(self.shared_memory)
         memory["governance_runtime"]["current_review_request_id"] = "REV-LEGACY-001"
         memory["pending_reviews"][0]["review_request_id"] = "REV-LEGACY-001"
+        sem_ok, sem_reason = validate_review_semantics(request=legacy, evidence=evidence)
+        self.assertFalse(sem_ok)
+        self.assertIn("historical and non-authoritative", sem_reason)
         self.assertFalse(
             can_promote_material_transition(
                 deterministic_gate_passed=True,

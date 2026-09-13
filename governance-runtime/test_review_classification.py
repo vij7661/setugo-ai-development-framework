@@ -130,16 +130,9 @@ class ReviewClassificationTests(unittest.TestCase):
     def test_rc07_api_identity_still_rejects_content_identity_substitution(self):
         content = deepcopy(self.evidence)
         content["reviewer"] = {"provider": "moonshot", "model": "kimi"}
-        result = DispatchResult(
-            transport="USER_INITIATED_API",
-            state="REVIEW_RECEIVED",
-            review_request_id="REV-CLASS-001",
-            payload_hash=canonical_hash(self.request),
-            response=content,
-            reviewer_provider="deepseek",
-            reviewer_model="deepseek-reasoner",
-            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-            review_class="PLATFORM_USER_INITIATED_API_REVIEW",
+        result = ReviewOrchestrator().dispatch(
+            self.request,
+            UserInitiatedAPITransport(lambda _payload: deepcopy(content), provider="deepseek", model="deepseek-reasoner"),
         )
         valid, reason = validate_review_evidence(request=self.request, evidence=content, execution=result)
         self.assertFalse(valid)
@@ -163,7 +156,7 @@ class ReviewClassificationTests(unittest.TestCase):
             artifacts=[{"path": "dummy.txt", "content": "x"}],
             evidence_summary={"reference_summaries": {}},
         )
-        with self.assertRaisesRegex(ValueError, "unsupported review transport"):
+        with self.assertRaisesRegex(ValueError, "registered concrete platform adapter"):
             ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(bundle))
 
     def test_rc10_legacy_manual_relay_remains_nonpromotable_external_history(self):

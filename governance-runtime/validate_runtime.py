@@ -2,11 +2,13 @@
 """Deterministic validator for live conversation governance runtime state."""
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 import re
 import sys
 
+from governed_git_binding import read_governed_file_at_commit, verify_governed_commit, verify_governed_ref_commit
 from review_protocol import (
     EXTERNAL_EVIDENCE_CLASSES,
     PLATFORM_MODES,
@@ -23,6 +25,7 @@ MEMORY_PATH = ROOT / "shared-memory.json"
 LOG_PATH = ROOT / "decision-log.jsonl"
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+GOVERNED_REPOSITORY = "vij7661/setugo-ai-development-framework"
 EXPECTED_PRECEDENCE = [
     "governed_git_state",
     "governed_registries_and_evidence",
@@ -47,9 +50,88 @@ def fail(message: str) -> None:
     raise AssertionError(message)
 
 
-def require_sha(value: object, field: str) -> None:
+def require_sha(value: object, field: str) -> str:
     if not isinstance(value, str) or not SHA40.fullmatch(value):
         fail(f"{field} must be a lowercase 40-character Git SHA")
+    return value
+
+
+def require_governed_commit(value: object, field: str, *, repo_root: Path = ROOT.parent,
+                            path: str | None = None) -> str:
+    commit = require_sha(value, field)
+    ok, reason = verify_governed_commit(
+        repo_root=repo_root, expected_repository=GOVERNED_REPOSITORY, commit=commit
+    )
+    if not ok:
+        fail(f"{field} is not a governed Git commit: {reason}")
+    if path is not None:
+        ok, _raw, reason = read_governed_file_at_commit(
+            repo_root=repo_root, expected_repository=GOVERNED_REPOSITORY, commit=commit, path=path
+        )
+        if not ok:
+            fail(f"{field} does not bind expected governed path {path}: {reason}")
+    return commit
+
+
+def validate_latest_result_evidence(latest: object, candidate_commit: str, *,
+                                    repo_root: Path = ROOT.parent) -> None:
+    if not isinstance(latest, dict):
+        fail("latest_result malformed")
+    passed, total, failures = latest.get("passed"), latest.get("total"), latest.get("failures")
+    if not isinstance(passed, int) or not isinstance(total, int) or not isinstance(failures, list):
+        fail("latest_result malformed")
+    if passed < 0 or total <= 0 or passed > total or len(failures) != total - passed:
+        fail("latest_result counts inconsistent")
+    ref = latest.get("execution_evidence")
+    if not isinstance(ref, dict):
+        fail("latest_result execution evidence required")
+    evidence_commit = require_governed_commit(ref.get("evidence_commit"), "latest_result.execution_evidence.evidence_commit",
+                                               repo_root=repo_root)
+    evidence_path = ref.get("evidence_path")
+    if not isinstance(evidence_path, str) or not evidence_path.startswith("review/") or ".." in Path(evidence_path).parts:
+        fail("latest_result execution evidence path invalid")
+    expected_sha = ref.get("evidence_sha256")
+    if not isinstance(expected_sha, str) or not SHA256.fullmatch(expected_sha):
+        fail("latest_result execution evidence SHA-256 invalid")
+    ok, raw, reason = read_governed_file_at_commit(
+        repo_root=repo_root, expected_repository=GOVERNED_REPOSITORY,
+        commit=evidence_commit, path=evidence_path
+    )
+    if not ok or raw is None:
+        fail(f"latest_result execution evidence unavailable: {reason}")
+    if hashlib.sha256(raw).hexdigest() != expected_sha:
+        fail("latest_result execution evidence byte hash mismatch")
+    try:
+        record = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        fail("latest_result execution evidence record malformed")
+    if not isinstance(record, dict):
+        fail("latest_result execution evidence record malformed")
+    material = dict(record)
+    supplied_digest = material.pop("record_digest", None)
+    canonical = json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    if not isinstance(supplied_digest, str) or supplied_digest != hashlib.sha256(canonical).hexdigest():
+        fail("latest_result execution evidence record digest invalid")
+    if record.get("authority_origin") != "EXTERNAL_TRUSTED_RUNNER" or record.get("candidate_self_reported") is not False:
+        fail("latest_result execution evidence authority invalid")
+    if record.get("candidate_commit") != candidate_commit:
+        fail("latest_result execution evidence candidate mismatch")
+    if not isinstance(record.get("candidate_tree"), str) or not SHA40.fullmatch(record.get("candidate_tree")):
+        fail("latest_result execution evidence candidate tree invalid")
+    for key in ("environment_digest", "executed_test_set_digest", "transcript_sha256"):
+        if not isinstance(record.get(key), str) or not SHA256.fullmatch(record.get(key)):
+            fail(f"latest_result execution evidence {key} invalid")
+    if record.get("test_case_count") != total or record.get("passed") != passed or record.get("failures") != failures:
+        fail("latest_result execution evidence result mismatch")
+    exit_code = record.get("process_exit_code")
+    if not isinstance(exit_code, int):
+        fail("latest_result execution evidence process exit missing")
+    terminal = record.get("terminal_status")
+    expected_terminal = "PASS" if passed == total and not failures and exit_code == 0 else "FAIL"
+    if terminal != expected_terminal:
+        fail("latest_result execution evidence terminal status mismatch")
+    if terminal == "FAIL" and exit_code == 0 and passed != total:
+        fail("latest_result execution evidence false-green process exit")
 
 
 def main() -> int:
@@ -59,7 +141,7 @@ def main() -> int:
     if state.get("schema_version") != 3 or state.get("checkpoint_state") not in ALLOWED_CHECKPOINT_STATES:
         fail("session-state schema/checkpoint invalid")
     authority = state.get("authority", {})
-    if authority.get("repository") != "vij7661/setugo-ai-development-framework":
+    if authority.get("repository") != GOVERNED_REPOSITORY:
         fail("authoritative repository changed")
     if authority.get("source_precedence") != EXPECTED_PRECEDENCE:
         fail("authority precedence changed or weakened")
@@ -69,10 +151,12 @@ def main() -> int:
         fail("runtime branch changed")
     if runtime.get("normative_contract_path") != "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md":
         fail("normative contract path changed")
-    require_sha(runtime.get("normative_contract_commit"), "runtime.normative_contract_commit")
+    require_governed_commit(runtime.get("normative_contract_commit"), "runtime.normative_contract_commit",
+                             path="governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md")
     if runtime.get("handoff_contract_path") != "governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md":
         fail("execution handoff contract path missing/changed")
-    require_sha(runtime.get("handoff_contract_commit"), "runtime.handoff_contract_commit")
+    require_governed_commit(runtime.get("handoff_contract_commit"), "runtime.handoff_contract_commit",
+                             path="governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md")
     if not (ROOT / "EXECUTION-HANDOFF-PROTOCOL.md").is_file():
         fail("execution handoff contract file missing")
 
@@ -107,13 +191,16 @@ def main() -> int:
             fail(f"active_workstream.{key} required")
     for key in ("head_commit", "preregistration_commit", "frozen_acceptance_harness_commit",
                 "first_mechanism_commit", "preserved_failure_record_commit"):
-        require_sha(work.get(key), f"active_workstream.{key}")
+        require_governed_commit(work.get(key), f"active_workstream.{key}")
+    branch_ok, branch_reason = verify_governed_ref_commit(
+        repo_root=ROOT.parent, expected_repository=GOVERNED_REPOSITORY,
+        ref_name=str(work.get("branch")), commit=str(work.get("head_commit"))
+    )
+    if not branch_ok:
+        fail(f"active_workstream.head_commit does not bind governed branch: {branch_reason}")
     latest = work.get("latest_result", {})
+    validate_latest_result_evidence(latest, str(work.get("head_commit")))
     passed, total, failures = latest.get("passed"), latest.get("total"), latest.get("failures")
-    if not isinstance(passed, int) or not isinstance(total, int) or not isinstance(failures, list):
-        fail("latest_result malformed")
-    if passed < 0 or total <= 0 or passed > total or len(failures) != total - passed:
-        fail("latest_result counts inconsistent")
 
     mem_work = memory.get("current_work", {})
     if (mem_work.get("name") != work.get("name") or
@@ -132,7 +219,7 @@ def main() -> int:
                 "next_required_action", "stop_condition", "handoff_reason", "historical_failure_preserved", "resume_rule"):
         if not isinstance(handoff.get(key), str) or not handoff.get(key).strip():
             fail(f"execution_handoff.{key} required")
-    require_sha(handoff.get("candidate_commit"), "execution_handoff.candidate_commit")
+    require_governed_commit(handoff.get("candidate_commit"), "execution_handoff.candidate_commit")
     if handoff.get("workstream") != work.get("name"):
         fail("HANDOFF_STALE: workstream mismatch")
     if handoff.get("candidate_branch") != work.get("branch"):
@@ -230,8 +317,8 @@ def main() -> int:
     promotion = runtime.get("promotion", {})
     active_id = review.get("current_review_request_id")
     pending = memory.get("pending_reviews")
-    if not isinstance(pending, list) or not pending or not isinstance(pending[0], dict):
-        fail("pending review coordination missing")
+    if not isinstance(pending, list) or len(pending) != 1 or not isinstance(pending[0], dict):
+        fail("pending review coordination must contain exactly one active record")
     mem_review = pending[0]
 
     if active_id is None:
@@ -246,7 +333,7 @@ def main() -> int:
                 fail("pending independent review without review handoff stop")
             if mem_review.get("status") != "PENDING_INDEPENDENT_REVIEW":
                 fail("memory disagrees with pending independent review")
-            require_sha(review.get("current_reviewed_artifact_commit"), "independent_review.current_reviewed_artifact_commit")
+            require_governed_commit(review.get("current_reviewed_artifact_commit"), "independent_review.current_reviewed_artifact_commit")
             if review.get("current_reviewed_artifact_commit") != handoff.get("candidate_commit"):
                 fail("pending review candidate differs from handoff")
         else:
@@ -268,7 +355,7 @@ def main() -> int:
         if request.get("schema_version") != SEMANTIC_REVIEW_SCHEMA_VERSION:
             fail("active material review must use schema 4")
         reviewed_commit = review.get("current_reviewed_artifact_commit")
-        require_sha(reviewed_commit, "independent_review.current_reviewed_artifact_commit")
+        require_governed_commit(reviewed_commit, "independent_review.current_reviewed_artifact_commit")
         if request.get("review_request_id") != active_id or request.get("artifact", {}).get("commit") != reviewed_commit:
             fail("active request binding invalid")
         review_transport = review.get("current_review_transport")
