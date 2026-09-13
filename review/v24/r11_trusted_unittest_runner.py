@@ -53,6 +53,10 @@ def main() -> None:
 
     modules = modules_from_pinset(pinset)
 
+    # Candidate imports must not create new bytecode artifacts in the exact-file
+    # execution sandbox; post-execution binding is required to remain identical.
+    sys.dont_write_bytecode = True
+
     # Only after stdlib unittest and the external pinset have been loaded do we
     # move into the candidate sandbox and make its Python bytes importable.
     os.chdir(sandbox)
