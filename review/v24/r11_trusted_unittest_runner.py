@@ -59,6 +59,7 @@ def main() -> None:
     sys.path.insert(0, str(subject))
 
     suite = unittest.defaultTestLoader.loadTestsFromNames(modules)
+    print(f"TRUSTED_RUNNER_TEST_CASES={suite.countTestCases()}")
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     raise SystemExit(0 if result.wasSuccessful() else 1)
 
