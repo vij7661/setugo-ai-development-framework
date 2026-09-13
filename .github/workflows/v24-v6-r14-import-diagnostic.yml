@@ -1,0 +1,59 @@
+name: V24 V6 R14 Import Diagnostic
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r14-native-observer
+    paths:
+      - '.github/workflows/v24-v6-r14-import-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Reproduce native audit policy around exact candidate import
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='5a1fb005e9c58e30b1dcfaa473d603dde90df72c'
+          T='6e65609ac09b78bcffefb6d6560b640ba7696521'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          S="$RUNNER_TEMP/r14-diag-candidate"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          env -i HOME="$HOME" PATH="$(dirname "$(command -v python)"):/usr/bin:/bin" \
+            python -B -I -S - "$S" <<'PY'
+          import pathlib,sys,traceback
+          root=pathlib.Path(sys.argv[1]).resolve()
+          bad=("ctypes","_ctypes","cffi","_cffi_backend","mmap","subprocess","multiprocessing","_multiprocessing","socket","_socket","resource","fcntl","pty","signal","_posixsubprocess","threading","_thread","concurrent","asyncio")
+          blocked=("sys._getframe","sys.settrace","sys.setprofile","os.system","os.exec","os.posix_spawn","os.fork","os.forkpty","os.kill","os.killpg","subprocess.Popen","socket.__new__","ctypes.dlopen")
+          def banned(n):
+              return any(n==x or n.startswith(x+'.') for x in bad) or n.startswith('_test') or n.startswith('test.')
+          def audit(event,args):
+              if event in blocked:
+                  raise PermissionError('R14_DIAG_AUDIT_BLOCK:'+event)
+              if event=='import' and args and isinstance(args[0],str) and banned(args[0]):
+                  raise PermissionError('R14_DIAG_IMPORT_BLOCK:'+args[0])
+              if event=='open' and args and isinstance(args[0],str):
+                  p=args[0]
+                  if p.startswith('/proc/') or p.startswith('/sys/') or p in ('/dev/mem','/dev/kmem'):
+                      raise PermissionError('R14_DIAG_PATH_BLOCK:'+p)
+          sys.addaudithook(audit)
+          sys.path.insert(0,str(root/'governance-runtime'))
+          try:
+              __import__('v24_v6_governance_foundation')
+          except BaseException:
+              traceback.print_exc()
+              print('R14_DIAGNOSTIC_IMPORT=FAILED_AS_EXPECTED_FOR_DIAG')
+              raise SystemExit(0)
+          print('R14_DIAGNOSTIC_IMPORT=PASS')
+          PY
