@@ -1,0 +1,34 @@
+{
+  "binding_id": "V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6",
+  "packet_path": "remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md",
+  "packet_commit": "a13f68b061c101231ae060f6522f0108dab4f037",
+  "packet_git_blob": "8682df137aa12d57927e7891c16048e90b04caac",
+  "raw_packet_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
+  "plan_body_sha256": "286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5",
+  "packet_bytes": 19297,
+  "frozen_v24_design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "frozen_v24_design_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "frozen_i10_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "frozen_i10_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "v8_falsification_packet_sha256": "e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e",
+  "v8_falsification_body_sha256": "3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab",
+  "scientific_root_cause_consolidation_commit": "3d506cfdc71b10f2f03e05c3ce5a6355b0c2a71e",
+  "predecessor_reviewed_v5": {
+    "commit": "b140f93a4b77e676936896b832617899a3d894a0",
+    "tree": "08baab75c28051604bc4b499e6646f496b38329a",
+    "packet_sha256": "1788486654ef25cf45cd877b7a99ade5e0753fef0fed2a0968823989d3c67af6",
+    "body_sha256": "f7e7a0b79fd74be676dc4f55b2c15b2dc5e065634f90d337c74e6d776afc6f9f",
+    "review_disposition": "NEEDS_REVISION"
+  },
+  "semantic_delta": [
+    "universal allowed-root closure across every terminal dependency path",
+    "exact paired genesis trusted object-id/content-digest membership",
+    "ApplicablePredicateUniverse explicit completeness qualification",
+    "AtomicBindingModeRegistry explicit completeness qualification",
+    "unresolved-case non-retroactivity"
+  ],
+  "implementation_status": "NOT_STARTED",
+  "review_status": "REQUIRED",
+  "review_admissibility": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW; HUMAN_OR_AI; NO_AUTOMATED_REVIEWER_API_CALLS",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
