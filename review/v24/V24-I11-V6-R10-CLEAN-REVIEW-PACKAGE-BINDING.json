@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "binding_id": "V24-I11-V6-R10-CLEAN-REVIEW-PACKAGE",
+  "frozen_candidate": {
+    "commit": "2877081254fec80b6a7eefab7d74c0e9fae1a0c8",
+    "tree": "5034915e3d0d2f305ccc0caec7340d1a116060bc",
+    "preflight_run_id": "34762302792",
+    "remediation_evidence_git_blob_sha1": "e3b1b9305a223808260d4f4616f5ef2829824797",
+    "rebound_manifest_raw_sha256": "8193b35de08444742b6cefa53a02e2408b3a8fd2a9fef1244eb08fb8be951f2d"
+  },
+  "package_build": {
+    "green_run_id": "34762730610",
+    "green_review_branch_commit": "1897335c3a5ff0893b36d602ecb33696b432229f",
+    "artifact_id": 10319432523,
+    "artifact_name": "v24-v6-r10-clean-manual-successor-review-package",
+    "artifact_outer_zip_bytes": 141526,
+    "artifact_outer_zip_sha256": "fdb6c25dbcb05419940707ae1ab7a342214c9d613e949ec0863e942726e17bd9",
+    "inner_review_zip_name": "V24-I11-V6-R10-CLEAN-MANUAL-SUCCESSOR-REVIEW-PACKAGE.zip",
+    "inner_review_zip_bytes": 147600,
+    "inner_review_zip_sha256": "4d1f80ce6135a09cd52102129cbfaa30f5df4537a4949ff4f40733ed5b262308",
+    "inner_sha256_file_name": "V24-I11-V6-R10-CLEAN-MANUAL-SUCCESSOR-REVIEW-PACKAGE.sha256",
+    "inner_sha256_file_bytes": 123,
+    "inner_sha256_file_sha256": "c1ee55b1eff5d8801c32e7c4f58f209720894ef7369fd3c01061458771e3a041",
+    "package_manifest_sha256": "17ec5a1559c4a439071da50345a84e716173eb26272caa6fd1a0803967c17d75",
+    "package_manifest_bytes": 14955,
+    "package_binding_sha256": "cb358228a2437da7c4b3bce579271fedfe0d3c4a2aa5e73e36598ceb0f693f2c",
+    "package_binding_bytes": 341,
+    "review_instructions_sha256": "97abc2f1bba7e73a3baa8b38c8ee79703792566d681311a4853e99fc406d29a5",
+    "review_instructions_bytes": 12037,
+    "manifest_listed_file_count": 53,
+    "total_inner_file_count": 55,
+    "manifest_recomputation_errors": 0,
+    "direct_artifact_recomputation_performed": true
+  },
+  "approved_design_recomputed_from_package": {
+    "bytes": 19297,
+    "raw_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
+    "plan_body_sha256": "286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5",
+    "git_blob_sha1": "4a15d50a0488464816d235b273d1dbf808fdce94"
+  },
+  "preserved_package_red_history": [
+    {
+      "run_id": "34762599042",
+      "review_branch_commit": "77fac02cfff84e23fde803089ee07ec34c5d7720",
+      "classification": "REVIEW_PACKAGE_TEMP_PATH_DEFECT",
+      "finding": "Frozen candidate identity verification passed, but the rebound-production verification step attempted to read /tmp/r10-manifest.json instead of the RUNNER_TEMP path written by the previous step.",
+      "candidate_status_affected": false
+    },
+    {
+      "run_id": "34762675896",
+      "review_branch_commit": "5adba214bc11439e55e4b82023162313a5ac9fbb",
+      "classification": "REVIEW_PACKAGE_SCHEMA_ASSERTION_DEFECT",
+      "finding": "All R1-R8 rebound production Git blobs matched exactly, then packaging failed because it asserted a nonexistent top-level qualification_state field instead of the manifest's actual posture schema.",
+      "candidate_status_affected": false
+    }
+  ],
+  "review_gate": {
+    "clean_independent_manual_review_required": true,
+    "automated_reviewer_api_calls_permitted": false,
+    "repository_adjudication_required_after_review": true,
+    "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+    "runtime_qualification_state": "NOT_CLAIMED",
+    "package_self_grant_permitted": false
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
