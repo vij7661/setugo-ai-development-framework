@@ -1,0 +1,272 @@
+name: V24 V6 R14 Native Boundary Construction
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r14-native-observer
+    paths:
+      - 'review/v24/r14_*'
+      - '.github/workflows/v24-v6-r14-native-boundary-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Bind frozen candidate and external authority separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='5a1fb005e9c58e30b1dcfaa473d603dde90df72c'
+          T='6e65609ac09b78bcffefb6d6560b640ba7696521'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          for p in review/v24/r14_native_observer.c review/v24/r14_trusted_external_oracle.py review/v24/r14_trusted_external_guard.py review/v24/r14_trusted_oracle_launcher.py; do
+            if git cat-file -e "$C:$p" 2>/dev/null; then echo "R14_EXTERNAL_OBJECT_IN_CANDIDATE:$p"; exit 1; fi
+          done
+          SUBJECT="$RUNNER_TEMP/r14-candidate"
+          mkdir -p "$SUBJECT"
+          git archive "$C" | tar -xf - -C "$SUBJECT"
+          echo "R14_CANDIDATE=$C" >> "$GITHUB_ENV"
+          echo "R14_TREE=$T" >> "$GITHUB_ENV"
+          echo "R14_SUBJECT=$SUBJECT" >> "$GITHUB_ENV"
+          echo "R14_REVIEW_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "R14_NATIVE_SOURCE_BLOB=$(git rev-parse HEAD:review/v24/r14_native_observer.c)" >> "$GITHUB_ENV"
+          echo "R14_ORACLE_BLOB=$(git rev-parse HEAD:review/v24/r14_trusted_external_oracle.py)" >> "$GITHUB_ENV"
+          echo "R14_GUARD_BLOB=$(git rev-parse HEAD:review/v24/r14_trusted_external_guard.py)" >> "$GITHUB_ENV"
+          echo "R14_LAUNCHER_BLOB=$(git rev-parse HEAD:review/v24/r14_trusted_oracle_launcher.py)" >> "$GITHUB_ENV"
+          echo "R14_SCENARIO_BLOB=$(git rev-parse HEAD:review/v24/r13_trusted_external_oracle.py)" >> "$GITHUB_ENV"
+          echo 'R14_EXTERNAL_AUTHORITY_SEPARATION=PASS'
+
+      - name: Compile and bind native observer
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/review/v24/r14_native_observer.c"
+          BIN="$RUNNER_TEMP/r14-native-observer"
+          LIBDIR="$(python - <<'PY'
+          import sysconfig
+          print(sysconfig.get_config_var('LIBDIR'))
+          PY
+          )"
+          gcc -O2 -fPIE -pie -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) "$SRC" -o "$BIN" \
+            $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          test -x "$BIN"
+          BINARY_SHA="$(sha256sum "$BIN" | awk '{print $1}')"
+          COMPILER_DIGEST="$({ gcc --version; python3-config --includes; python3-config --embed --ldflags; printf '%s\n' "$LIBDIR"; } | sha256sum | awk '{print $1}')"
+          echo "R14_NATIVE_BIN=$BIN" >> "$GITHUB_ENV"
+          echo "R14_NATIVE_BINARY_SHA=$BINARY_SHA" >> "$GITHUB_ENV"
+          echo "R14_COMPILER_DIGEST=$COMPILER_DIGEST" >> "$GITHUB_ENV"
+          echo "R14_NATIVE_BINARY_SHA256=$BINARY_SHA"
+          echo "R14_NATIVE_COMPILER_DIGEST=$COMPILER_DIGEST"
+
+      - name: Build external exact-file pinset and stage sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"
+          GUARD="$GITHUB_WORKSPACE/review/v24/r14_trusted_external_guard.py"
+          PIN="$RUNNER_TEMP/V24-I11-V6-R14-EXTERNAL-PINSET.json"
+          SANDBOX="$RUNNER_TEMP/r14-sandbox"
+          CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$GUARD" build-pinset \
+            --root "$R14_SUBJECT" --commit "$R14_CANDIDATE" --tree "$R14_TREE" --review-commit "$R14_REVIEW_COMMIT" --output "$PIN"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$GUARD" verify-source \
+            --root "$R14_SUBJECT" --pinset "$PIN" --commit "$R14_CANDIDATE" --tree "$R14_TREE"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$GUARD" stage \
+            --root "$R14_SUBJECT" --pinset "$PIN" --commit "$R14_CANDIDATE" --tree "$R14_TREE" --target "$SANDBOX"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$GUARD" verify-sandbox \
+            --root "$SANDBOX" --pinset "$PIN" --commit "$R14_CANDIDATE" --tree "$R14_TREE"
+          echo "R14_PINSET=$PIN" >> "$GITHUB_ENV"
+          echo "R14_PINSET_SHA=$(sha256sum "$PIN" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "R14_SANDBOX=$SANDBOX" >> "$GITHUB_ENV"
+
+      - name: Exact-file substitution attacks remain rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; GUARD="$GITHUB_WORKSPACE/review/v24/r14_trusted_external_guard.py"; CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"
+          reject() {
+            n="$1"; d="$RUNNER_TEMP/r14-pin-$n"; rm -rf "$d"; cp -a "$R14_SANDBOX" "$d"
+            case "$n" in
+              production-swap) printf 'raise SystemExit(0)\n' > "$d/governance-runtime/v24_v6_governance_foundation.py" ;;
+              support-swap) printf '{}\n' > "$d/implementation/v24/V24-I11-V6-R14-EXECUTION-CONTRACT.json" ;;
+              unpinned) printf 'evil\n' > "$d/governance-runtime/r14_unpinned.txt" ;;
+              symlink) rm "$d/governance-runtime/v24_v6_governance_foundation.py"; ln -s v24_v6_endpoint_projection.py "$d/governance-runtime/v24_v6_governance_foundation.py" ;;
+            esac
+            if env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$GUARD" verify-sandbox --root "$d" --pinset "$R14_PINSET" --commit "$R14_CANDIDATE" --tree "$R14_TREE"; then
+              echo "R14_FALSE_GREEN_PIN_ATTACK_ACCEPTED:$n"; exit 1
+            fi
+            echo "R14_PIN_ATTACK_REJECTED:$n"
+          }
+          for x in production-swap support-swap unpinned symlink; do reject "$x"; done
+
+      - name: Compute bound interpreter and environment digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"
+          INTERPRETER_DIGEST="$(env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S - <<'PY'
+          import hashlib,json,pathlib,sys
+          def c(x): return json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+          flags={'isolated':bool(sys.flags.isolated),'no_site':bool(sys.flags.no_site),'ignore_environment':bool(sys.flags.ignore_environment),'safe_path':bool(sys.flags.safe_path)}
+          assert all(flags.values()) and sys.flags.optimize==0
+          exe=pathlib.Path(sys.executable).resolve()
+          r={'flags':flags,'implementation':sys.implementation.name,'cache_tag':sys.implementation.cache_tag,'version':list(sys.version_info),'hexversion':sys.hexversion,'executable_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'stdlib_names_digest':hashlib.sha256(c(sorted(sys.stdlib_module_names))).hexdigest()}
+          print(hashlib.sha256(c(r)).hexdigest())
+          PY
+          )"
+          ENV_DIGEST="$(python - "$R14_CANDIDATE" "$R14_TREE" "$R14_PINSET_SHA" "$R14_NATIVE_BINARY_SHA" "$R14_COMPILER_DIGEST" "$INTERPRETER_DIGEST" "$R14_NATIVE_SOURCE_BLOB" "$R14_ORACLE_BLOB" "$R14_LAUNCHER_BLOB" "$R14_SCENARIO_BLOB" <<'PY'
+          import hashlib,json,sys
+          print(hashlib.sha256(json.dumps(sys.argv[1:],separators=(',',':')).encode()).hexdigest())
+          PY
+          )"
+          echo "R14_INTERPRETER_DIGEST=$INTERPRETER_DIGEST" >> "$GITHUB_ENV"
+          echo "R14_ENV_DIGEST=$ENV_DIGEST" >> "$GITHUB_ENV"
+          echo "R14_INTERPRETER_CONTRACT_DIGEST=$INTERPRETER_DIGEST"
+          echo "R14_ENVIRONMENT_DIGEST=$ENV_DIGEST"
+
+      - name: R13 and native-boundary attacks must fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUEST="$RUNNER_TEMP/r14-attack-request.json"
+          printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$REQUEST"
+          RESULT="$RUNNER_TEMP/V24-I11-V6-R14-R13-REGRESSION.json"
+          python - "$R14_SANDBOX" "$R14_NATIVE_BIN" "$REQUEST" "$RESULT" <<'PY'
+          import json,os,pathlib,shutil,subprocess,sys,tempfile
+          base=pathlib.Path(sys.argv[1]); native=sys.argv[2]; req=sys.argv[3]; out=pathlib.Path(sys.argv[4])
+          marker='from __future__ import annotations\n'
+          attacks={
+            'r13_tailored_sys_getframe':"import sys as _s\n_s._getframe()\n",
+            'early_os_exit_zero':"import os as _o\n_o._exit(0)\n",
+            'fd_scan_junk_injection':"import os as _o\nfor _fd in range(3,96):\n    try: _o.write(_fd,b'R14F1\\n'+b'0'*64+b'\\n2\\n{}')\n    except OSError: pass\n_o._exit(0)\n",
+            'ctypes_memory_escape':"import ctypes as _c\n",
+            'proc_self_mem':"open('/proc/self/mem','rb')\n",
+            'settrace_mutation':"import sys as _s\n_s.settrace(lambda *a: None)\n",
+            'thread_escape':"import threading as _t\n",
+          }
+          rows=[]
+          for name,prefix in attacks.items():
+            with tempfile.TemporaryDirectory(prefix='r14-attack-') as td:
+              d=pathlib.Path(td)/'candidate'; shutil.copytree(base,d)
+              p=d/'governance-runtime/v24_v6_governance_foundation.py'; data=p.read_text()
+              if marker not in data: raise SystemExit(f'R14_ATTACK_MARKER_MISSING:{name}')
+              p.write_text(data.replace(marker,marker+prefix,1))
+              cp=subprocess.run([native,'--sandbox',str(d),'--request',req],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=30)
+              rejected=cp.returncode!=0 and not cp.stdout.startswith('R14_NATIVE_OBSERVATION=')
+              rows.append({'attack':name,'returncode':cp.returncode,'authenticated_observation_emitted':cp.stdout.startswith('R14_NATIVE_OBSERVATION='),'rejected':rejected,'stderr_tail':cp.stderr[-300:]})
+              if not rejected: raise SystemExit(f'R14_FALSE_GREEN_NATIVE_ATTACK_ACCEPTED:{name}:{cp.stdout[-500:]}')
+          obj={'schema_version':1,'candidate_commit':os.environ['R14_CANDIDATE'],'candidate_tree':os.environ['R14_TREE'],'native_observer_binary_sha256':os.environ['R14_NATIVE_BINARY_SHA'],'attacks':rows,'all_rejected':all(x['rejected'] for x in rows),'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW','runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY'}
+          out.write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(obj,indent=2,sort_keys=True))
+          PY
+          REG_SHA="$(sha256sum "$RESULT" | awk '{print $1}')"
+          echo "R14_R13_REGRESSION_RESULT=$RESULT" >> "$GITHUB_ENV"
+          echo "R14_R13_REGRESSION_DIGEST=$REG_SHA" >> "$GITHUB_ENV"
+          echo "R14_R13_REGRESSION_EVIDENCE_SHA256=$REG_SHA"
+
+      - name: Oracle launcher isolation and optimization probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; LAUNCH="$GITHUB_WORKSPACE/review/v24/r14_trusted_oracle_launcher.py"; ORACLE="$GITHUB_WORKSPACE/review/v24/r14_trusted_external_oracle.py"; SCEN="$GITHUB_WORKSPACE/review/v24/r13_trusted_external_oracle.py"
+          COMMON=(--oracle "$ORACLE" --sandbox "$R14_SANDBOX" --native-observer "$R14_NATIVE_BIN" --scenario-library "$SCEN" --candidate-commit "$R14_CANDIDATE" --candidate-tree "$R14_TREE" --environment-digest "$R14_ENV_DIGEST" --interpreter-contract-digest "$R14_INTERPRETER_DIGEST" --native-observer-source-git-blob-sha1 "$R14_NATIVE_SOURCE_BLOB" --native-observer-binary-sha256 "$R14_NATIVE_BINARY_SHA" --native-observer-compiler-digest "$R14_COMPILER_DIGEST" --oracle-git-blob-sha1 "$R14_ORACLE_BLOB" --run-id "$GITHUB_RUN_ID" --round-id R14-PROBE --r13-regression-evidence-digest "$R14_R13_REGRESSION_DIGEST" --output "$RUNNER_TEMP/probe.json")
+          if "$PY" "$LAUNCH" "${COMMON[@]}" >"$RUNNER_TEMP/noiso.out" 2>"$RUNNER_TEMP/noiso.err"; then echo R14_FALSE_GREEN_LAUNCHER_NO_ISOLATION; exit 1; fi
+          grep -q 'R14_LAUNCHER_INTERPRETER_FLAGS_INVALID' "$RUNNER_TEMP/noiso.err"
+          if "$PY" -O -I -S "$LAUNCH" "${COMMON[@]}" >"$RUNNER_TEMP/opt.out" 2>"$RUNNER_TEMP/opt.err"; then echo R14_FALSE_GREEN_LAUNCHER_OPTIMIZED; exit 1; fi
+          grep -q 'R14_LAUNCHER_OPTIMIZATION_FORBIDDEN' "$RUNNER_TEMP/opt.err"
+          test ! -e "$RUNNER_TEMP/probe.json"
+          echo 'R14_LAUNCHER_RUNTIME_PROBES=PASS'
+
+      - name: Execute six external oracle checks through native observations
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"; LAUNCH="$GITHUB_WORKSPACE/review/v24/r14_trusted_oracle_launcher.py"; ORACLE="$GITHUB_WORKSPACE/review/v24/r14_trusted_external_oracle.py"; SCEN="$GITHUB_WORKSPACE/review/v24/r13_trusted_external_oracle.py"; OUT="$RUNNER_TEMP/V24-I11-V6-R14-NATIVE-ORACLE-EVIDENCE.json"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$LAUNCH" --oracle "$ORACLE" \
+            --sandbox "$R14_SANDBOX" --native-observer "$R14_NATIVE_BIN" --scenario-library "$SCEN" \
+            --candidate-commit "$R14_CANDIDATE" --candidate-tree "$R14_TREE" \
+            --environment-digest "$R14_ENV_DIGEST" --interpreter-contract-digest "$R14_INTERPRETER_DIGEST" \
+            --native-observer-source-git-blob-sha1 "$R14_NATIVE_SOURCE_BLOB" --native-observer-binary-sha256 "$R14_NATIVE_BINARY_SHA" \
+            --native-observer-compiler-digest "$R14_COMPILER_DIGEST" --oracle-git-blob-sha1 "$R14_ORACLE_BLOB" \
+            --run-id "$GITHUB_RUN_ID" --round-id R14-NATIVE-ROUND-1 --r13-regression-evidence-digest "$R14_R13_REGRESSION_DIGEST" --output "$OUT"
+          echo "R14_ORACLE_EVIDENCE=$OUT" >> "$GITHUB_ENV"
+          echo "R14_ORACLE_EVIDENCE_SHA=$(sha256sum "$OUT" | awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Candidate structural validator accepts only bound external evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S - "$R14_SANDBOX" "$R14_ORACLE_EVIDENCE" <<'PY'
+          import json,pathlib,sys
+          sandbox=pathlib.Path(sys.argv[1]).resolve();sys.path.insert(0,str(sandbox/'governance-runtime'))
+          from v24_v6_r14_successor import validate_native_observation_evidence_bundle
+          obj=json.load(open(sys.argv[2],encoding='utf-8'));r=validate_native_observation_evidence_bundle(obj)
+          assert r['valid'],r
+          assert r['qualified'] is False
+          assert r['bound_check_count']==6
+          print('R14_CANDIDATE_EXTERNAL_EVIDENCE_VALIDATOR=PASS_NONAUTHORITATIVE')
+          PY
+
+      - name: Native binary substitution evidence is rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"; BAD="$RUNNER_TEMP/r14-bad-evidence.json"
+          python - "$R14_ORACLE_EVIDENCE" "$BAD" <<'PY'
+          import json,sys
+          a,b=sys.argv[1:];o=json.load(open(a));o['records'][0]['native_observer_binary_sha256']='f'*64;json.dump(o,open(b,'w'),indent=2,sort_keys=True)
+          PY
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S - "$R14_SANDBOX" "$BAD" <<'PY'
+          import json,pathlib,sys
+          s=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(s/'governance-runtime'))
+          from v24_v6_r14_successor import validate_native_observation_evidence_bundle
+          r=validate_native_observation_evidence_bundle(json.load(open(sys.argv[2])))
+          assert not r['valid'] and any('NATIVE_BINARY_MISMATCH' in x for x in r['problems']),r
+          print('R14_NATIVE_BINARY_SUBSTITUTION_REJECTED=PASS')
+          PY
+
+      - name: Post-execution sandbox remains exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; CLEAN_PATH="$(dirname "$PY"):/usr/bin:/bin"; GUARD="$GITHUB_WORKSPACE/review/v24/r14_trusted_external_guard.py"
+          env -i HOME="$HOME" PATH="$CLEAN_PATH" "$PY" -B -I -S "$GUARD" verify-sandbox --root "$R14_SANDBOX" --pinset "$R14_PINSET" --commit "$R14_CANDIDATE" --tree "$R14_TREE"
+
+      - name: Build construction record
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/V24-I11-V6-R14-NATIVE-CONSTRUCTION.json"
+          python - "$OUT" <<'PY'
+          import json,os,sys
+          o={'schema_version':1,'candidate_commit':os.environ['R14_CANDIDATE'],'candidate_tree':os.environ['R14_TREE'],'review_commit':os.environ['R14_REVIEW_COMMIT'],'pinset_sha256':os.environ['R14_PINSET_SHA'],'native_source_git_blob_sha1':os.environ['R14_NATIVE_SOURCE_BLOB'],'native_binary_sha256':os.environ['R14_NATIVE_BINARY_SHA'],'compiler_digest':os.environ['R14_COMPILER_DIGEST'],'oracle_git_blob_sha1':os.environ['R14_ORACLE_BLOB'],'launcher_git_blob_sha1':os.environ['R14_LAUNCHER_BLOB'],'scenario_library_git_blob_sha1':os.environ['R14_SCENARIO_BLOB'],'interpreter_contract_digest':os.environ['R14_INTERPRETER_DIGEST'],'environment_digest':os.environ['R14_ENV_DIGEST'],'r13_regression_evidence_sha256':os.environ['R14_R13_REGRESSION_DIGEST'],'oracle_evidence_sha256':os.environ['R14_ORACLE_EVIDENCE_SHA'],'native_parent_process_initializes_python':False,'candidate_python_executes_only_in_forked_child':True,'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW','runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY'}
+          open(sys.argv[1],'w').write(json.dumps(o,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(o,indent=2,sort_keys=True))
+          PY
+          echo "R14_CONSTRUCTION_RECORD=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload construction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r14-native-boundary-construction-evidence
+          path: |
+            ${{ env.R14_PINSET }}
+            ${{ env.R14_R13_REGRESSION_RESULT }}
+            ${{ env.R14_ORACLE_EVIDENCE }}
+            ${{ env.R14_CONSTRUCTION_RECORD }}
+          if-no-files-found: error
+          retention-days: 90
