@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "contract_id": "V24-I11-V6-R16-OPENAT-SECRET-SEPARATION",
+  "predecessor": {
+    "candidate_commit": "2e875bb29be48d39c9be6f3525d4f4610869848c",
+    "candidate_tree": "d2c9c0c85564808941fdb54cfbbd53f51f5397ee",
+    "manual_review_disposition": "NEEDS_REVISION",
+    "manual_review_record": "review/v24/V24-I11-V6-R15-DEEPSEEK-MANUAL-SUCCESSOR-REVIEW-001.md",
+    "adjudication_record": "review/v24/V24-I11-V6-R15-MANUAL-REVIEW-ADJUDICATION-001.md"
+  },
+  "r16_scope_frozen": true,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "core_rules": [
+    "PATH_STRING_NORMALIZATION_ALONE_MUST_NOT_BE_AUTHORITY_BEARING",
+    "DIR_FD_OPENAT_RESOLUTION_MUST_NOT_BYPASS_FORBIDDEN_NATIVE_MEMORY_POLICY",
+    "NO_AUTHORITY_SECRET_MAY_EXIST_IN_CANDIDATE_READABLE_MEMORY",
+    "CANDIDATE_PRODUCED_BYTES_ARE_UNTRUSTED_OBSERVATIONS_ONLY",
+    "TRUSTED_PARENT_ORACLE_MUST_DERIVE_AUTHORITY_EVIDENCE_OUTSIDE_CANDIDATE_ADDRESS_SPACE",
+    "TRUSTED_SCENARIO_LIBRARY_IDENTITY_MUST_BE_VERIFIED_BEFORE_IMPORT",
+    "EVERY_TRANSITIVE_NATIVE_TRUST_SOURCE_INPUT_MUST_BE_EXACTLY_BOUND",
+    "MISSING_CONFINEMENT_COMPLETENESS_MUST_FAIL_CLOSED"
+  ],
+  "native_confinement_contract": {
+    "forbidden_surfaces": [
+      "/proc",
+      "/sys",
+      "/dev/mem",
+      "/dev/kmem",
+      "PROCESS_MEMORY",
+      "PROCESS_MAPS",
+      "PROCESS_FD_ALIASES",
+      "EQUIVALENT_NATIVE_MEMORY_INTROSPECTION"
+    ],
+    "unicode_path_required": true,
+    "bytes_path_required": true,
+    "pathlike_required": true,
+    "pathlib_required": true,
+    "integer_fd_required": true,
+    "dir_fd_openat_required": true,
+    "lexical_alias_required": true,
+    "symlink_file_alias_required": true,
+    "symlink_directory_alias_required": true,
+    "duplicated_directory_fd_required": true,
+    "inherited_descriptor_required": true,
+    "post_import_semantic_probe_required": true,
+    "kernel_or_fd_aware_resolution_required": true,
+    "cwd_only_realpath_is_insufficient": true,
+    "check_then_use_path_policy_alone_is_insufficient": true
+  },
+  "secret_separation_contract": {
+    "candidate_child_may_inherit_authority_secret": false,
+    "candidate_process_may_read_authority_secret": false,
+    "candidate_process_may_compute_authority_mac": false,
+    "candidate_process_may_self_authenticate_observation": false,
+    "parent_authentication_material_created_or_retained_exclusively_outside_candidate_address_space": true,
+    "candidate_frame_or_stdout_or_exit_zero_is_authoritative": false,
+    "candidate_observation_is_untrusted_until_parent_and_oracle_validation": true,
+    "candidate_full_self_memory_read_must_not_enable_authority_forgery": true
+  },
+  "oracle_contract": {
+    "runtime_generated_challenge_material_required_where_domain_permits": true,
+    "candidate_must_not_receive_expected_terminal_result": true,
+    "scenario_library_sha256_or_git_blob_required": true,
+    "scenario_library_identity_verified_before_import": true,
+    "oracle_source_identity_verified_before_execution": true,
+    "candidate_reported_pass_forbidden": true,
+    "oracle_decision_origin": "TRUSTED_EXTERNAL_ORACLE",
+    "candidate_process_role": "UNTRUSTED_OBSERVATION_ONLY"
+  },
+  "trusted_native_build_contract": {
+    "transitive_source_inventory_required": true,
+    "each_source_git_blob_sha1_required": true,
+    "each_source_raw_sha256_required": true,
+    "compiler_identity_required": true,
+    "compiler_flags_required": true,
+    "linked_library_identity_required": true,
+    "compiled_binary_sha256_required": true,
+    "source_set_digest_required": true,
+    "environment_digest_required": true
+  },
+  "mandatory_adversarial_probes": [
+    "OS_OPEN_DIR_FD_PROC_SELF_MEM_REJECTED",
+    "OS_OPEN_DIR_FD_PROC_SELF_MAPS_REJECTED",
+    "OS_OPEN_DIR_FD_PROC_SELF_FD_REJECTED",
+    "DUPLICATED_DIRECTORY_FD_FORBIDDEN_SURFACE_REJECTED",
+    "INHERITED_DIRECTORY_FD_FORBIDDEN_SURFACE_REJECTED",
+    "POST_IMPORT_DIR_FD_MEMORY_OPEN_REJECTED",
+    "CANDIDATE_SELF_MEMORY_READ_CANNOT_RECOVER_AUTH_SECRET",
+    "CANDIDATE_FORGED_FRAME_WITH_FULL_CHILD_MEMORY_KNOWLEDGE_REJECTED",
+    "SCENARIO_LIBRARY_SUBSTITUTION_REJECTED_BEFORE_IMPORT",
+    "TRANSITIVE_NATIVE_SOURCE_SUBSTITUTION_REJECTED_BEFORE_COMPILE",
+    "SYMLINK_RACE_OR_TOCTOU_CANNOT_CREATE_AUTHENTICATED_OBSERVATION",
+    "NON_OPEN_EVENT_NATIVE_MEMORY_ROUTE_REJECTED_OR_PROVEN_UNREACHABLE",
+    "R13_TAILORED_FRAME_FALSE_GREEN_REMAINS_REJECTED",
+    "R14_BYTES_PROC_SELF_MEM_FALSE_GREEN_REMAINS_REJECTED",
+    "R15_SYMLINK_ALIAS_SET_REMAINS_REJECTED"
+  ],
+  "historical_preservation": {
+    "r11_findings_preserved": true,
+    "r12_rejected_preserved": true,
+    "r13_rejected_preserved": true,
+    "r14_rejected_preserved": true,
+    "r15_rejected_preserved": true,
+    "prior_red_and_pass_evidence_append_only": true
+  },
+  "testing_governance": {
+    "automated_external_reviewer_api_calls": false,
+    "manual_independent_review_required_after_construction_and_falsification": true,
+    "green_ci_is_authority": false,
+    "construction_pass_is_runtime_qualification": false
+  }
+}
