@@ -32,8 +32,6 @@ jobs:
           HARNESS_BLOB='6573767ae85d7ca0cfaa8b7bbafa826a7ba0c5cb'
 
           RAW=$(sha256sum "$PACKET" | awk '{print $1}')
-          test "$RAW" = "$EXPECT_RAW"
-
           BODY=$(python - <<'PY'
           from pathlib import Path
           import hashlib
@@ -44,26 +42,38 @@ jobs:
           print(hashlib.sha256(p.split(sep,1)[1]).hexdigest())
           PY
           )
-          test "$BODY" = "$EXPECT_BODY"
-
           BLOB=$(git hash-object "$PACKET")
-          test "$BLOB" = "$EXPECT_BLOB"
+          ACTUAL_V24_TREE=$(git show -s --format=%T "$V24")
+          ACTUAL_I10_TREE=$(git show -s --format=%T "$I10")
+          HARNESS_TYPE=$(git cat-file -t "$HARNESS_BLOB")
 
-          test "$(git show -s --format=%T "$V24")" = "$V24_TREE"
-          test "$(git show -s --format=%T "$I10")" = "$I10_TREE"
-          test "$(git cat-file -t "$HARNESS_BLOB")" = 'blob'
+          echo "RAW_PACKET_SHA256=$RAW"
+          echo "EXPECTED_RAW_PACKET_SHA256=$EXPECT_RAW"
+          echo "PLAN_BODY_SHA256=$BODY"
+          echo "EXPECTED_PLAN_BODY_SHA256=$EXPECT_BODY"
+          echo "PACKET_GIT_BLOB=$BLOB"
+          echo "EXPECTED_PACKET_GIT_BLOB=$EXPECT_BLOB"
+          echo "V24_TREE=$ACTUAL_V24_TREE"
+          echo "EXPECTED_V24_TREE=$V24_TREE"
+          echo "I10_TREE=$ACTUAL_I10_TREE"
+          echo "EXPECTED_I10_TREE=$I10_TREE"
+          echo "HARNESS_OBJECT_TYPE=$HARNESS_TYPE"
+
+          test "$RAW" = "$EXPECT_RAW"
+          test "$BODY" = "$EXPECT_BODY"
+          test "$BLOB" = "$EXPECT_BLOB"
+          test "$ACTUAL_V24_TREE" = "$V24_TREE"
+          test "$ACTUAL_I10_TREE" = "$I10_TREE"
+          test "$HARNESS_TYPE" = 'blob'
 
           for B in \
             0f52617114f7d9d549d9822f11d5bc0156c6e676 \
             ff8677ca1170f5cef6318662309ba119145e68cf \
             17bfa33f6388934d47323cea3c375466c178aadf \
             042b881795929f9e8d9ff5bb72f8eda8ca93fad0; do
-            test "$(git cat-file -t "$B")" = 'blob'
+            TYPE=$(git cat-file -t "$B")
+            echo "SOURCE_BLOB $B TYPE=$TYPE"
+            test "$TYPE" = 'blob'
           done
 
-          echo "RAW_PACKET_SHA256=$RAW"
-          echo "PLAN_BODY_SHA256=$BODY"
-          echo "PACKET_GIT_BLOB=$BLOB"
-          echo "V24_TREE=$(git show -s --format=%T "$V24")"
-          echo "I10_TREE=$(git show -s --format=%T "$I10")"
           echo 'V6_REPOSITORY_BINDING_VERIFICATION=PASS'
