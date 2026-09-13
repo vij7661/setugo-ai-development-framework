@@ -8,8 +8,6 @@ import json
 import os
 import pathlib
 import sys
-import tempfile
-import types
 import unittest
 
 PREFIX = "R12_WORKER_RESULT="
@@ -63,8 +61,6 @@ def _internal_negative_canary(runner_cls: type[unittest.TextTestRunner]) -> bool
 
     stream = io.StringIO()
     result = runner_cls(stream=stream, verbosity=0).run(unittest.TestSuite([_Canary()]))
-    # Use raw result fields, not result.wasSuccessful(), so a monkeypatch of
-    # wasSuccessful alone cannot turn the negative canary green.
     return result.testsRun == 1 and len(result.failures) + len(result.errors) == 1
 
 
@@ -76,6 +72,29 @@ def load_allowed_module(pinset: dict, module: str) -> None:
     }
     if module not in expected:
         raise SystemExit(f"R12_WORKER_MODULE_NOT_PINNED:{module}")
+
+
+@contextlib.contextmanager
+def suppress_candidate_output_fds():
+    """Keep candidate writes off the trusted stdout/stderr transport.
+
+    The parent accepts only the envelope emitted after this context restores the
+    original descriptors. This is an additional transport boundary; the worker
+    remains untrusted to the parent and cannot itself authorize PASS.
+    """
+    saved_out = os.dup(1)
+    saved_err = os.dup(2)
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    try:
+        os.dup2(devnull, 1)
+        os.dup2(devnull, 2)
+        yield
+    finally:
+        os.dup2(saved_out, 1)
+        os.dup2(saved_err, 2)
+        os.close(saved_out)
+        os.close(saved_err)
+        os.close(devnull)
 
 
 def main() -> None:
@@ -113,12 +132,9 @@ def main() -> None:
     os.chdir(sandbox)
     sys.path.insert(0, str(subject))
 
-    # Candidate stdout/stderr is suppressed at the Python layer during module
-    # load and test execution. The trusted envelope is emitted only after the
-    # candidate phase completes and framework/canary checks have passed.
     candidate_stdout = io.StringIO()
     candidate_stderr = io.StringIO()
-    with contextlib.redirect_stdout(candidate_stdout), contextlib.redirect_stderr(candidate_stderr):
+    with suppress_candidate_output_fds(), contextlib.redirect_stdout(candidate_stdout), contextlib.redirect_stderr(candidate_stderr):
         suite = trusted_loader.loadTestsFromName(args.module)
         post_import = framework_fingerprint()
         if post_import != baseline:
@@ -159,7 +175,6 @@ def main() -> None:
         "candidate_stderr_sha256": _sha(candidate_stderr.getvalue().encode("utf-8")),
         "authority_effect": "NONE_EVIDENCE_ONLY",
     }
-    # os.write bypasses candidate replacement of sys.stdout objects.
     os.write(1, (PREFIX + json.dumps(envelope, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8"))
     raise SystemExit(0 if successful else 1)
 
