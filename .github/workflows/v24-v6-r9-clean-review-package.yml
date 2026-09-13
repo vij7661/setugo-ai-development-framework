@@ -89,10 +89,6 @@ jobs:
             'governance-runtime/test_v24_aggregate_budget.py'
             'governance-runtime/v24_generation_migration.py'
             'governance-runtime/test_v24_generation_migration.py'
-            'governance-runtime/v24_apply_guard.py'
-            'governance-runtime/test_v24_apply_guard.py'
-            'governance-runtime/integrated_governed_mvp_v24_execution_gateway.py'
-            'governance-runtime/test_integrated_governed_mvp_v24_execution_gateway.py'
             'governance-runtime/v24_review_proof_audit.py'
             'governance-runtime/test_v24_review_proof_audit.py'
           )
@@ -183,7 +179,6 @@ jobs:
           manifest_path = pkg / 'PACKAGE-MANIFEST.json'
           manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8')
 
-          # Recompute entries including manifest itself for a detached inventory.
           manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
           detached = {
               'package_manifest_sha256': manifest_sha,
