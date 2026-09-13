@@ -10,7 +10,22 @@ def adm(aid, predecessor):
 def valid_bundle():
     a1=adm("ADM-1","GENESIS"); a2=adm("ADM-2",a1["record_digest"])
     dec={"decision_id":"DEC-1","decision_digest":"d"*64,"generation_id":GEN,"admission_record_ids":["ADM-1","ADM-2"],"transition_digest":"t"*64,"sink_set_digest":"s"*64,"state":"APPLIED","self_activates_completeness_machinery":False}
-    return {"governance_generation_id":GEN,"admission_records":[a1,a2],"kernel_decisions":[dec],"current_admission_ledger_digest":"L"*64,"current_completeness_ledger_digest":"C"*64,"application_records":[{"application_id":"APP-1","decision_id":"DEC-1","decision_digest":"d"*64,"transition_digest":"t"*64,"sink_set_digest":"s"*64,"pre_state_digest":"a"*64,"post_state_digest":"b"*64,"guarded_writer_id":"GW","atomic_fencing_result":"CAS_COMMITTED","admission_ledger_digest":"L"*64,"completeness_ledger_digest":"C"*64,"generation_id":GEN}],"root_threshold_capable_operational_domains":["D-ROOT"],"witness_policy":{"required_count":2,"ledger_operator_control_domain_id":"D-LEDGER"},"witnesses":[{"witness_id":"W1","control_domain_id":"D-ROOT","state":"CURRENT","generation_id":GEN},{"witness_id":"W2","control_domain_id":"D-EXT","state":"CURRENT","generation_id":GEN}],"ledger_anchor":{"witnessed_ledger_digest":"L"*64,"generation_id":GEN}}
+    return {
+      "governance_generation_id":GEN,
+      "independently_derived_admission_ids":["ADM-1","ADM-2"],"admission_universe_derivation_digest":"1"*64,
+      "independently_derived_decision_ids":["DEC-1"],"decision_universe_derivation_digest":"2"*64,
+      "independently_derived_application_ids":["APP-1"],"application_universe_derivation_digest":"3"*64,
+      "admission_records":[a1,a2],"kernel_decisions":[dec],
+      "current_admission_ledger_digest":"L"*64,"current_completeness_ledger_digest":"C"*64,
+      "application_records":[{"application_id":"APP-1","decision_id":"DEC-1","decision_digest":"d"*64,"transition_digest":"t"*64,"sink_set_digest":"s"*64,"pre_state_digest":"a"*64,"post_state_digest":"b"*64,"guarded_writer_id":"GW","atomic_fencing_result":"CAS_COMMITTED","admission_ledger_digest":"L"*64,"completeness_ledger_digest":"C"*64,"generation_id":GEN}],
+      "root_threshold_capable_operational_domains":["D-ROOT"],"root_domain_inventory_evidence_digest":"4"*64,
+      "witness_policy":{"required_count":2,"ledger_operator_control_domain_id":"D-LEDGER"},"witness_policy_evidence_digest":"5"*64,
+      "witnesses":[
+        {"witness_id":"W1","control_domain_id":"D-ROOT","state":"CURRENT","generation_id":GEN,"attestation_evidence_digest":"6"*64},
+        {"witness_id":"W2","control_domain_id":"D-EXT","state":"CURRENT","generation_id":GEN,"attestation_evidence_digest":"7"*64}
+      ],
+      "ledger_anchor":{"witnessed_ledger_digest":"L"*64,"generation_id":GEN}
+    }
 
 class I6Tests(unittest.TestCase):
     def assertProblem(self, mutate, expected):
@@ -35,5 +50,13 @@ class I6Tests(unittest.TestCase):
         self.assertProblem(lambda b:b["witnesses"][1].__setitem__("control_domain_id","D-ROOT"),"WITNESS_INDEPENDENCE_INSUFFICIENT")
     def test_witness_anchor_must_match_ledger(self):
         self.assertProblem(lambda b:b["ledger_anchor"].__setitem__("witnessed_ledger_digest","OLD"),"WITNESS_LEDGER_DIGEST_MISMATCH")
+    def test_empty_admission_set_cannot_vacuously_pass(self):
+        self.assertProblem(lambda b:b.__setitem__("admission_records",[]),"ADMISSION_RECORD_SET_EMPTY")
+    def test_admission_universe_mismatch_blocks(self):
+        self.assertProblem(lambda b:b["independently_derived_admission_ids"].append("ADM-3"),"ADMISSION_INDEPENDENT_UNIVERSE_MISMATCH")
+    def test_witness_policy_requires_independent_evidence(self):
+        self.assertProblem(lambda b:b.__setitem__("witness_policy_evidence_digest",None),"WITNESS_POLICY_EVIDENCE_REQUIRED")
+    def test_witness_attestation_label_alone_is_insufficient(self):
+        self.assertProblem(lambda b:b["witnesses"][1].__setitem__("attestation_evidence_digest",None),"WITNESS_ATTESTATION_EVIDENCE_REQUIRED:W2")
 
 if __name__=="__main__": unittest.main()
