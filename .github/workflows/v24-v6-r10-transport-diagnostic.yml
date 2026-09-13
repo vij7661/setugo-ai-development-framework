@@ -12,142 +12,62 @@ permissions:
   contents: read
 
 jobs:
-  validate-manifest-rebind:
+  recover-exact-fragments:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.7'
+          fetch-depth: 0
 
-      - name: Apply old valid R10 patch in ephemeral runner
+      - name: Search historical fragment versions by exact SHA-256
         shell: bash
         run: |
           set -euo pipefail
-          cat remediation/v24/r10-apply-gz/part-*.b64 | base64 -d > /tmp/r10-old.patch.gz
-          gzip -dc /tmp/r10-old.patch.gz > /tmp/r10-old.patch
-          echo "OLD_PATCH_SHA256=$(sha256sum /tmp/r10-old.patch | awk '{print $1}')"
-          git apply --check /tmp/r10-old.patch
-          git apply /tmp/r10-old.patch
-          git diff --check
+          declare -A expected
+          expected[part-001.b64]='658e11b4b6b735d4a28eda40fef93bb678946b2a525906115de0957184867967'
+          expected[part-002.b64]='e25a13c46bac088c58fcf03be4bcbc834808c18e817fa4df5d4b51d3f8396c43'
+          expected[part-003.b64]='3658f9de702c4e15c231789531986a9a0043a6134793b6f97dab1ffaef7e8ca4'
 
-      - name: Rebind only changed R1-R8 production blob identities
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import hashlib, json
-          from pathlib import Path
+          rm -rf /tmp/recovered && mkdir -p /tmp/recovered
+          all_found=1
+          for name in part-001.b64 part-002.b64 part-003.b64; do
+            path="remediation/v24/r10-apply-gz-v2/$name"
+            target="${expected[$name]}"
+            found=''
+            echo "=== HISTORY $name TARGET=$target ==="
+            while read -r commit; do
+              [ -n "$commit" ] || continue
+              if git cat-file -e "$commit:$path" 2>/dev/null; then
+                git show "$commit:$path" > "/tmp/$name"
+                bytes=$(wc -c < "/tmp/$name")
+                sha=$(sha256sum "/tmp/$name" | awk '{print $1}')
+                echo "COMMIT=$commit BYTES=$bytes SHA256=$sha"
+                if [ "$sha" = "$target" ] && [ -z "$found" ]; then
+                  found="$commit"
+                  cp "/tmp/$name" "/tmp/recovered/$name"
+                fi
+              fi
+            done < <(git log --all --format='%H' -- "$path")
+            if [ -n "$found" ]; then
+              echo "EXACT_MATCH $name COMMIT=$found"
+            else
+              echo "NO_EXACT_MATCH $name"
+              all_found=0
+            fi
+          done
 
-          root = Path('.')
-          manifest_path = root / 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
-          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-
-          def blob_sha(data: bytes) -> str:
-              return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
-
-          changed = []
-          for row in manifest['workstreams']:
-              path = root / row['production_module_path']
-              data = path.read_bytes()
-              actual = blob_sha(data)
-              old = row['production_git_blob_sha']
-              print(f"{row['workstream_id']} PATH={row['production_module_path']} OLD={old} NEW={actual} RAW_SHA256={hashlib.sha256(data).hexdigest()}")
-              if actual != old:
-                  changed.append((row['workstream_id'], old, actual))
-                  row['production_git_blob_sha'] = actual
-
-          expected_changed = {'R1','R3','R4','R5','R6','R7','R8'}
-          actual_changed = {x[0] for x in changed}
-          assert actual_changed == expected_changed, (actual_changed, expected_changed)
-          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
-          print('REBIND_CHANGED=' + ','.join(sorted(actual_changed)))
-          print('REBIND_MANIFEST_RAW_SHA256=' + hashlib.sha256(manifest_path.read_bytes()).hexdigest())
-          PY
-          git diff --check
-          echo 'REBIND_DIFF_BEGIN'
-          git diff -- implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
-          echo 'REBIND_DIFF_END'
-
-      - name: Compile repaired successor modules
-        working-directory: governance-runtime
-        run: |
-          python -m py_compile \
-            v24_v6_governance_foundation.py \
-            v24_v6_endpoint_projection.py \
-            v24_v6_material_surface.py \
-            v24_v6_decision_apply.py \
-            v24_v6_normative_clause_projection.py \
-            v24_v6_effect_ledger_closure.py \
-            v24_v6_atomic_binding_modes.py \
-            v24_v6_qualification_integrity.py \
-            v24_v6_integrated_successor.py
-
-      - name: Run reviewer-bypass adversarial suites
-        working-directory: governance-runtime
-        run: |
-          python -m unittest -v \
-            test_v24_v6_governance_foundation.py \
-            test_v24_v6_atomic_binding_modes.py \
-            test_v24_v6_normative_clause_projection.py \
-            test_v24_v6_qualification_integrity.py \
-            test_v24_v6_material_surface.py \
-            test_v24_v6_decision_apply.py \
-            test_v24_v6_effect_ledger_closure.py
-
-      - name: Run complete R1-R8 construction regression
-        working-directory: governance-runtime
-        run: |
-          python -m unittest -v \
-            test_v24_v6_governance_foundation.py \
-            test_v24_v6_endpoint_projection.py \
-            test_v24_v6_material_surface.py \
-            test_v24_v6_decision_apply.py \
-            test_v24_v6_normative_clause_projection.py \
-            test_v24_v6_effect_ledger_closure.py \
-            test_v24_v6_atomic_binding_modes.py \
-            test_v24_v6_qualification_integrity.py
-
-      - name: Run R9 integration regression
-        working-directory: governance-runtime
-        run: python -m unittest -v test_v24_v6_integrated_successor.py
-
-      - name: Run inherited V24 construction regressions
-        working-directory: governance-runtime
-        run: |
-          python -m unittest -v \
-            test_normative_control_catalog.py \
-            test_v24_authority_universe.py \
-            test_v24_effective_control.py \
-            test_v24_completeness_bootstrap.py \
-            test_v24_endpoint_proof_compiler.py \
-            test_v24_admission_application_witness.py \
-            test_v24_aggregate_budget.py \
-            test_v24_generation_migration.py \
-            test_v24_review_proof_audit.py
-
-      - name: Assert construction-only posture
-        working-directory: governance-runtime
-        run: |
-          python - <<'PY'
-          import v24_v6_integrated_successor as r9
-          x = r9.construction_frontier()
-          assert x['qualified'] is False
-          assert x['authority_effect'] == 'NONE_EVIDENCE_ONLY'
-          assert x['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
-          print(x)
-          PY
-
-      - name: Fingerprint coherent repaired working tree
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add -N .github/workflows/v24-v6-r10-review-remediation-preflight.yml || true
-          echo 'COHERENT_CHANGED_PATHS_BEGIN'
-          git diff --name-only
-          echo 'COHERENT_CHANGED_PATHS_END'
-          git diff > /tmp/r10-coherent.patch
-          echo "COHERENT_PATCH_BYTES=$(wc -c < /tmp/r10-coherent.patch)"
-          echo "COHERENT_PATCH_SHA256=$(sha256sum /tmp/r10-coherent.patch | awk '{print $1}')"
+          echo "ALL_EXACT_FRAGMENTS_FOUND=$all_found"
+          if [ "$all_found" -eq 1 ]; then
+            for p in /tmp/recovered/part-*.b64; do
+              echo "RECOVERED $(basename "$p") BYTES=$(wc -c < "$p") SHA256=$(sha256sum "$p" | awk '{print $1}')"
+            done
+            cat /tmp/recovered/part-*.b64 | base64 -d > /tmp/recovered.patch.gz
+            echo "RECOVERED_GZIP_BYTES=$(wc -c < /tmp/recovered.patch.gz) RECOVERED_GZIP_SHA256=$(sha256sum /tmp/recovered.patch.gz | awk '{print $1}')"
+            gzip -t /tmp/recovered.patch.gz
+            gzip -dc /tmp/recovered.patch.gz > /tmp/recovered.patch
+            echo "RECOVERED_PATCH_BYTES=$(wc -c < /tmp/recovered.patch) RECOVERED_PATCH_SHA256=$(sha256sum /tmp/recovered.patch | awk '{print $1}')"
+            echo 'RECOVERED_PATCH_PATHS_BEGIN'
+            grep -E '^(---|\+\+\+) ' /tmp/recovered.patch || true
+            echo 'RECOVERED_PATCH_PATHS_END'
+            git apply --check /tmp/recovered.patch
+          fi
