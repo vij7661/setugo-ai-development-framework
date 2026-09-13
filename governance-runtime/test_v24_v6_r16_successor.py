@@ -188,7 +188,9 @@ class R16SuccessorEvidenceTests(unittest.TestCase):
         b = bundle()
         target = sorted(REQUIRED_R16_PROBES)[0]
         b["probe_records"][0] = {"probe_id": target}
-        reseal_probe_set(b)
+        b["probe_set_digest"] = digest({"record_digests": sorted(
+            x["record_digest"] for x in b["probe_records"] if "record_digest" in x
+        )})
         result = validate_r16_external_evidence(b)
         self.assertTrue(any(x.startswith("R16_PROBE_NOT_EXECUTED:") for x in result["problems"]))
         self.assertTrue(any(x.startswith("R16_PROBE_RECORD_DIGEST_MISMATCH:") for x in result["problems"]))
