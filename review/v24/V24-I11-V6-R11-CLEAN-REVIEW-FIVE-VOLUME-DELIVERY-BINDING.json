@@ -1,0 +1,73 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_or_design_bytes_changed": false,
+  "canonical_package": {
+    "bytes": 810828,
+    "entry_count": 81,
+    "filename": "V24-I11-V6-R11-CLEAN-REVIEW.zip",
+    "frozen_candidate_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+    "frozen_candidate_tree": "d202b039285213b386557083a26de42e0fb20cf4",
+    "manifest_listed_file_count": 80,
+    "sha256": "9f9722163ebfa2ff884cda6529b9b7c5c787be6baafe0947fdfe6101100647ff"
+  },
+  "delivery_id": "V24-I11-V6-R11-CLEAN-REVIEW-FIVE-VOLUME-DELIVERY-V1",
+  "delivery_semantics": "SAME_CANONICAL_BYTES_SHARDED_FOR_REVIEW_MATERIALIZATION",
+  "maximum_zip_entry_count_per_volume": 23,
+  "review_instructions": [
+    "Upload this index plus all five ZIP volumes in one fresh manual-review conversation.",
+    "Do not review from only a subset of volumes.",
+    "Verify each volume SHA-256 before substantive review.",
+    "Treat repeated 00-REVIEW-INSTRUCTIONS.md and PACKAGE-MANIFEST.json as identical delivery copies.",
+    "Use the canonical PACKAGE-MANIFEST.json to verify the union of original files across all five volumes.",
+    "Do not treat R11-DELIVERY-VOLUME-*-MANIFEST.json as candidate or approved-design evidence; it is delivery metadata only.",
+    "If any volume is missing or exposes fewer entries than its delivery manifest declares, return CONTENT_BINDING=INCONSISTENT and stop substantive review."
+  ],
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "schema_version": 1,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "union_missing_entries": 0,
+  "union_of_canonical_entries": 81,
+  "volume_count": 5,
+  "volumes": [
+    {
+      "bytes": 142348,
+      "canonical_original_entry_count": 22,
+      "filename": "R11-CLEAN-REVIEW-VOLUME-1-OF-5.zip",
+      "sha256": "0d773fb51e88aa3e61484e7aaab372dc58cc4bcd5d3c0a9e02451bdb2416b5d4",
+      "volume": 1,
+      "zip_entry_count": 23
+    },
+    {
+      "bytes": 225870,
+      "canonical_original_entry_count": 18,
+      "filename": "R11-CLEAN-REVIEW-VOLUME-2-OF-5.zip",
+      "sha256": "b1de65bbf5f12b2c9e61d2007583d679fd37751f590293b6cd5f4b0c5ae59374",
+      "volume": 2,
+      "zip_entry_count": 19
+    },
+    {
+      "bytes": 276378,
+      "canonical_original_entry_count": 17,
+      "filename": "R11-CLEAN-REVIEW-VOLUME-3-OF-5.zip",
+      "sha256": "52f11e1ddc569c7fdb7a4da1f0af49eb78592864dd859550148df6f6cf1a8079",
+      "volume": 3,
+      "zip_entry_count": 18
+    },
+    {
+      "bytes": 139774,
+      "canonical_original_entry_count": 16,
+      "filename": "R11-CLEAN-REVIEW-VOLUME-4-OF-5.zip",
+      "sha256": "6dd2b969b91e0288c52fa9c226431c9db5fc7c0bba18d7e62da206ff4c87c28a",
+      "volume": 4,
+      "zip_entry_count": 17
+    },
+    {
+      "bytes": 175293,
+      "canonical_original_entry_count": 16,
+      "filename": "R11-CLEAN-REVIEW-VOLUME-5-OF-5.zip",
+      "sha256": "0fd471c8a81b14586d7348dfd624ce46bfb79e9e1994e4baa2ed56c3ca9a2077",
+      "volume": 5,
+      "zip_entry_count": 17
+    }
+  ]
+}
