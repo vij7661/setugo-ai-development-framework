@@ -44,13 +44,17 @@ jobs:
           from pathlib import Path
 
           FORBIDDEN = {'unittest.py', 'sitecustomize.py', 'usercustomize.py'}
+          SCOPE = Path('governance-runtime')
 
           def blob_sha(data: bytes) -> str:
               return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
 
           def inventory(root: Path):
               rows = []
-              for p in sorted(root.rglob('*.py')):
+              scope = root / SCOPE
+              if not scope.is_dir():
+                  raise SystemExit('GUARD_SCOPE_MISSING:governance-runtime')
+              for p in sorted(scope.rglob('*.py')):
                   if p.is_symlink():
                       raise SystemExit(f'GUARD_SYMLINK_REJECTED:{p.relative_to(root).as_posix()}')
                   rel = p.relative_to(root).as_posix()
@@ -126,9 +130,6 @@ jobs:
           p = sp.add_parser('verify'); p.add_argument('--root', required=True); p.add_argument('--pinset', required=True); p.set_defaults(fn=cmd_verify)
           ns = ap.parse_args(); ns.fn(ns)
           PY
-          test ! -e governance-runtime/unittest.py
-          test ! -e governance-runtime/sitecustomize.py
-          test ! -e governance-runtime/usercustomize.py
           echo "TRUSTED_GUARD=$RUNNER_TEMP/r11_external_guard.py" >> "$GITHUB_ENV"
 
       - name: Build non-authoritative construction pinset with isolated interpreter
@@ -138,7 +139,7 @@ jobs:
           PYTHON_BIN="$(command -v python)"
           env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
             "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" emit \
-            --root "$GITHUB_WORKSPACE/governance-runtime" \
+            --root "$GITHUB_WORKSPACE" \
             --commit "$R11_COMMIT" \
             --tree "$R11_TREE" \
             --output "$RUNNER_TEMP/r11-construction-pinset.json"
@@ -152,7 +153,7 @@ jobs:
           rm -rf "$SUBJECT"
           env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
             "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" stage \
-            --root "$GITHUB_WORKSPACE/governance-runtime" \
+            --root "$GITHUB_WORKSPACE" \
             --pinset "$RUNNER_TEMP/r11-construction-pinset.json" \
             --target "$SUBJECT"
           env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
@@ -167,7 +168,9 @@ jobs:
           set -euo pipefail
           PYTHON_BIN="$(command -v python)"
           ATTACK="$RUNNER_TEMP/r11-attack-test-swap"
+          rm -rf "$ATTACK"
           cp -a "$RUNNER_TEMP/r11-subject" "$ATTACK"
+          test -f "$ATTACK/governance-runtime/test_v24_v6_external_execution_binding.py"
           printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/test_v24_v6_external_execution_binding.py"
           if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
             "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify \
@@ -183,6 +186,7 @@ jobs:
           set -euo pipefail
           PYTHON_BIN="$(command -v python)"
           ATTACK="$RUNNER_TEMP/r11-attack-unittest-shadow"
+          rm -rf "$ATTACK"
           cp -a "$RUNNER_TEMP/r11-subject" "$ATTACK"
           printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/unittest.py"
           if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
@@ -200,6 +204,7 @@ jobs:
           PYTHON_BIN="$(command -v python)"
           for NAME in sitecustomize.py usercustomize.py; do
             ATTACK="$RUNNER_TEMP/r11-attack-${NAME%.py}"
+            rm -rf "$ATTACK"
             cp -a "$RUNNER_TEMP/r11-subject" "$ATTACK"
             printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/$NAME"
             if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
@@ -226,7 +231,6 @@ jobs:
           startup_path = list(sys.path)
           if '' in startup_path or str(subject) in startup_path:
               raise SystemExit(f'CANDIDATE_PATH_PRESENT_AT_STARTUP:{startup_path!r}')
-          # stdlib unittest is imported before candidate bytes become importable.
           if pathlib.Path(unittest.__file__).resolve().is_relative_to(subject):
               raise SystemExit('UNITTEST_RESOLVED_FROM_CANDIDATE')
           sys.path.insert(0, str(subject))
