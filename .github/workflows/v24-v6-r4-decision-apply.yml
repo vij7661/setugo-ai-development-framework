@@ -1,0 +1,70 @@
+name: V24 V6 R4 Decision Apply Latch
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r4-decision-apply-latch
+    paths:
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_endpoint_projection.py'
+      - 'governance-runtime/v24_v6_material_surface.py'
+      - 'governance-runtime/v24_v6_decision_apply.py'
+      - 'governance-runtime/test_v24_v6_decision_apply.py'
+      - 'experiments/governed-platform/governance/v24_apply_guard.py'
+      - 'experiments/governed-platform/governance/test_integrated_governed_mvp_v24_apply.py'
+      - '.github/workflows/v24-v6-r4-decision-apply.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction-and-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile V6 R1-R4
+        working-directory: governance-runtime
+        run: python -m py_compile v24_v6_governance_foundation.py v24_v6_endpoint_projection.py v24_v6_material_surface.py v24_v6_decision_apply.py
+
+      - name: Run R4 construction tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_decision_apply.py
+
+      - name: Run R1-R3 regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py
+
+      - name: Run inherited I9 apply regression
+        working-directory: experiments/governed-platform/governance
+        run: python -m unittest -v test_integrated_governed_mvp_v24_apply.py
+
+      - name: Anti-case-specific and anti-boolean successor gate
+        shell: bash
+        run: |
+          for F in governance-runtime/v24_v6_governance_foundation.py governance-runtime/v24_v6_endpoint_projection.py governance-runtime/v24_v6_material_surface.py governance-runtime/v24_v6_decision_apply.py; do
+            if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint|material_discovery_pending' "$F"; then
+              echo "Case-specific or caller discovery-boolean coupling found in $F"
+              exit 1
+            fi
+          done
+          echo 'No case-specific or caller discovery-boolean coupling in successor modules.'
+
+      - name: Assert construction-only authority posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_decision_apply as r4
+          x=r4.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect']=='NONE_EVIDENCE_ONLY'
+          print(x)
+          PY
