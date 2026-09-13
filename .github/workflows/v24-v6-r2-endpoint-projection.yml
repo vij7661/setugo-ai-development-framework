@@ -1,0 +1,64 @@
+name: V24 V6 R2 Endpoint Projection
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r2-endpoint-projection
+    paths:
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_endpoint_projection.py'
+      - 'governance-runtime/test_v24_v6_endpoint_projection.py'
+      - 'governance-runtime/v24_endpoint_proof_compiler.py'
+      - 'governance-runtime/test_v24_endpoint_proof_compiler.py'
+      - '.github/workflows/v24-v6-r2-endpoint-projection.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction-and-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile R1 and R2
+        working-directory: governance-runtime
+        run: python -m py_compile v24_v6_governance_foundation.py v24_v6_endpoint_projection.py
+
+      - name: Run R2 construction tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_endpoint_projection.py
+
+      - name: Run R1 and inherited endpoint regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_endpoint_proof_compiler.py
+
+      - name: Anti-case-specific endpoint gate
+        shell: bash
+        run: |
+          for F in governance-runtime/v24_v6_governance_foundation.py governance-runtime/v24_v6_endpoint_projection.py; do
+            if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint' "$F"; then
+              echo "Case-specific coupling found in $F"
+              exit 1
+            fi
+          done
+          echo 'No case-specific production coupling found.'
+
+      - name: Assert construction-only authority posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_endpoint_projection as r2
+          x=r2.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect']=='NONE_EVIDENCE_ONLY'
+          print(x)
+          PY
