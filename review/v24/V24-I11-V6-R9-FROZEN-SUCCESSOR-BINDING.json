@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "binding_id": "V24-I11-V6-R9-FROZEN-SUCCESSOR",
+  "review_subject": {
+    "repository": "vij7661/setugo-ai-development-framework",
+    "branch_at_validation": "implementation/v24-i11-v6-r9-integrated-successor",
+    "candidate_commit": "88cba7e1224ecbd5a8264ba4c31c4c264fc24fef",
+    "candidate_tree": "97146905411b258b5c7a8cab1beb725ff3b19bc0"
+  },
+  "approved_v6_design": {
+    "exact_reviewed_bytes": 19297,
+    "raw_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
+    "plan_body_sha256": "286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5",
+    "exact_reviewed_git_blob_sha1": "4a15d50a0488464816d235b273d1dbf808fdce94",
+    "repository_source_git_blob_sha1": "8682df137aa12d57927e7891c16048e90b04caac",
+    "repository_source_raw_sha256": "5164747405b2de4d97228318a200e97c6b9c0e2afe58e4daddf09fe804bbc9d9",
+    "repository_source_bytes": 19296,
+    "reconstruction_manifest_git_blob_sha1": "fe97833ea39f796e1616a3eee6f04ccb7968f47a",
+    "followup_review_record_git_blob_sha1": "59b96d37b22e3a8b789d33caf65ab3e8b8c6070f",
+    "exact_byte_verification_run_id": "34752761361",
+    "reconstruction_operation": {
+      "operation": "INSERT_BYTES_AT_ZERO_BASED_OFFSET",
+      "offset": 17321,
+      "insert_hex": "0a",
+      "semantic_change": false
+    }
+  },
+  "successor_verification": {
+    "workflow_run_id": "34758715430",
+    "workflow_run_attempt": "1",
+    "conclusion": "SUCCESS",
+    "integration_binding_digest": "8bcc9213ed97a719a1a522c2f8dfa87b7267e9923e0f008c03c5a3029f1cd6de",
+    "bound_file_count": 16,
+    "verification_report_sha256": "e73b229f404c89745abba0a1e48cdfd81ef0932f09bf6d6f288e6f08898a5a20",
+    "verification_report_bytes": 6076,
+    "workflow_artifact_id": 10318366248,
+    "workflow_artifact_zip_sha256": "acff3b85a8e795dee87d0cf77137e0a575e1803c24ba9b50e2b8cd7221ca2a6b",
+    "workflow_artifact_zip_size_bytes": 2242,
+    "compile_r1_r9": "PASS",
+    "r9_integration_tests": "PASS",
+    "r1_r8_construction_regression": "PASS",
+    "inherited_v24_construction_regression": "PASS",
+    "exact_v6_reconstruction": "PASS",
+    "anti_case_specific_coupling_gate": "PASS",
+    "construction_only_freeze_posture": "PASS"
+  },
+  "preserved_red_history": [
+    {
+      "run_id": "34754909168",
+      "workstream": "R8",
+      "candidate_commit": "25af6c79bc215a8e30d7dbc4af6ed9a524c975c1",
+      "classification": "GENUINE_CODE_DEFECT",
+      "finding": "An invalid/tampered result record could still increment PASS count.",
+      "resolution_commit": "22e0d155d806fefa4abc053d3ca3a2f8b7b633b5",
+      "retroactive_pass_forbidden": true
+    },
+    {
+      "run_id": "34758384411",
+      "workstream": "R9",
+      "candidate_commit": "c65978017a6782c01d1bc6d05fe16a8e51ae0101",
+      "candidate_tree": "5108dcb7af76993c8dc1178707cd0d17f381b158",
+      "classification": "EXACT_BINDING_DEFECT",
+      "finding": "R9 incorrectly treated repository transport blob 8682df13... as the exact reviewed V6 object. Functional/integration regressions passed; exact design-byte verification failed."
+    },
+    {
+      "run_id": "34758486167",
+      "workstream": "R9",
+      "candidate_commit": "d93780eeb90211e71c14e402a886187c5bdf5328",
+      "candidate_tree": "4c947f3a2aef548d0c301c3c7b9b25827126c3cc",
+      "classification": "DIAGNOSTIC_RED_CONFIRMING_BINDING_MISMATCH",
+      "finding": "Exact source blob measured 19296 bytes/raw 51647474.../body 1b08be8e..., confirming it was not the approved 19297-byte reconstructed V6 object."
+    }
+  ],
+  "review_gate": {
+    "clean_independent_review_required": true,
+    "automated_reviewer_api_calls_permitted": false,
+    "repository_adjudication_required_after_review": true,
+    "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+    "runtime_qualification_state": "NOT_CLAIMED"
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
