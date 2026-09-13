@@ -13,6 +13,7 @@ NATIVE_SOURCE="5"*40
 NATIVE_BINARY="6"*64
 COMPILER="7"*64
 ORACLE="8"*40
+R13_REGRESSION="d"*64
 
 
 def record(check_id: str) -> dict:
@@ -42,6 +43,7 @@ def record(check_id: str) -> dict:
         "candidate_control_domain":"R14-CANDIDATE",
         "oracle_terminal_result":"PASS",
         "r13_tailored_frame_regression":"REJECTED",
+        "r13_tailored_frame_regression_evidence_digest":R13_REGRESSION,
     }
     row["record_digest"]=digest(dict(row))
     return row
@@ -64,6 +66,7 @@ def bundle() -> dict:
         "native_observer_binary_sha256":NATIVE_BINARY,
         "native_observer_compiler_digest":COMPILER,
         "oracle_git_blob_sha1":ORACLE,
+        "r13_tailored_frame_regression_evidence_digest":R13_REGRESSION,
         "records":rows,
         "evidence_set_digest":digest({"record_digests":sorted(x["record_digest"] for x in rows)}),
         "scientific_execution_state":"CLOSED_PENDING_SUCCESSOR_REVIEW",
@@ -104,6 +107,11 @@ class R14NativeObservationEvidenceTests(unittest.TestCase):
         b=bundle(); b["records"][0]["r13_tailored_frame_regression"]="NOT_RUN"; reseal(b)
         r=validate_native_observation_evidence_bundle(b)
         self.assertTrue(any("R13_REGRESSION_NOT_REJECTED" in x for x in r["problems"]))
+
+    def test_r13_regression_execution_digest_is_load_bearing(self):
+        b=bundle(); b["records"][0]["r13_tailored_frame_regression_evidence_digest"]="e"*64; reseal(b)
+        r=validate_native_observation_evidence_bundle(b)
+        self.assertTrue(any("R13_REGRESSION_EVIDENCE_MISMATCH" in x for x in r["problems"]))
 
     def test_native_binary_substitution_fails(self):
         b=bundle(); b["records"][0]["native_observer_binary_sha256"]="f"*64; reseal(b)
