@@ -18,7 +18,9 @@ jobs:
           fetch-depth: 0
 
       - name: Verify exact V6 packet and frozen objects
+        id: verify
         shell: bash
+        continue-on-error: true
         run: |
           set -euo pipefail
           PACKET='remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
@@ -77,3 +79,16 @@ jobs:
           done
 
           echo 'V6_REPOSITORY_BINDING_VERIFICATION=PASS'
+
+      - name: Upload repository V6 packet bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v6-repository-packet-bytes
+          path: remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md
+          if-no-files-found: error
+
+      - name: Fail if verification failed
+        if: steps.verify.outcome != 'success'
+        shell: bash
+        run: exit 1
