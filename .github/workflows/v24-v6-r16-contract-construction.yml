@@ -1,0 +1,58 @@
+name: V24 V6 R16 Contract Construction
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r16-openat-secret-separation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+
+      - name: Record non-authoritative construction identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CONSTRUCTION_ONLY=TRUE"
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+          python --version
+
+      - name: Compile R16 successor validator
+        working-directory: governance-runtime
+        run: python -m py_compile v24_v6_r16_successor.py test_v24_v6_r16_successor.py
+
+      - name: Run R16 contract tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_r16_successor.py
+
+      - name: Run complete V24 regression
+        working-directory: governance-runtime
+        run: python -m unittest discover -v -p 'test_v24*.py'
+
+      - name: Construction posture
+        if: always()
+        run: |
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
