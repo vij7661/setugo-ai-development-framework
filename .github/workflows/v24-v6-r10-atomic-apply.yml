@@ -1,4 +1,4 @@
-name: V24 V6 R10 Atomic Remediation Apply
+name: V24 V6 R10 Atomic Remediation Recovery
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  apply-and-validate:
+  recover-apply-validate-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,25 +23,76 @@ jobs:
         with:
           python-version: '3.12.7'
 
-      - name: Reconstruct exact remediation patch
+      - name: Reconstruct verified recoverable R10 remediation baseline
         shell: bash
         run: |
           set -euo pipefail
-          for P in remediation/v24/r10-apply-gz-v2/part-001.b64 remediation/v24/r10-apply-gz-v2/part-002.b64 remediation/v24/r10-apply-gz-v2/part-003.b64; do
-            echo "FRAGMENT=$P BYTES=$(wc -c < "$P") SHA256=$(sha256sum "$P" | awk '{print $1}')"
-          done
-          test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-001.b64)" -eq 6000
-          test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-002.b64)" -eq 6000
-          test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-003.b64)" -eq 2552
-          echo '658e11b4b6b735d4a28eda40fef93bb678946b2a525906115de0957184867967  remediation/v24/r10-apply-gz-v2/part-001.b64' | sha256sum -c -
-          echo 'e25a13c46bac088c58fcf03be4bcbc834808c18e817fa4df5d4b51d3f8396c43  remediation/v24/r10-apply-gz-v2/part-002.b64' | sha256sum -c -
-          echo '3658f9de702c4e15c231789531986a9a0043a6134793b6f97dab1ffaef7e8ca4  remediation/v24/r10-apply-gz-v2/part-003.b64' | sha256sum -c -
-          cat remediation/v24/r10-apply-gz-v2/part-*.b64 | base64 -d > /tmp/r10.patch.gz
-          echo '1e3efcfe8507575b233b4d0020261825a34dd55263627fa5743ab586503fa474  /tmp/r10.patch.gz' | sha256sum -c -
-          gzip -dc /tmp/r10.patch.gz > /tmp/r10.patch
-          echo '658db6f8aec86640c930c43635f187cc850fe987746e704bd96369f75c518ddc  /tmp/r10.patch' | sha256sum -c -
-          git apply --check /tmp/r10.patch
-          git apply /tmp/r10.patch
+          echo '8126153ce33b60e467f758f2cb732c41a4897d8a5b06746bdba44f5ef9ab7189  remediation/v24/r10-apply-gz/part-001.b64' | sha256sum -c -
+          echo '2cea28692fe992e4fd5ffaeb7f6f254349c2c4093d3f0d95a8d8bc7bd0cf8609  remediation/v24/r10-apply-gz/part-002.b64' | sha256sum -c -
+          echo 'da301e1366f3b9aa5553bf136500b02716e1980f4bb3cb7437f99a8a443625c4  remediation/v24/r10-apply-gz/part-003.b64' | sha256sum -c -
+          cat remediation/v24/r10-apply-gz/part-*.b64 | base64 -d > /tmp/r10-recoverable.patch.gz
+          echo 'f04d1e7b1b55ea93da96b65f7e995919c46de870c5589d33dbbe4374ec82f6f4  /tmp/r10-recoverable.patch.gz' | sha256sum -c -
+          gzip -t /tmp/r10-recoverable.patch.gz
+          gzip -dc /tmp/r10-recoverable.patch.gz > /tmp/r10-recoverable.patch
+          echo 'af25bbe634a6a3a238a89cb6207a445c6e5f5fb8d976c9e6c0ed3b2f09ab93d2  /tmp/r10-recoverable.patch' | sha256sum -c -
+          git apply --check /tmp/r10-recoverable.patch
+          git apply /tmp/r10-recoverable.patch
+          git diff --check
+
+      - name: Deterministically rebind R9 to repaired R1-R8 production blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+
+          root = Path('.')
+          manifest_path = root / 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+
+          old_expected = {
+              'R1': '069a0575c5bf4841cbf752180bbe192094d60623',
+              'R2': '424765c9c89f21247aad2c15a0a893ea2abe022e',
+              'R3': '1a35d00913b2fac80ab0eac9b2ad1b7474e5b7e3',
+              'R4': 'db629734134fe135b15671d1594b8dff5006b844',
+              'R5': '4f6b0c8765684ee2d2f776d5ff62328d04a7de58',
+              'R6': '7b82883f670f94022d9644135ca843bed0653bc6',
+              'R7': '33a772a034582f0ec2bdbb6a3227ff502435f659',
+              'R8': '4685389eb1444de7cbafdc137579efcd0e52da0a',
+          }
+          new_expected = {
+              'R1': 'e93684a6886fc34e7f618a83281b72fa505dc90f',
+              'R2': '424765c9c89f21247aad2c15a0a893ea2abe022e',
+              'R3': '9abfbb8416744c97b83e5946fd6ef4b20873fcba',
+              'R4': 'fc251f572cd36b581fb8245fa00d261ceb7770f3',
+              'R5': 'da045b5cbdcffc2e44a4c63aa2784d0a632a8585',
+              'R6': 'ebe12ef71bafef221ca9e602adba54373aec8bac',
+              'R7': 'e9fb5b38ac66350709ab57332f2dc78872268158',
+              'R8': '7b8c8ed92a03dddf7000393a0517142a5931113f',
+          }
+
+          def blob_sha(data: bytes) -> str:
+              return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+
+          changed = set()
+          for row in manifest['workstreams']:
+              wid = row['workstream_id']
+              assert row['production_git_blob_sha'] == old_expected[wid], (wid, row['production_git_blob_sha'])
+              actual = blob_sha((root / row['production_module_path']).read_bytes())
+              assert actual == new_expected[wid], (wid, actual, new_expected[wid])
+              if actual != old_expected[wid]:
+                  changed.add(wid)
+              row['production_git_blob_sha'] = actual
+
+          assert changed == {'R1','R3','R4','R5','R6','R7','R8'}, changed
+          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
+          manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+          assert manifest_sha == '8193b35de08444742b6cefa53a02e2408b3a8fd2a9fef1244eb08fb8be951f2d', manifest_sha
+          print('R10_REBOUND_WORKSTREAMS=' + ','.join(sorted(changed)))
+          print('R10_REBOUND_MANIFEST_SHA256=' + manifest_sha)
+          PY
+          git diff --check
 
       - name: Compile repaired successor modules
         working-directory: governance-runtime
@@ -112,15 +163,84 @@ jobs:
           print(x)
           PY
 
+      - name: Preserve R10 transport failure and recovery evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > implementation/v24/V24-I11-V6-R10-REMEDIATION-EVIDENCE.md <<EOF
+          # V24 I11 V6 R10 Successor Review Remediation Evidence
+
+          ## Disposition
+
+          **CONSTRUCTION_REMEDIATION_PASS_PENDING_MANUAL_REVIEW**
+
+          This record is construction evidence only. It does not grant runtime qualification, release, deployment, scientific-pass, or terminal authority.
+
+          - authority_effect: `NONE_EVIDENCE_ONLY`
+          - scientific_execution_state: `CLOSED_PENDING_SUCCESSOR_REVIEW`
+          - qualified: `false`
+          - reviewer API calls: none
+
+          ## Preserved transport failure
+
+          The first corrected-v2 atomic application attempt failed before remediation application because the committed transport did not satisfy its own frozen byte/hash contract.
+
+          - failed atomic run: `34761250702`
+          - expected corrected patch SHA-256: `658db6f8aec86640c930c43635f187cc850fe987746e704bd96369f75c518ddc`
+          - historical-fragment recovery run: `34762061506`
+          - corrected-v2 part 1 exact expected bytes: not present in reachable Git history
+          - corrected-v2 part 2 exact expected bytes: recovered historically at `ea0a32bc2073e68ade64ed42b33d923078202859`
+          - corrected-v2 part 3 exact expected bytes: not present in reachable Git history
+
+          The failed transport is not rewritten as a scientific or implementation failure; it remains a distinct transport-integrity failure in Git/Actions history.
+
+          ## Deterministic recovery
+
+          Recovery used the last internally valid remediation patch plus the exact R9 manifest rebinding required by the repaired production blobs.
+
+          - recoverable baseline patch SHA-256: `af25bbe634a6a3a238a89cb6207a445c6e5f5fb8d976c9e6c0ed3b2f09ab93d2`
+          - manifest-rebind proof run: `34761991465`
+          - rebound manifest SHA-256: `8193b35de08444742b6cefa53a02e2408b3a8fd2a9fef1244eb08fb8be951f2d`
+          - atomic recovery validation run: `${GITHUB_RUN_ID}`
+
+          Rebound production Git blobs:
+
+          - R1: `e93684a6886fc34e7f618a83281b72fa505dc90f`
+          - R2: unchanged `424765c9c89f21247aad2c15a0a893ea2abe022e`
+          - R3: `9abfbb8416744c97b83e5946fd6ef4b20873fcba`
+          - R4: `fc251f572cd36b581fb8245fa00d261ceb7770f3`
+          - R5: `da045b5cbdcffc2e44a4c63aa2784d0a632a8585`
+          - R6: `ebe12ef71bafef221ca9e602adba54373aec8bac`
+          - R7: `e9fb5b38ac66350709ab57332f2dc78872268158`
+          - R8: `7b8c8ed92a03dddf7000393a0517142a5931113f`
+
+          ## Validation boundary
+
+          Before this evidence record was committed, the atomic recovery workflow required successful completion of:
+
+          1. Python compilation of R1-R9 successor modules.
+          2. Reviewer-bypass adversarial suites.
+          3. Complete R1-R8 construction regression.
+          4. R9 integrated-successor regression.
+          5. Inherited V24 construction regressions.
+          6. Explicit construction-only assertions preserving `qualified=false`, `NONE_EVIDENCE_ONLY`, and `CLOSED_PENDING_SUCCESSOR_REVIEW`.
+
+          Independent manual review remains required before any successor-review closure or scientific WDPC execution is claimed.
+          EOF
+
       - name: Commit coherent R10 successor repair
         shell: bash
         run: |
           set -euo pipefail
           rm -rf remediation/v24/r10-apply remediation/v24/r10-apply-gz remediation/v24/r10-apply-gz-v2
+          rm -f .github/workflows/v24-v6-r10-transport-diagnostic.yml
           rm -f .github/workflows/v24-v6-r10-atomic-apply.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           git diff --cached --check
+          echo 'R10_FINAL_CHANGED_PATHS_BEGIN'
+          git diff --cached --name-only
+          echo 'R10_FINAL_CHANGED_PATHS_END'
           git commit -m 'Repair V24 V6 successor review bypasses (R10)'
           git push origin HEAD:implementation/v24-i11-v6-r10-successor-review-remediation
