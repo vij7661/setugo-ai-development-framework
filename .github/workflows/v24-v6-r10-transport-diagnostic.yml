@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  diagnose-old-patch:
+  validate-manifest-rebind:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,25 +22,58 @@ jobs:
         with:
           python-version: '3.12.7'
 
-      - name: Apply old valid transport only in ephemeral runner
+      - name: Apply old valid R10 patch in ephemeral runner
         shell: bash
         run: |
           set -euo pipefail
-          cat remediation/v24/r10-apply-gz/part-*.b64 | base64 -d > /tmp/old.patch.gz
-          gzip -dc /tmp/old.patch.gz > /tmp/old.patch
-          echo "OLD_PATCH_SHA256=$(sha256sum /tmp/old.patch | awk '{print $1}')"
-          git apply --check /tmp/old.patch
-          git apply /tmp/old.patch
+          cat remediation/v24/r10-apply-gz/part-*.b64 | base64 -d > /tmp/r10-old.patch.gz
+          gzip -dc /tmp/r10-old.patch.gz > /tmp/r10-old.patch
+          echo "OLD_PATCH_SHA256=$(sha256sum /tmp/r10-old.patch | awk '{print $1}')"
+          git apply --check /tmp/r10-old.patch
+          git apply /tmp/r10-old.patch
           git diff --check
-          echo 'APPLIED_PATHS_BEGIN'
-          git diff --name-only
-          echo 'APPLIED_PATHS_END'
 
-      - name: Compile old-patch successor modules
-        working-directory: governance-runtime
+      - name: Rebind only changed R1-R8 production blob identities
         shell: bash
         run: |
-          set +e
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+
+          root = Path('.')
+          manifest_path = root / 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+
+          def blob_sha(data: bytes) -> str:
+              return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+
+          changed = []
+          for row in manifest['workstreams']:
+              path = root / row['production_module_path']
+              data = path.read_bytes()
+              actual = blob_sha(data)
+              old = row['production_git_blob_sha']
+              print(f"{row['workstream_id']} PATH={row['production_module_path']} OLD={old} NEW={actual} RAW_SHA256={hashlib.sha256(data).hexdigest()}")
+              if actual != old:
+                  changed.append((row['workstream_id'], old, actual))
+                  row['production_git_blob_sha'] = actual
+
+          expected_changed = {'R1','R3','R4','R5','R6','R7','R8'}
+          actual_changed = {x[0] for x in changed}
+          assert actual_changed == expected_changed, (actual_changed, expected_changed)
+          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
+          print('REBIND_CHANGED=' + ','.join(sorted(actual_changed)))
+          print('REBIND_MANIFEST_RAW_SHA256=' + hashlib.sha256(manifest_path.read_bytes()).hexdigest())
+          PY
+          git diff --check
+          echo 'REBIND_DIFF_BEGIN'
+          git diff -- implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          echo 'REBIND_DIFF_END'
+
+      - name: Compile repaired successor modules
+        working-directory: governance-runtime
+        run: |
           python -m py_compile \
             v24_v6_governance_foundation.py \
             v24_v6_endpoint_projection.py \
@@ -51,15 +84,10 @@ jobs:
             v24_v6_atomic_binding_modes.py \
             v24_v6_qualification_integrity.py \
             v24_v6_integrated_successor.py
-          rc=$?
-          echo "COMPILE_RC=$rc"
-          exit 0
 
-      - name: Run old-patch reviewer-bypass suites and preserve failures
+      - name: Run reviewer-bypass adversarial suites
         working-directory: governance-runtime
-        shell: bash
         run: |
-          set +e
           python -m unittest -v \
             test_v24_v6_governance_foundation.py \
             test_v24_v6_atomic_binding_modes.py \
@@ -68,18 +96,27 @@ jobs:
             test_v24_v6_material_surface.py \
             test_v24_v6_decision_apply.py \
             test_v24_v6_effect_ledger_closure.py
-          rc=$?
-          echo "REVIEWER_BYPASS_SUITE_RC=$rc"
-          exit 0
 
-      - name: Run old-patch R9 integration and inherited regression probes
+      - name: Run complete R1-R8 construction regression
         working-directory: governance-runtime
-        shell: bash
         run: |
-          set +e
-          python -m unittest -v test_v24_v6_integrated_successor.py
-          r9=$?
-          echo "R9_INTEGRATION_RC=$r9"
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py
+
+      - name: Run R9 integration regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_integrated_successor.py
+
+      - name: Run inherited V24 construction regressions
+        working-directory: governance-runtime
+        run: |
           python -m unittest -v \
             test_normative_control_catalog.py \
             test_v24_authority_universe.py \
@@ -90,6 +127,27 @@ jobs:
             test_v24_aggregate_budget.py \
             test_v24_generation_migration.py \
             test_v24_review_proof_audit.py
-          inherited=$?
-          echo "INHERITED_REGRESSION_RC=$inherited"
-          exit 0
+
+      - name: Assert construction-only posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_integrated_successor as r9
+          x = r9.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert x['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          print(x)
+          PY
+
+      - name: Fingerprint coherent repaired working tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -N .github/workflows/v24-v6-r10-review-remediation-preflight.yml || true
+          echo 'COHERENT_CHANGED_PATHS_BEGIN'
+          git diff --name-only
+          echo 'COHERENT_CHANGED_PATHS_END'
+          git diff > /tmp/r10-coherent.patch
+          echo "COHERENT_PATCH_BYTES=$(wc -c < /tmp/r10-coherent.patch)"
+          echo "COHERENT_PATCH_SHA256=$(sha256sum /tmp/r10-coherent.patch | awk '{print $1}')"
