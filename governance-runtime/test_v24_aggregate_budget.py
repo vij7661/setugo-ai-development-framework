@@ -21,5 +21,11 @@ class AggTests(unittest.TestCase):
  def test_unresolved_cannot_success(self):
   def m(b):b["transactions"][0]["key_records"][1]["state"]="UNKNOWN";b["transactions"][0]["reconciliation_outcome"]="INSUFFICIENT_EVIDENCE"
   self.assertP(m,"AGGREGATE_UNRESOLVED_CANNOT_SUCCEED:TX1")
+ def test_no_commit_cannot_success(self):
+  def m(b):
+   for r in b["transactions"][0]["key_records"]:
+    r["state"]="AUTHORITATIVE_ABSENT";r.pop("committed_identity",None)
+   b["transactions"][0]["reconciliation_outcome"]="NO_COMMIT_CONFIRMED"
+  self.assertP(m,"AGGREGATE_NO_COMMIT_CANNOT_SUCCEED:TX1")
  def test_transaction_id_shared_across_keys(self):self.assertP(lambda b:b["transactions"][0]["key_records"][1].__setitem__("transaction_id","TX2"),"AGGREGATE_TRANSACTION_ID_MISMATCH:TX1")
 if __name__=="__main__":unittest.main()
