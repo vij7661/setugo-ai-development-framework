@@ -1,0 +1,339 @@
+name: V24 V6 R13 External Oracle Construction and Falsification
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r13-external-oracle
+    paths:
+      - '.github/workflows/v24-v6-r13-external-oracle-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r13-construction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Fetch exact R13 candidate and authority snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='94728f0bbf0564e5d9c2e4f8b11e600dffabee99'
+          TREE='d15efec0a63e53866592e0961504495331d89025'
+          REVIEW_AUTH='8210f624b2109899aa3cc11afe9e746053cc83f8'
+          git fetch --no-tags --depth=1 origin "$CANDIDATE"
+          git fetch --no-tags --depth=1 origin "$REVIEW_AUTH"
+          test "$(git rev-parse "$CANDIDATE^{tree}")" = "$TREE"
+          mkdir -p "$RUNNER_TEMP/r13-authority"
+          for pair in \
+            'review/v24/r13_trusted_external_guard.py:dff8f0c88bed164111b7118022ca00dab9e98ef3' \
+            'review/v24/r13_trusted_oracle_launcher.py:3d8b677c70c93478cae8b691d1e9efa82624ba51' \
+            'review/v24/r13_trusted_external_oracle.py:f0f72ca65eb443fd2db2917622a327256d15db05' \
+            'review/v24/r13_untrusted_candidate_observer.py:f43d1deb7cf163e233b6efe7aa1b021666cea82a'
+          do
+            path="${pair%%:*}"; expected="${pair##*:}"
+            actual="$(git rev-parse "$REVIEW_AUTH:$path")"
+            test "$actual" = "$expected" || { echo "R13_AUTHORITY_BLOB_MISMATCH:$path:$actual:$expected"; exit 1; }
+            git show "$REVIEW_AUTH:$path" > "$RUNNER_TEMP/r13-authority/$(basename "$path")"
+          done
+          git worktree add --detach "$RUNNER_TEMP/r13-candidate" "$CANDIDATE"
+          echo "R13_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "R13_TREE=$TREE" >> "$GITHUB_ENV"
+          echo "R13_REVIEW_AUTH=$REVIEW_AUTH" >> "$GITHUB_ENV"
+          echo "R13_AUTHORITY=$RUNNER_TEMP/r13-authority" >> "$GITHUB_ENV"
+          echo "R13_SOURCE=$RUNNER_TEMP/r13-candidate" >> "$GITHUB_ENV"
+          echo "R13_SANDBOX=$RUNNER_TEMP/r13-sandbox" >> "$GITHUB_ENV"
+          echo "R13_OUT=$RUNNER_TEMP/r13-evidence" >> "$GITHUB_ENV"
+
+      - name: Build exact external pinset and stage candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$R13_OUT"
+          GUARD="$R13_AUTHORITY/r13_trusted_external_guard.py"
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$GUARD" build-pinset \
+            --root "$R13_SOURCE" --commit "$R13_CANDIDATE" --tree "$R13_TREE" \
+            --review-commit "$R13_REVIEW_AUTH" --output "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json"
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$GUARD" verify-source \
+            --root "$R13_SOURCE" --pinset "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" \
+            --commit "$R13_CANDIDATE" --tree "$R13_TREE"
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$GUARD" stage \
+            --root "$R13_SOURCE" --target "$R13_SANDBOX" \
+            --pinset "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" \
+            --commit "$R13_CANDIDATE" --tree "$R13_TREE"
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$GUARD" verify-sandbox \
+            --root "$R13_SANDBOX" --pinset "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" \
+            --commit "$R13_CANDIDATE" --tree "$R13_TREE"
+
+      - name: Run candidate unittest suite as non-authoritative diagnostics only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/r13_diagnostic_runner.py" <<'PY'
+          import json, pathlib, sys, unittest
+          sandbox=pathlib.Path(sys.argv[1]).resolve()
+          pinset=json.loads(pathlib.Path(sys.argv[2]).read_text())
+          subject=sandbox/'governance-runtime'
+          sys.dont_write_bytecode=True
+          sys.path.insert(0,str(subject))
+          modules=[pathlib.PurePosixPath(x).stem for x in pinset['executed_tests']]
+          suite=unittest.defaultTestLoader.loadTestsFromNames(modules)
+          result=unittest.TextTestRunner(verbosity=2).run(suite)
+          summary={
+            'role':'NON_AUTHORITATIVE_DIAGNOSTIC_ONLY',
+            'module_count':len(modules),
+            'tests_run':result.testsRun,
+            'failures':len(result.failures),
+            'errors':len(result.errors),
+            'unexpected_successes':len(getattr(result,'unexpectedSuccesses',())),
+            'successful':result.wasSuccessful(),
+            'authority_effect':'NONE_EVIDENCE_ONLY',
+          }
+          pathlib.Path(sys.argv[3]).write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          raise SystemExit(0 if result.wasSuccessful() else 1)
+          PY
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$RUNNER_TEMP/r13_diagnostic_runner.py" \
+            "$R13_SANDBOX" "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" \
+            "$R13_OUT/V24-I11-V6-R13-DIAGNOSTIC-UNITTEST.json"
+
+      - name: Compute trusted R13 runtime and environment bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORACLE="$R13_AUTHORITY/r13_trusted_external_oracle.py"
+          OBSERVER="$R13_AUTHORITY/r13_untrusted_candidate_observer.py"
+          LAUNCHER="$R13_AUTHORITY/r13_trusted_oracle_launcher.py"
+          GUARD="$R13_AUTHORITY/r13_trusted_external_guard.py"
+          ORACLE_BLOB='f0f72ca65eb443fd2db2917622a327256d15db05'
+          OBSERVER_BLOB='f43d1deb7cf163e233b6efe7aa1b021666cea82a'
+          cat > "$RUNNER_TEMP/r13_contract.py" <<'PY'
+          import hashlib, importlib.util, json, pathlib, sys
+          oracle=pathlib.Path(sys.argv[1]).resolve()
+          spec=importlib.util.spec_from_file_location('r13_oracle_identity',oracle)
+          mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+          c=mod.actual_interpreter_contract()
+          print(c['contract_digest'])
+          PY
+          INTERPRETER_DIGEST="$(env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$RUNNER_TEMP/r13_contract.py" "$ORACLE")"
+          PINSET_SHA="$(sha256sum "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" | awk '{print $1}')"
+          ORACLE_SHA="$(sha256sum "$ORACLE" | awk '{print $1}')"
+          OBSERVER_SHA="$(sha256sum "$OBSERVER" | awk '{print $1}')"
+          LAUNCHER_SHA="$(sha256sum "$LAUNCHER" | awk '{print $1}')"
+          GUARD_SHA="$(sha256sum "$GUARD" | awk '{print $1}')"
+          python - <<PY > "$R13_OUT/V24-I11-V6-R13-RUNTIME-BINDING.json"
+          import hashlib,json
+          obj={
+            'candidate_commit':'$R13_CANDIDATE','candidate_tree':'$R13_TREE',
+            'pinset_sha256':'$PINSET_SHA','interpreter_contract_digest':'$INTERPRETER_DIGEST',
+            'oracle_git_blob_sha1':'$ORACLE_BLOB','observer_git_blob_sha1':'$OBSERVER_BLOB',
+            'oracle_sha256':'$ORACLE_SHA','observer_sha256':'$OBSERVER_SHA',
+            'launcher_sha256':'$LAUNCHER_SHA','guard_sha256':'$GUARD_SHA',
+            'review_authority_commit':'$R13_REVIEW_AUTH',
+          }
+          raw=json.dumps(obj,sort_keys=True,separators=(',',':')).encode()
+          obj['environment_digest']=hashlib.sha256(raw).hexdigest()
+          print(json.dumps(obj,indent=2,sort_keys=True))
+          PY
+          ENV_DIGEST="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["environment_digest"])' "$R13_OUT/V24-I11-V6-R13-RUNTIME-BINDING.json")"
+          echo "R13_INTERPRETER_DIGEST=$INTERPRETER_DIGEST" >> "$GITHUB_ENV"
+          echo "R13_ENV_DIGEST=$ENV_DIGEST" >> "$GITHUB_ENV"
+          echo "R13_ORACLE_BLOB=$ORACLE_BLOB" >> "$GITHUB_ENV"
+          echo "R13_OBSERVER_BLOB=$OBSERVER_BLOB" >> "$GITHUB_ENV"
+
+      - name: Execute six trusted external-oracle assertions
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$R13_AUTHORITY/r13_trusted_oracle_launcher.py" \
+            --oracle "$R13_AUTHORITY/r13_trusted_external_oracle.py" \
+            --observer "$R13_AUTHORITY/r13_untrusted_candidate_observer.py" \
+            --sandbox "$R13_SANDBOX" \
+            --candidate-commit "$R13_CANDIDATE" --candidate-tree "$R13_TREE" \
+            --environment-digest "$R13_ENV_DIGEST" --interpreter-contract-digest "$R13_INTERPRETER_DIGEST" \
+            --oracle-git-blob-sha1 "$R13_ORACLE_BLOB" --observer-git-blob-sha1 "$R13_OBSERVER_BLOB" \
+            --run-id "${GITHUB_RUN_ID}" --round-id "R13-CONSTRUCTION-ROUND-1" \
+            --output "$R13_OUT/V24-I11-V6-R13-EXTERNAL-ORACLE-EVIDENCE.json"
+          python - <<'PY'
+          import json, os, pathlib
+          p=pathlib.Path(os.environ['R13_OUT'])/'V24-I11-V6-R13-EXTERNAL-ORACLE-EVIDENCE.json'
+          x=json.loads(p.read_text())
+          assert len(x['records'])==6, x
+          assert all(r['oracle_terminal_result']=='PASS' for r in x['records']), x
+          assert x['candidate_side_unittest_role']=='NON_AUTHORITATIVE_DIAGNOSTIC_ONLY'
+          print('R13_EXTERNAL_ORACLE_ASSERTIONS=6/6_PASS')
+          PY
+
+      - name: Candidate-side evidence validator consistency check only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/r13_validate_evidence.py" <<'PY'
+          import json,pathlib,sys
+          sandbox=pathlib.Path(sys.argv[1]).resolve(); sys.path.insert(0,str(sandbox/'governance-runtime'))
+          from v24_v6_r13_successor import validate_external_oracle_evidence_bundle
+          evidence=json.loads(pathlib.Path(sys.argv[2]).read_text())
+          result=validate_external_oracle_evidence_bundle(evidence)
+          pathlib.Path(sys.argv[3]).write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          assert result['valid'] is True, result
+          assert result['qualified'] is False, result
+          PY
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$RUNNER_TEMP/r13_validate_evidence.py" \
+            "$R13_SANDBOX" "$R13_OUT/V24-I11-V6-R13-EXTERNAL-ORACLE-EVIDENCE.json" \
+            "$R13_OUT/V24-I11-V6-R13-CANDIDATE-EVIDENCE-VALIDATION.json"
+
+      - name: Falsify optimized-interpreter authority path
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          env -i HOME="$HOME" PATH="$PATH" python -O -I -S "$R13_AUTHORITY/r13_trusted_oracle_launcher.py" --help >"$RUNNER_TEMP/opt.out" 2>"$RUNNER_TEMP/opt.err"
+          rc=$?
+          set -e
+          test "$rc" -ne 0 || { echo 'R13_OPTIMIZED_LAUNCHER_FALSE_GREEN'; exit 1; }
+          grep -q 'R13_LAUNCHER_OPTIMIZATION_FORBIDDEN' "$RUNNER_TEMP/opt.err" || { cat "$RUNNER_TEMP/opt.err"; exit 1; }
+          echo 'R13_OPTIMIZED_INTERPRETER_ATTACK_REJECTED=PASS'
+
+      - name: Falsify success-looking forged observer payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          FORGED="$RUNNER_TEMP/forged_observer.py"
+          cat > "$FORGED" <<'PY'
+          import argparse,hashlib,json,os,pathlib
+          def canonical(v): return json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+          ap=argparse.ArgumentParser(); ap.add_argument('--sandbox'); ap.add_argument('--request'); a=ap.parse_args()
+          req=json.loads(pathlib.Path(a.request).read_text())
+          obs={'schema_version':1,'request_digest':hashlib.sha256(canonical(req)).hexdigest(),'module':req['module'],'function':req['function'],'outcome_kind':'RETURN','payload':{'qualified':True,'successful':True,'problems':[]},'candidate_process_role':'UNTRUSTED_OBSERVATION_ONLY','authority_effect':'NONE_EVIDENCE_ONLY'}
+          os.write(1,('R13_OBSERVATION='+json.dumps(obs,sort_keys=True,separators=(',',':'))+'\n').encode())
+          PY
+          FORGED_BLOB="$(python -c 'import hashlib,sys; b=open(sys.argv[1],"rb").read(); print(hashlib.sha1((f"blob {len(b)}\0").encode()+b).hexdigest())' "$FORGED")"
+          set +e
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$R13_AUTHORITY/r13_trusted_oracle_launcher.py" \
+            --oracle "$R13_AUTHORITY/r13_trusted_external_oracle.py" --observer "$FORGED" --sandbox "$R13_SANDBOX" \
+            --candidate-commit "$R13_CANDIDATE" --candidate-tree "$R13_TREE" \
+            --environment-digest "$R13_ENV_DIGEST" --interpreter-contract-digest "$R13_INTERPRETER_DIGEST" \
+            --oracle-git-blob-sha1 "$R13_ORACLE_BLOB" --observer-git-blob-sha1 "$FORGED_BLOB" \
+            --run-id "${GITHUB_RUN_ID}-FORGED" --round-id 'R13-FORGERY-PROBE' --output "$RUNNER_TEMP/forged-evidence.json" \
+            >"$RUNNER_TEMP/forged.out" 2>"$RUNNER_TEMP/forged.err"
+          rc=$?
+          set -e
+          test "$rc" -ne 0 || { echo 'R13_FORGED_OBSERVER_FALSE_GREEN'; cat "$RUNNER_TEMP/forged.out"; exit 1; }
+          test ! -f "$RUNNER_TEMP/forged-evidence.json" || { echo 'R13_FORGED_OBSERVER_PRODUCED_EVIDENCE'; cat "$RUNNER_TEMP/forged-evidence.json"; exit 1; }
+          echo 'R13_FORGED_OBSERVER_ATTACK_REJECTED=PASS'
+
+      - name: Falsify R12-style frame-introspection observation forgery
+        shell: bash
+        run: |
+          set -euo pipefail
+          ATTACK="$RUNNER_TEMP/r13-attack-sandbox"
+          cp -a "$R13_SANDBOX" "$ATTACK"
+          TARGET="$ATTACK/governance-runtime/v24_v6_governance_foundation.py"
+          cp "$TARGET" "$RUNNER_TEMP/original-foundation.py"
+          cat > "$RUNNER_TEMP/attack-prefix.py" <<'PY'
+          import sys as _sys, os as _os, json as _json, hashlib as _hashlib
+          _f=_sys._getframe()
+          _req=None
+          while _f is not None:
+              _candidate=_f.f_locals.get('request')
+              if isinstance(_candidate,dict) and 'module' in _candidate and 'function' in _candidate:
+                  _req=_candidate; break
+              _f=_f.f_back
+          if _req is not None:
+              _raw=_json.dumps(_req,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+              _obs={'schema_version':1,'request_digest':_hashlib.sha256(_raw).hexdigest(),'module':_req['module'],'function':_req['function'],'outcome_kind':'RETURN','payload':{'qualified':True,'successful':True,'problems':[]},'candidate_process_role':'UNTRUSTED_OBSERVATION_ONLY','authority_effect':'NONE_EVIDENCE_ONLY'}
+              _os.write(1,('R13_OBSERVATION='+_json.dumps(_obs,sort_keys=True,separators=(',',':'))+'\n').encode())
+              _os._exit(0)
+          PY
+          cat "$RUNNER_TEMP/attack-prefix.py" "$RUNNER_TEMP/original-foundation.py" > "$TARGET"
+          set +e
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$R13_AUTHORITY/r13_trusted_oracle_launcher.py" \
+            --oracle "$R13_AUTHORITY/r13_trusted_external_oracle.py" --observer "$R13_AUTHORITY/r13_untrusted_candidate_observer.py" \
+            --sandbox "$ATTACK" --candidate-commit "$R13_CANDIDATE" --candidate-tree "$R13_TREE" \
+            --environment-digest "$R13_ENV_DIGEST" --interpreter-contract-digest "$R13_INTERPRETER_DIGEST" \
+            --oracle-git-blob-sha1 "$R13_ORACLE_BLOB" --observer-git-blob-sha1 "$R13_OBSERVER_BLOB" \
+            --run-id "${GITHUB_RUN_ID}-FRAME" --round-id 'R13-FRAME-PROBE' --output "$RUNNER_TEMP/frame-evidence.json" \
+            >"$RUNNER_TEMP/frame.out" 2>"$RUNNER_TEMP/frame.err"
+          rc=$?
+          set -e
+          test "$rc" -ne 0 || { echo 'R13_FRAME_INTROSPECTION_FALSE_GREEN'; cat "$RUNNER_TEMP/frame.out"; exit 1; }
+          test ! -f "$RUNNER_TEMP/frame-evidence.json" || { echo 'R13_FRAME_ATTACK_PRODUCED_EVIDENCE'; cat "$RUNNER_TEMP/frame-evidence.json"; exit 1; }
+          echo 'R13_FRAME_INTROSPECTION_ATTACK_REJECTED=PASS'
+
+      - name: Falsify exact-file admission boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          GUARD="$R13_AUTHORITY/r13_trusted_external_guard.py"
+          for attack in unpinned symlink bootstrap; do
+            ROOT="$RUNNER_TEMP/guard-$attack"
+            cp -a "$R13_SANDBOX" "$ROOT"
+            case "$attack" in
+              unpinned) echo attack > "$ROOT/governance-runtime/extra.py" ;;
+              symlink) rm "$ROOT/governance-runtime/v24_v6_r13_successor.py"; ln -s /etc/hosts "$ROOT/governance-runtime/v24_v6_r13_successor.py" ;;
+              bootstrap) echo '# attack' > "$ROOT/governance-runtime/sitecustomize.py" ;;
+            esac
+            set +e
+            env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$GUARD" verify-sandbox --root "$ROOT" \
+              --pinset "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" --commit "$R13_CANDIDATE" --tree "$R13_TREE" \
+              >"$RUNNER_TEMP/$attack.out" 2>"$RUNNER_TEMP/$attack.err"
+            rc=$?
+            set -e
+            test "$rc" -ne 0 || { echo "R13_GUARD_ATTACK_ACCEPTED:$attack"; exit 1; }
+            echo "R13_GUARD_ATTACK_REJECTED:$attack=PASS"
+          done
+
+      - name: Verify canonical sandbox unchanged after execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$R13_AUTHORITY/r13_trusted_external_guard.py" verify-sandbox \
+            --root "$R13_SANDBOX" --pinset "$R13_OUT/V24-I11-V6-R13-EXTERNAL-PINSET.json" \
+            --commit "$R13_CANDIDATE" --tree "$R13_TREE"
+
+      - name: Emit construction verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' > "$R13_OUT/V24-I11-V6-R13-CONSTRUCTION-VERIFICATION.json"
+          import hashlib,json,os,pathlib
+          out=pathlib.Path(os.environ['R13_OUT'])
+          evidence=json.loads((out/'V24-I11-V6-R13-EXTERNAL-ORACLE-EVIDENCE.json').read_text())
+          diag=json.loads((out/'V24-I11-V6-R13-DIAGNOSTIC-UNITTEST.json').read_text())
+          files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.is_file()}
+          record={
+            'schema_version':1,
+            'candidate_commit':os.environ['R13_CANDIDATE'],'candidate_tree':os.environ['R13_TREE'],
+            'review_authority_commit':os.environ['R13_REVIEW_AUTH'],
+            'candidate_diagnostic_unittest_role':'NON_AUTHORITATIVE_DIAGNOSTIC_ONLY',
+            'candidate_diagnostic_test_count':diag['tests_run'],'candidate_diagnostic_successful':diag['successful'],
+            'external_oracle_check_count':len(evidence['records']),
+            'external_oracle_all_pass':all(x['oracle_terminal_result']=='PASS' for x in evidence['records']),
+            'optimized_interpreter_attack_rejected':True,
+            'forged_observer_attack_rejected':True,
+            'r12_frame_introspection_attack_rejected':True,
+            'exact_file_attacks_rejected':['unpinned','symlink','bootstrap'],
+            'canonical_sandbox_post_execution_exact':True,
+            'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW',
+            'runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY',
+            'artifact_member_sha256':files,
+          }
+          print(json.dumps(record,indent=2,sort_keys=True))
+          PY
+          cat "$R13_OUT/V24-I11-V6-R13-CONSTRUCTION-VERIFICATION.json"
+
+      - name: Upload construction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r13-external-oracle-construction-evidence
+          path: ${{ runner.temp }}/r13-evidence/
+          if-no-files-found: error
+          retention-days: 90
