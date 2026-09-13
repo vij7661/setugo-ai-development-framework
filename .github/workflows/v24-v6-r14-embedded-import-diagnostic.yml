@@ -1,0 +1,45 @@
+name: V24 V6 R14 Embedded Import Diagnostic
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r14-native-observer
+    paths:
+      - '.github/workflows/v24-v6-r14-embedded-import-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14'}
+      - name: Compile exact embedded-interpreter import probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='5a1fb005e9c58e30b1dcfaa473d603dde90df72c'; T='6e65609ac09b78bcffefb6d6560b640ba7696521'
+          git fetch --no-tags origin "$C"; test "$(git rev-parse "$C^{tree}")" = "$T"
+          S="$RUNNER_TEMP/r14-embed-candidate"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          cat > "$RUNNER_TEMP/probe.c" <<'C'
+          #include <Python.h>
+          #include <stdio.h>
+          #include <string.h>
+          static int starts(const char*s,const char*p){return s&&p&&strncmp(s,p,strlen(p))==0;}
+          static int banned(const char*n){const char*bad[]={"ctypes","_ctypes","cffi","_cffi_backend","mmap","subprocess","multiprocessing","_multiprocessing","socket","_socket","resource","fcntl","pty","signal","_posixsubprocess","threading","_thread","concurrent","asyncio",NULL};for(int i=0;bad[i];i++)if(strcmp(n,bad[i])==0||(starts(n,bad[i])&&n[strlen(bad[i])]=='.'))return 1;return starts(n,"_test")||starts(n,"test.");}
+          static int audit(const char*e,PyObject*a,void*u){(void)u;const char*blocked[]={"sys._getframe","sys.settrace","sys.setprofile","os.system","os.exec","os.posix_spawn","os.fork","os.forkpty","os.kill","os.killpg","subprocess.Popen","socket.__new__","ctypes.dlopen",NULL};for(int i=0;blocked[i];i++)if(strcmp(e,blocked[i])==0){PyErr_Format(PyExc_PermissionError,"R14_DIAG_AUDIT_BLOCK:%s",e);return -1;}if(strcmp(e,"import")==0&&PyTuple_Check(a)&&PyTuple_GET_SIZE(a)>0){PyObject*x=PyTuple_GET_ITEM(a,0);if(PyUnicode_Check(x)){const char*n=PyUnicode_AsUTF8(x);if(n&&banned(n)){PyErr_Format(PyExc_PermissionError,"R14_DIAG_IMPORT_BLOCK:%s",n);return -1;}}}if(strcmp(e,"open")==0&&PyTuple_Check(a)&&PyTuple_GET_SIZE(a)>0){PyObject*x=PyTuple_GET_ITEM(a,0);if(PyUnicode_Check(x)){const char*p=PyUnicode_AsUTF8(x);if(p&&(starts(p,"/proc/")||starts(p,"/sys/")||strcmp(p,"/dev/mem")==0||strcmp(p,"/dev/kmem")==0)){PyErr_Format(PyExc_PermissionError,"R14_DIAG_PATH_BLOCK:%s",p);return -1;}}}return 0;}
+          int main(int argc,char**argv){if(argc!=2)return 2;PyConfig c;PyConfig_InitIsolatedConfig(&c);c.site_import=0;c.use_environment=0;c.user_site_directory=0;c.safe_path=1;c.write_bytecode=0;c.parse_argv=0;PyStatus s=Py_InitializeFromConfig(&c);PyConfig_Clear(&c);if(PyStatus_Exception(s)){fprintf(stderr,"INIT:%s\n",s.err_msg?s.err_msg:"unknown");return 3;}if(PySys_AddAuditHook(audit,NULL)<0){PyErr_Print();return 4;}PyObject*j=PyImport_ImportModule("json");if(!j){fprintf(stderr,"JSON IMPORT FAILED\n");PyErr_Print();return 5;}Py_DECREF(j);PyObject*path=PySys_GetObject("path");PyObject*p=PyUnicode_FromString(argv[1]);if(!path||!p||PyList_Insert(path,0,p)<0){PyErr_Print();return 6;}Py_DECREF(p);fprintf(stderr,"SYS.PATH=\n");PyObject*r=PyObject_Repr(path);if(r){const char*x=PyUnicode_AsUTF8(r);if(x)fprintf(stderr,"%s\n",x);Py_DECREF(r);}PyObject*m=PyImport_ImportModule("v24_v6_governance_foundation");if(!m){fprintf(stderr,"CANDIDATE IMPORT FAILED\n");PyErr_Print();return 7;}Py_DECREF(m);fprintf(stderr,"R14_EMBEDDED_IMPORT=PASS\n");return 0;}
+          C
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          gcc -O2 $(python3-config --includes) "$RUNNER_TEMP/probe.c" -o "$RUNNER_TEMP/probe" $(python3-config --embed --ldflags) -Wl,-rpath,"$LIBDIR"
+          set +e
+          "$RUNNER_TEMP/probe" "$S/governance-runtime" >"$RUNNER_TEMP/out" 2>"$RUNNER_TEMP/err"
+          rc=$?; set -e
+          cat "$RUNNER_TEMP/err"
+          echo "R14_EMBEDDED_DIAGNOSTIC_RC=$rc"
+          exit 0
