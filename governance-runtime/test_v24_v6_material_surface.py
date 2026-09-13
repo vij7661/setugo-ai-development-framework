@@ -64,7 +64,7 @@ class R3MaterialSurfaceTests(unittest.TestCase):
 
     def test_derivation_divergence_blocks(self):
         b,l=self.good_surface(); b["derivations"][1]["member_ids"]=["PATH-A"]
-        r=derive_material_authority_surface(b); self.assertTrue(any("DIVERGENCE" in x for x in r["problems"])); self.assertIn("MATERIAL_SURFACE_OBSERVED_MEMBER_OMITTED:PATH-B",r["problems"])
+        r=derive_material_authority_surface(b); self.assertIn("MATERIAL_SURFACE_DERIVATION_DIVERGENCE:1",r["problems"]); self.assertFalse(r["qualified"])
 
     def test_same_control_domain_not_independent(self):
         b,l=self.good_surface(); b["derivations"][1]["control_domain_id"]="D-A"
