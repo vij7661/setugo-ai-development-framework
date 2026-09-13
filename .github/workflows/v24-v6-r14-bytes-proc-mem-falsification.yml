@@ -1,0 +1,146 @@
+name: V24 V6 R14 Bytes Proc Mem Falsification
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r14-native-observer
+    paths:
+      - '.github/workflows/v24-v6-r14-bytes-proc-mem-falsification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Bind exact R14 candidate and trusted observer sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='5a1fb005e9c58e30b1dcfaa473d603dde90df72c'
+          T='6e65609ac09b78bcffefb6d6560b640ba7696521'
+          CORE_BLOB='59916850a7b81b0d2ba77ce51198536277615555'
+          HOME_BLOB='6e5f3e02146adff92c70bdd12199644b35656721'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          test "$(git rev-parse HEAD:review/v24/r14_native_observer.c)" = "$CORE_BLOB"
+          test "$(git rev-parse HEAD:review/v24/r14_python_home_binding.c)" = "$HOME_BLOB"
+          SUBJECT="$RUNNER_TEMP/r14-base"
+          ATTACK="$RUNNER_TEMP/r14-attack"
+          mkdir -p "$SUBJECT"
+          git archive "$C" | tar -xf - -C "$SUBJECT"
+          cp -a "$SUBJECT" "$ATTACK"
+          echo "R14_CANDIDATE=$C" >> "$GITHUB_ENV"
+          echo "R14_TREE=$T" >> "$GITHUB_ENV"
+          echo "R14_ATTACK=$ATTACK" >> "$GITHUB_ENV"
+          echo "R14_EVIDENCE=$RUNNER_TEMP/r14-bytes-proc-evidence" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/r14-bytes-proc-evidence"
+
+      - name: Compile exact R14 native observer
+        shell: bash
+        run: |
+          set -euo pipefail
+          CORE="$GITHUB_WORKSPACE/review/v24/r14_native_observer.c"
+          HOME_SRC="$GITHUB_WORKSPACE/review/v24/r14_python_home_binding.c"
+          BIN="$RUNNER_TEMP/r14-native-observer"
+          PREFIX="$(python -c 'import sys; print(sys.prefix)')"
+          PROGRAM="$(python -c 'import sys; print(sys.executable)')"
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DPyConfig_InitIsolatedConfig=R14_PyConfig_InitIsolatedConfig \
+            -c "$CORE" -o "$RUNNER_TEMP/observer.o"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DR14_PYTHON_HOME='"'"$PREFIX"'"' \
+            -DR14_PYTHON_PROGRAM='"'"$PROGRAM"'"' \
+            -c "$HOME_SRC" -o "$RUNNER_TEMP/home.o"
+          gcc -pie "$RUNNER_TEMP/observer.o" "$RUNNER_TEMP/home.o" -o "$BIN" \
+            $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          test "$(sha256sum "$BIN" | awk '{print $1}')" = 'd29adf52dc160801992eecff423cf5da19128693964baa1523d881aeefc79fa7'
+          echo "R14_NATIVE_BIN=$BIN" >> "$GITHUB_ENV"
+
+      - name: Install bytes-path proc-self-mem attack
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os, pathlib
+          p=pathlib.Path(os.environ['R14_ATTACK'])/'governance-runtime/v24_v6_governance_foundation.py'
+          data=p.read_text(encoding='utf-8')
+          marker='from __future__ import annotations\n'
+          assert data.count(marker)==1
+          attack=(
+              "# R14 falsification: bytes path bypass of Unicode-only audit filter\n"
+              "_r14_mem = open(b'/proc/self/mem', 'rb', buffering=0)\n"
+              "_r14_mem.close()\n"
+          )
+          p.write_text(data.replace(marker, marker+attack, 1), encoding='utf-8')
+          PY
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S -m py_compile "$R14_ATTACK/governance-runtime/v24_v6_governance_foundation.py"
+
+      - name: Execute forbidden bytes-path memory access through native boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQ="$RUNNER_TEMP/request.json"
+          printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$REQ"
+          set +e
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$R14_NATIVE_BIN" --sandbox "$R14_ATTACK" --request "$REQ" \
+            > "$R14_EVIDENCE/stdout.txt" 2> "$R14_EVIDENCE/stderr.txt"
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > "$R14_EVIDENCE/exit-code.txt"
+          python - <<'PY' > "$R14_EVIDENCE/result.json"
+          import json, os, pathlib
+          root=pathlib.Path(os.environ['R14_EVIDENCE'])
+          rc=int((root/'exit-code.txt').read_text().strip())
+          out=(root/'stdout.txt').read_text(errors='replace')
+          err=(root/'stderr.txt').read_text(errors='replace')
+          authenticated=any(x.startswith('R14_NATIVE_OBSERVATION=') for x in out.splitlines())
+          bypass=(rc==0 and authenticated)
+          print(json.dumps({
+            'attack':'BYTES_PATH_PROC_SELF_MEM_ACCESS',
+            'candidate_commit':os.environ['R14_CANDIDATE'],
+            'candidate_tree':os.environ['R14_TREE'],
+            'native_observer_sha256':'d29adf52dc160801992eecff423cf5da19128693964baa1523d881aeefc79fa7',
+            'native_exit_code':rc,
+            'authenticated_observation_emitted':authenticated,
+            'forbidden_memory_open_bypassed_audit_policy':bypass,
+            'classification':'FAIL_CODE_DEFECT' if bypass else 'ATTACK_REJECTED',
+            'stderr_tail':err[-1000:],
+            'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW',
+            'runtime_qualification_state':'NOT_CLAIMED',
+            'authority_effect':'NONE_EVIDENCE_ONLY'
+          },indent=2,sort_keys=True))
+          PY
+          cat "$R14_EVIDENCE/result.json"
+
+      - name: Upload falsification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r14-bytes-proc-mem-falsification-evidence
+          path: ${{ runner.temp }}/r14-bytes-proc-evidence/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Adjudicate falsification endpoint
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          r=json.loads((pathlib.Path(os.environ['R14_EVIDENCE'])/'result.json').read_text())
+          if r['forbidden_memory_open_bypassed_audit_policy']:
+              raise SystemExit('R14_BYTES_PATH_PROC_SELF_MEM_BYPASS_REPRODUCED')
+          print('R14_BYTES_PATH_PROC_SELF_MEM_ATTACK_REJECTED=PASS')
+          PY
