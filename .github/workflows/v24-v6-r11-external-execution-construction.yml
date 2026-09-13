@@ -44,36 +44,50 @@ jobs:
           from pathlib import Path
 
           FORBIDDEN = {'unittest.py', 'sitecustomize.py', 'usercustomize.py'}
-          SCOPE = Path('governance-runtime')
+          PY_SCOPE = Path('governance-runtime')
+          SUPPORT = (
+              Path('implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'),
+              Path('implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json'),
+          )
 
           def blob_sha(data: bytes) -> str:
               return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
 
-          def inventory(root: Path):
-              rows = []
-              scope = root / SCOPE
+          def checked_row(root: Path, path: Path, role: str):
+              full = root / path
+              if full.is_symlink():
+                  raise SystemExit(f'GUARD_SYMLINK_REJECTED:{path.as_posix()}')
+              if not full.is_file():
+                  raise SystemExit(f'GUARD_REQUIRED_FILE_MISSING:{path.as_posix()}')
+              if full.suffix == '.py':
+                  if full.name in FORBIDDEN:
+                      raise SystemExit(f'GUARD_BOOTSTRAP_SHADOW_REJECTED:{path.as_posix()}')
+                  if full.stem in sys.stdlib_module_names:
+                      raise SystemExit(f'GUARD_STDLIB_SHADOW_REJECTED:{path.as_posix()}')
+              data = full.read_bytes()
+              return {
+                  'path': path.as_posix(),
+                  'git_blob_sha1': blob_sha(data),
+                  'raw_sha256': hashlib.sha256(data).hexdigest(),
+                  'role': role,
+              }
+
+          def source_inventory(root: Path):
+              scope = root / PY_SCOPE
               if not scope.is_dir():
                   raise SystemExit('GUARD_SCOPE_MISSING:governance-runtime')
+              rows = []
               for p in sorted(scope.rglob('*.py')):
-                  if p.is_symlink():
-                      raise SystemExit(f'GUARD_SYMLINK_REJECTED:{p.relative_to(root).as_posix()}')
-                  rel = p.relative_to(root).as_posix()
-                  if p.name in FORBIDDEN:
-                      raise SystemExit(f'GUARD_BOOTSTRAP_SHADOW_REJECTED:{rel}')
-                  if p.stem in sys.stdlib_module_names:
-                      raise SystemExit(f'GUARD_STDLIB_SHADOW_REJECTED:{rel}')
-                  data = p.read_bytes()
-                  rows.append({
-                      'path': rel,
-                      'git_blob_sha1': blob_sha(data),
-                      'raw_sha256': hashlib.sha256(data).hexdigest(),
-                      'role': 'test' if p.name.startswith('test_') else 'dependency',
-                  })
-              return rows
+                  rel = p.relative_to(root)
+                  role = 'test' if p.name.startswith('test_') else 'dependency'
+                  rows.append(checked_row(root, rel, role))
+              for rel in SUPPORT:
+                  rows.append(checked_row(root, rel, 'support'))
+              return sorted(rows, key=lambda x: x['path'])
 
           def cmd_emit(args):
               root = Path(args.root).resolve()
-              rows = inventory(root)
+              rows = source_inventory(root)
               out = {
                   'schema_version': 1,
                   'authority_origin': 'CONSTRUCTION_EPHEMERAL_NONAUTHORITATIVE',
@@ -88,7 +102,7 @@ jobs:
                       'trusted_runner_outside_candidate_tree': True,
                       'candidate_path_absent_at_interpreter_startup': True,
                   },
-                  'admitted_python_files': rows,
+                  'admitted_files': rows,
               }
               Path(args.output).write_text(json.dumps(out, indent=2, sort_keys=True) + '\n', encoding='utf-8')
               print(f'CONSTRUCTION_PINSET_FILES={len(rows)}')
@@ -98,7 +112,7 @@ jobs:
               target = Path(args.target).resolve()
               pinset = json.loads(Path(args.pinset).read_text(encoding='utf-8'))
               target.mkdir(parents=True, exist_ok=True)
-              for row in pinset['admitted_python_files']:
+              for row in pinset['admitted_files']:
                   src = source / row['path']
                   dst = target / row['path']
                   dst.parent.mkdir(parents=True, exist_ok=True)
@@ -108,20 +122,30 @@ jobs:
           def cmd_verify(args):
               root = Path(args.root).resolve()
               pinset = json.loads(Path(args.pinset).read_text(encoding='utf-8'))
-              expected = {row['path']: row for row in pinset['admitted_python_files']}
-              actual_rows = inventory(root)
-              actual = {row['path']: row for row in actual_rows}
-              if set(actual) != set(expected):
-                  missing = sorted(set(expected) - set(actual))
-                  extra = sorted(set(actual) - set(expected))
+              expected = {row['path']: row for row in pinset['admitted_files']}
+              actual_paths = set()
+              for p in root.rglob('*'):
+                  if p.is_symlink():
+                      raise SystemExit(f'GUARD_SYMLINK_REJECTED:{p.relative_to(root).as_posix()}')
+                  if p.is_file():
+                      rel = p.relative_to(root).as_posix()
+                      actual_paths.add(rel)
+                      if p.suffix == '.py':
+                          if p.name in FORBIDDEN:
+                              raise SystemExit(f'GUARD_BOOTSTRAP_SHADOW_REJECTED:{rel}')
+                          if p.stem in sys.stdlib_module_names:
+                              raise SystemExit(f'GUARD_STDLIB_SHADOW_REJECTED:{rel}')
+              if actual_paths != set(expected):
+                  missing = sorted(set(expected) - actual_paths)
+                  extra = sorted(actual_paths - set(expected))
                   raise SystemExit(f'GUARD_FILESET_MISMATCH:missing={missing}:extra={extra}')
               for path, row in expected.items():
-                  got = actual[path]
-                  if got['git_blob_sha1'] != row['git_blob_sha1']:
+                  data = (root / path).read_bytes()
+                  if blob_sha(data) != row['git_blob_sha1']:
                       raise SystemExit(f'GUARD_GIT_BLOB_MISMATCH:{path}')
-                  if got['raw_sha256'] != row['raw_sha256']:
+                  if hashlib.sha256(data).hexdigest() != row['raw_sha256']:
                       raise SystemExit(f'GUARD_RAW_SHA256_MISMATCH:{path}')
-              print(f'EXTERNAL_GUARD_PASS files={len(actual)}')
+              print(f'EXTERNAL_GUARD_PASS files={len(actual_paths)}')
 
           ap = argparse.ArgumentParser()
           sp = ap.add_subparsers(dest='cmd', required=True)
@@ -144,7 +168,7 @@ jobs:
             --tree "$R11_TREE" \
             --output "$RUNNER_TEMP/r11-construction-pinset.json"
 
-      - name: Stage only pinned Python bytes and verify exact sandbox
+      - name: Stage only pinned bytes and verify exact sandbox
         shell: bash
         run: |
           set -euo pipefail
@@ -160,6 +184,7 @@ jobs:
             "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify \
             --root "$SUBJECT" \
             --pinset "$RUNNER_TEMP/r11-construction-pinset.json"
+          echo "R11_SANDBOX=$SUBJECT" >> "$GITHUB_ENV"
           echo "R11_SUBJECT=$SUBJECT/governance-runtime" >> "$GITHUB_ENV"
 
       - name: Adversarial probe — same-path test byte substitution fails before execution
@@ -169,16 +194,40 @@ jobs:
           PYTHON_BIN="$(command -v python)"
           ATTACK="$RUNNER_TEMP/r11-attack-test-swap"
           rm -rf "$ATTACK"
-          cp -a "$RUNNER_TEMP/r11-subject" "$ATTACK"
-          test -f "$ATTACK/governance-runtime/test_v24_v6_external_execution_binding.py"
+          cp -a "$R11_SANDBOX" "$ATTACK"
           printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/test_v24_v6_external_execution_binding.py"
-          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
-            "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify \
-            --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-            echo 'False green: mutated test bytes passed external guard.'
-            exit 1
+          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
+            echo 'False green: mutated test bytes passed external guard.'; exit 1
           fi
           echo 'PINNED_TEST_SAME_PATH_DIFFERENT_BYTES_REJECTED=PASS'
+
+      - name: Adversarial probe — pinned support object substitution fails before execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          ATTACK="$RUNNER_TEMP/r11-attack-support-swap"
+          rm -rf "$ATTACK"
+          cp -a "$R11_SANDBOX" "$ATTACK"
+          printf '{}\n' > "$ATTACK/implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json"
+          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
+            echo 'False green: mutated support object passed external guard.'; exit 1
+          fi
+          echo 'PINNED_SUPPORT_OBJECT_SAME_PATH_DIFFERENT_BYTES_REJECTED=PASS'
+
+      - name: Adversarial probe — unpinned file fails before execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          ATTACK="$RUNNER_TEMP/r11-attack-unpinned-file"
+          rm -rf "$ATTACK"
+          cp -a "$R11_SANDBOX" "$ATTACK"
+          printf 'untrusted\n' > "$ATTACK/implementation/v24/unpinned-support.txt"
+          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
+            echo 'False green: unpinned file passed external guard.'; exit 1
+          fi
+          echo 'UNPINNED_FILE_REJECTED=PASS'
 
       - name: Adversarial probe — unittest shadow fails before execution
         shell: bash
@@ -187,13 +236,10 @@ jobs:
           PYTHON_BIN="$(command -v python)"
           ATTACK="$RUNNER_TEMP/r11-attack-unittest-shadow"
           rm -rf "$ATTACK"
-          cp -a "$RUNNER_TEMP/r11-subject" "$ATTACK"
+          cp -a "$R11_SANDBOX" "$ATTACK"
           printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/unittest.py"
-          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
-            "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify \
-            --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-            echo 'False green: unittest shadow passed external guard.'
-            exit 1
+          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
+            echo 'False green: unittest shadow passed external guard.'; exit 1
           fi
           echo 'CANDIDATE_UNITTEST_SHADOW_REJECTED=PASS'
 
@@ -205,13 +251,10 @@ jobs:
           for NAME in sitecustomize.py usercustomize.py; do
             ATTACK="$RUNNER_TEMP/r11-attack-${NAME%.py}"
             rm -rf "$ATTACK"
-            cp -a "$RUNNER_TEMP/r11-subject" "$ATTACK"
+            cp -a "$R11_SANDBOX" "$ATTACK"
             printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/$NAME"
-            if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
-              "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify \
-              --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-              echo "False green: $NAME passed external guard."
-              exit 1
+            if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
+              echo "False green: $NAME passed external guard."; exit 1
             fi
           done
           echo 'CANDIDATE_STARTUP_CUSTOMIZATION_SHADOW_REJECTED=PASS'
@@ -222,17 +265,19 @@ jobs:
           set -euo pipefail
           cat > "$RUNNER_TEMP/r11_trusted_unittest_runner.py" <<'PY'
           from __future__ import annotations
-          import pathlib, sys, unittest
+          import os, pathlib, sys, unittest
 
-          subject = pathlib.Path(sys.argv[1]).resolve()
+          sandbox = pathlib.Path(sys.argv[1]).resolve()
+          subject = sandbox / 'governance-runtime'
           modules = sys.argv[2:]
           if not modules:
               raise SystemExit('NO_TEST_MODULES')
           startup_path = list(sys.path)
-          if '' in startup_path or str(subject) in startup_path:
+          if '' in startup_path or str(subject) in startup_path or str(sandbox) in startup_path:
               raise SystemExit(f'CANDIDATE_PATH_PRESENT_AT_STARTUP:{startup_path!r}')
-          if pathlib.Path(unittest.__file__).resolve().is_relative_to(subject):
+          if pathlib.Path(unittest.__file__).resolve().is_relative_to(sandbox):
               raise SystemExit('UNITTEST_RESOLVED_FROM_CANDIDATE')
+          os.chdir(sandbox)
           sys.path.insert(0, str(subject))
           suite = unittest.defaultTestLoader.loadTestsFromNames(modules)
           result = unittest.TextTestRunner(verbosity=2).run(suite)
@@ -246,7 +291,7 @@ jobs:
           set -euo pipefail
           PYTHON_BIN="$(command -v python)"
           env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
-            "$PYTHON_BIN" -I -S "$TRUSTED_TEST_RUNNER" "$R11_SUBJECT" \
+            "$PYTHON_BIN" -I -S "$TRUSTED_TEST_RUNNER" "$R11_SANDBOX" \
             test_v24_v6_external_execution_binding \
             test_v24_v6_governance_foundation \
             test_v24_v6_endpoint_projection \
@@ -280,6 +325,8 @@ jobs:
           assert p['external_execution_authority']['authority_origin'] == 'EXTERNAL_REVIEW_BRANCH'
           assert p['external_execution_authority']['candidate_may_edit_authority_pinset'] is False
           assert p['external_execution_authority']['candidate_may_edit_trusted_runner'] is False
+          assert p['external_execution_authority']['pin_every_admitted_file'] is True
+          assert p['external_execution_authority']['pin_every_support_object_read_by_tests'] is True
           assert p['result_admission']['external_guard_pass_required_before_any_test_launch'] is True
           assert p['result_admission']['external_guard_pass_required_before_any_pass_count'] is True
           assert p['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
