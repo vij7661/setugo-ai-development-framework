@@ -1,0 +1,43 @@
+name: V24 I11 Falsification Plan V6 Contract
+
+on:
+  push:
+    branches:
+      - testing/v24-i11-falsification-plan-v6-clean
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run V6 harness contract tests
+        env:
+          PYTHONHASHSEED: '0'
+          TZ: UTC
+        run: |
+          cd testing/v24
+          python -m unittest -v test_v24_i11_harness_contract_v5.py
+      - name: Validate V6 binding/harness identities
+        run: |
+          python - <<'PY'
+          import json, pathlib, re
+          p=pathlib.Path('testing/v24/V24-I11-FALSIFICATION-PLAN-V6-REVIEW-BINDING.json')
+          b=json.loads(p.read_text())
+          h=pathlib.Path('testing/v24/v24_i11_harness_contract_v5.py').read_text()
+          assert b['harness_version']=='1.4.0-PLAN-REVIEW'
+          assert 'HARNESS_VERSION = "1.4.0-PLAN-REVIEW"' in h
+          assert 'WDPC-473' in b['ie_expected_cases']
+          assert set(b['blocked_cases'])=={'WDPC-469','WDPC-495'}
+          assert re.fullmatch(r'[0-9a-f]{64}',b['packet_sha256'])
+          assert re.fullmatch(r'[0-9a-f]{64}',b['plan_body_sha256'])
+          assert b['execution_status']=='NOT_EXECUTED'
+          assert b['authority_effect']=='NONE_EVIDENCE_ONLY'
+          print('V6 binding/harness identity preflight passed')
+          PY
