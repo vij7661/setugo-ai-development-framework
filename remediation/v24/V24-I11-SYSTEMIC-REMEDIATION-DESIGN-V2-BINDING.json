@@ -1,0 +1,48 @@
+{
+  "binding_id": "V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V2",
+  "packet_file": "V24_I11_Systemic_Remediation_Design_V2_Clean_Review_Packet.md",
+  "packet_sha256": "0932ccd519ee4d8d742bdc237b6f95411cde52e3be886959853292ec3c4e4ba6",
+  "plan_body_sha256": "1b4c05c67e6121fb639026f4cdf6128a11b74e5b3fbf5cb97d45dfee41fec0ce",
+  "packet_bytes": 33665,
+  "frozen_v24_design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "frozen_v24_design_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "frozen_i10_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "frozen_i10_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "v8_falsification_packet_sha256": "e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e",
+  "v8_falsification_body_sha256": "3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab",
+  "scientific_root_cause_consolidation_commit": "3d506cfdc71b10f2f03e05c3ce5a6355b0c2a71e",
+  "scientific_counts": {
+    "executed_reference_cases": 44,
+    "pass": 8,
+    "fail_code_defect": 36
+  },
+  "predecessor_design_v1": {
+    "head": "79f5de9618b6fd25094a2288990b50a22e463393",
+    "tree": "02c5cdc60347c4dfeb93883a72404ee408886e72",
+    "packet_sha256": "a8e90d95a8ecd1d282bd3b02cdfc57676ab9e3101c483dd124f05752c262015a",
+    "body_sha256": "645377d9b623f375f1ff425234abec768280f50d5c579261ee9b9fb1e133f777",
+    "review_artifact_sha256": "d4937afe638a0187544460f5fe7c4bc4d6b7407b241a4aeaa4bf0086bd3be366",
+    "review_disposition": "NEEDS_REVISION",
+    "source_attachment_raw_sha256": "c72e1b21cc6f492326f422016d6bfbed5b1779bcbfdcab8f2e70587d5abcb8d9"
+  },
+  "clean_review_scope_excludes": [
+    "V1 review artifact",
+    "V1 adjudication",
+    "prior reviewer findings/dispositions"
+  ],
+  "implementation_status": "NOT_STARTED",
+  "review_status": "REQUIRED",
+  "review_admissibility": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW; HUMAN_OR_AI; NO_AUTOMATED_REVIEWER_API_CALLS",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "packet_path": "remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V2-CLEAN-REVIEW-PACKET.md",
+  "packet_commit": "cb99156f06ded714c36df213f021a8ec31342977",
+  "packet_git_blob": "6e6e7552517677fb6a25b006ef443d8439edba75",
+  "review_artifact_path": "remediation/v24/reviews/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V1-INDEPENDENT-REVIEW-001.md",
+  "review_artifact_commit": "22f34151075273d420a144b290c4ba2efed38c37",
+  "review_artifact_git_blob": "2c1a048e5c67015cb0b879ed94a74ee55a9fad97",
+  "review_artifact_sha256": "d4937afe638a0187544460f5fe7c4bc4d6b7407b241a4aeaa4bf0086bd3be366",
+  "adjudication_path": "remediation/v24/adjudication/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V1-REVIEW-ADJUDICATION-001.md",
+  "adjudication_commit": "849e3896da08bd427b42521b2ee3a8db13f9aea0",
+  "adjudication_git_blob": "a394244910fbd4571ed82323aa31eb70ed5749b9",
+  "adjudication_sha256": "6aa048ff528fa4d1ecdc2ed448d2b0383e57d1aae3122acf008dfb3d36bc8e5f"
+}
