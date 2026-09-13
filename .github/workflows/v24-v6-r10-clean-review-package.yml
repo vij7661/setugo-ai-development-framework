@@ -43,9 +43,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          CANDIDATE='2877081254fec80b6a7eefab7d74c0e9fae1a0c8'
           python - <<'PY'
-          import json, subprocess
+          import json, os, subprocess
           candidate = '2877081254fec80b6a7eefab7d74c0e9fae1a0c8'
           expected = {
               'R1': ('governance-runtime/v24_v6_governance_foundation.py', 'e93684a6886fc34e7f618a83281b72fa505dc90f'),
@@ -57,7 +56,8 @@ jobs:
               'R7': ('governance-runtime/v24_v6_atomic_binding_modes.py', 'e9fb5b38ac66350709ab57332f2dc78872268158'),
               'R8': ('governance-runtime/v24_v6_qualification_integrity.py', '7b8c8ed92a03dddf7000393a0517142a5931113f'),
           }
-          manifest = json.loads(open('/tmp/r10-manifest.json', encoding='utf-8').read())
+          manifest_path = os.path.join(os.environ['RUNNER_TEMP'], 'r10-manifest.json')
+          manifest = json.loads(open(manifest_path, encoding='utf-8').read())
           rows = {row['workstream_id']: row for row in manifest['workstreams']}
           for wid, (path, blob) in expected.items():
               actual = subprocess.check_output(['git','rev-parse',f'{candidate}:{path}'], text=True).strip()
