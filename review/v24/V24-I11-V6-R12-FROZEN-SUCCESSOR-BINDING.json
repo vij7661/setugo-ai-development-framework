@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "binding_id": "V24-I11-V6-R12-FROZEN-SUCCESSOR",
+  "candidate": {
+    "branch": "implementation/v24-i11-v6-r12-trust-boundary-remediation",
+    "commit": "e887613f4e9012be59dcd8c4840035748ee0de7e",
+    "tree": "c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f",
+    "predecessor_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+    "predecessor_tree": "d202b039285213b386557083a26de42e0fb20cf4"
+  },
+  "scope": {
+    "r12_scope_frozen": true,
+    "repairs": [
+      "trusted_untrusted_process_separation",
+      "actual_interpreter_runtime_verification",
+      "executed_adversarial_evidence_binding",
+      "authority_origin_evidence_hardening"
+    ]
+  },
+  "construction": {
+    "preserved_red_run": "34768505494",
+    "preserved_red_classification": "CONSTRUCTION_HARNESS_SANDBOX_HYGIENE_DEFECT",
+    "successful_run": "34768595774",
+    "successful_review_commit": "464215e07d49e163525dac78ccbc39740c4e390a",
+    "admitted_file_count": 72,
+    "executed_module_count": 20,
+    "test_case_count": 270,
+    "mandatory_adversarial_evidence_record_count": 6,
+    "exact_file_attacks_rejected": true,
+    "process_boundary_attacks_rejected": true,
+    "post_execution_exact_sandbox_verified": true
+  },
+  "trusted_objects": {
+    "external_guard_git_blob_sha1": "28e82a1e995fea9b585950e8ea33886f3f900fcf",
+    "trusted_parent_git_blob_sha1": "8d7dbb76f766c8314dfd8143cf6be0b6961f4359",
+    "untrusted_worker_git_blob_sha1": "e20534e76652c9019c93ffd69787b659d5f7d807",
+    "adversarial_evidence_builder_git_blob_sha1": "a0a4a58fe066ad4f12e5161d097642ba28dbf460"
+  },
+  "artifact": {
+    "id": 10321730032,
+    "name": "v24-v6-r12-trust-boundary-construction-evidence-v2",
+    "bytes": 10447,
+    "sha256": "9cab1354dc01e189a6d52ef2a57448fe829182797bfe4d6164f67ff358ba8c8b",
+    "expires_at": "2026-12-12T16:26:46Z",
+    "post_download_sha256_recomputed": true
+  },
+  "evidence_objects": {
+    "external_pinset": {
+      "bytes": 22004,
+      "sha256": "8f6ca5108354cadacbf9b836faffb3f27e8b87fbb9bba981529148693f95429e"
+    },
+    "parent_result": {
+      "bytes": 972,
+      "sha256": "ee9b3c3400eb6c6dcdba6d8ba656e5787da0f43c65f88b510e93da37887f70b3"
+    },
+    "adversarial_evidence": {
+      "bytes": 6641,
+      "sha256": "02c48e384f268033ec3058f93216ca105f23d20f84f412178f8c95ce5acf06c3",
+      "evidence_set_digest": "261fba55db4b99944f9de8956e1acf9263c91d918a7955abca95025e3cce4a75"
+    },
+    "execution_boundary_evidence": {
+      "bytes": 1206,
+      "sha256": "9450cc020ef6d65597ef5a99eeba772622c2084b737ba1269c4ce27e03a19c5f"
+    },
+    "construction_verification": {
+      "bytes": 1240,
+      "sha256": "2072551ad91b0db51f80a681b5e802cf1256b60d5b6c97f362addd359d7c0d7f"
+    }
+  },
+  "runtime_binding": {
+    "interpreter_contract_digest": "e31061f983aad6250c4f0821c5fa019114e30f303b4c4602350961babb1e436f",
+    "environment_digest": "090a7c697192eb8a6a9dfb5a51799a6b1397024983ec0c9b08b317af98df9d82",
+    "execution_transcript_digest": "d65ed11c54ce5f840ec0e7495641bcc71d0686e24b1e1d02d6a09b754f174e44",
+    "actual_interpreter_flags": {
+      "isolated": true,
+      "no_site": true,
+      "ignore_environment": true,
+      "safe_path": true
+    },
+    "trusted_parent_imported_candidate": false,
+    "candidate_shared_trusted_result_state": false,
+    "result_accounting_origin": "TRUSTED_PARENT"
+  },
+  "manual_review": {
+    "required": true,
+    "automated_external_reviewer_api_calls": false,
+    "fresh_clean_context_required": true
+  },
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
