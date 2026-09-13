@@ -1,0 +1,166 @@
+name: V24 V6 R15 Full Native Construction V2
+
+on:
+  push:
+    branches: [review/v24-i11-v6-r15-path-normalization]
+    paths:
+      - '.github/workflows/v24-v6-r15-full-native-construction-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14'}
+
+      - name: Bind exact candidate and authority objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='2e875bb29be48d39c9be6f3525d4f4610869848c'; T='d2c9c0c85564808941fdb54cfbbd53f51f5397ee'
+          git fetch --no-tags origin "$C"; test "$(git rev-parse "$C^{tree}")" = "$T"
+          for p in review/v24/r15_native_observer.c review/v24/r15_trusted_external_guard.py review/v24/r14_python_home_binding.c review/v24/r14_trusted_external_oracle.py review/v24/r14_trusted_oracle_launcher.py review/v24/r13_trusted_external_oracle.py; do
+            if git cat-file -e "$C:$p" 2>/dev/null; then echo "R15_EXTERNAL_OBJECT_IN_CANDIDATE:$p"; exit 1; fi
+          done
+          S="$RUNNER_TEMP/r15-candidate"; rm -rf "$S"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          echo "C=$C" >> "$GITHUB_ENV"; echo "T=$T" >> "$GITHUB_ENV"; echo "S=$S" >> "$GITHUB_ENV"; echo "RC=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "SRC_BLOB=$(git rev-parse HEAD:review/v24/r15_native_observer.c)" >> "$GITHUB_ENV"
+          echo "GUARD_BLOB=$(git rev-parse HEAD:review/v24/r15_trusted_external_guard.py)" >> "$GITHUB_ENV"
+          echo "HOME_BLOB=$(git rev-parse HEAD:review/v24/r14_python_home_binding.c)" >> "$GITHUB_ENV"
+          echo "ORACLE_BLOB=$(git rev-parse HEAD:review/v24/r14_trusted_external_oracle.py)" >> "$GITHUB_ENV"
+          echo "LAUNCH_BLOB=$(git rev-parse HEAD:review/v24/r14_trusted_oracle_launcher.py)" >> "$GITHUB_ENV"
+          echo "SCEN_BLOB=$(git rev-parse HEAD:review/v24/r13_trusted_external_oracle.py)" >> "$GITHUB_ENV"
+
+      - name: Compile R15 native observer
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/review/v24/r15_native_observer.c"; HS="$GITHUB_WORKSPACE/review/v24/r14_python_home_binding.c"; BIN="$RUNNER_TEMP/r15-native"
+          PREFIX="$(python -c 'import sys;print(sys.prefix)')"; PROGRAM="$(python -c 'import sys;print(sys.executable)')"; LIBDIR="$(python -c 'import sysconfig;print(sysconfig.get_config_var("LIBDIR"))')"; PSHA="$(sha256sum "$PROGRAM"|awk '{print $1}')"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(python3-config --includes) -DPyConfig_InitIsolatedConfig=R14_PyConfig_InitIsolatedConfig -c "$SRC" -o "$RUNNER_TEMP/o.o"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(python3-config --includes) -DR14_PYTHON_HOME='"'"$PREFIX"'"' -DR14_PYTHON_PROGRAM='"'"$PROGRAM"'"' -c "$HS" -o "$RUNNER_TEMP/h.o"
+          gcc -pie "$RUNNER_TEMP/o.o" "$RUNNER_TEMP/h.o" -o "$BIN" $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          BSHA="$(sha256sum "$BIN"|awk '{print $1}')"; CDIG="$({ printf '%s\n' "$SRC_BLOB" "$HOME_BLOB" "$PREFIX" "$PROGRAM" "$PSHA"; gcc --version; python3-config --includes; python3-config --embed --ldflags; }|sha256sum|awk '{print $1}')"
+          echo "BIN=$BIN" >> "$GITHUB_ENV"; echo "BSHA=$BSHA" >> "$GITHUB_ENV"; echo "CDIG=$CDIG" >> "$GITHUB_ENV"; echo "PREFIX=$PREFIX" >> "$GITHUB_ENV"; echo "PROGRAM=$PROGRAM" >> "$GITHUB_ENV"; echo "PSHA=$PSHA" >> "$GITHUB_ENV"
+
+      - name: Pin and stage exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"; G="$GITHUB_WORKSPACE/review/v24/r15_trusted_external_guard.py"; P="$RUNNER_TEMP/pin.json"; X="$RUNNER_TEMP/sandbox"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" build-pinset --root "$S" --commit "$C" --tree "$T" --review-commit "$RC" --output "$P"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-source --root "$S" --pinset "$P" --commit "$C" --tree "$T"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" stage --root "$S" --pinset "$P" --commit "$C" --tree "$T" --target "$X"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-sandbox --root "$X" --pinset "$P" --commit "$C" --tree "$T"
+          echo "P=$P" >> "$GITHUB_ENV"; echo "X=$X" >> "$GITHUB_ENV"; echo "PS=$(sha256sum "$P"|awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Exact-file attacks reject
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"; G="$GITHUB_WORKSPACE/review/v24/r15_trusted_external_guard.py"
+          for n in production support unpinned symlink; do
+            D="$RUNNER_TEMP/pin-$n"; cp -a "$X" "$D"
+            case "$n" in
+              production) printf 'raise SystemExit(0)\n' > "$D/governance-runtime/v24_v6_governance_foundation.py";;
+              support) printf '{}\n' > "$D/implementation/v24/V24-I11-V6-R15-EXECUTION-CONTRACT.json";;
+              unpinned) printf x > "$D/governance-runtime/r15-extra.txt";;
+              symlink) rm "$D/governance-runtime/v24_v6_governance_foundation.py"; ln -s v24_v6_endpoint_projection.py "$D/governance-runtime/v24_v6_governance_foundation.py";;
+            esac
+            if env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-sandbox --root "$D" --pinset "$P" --commit "$C" --tree "$T"; then exit 1; fi
+          done
+
+      - name: Bind interpreter and environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          ID="$(env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S - <<'PY'
+          import hashlib,json,pathlib,sys
+          c=lambda x:json.dumps(x,sort_keys=True,separators=(',',':')).encode(); f={'isolated':bool(sys.flags.isolated),'no_site':bool(sys.flags.no_site),'ignore_environment':bool(sys.flags.ignore_environment),'safe_path':bool(sys.flags.safe_path)}; assert all(f.values()) and sys.flags.optimize==0; e=pathlib.Path(sys.executable).resolve(); r={'flags':f,'implementation':sys.implementation.name,'cache_tag':sys.implementation.cache_tag,'version':list(sys.version_info),'hexversion':sys.hexversion,'executable_sha256':hashlib.sha256(e.read_bytes()).hexdigest(),'stdlib_names_digest':hashlib.sha256(c(sorted(sys.stdlib_module_names))).hexdigest()}; print(hashlib.sha256(c(r)).hexdigest())
+          PY
+          )"
+          ED="$(python - "$C" "$T" "$PS" "$BSHA" "$CDIG" "$ID" "$SRC_BLOB" "$HOME_BLOB" "$ORACLE_BLOB" "$LAUNCH_BLOB" "$SCEN_BLOB" "$PSHA" <<'PY'
+          import hashlib,json,sys;print(hashlib.sha256(json.dumps(sys.argv[1:],separators=(',',':')).encode()).hexdigest())
+          PY
+          )"
+          echo "ID=$ID" >> "$GITHUB_ENV"; echo "ED=$ED" >> "$GITHUB_ENV"
+
+      - name: Normal request and all native attacks
+        shell: bash
+        run: |
+          set -euo pipefail
+          Q="$RUNNER_TEMP/q.json"; printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$Q"
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$BIN" --sandbox "$X" --request "$Q" > "$RUNNER_TEMP/n.out" 2> "$RUNNER_TEMP/n.err"; test ! -s "$RUNNER_TEMP/n.err"; grep -q '^R14_NATIVE_OBSERVATION=' "$RUNNER_TEMP/n.out"
+          R13="$RUNNER_TEMP/r13.json"; PATHR="$RUNNER_TEMP/path.json"
+          python - "$X" "$BIN" "$Q" "$R13" "$PATHR" <<'PY'
+          import json,os,pathlib,shutil,subprocess,sys,tempfile
+          base=pathlib.Path(sys.argv[1]); native=sys.argv[2]; req=sys.argv[3]; r13=pathlib.Path(sys.argv[4]); pathout=pathlib.Path(sys.argv[5]); marker='from __future__ import annotations\n'
+          old={'r13_tailored_sys_getframe':"import sys as _s\n_s._getframe()\n",'early_os_exit_zero':"import os as _o\n_o._exit(0)\n",'fd_scan_junk_injection':"import os as _o\nfor _fd in range(3,96):\n    try:_o.write(_fd,b'junk')\n    except OSError:pass\n_o._exit(0)\n",'ctypes_memory_escape':"import ctypes\n",'proc_self_mem':"open('/proc/self/mem','rb')\n",'settrace_mutation':"import sys\nsys.settrace(lambda *a:None)\n",'thread_escape':"import threading\n"}
+          paths={'PROC_SELF_MEM_UNICODE_PATH_REJECTED':"open('/proc/self/mem','rb')\n",'PROC_SELF_MEM_BYTES_PATH_REJECTED':"open(b'/proc/self/mem','rb')\n",'PROC_SELF_MAPS_BYTES_PATH_REJECTED':"open(b'/proc/self/maps','rb').read(1)\n",'OS_OPEN_PROC_SELF_MEM_BYTES_REJECTED':"import os\n_fd=os.open(b'/proc/self/mem',os.O_RDONLY);os.close(_fd)\n",'IO_FILEIO_PROC_SELF_MEM_BYTES_REJECTED':"import _io\n_io.FileIO(b'/proc/self/mem','rb')\n",'DEV_MEM_UNICODE_PATH_REJECTED':"open('/dev/mem','rb')\n",'DEV_MEM_BYTES_PATH_REJECTED':"open(b'/dev/mem','rb')\n"}
+          def runset(attacks, exact):
+            rows=[]
+            for name,prefix in attacks.items():
+              with tempfile.TemporaryDirectory() as td:
+                d=pathlib.Path(td)/'c';shutil.copytree(base,d);p=d/'governance-runtime/v24_v6_governance_foundation.py';t=p.read_text();p.write_text(t.replace(marker,marker+prefix,1));cp=subprocess.run([native,'--sandbox',str(d),'--request',req],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=30); auth=cp.stdout.startswith('R14_NATIVE_OBSERVATION='); intended=('R15_AUDIT_FORBIDDEN_NORMALIZED_PATH' in cp.stderr) if exact else True; ok=cp.returncode!=0 and not auth and intended;rows.append({'attack':name,'returncode':cp.returncode,'authenticated_observation_emitted':auth,'intended_policy_diagnostic':intended,'rejected':ok,'stderr_tail':cp.stderr[-400:]});
+                if not ok:raise SystemExit('ATTACK_ACCEPTED:'+name)
+            return rows
+          r13.write_text(json.dumps({'candidate_commit':os.environ['C'],'candidate_tree':os.environ['T'],'attacks':runset(old,False),'authority_effect':'NONE_EVIDENCE_ONLY'},indent=2,sort_keys=True)+'\n');pathout.write_text(json.dumps({'candidate_commit':os.environ['C'],'candidate_tree':os.environ['T'],'attacks':runset(paths,True),'authority_effect':'NONE_EVIDENCE_ONLY'},indent=2,sort_keys=True)+'\n')
+          PY
+          echo "R13=$R13" >> "$GITHUB_ENV"; echo "RD=$(sha256sum "$R13"|awk '{print $1}')" >> "$GITHUB_ENV"; echo "PATHR=$PATHR" >> "$GITHUB_ENV"; echo "PD=$(sha256sum "$PATHR"|awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Launcher probes and six external oracle checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"; L="$GITHUB_WORKSPACE/review/v24/r14_trusted_oracle_launcher.py"; O="$GITHUB_WORKSPACE/review/v24/r14_trusted_external_oracle.py"; SC="$GITHUB_WORKSPACE/review/v24/r13_trusted_external_oracle.py"; OUT="$RUNNER_TEMP/oracle.json"
+          COMMON=(--oracle "$O" --sandbox "$X" --native-observer "$BIN" --scenario-library "$SC" --candidate-commit "$C" --candidate-tree "$T" --environment-digest "$ED" --interpreter-contract-digest "$ID" --native-observer-source-git-blob-sha1 "$SRC_BLOB" --native-observer-binary-sha256 "$BSHA" --native-observer-compiler-digest "$CDIG" --oracle-git-blob-sha1 "$ORACLE_BLOB" --run-id "$GITHUB_RUN_ID" --round-id R15-PROBE --r13-regression-evidence-digest "$RD" --output "$RUNNER_TEMP/probe.json")
+          if "$PY" "$L" "${COMMON[@]}" > /dev/null 2>"$RUNNER_TEMP/noiso"; then exit 1; fi; grep -q R14_LAUNCHER_INTERPRETER_FLAGS_INVALID "$RUNNER_TEMP/noiso"
+          if "$PY" -O -I -S "$L" "${COMMON[@]}" > /dev/null 2>"$RUNNER_TEMP/opt"; then exit 1; fi; grep -q R14_LAUNCHER_OPTIMIZATION_FORBIDDEN "$RUNNER_TEMP/opt"; test ! -e "$RUNNER_TEMP/probe.json"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$L" --oracle "$O" --sandbox "$X" --native-observer "$BIN" --scenario-library "$SC" --candidate-commit "$C" --candidate-tree "$T" --environment-digest "$ED" --interpreter-contract-digest "$ID" --native-observer-source-git-blob-sha1 "$SRC_BLOB" --native-observer-binary-sha256 "$BSHA" --native-observer-compiler-digest "$CDIG" --oracle-git-blob-sha1 "$ORACLE_BLOB" --run-id "$GITHUB_RUN_ID" --round-id R15-NATIVE-ROUND-2 --r13-regression-evidence-digest "$RD" --output "$OUT"
+          echo "OUT=$OUT" >> "$GITHUB_ENV"; echo "OD=$(sha256sum "$OUT"|awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Validate external evidence and reject binary substitution
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S - "$X" "$OUT" <<'PY'
+          import json,pathlib,sys;s=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(s/'governance-runtime'));from v24_v6_r14_successor import validate_native_observation_evidence_bundle as v;r=v(json.load(open(sys.argv[2])));assert r['valid'] and not r['qualified'] and r['bound_check_count']==6,r
+          PY
+          BAD="$RUNNER_TEMP/bad.json";python - "$OUT" "$BAD" <<'PY'
+          import json,sys;o=json.load(open(sys.argv[1]));o['records'][0]['native_observer_binary_sha256']='f'*64;json.dump(o,open(sys.argv[2],'w'))
+          PY
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S - "$X" "$BAD" <<'PY'
+          import json,pathlib,sys;s=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(s/'governance-runtime'));from v24_v6_r14_successor import validate_native_observation_evidence_bundle as v;r=v(json.load(open(sys.argv[2])));assert not r['valid'] and any('NATIVE_BINARY_MISMATCH' in x for x in r['problems']),r
+          PY
+
+      - name: Post-execution exactness and construction record
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"; G="$GITHUB_WORKSPACE/review/v24/r15_trusted_external_guard.py"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-sandbox --root "$X" --pinset "$P" --commit "$C" --tree "$T"
+          REC="$RUNNER_TEMP/construction.json"; python - "$REC" <<'PY'
+          import json,os,sys;o={'schema_version':2,'candidate_commit':os.environ['C'],'candidate_tree':os.environ['T'],'review_commit':os.environ['RC'],'pinset_sha256':os.environ['PS'],'guard_git_blob_sha1':os.environ['GUARD_BLOB'],'native_source_git_blob_sha1':os.environ['SRC_BLOB'],'native_binary_sha256':os.environ['BSHA'],'compiler_digest':os.environ['CDIG'],'python_home_binding_git_blob_sha1':os.environ['HOME_BLOB'],'python_program_sha256':os.environ['PSHA'],'interpreter_contract_digest':os.environ['ID'],'environment_digest':os.environ['ED'],'r13_regression_sha256':os.environ['RD'],'r15_path_regression_sha256':os.environ['PD'],'oracle_evidence_sha256':os.environ['OD'],'native_parent_process_initializes_python':False,'candidate_python_executes_only_in_forked_child':True,'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW','runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY'};open(sys.argv[1],'w').write(json.dumps(o,indent=2,sort_keys=True)+'\n')
+          PY
+          echo "REC=$REC" >> "$GITHUB_ENV"
+
+      - name: Upload full evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r15-full-native-construction-v2-evidence
+          path: |
+            ${{ env.P }}
+            ${{ env.R13 }}
+            ${{ env.PATHR }}
+            ${{ env.OUT }}
+            ${{ env.REC }}
+          if-no-files-found: error
+          retention-days: 90
