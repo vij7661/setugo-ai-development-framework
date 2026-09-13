@@ -1,0 +1,77 @@
+name: V24 I11 V6 Exact Reviewed Byte Verification
+
+on:
+  push:
+    branches:
+      - adjudication/v24-i11-v6-exact-reviewed-bytes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-exact-reviewed-bytes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify exact reviewed V6 bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, subprocess
+
+          manifest = json.loads(Path('remediation/v24/exact-reviewed-v6/V24-I11-V6-EXACT-REVIEWED-BYTE-RECONSTRUCTION.json').read_text())
+          src = manifest['source_repository_packet']
+          tx = manifest['exact_transformation']
+          exp = manifest['exact_reviewed_packet']
+          frozen = manifest['frozen_bindings']
+
+          source = subprocess.check_output(['git','cat-file','blob',src['git_blob_sha1']])
+          assert len(source) == src['bytes']
+          assert hashlib.sha256(source).hexdigest() == src['raw_sha256']
+
+          off = tx['offset']
+          pre = tx['precondition_next_bytes_utf8'].encode('utf-8')
+          assert source[off:off+len(pre)] == pre
+          inserted = bytes.fromhex(tx['insert_hex'])
+          exact = source[:off] + inserted + source[off:]
+
+          assert len(exact) == exp['bytes']
+          raw = hashlib.sha256(exact).hexdigest()
+          assert raw == exp['raw_sha256']
+
+          sep = b'---\n\n'
+          assert sep in exact
+          body = hashlib.sha256(exact.split(sep,1)[1]).hexdigest()
+          assert body == exp['plan_body_sha256']
+
+          hdr = f'blob {len(exact)}\0'.encode()
+          blob = hashlib.sha1(hdr + exact).hexdigest()
+          assert blob == exp['git_blob_sha1']
+
+          def tree(commit):
+              return subprocess.check_output(['git','show','-s','--format=%T',commit], text=True).strip()
+          assert tree(frozen['v24_design_commit']) == frozen['v24_design_tree']
+          assert tree(frozen['i10_commit']) == frozen['i10_tree']
+          assert subprocess.check_output(['git','cat-file','-t',frozen['harness_v7_blob']], text=True).strip() == 'blob'
+          for b in frozen['wdpc_source_blobs']:
+              assert subprocess.check_output(['git','cat-file','-t',b], text=True).strip() == 'blob'
+
+          Path('/tmp/V24-I11-V6-EXACT-REVIEWED-PACKET.md').write_bytes(exact)
+          print(f'EXACT_REVIEWED_RAW_SHA256={raw}')
+          print(f'EXACT_REVIEWED_BODY_SHA256={body}')
+          print(f'EXACT_REVIEWED_GIT_BLOB_SHA1={blob}')
+          print('V6_EXACT_REVIEWED_BYTE_BINDING=PASS')
+          PY
+
+      - name: Upload reconstructed exact reviewed packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: v6-exact-reviewed-packet
+          path: /tmp/V24-I11-V6-EXACT-REVIEWED-PACKET.md
+          if-no-files-found: error
