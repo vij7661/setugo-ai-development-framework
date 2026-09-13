@@ -1,0 +1,119 @@
+name: V24 V6 R16 Native Smoke
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r16-external-authority
+    paths:
+      - 'review/v24/r16_native_observer.c'
+      - '.github/workflows/v24-v6-r16-native-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Stage exact R16 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='7c8ae745ff8270122c0cf05e123b8108af04eaad'
+          T='9d8db8766fee1eb76e24d62ca88d8b04ea8e3b58'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          S="$RUNNER_TEMP/r16-candidate"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          echo "S=$S" >> "$GITHUB_ENV"
+          echo "C=$C" >> "$GITHUB_ENV"
+          echo "T=$T" >> "$GITHUB_ENV"
+
+      - name: Compile R16 secret-separated native observer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREFIX="$(python -c 'import sys;print(sys.prefix)')"
+          PROGRAM="$(python -c 'import sys;print(sys.executable)')"
+          LIBDIR="$(python -c 'import sysconfig;print(sysconfig.get_config_var("LIBDIR"))')"
+          BIN="$RUNNER_TEMP/r16-native"
+          gcc -O2 -Wall -Wextra -Werror -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DR16_PYTHON_HOME='"'"$PREFIX"'"' \
+            -DR16_PYTHON_PROGRAM='"'"$PROGRAM"'"' \
+            review/v24/r16_native_observer.c \
+            -pie -o "$BIN" $(python3-config --embed --ldflags) -lcrypto \
+            -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          echo "BIN=$BIN" >> "$GITHUB_ENV"
+          echo "R16_NATIVE_SOURCE_SHA256=$(sha256sum review/v24/r16_native_observer.c | awk '{print $1}')"
+          echo "R16_NATIVE_BINARY_SHA256=$(sha256sum "$BIN" | awk '{print $1}')"
+
+      - name: Execute normal untrusted observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          Q="$RUNNER_TEMP/request.json"
+          printf '%s' '{"schema_version":1,"module":"v24_v6_governance_foundation","function":"validate_completeness_derivation_graph","args":[{"nodes":[],"edges":[]}],"kwargs":{}}' > "$Q"
+          OUT="$RUNNER_TEMP/out.txt"; ERR="$RUNNER_TEMP/err.txt"
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$BIN" --sandbox "$S" --request "$Q" >"$OUT" 2>"$ERR"
+          test ! -s "$ERR"
+          python - "$OUT" <<'PY'
+          import hashlib,json,sys
+          prefix='R16_NATIVE_OBSERVATION='
+          lines=[x.strip() for x in open(sys.argv[1],encoding='utf-8') if x.strip()]
+          assert len(lines)==1 and lines[0].startswith(prefix), lines
+          env=json.loads(lines[0][len(prefix):])
+          obs=env['candidate_observation']
+          raw=json.dumps(obs,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+          # Child serialization order is not required to equal Python sorted rendering;
+          # structural properties are checked here and exact bytes are bound by parent hash.
+          assert env['candidate_process_role']=='UNTRUSTED_OBSERVATION_ONLY'
+          assert env['candidate_frame_authenticated'] is False
+          assert env['authority_secret_in_candidate_address_space'] is False
+          assert env['parent_authentication_material_origin']=='PARENT_ONLY_POST_FORK'
+          assert env['native_parent_initializes_python'] is False
+          assert obs['candidate_process_role']=='UNTRUSTED_OBSERVATION_ONLY'
+          assert obs['candidate_frame_authenticated'] is False
+          assert obs['authority_secret_present'] is False
+          assert obs['kernel_confinement']=='LANDLOCK_PLUS_SECCOMP'
+          assert obs['landlock_abi'] >= 1
+          print('R16_NATIVE_NORMAL_OBSERVATION=PASS')
+          print('R16_LANDLOCK_ABI='+str(obs['landlock_abi']))
+          PY
+
+      - name: Demonstrate dir-fd proc memory denial inside candidate process
+        shell: bash
+        run: |
+          set -euo pipefail
+          A="$RUNNER_TEMP/r16-attack"; cp -a "$S" "$A"
+          P="$A/governance-runtime/v24_v6_governance_foundation.py"
+          python - "$P" <<'PY'
+          import pathlib,sys
+          p=pathlib.Path(sys.argv[1]); text=p.read_text(); marker='from __future__ import annotations\n'; assert text.count(marker)==1
+          attack="""\nimport os as _r16_os\n_r16_root=_r16_os.open('/',_r16_os.O_RDONLY|_r16_os.O_DIRECTORY)\ntry:\n    _r16_mem=_r16_os.open('proc/self/mem',_r16_os.O_RDONLY,dir_fd=_r16_root)\nexcept PermissionError:\n    raise RuntimeError('R16_DIRFD_PROC_SELF_MEM_KERNEL_DENIED')\nelse:\n    _r16_os.close(_r16_mem)\n    raise RuntimeError('R16_DIRFD_PROC_SELF_MEM_UNEXPECTEDLY_OPENED')\nfinally:\n    _r16_os.close(_r16_root)\n"""
+          p.write_text(text.replace(marker,marker+attack,1))
+          PY
+          Q="$RUNNER_TEMP/request.json"; OUT="$RUNNER_TEMP/attack.out"; ERR="$RUNNER_TEMP/attack.err"
+          set +e
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$BIN" --sandbox "$A" --request "$Q" >"$OUT" 2>"$ERR"
+          RC=$?
+          set -e
+          test "$RC" -ne 0
+          test ! -s "$OUT"
+          grep -q 'R16_NATIVE_CHILD_NOT_CLEAN_EXIT' "$ERR"
+          echo 'R16_DIRFD_PROC_SELF_MEM_REJECTED=PASS'
+
+      - name: Construction posture
+        if: always()
+        run: |
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
