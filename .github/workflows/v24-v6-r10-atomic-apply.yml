@@ -167,7 +167,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat > implementation/v24/V24-I11-V6-R10-REMEDIATION-EVIDENCE.md <<EOF
+          cat > implementation/v24/V24-I11-V6-R10-REMEDIATION-EVIDENCE.md <<'EOF'
           # V24 I11 V6 R10 Successor Review Remediation Evidence
 
           ## Disposition
@@ -181,18 +181,23 @@ jobs:
           - qualified: `false`
           - reviewer API calls: none
 
-          ## Preserved transport failure
+          ## Preserved transport and workflow failures
 
           The first corrected-v2 atomic application attempt failed before remediation application because the committed transport did not satisfy its own frozen byte/hash contract.
 
-          - failed atomic run: `34761250702`
+          - failed atomic transport run: `34761250702`
           - expected corrected patch SHA-256: `658db6f8aec86640c930c43635f187cc850fe987746e704bd96369f75c518ddc`
           - historical-fragment recovery run: `34762061506`
           - corrected-v2 part 1 exact expected bytes: not present in reachable Git history
           - corrected-v2 part 2 exact expected bytes: recovered historically at `ea0a32bc2073e68ade64ed42b33d923078202859`
           - corrected-v2 part 3 exact expected bytes: not present in reachable Git history
 
-          The failed transport is not rewritten as a scientific or implementation failure; it remains a distinct transport-integrity failure in Git/Actions history.
+          A later recovery workflow run passed compilation and all validation gates but failed its final commit diff-check because an unquoted shell heredoc treated Markdown backticks as command substitution. That scripting defect changed no repository implementation state.
+
+          - failed recovery packaging run: `34762119218`
+          - failure class: evidence-serialization / commit-mechanics defect after green validation gates
+
+          Neither workflow failure is rewritten as a scientific or implementation falsification result; both remain preserved in GitHub Actions history.
 
           ## Deterministic recovery
 
@@ -201,7 +206,7 @@ jobs:
           - recoverable baseline patch SHA-256: `af25bbe634a6a3a238a89cb6207a445c6e5f5fb8d976c9e6c0ed3b2f09ab93d2`
           - manifest-rebind proof run: `34761991465`
           - rebound manifest SHA-256: `8193b35de08444742b6cefa53a02e2408b3a8fd2a9fef1244eb08fb8be951f2d`
-          - atomic recovery validation run: `${GITHUB_RUN_ID}`
+          - atomic recovery validation run: `ATOMIC_RECOVERY_VALIDATION_RUN`
 
           Rebound production Git blobs:
 
@@ -216,17 +221,20 @@ jobs:
 
           ## Validation boundary
 
-          Before this evidence record was committed, the atomic recovery workflow required successful completion of:
+          The atomic recovery workflow required successful completion of:
 
           1. Python compilation of R1-R9 successor modules.
-          2. Reviewer-bypass adversarial suites.
-          3. Complete R1-R8 construction regression.
-          4. R9 integrated-successor regression.
-          5. Inherited V24 construction regressions.
+          2. Reviewer-bypass adversarial suites: 123 tests.
+          3. Complete R1-R8 construction regression: 138 tests.
+          4. R9 integrated-successor regression: 12 tests.
+          5. Inherited V24 construction regressions: 90 tests.
           6. Explicit construction-only assertions preserving `qualified=false`, `NONE_EVIDENCE_ONLY`, and `CLOSED_PENDING_SUCCESSOR_REVIEW`.
 
           Independent manual review remains required before any successor-review closure or scientific WDPC execution is claimed.
           EOF
+          sed -i "s/ATOMIC_RECOVERY_VALIDATION_RUN/${GITHUB_RUN_ID}/" implementation/v24/V24-I11-V6-R10-REMEDIATION-EVIDENCE.md
+          grep -q "atomic recovery validation run: `${GITHUB_RUN_ID}`" implementation/v24/V24-I11-V6-R10-REMEDIATION-EVIDENCE.md
+          git diff --check
 
       - name: Commit coherent R10 successor repair
         shell: bash
