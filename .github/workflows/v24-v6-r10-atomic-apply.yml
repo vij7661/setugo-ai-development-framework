@@ -1,0 +1,117 @@
+name: V24 V6 R10 Atomic Remediation Apply
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r10-successor-review-remediation
+    paths:
+      - '.github/workflows/v24-v6-r10-atomic-apply.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Reconstruct exact remediation patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat remediation/v24/r10-apply-gz-v2/part-*.b64 | base64 -d > /tmp/r10.patch.gz
+          echo '1e3efcfe8507575b233b4d0020261825a34dd55263627fa5743ab586503fa474  /tmp/r10.patch.gz' | sha256sum -c -
+          gzip -dc /tmp/r10.patch.gz > /tmp/r10.patch
+          echo '658db6f8aec86640c930c43635f187cc850fe987746e704bd96369f75c518ddc  /tmp/r10.patch' | sha256sum -c -
+          git apply --check /tmp/r10.patch
+          git apply /tmp/r10.patch
+
+      - name: Compile repaired successor modules
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_governance_foundation.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py \
+            v24_v6_integrated_successor.py
+
+      - name: Run reviewer-bypass adversarial suites
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_qualification_integrity.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_effect_ledger_closure.py
+
+      - name: Run complete R1-R8 construction regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py
+
+      - name: Run R9 integration regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_integrated_successor.py
+
+      - name: Run inherited V24 construction regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Assert construction-only posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_integrated_successor as r9
+          x = r9.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert x['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          print(x)
+          PY
+
+      - name: Commit coherent R10 successor repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf remediation/v24/r10-apply remediation/v24/r10-apply-gz remediation/v24/r10-apply-gz-v2
+          rm -f .github/workflows/v24-v6-r10-atomic-apply.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'Repair V24 V6 successor review bypasses (R10)'
+          git push origin HEAD:implementation/v24-i11-v6-r10-successor-review-remediation
