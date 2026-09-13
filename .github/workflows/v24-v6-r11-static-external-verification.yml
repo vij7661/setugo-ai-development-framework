@@ -1,0 +1,209 @@
+name: V24 V6 R11 Static External Authority Verification
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r11-successor-clean
+    paths:
+      - 'review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json'
+      - 'review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json'
+      - 'review/v24/V24-I11-V6-R11-EXTERNAL-AUTHORITY-EVIDENCE.md'
+      - 'review/v24/r11_trusted_external_guard.py'
+      - 'review/v24/r11_trusted_unittest_runner.py'
+      - '.github/workflows/v24-v6-r11-static-external-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-external-verification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Verify static external authority identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='68ce0df63ce0133ae19ec4402b41c4c09adfb54e'
+          TREE='d202b039285213b386557083a26de42e0fb20cf4'
+          GENERATION_COMMIT='f560d39f93b9d943a03c88d9e95423c578eebcad'
+          GUARD_BLOB='d8792e90c379426a4f304c02761181707f10ca48'
+          RUNNER_BLOB='1773c33e3898859a3733774736ce0c5036646dd8'
+          PINSET='review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json'
+          VERIFY='review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json'
+
+          echo 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14  review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json' | sha256sum -c -
+          echo '27e524dc6efd569dd9462097933926c2fda648ec47eb2475f11078f6469f75e7  review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json' | sha256sum -c -
+          test "$(git rev-parse HEAD:review/v24/r11_trusted_external_guard.py)" = "$GUARD_BLOB"
+          test "$(git rev-parse HEAD:review/v24/r11_trusted_unittest_runner.py)" = "$RUNNER_BLOB"
+
+          git fetch --no-tags --depth=1 origin "$GENERATION_COMMIT"
+          test "$(git rev-parse "$GENERATION_COMMIT:review/v24/r11_trusted_external_guard.py")" = "$GUARD_BLOB"
+          test "$(git rev-parse "$GENERATION_COMMIT:review/v24/r11_trusted_unittest_runner.py")" = "$RUNNER_BLOB"
+          git fetch --no-tags --depth=1 origin "$CANDIDATE"
+          test "$(git rev-parse "$CANDIDATE^{tree}")" = "$TREE"
+
+          for P in \
+            review/v24/r11_trusted_external_guard.py \
+            review/v24/r11_trusted_unittest_runner.py \
+            review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json \
+            review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json; do
+            if git cat-file -e "$CANDIDATE:$P" 2>/dev/null; then
+              echo "CANDIDATE_SELF_AUTHORITY_OBJECT_PRESENT:$P"; exit 1
+            fi
+          done
+
+          python - "$PINSET" "$VERIFY" <<'PY'
+          import json, sys
+          p = json.load(open(sys.argv[1], encoding='utf-8'))
+          v = json.load(open(sys.argv[2], encoding='utf-8'))
+          assert p['candidate_commit'] == '68ce0df63ce0133ae19ec4402b41c4c09adfb54e'
+          assert p['candidate_tree'] == 'd202b039285213b386557083a26de42e0fb20cf4'
+          assert p['review_branch_commit'] == 'f560d39f93b9d943a03c88d9e95423c578eebcad'
+          assert p['authority_origin'] == 'EXTERNAL_REVIEW_BRANCH'
+          assert p['candidate_self_grant'] is False
+          assert len(p['admitted_files']) == 69
+          assert len(p['executed_tests']) == 19
+          assert len(p['required_support_files']) == 10
+          assert v['review_branch_commit'] == p['review_branch_commit']
+          assert v['trusted_guard_git_blob_sha1'] == 'd8792e90c379426a4f304c02761181707f10ca48'
+          assert v['trusted_runner_git_blob_sha1'] == '1773c33e3898859a3733774736ce0c5036646dd8'
+          assert v['external_pinset_sha256'] == 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14'
+          assert v['source_binding'] == v['sandbox_binding_pre_execution'] == v['adversarial_probe_set'] == v['trusted_runner'] == v['sandbox_binding_post_execution'] == 'PASS'
+          assert v['independent_manual_review_completed'] is False
+          assert v['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          assert v['runtime_qualification_state'] == 'NOT_CLAIMED'
+          assert v['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          print('STATIC_EXTERNAL_AUTHORITY_IDENTITY=PASS')
+          PY
+
+          SUBJECT="$RUNNER_TEMP/r11-static-frozen-candidate"
+          rm -rf "$SUBJECT" && mkdir -p "$SUBJECT"
+          git archive "$CANDIDATE" | tar -xf - -C "$SUBJECT"
+          echo "R11_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "R11_TREE=$TREE" >> "$GITHUB_ENV"
+          echo "R11_SUBJECT=$SUBJECT" >> "$GITHUB_ENV"
+          echo "R11_PINSET=$GITHUB_WORKSPACE/$PINSET" >> "$GITHUB_ENV"
+          echo "R11_GUARD=$GITHUB_WORKSPACE/review/v24/r11_trusted_external_guard.py" >> "$GITHUB_ENV"
+          echo "R11_RUNNER=$GITHUB_WORKSPACE/review/v24/r11_trusted_unittest_runner.py" >> "$GITHUB_ENV"
+
+      - name: Verify frozen source and exact staged sandbox from static pinset
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          SANDBOX="$RUNNER_TEMP/r11-static-sandbox"
+          rm -rf "$SANDBOX"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$R11_GUARD" verify-source \
+            --root "$R11_SUBJECT" --pinset "$R11_PINSET" --commit "$R11_CANDIDATE" --tree "$R11_TREE"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$R11_GUARD" stage \
+            --root "$R11_SUBJECT" --pinset "$R11_PINSET" --commit "$R11_CANDIDATE" --tree "$R11_TREE" --target "$SANDBOX"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$R11_GUARD" verify-sandbox \
+            --root "$SANDBOX" --pinset "$R11_PINSET" --commit "$R11_CANDIDATE" --tree "$R11_TREE"
+          echo "R11_SANDBOX=$SANDBOX" >> "$GITHUB_ENV"
+
+      - name: Re-run external adversarial probes against static pinset
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          reject_attack() {
+            local name="$1"
+            local attack="$RUNNER_TEMP/r11-static-attack-$name"
+            rm -rf "$attack"
+            cp -a "$R11_SANDBOX" "$attack"
+            case "$name" in
+              test-swap) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/test_v24_v6_external_execution_binding.py" ;;
+              support-swap) printf '{}\n' > "$attack/implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json" ;;
+              unpinned) printf 'untrusted\n' > "$attack/implementation/v24/unpinned-support.txt" ;;
+              unittest) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/unittest.py" ;;
+              sitecustomize) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/sitecustomize.py" ;;
+              usercustomize) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/usercustomize.py" ;;
+              stdlib) printf 'VALUE = 1\n' > "$attack/governance-runtime/json.py" ;;
+              symlink)
+                rm "$attack/governance-runtime/test_v24_v6_external_execution_binding.py"
+                ln -s v24_v6_external_execution_binding.py "$attack/governance-runtime/test_v24_v6_external_execution_binding.py"
+                ;;
+              *) exit 2 ;;
+            esac
+            if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+              "$PYTHON_BIN" -I -S "$R11_GUARD" verify-sandbox \
+              --root "$attack" --pinset "$R11_PINSET" --commit "$R11_CANDIDATE" --tree "$R11_TREE"; then
+              echo "FALSE_GREEN_STATIC_ATTACK_ACCEPTED:$name"; exit 1
+            fi
+            echo "STATIC_EXTERNAL_ATTACK_REJECTED:$name"
+          }
+          for X in test-swap support-swap unpinned unittest sitecustomize usercustomize stdlib symlink; do reject_attack "$X"; done
+
+      - name: Execute static-pinned suite with trusted isolated runner and postcheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          PINSET_BEFORE="$(sha256sum "$R11_PINSET" | awk '{print $1}')"
+          test "$PINSET_BEFORE" = 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14'
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$R11_RUNNER" --sandbox "$R11_SANDBOX" --pinset "$R11_PINSET" | tee "$RUNNER_TEMP/r11-static-test-output.log"
+          grep -q '^TRUSTED_RUNNER_TEST_CASES=259$' "$RUNNER_TEMP/r11-static-test-output.log"
+          test "$(sha256sum "$R11_PINSET" | awk '{print $1}')" = "$PINSET_BEFORE"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$R11_GUARD" verify-sandbox \
+            --root "$R11_SANDBOX" --pinset "$R11_PINSET" --commit "$R11_CANDIDATE" --tree "$R11_TREE"
+          test -z "$(find "$R11_SANDBOX" -type d -name __pycache__ -print -quit)"
+          test -z "$(find "$R11_SANDBOX" -type f -name '*.pyc' -print -quit)"
+          echo 'STATIC_EXTERNAL_POST_EXECUTION_BINDING=PASS'
+
+      - name: Emit final static external verification record
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > V24-I11-V6-R11-STATIC-EXTERNAL-VERIFICATION.json <<EOF
+          {
+            "schema_version": 1,
+            "verification_id": "V24-I11-V6-R11-STATIC-EXTERNAL-AUTHORITY-VERIFICATION",
+            "verification_run_id": "${GITHUB_RUN_ID}",
+            "frozen_candidate_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+            "frozen_candidate_tree": "d202b039285213b386557083a26de42e0fb20cf4",
+            "pinset_generation_commit": "f560d39f93b9d943a03c88d9e95423c578eebcad",
+            "static_pinset_sha256": "dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14",
+            "trusted_guard_git_blob_sha1": "d8792e90c379426a4f304c02761181707f10ca48",
+            "trusted_runner_git_blob_sha1": "1773c33e3898859a3733774736ce0c5036646dd8",
+            "admitted_file_count": 69,
+            "executed_test_module_count": 19,
+            "executed_test_case_count": 259,
+            "required_support_file_count": 10,
+            "authority_separation": "PASS",
+            "source_binding": "PASS",
+            "sandbox_binding_pre_execution": "PASS",
+            "adversarial_probe_set": "PASS",
+            "trusted_runner": "PASS",
+            "pinset_immutable_across_execution": "PASS",
+            "sandbox_binding_post_execution": "PASS",
+            "bytecode_hygiene": "PASS",
+            "independent_manual_review_completed": false,
+            "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+            "runtime_qualification_state": "NOT_CLAIMED",
+            "authority_effect": "NONE_EVIDENCE_ONLY"
+          }
+          EOF
+          python -m json.tool V24-I11-V6-R11-STATIC-EXTERNAL-VERIFICATION.json >/dev/null
+          sha256sum V24-I11-V6-R11-STATIC-EXTERNAL-VERIFICATION.json
+
+      - name: Upload final static external verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r11-static-external-verification
+          path: V24-I11-V6-R11-STATIC-EXTERNAL-VERIFICATION.json
+          if-no-files-found: error
+          retention-days: 90
