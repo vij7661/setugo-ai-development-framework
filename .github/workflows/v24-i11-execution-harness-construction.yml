@@ -1,0 +1,69 @@
+name: V24 I11 Execution Harness Construction
+
+on:
+  push:
+    branches:
+      - testing/v24-i11-falsification-execution-harness-v1
+    paths:
+      - 'testing/v24/**'
+      - '.github/workflows/v24-i11-execution-harness-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Verify reviewed V8 repository binding
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          b=json.loads(Path('testing/v24/V24-I11-FALSIFICATION-PLAN-V8-REVIEW-BINDING.json').read_text())
+          expected={
+            'packet_sha256':'e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e',
+            'plan_body_sha256':'3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab',
+            'harness_blob_sha':'6573767ae85d7ca0cfaa8b7bbafa826a7ba0c5cb',
+            'harness_version':'1.6.0-PLAN-REVIEW',
+            'design_sha':'db9e4b349fd26e128f4486878a4af64929000a7c',
+            'design_tree':'7986f7a016d97e6c9bbd03c035b3e9c63effda75',
+            'implementation_sha':'9836dc3ff233cca582f485434fc1c6494cf7eb05',
+            'implementation_tree':'d68cbccdceebad88715c8b37ddfcd524fc16ce8a',
+            'execution_status':'NOT_EXECUTED',
+          }
+          for k,v in expected.items():
+            if b.get(k)!=v:
+              raise SystemExit(f'V8_BINDING_MISMATCH:{k}:{b.get(k)}:{v}')
+          print('V8 repository binding: PASS')
+          PY
+
+      - name: Run reviewed Harness V7 construction tests
+        working-directory: testing/v24
+        run: python -m unittest -v test_v24_i11_harness_contract_v7.py
+
+      - name: Run execution-harness construction tests only
+        working-directory: testing/v24
+        run: python -m unittest -v test_v24_i11_execution_harness_v1.py
+
+      - name: Assert construction frontier remains NOT_EXECUTED
+        working-directory: testing/v24
+        shell: bash
+        run: |
+          python - <<'PY'
+          from v24_i11_execution_harness_v1 import assert_execution_frontier
+          s=assert_execution_frontier()
+          if s['wdpc_execution_status']!='NOT_EXECUTED':
+            raise SystemExit('SCIENTIFIC_EXECUTION_OCCURRED')
+          if s['execution_harness_profile_invariant_gate']!='CONSTRUCTION_READY':
+            raise SystemExit('EXECUTION_HARNESS_FRONTIER_INVALID')
+          print(s)
+          PY
