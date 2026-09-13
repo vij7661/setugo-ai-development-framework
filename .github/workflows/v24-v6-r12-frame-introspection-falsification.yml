@@ -1,0 +1,132 @@
+name: V24 V6 R12 Frame Introspection Falsification
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r12-external-authority
+    paths:
+      - '.github/workflows/v24-v6-r12-frame-introspection-falsification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-r12-worker-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Build malicious admitted R12 subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='e887613f4e9012be59dcd8c4840035748ee0de7e'
+          TREE='c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f'
+          REVIEW='464215e07d49e163525dac78ccbc39740c4e390a'
+          git cat-file -e "$CANDIDATE^{commit}"
+          git cat-file -e "$REVIEW^{commit}"
+          SUBJECT="$RUNNER_TEMP/r12-malicious-subject"
+          mkdir -p "$SUBJECT"
+          git archive "$CANDIDATE" | tar -xf - -C "$SUBJECT"
+          ATTACK="$SUBJECT/governance-runtime/test_v24_v6_external_execution_binding.py"
+          cat > "$ATTACK" <<'PY'
+          import sys
+          import unittest
+          import __main__
+
+          # Candidate-controlled module executes while the R12 worker is loading
+          # the suite. Walk the same-process stack to obtain the worker's trusted
+          # pre-import baseline and stored runner class.
+          frame = sys._getframe()
+          worker_frame = None
+          while frame is not None:
+              if "baseline" in frame.f_locals and "trusted_runner_cls" in frame.f_locals:
+                  worker_frame = frame
+                  break
+              frame = frame.f_back
+          if worker_frame is None:
+              raise RuntimeError("R12_ATTACK_WORKER_FRAME_NOT_FOUND")
+
+          baseline = worker_frame.f_locals["baseline"]
+          trusted_runner_cls = worker_frame.f_locals["trusted_runner_cls"]
+
+          # Disable the worker's subsequent integrity observations without
+          # needing to mutate the already-captured local baseline.
+          __main__.framework_fingerprint = lambda: baseline
+          __main__._internal_negative_canary = lambda runner_cls: True
+
+          class _ForgedResult:
+              testsRun = 1
+              failures = []
+              errors = []
+              unexpectedSuccesses = []
+
+          def _forged_run(self, suite):
+              return _ForgedResult()
+
+          trusted_runner_cls.run = _forged_run
+
+          class DeliberatelyFailingTest(unittest.TestCase):
+              def test_must_fail(self):
+                  self.fail("R12_FRAME_INTROSPECTION_FALSE_GREEN")
+          PY
+          echo "R12_ATTACK_SUBJECT=$SUBJECT" >> "$GITHUB_ENV"
+          echo "R12_ATTACK_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "R12_ATTACK_TREE=$TREE" >> "$GITHUB_ENV"
+          echo "R12_REVIEW_COMMIT=$REVIEW" >> "$GITHUB_ENV"
+
+      - name: Pin and stage malicious bytes exactly
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          GUARD="$GITHUB_WORKSPACE/review/v24/r12_trusted_external_guard.py"
+          PINSET="$RUNNER_TEMP/r12-malicious-pinset.json"
+          SANDBOX="$RUNNER_TEMP/r12-malicious-sandbox"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" build-pinset \
+            --root "$R12_ATTACK_SUBJECT" --commit "$R12_ATTACK_CANDIDATE" --tree "$R12_ATTACK_TREE" \
+            --review-commit "$R12_REVIEW_COMMIT" --output "$PINSET"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" verify-source \
+            --root "$R12_ATTACK_SUBJECT" --pinset "$PINSET" --commit "$R12_ATTACK_CANDIDATE" --tree "$R12_ATTACK_TREE"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" stage \
+            --root "$R12_ATTACK_SUBJECT" --pinset "$PINSET" --commit "$R12_ATTACK_CANDIDATE" --tree "$R12_ATTACK_TREE" --target "$SANDBOX"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" verify-sandbox \
+            --root "$SANDBOX" --pinset "$PINSET" --commit "$R12_ATTACK_CANDIDATE" --tree "$R12_ATTACK_TREE"
+          echo "R12_ATTACK_PINSET=$PINSET" >> "$GITHUB_ENV"
+          echo "R12_ATTACK_SANDBOX=$SANDBOX" >> "$GITHUB_ENV"
+          echo 'R12_MALICIOUS_BYTES_EXACTLY_PINNED=PASS'
+
+      - name: Demonstrate current R12 parent accepts forged PASS
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          PARENT="$GITHUB_WORKSPACE/review/v24/r12_trusted_test_parent.py"
+          WORKER="$GITHUB_WORKSPACE/review/v24/r12_untrusted_test_worker.py"
+          OUT="$RUNNER_TEMP/r12-frame-introspection-parent.out"
+          set +e
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$PARENT" \
+            --sandbox "$R12_ATTACK_SANDBOX" --pinset "$R12_ATTACK_PINSET" --worker "$WORKER" \
+            >"$OUT" 2>&1
+          RC=$?
+          set -e
+          cat "$OUT"
+          if [ "$RC" -eq 0 ] && grep -q '^R12_PARENT_RESULT=' "$OUT"; then
+            echo 'R12_FRAME_INTROSPECTION_FALSE_GREEN_REPRODUCED=YES'
+            echo 'R12_FALSIFICATION_DISPOSITION=FAIL_CODE_DEFECT'
+            exit 1
+          fi
+          echo "R12_ATTACK_REJECTED_UNEXPECTEDLY rc=$RC"
+          exit 2
