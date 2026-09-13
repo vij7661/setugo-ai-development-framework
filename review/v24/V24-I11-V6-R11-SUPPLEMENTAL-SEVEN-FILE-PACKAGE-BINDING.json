@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "R11_REJECTED_R12_REQUIRED_SCOPE_PENDING_SUPPLEMENTAL_REVIEW",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "canonical_package": {
+    "filename": "V24-I11-V6-R11-CLEAN-REVIEW.zip",
+    "sha256": "9f9722163ebfa2ff884cda6529b9b7c5c787be6baafe0947fdfe6101100647ff",
+    "entry_count": 81,
+    "frozen_candidate_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+    "frozen_candidate_tree": "d202b039285213b386557083a26de42e0fb20cf4"
+  },
+  "supplemental_package": {
+    "filename": "V24-I11-V6-R11-SUPPLEMENTAL-SEVEN-FILE-REVIEW.zip",
+    "sha256": "81cb0ba7e96dc34717484583833c3f35baabe13cc783b2e1789272b455fd312a",
+    "bytes": 52533,
+    "zip_entry_count": 9,
+    "target_file_count": 7,
+    "delivery_semantics": "SUPPLEMENTAL_REVIEW_ONLY_EXACT_BYTES_FROM_CANONICAL_R11_PACKAGE"
+  },
+  "files": [
+    {"path":"candidate/governance-runtime/v24_admission_application_witness.py","bytes":6622,"sha256":"0bb391e5d933e4b21d10b12478bc9e08e2919b228b80ab4e2c52c9f809179d5d"},
+    {"path":"candidate/governance-runtime/v24_completeness_bootstrap.py","bytes":5252,"sha256":"8488e4dbe4330fdae4cd3ab287822ddb73219e54b266950655f6909bae991827"},
+    {"path":"candidate/governance-runtime/v24_aggregate_budget.py","bytes":3319,"sha256":"3a328d889847b8e0f7c4292634392f57d37b6ed68fcd5ce8696fb803a4172550"},
+    {"path":"candidate/governance-runtime/v24_generation_migration.py","bytes":4531,"sha256":"e4f0f0cf7626225934b34147e173f52defc53abfcbc6e87549b08c8c7fe96f2c"},
+    {"path":"candidate/governance-runtime/v24_review_proof_audit.py","bytes":4257,"sha256":"e2485e6ae22b7f7eb05482c9164af6734dd960463e5ae49fd24aa6c15d984d25"},
+    {"path":"candidate/governance-runtime/v24_authority_surface_inventory.py","bytes":4059,"sha256":"16bfb3c2ccd607056a0c11d4ec1c2a8ef8c8fd9581d4b1adb2ef7a6f66dc775f"},
+    {"path":"candidate/governance-runtime/validate_runtime.py","bytes":17760,"sha256":"d44659e83d1021556f7a8ef567dd825ff783290acf7bd0d70713735f7e8657b9"}
+  ],
+  "prior_accepted_blockers": [
+    "R11-C1 actual interpreter isolation not runtime-enforced",
+    "R11-C2 candidate shares mutable trusted unittest result-accounting state",
+    "R11-C3 mandatory adversarial check names not bound to executed evidence"
+  ],
+  "review_rule": "manual_only_no_external_reviewer_api",
+  "r12_required": true,
+  "r12_scope_frozen": false,
+  "scientific_execution_state": "CLOSED",
+  "runtime_qualification_state": "NOT_CLAIMED"
+}
