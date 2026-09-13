@@ -5,7 +5,7 @@ on:
     branches:
       - implementation/v24-i11-v6-r12-frozen-remediation
     paths:
-      - 'review/v24/r12-construction/R12-BATCH2.patch.gz.b64'
+      - 'review/v24/r12-construction/R12-BATCH2.TRIGGER'
 
 permissions:
   contents: write
@@ -20,11 +20,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Decode and verify construction patch
+      - name: Verify, assemble, decode and apply exact construction patch
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d review/v24/r12-construction/R12-BATCH2.patch.gz.b64 | gzip -d > /tmp/r12-batch2.patch
+          dir=review/v24/r12-construction
+          echo '49c3efeb5e990f854e3512ce65d64569c6b50d5c84e63ef7e31ffe2c2169ba35  '"$dir"'/R12-BATCH2.part-00' | sha256sum -c -
+          echo '3e262884e850440b1c8759659fbe6708ee1f7b9595e5d7afe02f3a67e310d6ec  '"$dir"'/R12-BATCH2.part-01' | sha256sum -c -
+          echo '3ecfe5c73c91aad83216ac7f3165bd31862234e54ab1244f0949d82a793f95e3  '"$dir"'/R12-BATCH2.part-02' | sha256sum -c -
+          echo '1a32edabcb21e84b2f646e65f6dc992a787c1fe8999b7581ca2cfdbc36e1e3ff  '"$dir"'/R12-BATCH2.part-03' | sha256sum -c -
+          cat "$dir"/R12-BATCH2.part-00 "$dir"/R12-BATCH2.part-01 "$dir"/R12-BATCH2.part-02 "$dir"/R12-BATCH2.part-03 > /tmp/r12-batch2.patch.gz.b64
+          echo '518d508ee296e76e3cd9ff61f8bf30624ed029a7975228476c223c16501eca62  /tmp/r12-batch2.patch.gz.b64' | sha256sum -c -
+          base64 -d /tmp/r12-batch2.patch.gz.b64 | gzip -d > /tmp/r12-batch2.patch
           echo 'ab15f9a226b21294fba763ca8418553fdd2ccea024f7587f1ad0eb4e17e0678e  /tmp/r12-batch2.patch' | sha256sum -c -
           git apply --check -p2 /tmp/r12-batch2.patch
           git apply -p2 /tmp/r12-batch2.patch
