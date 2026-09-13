@@ -47,6 +47,14 @@ jobs:
           PY_SCOPE = Path('governance-runtime')
           SUPPORT = (
               Path('implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'),
+              Path('implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md'),
+              Path('implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md'),
               Path('implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json'),
           )
 
@@ -197,7 +205,8 @@ jobs:
           cp -a "$R11_SANDBOX" "$ATTACK"
           printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/test_v24_v6_external_execution_binding.py"
           if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-            echo 'False green: mutated test bytes passed external guard.'; exit 1
+            echo 'False green: mutated test bytes passed external guard.'
+            exit 1
           fi
           echo 'PINNED_TEST_SAME_PATH_DIFFERENT_BYTES_REJECTED=PASS'
 
@@ -211,7 +220,8 @@ jobs:
           cp -a "$R11_SANDBOX" "$ATTACK"
           printf '{}\n' > "$ATTACK/implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json"
           if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-            echo 'False green: mutated support object passed external guard.'; exit 1
+            echo 'False green: mutated support object passed external guard.'
+            exit 1
           fi
           echo 'PINNED_SUPPORT_OBJECT_SAME_PATH_DIFFERENT_BYTES_REJECTED=PASS'
 
@@ -225,7 +235,8 @@ jobs:
           cp -a "$R11_SANDBOX" "$ATTACK"
           printf 'untrusted\n' > "$ATTACK/implementation/v24/unpinned-support.txt"
           if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-            echo 'False green: unpinned file passed external guard.'; exit 1
+            echo 'False green: unpinned file passed external guard.'
+            exit 1
           fi
           echo 'UNPINNED_FILE_REJECTED=PASS'
 
@@ -239,7 +250,8 @@ jobs:
           cp -a "$R11_SANDBOX" "$ATTACK"
           printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/unittest.py"
           if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-            echo 'False green: unittest shadow passed external guard.'; exit 1
+            echo 'False green: unittest shadow passed external guard.'
+            exit 1
           fi
           echo 'CANDIDATE_UNITTEST_SHADOW_REJECTED=PASS'
 
@@ -254,7 +266,8 @@ jobs:
             cp -a "$R11_SANDBOX" "$ATTACK"
             printf 'raise SystemExit(0)\n' > "$ATTACK/governance-runtime/$NAME"
             if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" "$PYTHON_BIN" -I -S "$TRUSTED_GUARD" verify --root "$ATTACK" --pinset "$RUNNER_TEMP/r11-construction-pinset.json"; then
-              echo "False green: $NAME passed external guard."; exit 1
+              echo "False green: $NAME passed external guard."
+              exit 1
             fi
           done
           echo 'CANDIDATE_STARTUP_CUSTOMIZATION_SHADOW_REJECTED=PASS'
@@ -327,6 +340,7 @@ jobs:
           assert p['external_execution_authority']['candidate_may_edit_trusted_runner'] is False
           assert p['external_execution_authority']['pin_every_admitted_file'] is True
           assert p['external_execution_authority']['pin_every_support_object_read_by_tests'] is True
+          assert len(p['mandatory_support_objects']) == 10
           assert p['result_admission']['external_guard_pass_required_before_any_test_launch'] is True
           assert p['result_admission']['external_guard_pass_required_before_any_pass_count'] is True
           assert p['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
