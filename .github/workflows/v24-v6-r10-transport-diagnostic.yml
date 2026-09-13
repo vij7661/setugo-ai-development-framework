@@ -1,0 +1,64 @@
+name: V24 V6 R10 Transport Diagnostic
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r10-successor-review-remediation
+    paths:
+      - '.github/workflows/v24-v6-r10-transport-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Diagnose staged transports without applying
+        shell: bash
+        run: |
+          set -u
+          diagnose_set() {
+            local label="$1"
+            local dir="$2"
+            local out="/tmp/${label}.patch.gz"
+            local patch="/tmp/${label}.patch"
+            echo "=== ${label} ==="
+            for p in "$dir"/part-*.b64; do
+              echo "FRAGMENT=$p BYTES=$(wc -c < "$p") SHA256=$(sha256sum "$p" | awk '{print $1}')"
+            done
+            cat "$dir"/part-*.b64 > "/tmp/${label}.b64"
+            echo "B64_BYTES=$(wc -c < "/tmp/${label}.b64") B64_SHA256=$(sha256sum "/tmp/${label}.b64" | awk '{print $1}')"
+            if base64 -d "/tmp/${label}.b64" > "$out"; then
+              echo "BASE64_DECODE=PASS GZIP_BYTES=$(wc -c < "$out") GZIP_SHA256=$(sha256sum "$out" | awk '{print $1}')"
+            else
+              echo "BASE64_DECODE=FAIL"
+              return 0
+            fi
+            if gzip -t "$out"; then
+              echo "GZIP_TEST=PASS"
+              gzip -dc "$out" > "$patch"
+              echo "PATCH_BYTES=$(wc -c < "$patch") PATCH_SHA256=$(sha256sum "$patch" | awk '{print $1}')"
+              echo "TOUCHED_PATHS_BEGIN"
+              grep '^diff --git ' "$patch" || true
+              echo "TOUCHED_PATHS_END"
+              echo "PATCH_CHECK_BEGIN"
+              if git apply --check "$patch"; then
+                echo "GIT_APPLY_CHECK=PASS"
+              else
+                echo "GIT_APPLY_CHECK=FAIL"
+              fi
+              echo "PATCH_CHECK_END"
+            else
+              echo "GZIP_TEST=FAIL"
+            fi
+          }
+
+          diagnose_set old remediation/v24/r10-apply-gz
+          diagnose_set v2 remediation/v24/r10-apply-gz-v2
+          echo "EXPECTED_V2_PATCH_SHA256=658db6f8aec86640c930c43635f187cc850fe987746e704bd96369f75c518ddc"
