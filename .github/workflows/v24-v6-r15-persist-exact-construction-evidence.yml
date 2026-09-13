@@ -1,0 +1,68 @@
+name: V24 V6 R15 Persist Exact Construction Evidence
+
+on:
+  push:
+    branches: [review/v24-i11-v6-r15-path-normalization]
+    paths: ['.github/workflows/v24-v6-r15-persist-exact-construction-evidence.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  persist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Download and verify exact successful construction artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ART='10324065691'
+          OUTER_SHA='0c16e6e523ce5b4d5e4da38ff01e0ed00f4024891554d5665c1a548fc5a02601'
+          Z="$RUNNER_TEMP/r15-construction.zip"
+          gh api "/repos/$GITHUB_REPOSITORY/actions/artifacts/$ART/zip" > "$Z"
+          test "$(sha256sum "$Z" | awk '{print $1}')" = "$OUTER_SHA"
+          D="$RUNNER_TEMP/evidence"; mkdir -p "$D"; unzip -q "$Z" -d "$D"
+          test "$(sha256sum "$D/pin.json" | awk '{print $1}')" = 'e2f7689d4b9902823d94fe11e87c895e4036a080e0795aacfd9070354cf134b9'
+          test "$(sha256sum "$D/r13.json" | awk '{print $1}')" = '895af7dadf0018203c25b67ee2ab77c8395bbedd2325f0bf88ae0f493a1a374a'
+          test "$(sha256sum "$D/path.json" | awk '{print $1}')" = '3534babb7e03308630a6c07e42779372379d3e725e8b0839be1593e1888bead3'
+          test "$(sha256sum "$D/oracle.json" | awk '{print $1}')" = '99802aabf7b6d1451a7e698aaa6b540592a036f4870366fbe3fd577a333aebd8'
+          test "$(sha256sum "$D/construction.json" | awk '{print $1}')" = '08e8972dc759b7b08b5fd31f552e50d19b7b8c4e4a2d7d67bfdf62c0ca001494'
+          python - "$D/pin.json" <<'PY'
+          import json,sys
+          p=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert p['schema_version']==4
+          assert p['candidate_commit']=='2e875bb29be48d39c9be6f3525d4f4610869848c'
+          assert p['candidate_tree']=='d2c9c0c85564808941fdb54cfbbd53f51f5397ee'
+          assert len(p['admitted_files'])==190
+          assert len({r['path'] for r in p['admitted_files']})==190
+          print('R15_EXACT_CONSTRUCTION_EVIDENCE_BINDING=PASS')
+          PY
+          cp "$D/pin.json" review/v24/V24-I11-V6-R15-EXTERNAL-PINSET.json
+          cp "$D/r13.json" review/v24/V24-I11-V6-R15-R13-REGRESSION.json
+          cp "$D/path.json" review/v24/V24-I11-V6-R15-PATH-REGRESSION.json
+          cp "$D/oracle.json" review/v24/V24-I11-V6-R15-NATIVE-ORACLE-EVIDENCE.json
+          cp "$D/construction.json" review/v24/V24-I11-V6-R15-NATIVE-CONSTRUCTION.json
+      - name: Commit exact bytes without changing candidate authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add review/v24/V24-I11-V6-R15-EXTERNAL-PINSET.json \
+                  review/v24/V24-I11-V6-R15-R13-REGRESSION.json \
+                  review/v24/V24-I11-V6-R15-PATH-REGRESSION.json \
+                  review/v24/V24-I11-V6-R15-NATIVE-ORACLE-EVIDENCE.json \
+                  review/v24/V24-I11-V6-R15-NATIVE-CONSTRUCTION.json
+          if git diff --cached --quiet; then
+            echo 'R15_EXACT_EVIDENCE_ALREADY_PERSISTED=PASS'
+            exit 0
+          fi
+          git commit -m 'Persist exact R15 successful construction evidence bytes'
+          git push origin HEAD:review/v24-i11-v6-r15-path-normalization
