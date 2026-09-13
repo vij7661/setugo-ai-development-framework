@@ -18,4 +18,37 @@ jobs:
         with:
           python-version: '3.12'
       - name: V8 plan and harness contract preflight
+        id: preflight
+        continue-on-error: true
         run: python testing/v24/preflight_v24_i11_plan_v8.py
+      - name: Capture exact V8 diagnostics
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY' > v8-diagnostics.txt
+          from pathlib import Path
+          import hashlib, json, subprocess
+          p=Path('testing/v24/WDPC_V24_I11_Falsification_Plan_V8_Clean_Review_Packet.md')
+          h=Path('testing/v24/v24_i11_harness_contract_v7.py')
+          b=Path('testing/v24/V24-I11-FALSIFICATION-PLAN-V8-REVIEW-BINDING.json')
+          raw=p.read_bytes()
+          text=raw.decode('utf-8')
+          body=text.split('\n---\n\n',1)[1].encode('utf-8')
+          def blob(path):
+              return subprocess.check_output(['git','hash-object',str(path)],text=True).strip()
+          print('packet_sha256='+hashlib.sha256(raw).hexdigest())
+          print('body_sha256='+hashlib.sha256(body).hexdigest())
+          print('packet_git_blob='+blob(p))
+          print('harness_git_blob='+blob(h))
+          print('binding_git_blob='+blob(b))
+          print('binding_json='+json.dumps(json.loads(b.read_text()),sort_keys=True))
+          PY
+      - name: Upload V8 diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v8-plan-diagnostics
+          path: v8-diagnostics.txt
+      - name: Enforce preflight result
+        if: steps.preflight.outcome != 'success'
+        run: exit 1
