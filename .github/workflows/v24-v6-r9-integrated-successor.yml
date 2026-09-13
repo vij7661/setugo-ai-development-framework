@@ -1,0 +1,202 @@
+name: V24 V6 R9 Integrated Successor
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r9-integrated-successor
+    paths:
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_endpoint_projection.py'
+      - 'governance-runtime/v24_v6_material_surface.py'
+      - 'governance-runtime/v24_v6_decision_apply.py'
+      - 'governance-runtime/v24_v6_normative_clause_projection.py'
+      - 'governance-runtime/v24_v6_effect_ledger_closure.py'
+      - 'governance-runtime/v24_v6_atomic_binding_modes.py'
+      - 'governance-runtime/v24_v6_qualification_integrity.py'
+      - 'governance-runtime/v24_v6_integrated_successor.py'
+      - 'governance-runtime/test_v24_v6_*.py'
+      - 'implementation/v24/V24-I11-V6-R*-CONSTRUCTION-EVIDENCE.md'
+      - 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+      - '.github/workflows/v24-v6-r9-integrated-successor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrated-successor-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Capture exact candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Compile V6 R1-R9
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_governance_foundation.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py \
+            v24_v6_integrated_successor.py
+
+      - name: Run R9 mandatory integration checks
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_integrated_successor.py
+
+      - name: Run complete R1-R8 construction regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py
+
+      - name: Run inherited V24 construction regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Verify exact reviewed V6 design bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin adjudication/v24-i11-v6-exact-reviewed-bytes
+          PACKET_REF='FETCH_HEAD:remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          git show "$PACKET_REF" > /tmp/v6-reviewed-packet.md
+          EXPECTED_BLOB='8682df137aa12d57927e7891c16048e90b04caac'
+          ACTUAL_BLOB=$(git rev-parse "$PACKET_REF")
+          test "$ACTUAL_BLOB" = "$EXPECTED_BLOB"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          packet = Path('/tmp/v6-reviewed-packet.md').read_bytes()
+          sep = b'---\n\n'
+          if sep not in packet:
+              raise SystemExit('V6 body separator missing')
+          body = packet.split(sep, 1)[1]
+          raw = hashlib.sha256(packet).hexdigest()
+          body_sha = hashlib.sha256(body).hexdigest()
+          assert raw == '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62', raw
+          assert body_sha == '286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5', body_sha
+          print(json.dumps({'raw_packet_sha256': raw, 'plan_body_sha256': body_sha}, sort_keys=True))
+          PY
+
+      - name: Anti-case-specific production coupling gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          for F in \
+            governance-runtime/v24_v6_governance_foundation.py \
+            governance-runtime/v24_v6_endpoint_projection.py \
+            governance-runtime/v24_v6_material_surface.py \
+            governance-runtime/v24_v6_decision_apply.py \
+            governance-runtime/v24_v6_normative_clause_projection.py \
+            governance-runtime/v24_v6_effect_ledger_closure.py \
+            governance-runtime/v24_v6_atomic_binding_modes.py \
+            governance-runtime/v24_v6_integrated_successor.py; do
+            if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint|reviewer[_ -]?finding[_ -]?id|material_discovery_pending' "$F"; then
+              echo "Case-specific production coupling found in $F"
+              exit 1
+            fi
+          done
+          if grep -nE 'WDPC-[0-9]+' governance-runtime/v24_v6_qualification_integrity.py; then
+            echo 'Concrete WDPC case coupling found in R8.'
+            exit 1
+          fi
+          echo 'No concrete case-specific production coupling found.'
+
+      - name: Generate exact successor verification report
+        working-directory: governance-runtime
+        env:
+          CANDIDATE_COMMIT: ${{ env.CANDIDATE_COMMIT }}
+          CANDIDATE_TREE: ${{ env.CANDIDATE_TREE }}
+          GITHUB_RUN_ID_VALUE: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT_VALUE: ${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import v24_v6_integrated_successor as r9
+
+          root = Path('..').resolve()
+          manifest_path = root / 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          result = r9.validate_integrated_successor_manifest(repo_root=root, manifest=manifest)
+          assert result['integration_valid'], result['problems']
+          assert result['qualified'] is False
+          assert result['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert result['scientific_execution_state'] == r9.SCIENTIFIC_EXECUTION_CLOSED
+          report = {
+              'schema_version': 1,
+              'candidate_commit': os.environ['CANDIDATE_COMMIT'],
+              'candidate_tree': os.environ['CANDIDATE_TREE'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID_VALUE'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT_VALUE'],
+              'integration_binding_digest': result['binding_digest'],
+              'bound_file_count': result['bound_file_count'],
+              'bound_files': result['bound_files'],
+              'approved_design_packet_sha256': manifest['approved_design_packet_sha256'],
+              'approved_design_body_sha256': manifest['approved_design_body_sha256'],
+              'approved_design_git_blob_sha': manifest['approved_design_git_blob_sha'],
+              'scientific_execution_state': result['scientific_execution_state'],
+              'runtime_qualification_state': 'NOT_CLAIMED',
+              'successor_review_state': 'REQUIRED',
+              'authority_effect': result['authority_effect'],
+          }
+          out = root / 'v24-v6-r9-successor-verification.json'
+          out.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(out.read_text(encoding='utf-8'))
+          PY
+
+      - name: Assert construction-only freeze posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_integrated_successor as r9
+          x = r9.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert x['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          print(x)
+          PY
+
+      - name: Upload exact successor verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r9-successor-verification
+          path: v24-v6-r9-successor-verification.json
+          if-no-files-found: error
+          retention-days: 90
