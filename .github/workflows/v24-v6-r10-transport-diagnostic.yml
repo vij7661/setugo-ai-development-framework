@@ -12,56 +12,84 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
+  diagnose-old-patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
 
-      - name: Diagnose staged transports without applying
+      - name: Apply old valid transport only in ephemeral runner
         shell: bash
         run: |
-          set -u
-
-          echo '=== old-valid-transport ==='
-          for p in remediation/v24/r10-apply-gz/part-*.b64; do
-            echo "FRAGMENT=$p BYTES=$(wc -c < "$p") SHA256=$(sha256sum "$p" | awk '{print $1}')"
-          done
+          set -euo pipefail
           cat remediation/v24/r10-apply-gz/part-*.b64 | base64 -d > /tmp/old.patch.gz
-          echo "OLD_GZIP_BYTES=$(wc -c < /tmp/old.patch.gz) OLD_GZIP_SHA256=$(sha256sum /tmp/old.patch.gz | awk '{print $1}')"
           gzip -dc /tmp/old.patch.gz > /tmp/old.patch
-          echo "OLD_PATCH_BYTES=$(wc -c < /tmp/old.patch) OLD_PATCH_SHA256=$(sha256sum /tmp/old.patch | awk '{print $1}')"
-          echo 'OLD_FILE_HEADERS_BEGIN'
-          grep -E '^(---|\+\+\+) ' /tmp/old.patch || true
-          echo 'OLD_FILE_HEADERS_END'
-          if git apply --check /tmp/old.patch; then echo 'OLD_GIT_APPLY_CHECK=PASS'; else echo 'OLD_GIT_APPLY_CHECK=FAIL'; fi
+          echo "OLD_PATCH_SHA256=$(sha256sum /tmp/old.patch | awk '{print $1}')"
+          git apply --check /tmp/old.patch
+          git apply /tmp/old.patch
+          git diff --check
+          echo 'APPLIED_PATHS_BEGIN'
+          git diff --name-only
+          echo 'APPLIED_PATHS_END'
 
-          echo '=== v2-salvage ==='
-          for p in remediation/v24/r10-apply-gz-v2/part-*.b64; do
-            echo "FRAGMENT=$p BYTES=$(wc -c < "$p") SHA256=$(sha256sum "$p" | awk '{print $1}')"
-          done
-          cat remediation/v24/r10-apply-gz-v2/part-*.b64 > /tmp/v2.b64
+      - name: Compile old-patch successor modules
+        working-directory: governance-runtime
+        shell: bash
+        run: |
           set +e
-          base64 -d /tmp/v2.b64 > /tmp/v2.partial.gz 2>/tmp/v2-base64.err
-          b64_rc=$?
-          gzip -dc /tmp/v2.partial.gz > /tmp/v2.partial.patch 2>/tmp/v2-gzip.err
-          gzip_rc=$?
-          set -e
-          echo "V2_BASE64_RC=$b64_rc V2_PARTIAL_GZIP_BYTES=$(wc -c < /tmp/v2.partial.gz) V2_PARTIAL_GZIP_SHA256=$(sha256sum /tmp/v2.partial.gz | awk '{print $1}')"
-          echo "V2_GZIP_RC=$gzip_rc V2_PARTIAL_PATCH_BYTES=$(wc -c < /tmp/v2.partial.patch) V2_PARTIAL_PATCH_SHA256=$(sha256sum /tmp/v2.partial.patch | awk '{print $1}')"
-          echo 'V2_BASE64_ERROR_BEGIN'; cat /tmp/v2-base64.err || true; echo 'V2_BASE64_ERROR_END'
-          echo 'V2_GZIP_ERROR_BEGIN'; cat /tmp/v2-gzip.err || true; echo 'V2_GZIP_ERROR_END'
-          echo 'V2_FILE_HEADERS_BEGIN'
-          grep -E '^(---|\+\+\+) ' /tmp/v2.partial.patch || true
-          echo 'V2_FILE_HEADERS_END'
-          echo 'FIRST_BINARY_DIFFERENCES_BEGIN'
-          cmp -l /tmp/old.patch /tmp/v2.partial.patch | head -n 30 || true
-          echo 'FIRST_BINARY_DIFFERENCES_END'
-          echo 'TEXT_DIFF_PREFIX_BEGIN'
-          diff -u /tmp/old.patch /tmp/v2.partial.patch | head -n 400 || true
-          echo 'TEXT_DIFF_PREFIX_END'
-          echo 'V2_PARTIAL_PATCH_TAIL_BEGIN'
-          tail -n 120 /tmp/v2.partial.patch || true
-          echo 'V2_PARTIAL_PATCH_TAIL_END'
-          echo 'EXPECTED_V2_PATCH_SHA256=658db6f8aec86640c930c43635f187cc850fe987746e704bd96369f75c518ddc'
+          python -m py_compile \
+            v24_v6_governance_foundation.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py \
+            v24_v6_integrated_successor.py
+          rc=$?
+          echo "COMPILE_RC=$rc"
+          exit 0
+
+      - name: Run old-patch reviewer-bypass suites and preserve failures
+        working-directory: governance-runtime
+        shell: bash
+        run: |
+          set +e
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_qualification_integrity.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_effect_ledger_closure.py
+          rc=$?
+          echo "REVIEWER_BYPASS_SUITE_RC=$rc"
+          exit 0
+
+      - name: Run old-patch R9 integration and inherited regression probes
+        working-directory: governance-runtime
+        shell: bash
+        run: |
+          set +e
+          python -m unittest -v test_v24_v6_integrated_successor.py
+          r9=$?
+          echo "R9_INTEGRATION_RC=$r9"
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+          inherited=$?
+          echo "INHERITED_REGRESSION_RC=$inherited"
+          exit 0
