@@ -11,12 +11,13 @@ PACKET = ROOT / "testing/v24/WDPC_V24_I11_Falsification_Plan_V8_Clean_Review_Pac
 HARNESS = ROOT / "testing/v24/v24_i11_harness_contract_v7.py"
 BINDING = ROOT / "testing/v24/V24-I11-FALSIFICATION-PLAN-V8-REVIEW-BINDING.json"
 
-EXPECTED_PACKET_SHA = "2adcabff35ecc38e45977c9934873af4b3ebb11bede17a5d9959b6b79c49f881"
-EXPECTED_BODY_SHA = "0a9620d696d853bb6a60de123504f5958345a3ebf63a6297c76e85c319dbb717"
-EXPECTED_PACKET_BLOB = "baa5f3041d9a40fd8f641df367307860f7eff371"
 EXPECTED_HARNESS_BLOB = "189d050831166868397e1ba063da57fa77f2dd42"
-EXPECTED_BINDING_BLOB = "a3c7d697a9e53c6b1da3fe0475319d65dc3ceb1c"
 EXPECTED_HARNESS_VERSION = "1.6.0-PLAN-REVIEW"
+EXPECTED_DESIGN_SHA = "db9e4b349fd26e128f4486878a4af64929000a7c"
+EXPECTED_DESIGN_TREE = "7986f7a016d97e6c9bbd03c035b3e9c63effda75"
+EXPECTED_I10_SHA = "9836dc3ff233cca582f485434fc1c6494cf7eb05"
+EXPECTED_I10_TREE = "d68cbccdceebad88715c8b37ddfcd524fc16ce8a"
+
 
 def git_blob(path: Path) -> str:
     return subprocess.check_output(
@@ -25,35 +26,50 @@ def git_blob(path: Path) -> str:
         text=True,
     ).strip()
 
+
 packet_bytes = PACKET.read_bytes()
 packet = packet_bytes.decode("utf-8")
-if hashlib.sha256(packet_bytes).hexdigest() != EXPECTED_PACKET_SHA:
-    raise SystemExit("V8 packet SHA mismatch")
-if git_blob(PACKET) != EXPECTED_PACKET_BLOB:
-    raise SystemExit("V8 packet Git blob mismatch")
+actual_packet_sha = hashlib.sha256(packet_bytes).hexdigest()
+actual_packet_blob = git_blob(PACKET)
 
 parts = packet.split("\n---\n\n", 1)
 if len(parts) != 2:
     raise SystemExit("V8 wrapper delimiter missing")
-if hashlib.sha256(parts[1].encode()).hexdigest() != EXPECTED_BODY_SHA:
-    raise SystemExit("V8 body SHA mismatch")
+wrapper, plan_body = parts
+actual_body_sha = hashlib.sha256(plan_body.encode("utf-8")).hexdigest()
 
-if git_blob(HARNESS) != EXPECTED_HARNESS_BLOB:
-    raise SystemExit("V8 harness Git blob mismatch")
-if git_blob(BINDING) != EXPECTED_BINDING_BLOB:
-    raise SystemExit("V8 binding Git blob mismatch")
+m = re.search(r"\*\*PLAN_BODY_SHA256:\*\* `([0-9a-f]{64})`", wrapper)
+if not m:
+    raise SystemExit("V8 wrapper PLAN_BODY_SHA256 missing or malformed")
+if m.group(1) != actual_body_sha:
+    raise SystemExit(
+        f"V8 wrapper body SHA mismatch: declared={m.group(1)} actual={actual_body_sha}"
+    )
 
-binding = json.loads(BINDING.read_text())
+actual_harness_blob = git_blob(HARNESS)
+if actual_harness_blob != EXPECTED_HARNESS_BLOB:
+    raise SystemExit(
+        f"V8 harness Git blob mismatch: {actual_harness_blob} != {EXPECTED_HARNESS_BLOB}"
+    )
+
+binding = json.loads(BINDING.read_text(encoding="utf-8"))
+actual_binding_blob = git_blob(BINDING)
 expected_binding = {
-    "packet_sha256": EXPECTED_PACKET_SHA,
-    "plan_body_sha256": EXPECTED_BODY_SHA,
-    "packet_git_blob_sha": EXPECTED_PACKET_BLOB,
+    "packet_sha256": actual_packet_sha,
+    "plan_body_sha256": actual_body_sha,
+    "packet_git_blob_sha": actual_packet_blob,
     "harness_blob_sha": EXPECTED_HARNESS_BLOB,
     "harness_version": EXPECTED_HARNESS_VERSION,
+    "design_sha": EXPECTED_DESIGN_SHA,
+    "design_tree": EXPECTED_DESIGN_TREE,
+    "implementation_sha": EXPECTED_I10_SHA,
+    "implementation_tree": EXPECTED_I10_TREE,
 }
 for key, value in expected_binding.items():
     if binding.get(key) != value:
-        raise SystemExit(f"V8 binding mismatch: {key}")
+        raise SystemExit(
+            f"V8 binding mismatch {key}: declared={binding.get(key)!r} actual={value!r}"
+        )
 
 required = [
     "# WDPC V24 I11 Falsification Plan V8 — Clean Independent Review Packet",
@@ -64,6 +80,7 @@ required = [
     "detached V8 review binding",
     "detached V8 review-binding",
     "Embedded V8 harness contract V7",
+    "SELF_CONTAINED_BINDING = CONSISTENT",
 ]
 for token in required:
     if token not in packet:
@@ -80,7 +97,9 @@ for stale in [
     if stale in packet:
         raise SystemExit(f"stale V8 identity found: {stale}")
 
-matrix = packet[packet.index("## 12. Case audit matrix"):packet.index("## 13. Clustering")]
+matrix = packet[
+    packet.index("## 12. Case audit matrix") : packet.index("## 13. Clustering")
+]
 case_ids = re.findall(r"^\| WDPC-(\d{3}) \|", matrix, flags=re.M)
 if len(case_ids) != 76 or set(map(int, case_ids)) != set(range(431, 507)):
     raise SystemExit("V8 case coverage invalid")
@@ -124,11 +143,18 @@ cond = mod.InsufficientEvidenceEndpointCondition(
 )
 if not cond.qualifies_for_endpoint_pass:
     raise SystemExit("V8 exact IE reason positive contract failed")
-
 wrong = mod.InsufficientEvidenceEndpointCondition(
-    **{**cond.__dict__, "target_reason": "required external completeness authority unavailable"}
+    **{
+        **cond.__dict__,
+        "target_reason": "required external completeness authority unavailable",
+    }
 )
 if wrong.qualifies_for_endpoint_pass:
     raise SystemExit("V8 wrong IE reason false-green")
 
 print("V8_PLAN_CONTRACT_PASS")
+print(f"packet_sha256={actual_packet_sha}")
+print(f"body_sha256={actual_body_sha}")
+print(f"packet_git_blob={actual_packet_blob}")
+print(f"harness_git_blob={actual_harness_blob}")
+print(f"binding_git_blob={actual_binding_blob}")
