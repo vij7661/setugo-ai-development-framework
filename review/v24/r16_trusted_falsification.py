@@ -127,28 +127,37 @@ def attack_copy(base: pathlib.Path) -> tuple[tempfile.TemporaryDirectory[str], p
 def path_probe(native: pathlib.Path, base: pathlib.Path, target: str, *, bytes_path: bool = False, duplicate: bool = False) -> dict[str, Any]:
     td, sandbox, module = attack_copy(base)
     try:
-        path_expr = repr(target.encode()) if bytes_path else repr(target)
+        absolute_target = "/" + target.lstrip("/")
         body = "\n".join([
             "import os",
-            "root = os.open('/', os.O_RDONLY | os.O_DIRECTORY)",
-            "fd = os.dup(root)" if duplicate else "fd = root",
+            "basefd = os.open('.', os.O_RDONLY | os.O_DIRECTORY)",
+            "fd = os.dup(basefd)" if duplicate else "fd = basefd",
+            f"rel = os.path.relpath({absolute_target!r}, os.getcwd())",
+            "rel = os.fsencode(rel)" if bytes_path else "rel = rel",
             "try:",
-            f"    x = os.open({path_expr}, os.O_RDONLY, dir_fd=fd)",
+            "    x = os.open(rel, os.O_RDONLY, dir_fd=fd)",
             "except PermissionError:",
-            "    return {'denied': True}",
+            "    return {'denied': True, 'dirfd_acquired': True, 'relative_escape': True}",
             "else:",
             "    os.close(x)",
-            "    return {'denied': False}",
+            "    return {'denied': False, 'dirfd_acquired': True, 'relative_escape': True}",
             "finally:",
-            "    if fd != root: os.close(fd)",
-            "    os.close(root)",
+            "    if fd != basefd: os.close(fd)",
+            "    os.close(basefd)",
         ])
         append_probe(module, body)
         env = parse_envelope(run_native(native, sandbox, request()))
         payload = returned_payload(env)
-        if payload != {"denied": True}:
+        expected = {"denied": True, "dirfd_acquired": True, "relative_escape": True}
+        if payload != expected:
             raise AssertionError(f"R16_DIRFD_PATH_NOT_DENIED:{target}:{payload!r}")
-        return {"target": target, "bytes_path": bytes_path, "duplicate": duplicate, "payload": payload, "parent_envelope_digest": env["parent_envelope_digest"]}
+        return {
+            "target": absolute_target,
+            "bytes_path": bytes_path,
+            "duplicate": duplicate,
+            "payload": payload,
+            "parent_envelope_digest": env["parent_envelope_digest"],
+        }
     finally:
         td.cleanup()
 
