@@ -1,0 +1,22 @@
+{
+  "packet_file": "WDPC_V24_I11_Falsification_Plan_V4_Manual_Review_Packet.md",
+  "canonical_repository_payload": "testing/v24/WDPC-V24-I11-FALSIFICATION-PLAN-V4-PACKET.gz.b64",
+  "payload_encoding": "base64(gzip(packet_bytes)); gzip mtime=0",
+  "packet_sha256": "9b48a1ec64bb083446a799401e833201e3c54e21ea2410c6f81269d55d62a847",
+  "plan_body_sha256": "40bc0a09b0bcf31300ddc1c55cee185f5b19ae156c896571cb72dd4e3d16b24c",
+  "packet_bytes": 51181,
+  "compressed_payload_bytes": 14607,
+  "base64_payload_chars": 19476,
+  "harness_path": "testing/v24/v24_i11_harness_contract_v2.py",
+  "harness_blob_sha": "610093185437a48d8fd51b8db62c52b7c0fa2b3e",
+  "harness_version": "1.1.0-PLAN-REVIEW",
+  "design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "implementation_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "implementation_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "execution_status": "NOT_EXECUTED",
+  "blocked_cases": {
+    "WDPC-469": "BLOCKED_BY_I1_SEMANTIC_QUALIFICATION",
+    "WDPC-495": "BLOCKED_BY_I1_SEMANTIC_QUALIFICATION"
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
