@@ -1,0 +1,66 @@
+name: V24 V6 R1 Governance Foundation
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r1-governance-foundation
+    paths:
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/test_v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_completeness_bootstrap.py'
+      - 'governance-runtime/test_v24_completeness_bootstrap.py'
+      - 'governance-runtime/v24_effective_control.py'
+      - 'governance-runtime/test_v24_effective_control.py'
+      - 'governance-runtime/v24_authority_universe.py'
+      - 'governance-runtime/test_v24_authority_universe.py'
+      - '.github/workflows/v24-v6-r1-governance-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction-and-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile V6 R1 foundation
+        working-directory: governance-runtime
+        run: python -m py_compile v24_v6_governance_foundation.py
+
+      - name: Run V6 R1 construction tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_governance_foundation.py
+
+      - name: Run inherited V24 foundation regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_completeness_bootstrap.py \
+            test_v24_effective_control.py \
+            test_v24_authority_universe.py
+
+      - name: Anti-case-specific construction check
+        shell: bash
+        run: |
+          if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint' governance-runtime/v24_v6_governance_foundation.py; then
+            echo 'Case-specific coupling found in V6 R1 production foundation.'
+            exit 1
+          fi
+          echo 'No case-specific production coupling found.'
+
+      - name: Assert construction-only authority posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_governance_foundation as f
+          r=f.construction_frontier()
+          assert r['qualified'] is False
+          assert r['authority_effect']=='NONE_EVIDENCE_ONLY'
+          print(r)
+          PY
