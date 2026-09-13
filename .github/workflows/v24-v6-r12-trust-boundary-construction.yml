@@ -1,0 +1,336 @@
+name: V24 V6 R12 Trust Boundary Construction
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r12-external-authority
+    paths:
+      - 'review/v24/r12_trusted_external_guard.py'
+      - 'review/v24/r12_trusted_test_parent.py'
+      - 'review/v24/r12_untrusted_test_worker.py'
+      - 'review/v24/r12_trusted_adversarial_evidence.py'
+      - '.github/workflows/v24-v6-r12-trust-boundary-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r12-construction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Resolve exact R12 candidate and prove external authority separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH='implementation/v24-i11-v6-r12-trust-boundary-remediation'
+          git fetch --no-tags origin "refs/heads/$BRANCH:refs/remotes/origin/r12-candidate"
+          CANDIDATE="$(git rev-parse refs/remotes/origin/r12-candidate)"
+          TREE="$(git rev-parse "$CANDIDATE^{tree}")"
+          for path in \
+            review/v24/r12_trusted_external_guard.py \
+            review/v24/r12_trusted_test_parent.py \
+            review/v24/r12_untrusted_test_worker.py \
+            review/v24/r12_trusted_adversarial_evidence.py \
+            review/v24/V24-I11-V6-R12-EXTERNAL-PINSET.json; do
+            if git cat-file -e "$CANDIDATE:$path" 2>/dev/null; then
+              echo "R12_EXTERNAL_AUTHORITY_OBJECT_IN_CANDIDATE:$path"; exit 1
+            fi
+          done
+          SUBJECT="$RUNNER_TEMP/r12-candidate"
+          rm -rf "$SUBJECT" && mkdir -p "$SUBJECT"
+          git archive "$CANDIDATE" | tar -xf - -C "$SUBJECT"
+          echo "R12_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "R12_TREE=$TREE" >> "$GITHUB_ENV"
+          echo "R12_SUBJECT=$SUBJECT" >> "$GITHUB_ENV"
+          echo "R12_REVIEW_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "R12_GUARD_BLOB=$(git rev-parse HEAD:review/v24/r12_trusted_external_guard.py)" >> "$GITHUB_ENV"
+          echo "R12_PARENT_BLOB=$(git rev-parse HEAD:review/v24/r12_trusted_test_parent.py)" >> "$GITHUB_ENV"
+          echo "R12_WORKER_BLOB=$(git rev-parse HEAD:review/v24/r12_untrusted_test_worker.py)" >> "$GITHUB_ENV"
+          echo "R12_EVIDENCE_BUILDER_BLOB=$(git rev-parse HEAD:review/v24/r12_trusted_adversarial_evidence.py)" >> "$GITHUB_ENV"
+          echo "R12_CANDIDATE=$CANDIDATE"
+          echo "R12_TREE=$TREE"
+          echo 'R12_EXTERNAL_AUTHORITY_SEPARATION=PASS'
+
+      - name: Generate runtime-bound external pinset
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          PINSET="$RUNNER_TEMP/V24-I11-V6-R12-EXTERNAL-PINSET.json"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GITHUB_WORKSPACE/review/v24/r12_trusted_external_guard.py" build-pinset \
+            --root "$R12_SUBJECT" --commit "$R12_CANDIDATE" --tree "$R12_TREE" \
+            --review-commit "$R12_REVIEW_COMMIT" --output "$PINSET"
+          echo "R12_PINSET=$PINSET" >> "$GITHUB_ENV"
+          echo "R12_PINSET_SHA256=$(sha256sum "$PINSET" | awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Verify source and stage exact sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          GUARD="$GITHUB_WORKSPACE/review/v24/r12_trusted_external_guard.py"
+          SANDBOX="$RUNNER_TEMP/r12-sandbox"
+          rm -rf "$SANDBOX"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" verify-source \
+            --root "$R12_SUBJECT" --pinset "$R12_PINSET" --commit "$R12_CANDIDATE" --tree "$R12_TREE"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" stage \
+            --root "$R12_SUBJECT" --pinset "$R12_PINSET" --commit "$R12_CANDIDATE" --tree "$R12_TREE" --target "$SANDBOX"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" verify-sandbox \
+            --root "$SANDBOX" --pinset "$R12_PINSET" --commit "$R12_CANDIDATE" --tree "$R12_TREE"
+          echo "R12_SANDBOX=$SANDBOX" >> "$GITHUB_ENV"
+
+      - name: Exact-file attacks remain rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          GUARD="$GITHUB_WORKSPACE/review/v24/r12_trusted_external_guard.py"
+          reject_pin_attack() {
+            local name="$1"
+            local attack="$RUNNER_TEMP/r12-pin-attack-$name"
+            rm -rf "$attack"
+            cp -a "$R12_SANDBOX" "$attack"
+            case "$name" in
+              test-swap) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/test_v24_v6_r12_successor.py" ;;
+              support-swap) printf '{}\n' > "$attack/implementation/v24/V24-I11-V6-R12-EXECUTION-CONTRACT.json" ;;
+              unpinned) printf 'untrusted\n' > "$attack/implementation/v24/r12-unpinned.txt" ;;
+              unittest) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/unittest.py" ;;
+              sitecustomize) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/sitecustomize.py" ;;
+              usercustomize) printf 'raise SystemExit(0)\n' > "$attack/governance-runtime/usercustomize.py" ;;
+              stdlib) printf 'VALUE = 1\n' > "$attack/governance-runtime/json.py" ;;
+              symlink)
+                rm "$attack/governance-runtime/test_v24_v6_r12_successor.py"
+                ln -s v24_v6_r12_successor.py "$attack/governance-runtime/test_v24_v6_r12_successor.py"
+                ;;
+              *) echo "unknown attack $name"; exit 2 ;;
+            esac
+            if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+              "$PYTHON_BIN" -I -S "$GUARD" verify-sandbox \
+              --root "$attack" --pinset "$R12_PINSET" --commit "$R12_CANDIDATE" --tree "$R12_TREE"; then
+              echo "R12_FALSE_GREEN_PIN_ATTACK_ACCEPTED:$name"; exit 1
+            fi
+            echo "R12_PIN_ATTACK_REJECTED:$name"
+          }
+          for x in test-swap support-swap unpinned unittest sitecustomize usercustomize stdlib symlink; do reject_pin_attack "$x"; done
+
+      - name: Process-boundary false-green attacks must be rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          PARENT="$GITHUB_WORKSPACE/review/v24/r12_trusted_test_parent.py"
+          WORKER="$GITHUB_WORKSPACE/review/v24/r12_untrusted_test_worker.py"
+          ATTACK_TEST='governance-runtime/test_v24_v6_external_execution_binding.py'
+          reject_runtime_attack() {
+            local name="$1"
+            local attack="$RUNNER_TEMP/r12-runtime-attack-$name"
+            rm -rf "$attack"
+            cp -a "$R12_SANDBOX" "$attack"
+            case "$name" in
+              monkey-runner)
+                cat > "$attack/$ATTACK_TEST" <<'PY'
+          import unittest
+          class FakeResult:
+              testsRun=1; failures=[]; errors=[]; unexpectedSuccesses=[]
+          class FakeRunner:
+              def __init__(self,*a,**k): pass
+              def run(self,suite): return FakeResult()
+          unittest.TextTestRunner = FakeRunner
+          class T(unittest.TestCase):
+              def test_false_green(self): self.fail('must not count')
+          PY
+                ;;
+              monkey-success)
+                cat > "$attack/$ATTACK_TEST" <<'PY'
+          import unittest
+          unittest.TestResult.wasSuccessful = lambda self: True
+          class T(unittest.TestCase):
+              def test_false_green(self): self.fail('must not count')
+          PY
+                ;;
+              zero-exit) printf 'import os\nos._exit(0)\n' > "$attack/$ATTACK_TEST" ;;
+              forged-stdout)
+                cat > "$attack/$ATTACK_TEST" <<'PY'
+          import os, unittest
+          os.write(1, b'R12_WORKER_RESULT={"successful":true}\n')
+          class T(unittest.TestCase):
+              def test_false_green(self): self.fail('must not count')
+          PY
+                ;;
+              *) echo "unknown runtime attack $name"; exit 2 ;;
+            esac
+            if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+              "$PYTHON_BIN" -I -S "$PARENT" --sandbox "$attack" --pinset "$R12_PINSET" --worker "$WORKER" --timeout-seconds 30; then
+              echo "R12_FALSE_GREEN_RUNTIME_ATTACK_ACCEPTED:$name"; exit 1
+            fi
+            echo "R12_RUNTIME_ATTACK_REJECTED:$name"
+          }
+          for x in monkey-runner monkey-success zero-exit forged-stdout; do reject_runtime_attack "$x"; done
+
+          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" "$PARENT" --sandbox "$R12_SANDBOX" --pinset "$R12_PINSET" --worker "$WORKER"; then
+            echo 'R12_FALSE_GREEN_PARENT_WITHOUT_ISOLATION_ACCEPTED'; exit 1
+          fi
+          echo 'R12_PARENT_WITHOUT_ISOLATION_REJECTED'
+
+          BAD_PINSET="$RUNNER_TEMP/r12-bad-runtime-pinset.json"
+          python - "$R12_PINSET" "$BAD_PINSET" <<'PY'
+          import json, sys
+          src, dst = sys.argv[1:]
+          obj=json.load(open(src, encoding='utf-8'))
+          obj['interpreter_contract']['version'][2] = 99
+          json.dump(obj, open(dst,'w',encoding='utf-8'), indent=2, sort_keys=True)
+          PY
+          if env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$PARENT" --sandbox "$R12_SANDBOX" --pinset "$BAD_PINSET" --worker "$WORKER"; then
+            echo 'R12_FALSE_GREEN_RUNTIME_CONTRACT_MISMATCH_ACCEPTED'; exit 1
+          fi
+          echo 'R12_RUNTIME_CONTRACT_MISMATCH_REJECTED'
+
+      - name: Run canonical R12 suite through trusted parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          PARENT="$GITHUB_WORKSPACE/review/v24/r12_trusted_test_parent.py"
+          WORKER="$GITHUB_WORKSPACE/review/v24/r12_untrusted_test_worker.py"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R12-PARENT-RESULT.txt"
+          PIN_BEFORE="$(sha256sum "$R12_PINSET" | awk '{print $1}')"
+          test "$PIN_BEFORE" = "$R12_PINSET_SHA256"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$PARENT" --sandbox "$R12_SANDBOX" --pinset "$R12_PINSET" --worker "$WORKER" | tee "$OUT"
+          PIN_AFTER="$(sha256sum "$R12_PINSET" | awk '{print $1}')"
+          test "$PIN_AFTER" = "$PIN_BEFORE"
+          python - "$OUT" <<'PY'
+          import json, sys
+          prefix='R12_PARENT_RESULT='
+          lines=[x.strip() for x in open(sys.argv[1], encoding='utf-8') if x.strip()]
+          assert len(lines)==1 and lines[0].startswith(prefix), lines
+          obj=json.loads(lines[0][len(prefix):])
+          assert obj['module_count']==20, obj
+          assert obj['test_count']==270, obj
+          assert obj['trusted_parent_imported_candidate'] is False
+          assert obj['candidate_shared_trusted_result_state'] is False
+          assert obj['result_accounting_origin']=='TRUSTED_PARENT'
+          print('R12_TRUSTED_PARENT_RESULT=PASS modules=20 tests=270')
+          PY
+          echo "R12_PARENT_RESULT_FILE=$OUT" >> "$GITHUB_ENV"
+
+      - name: Build six exact executed adversarial evidence records
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          BUILDER="$GITHUB_WORKSPACE/review/v24/r12_trusted_adversarial_evidence.py"
+          WORKER="$GITHUB_WORKSPACE/review/v24/r12_untrusted_test_worker.py"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R12-ADVERSARIAL-EVIDENCE.json"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$BUILDER" \
+            --sandbox "$R12_SANDBOX" --pinset "$R12_PINSET" --worker "$WORKER" \
+            --run-id "$GITHUB_RUN_ID" --round-id 'R12-CONSTRUCTION-ROUND-1' --output "$OUT"
+          echo "R12_ADVERSARIAL_EVIDENCE=$OUT" >> "$GITHUB_ENV"
+
+      - name: Build execution-boundary evidence and validate both R12 contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          BOUNDARY="$RUNNER_TEMP/V24-I11-V6-R12-EXECUTION-BOUNDARY-EVIDENCE.json"
+          python - "$R12_PARENT_RESULT_FILE" "$BOUNDARY" "$R12_PARENT_BLOB" "$R12_WORKER_BLOB" <<'PY'
+          import json, sys
+          src, dst, parent_blob, worker_blob = sys.argv[1:]
+          prefix='R12_PARENT_RESULT='
+          line=[x.strip() for x in open(src, encoding='utf-8') if x.strip()][0]
+          obj=json.loads(line[len(prefix):])
+          obj['trusted_parent_git_blob_sha1']=parent_blob
+          obj['trusted_worker_git_blob_sha1']=worker_blob
+          with open(dst,'w',encoding='utf-8') as f:
+              json.dump(obj,f,indent=2,sort_keys=True); f.write('\n')
+          PY
+          echo "R12_BOUNDARY_EVIDENCE=$BOUNDARY" >> "$GITHUB_ENV"
+
+          PYTHON_BIN="$(command -v python)"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S - "$R12_SANDBOX" "$R12_ADVERSARIAL_EVIDENCE" "$BOUNDARY" <<'PY'
+          import json, pathlib, sys
+          sandbox=pathlib.Path(sys.argv[1]).resolve()
+          sys.path.insert(0, str(sandbox/'governance-runtime'))
+          from v24_v6_r12_successor import validate_adversarial_evidence_bundle, validate_execution_boundary_evidence
+          a=json.load(open(sys.argv[2], encoding='utf-8'))
+          b=json.load(open(sys.argv[3], encoding='utf-8'))
+          ar=validate_adversarial_evidence_bundle(a)
+          br=validate_execution_boundary_evidence(b)
+          assert ar['valid'], ar
+          assert br['valid'], br
+          assert ar['qualified'] is False and br['qualified'] is False
+          print('R12_ADVERSARIAL_EVIDENCE_VALIDATION=PASS')
+          print('R12_EXECUTION_BOUNDARY_EVIDENCE_VALIDATION=PASS')
+          PY
+
+      - name: Post-execution exact sandbox verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GITHUB_WORKSPACE/review/v24/r12_trusted_external_guard.py" verify-sandbox \
+            --root "$R12_SANDBOX" --pinset "$R12_PINSET" --commit "$R12_CANDIDATE" --tree "$R12_TREE"
+
+      - name: Write non-authoritative R12 construction verification record
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/V24-I11-V6-R12-CONSTRUCTION-VERIFICATION.json"
+          cat > "$OUT" <<EOF
+          {
+            "schema_version": 1,
+            "verification_id": "V24-I11-V6-R12-TRUST-BOUNDARY-CONSTRUCTION",
+            "candidate_commit": "$R12_CANDIDATE",
+            "candidate_tree": "$R12_TREE",
+            "review_branch_commit": "$R12_REVIEW_COMMIT",
+            "trusted_guard_git_blob_sha1": "$R12_GUARD_BLOB",
+            "trusted_parent_git_blob_sha1": "$R12_PARENT_BLOB",
+            "trusted_worker_git_blob_sha1": "$R12_WORKER_BLOB",
+            "trusted_adversarial_evidence_builder_git_blob_sha1": "$R12_EVIDENCE_BUILDER_BLOB",
+            "external_pinset_sha256": "$R12_PINSET_SHA256",
+            "admitted_file_count": 72,
+            "executed_module_count": 20,
+            "expected_test_case_count": 270,
+            "exact_file_attacks": "PASS_REJECTED",
+            "process_boundary_attacks": "PASS_REJECTED",
+            "actual_interpreter_runtime_binding": "PASS",
+            "trusted_parent_suite": "PASS",
+            "mandatory_adversarial_evidence_records": 6,
+            "sandbox_binding_post_execution": "PASS",
+            "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+            "runtime_qualification_state": "NOT_CLAIMED",
+            "authority_effect": "NONE_EVIDENCE_ONLY"
+          }
+          EOF
+          python -m json.tool "$OUT" >/dev/null
+          echo "R12_CONSTRUCTION_VERIFICATION=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload R12 construction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r12-trust-boundary-construction-evidence
+          path: |
+            ${{ runner.temp }}/V24-I11-V6-R12-EXTERNAL-PINSET.json
+            ${{ runner.temp }}/V24-I11-V6-R12-PARENT-RESULT.txt
+            ${{ runner.temp }}/V24-I11-V6-R12-ADVERSARIAL-EVIDENCE.json
+            ${{ runner.temp }}/V24-I11-V6-R12-EXECUTION-BOUNDARY-EVIDENCE.json
+            ${{ runner.temp }}/V24-I11-V6-R12-CONSTRUCTION-VERIFICATION.json
+          if-no-files-found: error
+          retention-days: 90
