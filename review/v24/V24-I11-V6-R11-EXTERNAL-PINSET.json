@@ -1,0 +1,467 @@
+{
+  "admitted_files": [
+    {
+      "git_blob_sha1": "7fd7fb621e8a1884eb34fd3e2d07db3f94242b58",
+      "path": "governance-runtime/build_portable_review_packet.py",
+      "raw_sha256": "ebbc58af03710ca43cac9621c8db6257cac81b7f4a24f15ac73d2e3290471d6c",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "5fdbd561c93049222d55bbc81c2baf592ff906aa",
+      "path": "governance-runtime/normative_control_catalog.py",
+      "raw_sha256": "5a239be5641806995170fa0382d53c1e1d3fc202543b208a0e2f351f66279cf3",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "b6a3f8be0c2a59993e207fb5b6a75ecbd01e9f8b",
+      "path": "governance-runtime/platform_candidate_review.py",
+      "raw_sha256": "20c440443a64d3bb585d6502353eb19739fc655fa1b8ee74df2a93127b35263b",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "700de613cb2e57d52b42d1a1043c6f2558517649",
+      "path": "governance-runtime/platform_candidate_review_v2.py",
+      "raw_sha256": "3d1b4c3e2b6cd6eaa88fd48dddbe02d7e0d421f6a965ecd07b52c8d0cfe9f40a",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "b9e53193dda6d824743e0683a42a002635845d5b",
+      "path": "governance-runtime/provider_review_telemetry.py",
+      "raw_sha256": "6b54a0ecdbd9f7e138648f3b00bbce5ae896b30a4dc147d2c621d0098145dc7c",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "e0b3d8d09f903b38f9d2932f0c35057f062ff90c",
+      "path": "governance-runtime/review_protocol.py",
+      "raw_sha256": "28ef0861ead2ce1579ee5bcee5ddc8a9f8dbeae73ef66c5b153f689864b1379f",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "95f83e7fe0c0a4f56c4aec4f0a0daa7a2489adea",
+      "path": "governance-runtime/slice3_platform_api_review.py",
+      "raw_sha256": "a03e53b6c9a8fbcaf051de11364d87497d786cc5e06c059fde132b631cef6008",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "03b66fd2c6a5009eae7075f3c7437b10c57fd1d0",
+      "path": "governance-runtime/test_normative_control_catalog.py",
+      "raw_sha256": "9ab48c6bf37ba7c39da3d46941f9a4c007dc92c4ce301f45a6025d409287f219",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "bc8c43f0cd312808a736a81c478c3f14460f1401",
+      "path": "governance-runtime/test_platform_candidate_review_request_integrity.py",
+      "raw_sha256": "c928fcc715b8b2d45bd0225a4ed7585aebabbf85de0d4db814cb3e18e359a3ed",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "72a7b2e37b458673d10e7ee689b7c9c57b52d280",
+      "path": "governance-runtime/test_platform_candidate_review_v2_materialization.py",
+      "raw_sha256": "26c3e045f88b4e23c2a89d1665240defc4b58a0f52c4c67324db353774c992bb",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "b869dd844707521ff0dde4332cffcb0b13e3e3ef",
+      "path": "governance-runtime/test_provider_review_dashboard_integration.py",
+      "raw_sha256": "a95d000cfe8e7733a940b2c6842ff72bd3579a2f52be9899abef37665ad65fd8",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "4e37815b6529da20529d7c0f9e48785f93b6a738",
+      "path": "governance-runtime/test_provider_review_telemetry.py",
+      "raw_sha256": "77682c0eb2e62e34ea4077b5f6fef76f28aa2271a18fcb824f4e7fe0acc7ce18",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "035b6cfb5da0b6ac9f9e0917a5965685dd16f134",
+      "path": "governance-runtime/test_review_classification.py",
+      "raw_sha256": "a47e21de84bd9c0795db3f763af5ad130424633f298e918c3f409a899af8df4f",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "7fac0e94b5e600aa2cd54c3911017dcf85a8a410",
+      "path": "governance-runtime/test_review_protocol.py",
+      "raw_sha256": "c205a90dac197099a07359c448a999558a9f106dc3493d0fd72d43517e74a1b6",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "c9cafa735f9198836363a8a89d11478815b59278",
+      "path": "governance-runtime/test_review_semantics.py",
+      "raw_sha256": "9f55e9c8df695ca5f088700d7fc6303ae052d96a761d4cd64f99da6cdf168496",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "b19b59022d3f822a3450bf330efc3fec22c34415",
+      "path": "governance-runtime/test_reviewer_selection.py",
+      "raw_sha256": "14d52702bda4f19ad15769285588e6e73ce09d701006cf44acecd95c8c721dbb",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "5ac8f6ed158b77397dc157cbe15a48a7330e387d",
+      "path": "governance-runtime/test_single_file_review_container.py",
+      "raw_sha256": "ae0a20e53c14dae36a22238ae420eca97535fd8bc62f63ccaf2ae7f67f93167a",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "45111f69058e0e56f835939531909a512108b475",
+      "path": "governance-runtime/test_v24_admission_application_witness.py",
+      "raw_sha256": "4580993e3b5f63a1dde7cdc713ab3b78b67a187ae5ccf05b010f0a66778960eb",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "8cee583a6ed50f35bb7c34c01fccc4818771251a",
+      "path": "governance-runtime/test_v24_aggregate_budget.py",
+      "raw_sha256": "c5a253130efd5492a4c06a6e1b4aeefa151b6680007458423e226e412dfa80ee",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "5e9ec92002f4be8bb3af9f8c08cbffd2fa4edb49",
+      "path": "governance-runtime/test_v24_authority_universe.py",
+      "raw_sha256": "68b21d7622dd4710096bb09bdda4287f2467330f36c976b4656037d3a1dbfe51",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "7f6a7385d8a056966afe0994ab95f2d10045902b",
+      "path": "governance-runtime/test_v24_completeness_bootstrap.py",
+      "raw_sha256": "5e290455682b9252509943da477bc16d8d0b18cfe7c27290ea8244ee1f643cfc",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "82baa0c29cbcb51bec32951850073f96f3d216a9",
+      "path": "governance-runtime/test_v24_effective_control.py",
+      "raw_sha256": "f29ef4ee613ba7b138285f67e473d37bd480b4ff6821f8a495335beb9687178b",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "3472f87d5c3b0faef80fafbbd9519523dc3520b9",
+      "path": "governance-runtime/test_v24_endpoint_proof_compiler.py",
+      "raw_sha256": "ada1c621696be2eb4e931358b6b1a77684b54067c456e3100ec673b707a2b099",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "39e548763a464c5ae9c1d46ce0ea55a438cbd7b9",
+      "path": "governance-runtime/test_v24_generation_migration.py",
+      "raw_sha256": "ed0e51338937f676802d26b0986c8e8e48540a511702cd6a3f5234e2c8dea02e",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "1b334857409822a88f910dc030821b38faf28685",
+      "path": "governance-runtime/test_v24_review_proof_audit.py",
+      "raw_sha256": "8dddb4406c5269cf0897930fb3004b692daaf54706eb39cb02ee19316c295bf8",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "e089e18fb1e96f613385f73f37c0d00117a51e6c",
+      "path": "governance-runtime/test_v24_v6_atomic_binding_modes.py",
+      "raw_sha256": "315d85a8014dc3415a258aaff7bc2c3d67d1a2e800d6eb698af3704bc343677b",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "2026c28ff4e881ebb0592a67b899b674f96429a4",
+      "path": "governance-runtime/test_v24_v6_decision_apply.py",
+      "raw_sha256": "41c98feffe38d32540e8ceeddb69ce308d7adc146faa0f818e5c927953e3b017",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "504773c2939d90705792b3606df430b9caa6ccfc",
+      "path": "governance-runtime/test_v24_v6_effect_ledger_closure.py",
+      "raw_sha256": "4bf457858ba97af3258ecebffce3ee1bdcda7dc6d7c1317c0d63fe0d0d8a4114",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "506a234becfb0a30796c2d614501295a11e9be09",
+      "path": "governance-runtime/test_v24_v6_endpoint_projection.py",
+      "raw_sha256": "1d3b69df2289383f14a166309c583ba4828fd88f0b9a42c0737a7ddabb265b20",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "97af1c4e2e3b4be291001880193a04cbd7e1f02a",
+      "path": "governance-runtime/test_v24_v6_external_execution_binding.py",
+      "raw_sha256": "f99eebc0eeb8e2b037884cb4efa06f8f4b330e1c61a73629ea409f95a0f70338",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "05db4dcf97b38cc292b2398ee44dcddaf4ce9945",
+      "path": "governance-runtime/test_v24_v6_governance_foundation.py",
+      "raw_sha256": "37d818a6100c8a0fbebaff3e388dd01d0900b92e8e6cc399c88bf2eeece8022d",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "f805d7ea8abe4d7b5129b1f436c43153f0860b83",
+      "path": "governance-runtime/test_v24_v6_integrated_successor.py",
+      "raw_sha256": "a8029d7ef85b907e4cc56f4cb6a33dee33af884af34d84e707f2bfcd0488a0af",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "2187715f27be74a9def8c2abf8587e4d40b20ba0",
+      "path": "governance-runtime/test_v24_v6_material_surface.py",
+      "raw_sha256": "3324dbd0a77c68a138de2d6de82174c1a387f8ee4060d11a6c0d4ebfac2b9e95",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "41d278e35ec88ec7246f1017e6999ad47af819fa",
+      "path": "governance-runtime/test_v24_v6_normative_clause_projection.py",
+      "raw_sha256": "c8146e061502f4a1e57dd84e2fb238ed521a593ff4c101e6fe9cec6123f46aec",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "b27a07638d37fc4e4692845e9c780f1eca86e6b5",
+      "path": "governance-runtime/test_v24_v6_qualification_integrity.py",
+      "raw_sha256": "03efc4084d8303b294fec52dd65c5385f2357d2fc137677926537ba8758d4b2f",
+      "role": "test"
+    },
+    {
+      "git_blob_sha1": "af9d998f2cab4fe0d2b6fbb9d0feadbe9ae55278",
+      "path": "governance-runtime/v24_admission_application_witness.py",
+      "raw_sha256": "0bb391e5d933e4b21d10b12478bc9e08e2919b228b80ab4e2c52c9f809179d5d",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "60fad10caa3099123480cffdd531f02080e4c9f9",
+      "path": "governance-runtime/v24_aggregate_budget.py",
+      "raw_sha256": "3a328d889847b8e0f7c4292634392f57d37b6ed68fcd5ce8696fb803a4172550",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "d57b7608b416efe5f9c356c2a9dafa38d47faedf",
+      "path": "governance-runtime/v24_authority_surface_inventory.py",
+      "raw_sha256": "16bfb3c2ccd607056a0c11d4ec1c2a8ef8c8fd9581d4b1adb2ef7a6f66dc775f",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "216acc1168653f0e5d53479ec7c708935b8435ad",
+      "path": "governance-runtime/v24_authority_universe.py",
+      "raw_sha256": "2ad3fe1536a313e78f4dc3e1868688c0684d180fdb69f7e22223e4796d3467d2",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "5cd17124e5809b963ce64d86ba0bb67801a17e73",
+      "path": "governance-runtime/v24_completeness_bootstrap.py",
+      "raw_sha256": "8488e4dbe4330fdae4cd3ab287822ddb73219e54b266950655f6909bae991827",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "b4e7dfac31f319a82c6af28fcfa14fdb559c28ba",
+      "path": "governance-runtime/v24_effective_control.py",
+      "raw_sha256": "1d2731865b53799018bdccb27851ccee931df8c3ca95375cda8d4890b9f70608",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "1d43d650f6181c87bdd1fb18b5e017e505f9bde6",
+      "path": "governance-runtime/v24_endpoint_proof_compiler.py",
+      "raw_sha256": "f74b32c08d861cd4c60b2cca791e5c46ab76ce6d6fc20ef5a916bda4903c6150",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "6a17903d5bb82858c9cabfb66af23ffcc2377fbc",
+      "path": "governance-runtime/v24_generation_migration.py",
+      "raw_sha256": "e4f0f0cf7626225934b34147e173f52defc53abfcbc6e87549b08c8c7fe96f2c",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "396d27cdaa2a0e1ac7d044bfeb31d4c306c1b902",
+      "path": "governance-runtime/v24_legacy_continuity_manifest.py",
+      "raw_sha256": "6285e0623fbcff3fe5e83e2e95d610dd34174acd3d892312a71faf60227b9f8d",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "ed0aa47222e74162e789402b60dd2c876935f314",
+      "path": "governance-runtime/v24_legacy_inventory_candidate.py",
+      "raw_sha256": "96e1bf38a5857b23c2de2a0d7cf76fe1857ef74b5db283e6392df8e4f2099c8f",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "64a6c8e38d97768852b7995e078931b2382bf30d",
+      "path": "governance-runtime/v24_legacy_v7_classifier.py",
+      "raw_sha256": "337b8565442054a20310746f61df61198675540b0f8f81e36d83fde21d844a5f",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "ddf9090c3b69228a3c579e35dd11fd58de8e3c82",
+      "path": "governance-runtime/v24_normative_bundle_preflight.py",
+      "raw_sha256": "aae9568b64256b1dd1858f985da7665d17bcf97103bb34bedec35f7e08d04153",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "b3cbd0099900826a439da3223364889651276cf1",
+      "path": "governance-runtime/v24_review_proof_audit.py",
+      "raw_sha256": "e2485e6ae22b7f7eb05482c9164af6734dd960463e5ae49fd24aa6c15d984d25",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "e9fb5b38ac66350709ab57332f2dc78872268158",
+      "path": "governance-runtime/v24_v6_atomic_binding_modes.py",
+      "raw_sha256": "6aa71d53901d8a6298496e57e4d465927da570f4475e7e03194e941ada77fff1",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "fc251f572cd36b581fb8245fa00d261ceb7770f3",
+      "path": "governance-runtime/v24_v6_decision_apply.py",
+      "raw_sha256": "4cecbcd86371ba175c6a0ac58d396227e10f034e3b665525d28d65bf8d5577d6",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "ebe12ef71bafef221ca9e602adba54373aec8bac",
+      "path": "governance-runtime/v24_v6_effect_ledger_closure.py",
+      "raw_sha256": "f63cd779b1ab254c52c0cf170a34a1a4ee81699edf804f915350b8baa8257a47",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "424765c9c89f21247aad2c15a0a893ea2abe022e",
+      "path": "governance-runtime/v24_v6_endpoint_projection.py",
+      "raw_sha256": "9467762b101ffa93c7f2a6469686ecd0b788e1f00ccd12a29a6b444af96ad281",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "5a9a060f2c246f5ebc50fdfe47a6f31cab084433",
+      "path": "governance-runtime/v24_v6_external_execution_binding.py",
+      "raw_sha256": "77565c13d557181f95fe363b7f7acba9882012b8581f90765a2ffa39d5060d2e",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "e93684a6886fc34e7f618a83281b72fa505dc90f",
+      "path": "governance-runtime/v24_v6_governance_foundation.py",
+      "raw_sha256": "d94a1108aa530ff603342be48bace6e6791624a671176b1b256a9eb1b293e97c",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "612f085facb91fb7530aa26f7710991573c2427f",
+      "path": "governance-runtime/v24_v6_integrated_successor.py",
+      "raw_sha256": "8bc84355dd0c3fb580df16e6a92843dda31f93f474d1fea3fc8b75c45e245dad",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "9abfbb8416744c97b83e5946fd6ef4b20873fcba",
+      "path": "governance-runtime/v24_v6_material_surface.py",
+      "raw_sha256": "fc027cedad31bc01531c9284e3190c8f4429494cbb5aba72fedab8565ab5c6ca",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "da045b5cbdcffc2e44a4c63aa2784d0a632a8585",
+      "path": "governance-runtime/v24_v6_normative_clause_projection.py",
+      "raw_sha256": "cc091f855657ff499d0861554b1cc8d109c8e5ea0c5f56bbd324c217ea465c80",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "7b8c8ed92a03dddf7000393a0517142a5931113f",
+      "path": "governance-runtime/v24_v6_qualification_integrity.py",
+      "raw_sha256": "7a90b053130bcdc40e292bd62dc1d0221f920b26ae9f127633afbb5f6ae35dec",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "c1981bc16ae5d6fd064b39b059facab6e11b8a09",
+      "path": "governance-runtime/validate_runtime.py",
+      "raw_sha256": "d44659e83d1021556f7a8ef567dd825ff783290acf7bd0d70713735f7e8657b9",
+      "role": "dependency"
+    },
+    {
+      "git_blob_sha1": "3a4ef5df4936e5f02b2e0fa8712e662c6161d065",
+      "path": "implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json",
+      "raw_sha256": "8193b35de08444742b6cefa53a02e2408b3a8fd2a9fef1244eb08fb8be951f2d",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "4434403ee104e4918fa471487130ca21074f6d5f",
+      "path": "implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "88ebf5314bb1394ab50eefd6fb0d0a5ae31f541a78178db5b8f1c40343a11433",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "d6d7d6d68ca22eacab809f8618da5229cd799cba",
+      "path": "implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json",
+      "raw_sha256": "004de9c4f30a488d32c846f9dcf28a480f603be334e8a758c5c55d299965229b",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "f2ea09f946f6d772c2fa478fae28f00e607410ef",
+      "path": "implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "80602b03cf1bd81a6a8035b07911422f4864f4966fa0035ccbef899c47c8295a",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "d513b44645fac2e0d7aba39439523f5543eb495a",
+      "path": "implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "bb2e0bbae9163f4c9c1c6ec1e78d2ad223221913b8d6a317e4267100a371f48b",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "2e07acf62df5446aec4da2f8bf5e1e2dcb06b13e",
+      "path": "implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "488f45caac812e60a95add96ba5871fd1bdb2d5da0d3d4a19344c0e36c44469f",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "1300e24bab9cc25455969f260a11a677f212afab",
+      "path": "implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "43b7ff9345f5e56c0bb6081b9a6db95d2615120494ab9d319e92fbd44cf5161e",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "225ee929796330784b13cc335d408390f65e80eb",
+      "path": "implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "1eaa3a95a1326821b7b85e7c38b5f420337495cd9f70ebae200aa4babd840b86",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "74a54c5ab6acb693ae077bf0f917caa19e924d5b",
+      "path": "implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "1055375650c02bf928630c0883186e88ee5be694ac166895e5facd5dc708765f",
+      "role": "support"
+    },
+    {
+      "git_blob_sha1": "31a519a2599fd87804e0338953986b86e0088bf5",
+      "path": "implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "f119296533ffbf2708852a14de6ef341dfe6f64dc039e9f04dc52b751f9c08ff",
+      "role": "support"
+    }
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "authority_origin": "EXTERNAL_REVIEW_BRANCH",
+  "candidate_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+  "candidate_self_grant": false,
+  "candidate_tree": "d202b039285213b386557083a26de42e0fb20cf4",
+  "executed_tests": [
+    "governance-runtime/test_v24_v6_external_execution_binding.py",
+    "governance-runtime/test_v24_v6_governance_foundation.py",
+    "governance-runtime/test_v24_v6_endpoint_projection.py",
+    "governance-runtime/test_v24_v6_material_surface.py",
+    "governance-runtime/test_v24_v6_decision_apply.py",
+    "governance-runtime/test_v24_v6_normative_clause_projection.py",
+    "governance-runtime/test_v24_v6_effect_ledger_closure.py",
+    "governance-runtime/test_v24_v6_atomic_binding_modes.py",
+    "governance-runtime/test_v24_v6_qualification_integrity.py",
+    "governance-runtime/test_v24_v6_integrated_successor.py",
+    "governance-runtime/test_normative_control_catalog.py",
+    "governance-runtime/test_v24_authority_universe.py",
+    "governance-runtime/test_v24_effective_control.py",
+    "governance-runtime/test_v24_completeness_bootstrap.py",
+    "governance-runtime/test_v24_endpoint_proof_compiler.py",
+    "governance-runtime/test_v24_admission_application_witness.py",
+    "governance-runtime/test_v24_aggregate_budget.py",
+    "governance-runtime/test_v24_generation_migration.py",
+    "governance-runtime/test_v24_review_proof_audit.py"
+  ],
+  "interpreter_contract": {
+    "candidate_path_absent_at_interpreter_startup": true,
+    "ignore_environment": true,
+    "isolated_mode": true,
+    "no_site": true,
+    "safe_path": true,
+    "trusted_runner_outside_candidate_tree": true
+  },
+  "required_support_files": [
+    "implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json",
+    "implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json"
+  ],
+  "review_branch_commit": "f560d39f93b9d943a03c88d9e95423c578eebcad",
+  "schema_version": 1,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW"
+}

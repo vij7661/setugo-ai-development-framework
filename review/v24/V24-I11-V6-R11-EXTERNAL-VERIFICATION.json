@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "verification_id": "V24-I11-V6-R11-EXTERNAL-EXECUTION-VERIFICATION",
+  "candidate_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+  "candidate_tree": "d202b039285213b386557083a26de42e0fb20cf4",
+  "review_branch_commit": "f560d39f93b9d943a03c88d9e95423c578eebcad",
+  "trusted_guard_git_blob_sha1": "d8792e90c379426a4f304c02761181707f10ca48",
+  "trusted_runner_git_blob_sha1": "1773c33e3898859a3733774736ce0c5036646dd8",
+  "external_pinset_sha256": "dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14",
+  "admitted_file_count": 69,
+  "expected_test_case_count": 259,
+  "source_binding": "PASS",
+  "sandbox_binding_pre_execution": "PASS",
+  "adversarial_probe_set": "PASS",
+  "trusted_runner": "PASS",
+  "sandbox_binding_post_execution": "PASS",
+  "independent_manual_review_completed": false,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
