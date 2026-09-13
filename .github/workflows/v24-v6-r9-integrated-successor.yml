@@ -109,9 +109,15 @@ jobs:
           body = packet.split(sep, 1)[1]
           raw = hashlib.sha256(packet).hexdigest()
           body_sha = hashlib.sha256(body).hexdigest()
-          assert raw == '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62', raw
+          observed = {
+              'packet_bytes': len(packet),
+              'body_bytes': len(body),
+              'raw_packet_sha256': raw,
+              'plan_body_sha256': body_sha,
+          }
+          print(json.dumps(observed, sort_keys=True), flush=True)
           assert body_sha == '286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5', body_sha
-          print(json.dumps({'raw_packet_sha256': raw, 'plan_body_sha256': body_sha}, sort_keys=True))
+          assert raw == '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62', raw
           PY
 
       - name: Anti-case-specific production coupling gate
