@@ -324,7 +324,9 @@ def validate_governed_qualification(record: Mapping[str, Any]) -> list[str]:
     if not _is_sha256(record.get("proof_digest")):
         p.append("QUALIFICATION_PROOF_DIGEST_INVALID")
     supplied = record.get("qualification_digest")
-    if _is_sha256(supplied) and supplied != _record_digest(record, "qualification_digest"):
+    if not _is_sha256(supplied):
+        p.append("QUALIFICATION_DIGEST_INVALID")
+    elif supplied != _record_digest(record, "qualification_digest"):
         p.append("QUALIFICATION_DIGEST_MISMATCH")
     return sorted(set(p))
 
@@ -387,20 +389,38 @@ def validate_completeness_derivation_graph(graph: Mapping[str, Any]) -> dict[str
         p.append(COMPLETENESS_DERIVATION_REJECTION)
 
     terminals = {node_id for node_id, deps in adjacency.items() if not deps}
+    declared_source_nodes: set[str] = set()
     allowed_roots: set[str] = set()
-    for node_id in terminals:
-        node = nodes[node_id]
+    for node_id, node in nodes.items():
+        declares_source = (
+            node.get("root_kind") is not None
+            or node.get("source_surface_digest") is not None
+        )
+        if not declares_source:
+            continue
+        declared_source_nodes.add(node_id)
         root_kind = node.get("root_kind")
         omission_sensitive = node.get("omission_sensitive")
         source_digest = node.get("source_surface_digest")
         if (
-            root_kind in ALLOWED_COMPLETENESS_ROOT_KINDS
-            and omission_sensitive is False
-            and _is_sha256(source_digest)
+            root_kind not in ALLOWED_COMPLETENESS_ROOT_KINDS
+            or omission_sensitive is not False
+            or not _is_sha256(source_digest)
         ):
-            allowed_roots.add(node_id)
+            p.append(f"COMPLETENESS_GRAPH_DISALLOWED_SOURCE_SURFACE:{node_id}")
+            p.append(COMPLETENESS_DERIVATION_REJECTION)
+        elif node_id not in terminals:
+            # A source/root is terminal by definition. Allowing it to depend on
+            # another node lets a disallowed source hide behind an allowed root.
+            p.append(f"COMPLETENESS_GRAPH_SOURCE_SURFACE_NOT_TERMINAL:{node_id}")
+            p.append(COMPLETENESS_DERIVATION_REJECTION)
         else:
+            allowed_roots.add(node_id)
+
+    for node_id in terminals:
+        if node_id not in allowed_roots:
             p.append(f"COMPLETENESS_GRAPH_DISALLOWED_TERMINAL:{node_id}")
+            p.append(COMPLETENESS_DERIVATION_REJECTION)
 
     memo: dict[str, set[str]] = {}
 

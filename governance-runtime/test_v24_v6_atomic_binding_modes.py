@@ -142,6 +142,7 @@ def registry_bundle() -> dict:
                 "transaction_commit_digest",
                 "evaluation_digest",
                 "condition_digest",
+                "decision_context_digest",
             ],
         },
         {
@@ -156,6 +157,7 @@ def registry_bundle() -> dict:
                 "snapshot_source_qualification_digest",
                 "evaluation_digest",
                 "condition_digest",
+                "decision_context_digest",
             ],
         },
     ]
@@ -184,6 +186,7 @@ def proof_for(bundle: dict, mode_id: str = "SAME_AUTHORITATIVE_TRANSACTION") -> 
             "transaction_commit_digest": "f" * 64,
             "evaluation_digest": "1" * 64,
             "condition_digest": "2" * 64,
+            "decision_context_digest": "6" * 64,
         }
     else:
         fields = {
@@ -191,6 +194,7 @@ def proof_for(bundle: dict, mode_id: str = "SAME_AUTHORITATIVE_TRANSACTION") -> 
             "snapshot_source_qualification_digest": "4" * 64,
             "evaluation_digest": "1" * 64,
             "condition_digest": "2" * 64,
+            "decision_context_digest": "6" * 64,
         }
     p = {
         "mode_id": mode_id,
@@ -279,34 +283,53 @@ class AtomicRegistryTests(unittest.TestCase):
 class AtomicProofTests(unittest.TestCase):
     def test_registered_transaction_proof_accepted(self):
         b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b)
-        r = validate_atomic_binding_proof(p, registry_result=rr)
+        r = validate_atomic_binding_proof(p, registry_result=rr, expected_evaluation_digest=p.get("proof_fields", {}).get("evaluation_digest", "1"*64), expected_condition_digest=p.get("proof_fields", {}).get("condition_digest", "2"*64), expected_decision_context_digest=p.get("proof_fields", {}).get("decision_context_digest", "6"*64))
         self.assertTrue(r["qualified"], r["problems"])
 
     def test_registered_snapshot_proof_accepted(self):
         b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b, "CRYPTOGRAPHICALLY_BOUND_SNAPSHOT")
-        r = validate_atomic_binding_proof(p, registry_result=rr)
+        r = validate_atomic_binding_proof(p, registry_result=rr, expected_evaluation_digest=p.get("proof_fields", {}).get("evaluation_digest", "1"*64), expected_condition_digest=p.get("proof_fields", {}).get("condition_digest", "2"*64), expected_decision_context_digest=p.get("proof_fields", {}).get("decision_context_digest", "6"*64))
         self.assertTrue(r["qualified"], r["problems"])
 
     def test_unknown_caller_mode_rejected(self):
         b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b); p["mode_id"] = "CALLER_CUSTOM_MODE"
-        r = validate_atomic_binding_proof(p, registry_result=rr)
+        r = validate_atomic_binding_proof(p, registry_result=rr, expected_evaluation_digest=p.get("proof_fields", {}).get("evaluation_digest", "1"*64), expected_condition_digest=p.get("proof_fields", {}).get("condition_digest", "2"*64), expected_decision_context_digest=p.get("proof_fields", {}).get("decision_context_digest", "6"*64))
         self.assertFalse(r["qualified"]); self.assertIn("ATOMIC_BINDING_PROOF_MODE_UNKNOWN_OR_UNREGISTERED", r["problems"])
 
     def test_schema_substitution_rejected(self):
         b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b); p["proof_schema_digest"] = "0" * 64
-        r = validate_atomic_binding_proof(p, registry_result=rr)
+        r = validate_atomic_binding_proof(p, registry_result=rr, expected_evaluation_digest=p.get("proof_fields", {}).get("evaluation_digest", "1"*64), expected_condition_digest=p.get("proof_fields", {}).get("condition_digest", "2"*64), expected_decision_context_digest=p.get("proof_fields", {}).get("decision_context_digest", "6"*64))
         self.assertFalse(r["qualified"]); self.assertIn("ATOMIC_BINDING_PROOF_SCHEMA_MISMATCH", r["problems"])
 
     def test_missing_required_field_rejected(self):
         b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b); p["proof_fields"].pop("condition_digest")
-        r = validate_atomic_binding_proof(p, registry_result=rr)
+        r = validate_atomic_binding_proof(p, registry_result=rr, expected_evaluation_digest=p.get("proof_fields", {}).get("evaluation_digest", "1"*64), expected_condition_digest=p.get("proof_fields", {}).get("condition_digest", "2"*64), expected_decision_context_digest=p.get("proof_fields", {}).get("decision_context_digest", "6"*64))
         self.assertFalse(r["qualified"]); self.assertIn("ATOMIC_BINDING_PROOF_FIELD_MISSING:condition_digest", r["problems"])
 
     def test_material_digest_tamper_rejected(self):
         b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b); p["proof_fields"]["transaction_id"] = "TX-TAMPER"
-        r = validate_atomic_binding_proof(p, registry_result=rr)
+        r = validate_atomic_binding_proof(p, registry_result=rr, expected_evaluation_digest=p.get("proof_fields", {}).get("evaluation_digest", "1"*64), expected_condition_digest=p.get("proof_fields", {}).get("condition_digest", "2"*64), expected_decision_context_digest=p.get("proof_fields", {}).get("decision_context_digest", "6"*64))
         self.assertFalse(r["qualified"]); self.assertIn("ATOMIC_BINDING_PROOF_MATERIAL_DIGEST_MISMATCH", r["problems"])
 
+
+
+    def test_proof_cannot_be_replayed_for_different_evaluation(self):
+        b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b)
+        r = validate_atomic_binding_proof(
+            p, registry_result=rr, expected_evaluation_digest="9" * 64,
+            expected_condition_digest=p["proof_fields"]["condition_digest"],
+            expected_decision_context_digest=p["proof_fields"]["decision_context_digest"],
+        )
+        self.assertFalse(r["qualified"]); self.assertIn("ATOMIC_BINDING_PROOF_EXACT_BINDING_MISMATCH:evaluation_digest", r["problems"])
+
+    def test_proof_cannot_be_replayed_across_decision_context(self):
+        b = registry_bundle(); rr = validate_atomic_binding_mode_registry(b); p = proof_for(b)
+        r = validate_atomic_binding_proof(
+            p, registry_result=rr, expected_evaluation_digest=p["proof_fields"]["evaluation_digest"],
+            expected_condition_digest=p["proof_fields"]["condition_digest"],
+            expected_decision_context_digest="9" * 64,
+        )
+        self.assertFalse(r["qualified"]); self.assertIn("ATOMIC_BINDING_PROOF_EXACT_BINDING_MISMATCH:decision_context_digest", r["problems"])
 
 if __name__ == "__main__":
     unittest.main()

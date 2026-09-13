@@ -302,9 +302,14 @@ def validate_atomic_binding_mode_registry(bundle: Mapping[str, Any]) -> dict[str
 
 
 def validate_atomic_binding_proof(
-    proof: Mapping[str, Any], *, registry_result: Mapping[str, Any]
+    proof: Mapping[str, Any],
+    *,
+    registry_result: Mapping[str, Any],
+    expected_evaluation_digest: str,
+    expected_condition_digest: str,
+    expected_decision_context_digest: str,
 ) -> dict[str, Any]:
-    """A proof is authoritative only through an exact current registered mode."""
+    """Bind one accepted proof to the exact evaluation/condition/context in use."""
     problems: list[str] = []
     if registry_result.get("qualified") is not True:
         problems.append("ATOMIC_BINDING_PROOF_REGISTRY_NOT_QUALIFIED")
@@ -343,6 +348,18 @@ def validate_atomic_binding_proof(
         extra = sorted(set(material) - set(required))
         if extra:
             problems.append("ATOMIC_BINDING_PROOF_UNDECLARED_FIELDS:" + ",".join(extra))
+        exact_expected = {
+            "evaluation_digest": expected_evaluation_digest,
+            "condition_digest": expected_condition_digest,
+            "decision_context_digest": expected_decision_context_digest,
+        }
+        for field, expected in exact_expected.items():
+            if not _sha(expected):
+                problems.append(f"ATOMIC_BINDING_EXPECTED_DIGEST_INVALID:{field}")
+            if field not in required:
+                problems.append(f"ATOMIC_BINDING_MODE_MISSING_CONTEXT_FIELD:{field}")
+            elif material.get(field) != expected:
+                problems.append(f"ATOMIC_BINDING_PROOF_EXACT_BINDING_MISMATCH:{field}")
         expected_material_digest = digest(
             {
                 "mode_id": mode_id,

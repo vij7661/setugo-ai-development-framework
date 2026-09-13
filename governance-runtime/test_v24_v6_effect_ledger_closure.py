@@ -235,6 +235,23 @@ def effect_path(effect_class_id: str = "STATE_WRITE") -> dict:
     }
 
 
+
+
+def bind_effect_class_proof(path_record: dict, registry_result: dict) -> dict:
+    entry=registry_result["entries"][path_record["effect_class_id"]]
+    path_binding_digest=digest({k:v for k,v in path_record.items() if k!="effect_class_proof"})
+    proof={
+        "effect_class_id":path_record["effect_class_id"],
+        "registry_content_digest":registry_result["registry_content_digest"],
+        "proof_schema_digest":entry["proof_schema_digest"],
+        "verifier_mechanism_id":entry["verifier_mechanism_id"],
+        "verifier_qualification_digest":entry["verifier_qualification_digest"],
+        "path_binding_digest":path_binding_digest,
+    }
+    proof["proof_material_digest"]=digest(proof)
+    path_record["effect_class_proof"]=proof
+    return path_record
+
 class DurableLedgerTests(unittest.TestCase):
     def test_material_observation_ledger_positive(self):
         r = validate_durable_governance_ledger(durable_ledger(), ledger_kind="MATERIAL_OBSERVATION")
@@ -308,8 +325,8 @@ class EffectClassTests(unittest.TestCase):
         self.assertTrue(any("EFFECT_CLASS_ENTRY_NOT_CURRENT" in p for p in r["problems"]))
 
     def test_registered_effect_path_classifies(self):
-        b = registry_bundle(); rr = validate_effect_class_registry(b)
-        r = validate_effect_path_against_registry(effect_path(), current_observation_head_digest="9" * 64, registry_result=rr)
+        b = registry_bundle(); rr = validate_effect_class_registry(b); path=bind_effect_class_proof(effect_path(),rr)
+        r = validate_effect_path_against_registry(path, current_observation_head_digest="9" * 64, registry_result=rr)
         self.assertTrue(r["qualified"], r["problems"])
 
     def test_unregistered_effect_class_blocks_effect_path(self):
@@ -317,6 +334,17 @@ class EffectClassTests(unittest.TestCase):
         r = validate_effect_path_against_registry(effect_path("UNKNOWN_EFFECT"), current_observation_head_digest="9" * 64, registry_result=rr)
         self.assertFalse(r["qualified"])
         self.assertIn("MATERIAL_EFFECT_PATH_EFFECT_CLASS_UNKNOWN_OR_UNREGISTERED", r["problems"])
+
+    def test_effect_class_proof_is_required(self):
+        b=registry_bundle(); rr=validate_effect_class_registry(b)
+        r=validate_effect_path_against_registry(effect_path(),current_observation_head_digest="9"*64,registry_result=rr)
+        self.assertFalse(r["qualified"]); self.assertIn("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_REQUIRED",r["problems"])
+
+    def test_effect_class_proof_cannot_be_replayed_for_different_path(self):
+        b=registry_bundle(); rr=validate_effect_class_registry(b); path=bind_effect_class_proof(effect_path(),rr)
+        path["source_or_writer_id"]="WRITER-OTHER"
+        r=validate_effect_path_against_registry(path,current_observation_head_digest="9"*64,registry_result=rr)
+        self.assertFalse(r["qualified"]); self.assertIn("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_PATH_BINDING_MISMATCH",r["problems"])
 
 
 if __name__ == "__main__":

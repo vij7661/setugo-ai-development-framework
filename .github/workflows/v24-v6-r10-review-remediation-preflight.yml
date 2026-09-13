@@ -1,0 +1,127 @@
+name: V24 V6 R10 Review Remediation Preflight
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r10-successor-review-remediation
+    paths:
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_material_surface.py'
+      - 'governance-runtime/v24_v6_decision_apply.py'
+      - 'governance-runtime/v24_v6_normative_clause_projection.py'
+      - 'governance-runtime/v24_v6_effect_ledger_closure.py'
+      - 'governance-runtime/v24_v6_atomic_binding_modes.py'
+      - 'governance-runtime/v24_v6_qualification_integrity.py'
+      - 'governance-runtime/test_v24_v6_governance_foundation.py'
+      - 'governance-runtime/test_v24_v6_material_surface.py'
+      - 'governance-runtime/test_v24_v6_decision_apply.py'
+      - 'governance-runtime/test_v24_v6_normative_clause_projection.py'
+      - 'governance-runtime/test_v24_v6_effect_ledger_closure.py'
+      - 'governance-runtime/test_v24_v6_atomic_binding_modes.py'
+      - 'governance-runtime/test_v24_v6_qualification_integrity.py'
+      - '.github/workflows/v24-v6-r10-review-remediation-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-remediation-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Capture exact remediation candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Compile V6 successor modules
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile             v24_v6_governance_foundation.py             v24_v6_endpoint_projection.py             v24_v6_material_surface.py             v24_v6_decision_apply.py             v24_v6_normative_clause_projection.py             v24_v6_effect_ledger_closure.py             v24_v6_atomic_binding_modes.py             v24_v6_qualification_integrity.py             v24_v6_integrated_successor.py
+
+      - name: Run R10 affected adversarial suites
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v             test_v24_v6_governance_foundation.py             test_v24_v6_atomic_binding_modes.py             test_v24_v6_normative_clause_projection.py             test_v24_v6_qualification_integrity.py             test_v24_v6_material_surface.py             test_v24_v6_decision_apply.py             test_v24_v6_effect_ledger_closure.py
+
+      - name: Run complete R1-R8 construction regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v             test_v24_v6_governance_foundation.py             test_v24_v6_endpoint_projection.py             test_v24_v6_material_surface.py             test_v24_v6_decision_apply.py             test_v24_v6_normative_clause_projection.py             test_v24_v6_effect_ledger_closure.py             test_v24_v6_atomic_binding_modes.py             test_v24_v6_qualification_integrity.py
+
+      - name: Run R9 integration regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_integrated_successor.py
+
+      - name: Run inherited V24 construction regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v             test_normative_control_catalog.py             test_v24_authority_universe.py             test_v24_effective_control.py             test_v24_completeness_bootstrap.py             test_v24_endpoint_proof_compiler.py             test_v24_admission_application_witness.py             test_v24_aggregate_budget.py             test_v24_generation_migration.py             test_v24_review_proof_audit.py
+
+      - name: Reconstruct and verify exact approved V6 design object
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin adjudication/v24-i11-v6-exact-reviewed-bytes
+          SOURCE_REF='FETCH_HEAD:remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          RECON_REF='FETCH_HEAD:remediation/v24/exact-reviewed-v6/V24-I11-V6-EXACT-REVIEWED-BYTE-RECONSTRUCTION.json'
+          REVIEW_REF='FETCH_HEAD:remediation/v24/reviews/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-FOLLOWUP-REVIEW-002.md'
+          test "$(git rev-parse "$SOURCE_REF")" = '8682df137aa12d57927e7891c16048e90b04caac'
+          test "$(git rev-parse "$RECON_REF")" = 'fe97833ea39f796e1616a3eee6f04ccb7968f47a'
+          test "$(git rev-parse "$REVIEW_REF")" = '59b96d37b22e3a8b789d33caf65ab3e8b8c6070f'
+          git show "$SOURCE_REF" > /tmp/v6-source-packet.md
+          git show "$RECON_REF" > /tmp/v6-reconstruction.json
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          source = Path('/tmp/v6-source-packet.md').read_bytes()
+          rec = json.loads(Path('/tmp/v6-reconstruction.json').read_text(encoding='utf-8'))
+          tx = rec['exact_transformation']
+          marker = tx['precondition_next_bytes_utf8'].encode('utf-8')
+          assert source[tx['offset']:tx['offset']+len(marker)] == marker
+          reviewed = source[:tx['offset']] + bytes.fromhex(tx['insert_hex']) + source[tx['offset']:]
+          assert len(reviewed) == 19297
+          assert hashlib.sha256(reviewed).hexdigest() == '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62'
+          body = reviewed.split(b'---\n\n', 1)[1]
+          assert hashlib.sha256(body).hexdigest() == '286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5'
+          blob = hashlib.sha1(f'blob {len(reviewed)}\0'.encode() + reviewed).hexdigest()
+          assert blob == '4a15d50a0488464816d235b273d1dbf808fdce94'
+          assert rec['semantic_change'] is False
+          print('V6_EXACT_REVIEWED_DESIGN_BINDING=PASS')
+          PY
+
+      - name: Anti-case-specific production coupling gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          for F in             governance-runtime/v24_v6_governance_foundation.py             governance-runtime/v24_v6_endpoint_projection.py             governance-runtime/v24_v6_material_surface.py             governance-runtime/v24_v6_decision_apply.py             governance-runtime/v24_v6_normative_clause_projection.py             governance-runtime/v24_v6_effect_ledger_closure.py             governance-runtime/v24_v6_atomic_binding_modes.py             governance-runtime/v24_v6_qualification_integrity.py             governance-runtime/v24_v6_integrated_successor.py; do
+            if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint|reviewer[_ -]?finding[_ -]?id|diagnostic[_ -]?endpoint|material_discovery_pending' "$F"; then
+              echo "Case-specific production coupling found in $F"
+              exit 1
+            fi
+          done
+          echo 'No concrete case-specific production coupling found.'
+
+      - name: Assert construction-only posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_integrated_successor as r9
+          x = r9.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert x['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          print(x)
+          PY

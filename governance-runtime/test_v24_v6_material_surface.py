@@ -72,7 +72,13 @@ class R3MaterialSurfaceTests(unittest.TestCase):
 
     def test_candidate_only_derivation_forbidden(self):
         b,l=self.good_surface(); b["derivations"][0]["source_kinds"]=["CANDIDATE_SELF_REPORT"]
-        r=derive_material_authority_surface(b); self.assertIn("MATERIAL_SURFACE_CANDIDATE_ONLY_DERIVATION_FORBIDDEN:0",r["problems"])
+        r=derive_material_authority_surface(b); self.assertIn("MATERIAL_SURFACE_CANDIDATE_SELF_REPORT_SOURCE_FORBIDDEN:0",r["problems"])
+
+
+    def test_candidate_self_report_mixed_with_other_sources_is_forbidden(self):
+        b,_=self.good_surface(); b["derivations"][0]["source_kinds"]=["IMPLEMENTATION_ARTIFACT","CANDIDATE_SELF_REPORT"]
+        r=derive_material_authority_surface(b)
+        self.assertFalse(r["qualified"]); self.assertTrue(any("CANDIDATE_SELF_REPORT_SOURCE_FORBIDDEN" in x for x in r["problems"]))
 
     def test_missing_materiality_classification_blocks(self):
         b,l=self.good_surface(); b["materiality_classifications"].pop()

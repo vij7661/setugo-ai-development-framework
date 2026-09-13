@@ -183,6 +183,17 @@ class AntiFalseGreenTests(unittest.TestCase):
         r = scan_production_authority_source(s)
         self.assertFalse(r["qualified"]); self.assertIn("ANTI_FALSE_GREEN_FIXTURE_BRANCH_IDENTIFIER", r["problems"])
 
+
+    def test_forbidden_string_literal_runtime_key_rejected(self):
+        s = clean_source("def decide(payload):\n    return payload['expected_endpoint']\n")
+        r = scan_production_authority_source(s)
+        self.assertFalse(r["qualified"]); self.assertIn("ANTI_FALSE_GREEN_EXPECTED_ENDPOINT_STRING_KEY", r["problems"])
+
+    def test_forbidden_keyword_argument_rejected(self):
+        s = clean_source("def sink(**kwargs):\n    return kwargs\ndef decide():\n    return sink(reviewer_finding_id='x')\n")
+        r = scan_production_authority_source(s)
+        self.assertFalse(r["qualified"]); self.assertIn("ANTI_FALSE_GREEN_REVIEWER_FINDING_IDENTIFIER", r["problems"])
+
     def test_test_module_import_rejected(self):
         s = clean_source("import testing\ndef decide():\n    return 1\n")
         r = scan_production_authority_source(s)
@@ -251,6 +262,13 @@ class ResultAccountingTests(unittest.TestCase):
         records = [a, result_record("CASE-B", 2, "FAIL_CODE_DEFECT")]
         r = compile_qualification_summary({"summary_compiler": compiler(), "case_universe": universe(), "qualification_round_id": "ROUND-1", "result_records": records})
         self.assertEqual(0, r["pass_count"])
+
+
+    def test_invalid_summary_exposes_zero_pass_count_even_if_one_visible_pass(self):
+        records = [result_record("CASE-A", 1, "PASS"), result_record("CASE-B", 2, "FAIL_CODE_DEFECT")]
+        bad = records[1]; bad["result_record_digest"] = "0" * 64
+        r = compile_qualification_summary({"summary_compiler": compiler(), "case_universe": universe(), "qualification_round_id": "ROUND-1", "result_records": records})
+        self.assertFalse(r["qualified"]); self.assertEqual(0, r["pass_count"]); self.assertEqual([], r["pass_cases"])
 
     def test_missing_case_result_blocks_summary(self):
         records = [result_record("CASE-A", 1, "PASS")]

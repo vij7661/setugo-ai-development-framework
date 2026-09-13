@@ -11,7 +11,10 @@ import hashlib
 from typing import Any, Mapping
 
 from normative_control_catalog import git_blob_sha_bytes
-from v24_v6_governance_foundation import AUTHORITY_EFFECT, CURRENT, QUALIFIED, INSUFFICIENT_EVIDENCE, digest
+from v24_v6_governance_foundation import (
+    AUTHORITY_EFFECT, CURRENT, QUALIFIED, INSUFFICIENT_EVIDENCE, digest,
+    validate_governed_qualification,
+)
 
 MATERIAL_NORMATIVE = "MATERIAL_NORMATIVE"
 REFERENCE_ONLY = "REFERENCE_ONLY"
@@ -31,6 +34,47 @@ def _nonempty(v: Any) -> bool:
 
 def _normalize_lf(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _parser_subject_digest(parser: Mapping[str, Any]) -> str:
+    return digest({
+        "parser_profile_id": parser.get("parser_profile_id"),
+        "implementation_content_digest": parser.get("implementation_content_digest"),
+        "rule_digest": parser.get("rule_digest"),
+    })
+
+
+def _authority_set_subject_digest(authority_set: Mapping[str, Any]) -> str:
+    members = sorted(authority_set.get("member_ids", [])) if isinstance(authority_set.get("member_ids"), list) else []
+    domains = sorted(authority_set.get("member_control_domain_ids", [])) if isinstance(authority_set.get("member_control_domain_ids"), list) else []
+    return digest({
+        "authority_set_id": authority_set.get("authority_set_id"),
+        "threshold": authority_set.get("threshold"),
+        "member_ids": members,
+        "member_control_domain_ids": domains,
+    })
+
+
+def _validate_bound_qualification(
+    *, subject_id: str, subject_digest: str, qualification_digest: Any, qualification_record: Any, prefix: str
+) -> list[str]:
+    p: list[str] = []
+    if not _sha(qualification_digest):
+        p.append(f"{prefix}_QUALIFICATION_DIGEST_INVALID")
+    if not isinstance(qualification_record, Mapping):
+        p.append(f"{prefix}_QUALIFICATION_RECORD_REQUIRED")
+        return p
+    for problem in validate_governed_qualification(qualification_record):
+        p.append(f"{prefix}_QUALIFICATION:{problem}")
+    if qualification_record.get("result") != QUALIFIED:
+        p.append(f"{prefix}_QUALIFICATION_NOT_QUALIFIED")
+    if qualification_record.get("subject_object_id") != subject_id:
+        p.append(f"{prefix}_QUALIFICATION_SUBJECT_ID_MISMATCH")
+    if qualification_record.get("subject_content_digest") != subject_digest:
+        p.append(f"{prefix}_QUALIFICATION_SUBJECT_DIGEST_MISMATCH")
+    if qualification_record.get("qualification_digest") != qualification_digest:
+        p.append(f"{prefix}_QUALIFICATION_RECORD_DIGEST_MISMATCH")
+    return p
 
 
 def enumerate_markdown_structural_candidates(
@@ -169,6 +213,14 @@ def validate_structural_projection(bundle: Mapping[str, Any]) -> list[str]:
         p.append("NORMATIVE_PARSER_IMPLEMENTATION_DIGEST_INVALID")
     if not _sha(parser.get("rule_digest")):
         p.append("NORMATIVE_PARSER_RULE_DIGEST_INVALID")
+    parser_subject_digest = _parser_subject_digest(parser)
+    p.extend(_validate_bound_qualification(
+        subject_id=str(parser.get("parser_profile_id") or ""),
+        subject_digest=parser_subject_digest,
+        qualification_digest=parser.get("qualification_digest"),
+        qualification_record=parser.get("qualification_record"),
+        prefix="NORMATIVE_PARSER",
+    ))
     if projection.get("parser_profile_id") != parser.get("parser_profile_id"):
         p.append("NORMATIVE_PARSER_PROFILE_BINDING_MISMATCH")
     expected_artifact_sha = bundle.get("expected_artifact_sha256")
@@ -197,6 +249,17 @@ def qualify_normative_dispositions(bundle: Mapping[str, Any]) -> dict[str, Any]:
         p.append("NORMATIVE_DISPOSITION_AUTHORITY_SET_NOT_CURRENT")
     if authority_set.get("independence_state") != QUALIFIED:
         p.append("NORMATIVE_DISPOSITION_AUTHORITY_SET_NOT_INDEPENDENT")
+    authority_set_id = authority_set.get("authority_set_id")
+    if not _nonempty(authority_set_id):
+        p.append("NORMATIVE_DISPOSITION_AUTHORITY_SET_ID_REQUIRED")
+    authority_subject_digest = _authority_set_subject_digest(authority_set)
+    p.extend(_validate_bound_qualification(
+        subject_id=str(authority_set_id or ""),
+        subject_digest=authority_subject_digest,
+        qualification_digest=authority_set.get("qualification_digest"),
+        qualification_record=authority_set.get("qualification_record"),
+        prefix="NORMATIVE_DISPOSITION_AUTHORITY_SET",
+    ))
     threshold = authority_set.get("threshold")
     members = authority_set.get("member_ids")
     domains = authority_set.get("member_control_domain_ids")

@@ -16,6 +16,36 @@ from v24_v6_normative_clause_projection import (
 
 D1="1"*64;D2="2"*64;D3="3"*64;D4="4"*64;D5="5"*64;D6="6"*64
 
+
+
+def seal(record, field):
+    material=dict(record); material.pop(field,None); record[field]=digest(material); return record
+
+
+def currentness(source_id, source_digest):
+    r={
+        "currentness_rule_id":"CUR-1", "source_object_id":source_id,
+        "source_version_or_sequence":"1", "source_digest":source_digest,
+        "observed_at_sequence":1, "verifier_qualification_digest":D6,
+        "result":CURRENT, "binding_digest":"",
+    }
+    return seal(r,"binding_digest")
+
+
+def qualification(subject_id, subject_digest, subject_kind):
+    r={
+        "qualification_id":f"Q-{subject_id}", "subject_object_id":subject_id,
+        "subject_content_digest":subject_digest, "subject_kind":subject_kind,
+        "subject_owner_id":f"OWNER-{subject_id}", "qualification_authority_id":"QUAL-AUTH",
+        "authority_member_ids":["QA-1"], "authority_control_domain_ids":["QUAL-DOMAIN"],
+        "independence_qualification_digests":[D4], "evidence_record_digests":[D5],
+        "evidence_class_ids":["EVIDENCE-1"], "verifier_mechanism_id":"QUAL-VERIFIER",
+        "verifier_mechanism_qualification_digest":D6,
+        "currentness_bindings":[currentness(subject_id,subject_digest)],
+        "result":QUALIFIED, "proof_digest":D5, "qualification_digest":"",
+    }
+    return seal(r,"qualification_digest")
+
 TEXT=(
     "# Standard\n\n"
     "Introductory context.\n\n"
@@ -36,34 +66,47 @@ def projection(text=TEXT):
 
 
 def parser_descriptor():
+    subject_id="MD-STRUCTURAL-V1"
+    subject_digest=digest({"parser_profile_id":subject_id,"implementation_content_digest":D1,"rule_digest":D2})
+    q=qualification(subject_id,subject_digest,"NORMATIVE_STRUCTURAL_PARSER")
     return {
-        "parser_profile_id":"MD-STRUCTURAL-V1",
+        "parser_profile_id":subject_id,
         "implementation_content_digest":D1,
         "rule_digest":D2,
         "qualification_state":QUALIFIED,
+        "qualification_digest":q["qualification_digest"],
+        "qualification_record":q,
         "independence_state":QUALIFIED,
         "currentness_result":CURRENT,
     }
 
 
 def authority_set():
-    return {
-        "qualification_state":QUALIFIED,
-        "qualification_digest":D3,
+    authority={
+        "authority_set_id":"NORMATIVE-DISPOSITION-AUTHORITY",
         "currentness_result":CURRENT,
         "independence_state":QUALIFIED,
         "threshold":2,
         "member_ids":["REV-A","REV-B"],
         "member_control_domain_ids":["DOMAIN-A","DOMAIN-B"],
     }
+    subject_digest=digest({
+        "authority_set_id":authority["authority_set_id"],
+        "threshold":authority["threshold"],
+        "member_ids":sorted(authority["member_ids"]),
+        "member_control_domain_ids":sorted(authority["member_control_domain_ids"]),
+    })
+    q=qualification(authority["authority_set_id"],subject_digest,"NORMATIVE_DISPOSITION_AUTHORITY_SET")
+    authority.update({"qualification_state":QUALIFIED,"qualification_digest":q["qualification_digest"],"qualification_record":q})
+    return authority
 
 
-def disposition_for(candidate, value, evidence=D4):
+def disposition_for(candidate, value, authority_qualification_digest, evidence=D4):
     r={
         "candidate_clause_id":candidate["candidate_clause_id"],
         "artifact_sha256":candidate["artifact_sha256"],
         "candidate_span_digest":candidate["exact_text_sha256"],
-        "authority_set_qualification_digest":D3,
+        "authority_set_qualification_digest":authority_qualification_digest,
         "approver_ids":["REV-A","REV-B"],
         "approver_control_domain_ids":["DOMAIN-A","DOMAIN-B"],
         "evidence_digests":[evidence],
@@ -77,22 +120,23 @@ def disposition_for(candidate, value, evidence=D4):
 
 def qualified_disposition_bundle(text=TEXT):
     p=projection(text)
+    auth=authority_set()
     ds=[]
     # Treat one generic body block as normative; all other structural candidates are explicitly dispositioned.
     normative_done=False
     for c in p["candidates"]:
         if c["kind"]=="BODY_BLOCK" and "must deny" in c["exact_text"] and not normative_done:
-            ds.append(disposition_for(c,MATERIAL_NORMATIVE));normative_done=True
+            ds.append(disposition_for(c,MATERIAL_NORMATIVE,auth["qualification_digest"]));normative_done=True
         elif c["kind"]=="HEADING":
-            ds.append(disposition_for(c,REFERENCE_ONLY))
+            ds.append(disposition_for(c,REFERENCE_ONLY,auth["qualification_digest"]))
         else:
-            ds.append(disposition_for(c,PROVEN_NON_NORMATIVE))
+            ds.append(disposition_for(c,PROVEN_NON_NORMATIVE,auth["qualification_digest"]))
     b={
         "projection":p,
         "parser_descriptor":parser_descriptor(),
         "expected_artifact_sha256":p["artifact_sha256"],
         "expected_artifact_git_blob_sha1":p["artifact_git_blob_sha1"],
-        "disposition_authority_set":authority_set(),
+        "disposition_authority_set":auth,
         "artifact_owner_control_domain_id":"ARTIFACT-OWNER",
         "catalog_owner_control_domain_id":"CATALOG-OWNER",
         "dispositions":ds,
@@ -124,6 +168,25 @@ class R5NormativeProjectionTests(unittest.TestCase):
     def test_parser_must_be_qualified_independent_current(self):
         b=qualified_disposition_bundle();b["parser_descriptor"]["independence_state"]="CONFLICT"
         r=qualify_normative_dispositions(b);self.assertIn("NORMATIVE_PARSER_NOT_INDEPENDENT",r["problems"])
+
+
+    def test_parser_requires_bound_qualification_digest(self):
+        b=qualified_disposition_bundle(); b["parser_descriptor"]["qualification_digest"]=None
+        r=qualify_normative_dispositions(b); self.assertTrue(any("NORMATIVE_PARSER_QUALIFICATION_DIGEST_INVALID" in x for x in r["problems"]))
+
+    def test_authority_set_requires_valid_governed_qualification_record(self):
+        b=qualified_disposition_bundle(); b["disposition_authority_set"]["qualification_digest"]=None
+        for d in b["dispositions"]: d["authority_set_qualification_digest"]=None
+        r=qualify_normative_dispositions(b)
+        self.assertFalse(r["qualified"]); self.assertTrue(any("AUTHORITY_SET_QUALIFICATION_DIGEST_INVALID" in x for x in r["problems"]))
+
+    def test_authority_set_qualification_subject_binding_cannot_be_substituted(self):
+        b=qualified_disposition_bundle(); q=b["disposition_authority_set"]["qualification_record"]
+        q["subject_object_id"]="OTHER-AUTHORITY"; seal(q,"qualification_digest")
+        b["disposition_authority_set"]["qualification_digest"]=q["qualification_digest"]
+        for d in b["dispositions"]: d["authority_set_qualification_digest"]=q["qualification_digest"]
+        r=qualify_normative_dispositions(b)
+        self.assertTrue(any("QUALIFICATION_SUBJECT_ID_MISMATCH" in x for x in r["problems"]))
 
     def test_every_candidate_requires_disposition(self):
         b=qualified_disposition_bundle();missing=b["dispositions"].pop()["candidate_clause_id"]

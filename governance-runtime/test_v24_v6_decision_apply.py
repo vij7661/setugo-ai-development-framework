@@ -157,6 +157,15 @@ class R4DecisionApplyTests(unittest.TestCase):
         b=bundle();b["material_effect_path"]["guard_mechanism_digest"]="e"*64
         r=evaluate_decision_apply_latch(b);self.assertIn("MATERIAL_EFFECT_PATH_GUARD_BINDING_MISMATCH",r["problems"])
 
+
+    def test_snapshot_digest_binds_source_trust_material(self):
+        s=snapshot(); original=s["snapshot_digest"]
+        s["source_qualification_digest"]="f"*64
+        self.assertNotEqual(original, canonical_snapshot_digest(s))
+        b=bundle(); b["current_snapshot"]["source_qualification_digest"]="f"*64
+        r=evaluate_decision_apply_latch(b)
+        self.assertTrue(any("SNAPSHOT_DIGEST_MISMATCH" in x or "SOURCE_QUALIFICATION_BINDING_MISMATCH" in x for x in r["problems"]))
+
     def test_no_caller_material_discovery_boolean_is_needed(self):
         b=bundle();self.assertNotIn("material_discovery_pending",b);r=evaluate_decision_apply_latch(b);self.assertTrue(r["allowed"],r["problems"])
 

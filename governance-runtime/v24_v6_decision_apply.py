@@ -86,6 +86,9 @@ def canonical_snapshot_digest(snapshot: Mapping[str, Any]) -> str:
             "snapshot_source_id": snapshot.get("snapshot_source_id"),
             "snapshot_sequence": snapshot.get("snapshot_sequence"),
             "snapshot_epoch": snapshot.get("snapshot_epoch"),
+            "source_qualification_digest": snapshot.get("source_qualification_digest"),
+            "source_independence_digest": snapshot.get("source_independence_digest"),
+            "source_currentness_digest": snapshot.get("source_currentness_digest"),
         }
     )
     return digest(material)

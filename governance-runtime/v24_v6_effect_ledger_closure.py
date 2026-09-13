@@ -399,6 +399,7 @@ def validate_effect_class_registry(bundle: Mapping[str, Any]) -> dict[str, Any]:
         problems.append("EFFECT_CLASS_REGISTRY_ENTRIES_REQUIRED")
 
     actual_members: list[str] = []
+    entry_by_id: dict[str, dict[str, Any]] = {}
     seen: set[str] = set()
     for index, entry in enumerate(entries):
         if not isinstance(entry, Mapping):
@@ -422,6 +423,7 @@ def validate_effect_class_registry(bundle: Mapping[str, Any]) -> dict[str, Any]:
             problems.append(f"EFFECT_CLASS_ENTRY_VERIFIER_NOT_QUALIFIED:{cid}")
         if entry.get("currentness_result") != CURRENT:
             problems.append(f"EFFECT_CLASS_ENTRY_NOT_CURRENT:{cid}")
+        entry_by_id[cid] = dict(entry)
 
     obligation = derive_effect_class_obligation_set(
         bundle.get("derivations"),
@@ -465,6 +467,7 @@ def validate_effect_class_registry(bundle: Mapping[str, Any]) -> dict[str, Any]:
         "expected_members": expected_members,
         "actual_members": actual_members,
         "expected_member_set_digest": obligation["expected_member_set_digest"],
+        "entries": entry_by_id,
         "problems": problems,
         "authority_effect": AUTHORITY_EFFECT,
     }
@@ -483,8 +486,45 @@ def validate_effect_path_against_registry(
     if registry_result.get("qualified") is not True:
         problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_REGISTRY_NOT_QUALIFIED")
     effect_class_id = record.get("effect_class_id")
-    if effect_class_id not in set(registry_result.get("actual_members", [])):
+    entries = registry_result.get("entries")
+    if not isinstance(entries, Mapping) or effect_class_id not in entries:
         problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_UNKNOWN_OR_UNREGISTERED")
+        entry: Mapping[str, Any] = {}
+    else:
+        entry = entries[effect_class_id]
+
+    proof = record.get("effect_class_proof")
+    if not isinstance(proof, Mapping):
+        proof = {}
+        problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_REQUIRED")
+    if entry:
+        if proof.get("effect_class_id") != effect_class_id:
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_CLASS_MISMATCH")
+        if proof.get("registry_content_digest") != registry_result.get("registry_content_digest"):
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_REGISTRY_MISMATCH")
+        if proof.get("proof_schema_digest") != entry.get("proof_schema_digest"):
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_SCHEMA_MISMATCH")
+        if proof.get("verifier_mechanism_id") != entry.get("verifier_mechanism_id"):
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_VERIFIER_MISMATCH")
+        if proof.get("verifier_qualification_digest") != entry.get("verifier_qualification_digest"):
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_VERIFIER_QUALIFICATION_MISMATCH")
+        if entry.get("verifier_qualification_state") != QUALIFIED:
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_VERIFIER_NOT_QUALIFIED")
+        if entry.get("currentness_result") != CURRENT:
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_VERIFIER_NOT_CURRENT")
+        path_binding_digest = digest(_without(record, "effect_class_proof"))
+        if proof.get("path_binding_digest") != path_binding_digest:
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_PATH_BINDING_MISMATCH")
+        expected_proof_digest = digest({
+            "effect_class_id": effect_class_id,
+            "registry_content_digest": registry_result.get("registry_content_digest"),
+            "proof_schema_digest": entry.get("proof_schema_digest"),
+            "verifier_mechanism_id": entry.get("verifier_mechanism_id"),
+            "verifier_qualification_digest": entry.get("verifier_qualification_digest"),
+            "path_binding_digest": path_binding_digest,
+        })
+        if proof.get("proof_material_digest") != expected_proof_digest:
+            problems.append("MATERIAL_EFFECT_PATH_EFFECT_CLASS_PROOF_MATERIAL_DIGEST_MISMATCH")
     problems = sorted(set(problems))
     return {
         "state": "MATERIAL_EFFECT_PATH_CLASSIFIED" if not problems else "MATERIAL_EFFECT_PATH_BLOCKED",

@@ -182,6 +182,26 @@ class V24V6GovernanceFoundationTests(unittest.TestCase):
             r["problems"],
         )
 
+
+    def test_disallowed_nonterminal_source_surface_fails(self):
+        g = allowed_graph()
+        g["nodes"].append({
+            "node_id": "BAD-NONTERMINAL-SOURCE",
+            "omission_sensitive": False,
+            "root_kind": "CANDIDATE_REGISTRY",
+            "source_surface_digest": D4,
+        })
+        g["edges"] = [
+            {"from": "REG-A", "to": "BAD-NONTERMINAL-SOURCE"},
+            {"from": "BAD-NONTERMINAL-SOURCE", "to": "ROOT-DEPLOY"},
+        ]
+        r = validate_completeness_derivation_graph(g)
+        self.assertIn(COMPLETENESS_DERIVATION_REJECTION, r["problems"])
+        self.assertIn(
+            "COMPLETENESS_GRAPH_DISALLOWED_SOURCE_SURFACE:BAD-NONTERMINAL-SOURCE",
+            r["problems"],
+        )
+
     def test_cycle_fails(self):
         g = allowed_graph()
         g["nodes"].append({"node_id": "REG-B", "omission_sensitive": True})
@@ -274,6 +294,12 @@ class V24V6GovernanceFoundationTests(unittest.TestCase):
             "QUALIFICATION_SELF_VERIFIER_FORBIDDEN",
             validate_governed_qualification(r),
         )
+
+
+    def test_governed_qualification_requires_valid_digest(self):
+        r = valid_qualification()
+        r["qualification_digest"] = "not-a-digest"
+        self.assertIn("QUALIFICATION_DIGEST_INVALID", validate_governed_qualification(r))
 
     def test_genesis_scope_exact_pair_match_passes(self):
         scope = valid_genesis_scope()

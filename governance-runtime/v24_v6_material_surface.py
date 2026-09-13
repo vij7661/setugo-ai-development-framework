@@ -207,8 +207,8 @@ def derive_material_authority_surface(bundle: Mapping[str, Any]) -> dict[str, An
         member_sets.append(members)
         source_kinds, sp = _strings(d.get("source_kinds"))
         p.extend(f"MATERIAL_SURFACE_DERIVATION_SOURCES:{idx}:{x}" for x in sp)
-        if source_kinds == {"CANDIDATE_SELF_REPORT"}:
-            p.append(f"MATERIAL_SURFACE_CANDIDATE_ONLY_DERIVATION_FORBIDDEN:{idx}")
+        if "CANDIDATE_SELF_REPORT" in source_kinds:
+            p.append(f"MATERIAL_SURFACE_CANDIDATE_SELF_REPORT_SOURCE_FORBIDDEN:{idx}")
         if not _sha(d.get("derivation_digest")):
             p.append(f"MATERIAL_SURFACE_DERIVATION_DIGEST_INVALID:{idx}")
 

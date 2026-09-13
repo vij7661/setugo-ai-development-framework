@@ -73,18 +73,37 @@ def _raw_sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _identifier_checks() -> dict[str, str]:
+    # Build hard-forbidden runtime/test keys from tokens so this scanner can
+    # safely scan its own source without embedding the forbidden full key as a
+    # single string literal.
+    return {
+        "_".join(("fixture", "branch")): "ANTI_FALSE_GREEN_FIXTURE_BRANCH_IDENTIFIER",
+        "_".join(("expected", "endpoint")): "ANTI_FALSE_GREEN_EXPECTED_ENDPOINT_IDENTIFIER",
+        "_".join(("reviewer", "finding")): "ANTI_FALSE_GREEN_REVIEWER_FINDING_IDENTIFIER",
+        "_".join(("diagnostic", "endpoint")): "ANTI_FALSE_GREEN_DIAGNOSTIC_ENDPOINT_IDENTIFIER",
+        "_".join(("test", "fixture", "registry")): "ANTI_FALSE_GREEN_FIXTURE_REGISTRY_IDENTIFIER",
+        "_".join(("test", "fixture", "classification")): "ANTI_FALSE_GREEN_FIXTURE_CLASSIFICATION_IDENTIFIER",
+        "_".join(("test", "fixture", "disposition")): "ANTI_FALSE_GREEN_FIXTURE_DISPOSITION_IDENTIFIER",
+    }
+
+
 def _identifier_flags(identifier: str) -> list[str]:
     n = identifier.lower().replace("-", "_")
-    checks = {
-        "fixture_branch": "ANTI_FALSE_GREEN_FIXTURE_BRANCH_IDENTIFIER",
-        "expected_endpoint": "ANTI_FALSE_GREEN_EXPECTED_ENDPOINT_IDENTIFIER",
-        "reviewer_finding": "ANTI_FALSE_GREEN_REVIEWER_FINDING_IDENTIFIER",
-        "diagnostic_endpoint": "ANTI_FALSE_GREEN_DIAGNOSTIC_ENDPOINT_IDENTIFIER",
-        "test_fixture_registry": "ANTI_FALSE_GREEN_FIXTURE_REGISTRY_IDENTIFIER",
-        "test_fixture_classification": "ANTI_FALSE_GREEN_FIXTURE_CLASSIFICATION_IDENTIFIER",
-        "test_fixture_disposition": "ANTI_FALSE_GREEN_FIXTURE_DISPOSITION_IDENTIFIER",
-    }
-    return [problem for needle, problem in checks.items() if needle in n]
+    return [problem for needle, problem in _identifier_checks().items() if needle in n]
+
+
+def _string_runtime_key_flags(value: str) -> list[str]:
+    n = value.lower().replace("-", "_")
+    # String-key use is rejected for exact runtime/test/reviewer/diagnostic
+    # keys and common suffixed variants such as *_id. Diagnostic messages like
+    # ANTI_FALSE_GREEN_EXPECTED_ENDPOINT_IDENTIFIER are intentionally not
+    # treated as runtime keys.
+    out: list[str] = []
+    for needle, problem in _identifier_checks().items():
+        if n == needle or n == f"{needle}_id" or n.startswith(f"{needle}_"):
+            out.append(problem.replace("_IDENTIFIER", "_STRING_KEY"))
+    return out
 
 
 def scan_production_authority_source(record: Mapping[str, Any]) -> dict[str, Any]:
@@ -105,10 +124,16 @@ def scan_production_authority_source(record: Mapping[str, Any]) -> dict[str, Any
         tree = None; p.append("ANTI_FALSE_GREEN_SOURCE_SYNTAX_INVALID")
     if tree is not None:
         for node in ast.walk(tree):
-            if isinstance(node, ast.Constant) and isinstance(node.value, str) and WDPC_LITERAL.search(node.value):
-                p.append("ANTI_FALSE_GREEN_WDPC_LITERAL_IN_PRODUCTION")
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                if WDPC_LITERAL.search(node.value):
+                    p.append("ANTI_FALSE_GREEN_WDPC_LITERAL_IN_PRODUCTION")
+                p.extend(_string_runtime_key_flags(node.value))
             elif isinstance(node, ast.Name):
                 p.extend(_identifier_flags(node.id))
+            elif isinstance(node, ast.arg):
+                p.extend(_identifier_flags(node.arg))
+            elif isinstance(node, ast.keyword) and node.arg is not None:
+                p.extend(_identifier_flags(node.arg))
             elif isinstance(node, ast.Attribute):
                 p.extend(_identifier_flags(node.attr))
             elif isinstance(node, ast.Import):
@@ -319,7 +344,11 @@ def compile_qualification_summary(bundle: Mapping[str, Any]) -> dict[str, Any]:
         "compiler_qualification_digest": compiler.get("compiler_qualification_digest"),
     }
     p = sorted(set(p))
-    return {"state": "QUALIFICATION_SUMMARY_COMPILED" if not p else "QUALIFICATION_SUMMARY_INVALID", "qualified": not p, "qualification_round_id": target_round, "case_count": len(expected), "pass_count": len(pass_cases), "pass_cases": pass_cases, "nonpass": nonpass, "summary_digest": digest(material), "problems": p, "authority_effect": AUTHORITY_EFFECT}
+    effective_pass_cases = pass_cases if not p else []
+    if p:
+        material["pass_cases"] = []
+        material["invalidated_raw_pass_cases"] = pass_cases
+    return {"state": "QUALIFICATION_SUMMARY_COMPILED" if not p else "QUALIFICATION_SUMMARY_INVALID", "qualified": not p, "qualification_round_id": target_round, "case_count": len(expected), "pass_count": len(effective_pass_cases), "pass_cases": effective_pass_cases, "nonpass": nonpass, "summary_digest": digest(material), "problems": p, "authority_effect": AUTHORITY_EFFECT}
 
 
 def construction_frontier() -> dict[str, Any]:
