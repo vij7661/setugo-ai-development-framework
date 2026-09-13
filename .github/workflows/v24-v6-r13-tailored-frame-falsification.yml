@@ -1,0 +1,205 @@
+name: V24 V6 R13 Tailored Frame Introspection Falsification
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r13-external-oracle
+    paths:
+      - '.github/workflows/v24-v6-r13-tailored-frame-falsification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tailored-frame-falsification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Fetch exact candidate and trusted authority objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='94728f0bbf0564e5d9c2e4f8b11e600dffabee99'
+          TREE='d15efec0a63e53866592e0961504495331d89025'
+          REVIEW_AUTH='8210f624b2109899aa3cc11afe9e746053cc83f8'
+          git fetch --no-tags --depth=1 origin "$CANDIDATE"
+          git fetch --no-tags --depth=1 origin "$REVIEW_AUTH"
+          test "$(git rev-parse "$CANDIDATE^{tree}")" = "$TREE"
+          git worktree add --detach "$RUNNER_TEMP/r13-base" "$CANDIDATE"
+          cp -a "$RUNNER_TEMP/r13-base" "$RUNNER_TEMP/r13-tailored-attack"
+          mkdir -p "$RUNNER_TEMP/r13-authority" "$RUNNER_TEMP/r13-tailored-evidence"
+          for pair in \
+            'review/v24/r13_trusted_oracle_launcher.py:3d8b677c70c93478cae8b691d1e9efa82624ba51' \
+            'review/v24/r13_trusted_external_oracle.py:f0f72ca65eb443fd2db2917622a327256d15db05' \
+            'review/v24/r13_untrusted_candidate_observer.py:f43d1deb7cf163e233b6efe7aa1b021666cea82a'
+          do
+            path="${pair%%:*}"; expected="${pair##*:}"
+            actual="$(git rev-parse "$REVIEW_AUTH:$path")"
+            test "$actual" = "$expected" || { echo "R13_TAILORED_AUTHORITY_BLOB_MISMATCH:$path:$actual:$expected"; exit 1; }
+            git show "$REVIEW_AUTH:$path" > "$RUNNER_TEMP/r13-authority/$(basename "$path")"
+          done
+          echo "R13_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "R13_TREE=$TREE" >> "$GITHUB_ENV"
+          echo "R13_ATTACK=$RUNNER_TEMP/r13-tailored-attack" >> "$GITHUB_ENV"
+          echo "R13_AUTHORITY=$RUNNER_TEMP/r13-authority" >> "$GITHUB_ENV"
+          echo "R13_EVIDENCE=$RUNNER_TEMP/r13-tailored-evidence" >> "$GITHUB_ENV"
+
+      - name: Install tailored frame-introspection forgeries in malicious candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/r13-tailored-prefix.py" <<'PY'
+          import sys as _sys, os as _os, json as _json, hashlib as _hashlib
+
+          def _canon(v):
+              return _json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode('utf-8')
+
+          _f=_sys._getframe(); _req=None
+          while _f is not None:
+              _candidate=_f.f_locals.get('request')
+              if isinstance(_candidate,dict) and isinstance(_candidate.get('module'),str) and isinstance(_candidate.get('function'),str):
+                  _req=_candidate; break
+              _f=_f.f_back
+
+          if _req is not None:
+              _fn=_req['function']; _args=_req.get('args',[]); _payload={}
+              if _fn=='validate_completeness_derivation_graph':
+                  _g=_args[0]
+                  _bad=[n for n in _g.get('nodes',[]) if n.get('root_kind')=='CANDIDATE_REGISTRY']
+                  if _bad:
+                      _payload={'problems':['COMPLETENESS_DERIVATION_CYCLE_OR_UNROOTED_SOURCE_REJECTED',f"COMPLETENESS_GRAPH_DISALLOWED_TERMINAL:{_bad[0]['node_id']}"]}
+                  else:
+                      _roots=[n['node_id'] for n in _g.get('nodes',[]) if n.get('root_kind')=='IMPLEMENTATION_DEPLOYMENT_ARTIFACT_INVENTORY']
+                      _payload={'problems':[],'allowed_roots':sorted(_roots)}
+              elif _fn=='genesis_scope_match':
+                  _payload={'matched':False,'endpoint':'GENESIS_TRUST_SCOPE_MISMATCH_REJECTED'}
+              elif _fn=='compile_qualified_endpoint_table':
+                  _b=_args[0]
+                  _rows=[{k:d.get(k) for k in ('predicate_id','phase','within_phase_rank','severity_rank','endpoint','control_id')} for d in _b['predicate_descriptors']]
+                  _rows=sorted(_rows,key=lambda r:(r['phase'],r['within_phase_rank'],r['predicate_id']))
+                  _payload={'qualified':True,'problems':[],'compiled_table_digest':_b['expected_compiled_table_digest'],'compiled_rows':_rows}
+              elif _fn=='derive_applicable_predicate_universe':
+                  _payload={'qualified':False,'problems':['APPLICABLE_UNIVERSE_MEMBER_SET_MISMATCH']}
+              elif _fn=='validate_atomic_binding_mode_registry':
+                  _payload={'qualified':False,'problems':['ATOMIC_BINDING_MODE_REGISTRY_SET_EQUALITY_FAILED']}
+              elif _fn=='compile_qualification_summary':
+                  _b=_args[0]
+                  _unresolved=next((r['case_id'] for r in _b.get('result_records',[]) if r.get('execution_state')=='NOT_EXECUTED'), 'UNKNOWN')
+                  _payload={'pass_count':0,'nonpass':{_unresolved:'UNRESOLVED'}}
+              else:
+                  _payload={'qualified':True,'problems':[]}
+              _obs={
+                  'schema_version':1,
+                  'request_digest':_hashlib.sha256(_canon(_req)).hexdigest(),
+                  'module':_req['module'],'function':_req['function'],
+                  'outcome_kind':'RETURN','payload':_payload,
+                  'candidate_process_role':'UNTRUSTED_OBSERVATION_ONLY',
+                  'authority_effect':'NONE_EVIDENCE_ONLY',
+              }
+              _os.write(1,('R13_OBSERVATION='+_json.dumps(_obs,sort_keys=True,separators=(',',':'))+'\n').encode('utf-8'))
+              _os._exit(0)
+          PY
+          for module in \
+            v24_v6_governance_foundation.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py
+          do
+            target="$R13_ATTACK/governance-runtime/$module"
+            cp "$target" "$RUNNER_TEMP/original-$module"
+            cat "$RUNNER_TEMP/r13-tailored-prefix.py" "$RUNNER_TEMP/original-$module" > "$target"
+          done
+          python - <<'PY' > "$R13_EVIDENCE/V24-I11-V6-R13-TAILORED-ATTACK-MUTATIONS.json"
+          import hashlib,json,os,pathlib
+          root=pathlib.Path(os.environ['R13_ATTACK'])/'governance-runtime'
+          names=['v24_v6_governance_foundation.py','v24_v6_endpoint_projection.py','v24_v6_atomic_binding_modes.py','v24_v6_qualification_integrity.py']
+          print(json.dumps({'attack':'TAILORED_FRAME_INTROSPECTION_OBSERVATION_FORGERY','mutated_files':[{ 'path':str((root/n).relative_to(pathlib.Path(os.environ['R13_ATTACK']))),'sha256':hashlib.sha256((root/n).read_bytes()).hexdigest()} for n in names]},indent=2,sort_keys=True))
+          PY
+
+      - name: Execute trusted oracle against tailored malicious candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORACLE="$R13_AUTHORITY/r13_trusted_external_oracle.py"
+          OBSERVER="$R13_AUTHORITY/r13_untrusted_candidate_observer.py"
+          LAUNCHER="$R13_AUTHORITY/r13_trusted_oracle_launcher.py"
+          cat > "$RUNNER_TEMP/oracle-contract.py" <<'PY'
+          import importlib.util,pathlib,sys
+          p=pathlib.Path(sys.argv[1]).resolve(); s=importlib.util.spec_from_file_location('oracle_contract',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.actual_interpreter_contract()['contract_digest'])
+          PY
+          CONTRACT="$(env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$RUNNER_TEMP/oracle-contract.py" "$ORACLE")"
+          ENV_DIGEST="$(python - <<PY
+          import hashlib
+          print(hashlib.sha256(b'R13-TAILORED-FRAME-FALSIFICATION:$R13_CANDIDATE:$R13_TREE:$CONTRACT').hexdigest())
+          PY
+          )"
+          set +e
+          env -i HOME="$HOME" PATH="$PATH" python -B -I -S "$LAUNCHER" \
+            --oracle "$ORACLE" --observer "$OBSERVER" --sandbox "$R13_ATTACK" \
+            --candidate-commit "$R13_CANDIDATE" --candidate-tree "$R13_TREE" \
+            --environment-digest "$ENV_DIGEST" --interpreter-contract-digest "$CONTRACT" \
+            --oracle-git-blob-sha1 'f0f72ca65eb443fd2db2917622a327256d15db05' \
+            --observer-git-blob-sha1 'f43d1deb7cf163e233b6efe7aa1b021666cea82a' \
+            --run-id "${GITHUB_RUN_ID}" --round-id 'R13-TAILORED-FRAME-FALSIFICATION' \
+            --output "$R13_EVIDENCE/V24-I11-V6-R13-TAILORED-FRAME-ORACLE-EVIDENCE.json" \
+            > "$R13_EVIDENCE/oracle.stdout.txt" 2> "$R13_EVIDENCE/oracle.stderr.txt"
+          rc=$?
+          set -e
+          echo "$rc" > "$R13_EVIDENCE/oracle.exit-code.txt"
+          python - <<'PY' > "$R13_EVIDENCE/V24-I11-V6-R13-TAILORED-FRAME-FALSIFICATION-RESULT.json"
+          import json,os,pathlib
+          root=pathlib.Path(os.environ['R13_EVIDENCE'])
+          rc=int((root/'oracle.exit-code.txt').read_text().strip())
+          p=root/'V24-I11-V6-R13-TAILORED-FRAME-ORACLE-EVIDENCE.json'
+          evidence=json.loads(p.read_text()) if p.exists() else None
+          records=evidence.get('records',[]) if isinstance(evidence,dict) else []
+          all_pass=len(records)==6 and all(r.get('oracle_terminal_result')=='PASS' for r in records)
+          result={
+            'classification':'FAIL_CODE_DEFECT' if rc==0 and all_pass else 'ATTACK_REJECTED',
+            'false_green_reproduced':bool(rc==0 and all_pass),
+            'oracle_exit_code':rc,
+            'evidence_file_present':p.exists(),
+            'oracle_record_count':len(records),
+            'all_oracle_records_pass':all_pass,
+            'trusted_oracle_blob':'f0f72ca65eb443fd2db2917622a327256d15db05',
+            'trusted_observer_blob':'f43d1deb7cf163e233b6efe7aa1b021666cea82a',
+            'candidate_base_commit':os.environ['R13_CANDIDATE'],
+            'candidate_base_tree':os.environ['R13_TREE'],
+            'attack':'TAILORED_FRAME_INTROSPECTION_OBSERVATION_FORGERY',
+            'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW',
+            'runtime_qualification_state':'NOT_CLAIMED',
+            'authority_effect':'NONE_EVIDENCE_ONLY',
+          }
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+          cat "$R13_EVIDENCE/V24-I11-V6-R13-TAILORED-FRAME-FALSIFICATION-RESULT.json"
+
+      - name: Upload tailored falsification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r13-tailored-frame-falsification-evidence
+          path: ${{ runner.temp }}/r13-tailored-evidence/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Adjudicate tailored frame falsification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['R13_EVIDENCE'])/'V24-I11-V6-R13-TAILORED-FRAME-FALSIFICATION-RESULT.json'
+          r=json.loads(p.read_text())
+          if r['false_green_reproduced']:
+              raise SystemExit('R13_TAILORED_FRAME_FALSE_GREEN_REPRODUCED')
+          print('R13_TAILORED_FRAME_ATTACK_REJECTED=PASS')
+          PY
