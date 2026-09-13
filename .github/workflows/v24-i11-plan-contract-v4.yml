@@ -3,11 +3,13 @@ on:
   push:
     branches: [testing/v24-i11-falsification-plan-v4]
     paths:
-      - 'testing/v24/WDPC-V24-I11-FALSIFICATION-PLAN-V4-PACKET.gz.b64'
+      - 'testing/v24/WDPC-V24-I11-FALSIFICATION-PLAN-V4-PACKET-MANIFEST.json'
+      - 'testing/v24/WDPC-V24-I11-FALSIFICATION-PLAN-V4-PACKET-PART-*.b64'
       - 'testing/v24/V24-I11-FALSIFICATION-PLAN-V4-REVIEW-BINDING.json'
       - 'testing/v24/V24-I11-MANUAL-VERIFICATION-CHECKLIST-V4.md'
       - 'testing/v24/preflight_v24_i11_plan_v4.py'
       - 'testing/v24/v24_i11_harness_contract_v2.py'
+      - 'testing/v24/test_v24_i11_harness_contract_v2.py'
       - '.github/workflows/v24-i11-plan-contract-v4.yml'
   workflow_dispatch:
 permissions: {contents: read}
