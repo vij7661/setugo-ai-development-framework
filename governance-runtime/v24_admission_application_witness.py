@@ -11,6 +11,16 @@ def digest(v: Any) -> str:
     return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
 
 
+def _derived_universe(b: Mapping[str,Any], field: str, evidence_field: str, problem_prefix: str, p: list[str]) -> set[str]:
+    raw=b.get(field)
+    if not isinstance(raw,list) or not raw or not all(isinstance(x,str) and x for x in raw):
+        p.append(f"{problem_prefix}_INDEPENDENT_UNIVERSE_REQUIRED")
+        return set()
+    if len(set(raw))!=len(raw): p.append(f"{problem_prefix}_INDEPENDENT_UNIVERSE_DUPLICATE")
+    if not b.get(evidence_field): p.append(f"{problem_prefix}_UNIVERSE_DERIVATION_EVIDENCE_REQUIRED")
+    return set(raw)
+
+
 def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
     p=[]; gen=b.get("governance_generation_id")
     admissions=b.get("admission_records") if isinstance(b.get("admission_records"),list) else []
@@ -19,8 +29,16 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
     witnesses=b.get("witnesses") if isinstance(b.get("witnesses"),list) else []
     policy=b.get("witness_policy") if isinstance(b.get("witness_policy"),Mapping) else {}
     if not isinstance(b.get("admission_records"),list): p.append("ADMISSION_RECORD_SET_REQUIRED")
+    elif not admissions: p.append("ADMISSION_RECORD_SET_EMPTY")
     if not isinstance(b.get("kernel_decisions"),list): p.append("KERNEL_DECISION_SET_REQUIRED")
+    elif not decisions: p.append("KERNEL_DECISION_SET_EMPTY")
     if not isinstance(b.get("application_records"),list): p.append("APPLICATION_RECORD_SET_REQUIRED")
+    elif not apps: p.append("APPLICATION_RECORD_SET_EMPTY")
+
+    expected_admissions=_derived_universe(b,"independently_derived_admission_ids","admission_universe_derivation_digest","ADMISSION",p)
+    expected_decisions=_derived_universe(b,"independently_derived_decision_ids","decision_universe_derivation_digest","DECISION",p)
+    expected_apps=_derived_universe(b,"independently_derived_application_ids","application_universe_derivation_digest","APPLICATION",p)
+
     by_adm={}; prev=None
     for r in admissions:
         aid=r.get("admission_id") if isinstance(r,Mapping) else None
@@ -31,12 +49,13 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
             if not r.get(k): p.append(f"ADMISSION_FIELD_MISSING:{aid}:{k}")
         if r.get("generation_id")!=gen: p.append(f"ADMISSION_GENERATION_MISMATCH:{aid}")
         if r.get("state") not in {"CURRENT","REVOKED","SUPERSEDED","STALE"}: p.append(f"ADMISSION_STATE_INVALID:{aid}")
-        # ordered input is the append-only logical ledger; predecessor link must match previous digest.
         if prev is None:
             if r.get("predecessor_record_digest") not in {None,"GENESIS"}: p.append(f"ADMISSION_GENESIS_PREDECESSOR_INVALID:{aid}")
         elif r.get("predecessor_record_digest")!=prev: p.append(f"ADMISSION_PREDECESSOR_MISMATCH:{aid}")
         prev=digest({k:v for k,v in r.items() if k!="record_digest"})
         if r.get("record_digest")!=prev: p.append(f"ADMISSION_RECORD_DIGEST_INVALID:{aid}")
+    if set(by_adm)!=expected_admissions: p.append("ADMISSION_INDEPENDENT_UNIVERSE_MISMATCH")
+
     by_dec={}
     for d in decisions:
         did=d.get("decision_id") if isinstance(d,Mapping) else None
@@ -50,6 +69,8 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
             r=by_adm.get(aid)
             if r is None or r.get("state")!="CURRENT": p.append(f"DECISION_ADMISSION_NOT_CURRENT:{did}:{aid}")
         if d.get("self_activates_completeness_machinery") is True: p.append(f"DECISION_SELF_ACTIVATION_FORBIDDEN:{did}")
+    if set(by_dec)!=expected_decisions: p.append("DECISION_INDEPENDENT_UNIVERSE_MISMATCH")
+
     by_app={}
     for a in apps:
         appid=a.get("application_id") if isinstance(a,Mapping) else None
@@ -66,12 +87,16 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
         if a.get("sink_set_digest")!=d.get("sink_set_digest"): p.append(f"APPLICATION_SINK_SET_MISMATCH:{appid}")
         if a.get("admission_ledger_digest")!=b.get("current_admission_ledger_digest"): p.append(f"APPLICATION_STALE_ADMISSION_LEDGER:{appid}")
         if a.get("completeness_ledger_digest")!=b.get("current_completeness_ledger_digest"): p.append(f"APPLICATION_STALE_COMPLETENESS_LEDGER:{appid}")
+    if set(by_app)!=expected_apps: p.append("APPLICATION_INDEPENDENT_UNIVERSE_MISMATCH")
+
     for did,d in by_dec.items():
         if d.get("state")=="APPLIED":
-            matches=[a for a in apps if a.get("decision_id")==did]
+            matches=[a for a in apps if isinstance(a,Mapping) and a.get("decision_id")==did]
             if len(matches)!=1: p.append(f"APPLIED_DECISION_APPLICATION_RECORD_COUNT_INVALID:{did}:{len(matches)}")
-    # independent witness quorum
+
     root_domains=set(b.get("root_threshold_capable_operational_domains",[])) if isinstance(b.get("root_threshold_capable_operational_domains"),list) else set()
+    if not b.get("root_domain_inventory_evidence_digest"): p.append("ROOT_DOMAIN_INVENTORY_EVIDENCE_REQUIRED")
+    if not b.get("witness_policy_evidence_digest"): p.append("WITNESS_POLICY_EVIDENCE_REQUIRED")
     operator=policy.get("ledger_operator_control_domain_id")
     required=int(policy.get("required_count",0)) if isinstance(policy.get("required_count"),int) else 0
     if required<2: p.append("WITNESS_REQUIRED_COUNT_TOO_LOW")
@@ -79,8 +104,10 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
     for w in witnesses:
         if not isinstance(w,Mapping): p.append("WITNESS_MALFORMED"); continue
         if w.get("state")!="CURRENT": continue
-        if w.get("generation_id")!=gen: p.append(f"WITNESS_GENERATION_MISMATCH:{w.get('witness_id')}")
-        if not w.get("control_domain_id"): p.append(f"WITNESS_CONTROL_DOMAIN_REQUIRED:{w.get('witness_id')}")
+        wid=w.get("witness_id")
+        if w.get("generation_id")!=gen: p.append(f"WITNESS_GENERATION_MISMATCH:{wid}")
+        if not w.get("control_domain_id"): p.append(f"WITNESS_CONTROL_DOMAIN_REQUIRED:{wid}")
+        if not w.get("attestation_evidence_digest"): p.append(f"WITNESS_ATTESTATION_EVIDENCE_REQUIRED:{wid}")
         current.append(w)
     domains={w.get("control_domain_id") for w in current if w.get("control_domain_id")}
     if len(current)<required or len(domains)<required: p.append("WITNESS_QUORUM_INSUFFICIENT")
