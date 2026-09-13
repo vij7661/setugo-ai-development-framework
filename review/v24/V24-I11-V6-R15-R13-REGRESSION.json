@@ -1,0 +1,63 @@
+{
+  "attacks": [
+    {
+      "attack": "r13_tailored_sys_getframe",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    },
+    {
+      "attack": "early_os_exit_zero",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R14_NATIVE_FRAME_MAGIC_INVALID\n"
+    },
+    {
+      "attack": "fd_scan_junk_injection",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R14_NATIVE_FRAME_MAGIC_INVALID\n"
+    },
+    {
+      "attack": "ctypes_memory_escape",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    },
+    {
+      "attack": "proc_self_mem",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    },
+    {
+      "attack": "settrace_mutation",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    },
+    {
+      "attack": "thread_escape",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    }
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_commit": "2e875bb29be48d39c9be6f3525d4f4610869848c",
+  "candidate_tree": "d2c9c0c85564808941fdb54cfbbd53f51f5397ee"
+}

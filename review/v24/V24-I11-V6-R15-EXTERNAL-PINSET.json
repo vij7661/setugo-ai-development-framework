@@ -1,0 +1,1382 @@
+{
+  "admitted_files": [
+    {
+      "bytes": 4298,
+      "git_blob_sha1": "51b514c15a51528242f0c15f7c3f2d47142dcebb",
+      "path": "governance-runtime/EXECUTION-HANDOFF-PROTOCOL.md",
+      "raw_sha256": "3fc55e3ba1bedd699739e05557bd70c61a7962abf3029a53cd74c64cc183925d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 14656,
+      "git_blob_sha1": "cdba052b3baaa7250b6787bf6954ccfb5059e832",
+      "path": "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md",
+      "raw_sha256": "bdd898f6504351b5605678466d9d5494d486a359380adda8b70afc92a2dc6b32",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5112,
+      "git_blob_sha1": "73ec2db90708c405d48e5fca146a5b2060596f4f",
+      "path": "governance-runtime/NORMATIVE-CONTROL-CATALOG-V24-CONTRACT.md",
+      "raw_sha256": "76451185d81e1c01d2f1a52fc9c5282c7b6440eb32d1dec244dd083869fdc856",
+      "role": "runtime"
+    },
+    {
+      "bytes": 8418,
+      "git_blob_sha1": "c431272ec7ff51dbc0e7f9c23eb27e019c2ad84e",
+      "path": "governance-runtime/PROVIDER-REVIEW-TELEMETRY-CONTRACT.md",
+      "raw_sha256": "23c73d79c823be49dee34bad96d73f6227ed5a2cae422bc4590099d26a7df416",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2898,
+      "git_blob_sha1": "b60616a1fdbbddfe0e00b1d093bf24ac9a1b6f22",
+      "path": "governance-runtime/adjudication/SLICE3-SUPPLEMENTAL-REVIEW-002-INVALID.json",
+      "raw_sha256": "b31820c780f5d333d8abb3ba284a93d13451355bfe90935a3b0e816ed1ac0a1b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 22214,
+      "git_blob_sha1": "7fd7fb621e8a1884eb34fd3e2d07db3f94242b58",
+      "path": "governance-runtime/build_portable_review_packet.py",
+      "raw_sha256": "ebbc58af03710ca43cac9621c8db6257cac81b7f4a24f15ac73d2e3290471d6c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1581,
+      "git_blob_sha1": "e6d4f02501fa88b4931bae887692a958572fc33b",
+      "path": "governance-runtime/construction-evidence/GOV-PORTABLE-002-PACKET-FAILURE-001.json",
+      "raw_sha256": "fd3aed2676ee6dfe057180e2223485904c04b503d238e67e6d3f4e563ff01990",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1012,
+      "git_blob_sha1": "ac6d0421a84319c445211e5ff9bde30361561358",
+      "path": "governance-runtime/construction-evidence/GOV-REVIEW-CLASS-001-CONSTRUCTION-FAILURE-001.json",
+      "raw_sha256": "5b0c965f2842d62d9463f37821f11a66fc76794c3e365ac09b61878bc1343461",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1537,
+      "git_blob_sha1": "64cb4e27f940dd5f211ae8217819668a59e1224b",
+      "path": "governance-runtime/construction-evidence/GOV-REVIEW-CLASS-001.json",
+      "raw_sha256": "e14c95da55947c8e7a461d112aa5628dd2f486ace4c047dd7e6dfab2942cfaae",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1025,
+      "git_blob_sha1": "20e642b8bad266812762ab9bad16e077828fa67c",
+      "path": "governance-runtime/construction-evidence/GOV-SEM-001.json",
+      "raw_sha256": "0596d3a090815bae4d6df391718cd6bcb55c4f54c9604c5ec99cc3610059efb5",
+      "role": "runtime"
+    },
+    {
+      "bytes": 469,
+      "git_blob_sha1": "531705c09c1bf2c3095f9fa9483e2a3fcc81ae95",
+      "path": "governance-runtime/construction-evidence/PR5-CANDIDATE-012-PRE-FREEZE.json",
+      "raw_sha256": "6a30d1862b944c3f3b4bb511d0e844e9f07f7667e8ceeaa506fb4e25ceabd5a0",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3050,
+      "git_blob_sha1": "32d214b55c3a5c79d424ecf40f15d0768afd69c8",
+      "path": "governance-runtime/construction-evidence/SLICE3-EXTERNAL-REVIEW-001-ADJUDICATION.json",
+      "raw_sha256": "abec4a96bd22a3112ff7827126626390559e233046979b1e909fd4a59252bf4f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1552,
+      "git_blob_sha1": "905e813da3500eb704540fb5b9c54f111b6fddd8",
+      "path": "governance-runtime/construction/PR5-COMBINED-REVIEW-REPAIR-001-result.json",
+      "raw_sha256": "20417c38a68cc58209ebbdafc5cb1c41700adc19a74797522b42ae9085c2f9ed",
+      "role": "runtime"
+    },
+    {
+      "bytes": 9530,
+      "git_blob_sha1": "6c6e2830c4760fb05fe5b3aa373a949075484127",
+      "path": "governance-runtime/decision-log.jsonl",
+      "raw_sha256": "1aba5401e522c008e46c892a4be97a6dbc4e98a5efd5f29180e665185e5b5f34",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2149,
+      "git_blob_sha1": "84076e4005f9b711b638881bb535da7da7bb91ec",
+      "path": "governance-runtime/exp-l-pr11-freeze.json",
+      "raw_sha256": "e3292a69156944878546a252ab64ac1d937aa3c5c9683e0a3e0b5d77a99b9a58",
+      "role": "runtime"
+    },
+    {
+      "bytes": 936,
+      "git_blob_sha1": "604d0ad3c5f6158dcfbb51f1d3578fb4a386b2c8",
+      "path": "governance-runtime/failures/GOV-SEM-001-CONSTRUCTION-FAILURE-001.json",
+      "raw_sha256": "0e5631e549955c22eecf00ad127ad86db30d397f231b6b495c77cc481e44aa3d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1536,
+      "git_blob_sha1": "b00a82259b46ba189efe319a464c7738be19d146",
+      "path": "governance-runtime/failures/LCG-F8-reviewer-selection-hardcoded-claude.json",
+      "raw_sha256": "a184cbda35d450524024bee0e18a0a2387b823dbc63713fdda6489eee0e48643",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1151,
+      "git_blob_sha1": "bb4d0b855e77a26dd5c1aead46fad280e7acb807",
+      "path": "governance-runtime/freezes/GOV-PR5-REPAIR-FREEZE-001.json",
+      "raw_sha256": "14269288cc3ae2d212500bee5589a2e65050caa2a0630d2c6230d077031ed0a9",
+      "role": "runtime"
+    },
+    {
+      "bytes": 15900,
+      "git_blob_sha1": "5fdbd561c93049222d55bbc81c2baf592ff906aa",
+      "path": "governance-runtime/normative_control_catalog.py",
+      "raw_sha256": "5a239be5641806995170fa0382d53c1e1d3fc202543b208a0e2f351f66279cf3",
+      "role": "runtime"
+    },
+    {
+      "bytes": 10443,
+      "git_blob_sha1": "b6a3f8be0c2a59993e207fb5b6a75ecbd01e9f8b",
+      "path": "governance-runtime/platform_candidate_review.py",
+      "raw_sha256": "20c440443a64d3bb585d6502353eb19739fc655fa1b8ee74df2a93127b35263b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 8251,
+      "git_blob_sha1": "700de613cb2e57d52b42d1a1043c6f2558517649",
+      "path": "governance-runtime/platform_candidate_review_v2.py",
+      "raw_sha256": "3d1b4c3e2b6cd6eaa88fd48dddbe02d7e0d421f6a965ecd07b52c8d0cfe9f40a",
+      "role": "runtime"
+    },
+    {
+      "bytes": 19044,
+      "git_blob_sha1": "b9e53193dda6d824743e0683a42a002635845d5b",
+      "path": "governance-runtime/provider_review_telemetry.py",
+      "raw_sha256": "6b54a0ecdbd9f7e138648f3b00bbce5ae896b30a4dc147d2c621d0098145dc7c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1805,
+      "git_blob_sha1": "6e1b5fc18d18c7563fe1c079e4d2e6715f76a535",
+      "path": "governance-runtime/repair-preregistrations/GOV-EVIDENCE-MATERIALIZATION-001.md",
+      "raw_sha256": "b1d7b57688b3219f04a70460f80adaa4487b96a8d28d160671def637fb24049c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2740,
+      "git_blob_sha1": "7f244e7e832fbab767921552ccdc1dfe5e3b67e2",
+      "path": "governance-runtime/repair-preregistrations/GOV-PORTABLE-002.md",
+      "raw_sha256": "c6ea983c62eb3fd7f99c4fb17f5cb0a0e9935eb46e49531778ae3298337a99f9",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2509,
+      "git_blob_sha1": "5bfad09fb75abc2ad2cfdece8e4aecddf82e02b4",
+      "path": "governance-runtime/repair-preregistrations/GOV-POSTMERGE-CONTINUITY-001.md",
+      "raw_sha256": "3e6f0b0b60a5acf046bde577009e07f2ae43897da5124d30641825cc34d8f6e1",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3706,
+      "git_blob_sha1": "8c12074c05b7ae62db8d8beacad76f748a6f37ed",
+      "path": "governance-runtime/repair-preregistrations/GOV-REQUEST-INTEGRITY-001.md",
+      "raw_sha256": "fd5aaac3f3667267f60b94a1c431d03cc9fdcf826a78bd4f2e7194e196c66af2",
+      "role": "runtime"
+    },
+    {
+      "bytes": 4921,
+      "git_blob_sha1": "db42e62ff740d454c4723546f57ff2c1d4800c1a",
+      "path": "governance-runtime/repair-preregistrations/GOV-REVIEW-CLASS-001.md",
+      "raw_sha256": "5181bd24cbceff47bec423236dfd9e42728905dcebfdbd423c2ade79f09c82f9",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3552,
+      "git_blob_sha1": "b55e3e56e188d55b129d77b8967d9fa398b2c686",
+      "path": "governance-runtime/repair-preregistrations/GOV-SEM-001.md",
+      "raw_sha256": "3a4ed36f2a2980740bdcbb45e6e4a682cf8d841b92ad88888fcb9d841801872a",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1246,
+      "git_blob_sha1": "9a8b2eb592b11d6c28a45684dd9a7d8eb0dc03d3",
+      "path": "governance-runtime/repairs/GOV-EVIDENCE-MATERIALIZATION-001.json",
+      "raw_sha256": "3057b1fd1e0aa5289c108915fa9ec5d0af918462f4d1dfb212bd985b4bb6ddfd",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2232,
+      "git_blob_sha1": "18f314216e65d94e56923962bc7367a77908ad48",
+      "path": "governance-runtime/repairs/GOV-REQUEST-INTEGRITY-001.json",
+      "raw_sha256": "c8e6775c09b5119711f370688823eb8f944ffdb75e107eae563f0240a820285e",
+      "role": "runtime"
+    },
+    {
+      "bytes": 4481,
+      "git_blob_sha1": "d87d38ff05c013627ee886997cd5a2142f2d0a17",
+      "path": "governance-runtime/repairs/PR5-COMBINED-REVIEW-REPAIR-001.md",
+      "raw_sha256": "fa81925f4bba1b26500958de37432d195f5f2eb7becb67c0c9cafd070745207f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1672,
+      "git_blob_sha1": "ed59e4545708f963ca7dcf2676603eff11bf782e",
+      "path": "governance-runtime/review-bundles/REV-GOV-PR5-003.manifest.json",
+      "raw_sha256": "84edb0b305f9ff6f0e2e0cfff38c63768764a278482fcd02e0bddc001d443aa5",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2362,
+      "git_blob_sha1": "c0883b455e5f95c17f76ae5fa5f7fddcc8715593",
+      "path": "governance-runtime/review-bundles/REV-GOV-PR5-006.manifest.json",
+      "raw_sha256": "8be9355e34e930d0a0a48879391d6cb019bf93b3865c6691977491ce3c5c0673",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2854,
+      "git_blob_sha1": "2cb9f4ec5b09cf2859d5368e384ed8517777e093",
+      "path": "governance-runtime/review-bundles/REV-GOV-PR5-007.manifest.json",
+      "raw_sha256": "acf54abf4483015e2af09b56434e7fcc2b3b351aaf391b4ea074e2082547cb97",
+      "role": "runtime"
+    },
+    {
+      "bytes": 4544,
+      "git_blob_sha1": "22230f1c86a3270b0974094f355750eef969f909",
+      "path": "governance-runtime/review-bundles/REV-GOV-PR5-008.manifest.json",
+      "raw_sha256": "4b1f683091671acff0c2f97e64de623905fb361d9dd77aaeb9cf51ae62a378d8",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7168,
+      "git_blob_sha1": "8eeb765287d83246afd0909e76e80cf602fb29dc",
+      "path": "governance-runtime/review-bundles/REV-GOV-PR5-009.manifest.json",
+      "raw_sha256": "dbbf2bfdb1846cb7faebea5eaf3e13d286926348f615eddabfc8f2d41c992309",
+      "role": "runtime"
+    },
+    {
+      "bytes": 8438,
+      "git_blob_sha1": "a7fa4524f429f5d0feeaa027d499890170017e3d",
+      "path": "governance-runtime/review-bundles/REV-GOV-PR5-011.manifest.json",
+      "raw_sha256": "2517e090d45588602824ff34e4d610a0d6695fbde6a35f19a3a5b24495534f9d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1812,
+      "git_blob_sha1": "8d6bdb2ef934a44645682499f0d7670fc7c9c193",
+      "path": "governance-runtime/review-evidence/PR11-CLOSURE-HEAD-VALIDATION.json",
+      "raw_sha256": "5ec16d720b140802b570950d853f61820b11e75adb8f2e90d22836ea42f95791",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1642,
+      "git_blob_sha1": "c8e8deccdea9b2f9312860305ba0c06e6ba85f89",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-001-adjudication.json",
+      "raw_sha256": "0e865fbbc702cfdc886cad57e927d5075cc53cf827b27bea854de08829c5ba08",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2180,
+      "git_blob_sha1": "ce6cc1888bc8aa88ca5c7a206be50f7f92c7cf41",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-001-platform-review.json",
+      "raw_sha256": "65b6f68a96efe2b778c32c432d6cb832077cc0a76be16bf3ecbba5185ab70f7e",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1353,
+      "git_blob_sha1": "2e6c7931ed416a4add9c22e041b1b7ce0f1d18ef",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-001-supersession.json",
+      "raw_sha256": "494d8227d220d83c7340b663f39261076cccec6683fa57ad108b5f704bdc6383",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1684,
+      "git_blob_sha1": "4c2cbf6dfc214980a4d1864409d5a609c742b31a",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-002-adjudication.json",
+      "raw_sha256": "353d828eb63df5f3f92b8d7134ac661cd8107fa517056e0e7d10718ce00ccaf3",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1379,
+      "git_blob_sha1": "ab5ea75c9c7b329ab166857daa8cba98e75a860a",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-002-platform-review.json",
+      "raw_sha256": "9d7143ed55080de9d54eebd731ab2bb9786cdf1c89fc4a4de7b9b10efcb4f7ab",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1966,
+      "git_blob_sha1": "f009e6aabfffdc5461a6065dcc3ede6602bcc51f",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-003-adjudication.json",
+      "raw_sha256": "6ed08f9247c236c19e8ec28eefe93cd46c595bc380aa072f7641860f4e8b1772",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1491,
+      "git_blob_sha1": "4def27e428e60836d0ffc8347a75e2736943ed2d",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-003-platform-review.json",
+      "raw_sha256": "01546916eb233aba097a3388dee1daa32c6edec38c323d74d717d41aa4cfa2f6",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1229,
+      "git_blob_sha1": "09eb05f9c2876c5a22ba4c61d060bc21b1231819",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-004-materialization-failure.json",
+      "raw_sha256": "9aa192669cbe9f7eea1362a6c6133d8b89a79445e3a8f0806763748dae3d0e65",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1256,
+      "git_blob_sha1": "dd40179d8a47ded102e30b815f8c5cf7a8729a4f",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-005-materialization-failure.json",
+      "raw_sha256": "6fbdfe5b94afce5b2a6ebd925a9abcb6937161079eba35d5c5f41f38199f203b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1782,
+      "git_blob_sha1": "943d89f7a3f93816fa58b5f04ff3d0e2555d8b2e",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-006-adjudication.json",
+      "raw_sha256": "a609d372726df6826a6e2d0084495ad436c2e4737848e92e713a8a76b4a4cc2b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2068,
+      "git_blob_sha1": "5d7635055f12e342e520fab35462930f3c78883e",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-006-platform-review.json",
+      "raw_sha256": "764c369fe7ac635ad549783cf5c1cc9b12cb6da697f9f5f991d57174afa66108",
+      "role": "runtime"
+    },
+    {
+      "bytes": 814,
+      "git_blob_sha1": "eb3f5afaa2ad7ee7f96824556bfb4cdebaaffc9e",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-006-provider-failure-001.json",
+      "raw_sha256": "79f6980989bd1a6284f7424f0f34dc28f64f05c0e77523938dd3661aa35b3ba2",
+      "role": "runtime"
+    },
+    {
+      "bytes": 814,
+      "git_blob_sha1": "a9fb77a2e48441ce2dfa0e271cf5b8322e77fa9c",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR11-006-provider-failure-002.json",
+      "raw_sha256": "bddf487a14205bd7168fff8c1219bf9779816db2dba6dbfffe339bad42abaa47",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3341,
+      "git_blob_sha1": "863ff77eeedcfc322c7e04ec711a8c3c5a204cd8",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-003-claude-manual-relay-unverified.json",
+      "raw_sha256": "bd4ee0f18a77ec2596802df1edb69223e54ebe1e70b54be91cc856482ceaad7c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6553,
+      "git_blob_sha1": "f1bd681c5b8a984c2d1b95a2b04407390009beb6",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-003-claude.json",
+      "raw_sha256": "cf69200da4315263aa081878dbf293cdd55fd17a73191eb6842fbf506c7bde9a",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2534,
+      "git_blob_sha1": "ef266eb5a33962d0ca17ef2e7f20e7624c4275bd",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-003-finding-assessment.json",
+      "raw_sha256": "f22623c41478ad099708065e895c6393248294b44e31206a209b303416833ab7",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1240,
+      "git_blob_sha1": "8e4b6ae5e287a13095fdde67e91fe3653e275959",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-003-reviewer-identity-correction.json",
+      "raw_sha256": "68a4921c0281dd84165c3ea1e3a24d21e7c188acdd37c10fe749f8457810e032",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1524,
+      "git_blob_sha1": "dd27d276a4842b1d67fc9f847547737916d23d8d",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-008-deepseek-manual-relay.json",
+      "raw_sha256": "09b0639054789a09d71ae2d92952461bf0ab1667b887c479d3fb0d7338b297d6",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1473,
+      "git_blob_sha1": "ac302398a40a441758a4464d7e11be340131205f",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-008-ingestion-assessment.json",
+      "raw_sha256": "452f71e95c123d695ad0ef2dc9a02cc4fbeb0194b38eb9122d1251e9b6aa74e5",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1111,
+      "git_blob_sha1": "db881f504cbec5ebc63fd927952d04b217689c50",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-008-semantic-disposition-assessment.json",
+      "raw_sha256": "3d720f4f70a252a1dda2ae6602f77f8b612320208cb27f6c21645cfb464be3ae",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1413,
+      "git_blob_sha1": "ab007ce5f9451370d91adf9e5fad02d754b213d2",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-001.json",
+      "raw_sha256": "f86c6ba3fea8d5245577578a51542d33a5885da4d7ae1aca301091070e3e5f5c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1208,
+      "git_blob_sha1": "2d36f70638372c6d953a4987255c4cdfee63f71b",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-external-paste-002-deepseek-user-attested.json",
+      "raw_sha256": "a84256b9955f91694fa7f19849465b55977efd9e5bddd457db6bea208934eaea",
+      "role": "runtime"
+    },
+    {
+      "bytes": 685,
+      "git_blob_sha1": "5037e95fac12f241fb410a46a7d48f7359b6e367",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-011-supersession.json",
+      "raw_sha256": "fe75d2770075b308af5fc7420c7a7cfa33b11253205a61bae1eee98ec890526d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1446,
+      "git_blob_sha1": "eeebbaa4301bc5efb6f3a4bbf84c142e9b7700cc",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-013-adjudication.json",
+      "raw_sha256": "3a006e8edd3eecb836cd2061d3a84697f32c95aee78e731a09b5cd13111ed28f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1578,
+      "git_blob_sha1": "65bcf58e97216898de46d6ecdeb17c77d7bd73bb",
+      "path": "governance-runtime/review-evidence/REV-GOV-PR5-013-platform-review.json",
+      "raw_sha256": "2cf2607829eda5e1275633c2baed92878efdb1dfe0af21eb4a2ba45c40261547",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1278,
+      "git_blob_sha1": "26e65bad723fb73091eb618c6b653c8c08ae9d1a",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE2-INTEGRATION-001-adjudication.json",
+      "raw_sha256": "1a4e8b07506703ebd2d9ecde648b57573853b93ec950145ed4be8e0195e9bb5c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3242,
+      "git_blob_sha1": "a133398865dc643df1bb26769dc309a90cddd295",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE2-INTEGRATION-001-platform-review.json",
+      "raw_sha256": "dffa2fd28f12e2311687fe8bc99dcd8ceddbd44ccc0a27ea547b74201d5f4225",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1259,
+      "git_blob_sha1": "32c4bc6da8533acab2a21a8c9cca4fcffaea3a80",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE3-INTEGRATION-001-adjudication.json",
+      "raw_sha256": "c8b1e0f63a718c7a3aceee7aaaf61dd236a9608c263c025c7a5f7bb7d43767ab",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2421,
+      "git_blob_sha1": "c5e535d05927c492df96e4aa4e24ea8378926000",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE3-INTEGRATION-001-platform-review.json",
+      "raw_sha256": "a369adba168617514b5aacb7dab2932452e4350584564398f2dcd353f1c01094",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1978,
+      "git_blob_sha1": "e70db46b9df6803055ce88f5c66bbb3c582a0d6d",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-001-invalid-request.json",
+      "raw_sha256": "b89e059d2b9ce36a72c5fd13f1cb99837aaeeb6f80dcbce0ce6e53f79a84ed90",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1010,
+      "git_blob_sha1": "837f2e253ae5c2077864e7c1100acd86072207d5",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-002-provider-failure.json",
+      "raw_sha256": "5d94de76831023bd1ea109c25972d93320a9141ac2ebddc2abab58a8ad8718b4",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3095,
+      "git_blob_sha1": "a64efb348a3b29af83be9261ac9d8d6630c53970",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-003-adjudication.json",
+      "raw_sha256": "42b4bf43c1518e0883dbde24cabb8dffc8058573f8b0b8bf61367731d4d2c505",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6237,
+      "git_blob_sha1": "e8cd47a3c2a5bcc7eb5b70f9b56ccc9cffd07d1a",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-INTEGRATION-003-platform-review.json",
+      "raw_sha256": "52394b97f46fa48d892ab7cfc41f79101cfb6eea2958c7db528bc1046559bb0e",
+      "role": "runtime"
+    },
+    {
+      "bytes": 886,
+      "git_blob_sha1": "1f359dafd0e4f88a71d499d6a6a370a314c460cb",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-001-provider-failure.json",
+      "raw_sha256": "afe7078192c340f1d06598da475389c5d1376bc72eafd6b6141a70b3d500aa72",
+      "role": "runtime"
+    },
+    {
+      "bytes": 886,
+      "git_blob_sha1": "75f8477a5b432ca1f1ba159937b7e55a8e99eeda",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-002-provider-failure.json",
+      "raw_sha256": "5bcce81229e953fb25b8300a1baf5839df942fde5cdc857b9964cdd935a68442",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2823,
+      "git_blob_sha1": "8ed3a92e1318349ee9d3cf9aa8a2b1fb79d21e16",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-adjudication.json",
+      "raw_sha256": "3b989cc1d6c060d37b16296a989fdb648b92bb07fce7436c27ddbcde18dfe830",
+      "role": "runtime"
+    },
+    {
+      "bytes": 4788,
+      "git_blob_sha1": "fc350de594b5ca04e8d2427028fdcacec65511fe",
+      "path": "governance-runtime/review-evidence/REV-MVP-SLICE4-SCIENTIFIC-003-platform-review.json",
+      "raw_sha256": "a48edf3f55f41529ecd7adfd26edd9f866100e6bee693794e60464199b4de90f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7534,
+      "git_blob_sha1": "c463df4434f6cf28100583bdc72626e1f9ac2396",
+      "path": "governance-runtime/review-evidence/SLICE3-4F1797B-EXTERNAL-REVIEW-001.json",
+      "raw_sha256": "ab510bf18085c9b16b5b03722c6ffc8c88200e2175284654759220f5271cef82",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1879,
+      "git_blob_sha1": "24f870ed2078341c44d5425a5ca1f2bbe0a53b26",
+      "path": "governance-runtime/review-evidence/SLICE3-PLATFORM-AUTO-003-adjudication.json",
+      "raw_sha256": "96f75630889e39b84f9c364c85e9def1d2344ca843e361a2883c96ba89bf8fd5",
+      "role": "runtime"
+    },
+    {
+      "bytes": 795,
+      "git_blob_sha1": "990b11266085edb0a2e0557f319c6c9ec6af32a4",
+      "path": "governance-runtime/review-evidence/SLICE3-PLATFORM-AUTO-003-attempt1-failure.json",
+      "raw_sha256": "9ba040a72a7f4b51948f6329f7f40bbffb4cdb985f5ce331a0038ed76edfbc20",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3981,
+      "git_blob_sha1": "44d54cc451a4cde8e5bb43882be4789ae9477244",
+      "path": "governance-runtime/review-evidence/SLICE3-PLATFORM-AUTO-003-platform-review.json",
+      "raw_sha256": "710e21dfe395878b1076274c08decce799ee696d0c9e6acb5c3ebecc8918bb54",
+      "role": "runtime"
+    },
+    {
+      "bytes": 1527,
+      "git_blob_sha1": "1bccfa098c359991a189d26c36b6ca69637247b3",
+      "path": "governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-corrected-adjudication.json",
+      "raw_sha256": "a1510cc327ec00f6defae8fbed894163867e74f9a3a4f3c3c3a93c5158cf0774",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2411,
+      "git_blob_sha1": "2d9a28006853dbf57ea55bb6c1bdedfc2d8b79da",
+      "path": "governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-corrected.json",
+      "raw_sha256": "72ca6ce0dfe5028b15f160659ef98daeb6843dbe708b523faf05bdcd4c109d24",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2461,
+      "git_blob_sha1": "5b2118a1336ad5490b2d291bc92cc3f8247d46fd",
+      "path": "governance-runtime/review-evidence/SLICE3-REVIEW-4F1797B-SUPPLEMENT-002-external-paste-invalid.json",
+      "raw_sha256": "c88e994e0e9e142d66c73b0180c8f39e81c18cb51ad7f8399985bb21ffdb91be",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6780,
+      "git_blob_sha1": "d0382fba7d804d59ef7308b7dcb30ede4f750dba",
+      "path": "governance-runtime/review-requests/REV-GOV-PR11-001.json",
+      "raw_sha256": "b74c1e096ce9bd4595c2f521185df548cd09089571c327d0fb1b1445ba8e51dc",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5695,
+      "git_blob_sha1": "49e5d116cfe414d42fcc620112ea4cf6f2b9bba9",
+      "path": "governance-runtime/review-requests/REV-GOV-PR11-002.json",
+      "raw_sha256": "00d99fe5a11f4b0f9f3f50ce93a00a63d6e5032a1499005cf93f6a8c0ac22af0",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6135,
+      "git_blob_sha1": "d2fa53140b1088a7c292524cd7e074341999238d",
+      "path": "governance-runtime/review-requests/REV-GOV-PR11-003.json",
+      "raw_sha256": "72207e8f236b91fb63ab903c7dcaf65b6607e080183e6903b6caa05e22bc56f6",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7040,
+      "git_blob_sha1": "59ef97af33cfbde0da40a694df7652b530f49e44",
+      "path": "governance-runtime/review-requests/REV-GOV-PR11-004.json",
+      "raw_sha256": "1a9c492c9fe7ffbeae82cde7167dc885538e847d1939478f747895bca62c1512",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7282,
+      "git_blob_sha1": "ad3f90d4d63634a1d3fa0e1cb30cc81ec4d2b872",
+      "path": "governance-runtime/review-requests/REV-GOV-PR11-005.json",
+      "raw_sha256": "cc6b9b91f1b622323c88a9cab898662cac0a02d8cf30b88e80e2fc6ae88c5040",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7457,
+      "git_blob_sha1": "8d22a3ba2b88583b9288907c2f2a43809538e1e5",
+      "path": "governance-runtime/review-requests/REV-GOV-PR11-006.json",
+      "raw_sha256": "a60ee92a2dfa163461dd1e7010b12e94fce3cb43a672372b6a24bf7ffe47a35d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2723,
+      "git_blob_sha1": "3e3f07d85d87ed7f86b36fd4799d53787cbd6a86",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-001.json",
+      "raw_sha256": "022eb7c8a89f74adabe2f0df4fcdf143176f60c0cf7960ac84447b589fe85f44",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3110,
+      "git_blob_sha1": "aa206934758b4fce600fd9e4767193ce2a0ac92c",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-002.json",
+      "raw_sha256": "a86d63391f4472d744454fdb64c892eda76859ec3185dbadf58fd9bd95db8c94",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2610,
+      "git_blob_sha1": "8dc53136f202eb96e2277aebbebcb4dcff02b810",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-003.json",
+      "raw_sha256": "6b57362e92e83b1d44135eaea19cebea9a803c36834e606bf0c4375ad17b24be",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2505,
+      "git_blob_sha1": "bc5ead5c4b05ce5689d03efeac90df2b6f614d81",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-004.json",
+      "raw_sha256": "db539212ccb36ca0ea854041e8b0af50047fa591085ff919901453a9eaaf668e",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2361,
+      "git_blob_sha1": "7bb0c9ab68a18c3a20c367e7949cd58109361422",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-005.json",
+      "raw_sha256": "4a0a02ba342323b2021f9c1c9b67492ed2f81faeb7bc02414030b8d595c3f15e",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2371,
+      "git_blob_sha1": "421c446d1d8bf0209a6dc7260e48407e0b17cc3f",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-006.json",
+      "raw_sha256": "ea798c2fb01a6a6e1c2df5639146cc10d9c123e016e3a7574da3a878d4a517db",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2853,
+      "git_blob_sha1": "7eb5f8d028b5046f191d8cb4b638de28dc54f683",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-007.json",
+      "raw_sha256": "4a91065dc4dcc6bcc75022eb6f08c9c44ebd75581e6bb87bb6012f68e8ab913b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3005,
+      "git_blob_sha1": "26b4e41dc1f8ae43fe1a472c21660f12bbd95478",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-008.json",
+      "raw_sha256": "d0fc34ae374325995677ef139d7b1393722771ab5396534cf747a0110fad8172",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5395,
+      "git_blob_sha1": "da3398e86815ceb6771b0b0be487b11298ccbe60",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-009.json",
+      "raw_sha256": "86802c82f24927adfb3190e75a6b3c68d891e0129b8df169f69e1dc0f6abd105",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5946,
+      "git_blob_sha1": "c85a18000797482546ca66aa1ae259213e893e17",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-010.json",
+      "raw_sha256": "3b3f47d93e81bae96213f9c2ffe721027e12ca5bb357368fb65c961e9e735883",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5962,
+      "git_blob_sha1": "856cff8a705602e13cc7a9118b4409671814d302",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-011.json",
+      "raw_sha256": "4966bb6643d029e22d7a965c4d9bf86f7788a759cf5f0f6320de75ea0b7e88f5",
+      "role": "runtime"
+    },
+    {
+      "bytes": 890,
+      "git_blob_sha1": "a5dba19f30c3933a8a5d46f1d41af19a2e45b8bc",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-012.json",
+      "raw_sha256": "d3e1777ada5cf1d1a2a92ccbd6743917abf742f8c5e862a504876e18ba717a83",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6604,
+      "git_blob_sha1": "9f762a64246949c0b8c0c892a22c9f3861b0a491",
+      "path": "governance-runtime/review-requests/REV-GOV-PR5-013.json",
+      "raw_sha256": "6f23c253bd1a765b562fea84276f9da0ce69494bbc317d19240edc1a2012948b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 4768,
+      "git_blob_sha1": "b9cb80573e17a54166a0c05b291f77e7f4f834e8",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE2-INTEGRATION-001.json",
+      "raw_sha256": "f94a74835d596da81d0cdb17bb365a55f7573c578a9bdb6783ac2f8b8aecec56",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5439,
+      "git_blob_sha1": "6d4671d3d8bd568d00498e3cf20d2de8b01d6594",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE3-INTEGRATION-001.json",
+      "raw_sha256": "a14b6f83a44934595636987efff5c6080d55fa67c5627c718bfecdec8234b175",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6955,
+      "git_blob_sha1": "4c082a1bac2abff494bbcbf1b666ff737524cd92",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-001.json",
+      "raw_sha256": "ed20585e2c5cfbb1fb35b9855a8a4be15ad67b4c3270d2c720f9156088b6369b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6955,
+      "git_blob_sha1": "9b525a7009f3595250b097d55604c9bb21d0471d",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-002.json",
+      "raw_sha256": "75236341e1cedd9d976795ea73b1f16db2c72d15543b476fb96a791f0e27b039",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6955,
+      "git_blob_sha1": "5b641cd32489b80edea76aa7972394827aa5e120",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE4-INTEGRATION-003.json",
+      "raw_sha256": "2c90ae2761b4b7f05d34ede846ace589ee57db2706eedb79070f8c2f6442884f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6903,
+      "git_blob_sha1": "cd1ba30eee86af502828291da3ace074f63c4f2c",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE4-SCIENTIFIC-001.json",
+      "raw_sha256": "f1c49e5e20471e15cdf392830c5cdb4794aa6586a5b4745f98438f12b77e1c84",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6903,
+      "git_blob_sha1": "48a128a001afbdad8ea74b4a139eb1ed88440672",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE4-SCIENTIFIC-002.json",
+      "raw_sha256": "d1475e77ee37488a966f35a58991397c6be3cb4222d9053a1131d20cbef9f247",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6903,
+      "git_blob_sha1": "90ea8ad60c146a87e0c9a60a3dcc74c363404647",
+      "path": "governance-runtime/review-requests/REV-MVP-SLICE4-SCIENTIFIC-003.json",
+      "raw_sha256": "357fbe7e7a1bb7b0e2de8d95678606f61a31fb2c37b2b253ed2501f3ec8c9bd2",
+      "role": "runtime"
+    },
+    {
+      "bytes": 12606,
+      "git_blob_sha1": "5a1e7b6ed808f2bddd248fc50bea270c6d390ac3",
+      "path": "governance-runtime/review_protocol.py",
+      "raw_sha256": "834809222a7e77cac3f8f1e72dfe7c58ef82e1510168677d5c36b32b7f5f85bf",
+      "role": "runtime"
+    },
+    {
+      "bytes": 37044,
+      "git_blob_sha1": "e0b3d8d09f903b38f9d2932f0c35057f062ff90c",
+      "path": "governance-runtime/review_protocol_legacy.py",
+      "raw_sha256": "28ef0861ead2ce1579ee5bcee5ddc8a9f8dbeae73ef66c5b153f689864b1379f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 9442,
+      "git_blob_sha1": "9bf2c84d2f192888230ca009e65570db7d894fab",
+      "path": "governance-runtime/session-state.json",
+      "raw_sha256": "36b1965e6b78e081286bf8ab32f97ae01897e94a6f57cef72cf217877f1e36c9",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7853,
+      "git_blob_sha1": "fac24e6c765abe19c704ceb3f2c1659abe8b6ce8",
+      "path": "governance-runtime/shared-memory.json",
+      "raw_sha256": "b6c89e7bf056805af01aa1f9e523ca755eefdf56d64064c18ed844d9ddd18879",
+      "role": "runtime"
+    },
+    {
+      "bytes": 10388,
+      "git_blob_sha1": "95f83e7fe0c0a4f56c4aec4f0a0daa7a2489adea",
+      "path": "governance-runtime/slice3_platform_api_review.py",
+      "raw_sha256": "a03e53b6c9a8fbcaf051de11364d87497d786cc5e06c059fde132b631cef6008",
+      "role": "runtime"
+    },
+    {
+      "bytes": 10487,
+      "git_blob_sha1": "03b66fd2c6a5009eae7075f3c7437b10c57fd1d0",
+      "path": "governance-runtime/test_normative_control_catalog.py",
+      "raw_sha256": "9ab48c6bf37ba7c39da3d46941f9a4c007dc92c4ce301f45a6025d409287f219",
+      "role": "test"
+    },
+    {
+      "bytes": 5811,
+      "git_blob_sha1": "bc8c43f0cd312808a736a81c478c3f14460f1401",
+      "path": "governance-runtime/test_platform_candidate_review_request_integrity.py",
+      "raw_sha256": "c928fcc715b8b2d45bd0225a4ed7585aebabbf85de0d4db814cb3e18e359a3ed",
+      "role": "test"
+    },
+    {
+      "bytes": 4616,
+      "git_blob_sha1": "72a7b2e37b458673d10e7ee689b7c9c57b52d280",
+      "path": "governance-runtime/test_platform_candidate_review_v2_materialization.py",
+      "raw_sha256": "26c3e045f88b4e23c2a89d1665240defc4b58a0f52c4c67324db353774c992bb",
+      "role": "test"
+    },
+    {
+      "bytes": 4135,
+      "git_blob_sha1": "b869dd844707521ff0dde4332cffcb0b13e3e3ef",
+      "path": "governance-runtime/test_provider_review_dashboard_integration.py",
+      "raw_sha256": "a95d000cfe8e7733a940b2c6842ff72bd3579a2f52be9899abef37665ad65fd8",
+      "role": "test"
+    },
+    {
+      "bytes": 10371,
+      "git_blob_sha1": "4e37815b6529da20529d7c0f9e48785f93b6a738",
+      "path": "governance-runtime/test_provider_review_telemetry.py",
+      "raw_sha256": "77682c0eb2e62e34ea4077b5f6fef76f28aa2271a18fcb824f4e7fe0acc7ce18",
+      "role": "test"
+    },
+    {
+      "bytes": 8875,
+      "git_blob_sha1": "035b6cfb5da0b6ac9f9e0917a5965685dd16f134",
+      "path": "governance-runtime/test_review_classification.py",
+      "raw_sha256": "a47e21de84bd9c0795db3f763af5ad130424633f298e918c3f409a899af8df4f",
+      "role": "test"
+    },
+    {
+      "bytes": 26913,
+      "git_blob_sha1": "b4e9b530572acb3ae8db657afda9f19d19bad9c2",
+      "path": "governance-runtime/test_review_protocol.py",
+      "raw_sha256": "592094db52b0d8c0603c8a2942b02235e7309057dd5c70c16009af6ca7b8dfbd",
+      "role": "test"
+    },
+    {
+      "bytes": 11565,
+      "git_blob_sha1": "c9cafa735f9198836363a8a89d11478815b59278",
+      "path": "governance-runtime/test_review_semantics.py",
+      "raw_sha256": "9f55e9c8df695ca5f088700d7fc6303ae052d96a761d4cd64f99da6cdf168496",
+      "role": "test"
+    },
+    {
+      "bytes": 2328,
+      "git_blob_sha1": "b19b59022d3f822a3450bf330efc3fec22c34415",
+      "path": "governance-runtime/test_reviewer_selection.py",
+      "raw_sha256": "14d52702bda4f19ad15769285588e6e73ce09d701006cf44acecd95c8c721dbb",
+      "role": "test"
+    },
+    {
+      "bytes": 5866,
+      "git_blob_sha1": "5ac8f6ed158b77397dc157cbe15a48a7330e387d",
+      "path": "governance-runtime/test_single_file_review_container.py",
+      "raw_sha256": "ae0a20e53c14dae36a22238ae420eca97535fd8bc62f63ccaf2ae7f67f93167a",
+      "role": "test"
+    },
+    {
+      "bytes": 5337,
+      "git_blob_sha1": "fc31df6e102f40e432015749ab44c63326f0222a",
+      "path": "governance-runtime/test_v24_admission_application_witness.py",
+      "raw_sha256": "1cb79847d79764bd7f4e861ef6eea4bf002ceaa65aa384865e73d5a74b5966d5",
+      "role": "test"
+    },
+    {
+      "bytes": 3406,
+      "git_blob_sha1": "82d2c9979ed4c7c233347994062ffe066013fec6",
+      "path": "governance-runtime/test_v24_aggregate_budget.py",
+      "raw_sha256": "9c4c79e35e47e9aad3d55915d73c6b9909968e951502254ae02fe5ac2ce2659b",
+      "role": "test"
+    },
+    {
+      "bytes": 6715,
+      "git_blob_sha1": "5e9ec92002f4be8bb3af9f8c08cbffd2fa4edb49",
+      "path": "governance-runtime/test_v24_authority_universe.py",
+      "raw_sha256": "68b21d7622dd4710096bb09bdda4287f2467330f36c976b4656037d3a1dbfe51",
+      "role": "test"
+    },
+    {
+      "bytes": 4581,
+      "git_blob_sha1": "199046749a5b676627ca034689cbbda39162650e",
+      "path": "governance-runtime/test_v24_completeness_bootstrap.py",
+      "raw_sha256": "cccff33e3e8bec5ea4cda2a67c6855e1b655e9edd016703533abb84a4f003b13",
+      "role": "test"
+    },
+    {
+      "bytes": 4375,
+      "git_blob_sha1": "82baa0c29cbcb51bec32951850073f96f3d216a9",
+      "path": "governance-runtime/test_v24_effective_control.py",
+      "raw_sha256": "f29ef4ee613ba7b138285f67e473d37bd480b4ff6821f8a495335beb9687178b",
+      "role": "test"
+    },
+    {
+      "bytes": 4502,
+      "git_blob_sha1": "3472f87d5c3b0faef80fafbbd9519523dc3520b9",
+      "path": "governance-runtime/test_v24_endpoint_proof_compiler.py",
+      "raw_sha256": "ada1c621696be2eb4e931358b6b1a77684b54067c456e3100ec673b707a2b099",
+      "role": "test"
+    },
+    {
+      "bytes": 3917,
+      "git_blob_sha1": "d5db6a3c3fe40f273d4bc7e91fc3d77d0574c3ac",
+      "path": "governance-runtime/test_v24_generation_migration.py",
+      "raw_sha256": "dd4491922c5a148dc6c82809878757dcc9dd9376bc4b9f6dc2d48341a70b2648",
+      "role": "test"
+    },
+    {
+      "bytes": 4399,
+      "git_blob_sha1": "f54d0f8a817be075ef17d7d17fb54e76023824ed",
+      "path": "governance-runtime/test_v24_review_proof_audit.py",
+      "raw_sha256": "7a184f5b7d4c24dcb0d54ea2853fa8bdf3eb91992f914dfd871b69ec7e75f891",
+      "role": "test"
+    },
+    {
+      "bytes": 16598,
+      "git_blob_sha1": "e089e18fb1e96f613385f73f37c0d00117a51e6c",
+      "path": "governance-runtime/test_v24_v6_atomic_binding_modes.py",
+      "raw_sha256": "315d85a8014dc3415a258aaff7bc2c3d67d1a2e800d6eb698af3704bc343677b",
+      "role": "test"
+    },
+    {
+      "bytes": 8598,
+      "git_blob_sha1": "2026c28ff4e881ebb0592a67b899b674f96429a4",
+      "path": "governance-runtime/test_v24_v6_decision_apply.py",
+      "raw_sha256": "41c98feffe38d32540e8ceeddb69ce308d7adc146faa0f818e5c927953e3b017",
+      "role": "test"
+    },
+    {
+      "bytes": 15085,
+      "git_blob_sha1": "504773c2939d90705792b3606df430b9caa6ccfc",
+      "path": "governance-runtime/test_v24_v6_effect_ledger_closure.py",
+      "raw_sha256": "4bf457858ba97af3258ecebffce3ee1bdcda7dc6d7c1317c0d63fe0d0d8a4114",
+      "role": "test"
+    },
+    {
+      "bytes": 11108,
+      "git_blob_sha1": "506a234becfb0a30796c2d614501295a11e9be09",
+      "path": "governance-runtime/test_v24_v6_endpoint_projection.py",
+      "raw_sha256": "1d3b69df2289383f14a166309c583ba4828fd88f0b9a42c0737a7ddabb265b20",
+      "role": "test"
+    },
+    {
+      "bytes": 13088,
+      "git_blob_sha1": "97af1c4e2e3b4be291001880193a04cbd7e1f02a",
+      "path": "governance-runtime/test_v24_v6_external_execution_binding.py",
+      "raw_sha256": "f99eebc0eeb8e2b037884cb4efa06f8f4b330e1c61a73629ea409f95a0f70338",
+      "role": "test"
+    },
+    {
+      "bytes": 12252,
+      "git_blob_sha1": "05db4dcf97b38cc292b2398ee44dcddaf4ce9945",
+      "path": "governance-runtime/test_v24_v6_governance_foundation.py",
+      "raw_sha256": "37d818a6100c8a0fbebaff3e388dd01d0900b92e8e6cc399c88bf2eeece8022d",
+      "role": "test"
+    },
+    {
+      "bytes": 7492,
+      "git_blob_sha1": "f805d7ea8abe4d7b5129b1f436c43153f0860b83",
+      "path": "governance-runtime/test_v24_v6_integrated_successor.py",
+      "raw_sha256": "a8029d7ef85b907e4cc56f4cb6a33dee33af884af34d84e707f2bfcd0488a0af",
+      "role": "test"
+    },
+    {
+      "bytes": 8329,
+      "git_blob_sha1": "2187715f27be74a9def8c2abf8587e4d40b20ba0",
+      "path": "governance-runtime/test_v24_v6_material_surface.py",
+      "raw_sha256": "3324dbd0a77c68a138de2d6de82174c1a387f8ee4060d11a6c0d4ebfac2b9e95",
+      "role": "test"
+    },
+    {
+      "bytes": 13332,
+      "git_blob_sha1": "41d278e35ec88ec7246f1017e6999ad47af819fa",
+      "path": "governance-runtime/test_v24_v6_normative_clause_projection.py",
+      "raw_sha256": "c8146e061502f4a1e57dd84e2fb238ed521a593ff4c101e6fe9cec6123f46aec",
+      "role": "test"
+    },
+    {
+      "bytes": 14601,
+      "git_blob_sha1": "b27a07638d37fc4e4692845e9c780f1eca86e6b5",
+      "path": "governance-runtime/test_v24_v6_qualification_integrity.py",
+      "raw_sha256": "03efc4084d8303b294fec52dd65c5385f2357d2fc137677926537ba8758d4b2f",
+      "role": "test"
+    },
+    {
+      "bytes": 4650,
+      "git_blob_sha1": "bf70167a1b1b7512ec386d4036303f17046484f5",
+      "path": "governance-runtime/test_v24_v6_r13_successor.py",
+      "raw_sha256": "2e40a2f9a74a76411ad365e906b763230713ea0c276535dc42d65f76f5d79359",
+      "role": "test"
+    },
+    {
+      "bytes": 5882,
+      "git_blob_sha1": "d24b3586a4a5ef8fbe9a121ea3bba543775ffdfd",
+      "path": "governance-runtime/test_v24_v6_r14_successor.py",
+      "raw_sha256": "ee191d9ec848b67aa87c8d7a39c0ae92853127606480f09a499ae484b82ef003",
+      "role": "test"
+    },
+    {
+      "bytes": 2744,
+      "git_blob_sha1": "9eba59a8e1d47b2851a76edb87df9b6b97869f7a",
+      "path": "governance-runtime/v24-authority-surface-source.json",
+      "raw_sha256": "06d40e41a4715e5ab389991ef5c4162bc80e25bed878458281bb5132f06edfef",
+      "role": "runtime"
+    },
+    {
+      "bytes": 2698,
+      "git_blob_sha1": "c2bf2df9145427f9462e34dc4db719fbce3ef3d8",
+      "path": "governance-runtime/v24-normative-inventory-source.json",
+      "raw_sha256": "c3306e2277cb423d438481c66e84448c6faec5175f32818ebc0dd86c2fcfe71b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 8242,
+      "git_blob_sha1": "0c34cdb6ce358264a0e3d1a2c675a5d6875e00d9",
+      "path": "governance-runtime/v24_admission_application_witness.py",
+      "raw_sha256": "0721fe09f0d7d48bc2f8b1ecf637064d0dbeb64d10916e54a6b8825eff7f9715",
+      "role": "runtime"
+    },
+    {
+      "bytes": 3307,
+      "git_blob_sha1": "e53cf4c926f50bf7ae25b86a4e74d6daf39de0e3",
+      "path": "governance-runtime/v24_aggregate_budget.py",
+      "raw_sha256": "88019b6c9f22c48f117aa2bc53a10ffe3fd27af869b0a9eb50a26338adfd2ba7",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6486,
+      "git_blob_sha1": "9f188cb060d1c59006072bae4af3b0d854dd261d",
+      "path": "governance-runtime/v24_authority_surface_inventory.py",
+      "raw_sha256": "1359fa168a194028bd96545cdd2948e38129a12406d73fe83d541730d71ca953",
+      "role": "runtime"
+    },
+    {
+      "bytes": 11988,
+      "git_blob_sha1": "216acc1168653f0e5d53479ec7c708935b8435ad",
+      "path": "governance-runtime/v24_authority_universe.py",
+      "raw_sha256": "2ad3fe1536a313e78f4dc3e1868688c0684d180fdb69f7e22223e4796d3467d2",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5710,
+      "git_blob_sha1": "7def29c7ad9137a547520bd141c70af0425960e7",
+      "path": "governance-runtime/v24_completeness_bootstrap.py",
+      "raw_sha256": "b5cdc7326f3033192a2cf40769f5dd29e2d299a56233f8dd2212cf93fdfc1196",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7523,
+      "git_blob_sha1": "b4e7dfac31f319a82c6af28fcfa14fdb559c28ba",
+      "path": "governance-runtime/v24_effective_control.py",
+      "raw_sha256": "1d2731865b53799018bdccb27851ccee931df8c3ca95375cda8d4890b9f70608",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7118,
+      "git_blob_sha1": "1d43d650f6181c87bdd1fb18b5e017e505f9bde6",
+      "path": "governance-runtime/v24_endpoint_proof_compiler.py",
+      "raw_sha256": "f74b32c08d861cd4c60b2cca791e5c46ab76ce6d6fc20ef5a916bda4903c6150",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5223,
+      "git_blob_sha1": "29f101048bb8463acbc58526c00906641b1bac96",
+      "path": "governance-runtime/v24_generation_migration.py",
+      "raw_sha256": "4baa1094386d82c2068f914dafe949cfa002cee1e6227035fb6729897fbe318b",
+      "role": "runtime"
+    },
+    {
+      "bytes": 12004,
+      "git_blob_sha1": "396d27cdaa2a0e1ac7d044bfeb31d4c306c1b902",
+      "path": "governance-runtime/v24_legacy_continuity_manifest.py",
+      "raw_sha256": "6285e0623fbcff3fe5e83e2e95d610dd34174acd3d892312a71faf60227b9f8d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5094,
+      "git_blob_sha1": "ed0aa47222e74162e789402b60dd2c876935f314",
+      "path": "governance-runtime/v24_legacy_inventory_candidate.py",
+      "raw_sha256": "96e1bf38a5857b23c2de2a0d7cf76fe1857ef74b5db283e6392df8e4f2099c8f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 9004,
+      "git_blob_sha1": "64a6c8e38d97768852b7995e078931b2382bf30d",
+      "path": "governance-runtime/v24_legacy_v7_classifier.py",
+      "raw_sha256": "337b8565442054a20310746f61df61198675540b0f8f81e36d83fde21d844a5f",
+      "role": "runtime"
+    },
+    {
+      "bytes": 13212,
+      "git_blob_sha1": "ddf9090c3b69228a3c579e35dd11fd58de8e3c82",
+      "path": "governance-runtime/v24_normative_bundle_preflight.py",
+      "raw_sha256": "aae9568b64256b1dd1858f985da7665d17bcf97103bb34bedec35f7e08d04153",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6715,
+      "git_blob_sha1": "84ead099eba41f462ae3e9a89b0cee3db4b59287",
+      "path": "governance-runtime/v24_review_proof_audit.py",
+      "raw_sha256": "70e7ede2c637fece7457f7ab99bbfa6b4abcfc08c12fe3f1955dbf8540ad9e61",
+      "role": "runtime"
+    },
+    {
+      "bytes": 17815,
+      "git_blob_sha1": "e9fb5b38ac66350709ab57332f2dc78872268158",
+      "path": "governance-runtime/v24_v6_atomic_binding_modes.py",
+      "raw_sha256": "6aa71d53901d8a6298496e57e4d465927da570f4475e7e03194e941ada77fff1",
+      "role": "runtime"
+    },
+    {
+      "bytes": 12834,
+      "git_blob_sha1": "fc251f572cd36b581fb8245fa00d261ceb7770f3",
+      "path": "governance-runtime/v24_v6_decision_apply.py",
+      "raw_sha256": "4cecbcd86371ba175c6a0ac58d396227e10f034e3b665525d28d65bf8d5577d6",
+      "role": "runtime"
+    },
+    {
+      "bytes": 24068,
+      "git_blob_sha1": "ebe12ef71bafef221ca9e602adba54373aec8bac",
+      "path": "governance-runtime/v24_v6_effect_ledger_closure.py",
+      "raw_sha256": "f63cd779b1ab254c52c0cf170a34a1a4ee81699edf804f915350b8baa8257a47",
+      "role": "runtime"
+    },
+    {
+      "bytes": 24457,
+      "git_blob_sha1": "424765c9c89f21247aad2c15a0a893ea2abe022e",
+      "path": "governance-runtime/v24_v6_endpoint_projection.py",
+      "raw_sha256": "9467762b101ffa93c7f2a6469686ecd0b788e1f00ccd12a29a6b444af96ad281",
+      "role": "runtime"
+    },
+    {
+      "bytes": 11304,
+      "git_blob_sha1": "5a9a060f2c246f5ebc50fdfe47a6f31cab084433",
+      "path": "governance-runtime/v24_v6_external_execution_binding.py",
+      "raw_sha256": "77565c13d557181f95fe363b7f7acba9882012b8581f90765a2ffa39d5060d2e",
+      "role": "runtime"
+    },
+    {
+      "bytes": 26734,
+      "git_blob_sha1": "e93684a6886fc34e7f618a83281b72fa505dc90f",
+      "path": "governance-runtime/v24_v6_governance_foundation.py",
+      "raw_sha256": "d94a1108aa530ff603342be48bace6e6791624a671176b1b256a9eb1b293e97c",
+      "role": "runtime"
+    },
+    {
+      "bytes": 12521,
+      "git_blob_sha1": "612f085facb91fb7530aa26f7710991573c2427f",
+      "path": "governance-runtime/v24_v6_integrated_successor.py",
+      "raw_sha256": "8bc84355dd0c3fb580df16e6a92843dda31f93f474d1fea3fc8b75c45e245dad",
+      "role": "runtime"
+    },
+    {
+      "bytes": 16726,
+      "git_blob_sha1": "9abfbb8416744c97b83e5946fd6ef4b20873fcba",
+      "path": "governance-runtime/v24_v6_material_surface.py",
+      "raw_sha256": "fc027cedad31bc01531c9284e3190c8f4429494cbb5aba72fedab8565ab5c6ca",
+      "role": "runtime"
+    },
+    {
+      "bytes": 18646,
+      "git_blob_sha1": "da045b5cbdcffc2e44a4c63aa2784d0a632a8585",
+      "path": "governance-runtime/v24_v6_normative_clause_projection.py",
+      "raw_sha256": "cc091f855657ff499d0861554b1cc8d109c8e5ea0c5f56bbd324c217ea465c80",
+      "role": "runtime"
+    },
+    {
+      "bytes": 22156,
+      "git_blob_sha1": "7b8c8ed92a03dddf7000393a0517142a5931113f",
+      "path": "governance-runtime/v24_v6_qualification_integrity.py",
+      "raw_sha256": "7a90b053130bcdc40e292bd62dc1d0221f920b26ae9f127633afbb5f6ae35dec",
+      "role": "runtime"
+    },
+    {
+      "bytes": 7779,
+      "git_blob_sha1": "c6e51705f847bb3a78585a46695c15bc6a8db65d",
+      "path": "governance-runtime/v24_v6_r13_successor.py",
+      "raw_sha256": "db03ef2a2c090911dfb480771ae7624b5646ca1bf9e7f30ec668e302e983cbea",
+      "role": "runtime"
+    },
+    {
+      "bytes": 9697,
+      "git_blob_sha1": "a6ad03a01260f03776156d4461d6f3a6cb29dd9c",
+      "path": "governance-runtime/v24_v6_r14_successor.py",
+      "raw_sha256": "0ad1ae044c67dced4f15969d08c3af1f35ddc41b9eaf6f7ed5161f0a1a597c65",
+      "role": "runtime"
+    },
+    {
+      "bytes": 6933,
+      "git_blob_sha1": "e4e9f0cdf52f34460db59a4720ce452892ff1191",
+      "path": "governance-runtime/validate_runtime.py",
+      "raw_sha256": "0ac08a9c6132b035d571c0089f283f9c6ed181c2780f5d6b4c40a9583bb7640d",
+      "role": "runtime"
+    },
+    {
+      "bytes": 17760,
+      "git_blob_sha1": "c1981bc16ae5d6fd064b39b059facab6e11b8a09",
+      "path": "governance-runtime/validate_runtime_legacy.py",
+      "raw_sha256": "d44659e83d1021556f7a8ef567dd825ff783290acf7bd0d70713735f7e8657b9",
+      "role": "runtime"
+    },
+    {
+      "bytes": 5389,
+      "git_blob_sha1": "3a4ef5df4936e5f02b2e0fa8712e662c6161d065",
+      "path": "implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json",
+      "raw_sha256": "8193b35de08444742b6cefa53a02e2408b3a8fd2a9fef1244eb08fb8be951f2d",
+      "role": "support"
+    },
+    {
+      "bytes": 3363,
+      "git_blob_sha1": "4434403ee104e4918fa471487130ca21074f6d5f",
+      "path": "implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "88ebf5314bb1394ab50eefd6fb0d0a5ae31f541a78178db5b8f1c40343a11433",
+      "role": "support"
+    },
+    {
+      "bytes": 3234,
+      "git_blob_sha1": "d6d7d6d68ca22eacab809f8618da5229cd799cba",
+      "path": "implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json",
+      "raw_sha256": "004de9c4f30a488d32c846f9dcf28a480f603be334e8a758c5c55d299965229b",
+      "role": "support"
+    },
+    {
+      "bytes": 7844,
+      "git_blob_sha1": "f413832a6b3814b800a67e1ede01c4c06a5985b4",
+      "path": "implementation/v24/V24-I11-V6-R12-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "cd4481349a7a68455d435f476e1c34fbe52afd4075bcb655c9571826084af22b",
+      "role": "support"
+    },
+    {
+      "bytes": 9619,
+      "git_blob_sha1": "3c12069c77e74124f1a1a136b10428cf22735bc1",
+      "path": "implementation/v24/V24-I11-V6-R12-EXECUTION-CONTRACT.json",
+      "raw_sha256": "e14c7f31c6311dd686af33a24dd76a01df0b3998ed2693f7dfbab768e571c5ee",
+      "role": "support"
+    },
+    {
+      "bytes": 2667,
+      "git_blob_sha1": "1c7e8161de4d06ed6b0c770c4810223bee75cdc5",
+      "path": "implementation/v24/V24-I11-V6-R13-EXECUTION-CONTRACT.json",
+      "raw_sha256": "2fdeb985ab41f742fc5853a1f884a6dd4f83b767e56cba2bebf10651462fcac9",
+      "role": "support"
+    },
+    {
+      "bytes": 4221,
+      "git_blob_sha1": "167ddcf7dcf9c22747c5536a6c20f253fbcd0581",
+      "path": "implementation/v24/V24-I11-V6-R14-EXECUTION-CONTRACT.json",
+      "raw_sha256": "95d2b7323e01a3eff42d2b2988581ff7d19559fa7060623b9dc8d3445453881a",
+      "role": "support"
+    },
+    {
+      "bytes": 591,
+      "git_blob_sha1": "5ca07e388150e73122daad9aa7a1831ce9b5297e",
+      "path": "implementation/v24/V24-I11-V6-R14-LINEAGE.json",
+      "raw_sha256": "7e0fc66fd8fc14b93530002cc47804f456c8b678f32557ad31068f6ddeb1c7a7",
+      "role": "support"
+    },
+    {
+      "bytes": 872,
+      "git_blob_sha1": "45d6c033c5efe76dbb3bf346a7b5a6d250bccd5f",
+      "path": "implementation/v24/V24-I11-V6-R14-LINEAGE.md",
+      "raw_sha256": "0ea1338b8d78069eb47821afd37098f9e67d5ed5207448172d71890a0fcda1eb",
+      "role": "support"
+    },
+    {
+      "bytes": 3084,
+      "git_blob_sha1": "f00dc0286a0b388c60b9866df6f0956f70080192",
+      "path": "implementation/v24/V24-I11-V6-R15-EXECUTION-CONTRACT.json",
+      "raw_sha256": "06ee0a38b37d6b26df9bfafb5c03557d985adf9ba3a8c3f9c7f36548e4509278",
+      "role": "support"
+    },
+    {
+      "bytes": 2587,
+      "git_blob_sha1": "f2ea09f946f6d772c2fa478fae28f00e607410ef",
+      "path": "implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "80602b03cf1bd81a6a8035b07911422f4864f4966fa0035ccbef899c47c8295a",
+      "role": "support"
+    },
+    {
+      "bytes": 2746,
+      "git_blob_sha1": "d513b44645fac2e0d7aba39439523f5543eb495a",
+      "path": "implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "bb2e0bbae9163f4c9c1c6ec1e78d2ad223221913b8d6a317e4267100a371f48b",
+      "role": "support"
+    },
+    {
+      "bytes": 3180,
+      "git_blob_sha1": "2e07acf62df5446aec4da2f8bf5e1e2dcb06b13e",
+      "path": "implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "488f45caac812e60a95add96ba5871fd1bdb2d5da0d3d4a19344c0e36c44469f",
+      "role": "support"
+    },
+    {
+      "bytes": 2881,
+      "git_blob_sha1": "1300e24bab9cc25455969f260a11a677f212afab",
+      "path": "implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "43b7ff9345f5e56c0bb6081b9a6db95d2615120494ab9d319e92fbd44cf5161e",
+      "role": "support"
+    },
+    {
+      "bytes": 2746,
+      "git_blob_sha1": "225ee929796330784b13cc335d408390f65e80eb",
+      "path": "implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "1eaa3a95a1326821b7b85e7c38b5f420337495cd9f70ebae200aa4babd840b86",
+      "role": "support"
+    },
+    {
+      "bytes": 2591,
+      "git_blob_sha1": "74a54c5ab6acb693ae077bf0f917caa19e924d5b",
+      "path": "implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "1055375650c02bf928630c0883186e88ee5be694ac166895e5facd5dc708765f",
+      "role": "support"
+    },
+    {
+      "bytes": 3948,
+      "git_blob_sha1": "31a519a2599fd87804e0338953986b86e0088bf5",
+      "path": "implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md",
+      "raw_sha256": "f119296533ffbf2708852a14de6ef341dfe6f64dc039e9f04dc52b751f9c08ff",
+      "role": "support"
+    }
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "authority_origin": "EXTERNAL_REVIEW_BRANCH",
+  "candidate_commit": "2e875bb29be48d39c9be6f3525d4f4610869848c",
+  "candidate_self_grant": false,
+  "candidate_tree": "d2c9c0c85564808941fdb54cfbbd53f51f5397ee",
+  "guard_runtime_contract": {
+    "cache_tag": "cpython-312",
+    "contract_digest": "eed7733f7032dd1f588cd048469130e52487335d2a7f32d2016cbc1d883d206b",
+    "executable_sha256": "bef88f140b625959f8af25c7b75cce2cd5d4b29cc2f2b079befd7f68eda4dba0",
+    "flags": {
+      "ignore_environment": true,
+      "isolated": true,
+      "no_site": true,
+      "safe_path": true
+    },
+    "hexversion": 51121904,
+    "implementation": "cpython",
+    "stdlib_names_digest": "793da5d88f4fc0657dd068d12b07b32dc501833ac45e7eeaee8fab4443a84f35",
+    "version": [
+      3,
+      12,
+      14,
+      "final",
+      0
+    ]
+  },
+  "required_support_files": [
+    "implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json",
+    "implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md",
+    "implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json",
+    "implementation/v24/V24-I11-V6-R12-EXECUTION-CONTRACT.json",
+    "implementation/v24/V24-I11-V6-R13-EXECUTION-CONTRACT.json",
+    "implementation/v24/V24-I11-V6-R14-EXECUTION-CONTRACT.json",
+    "implementation/v24/V24-I11-V6-R15-EXECUTION-CONTRACT.json",
+    "implementation/v24/V24-I11-V6-R14-LINEAGE.json",
+    "implementation/v24/V24-I11-V6-R14-LINEAGE.md",
+    "implementation/v24/V24-I11-V6-R12-CONSTRUCTION-EVIDENCE.md"
+  ],
+  "review_commit": "c93a533cfb4a45325670c0333d3241b18be259c4",
+  "schema_version": 4,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW"
+}
