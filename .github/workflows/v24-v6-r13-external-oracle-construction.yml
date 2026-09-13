@@ -194,12 +194,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          OPT_EVIDENCE="$RUNNER_TEMP/optimized-evidence.json"
           set +e
-          env -i HOME="$HOME" PATH="$PATH" python -O -I -S "$R13_AUTHORITY/r13_trusted_oracle_launcher.py" --help >"$RUNNER_TEMP/opt.out" 2>"$RUNNER_TEMP/opt.err"
+          env -i HOME="$HOME" PATH="$PATH" python -B -O -I -S "$R13_AUTHORITY/r13_trusted_oracle_launcher.py" \
+            --oracle "$R13_AUTHORITY/r13_trusted_external_oracle.py" \
+            --observer "$R13_AUTHORITY/r13_untrusted_candidate_observer.py" \
+            --sandbox "$R13_SANDBOX" \
+            --candidate-commit "$R13_CANDIDATE" --candidate-tree "$R13_TREE" \
+            --environment-digest "$R13_ENV_DIGEST" --interpreter-contract-digest "$R13_INTERPRETER_DIGEST" \
+            --oracle-git-blob-sha1 "$R13_ORACLE_BLOB" --observer-git-blob-sha1 "$R13_OBSERVER_BLOB" \
+            --run-id "${GITHUB_RUN_ID}-OPT" --round-id 'R13-OPTIMIZATION-PROBE' --output "$OPT_EVIDENCE" \
+            >"$RUNNER_TEMP/opt.out" 2>"$RUNNER_TEMP/opt.err"
           rc=$?
           set -e
           test "$rc" -ne 0 || { echo 'R13_OPTIMIZED_LAUNCHER_FALSE_GREEN'; exit 1; }
           grep -q 'R13_LAUNCHER_OPTIMIZATION_FORBIDDEN' "$RUNNER_TEMP/opt.err" || { cat "$RUNNER_TEMP/opt.err"; exit 1; }
+          test ! -f "$OPT_EVIDENCE" || { echo 'R13_OPTIMIZED_LAUNCHER_PRODUCED_EVIDENCE'; cat "$OPT_EVIDENCE"; exit 1; }
           echo 'R13_OPTIMIZED_INTERPRETER_ATTACK_REJECTED=PASS'
 
       - name: Falsify success-looking forged observer payload
