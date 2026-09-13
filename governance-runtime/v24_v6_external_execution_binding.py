@@ -15,7 +15,8 @@ from typing import Any, Mapping
 AUTHORITY_EFFECT = "NONE_EVIDENCE_ONLY"
 SCIENTIFIC_EXECUTION_STATE = "CLOSED_PENDING_SUCCESSOR_REVIEW"
 EXTERNAL_AUTHORITY_ORIGIN = "EXTERNAL_REVIEW_BRANCH"
-ALLOWED_ROLES = frozenset({"production", "test", "dependency"})
+ALLOWED_ROLES = frozenset({"production", "test", "dependency", "support"})
+PYTHON_ROLES = frozenset({"production", "test", "dependency"})
 FORBIDDEN_BOOTSTRAP_NAMES = frozenset({
     "unittest.py",
     "sitecustomize.py",
@@ -38,6 +39,14 @@ def _safe_path(v: Any) -> str | None:
     if p.is_absolute() or ".." in p.parts or any(x in {"", "."} for x in p.parts):
         return None
     return p.as_posix()
+
+
+def _valid_role_path(path: str, role: Any) -> bool:
+    if role in PYTHON_ROLES:
+        return path.startswith("governance-runtime/") and path.endswith(".py")
+    if role == "support":
+        return path.startswith("implementation/v24/") and not path.endswith(".py")
+    return False
 
 
 def git_blob_sha(data: bytes) -> str:
@@ -65,6 +74,8 @@ def _read_bound_file(root: Path, repo_path: str) -> tuple[bytes | None, str | No
 
 def _shadow_problem(path: str) -> str | None:
     p = PurePosixPath(path)
+    if p.suffix != ".py":
+        return None
     name = p.name
     stem = p.stem
     if name in FORBIDDEN_BOOTSTRAP_NAMES:
@@ -122,7 +133,7 @@ def validate_external_execution_pinset(
         if interpreter.get(key) is not True:
             problems.append(f"EXTERNAL_PINSET_INTERPRETER_REQUIREMENT_MISSING:{key}")
 
-    rows = pinset.get("admitted_python_files")
+    rows = pinset.get("admitted_files")
     if not isinstance(rows, list) or not rows:
         rows = []
         problems.append("EXTERNAL_PINSET_ADMITTED_FILES_REQUIRED")
@@ -134,14 +145,14 @@ def validate_external_execution_pinset(
             problems.append(f"EXTERNAL_PINSET_ROW_MALFORMED:{i}")
             continue
         path = _safe_path(row.get("path"))
-        if path is None or not path.startswith("governance-runtime/") or not path.endswith(".py"):
-            problems.append(f"EXTERNAL_PINSET_PATH_INVALID:{i}")
+        role = row.get("role")
+        if path is None or not _valid_role_path(path, role):
+            problems.append(f"EXTERNAL_PINSET_PATH_ROLE_INVALID:{i}")
             continue
         if path in by_path:
             problems.append(f"EXTERNAL_PINSET_DUPLICATE_PATH:{path}")
             continue
         by_path[path] = row
-        role = row.get("role")
         if role not in ALLOWED_ROLES:
             problems.append(f"EXTERNAL_PINSET_ROLE_INVALID:{path}")
         shadow = _shadow_problem(path)
@@ -176,7 +187,7 @@ def validate_external_execution_pinset(
     seen_tests: set[str] = set()
     for raw in tests:
         path = _safe_path(raw)
-        if path is None or not path.endswith(".py"):
+        if path is None or not path.startswith("governance-runtime/") or not path.endswith(".py"):
             problems.append(f"EXTERNAL_PINSET_EXECUTED_TEST_PATH_INVALID:{raw}")
             continue
         if path in seen_tests:
@@ -189,6 +200,26 @@ def validate_external_execution_pinset(
         elif row.get("role") != "test":
             problems.append(f"EXTERNAL_PINSET_EXECUTED_TEST_ROLE_INVALID:{path}")
 
+    required_support = pinset.get("required_support_files")
+    if not isinstance(required_support, list) or not required_support:
+        required_support = []
+        problems.append("EXTERNAL_PINSET_REQUIRED_SUPPORT_FILES_REQUIRED")
+    seen_support: set[str] = set()
+    for raw in required_support:
+        path = _safe_path(raw)
+        if path is None:
+            problems.append(f"EXTERNAL_PINSET_REQUIRED_SUPPORT_PATH_INVALID:{raw}")
+            continue
+        if path in seen_support:
+            problems.append(f"EXTERNAL_PINSET_REQUIRED_SUPPORT_DUPLICATE:{path}")
+            continue
+        seen_support.add(path)
+        row = by_path.get(path)
+        if row is None:
+            problems.append(f"EXTERNAL_PINSET_REQUIRED_SUPPORT_UNPINNED:{path}")
+        elif row.get("role") != "support":
+            problems.append(f"EXTERNAL_PINSET_REQUIRED_SUPPORT_ROLE_INVALID:{path}")
+
     problems = sorted(set(problems))
     return {
         "state": "EXTERNAL_EXECUTION_PINSET_VALID" if not problems else "EXTERNAL_EXECUTION_PINSET_INVALID",
@@ -197,6 +228,7 @@ def validate_external_execution_pinset(
         "problems": problems,
         "bound_file_count": len(bound),
         "executed_test_count": len(seen_tests),
+        "required_support_count": len(seen_support),
         "bound_files": sorted(bound, key=lambda x: x["path"]),
         "scientific_execution_state": SCIENTIFIC_EXECUTION_STATE,
         "authority_effect": AUTHORITY_EFFECT,
@@ -204,9 +236,9 @@ def validate_external_execution_pinset(
 
 
 def validate_staged_execution_sandbox(*, sandbox_root: str | Path, pinset: Mapping[str, Any]) -> dict[str, Any]:
-    """Require the staged sandbox's Python-file set to equal the external pinset."""
+    """Require every staged file to equal the externally pinned admitted set."""
     root = Path(sandbox_root).resolve()
-    admitted = pinset.get("admitted_python_files")
+    admitted = pinset.get("admitted_files")
     expected: set[str] = set()
     if isinstance(admitted, list):
         for row in admitted:
@@ -218,11 +250,11 @@ def validate_staged_execution_sandbox(*, sandbox_root: str | Path, pinset: Mappi
     actual: set[str] = set()
     symlinks: list[str] = []
     if root.exists():
-        for path in root.rglob("*.py"):
-            rel = path.relative_to(root).as_posix()
-            actual.add(rel)
+        for path in root.rglob("*"):
             if path.is_symlink():
-                symlinks.append(rel)
+                symlinks.append(path.relative_to(root).as_posix())
+            elif path.is_file():
+                actual.add(path.relative_to(root).as_posix())
 
     problems: list[str] = []
     for path in sorted(expected - actual):
@@ -241,8 +273,8 @@ def validate_staged_execution_sandbox(*, sandbox_root: str | Path, pinset: Mappi
         "state": "EXTERNAL_EXECUTION_SANDBOX_VALID" if not problems else "EXTERNAL_EXECUTION_SANDBOX_INVALID",
         "valid": not problems,
         "problems": problems,
-        "expected_python_file_count": len(expected),
-        "actual_python_file_count": len(actual),
+        "expected_file_count": len(expected),
+        "actual_file_count": len(actual),
         "scientific_execution_state": SCIENTIFIC_EXECUTION_STATE,
         "authority_effect": AUTHORITY_EFFECT,
     }
