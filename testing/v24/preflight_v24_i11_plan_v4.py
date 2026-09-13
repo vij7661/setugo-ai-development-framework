@@ -29,6 +29,10 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def parse_matrix_row(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
 def main() -> None:
     binding = json.loads(BINDING.read_text(encoding="utf-8"))
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -75,14 +79,18 @@ def main() -> None:
 
     for cid in ("469", "495"):
         line = next(line for line in matrix.splitlines() if line.startswith(f"| WDPC-{cid} |"))
-        assert "`BLOCKED_STATUS`" in line
-        assert line.count("`BLOCKED_BY_I1_SEMANTIC_QUALIFICATION`") >= 2
-        assert "GovernedEndpointObservation" not in line
+        cells = parse_matrix_row(line)
+        assert len(cells) == 10
+        assert cells[2] == "`BLOCKED_STATUS`"
+        assert cells[3] == "`BLOCKED_BY_I1_SEMANTIC_QUALIFICATION`"
+        assert cells[5] == "`NONE_WHILE_BLOCKED`"
+        assert cells[9] == "`BLOCKED_BY_I1_SEMANTIC_QUALIFICATION`"
 
     line457 = next(line for line in matrix.splitlines() if line.startswith("| WDPC-457 |"))
-    assert "`CONJUNCTIVE_ASSERTION`" in line457
-    assert "AUTHORITY_EVIDENCE_SOURCE_INVALID" in line457
-    assert "HISTORICAL_RESULT_UNCHANGED" in line457
+    cells457 = parse_matrix_row(line457)
+    assert cells457[2] == "`CONJUNCTIVE_ASSERTION`"
+    assert "AUTHORITY_EVIDENCE_SOURCE_INVALID" in cells457[3]
+    assert "HISTORICAL_RESULT_UNCHANGED" in cells457[3]
 
     assert binding["execution_status"] == "NOT_EXECUTED"
     assert binding["authority_effect"] == "NONE_EVIDENCE_ONLY"
