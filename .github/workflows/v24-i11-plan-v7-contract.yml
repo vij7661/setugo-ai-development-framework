@@ -1,0 +1,46 @@
+name: V24 I11 Plan V7 Contract
+
+on:
+  push:
+    branches:
+      - testing/v24-i11-falsification-plan-v7
+    paths:
+      - 'testing/v24/v24_i11_harness_contract_v6.py'
+      - 'testing/v24/test_v24_i11_harness_contract_v6.py'
+      - 'testing/v24/V24-I11-FALSIFICATION-PLAN-V7-REVIEW-BINDING.json'
+      - 'testing/v24/V24-I11-V6-REVIEW-ADJUDICATION-05.md'
+      - '.github/workflows/v24-i11-plan-v7-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+      - name: Run harness contract tests
+        run: |
+          cd testing/v24
+          python -m unittest -v test_v24_i11_harness_contract_v6.py
+      - name: Validate V7 binding and harness identities
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          b=json.loads(pathlib.Path('testing/v24/V24-I11-FALSIFICATION-PLAN-V7-REVIEW-BINDING.json').read_text())
+          assert b['packet_sha256']=='bbf445b4a603dd9613d23b59db46f9b408518f14fe75283181bed131d2a59417'
+          assert b['plan_body_sha256']=='ac0114d7bb3149e7ef25cc9d359209fd7a7d67532af60141bd70ec4a422dd579'
+          assert b['harness_version']=='1.5.0-PLAN-REVIEW'
+          assert b['harness_blob_sha']=='556bc723982a1452f61cfbb39e4756a81c7c9a37'
+          assert set(b['blocked_cases'])=={'WDPC-469','WDPC-495'}
+          assert set(b['ie_target_reasons'])=={'WDPC-443','WDPC-458','WDPC-472','WDPC-473','WDPC-474','WDPC-476','WDPC-480','WDPC-497','WDPC-500','WDPC-502','WDPC-504'}
+          assert b['required_conjunctive_invariants']=={'WDPC-457':['HISTORICAL_RESULT_UNCHANGED']}
+          actual=subprocess.check_output(['git','hash-object','testing/v24/v24_i11_harness_contract_v6.py'],text=True).strip()
+          assert actual==b['harness_blob_sha'], (actual,b['harness_blob_sha'])
+          print('V7 binding/harness preflight passed')
+          PY
