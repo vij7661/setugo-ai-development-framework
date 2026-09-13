@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import json
 import unittest
 from pathlib import Path
@@ -26,6 +25,14 @@ from v24_v6_integrated_successor import (
     validate_integrated_successor_manifest,
 )
 
+from test_v24_v6_adversarial_evidence_binding import (
+    COMMIT as EVIDENCE_COMMIT,
+    TREE as EVIDENCE_TREE,
+    ENV as EVIDENCE_ENV,
+    RUN as EVIDENCE_RUN,
+    ROUND as EVIDENCE_ROUND,
+    valid_records,
+)
 from test_v24_v6_governance_foundation import allowed_graph, valid_genesis_scope, D2
 from test_v24_v6_endpoint_projection import endpoint_bundle, applicability_bundle, completeness
 from test_v24_v6_atomic_binding_modes import registry_bundle as atomic_registry_bundle
@@ -43,18 +50,50 @@ class IntegratedSuccessorBindingTests(unittest.TestCase):
     def manifest(self):
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
 
-    def test_exact_r1_r8_manifest_binds_and_recomputes_raw_hashes(self):
-        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=self.manifest())
+    def validate(self, manifest=None, evidence=None):
+        return validate_integrated_successor_manifest(
+            repo_root=ROOT,
+            manifest=self.manifest() if manifest is None else manifest,
+            adversarial_evidence=valid_records() if evidence is None else evidence,
+            expected_candidate_commit=EVIDENCE_COMMIT,
+            expected_candidate_tree=EVIDENCE_TREE,
+            expected_environment_contract_digest=EVIDENCE_ENV,
+            expected_run_id=EVIDENCE_RUN,
+            expected_round_id=EVIDENCE_ROUND,
+            forbidden_evidence_producers=("CANDIDATE",),
+        )
+
+    def test_exact_r1_r8_manifest_and_executed_adversarial_evidence_bind(self):
+        result = self.validate()
         self.assertTrue(result["integration_valid"], result["problems"])
+        self.assertTrue(result["adversarial_evidence_valid"], result["problems"])
         self.assertFalse(result["qualified"])
         self.assertEqual(result["bound_file_count"], 16)
         self.assertEqual(result["scientific_execution_state"], SCIENTIFIC_EXECUTION_CLOSED)
         self.assertEqual(len({x["raw_sha256"] for x in result["bound_files"]}), 16)
+        self.assertEqual(len(result["adversarial_evidence_records"]), 6)
+
+    def test_name_only_mandatory_checks_are_not_sufficient(self):
+        result = self.validate(evidence=[])
+        self.assertFalse(result["integration_valid"])
+        self.assertFalse(result["adversarial_evidence_valid"])
+        self.assertTrue(
+            any("ADVERSARIAL_EVIDENCE_REQUIRED_CHECK_MISSING" in x for x in result["problems"]),
+            result["problems"],
+        )
+
+    def test_missing_external_evidence_context_fails_closed(self):
+        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=self.manifest())
+        self.assertFalse(result["integration_valid"])
+        self.assertIn(
+            "INTEGRATED_SUCCESSOR_ADVERSARIAL_EVIDENCE_CONTEXT_REQUIRED:expected_candidate_commit",
+            result["problems"],
+        )
 
     def test_manifest_blob_tamper_blocks(self):
         m = self.manifest()
         m["workstreams"][0]["production_git_blob_sha"] = "0" * 40
-        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
+        result = self.validate(manifest=m)
         self.assertFalse(result["integration_valid"])
         self.assertIn("INTEGRATED_SUCCESSOR_BLOB_MISMATCH:R1:production", result["problems"])
 
@@ -62,7 +101,7 @@ class IntegratedSuccessorBindingTests(unittest.TestCase):
         m = self.manifest()
         self.assertEqual(m["approved_design_git_blob_sha"], APPROVED_DESIGN_GIT_BLOB_SHA)
         m["approved_design_git_blob_sha"] = m["approved_design_source_git_blob_sha"]
-        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
+        result = self.validate(manifest=m)
         self.assertFalse(result["integration_valid"])
         self.assertIn(
             "INTEGRATED_SUCCESSOR_APPROVED_DESIGN_BINDING_MISMATCH:approved_design_git_blob_sha",
@@ -76,7 +115,7 @@ class IntegratedSuccessorBindingTests(unittest.TestCase):
             APPROVED_DESIGN_RECONSTRUCTION_MANIFEST_GIT_BLOB_SHA,
         )
         m["approved_design_reconstruction_manifest_git_blob_sha"] = "0" * 40
-        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
+        result = self.validate(manifest=m)
         self.assertFalse(result["integration_valid"])
         self.assertIn(
             "INTEGRATED_SUCCESSOR_APPROVED_DESIGN_BINDING_MISMATCH:approved_design_reconstruction_manifest_git_blob_sha",
@@ -86,7 +125,7 @@ class IntegratedSuccessorBindingTests(unittest.TestCase):
     def test_manifest_cannot_open_scientific_execution(self):
         m = self.manifest()
         m["scientific_execution_state"] = "OPEN"
-        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
+        result = self.validate(manifest=m)
         self.assertFalse(result["integration_valid"])
         self.assertIn("INTEGRATED_SUCCESSOR_SCIENTIFIC_EXECUTION_MUST_REMAIN_CLOSED", result["problems"])
 
