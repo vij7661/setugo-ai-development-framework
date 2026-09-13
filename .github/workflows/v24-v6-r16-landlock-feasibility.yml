@@ -1,0 +1,63 @@
+name: V24 V6 R16 Landlock Feasibility
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r16-external-authority
+    paths:
+      - 'review/v24/r16_landlock_probe.c'
+      - '.github/workflows/v24-v6-r16-landlock-feasibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Bind R16 candidate boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='7c8ae745ff8270122c0cf05e123b8108af04eaad'
+          T='9d8db8766fee1eb76e24d62ca88d8b04ea8e3b58'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          echo "R16_CANDIDATE_COMMIT=$C"
+          echo "R16_CANDIDATE_TREE=$T"
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+
+      - name: Compile trusted Landlock probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcc -O2 -Wall -Wextra -Werror -fPIE -pie \
+            -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            review/v24/r16_landlock_probe.c \
+            -Wl,-z,relro,-z,now \
+            -o "$RUNNER_TEMP/r16-landlock-probe"
+          sha256sum review/v24/r16_landlock_probe.c "$RUNNER_TEMP/r16-landlock-probe"
+
+      - name: Verify kernel enforcement against direct and dir-fd aliases
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/r16-landlock-probe" | tee "$RUNNER_TEMP/r16-landlock-result.txt"
+          grep -q '^R16_DIRECT_PROC_DENIED=PASS ' "$RUNNER_TEMP/r16-landlock-result.txt"
+          grep -q '^R16_DIRFD_PROC_DENIED=PASS ' "$RUNNER_TEMP/r16-landlock-result.txt"
+          grep -q '^R16_DUP_DIRFD_PROC_DENIED=PASS ' "$RUNNER_TEMP/r16-landlock-result.txt"
+
+      - name: Construction posture
+        if: always()
+        run: |
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
