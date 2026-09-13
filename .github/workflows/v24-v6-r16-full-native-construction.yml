@@ -126,23 +126,22 @@ jobs:
           NATIVE_SOURCE_SHA="$(sha256sum review/v24/r16_native_observer.c | awk '{print $1}')"
           NATIVE_SOURCE_BLOB="$(git rev-parse HEAD:review/v24/r16_native_observer.c)"
           COMPILER_DIGEST="$({ gcc --version; python3-config --includes; python3-config --embed --ldflags; printf '%s\n' "$PREFIX" "$PROGRAM" "$SOURCE_SET_DIGEST"; } | sha256sum | awk '{print $1}')"
-          python - "$BIN" <<'PY'
-          import hashlib,json,os,pathlib,subprocess,sys
-          binary=pathlib.Path(sys.argv[1])
-          libs=[]
+          LINKED_LIBRARIES="$RUNNER_TEMP/r16-linked-libraries.json"
+          LINKED_LIBRARIES_DIGEST="$(python - "$BIN" "$LINKED_LIBRARIES" <<'PY'
+          import hashlib,json,pathlib,subprocess,sys
+          binary=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2]);libs=[]
           for line in subprocess.check_output(['ldd',str(binary)],text=True).splitlines():
-              parts=line.strip().split()
-              candidates=[p for p in parts if p.startswith('/')]
+              parts=line.strip().split();candidates=[p for p in parts if p.startswith('/')]
               if not candidates: continue
-              p=pathlib.Path(candidates[0]);
+              p=pathlib.Path(candidates[0])
               if p.is_file(): libs.append({'path':str(p.resolve()),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
-          libs.sort(key=lambda x:x['path'])
-          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r16-linked-libraries.json';out.write_text(json.dumps(libs,indent=2,sort_keys=True)+'\n')
-          d=hashlib.sha256(json.dumps(libs,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-          with pathlib.Path(os.environ['GITHUB_ENV']).open('a') as f:
-              f.write(f'LINKED_LIBRARIES={out}\n');f.write(f'LINKED_LIBRARIES_DIGEST={d}\n')
-          print('R16_LINKED_LIBRARY_DIGEST='+d)
+          libs.sort(key=lambda x:x['path']);out.write_text(json.dumps(libs,indent=2,sort_keys=True)+'\n')
+          print(hashlib.sha256(json.dumps(libs,sort_keys=True,separators=(',',':')).encode()).hexdigest())
           PY
+          )"
+          echo "LINKED_LIBRARIES=$LINKED_LIBRARIES" >> "$GITHUB_ENV"
+          echo "LINKED_LIBRARIES_DIGEST=$LINKED_LIBRARIES_DIGEST" >> "$GITHUB_ENV"
+          echo "R16_LINKED_LIBRARY_DIGEST=$LINKED_LIBRARIES_DIGEST"
           ORACLE="$GITHUB_WORKSPACE/review/v24/r16_trusted_external_oracle.py"
           ID="$(env -i HOME="$HOME" PATH="$(dirname "$PROGRAM"):/usr/bin:/bin" "$PROGRAM" -B -I -S - "$ORACLE" <<'PY'
           import importlib.util,pathlib,sys
