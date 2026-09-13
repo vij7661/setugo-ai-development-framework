@@ -1,0 +1,150 @@
+name: V24 V6 R11 Persist External Authority Evidence
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r11-successor-clean
+    paths:
+      - '.github/workflows/v24-v6-r11-persist-external-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  persist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download exact green external-evidence artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: v24-v6-r11-external-pinset-evidence
+          path: ${{ runner.temp }}/r11-evidence
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: vij7661/setugo-ai-development-framework
+          run-id: 34764137001
+
+      - name: Verify and persist exact artifact bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/r11-evidence"
+          PINSET="$SRC/V24-I11-V6-R11-EXTERNAL-PINSET.json"
+          VERIFY="$SRC/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json"
+          test -f "$PINSET"
+          test -f "$VERIFY"
+          echo 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14  '"$PINSET" | sha256sum -c -
+          echo '27e524dc6efd569dd9462097933926c2fda648ec47eb2475f11078f6469f75e7  '"$VERIFY" | sha256sum -c -
+          test "$(wc -c < "$PINSET")" -eq 20630
+          test "$(wc -c < "$VERIFY")" -eq 997
+
+          python - "$PINSET" "$VERIFY" <<'PY'
+          import json, sys
+          p = json.load(open(sys.argv[1], encoding='utf-8'))
+          v = json.load(open(sys.argv[2], encoding='utf-8'))
+          assert p['candidate_commit'] == '68ce0df63ce0133ae19ec4402b41c4c09adfb54e'
+          assert p['candidate_tree'] == 'd202b039285213b386557083a26de42e0fb20cf4'
+          assert p['review_branch_commit'] == 'f560d39f93b9d943a03c88d9e95423c578eebcad'
+          assert p['authority_origin'] == 'EXTERNAL_REVIEW_BRANCH'
+          assert p['candidate_self_grant'] is False
+          assert len(p['admitted_files']) == 69
+          assert len(p['executed_tests']) == 19
+          assert len(p['required_support_files']) == 10
+          assert p['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          assert p['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert v['candidate_commit'] == p['candidate_commit']
+          assert v['candidate_tree'] == p['candidate_tree']
+          assert v['review_branch_commit'] == p['review_branch_commit']
+          assert v['trusted_guard_git_blob_sha1'] == 'd8792e90c379426a4f304c02761181707f10ca48'
+          assert v['trusted_runner_git_blob_sha1'] == '1773c33e3898859a3733774736ce0c5036646dd8'
+          assert v['external_pinset_sha256'] == 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14'
+          assert v['admitted_file_count'] == 69
+          assert v['expected_test_case_count'] == 259
+          assert v['source_binding'] == 'PASS'
+          assert v['sandbox_binding_pre_execution'] == 'PASS'
+          assert v['adversarial_probe_set'] == 'PASS'
+          assert v['trusted_runner'] == 'PASS'
+          assert v['sandbox_binding_post_execution'] == 'PASS'
+          assert v['independent_manual_review_completed'] is False
+          assert v['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          assert v['runtime_qualification_state'] == 'NOT_CLAIMED'
+          assert v['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          print('STATIC_EXTERNAL_EVIDENCE_CONTENT=PASS')
+          PY
+
+          cp "$PINSET" review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json
+          cp "$VERIFY" review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json
+          echo 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14  review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json' | sha256sum -c -
+          echo '27e524dc6efd569dd9462097933926c2fda648ec47eb2475f11078f6469f75e7  review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json' | sha256sum -c -
+
+          cat > review/v24/V24-I11-V6-R11-EXTERNAL-AUTHORITY-EVIDENCE.md <<'EOF'
+          # V24 I11 V6 R11 — External Authority Evidence
+
+          Status: **EXTERNAL_EXECUTION_EVIDENCE_PASS_PENDING_INDEPENDENT_MANUAL_REVIEW**
+
+          Authority effect: `NONE_EVIDENCE_ONLY`
+
+          Frozen implementation subject:
+          - commit `68ce0df63ce0133ae19ec4402b41c4c09adfb54e`
+          - tree `d202b039285213b386557083a26de42e0fb20cf4`
+
+          External authority generation commit:
+          - review branch commit `f560d39f93b9d943a03c88d9e95423c578eebcad`
+          - trusted guard blob `d8792e90c379426a4f304c02761181707f10ca48`
+          - trusted runner blob `1773c33e3898859a3733774736ce0c5036646dd8`
+
+          Successful external verification:
+          - run `34764137001`
+          - static pinset SHA-256 `dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14`
+          - static pinset bytes `20630`
+          - verification SHA-256 `27e524dc6efd569dd9462097933926c2fda648ec47eb2475f11078f6469f75e7`
+          - verification bytes `997`
+          - artifact ID `10319569025`
+          - artifact wrapper SHA-256 `9f4c8a4de1c35289dfe22470b191affa2bfe877fd2ebcd75fedb2736e93a0ae0`
+          - admitted files `69`
+          - executed test modules `19`
+          - executed test cases `259`
+          - required support objects `10`
+          - source binding PASS
+          - sandbox binding pre-execution PASS
+          - all eight adversarial probes rejected before test execution
+          - isolated trusted runner 259/259 PASS
+          - pinset unchanged across execution
+          - sandbox binding post-execution PASS
+
+          Preserved prior external run:
+          - run `34764091595` = `POST_EXECUTION_SANDBOX_HYGIENE_DEFECT`
+          - authority separation, source/sandbox binding, all eight attacks, and 259/259 tests passed
+          - post-execution fileset failed only because Python emitted `__pycache__/*.pyc`
+          - the exact-fileset requirement was not weakened; the trusted runner was repaired to disable bytecode writes before candidate imports
+          - this RED remains RED and is not retroactively converted to PASS
+
+          The static pinset was generated before these committed copies existed and explicitly binds generation commit `f560d39f93b9d943a03c88d9e95423c578eebcad`. Later review-branch commits do not alter that authority identity.
+
+          This evidence does not complete independent manual review, does not open scientific WDPC execution, and does not claim runtime qualification.
+
+          `SCIENTIFIC_EXECUTION_STATE = CLOSED_PENDING_SUCCESSOR_REVIEW`
+
+          `RUNTIME_QUALIFICATION_STATE = NOT_CLAIMED`
+
+          `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+          EOF
+
+      - name: Commit static external authority evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            review/v24/V24-I11-V6-R11-EXTERNAL-PINSET.json \
+            review/v24/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json \
+            review/v24/V24-I11-V6-R11-EXTERNAL-AUTHORITY-EVIDENCE.md
+          git diff --cached --check
+          git commit -m 'Freeze R11 external execution authority evidence'
+          git push origin HEAD:review/v24-i11-v6-r11-successor-clean
