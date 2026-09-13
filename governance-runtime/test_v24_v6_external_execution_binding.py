@@ -9,6 +9,7 @@ import v24_v6_external_execution_binding as r11
 
 COMMIT = "1" * 40
 TREE = "2" * 40
+SUPPORT_PATH = "implementation/v24/support.json"
 
 
 def _row(path: str, data: bytes, role: str) -> dict[str, str]:
@@ -20,7 +21,11 @@ def _row(path: str, data: bytes, role: str) -> dict[str, str]:
     }
 
 
-def _pinset(rows: list[dict[str, str]], tests: list[str]) -> dict[str, object]:
+def _pinset(
+    rows: list[dict[str, str]],
+    tests: list[str],
+    support: list[str] | None = None,
+) -> dict[str, object]:
     return {
         "schema_version": 1,
         "authority_origin": "EXTERNAL_REVIEW_BRANCH",
@@ -35,8 +40,9 @@ def _pinset(rows: list[dict[str, str]], tests: list[str]) -> dict[str, object]:
             "trusted_runner_outside_candidate_tree": True,
             "candidate_path_absent_at_interpreter_startup": True,
         },
-        "admitted_python_files": rows,
+        "admitted_files": rows,
         "executed_tests": tests,
+        "required_support_files": support if support is not None else [SUPPORT_PATH],
     }
 
 
@@ -45,18 +51,23 @@ class ExternalExecutionBindingTests(unittest.TestCase):
         td = tempfile.TemporaryDirectory()
         root = Path(td.name)
         g = root / "governance-runtime"
+        i = root / "implementation/v24"
         g.mkdir(parents=True)
+        i.mkdir(parents=True)
         prod = b"VALUE = 1\n"
         test = b"import unittest\n\nclass T(unittest.TestCase):\n    def test_ok(self):\n        self.assertEqual(1, 1)\n"
+        support = b'{"state":"bound"}\n'
         (g / "v24_subject.py").write_bytes(prod)
         (g / "test_v24_subject.py").write_bytes(test)
+        (i / "support.json").write_bytes(support)
         rows = [
             _row("governance-runtime/v24_subject.py", prod, "production"),
             _row("governance-runtime/test_v24_subject.py", test, "test"),
+            _row(SUPPORT_PATH, support, "support"),
         ]
         return td, root, _pinset(rows, ["governance-runtime/test_v24_subject.py"])
 
-    def test_valid_external_pinset_binds_exact_bytes(self) -> None:
+    def test_valid_external_pinset_binds_python_and_support_bytes(self) -> None:
         td, root, pinset = self._subject()
         with td:
             got = r11.validate_external_execution_pinset(
@@ -66,8 +77,9 @@ class ExternalExecutionBindingTests(unittest.TestCase):
                 expected_candidate_tree=TREE,
             )
             self.assertTrue(got["valid"], got["problems"])
-            self.assertEqual(2, got["bound_file_count"])
+            self.assertEqual(3, got["bound_file_count"])
             self.assertEqual(1, got["executed_test_count"])
+            self.assertEqual(1, got["required_support_count"])
             self.assertFalse(got["qualified"])
 
     def test_candidate_self_grant_is_rejected(self) -> None:
@@ -99,6 +111,14 @@ class ExternalExecutionBindingTests(unittest.TestCase):
                 got["problems"],
             )
 
+    def test_same_path_different_support_bytes_is_rejected(self) -> None:
+        td, root, pinset = self._subject()
+        with td:
+            (root / SUPPORT_PATH).write_text("{}\n", encoding="utf-8")
+            got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
+            self.assertIn(f"EXTERNAL_PINSET_GIT_BLOB_MISMATCH:{SUPPORT_PATH}", got["problems"])
+            self.assertIn(f"EXTERNAL_PINSET_RAW_SHA256_MISMATCH:{SUPPORT_PATH}", got["problems"])
+
     def test_executed_test_must_be_pinned(self) -> None:
         td, root, pinset = self._subject()
         with td:
@@ -112,7 +132,7 @@ class ExternalExecutionBindingTests(unittest.TestCase):
     def test_executed_test_role_must_be_test(self) -> None:
         td, root, pinset = self._subject()
         with td:
-            rows = pinset["admitted_python_files"]
+            rows = pinset["admitted_files"]
             assert isinstance(rows, list)
             rows[1]["role"] = "dependency"
             got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
@@ -121,13 +141,32 @@ class ExternalExecutionBindingTests(unittest.TestCase):
                 got["problems"],
             )
 
+    def test_required_support_must_be_pinned(self) -> None:
+        td, root, pinset = self._subject()
+        with td:
+            pinset["required_support_files"] = ["implementation/v24/missing.json"]
+            got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
+            self.assertIn(
+                "EXTERNAL_PINSET_REQUIRED_SUPPORT_UNPINNED:implementation/v24/missing.json",
+                got["problems"],
+            )
+
+    def test_required_support_must_have_support_role(self) -> None:
+        td, root, pinset = self._subject()
+        with td:
+            rows = pinset["admitted_files"]
+            assert isinstance(rows, list)
+            rows[2]["role"] = "dependency"
+            got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
+            self.assertIn("EXTERNAL_PINSET_PATH_ROLE_INVALID:2", got["problems"])
+            self.assertIn(f"EXTERNAL_PINSET_REQUIRED_SUPPORT_UNPINNED:{SUPPORT_PATH}", got["problems"])
+
     def test_unittest_shadow_is_rejected_even_when_pinned(self) -> None:
         td, root, pinset = self._subject()
         with td:
             data = b"raise RuntimeError('shadow')\n"
-            path = root / "governance-runtime/unittest.py"
-            path.write_bytes(data)
-            rows = pinset["admitted_python_files"]
+            (root / "governance-runtime/unittest.py").write_bytes(data)
+            rows = pinset["admitted_files"]
             assert isinstance(rows, list)
             rows.append(_row("governance-runtime/unittest.py", data, "dependency"))
             got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
@@ -140,9 +179,8 @@ class ExternalExecutionBindingTests(unittest.TestCase):
         td, root, pinset = self._subject()
         with td:
             data = b"raise RuntimeError('startup')\n"
-            path = root / "governance-runtime/sitecustomize.py"
-            path.write_bytes(data)
-            rows = pinset["admitted_python_files"]
+            (root / "governance-runtime/sitecustomize.py").write_bytes(data)
+            rows = pinset["admitted_files"]
             assert isinstance(rows, list)
             rows.append(_row("governance-runtime/sitecustomize.py", data, "dependency"))
             got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
@@ -155,9 +193,8 @@ class ExternalExecutionBindingTests(unittest.TestCase):
         td, root, pinset = self._subject()
         with td:
             data = b"raise RuntimeError('startup')\n"
-            path = root / "governance-runtime/usercustomize.py"
-            path.write_bytes(data)
-            rows = pinset["admitted_python_files"]
+            (root / "governance-runtime/usercustomize.py").write_bytes(data)
+            rows = pinset["admitted_files"]
             assert isinstance(rows, list)
             rows.append(_row("governance-runtime/usercustomize.py", data, "dependency"))
             got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
@@ -170,9 +207,8 @@ class ExternalExecutionBindingTests(unittest.TestCase):
         td, root, pinset = self._subject()
         with td:
             data = b"VALUE = 'shadow'\n"
-            path = root / "governance-runtime/json.py"
-            path.write_bytes(data)
-            rows = pinset["admitted_python_files"]
+            (root / "governance-runtime/json.py").write_bytes(data)
+            rows = pinset["admitted_files"]
             assert isinstance(rows, list)
             rows.append(_row("governance-runtime/json.py", data, "dependency"))
             got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
@@ -204,20 +240,32 @@ class ExternalExecutionBindingTests(unittest.TestCase):
                 got["problems"],
             )
 
-    def test_sandbox_exact_file_set_passes(self) -> None:
+    def test_sandbox_rejects_unpinned_support_file(self) -> None:
+        td, root, pinset = self._subject()
+        with td:
+            extra = root / "implementation/v24/extra.txt"
+            extra.write_text("untrusted\n", encoding="utf-8")
+            got = r11.validate_staged_execution_sandbox(sandbox_root=root, pinset=pinset)
+            self.assertIn(
+                "EXTERNAL_SANDBOX_UNPINNED_FILE_PRESENT:implementation/v24/extra.txt",
+                got["problems"],
+            )
+
+    def test_sandbox_exact_full_file_set_passes(self) -> None:
         td, root, pinset = self._subject()
         with td:
             got = r11.validate_staged_execution_sandbox(sandbox_root=root, pinset=pinset)
             self.assertTrue(got["valid"], got["problems"])
-            self.assertEqual(got["expected_python_file_count"], got["actual_python_file_count"])
+            self.assertEqual(got["expected_file_count"], got["actual_file_count"])
+            self.assertEqual(3, got["actual_file_count"])
 
     def test_symlink_bound_file_is_rejected(self) -> None:
-        if not hasattr(Path, "symlink_to"):
-            self.skipTest("symlink unsupported")
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             g = root / "governance-runtime"
+            i = root / "implementation/v24"
             g.mkdir(parents=True)
+            i.mkdir(parents=True)
             target = g / "real.py"
             target.write_text("VALUE = 1\n", encoding="utf-8")
             link = g / "test_v24_link.py"
@@ -225,9 +273,14 @@ class ExternalExecutionBindingTests(unittest.TestCase):
                 link.symlink_to(target)
             except OSError:
                 self.skipTest("symlink creation unavailable")
+            support = b"{}\n"
+            (i / "support.json").write_bytes(support)
             data = target.read_bytes()
             pinset = _pinset(
-                [_row("governance-runtime/test_v24_link.py", data, "test")],
+                [
+                    _row("governance-runtime/test_v24_link.py", data, "test"),
+                    _row(SUPPORT_PATH, support, "support"),
+                ],
                 ["governance-runtime/test_v24_link.py"],
             )
             got = r11.validate_external_execution_pinset(repo_root=root, pinset=pinset)
