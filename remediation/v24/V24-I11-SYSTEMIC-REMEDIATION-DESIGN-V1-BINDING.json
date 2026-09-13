@@ -1,0 +1,41 @@
+{
+  "binding_id": "V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V1",
+  "packet_path": "remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V1-CLEAN-REVIEW-PACKET.md",
+  "packet_commit": "6d3a0c1db35e661300099f71a2712fc122a63527",
+  "packet_git_blob": "8d00d46f436df9fe11b3c5299c3794ed39b56a52",
+  "packet_sha256": "a8e90d95a8ecd1d282bd3b02cdfc57676ab9e3101c483dd124f05752c262015a",
+  "plan_body_sha256": "645377d9b623f375f1ff425234abec768280f50d5c579261ee9b9fb1e133f777",
+  "packet_bytes": 24135,
+  "frozen_v24_design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "frozen_v24_design_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "frozen_i10_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "frozen_i10_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "v8_falsification_packet_sha256": "e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e",
+  "v8_falsification_body_sha256": "3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab",
+  "scientific_root_cause_consolidation_commit": "3d506cfdc71b10f2f03e05c3ce5a6355b0c2a71e",
+  "scientific_counts": {
+    "executed_reference_cases": 44,
+    "pass": 8,
+    "fail_code_defect": 36
+  },
+  "scientific_adjudication_commits": {
+    "cluster_a": "4e6e68262b8d217d1a9b10d17c88d5b4f9701f66",
+    "cluster_b": "274e7b2f6a6bb2ed143dad680a4d23459d5c25ef",
+    "clusters_c_h": "dfad8fd82db86930e17d938779f53164de70a7b5",
+    "wdpc_478": "a8029b1655bae388c6b0c8df7ff73c4e62fd0c94"
+  },
+  "source_blobs": {
+    "endpoint_compiler": "1d43d650f6181c87bdd1fb18b5e017e505f9bde6",
+    "authority_surface_inventory": "d57b7608b416efe5f9c356c2a9dafa38d47faedf",
+    "endpoint_precedence_standard": "2aa41f17baae3ca22a07519300eb4f7ea6cadbbc",
+    "functional_closure_standard": "ec47cddb10c6cf89e0c326aa152471a0c3c12677",
+    "wdpc_431_470": "0f52617114f7d9d549d9822f11d5bc0156c6e676",
+    "wdpc_471_486": "ff8677ca1170f5cef6318662309ba119145e68cf",
+    "wdpc_487_496": "17bfa33f6388934d47323cea3c375466c178aadf",
+    "wdpc_497_506": "042b881795929f9e8d9ff5bb72f8eda8ca93fad0"
+  },
+  "implementation_status": "NOT_STARTED",
+  "review_status": "REQUIRED",
+  "review_admissibility": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW; HUMAN_OR_AI; NO_AUTOMATED_REVIEWER_API_CALLS",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
