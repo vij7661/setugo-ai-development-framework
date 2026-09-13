@@ -64,24 +64,21 @@ def _internal_negative_canary(runner_cls: type[unittest.TextTestRunner]) -> bool
     return result.testsRun == 1 and len(result.failures) + len(result.errors) == 1
 
 
-def load_allowed_module(pinset: dict, module: str) -> None:
+def require_allowed_target(pinset: dict, target: str) -> str:
     expected = {
         pathlib.PurePosixPath(x).stem
         for x in pinset.get("executed_tests", [])
         if isinstance(x, str)
     }
+    module = target.split(".", 1)[0]
     if module not in expected:
-        raise SystemExit(f"R12_WORKER_MODULE_NOT_PINNED:{module}")
+        raise SystemExit(f"R12_WORKER_TARGET_MODULE_NOT_PINNED:{target}")
+    return module
 
 
 @contextlib.contextmanager
 def suppress_candidate_output_fds():
-    """Keep candidate writes off the trusted stdout/stderr transport.
-
-    The parent accepts only the envelope emitted after this context restores the
-    original descriptors. This is an additional transport boundary; the worker
-    remains untrusted to the parent and cannot itself authorize PASS.
-    """
+    """Keep candidate writes off the trusted stdout/stderr transport."""
     saved_out = os.dup(1)
     saved_err = os.dup(2)
     devnull = os.open(os.devnull, os.O_WRONLY)
@@ -101,9 +98,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--sandbox", required=True)
     parser.add_argument("--pinset", required=True)
-    parser.add_argument("--module", required=True)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--module")
+    group.add_argument("--target")
     args = parser.parse_args()
 
+    target = args.target or args.module
+    assert isinstance(target, str)
     flags = require_actual_isolation()
     sandbox = pathlib.Path(args.sandbox).resolve()
     subject = sandbox / "governance-runtime"
@@ -120,7 +121,7 @@ def main() -> None:
         raise SystemExit("R12_WORKER_PINSET_SCHEMA_INVALID")
     if pinset.get("authority_origin") != "EXTERNAL_REVIEW_BRANCH" or pinset.get("candidate_self_grant") is not False:
         raise SystemExit("R12_WORKER_PINSET_AUTHORITY_INVALID")
-    load_allowed_module(pinset, args.module)
+    module = require_allowed_target(pinset, target)
 
     baseline = framework_fingerprint()
     trusted_runner_cls = unittest.TextTestRunner
@@ -135,7 +136,7 @@ def main() -> None:
     candidate_stdout = io.StringIO()
     candidate_stderr = io.StringIO()
     with suppress_candidate_output_fds(), contextlib.redirect_stdout(candidate_stdout), contextlib.redirect_stderr(candidate_stderr):
-        suite = trusted_loader.loadTestsFromName(args.module)
+        suite = trusted_loader.loadTestsFromName(target)
         post_import = framework_fingerprint()
         if post_import != baseline:
             raise SystemExit("R12_WORKER_UNITTEST_MUTATED_DURING_IMPORT")
@@ -157,7 +158,8 @@ def main() -> None:
     successful = tests_run == expected and failures == 0 and errors == 0 and unexpected == 0
     envelope = {
         "schema_version": 1,
-        "module": args.module,
+        "target": target,
+        "module": module,
         "expected_tests": expected,
         "tests_run": tests_run,
         "failures": failures,
