@@ -1,0 +1,51 @@
+{
+  "manifest_id": "WDPC-V24-I11-EXTERNAL-MANUAL-EVIDENCE-MANIFEST-V1",
+  "base_pre_science_commit": "e9a02e722edcd5e16b82abeeb37f7ab68c9295bf",
+  "base_pre_science_tree": "f9de48189b7d304f50f169277dc1b4dceb642546",
+  "frozen_design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "frozen_implementation_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "frozen_implementation_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "reviewed_v8_packet": {
+    "packet_file": "WDPC_V24_I11_Falsification_Plan_V8_Clean_Review_Packet.md",
+    "packet_sha256": "e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e",
+    "plan_body_sha256": "3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab",
+    "packet_bytes": 75109,
+    "repository_materialization_state": "PACKET_BYTES_NOT_PRESENT_IN_FROZEN_REPOSITORY_TREE",
+    "binding_blob_sha": "716a2a2917130c898cc4244d44cf0141e49dd83e"
+  },
+  "review_mode": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW",
+  "reviewer_api_calls": "PROHIBITED",
+  "missing_required_external_or_manual_evidence_default": "NOT_EXECUTABLE_EXTERNAL_EVIDENCE_REQUIRED",
+  "evidence_gated_cases": [
+    {"case_id":"WDPC-443","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-CONTROL-INDEPENDENCE","profile_id":"O-CONTROL","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"IUDA shares prohibited effective control with candidate"},
+    {"case_id":"WDPC-449","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-WITNESS","profile_id":"O-APPLICATION","expected_value":"WITNESS_INDEPENDENCE_INSUFFICIENT"},
+    {"case_id":"WDPC-458","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-IUDA","profile_id":"O-BOOTSTRAP","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"required external completeness authority is present but independence is unproven","fixture_branch":"AUTHORITY_PRESENT_INDEPENDENCE_UNPROVEN"},
+    {"case_id":"WDPC-460","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-WITNESS-LINEAGE","profile_id":"O-APPLICATION","expected_value":"RECONCILIATION_CONFLICT"},
+    {"case_id":"WDPC-466","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-CAPABILITY-ATTESTATION","profile_id":"O-CONTROL","expected_value":"CAPABILITY_REATTESTATION_QUALIFIES"},
+    {"case_id":"WDPC-467","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-WITNESS","profile_id":"O-APPLICATION","expected_value":"WITNESSED_LEDGER_INTEGRITY_QUALIFIES"},
+    {"case_id":"WDPC-468","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-IUDA","profile_id":"O-BOOTSTRAP","expected_value":"COMPLETENESS_RECORD_CURRENT"},
+    {"case_id":"WDPC-472","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-LEDGER-LINEAGE","profile_id":"O-APPLICATION","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"exact current admission-ledger lineage cannot be established","fixture_branch":"COMPETING_ADMISSION_LINEAGE_CURRENT_UNKNOWN"},
+    {"case_id":"WDPC-474","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-COMPLETENESS-LEDGER-LINEAGE","profile_id":"O-BOOTSTRAP","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"exact current completeness-ledger lineage cannot be established","fixture_branch":"COMPETING_COMPLETENESS_LINEAGE_CURRENT_UNKNOWN"},
+    {"case_id":"WDPC-477","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-WITNESS","profile_id":"O-APPLICATION","expected_value":"WITNESS_INDEPENDENCE_INSUFFICIENT"},
+    {"case_id":"WDPC-484","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-WITNESS-LINEAGE","profile_id":"O-APPLICATION","expected_value":"RECONCILIATION_CONFLICT"},
+    {"case_id":"WDPC-485","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-ADMISSION-COMPLETENESS","profile_id":"O-APPLY","expected_value":"ADMISSION_COMPLETENESS_APPLY_QUALIFIES"},
+    {"case_id":"WDPC-486","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-COMPOSITE-486","profile_id":"O-APPLICATION","expected_value":"NORMATIVE_CAPABILITY_COMPLETENESS_WITNESS_QUALIFIES"},
+    {"case_id":"WDPC-489","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-CONTROL-PLANE","profile_id":"O-CONTROL","expected_value":"EFFECTIVE_CONTROL_SOURCE_COMPLETENESS_INVALID"},
+    {"case_id":"WDPC-491","execution_class":"MANUAL_SEMANTIC_REQUIRED","evidence_profile":"E-SEMANTIC","profile_id":"O-NORMATIVE","expected_value":"NORMATIVE_CONTROL_CATALOG_INCOMPLETE"},
+    {"case_id":"WDPC-494","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-CONTROL-PLANE","profile_id":"O-CONTROL","expected_value":"CONTROL_PLANE_SOURCE_COMPLETENESS_QUALIFIES"},
+    {"case_id":"WDPC-497","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-IAM-PERIMETER","profile_id":"O-PERIMETER","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"unadmitted direct sink writer prevents closed-world qualification","fixture_branch":"DIRECT_UNADMITTED_WRITER_NO_STRICTER_FENCE"},
+    {"case_id":"WDPC-498","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-IAM-PERIMETER","profile_id":"O-APPLY","expected_value":"ROOT_KERNEL_DECISION_STALE","fixture_branch":"IAM_PERIMETER_ONLY_DRIFT_AFTER_DECISION"},
+    {"case_id":"WDPC-500","execution_class":"HYBRID_EXTERNAL_REQUIRED","evidence_profile":"E-BOOTSTRAP-CONTROL","profile_id":"O-BOOTSTRAP","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"operational root is relabeled independent without control-domain separation"},
+    {"case_id":"WDPC-503","execution_class":"STATIC_OR_MANUAL_REQUIRED","evidence_profile":"E-STATIC-GOVERNANCE","profile_id":"O-BOOTSTRAP","expected_value":"ROOT_KERNEL_IN_PLACE_MUTATION_REJECTED","fixture_branch":"IN_PLACE_BOOTSTRAP_MUTATION_UNCHANGED_GENERATION"},
+    {"case_id":"WDPC-504","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-IAM-PERIMETER","profile_id":"O-PERIMETER","expected_value":"INSUFFICIENT_EVIDENCE","target_reason":"material sink lacks unavoidable deny-by-default admission boundary"},
+    {"case_id":"WDPC-505","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-IAM-PERIMETER","profile_id":"O-PERIMETER","expected_value":"ADMISSION_PERIMETER_QUALIFIES"},
+    {"case_id":"WDPC-506","execution_class":"EXTERNAL_MANUAL_REQUIRED","evidence_profile":"E-BOOTSTRAP","profile_id":"O-BOOTSTRAP","expected_value":"BOOTSTRAP_RESIDUAL_TRUST_BOUNDARY_QUALIFIES"}
+  ],
+  "blocked_semantic_cases": [
+    {"case_id":"WDPC-469","evidence_profile":"E-SEMANTIC","status":"BLOCKED_BY_I1_SEMANTIC_QUALIFICATION"},
+    {"case_id":"WDPC-495","evidence_profile":"E-SEMANTIC","status":"BLOCKED_BY_I1_SEMANTIC_QUALIFICATION"}
+  ],
+  "evidence_contract_detail_state": "ONLY_FIELDS_EXPLICITLY_PRESENT_IN_REPOSITORY_CASE_SPECS_HARNESS_AND_V8_BINDING_ARE_RECORDED; ADDITIONAL_REVIEW_PACKET_ONLY_DETAILS_ARE_NOT_RECONSTRUCTED",
+  "scientific_execution_effect": "NONE",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
