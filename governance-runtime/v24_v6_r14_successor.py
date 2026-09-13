@@ -1,9 +1,9 @@
 """V24 I11 V6 R14 native-observation successor bindings.
 
-R14 treats every Python process that imports candidate code as untrusted.  The
+R14 treats every Python process that imports candidate code as untrusted. The
 qualification-bearing observation must be emitted by a trusted native parent
 that does not initialize Python, and the external oracle must independently
-apply the assertion.  This module validates externally produced evidence only;
+apply the assertion. This module validates externally produced evidence only;
 it cannot grant runtime, release, deployment, or terminal authority.
 """
 from __future__ import annotations
@@ -49,6 +49,7 @@ def _record_material(record: Mapping[str, Any]) -> dict[str, Any]:
         "trusted_parent_imports_candidate_python", "oracle_decision_origin",
         "oracle_control_domain", "candidate_control_domain",
         "oracle_terminal_result", "r13_tailored_frame_regression",
+        "r13_tailored_frame_regression_evidence_digest",
     )
     return {key: record.get(key) for key in keys}
 
@@ -80,6 +81,7 @@ def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> di
     native_binary = bundle.get("native_observer_binary_sha256")
     compiler_digest = bundle.get("native_observer_compiler_digest")
     oracle_blob = bundle.get("oracle_git_blob_sha1")
+    r13_regression_digest = bundle.get("r13_tailored_frame_regression_evidence_digest")
     if not _hex(commit, 40): problems.append("R14_CANDIDATE_COMMIT_INVALID")
     if not _hex(tree, 40): problems.append("R14_CANDIDATE_TREE_INVALID")
     if not _hex(env_digest, 64): problems.append("R14_ENVIRONMENT_DIGEST_INVALID")
@@ -88,6 +90,7 @@ def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> di
     if not _hex(native_binary, 64): problems.append("R14_NATIVE_BINARY_DIGEST_INVALID")
     if not _hex(compiler_digest, 64): problems.append("R14_COMPILER_DIGEST_INVALID")
     if not _hex(oracle_blob, 40): problems.append("R14_ORACLE_BLOB_INVALID")
+    if not _hex(r13_regression_digest, 64): problems.append("R14_R13_REGRESSION_EVIDENCE_DIGEST_INVALID")
 
     records = bundle.get("records")
     if not isinstance(records, list):
@@ -122,6 +125,8 @@ def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> di
         if raw.get("native_observer_binary_sha256") != native_binary: problems.append(f"R14_NATIVE_BINARY_MISMATCH:{check_id}")
         if raw.get("native_observer_compiler_digest") != compiler_digest: problems.append(f"R14_NATIVE_COMPILER_MISMATCH:{check_id}")
         if raw.get("oracle_git_blob_sha1") != oracle_blob: problems.append(f"R14_ORACLE_BLOB_MISMATCH:{check_id}")
+        if raw.get("r13_tailored_frame_regression_evidence_digest") != r13_regression_digest:
+            problems.append(f"R14_R13_REGRESSION_EVIDENCE_MISMATCH:{check_id}")
         if raw.get("candidate_process_role") != CANDIDATE_ROLE: problems.append(f"R14_CANDIDATE_ROLE_INVALID:{check_id}")
         if raw.get("observation_transport") != OBSERVATION_TRANSPORT: problems.append(f"R14_OBSERVATION_TRANSPORT_INVALID:{check_id}")
         if raw.get("observation_authentication") != OBSERVATION_AUTH: problems.append(f"R14_OBSERVATION_AUTH_INVALID:{check_id}")
