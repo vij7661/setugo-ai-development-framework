@@ -1,16 +1,24 @@
-"""V24 I11 V6 R9 integrated-successor construction/freeze preflight.
+"""V24 I11 V6 integrated-successor construction/freeze preflight.
 
-The committed manifest binds the exact approved V6 design identity and R1-R8
-by exact Git object identity. This verifier recomputes raw SHA-256 for the
-R1-R8 surface. It is construction-only and cannot open scientific execution
-or grant runtime, qualification, release, deployment, or terminal authority.
+R12 preserves the R1-R8 exact-object binding and closes the R11 false-green
+where mandatory adversarial check *names* could satisfy completeness without
+executed evidence.  A name list is now only an expected-universe declaration;
+integration validity additionally requires externally supplied executed,
+current, candidate/environment-bound evidence for every mandatory check.
+
+This module is construction-only and cannot open scientific execution or grant
+runtime, qualification, release, deployment, or terminal authority.
 """
 from __future__ import annotations
 
 import hashlib
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
+from v24_v6_adversarial_evidence_binding import (
+    REQUIRED_ADVERSARIAL_CHECKS,
+    validate_mandatory_adversarial_evidence,
+)
 from v24_v6_governance_foundation import AUTHORITY_EFFECT, digest
 
 EXPECTED_WORKSTREAMS = tuple(f"R{i}" for i in range(1, 9))
@@ -28,15 +36,7 @@ EXPECTED_EVIDENCE_FILES = {
     f"R{i}": f"implementation/v24/V24-I11-V6-R{i}-CONSTRUCTION-EVIDENCE.md"
     for i in range(1, 9)
 }
-REQUIRED_ADVERSARIAL_CHECKS = frozenset({
-    "MIXED_ALLOWED_AND_DISALLOWED_TERMINAL_REJECTED",
-    "EVERY_REACHABLE_TERMINAL_ALLOWED",
-    "GENESIS_CROSS_PAIR_REJECTED",
-    "APPLICABLE_PREDICATE_OMISSION_REJECTED",
-    "ATOMIC_BINDING_MODE_OMISSION_REJECTED",
-    "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT",
-})
-SCIENTIFIC_EXECUTION_CLOSED = "CLOSED_PENDING_SUCCESSOR_REVIEW"
+SCIENTIFIC_EXECUTION_CLOSED = "CLOSED_PENDING_R12_SUCCESSOR_REVIEW"
 
 # Exact identity approved by V6 Follow-Up Review 002 and its exact-byte
 # reconstruction/verification evidence. These are candidate-freeze bindings,
@@ -113,7 +113,18 @@ def _validate_approved_design_binding(manifest: Mapping[str, Any]) -> list[str]:
     return problems
 
 
-def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: Mapping[str, Any]) -> dict[str, Any]:
+def validate_integrated_successor_manifest(
+    *,
+    repo_root: str | Path,
+    manifest: Mapping[str, Any],
+    adversarial_evidence: Sequence[Mapping[str, Any]] | None = None,
+    expected_candidate_commit: str | None = None,
+    expected_candidate_tree: str | None = None,
+    expected_environment_contract_digest: str | None = None,
+    expected_run_id: str | None = None,
+    expected_round_id: str | None = None,
+    forbidden_evidence_producers: Sequence[str] = (),
+) -> dict[str, Any]:
     p: list[str] = []
     root = Path(repo_root)
     if manifest.get("schema_version") != 1:
@@ -153,7 +164,10 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         if not _git_sha(manifest.get(key)):
             p.append(f"INTEGRATED_SUCCESSOR_GIT_ID_INVALID:{key}")
     p.extend(_validate_approved_design_binding(manifest))
-    if manifest.get("scientific_execution_state") != SCIENTIFIC_EXECUTION_CLOSED:
+    if manifest.get("scientific_execution_state") not in {
+        "CLOSED_PENDING_SUCCESSOR_REVIEW",
+        SCIENTIFIC_EXECUTION_CLOSED,
+    }:
         p.append("INTEGRATED_SUCCESSOR_SCIENTIFIC_EXECUTION_MUST_REMAIN_CLOSED")
     if manifest.get("authority_effect") != AUTHORITY_EFFECT:
         p.append("INTEGRATED_SUCCESSOR_AUTHORITY_EFFECT_INVALID")
@@ -216,14 +230,50 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
                 "raw_sha256": raw_sha256(data),
             })
 
+    # The old check-name list is retained only as an expected-universe
+    # declaration. It is never sufficient to satisfy mandatory-check evidence.
     checks = manifest.get("mandatory_v6_adversarial_checks")
     if not isinstance(checks, list):
         checks = []
         p.append("INTEGRATED_SUCCESSOR_MANDATORY_CHECKS_REQUIRED")
+    if len(checks) != len(set(checks)):
+        p.append("INTEGRATED_SUCCESSOR_MANDATORY_CHECK_DUPLICATE")
     for missing in sorted(REQUIRED_ADVERSARIAL_CHECKS - set(checks)):
         p.append(f"INTEGRATED_SUCCESSOR_MANDATORY_CHECK_MISSING:{missing}")
     for extra in sorted(set(checks) - REQUIRED_ADVERSARIAL_CHECKS):
         p.append(f"INTEGRATED_SUCCESSOR_MANDATORY_CHECK_UNKNOWN:{extra}")
+
+    context = {
+        "expected_candidate_commit": expected_candidate_commit,
+        "expected_candidate_tree": expected_candidate_tree,
+        "expected_environment_contract_digest": expected_environment_contract_digest,
+        "expected_run_id": expected_run_id,
+        "expected_round_id": expected_round_id,
+    }
+    for key, value in context.items():
+        if not isinstance(value, str) or not value:
+            p.append(f"INTEGRATED_SUCCESSOR_ADVERSARIAL_EVIDENCE_CONTEXT_REQUIRED:{key}")
+
+    evidence_result: dict[str, Any]
+    if all(isinstance(v, str) and bool(v) for v in context.values()):
+        evidence_result = validate_mandatory_adversarial_evidence(
+            records=adversarial_evidence or [],
+            expected_candidate_commit=expected_candidate_commit or "",
+            expected_candidate_tree=expected_candidate_tree or "",
+            expected_environment_contract_digest=expected_environment_contract_digest or "",
+            expected_run_id=expected_run_id or "",
+            expected_round_id=expected_round_id or "",
+            forbidden_producer_identities=forbidden_evidence_producers,
+        )
+        for problem in evidence_result["problems"]:
+            p.append(f"INTEGRATED_SUCCESSOR_{problem}")
+    else:
+        evidence_result = {
+            "valid": False,
+            "binding_digest": digest({"records": []}),
+            "records": [],
+            "problems": ["ADVERSARIAL_EVIDENCE_CONTEXT_INCOMPLETE"],
+        }
 
     p = sorted(set(p))
     material = {
@@ -245,6 +295,8 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         "scientific_execution_state": manifest.get("scientific_execution_state"),
         "bound_files": sorted(bound, key=lambda x: (x["workstream_id"], x["role"])),
         "mandatory_v6_adversarial_checks": sorted(REQUIRED_ADVERSARIAL_CHECKS),
+        "mandatory_v6_adversarial_evidence_binding_digest": evidence_result["binding_digest"],
+        "mandatory_v6_adversarial_evidence": evidence_result["records"],
     }
     return {
         "state": "V24_V6_INTEGRATED_SUCCESSOR_BOUND" if not p else "V24_V6_INTEGRATED_SUCCESSOR_INVALID",
@@ -254,6 +306,9 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         "binding_digest": digest(material),
         "bound_file_count": len(bound),
         "bound_files": sorted(bound, key=lambda x: (x["workstream_id"], x["role"])),
+        "adversarial_evidence_valid": bool(evidence_result.get("valid")),
+        "adversarial_evidence_binding_digest": evidence_result["binding_digest"],
+        "adversarial_evidence_records": evidence_result["records"],
         "scientific_execution_state": SCIENTIFIC_EXECUTION_CLOSED,
         "authority_effect": AUTHORITY_EFFECT,
     }
@@ -261,9 +316,9 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
 
 def construction_frontier() -> dict[str, Any]:
     return {
-        "state": "V24_V6_R9_INTEGRATED_SUCCESSOR_CONSTRUCTION_READY",
+        "state": "V24_V6_R12_INTEGRATED_SUCCESSOR_CONSTRUCTION_READY",
         "qualified": False,
-        "implementation_workstream": "R9",
+        "implementation_workstream": "R12",
         "scientific_execution_state": SCIENTIFIC_EXECUTION_CLOSED,
         "authority_effect": AUTHORITY_EFFECT,
     }
