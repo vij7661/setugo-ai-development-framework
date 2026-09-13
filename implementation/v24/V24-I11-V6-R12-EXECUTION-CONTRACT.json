@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "contract_id": "V24-I11-V6-R12-TRUST-BOUNDARY-REMEDIATION",
+  "predecessor_candidate_commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
+  "predecessor_candidate_tree": "d202b039285213b386557083a26de42e0fb20cf4",
+  "r12_scope_frozen": true,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "repairs": [
+    {
+      "repair_id": "R12-R1",
+      "title": "Trusted/untrusted process separation",
+      "requirements": [
+        "Trusted parent MUST NOT import candidate modules.",
+        "Candidate-controlled execution MUST NOT share mutable trusted result-accounting state.",
+        "Candidate stdout, JSON, exit code, or in-process result object MUST NOT alone authorize PASS.",
+        "Qualification-contributing accounting MUST originate from the trusted parent and remain evidence-only until independent review."
+      ]
+    },
+    {
+      "repair_id": "R12-R2",
+      "title": "Actual interpreter/runtime startup verification",
+      "requirements": [
+        "Trusted orchestration MUST verify actual interpreter flags before candidate bytes are importable.",
+        "isolated, no_site, ignore_environment, and safe_path MUST be true or execution fails closed.",
+        "Exact Python runtime identity/version used for stdlib-shadow policy MUST be bound to the execution record.",
+        "Pinset declarations MUST NOT substitute for actual runtime verification."
+      ]
+    },
+    {
+      "repair_id": "R12-R3",
+      "title": "Executed adversarial-check evidence binding",
+      "requirements": [
+        "Each mandatory check MUST bind an executed evidence record.",
+        "Each record MUST bind exact check ID, candidate commit/tree, environment, interpreter contract, run/round identity, evidence digest, terminal state/result, and independent witness identity/control domain.",
+        "Missing, duplicate, stale, mismatched, unexecuted, self-witnessed, or name-only records MUST fail closed.",
+        "The aggregate binding digest MUST commit to exact evidence-record digests, not check names alone."
+      ]
+    },
+    {
+      "repair_id": "R12-R4",
+      "title": "Authority-origin evidence hardening",
+      "requirements": [
+        "Package colocation MUST NOT be treated as proof of repository authorization.",
+        "External authority objects MUST bind their exact repository identities and remain absent from the frozen candidate.",
+        "Authority-origin evidence remains challengeable evidence and cannot self-grant qualification."
+      ]
+    }
+  ],
+  "mandatory_adversarial_targets": [
+    "candidate monkeypatches unittest.TextTestRunner",
+    "candidate monkeypatches unittest.TestResult.wasSuccessful",
+    "candidate attempts direct zero exit",
+    "candidate forges stdout or structured result payload",
+    "runner launched without isolated mode",
+    "runner launched with site enabled",
+    "runner launched without environment ignore",
+    "runner runtime version differs from bound stdlib-shadow policy version",
+    "mandatory adversarial check supplied by name only",
+    "mandatory adversarial evidence stale candidate binding",
+    "mandatory adversarial evidence self-witness",
+    "mandatory adversarial evidence duplicate or missing check"
+  ],
+  "historical_preservation": {
+    "r11_rejected": true,
+    "r11_must_not_be_patched_in_place": true,
+    "prior_red_nonpass_history_preserved": true
+  }
+}
