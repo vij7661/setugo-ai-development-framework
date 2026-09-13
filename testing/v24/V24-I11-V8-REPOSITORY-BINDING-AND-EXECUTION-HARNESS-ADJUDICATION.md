@@ -1,6 +1,6 @@
 # V24 I11 V8 Repository-Binding and Execution-Harness Adjudication
 
-Status: **PLAN REVIEW PASS / REPOSITORY BINDING PASS / EXECUTION HARNESS CONSTRUCTION PENDING CI**
+Status: **PLAN REVIEW PASS / REPOSITORY BINDING PASS / EXECUTION HARNESS PROFILE-INVARIANT GATE PASS**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -12,7 +12,7 @@ The clean independent V8 review returned:
 - `READY_FOR_EXECUTION`
 - critical findings: none
 
-The review identified one load-bearing residual verification dependency: Section 8 profile-specific negative PASS invariants, Section 7 exact fixture branches, and Section 13 serialization/evidence locks must be mechanically enforced by the downstream execution harness.
+The review identified one load-bearing residual verification dependency: Section 8 profile-specific negative PASS invariants, Section 7 exact fixture branches, and Section 13 serialization/evidence locks had to be mechanically enforced by the downstream execution harness.
 
 ## Exact reviewed identities
 
@@ -42,35 +42,42 @@ The exact V8 packet supplied for review hashes to the values in the detached rep
 
 ## Execution-harness residual gate
 
-At the reviewed V8 head there was no downstream scientific execution harness implementing all Section 8 profile-specific PASS invariants. Therefore the V8-head state was:
+At the reviewed V8 head there was no downstream scientific execution harness implementing all Section 8 profile-specific PASS invariants. The successor branch `testing/v24-i11-falsification-execution-harness-v1` adds construction-only execution machinery without changing V8 plan semantics or I10 implementation.
 
-`EXECUTION_HARNESS_PROFILE_INVARIANT_GATE = BLOCKED_NOT_IMPLEMENTED_AT_V8_HEAD`
+Construction evidence on exact head `7bee521670208a399cea9848928340bbd7937b8f`:
 
-The successor branch `testing/v24-i11-falsification-execution-harness-v1` adds construction-only execution machinery without changing V8 plan semantics or I10 implementation.
+- tree: `f5af44631187ef7d8ca29ef948b9e33875e330dc`
+- GitHub Actions run: `34748161040`
+- workflow: `V24 I11 Execution Harness Construction`
+- conclusion: `success`
+- reviewed V8 repository-binding preflight: PASS
+- reviewed Harness V7 construction tests: PASS
+- execution-harness construction tests: PASS
+- construction frontier assertion: `WDPC execution status = NOT_EXECUTED`
 
-The construction harness must prove before scientific execution:
+The execution harness now mechanically enforces:
 
-1. all 76 case specs are represented once;
-2. every negative case maps to one mechanically enforced Section 8 observation profile;
-3. exact Section 7 fixture branches are fail-closed;
-4. Section 13 serial/evidence-lock controls are mechanically enforced;
-5. positive controls cannot outrun unresolved same-mechanism negatives;
-6. result records are append-only and predecessor-chained;
+1. all 76 case specs represented exactly once;
+2. every negative case mapped to a Section 8 profile invariant;
+3. exact Section 7 fixture branches fail closed;
+4. Section 13 serial/evidence-lock controls;
+5. positive controls cannot outrun unresolved same-profile negatives;
+6. append-only predecessor-chained result records;
 7. WDPC-469 and WDPC-495 remain blocked;
-8. importing/testing the harness executes no scientific WDPC case.
+8. harness import/construction testing performs no scientific WDPC execution.
+
+`EXECUTION_HARNESS_PROFILE_INVARIANT_GATE = PASS`
 
 ## Scientific execution status
 
 `WDPC-431…506 = NOT_EXECUTED`
 
-No reference, hybrid, external/manual, semantic, static, or positive WDPC case is executed by this construction step.
+No reference, hybrid, external/manual, semantic, static, or positive WDPC case was executed by the review, repository adjudication, or execution-harness construction steps.
 
-## Next gate
+## Next permitted action
 
-Only after the execution-harness construction CI is green may the gate become:
+`NEXT_PERMITTED_ACTION = BEGIN_SCIENTIFIC_WDPC_EXECUTION_UNDER_REVIEWED_V8_PLAN`
 
-`EXECUTION_HARNESS_PROFILE_INVARIANT_GATE = PASS`
-
-At that point the next permitted action is scientific execution under the exact reviewed V8 plan. External/manual cases remain unable to PASS without their required real evidence, and WDPC-469/495 remain blocked.
+Execution must preserve the exact reviewed V8 case semantics and Harness V7 contract. External/manual cases cannot receive PASS without their required real evidence. Missing external evidence must remain `NOT_EXECUTABLE_EXTERNAL_EVIDENCE_REQUIRED` or `INSUFFICIENT_EVIDENCE` as preregistered. WDPC-469 and WDPC-495 remain blocked by I1 semantic qualification.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
