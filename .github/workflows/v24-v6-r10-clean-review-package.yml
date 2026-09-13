@@ -64,8 +64,9 @@ jobs:
               assert actual == blob, (wid, actual, blob)
               assert rows[wid]['production_module_path'] == path
               assert rows[wid]['production_git_blob_sha'] == blob
+              assert rows[wid]['construction_state'] == 'PASS'
+              assert rows[wid]['runtime_qualification_state'] == 'NOT_CLAIMED'
               print(f'{wid}={blob}')
-          assert manifest['qualification_state'] == 'NOT_QUALIFIED'
           assert manifest['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
           assert manifest['authority_effect'] == 'NONE_EVIDENCE_ONLY'
           PY
