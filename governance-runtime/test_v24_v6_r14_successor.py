@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import unittest
 
 from v24_v6_governance_foundation import digest
@@ -10,13 +11,32 @@ TREE="2"*40
 ENV="3"*64
 INTERPRETER="4"*64
 NATIVE_SOURCE="5"*40
+RUNTIME_BINDING_SOURCE="e"*40
 NATIVE_BINARY="6"*64
 COMPILER="7"*64
 ORACLE="8"*40
 R13_REGRESSION="d"*64
 
 
+def child_contract() -> dict:
+    return {
+        "implementation":"cpython",
+        "version":[3,12,14],
+        "isolated":True,
+        "no_site":True,
+        "ignore_environment":True,
+        "safe_path":True,
+        "optimize":0,
+        "dont_write_bytecode":True,
+        "python_home":"/trusted/python",
+        "python_program":"/trusted/python/bin/python",
+        "python_program_sha256":"f"*64,
+        "enforcement_origin":"NATIVE_POST_INITIALIZATION_GUARD",
+    }
+
+
 def record(check_id: str) -> dict:
+    contract=child_contract()
     row={
         "check_id":check_id,
         "challenge_digest":"9"*64,
@@ -27,7 +47,9 @@ def record(check_id: str) -> dict:
         "candidate_tree":TREE,
         "environment_digest":ENV,
         "interpreter_contract_digest":INTERPRETER,
+        "child_runtime_contract_digest":digest(contract),
         "native_observer_source_git_blob_sha1":NATIVE_SOURCE,
+        "native_runtime_binding_source_git_blob_sha1":RUNTIME_BINDING_SOURCE,
         "native_observer_binary_sha256":NATIVE_BINARY,
         "native_observer_compiler_digest":COMPILER,
         "oracle_git_blob_sha1":ORACLE,
@@ -50,9 +72,10 @@ def record(check_id: str) -> dict:
 
 
 def bundle() -> dict:
+    contract=child_contract()
     rows=[record(x) for x in sorted(REQUIRED_R14_CHECKS)]
     return {
-        "schema_version":1,
+        "schema_version":2,
         "authority_origin":"EXTERNAL_REVIEW_BRANCH",
         "candidate_self_grant":False,
         "candidate_side_unittest_role":"NON_AUTHORITATIVE_DIAGNOSTIC_ONLY",
@@ -62,7 +85,10 @@ def bundle() -> dict:
         "candidate_tree":TREE,
         "environment_digest":ENV,
         "interpreter_contract_digest":INTERPRETER,
+        "child_runtime_contract":contract,
+        "child_runtime_contract_digest":digest(contract),
         "native_observer_source_git_blob_sha1":NATIVE_SOURCE,
+        "native_runtime_binding_source_git_blob_sha1":RUNTIME_BINDING_SOURCE,
         "native_observer_binary_sha256":NATIVE_BINARY,
         "native_observer_compiler_digest":COMPILER,
         "oracle_git_blob_sha1":ORACLE,
@@ -81,12 +107,23 @@ def reseal(b: dict, index: int = 0) -> None:
     b["evidence_set_digest"]=digest({"record_digests":sorted(x["record_digest"] for x in b["records"])})
 
 
+def rebind_child_contract(b: dict) -> None:
+    d=digest(b["child_runtime_contract"])
+    b["child_runtime_contract_digest"]=d
+    for row in b["records"]:
+        row["child_runtime_contract_digest"]=d
+        material=dict(row); material.pop("record_digest",None)
+        row["record_digest"]=digest(material)
+    b["evidence_set_digest"]=digest({"record_digests":sorted(x["record_digest"] for x in b["records"])})
+
+
 class R14NativeObservationEvidenceTests(unittest.TestCase):
     def test_complete_bundle_binds_but_never_qualifies(self):
         r=validate_native_observation_evidence_bundle(bundle())
         self.assertTrue(r["valid"],r["problems"])
         self.assertFalse(r["qualified"])
         self.assertEqual(r["bound_check_count"],6)
+        self.assertEqual(r["child_runtime_contract_digest"],digest(child_contract()))
 
     def test_native_parent_must_not_initialize_python(self):
         b=bundle(); b["native_parent_process_initializes_python"]=True
@@ -117,6 +154,26 @@ class R14NativeObservationEvidenceTests(unittest.TestCase):
         b=bundle(); b["records"][0]["native_observer_binary_sha256"]="f"*64; reseal(b)
         r=validate_native_observation_evidence_bundle(b)
         self.assertTrue(any("NATIVE_BINARY_MISMATCH" in x for x in r["problems"]))
+
+    def test_runtime_binding_source_substitution_fails(self):
+        b=bundle(); b["records"][0]["native_runtime_binding_source_git_blob_sha1"]="0"*40; reseal(b)
+        r=validate_native_observation_evidence_bundle(b)
+        self.assertTrue(any("RUNTIME_BINDING_SOURCE_MISMATCH" in x for x in r["problems"]))
+
+    def test_child_runtime_flag_false_fails(self):
+        b=bundle(); b["child_runtime_contract"]["isolated"]=False; rebind_child_contract(b)
+        r=validate_native_observation_evidence_bundle(b)
+        self.assertIn("R14_CHILD_RUNTIME_FLAG_NOT_TRUE:isolated",r["problems"])
+
+    def test_child_runtime_optimization_fails(self):
+        b=bundle(); b["child_runtime_contract"]["optimize"]=1; rebind_child_contract(b)
+        r=validate_native_observation_evidence_bundle(b)
+        self.assertIn("R14_CHILD_RUNTIME_OPTIMIZATION_INVALID",r["problems"])
+
+    def test_child_runtime_contract_digest_is_load_bearing(self):
+        b=bundle(); b["child_runtime_contract_digest"]="0"*64
+        r=validate_native_observation_evidence_bundle(b)
+        self.assertIn("R14_CHILD_RUNTIME_CONTRACT_DIGEST_MISMATCH",r["problems"])
 
     def test_oracle_and_candidate_domains_must_differ(self):
         b=bundle(); b["records"][0]["oracle_control_domain"]=b["records"][0]["candidate_control_domain"]; reseal(b)
