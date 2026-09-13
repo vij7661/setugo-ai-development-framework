@@ -5,10 +5,28 @@ import hashlib, json
 from typing import Any, Mapping
 
 AUTHORITY_EFFECT = "NONE_EVIDENCE_ONLY"
+EXTERNAL_EVIDENCE_SOURCE_KINDS = {"EXTERNAL_GOVERNANCE_EVIDENCE", "BOOTSTRAP_GOVERNANCE_RECORD", "INDEPENDENT_CONTROL_PLANE_EVIDENCE"}
 
 
 def digest(v: Any) -> str:
     return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
+
+
+def _require_external_binding(p:list[str], binding:object, *, prefix:str, bound_digest_key:str, expected_digest:str, operator_domain:str|None=None)->Mapping[str,Any]:
+    if not isinstance(binding, Mapping):
+        p.append(f"{prefix}_EVIDENCE_REQUIRED")
+        return {}
+    if binding.get(bound_digest_key) != expected_digest:
+        p.append(f"{prefix}_DIGEST_MISMATCH")
+    if binding.get("source_kind") not in EXTERNAL_EVIDENCE_SOURCE_KINDS:
+        p.append(f"{prefix}_SOURCE_NOT_INDEPENDENT")
+    if binding.get("candidate_self_derived") is not False:
+        p.append(f"{prefix}_CANDIDATE_SELF_DERIVATION_FORBIDDEN")
+    if not binding.get("evidence_digest") or not binding.get("authority_id") or not binding.get("authority_control_domain_id"):
+        p.append(f"{prefix}_AUTHORITY_EVIDENCE_INCOMPLETE")
+    if operator_domain and binding.get("authority_control_domain_id") == operator_domain:
+        p.append(f"{prefix}_OPERATOR_SELF_ATTESTATION_FORBIDDEN")
+    return binding
 
 
 def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
@@ -19,8 +37,11 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
     witnesses=b.get("witnesses") if isinstance(b.get("witnesses"),list) else []
     policy=b.get("witness_policy") if isinstance(b.get("witness_policy"),Mapping) else {}
     if not isinstance(b.get("admission_records"),list): p.append("ADMISSION_RECORD_SET_REQUIRED")
+    elif not admissions: p.append("ADMISSION_RECORD_SET_EMPTY")
     if not isinstance(b.get("kernel_decisions"),list): p.append("KERNEL_DECISION_SET_REQUIRED")
+    elif not decisions: p.append("KERNEL_DECISION_SET_EMPTY")
     if not isinstance(b.get("application_records"),list): p.append("APPLICATION_RECORD_SET_REQUIRED")
+    elif not apps: p.append("APPLICATION_RECORD_SET_EMPTY")
     by_adm={}; prev=None
     for r in admissions:
         aid=r.get("admission_id") if isinstance(r,Mapping) else None
@@ -31,7 +52,6 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
             if not r.get(k): p.append(f"ADMISSION_FIELD_MISSING:{aid}:{k}")
         if r.get("generation_id")!=gen: p.append(f"ADMISSION_GENERATION_MISMATCH:{aid}")
         if r.get("state") not in {"CURRENT","REVOKED","SUPERSEDED","STALE"}: p.append(f"ADMISSION_STATE_INVALID:{aid}")
-        # ordered input is the append-only logical ledger; predecessor link must match previous digest.
         if prev is None:
             if r.get("predecessor_record_digest") not in {None,"GENESIS"}: p.append(f"ADMISSION_GENESIS_PREDECESSOR_INVALID:{aid}")
         elif r.get("predecessor_record_digest")!=prev: p.append(f"ADMISSION_PREDECESSOR_MISMATCH:{aid}")
@@ -70,17 +90,31 @@ def validate_i6_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
         if d.get("state")=="APPLIED":
             matches=[a for a in apps if a.get("decision_id")==did]
             if len(matches)!=1: p.append(f"APPLIED_DECISION_APPLICATION_RECORD_COUNT_INVALID:{did}:{len(matches)}")
-    # independent witness quorum
     root_domains=set(b.get("root_threshold_capable_operational_domains",[])) if isinstance(b.get("root_threshold_capable_operational_domains"),list) else set()
     operator=policy.get("ledger_operator_control_domain_id")
+    _require_external_binding(p,b.get("witness_policy_evidence"),prefix="WITNESS_POLICY",bound_digest_key="policy_digest",expected_digest=digest(policy),operator_domain=operator)
+    _require_external_binding(p,b.get("root_domain_inventory_evidence"),prefix="ROOT_DOMAIN_INVENTORY",bound_digest_key="root_domains_digest",expected_digest=digest(sorted(root_domains)),operator_domain=operator)
     required=int(policy.get("required_count",0)) if isinstance(policy.get("required_count"),int) else 0
     if required<2: p.append("WITNESS_REQUIRED_COUNT_TOO_LOW")
     current=[]
     for w in witnesses:
         if not isinstance(w,Mapping): p.append("WITNESS_MALFORMED"); continue
         if w.get("state")!="CURRENT": continue
-        if w.get("generation_id")!=gen: p.append(f"WITNESS_GENERATION_MISMATCH:{w.get('witness_id')}")
-        if not w.get("control_domain_id"): p.append(f"WITNESS_CONTROL_DOMAIN_REQUIRED:{w.get('witness_id')}")
+        wid=w.get("witness_id")
+        if w.get("generation_id")!=gen: p.append(f"WITNESS_GENERATION_MISMATCH:{wid}")
+        if not w.get("control_domain_id"): p.append(f"WITNESS_CONTROL_DOMAIN_REQUIRED:{wid}")
+        ev=w.get("independence_evidence")
+        if not isinstance(ev,Mapping):
+            p.append(f"WITNESS_INDEPENDENCE_EVIDENCE_REQUIRED:{wid}")
+        else:
+            if ev.get("witness_id")!=wid or ev.get("control_domain_id")!=w.get("control_domain_id") or ev.get("generation_id")!=gen:
+                p.append(f"WITNESS_INDEPENDENCE_EVIDENCE_BINDING_INVALID:{wid}")
+            if not ev.get("evidence_digest") or not ev.get("attestor_authority_id") or not ev.get("attestor_control_domain_id"):
+                p.append(f"WITNESS_INDEPENDENCE_EVIDENCE_INCOMPLETE:{wid}")
+            if ev.get("source_kind") not in EXTERNAL_EVIDENCE_SOURCE_KINDS or ev.get("candidate_self_derived") is not False:
+                p.append(f"WITNESS_INDEPENDENCE_EVIDENCE_NOT_EXTERNAL:{wid}")
+            if ev.get("attestor_control_domain_id") in {w.get("control_domain_id"),operator}:
+                p.append(f"WITNESS_INDEPENDENCE_SELF_ATTESTATION_FORBIDDEN:{wid}")
         current.append(w)
     domains={w.get("control_domain_id") for w in current if w.get("control_domain_id")}
     if len(current)<required or len(domains)<required: p.append("WITNESS_QUORUM_INSUFFICIENT")
