@@ -1,0 +1,54 @@
+{
+  "binding_id": "V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V4",
+  "packet_name": "V24_I11_Systemic_Remediation_Design_V4_Clean_Review_Packet.md",
+  "packet_storage": {
+    "format": "ordered_base64_chunks_of_gzip_packet",
+    "manifest_path": "remediation/v24/packet-v4/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V4-PACKET-MANIFEST.json",
+    "manifest_commit": "27777fe3b5a31b95e331fc70b999032e8b203f44",
+    "manifest_git_blob": "679f453e55b7e03f66487f97420944a94c42eb93",
+    "gzip_sha256": "9c1cc20b4cb417d9c43766b547e2157473a08d5b1fe5c75cd3cb05efac9b9f18",
+    "chunks": [
+      {
+        "path": "remediation/v24/packet-v4/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V4-PACKET-PART-01.b64",
+        "commit": "dee078595f20256e2a52f3da9ab2201ec3e89af3",
+        "sha256": "b6f550f9be178bea1c1c4b82d828a8e082d6f38dee270ff9180b2df0242768ec"
+      },
+      {
+        "path": "remediation/v24/packet-v4/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V4-PACKET-PART-02.b64",
+        "commit": "e247f41aa3554096a7118ee2aedf45a518f89dc0",
+        "sha256": "05bf098b325d0f45d3f85d73dc75e9216c4fb2a8a975179772b27e7b27d802bc"
+      }
+    ]
+  },
+  "raw_packet_sha256": "cf9a93b412eaac8c78aae72ca4dd0a65a59d2698de080011a9b4093fd657cf03",
+  "plan_body_sha256": "532e9f80eab5c4066ec4c75ed37ae85bc9440d6abc57521e03e0894984e3d8cf",
+  "packet_bytes": 20980,
+  "frozen_v24_design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "frozen_v24_design_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "frozen_i10_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "frozen_i10_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "v8_falsification_packet_sha256": "e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e",
+  "v8_falsification_body_sha256": "3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab",
+  "scientific_root_cause_consolidation_commit": "3d506cfdc71b10f2f03e05c3ce5a6355b0c2a71e",
+  "predecessor_v3": {
+    "head": "96240fec9384f9718241ecfb87ba30a5d3bdda3a",
+    "tree": "176a6645fd5cc1ebb5332b17a1271b294ea93e9a",
+    "canonical_self_hash": "d9a4b58870ae12829d3f0ee64e86279ddc24bd2f1d89f9801cb5c5b4de95c58f",
+    "raw_sha256": "46d450fb32855b79c250417c0bbcb6fadb025c8e1360fab47cd0f0762e3f6c07",
+    "body_sha256": "ebeb3d54c8b519c21004614834050771e87aa471fdfc957a28968ffb4f58855c",
+    "review_artifact_path": "remediation/v24/reviews/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V3-INDEPENDENT-REVIEW-001.md",
+    "review_artifact_commit": "b453f46805372316d73084b035179ff48dbf6b29",
+    "review_artifact_git_blob": "4c1cb715afc50152249f613100f5b15549cdb25c",
+    "review_artifact_sha256": "a6e6f821e19a6b469b3d29d4cdad4104e824bbadd06e9de8f2f8bacea3f49e4f",
+    "adjudication_path": "remediation/v24/adjudication/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V3-REVIEW-ADJUDICATION-001.md",
+    "adjudication_commit": "05f98cff2cbb3985df3061afa3f7123856076e15",
+    "adjudication_git_blob": "74dbfce0caa4dd378fdb0cd687d4a2cd304613b6",
+    "adjudication_sha256": "73bf20efaec4e10a1f3694b862ce5ceb8e96aa1c7e96d92d5da7bbf133011488",
+    "review_disposition": "NEEDS_REVISION"
+  },
+  "review_convergence_contract": "V4_SECTION_17",
+  "implementation_status": "NOT_STARTED",
+  "review_status": "REQUIRED",
+  "review_admissibility": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW; HUMAN_OR_AI; NO_AUTOMATED_REVIEWER_API_CALLS",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
