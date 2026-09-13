@@ -1,0 +1,56 @@
+name: V24 I11 Scientific Cluster A
+
+on:
+  push:
+    branches:
+      - testing/v24-i11-scientific-cluster-a-v1
+    paths:
+      - 'testing/v24/execute_v24_i11_cluster_a.py'
+      - '.github/workflows/v24-i11-scientific-cluster-a.yml'
+      - 'testing/v24/v24_i11_execution_harness_v1.py'
+      - 'testing/v24/v24_i11_harness_contract_v7.py'
+      - 'testing/v24/v24_i11_case_specs_v8.py'
+      - 'governance-runtime/normative_control_catalog.py'
+      - 'governance-runtime/v24_endpoint_proof_compiler.py'
+      - 'governance-runtime/v24_legacy_continuity_manifest.py'
+      - 'governance-runtime/v24_normative_bundle_preflight.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TZ: UTC
+  PYTHONHASHSEED: '0'
+
+jobs:
+  cluster-a-scientific:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Verify exact pre-science ancestry
+        shell: bash
+        run: |
+          git merge-base --is-ancestor e9a02e722edcd5e16b82abeeb37f7ab68c9295bf "$GITHUB_SHA"
+          test "$(git rev-parse e9a02e722edcd5e16b82abeeb37f7ab68c9295bf^{tree})" = "f9de48189b7d304f50f169277dc1b4dceb642546"
+
+      - name: Execute Cluster A scientific cases
+        run: python testing/v24/execute_v24_i11_cluster_a.py
+
+      - name: Show exact scientific result
+        shell: bash
+        run: cat testing/v24/results/V24-I11-CLUSTER-A-SCIENTIFIC-RESULT.json
+
+      - name: Preserve result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-i11-cluster-a-scientific-result
+          path: testing/v24/results/V24-I11-CLUSTER-A-SCIENTIFIC-RESULT.json
+          if-no-files-found: error
