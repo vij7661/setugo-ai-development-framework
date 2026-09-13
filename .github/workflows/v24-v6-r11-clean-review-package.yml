@@ -31,6 +31,8 @@ jobs:
           CANDIDATE='68ce0df63ce0133ae19ec4402b41c4c09adfb54e'
           CANDIDATE_TREE='d202b039285213b386557083a26de42e0fb20cf4'
           DESIGN_COMMIT='0e1c6dd99e608d6771df98549bb28a9b92b8e7a0'
+          DESIGN_SOURCE='remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          DESIGN_SOURCE_BLOB='8682df137aa12d57927e7891c16048e90b04caac'
           DESIGN_BLOB='4a15d50a0488464816d235b273d1dbf808fdce94'
 
           git fetch --no-tags --depth=1 origin "$REVIEW_META"
@@ -38,11 +40,13 @@ jobs:
           git fetch --no-tags --depth=1 origin "$DESIGN_COMMIT"
 
           test "$(git rev-parse "$CANDIDATE^{tree}")" = "$CANDIDATE_TREE"
-          git cat-file -e "$DESIGN_BLOB"
+          test "$(git rev-parse "$DESIGN_COMMIT:$DESIGN_SOURCE")" = "$DESIGN_SOURCE_BLOB"
 
           echo "R11_REVIEW_META=$REVIEW_META" >> "$GITHUB_ENV"
           echo "R11_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
           echo "R11_CANDIDATE_TREE=$CANDIDATE_TREE" >> "$GITHUB_ENV"
+          echo "R11_DESIGN_COMMIT=$DESIGN_COMMIT" >> "$GITHUB_ENV"
+          echo "R11_DESIGN_SOURCE=$DESIGN_SOURCE" >> "$GITHUB_ENV"
           echo "R11_DESIGN_BLOB=$DESIGN_BLOB" >> "$GITHUB_ENV"
 
       - name: Verify fixed review-side object identities
@@ -80,12 +84,13 @@ jobs:
           import pathlib
           import shutil
           import subprocess
-          import sys
           import zipfile
 
           REVIEW_META = os.environ['R11_REVIEW_META']
           CANDIDATE = os.environ['R11_CANDIDATE']
           CANDIDATE_TREE = os.environ['R11_CANDIDATE_TREE']
+          DESIGN_COMMIT = os.environ['R11_DESIGN_COMMIT']
+          DESIGN_SOURCE = os.environ['R11_DESIGN_SOURCE']
           DESIGN_BLOB = os.environ['R11_DESIGN_BLOB']
           ROOT_NAME = 'V24-I11-V6-R11-CLEAN-REVIEW'
           OUT = pathlib.Path(os.environ['RUNNER_TEMP']) / 'r11-clean-review-package'
@@ -96,6 +101,11 @@ jobs:
           PINSET_SHA256 = 'dfd5663e767ae507a0c695bd8484f9d1e338eda96c775a6a2eb304f4cbbcea14'
           GENERATED_VERIFICATION_SHA256 = '27e524dc6efd569dd9462097933926c2fda648ec47eb2475f11078f6469f75e7'
           STATIC_VERIFICATION_SHA256 = 'bb9786661b5b996c4b3ed185d981879cd9b93b56aa941f486958fcd1795c9c35'
+          DESIGN_SOURCE_BLOB = '8682df137aa12d57927e7891c16048e90b04caac'
+          DESIGN_SOURCE_SHA256 = '5164747405b2de4d97228318a200e97c6b9c0e2afe58e4daddf09fe804bbc9d9'
+          DESIGN_SOURCE_BYTES = 19296
+          DESIGN_INSERT_OFFSET = 17321
+          DESIGN_PRECONDITION = b'## 18A. Mandatory V6 adversarial review checks'
           DESIGN_SHA256 = '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62'
           DESIGN_BYTES = 19297
 
@@ -117,6 +127,10 @@ jobs:
 
           def sha256(data: bytes) -> str:
               return hashlib.sha256(data).hexdigest()
+
+          def git_blob_sha1(data: bytes) -> str:
+              header = f'blob {len(data)}\0'.encode('ascii')
+              return hashlib.sha1(header + data).hexdigest()
 
           def write_bytes(rel: str, data: bytes) -> None:
               p = STAGE / rel
@@ -173,9 +187,19 @@ jobs:
                   raise SystemExit(f'ADMITTED_RAW_SHA256_MISMATCH:{path}')
               write_bytes(f'candidate/{path}', data)
 
-          design = subprocess.check_output(['git', 'cat-file', 'blob', DESIGN_BLOB])
+          source_blob = subprocess.check_output(['git', 'rev-parse', f'{DESIGN_COMMIT}:{DESIGN_SOURCE}'], text=True).strip()
+          if source_blob != DESIGN_SOURCE_BLOB:
+              raise SystemExit('APPROVED_DESIGN_SOURCE_BLOB_MISMATCH')
+          source = git_bytes(f'{DESIGN_COMMIT}:{DESIGN_SOURCE}')
+          if len(source) != DESIGN_SOURCE_BYTES or sha256(source) != DESIGN_SOURCE_SHA256:
+              raise SystemExit('APPROVED_DESIGN_SOURCE_IDENTITY_MISMATCH')
+          if source[DESIGN_INSERT_OFFSET:DESIGN_INSERT_OFFSET + len(DESIGN_PRECONDITION)] != DESIGN_PRECONDITION:
+              raise SystemExit('APPROVED_DESIGN_RECONSTRUCTION_PRECONDITION_MISMATCH')
+          design = source[:DESIGN_INSERT_OFFSET] + b'\n' + source[DESIGN_INSERT_OFFSET:]
           if len(design) != DESIGN_BYTES or sha256(design) != DESIGN_SHA256:
-              raise SystemExit('APPROVED_DESIGN_IDENTITY_MISMATCH')
+              raise SystemExit('APPROVED_DESIGN_RECONSTRUCTED_SHA256_MISMATCH')
+          if git_blob_sha1(design) != DESIGN_BLOB:
+              raise SystemExit('APPROVED_DESIGN_RECONSTRUCTED_GIT_BLOB_MISMATCH')
           write_bytes('design/V24-I11-V6-APPROVED-DESIGN-EXACT.md', design)
 
           generated_ver = (STAGE / 'external/V24-I11-V6-R11-EXTERNAL-VERIFICATION.json').read_bytes()
@@ -218,6 +242,12 @@ jobs:
               },
               'review_metadata_commit': REVIEW_META,
               'approved_v6_design': {
+                  'source_commit': DESIGN_COMMIT,
+                  'source_path': DESIGN_SOURCE,
+                  'source_git_blob_sha1': DESIGN_SOURCE_BLOB,
+                  'source_raw_sha256': DESIGN_SOURCE_SHA256,
+                  'source_bytes': DESIGN_SOURCE_BYTES,
+                  'reconstruction_operation': 'INSERT_LF_AT_ZERO_BASED_OFFSET_17321',
                   'git_blob_sha1': DESIGN_BLOB,
                   'bytes': DESIGN_BYTES,
                   'raw_sha256': DESIGN_SHA256,
@@ -286,6 +316,8 @@ jobs:
               'frozen_candidate_commit': CANDIDATE,
               'frozen_candidate_tree': CANDIDATE_TREE,
               'review_metadata_commit': REVIEW_META,
+              'approved_design_git_blob_sha1': DESIGN_BLOB,
+              'approved_design_raw_sha256': DESIGN_SHA256,
               'zip_sha256': zip_sha,
               'manifest_sha256': manifest_sha,
               'zip_bytes': ZIP1.stat().st_size,
@@ -304,6 +336,7 @@ jobs:
           print(f'PACKAGE_MANIFEST_SHA256={manifest_sha}')
           print(f'PACKAGE_ZIP_BYTES={ZIP1.stat().st_size}')
           print(f'PACKAGE_ENTRY_COUNT={len(expected)}')
+          print('APPROVED_DESIGN_RECONSTRUCTION=PASS')
           print('DETERMINISTIC_DOUBLE_BUILD=PASS')
           print('CONTENT_REVERIFICATION=PASS')
           PY
