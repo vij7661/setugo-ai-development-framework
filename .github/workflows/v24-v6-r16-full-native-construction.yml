@@ -1,0 +1,280 @@
+name: V24 V6 R16 Full Native Construction
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r16-external-authority
+    paths:
+      - 'review/v24/r16_native_observer.c'
+      - 'review/v24/r16_trusted_external_oracle.py'
+      - 'review/v24/r16_trusted_external_guard.py'
+      - 'review/v24/r16_trusted_falsification.py'
+      - '.github/workflows/v24-v6-r16-full-native-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Bind exact R16 candidate and external authority separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='7c8ae745ff8270122c0cf05e123b8108af04eaad'
+          T='9d8db8766fee1eb76e24d62ca88d8b04ea8e3b58'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          for p in review/v24/r16_native_observer.c review/v24/r16_trusted_external_oracle.py review/v24/r16_trusted_external_guard.py review/v24/r16_trusted_falsification.py; do
+            if git cat-file -e "$C:$p" 2>/dev/null; then
+              echo "R16_EXTERNAL_AUTHORITY_OBJECT_IN_CANDIDATE:$p"; exit 1
+            fi
+          done
+          SRC="$RUNNER_TEMP/r16-source"; rm -rf "$SRC"; mkdir -p "$SRC"; git archive "$C" | tar -xf - -C "$SRC"
+          echo "C=$C" >> "$GITHUB_ENV"
+          echo "T=$T" >> "$GITHUB_ENV"
+          echo "SRC=$SRC" >> "$GITHUB_ENV"
+          echo "RC=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+
+      - name: Build and stage exact external pinset
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          G="$GITHUB_WORKSPACE/review/v24/r16_trusted_external_guard.py"
+          P="$RUNNER_TEMP/V24-I11-V6-R16-EXTERNAL-PINSET.json"
+          X="$RUNNER_TEMP/r16-sandbox"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" build-pinset --root "$SRC" --commit "$C" --tree "$T" --review-commit "$RC" --output "$P"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-source --root "$SRC" --pinset "$P" --commit "$C" --tree "$T"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" stage --root "$SRC" --pinset "$P" --commit "$C" --tree "$T" --target "$X"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-sandbox --root "$X" --pinset "$P" --commit "$C" --tree "$T"
+          echo "PINSET=$P" >> "$GITHUB_ENV"
+          echo "PINSET_SHA=$(sha256sum "$P" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "SANDBOX=$X" >> "$GITHUB_ENV"
+
+      - name: Bind trusted source set and scenario library before use
+        shell: bash
+        run: |
+          set -euo pipefail
+          SCEN='review/v24/r13_trusted_external_oracle.py'
+          test "$(git rev-parse "HEAD:$SCEN")" = 'f0f72ca65eb443fd2db2917622a327256d15db05'
+          python - <<'PY'
+          import hashlib,json,os,pathlib,subprocess
+          rows=[]
+          specs=[
+            ('review/v24/r16_native_observer.c','NATIVE_AUTHORITY_SOURCE'),
+            ('review/v24/r16_trusted_external_oracle.py','TRUSTED_ORACLE_SOURCE'),
+            ('review/v24/r13_trusted_external_oracle.py','TRUSTED_ORACLE_SOURCE'),
+            ('review/v24/r16_trusted_external_guard.py','NATIVE_BUILD_SUPPORT'),
+            ('review/v24/r16_trusted_falsification.py','NATIVE_BUILD_SUPPORT'),
+          ]
+          for path,role in specs:
+              raw=pathlib.Path(path).read_bytes()
+              blob=subprocess.check_output(['git','rev-parse',f'HEAD:{path}'],text=True).strip()
+              check=hashlib.sha1(f'blob {len(raw)}\0'.encode()+raw).hexdigest()
+              assert blob==check,(path,blob,check)
+              rows.append({'path':path,'git_blob_sha1':blob,'raw_sha256':hashlib.sha256(raw).hexdigest(),'role':role})
+          rows.sort(key=lambda x:x['path'])
+          canonical=json.dumps(rows,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r16-trusted-sources.json'
+          out.write_text(json.dumps(rows,indent=2,sort_keys=True)+'\n')
+          digest=hashlib.sha256(canonical).hexdigest()
+          scenario=pathlib.Path('review/v24/r13_trusted_external_oracle.py').read_bytes()
+          env=pathlib.Path(os.environ['GITHUB_ENV'])
+          with env.open('a') as f:
+              f.write(f'TRUSTED_SOURCES={out}\n')
+              f.write(f'SOURCE_SET_DIGEST={digest}\n')
+              f.write(f'SCENARIO_SHA={hashlib.sha256(scenario).hexdigest()}\n')
+              f.write('SCENARIO_BLOB=f0f72ca65eb443fd2db2917622a327256d15db05\n')
+              for row in rows:
+                  key=row['path'].split('/')[-1].replace('.','_').upper()
+                  f.write(f'BLOB_{key}={row["git_blob_sha1"]}\n')
+                  f.write(f'SHA_{key}={row["raw_sha256"]}\n')
+          print('R16_TRUSTED_SOURCE_COUNT='+str(len(rows)))
+          print('R16_TRUSTED_SOURCE_SET_DIGEST='+digest)
+          PY
+
+      - name: Compile exact R16 native authority binary and bind environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREFIX="$(python -c 'import sys;print(sys.prefix)')"
+          PROGRAM="$(python -c 'import sys;print(sys.executable)')"
+          LIBDIR="$(python -c 'import sysconfig;print(sysconfig.get_config_var("LIBDIR"))')"
+          BIN="$RUNNER_TEMP/r16-native"
+          gcc -O2 -Wall -Wextra -Werror -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DR16_PYTHON_HOME='"'"$PREFIX"'"' \
+            -DR16_PYTHON_PROGRAM='"'"$PROGRAM"'"' \
+            review/v24/r16_native_observer.c \
+            -pie -o "$BIN" $(python3-config --embed --ldflags) -lcrypto \
+            -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          BSHA="$(sha256sum "$BIN" | awk '{print $1}')"
+          NATIVE_SOURCE_SHA="$(sha256sum review/v24/r16_native_observer.c | awk '{print $1}')"
+          NATIVE_SOURCE_BLOB="$(git rev-parse HEAD:review/v24/r16_native_observer.c)"
+          COMPILER_DIGEST="$({ gcc --version; python3-config --includes; python3-config --embed --ldflags; printf '%s\n' "$PREFIX" "$PROGRAM" "$SOURCE_SET_DIGEST"; } | sha256sum | awk '{print $1}')"
+          python - "$BIN" <<'PY'
+          import hashlib,json,os,pathlib,subprocess,sys
+          binary=pathlib.Path(sys.argv[1])
+          libs=[]
+          for line in subprocess.check_output(['ldd',str(binary)],text=True).splitlines():
+              parts=line.strip().split()
+              candidates=[p for p in parts if p.startswith('/')]
+              if not candidates: continue
+              p=pathlib.Path(candidates[0]);
+              if p.is_file(): libs.append({'path':str(p.resolve()),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+          libs.sort(key=lambda x:x['path'])
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'r16-linked-libraries.json';out.write_text(json.dumps(libs,indent=2,sort_keys=True)+'\n')
+          d=hashlib.sha256(json.dumps(libs,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+          with pathlib.Path(os.environ['GITHUB_ENV']).open('a') as f:
+              f.write(f'LINKED_LIBRARIES={out}\n');f.write(f'LINKED_LIBRARIES_DIGEST={d}\n')
+          print('R16_LINKED_LIBRARY_DIGEST='+d)
+          PY
+          ORACLE="$GITHUB_WORKSPACE/review/v24/r16_trusted_external_oracle.py"
+          ID="$(env -i HOME="$HOME" PATH="$(dirname "$PROGRAM"):/usr/bin:/bin" "$PROGRAM" -B -I -S - "$ORACLE" <<'PY'
+          import importlib.util,pathlib,sys
+          p=pathlib.Path(sys.argv[1]);spec=importlib.util.spec_from_file_location('r16_oracle_contract',p);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);print(m.actual_interpreter_contract()['contract_digest'])
+          PY
+          )"
+          ED="$(python - "$C" "$T" "$PINSET_SHA" "$BSHA" "$NATIVE_SOURCE_BLOB" "$NATIVE_SOURCE_SHA" "$SOURCE_SET_DIGEST" "$COMPILER_DIGEST" "$LINKED_LIBRARIES_DIGEST" "$ID" <<'PY'
+          import hashlib,json,sys
+          print(hashlib.sha256(json.dumps(sys.argv[1:],sort_keys=False,separators=(',',':')).encode()).hexdigest())
+          PY
+          )"
+          echo "BIN=$BIN" >> "$GITHUB_ENV"
+          echo "BSHA=$BSHA" >> "$GITHUB_ENV"
+          echo "NATIVE_SOURCE_SHA=$NATIVE_SOURCE_SHA" >> "$GITHUB_ENV"
+          echo "NATIVE_SOURCE_BLOB=$NATIVE_SOURCE_BLOB" >> "$GITHUB_ENV"
+          echo "COMPILER_DIGEST=$COMPILER_DIGEST" >> "$GITHUB_ENV"
+          echo "INTERPRETER_DIGEST=$ID" >> "$GITHUB_ENV"
+          echo "ENVIRONMENT_DIGEST=$ED" >> "$GITHUB_ENV"
+          echo "R16_NATIVE_BINARY_SHA256=$BSHA"
+          echo "R16_COMPILER_DIGEST=$COMPILER_DIGEST"
+          echo "R16_INTERPRETER_DIGEST=$ID"
+          echo "R16_ENVIRONMENT_DIGEST=$ED"
+
+      - name: Run six randomized trusted external-oracle scenarios on exact sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          O="$GITHUB_WORKSPACE/review/v24/r16_trusted_external_oracle.py"
+          SCL="$GITHUB_WORKSPACE/review/v24/r13_trusted_external_oracle.py"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R16-ORACLE-EVIDENCE.json"
+          ORACLE_BLOB="$(git rev-parse HEAD:review/v24/r16_trusted_external_oracle.py)"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$O" \
+            --sandbox "$SANDBOX" --native-observer "$BIN" \
+            --scenario-library "$SCL" --scenario-library-sha256 "$SCENARIO_SHA" --scenario-library-git-blob-sha1 "$SCENARIO_BLOB" \
+            --candidate-commit "$C" --candidate-tree "$T" --environment-digest "$ENVIRONMENT_DIGEST" --interpreter-contract-digest "$INTERPRETER_DIGEST" \
+            --oracle-git-blob-sha1 "$ORACLE_BLOB" --native-observer-source-git-blob-sha1 "$NATIVE_SOURCE_BLOB" \
+            --native-observer-binary-sha256 "$BSHA" --native-source-set-digest "$SOURCE_SET_DIGEST" \
+            --run-id "$GITHUB_RUN_ID" --round-id 'R16-NATIVE-CONSTRUCTION-ROUND-1' --output "$OUT"
+          python - "$OUT" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1]));assert len(x['records'])==6,x
+          assert all(r['oracle_terminal_result']=='PASS' for r in x['records'])
+          assert x['candidate_frame_authenticated'] is False
+          assert x['authority_secret_in_candidate_address_space'] is False
+          assert x['scenario_library_verified_before_import'] is True
+          print('R16_SIX_EXTERNAL_ORACLE_CHECKS=PASS')
+          PY
+          echo "ORACLE_EVIDENCE=$OUT" >> "$GITHUB_ENV"
+          echo "ORACLE_EVIDENCE_SHA=$(sha256sum "$OUT" | awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Execute all fifteen R16 frozen falsification probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          F="$GITHUB_WORKSPACE/review/v24/r16_trusted_falsification.py"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R16-FALSIFICATION-EVIDENCE.json"
+          ORACLE_BLOB="$(git rev-parse HEAD:review/v24/r16_trusted_external_oracle.py)"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$F" \
+            --sandbox "$SANDBOX" --native-observer "$BIN" \
+            --native-source "$GITHUB_WORKSPACE/review/v24/r16_native_observer.c" --native-source-git-blob-sha1 "$NATIVE_SOURCE_BLOB" --native-source-sha256 "$NATIVE_SOURCE_SHA" \
+            --oracle "$GITHUB_WORKSPACE/review/v24/r16_trusted_external_oracle.py" \
+            --scenario-library "$GITHUB_WORKSPACE/review/v24/r13_trusted_external_oracle.py" --scenario-library-sha256 "$SCENARIO_SHA" --scenario-library-git-blob-sha1 "$SCENARIO_BLOB" \
+            --candidate-commit "$C" --candidate-tree "$T" --environment-digest "$ENVIRONMENT_DIGEST" --interpreter-contract-digest "$INTERPRETER_DIGEST" \
+            --oracle-git-blob-sha1 "$ORACLE_BLOB" --native-observer-binary-sha256 "$BSHA" --native-source-set-digest "$SOURCE_SET_DIGEST" \
+            --run-id "$GITHUB_RUN_ID" --round-id 'R16-FALSIFICATION-ROUND-1' --trusted-native-sources-json "$TRUSTED_SOURCES" --output "$OUT"
+          echo "FALSIFICATION_EVIDENCE=$OUT" >> "$GITHUB_ENV"
+          echo "FALSIFICATION_EVIDENCE_SHA=$(sha256sum "$OUT" | awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Validate R16 evidence bundle with candidate consistency validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S - "$SANDBOX" "$FALSIFICATION_EVIDENCE" <<'PY'
+          import json,pathlib,sys
+          root=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(root/'governance-runtime'))
+          from v24_v6_r16_successor import validate_r16_external_evidence
+          b=json.load(open(sys.argv[2]));r=validate_r16_external_evidence(b)
+          assert r['valid'],r
+          assert r['qualified'] is False
+          assert r['bound_probe_count']==15,r
+          print('R16_CANDIDATE_EVIDENCE_CONSISTENCY=PASS probes=15 qualified=false')
+          PY
+
+      - name: Verify exact sandbox remained byte-identical
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"; PATH0="$(dirname "$PY"):/usr/bin:/bin"
+          G="$GITHUB_WORKSPACE/review/v24/r16_trusted_external_guard.py"
+          env -i HOME="$HOME" PATH="$PATH0" "$PY" -B -I -S "$G" verify-sandbox --root "$SANDBOX" --pinset "$PINSET" --commit "$C" --tree "$T"
+
+      - name: Build construction verification record
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/V24-I11-V6-R16-CONSTRUCTION-VERIFICATION.json"
+          python - "$OUT" <<'PY'
+          import json,os,pathlib
+          rec={
+            'schema_version':1,'candidate_commit':os.environ['C'],'candidate_tree':os.environ['T'],'review_commit':os.environ['RC'],
+            'run_id':os.environ['GITHUB_RUN_ID'],'pinset_sha256':os.environ['PINSET_SHA'],'native_observer_source_git_blob_sha1':os.environ['NATIVE_SOURCE_BLOB'],
+            'native_observer_source_sha256':os.environ['NATIVE_SOURCE_SHA'],'native_observer_binary_sha256':os.environ['BSHA'],'trusted_native_source_set_digest':os.environ['SOURCE_SET_DIGEST'],
+            'compiler_digest':os.environ['COMPILER_DIGEST'],'linked_libraries_digest':os.environ['LINKED_LIBRARIES_DIGEST'],'interpreter_contract_digest':os.environ['INTERPRETER_DIGEST'],
+            'environment_digest':os.environ['ENVIRONMENT_DIGEST'],'oracle_evidence_sha256':os.environ['ORACLE_EVIDENCE_SHA'],'falsification_evidence_sha256':os.environ['FALSIFICATION_EVIDENCE_SHA'],
+            'external_oracle_checks':6,'r16_falsification_probes':15,'candidate_consistency_validator':'PASS_NONAUTHORITATIVE','post_execution_sandbox_exact':'PASS',
+            'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW','runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY'}
+          pathlib.Path(os.environ['RUNNER_TEMP']).joinpath('V24-I11-V6-R16-CONSTRUCTION-VERIFICATION.json').write_text(json.dumps(rec,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(rec,sort_keys=True))
+          PY
+          echo "CONSTRUCTION_VERIFICATION=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload R16 construction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r16-full-native-construction-evidence
+          path: |
+            ${{ env.PINSET }}
+            ${{ env.TRUSTED_SOURCES }}
+            ${{ env.LINKED_LIBRARIES }}
+            ${{ env.ORACLE_EVIDENCE }}
+            ${{ env.FALSIFICATION_EVIDENCE }}
+            ${{ env.CONSTRUCTION_VERIFICATION }}
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Construction posture
+        if: always()
+        run: |
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
