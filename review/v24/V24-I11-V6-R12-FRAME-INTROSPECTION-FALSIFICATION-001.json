@@ -1,0 +1,15 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_commit": "e887613f4e9012be59dcd8c4840035748ee0de7e",
+  "candidate_tree": "c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f",
+  "classification": "FAIL_CODE_DEFECT",
+  "expected_secure_behavior": "REJECT",
+  "false_green_reproduced": true,
+  "falsification_id": "V24-I11-V6-R12-FRAME-INTROSPECTION",
+  "observed_behavior": "ACCEPTED_FORGED_PASS",
+  "parent_output": "R12_PARENT_RESULT={\"actual_interpreter_flags\":{\"ignore_environment\":true,\"isolated\":true,\"no_site\":true,\"safe_path\":true},\"authority_effect\":\"NONE_EVIDENCE_ONLY\",\"authority_origin\":\"EXTERNAL_REVIEW_BRANCH\",\"candidate_commit\":\"e887613f4e9012be59dcd8c4840035748ee0de7e\",\"candidate_self_grant\":false,\"candidate_shared_trusted_result_state\":false,\"candidate_tree\":\"c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f\",\"environment_digest\":\"b10dee0fcf61889353bbd3acd588ebd26a6b73f7638a7f3763e15051720eb7d0\",\"execution_transcript_digest\":\"6acd937c688b366109f5c8800f18e7ac742d7bc47615eb3fcf8a011bfdfa143b\",\"interpreter_contract_digest\":\"e31061f983aad6250c4f0821c5fa019114e30f303b4c4602350961babb1e436f\",\"module_count\":20,\"result_accounting_origin\":\"TRUSTED_PARENT\",\"schema_version\":1,\"scientific_execution_state\":\"CLOSED_PENDING_SUCCESSOR_REVIEW\",\"test_count\":252,\"trusted_parent_imported_candidate\":false,\"worker_sha256\":\"c7d29fc4e216ec39727219b441303128af3e7f0f629784a8b6a5a21e9bb0d889\"}\n",
+  "parent_return_code": 0,
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "schema_version": 1,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW"
+}
