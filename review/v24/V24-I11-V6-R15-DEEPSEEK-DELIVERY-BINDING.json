@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "delivery_type": "SINGLE_MARKDOWN_TRANSPORT_PROJECTION",
+  "canonical_review_package": {
+    "name": "V24-I11-V6-R15-CLEAN-REVIEW.zip",
+    "bytes": 1453599,
+    "sha256": "c218d80951e112855f4a89234c4bfddbb651edb0be22de5d4dab87569ac5252d",
+    "entry_count": 216,
+    "candidate_file_count": 190,
+    "manifest_listed_file_count": 215,
+    "manifest_sha256": "1a57743d94cf00c67a04c460c1ad380f2b5fe4dd57b8feb1af927dab5f0e09af"
+  },
+  "delivery_projection": {
+    "name": "V24-I11-V6-R15-DEEPSEEK-CLEAN-MANUAL-REVIEW.md",
+    "bytes": 1479032,
+    "sha256": "f6373d3f2916d30c7f619f3b9318461a0c91faf9d92e9e9845839bced737ec82",
+    "embedded_canonical_zip_entries": 216,
+    "construction_method": "EMBED_EVERY_CANONICAL_ZIP_ENTRY_WITH_PATH_BYTES_SHA256_AND_VERBATIM_UTF8_OR_BASE64_PAYLOAD",
+    "canonical_package_identity_unchanged": true
+  },
+  "candidate": {
+    "commit": "2e875bb29be48d39c9be6f3525d4f4610869848c",
+    "tree": "d2c9c0c85564808941fdb54cfbbd53f51f5397ee"
+  },
+  "package_builder": {
+    "successful_run": "34776597035",
+    "artifact_id": "10323586833",
+    "outer_artifact_sha256": "cb9cf87cb72ce6142baf987a84cc9f63836ab3d8bc9ce24a5553336fb42fbd2f",
+    "workflow_commit": "c79b00046f28bf929835e443a6aeaa1d7a1576bb"
+  },
+  "review_rules": {
+    "fresh_clean_manual_context_required": true,
+    "automated_external_reviewer_api_calls": false,
+    "reviewer_must_follow_embedded_00_review_instructions": true,
+    "reviewer_result_must_be_returned_verbatim_for_repository_adjudication": true
+  },
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
