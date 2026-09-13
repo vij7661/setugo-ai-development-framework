@@ -1,0 +1,39 @@
+{
+  "binding_id": "WDPC-V24-I11-PLAN-V7-REVIEW-BINDING",
+  "packet_file": "WDPC_V24_I11_Falsification_Plan_V7_Clean_Review_Packet.md",
+  "packet_sha256": "bbf445b4a603dd9613d23b59db46f9b408518f14fe75283181bed131d2a59417",
+  "plan_body_sha256": "ac0114d7bb3149e7ef25cc9d359209fd7a7d67532af60141bd70ec4a422dd579",
+  "packet_bytes": 75506,
+  "harness_path": "testing/v24/v24_i11_harness_contract_v6.py",
+  "harness_blob_sha": "556bc723982a1452f61cfbb39e4756a81c7c9a37",
+  "harness_version": "1.5.0-PLAN-REVIEW",
+  "design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "design_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "implementation_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "implementation_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "review_admissibility": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW; HUMAN_OR_AI; NO_AUTOMATED_REVIEWER_API_CALLS",
+  "external_reviewer_repository_access_required": false,
+  "post_review_repository_adjudication_required": true,
+  "execution_status": "NOT_EXECUTED",
+  "blocked_cases": {
+    "WDPC-469": "BLOCKED_BY_I1_SEMANTIC_QUALIFICATION",
+    "WDPC-495": "BLOCKED_BY_I1_SEMANTIC_QUALIFICATION"
+  },
+  "ie_target_reasons": {
+    "WDPC-443": "IUDA shares prohibited effective control with candidate",
+    "WDPC-458": "required external completeness authority unavailable or independence unproven",
+    "WDPC-472": "exact current admission-ledger lineage cannot be established",
+    "WDPC-473": "completeness result lacks a bound durable ledger record",
+    "WDPC-474": "exact current completeness-ledger lineage cannot be established",
+    "WDPC-476": "capability attestation relies only on deployment self-report",
+    "WDPC-480": "universe projection lacks a qualifying bound UniverseDerivationDecisionRecord",
+    "WDPC-497": "unadmitted direct sink writer prevents closed-world qualification",
+    "WDPC-500": "operational root is relabeled independent without control-domain separation",
+    "WDPC-502": "ordinary IUDA lacks qualifying governed predecessor lineage",
+    "WDPC-504": "material sink lacks unavoidable deny-by-default admission boundary"
+  },
+  "required_conjunctive_invariants": {
+    "WDPC-457": ["HISTORICAL_RESULT_UNCHANGED"]
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
