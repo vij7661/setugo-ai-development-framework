@@ -27,6 +27,21 @@ OBSERVATION_TRANSPORT = "NATIVE_PARENT_AUTHENTICATED_FRAME"
 OBSERVATION_AUTH = "HMAC_SHA256_EPHEMERAL_NATIVE_PARENT"
 ORACLE_DECISION_ORIGIN = "TRUSTED_EXTERNAL_ORACLE"
 CANDIDATE_ROLE = "UNTRUSTED_EXECUTION_ONLY"
+CHILD_RUNTIME_ENFORCEMENT = "NATIVE_POST_INITIALIZATION_GUARD"
+CHILD_RUNTIME_FIELDS = frozenset({
+    "implementation",
+    "version",
+    "isolated",
+    "no_site",
+    "ignore_environment",
+    "safe_path",
+    "optimize",
+    "dont_write_bytecode",
+    "python_home",
+    "python_program",
+    "python_program_sha256",
+    "enforcement_origin",
+})
 
 
 def _hex(value: Any, n: int) -> bool:
@@ -37,17 +52,45 @@ def _nonempty(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+def _validate_child_runtime_contract(contract: Any) -> tuple[list[str], str]:
+    problems: list[str] = []
+    if not isinstance(contract, Mapping):
+        return ["R14_CHILD_RUNTIME_CONTRACT_REQUIRED"], digest({})
+    if set(contract) != CHILD_RUNTIME_FIELDS:
+        problems.append("R14_CHILD_RUNTIME_CONTRACT_FIELDS_INVALID")
+    if contract.get("implementation") != "cpython":
+        problems.append("R14_CHILD_RUNTIME_IMPLEMENTATION_INVALID")
+    version = contract.get("version")
+    if not isinstance(version, list) or len(version) < 3 or any(not isinstance(x, int) for x in version[:3]):
+        problems.append("R14_CHILD_RUNTIME_VERSION_INVALID")
+    for key in ("isolated", "no_site", "ignore_environment", "safe_path", "dont_write_bytecode"):
+        if contract.get(key) is not True:
+            problems.append(f"R14_CHILD_RUNTIME_FLAG_NOT_TRUE:{key}")
+    if contract.get("optimize") != 0:
+        problems.append("R14_CHILD_RUNTIME_OPTIMIZATION_INVALID")
+    if not _nonempty(contract.get("python_home")):
+        problems.append("R14_CHILD_RUNTIME_HOME_REQUIRED")
+    if not _nonempty(contract.get("python_program")):
+        problems.append("R14_CHILD_RUNTIME_PROGRAM_REQUIRED")
+    if not _hex(contract.get("python_program_sha256"), 64):
+        problems.append("R14_CHILD_RUNTIME_PROGRAM_DIGEST_INVALID")
+    if contract.get("enforcement_origin") != CHILD_RUNTIME_ENFORCEMENT:
+        problems.append("R14_CHILD_RUNTIME_ENFORCEMENT_INVALID")
+    return problems, digest(dict(contract))
+
+
 def _record_material(record: Mapping[str, Any]) -> dict[str, Any]:
     keys = (
         "check_id", "challenge_digest", "request_digest", "observation_digest",
         "assertion_digest", "candidate_commit", "candidate_tree",
         "environment_digest", "interpreter_contract_digest",
-        "native_observer_source_git_blob_sha1", "native_observer_binary_sha256",
-        "native_observer_compiler_digest", "oracle_git_blob_sha1", "run_id",
-        "round_id", "candidate_process_role", "observation_transport",
-        "observation_authentication", "native_parent_initializes_python",
-        "trusted_parent_imports_candidate_python", "oracle_decision_origin",
-        "oracle_control_domain", "candidate_control_domain",
+        "child_runtime_contract_digest", "native_observer_source_git_blob_sha1",
+        "native_runtime_binding_source_git_blob_sha1",
+        "native_observer_binary_sha256", "native_observer_compiler_digest",
+        "oracle_git_blob_sha1", "run_id", "round_id", "candidate_process_role",
+        "observation_transport", "observation_authentication",
+        "native_parent_initializes_python", "trusted_parent_imports_candidate_python",
+        "oracle_decision_origin", "oracle_control_domain", "candidate_control_domain",
         "oracle_terminal_result", "r13_tailored_frame_regression",
         "r13_tailored_frame_regression_evidence_digest",
     )
@@ -56,7 +99,7 @@ def _record_material(record: Mapping[str, Any]) -> dict[str, Any]:
 
 def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
     problems: list[str] = []
-    if bundle.get("schema_version") != 1:
+    if bundle.get("schema_version") != 2:
         problems.append("R14_NATIVE_EVIDENCE_SCHEMA_INVALID")
     if bundle.get("authority_origin") != EXTERNAL_AUTHORITY_ORIGIN:
         problems.append("R14_NATIVE_EVIDENCE_AUTHORITY_ORIGIN_INVALID")
@@ -78,15 +121,22 @@ def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> di
     env_digest = bundle.get("environment_digest")
     interpreter_digest = bundle.get("interpreter_contract_digest")
     native_source = bundle.get("native_observer_source_git_blob_sha1")
+    runtime_binding_source = bundle.get("native_runtime_binding_source_git_blob_sha1")
     native_binary = bundle.get("native_observer_binary_sha256")
     compiler_digest = bundle.get("native_observer_compiler_digest")
     oracle_blob = bundle.get("oracle_git_blob_sha1")
     r13_regression_digest = bundle.get("r13_tailored_frame_regression_evidence_digest")
+    child_contract_problems, child_runtime_digest = _validate_child_runtime_contract(bundle.get("child_runtime_contract"))
+    problems.extend(child_contract_problems)
+    if bundle.get("child_runtime_contract_digest") != child_runtime_digest:
+        problems.append("R14_CHILD_RUNTIME_CONTRACT_DIGEST_MISMATCH")
+
     if not _hex(commit, 40): problems.append("R14_CANDIDATE_COMMIT_INVALID")
     if not _hex(tree, 40): problems.append("R14_CANDIDATE_TREE_INVALID")
     if not _hex(env_digest, 64): problems.append("R14_ENVIRONMENT_DIGEST_INVALID")
     if not _hex(interpreter_digest, 64): problems.append("R14_INTERPRETER_DIGEST_INVALID")
     if not _hex(native_source, 40): problems.append("R14_NATIVE_SOURCE_BLOB_INVALID")
+    if not _hex(runtime_binding_source, 40): problems.append("R14_RUNTIME_BINDING_SOURCE_BLOB_INVALID")
     if not _hex(native_binary, 64): problems.append("R14_NATIVE_BINARY_DIGEST_INVALID")
     if not _hex(compiler_digest, 64): problems.append("R14_COMPILER_DIGEST_INVALID")
     if not _hex(oracle_blob, 40): problems.append("R14_ORACLE_BLOB_INVALID")
@@ -121,7 +171,9 @@ def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> di
         if raw.get("candidate_tree") != tree: problems.append(f"R14_NATIVE_TREE_MISMATCH:{check_id}")
         if raw.get("environment_digest") != env_digest: problems.append(f"R14_NATIVE_ENVIRONMENT_MISMATCH:{check_id}")
         if raw.get("interpreter_contract_digest") != interpreter_digest: problems.append(f"R14_NATIVE_INTERPRETER_MISMATCH:{check_id}")
+        if raw.get("child_runtime_contract_digest") != child_runtime_digest: problems.append(f"R14_CHILD_RUNTIME_MISMATCH:{check_id}")
         if raw.get("native_observer_source_git_blob_sha1") != native_source: problems.append(f"R14_NATIVE_SOURCE_MISMATCH:{check_id}")
+        if raw.get("native_runtime_binding_source_git_blob_sha1") != runtime_binding_source: problems.append(f"R14_RUNTIME_BINDING_SOURCE_MISMATCH:{check_id}")
         if raw.get("native_observer_binary_sha256") != native_binary: problems.append(f"R14_NATIVE_BINARY_MISMATCH:{check_id}")
         if raw.get("native_observer_compiler_digest") != compiler_digest: problems.append(f"R14_NATIVE_COMPILER_MISMATCH:{check_id}")
         if raw.get("oracle_git_blob_sha1") != oracle_blob: problems.append(f"R14_ORACLE_BLOB_MISMATCH:{check_id}")
@@ -159,6 +211,7 @@ def validate_native_observation_evidence_bundle(bundle: Mapping[str, Any]) -> di
         "problems": problems,
         "required_check_count": len(REQUIRED_R14_CHECKS),
         "bound_check_count": len(by_id),
+        "child_runtime_contract_digest": child_runtime_digest,
         "evidence_set_digest": expected_set_digest,
         "scientific_execution_state": SCIENTIFIC_EXECUTION_CLOSED,
         "authority_effect": AUTHORITY_EFFECT,
