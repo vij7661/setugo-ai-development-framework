@@ -1,0 +1,30 @@
+{
+  "binding_id": "WDPC-V24-I11-PLAN-V8-REVIEW-BINDING",
+  "packet_file": "WDPC_V24_I11_Falsification_Plan_V8_Clean_Review_Packet.md",
+  "packet_sha256": "e62a2528d880e2dc0ad368dc7b030c1a5c2600b8fef7d7610af78b71bd5f5d0e",
+  "plan_body_sha256": "3b442e55bec52aec24042d714d4064985eb85acf914afa5903d00d1a61b373ab",
+  "packet_bytes": 75109,
+  "harness_contract": "V7",
+  "harness_path": "testing/v24/v24_i11_harness_contract_v7.py",
+  "harness_blob_sha": "6573767ae85d7ca0cfaa8b7bbafa826a7ba0c5cb",
+  "harness_version": "1.6.0-PLAN-REVIEW",
+  "design_sha": "db9e4b349fd26e128f4486878a4af64929000a7c",
+  "design_tree": "7986f7a016d97e6c9bbd03c035b3e9c63effda75",
+  "implementation_sha": "9836dc3ff233cca582f485434fc1c6494cf7eb05",
+  "implementation_tree": "d68cbccdceebad88715c8b37ddfcd524fc16ce8a",
+  "review_admissibility": "USER_INITIATED_CLEAN_INDEPENDENT_REVIEW; HUMAN_OR_AI; NO_AUTOMATED_REVIEWER_API_CALLS",
+  "external_reviewer_repository_access_required": false,
+  "post_review_repository_adjudication_required": true,
+  "execution_status": "NOT_EXECUTED",
+  "blocked_cases": {
+    "WDPC-469": "BLOCKED_BY_I1_SEMANTIC_QUALIFICATION",
+    "WDPC-495": "BLOCKED_BY_I1_SEMANTIC_QUALIFICATION"
+  },
+  "narrowed_fixture_branches": {
+    "WDPC-433": "omit exactly one active predicate",
+    "WDPC-453": "omit exactly one stricter subsystem predicate",
+    "WDPC-458": "authority present, independence unproven",
+    "WDPC-482": "wrong artifact blob only"
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
