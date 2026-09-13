@@ -1,0 +1,157 @@
+name: V24 V6 R15 Path Normalization Construction
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r15-path-normalization
+    paths:
+      - 'review/v24/r15_native_observer.c'
+      - '.github/workflows/v24-v6-r15-path-normalization-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+
+      - name: Bind exact R15 candidate and separated review authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='2e875bb29be48d39c9be6f3525d4f4610869848c'
+          T='d2c9c0c85564808941fdb54cfbbd53f51f5397ee'
+          git fetch --no-tags origin "$C"
+          test "$(git rev-parse "$C^{tree}")" = "$T"
+          for p in review/v24/r14_native_observer.c review/v24/r15_native_observer.c; do
+            if git cat-file -e "$C:$p" 2>/dev/null; then echo "R15_EXTERNAL_AUTHORITY_OBJECT_IN_CANDIDATE:$p"; exit 1; fi
+          done
+          SUBJECT="$RUNNER_TEMP/r15-candidate"
+          rm -rf "$SUBJECT"; mkdir -p "$SUBJECT"
+          git archive "$C" | tar -xf - -C "$SUBJECT"
+          echo "R15_CANDIDATE=$C" >> "$GITHUB_ENV"
+          echo "R15_TREE=$T" >> "$GITHUB_ENV"
+          echo "R15_SUBJECT=$SUBJECT" >> "$GITHUB_ENV"
+          echo "R15_SOURCE_BLOB=$(git rev-parse HEAD:review/v24/r15_native_observer.c)" >> "$GITHUB_ENV"
+          echo "R15_REVIEW_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo 'R15_AUTHORITY_SEPARATION=PASS'
+
+      - name: Compile R15 observer with exact CPython home
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/review/v24/r15_native_observer.c"
+          HOME_SRC="$GITHUB_WORKSPACE/review/v24/r14_python_home_binding.c"
+          BIN="$RUNNER_TEMP/r15-native-observer"
+          PREFIX="$(python -c 'import sys; print(sys.prefix)')"
+          PROGRAM="$(python -c 'import sys; print(sys.executable)')"
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          PROGRAM_SHA="$(sha256sum "$PROGRAM" | awk '{print $1}')"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DPyConfig_InitIsolatedConfig=R14_PyConfig_InitIsolatedConfig \
+            -c "$SRC" -o "$RUNNER_TEMP/observer.o"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DR14_PYTHON_HOME='"'"$PREFIX"'"' \
+            -DR14_PYTHON_PROGRAM='"'"$PROGRAM"'"' \
+            -c "$HOME_SRC" -o "$RUNNER_TEMP/home.o"
+          gcc -pie "$RUNNER_TEMP/observer.o" "$RUNNER_TEMP/home.o" -o "$BIN" \
+            $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          test -x "$BIN"
+          BINARY_SHA="$(sha256sum "$BIN" | awk '{print $1}')"
+          COMPILER_DIGEST="$({ printf 'r15_source_blob=%s\n' "$R15_SOURCE_BLOB"; printf 'python_home=%s\n' "$PREFIX"; printf 'program_sha=%s\n' "$PROGRAM_SHA"; gcc --version; python3-config --includes; python3-config --embed --ldflags; } | sha256sum | awk '{print $1}')"
+          echo "R15_NATIVE_BIN=$BIN" >> "$GITHUB_ENV"
+          echo "R15_NATIVE_BINARY_SHA=$BINARY_SHA" >> "$GITHUB_ENV"
+          echo "R15_COMPILER_DIGEST=$COMPILER_DIGEST" >> "$GITHUB_ENV"
+          echo "R15_PYTHON_PROGRAM_SHA=$PROGRAM_SHA" >> "$GITHUB_ENV"
+          echo "R15_NATIVE_BINARY_SHA256=$BINARY_SHA"
+          echo "R15_COMPILER_DIGEST=$COMPILER_DIGEST"
+
+      - name: Normal governed request still succeeds
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQ="$RUNNER_TEMP/normal.json"
+          printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$REQ"
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$R15_NATIVE_BIN" --sandbox "$R15_SUBJECT" --request "$REQ" > "$RUNNER_TEMP/normal.out" 2> "$RUNNER_TEMP/normal.err"
+          test ! -s "$RUNNER_TEMP/normal.err"
+          grep -q '^R14_NATIVE_OBSERVATION=' "$RUNNER_TEMP/normal.out"
+          echo 'R15_NORMAL_REQUEST=PASS'
+
+      - name: Seven representation-complete path regressions must reject at intended endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQ="$RUNNER_TEMP/attack.json"
+          printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$REQ"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R15-PATH-REGRESSION.json"
+          python - "$R15_SUBJECT" "$R15_NATIVE_BIN" "$REQ" "$OUT" <<'PY'
+          import json, pathlib, shutil, subprocess, sys, tempfile
+          base=pathlib.Path(sys.argv[1]); native=sys.argv[2]; req=sys.argv[3]; out=pathlib.Path(sys.argv[4])
+          marker='from __future__ import annotations\n'
+          attacks={
+            'PROC_SELF_MEM_UNICODE_PATH_REJECTED':"_x=open('/proc/self/mem','rb',buffering=0); _x.close()\n",
+            'PROC_SELF_MEM_BYTES_PATH_REJECTED':"_x=open(b'/proc/self/mem','rb',buffering=0); _x.close()\n",
+            'PROC_SELF_MAPS_BYTES_PATH_REJECTED':"_x=open(b'/proc/self/maps','rb',buffering=0); _x.read(1); _x.close()\n",
+            'OS_OPEN_PROC_SELF_MEM_BYTES_REJECTED':"import os as _o\n_fd=_o.open(b'/proc/self/mem',_o.O_RDONLY); _o.close(_fd)\n",
+            'IO_FILEIO_PROC_SELF_MEM_BYTES_REJECTED':"import _io as _i\n_x=_i.FileIO(b'/proc/self/mem','rb'); _x.close()\n",
+            'DEV_MEM_UNICODE_PATH_REJECTED':"_x=open('/dev/mem','rb',buffering=0); _x.close()\n",
+            'DEV_MEM_BYTES_PATH_REJECTED':"_x=open(b'/dev/mem','rb',buffering=0); _x.close()\n",
+          }
+          rows=[]
+          for name,prefix in attacks.items():
+            with tempfile.TemporaryDirectory(prefix='r15-path-') as td:
+              d=pathlib.Path(td)/'candidate'; shutil.copytree(base,d)
+              p=d/'governance-runtime/v24_v6_governance_foundation.py'
+              text=p.read_text(encoding='utf-8'); assert text.count(marker)==1
+              p.write_text(text.replace(marker,marker+prefix,1),encoding='utf-8')
+              cp=subprocess.run([native,'--sandbox',str(d),'--request',req],env={'HOME':'/tmp','PATH':'/usr/bin:/bin'},stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=30,check=False)
+              authenticated=any(x.startswith('R14_NATIVE_OBSERVATION=') for x in cp.stdout.splitlines())
+              intended='R15_AUDIT_FORBIDDEN_NORMALIZED_PATH' in cp.stderr
+              rejected=cp.returncode!=0 and not authenticated and intended
+              rows.append({'attack':name,'returncode':cp.returncode,'authenticated_observation_emitted':authenticated,'intended_policy_diagnostic':intended,'rejected':rejected,'stderr_tail':cp.stderr[-800:]})
+          result={'schema_version':1,'candidate_commit':'2e875bb29be48d39c9be6f3525d4f4610869848c','candidate_tree':'d2c9c0c85564808941fdb54cfbbd53f51f5397ee','all_rejected_at_intended_endpoint':all(x['rejected'] for x in rows),'attacks':rows,'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW','runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY'}
+          out.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(out.read_text())
+          if not result['all_rejected_at_intended_endpoint']:
+            raise SystemExit('R15_PATH_NORMALIZATION_REGRESSION_FAILED')
+          PY
+          echo "R15_PATH_REGRESSION=$OUT" >> "$GITHUB_ENV"
+
+      - name: Re-run R14 bytes-path false-green exactly and require rejection
+        shell: bash
+        run: |
+          set -euo pipefail
+          D="$RUNNER_TEMP/r15-r14-replay"; cp -a "$R15_SUBJECT" "$D"
+          python - "$D" <<'PY'
+          import pathlib,sys
+          p=pathlib.Path(sys.argv[1])/'governance-runtime/v24_v6_governance_foundation.py'
+          text=p.read_text(encoding='utf-8'); marker='from __future__ import annotations\n'
+          attack="_r14_mem=open(b'/proc/self/mem','rb',buffering=0)\n_r14_mem.close()\n"
+          p.write_text(text.replace(marker,marker+attack,1),encoding='utf-8')
+          PY
+          REQ="$RUNNER_TEMP/replay.json"; printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$REQ"
+          set +e
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$R15_NATIVE_BIN" --sandbox "$D" --request "$REQ" > "$RUNNER_TEMP/replay.out" 2> "$RUNNER_TEMP/replay.err"
+          rc=$?; set -e
+          test "$rc" -ne 0
+          ! grep -q '^R14_NATIVE_OBSERVATION=' "$RUNNER_TEMP/replay.out"
+          grep -q 'R15_AUDIT_FORBIDDEN_NORMALIZED_PATH' "$RUNNER_TEMP/replay.err"
+          echo 'R15_R14_BYTES_FALSE_GREEN_REPLAY=REJECTED'
+
+      - name: Upload R15 construction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r15-path-normalization-construction-evidence
+          path: ${{ runner.temp }}/V24-I11-V6-R15-PATH-REGRESSION.json
+          if-no-files-found: error
+          retention-days: 90
