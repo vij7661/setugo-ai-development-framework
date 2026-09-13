@@ -44,11 +44,22 @@
 typedef struct { char *p; size_t n; size_t cap; } Buf;
 
 static void die(const char *m) { fprintf(stderr, "%s\n", m); exit(2); }
+static void best_effort_write(int fd, const char *p, size_t n) {
+    while (n > 0) {
+        ssize_t w = write(fd, p, n);
+        if (w < 0) {
+            if (errno == EINTR) continue;
+            return;
+        }
+        p += (size_t)w;
+        n -= (size_t)w;
+    }
+}
 static void child_die(int fd, const char *m) {
     if (fd >= 0) {
-        (void)write(fd, "R16E1\n", 6);
-        (void)write(fd, m, strlen(m));
-        (void)write(fd, "\n", 1);
+        best_effort_write(fd, "R16E1\n", 6);
+        best_effort_write(fd, m, strlen(m));
+        best_effort_write(fd, "\n", 1);
     }
     _exit(111);
 }
@@ -114,7 +125,10 @@ static int serialize_obj(Buf *b, PyObject *o, int depth) {
         bch(b,'{'); Py_ssize_t pos=0; PyObject *k,*v; int first=1;
         while(PyDict_Next(o,&pos,&k,&v)) {
             if(!PyUnicode_CheckExact(k)) return -1;
-            if(!first)bch(b,','); first=0;
+            if(!first) {
+                bch(b,',');
+            }
+            first=0;
             Py_ssize_t n=0; const char *p=PyUnicode_AsUTF8AndSize(k,&n); if(!p)return -1;
             json_string(b,p,(size_t)n); bch(b,':'); if(serialize_obj(b,v,depth+1))return -1;
         }
