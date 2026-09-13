@@ -1,0 +1,22 @@
+{
+  "all_rejected_at_intended_endpoint": false,
+  "attacks": [
+    {"attack":"PROC_DOUBLE_SLASH","authenticated_observation_emitted":false,"intended_policy_diagnostic":true,"rejected":true,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"PROC_DOTDOT_NORMALIZATION","authenticated_observation_emitted":false,"intended_policy_diagnostic":true,"rejected":true,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"PATHLIB_PATH","authenticated_observation_emitted":false,"intended_policy_diagnostic":true,"rejected":true,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"CUSTOM_PATHLIKE_BYTES","authenticated_observation_emitted":false,"intended_policy_diagnostic":true,"rejected":true,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"INTEGER_FD_REPRESENTATION","authenticated_observation_emitted":false,"intended_policy_diagnostic":true,"rejected":true,"required_diagnostic":"R15_AUDIT_PATH_REPRESENTATION_FORBIDDEN","returncode":2,"stderr_tail":"R15_AUDIT_PATH_REPRESENTATION_FORBIDDEN\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"SYMLINK_FILE_UNICODE","authenticated_observation_emitted":false,"intended_policy_diagnostic":false,"rejected":false,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"SYMLINK_FILE_BYTES","authenticated_observation_emitted":false,"intended_policy_diagnostic":false,"rejected":false,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"},
+    {"attack":"SYMLINK_DIRECTORY_PROC_MAPS","authenticated_observation_emitted":false,"intended_policy_diagnostic":false,"rejected":false,"required_diagnostic":"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH","returncode":2,"stderr_tail":"R14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"}
+  ],
+  "authority_effect":"NONE_EVIDENCE_ONLY",
+  "candidate_commit":"2e875bb29be48d39c9be6f3525d4f4610869848c",
+  "candidate_tree":"d2c9c0c85564808941fdb54cfbbd53f51f5397ee",
+  "classification":"FAIL_CODE_OR_HARNESS_REVIEW_REQUIRED",
+  "false_green_reproduced":false,
+  "native_observer_sha256":"6bfb7c6ce0db74a0a3d8b8fc6229a84dc229ac481f5212ae057918b07fa44eee",
+  "runtime_qualification_state":"NOT_CLAIMED",
+  "schema_version":1,
+  "scientific_execution_state":"CLOSED_PENDING_SUCCESSOR_REVIEW"
+}
