@@ -23,7 +23,7 @@ def proof_bundle():
       "proof_field_descriptors":[
         {"field_id":"F-ROOT","predicate_id":"P-ROOT","control_id":"C1","source_binding":"SRC-ROOT","redaction_class":"VISIBLE","qualification_or_failure_field":True},
         {"field_id":"F-EVID","predicate_id":"P-EVID","control_id":"C3","source_binding":"SRC-EVID","redaction_class":"SECRET_SAFE_IDENTITY_ONLY","qualification_or_failure_field":True}
-      ]}
+      ]
     }
 
 class EndpointProofTests(unittest.TestCase):
