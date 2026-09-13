@@ -1,0 +1,85 @@
+name: V24 V6 R8 Qualification Integrity
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r8-qualification-integrity
+    paths:
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_endpoint_projection.py'
+      - 'governance-runtime/v24_v6_material_surface.py'
+      - 'governance-runtime/v24_v6_decision_apply.py'
+      - 'governance-runtime/v24_v6_normative_clause_projection.py'
+      - 'governance-runtime/v24_v6_effect_ledger_closure.py'
+      - 'governance-runtime/v24_v6_atomic_binding_modes.py'
+      - 'governance-runtime/v24_v6_qualification_integrity.py'
+      - 'governance-runtime/test_v24_v6_qualification_integrity.py'
+      - '.github/workflows/v24-v6-r8-qualification-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction-and-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile V6 R1-R8
+        working-directory: governance-runtime
+        run: python -m py_compile v24_v6_governance_foundation.py v24_v6_endpoint_projection.py v24_v6_material_surface.py v24_v6_decision_apply.py v24_v6_normative_clause_projection.py v24_v6_effect_ledger_closure.py v24_v6_atomic_binding_modes.py v24_v6_qualification_integrity.py
+
+      - name: Run R8 construction tests
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_qualification_integrity.py
+
+      - name: Run R1-R7 regression
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py
+
+      - name: Run inherited proof and audit regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_review_proof_audit.py \
+            test_v24_endpoint_proof_compiler.py
+
+      - name: Anti-case-specific production coupling gate
+        shell: bash
+        run: |
+          for F in governance-runtime/v24_v6_governance_foundation.py governance-runtime/v24_v6_endpoint_projection.py governance-runtime/v24_v6_material_surface.py governance-runtime/v24_v6_decision_apply.py governance-runtime/v24_v6_normative_clause_projection.py governance-runtime/v24_v6_effect_ledger_closure.py governance-runtime/v24_v6_atomic_binding_modes.py; do
+            if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint|reviewer[_ -]?finding[_ -]?id|material_discovery_pending' "$F"; then
+              echo "Case-specific production coupling found in $F"
+              exit 1
+            fi
+          done
+          # R8 is the generic gate implementation and may name the prohibited
+          # namespaces it detects, but it may not contain a concrete WDPC case ID.
+          if grep -nE 'WDPC-[0-9]+' governance-runtime/v24_v6_qualification_integrity.py; then
+            echo 'Concrete WDPC case coupling found in R8.'
+            exit 1
+          fi
+          echo 'No concrete case-specific production coupling found.'
+
+      - name: Assert construction-only authority posture
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_qualification_integrity as r8
+          x=r8.construction_frontier()
+          assert x['qualified'] is False
+          assert x['authority_effect']=='NONE_EVIDENCE_ONLY'
+          print(x)
+          PY
