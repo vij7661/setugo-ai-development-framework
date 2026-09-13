@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "contract_id": "V24-I11-V6-R13-EXTERNAL-TRUSTED-ORACLE",
+  "predecessor_candidate_commit": "e887613f4e9012be59dcd8c4840035748ee0de7e",
+  "predecessor_candidate_tree": "c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f",
+  "predecessor_falsification_run": "34769043441",
+  "predecessor_falsification_id": "V24-I11-V6-R12-FRAME-INTROSPECTION",
+  "predecessor_false_green_reproduced": true,
+  "r13_scope_frozen": true,
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "core_rule": "QUALIFICATION_PASS_FAIL_MUST_BE_DERIVED_OUTSIDE_EVERY_PROCESS_THAT_IMPORTS_OR_EXECUTES_CANDIDATE_PYTHON",
+  "candidate_side_unittest_role": "NON_AUTHORITATIVE_DIAGNOSTIC_ONLY",
+  "requirements": [
+    "Trusted oracle process MUST NOT import or execute candidate-controlled Python.",
+    "Candidate observer processes MAY return only untrusted observations, outputs, or exceptions; they MUST NOT supply an authority-bearing PASS/FAIL decision.",
+    "Trusted oracle MUST derive every qualification-contributing PASS/FAIL from independently held expectations or invariants applied to untrusted observations.",
+    "Candidate-side unittest outcomes, worker envelopes, stdout, exit code, test names, and result objects MUST NOT satisfy mandatory qualification evidence.",
+    "All six mandatory V6 adversarial checks MUST be implemented as external trusted-oracle assertions.",
+    "Runtime-generated challenge material SHOULD be used to avoid static fixture-label equivalence where the domain contract permits it.",
+    "R12 frame-introspection attack MUST remain unable to create oracle PASS even if the candidate observer process emits a syntactically valid success-looking payload.",
+    "External oracle evidence MUST bind exact candidate commit/tree, oracle and observer identities, request/challenge digest, raw observation digest, assertion digest, run/round identity, and oracle terminal result.",
+    "Missing, stale, duplicate, self-authored, candidate-decided, or name-only oracle evidence MUST fail closed."
+  ],
+  "mandatory_external_oracle_checks": [
+    "MIXED_ALLOWED_AND_DISALLOWED_TERMINAL_REJECTED",
+    "EVERY_REACHABLE_TERMINAL_ALLOWED",
+    "GENESIS_CROSS_PAIR_REJECTED",
+    "APPLICABLE_PREDICATE_OMISSION_REJECTED",
+    "ATOMIC_BINDING_MODE_OMISSION_REJECTED",
+    "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT"
+  ],
+  "historical_preservation": {
+    "r12_rejected": true,
+    "r12_successful_construction_run_preserved": true,
+    "r12_false_green_falsification_preserved": true,
+    "r12_must_not_be_patched_in_place": true
+  }
+}
