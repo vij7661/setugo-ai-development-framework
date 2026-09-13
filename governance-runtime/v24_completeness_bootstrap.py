@@ -46,13 +46,17 @@ def validate_completeness_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
         cls=c.get("subject_class"); covered.add(cls)
         sources=c.get("allowed_source_kinds")
         if not isinstance(sources,list) or not sources: p.append(f"BOOTSTRAP_SOURCE_KIND_REQUIRED:{cls}")
-        elif sources==["CANDIDATE_SELF"] or set(sources)=={"CANDIDATE_SELF"}: p.append(f"BOOTSTRAP_CANDIDATE_ONLY_SOURCE_FORBIDDEN:{cls}")
+        elif "CANDIDATE_SELF" in set(sources): p.append(f"BOOTSTRAP_CANDIDATE_SELF_SOURCE_FORBIDDEN:{cls}")
     for cls in sorted(subject_classes-covered): p.append(f"BOOTSTRAP_SOURCE_CONTRACT_COVERAGE_MISSING:{cls}")
 
     records=b.get("completeness_records")
     if not isinstance(records,list): records=[]; p.append("COMPLETENESS_RECORD_SET_REQUIRED")
     required=b.get("required_subjects")
     if not isinstance(required,list): required=[]; p.append("REQUIRED_SUBJECT_SET_REQUIRED")
+    elif not required: p.append("REQUIRED_SUBJECT_UNIVERSE_EMPTY")
+    elif len(set(required))!=len(required): p.append("REQUIRED_SUBJECT_DUPLICATE")
+    if not b.get("required_subject_universe_derivation_digest"): p.append("REQUIRED_SUBJECT_UNIVERSE_DERIVATION_EVIDENCE_REQUIRED")
+    if not records: p.append("COMPLETENESS_RECORD_SET_EMPTY")
     by_subject={}
     for r in records:
         if not isinstance(r,Mapping): p.append("COMPLETENESS_RECORD_MALFORMED"); continue
@@ -65,6 +69,8 @@ def validate_completeness_bundle(b: Mapping[str,Any]) -> dict[str,Any]:
     for sid in required:
         current=[r for r in by_subject.get(sid,[]) if r.get("state")=="CURRENT"]
         if len(current)!=1: p.append(f"CURRENT_COMPLETENESS_RECORD_COUNT_INVALID:{sid}:{len(current)}")
+    extras=set(by_subject)-set(required)
+    for sid in sorted(str(x) for x in extras): p.append(f"COMPLETENESS_RECORD_SUBJECT_UNDERIVED:{sid}")
 
     # continuity: non-bootstrap IUDA lineage must eventually point to bootstrap.
     lineage=b.get("ordinary_iuda_lineage")
