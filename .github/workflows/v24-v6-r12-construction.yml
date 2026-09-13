@@ -1,0 +1,51 @@
+name: V24 V6 R12 construction regression
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r12-manual-review-remediation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Record construction identity
+        run: |
+          echo "CONSTRUCTION_ONLY=TRUE"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          python --version
+
+      - name: Compile governance runtime
+        run: python -m compileall -q governance-runtime
+
+      - name: Run review protocol regression
+        run: python -m unittest -v governance-runtime/test_review_protocol.py
+
+      - name: Run V24 governance-runtime regression
+        run: python -m unittest discover -v -s governance-runtime -p 'test_v24*.py'
+
+      - name: Construction posture
+        if: always()
+        run: |
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_SUCCESSOR_REVIEW"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
