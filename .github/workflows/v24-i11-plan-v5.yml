@@ -1,0 +1,36 @@
+name: V24 I11 Plan V5 Contract
+
+on:
+  push:
+    branches:
+      - testing/v24-i11-falsification-plan-v5
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  harness-contract:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONHASHSEED: "0"
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run V5 harness contract tests
+        working-directory: testing/v24
+        run: python -m unittest -v test_v24_i11_harness_contract_v3.py
+      - name: Verify no falsification execution is wired into this workflow
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/v24-i11-plan-v5.yml').read_text()
+          forbidden=['WDPC-431 --execute','run_v24_falsification','execute_falsification_cases']
+          bad=[x for x in forbidden if x in p]
+          if bad:
+              raise SystemExit(f'Execution wiring forbidden in plan-review workflow: {bad}')
+          print('PLAN_CONTRACT_ONLY')
+          PY
