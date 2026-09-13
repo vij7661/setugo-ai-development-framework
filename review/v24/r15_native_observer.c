@@ -4,7 +4,7 @@
 /*
  * R15 deliberately reuses the frozen R14 native transport implementation but
  * intercepts audit-hook installation with a stronger, representation-complete
- * path policy.  The historical R14 source remains unchanged and separately
+ * path policy. The historical R14 source remains unchanged and separately
  * addressable on its rejected branch.
  */
 static int R15_PySys_AddAuditHook_intercept(Py_AuditHookFunction hook, void *userData);
@@ -66,16 +66,27 @@ static int r15_extract_path(PyObject *x, const char **p, Py_ssize_t *n) {
     return 1;
 }
 
+static void r15_policy_diagnostic(const char *marker) {
+    /* Emitted by trusted native audit code at the exact rejection point. This
+       is construction/falsification observability only and carries no PASS. */
+    fprintf(stderr,"%s\n",marker);
+    fflush(stderr);
+}
+
 static int r15_audit_hook(const char *event, PyObject *args, void *ud) {
     if (strcmp(event,"open") == 0 && PyTuple_Check(args) && PyTuple_GET_SIZE(args) > 0) {
         PyObject *x = PyTuple_GET_ITEM(args,0);
         const char *p = NULL; Py_ssize_t n = -1;
         int kind = r15_extract_path(x,&p,&n);
         if (kind != 0) {
-            if (kind > 0) PyErr_SetString(PyExc_PermissionError,"R15_AUDIT_PATH_REPRESENTATION_FORBIDDEN");
+            if (kind > 0) {
+                r15_policy_diagnostic("R15_AUDIT_PATH_REPRESENTATION_FORBIDDEN");
+                PyErr_SetString(PyExc_PermissionError,"R15_AUDIT_PATH_REPRESENTATION_FORBIDDEN");
+            }
             return -1;
         }
         if (r15_forbidden_normalized_path(p,n)) {
+            r15_policy_diagnostic("R15_AUDIT_FORBIDDEN_NORMALIZED_PATH");
             PyErr_SetString(PyExc_PermissionError,"R15_AUDIT_FORBIDDEN_NORMALIZED_PATH");
             return -1;
         }
