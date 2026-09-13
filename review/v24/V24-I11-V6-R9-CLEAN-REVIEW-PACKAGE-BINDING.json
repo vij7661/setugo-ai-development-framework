@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "binding_id": "V24-I11-V6-R9-CLEAN-REVIEW-PACKAGE",
+  "frozen_candidate": {
+    "commit": "88cba7e1224ecbd5a8264ba4c31c4c264fc24fef",
+    "tree": "97146905411b258b5c7a8cab1beb725ff3b19bc0",
+    "verification_run_id": "34758715430",
+    "integration_binding_digest": "8bcc9213ed97a719a1a522c2f8dfa87b7267e9923e0f008c03c5a3029f1cd6de"
+  },
+  "package_build": {
+    "green_run_id": "34759090604",
+    "green_review_branch_commit": "1372f9e0845cb533d8fca7b99cec4f649d59cd9a",
+    "artifact_id": 10318187393,
+    "artifact_name": "v24-v6-r9-clean-successor-review-package",
+    "artifact_outer_zip_bytes": 131995,
+    "artifact_outer_zip_sha256": "bf0024cc56fa5f6544e33676b8eb46518190f925ebc938a64eaf8a4479b201a8",
+    "inner_review_zip_name": "V24-I11-V6-R9-CLEAN-SUCCESSOR-REVIEW-PACKAGE.zip",
+    "inner_review_zip_bytes": 137864,
+    "inner_review_zip_sha256": "c875b17c6f24e42b26a701c5313cb5001c199b1cd4c23d515f25427962195b2c",
+    "package_manifest_sha256": "59b064c4596939e2d1396aca6043b4e38a4ac1875048d0561add6fb437e0ed53",
+    "package_binding_sha256": "78efc22eb14e98d72e80e735c00989541ea71f5dbbd3fddd6f8a878320cab674",
+    "manifest_listed_file_count": 51,
+    "total_inner_file_count": 53,
+    "manifest_recomputation_errors": 0,
+    "successor_verification_sha256": "e73b229f404c89745abba0a1e48cdfd81ef0932f09bf6d6f288e6f08898a5a20",
+    "successor_verification_bytes": 6076,
+    "review_instructions_sha256": "61168651e5fce79bc95ef3f3198e15cb8c21c7652e63a8015f9f135fa4ff3d6d",
+    "review_instructions_bytes": 6776
+  },
+  "approved_design_recomputed_from_package": {
+    "bytes": 19297,
+    "raw_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
+    "plan_body_sha256": "286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5",
+    "git_blob_sha1": "4a15d50a0488464816d235b273d1dbf808fdce94"
+  },
+  "preserved_package_red_history": [
+    {
+      "run_id": "34758946994",
+      "review_branch_commit": "ed729c55befa25325eb69ce23a02304a979f710d",
+      "classification": "REVIEW_PACKAGE_EXTRACTION_DEFECT",
+      "finding": "Optional inherited extraction list named nonexistent governance-runtime/v24_apply_guard.py; frozen candidate identity verification passed before packaging failed.",
+      "candidate_status_affected": false
+    }
+  ],
+  "review_gate": {
+    "clean_independent_review_required": true,
+    "automated_reviewer_api_calls_permitted": false,
+    "repository_adjudication_required_after_review": true,
+    "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+    "runtime_qualification_state": "NOT_CLAIMED"
+  },
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
