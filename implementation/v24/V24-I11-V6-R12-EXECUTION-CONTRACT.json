@@ -1,16 +1,34 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "contract_id": "V24-I11-V6-R12-EXTERNAL-QUALIFICATION-EXECUTION",
   "reviewed_predecessor": {
     "commit": "68ce0df63ce0133ae19ec4402b41c4c09adfb54e",
     "tree": "d202b039285213b386557083a26de42e0fb20cf4",
     "manual_review_disposition": "NEEDS_REVISION"
   },
+  "scope_state": "FROZEN_AFTER_COMPLETE_DEPENDENCY_REVIEW",
   "remediation_scope": [
     "R11_C1_ACTUAL_INTERPRETER_STATE_VERIFICATION",
     "R11_C2_TRUSTED_PARENT_CANDIDATE_PROCESS_SEPARATION",
     "R11_C3_EXECUTED_ADVERSARIAL_CHECK_EVIDENCE_BINDING",
-    "R11_SEVEN_FILE_REGRESSION_AUDIT",
+    "R11_SC1_RUNTIME_LATEST_RESULT_EXECUTED_EVIDENCE_BINDING",
+    "R11_SC2_AUTHORITATIVE_LOAD_BEARING_DERIVATION",
+    "R11_SC3_NO_COMMIT_CANNOT_TRANSITION_SUCCESS",
+    "R11_SC4_I6_NONEMPTY_INDEPENDENT_UNIVERSES",
+    "R11_SC5_I4_NONEMPTY_REQUIRED_SUBJECT_UNIVERSE",
+    "R11_SC6_I8_NONEMPTY_PREDECESSOR_UNIVERSE",
+    "R11_SC7_AUTHORITY_SURFACE_UNIVERSE_INDEPENDENTLY_DERIVED_AND_GIT_BOUND",
+    "R11_SH1_WITNESS_POLICY_AND_CONTROL_DOMAIN_EVIDENCE_BINDING",
+    "R11_SH2_CANDIDATE_SELF_COMPLETENESS_SOURCE_FORBIDDEN",
+    "R11_SH3_CACHE_GUARDS_REQUIRE_BOUND_EVIDENCE",
+    "R11_SH4_HISTORICAL_FAILURE_PRESERVATION_REQUIRES_RECORD_BINDING",
+    "R11_SH5_LOAD_BEARING_GIT_IDENTITIES_REQUIRE_OBJECT_BINDING",
+    "R12_RP1_MATERIAL_REVIEW_REQUIRES_NONEMPTY_MANDATORY_DIMENSIONS",
+    "R12_RP2_TRANSPORT_IDENTITY_ASSURANCE_NONFORGEABLE",
+    "R12_RP3_REVIEWED_COMMIT_MANDATORY_AND_GOVERNED_GIT_BOUND",
+    "R12_RP4_LEGACY_REVIEW_NONAUTHORITATIVE",
+    "R12_RP5_PROMOTION_BINDS_REQUEST_STATE_TRIGGER_AND_MATERIAL_TRANSITION",
+    "R12_RP6_FULL_PENDING_REVIEW_COLLECTION_GROUNDING",
     "R11_OPEN_AST_SCANNER_ADVERSARIAL_RISK",
     "R11_HOST_TARGET_STDLIB_IDENTITY_RISK"
   ],
@@ -29,12 +47,7 @@
     "pin_every_admitted_file": true,
     "pin_every_admitted_python_file": true,
     "pin_every_support_object_read_by_tests": true,
-    "pin_fields": [
-      "path",
-      "git_blob_sha1",
-      "raw_sha256",
-      "role"
-    ],
+    "pin_fields": ["path", "git_blob_sha1", "raw_sha256", "role"],
     "reject_unpinned_file_in_execution_sandbox": true,
     "reject_unpinned_python_file_in_execution_sandbox": true,
     "reject_symlink_or_alternate_path": true,
@@ -62,6 +75,7 @@
     "require_safe_path": true,
     "bind_observed_interpreter_identity_to_execution_evidence": true,
     "bind_observed_runtime_flags_to_execution_evidence": true,
+    "bind_host_target_stdlib_identity": true,
     "fail_closed_on_missing_or_mismatched_runtime_state": true
   },
   "child_evidence_protocol": {
@@ -84,18 +98,49 @@
     "reject_cross_environment_record": true,
     "reject_abrupt_termination_without_valid_terminal_record": true
   },
+  "runtime_evidence_contract": {
+    "latest_result_counts_are_evidence_only": true,
+    "executed_harness_evidence_required": true,
+    "candidate_commit_tree_environment_binding_required": true,
+    "git_sha_shape_alone_is_insufficient": true,
+    "governed_git_object_resolution_required": true,
+    "historical_failure_boolean_alone_is_insufficient": true,
+    "historical_failure_record_digests_required": true
+  },
+  "governed_universe_contract": {
+    "i6_admission_decision_application_universes_nonempty_when_applicable": true,
+    "i4_required_subject_universe_nonempty_when_applicable": true,
+    "i8_predecessor_universe_nonempty_when_predecessor_exists": true,
+    "authority_surface_universe_independently_derived": true,
+    "authority_surface_base_commit_governed_git_bound": true,
+    "load_bearing_status_derived_from_authoritative_catalog": true,
+    "candidate_self_load_bearing_source_forbidden": true,
+    "witness_policy_and_domains_require_independent_binding": true,
+    "cache_generation_and_disposition_guards_require_evidence_digests": true,
+    "no_commit_confirmed_may_not_authorize_success": true
+  },
+  "semantic_review_integrity_contract": {
+    "schema4_material_review_requires_nonempty_mandatory_dimension_set": true,
+    "bounded_pass_requires_all_mandatory_dimensions_tested_supported": true,
+    "bounded_pass_rejects_defect_or_contradiction_status": true,
+    "legacy_review_schemas_historical_only": true,
+    "caller_constructed_dispatch_result_cannot_authenticate_identity": true,
+    "trusted_adapter_receipt_or_registry_binding_required": true,
+    "name_only_transport_substitution_rejected": true,
+    "current_reviewed_artifact_commit_required": true,
+    "reviewed_commit_governed_git_resolution_required": true,
+    "reviewed_commit_must_match_authoritative_transition_head": true,
+    "promotable_request_state_required": true,
+    "material_transition_flag_required": true,
+    "request_trigger_must_match_authoritative_transition_trigger": true,
+    "full_pending_review_collection_must_be_grounded": true
+  },
   "mandatory_adversarial_check_evidence": {
     "name_only_attestation_forbidden": true,
     "executed_evidence_record_required": true,
     "required_fields": [
-      "check_id",
-      "candidate_commit",
-      "candidate_tree",
-      "environment_identity",
-      "interpreter_identity",
-      "terminal_status",
-      "terminal_result",
-      "evidence_digest",
+      "check_id", "candidate_commit", "candidate_tree", "environment_identity",
+      "interpreter_identity", "terminal_status", "terminal_result", "evidence_digest",
       "trusted_runner_identity"
     ],
     "independent_witness_identity_required_where_policy_requires": true,
@@ -116,7 +161,17 @@
     "NAME_ONLY_MANDATORY_ADVERSARIAL_CHECK_REJECTED",
     "CROSS_CANDIDATE_OR_CROSS_ENVIRONMENT_CHECK_EVIDENCE_REJECTED",
     "HOST_TARGET_STDLIB_IDENTITY_MISMATCH_FAILS_CLOSED",
-    "ANTI_FALSE_GREEN_AST_SCANNER_EVASION_PROBES_EXECUTED"
+    "ANTI_FALSE_GREEN_AST_SCANNER_EVASION_PROBES_EXECUTED",
+    "VACUOUS_BOUNDED_PASS_WITH_ZERO_MANDATORY_DIMENSIONS_REJECTED",
+    "CALLER_FORGED_PROVIDER_AUTHENTICATION_REJECTED",
+    "SHA_SHAPED_NONEXISTENT_COMMIT_REJECTED",
+    "REJECTED_OR_SUPERSEDED_REVIEW_REQUEST_CANNOT_PROMOTE",
+    "TRIGGER_OR_MATERIAL_TRANSITION_MISMATCH_CANNOT_PROMOTE",
+    "EXTRA_STALE_PENDING_REVIEW_ENTRY_REJECTED",
+    "EMPTY_I4_I6_I8_UNIVERSE_FALSE_GREEN_REJECTED",
+    "NO_COMMIT_CONFIRMED_SUCCESS_REJECTED",
+    "CALLER_LOAD_BEARING_FALSE_CANNOT_HIDE_BLOCKING_SUBJECT",
+    "CANDIDATE_SELF_MIXED_COMPLETENESS_SOURCE_REJECTED"
   ],
   "seven_file_regression_scope": [
     "governance-runtime/v24_admission_application_witness.py",
@@ -125,7 +180,8 @@
     "governance-runtime/v24_generation_migration.py",
     "governance-runtime/v24_review_proof_audit.py",
     "governance-runtime/v24_authority_surface_inventory.py",
-    "governance-runtime/validate_runtime.py"
+    "governance-runtime/validate_runtime.py",
+    "governance-runtime/review_protocol.py"
   ],
   "result_admission": {
     "external_guard_pass_required_before_any_candidate_launch": true,
