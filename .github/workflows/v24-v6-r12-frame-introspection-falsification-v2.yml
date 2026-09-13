@@ -1,0 +1,147 @@
+name: V24 V6 R12 Frame Introspection Falsification V2
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r12-external-authority
+    paths:
+      - '.github/workflows/v24-v6-r12-frame-introspection-falsification-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-r12-worker-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Build, pin, and stage malicious admitted subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='e887613f4e9012be59dcd8c4840035748ee0de7e'
+          TREE='c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f'
+          REVIEW='464215e07d49e163525dac78ccbc39740c4e390a'
+          SUBJECT="$RUNNER_TEMP/r12-malicious-subject"
+          SANDBOX="$RUNNER_TEMP/r12-malicious-sandbox"
+          PINSET="$RUNNER_TEMP/r12-malicious-pinset.json"
+          mkdir -p "$SUBJECT"
+          git archive "$CANDIDATE" | tar -xf - -C "$SUBJECT"
+          cat > "$SUBJECT/governance-runtime/test_v24_v6_external_execution_binding.py" <<'PY'
+          import sys
+          import unittest
+          import __main__
+          frame = sys._getframe()
+          worker_frame = None
+          while frame is not None:
+              if "baseline" in frame.f_locals and "trusted_runner_cls" in frame.f_locals:
+                  worker_frame = frame
+                  break
+              frame = frame.f_back
+          if worker_frame is None:
+              raise RuntimeError("R12_ATTACK_WORKER_FRAME_NOT_FOUND")
+          baseline = worker_frame.f_locals["baseline"]
+          trusted_runner_cls = worker_frame.f_locals["trusted_runner_cls"]
+          __main__.framework_fingerprint = lambda: baseline
+          __main__._internal_negative_canary = lambda runner_cls: True
+          class _ForgedResult:
+              testsRun = 1
+              failures = []
+              errors = []
+              unexpectedSuccesses = []
+          def _forged_run(self, suite):
+              return _ForgedResult()
+          trusted_runner_cls.run = _forged_run
+          class DeliberatelyFailingTest(unittest.TestCase):
+              def test_must_fail(self):
+                  self.fail("R12_FRAME_INTROSPECTION_FALSE_GREEN")
+          PY
+          PYTHON_BIN="$(command -v python)"
+          GUARD="$GITHUB_WORKSPACE/review/v24/r12_trusted_external_guard.py"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" build-pinset \
+            --root "$SUBJECT" --commit "$CANDIDATE" --tree "$TREE" --review-commit "$REVIEW" --output "$PINSET"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" verify-source --root "$SUBJECT" --pinset "$PINSET" --commit "$CANDIDATE" --tree "$TREE"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" stage --root "$SUBJECT" --pinset "$PINSET" --commit "$CANDIDATE" --tree "$TREE" --target "$SANDBOX"
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GUARD" verify-sandbox --root "$SANDBOX" --pinset "$PINSET" --commit "$CANDIDATE" --tree "$TREE"
+          echo "R12_ATTACK_SANDBOX=$SANDBOX" >> "$GITHUB_ENV"
+          echo "R12_ATTACK_PINSET=$PINSET" >> "$GITHUB_ENV"
+
+      - name: Capture R12 parent disposition without stopping artifact collection
+        id: probe
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHON_BIN="$(command -v python)"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R12-FRAME-INTROSPECTION-FALSIFICATION.json"
+          PARENT_OUT="$RUNNER_TEMP/r12-parent.out"
+          set +e
+          env -i HOME="$HOME" PATH="$(dirname "$PYTHON_BIN"):/usr/bin:/bin" \
+            "$PYTHON_BIN" -I -S "$GITHUB_WORKSPACE/review/v24/r12_trusted_test_parent.py" \
+            --sandbox "$R12_ATTACK_SANDBOX" --pinset "$R12_ATTACK_PINSET" \
+            --worker "$GITHUB_WORKSPACE/review/v24/r12_untrusted_test_worker.py" \
+            >"$PARENT_OUT" 2>&1
+          RC=$?
+          set -e
+          FALSE_GREEN=false
+          if [ "$RC" -eq 0 ] && grep -q '^R12_PARENT_RESULT=' "$PARENT_OUT"; then FALSE_GREEN=true; fi
+          python - "$OUT" "$PARENT_OUT" "$RC" "$FALSE_GREEN" <<'PY'
+          import json, pathlib, sys
+          out, parent, rc, reproduced = sys.argv[1:]
+          text=pathlib.Path(parent).read_text(encoding='utf-8')
+          obj={
+            'schema_version':1,
+            'falsification_id':'V24-I11-V6-R12-FRAME-INTROSPECTION',
+            'candidate_commit':'e887613f4e9012be59dcd8c4840035748ee0de7e',
+            'candidate_tree':'c584cf728ca70c663ba04cf4bfb50fd29f5f1e0f',
+            'parent_return_code':int(rc),
+            'parent_output':text,
+            'false_green_reproduced':reproduced == 'true',
+            'expected_secure_behavior':'REJECT',
+            'observed_behavior':'ACCEPTED_FORGED_PASS' if reproduced == 'true' else 'REJECTED',
+            'classification':'FAIL_CODE_DEFECT' if reproduced == 'true' else 'ATTACK_REJECTED',
+            'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW',
+            'runtime_qualification_state':'NOT_CLAIMED',
+            'authority_effect':'NONE_EVIDENCE_ONLY'
+          }
+          pathlib.Path(out).write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(obj,indent=2,sort_keys=True))
+          PY
+          echo "R12_FALSIFICATION_RECORD=$OUT" >> "$GITHUB_ENV"
+          test "$FALSE_GREEN" = true
+
+      - name: Upload falsification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r12-frame-introspection-falsification
+          path: ${{ env.R12_FALSIFICATION_RECORD }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Preserve RED when false-green reproduced
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - "$R12_FALSIFICATION_RECORD" <<'PY'
+          import json, sys
+          obj=json.load(open(sys.argv[1],encoding='utf-8'))
+          if obj['false_green_reproduced'] is True:
+              print('R12_FRAME_INTROSPECTION_FALSE_GREEN_REPRODUCED=YES')
+              print('R12_FALSIFICATION_DISPOSITION=FAIL_CODE_DEFECT')
+              raise SystemExit(1)
+          print('R12_FRAME_INTROSPECTION_ATTACK_REJECTED')
+          raise SystemExit(2)
+          PY
