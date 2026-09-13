@@ -1,0 +1,57 @@
+name: V24 V6 R14 Python Home Repair Diagnostic
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-r14-native-observer
+    paths:
+      - 'review/v24/r14_python_home_binding.c'
+      - '.github/workflows/v24-v6-r14-python-home-repair-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14'}
+      - name: Compile repaired native observer and execute one legitimate request
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='5a1fb005e9c58e30b1dcfaa473d603dde90df72c'; T='6e65609ac09b78bcffefb6d6560b640ba7696521'
+          git fetch --no-tags origin "$C"; test "$(git rev-parse "$C^{tree}")" = "$T"
+          S="$RUNNER_TEMP/r14-home-repair-candidate"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          PREFIX="$(python -c 'import sys; print(sys.prefix)')"
+          PROGRAM="$(python -c 'import sys; print(sys.executable)')"
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DPyConfig_InitIsolatedConfig=R14_PyConfig_InitIsolatedConfig \
+            -c review/v24/r14_native_observer.c -o "$RUNNER_TEMP/observer.o"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+            $(python3-config --includes) \
+            -DR14_PYTHON_HOME='"'"$PREFIX"'"' \
+            -DR14_PYTHON_PROGRAM='"'"$PROGRAM"'"' \
+            -c review/v24/r14_python_home_binding.c -o "$RUNNER_TEMP/home.o"
+          gcc -pie "$RUNNER_TEMP/observer.o" "$RUNNER_TEMP/home.o" -o "$RUNNER_TEMP/r14-native" \
+            $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$RUNNER_TEMP/request.json"
+          env -i HOME="$HOME" PATH="/usr/bin:/bin" "$RUNNER_TEMP/r14-native" --sandbox "$S" --request "$RUNNER_TEMP/request.json" > "$RUNNER_TEMP/out" 2> "$RUNNER_TEMP/err"
+          test ! -s "$RUNNER_TEMP/err"
+          grep -q '^R14_NATIVE_OBSERVATION=' "$RUNNER_TEMP/out"
+          python - "$RUNNER_TEMP/out" <<'PY'
+          import json,sys
+          line=open(sys.argv[1],encoding='utf-8').read().strip()
+          p='R14_NATIVE_OBSERVATION='; assert line.startswith(p)
+          o=json.loads(line[len(p):])
+          assert o['module']=='v24_v6_governance_foundation'
+          assert o['function']=='validate_completeness_derivation_graph'
+          assert o['outcome_kind']=='RETURN'
+          print('R14_PYTHON_HOME_REPAIR_NORMAL_REQUEST=PASS')
+          PY
