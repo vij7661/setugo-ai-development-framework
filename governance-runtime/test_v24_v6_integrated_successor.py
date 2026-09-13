@@ -19,6 +19,8 @@ from v24_v6_endpoint_projection import (
 from v24_v6_atomic_binding_modes import validate_atomic_binding_mode_registry
 from v24_v6_qualification_integrity import compile_qualification_summary
 from v24_v6_integrated_successor import (
+    APPROVED_DESIGN_GIT_BLOB_SHA,
+    APPROVED_DESIGN_RECONSTRUCTION_MANIFEST_GIT_BLOB_SHA,
     SCIENTIFIC_EXECUTION_CLOSED,
     construction_frontier,
     validate_integrated_successor_manifest,
@@ -56,8 +58,34 @@ class IntegratedSuccessorBindingTests(unittest.TestCase):
         self.assertFalse(result["integration_valid"])
         self.assertIn("INTEGRATED_SUCCESSOR_BLOB_MISMATCH:R1:production", result["problems"])
 
+    def test_approved_design_object_must_be_exact_reviewed_blob(self):
+        m = self.manifest()
+        self.assertEqual(m["approved_design_git_blob_sha"], APPROVED_DESIGN_GIT_BLOB_SHA)
+        m["approved_design_git_blob_sha"] = m["approved_design_source_git_blob_sha"]
+        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
+        self.assertFalse(result["integration_valid"])
+        self.assertIn(
+            "INTEGRATED_SUCCESSOR_APPROVED_DESIGN_BINDING_MISMATCH:approved_design_git_blob_sha",
+            result["problems"],
+        )
+
+    def test_reconstruction_manifest_identity_is_load_bearing(self):
+        m = self.manifest()
+        self.assertEqual(
+            m["approved_design_reconstruction_manifest_git_blob_sha"],
+            APPROVED_DESIGN_RECONSTRUCTION_MANIFEST_GIT_BLOB_SHA,
+        )
+        m["approved_design_reconstruction_manifest_git_blob_sha"] = "0" * 40
+        result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
+        self.assertFalse(result["integration_valid"])
+        self.assertIn(
+            "INTEGRATED_SUCCESSOR_APPROVED_DESIGN_BINDING_MISMATCH:approved_design_reconstruction_manifest_git_blob_sha",
+            result["problems"],
+        )
+
     def test_manifest_cannot_open_scientific_execution(self):
-        m = self.manifest(); m["scientific_execution_state"] = "OPEN"
+        m = self.manifest()
+        m["scientific_execution_state"] = "OPEN"
         result = validate_integrated_successor_manifest(repo_root=ROOT, manifest=m)
         self.assertFalse(result["integration_valid"])
         self.assertIn("INTEGRATED_SUCCESSOR_SCIENTIFIC_EXECUTION_MUST_REMAIN_CLOSED", result["problems"])
@@ -106,7 +134,8 @@ class MandatoryV6AdversarialIntegrationTests(unittest.TestCase):
     def test_atomic_binding_mode_omission_is_rejected(self):
         bundle = atomic_registry_bundle()
         bundle["registry"]["entries"].pop()
-        material = dict(bundle["registry"]); material.pop("content_digest")
+        material = dict(bundle["registry"])
+        material.pop("content_digest")
         bundle["registry"]["content_digest"] = digest(material)
         result = validate_atomic_binding_mode_registry(bundle)
         self.assertFalse(result["qualified"])

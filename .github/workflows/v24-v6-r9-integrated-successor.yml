@@ -89,35 +89,79 @@ jobs:
             test_v24_generation_migration.py \
             test_v24_review_proof_audit.py
 
-      - name: Verify exact reviewed V6 design bytes
+      - name: Reconstruct and verify exact approved V6 design object
         shell: bash
         run: |
           set -euo pipefail
           git fetch --no-tags --depth=1 origin adjudication/v24-i11-v6-exact-reviewed-bytes
-          PACKET_REF='FETCH_HEAD:remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
-          git show "$PACKET_REF" > /tmp/v6-reviewed-packet.md
-          EXPECTED_BLOB='8682df137aa12d57927e7891c16048e90b04caac'
-          ACTUAL_BLOB=$(git rev-parse "$PACKET_REF")
-          test "$ACTUAL_BLOB" = "$EXPECTED_BLOB"
+          SOURCE_REF='FETCH_HEAD:remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          RECON_REF='FETCH_HEAD:remediation/v24/exact-reviewed-v6/V24-I11-V6-EXACT-REVIEWED-BYTE-RECONSTRUCTION.json'
+          REVIEW_REF='FETCH_HEAD:remediation/v24/reviews/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-FOLLOWUP-REVIEW-002.md'
+
+          test "$(git rev-parse "$SOURCE_REF")" = '8682df137aa12d57927e7891c16048e90b04caac'
+          test "$(git rev-parse "$RECON_REF")" = 'fe97833ea39f796e1616a3eee6f04ccb7968f47a'
+          test "$(git rev-parse "$REVIEW_REF")" = '59b96d37b22e3a8b789d33caf65ab3e8b8c6070f'
+
+          git show "$SOURCE_REF" > /tmp/v6-source-packet.md
+          git show "$RECON_REF" > /tmp/v6-reconstruction.json
+
           python - <<'PY'
           from pathlib import Path
           import hashlib, json
-          packet = Path('/tmp/v6-reviewed-packet.md').read_bytes()
-          sep = b'---\n\n'
-          if sep not in packet:
-              raise SystemExit('V6 body separator missing')
-          body = packet.split(sep, 1)[1]
-          raw = hashlib.sha256(packet).hexdigest()
-          body_sha = hashlib.sha256(body).hexdigest()
-          observed = {
-              'packet_bytes': len(packet),
-              'body_bytes': len(body),
-              'raw_packet_sha256': raw,
-              'plan_body_sha256': body_sha,
-          }
-          print(json.dumps(observed, sort_keys=True), flush=True)
-          assert body_sha == '286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5', body_sha
+
+          source = Path('/tmp/v6-source-packet.md').read_bytes()
+          reconstruction = json.loads(Path('/tmp/v6-reconstruction.json').read_text(encoding='utf-8'))
+
+          assert len(source) == 19296, len(source)
+          source_raw = hashlib.sha256(source).hexdigest()
+          assert source_raw == '5164747405b2de4d97228318a200e97c6b9c0e2afe58e4daddf09fe804bbc9d9', source_raw
+
+          src = reconstruction['source_repository_packet']
+          assert src['git_blob_sha1'] == '8682df137aa12d57927e7891c16048e90b04caac'
+          assert src['raw_sha256'] == source_raw
+          assert src['bytes'] == len(source)
+
+          tx = reconstruction['exact_transformation']
+          assert tx['operation'] == 'INSERT_BYTES_AT_ZERO_BASED_OFFSET'
+          assert tx['offset'] == 17321
+          assert tx['insert_hex'] == '0a'
+          marker = tx['precondition_next_bytes_utf8'].encode('utf-8')
+          assert source[tx['offset']:tx['offset'] + len(marker)] == marker
+
+          insert = bytes.fromhex(tx['insert_hex'])
+          reviewed = source[:tx['offset']] + insert + source[tx['offset']:]
+          assert len(reviewed) == 19297, len(reviewed)
+
+          raw = hashlib.sha256(reviewed).hexdigest()
           assert raw == '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62', raw
+
+          sep = b'---\n\n'
+          assert sep in reviewed
+          body = reviewed.split(sep, 1)[1]
+          body_sha = hashlib.sha256(body).hexdigest()
+          assert body_sha == '286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5', body_sha
+
+          git_blob = hashlib.sha1(f'blob {len(reviewed)}\0'.encode('utf-8') + reviewed).hexdigest()
+          assert git_blob == '4a15d50a0488464816d235b273d1dbf808fdce94', git_blob
+
+          exact = reconstruction['exact_reviewed_packet']
+          assert exact['bytes'] == len(reviewed)
+          assert exact['raw_sha256'] == raw
+          assert exact['plan_body_sha256'] == body_sha
+          assert exact['git_blob_sha1'] == git_blob
+          assert reconstruction['semantic_change'] is False
+
+          print(json.dumps({
+              'source_git_blob_sha1': src['git_blob_sha1'],
+              'source_raw_sha256': source_raw,
+              'reconstruction_manifest_git_blob_sha1': 'fe97833ea39f796e1616a3eee6f04ccb7968f47a',
+              'approved_review_record_git_blob_sha1': '59b96d37b22e3a8b789d33caf65ab3e8b8c6070f',
+              'exact_reviewed_git_blob_sha1': git_blob,
+              'exact_reviewed_raw_sha256': raw,
+              'exact_reviewed_plan_body_sha256': body_sha,
+              'exact_reviewed_bytes': len(reviewed),
+              'semantic_change': False,
+          }, sort_keys=True))
           PY
 
       - name: Anti-case-specific production coupling gate
@@ -177,6 +221,13 @@ jobs:
               'approved_design_packet_sha256': manifest['approved_design_packet_sha256'],
               'approved_design_body_sha256': manifest['approved_design_body_sha256'],
               'approved_design_git_blob_sha': manifest['approved_design_git_blob_sha'],
+              'approved_design_packet_bytes': manifest['approved_design_packet_bytes'],
+              'approved_design_source_git_blob_sha': manifest['approved_design_source_git_blob_sha'],
+              'approved_design_source_packet_sha256': manifest['approved_design_source_packet_sha256'],
+              'approved_design_source_packet_bytes': manifest['approved_design_source_packet_bytes'],
+              'approved_design_reconstruction_manifest_git_blob_sha': manifest['approved_design_reconstruction_manifest_git_blob_sha'],
+              'approved_design_review_record_git_blob_sha': manifest['approved_design_review_record_git_blob_sha'],
+              'approved_design_verification_run_id': manifest['approved_design_verification_run_id'],
               'scientific_execution_state': result['scientific_execution_state'],
               'runtime_qualification_state': 'NOT_CLAIMED',
               'successor_review_state': 'REQUIRED',
