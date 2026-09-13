@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 V24 = ROOT / "testing" / "v24"
 BINDING = V24 / "V24-I11-FALSIFICATION-PLAN-V4-REVIEW-BINDING.json"
-PAYLOAD = V24 / "WDPC-V24-I11-FALSIFICATION-PLAN-V4-PACKET.gz.b64"
+MANIFEST = V24 / "WDPC-V24-I11-FALSIFICATION-PLAN-V4-PACKET-MANIFEST.json"
 
 SOURCE_BLOBS = {
     "experiments/governed-platform/conversation-drift-parent-child-falsification-v24-extension.md": "0f52617114f7d9d549d9822f11d5bc0156c6e676",
@@ -25,18 +25,41 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
 
 
+def sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
 def main() -> None:
     binding = json.loads(BINDING.read_text(encoding="utf-8"))
-    packet = gzip.decompress(base64.b64decode(PAYLOAD.read_text(encoding="ascii")))
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
 
-    assert hashlib.sha256(packet).hexdigest() == binding["packet_sha256"]
+    assert manifest["format"] == "ordered_base64_chunks_of_gzip_packet"
+    assert manifest["packet_sha256"] == binding["packet_sha256"]
+    assert manifest["packet_bytes"] == binding["packet_bytes"]
+    assert manifest["gzip_sha256"] == binding["payload_gzip_sha256"]
+    assert len(manifest["chunks"]) == binding["payload_chunk_count"]
+
+    chunks: list[str] = []
+    for item in manifest["chunks"]:
+        path = ROOT / item["path"]
+        chunk = path.read_text(encoding="ascii")
+        assert len(chunk) == item["chars"], item["path"]
+        assert sha256_bytes(chunk.encode("ascii")) == item["sha256"], item["path"]
+        chunks.append(chunk)
+
+    payload = "".join(chunks)
+    assert len(payload) == manifest["total_base64_chars"] == binding["payload_base64_chars"]
+    gz = base64.b64decode(payload, validate=True)
+    assert sha256_bytes(gz) == manifest["gzip_sha256"] == binding["payload_gzip_sha256"]
+    packet = gzip.decompress(gz)
+
+    assert sha256_bytes(packet) == binding["packet_sha256"]
     assert len(packet) == binding["packet_bytes"]
-    assert len(PAYLOAD.read_text(encoding="ascii")) == binding["base64_payload_chars"]
 
     marker = b"\n---\n\n"
     assert packet.count(marker) == 1
     body = packet.split(marker, 1)[1]
-    assert hashlib.sha256(body).hexdigest() == binding["plan_body_sha256"]
+    assert sha256_bytes(body) == binding["plan_body_sha256"]
 
     text = packet.decode("utf-8")
     assert "Falsification Plan V4" in text
@@ -64,13 +87,9 @@ def main() -> None:
     assert binding["execution_status"] == "NOT_EXECUTED"
     assert binding["authority_effect"] == "NONE_EVIDENCE_ONLY"
 
-    harness_blob = git("hash-object", binding["harness_path"])
-    assert harness_blob == binding["harness_blob_sha"]
-
-    design_tree = git("show", "-s", "--format=%T", binding["design_sha"])
-    impl_tree = git("show", "-s", "--format=%T", binding["implementation_sha"])
-    assert design_tree == binding["design_tree"]
-    assert impl_tree == binding["implementation_tree"]
+    assert git("hash-object", binding["harness_path"]) == binding["harness_blob_sha"]
+    assert git("show", "-s", "--format=%T", binding["design_sha"]) == binding["design_tree"]
+    assert git("show", "-s", "--format=%T", binding["implementation_sha"]) == binding["implementation_tree"]
 
     for path, expected_blob in SOURCE_BLOBS.items():
         actual = git("rev-parse", f"{binding['design_sha']}:{path}")
