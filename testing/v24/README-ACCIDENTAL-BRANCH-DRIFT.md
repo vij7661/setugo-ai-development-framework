@@ -1,0 +1,1 @@
+Accidental non-scientific branch drift occurred after exact pre-scientific frontier e9a02e722edcd5e16b82abeeb37f7ab68c9295bf. Scientific execution must branch from that exact commit, not this drifted head.
