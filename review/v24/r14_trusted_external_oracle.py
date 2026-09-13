@@ -21,6 +21,7 @@ CHECKS = (
     "ATOMIC_BINDING_MODE_OMISSION_REJECTED",
     "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT",
 )
+CHILD_RUNTIME_ENFORCEMENT = "NATIVE_POST_INITIALIZATION_GUARD"
 
 
 def canonical(value: Any) -> bytes:
@@ -29,6 +30,14 @@ def canonical(value: Any) -> bytes:
 
 def digest(value: Any) -> str:
     return hashlib.sha256(canonical(value)).hexdigest()
+
+
+def file_sha256(path: pathlib.Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def gitish(value: str, n: int) -> bool:
+    return len(value) == n and all(c in "0123456789abcdef" for c in value)
 
 
 def load_scenarios(path: pathlib.Path):
@@ -106,9 +115,14 @@ def main() -> None:
     ap.add_argument("--environment-digest",required=True)
     ap.add_argument("--interpreter-contract-digest",required=True)
     ap.add_argument("--native-observer-source-git-blob-sha1",required=True)
+    ap.add_argument("--native-runtime-binding-source-git-blob-sha1",required=True)
     ap.add_argument("--native-observer-binary-sha256",required=True)
     ap.add_argument("--native-observer-compiler-digest",required=True)
     ap.add_argument("--oracle-git-blob-sha1",required=True)
+    ap.add_argument("--child-python-home",required=True)
+    ap.add_argument("--child-python-program",required=True)
+    ap.add_argument("--child-python-program-sha256",required=True)
+    ap.add_argument("--child-python-version",required=True)
     ap.add_argument("--run-id",required=True)
     ap.add_argument("--round-id",required=True)
     ap.add_argument("--r13-regression-evidence-digest",required=True)
@@ -118,12 +132,47 @@ def main() -> None:
     sandbox=pathlib.Path(args.sandbox).resolve()
     native=pathlib.Path(args.native_observer).resolve()
     scenario_path=pathlib.Path(args.scenario_library).resolve()
+    python_program=pathlib.Path(args.child_python_program).resolve()
     if native.is_relative_to(sandbox) or scenario_path.is_relative_to(sandbox):
         raise SystemExit("R14_ORACLE_TRUSTED_OBJECT_INSIDE_CANDIDATE")
-    if not native.is_file() or not scenario_path.is_file():
+    if not native.is_file() or not scenario_path.is_file() or not python_program.is_file():
         raise SystemExit("R14_ORACLE_TRUSTED_OBJECT_MISSING")
-    if not (len(args.r13_regression_evidence_digest)==64 and all(c in "0123456789abcdef" for c in args.r13_regression_evidence_digest)):
-        raise SystemExit("R14_ORACLE_R13_REGRESSION_DIGEST_INVALID")
+    if file_sha256(native) != args.native_observer_binary_sha256:
+        raise SystemExit("R14_ORACLE_NATIVE_BINARY_IDENTITY_MISMATCH")
+    if file_sha256(python_program) != args.child_python_program_sha256:
+        raise SystemExit("R14_ORACLE_CHILD_PROGRAM_IDENTITY_MISMATCH")
+    for name,value,n in (
+        ("native_source",args.native_observer_source_git_blob_sha1,40),
+        ("runtime_binding_source",args.native_runtime_binding_source_git_blob_sha1,40),
+        ("oracle",args.oracle_git_blob_sha1,40),
+        ("native_binary",args.native_observer_binary_sha256,64),
+        ("compiler",args.native_observer_compiler_digest,64),
+        ("program",args.child_python_program_sha256,64),
+        ("r13_regression",args.r13_regression_evidence_digest,64),
+    ):
+        if not gitish(value,n):
+            raise SystemExit(f"R14_ORACLE_IDENTITY_INVALID:{name}")
+    try:
+        version=[int(x) for x in args.child_python_version.split(".")]
+    except Exception as exc:
+        raise SystemExit("R14_ORACLE_CHILD_VERSION_INVALID") from exc
+    if len(version)!=3:
+        raise SystemExit("R14_ORACLE_CHILD_VERSION_INVALID")
+    child_runtime_contract={
+        "implementation":"cpython",
+        "version":version,
+        "isolated":True,
+        "no_site":True,
+        "ignore_environment":True,
+        "safe_path":True,
+        "optimize":0,
+        "dont_write_bytecode":True,
+        "python_home":args.child_python_home,
+        "python_program":str(python_program),
+        "python_program_sha256":args.child_python_program_sha256,
+        "enforcement_origin":CHILD_RUNTIME_ENFORCEMENT,
+    }
+    child_runtime_digest=digest(child_runtime_contract)
 
     lib=load_scenarios(scenario_path)
     scenarios=(
@@ -158,7 +207,9 @@ def main() -> None:
             "candidate_tree":args.candidate_tree,
             "environment_digest":args.environment_digest,
             "interpreter_contract_digest":args.interpreter_contract_digest,
+            "child_runtime_contract_digest":child_runtime_digest,
             "native_observer_source_git_blob_sha1":args.native_observer_source_git_blob_sha1,
+            "native_runtime_binding_source_git_blob_sha1":args.native_runtime_binding_source_git_blob_sha1,
             "native_observer_binary_sha256":args.native_observer_binary_sha256,
             "native_observer_compiler_digest":args.native_observer_compiler_digest,
             "oracle_git_blob_sha1":args.oracle_git_blob_sha1,
@@ -176,13 +227,11 @@ def main() -> None:
             "r13_tailored_frame_regression":"REJECTED",
             "r13_tailored_frame_regression_evidence_digest":args.r13_regression_evidence_digest,
         }
-        material_for_digest={k:v for k,v in row.items() if k!="r13_tailored_frame_regression_evidence_digest"}
-        material_for_digest["r13_tailored_frame_regression_evidence_digest"]=row["r13_tailored_frame_regression_evidence_digest"]
-        row["record_digest"]=digest(material_for_digest)
+        row["record_digest"]=digest(row)
         records.append(row)
 
     bundle={
-        "schema_version":1,
+        "schema_version":2,
         "authority_origin":"EXTERNAL_REVIEW_BRANCH",
         "candidate_self_grant":False,
         "candidate_side_unittest_role":"NON_AUTHORITATIVE_DIAGNOSTIC_ONLY",
@@ -192,7 +241,10 @@ def main() -> None:
         "candidate_tree":args.candidate_tree,
         "environment_digest":args.environment_digest,
         "interpreter_contract_digest":args.interpreter_contract_digest,
+        "child_runtime_contract":child_runtime_contract,
+        "child_runtime_contract_digest":child_runtime_digest,
         "native_observer_source_git_blob_sha1":args.native_observer_source_git_blob_sha1,
+        "native_runtime_binding_source_git_blob_sha1":args.native_runtime_binding_source_git_blob_sha1,
         "native_observer_binary_sha256":args.native_observer_binary_sha256,
         "native_observer_compiler_digest":args.native_observer_compiler_digest,
         "oracle_git_blob_sha1":args.oracle_git_blob_sha1,
@@ -203,6 +255,7 @@ def main() -> None:
         "authority_effect":"NONE_EVIDENCE_ONLY",
     }
     pathlib.Path(args.output).write_text(json.dumps(bundle,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    print(f"R14_CHILD_RUNTIME_CONTRACT_DIGEST={child_runtime_digest}")
     print(f"R14_EXTERNAL_ORACLE_RECORDS={len(records)}")
     print(f"R14_EXTERNAL_ORACLE_EVIDENCE_SET_DIGEST={bundle['evidence_set_digest']}")
 
