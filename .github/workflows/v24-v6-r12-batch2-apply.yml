@@ -1,0 +1,54 @@
+name: V24 V6 R12 Batch 2 Construction Apply
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-r12-frozen-remediation
+    paths:
+      - 'review/v24/r12-construction/R12-BATCH2.patch.gz.b64'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-validated-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Decode and verify construction patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d review/v24/r12-construction/R12-BATCH2.patch.gz.b64 | gzip -d > /tmp/r12-batch2.patch
+          echo 'ab15f9a226b21294fba763ca8418553fdd2ccea024f7587f1ad0eb4e17e0678e  /tmp/r12-batch2.patch' | sha256sum -c -
+          git apply --check -p2 /tmp/r12-batch2.patch
+          git apply -p2 /tmp/r12-batch2.patch
+      - name: Run R12 Batch 2 focused tests
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_governed_git_binding.py \
+            test_validate_runtime.py \
+            test_review_protocol.py \
+            test_review_semantics.py \
+            test_review_classification.py
+      - name: Commit exact validated construction batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add governance-runtime/review_protocol.py \
+                  governance-runtime/test_review_protocol.py \
+                  governance-runtime/test_review_semantics.py \
+                  governance-runtime/test_review_classification.py \
+                  governance-runtime/validate_runtime.py \
+                  governance-runtime/test_validate_runtime.py
+          git diff --cached --check
+          git commit -m 'R12 harden review and runtime authority bindings'
+          git push origin HEAD:implementation/v24-i11-v6-r12-frozen-remediation
