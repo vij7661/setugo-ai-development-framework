@@ -1,0 +1,38 @@
+{
+  "all_rejected_at_intended_endpoint": true,
+  "attacks": [
+    {
+      "attack": "SYMLINK_FILE_UNICODE_ABSOLUTE",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    },
+    {
+      "attack": "SYMLINK_FILE_BYTES_ABSOLUTE",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    },
+    {
+      "attack": "SYMLINK_DIRECTORY_PROC_MAPS_ABSOLUTE",
+      "authenticated_observation_emitted": false,
+      "intended_policy_diagnostic": true,
+      "rejected": true,
+      "returncode": 2,
+      "stderr_tail": "R15_AUDIT_FORBIDDEN_NORMALIZED_PATH\nR14_CHILD_CANDIDATE_IMPORT_FAILED\nR14_NATIVE_CHILD_NOT_CLEAN_EXIT\n"
+    }
+  ],
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_commit": "2e875bb29be48d39c9be6f3525d4f4610869848c",
+  "candidate_tree": "d2c9c0c85564808941fdb54cfbbd53f51f5397ee",
+  "classification": "ATTACK_SET_REJECTED",
+  "false_green_reproduced": false,
+  "native_observer_sha256": "6bfb7c6ce0db74a0a3d8b8fc6229a84dc229ac481f5212ae057918b07fa44eee",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "schema_version": 1,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW"
+}
