@@ -27,6 +27,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-001.b64)" -eq 6000
+          test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-002.b64)" -eq 6000
+          test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-003.b64)" -eq 2552
+          echo '658e11b4b6b735d4a28eda40fef93bb678946b2a525906115de0957184867967  remediation/v24/r10-apply-gz-v2/part-001.b64' | sha256sum -c -
+          echo 'e25a13c46bac088c58fcf03be4bcbc834808c18e817fa4df5d4b51d3f8396c43  remediation/v24/r10-apply-gz-v2/part-002.b64' | sha256sum -c -
+          echo '3658f9de702c4e15c231789531986a9a0043a6134793b6f97dab1ffaef7e8ca4  remediation/v24/r10-apply-gz-v2/part-003.b64' | sha256sum -c -
           cat remediation/v24/r10-apply-gz-v2/part-*.b64 | base64 -d > /tmp/r10.patch.gz
           echo '1e3efcfe8507575b233b4d0020261825a34dd55263627fa5743ab586503fa474  /tmp/r10.patch.gz' | sha256sum -c -
           gzip -dc /tmp/r10.patch.gz > /tmp/r10.patch
