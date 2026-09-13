@@ -14,6 +14,7 @@ def valid_bundle():
           {"subject_class":"CONTROL_SOURCE_REGISTRY","allowed_source_kinds":["EXTERNAL_CONTROL_PLANE_EVIDENCE"]}
         ]}},
       "required_subjects":["SUB-U"],
+      "required_subject_universe_derivation_digest":"d"*64,
       "completeness_records":[{"subject_id":"SUB-U","subject_owner_id":"OWNER-U","derivation_authority_id":"BOOT-EXT","generation_id":GEN,"state":"CURRENT","authority_universe_digest":"a"*64,"independent_derivation_digest":"b"*64,"source_evidence_digest":"c"*64}],
       "ordinary_iuda_lineage":[{"authority_id":"IUDA-2","parent_authority_id":"BOOT-EXT"}]
     }
@@ -26,10 +27,14 @@ class CompletenessBootstrapTests(unittest.TestCase):
     def test_bootstrap_cannot_self_prove(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"].__setitem__("self_qualified_by_descendant_machinery",True),"BOOTSTRAP_SELF_QUALIFICATION_FORBIDDEN")
     def test_residual_trust_must_be_explicit(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"].__setitem__("terminal_residual_trust_declared",False),"BOOTSTRAP_RESIDUAL_TRUST_DECLARATION_REQUIRED")
     def test_operational_root_not_relabelled_independent(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"]["members"][0].__setitem__("ordinary_operational_root_only",True),"BOOTSTRAP_OPERATIONAL_ROOT_RELABEL_FORBIDDEN:BOOT-EXT")
-    def test_candidate_only_source_forbidden(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"]["source_contracts"][0].__setitem__("allowed_source_kinds",["CANDIDATE_SELF"]),"BOOTSTRAP_CANDIDATE_ONLY_SOURCE_FORBIDDEN:AUTHORITY_UNIVERSE")
+    def test_candidate_only_source_forbidden(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"]["source_contracts"][0].__setitem__("allowed_source_kinds",["CANDIDATE_SELF"]),"BOOTSTRAP_CANDIDATE_SELF_SOURCE_FORBIDDEN:AUTHORITY_UNIVERSE")
+    def test_candidate_self_mixed_source_forbidden(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"]["source_contracts"][0].__setitem__("allowed_source_kinds",["CANDIDATE_SELF","REPOSITORY_EVIDENCE"]),"BOOTSTRAP_CANDIDATE_SELF_SOURCE_FORBIDDEN:AUTHORITY_UNIVERSE")
     def test_source_contract_coverage_required(self): self.assertProblem(lambda b:b["genesis_record"]["bootstrap_completeness_authority_set"]["source_contracts"].pop(),"BOOTSTRAP_SOURCE_CONTRACT_COVERAGE_MISSING:CONTROL_SOURCE_REGISTRY")
     def test_subject_cannot_self_qualify(self): self.assertProblem(lambda b:b["completeness_records"][0].__setitem__("derivation_authority_id","OWNER-U"),"COMPLETENESS_SELF_QUALIFICATION_FORBIDDEN:SUB-U")
     def test_exactly_one_current_record(self): self.assertProblem(lambda b:b["completeness_records"][0].__setitem__("state","STALE"),"CURRENT_COMPLETENESS_RECORD_COUNT_INVALID:SUB-U:0")
     def test_lineage_must_root_in_bootstrap(self): self.assertProblem(lambda b:b["ordinary_iuda_lineage"][0].__setitem__("parent_authority_id",None),"IUDA_LINEAGE_NOT_ROOTED_IN_BOOTSTRAP:IUDA-2")
+    def test_empty_required_subject_universe_rejected(self): self.assertProblem(lambda b:b.__setitem__("required_subjects",[]),"REQUIRED_SUBJECT_UNIVERSE_EMPTY")
+    def test_empty_completeness_records_rejected(self): self.assertProblem(lambda b:b.__setitem__("completeness_records",[]),"COMPLETENESS_RECORD_SET_EMPTY")
+    def test_required_subject_derivation_evidence_required(self): self.assertProblem(lambda b:b.__setitem__("required_subject_universe_derivation_digest",None),"REQUIRED_SUBJECT_UNIVERSE_DERIVATION_EVIDENCE_REQUIRED")
 
 if __name__=="__main__": unittest.main()
