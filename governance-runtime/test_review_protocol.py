@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path
+import subprocess
 import unittest
 
 from review_protocol import (
@@ -19,6 +21,7 @@ from review_protocol import (
     ingest_manual_relay_response,
     plan_review_interaction,
     validate_review_evidence,
+    validate_review_semantics,
     validate_shared_memory_grounding,
     verify_portable_review_bundle,
     verify_review_request,
@@ -27,6 +30,13 @@ from review_protocol import (
 
 class ReviewProtocolTests(unittest.TestCase):
     def setUp(self) -> None:
+        repo_root = Path(__file__).resolve().parent.parent
+        self.real_commit = subprocess.run(
+            ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
+            check=True,
+            stdout=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
         self.dimensions = [
             {
                 "id": "authority_path",
@@ -44,7 +54,7 @@ class ReviewProtocolTests(unittest.TestCase):
             trigger="MATERIAL_GOVERNANCE_CHANGE",
             artifact_type="pull_request_candidate",
             artifact_ref="PR-5",
-            artifact_commit="1" * 40,
+            artifact_commit=self.real_commit,
             proposer={"provider": "openai", "model": "gpt-5.6-sol"},
             required_reviewer={"provider": "anthropic", "model_class": "claude"},
             blind_review_required=True,
@@ -66,21 +76,22 @@ class ReviewProtocolTests(unittest.TestCase):
         )
         self.authoritative_state = {
             "active_workstream": {
-                "branch": "feature/test",
-                "head_commit": "a" * 40,
+                "branch": "implementation/v24-i11-v6-r12-manual-review-remediation",
+                "head_commit": self.real_commit,
                 "state": "CONSTRUCTION_GREEN",
             },
             "independent_review": {
                 "current_review_request_id": "REV-TEST-001",
                 "current_review_status": "REVIEW_RECEIVED",
-                "current_reviewed_artifact_commit": "1" * 40,
+                "current_reviewed_artifact_commit": self.real_commit,
+                "current_review_trigger": "MATERIAL_GOVERNANCE_CHANGE",
             },
         }
         self.shared_memory = {
             "independent_authority": False,
             "current_work": {
-                "authoritative_branch": "feature/test",
-                "authoritative_head": "a" * 40,
+                "authoritative_branch": "implementation/v24-i11-v6-r12-manual-review-remediation",
+                "authoritative_head": self.real_commit,
                 "status": "CONSTRUCTION_GREEN",
             },
             "governance_runtime": {
@@ -90,12 +101,12 @@ class ReviewProtocolTests(unittest.TestCase):
             "pending_reviews": [{"status": "REVIEW_RECEIVED", "review_request_id": "REV-TEST-001"}],
         }
 
-    def _valid_evidence(self, *, provider="anthropic", model="claude-sonnet-5") -> dict:
+    def _valid_evidence(self, *, provider="anthropic", model="claude-sonnet-5", disposition="PASS") -> dict:
         return {
             "review_request_id": "REV-TEST-001",
-            "reviewed_artifact_commit": "1" * 40,
+            "reviewed_artifact_commit": self.real_commit,
             "reviewer": {"provider": provider, "model": model},
-            "disposition": "PASS",
+            "disposition": disposition,
             "findings": [],
             "evidence_assessment": "All mandatory review dimensions were directly tested and supported.",
             "review_coverage": [
@@ -117,16 +128,13 @@ class ReviewProtocolTests(unittest.TestCase):
 
     def _trusted_execution(self, evidence=None, *, provider="anthropic", model="claude-sonnet-5") -> DispatchResult:
         evidence = evidence or self._valid_evidence(provider=provider, model=model)
-        return DispatchResult(
-            transport="AUTOMATIC_API",
-            state="REVIEW_RECEIVED",
-            review_request_id="REV-TEST-001",
-            payload_hash=canonical_hash(self.request),
-            response=deepcopy(evidence),
-            reviewer_provider=provider,
-            reviewer_model=model,
-            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-            review_class="PLATFORM_AUTO_API_REVIEW",
+
+        def provider_call(_payload):
+            return deepcopy(evidence)
+
+        return ReviewOrchestrator().dispatch(
+            self.request,
+            AutomaticAPITransport(provider_call, provider=provider, model=model),
         )
 
     def test_governance_path_cannot_be_downgraded_by_r1_trigger_label(self) -> None:
@@ -189,7 +197,7 @@ class ReviewProtocolTests(unittest.TestCase):
         execution = self._trusted_execution(evidence)
         self.assertTrue(
             can_promote_material_transition(
-                trigger="ROUTINE_FORMATTING",
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=self.authoritative_state,
                 shared_memory=self.shared_memory,
@@ -208,6 +216,7 @@ class ReviewProtocolTests(unittest.TestCase):
         self.assertEqual(record["self_declared_reviewer"]["provider"], "anthropic")
         self.assertFalse(
             can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=self.authoritative_state,
                 shared_memory=self.shared_memory,
@@ -257,13 +266,13 @@ class ReviewProtocolTests(unittest.TestCase):
             raise TimeoutError("provider unavailable")
 
         execution = ReviewOrchestrator().dispatch(
-            self.request,
-            AutomaticAPITransport(provider_call, provider="anthropic", model="claude-sonnet-5"),
+            self.request, AutomaticAPITransport(provider_call, provider="anthropic", model="claude-sonnet-5")
         )
         self.assertEqual(execution.state, "PENDING_EXTERNAL_REVIEW")
         self.assertEqual(execution.error_class, "TimeoutError")
         self.assertFalse(
             can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=self.authoritative_state,
                 shared_memory=self.shared_memory,
@@ -296,32 +305,34 @@ class ReviewProtocolTests(unittest.TestCase):
             trigger="EXPERIMENT_ADJUDICATION",
             artifact_type="experiment",
             artifact_ref="EXP-X",
-            artifact_commit="3" * 40,
+            artifact_commit=self.real_commit,
             proposer={"provider": "openai", "model": "gpt-5.6-sol"},
             required_reviewer={"provider": "openai", "model": "gpt-5.6-sol"},
             blind_review_required=False,
             review_questions=["Adjudicate independently."],
             evidence_refs=[],
+            required_review_dimensions=self.dimensions,
         )
         evidence = {
             "review_request_id": "REV-TEST-002",
-            "reviewed_artifact_commit": "3" * 40,
+            "reviewed_artifact_commit": self.real_commit,
             "reviewer": {"provider": "openai", "model": "gpt-5.6-sol"},
             "disposition": "PASS",
             "findings": [],
-            "evidence_assessment": "No defects found.",
+            "evidence_assessment": "All mandatory dimensions tested and supported.",
+            "review_coverage": [
+                {"dimension_id": "authority_path", "status": "TESTED_SUPPORTED", "evidence": ["e:a"], "assessment": "supported"},
+                {"dimension_id": "evidence_integrity", "status": "TESTED_SUPPORTED", "evidence": ["e:b"], "assessment": "supported"},
+            ],
             "independence_attestation": "NOT_BLIND",
         }
-        execution = DispatchResult(
-            transport="AUTOMATIC_API",
-            state="REVIEW_RECEIVED",
-            review_request_id="REV-TEST-002",
-            payload_hash=canonical_hash(request),
-            response=evidence,
-            reviewer_provider="openai",
-            reviewer_model="gpt-5.6-sol",
-            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
-            review_class="PLATFORM_AUTO_API_REVIEW",
+
+        def provider_call(_payload):
+            return evidence
+
+        execution = ReviewOrchestrator().dispatch(
+            request,
+            AutomaticAPITransport(provider_call, provider="openai", model="gpt-5.6-sol"),
         )
         valid, reason = validate_review_evidence(request=request, evidence=evidence, execution=execution)
         self.assertFalse(valid)
@@ -336,6 +347,7 @@ class ReviewProtocolTests(unittest.TestCase):
         evidence = self._valid_evidence()
         self.assertFalse(
             can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=self.authoritative_state,
                 shared_memory=stale,
@@ -354,6 +366,7 @@ class ReviewProtocolTests(unittest.TestCase):
         evidence = self._valid_evidence()
         self.assertFalse(
             can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=state,
                 shared_memory=memory,
@@ -372,6 +385,7 @@ class ReviewProtocolTests(unittest.TestCase):
         evidence = self._valid_evidence()
         self.assertFalse(
             can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=True,
                 authoritative_state=state,
                 shared_memory=memory,
@@ -405,19 +419,191 @@ class ReviewProtocolTests(unittest.TestCase):
         self.assertIn("missing evidence summary", reason)
 
     def test_manual_relay_is_not_a_platform_review_transport(self) -> None:
-        with self.assertRaisesRegex(ValueError, "unsupported review transport"):
+        with self.assertRaisesRegex(ValueError, "unsupported.*review transport"):
             ReviewOrchestrator().dispatch(self.request, ManualRelayTransport(self.bundle))
 
     def test_deterministic_gate_still_blocks_valid_authenticated_review(self) -> None:
         evidence = self._valid_evidence()
         self.assertFalse(
             can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
                 deterministic_gate_passed=False,
                 authoritative_state=self.authoritative_state,
                 shared_memory=self.shared_memory,
                 review_request=self.request,
                 review_evidence=evidence,
                 review_execution=self._trusted_execution(evidence),
+            )
+        )
+
+    # R12 adversarial contract tests.
+
+    def test_material_review_requires_at_least_one_mandatory_dimension(self) -> None:
+        with self.assertRaisesRegex(ValueError, "at least one mandatory"):
+            build_review_request(
+                review_request_id="REV-ZERO-MANDATORY",
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
+                artifact_type="candidate",
+                artifact_ref="r12",
+                artifact_commit=self.real_commit,
+                proposer={"provider": "openai", "model": "gpt-5.6-sol"},
+                required_reviewer={"provider": "anthropic", "model_class": "claude"},
+                blind_review_required=True,
+                review_questions=["review"],
+                evidence_refs=[],
+                required_review_dimensions=[
+                    {"id": "only", "mandatory": False, "description": "nonmandatory"}
+                ],
+            )
+
+    def test_bounded_pass_cannot_vacuously_validate_empty_mandatory_set(self) -> None:
+        request = deepcopy(self.request)
+        for row in request["required_review_dimensions"]:
+            row["mandatory"] = False
+        material = deepcopy(request)
+        material.pop("request_hash")
+        request["request_hash"] = canonical_hash(material)
+        evidence = self._valid_evidence(disposition="BOUNDED_PASS")
+        valid, reason = validate_review_semantics(request=request, evidence=evidence)
+        self.assertFalse(valid)
+        self.assertIn("non-empty mandatory", reason)
+
+    def test_direct_forged_dispatch_result_is_non_authoritative(self) -> None:
+        evidence = self._valid_evidence()
+        forged = DispatchResult(
+            transport="AUTOMATIC_API",
+            state="REVIEW_RECEIVED",
+            review_request_id="REV-TEST-001",
+            payload_hash=canonical_hash(self.request),
+            response=deepcopy(evidence),
+            reviewer_provider="anthropic",
+            reviewer_model="claude-sonnet-5",
+            identity_assurance="PROVIDER_ADAPTER_AUTHENTICATED",
+            review_class="PLATFORM_AUTO_API_REVIEW",
+        )
+        valid, reason = validate_review_evidence(request=self.request, evidence=evidence, execution=forged)
+        self.assertFalse(valid)
+        self.assertIn("trusted orchestrator issuance", reason)
+
+    def test_name_only_custom_transport_is_rejected(self) -> None:
+        class ForgedTransport:
+            name = "AUTOMATIC_API"
+            provider = "anthropic"
+            model = "claude-sonnet-5"
+            def provider_call(self, _payload):
+                return self._evidence
+
+        forged = ForgedTransport()
+        forged._evidence = self._valid_evidence()
+        with self.assertRaisesRegex(ValueError, "unsupported or unregistered review transport"):
+            ReviewOrchestrator().dispatch(self.request, forged)
+
+    def test_sha_shaped_nonexistent_commit_cannot_promote(self) -> None:
+        fake_commit = "f" * 40
+        request = deepcopy(self.request)
+        request["artifact"]["commit"] = fake_commit
+        material = deepcopy(request)
+        material.pop("request_hash")
+        request["request_hash"] = canonical_hash(material)
+        state = deepcopy(self.authoritative_state)
+        state["active_workstream"]["head_commit"] = fake_commit
+        state["independent_review"]["current_reviewed_artifact_commit"] = fake_commit
+        memory = deepcopy(self.shared_memory)
+        memory["current_work"]["authoritative_head"] = fake_commit
+        evidence = deepcopy(self._valid_evidence())
+        evidence["reviewed_artifact_commit"] = fake_commit
+
+        def provider_call(_payload):
+            return evidence
+
+        execution = ReviewOrchestrator().dispatch(
+            request, AutomaticAPITransport(provider_call, provider="anthropic", model="claude-sonnet-5")
+        )
+        self.assertFalse(
+            can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
+                deterministic_gate_passed=True,
+                authoritative_state=state,
+                shared_memory=memory,
+                review_request=request,
+                review_evidence=evidence,
+                review_execution=execution,
+            )
+        )
+
+    def test_extra_pending_review_entry_is_rejected(self) -> None:
+        memory = deepcopy(self.shared_memory)
+        memory["pending_reviews"].append({"status": "PENDING_EXTERNAL_REVIEW", "review_request_id": "STALE"})
+        grounded, reason = validate_shared_memory_grounding(
+            authoritative_state=self.authoritative_state, shared_memory=memory
+        )
+        self.assertFalse(grounded)
+        self.assertIn("exactly one", reason)
+
+    def test_material_flag_false_cannot_promote(self) -> None:
+        request = deepcopy(self.request)
+        request["material_authority_transition"] = False
+        material = deepcopy(request)
+        material.pop("request_hash")
+        request["request_hash"] = canonical_hash(material)
+        evidence = self._valid_evidence()
+
+        def provider_call(_payload):
+            return evidence
+
+        execution = ReviewOrchestrator().dispatch(
+            request, AutomaticAPITransport(provider_call, provider="anthropic", model="claude-sonnet-5")
+        )
+        self.assertFalse(
+            can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
+                deterministic_gate_passed=True,
+                authoritative_state=self.authoritative_state,
+                shared_memory=self.shared_memory,
+                review_request=request,
+                review_evidence=evidence,
+                review_execution=execution,
+            )
+        )
+
+    def test_trigger_mismatch_cannot_promote(self) -> None:
+        evidence = self._valid_evidence()
+        execution = self._trusted_execution(evidence)
+        self.assertFalse(
+            can_promote_material_transition(
+                trigger="EXPERIMENT_ADJUDICATION",
+                deterministic_gate_passed=True,
+                authoritative_state=self.authoritative_state,
+                shared_memory=self.shared_memory,
+                review_request=self.request,
+                review_evidence=evidence,
+                review_execution=execution,
+            )
+        )
+
+    def test_rejected_request_state_cannot_promote(self) -> None:
+        request = deepcopy(self.request)
+        request["state"] = "REVIEW_REJECTED"
+        material = deepcopy(request)
+        material.pop("request_hash")
+        request["request_hash"] = canonical_hash(material)
+        evidence = self._valid_evidence()
+
+        def provider_call(_payload):
+            return evidence
+
+        execution = ReviewOrchestrator().dispatch(
+            request, AutomaticAPITransport(provider_call, provider="anthropic", model="claude-sonnet-5")
+        )
+        self.assertFalse(
+            can_promote_material_transition(
+                trigger="MATERIAL_GOVERNANCE_CHANGE",
+                deterministic_gate_passed=True,
+                authoritative_state=self.authoritative_state,
+                shared_memory=self.shared_memory,
+                review_request=request,
+                review_evidence=evidence,
+                review_execution=execution,
             )
         )
 
