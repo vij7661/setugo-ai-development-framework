@@ -1,0 +1,78 @@
+name: V24 V6 R15 Symlink Alias Falsification V2
+
+on:
+  push:
+    branches: [review/v24-i11-v6-r15-path-normalization]
+    paths:
+      - '.github/workflows/v24-v6-r15-symlink-alias-falsification-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12.14'}
+
+      - name: Bind frozen R15 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          C='2e875bb29be48d39c9be6f3525d4f4610869848c'; T='d2c9c0c85564808941fdb54cfbbd53f51f5397ee'
+          git fetch --no-tags origin "$C"; test "$(git rev-parse "$C^{tree}")" = "$T"
+          S="$RUNNER_TEMP/r15-base"; mkdir -p "$S"; git archive "$C" | tar -xf - -C "$S"
+          echo "C=$C" >> "$GITHUB_ENV"; echo "T=$T" >> "$GITHUB_ENV"; echo "S=$S" >> "$GITHUB_ENV"
+          echo "SRC_BLOB=$(git rev-parse HEAD:review/v24/r15_native_observer.c)" >> "$GITHUB_ENV"
+
+      - name: Compile exact R15 observer
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/review/v24/r15_native_observer.c"; HS="$GITHUB_WORKSPACE/review/v24/r14_python_home_binding.c"; BIN="$RUNNER_TEMP/r15-native"
+          PREFIX="$(python -c 'import sys;print(sys.prefix)')"; PROGRAM="$(python -c 'import sys;print(sys.executable)')"; LIBDIR="$(python -c 'import sysconfig;print(sysconfig.get_config_var("LIBDIR"))')"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(python3-config --includes) -DPyConfig_InitIsolatedConfig=R14_PyConfig_InitIsolatedConfig -c "$SRC" -o "$RUNNER_TEMP/o.o"
+          gcc -O2 -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(python3-config --includes) -DR14_PYTHON_HOME='"'"$PREFIX"'"' -DR14_PYTHON_PROGRAM='"'"$PROGRAM"'"' -c "$HS" -o "$RUNNER_TEMP/h.o"
+          gcc -pie "$RUNNER_TEMP/o.o" "$RUNNER_TEMP/h.o" -o "$BIN" $(python3-config --embed --ldflags) -lcrypto -Wl,-z,relro,-z,now -Wl,-rpath,"$LIBDIR"
+          echo "BIN=$BIN" >> "$GITHUB_ENV"; echo "BSHA=$(sha256sum "$BIN"|awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Execute absolute symlink alias attacks
+        shell: bash
+        run: |
+          set -euo pipefail
+          Q="$RUNNER_TEMP/q.json"; printf '%s' '{"args":[{"edges":[],"nodes":[]}],"function":"validate_completeness_derivation_graph","kwargs":{},"module":"v24_v6_governance_foundation","schema_version":1}' > "$Q"
+          OUT="$RUNNER_TEMP/V24-I11-V6-R15-SYMLINK-ALIAS-FALSIFICATION-V2.json"
+          python - "$S" "$BIN" "$Q" "$OUT" <<'PY'
+          import json,os,pathlib,shutil,subprocess,sys,tempfile
+          base=pathlib.Path(sys.argv[1]); native=sys.argv[2]; req=sys.argv[3]; out=pathlib.Path(sys.argv[4]); marker='from __future__ import annotations\n'
+          cases=[
+            ('SYMLINK_FILE_UNICODE_ABSOLUTE', "_d=__file__.rsplit('/',1)[0]\nopen(_d+'/r15_mem_alias','rb')\n", ('r15_mem_alias','/proc/self/mem')),
+            ('SYMLINK_FILE_BYTES_ABSOLUTE', "import os as _o\n_d=__file__.rsplit('/',1)[0]\nopen(_o.fsencode(_d+'/r15_mem_alias'),'rb')\n", ('r15_mem_alias','/proc/self/mem')),
+            ('SYMLINK_DIRECTORY_PROC_MAPS_ABSOLUTE', "_d=__file__.rsplit('/',1)[0]\nopen(_d+'/r15_proc_alias/self/maps','rb')\n", ('r15_proc_alias','/proc')),
+          ]
+          rows=[]
+          for name,prefix,(lname,target) in cases:
+            with tempfile.TemporaryDirectory(prefix='r15-link-') as td:
+              d=pathlib.Path(td)/'candidate'; shutil.copytree(base,d); runtime=d/'governance-runtime'; (runtime/lname).symlink_to(target,target_is_directory=(target=='/proc'))
+              p=runtime/'v24_v6_governance_foundation.py'; text=p.read_text(); assert text.count(marker)==1; p.write_text(text.replace(marker,marker+prefix,1))
+              cp=subprocess.run([native,'--sandbox',str(d),'--request',req],env={'HOME':'/tmp','PATH':'/usr/bin:/bin'},stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=30,check=False)
+              auth=cp.stdout.startswith('R14_NATIVE_OBSERVATION='); intended='R15_AUDIT_FORBIDDEN_NORMALIZED_PATH' in cp.stderr; rejected=cp.returncode!=0 and not auth and intended
+              rows.append({'attack':name,'returncode':cp.returncode,'authenticated_observation_emitted':auth,'intended_policy_diagnostic':intended,'rejected':rejected,'stderr_tail':cp.stderr[-600:]})
+          obj={'schema_version':1,'candidate_commit':os.environ['C'],'candidate_tree':os.environ['T'],'native_observer_sha256':os.environ['BSHA'],'attacks':rows,'all_rejected_at_intended_endpoint':all(x['rejected'] for x in rows),'false_green_reproduced':any(x['authenticated_observation_emitted'] for x in rows),'classification':'ATTACK_SET_REJECTED' if all(x['rejected'] for x in rows) else 'FAIL_CODE_OR_HARNESS_REVIEW_REQUIRED','scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW','runtime_qualification_state':'NOT_CLAIMED','authority_effect':'NONE_EVIDENCE_ONLY'}
+          out.write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n'); print(out.read_text())
+          if not obj['all_rejected_at_intended_endpoint']: raise SystemExit('R15_SYMLINK_ALIAS_ATTACK_SET_NOT_CLOSED')
+          PY
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload falsification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-r15-symlink-alias-falsification-v2-evidence
+          path: ${{ runner.temp }}/V24-I11-V6-R15-SYMLINK-ALIAS-FALSIFICATION-V2.json
+          if-no-files-found: error
+          retention-days: 90
