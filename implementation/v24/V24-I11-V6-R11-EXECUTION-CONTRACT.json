@@ -22,13 +22,16 @@
     "candidate_may_edit_authority_pinset": false,
     "candidate_may_edit_trusted_runner": false,
     "exact_candidate_commit_and_tree_required": true,
+    "pin_every_admitted_file": true,
     "pin_every_admitted_python_file": true,
+    "pin_every_support_object_read_by_tests": true,
     "pin_fields": [
       "path",
       "git_blob_sha1",
       "raw_sha256",
       "role"
     ],
+    "reject_unpinned_file_in_execution_sandbox": true,
     "reject_unpinned_python_file_in_execution_sandbox": true,
     "reject_symlink_or_alternate_path": true,
     "reject_reserved_or_stdlib_shadow_name": true,
@@ -44,13 +47,19 @@
     "candidate_path_absent_at_interpreter_startup": true,
     "candidate_bytes_staged_only_after_external_pin_verification": true
   },
+  "mandatory_support_objects": [
+    "implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json",
+    "implementation/v24/V24-I11-V6-R11-EXECUTION-CONTRACT.json"
+  ],
   "mandatory_adversarial_probes": [
     "CANDIDATE_UNITTEST_SHADOW_REJECTED",
     "CANDIDATE_SITECUSTOMIZE_REJECTED",
     "CANDIDATE_USERCUSTOMIZE_REJECTED",
     "CANDIDATE_STDLIB_SHADOW_REJECTED",
+    "UNPINNED_FILE_REJECTED",
     "UNPINNED_PYTHON_FILE_REJECTED",
     "PINNED_TEST_SAME_PATH_DIFFERENT_BYTES_REJECTED",
+    "PINNED_SUPPORT_OBJECT_SAME_PATH_DIFFERENT_BYTES_REJECTED",
     "SYMLINK_OR_ALTERNATE_PATH_REJECTED"
   ],
   "result_admission": {
