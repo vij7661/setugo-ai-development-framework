@@ -27,6 +27,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          for P in remediation/v24/r10-apply-gz-v2/part-001.b64 remediation/v24/r10-apply-gz-v2/part-002.b64 remediation/v24/r10-apply-gz-v2/part-003.b64; do
+            echo "FRAGMENT=$P BYTES=$(wc -c < "$P") SHA256=$(sha256sum "$P" | awk '{print $1}')"
+          done
           test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-001.b64)" -eq 6000
           test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-002.b64)" -eq 6000
           test "$(wc -c < remediation/v24/r10-apply-gz-v2/part-003.b64)" -eq 2552
