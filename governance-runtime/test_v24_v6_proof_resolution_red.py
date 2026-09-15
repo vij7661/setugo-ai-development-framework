@@ -5,9 +5,11 @@ import unittest
 from test_v24_v6_decision_apply import bundle
 from test_v24_v6_endpoint_projection import endpoint_bundle
 from test_v24_v6_material_surface import ledger_bundle
+from test_v24_v6_normative_clause_projection import qualified_disposition_bundle
 from v24_v6_decision_apply import evaluate_decision_apply_latch
 from v24_v6_endpoint_projection import compile_qualified_endpoint_table
 from v24_v6_material_surface import validate_material_observation_ledger
+from v24_v6_normative_clause_projection import qualify_normative_dispositions
 
 
 class V24V6ProofResolutionRegressionTests(unittest.TestCase):
@@ -74,9 +76,6 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
 
         result = compile_qualified_endpoint_table(candidate)
 
-        # Required V6 behavior: an embedded result/currentness label and a
-        # SHA-shaped qualification_digest cannot qualify the compiled endpoint
-        # table without an exact externally bound R1 proof record.
         self.assertFalse(
             result["qualified"],
             "V6 false-green: opaque endpoint-table qualification was accepted as proof",
@@ -86,6 +85,35 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
                 "PROOF" in problem
                 or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
                 or "QUALIFICATION_REFERENCE" in problem
+                for problem in result["problems"]
+            ),
+            result["problems"],
+        )
+
+    def test_opaque_parser_governance_labels_cannot_qualify_normative_dispositions(self):
+        candidate = qualified_disposition_bundle()
+        parser = candidate["parser_descriptor"]
+        self.assertEqual(parser["qualification_state"], "QUALIFIED")
+        self.assertEqual(parser["independence_state"], "QUALIFIED")
+        self.assertEqual(parser["currentness_result"], "CURRENT")
+        self.assertNotIn("qualification_digest", parser)
+        self.assertNotIn("governance_proof_context", candidate)
+
+        result = qualify_normative_dispositions(candidate)
+
+        # Pre-repair R5 accepts the three labels plus SHA-shaped implementation
+        # metadata as sufficient parser governance.  Required V6 behavior is to
+        # fail closed until exact parser qualification/independence/currentness
+        # references are resolved under the separately trusted proof boundary.
+        self.assertFalse(
+            result["qualified"],
+            "V6 false-green: opaque parser governance labels qualified normative dispositions",
+        )
+        self.assertTrue(
+            any(
+                "PARSER_PROOF" in problem
+                or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
+                or "PROOF_REFERENCE" in problem
                 for problem in result["problems"]
             ),
             result["problems"],
