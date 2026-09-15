@@ -1,8 +1,9 @@
 """V16 Slice 2 authenticated control-domain ancestry and independence.
 
 Construction-stage only. Independence is derived from a bootstrap-threshold-
-authenticated graph instead of caller-supplied labels. Real-world graph completeness,
-root ownership, and out-of-band head provisioning remain unproven.
+authenticated graph instead of caller-supplied labels. Generic promotion and authority
+remain fail-closed while real-world graph completeness, root ownership, and out-of-band
+head provisioning are unproven.
 """
 from __future__ import annotations
 
@@ -169,17 +170,6 @@ def control_domain_graph_signature_message(
     })
 
 
-def _domain_map(record: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
-    domains = record.get("domains")
-    if type(domains) is not list:
-        return {}
-    out: dict[str, tuple[str, ...]] = {}
-    for row in domains:
-        if type(row) is dict and _canonical_identifier(row.get("control_domain_id")) and type(row.get("parent_control_domain_ids")) is list:
-            out[row["control_domain_id"]] = tuple(row["parent_control_domain_ids"])
-    return out
-
-
 def _cycle_nodes(domains: Mapping[str, tuple[str, ...]]) -> set[str]:
     WHITE, GREY, BLACK = 0, 1, 2
     state = {node: WHITE for node in domains}
@@ -205,6 +195,58 @@ def _cycle_nodes(domains: Mapping[str, tuple[str, ...]]) -> set[str]:
         if state[node] == WHITE:
             visit(node, [])
     return cycle
+
+
+def _ancestor_closure(domain_id: str, domains: Mapping[str, tuple[str, ...]]) -> frozenset[str]:
+    seen: set[str] = set()
+    stack = [domain_id]
+    while stack:
+        node = stack.pop()
+        if node in seen:
+            continue
+        seen.add(node)
+        stack.extend(domains.get(node, ()))
+    return frozenset(seen)
+
+
+def _candidate_ancestor_union(
+    candidate_domains: frozenset[str], domains: Mapping[str, tuple[str, ...]],
+) -> frozenset[str]:
+    out: set[str] = set()
+    for domain in candidate_domains:
+        out.update(_ancestor_closure(domain, domains))
+    return frozenset(out)
+
+
+def _control_quorum_problems(
+    signer_domains: set[str], *, domains: Mapping[str, tuple[str, ...]],
+    candidate_domains: frozenset[str], threshold: int, code_prefix: str,
+) -> tuple[list[str], tuple[str, ...]]:
+    p: list[str] = []
+    candidate_ancestors = _candidate_ancestor_union(candidate_domains, domains)
+    eligible: list[str] = []
+    for domain in sorted(signer_domains):
+        if domain not in domains:
+            p.append(f"{code_prefix}_SIGNER_DOMAIN_NOT_IN_GRAPH:{domain}")
+            continue
+        subject = _ancestor_closure(domain, domains)
+        if subject & candidate_ancestors:
+            p.append(f"{code_prefix}_SIGNER_CANDIDATE_CONTROLLED:{domain}")
+            continue
+        eligible.append(domain)
+    pair_conflicts: list[str] = []
+    for i, left in enumerate(eligible):
+        left_ancestors = _ancestor_closure(left, domains)
+        for right in eligible[i + 1:]:
+            shared = left_ancestors & _ancestor_closure(right, domains)
+            if shared:
+                pair_conflicts.append(f"{left}|{right}|{','.join(sorted(shared))}")
+    if pair_conflicts:
+        p.append(f"{code_prefix}_SIGNER_INDEPENDENCE_NOT_MET:" + ";".join(sorted(pair_conflicts)))
+    if len(eligible) < threshold or pair_conflicts:
+        p.append(f"{code_prefix}_INDEPENDENT_NONCANDIDATE_THRESHOLD_NOT_MET")
+        return p, ()
+    return p, tuple(eligible)
 
 
 def _validate_graph_snapshot(
@@ -329,6 +371,7 @@ def _validate_graph_snapshot(
 
 def _verify_graph_signatures(
     record: dict[str, Any], trust: base.PinnedBootstrapTrustSet,
+    domains: Mapping[str, tuple[str, ...]], candidate_domains: frozenset[str],
 ) -> tuple[list[str], tuple[str, ...]]:
     p: list[str] = []
     digest = record.get("graph_digest")
@@ -336,7 +379,7 @@ def _verify_graph_signatures(
         return ["CONTROL_DOMAIN_GRAPH_SIGNATURE_NO_DIGEST"], ()
     roots = {(r.root_id, r.key_id): r for r in trust.roots}
     seen: set[tuple[str, str]] = set()
-    domains: set[str] = set()
+    cryptographic_domains: set[str] = set()
     signatures = record.get("bootstrap_signatures")
     if type(signatures) is not list:
         return ["CONTROL_DOMAIN_GRAPH_SIGNATURES_REQUIRED"], ()
@@ -366,10 +409,16 @@ def _verify_graph_signatures(
         ):
             p.append(f"CONTROL_DOMAIN_GRAPH_SIGNATURE_INVALID:{i}")
             continue
-        domains.add(root.control_domain_id)
-    if len(domains) < trust.threshold_control_domains:
-        p.append("CONTROL_DOMAIN_GRAPH_BOOTSTRAP_THRESHOLD_NOT_MET")
-    return p, tuple(sorted(domains))
+        cryptographic_domains.add(root.control_domain_id)
+    if len(cryptographic_domains) < trust.threshold_control_domains:
+        p.append("CONTROL_DOMAIN_GRAPH_BOOTSTRAP_CRYPTOGRAPHIC_THRESHOLD_NOT_MET")
+    quorum_p, qualified = _control_quorum_problems(
+        cryptographic_domains, domains=domains, candidate_domains=candidate_domains,
+        threshold=trust.threshold_control_domains,
+        code_prefix="CONTROL_DOMAIN_GRAPH_BOOTSTRAP",
+    )
+    p.extend(quorum_p)
+    return p, qualified
 
 
 def _head_problems(
@@ -428,7 +477,7 @@ def _validate_graph_chain_owned(
     for i, record in enumerate(chain):
         structural, domains, candidate_domains = _validate_graph_snapshot(record, trust, expected_candidate_id)
         p.extend(f"GRAPH[{i}]:{x}" for x in structural)
-        sig_p, authenticated_domains = _verify_graph_signatures(record, trust)
+        sig_p, authenticated_domains = _verify_graph_signatures(record, trust, domains, candidate_domains)
         p.extend(f"GRAPH[{i}]:{x}" for x in sig_p)
         seq = record.get("sequence")
         generation = record.get("generation_id")
@@ -494,15 +543,18 @@ def validate_control_domain_graph_chain(
     try:
         chain = _snapshot_chain(graph_chain, "control_domain_graph_chain")
     except base.CanonicalizationError as exc:
-        return _result(False, [f"CONTROL_DOMAIN_GRAPH_INPUT:{exc}"], "UNREACHABLE", "CONTROL_DOMAIN_GRAPH_CHAIN_INVALID")
+        out = _result(False, [f"CONTROL_DOMAIN_GRAPH_INPUT:{exc}"], "UNREACHABLE", "CONTROL_DOMAIN_GRAPH_CHAIN_INVALID")
+        out.update({"promotion_blocked": True, "construction_graph_valid": False})
+        return out
     result = _validate_graph_chain_owned(chain, bootstrap_trust, expected_current_head, expected_candidate_id)
     out = _result(
         result.valid, list(result.problems),
-        "CONTROL_DOMAIN_GRAPH_CHAIN_AUTHENTICATED_CURRENT",
+        "CONTROL_DOMAIN_GRAPH_CHAIN_STRUCTURALLY_AUTHENTICATED_CURRENT_NONAUTHORITATIVE",
         "CONTROL_DOMAIN_GRAPH_CHAIN_INVALID",
     )
     out.update({
-        "promotion_blocked": not result.valid,
+        "promotion_blocked": True,
+        "construction_graph_valid": result.valid,
         "current_head_matched": result.current_head_matched,
         "graph_completeness_real_world_proven": False,
         "bootstrap_authenticated_control_domains": list(result.authenticated_bootstrap_domains),
@@ -518,27 +570,6 @@ def validate_control_domain_graph_chain(
     return out
 
 
-def _ancestor_closure(domain_id: str, domains: Mapping[str, tuple[str, ...]]) -> frozenset[str]:
-    seen: set[str] = set()
-    stack = [domain_id]
-    while stack:
-        node = stack.pop()
-        if node in seen:
-            continue
-        seen.add(node)
-        stack.extend(domains.get(node, ()))
-    return frozenset(seen)
-
-
-def _candidate_ancestor_union(
-    candidate_domains: frozenset[str], domains: Mapping[str, tuple[str, ...]],
-) -> frozenset[str]:
-    out: set[str] = set()
-    for domain in candidate_domains:
-        out.update(_ancestor_closure(domain, domains))
-    return frozenset(out)
-
-
 def assess_domain_independence(
     subject_a_control_domain_id: str, subject_b_control_domain_id: str, *,
     graph_chain: Sequence[Mapping[str, Any]], bootstrap_trust: base.PinnedBootstrapTrustSet,
@@ -548,7 +579,7 @@ def assess_domain_independence(
         chain = _snapshot_chain(graph_chain, "control_domain_graph_chain")
     except base.CanonicalizationError as exc:
         out = _result(False, [f"CONTROL_DOMAIN_GRAPH_INPUT:{exc}"], "UNREACHABLE", "INDEPENDENCE_UNPROVEN")
-        out.update({"independence_result": "INDEPENDENCE_UNPROVEN", "promotion_blocked": True})
+        out.update({"independence_result": "INDEPENDENCE_UNPROVEN", "promotion_blocked": True, "construction_independence_satisfied": False})
         return out
     graph = _validate_graph_chain_owned(chain, bootstrap_trust, expected_current_head, expected_candidate_id)
     p = list(graph.problems)
@@ -573,11 +604,13 @@ def assess_domain_independence(
         shared = set(a & b)
         result = "NOT_INDEPENDENT" if shared else "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH"
     valid = graph.valid and result != "INDEPENDENCE_UNPROVEN" and not p
+    structural = valid and result == "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH"
     out = _result(valid, p, result, "INDEPENDENCE_UNPROVEN" if result == "INDEPENDENCE_UNPROVEN" else result)
     out.update({
         "independence_result": result,
         "shared_load_bearing_ancestors": sorted(shared),
-        "promotion_blocked": result != "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH",
+        "construction_independence_satisfied": structural,
+        "promotion_blocked": True,
         "independence_real_world_proven": False,
         "graph_completeness_real_world_proven": False,
     })
@@ -593,7 +626,7 @@ def assess_candidate_control(
         chain = _snapshot_chain(graph_chain, "control_domain_graph_chain")
     except base.CanonicalizationError as exc:
         out = _result(False, [f"CONTROL_DOMAIN_GRAPH_INPUT:{exc}"], "UNREACHABLE", "CANDIDATE_CONTROL_UNPROVEN")
-        out.update({"candidate_control_result": "CANDIDATE_CONTROL_UNPROVEN", "promotion_blocked": True})
+        out.update({"candidate_control_result": "CANDIDATE_CONTROL_UNPROVEN", "promotion_blocked": True, "construction_candidate_control_clear": False})
         return out
     graph = _validate_graph_chain_owned(chain, bootstrap_trust, expected_current_head, expected_candidate_id)
     p = list(graph.problems)
@@ -609,12 +642,14 @@ def assess_candidate_control(
         shared = set(subject & candidate)
         result = "CANDIDATE_CONTROLLED" if shared else "NOT_CANDIDATE_CONTROLLED_WITHIN_AUTHENTICATED_GRAPH"
     valid = graph.valid and result != "CANDIDATE_CONTROL_UNPROVEN" and not p
+    clear = valid and result == "NOT_CANDIDATE_CONTROLLED_WITHIN_AUTHENTICATED_GRAPH"
     out = _result(valid, p, result, "CANDIDATE_CONTROL_UNPROVEN" if result == "CANDIDATE_CONTROL_UNPROVEN" else result)
     out.update({
         "candidate_control_result": result,
         "candidate_controlled": True if result == "CANDIDATE_CONTROLLED" else False if result.startswith("NOT_CANDIDATE") else None,
         "shared_candidate_ancestors": sorted(shared),
-        "promotion_blocked": result != "NOT_CANDIDATE_CONTROLLED_WITHIN_AUTHENTICATED_GRAPH",
+        "construction_candidate_control_clear": clear,
+        "promotion_blocked": True,
         "control_real_world_completeness_proven": False,
     })
     return out
@@ -633,6 +668,23 @@ def _registry_head_matches(current: dict[str, Any], head: base.PinnedRegistryHea
     )
 
 
+def _registry_snapshot_signer_domains(
+    record: Mapping[str, Any], trust: base.PinnedBootstrapTrustSet,
+) -> set[str]:
+    roots = {(r.root_id, r.key_id): r for r in trust.roots}
+    domains: set[str] = set()
+    signatures = record.get("bootstrap_signatures")
+    if type(signatures) is not list:
+        return domains
+    for sig in signatures:
+        if type(sig) is not dict:
+            continue
+        root = roots.get((sig.get("root_id"), sig.get("key_id")))
+        if root is not None:
+            domains.add(root.control_domain_id)
+    return domains
+
+
 def resolve_registry_key_authority(
     key_id: str, required_role: str, *, registry_chain: Sequence[Mapping[str, Any]],
     expected_registry_head: base.PinnedRegistryHead,
@@ -649,7 +701,7 @@ def resolve_registry_key_authority(
         graph = _snapshot_chain(graph_chain, "control_domain_graph_chain")
     except base.CanonicalizationError as exc:
         out = _result(False, [f"REGISTRY_AUTHORITY_INPUT:{exc}"], "UNREACHABLE", "REGISTRY_AUTHORITY_UNPROVEN")
-        out.update({"authority_admissible": False, "promotion_blocked": True})
+        out.update({"authority_admissible": False, "authority_structurally_admissible_within_authenticated_graph": False, "promotion_blocked": True})
         return out
 
     registry_result = base.validate_governance_key_registry_chain(
@@ -671,6 +723,17 @@ def resolve_registry_key_authority(
     )
     if not graph_result.valid:
         p.extend(f"REGISTRY_AUTHORITY_GRAPH:{x}" for x in graph_result.problems)
+
+    if registry_result["valid"] and graph_result.valid:
+        for i, snapshot in enumerate(registry):
+            signer_domains = _registry_snapshot_signer_domains(snapshot, bootstrap_trust)
+            quorum_p, _ = _control_quorum_problems(
+                signer_domains, domains=graph_result.current_domains,
+                candidate_domains=graph_result.candidate_domains,
+                threshold=bootstrap_trust.threshold_control_domains,
+                code_prefix=f"REGISTRY_AUTHORITY_BOOTSTRAP_SNAPSHOT_{i}",
+            )
+            p.extend(quorum_p)
 
     key = None
     if type(current.get("keys")) is list:
@@ -703,11 +766,12 @@ def resolve_registry_key_authority(
                 if candidate_controlled:
                     p.append("REGISTRY_AUTHORITY_CANDIDATE_CONTROLLED")
 
-    admissible = not p and key is not None and candidate_controlled is False
-    out = _result(admissible, p, "REGISTRY_KEY_AUTHORITY_RESOLVED_ADMISSIBLE", "REGISTRY_AUTHORITY_UNPROVEN")
+    structural = not p and key is not None and candidate_controlled is False
+    out = _result(structural, p, "REGISTRY_KEY_AUTHORITY_STRUCTURALLY_RESOLVED_NONAUTHORITATIVE", "REGISTRY_AUTHORITY_UNPROVEN")
     out.update({
-        "authority_admissible": admissible,
-        "promotion_blocked": not admissible,
+        "authority_structurally_admissible_within_authenticated_graph": structural,
+        "authority_admissible": False,
+        "promotion_blocked": True,
         "key_id": key_id,
         "issuer_id": key.get("issuer_id") if key else None,
         "control_domain_id": domain_id,
@@ -738,7 +802,9 @@ def assess_registry_key_independence(
         expected_candidate_id=expected_candidate_id,
     )
     p = [f"A:{x}" for x in a["problems"]] + [f"B:{x}" for x in b["problems"]]
-    if not a["authority_admissible"] or not b["authority_admissible"]:
+    a_structural = a.get("authority_structurally_admissible_within_authenticated_graph") is True
+    b_structural = b.get("authority_structurally_admissible_within_authenticated_graph") is True
+    if not a_structural or not b_structural:
         result = "INDEPENDENCE_UNPROVEN"
         shared: list[str] = []
     else:
@@ -751,11 +817,14 @@ def assess_registry_key_independence(
         result = domain_result["independence_result"]
         shared = domain_result["shared_load_bearing_ancestors"]
     valid = result != "INDEPENDENCE_UNPROVEN" and not p
+    structural_independent = valid and result == "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH"
     out = _result(valid, p, result, "INDEPENDENCE_UNPROVEN" if result == "INDEPENDENCE_UNPROVEN" else result)
     out.update({
         "independence_result": result,
         "shared_load_bearing_ancestors": shared,
-        "promotion_blocked": result != "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH",
+        "construction_independence_satisfied": structural_independent,
+        "promotion_blocked": True,
+        "authority_admissible": False,
         "subject_a_control_domain_id": a.get("control_domain_id"),
         "subject_b_control_domain_id": b.get("control_domain_id"),
         "independence_real_world_proven": False,
