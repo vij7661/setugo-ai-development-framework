@@ -1,4 +1,10 @@
-"""V24 I11 V6 remediation R2: predicate coverage and governed endpoint projection."""
+"""V24 I11 V6 remediation R2: predicate coverage and governed endpoint projection.
+
+Construction-only.  Every authority-bearing R2 stage resolves exact R1 proof
+records through an externally bound proof context and carries recomputable
+binding material to the next stage.  No runtime/release/scientific authority is
+granted by this module.
+"""
 from __future__ import annotations
 
 from typing import Any, Mapping
@@ -60,17 +66,29 @@ def _append_proof(prefix: str, result: Mapping[str, Any], problems: list[str]) -
     return False
 
 
-def canonical_normative_catalog_digest(bundle: Mapping[str, Any]) -> str:
-    """Bind the qualification to the exact catalog inputs consumed by I5."""
-    active = bundle.get("active_predicate_ids")
-    active_ids = sorted(active) if isinstance(active, list) else []
-    predicates = bundle.get("predicate_descriptors")
-    return digest(
-        {
-            "predicate_descriptors": predicates if isinstance(predicates, list) else [],
-            "active_predicate_ids": active_ids,
-        }
+def _close_single_qualification(
+    *,
+    reference_digest: Any,
+    subject_id: Any,
+    subject_content_digest: Any,
+    proof_context: Mapping[str, Any] | None,
+    trusted_boundary: Mapping[str, Any] | None,
+    prefix: str,
+    problems: list[str],
+) -> bool:
+    proof = close_governance_dependencies(
+        [
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": reference_digest,
+                "subject_id": subject_id,
+                "subject_content_digest": subject_content_digest,
+            }
+        ],
+        proof_context,
+        trusted_boundary,
     )
+    return _append_proof(prefix, proof, problems)
 
 
 def _close_registry_completeness_dependencies(
@@ -81,12 +99,7 @@ def _close_registry_completeness_dependencies(
     prefix: str,
     problems: list[str],
 ) -> bool:
-    """Make every proof reference inside an R1 completeness record resolvable.
-
-    R1 structurally validates the completeness record itself.  This layer closes
-    the qualification/independence references carried by that record so SHA-shaped
-    opaque references cannot satisfy an R2 authority path.
-    """
+    """Resolve every proof reference carried by an R1 completeness record."""
     requirements: list[Mapping[str, Any]] = []
     for ref in record.get("derivation_mechanism_qualification_digests", []):
         requirements.append(
@@ -121,29 +134,59 @@ def _close_registry_completeness_dependencies(
     return _append_proof(prefix, proof, problems)
 
 
-def _close_single_qualification(
+def _validate_bound_material(
     *,
-    reference_digest: Any,
-    subject_id: Any,
-    subject_content_digest: Any,
-    proof_context: Mapping[str, Any] | None,
-    trusted_boundary: Mapping[str, Any] | None,
+    material: Any,
+    expected_digest: Any,
     prefix: str,
     problems: list[str],
-) -> bool:
-    proof = close_governance_dependencies(
-        [
-            {
-                "kind": GOVERNED_QUALIFICATION,
-                "reference_digest": reference_digest,
-                "subject_id": subject_id,
-                "subject_content_digest": subject_content_digest,
-            }
-        ],
-        proof_context,
-        trusted_boundary,
+) -> Mapping[str, Any] | None:
+    if not isinstance(material, Mapping):
+        problems.append(f"{prefix}_BINDING_MATERIAL_REQUIRED")
+        return None
+    if not _sha256(expected_digest):
+        problems.append(f"{prefix}_DIGEST_INVALID")
+        return material
+    if digest(material) != expected_digest:
+        problems.append(f"{prefix}_BINDING_MATERIAL_DIGEST_MISMATCH")
+    return material
+
+
+def canonical_normative_catalog_digest(bundle: Mapping[str, Any]) -> str:
+    predicates = bundle.get("predicate_descriptors")
+    active = bundle.get("active_predicate_ids")
+    return digest(
+        {
+            "predicate_descriptors": predicates if isinstance(predicates, list) else [],
+            "active_predicate_ids": sorted(active) if isinstance(active, list) else [],
+        }
     )
-    return _append_proof(prefix, proof, problems)
+
+
+def canonical_endpoint_table_digest(rows: Any) -> str:
+    source = rows if isinstance(rows, list) else []
+    normalized = [
+        {
+            "predicate_id": row.get("predicate_id"),
+            "phase": row.get("phase"),
+            "within_phase_rank": row.get("within_phase_rank"),
+            "severity_rank": row.get("severity_rank"),
+            "endpoint": row.get("endpoint"),
+            "control_id": row.get("control_id"),
+        }
+        for row in source
+        if isinstance(row, Mapping)
+    ]
+    return digest(
+        sorted(
+            normalized,
+            key=lambda x: (
+                x.get("phase") or 10**9,
+                x.get("within_phase_rank") or 10**9,
+                x.get("predicate_id") or "",
+            ),
+        )
+    )
 
 
 def compile_qualified_endpoint_table(
@@ -152,7 +195,7 @@ def compile_qualified_endpoint_table(
     proof_context: Mapping[str, Any] | None = None,
     trusted_boundary: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Compile I5 precedence and bind all authority claims to exact R1 proofs."""
+    """Compile I5 and require exact catalog + resulting table qualifications."""
     compiled = compile_endpoint_precedence(bundle)
     problems = list(compiled["problems"])
 
@@ -204,10 +247,10 @@ def compile_qualified_endpoint_table(
     if isinstance(legacy_q, Mapping):
         if legacy_q.get("result") not in (None, QUALIFIED):
             problems.append("ENDPOINT_TABLE_NOT_QUALIFIED")
-        legacy_subject_digest = legacy_q.get("subject_content_digest")
+        subject_digest = legacy_q.get("subject_content_digest")
         if (
-            legacy_subject_digest is not None
-            and legacy_subject_digest != compiled["compiled_table_digest"]
+            subject_digest is not None
+            and subject_digest != compiled["compiled_table_digest"]
         ):
             problems.append("ENDPOINT_TABLE_QUALIFICATION_DIGEST_MISMATCH")
 
@@ -235,7 +278,7 @@ def derive_applicable_predicate_universe(
     proof_context: Mapping[str, Any] | None = None,
     trusted_boundary: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Compile applicability over an exact proof-closed endpoint universe."""
+    """Derive applicability from the exact qualified table rows."""
     problems: list[str] = []
     table_rows = bundle.get("compiled_endpoint_rows")
     if not isinstance(table_rows, list) or not table_rows:
@@ -244,6 +287,8 @@ def derive_applicable_predicate_universe(
     table_digest = bundle.get("endpoint_table_digest")
     if not _sha256(table_digest):
         problems.append("ENDPOINT_TABLE_DIGEST_INVALID")
+    if _sha256(table_digest) and canonical_endpoint_table_digest(table_rows) != table_digest:
+        problems.append("APPLICABILITY_ENDPOINT_TABLE_DIGEST_DRIFT")
 
     table_id = bundle.get("endpoint_table_id")
     table_q = bundle.get("endpoint_table_qualification_digest")
@@ -347,7 +392,11 @@ def derive_applicable_predicate_universe(
 
     universe_material = {
         "decision_context_digest": context_digest,
+        "endpoint_table_id": table_id,
         "endpoint_table_digest": table_digest,
+        "endpoint_table_qualification_digest": table_q,
+        "applicability_compiler_id": compiler_id,
+        "applicability_compiler_content_digest": compiler_content,
         "applicability_compiler_qualification_digest": compiler_q,
         "applicable_predicate_ids": applicable,
         "not_applicable_predicate_ids": not_applicable,
@@ -384,7 +433,7 @@ def derive_applicable_predicate_universe(
         "applicable_predicate_ids": applicable,
         "not_applicable_predicate_ids": not_applicable,
         "universe_digest": universe_digest,
-        "applicability_compiler_qualification_digest": compiler_q,
+        "universe_binding_material": universe_material,
         "authority_effect": AUTHORITY_EFFECT,
     }
 
@@ -398,6 +447,28 @@ def validate_evaluator_condition_universe(
     problems: list[str] = []
     applicable, pp = _set_of_strings(bundle.get("applicable_predicate_ids"))
     problems.extend(f"APPLICABLE:{x}" for x in pp)
+
+    app_digest = bundle.get("applicability_universe_digest")
+    app_material = _validate_bound_material(
+        material=bundle.get("applicability_binding_material"),
+        expected_digest=app_digest,
+        prefix="EVALUATOR_APPLICABILITY",
+        problems=problems,
+    )
+    if app_material is not None:
+        bound_applicable = set(app_material.get("applicable_predicate_ids", []))
+        if bound_applicable != applicable:
+            problems.append("EVALUATOR_APPLICABILITY_MEMBER_SET_MISMATCH")
+    _close_single_qualification(
+        reference_digest=bundle.get("applicability_qualification_digest"),
+        subject_id=bundle.get("applicability_universe_id"),
+        subject_content_digest=app_digest,
+        proof_context=proof_context,
+        trusted_boundary=trusted_boundary,
+        prefix="EVALUATOR_APPLICABILITY_PROOF",
+        problems=problems,
+    )
+
     contracts = bundle.get("evaluator_contracts")
     if not isinstance(contracts, list):
         contracts = []
@@ -507,13 +578,13 @@ def validate_evaluator_condition_universe(
 
     evaluator_contract_digest = digest(contracts)
     condition_registry_digest = digest(conditions)
-    universe_digest = digest(
-        {
-            "applicable_predicate_ids": sorted(applicable),
-            "evaluator_contract_digest": evaluator_contract_digest,
-            "condition_registry_digest": condition_registry_digest,
-        }
-    )
+    universe_material = {
+        "applicability_universe_digest": app_digest,
+        "applicable_predicate_ids": sorted(applicable),
+        "evaluator_contract_digest": evaluator_contract_digest,
+        "condition_registry_digest": condition_registry_digest,
+    }
+    universe_digest = digest(universe_material)
     problems = sorted(set(problems))
     return {
         "state": (
@@ -526,6 +597,7 @@ def validate_evaluator_condition_universe(
         "evaluator_contract_digest": evaluator_contract_digest,
         "condition_registry_digest": condition_registry_digest,
         "universe_digest": universe_digest,
+        "universe_binding_material": universe_material,
         "authority_effect": AUTHORITY_EFFECT,
     }
 
@@ -536,7 +608,7 @@ def qualify_predicate_coverage(
     proof_context: Mapping[str, Any] | None = None,
     trusted_boundary: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Verify one record per predicate plus exact proof closure of its authorities."""
+    """Verify complete predicate evaluation over exact qualified upstream artifacts."""
     problems: list[str] = []
     applicable, ap = _set_of_strings(bundle.get("applicable_predicate_ids"))
     not_applicable, nap = _set_of_strings(bundle.get("not_applicable_predicate_ids"))
@@ -544,6 +616,77 @@ def qualify_predicate_coverage(
     problems.extend(f"NOT_APPLICABLE:{x}" for x in nap)
     if applicable.intersection(not_applicable):
         problems.append("PREDICATE_APPLICABILITY_PARTITION_OVERLAP")
+
+    app_digest = bundle.get("applicable_predicate_universe_digest")
+    app_material = _validate_bound_material(
+        material=bundle.get("applicability_binding_material"),
+        expected_digest=app_digest,
+        prefix="COVERAGE_APPLICABILITY",
+        problems=problems,
+    )
+    if app_material is not None:
+        if set(app_material.get("applicable_predicate_ids", [])) != applicable:
+            problems.append("COVERAGE_APPLICABILITY_MEMBER_SET_MISMATCH")
+        if set(app_material.get("not_applicable_predicate_ids", [])) != not_applicable:
+            problems.append("COVERAGE_NOT_APPLICABLE_MEMBER_SET_MISMATCH")
+        if app_material.get("endpoint_table_digest") != bundle.get("endpoint_table_digest"):
+            problems.append("COVERAGE_APPLICABILITY_TABLE_BINDING_MISMATCH")
+    _close_single_qualification(
+        reference_digest=bundle.get("applicability_qualification_digest"),
+        subject_id=bundle.get("applicability_universe_id"),
+        subject_content_digest=app_digest,
+        proof_context=proof_context,
+        trusted_boundary=trusted_boundary,
+        prefix="COVERAGE_APPLICABILITY_RESULT_PROOF",
+        problems=problems,
+    )
+
+    eval_universe_digest = bundle.get("evaluator_condition_universe_digest")
+    eval_material = _validate_bound_material(
+        material=bundle.get("evaluator_condition_binding_material"),
+        expected_digest=eval_universe_digest,
+        prefix="COVERAGE_EVALUATOR_UNIVERSE",
+        problems=problems,
+    )
+    if eval_material is not None:
+        if set(eval_material.get("applicable_predicate_ids", [])) != applicable:
+            problems.append("COVERAGE_EVALUATOR_MEMBER_SET_MISMATCH")
+        if eval_material.get("applicability_universe_digest") != app_digest:
+            problems.append("COVERAGE_EVALUATOR_APPLICABILITY_BINDING_MISMATCH")
+    _close_single_qualification(
+        reference_digest=bundle.get("evaluator_condition_universe_qualification_digest"),
+        subject_id=bundle.get("evaluator_condition_universe_id"),
+        subject_content_digest=eval_universe_digest,
+        proof_context=proof_context,
+        trusted_boundary=trusted_boundary,
+        prefix="COVERAGE_EVALUATOR_UNIVERSE_PROOF",
+        problems=problems,
+    )
+
+    _close_single_qualification(
+        reference_digest=bundle.get("endpoint_table_qualification_digest"),
+        subject_id=bundle.get("endpoint_table_id"),
+        subject_content_digest=bundle.get("endpoint_table_digest"),
+        proof_context=proof_context,
+        trusted_boundary=trusted_boundary,
+        prefix="COVERAGE_ENDPOINT_TABLE_PROOF",
+        problems=problems,
+    )
+
+    if app_material is not None:
+        _close_single_qualification(
+            reference_digest=app_material.get(
+                "applicability_compiler_qualification_digest"
+            ),
+            subject_id=app_material.get("applicability_compiler_id"),
+            subject_content_digest=app_material.get(
+                "applicability_compiler_content_digest"
+            ),
+            proof_context=proof_context,
+            trusted_boundary=trusted_boundary,
+            prefix="COVERAGE_APPLICABILITY_COMPILER_PROOF",
+            problems=problems,
+        )
 
     contracts = bundle.get("evaluator_contracts")
     if not isinstance(contracts, list):
@@ -554,14 +697,19 @@ def qualify_predicate_coverage(
         for c in contracts
         if isinstance(c, Mapping) and _nonempty(c.get("predicate_id"))
     }
-    condition_list = bundle.get("condition_descriptors")
-    if not isinstance(condition_list, list):
-        condition_list = []
+    conditions = bundle.get("condition_descriptors")
+    condition_list = conditions if isinstance(conditions, list) else []
     condition_desc = {
         c.get("condition_id"): c
         for c in condition_list
         if isinstance(c, Mapping) and _nonempty(c.get("condition_id"))
     }
+
+    if eval_material is not None:
+        if digest(contracts) != eval_material.get("evaluator_contract_digest"):
+            problems.append("COVERAGE_EVALUATOR_CONTRACT_DIGEST_MISMATCH")
+        if digest(condition_list) != eval_material.get("condition_registry_digest"):
+            problems.append("COVERAGE_CONDITION_REGISTRY_DIGEST_MISMATCH")
 
     for pid, contract in contract_by_pid.items():
         _close_single_qualification(
@@ -629,13 +777,13 @@ def qualify_predicate_coverage(
 
         if status == TRUE:
             true_ids.add(pid)
-            conditions = rec.get("conditions")
-            if not isinstance(conditions, list) or not conditions:
+            record_conditions = rec.get("conditions")
+            if not isinstance(record_conditions, list) or not record_conditions:
                 problems.append(f"TRUE_CONDITION_REQUIRED:{pid}")
             else:
                 allowed = set(contract.get("true_condition_ids", []))
                 seen_condition_ids: set[str] = set()
-                for condition in conditions:
+                for condition in record_conditions:
                     if not isinstance(condition, Mapping):
                         problems.append(f"TRUE_CONDITION_MALFORMED:{pid}")
                         continue
@@ -683,8 +831,6 @@ def qualify_predicate_coverage(
         "observation_ledger_head_digest",
         "coverage_verifier_content_digest",
         "coverage_verifier_qualification_digest",
-        "applicability_compiler_content_digest",
-        "applicability_compiler_qualification_digest",
         "evaluator_condition_universe_digest",
         "evaluator_condition_universe_qualification_digest",
         "applicability_qualification_digest",
@@ -693,76 +839,16 @@ def qualify_predicate_coverage(
         if not _sha256(bundle.get(key)):
             problems.append(f"COVERAGE_BINDING_DIGEST_INVALID:{key}")
 
-    expected_app_universe_digest = digest(
-        {
-            "decision_context_digest": bundle.get("decision_context_digest"),
-            "endpoint_table_digest": bundle.get("endpoint_table_digest"),
-            "applicability_compiler_qualification_digest": bundle.get(
-                "applicability_compiler_qualification_digest"
-            ),
-            "applicable_predicate_ids": sorted(applicable),
-            "not_applicable_predicate_ids": sorted(not_applicable),
-        }
-    )
-    if (
-        _sha256(bundle.get("applicable_predicate_universe_digest"))
-        and bundle.get("applicable_predicate_universe_digest")
-        != expected_app_universe_digest
-    ):
-        problems.append("COVERAGE_APPLICABILITY_UNIVERSE_DIGEST_MISMATCH")
+    if app_material is not None:
+        if app_material.get("decision_context_digest") != bundle.get(
+            "decision_context_digest"
+        ):
+            problems.append("COVERAGE_DECISION_CONTEXT_BINDING_MISMATCH")
+    if bundle.get("evaluator_contract_registry_digest") != digest(contracts):
+        problems.append("COVERAGE_EVALUATOR_REGISTRY_DIGEST_MISMATCH")
+    if bundle.get("condition_registry_digest") != digest(condition_list):
+        problems.append("COVERAGE_CONDITION_REGISTRY_BINDING_MISMATCH")
 
-    evaluator_contract_digest = digest(contracts)
-    condition_registry_digest = digest(condition_list)
-    expected_evaluator_universe_digest = digest(
-        {
-            "applicable_predicate_ids": sorted(applicable),
-            "evaluator_contract_digest": evaluator_contract_digest,
-            "condition_registry_digest": condition_registry_digest,
-        }
-    )
-    if (
-        _sha256(bundle.get("evaluator_condition_universe_digest"))
-        and bundle.get("evaluator_condition_universe_digest")
-        != expected_evaluator_universe_digest
-    ):
-        problems.append("COVERAGE_EVALUATOR_UNIVERSE_DIGEST_MISMATCH")
-
-    _close_single_qualification(
-        reference_digest=bundle.get("endpoint_table_qualification_digest"),
-        subject_id=bundle.get("endpoint_table_id"),
-        subject_content_digest=bundle.get("endpoint_table_digest"),
-        proof_context=proof_context,
-        trusted_boundary=trusted_boundary,
-        prefix="COVERAGE_ENDPOINT_TABLE_PROOF",
-        problems=problems,
-    )
-    _close_single_qualification(
-        reference_digest=bundle.get("applicability_compiler_qualification_digest"),
-        subject_id=bundle.get("applicability_compiler_id"),
-        subject_content_digest=bundle.get("applicability_compiler_content_digest"),
-        proof_context=proof_context,
-        trusted_boundary=trusted_boundary,
-        prefix="COVERAGE_APPLICABILITY_COMPILER_PROOF",
-        problems=problems,
-    )
-    _close_single_qualification(
-        reference_digest=bundle.get("applicability_qualification_digest"),
-        subject_id=bundle.get("applicability_universe_id"),
-        subject_content_digest=expected_app_universe_digest,
-        proof_context=proof_context,
-        trusted_boundary=trusted_boundary,
-        prefix="COVERAGE_APPLICABILITY_RESULT_PROOF",
-        problems=problems,
-    )
-    _close_single_qualification(
-        reference_digest=bundle.get("evaluator_condition_universe_qualification_digest"),
-        subject_id=bundle.get("evaluator_condition_universe_id"),
-        subject_content_digest=expected_evaluator_universe_digest,
-        proof_context=proof_context,
-        trusted_boundary=trusted_boundary,
-        prefix="COVERAGE_EVALUATOR_UNIVERSE_PROOF",
-        problems=problems,
-    )
     _close_single_qualification(
         reference_digest=bundle.get("coverage_verifier_qualification_digest"),
         subject_id=bundle.get("coverage_verifier_id"),
@@ -787,7 +873,8 @@ def qualify_predicate_coverage(
 
     coverage_material = {
         "decision_context_digest": bundle.get("decision_context_digest"),
-        "applicable_predicate_universe_digest": expected_app_universe_digest,
+        "applicable_predicate_universe_digest": app_digest,
+        "evaluator_condition_universe_digest": eval_universe_digest,
         "endpoint_table_digest": bundle.get("endpoint_table_digest"),
         "evaluator_contract_registry_digest": bundle.get(
             "evaluator_contract_registry_digest"
@@ -830,11 +917,15 @@ def project_governed_endpoint(
     proof_context: Mapping[str, Any] | None = None,
     trusted_boundary: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Select the deterministic endpoint only from proof-closed coverage/table inputs."""
+    """Project solely from exact qualified coverage and table binding material."""
     problems: list[str] = []
     coverage_content = bundle.get("coverage_content_digest")
-    endpoint_table_digest = bundle.get("endpoint_table_digest")
-
+    coverage_material = _validate_bound_material(
+        material=bundle.get("coverage_binding_material"),
+        expected_digest=coverage_content,
+        prefix="ENDPOINT_PROJECTION_COVERAGE",
+        problems=problems,
+    )
     _close_single_qualification(
         reference_digest=bundle.get("coverage_qualification_digest"),
         subject_id=bundle.get("coverage_id"),
@@ -844,6 +935,8 @@ def project_governed_endpoint(
         prefix="ENDPOINT_PROJECTION_COVERAGE_PROOF",
         problems=problems,
     )
+
+    endpoint_table_digest = bundle.get("endpoint_table_digest")
     _close_single_qualification(
         reference_digest=bundle.get("endpoint_table_qualification_digest"),
         subject_id=bundle.get("endpoint_table_id"),
@@ -893,35 +986,30 @@ def project_governed_endpoint(
         if not _sha256(bundle.get(key)):
             problems.append(f"ENDPOINT_PROJECTION_BINDING_DIGEST_INVALID:{key}")
 
+    if coverage_material is not None:
+        comparisons = (
+            ("decision_context_digest", "decision_context_digest"),
+            ("endpoint_table_digest", "endpoint_table_digest"),
+            ("applicable_predicate_universe_digest", "applicability_digest"),
+            ("evaluator_contract_registry_digest", "evaluator_registry_digest"),
+            ("condition_registry_digest", "condition_registry_digest"),
+            ("evidence_class_registry_digest", "evidence_registry_digest"),
+            ("source_snapshot_digest", "source_snapshot_digest"),
+            ("observation_ledger_head_digest", "observation_head_digest"),
+        )
+        for coverage_key, bundle_key in comparisons:
+            if coverage_material.get(coverage_key) != bundle.get(bundle_key):
+                problems.append(
+                    f"ENDPOINT_PROJECTION_COVERAGE_BINDING_MISMATCH:{coverage_key}"
+                )
+
     rows = bundle.get("compiled_endpoint_rows")
     if not isinstance(rows, list) or not rows:
         rows = []
         problems.append("ENDPOINT_PROJECTION_TABLE_ROWS_REQUIRED")
-    normalized_rows = [
-        {
-            "predicate_id": r.get("predicate_id"),
-            "phase": r.get("phase"),
-            "within_phase_rank": r.get("within_phase_rank"),
-            "severity_rank": r.get("severity_rank"),
-            "endpoint": r.get("endpoint"),
-            "control_id": r.get("control_id"),
-        }
-        for r in rows
-        if isinstance(r, Mapping)
-    ]
-    computed_table_digest = digest(
-        sorted(
-            normalized_rows,
-            key=lambda x: (
-                x.get("phase") or 10**9,
-                x.get("within_phase_rank") or 10**9,
-                x.get("predicate_id") or "",
-            ),
-        )
-    )
     if (
         _sha256(endpoint_table_digest)
-        and computed_table_digest != endpoint_table_digest
+        and canonical_endpoint_table_digest(rows) != endpoint_table_digest
     ):
         problems.append("ENDPOINT_PROJECTION_TABLE_DIGEST_DRIFT")
 
@@ -930,8 +1018,17 @@ def project_governed_endpoint(
         for r in rows
         if isinstance(r, Mapping) and _nonempty(r.get("predicate_id"))
     }
-    true_ids, tip = _set_of_strings(bundle.get("true_predicate_ids"))
-    problems.extend(f"TRUE_PREDICATES:{x}" for x in tip)
+    if coverage_material is None:
+        true_ids: set[str] = set()
+    else:
+        true_ids, tip = _set_of_strings(coverage_material.get("true_predicate_ids"))
+        problems.extend(f"TRUE_PREDICATES:{x}" for x in tip)
+    caller_true = bundle.get("true_predicate_ids")
+    if caller_true is not None:
+        caller_set, cp = _set_of_strings(caller_true)
+        problems.extend(f"CALLER_TRUE_PREDICATES:{x}" for x in cp)
+        if caller_set != true_ids:
+            problems.append("ENDPOINT_PROJECTION_CALLER_TRUE_SET_MISMATCH")
     for pid in sorted(true_ids - set(row_by_pid)):
         problems.append(f"ENDPOINT_PROJECTION_TRUE_PREDICATE_UNMAPPED:{pid}")
 
@@ -948,6 +1045,7 @@ def project_governed_endpoint(
         )
     if problems:
         selected = None
+
     projection_material = {
         "decision_context_digest": bundle.get("decision_context_digest"),
         "coverage_content_digest": coverage_content,
