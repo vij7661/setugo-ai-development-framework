@@ -1,0 +1,20 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR2-MANDATORY-TESTS-001",
+  "runtime_qualification": "NOT_CLAIMED",
+  "schema_version": 1,
+  "slice_id": "V16-S2-CONTROL-DOMAIN-INDEPENDENCE",
+  "slice1_frozen_commit": "36f22a35ff57b6994d55c705c08686609276ddb3",
+  "predecessor_slice2_candidate": "0d01a0500b1902036b25bf29ce77cd2f883b748c",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_direct_core_independence_success_remains_globally_blocked","requirement_test_id":"V16-S2-IAR2-001"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_graph_signer_domain_absent_from_graph_cannot_count_toward_threshold","requirement_test_id":"V16-S2-IAR2-002"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_graph_signers_with_shared_load_bearing_ancestor_cannot_satisfy_threshold","requirement_test_id":"V16-S2-IAR2-003"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_candidate_controlled_graph_signer_cannot_count_toward_threshold","requirement_test_id":"V16-S2-IAR2-004"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_independent_noncandidate_root_quorum_authenticates_graph_structurally","requirement_test_id":"V16-S2-IAR2-005"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_registry_bootstrap_quorum_relying_on_graph_candidate_root_is_rejected","requirement_test_id":"V16-S2-IAR2-006"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_registry_bootstrap_quorum_with_shared_graph_ancestor_is_rejected","requirement_test_id":"V16-S2-IAR2-007"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar2.Slice2IAR2Tests.test_direct_core_registry_key_independence_is_structural_only_and_globally_blocked","requirement_test_id":"V16-S2-IAR2-008"}
+  ]
+}
