@@ -1,0 +1,140 @@
+name: Review Safe Evidence V16 Slice 1 Trust Foundation V2
+
+on:
+  push:
+    branches: [implementation/review-safe-evidence-v16]
+    paths:
+      - 'governance-runtime/review_safe_evidence_v16_trust.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_trust.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_trust_iar5.py'
+      - 'governance-runtime/review-safe-evidence-v16-slice1-test-manifest.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice1-test-manifest-iar5.json'
+      - 'governance-runtime/requirements-review-safe-evidence-v16.txt'
+      - 'implementation/review-safe-evidence/V16-SLICE-1-AUTHENTICATED-TRUST-FOUNDATION.md'
+      - 'implementation/review-safe-evidence/V16-SLICE-1-IAR5-REPAIR-CONTRACT.md'
+      - 'implementation/review-safe-evidence/V16-SUCCESSOR-SCOPE-FREEZE.md'
+      - '.github/workflows/review-safe-evidence-v16-trust-foundation-v2.yml'
+permissions: {contents: read}
+concurrency:
+  group: review-safe-evidence-v16-slice1-v2-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  trust-foundation-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env: {PYTHONDONTWRITEBYTECODE: '1'}
+    steps:
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 1}
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12.14'}
+      - name: Record construction identity and environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "WORKFLOW_REF=${GITHUB_WORKFLOW_REF}"
+          echo "RUNNER_OS=${RUNNER_OS}"
+          echo "RUNNER_ARCH=${RUNNER_ARCH}"
+          python --version
+          git --version
+          cat /etc/os-release
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+      - name: Install pinned Slice 1 crypto dependency
+        run: |
+          python -m pip install --disable-pip-version-check -r governance-runtime/requirements-review-safe-evidence-v16.txt
+          python - <<'PY'
+          import cryptography
+          assert cryptography.__version__ == "46.0.4", cryptography.__version__
+          print("V16_SLICE1_CRYPTOGRAPHY_VERSION=" + cryptography.__version__)
+          PY
+      - name: Compile Slice 1 source and tests
+        run: |
+          python -m compileall -q \
+            governance-runtime/review_safe_evidence_v16_trust.py \
+            governance-runtime/test_review_safe_evidence_v16_trust.py \
+            governance-runtime/test_review_safe_evidence_v16_trust_iar5.py
+      - name: Run Slice 1 mandatory adversarial tests
+        working-directory: governance-runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG="$RUNNER_TEMP/v16-slice1-v2-unittest.log"
+          python -m unittest -v \
+            test_review_safe_evidence_v16_trust.py \
+            test_review_safe_evidence_v16_trust_iar5.py 2>&1 | tee "$LOG"
+          echo "V16_SLICE1_TEST_LOG=$LOG" >> "$GITHUB_ENV"
+      - name: Verify composite stable manifests against source and raw execution log
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import ast, json, os, pathlib, re
+          root=pathlib.Path("governance-runtime")
+          source_paths=[
+              root/"test_review_safe_evidence_v16_trust.py",
+              root/"test_review_safe_evidence_v16_trust_iar5.py",
+          ]
+          manifest_paths=[
+              root/"review-safe-evidence-v16-slice1-test-manifest.json",
+              root/"review-safe-evidence-v16-slice1-test-manifest-iar5.json",
+          ]
+          manifests=[json.loads(p.read_text(encoding="utf-8")) for p in manifest_paths]
+          assert type(manifests[0]["schema_version"]) is int and manifests[0]["schema_version"] == 1
+          assert type(manifests[1]["schema_version"]) is int and manifests[1]["schema_version"] == 1
+          assert manifests[0]["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-005"
+          assert manifests[1]["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-IAR5-MANDATORY-TESTS-001"
+          for manifest in manifests:
+              assert manifest["slice_id"] == "V16-S1-AUTHENTICATED-TRUST-FOUNDATION"
+              assert manifest["authority_effect"] == "NONE_EVIDENCE_ONLY"
+              assert manifest["implementation_qualification"] == "NOT_CLAIMED"
+              assert manifest["runtime_qualification"] == "NOT_CLAIMED"
+          rows=[row for manifest in manifests for row in manifest["tests"]]
+          assert rows and all(row["mandatory"] is True for row in rows)
+          requirement_ids=[row["requirement_test_id"] for row in rows]
+          declared=[row["python_test_id"] for row in rows]
+          assert len(rows)==77,len(rows)
+          assert len(requirement_ids)==len(set(requirement_ids))
+          assert len(declared)==len(set(declared))
+          discovered=[]
+          for source in source_paths:
+              tree=ast.parse(source.read_text(encoding="utf-8"),filename=str(source))
+              module=source.stem
+              for node in tree.body:
+                  if isinstance(node,ast.ClassDef):
+                      for child in node.body:
+                          if isinstance(child,(ast.FunctionDef,ast.AsyncFunctionDef)) and child.name.startswith("test_"):
+                              discovered.append(f"{module}.{node.name}.{child.name}")
+          log=pathlib.Path(os.environ["V16_SLICE1_TEST_LOG"]).read_text(encoding="utf-8",errors="strict")
+          executed=re.findall(
+              r"^test_[A-Za-z0-9_]+ \((test_review_safe_evidence_v16_trust(?:_iar5)?\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+)\) \.\.\. ok$",
+              log,flags=re.MULTILINE,
+          )
+          assert len(discovered)==77,len(discovered)
+          assert len(executed)==77,len(executed)
+          assert set(declared)==set(discovered),sorted(set(declared)^set(discovered))
+          assert set(declared)==set(executed),sorted(set(declared)^set(executed))
+          assert "skipped=" not in log
+          assert "FAILED" not in log
+          assert "\nOK\n" in log
+          print("V16_SLICE1_MANDATORY_TESTS_VERIFIED=77")
+          print("V16_SLICE1_SOURCE_MANIFEST_EXECUTION_SET_EQUALITY=PASS")
+          print("V16_SLICE1_COMPOSITE_MANIFEST=64_PLUS_13")
+          PY
+      - name: Construction boundary
+        run: |
+          echo "V16_SLICE1_AUTHENTICATED_TRUST_FOUNDATION=CONSTRUCTION_TESTS_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_IAR5_REPAIRS=CONSTRUCTION_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_TRUST_ANCHOR_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
+          echo "V16_SLICE1_CURRENTNESS_ANCHOR_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
+          echo "V16_SLICE1_DOWNSTREAM_MIGRATION=NOT_STARTED"
+          echo "INTERNAL_ADVERSARIAL_REVIEW_EXHAUSTED=false"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "SCIENTIFIC_AUTHORITY=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
