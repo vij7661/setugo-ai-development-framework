@@ -64,3 +64,34 @@ Historical scientific REDs remain append-only. In particular, WDPC-478 remains t
 Next implementation workstream: **R4 — qualified revalidation snapshot source, DecisionApplyLatchRecord, ApplyGuardVerifier, and stale-state re-evaluation before effect**.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## Post-review proof-resolution remediation — 2026-09-15
+
+This section preserves the original R3 evidence above and records the later independent-review remediation.
+
+Independent V6 review identified that R3 witness/currentness and other governance references could still be represented by apparently valid labels or digest-shaped values without proving that the referenced R1 qualification, independence, and currentness records actually existed and closed under a separately trusted proof context.
+
+Remediation branch: `remediation/v24-i11-v6-proof-resolution`.
+
+R3 now resolves exact governance references through `v24_v6_proof_reference_closure.py`. In particular:
+- material-observation record currentness is resolved rather than inferred from a label;
+- witness qualification, witness independence, and witness currentness are exact referenced proofs;
+- material-surface derivation mechanism qualification, derivation-authority independence, and currentness are proof-closed;
+- effect-path writer admission, capability, guard qualification, and path currentness are proof-closed;
+- caller-provided proof context remains non-authoritative unless passed through the separately trusted boundary arguments.
+
+The permanent regression `test_fabricated_witness_labels_cannot_qualify_observation_ledger` preserves the original false-green shape and now fails closed. The R3 suite additionally preserves same-control-domain, stale observation-head, derivation-divergence, and observed-unadmitted-path falsifications.
+
+All-up proof-resolution run `35007121039`: **SUCCESS** for the shared resolver, R2-R8 suites, and all permanent proof-substitution regressions.
+
+R9 dependency-closure run `35007800567`: **SUCCESS**, preserving the repaired R3 behavior while validating the widened successor freeze boundary.
+
+Remediated R3 production blob at this evidence update: `7040fa0b481e630ee106ebad78d6eb4982df4ea9`.
+
+No WDPC scientific execution occurred. Runtime qualification remains `NOT_CLAIMED`, and this remediation remains construction/evidence only.
+
+`R3_POST_REVIEW_PROOF_RESOLUTION = PASS`
+
+`R3_RUNTIME_QUALIFICATION = NOT_CLAIMED`
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
