@@ -66,3 +66,41 @@ WDPC-469 and WDPC-495 remain blocked by I1 semantic qualification. WDPC-503 rema
 The next implementation workstream must descend from this evidence commit and must be selected from the still-unimplemented exact V6 contracts. No scientific falsification rerun is opened by this record.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## Post-review proof-resolution remediation — 2026-09-15
+
+This append-only section records the later independent-review repair without replacing the original R5 evidence.
+
+The review found that parser governance, projection authority, disposition authority, and downstream catalog coverage could rely on caller-supplied `QUALIFIED`/`CURRENT` labels or opaque digest references without resolving the referenced R1 proofs.
+
+### Preserved proof-resolution failure
+
+Run `35003941492`: **FAILURE / genuine false-green**.
+
+The isolated R5 falsification showed that a parser marked `QUALIFIED`, `QUALIFIED`, and `CURRENT` could qualify normative dispositions without any resolvable parser qualification, independence, or currentness record. R2-R4 remained GREEN in the same run.
+
+### Repair
+
+R5 now proof-closes:
+- parser qualification, parser independence, and parser currentness;
+- exact structural projection qualification;
+- disposition-authority-set qualification, independence, and currentness;
+- each individual disposition qualification/currentness;
+- exact approver identity↔control-domain pairing and threshold membership;
+- the qualified disposition-set artifact consumed by catalog coverage.
+
+R5 also carries recomputable projection/disposition binding material so candidate spans, material-candidate membership, artifact bytes, and catalog descriptors cannot be substituted between stages.
+
+All-up proof-resolution run `35007121039`: **SUCCESS** for R2-R8 plus all permanent regressions.
+
+R9 dependency-closure run `35007800567`: **SUCCESS** with the repaired R5 path intact.
+
+Remediated R5 production blob at this evidence update: `f51ac96c72d589dcfab51691b5a240796b363b08`.
+
+No WDPC scientific execution occurred. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor review.
+
+`R5_POST_REVIEW_PROOF_RESOLUTION = PASS`
+
+`R5_RUNTIME_QUALIFICATION = NOT_CLAIMED`
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
