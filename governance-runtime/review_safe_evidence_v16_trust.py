@@ -1,6 +1,6 @@
 """V16 Slice 1 authenticated trust foundation.
 
-Construction-stage only. Content integrity, issuer authenticity, authority-policy
+Construction-stage only. Content integrity, issuer authenticity, validation-policy
 identity, registry currentness, and out-of-band trust provisioning are deliberately
 separate. All validation results remain non-authoritative construction evidence.
 """
@@ -29,8 +29,17 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 ED25519_PUBLIC_KEY_BYTES = 32
 ED25519_SIGNATURE_BYTES = 64
 MAX_CANONICAL_INTEGER = (2**53) - 1
-AUTHORITY_POLICY_VERSION = 1
+AUTHORITY_POLICY_VERSION = 2
+VALIDATION_PROFILE_VERSION = 1
+CANONICALIZATION_PROFILE_ID = "RSE-V16-CJSON-NFC-CODEPOINT-V1"
+IDENTIFIER_PROFILE_ID = "NFC-ALREADY-CANONICAL-NONEMPTY-V1"
+REGISTRY_SIGNATURE_DOMAIN = "RSE-V16:KEY-REGISTRY-ROOT:"
+SIGNED_RECORD_SIGNATURE_DOMAIN = "RSE-V16:SIGNED-RECORD:"
+SUPPORTED_SIGNATURE_ALGORITHMS = ("ED25519",)
 
+# Kept mutable for compatibility with existing construction tests that simulate
+# verifier-code drift between calls. Every validation call snapshots this mapping
+# exactly once; no load-bearing decision re-reads the live mapping after ingress.
 RECORD_TYPE_REQUIRED_ROLE: dict[str, str] = {
     "GOVERNANCE_GENERATION_WITNESS": "GOVERNANCE_GENERATION_WITNESS_AUTHORITY",
     "REVIEWER_QUALIFICATION": "REVIEWER_QUALIFICATION_AUTHORITY",
@@ -115,8 +124,8 @@ class PinnedRegistryHead:
 class _RegistryValidation:
     valid: bool
     problems: tuple[str, ...]
-    current: Mapping[str, Any] | None
-    snapshots_by_sequence: Mapping[int, Mapping[str, Any]]
+    current: dict[str, Any] | None
+    snapshots_by_sequence: Mapping[int, dict[str, Any]]
     authenticated_bootstrap_domains: tuple[str, ...]
 
 
@@ -165,44 +174,94 @@ def _norm_string(value: str, path: str) -> str:
     return normalized
 
 
-def _normalize(value: Any, path: str = "$") -> Any:
-    if value is None or isinstance(value, bool):
-        return value
+def _escape_canonical_string(value: str, path: str) -> str:
+    value = _norm_string(value, path)
+    out = ['"']
+    named = {"\b": "\\b", "\t": "\\t", "\n": "\\n", "\f": "\\f", "\r": "\\r"}
+    for ch in value:
+        if ch == '"':
+            out.append('\\"')
+        elif ch == "\\":
+            out.append("\\\\")
+        elif ch in named:
+            out.append(named[ch])
+        elif ord(ch) < 0x20:
+            out.append(f"\\u{ord(ch):04x}")
+        else:
+            out.append(ch)
+    out.append('"')
+    return "".join(out)
+
+
+def _canonical_text(value: Any, path: str = "$") -> str:
+    if value is None:
+        return "null"
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
     if type(value) is int:
         if abs(value) > MAX_CANONICAL_INTEGER:
             raise CanonicalizationError(f"INTEGER_OUT_OF_CANONICAL_RANGE:{path}")
-        return value
+        return str(value)
     if isinstance(value, float):
         raise CanonicalizationError(f"FLOAT_FORBIDDEN:{path}")
     if isinstance(value, str):
-        return _norm_string(value, path)
+        return _escape_canonical_string(value, path)
     if isinstance(value, (list, tuple)):
-        return [_normalize(item, f"{path}[{i}]") for i, item in enumerate(value)]
+        return "[" + ",".join(_canonical_text(item, f"{path}[{i}]") for i, item in enumerate(value)) + "]"
     if isinstance(value, Mapping):
-        out: dict[str, Any] = {}
+        normalized: dict[str, Any] = {}
         for raw_key, raw_value in value.items():
             if not isinstance(raw_key, str):
                 raise CanonicalizationError(f"NON_STRING_KEY:{path}")
             key = _norm_string(raw_key, f"{path}.<key>")
-            if key in out:
+            if key in normalized:
                 raise CanonicalizationError(f"NORMALIZED_KEY_COLLISION:{path}.{key}")
-            out[key] = _normalize(raw_value, f"{path}.{key}")
-        return out
+            normalized[key] = raw_value
+        parts = []
+        for key in sorted(normalized):  # Unicode scalar/code-point ascending after NFC.
+            parts.append(
+                _escape_canonical_string(key, f"{path}.<key>") + ":" +
+                _canonical_text(normalized[key], f"{path}.{key}")
+            )
+        return "{" + ",".join(parts) + "}"
     raise CanonicalizationError(f"UNSUPPORTED_TYPE:{path}:{type(value).__name__}")
 
 
 def canonical_bytes(value: Any) -> bytes:
-    return json.dumps(
-        _normalize(value), ensure_ascii=False, sort_keys=True,
-        separators=(",", ":"), allow_nan=False,
-    ).encode("utf-8")
+    return _canonical_text(value).encode("utf-8")
 
 
 def canonical_sha256(value: Any) -> str:
     return hashlib.sha256(canonical_bytes(value)).hexdigest()
 
 
+def _preserve_json_value(value: Any, path: str = "$") -> Any:
+    if value is None or isinstance(value, bool):
+        return value
+    if type(value) is int:
+        if abs(value) > MAX_CANONICAL_INTEGER:
+            raise CanonicalizationError(f"INTEGER_OUT_OF_CANONICAL_RANGE:{path}")
+        return value
+    if isinstance(value, str):
+        if any(0xD800 <= ord(ch) <= 0xDFFF for ch in value):
+            raise CanonicalizationError(f"LONE_SURROGATE_FORBIDDEN:{path}")
+        return value
+    if type(value) is list:
+        return [_preserve_json_value(item, f"{path}[{i}]") for i, item in enumerate(value)]
+    if type(value) is dict:
+        return {key: _preserve_json_value(item, f"{path}.{key}") for key, item in value.items()}
+    raise CanonicalizationError(f"UNSUPPORTED_JSON_TYPE:{path}:{type(value).__name__}")
+
+
 def load_strict_json(raw: bytes | str) -> Any:
+    """Parse strict JSON while preserving string value spellings.
+
+    Object keys must already be NFC and normalized duplicates are rejected. String
+    values are *not* silently normalized; load-bearing identifier validators reject
+    non-NFC spellings at their semantic boundary.
+    """
     if isinstance(raw, bytes):
         text = raw.decode("utf-8", errors="strict")
     elif isinstance(raw, str):
@@ -213,22 +272,83 @@ def load_strict_json(raw: bytes | str) -> Any:
     def pairs_hook(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
         out: dict[str, Any] = {}
         for key, value in pairs:
-            key = _norm_string(key, "$.<key>")
-            if key in out:
-                raise CanonicalizationError(f"DUPLICATE_OR_NORMALIZED_KEY:{key}")
-            out[key] = value
+            nkey = _norm_string(key, "$.<key>")
+            if key != nkey:
+                raise CanonicalizationError(f"NONCANONICAL_OBJECT_KEY:{key}")
+            if nkey in out:
+                raise CanonicalizationError(f"DUPLICATE_OR_NORMALIZED_KEY:{nkey}")
+            out[nkey] = value
         return out
 
     def reject_float(token: str) -> Any:
         raise CanonicalizationError(f"FLOAT_FORBIDDEN:{token}")
 
+    def parse_int(token: str) -> int:
+        value = int(token, 10)
+        if abs(value) > MAX_CANONICAL_INTEGER:
+            raise CanonicalizationError(f"INTEGER_OUT_OF_CANONICAL_RANGE:{token}")
+        return value
+
+    def reject_constant(token: str) -> Any:
+        raise CanonicalizationError(f"NONFINITE_NUMBER_FORBIDDEN:{token}")
+
     try:
-        parsed = json.loads(text, object_pairs_hook=pairs_hook, parse_float=reject_float)
+        parsed = json.loads(
+            text, object_pairs_hook=pairs_hook, parse_float=reject_float,
+            parse_int=parse_int, parse_constant=reject_constant,
+        )
     except CanonicalizationError:
         raise
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise CanonicalizationError("STRICT_JSON_PARSE_FAILED") from exc
-    return _normalize(parsed)
+    return _preserve_json_value(parsed)
+
+
+def _owned_json_snapshot(value: Any, path: str = "$") -> Any:
+    """Copy caller-owned data once into plain owned JSON containers.
+
+    Custom Mapping/Sequence objects are rejected. For exact dict/list containers a
+    shallow C-level copy is taken before recursion, so later caller mutation cannot
+    change the state used after validation.
+    """
+    if value is None or isinstance(value, bool):
+        return value
+    if type(value) is int:
+        if abs(value) > MAX_CANONICAL_INTEGER:
+            raise CanonicalizationError(f"INTEGER_OUT_OF_CANONICAL_RANGE:{path}")
+        return value
+    if isinstance(value, str):
+        if any(0xD800 <= ord(ch) <= 0xDFFF for ch in value):
+            raise CanonicalizationError(f"LONE_SURROGATE_FORBIDDEN:{path}")
+        return value
+    if type(value) is dict:
+        local = value.copy()
+        out: dict[str, Any] = {}
+        for key, item in local.items():
+            if type(key) is not str:
+                raise CanonicalizationError(f"NON_STRING_KEY:{path}")
+            out[key] = _owned_json_snapshot(item, f"{path}.{key}")
+        return out
+    if type(value) is list:
+        local = list(value)
+        return [_owned_json_snapshot(item, f"{path}[{i}]") for i, item in enumerate(local)]
+    if type(value) is tuple:
+        local = tuple(value)
+        return [_owned_json_snapshot(item, f"{path}[{i}]") for i, item in enumerate(local)]
+    raise CanonicalizationError(f"NON_PLAIN_JSON_CONTAINER:{path}:{type(value).__name__}")
+
+
+def _snapshot_registry_chain(registry_chain: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    if type(registry_chain) not in {list, tuple}:
+        raise CanonicalizationError("REGISTRY_CHAIN_CONTAINER_MUST_BE_LIST_OR_TUPLE")
+    local = list(registry_chain)
+    out: list[dict[str, Any]] = []
+    for idx, row in enumerate(local):
+        snap = _owned_json_snapshot(row, f"$registry_chain[{idx}]")
+        if type(snap) is not dict:
+            raise CanonicalizationError(f"REGISTRY_RECORD_MUST_BE_OBJECT:{idx}")
+        out.append(snap)
+    return out
 
 
 def _canonical_identifier(value: Any) -> bool:
@@ -249,16 +369,62 @@ def _require_identifier(problems: list[str], value: Any, code: str, *, allow_non
         problems.append(f"{code}_NOT_CANONICAL_NFC")
 
 
+def _policy_snapshot(mapping: Mapping[str, str] | None = None) -> dict[str, str]:
+    source = RECORD_TYPE_REQUIRED_ROLE if mapping is None else mapping
+    snap = dict(source)
+    for key, value in snap.items():
+        if type(key) is not str or type(value) is not str:
+            raise CanonicalizationError("AUTHORITY_POLICY_KEY_VALUE_MUST_BE_STRING")
+        if not _canonical_identifier(key) or not _canonical_identifier(value):
+            raise CanonicalizationError("AUTHORITY_POLICY_IDENTIFIER_NOT_CANONICAL_NFC")
+    return snap
+
+
 def authority_policy_material(mapping: Mapping[str, str] | None = None) -> dict[str, Any]:
-    mapping = RECORD_TYPE_REQUIRED_ROLE if mapping is None else mapping
+    policy = _policy_snapshot(mapping)
     return {
         "authority_policy_version": AUTHORITY_POLICY_VERSION,
-        "record_type_required_role": dict(mapping),
+        "record_type_required_role": policy,
     }
 
 
+def validation_profile_material(mapping: Mapping[str, str] | None = None) -> dict[str, Any]:
+    policy = _policy_snapshot(mapping)
+    return {
+        "validation_profile_version": VALIDATION_PROFILE_VERSION,
+        "canonicalization_profile": {
+            "id": CANONICALIZATION_PROFILE_ID,
+            "unicode_normalization": "NFC",
+            "object_key_order": "UNICODE_CODEPOINT_ASCENDING_AFTER_NFC",
+            "string_encoding": "UTF8_JSON_MINIMAL_ESCAPES_LOWERCASE_U00XX",
+            "float_policy": "FORBIDDEN",
+            "integer_min": -MAX_CANONICAL_INTEGER,
+            "integer_max": MAX_CANONICAL_INTEGER,
+        },
+        "identifier_profile_id": IDENTIFIER_PROFILE_ID,
+        "schema_version_rule": "EXACT_INT_1",
+        "registry_top_level_fields": sorted(REGISTRY_TOP_LEVEL_FIELDS),
+        "registry_key_fields": sorted(REGISTRY_KEY_FIELDS),
+        "registry_signature_fields": sorted(REGISTRY_SIGNATURE_FIELDS),
+        "signed_record_fields": sorted(SIGNED_RECORD_FIELDS),
+        "supported_signature_algorithms": list(SUPPORTED_SIGNATURE_ALGORITHMS),
+        "registry_signature_domain": REGISTRY_SIGNATURE_DOMAIN,
+        "signed_record_signature_domain": SIGNED_RECORD_SIGNATURE_DOMAIN,
+        "role_vocabulary": sorted(ROLE_VOCABULARY),
+        "authority_policy": {
+            "version": AUTHORITY_POLICY_VERSION,
+            "record_type_required_role": policy,
+        },
+    }
+
+
+def validation_profile_digest(mapping: Mapping[str, str] | None = None) -> str:
+    return canonical_sha256(validation_profile_material(mapping))
+
+
 def authority_policy_digest(mapping: Mapping[str, str] | None = None) -> str:
-    return canonical_sha256(authority_policy_material(mapping))
+    """Schema-v1 compatibility name for the full load-bearing validation profile."""
+    return validation_profile_digest(mapping)
 
 
 def bootstrap_trust_policy_material(trust: PinnedBootstrapTrustSet) -> dict[str, Any]:
@@ -300,7 +466,7 @@ def registry_signature_message(
         raise ValueError("REGISTRY_DIGEST_INVALID")
     if not _sha256_hex(trust_set_digest):
         raise ValueError("TRUST_SET_DIGEST_INVALID")
-    return b"RSE-V16:KEY-REGISTRY-ROOT:" + canonical_bytes({
+    return REGISTRY_SIGNATURE_DOMAIN.encode("ascii") + canonical_bytes({
         "trust_set_id": trust_set_id,
         "trust_set_digest": trust_set_digest,
         "root_id": root_id,
@@ -311,7 +477,7 @@ def registry_signature_message(
 
 
 def signed_record_signature_message(record: Mapping[str, Any]) -> bytes:
-    return b"RSE-V16:SIGNED-RECORD:" + canonical_bytes(
+    return SIGNED_RECORD_SIGNATURE_DOMAIN.encode("ascii") + canonical_bytes(
         {k: v for k, v in record.items() if k != "signature_b64"}
     )
 
@@ -332,6 +498,17 @@ def _verify_ed25519(public_key_b64: str, signature_b64: str, message: bytes) -> 
 
 def validate_bootstrap_trust_set(trust: PinnedBootstrapTrustSet) -> dict[str, Any]:
     p: list[str] = []
+    if type(trust) is not PinnedBootstrapTrustSet:
+        return _result(False, ["BOOTSTRAP_TRUST_SET_TYPE_INVALID"], "UNREACHABLE", "BOOTSTRAP_TRUST_SET_INVALID")
+    if type(trust.roots) is not tuple:
+        p.append("BOOTSTRAP_ROOT_CONTAINER_MUST_BE_TUPLE")
+    if type(trust.candidate_control_domain_ids) is not frozenset:
+        p.append("BOOTSTRAP_CANDIDATE_DOMAIN_CONTAINER_MUST_BE_FROZENSET")
+    if p:
+        return _result(False, p, "UNREACHABLE", "BOOTSTRAP_TRUST_SET_INVALID")
+    if not all(type(root) is BootstrapRoot for root in trust.roots):
+        return _result(False, ["BOOTSTRAP_ROOT_TYPE_INVALID"], "UNREACHABLE", "BOOTSTRAP_TRUST_SET_INVALID")
+
     _require_identifier(p, trust.trust_set_id, "BOOTSTRAP_TRUST_SET_ID")
     if not _exact_int(trust.threshold_control_domains, minimum=2):
         p.append("BOOTSTRAP_THRESHOLD_MIN_TWO_DOMAINS")
@@ -389,10 +566,13 @@ def validate_bootstrap_trust_set(trust: PinnedBootstrapTrustSet) -> dict[str, An
     return out
 
 
-def validate_pinned_registry_head(
-    head: PinnedRegistryHead, trust: PinnedBootstrapTrustSet, *, expected_candidate_id: str
+def _validate_pinned_registry_head_with_profile(
+    head: PinnedRegistryHead, trust: PinnedBootstrapTrustSet,
+    *, expected_candidate_id: str, profile_digest: str,
 ) -> dict[str, Any]:
     p: list[str] = []
+    if type(head) is not PinnedRegistryHead:
+        return _result(False, ["REGISTRY_HEAD_TYPE_INVALID"], "UNREACHABLE", "PINNED_REGISTRY_HEAD_INVALID")
     _require_identifier(p, head.anchor_id, "REGISTRY_HEAD_ANCHOR_ID")
     _require_identifier(p, head.trust_set_id, "REGISTRY_HEAD_TRUST_SET_ID")
     _require_identifier(p, head.registry_id, "REGISTRY_HEAD_REGISTRY_ID")
@@ -405,8 +585,7 @@ def validate_pinned_registry_head(
         p.append("REGISTRY_HEAD_TRUST_SET_DIGEST_MISMATCH")
     if not _sha256_hex(head.trust_set_digest):
         p.append("REGISTRY_HEAD_TRUST_SET_DIGEST_INVALID")
-    current_policy = authority_policy_digest()
-    if head.authority_policy_digest != current_policy:
+    if head.authority_policy_digest != profile_digest:
         p.append("REGISTRY_HEAD_AUTHORITY_POLICY_DIGEST_MISMATCH")
     if not _sha256_hex(head.authority_policy_digest):
         p.append("REGISTRY_HEAD_AUTHORITY_POLICY_DIGEST_INVALID")
@@ -421,25 +600,40 @@ def validate_pinned_registry_head(
         p.extend(f"REGISTRY_HEAD_TRUST:{x}" for x in trust_result["problems"])
     out = _result(not p, p, "PINNED_REGISTRY_HEAD_STRUCTURALLY_VALID", "PINNED_REGISTRY_HEAD_INVALID")
     out.update({
+        "validation_profile_digest": profile_digest,
         "currentness_anchor_origin": "OUT_OF_BAND_PINNED_CURRENTNESS_REQUIRED",
         "currentness_anchor_provisioning_proven": False,
     })
     return out
 
 
-def _snapshot_key_index(snapshot: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+def validate_pinned_registry_head(
+    head: PinnedRegistryHead, trust: PinnedBootstrapTrustSet, *, expected_candidate_id: str
+) -> dict[str, Any]:
+    try:
+        policy = _policy_snapshot()
+        profile = validation_profile_digest(policy)
+    except CanonicalizationError as exc:
+        return _result(False, [f"VALIDATION_PROFILE_INVALID:{exc}"], "UNREACHABLE", "PINNED_REGISTRY_HEAD_INVALID")
+    return _validate_pinned_registry_head_with_profile(
+        head, trust, expected_candidate_id=expected_candidate_id, profile_digest=profile,
+    )
+
+
+def _snapshot_key_index(snapshot: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     keys = snapshot.get("keys")
-    if not isinstance(keys, list):
+    if type(keys) is not list:
         return {}
     return {
         str(k.get("key_id")): k for k in keys
-        if isinstance(k, Mapping) and _canonical_identifier(k.get("key_id"))
+        if type(k) is dict and _canonical_identifier(k.get("key_id"))
     }
 
 
 def _validate_snapshot(
-    record: Mapping[str, Any], expected_candidate_id: str, trust: PinnedBootstrapTrustSet
-) -> tuple[list[str], dict[str, Mapping[str, Any]]]:
+    record: dict[str, Any], expected_candidate_id: str,
+    trust: PinnedBootstrapTrustSet,
+) -> tuple[list[str], dict[str, dict[str, Any]]]:
     p: list[str] = []
     if set(record.keys()) != REGISTRY_TOP_LEVEL_FIELDS:
         p.append("KEY_REGISTRY_TOP_LEVEL_FIELDS_NOT_EXACT")
@@ -469,15 +663,19 @@ def _validate_snapshot(
     if predecessor != "GENESIS" and not _sha256_hex(predecessor):
         p.append("KEY_REGISTRY_PREDECESSOR_INVALID")
 
-    key_index: dict[str, Mapping[str, Any]] = {}
+    bootstrap_public_keys = {
+        pub for root in trust.roots
+        if (pub := _b64(root.public_key_b64, ED25519_PUBLIC_KEY_BYTES)) is not None
+    }
+    key_index: dict[str, dict[str, Any]] = {}
     keys = record.get("keys")
     public_keys: set[bytes] = set()
     issuer_domains: dict[str, str] = {}
-    if not isinstance(keys, list) or not keys:
+    if type(keys) is not list or not keys:
         p.append("KEY_REGISTRY_KEYS_REQUIRED")
         keys = []
     for i, key in enumerate(keys):
-        if not isinstance(key, Mapping):
+        if type(key) is not dict:
             p.append(f"KEY_REGISTRY_KEY_MALFORMED:{i}")
             continue
         if set(key.keys()) != REGISTRY_KEY_FIELDS:
@@ -489,12 +687,15 @@ def _validate_snapshot(
         pub = _b64(key.get("public_key_b64"), ED25519_PUBLIC_KEY_BYTES)
         if pub is None:
             p.append(f"KEY_REGISTRY_PUBLIC_KEY_INVALID:{i}")
-        elif pub in public_keys:
-            p.append(f"KEY_REGISTRY_PUBLIC_KEY_REUSE_FORBIDDEN:{i}")
         else:
-            public_keys.add(pub)
+            if pub in bootstrap_public_keys:
+                p.append(f"KEY_REGISTRY_BOOTSTRAP_PUBLIC_KEY_REUSE_FORBIDDEN:{i}")
+            if pub in public_keys:
+                p.append(f"KEY_REGISTRY_PUBLIC_KEY_REUSE_FORBIDDEN:{i}")
+            else:
+                public_keys.add(pub)
         roles = key.get("roles")
-        if not isinstance(roles, list) or not roles or not all(isinstance(r, str) and r in ROLE_VOCABULARY for r in roles):
+        if type(roles) is not list or not roles or not all(type(r) is str and r in ROLE_VOCABULARY for r in roles):
             p.append(f"KEY_REGISTRY_ROLES_INVALID:{i}")
         elif len(roles) != len(set(roles)):
             p.append(f"KEY_REGISTRY_ROLE_DUPLICATE:{i}")
@@ -540,11 +741,11 @@ def _validate_snapshot(
             p.append("KEY_REGISTRY_CANONICALIZATION_FAILED")
 
     signatures = record.get("bootstrap_signatures")
-    if not isinstance(signatures, list) or not signatures:
+    if type(signatures) is not list or not signatures:
         p.append("KEY_REGISTRY_BOOTSTRAP_SIGNATURES_REQUIRED")
     else:
         for i, sig in enumerate(signatures):
-            if not isinstance(sig, Mapping):
+            if type(sig) is not dict:
                 p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_MALFORMED:{i}")
                 continue
             if set(sig.keys()) != REGISTRY_SIGNATURE_FIELDS:
@@ -559,7 +760,7 @@ def _validate_snapshot(
 
 
 def _verify_bootstrap_signatures(
-    record: Mapping[str, Any], trust: PinnedBootstrapTrustSet
+    record: dict[str, Any], trust: PinnedBootstrapTrustSet
 ) -> tuple[list[str], tuple[str, ...]]:
     p: list[str] = []
     digest = record.get("registry_digest")
@@ -569,10 +770,10 @@ def _verify_bootstrap_signatures(
     seen: set[tuple[str, str]] = set()
     domains: set[str] = set()
     signatures = record.get("bootstrap_signatures")
-    if not isinstance(signatures, list):
+    if type(signatures) is not list:
         return ["KEY_REGISTRY_BOOTSTRAP_SIGNATURES_REQUIRED"], ()
     for i, sig in enumerate(signatures):
-        if not isinstance(sig, Mapping):
+        if type(sig) is not dict:
             continue
         pair = (sig.get("root_id"), sig.get("key_id"))
         if pair in seen:
@@ -607,9 +808,9 @@ def _verify_bootstrap_signatures(
     return p, tuple(sorted(domains))
 
 
-def _validate_chain(
-    registry_chain: Sequence[Mapping[str, Any]], trust: PinnedBootstrapTrustSet,
-    expected_candidate_id: str,
+def _validate_chain_owned(
+    registry_chain: list[dict[str, Any]], trust: PinnedBootstrapTrustSet,
+    expected_candidate_id: str, *, profile_digest: str,
 ) -> _RegistryValidation:
     p: list[str] = []
     _require_identifier(p, expected_candidate_id, "EXPECTED_CANDIDATE_ID")
@@ -620,14 +821,11 @@ def _validate_chain(
     if not registry_chain:
         return _RegistryValidation(False, ("KEY_REGISTRY_CHAIN_REQUIRED",), None, {}, ())
 
-    previous: Mapping[str, Any] | None = None
-    snapshots: dict[int, Mapping[str, Any]] = {}
+    previous: dict[str, Any] | None = None
+    snapshots: dict[int, dict[str, Any]] = {}
     generations: set[str] = set()
     last_domains: tuple[str, ...] = ()
     for idx, record in enumerate(registry_chain):
-        if not isinstance(record, Mapping):
-            p.append(f"KEY_REGISTRY_CHAIN_RECORD_MALFORMED:{idx}")
-            continue
         structural, current_keys = _validate_snapshot(record, expected_candidate_id, trust)
         p.extend(f"CHAIN[{idx}]:{x}" for x in structural)
         sig_p, last_domains = _verify_bootstrap_signatures(record, trust)
@@ -694,13 +892,12 @@ def _validate_chain(
                     p.append(f"KEY_REGISTRY_CHAIN_NEW_KEY_MUST_ENTER_ACTIVE:{key_id}")
         previous = record
 
-    if registry_chain:
-        current = registry_chain[-1]
-        if current.get("authority_policy_digest") != authority_policy_digest():
-            p.append("KEY_REGISTRY_CURRENT_AUTHORITY_POLICY_DIGEST_MISMATCH")
+    current = registry_chain[-1]
+    if current.get("authority_policy_digest") != profile_digest:
+        p.append("KEY_REGISTRY_CURRENT_AUTHORITY_POLICY_DIGEST_MISMATCH")
     valid = not p
     return _RegistryValidation(
-        valid, tuple(sorted(set(p))), registry_chain[-1] if valid else None,
+        valid, tuple(sorted(set(p))), current if valid else None,
         snapshots if valid else {}, last_domains if valid else (),
     )
 
@@ -709,13 +906,22 @@ def validate_governance_key_registry_chain(
     registry_chain: Sequence[Mapping[str, Any]], trust: PinnedBootstrapTrustSet,
     *, expected_candidate_id: str,
 ) -> dict[str, Any]:
-    result = _validate_chain(registry_chain, trust, expected_candidate_id)
+    try:
+        owned_chain = _snapshot_registry_chain(registry_chain)
+        policy = _policy_snapshot()
+        profile = validation_profile_digest(policy)
+    except CanonicalizationError as exc:
+        return _result(False, [f"OWNED_INPUT_SNAPSHOT:{exc}"], "UNREACHABLE", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
+    result = _validate_chain_owned(
+        owned_chain, trust, expected_candidate_id, profile_digest=profile,
+    )
     out = _result(
         result.valid, result.problems,
         "GOVERNANCE_KEY_REGISTRY_CHAIN_AUTHENTICATED_UNDER_PINNED_ROOTS",
         "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID",
     )
     out.update({
+        "validation_profile_digest": profile,
         "trust_anchor_origin": "OUT_OF_BAND_PINNED_CONFIG_REQUIRED",
         "trust_anchor_provisioning_proven": False,
         "registry_currentness_anchored": False,
@@ -737,11 +943,13 @@ def validate_governance_key_registry_chain_json(
     registry_chain_json: Sequence[bytes | str], trust: PinnedBootstrapTrustSet,
     *, expected_candidate_id: str,
 ) -> dict[str, Any]:
+    if type(registry_chain_json) not in {list, tuple}:
+        return _result(False, ["STRICT_JSON_REGISTRY_CHAIN_CONTAINER_INVALID"], "UNREACHABLE", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
     try:
-        parsed = [load_strict_json(raw) for raw in registry_chain_json]
+        parsed = [load_strict_json(raw) for raw in list(registry_chain_json)]
     except (CanonicalizationError, UnicodeEncodeError) as exc:
         return _result(False, [f"STRICT_JSON_INGRESS:{exc}"], "UNREACHABLE", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
-    if not all(isinstance(row, Mapping) for row in parsed):
+    if not all(type(row) is dict for row in parsed):
         return _result(False, ["STRICT_JSON_REGISTRY_RECORD_MUST_BE_OBJECT"], "UNREACHABLE", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
     return validate_governance_key_registry_chain(parsed, trust, expected_candidate_id=expected_candidate_id)
 
@@ -775,25 +983,41 @@ def verify_signed_governance_record(
     expected_record_type: str, expected_snapshot_id: str | None = None,
     forbidden_control_domain_ids: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
+    try:
+        owned_record = _owned_json_snapshot(record, "$record")
+        if type(owned_record) is not dict:
+            raise CanonicalizationError("SIGNED_RECORD_MUST_BE_OBJECT")
+        owned_chain = _snapshot_registry_chain(registry_chain)
+        policy = _policy_snapshot()
+        profile = validation_profile_digest(policy)
+    except CanonicalizationError as exc:
+        return _result(False, [f"OWNED_INPUT_SNAPSHOT:{exc}"], "UNREACHABLE", "SIGNED_GOVERNANCE_RECORD_INVALID")
+
     p: list[str] = []
     _require_identifier(p, expected_candidate_id, "EXPECTED_CANDIDATE_ID")
     _require_identifier(p, expected_generation_id, "EXPECTED_GENERATION_ID")
     _require_identifier(p, expected_record_type, "EXPECTED_RECORD_TYPE")
     if expected_snapshot_id is not None:
         _require_identifier(p, expected_snapshot_id, "EXPECTED_SNAPSHOT_ID")
-    for domain in forbidden_control_domain_ids:
-        _require_identifier(p, domain, "FORBIDDEN_CONTROL_DOMAIN_ID")
+    if type(forbidden_control_domain_ids) is not frozenset:
+        p.append("FORBIDDEN_CONTROL_DOMAIN_CONTAINER_MUST_BE_FROZENSET")
+    else:
+        for domain in forbidden_control_domain_ids:
+            _require_identifier(p, domain, "FORBIDDEN_CONTROL_DOMAIN_ID")
 
-    head_result = validate_pinned_registry_head(
+    head_result = _validate_pinned_registry_head_with_profile(
         expected_current_registry_head, bootstrap_trust,
-        expected_candidate_id=expected_candidate_id,
+        expected_candidate_id=expected_candidate_id, profile_digest=profile,
     )
     if not head_result["valid"]:
         p.extend(f"SIGNED_RECORD_CURRENTNESS_ANCHOR:{x}" for x in head_result["problems"])
-    chain = _validate_chain(registry_chain, bootstrap_trust, expected_candidate_id)
+    chain = _validate_chain_owned(
+        owned_chain, bootstrap_trust, expected_candidate_id, profile_digest=profile,
+    )
     if not chain.valid:
         p.extend(f"SIGNED_RECORD_REGISTRY:{x}" for x in chain.problems)
 
+    record = owned_record
     if set(record.keys()) != SIGNED_RECORD_FIELDS:
         p.append("SIGNED_RECORD_FIELDS_NOT_EXACT")
     if not _schema_one(record.get("schema_version")):
@@ -811,7 +1035,7 @@ def verify_signed_governance_record(
 
     if record.get("record_type") != expected_record_type:
         p.append("SIGNED_RECORD_TYPE_MISMATCH")
-    canonical_role = RECORD_TYPE_REQUIRED_ROLE.get(expected_record_type)
+    canonical_role = policy.get(expected_record_type)
     if canonical_role is None:
         p.append("SIGNED_RECORD_TYPE_POLICY_UNKNOWN")
     if canonical_role is not None and record.get("required_role") != canonical_role:
@@ -831,8 +1055,7 @@ def verify_signed_governance_record(
         p.append("SIGNED_RECORD_TRUST_SET_DIGEST_MISMATCH")
     if not _sha256_hex(record.get("trust_set_digest")):
         p.append("SIGNED_RECORD_TRUST_SET_DIGEST_INVALID")
-    current_policy = authority_policy_digest()
-    if record.get("authority_policy_digest") != current_policy:
+    if record.get("authority_policy_digest") != profile:
         p.append("SIGNED_RECORD_AUTHORITY_POLICY_DIGEST_MISMATCH")
     if not _sha256_hex(record.get("authority_policy_digest")):
         p.append("SIGNED_RECORD_AUTHORITY_POLICY_DIGEST_INVALID")
@@ -858,7 +1081,7 @@ def verify_signed_governance_record(
             if not payload_ok:
                 p.append("SIGNED_RECORD_PAYLOAD_DIGEST_MISMATCH")
 
-    key: Mapping[str, Any] | None = None
+    key: dict[str, Any] | None = None
     currentness_matched = False
     registry_authority_ok = False
     current = chain.current if chain.valid else None
@@ -866,9 +1089,9 @@ def verify_signed_governance_record(
         head_p = _head_match(current, expected_current_registry_head) if head_result["valid"] else []
         p.extend(head_p)
         currentness_matched = head_result["valid"] and not head_p
-        if current.get("authority_policy_digest") != current_policy:
+        if current.get("authority_policy_digest") != profile:
             p.append("SIGNED_RECORD_CURRENT_REGISTRY_AUTHORITY_POLICY_DIGEST_MISMATCH")
-        if expected_current_registry_head.authority_policy_digest != current_policy:
+        if expected_current_registry_head.authority_policy_digest != profile:
             p.append("SIGNED_RECORD_PINNED_HEAD_AUTHORITY_POLICY_DIGEST_MISMATCH")
         if current.get("trust_set_digest") != bootstrap_trust.trust_set_digest:
             p.append("SIGNED_RECORD_CURRENT_REGISTRY_TRUST_SET_DIGEST_MISMATCH")
@@ -912,7 +1135,7 @@ def verify_signed_governance_record(
             if key.get("algorithm") != "ED25519":
                 p.append("SIGNED_RECORD_KEY_ALGORITHM_UNSUPPORTED")
             roles = key.get("roles")
-            if canonical_role is None or not isinstance(roles, list) or canonical_role not in roles:
+            if canonical_role is None or type(roles) is not list or canonical_role not in roles:
                 p.append("SIGNED_RECORD_ISSUER_ROLE_NOT_AUTHORIZED")
             domain = key.get("control_domain_id")
             if domain in forbidden_control_domain_ids:
@@ -948,6 +1171,7 @@ def verify_signed_governance_record(
         "SIGNED_GOVERNANCE_RECORD_INVALID",
     )
     out.update({
+        "validation_profile_digest": profile,
         "content_integrity_verified": payload_ok,
         "issuer_signature_verified": signature_ok,
         "authority_registry_verified": registry_authority_ok,
@@ -970,12 +1194,14 @@ def verify_signed_governance_record_json(
     expected_record_type: str, expected_snapshot_id: str | None = None,
     forbidden_control_domain_ids: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
+    if type(registry_chain_json) not in {list, tuple}:
+        return _result(False, ["STRICT_JSON_REGISTRY_CHAIN_CONTAINER_INVALID"], "UNREACHABLE", "SIGNED_GOVERNANCE_RECORD_INVALID")
     try:
         record = load_strict_json(raw_record)
-        chain = [load_strict_json(raw) for raw in registry_chain_json]
+        chain = [load_strict_json(raw) for raw in list(registry_chain_json)]
     except (CanonicalizationError, UnicodeEncodeError) as exc:
         return _result(False, [f"STRICT_JSON_INGRESS:{exc}"], "UNREACHABLE", "SIGNED_GOVERNANCE_RECORD_INVALID")
-    if not isinstance(record, Mapping) or not all(isinstance(row, Mapping) for row in chain):
+    if type(record) is not dict or not all(type(row) is dict for row in chain):
         return _result(False, ["STRICT_JSON_SIGNED_RECORD_OR_REGISTRY_MUST_BE_OBJECT"], "UNREACHABLE", "SIGNED_GOVERNANCE_RECORD_INVALID")
     return verify_signed_governance_record(
         record, registry_chain=chain, bootstrap_trust=bootstrap_trust,
