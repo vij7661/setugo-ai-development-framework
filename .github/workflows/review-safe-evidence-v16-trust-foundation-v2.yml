@@ -5,13 +5,17 @@ on:
     branches: [implementation/review-safe-evidence-v16]
     paths:
       - 'governance-runtime/review_safe_evidence_v16_trust.py'
+      - 'governance-runtime/review_safe_evidence_v16_artifact_binding.py'
       - 'governance-runtime/test_review_safe_evidence_v16_trust.py'
       - 'governance-runtime/test_review_safe_evidence_v16_trust_iar5.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_artifact_binding.py'
       - 'governance-runtime/review-safe-evidence-v16-slice1-test-manifest.json'
       - 'governance-runtime/review-safe-evidence-v16-slice1-test-manifest-iar5.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice1-test-manifest-iar6.json'
       - 'governance-runtime/requirements-review-safe-evidence-v16.txt'
       - 'implementation/review-safe-evidence/V16-SLICE-1-AUTHENTICATED-TRUST-FOUNDATION.md'
       - 'implementation/review-safe-evidence/V16-SLICE-1-IAR5-REPAIR-CONTRACT.md'
+      - 'implementation/review-safe-evidence/V16-SLICE-1-IAR6-REPAIR-CONTRACT.md'
       - 'implementation/review-safe-evidence/V16-SUCCESSOR-SCOPE-FREEZE.md'
       - '.github/workflows/review-safe-evidence-v16-trust-foundation-v2.yml'
 permissions: {contents: read}
@@ -57,8 +61,10 @@ jobs:
         run: |
           python -m compileall -q \
             governance-runtime/review_safe_evidence_v16_trust.py \
+            governance-runtime/review_safe_evidence_v16_artifact_binding.py \
             governance-runtime/test_review_safe_evidence_v16_trust.py \
-            governance-runtime/test_review_safe_evidence_v16_trust_iar5.py
+            governance-runtime/test_review_safe_evidence_v16_trust_iar5.py \
+            governance-runtime/test_review_safe_evidence_v16_artifact_binding.py
       - name: Run Slice 1 mandatory adversarial tests
         working-directory: governance-runtime
         shell: bash
@@ -67,7 +73,8 @@ jobs:
           LOG="$RUNNER_TEMP/v16-slice1-v2-unittest.log"
           python -m unittest -v \
             test_review_safe_evidence_v16_trust.py \
-            test_review_safe_evidence_v16_trust_iar5.py 2>&1 | tee "$LOG"
+            test_review_safe_evidence_v16_trust_iar5.py \
+            test_review_safe_evidence_v16_artifact_binding.py 2>&1 | tee "$LOG"
           echo "V16_SLICE1_TEST_LOG=$LOG" >> "$GITHUB_ENV"
       - name: Verify composite stable manifests against source and raw execution log
         shell: bash
@@ -79,17 +86,23 @@ jobs:
           source_paths=[
               root/"test_review_safe_evidence_v16_trust.py",
               root/"test_review_safe_evidence_v16_trust_iar5.py",
+              root/"test_review_safe_evidence_v16_artifact_binding.py",
           ]
           manifest_paths=[
               root/"review-safe-evidence-v16-slice1-test-manifest.json",
               root/"review-safe-evidence-v16-slice1-test-manifest-iar5.json",
+              root/"review-safe-evidence-v16-slice1-test-manifest-iar6.json",
           ]
           manifests=[json.loads(p.read_text(encoding="utf-8")) for p in manifest_paths]
-          assert type(manifests[0]["schema_version"]) is int and manifests[0]["schema_version"] == 1
-          assert type(manifests[1]["schema_version"]) is int and manifests[1]["schema_version"] == 1
-          assert manifests[0]["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-005"
-          assert manifests[1]["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-IAR5-MANDATORY-TESTS-001"
-          for manifest in manifests:
+          expected_manifest_ids=[
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-005",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE1-IAR5-MANDATORY-TESTS-001",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE1-IAR6-MANDATORY-TESTS-001",
+          ]
+          assert len(manifests)==3
+          for manifest, expected_id in zip(manifests, expected_manifest_ids, strict=True):
+              assert type(manifest["schema_version"]) is int and manifest["schema_version"] == 1
+              assert manifest["manifest_id"] == expected_id
               assert manifest["slice_id"] == "V16-S1-AUTHENTICATED-TRUST-FOUNDATION"
               assert manifest["authority_effect"] == "NONE_EVIDENCE_ONLY"
               assert manifest["implementation_qualification"] == "NOT_CLAIMED"
@@ -98,7 +111,7 @@ jobs:
           assert rows and all(row["mandatory"] is True for row in rows)
           requirement_ids=[row["requirement_test_id"] for row in rows]
           declared=[row["python_test_id"] for row in rows]
-          assert len(rows)==77,len(rows)
+          assert len(rows)==89,len(rows)
           assert len(requirement_ids)==len(set(requirement_ids))
           assert len(declared)==len(set(declared))
           discovered=[]
@@ -112,24 +125,27 @@ jobs:
                               discovered.append(f"{module}.{node.name}.{child.name}")
           log=pathlib.Path(os.environ["V16_SLICE1_TEST_LOG"]).read_text(encoding="utf-8",errors="strict")
           executed=re.findall(
-              r"^test_[A-Za-z0-9_]+ \((test_review_safe_evidence_v16_trust(?:_iar5)?\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+)\) \.\.\. ok$",
+              r"^test_[A-Za-z0-9_]+ \((test_review_safe_evidence_v16_(?:trust(?:_iar5)?|artifact_binding)\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+)\) \.\.\. ok$",
               log,flags=re.MULTILINE,
           )
-          assert len(discovered)==77,len(discovered)
-          assert len(executed)==77,len(executed)
+          assert len(discovered)==89,len(discovered)
+          assert len(executed)==89,len(executed)
           assert set(declared)==set(discovered),sorted(set(declared)^set(discovered))
           assert set(declared)==set(executed),sorted(set(declared)^set(executed))
           assert "skipped=" not in log
           assert "FAILED" not in log
           assert "\nOK\n" in log
-          print("V16_SLICE1_MANDATORY_TESTS_VERIFIED=77")
+          print("V16_SLICE1_MANDATORY_TESTS_VERIFIED=89")
           print("V16_SLICE1_SOURCE_MANIFEST_EXECUTION_SET_EQUALITY=PASS")
-          print("V16_SLICE1_COMPOSITE_MANIFEST=64_PLUS_13")
+          print("V16_SLICE1_COMPOSITE_MANIFEST=64_PLUS_13_PLUS_12")
           PY
       - name: Construction boundary
         run: |
           echo "V16_SLICE1_AUTHENTICATED_TRUST_FOUNDATION=CONSTRUCTION_TESTS_PASS_NONAUTHORITATIVE"
           echo "V16_SLICE1_IAR5_REPAIRS=CONSTRUCTION_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_IAR6_ARTIFACT_BINDING=CONSTRUCTION_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_VALIDATOR_ARTIFACT_MEASUREMENT=LOCAL_SOURCE_BYTES_SELF_MEASURED"
+          echo "V16_SLICE1_VALIDATOR_ARTIFACT_MEASUREMENT_INDEPENDENTLY_PROVEN=false"
           echo "V16_SLICE1_TRUST_ANCHOR_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
           echo "V16_SLICE1_CURRENTNESS_ANCHOR_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
           echo "V16_SLICE1_DOWNSTREAM_MIGRATION=NOT_STARTED"
