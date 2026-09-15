@@ -7,6 +7,7 @@ on:
     paths:
       - 'governance-runtime/test_v24_v6_proof_resolution_red.py'
       - 'governance-runtime/test_v24_v6_proof_reference_closure.py'
+      - 'governance-runtime/test_v24_v6_material_surface.py'
       - 'governance-runtime/test_v24_v6_decision_apply.py'
       - 'governance-runtime/v24_v6_test_proof_context.py'
       - 'governance-runtime/v24_v6_proof_reference_closure.py'
@@ -49,9 +50,12 @@ jobs:
       - name: Verify shared proof-reference closure contract
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_reference_closure.py
+      - name: Verify R3 material-surface migration
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_material_surface.py
       - name: Verify R4 decision/apply migration
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_decision_apply.py
-      - name: Verify historical opaque-proof RED is permanently closed
+      - name: Verify historical opaque-proof REDs are permanently closed
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_resolution_red.py
