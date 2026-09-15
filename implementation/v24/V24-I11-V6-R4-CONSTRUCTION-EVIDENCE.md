@@ -72,3 +72,35 @@ WDPC-469 and WDPC-495 remain blocked by I1 semantic qualification. WDPC-503 rema
 Next implementation workstream under exact V6 approval: **R5 — independent normative-clause structural projection and governed semantic disposition**.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## Post-review proof-resolution remediation — 2026-09-15
+
+This addendum preserves the original R4 construction record and documents the later independent-review repair.
+
+The systemic proof-resolution review demonstrated that the decision/apply latch could be opened by candidate-supplied `QUALIFIED`/`CURRENT` labels and SHA-shaped proof references without resolving the underlying R1 proof records through an independently trusted boundary.
+
+### Preserved proof-resolution failure
+
+Run `35000549932`: **FAILURE / genuine false-green**.
+
+The preserved adversarial case showed that opaque proof labels could open the apply latch. This failure remains append-only evidence and the falsification was retained permanently.
+
+### Repair
+
+On `remediation/v24-i11-v6-proof-resolution`, R4 was migrated to the shared proof-reference closure contract. The revalidation snapshot source, predicate coverage, decision qualification, endpoint projection, writer admission, capability, guard, and material effect-path currentness now resolve exact referenced R1 records. `proof_context` and `trusted_boundary` are external keyword inputs; candidate-embedded copies cannot grant authority.
+
+The repair also preserves exact snapshot binding and re-evaluation semantics: load-bearing digest/head drift still requires a newly qualified decision bound to the exact current snapshot before effect.
+
+All-up proof-resolution run `35007121039`: **SUCCESS**, including R4 and every preserved opaque-proof regression.
+
+R9 dependency-closure run `35007800567`: **SUCCESS**, preserving R4 while widening the successor freeze to shared load-bearing modules.
+
+Remediated R4 production blob at this evidence update: `19cd25ff44e46401b6520195692989ec0abc3e9b`.
+
+No WDPC case was executed. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor review.
+
+`R4_POST_REVIEW_PROOF_RESOLUTION = PASS`
+
+`R4_RUNTIME_QUALIFICATION = NOT_CLAIMED`
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
