@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import replace
 import unittest
 
 from review_safe_evidence_v16_independence import (
@@ -29,6 +30,9 @@ from test_review_safe_evidence_v16_trust import (
 
 def base_domains() -> list[dict]:
     return [
+        {"control_domain_id": "root-domain-1", "parent_control_domain_ids": []},
+        {"control_domain_id": "root-domain-2", "parent_control_domain_ids": []},
+        {"control_domain_id": "root-domain-3", "parent_control_domain_ids": []},
         {"control_domain_id": "candidate-root", "parent_control_domain_ids": []},
         {"control_domain_id": "candidate-domain", "parent_control_domain_ids": ["candidate-root"]},
         {"control_domain_id": "candidate-service", "parent_control_domain_ids": ["candidate-domain"]},
@@ -122,8 +126,10 @@ class GraphValidationTests(unittest.TestCase):
         graph = make_graph()
         result = validate([graph])
         self.assertTrue(result["valid"], result["problems"])
+        self.assertTrue(result["construction_graph_valid"])
         self.assertTrue(result["current_head_matched"])
         self.assertEqual(len(result["bootstrap_authenticated_control_domains"]), 2)
+        self.assertTrue(result["promotion_blocked"])
         self.assertFalse(result["qualified"])
         self.assertFalse(result["graph_completeness_real_world_proven"])
 
@@ -131,7 +137,7 @@ class GraphValidationTests(unittest.TestCase):
         graph = make_graph(signers=("root-1",))
         result = validate([graph])
         self.assertFalse(result["valid"])
-        self.assertTrue(any("BOOTSTRAP_THRESHOLD_NOT_MET" in p for p in result["problems"]))
+        self.assertTrue(any("THRESHOLD_NOT_MET" in p for p in result["problems"]))
 
     def test_graph_tamper_and_digest_recompute_without_new_signatures_fails(self):
         graph = make_graph()
@@ -151,7 +157,7 @@ class GraphValidationTests(unittest.TestCase):
 
     def test_unknown_parent_fails_closed(self):
         domains = base_domains()
-        domains[4]["parent_control_domain_ids"] = ["missing-parent"]
+        next(d for d in domains if d["control_domain_id"] == "review-domain-a")["parent_control_domain_ids"] = ["missing-parent"]
         graph = make_graph(domains=domains)
         result = validate([graph])
         self.assertFalse(result["valid"])
@@ -159,7 +165,7 @@ class GraphValidationTests(unittest.TestCase):
 
     def test_self_edge_fails_closed(self):
         domains = base_domains()
-        domains[4]["parent_control_domain_ids"] = ["review-domain-a"]
+        next(d for d in domains if d["control_domain_id"] == "review-domain-a")["parent_control_domain_ids"] = ["review-domain-a"]
         graph = make_graph(domains=domains)
         result = validate([graph])
         self.assertFalse(result["valid"])
@@ -167,7 +173,7 @@ class GraphValidationTests(unittest.TestCase):
 
     def test_cycle_fails_closed(self):
         domains = base_domains()
-        domains[3]["parent_control_domain_ids"] = ["review-domain-a"]
+        next(d for d in domains if d["control_domain_id"] == "review-root-a")["parent_control_domain_ids"] = ["review-domain-a"]
         graph = make_graph(domains=domains)
         result = validate([graph])
         self.assertFalse(result["valid"])
@@ -190,7 +196,7 @@ class GraphValidationTests(unittest.TestCase):
     def test_parent_edge_removal_is_forbidden_across_graph_updates(self):
         g1 = make_graph()
         domains = base_domains()
-        domains[4]["parent_control_domain_ids"] = []
+        next(d for d in domains if d["control_domain_id"] == "review-domain-a")["parent_control_domain_ids"] = []
         g2 = make_graph(sequence=2, generation_id="graph-gen-2", predecessor=g1["graph_digest"], domains=domains)
         result = validate([g1, g2])
         self.assertFalse(result["valid"])
@@ -247,7 +253,8 @@ class IndependenceTests(unittest.TestCase):
         result = self.assess("review-domain-a", "review-domain-b")
         self.assertTrue(result["valid"], result["problems"])
         self.assertEqual(result["independence_result"], "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH")
-        self.assertFalse(result["promotion_blocked"])
+        self.assertTrue(result["construction_independence_satisfied"])
+        self.assertTrue(result["promotion_blocked"])
         self.assertFalse(result["independence_real_world_proven"])
 
     def test_same_domain_is_not_independent(self):
@@ -288,13 +295,14 @@ class CandidateControlTests(unittest.TestCase):
     def test_disconnected_review_domain_is_not_candidate_controlled_within_graph(self):
         result = self.assess("review-domain-a")
         self.assertFalse(result["candidate_controlled"])
-        self.assertFalse(result["promotion_blocked"])
+        self.assertTrue(result["construction_candidate_control_clear"])
+        self.assertTrue(result["promotion_blocked"])
         self.assertFalse(result["control_real_world_completeness_proven"])
 
 
 class RegistryAuthorityResolutionTests(unittest.TestCase):
     def setup_context(self, domain_a="review-domain-a", domain_b="review-domain-b"):
-        graph = make_graph()
+        graph = make_graph(generation_id="gen-1")
         keys = [
             key_entry(
                 issuer_id="issuer-a", key_id="key-a", control_domain=domain_a,
@@ -305,7 +313,7 @@ class RegistryAuthorityResolutionTests(unittest.TestCase):
                 public_key_b64=_pub(ATTACKER), roles=["RAW_EVIDENCE_CAPTURE_AUTHORITY"],
             ),
         ]
-        registry = make_registry(keys=keys)
+        registry = make_registry(keys=keys, generation_id="gen-1")
         return graph, registry
 
     def resolve(self, key_id, role="RAW_EVIDENCE_CAPTURE_AUTHORITY", *, graph=None, registry=None, registry_head=None):
@@ -321,36 +329,39 @@ class RegistryAuthorityResolutionTests(unittest.TestCase):
     def test_valid_registry_key_role_and_domain_resolve_admissible(self):
         graph, registry = self.setup_context()
         result = self.resolve("key-a", graph=graph, registry=registry)
-        self.assertTrue(result["authority_admissible"], result["problems"])
+        self.assertTrue(result["valid"], result["problems"])
+        self.assertTrue(result["authority_structurally_admissible_within_authenticated_graph"])
+        self.assertFalse(result["authority_admissible"])
+        self.assertTrue(result["promotion_blocked"])
         self.assertEqual(result["control_domain_id"], "review-domain-a")
         self.assertFalse(result["candidate_controlled"])
 
     def test_role_not_granted_cannot_be_asserted_by_caller(self):
         graph, registry = self.setup_context()
         result = self.resolve("key-a", "ADJUDICATION_AUTHORITY", graph=graph, registry=registry)
+        self.assertFalse(result["authority_structurally_admissible_within_authenticated_graph"])
         self.assertFalse(result["authority_admissible"])
         self.assertIn("REGISTRY_AUTHORITY_ROLE_NOT_GRANTED", result["problems"])
 
     def test_registry_domain_absent_from_authenticated_graph_fails_closed(self):
         graph, registry = self.setup_context(domain_a="unregistered-domain")
         result = self.resolve("key-a", graph=graph, registry=registry)
-        self.assertFalse(result["authority_admissible"])
+        self.assertFalse(result["authority_structurally_admissible_within_authenticated_graph"])
         self.assertIn("REGISTRY_AUTHORITY_CONTROL_DOMAIN_NOT_IN_AUTHENTICATED_GRAPH", result["problems"])
 
     def test_candidate_controlled_registry_key_is_not_admissible(self):
         graph, registry = self.setup_context(domain_a="candidate-service")
         result = self.resolve("key-a", graph=graph, registry=registry)
+        self.assertFalse(result["authority_structurally_admissible_within_authenticated_graph"])
         self.assertFalse(result["authority_admissible"])
         self.assertTrue(result["candidate_controlled"])
         self.assertIn("REGISTRY_AUTHORITY_CANDIDATE_CONTROLLED", result["problems"])
 
     def test_stale_registry_head_fails_closed(self):
         graph, registry = self.setup_context()
-        bad_head = head_for([registry])
-        from dataclasses import replace
-        bad_head = replace(bad_head, registry_digest="f" * 64)
+        bad_head = replace(head_for([registry]), registry_digest="f" * 64)
         result = self.resolve("key-a", graph=graph, registry=registry, registry_head=bad_head)
-        self.assertFalse(result["authority_admissible"])
+        self.assertFalse(result["authority_structurally_admissible_within_authenticated_graph"])
         self.assertIn("REGISTRY_AUTHORITY_CURRENT_HEAD_MISMATCH", result["problems"])
 
     def test_registry_candidate_control_boolean_injection_is_rejected_upstream(self):
@@ -359,7 +370,7 @@ class RegistryAuthorityResolutionTests(unittest.TestCase):
         from test_review_safe_evidence_v16_trust import resign_registry
         resign_registry(registry)
         result = self.resolve("key-a", graph=graph, registry=registry)
-        self.assertFalse(result["authority_admissible"])
+        self.assertFalse(result["authority_structurally_admissible_within_authenticated_graph"])
         self.assertTrue(any("KEY_FIELDS_NOT_EXACT" in p for p in result["problems"]))
 
     def test_two_registry_keys_in_disconnected_domains_are_independent(self):
@@ -371,8 +382,11 @@ class RegistryAuthorityResolutionTests(unittest.TestCase):
             graph_chain=[graph], expected_graph_head=graph_head([graph]),
             bootstrap_trust=trust(), expected_candidate_id="candidate-1",
         )
+        self.assertTrue(result["valid"], result["problems"])
         self.assertEqual(result["independence_result"], "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH")
-        self.assertFalse(result["promotion_blocked"])
+        self.assertTrue(result["construction_independence_satisfied"])
+        self.assertFalse(result["authority_admissible"])
+        self.assertTrue(result["promotion_blocked"])
 
     def test_two_registry_keys_with_shared_ancestor_are_not_independent(self):
         graph, registry = self.setup_context("shared-domain-a", "shared-domain-b")
