@@ -7,6 +7,7 @@ from v24_v6_governance_foundation import CURRENT, QUALIFIED, digest
 from v24_v6_effect_ledger_closure import (
     canonical_anchor_content_digest,
     canonical_derivation_content_digest,
+    canonical_effect_path_content_digest,
     canonical_effect_registry_content_digest,
     canonical_ledger_head_digest,
     canonical_storage_content_digest,
@@ -18,7 +19,7 @@ from v24_v6_effect_ledger_closure import (
 )
 from v24_v6_test_proof_context import build_test_proof_context
 
-H="a"*64;Q="b"*64;E="c"*64;PATHCONTENT="f"*64
+H="a"*64;Q="b"*64;E="c"*64
 REGISTRY_ID="EFFECT-CLASS-REGISTRY";REGISTRY_RESULT_ID="EFFECT-CLASS-REGISTRY-RESULT"
 
 
@@ -158,16 +159,18 @@ def proof_closed_registry_fixture(extra_observed: str|None=None):
     return {"registry":registry,"derivations":derivations,"current_observation_head_digest":obs_head,"completeness_qualification":completeness},context,boundary,specs2
 
 
-def proof_effect_path(effect_class_id,refs):
-    return {
-        "path_id":"EP-1","path_content_digest":PATHCONTENT,"source_or_writer_id":"WRITER-1","sink_id":"SINK-1","effect_class_id":effect_class_id,
+def proof_effect_path(effect_class_id,refs,currentness_ref=""):
+    p={
+        "path_id":"EP-1","source_or_writer_id":"WRITER-1","sink_id":"SINK-1","effect_class_id":effect_class_id,
         "writer_admission_id":"WRITER-ADMISSION-1","writer_admission_digest":H,"writer_admission_qualification_digest":refs["writer_q"],
         "capability_id":"CAPABILITY-1","capability_digest":Q,"capability_qualification_digest":refs["cap_q"],
         "guard_mechanism_id":"GUARD-1","guard_mechanism_digest":E,"guard_qualification_digest":refs["guard_q"],
-        "currentness_binding_digest":refs["path_c"],"sink_admitted_writer_set_digest":"d"*64,"material_surface_membership_digest":"e"*64,
+        "currentness_binding_digest":currentness_ref,"sink_admitted_writer_set_digest":"d"*64,"material_surface_membership_digest":"e"*64,
         "observation_head_digest":"9"*64,"writer_admission_state":QUALIFIED,"capability_state":QUALIFIED,"guard_qualification_state":QUALIFIED,
         "sink_admitted_writer_ids":["WRITER-1"],"dependency_edge_digests":["f"*64],"control_plane_evidence_digests":["8"*64],"currentness_result":CURRENT,
     }
+    p["path_content_digest"]=canonical_effect_path_content_digest(p)
+    return p
 
 
 def registry_and_path_fixture(effect_class_id="STATE_WRITE"):
@@ -178,12 +181,15 @@ def registry_and_path_fixture(effect_class_id="STATE_WRITE"):
         "writer_q":{"kind":"QUALIFICATION","subject_id":"WRITER-ADMISSION-1","content_digest":H},
         "cap_q":{"kind":"QUALIFICATION","subject_id":"CAPABILITY-1","content_digest":Q},
         "guard_q":{"kind":"QUALIFICATION","subject_id":"GUARD-1","content_digest":E},
-        "path_c":{"kind":"CURRENTNESS","source_id":"EP-1","source_digest":PATHCONTENT},
     })
+    _,_,pre_refs=build_test_proof_context(extended)
+    draft=proof_effect_path(effect_class_id,pre_refs)
+    extended["path_c"]={"kind":"CURRENTNESS","source_id":draft["path_id"],"source_digest":draft["path_content_digest"]}
     context,boundary,refs=build_test_proof_context(extended)
+    path=proof_effect_path(effect_class_id,refs,refs["path_c"])
     rr=validate_effect_class_registry(bundle,proof_context=context,trusted_boundary=boundary);assert rr["qualified"],rr["problems"]
     rr=dict(rr);rr["registry_result_id"]=REGISTRY_RESULT_ID;rr["registry_result_qualification_digest"]=refs["result_q"]
-    return proof_effect_path(effect_class_id,refs),rr,context,boundary
+    return path,rr,context,boundary
 
 
 class DurableLedgerTests(unittest.TestCase):
@@ -237,6 +243,9 @@ class EffectClassTests(unittest.TestCase):
 
     def test_registered_effect_path_classifies(self):
         path,rr,c,t=registry_and_path_fixture();r=validate_effect_path_against_registry(path,current_observation_head_digest="9"*64,registry_result=rr,proof_context=c,trusted_boundary=t);self.assertTrue(r["qualified"],r["problems"])
+
+    def test_registered_to_registered_effect_class_substitution_blocks(self):
+        path,rr,c,t=registry_and_path_fixture("STATE_WRITE");path["effect_class_id"]="REMOTE_EFFECT";r=validate_effect_path_against_registry(path,current_observation_head_digest="9"*64,registry_result=rr,proof_context=c,trusted_boundary=t);self.assertFalse(r["qualified"]);self.assertIn("MATERIAL_EFFECT_PATH_CONTENT_DIGEST_MISMATCH",r["problems"])
 
     def test_unregistered_effect_class_blocks_effect_path(self):
         path,rr,c,t=registry_and_path_fixture("UNKNOWN_EFFECT");r=validate_effect_path_against_registry(path,current_observation_head_digest="9"*64,registry_result=rr,proof_context=c,trusted_boundary=t);self.assertIn("MATERIAL_EFFECT_PATH_EFFECT_CLASS_UNKNOWN_OR_UNREGISTERED",r["problems"])
