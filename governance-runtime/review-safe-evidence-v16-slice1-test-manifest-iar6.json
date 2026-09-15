@@ -1,0 +1,22 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE1-IAR6-MANDATORY-TESTS-001",
+  "runtime_qualification": "NOT_CLAIMED",
+  "schema_version": 1,
+  "slice_id": "V16-S1-AUTHENTICATED-TRUST-FOUNDATION",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ValidatorBundleIdentityTests.test_validator_bundle_digest_changes_when_base_source_bytes_change","requirement_test_id":"V16-S1-078"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ValidatorBundleIdentityTests.test_valid_binding_certificate_is_threshold_authenticated_but_not_qualified","requirement_test_id":"V16-S1-079"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ValidatorBundleIdentityTests.test_single_bootstrap_root_cannot_authorize_validator_binding","requirement_test_id":"V16-S1-080"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ValidatorBundleIdentityTests.test_bootstrap_binding_signature_cannot_be_relabelled_to_another_root","requirement_test_id":"V16-S1-081"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ValidatorBundleIdentityTests.test_binding_certificate_cannot_be_reused_for_different_registry_chain","requirement_test_id":"V16-S1-082"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_valid_artifact_bound_record_passes_but_remains_nonqualified","requirement_test_id":"V16-S1-083"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_outer_signature_tamper_fails_even_when_inner_record_is_valid","requirement_test_id":"V16-S1-084"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_different_validator_bundle_fails_even_with_fresh_outer_signature","requirement_test_id":"V16-S1-085"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_pinned_binding_digest_mismatch_fails_closed","requirement_test_id":"V16-S1-086"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_mixed_validation_profile_registry_chain_is_forbidden","requirement_test_id":"V16-S1-087"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_base_record_alone_is_not_artifact_bound_record","requirement_test_id":"V16-S1-088"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_artifact_binding.ArtifactBoundRecordTests.test_valid_result_explicitly_marks_source_measurement_as_not_independently_proven","requirement_test_id":"V16-S1-089"}
+  ]
+}
