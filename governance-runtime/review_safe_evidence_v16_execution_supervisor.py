@@ -1,8 +1,12 @@
 """V16 Slice 2 external assertion supervisor.
 
-Construction-stage mechanism only.  The evaluated worker is untrusted.  Worker stdout is
-parsed as bounded data and worker stderr is diagnostic-only.  Only this supervisor owns
-the oracle and writes the completion receipt.
+Construction-stage only. The evaluated worker is untrusted. Worker stdout is parsed as
+bounded data and worker stderr is diagnostic-only. Only this supervisor owns the oracle
+and writes the completion receipt.
+
+The supervisor never treats exit of the original worker PID as protocol-stream EOF.
+Inherited stdout/stderr writers must close, overflow, or reach the global deadline before
+response parsing may occur.
 
 AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY
 """
@@ -185,7 +189,13 @@ def _run_worker_bounded(
     max_stdout_bytes: int,
     max_stderr_bytes: int,
 ) -> dict[str, Any]:
+    """Run one worker without accepting the main PID exit as stream completion.
+
+    Response completeness is established only after every inherited stdout/stderr writer
+    closes its pipe (EOF), or the global deadline/size limit forces fail-closed shutdown.
+    """
     started = time.monotonic()
+    deadline = started + timeout_ms / 1000.0
     proc = subprocess.Popen(
         list(command),
         cwd=cwd,
@@ -216,8 +226,10 @@ def _run_worker_bounded(
     limits = {"stdout": max_stdout_bytes, "stderr": max_stderr_bytes}
     overflow: str | None = None
     timed_out = False
-    deadline = started + timeout_ms / 1000.0
 
+    # Do not break merely because proc.poll() reports the original PID has exited.
+    # A descendant may still hold either inherited pipe.  Wait for actual EOF on every
+    # registered stream, subject to the one global deadline and byte limits.
     while selector.get_map():
         remaining = deadline - time.monotonic()
         if remaining <= 0:
@@ -226,13 +238,7 @@ def _run_worker_bounded(
             break
         events = selector.select(timeout=min(remaining, 0.05))
         if not events:
-            if proc.poll() is not None:
-                # Drain any bytes already readable after process termination.
-                events = selector.select(timeout=0)
-                if not events:
-                    break
-            else:
-                continue
+            continue
         for key, _ in events:
             stream = key.fileobj
             name = key.data
@@ -254,13 +260,19 @@ def _run_worker_bounded(
         if overflow is not None:
             break
 
+    protocol_streams_eof = not bool(selector.get_map())
+
     if timed_out or overflow is not None:
+        _terminate_process_group(proc)
         try:
             proc.wait(timeout=2)
         except subprocess.TimeoutExpired:
             _terminate_process_group(proc)
             proc.wait(timeout=2)
     else:
+        # All protocol streams reached EOF. The original worker must also terminate
+        # before the same global deadline; a worker that closes its channels and hangs
+        # still fails closed.
         remaining = max(0.0, deadline - time.monotonic())
         try:
             proc.wait(timeout=remaining)
@@ -269,7 +281,9 @@ def _run_worker_bounded(
             _terminate_process_group(proc)
             proc.wait(timeout=2)
 
-    # Drain bounded residual bytes after process termination.
+    # After forced shutdown, drain only bytes already available and retain failure.
+    # Successful parsing is never attempted unless protocol_streams_eof was true before
+    # the forced-shutdown path.
     for name, stream in (("stdout", proc.stdout), ("stderr", proc.stderr)):
         while True:
             try:
@@ -284,11 +298,14 @@ def _run_worker_bounded(
                 break
 
     selector.close()
+    proc.stdout.close()
+    proc.stderr.close()
     duration_ms = int((time.monotonic() - started) * 1000)
     return {
         "return_code": proc.returncode,
         "timed_out": timed_out,
         "overflow_stream": overflow,
+        "protocol_streams_eof": protocol_streams_eof,
         "stdout": bytes(buffers["stdout"][: max_stdout_bytes + 1]),
         "stderr": bytes(buffers["stderr"][: max_stderr_bytes + 1]),
         "duration_ms": duration_ms,
@@ -321,6 +338,8 @@ def supervise(config: Mapping[str, Any]) -> dict[str, Any]:
     post_worker_assertion_reached = True
     rc = worker["return_code"]
     worker_signal = -rc if isinstance(rc, int) and rc < 0 else None
+    if not worker["protocol_streams_eof"]:
+        problems.append("WORKER_PROTOCOL_STREAMS_NOT_EOF")
     if worker["timed_out"]:
         problems.append("WORKER_TIMEOUT")
     if worker["overflow_stream"] == "stdout":
@@ -350,8 +369,8 @@ def supervise(config: Mapping[str, Any]) -> dict[str, Any]:
             problems.append(str(exc))
 
     if response_valid:
-        # The load-bearing assertion is intentionally performed here, after worker
-        # completion, in the supervisor process.  A worker's own PASS claim is data only.
+        # The load-bearing assertion is intentionally performed here, after worker and
+        # inherited protocol-stream completion, in the supervisor process.
         try:
             oracle_pass = canonical_bytes(response_result) == canonical_bytes(cfg["expected_result"])
         except SupervisorProtocolError as exc:
@@ -373,6 +392,7 @@ def supervise(config: Mapping[str, Any]) -> dict[str, Any]:
         "worker_signal": worker_signal,
         "worker_timed_out": worker["timed_out"],
         "worker_overflow_stream": worker["overflow_stream"],
+        "protocol_streams_eof": worker["protocol_streams_eof"],
         "response_valid": response_valid,
         "oracle_pass": oracle_pass,
         "request_sha256": _sha_bytes(request_bytes),
@@ -414,6 +434,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "worker_signal": None,
             "worker_timed_out": False,
             "worker_overflow_stream": None,
+            "protocol_streams_eof": False,
             "response_valid": False,
             "oracle_pass": False,
             "request_sha256": None,
