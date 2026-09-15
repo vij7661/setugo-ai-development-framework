@@ -24,9 +24,9 @@
       "construction_state": "PASS",
       "runtime_qualification_state": "NOT_CLAIMED",
       "production_module_path": "governance-runtime/v24_v6_governance_foundation.py",
-      "production_git_blob_sha": "069a057586d81646020993536601ec0854d473d9",
+      "production_git_blob_sha": "069a0575c5bf4841cbf752180bbe192094d60623",
       "construction_evidence_path": "implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md",
-      "evidence_git_blob_sha": "44344e8222fd99aff80e0eea8fc8147772c1bcf2"
+      "evidence_git_blob_sha": "4434403ee104e4918fa471487130ca21074f6d5f"
     },
     {
       "workstream_id": "R2",
@@ -51,7 +51,7 @@
       "construction_state": "PASS",
       "runtime_qualification_state": "NOT_CLAIMED",
       "production_module_path": "governance-runtime/v24_v6_decision_apply.py",
-      "production_git_blob_sha": "19cd25ff44e46401b6520195692989ec0abc3e9b",
+      "production_git_blob_sha": "19cd9e52cff3eba33fa2c7a8872b91e9f9a4f30e",
       "construction_evidence_path": "implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md",
       "evidence_git_blob_sha": "d0fd489ae3194dda5dc9ddaa8eeac5952e38ca7c"
     },
@@ -60,7 +60,7 @@
       "construction_state": "PASS",
       "runtime_qualification_state": "NOT_CLAIMED",
       "production_module_path": "governance-runtime/v24_v6_normative_clause_projection.py",
-      "production_git_blob_sha": "f51ac96c72d589dcfab51691b5a240796b363b08",
+      "production_git_blob_sha": "f51a472b7751b3a325224041bf66f746fda92580",
       "construction_evidence_path": "implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md",
       "evidence_git_blob_sha": "3ed5fc804769cd3c967d2be98f3689bd2e75dc48"
     },
@@ -78,7 +78,7 @@
       "construction_state": "PASS",
       "runtime_qualification_state": "NOT_CLAIMED",
       "production_module_path": "governance-runtime/v24_v6_atomic_binding_modes.py",
-      "production_git_blob_sha": "f53820b0bcd92a6eeedc5e1516fb6b94f846d9d2",
+      "production_git_blob_sha": "f538c3d9bc1d3b112e974c1b087d2e3128859793",
       "construction_evidence_path": "implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md",
       "evidence_git_blob_sha": "e2fd0b814357cc9c1f00f4acf334f1adb75d6169"
     },
@@ -87,7 +87,7 @@
       "construction_state": "PASS",
       "runtime_qualification_state": "NOT_CLAIMED",
       "production_module_path": "governance-runtime/v24_v6_qualification_integrity.py",
-      "production_git_blob_sha": "bddfa5e2bf4919449de1ac4d76da93145ef2eb72",
+      "production_git_blob_sha": "bddfaa61d6d2f2a2dfde84314ba397cd6a7f8eaf",
       "construction_evidence_path": "implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md",
       "evidence_git_blob_sha": "e4c8b7ac105c9160e52ce99a3565a9727c31a76e"
     }
@@ -96,17 +96,17 @@
     {
       "dependency_id": "ENDPOINT_PROOF_COMPILER",
       "path": "governance-runtime/v24_endpoint_proof_compiler.py",
-      "git_blob_sha": "1d43d0057bd9cb63dc6ea544e0978521d5ad5c94"
+      "git_blob_sha": "1d43d650f6181c87bdd1fb18b5e017e505f9bde6"
     },
     {
       "dependency_id": "NORMATIVE_CONTROL_CATALOG",
       "path": "governance-runtime/normative_control_catalog.py",
-      "git_blob_sha": "5fdbd9a41845e7b1ec0e43f53a3c1b020b2a5c42"
+      "git_blob_sha": "5fdbd561c93049222d55bbc81c2baf592ff906aa"
     },
     {
       "dependency_id": "PROOF_REFERENCE_CLOSURE",
       "path": "governance-runtime/v24_v6_proof_reference_closure.py",
-      "git_blob_sha": "54c6d052b3beab85c22f53672ca3660735c9a921"
+      "git_blob_sha": "54c6d5a4ee5139837748fde06778224f2008b0d3"
     }
   ],
   "mandatory_v6_adversarial_checks": [
