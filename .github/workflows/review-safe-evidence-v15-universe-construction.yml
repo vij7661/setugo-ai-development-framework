@@ -1,0 +1,52 @@
+name: Review Safe Evidence V15 Universe Construction
+
+on:
+  push:
+    branches:
+      - implementation/review-safe-evidence-v15
+    paths:
+      - 'governance-runtime/review_safe_evidence_v15_universe.py'
+      - 'governance-runtime/test_review_safe_evidence_v15_universe.py'
+      - '.github/workflows/review-safe-evidence-v15-universe-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  universe-construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record construction identity
+        run: |
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+
+      - name: Compile universe slice
+        run: python -m compileall -q governance-runtime/review_safe_evidence_v15.py governance-runtime/review_safe_evidence_v15_universe.py governance-runtime/test_review_safe_evidence_v15_universe.py
+
+      - name: Run evidence-universe derivation and challenge regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_review_safe_evidence_v15_universe.py
+
+      - name: Construction boundary
+        run: |
+          echo "V15_EVIDENCE_UNIVERSE_DERIVATION_AND_CHALLENGE=PASS_NONAUTHORITATIVE"
+          echo "NEXT_SLICE=RAW_EVIDENCE_AND_NOT_APPLICABLE_GOVERNANCE"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
