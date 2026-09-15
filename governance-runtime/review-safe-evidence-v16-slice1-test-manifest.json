@@ -1,7 +1,7 @@
 {
   "authority_effect": "NONE_EVIDENCE_ONLY",
   "implementation_qualification": "NOT_CLAIMED",
-  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-002",
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-003",
   "runtime_qualification": "NOT_CLAIMED",
   "schema_version": 1,
   "slice_id": "V16-S1-AUTHENTICATED-TRUST-FOUNDATION",
@@ -43,6 +43,10 @@
     {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.RegistryTests.test_generation_identifier_cannot_be_reused_after_intervening_generation", "requirement_test_id": "V16-S1-035"},
     {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_stale_expected_generation_cannot_validate_under_newer_current_registry", "requirement_test_id": "V16-S1-036"},
     {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_current_generation_record_at_current_registry_validates", "requirement_test_id": "V16-S1-037"},
-    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_strict_json_ingress_rejects_duplicate_signed_record_keys", "requirement_test_id": "V16-S1-038"}
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_strict_json_ingress_rejects_duplicate_signed_record_keys", "requirement_test_id": "V16-S1-038"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.CanonicalizationTests.test_lone_surrogate_is_rejected_as_canonicalization_error", "requirement_test_id": "V16-S1-039"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.RegistryTests.test_governance_registry_rejects_public_key_alias_across_two_identities", "requirement_test_id": "V16-S1-040"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_stale_registry_prefix_cannot_override_newer_pinned_head", "requirement_test_id": "V16-S1-041"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_pinned_registry_head_trust_set_mismatch_fails_closed", "requirement_test_id": "V16-S1-042"}
   ]
 }
