@@ -62,3 +62,46 @@ WDPC-469 and WDPC-495 remain blocked by I1 semantic qualification. WDPC-503 rema
 The next workstream must descend from this evidence commit. This construction record grants no runtime, release, deployment, production, or terminal authority.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## Post-review proof-resolution remediation — 2026-09-15
+
+This append-only section records the later R7 independent-review remediation.
+
+The review identified that the atomic-binding obligation universe could be defined by contracts and mechanisms carrying only digest-shaped fields plus caller labels such as `QUALIFIED`, `QUALIFIED`, and `CURRENT`. Registry verifier state and downstream proof objects had the same structural weakness.
+
+### Preserved proof-resolution failure
+
+Run `35005858527`: **FAILURE / genuine false-green**.
+
+The new R7 falsification was the only failing step; resolver and R2-R6 remained GREEN. A label-only contract/mechanism fixture incorrectly returned `qualified=True` before repair.
+
+### Repair
+
+R7 now proof-closes:
+- exact contract binding content, contract qualification, authority independence, and currentness;
+- mechanism admission qualification, mechanism qualification, authority independence, and currentness;
+- exact atomic-mode registry qualification/currentness;
+- each mode verifier qualification/currentness;
+- registry completeness dependencies;
+- the qualified registry-result artifact consumed downstream;
+- each individual atomic-binding proof result and its currentness.
+
+Canonical contract/mechanism binding digests include the advertised mode sets, preventing mode-set substitution with stale proofs. Proof acceptance uses the bound registry-result material rather than caller-overridable registry entries.
+
+The first migrated all-up attempt `35006280513` exposed a **test vocabulary mismatch only**: production correctly returned `GOVERNED_QUALIFICATION_SUBJECT_DIGEST_MISMATCH`; the new test expected a different token. No production semantics were weakened. The assertion was corrected to the resolver's actual error vocabulary.
+
+Run `35006613296`: **SUCCESS**, closing R7 with R2-R6 and all permanent regressions GREEN.
+
+All-up R2-R8 proof-resolution run `35007121039`: **SUCCESS**.
+
+R9 dependency-closure run `35007800567`: **SUCCESS**.
+
+Remediated R7 production blob at this evidence update: `f53820b0bcd92a6eeedc5e1516fb6b94f846d9d2`.
+
+No WDPC scientific case was executed. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor review.
+
+`R7_POST_REVIEW_PROOF_RESOLUTION = PASS`
+
+`R7_RUNTIME_QUALIFICATION = NOT_CLAIMED`
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
