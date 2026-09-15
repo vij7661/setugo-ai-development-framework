@@ -1,0 +1,45 @@
+name: V24 V6 Proof Resolution RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-proof-resolution
+    paths:
+      - 'governance-runtime/test_v24_v6_proof_resolution_red.py'
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_endpoint_projection.py'
+      - 'governance-runtime/v24_v6_material_surface.py'
+      - 'governance-runtime/v24_v6_decision_apply.py'
+      - 'governance-runtime/v24_v6_normative_clause_projection.py'
+      - 'governance-runtime/v24_v6_effect_ledger_closure.py'
+      - 'governance-runtime/v24_v6_atomic_binding_modes.py'
+      - 'governance-runtime/v24_v6_qualification_integrity.py'
+      - '.github/workflows/v24-v6-proof-resolution-red.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsify-opaque-proof-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+      - name: Compile exact V6 surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_governance_foundation.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py
+      - name: Falsify opaque qualification reference path
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_proof_resolution_red.py
