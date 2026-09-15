@@ -12,6 +12,7 @@ on:
       - 'governance-runtime/test_v24_v6_decision_apply.py'
       - 'governance-runtime/test_v24_v6_normative_clause_projection.py'
       - 'governance-runtime/test_v24_v6_effect_ledger_closure.py'
+      - 'governance-runtime/test_v24_v6_atomic_binding_modes.py'
       - 'governance-runtime/v24_v6_test_proof_context.py'
       - 'governance-runtime/v24_v6_proof_reference_closure.py'
       - 'governance-runtime/v24_v6_governance_foundation.py'
@@ -68,6 +69,9 @@ jobs:
       - name: Verify R6 effect/ledger closure migration
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_effect_ledger_closure.py
+      - name: Verify R7 atomic-binding migration
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_atomic_binding_modes.py
       - name: Verify historical opaque-proof REDs are permanently closed
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_resolution_red.py
