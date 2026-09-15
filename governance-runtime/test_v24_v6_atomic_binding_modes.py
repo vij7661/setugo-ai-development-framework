@@ -451,7 +451,7 @@ class AtomicObligationTests(unittest.TestCase):
         b, c, t, _ = proof_closed_sources(); b["binding_contracts"][0]["required_atomic_binding_mode_ids"] = ["CRYPTOGRAPHICALLY_BOUND_SNAPSHOT"]
         r = derive_atomic_binding_mode_obligation_set(b, proof_context=c, trusted_boundary=t)
         self.assertIn("ATOMIC_BINDING_CONTRACT_CONTENT_DIGEST_MISMATCH:EVAL-CONTRACT", r["problems"])
-        self.assertTrue(any("ATOMIC_BINDING_CONTRACT_PROOF:EVAL-CONTRACT" in p and "SUBJECT_CONTENT_DIGEST_MISMATCH" in p for p in r["problems"]))
+        self.assertTrue(any("ATOMIC_BINDING_CONTRACT_PROOF:EVAL-CONTRACT" in p and "SUBJECT_DIGEST_MISMATCH" in p for p in r["problems"]))
 
     def test_admission_label_without_admission_proof_blocks(self):
         b, c, t, _ = proof_closed_sources(); b["admitted_binding_mechanisms"][0]["admission_qualification_digest"] = "0" * 64
