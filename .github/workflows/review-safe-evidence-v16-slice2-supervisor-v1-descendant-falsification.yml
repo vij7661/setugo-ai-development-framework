@@ -1,0 +1,100 @@
+name: Review Safe Evidence V16 Slice 2 Supervisor V1 Descendant Falsification
+
+on:
+  push:
+    branches: [implementation/review-safe-evidence-v16-iar5-repair]
+    paths:
+      - '.github/workflows/review-safe-evidence-v16-slice2-supervisor-v1-descendant-falsification.yml'
+
+permissions: {contents: read}
+
+jobs:
+  reproduce-premature-pipe-finalization:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact probe commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 1}
+
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12.14'}
+
+      - name: Reproduce valid-prefix plus delayed inherited-stdout descendant
+        shell: bash
+        run: |
+          set -euo pipefail
+          SUPERVISOR="$GITHUB_WORKSPACE/governance-runtime/review_safe_evidence_v16_execution_supervisor.py"
+          test "$(git hash-object "$SUPERVISOR")" = "62b66e386c6f1473a7051c7deef3f7fc7da0ea64"
+
+          ROOT=/tmp/v16-s2-supervisor-descendant-probe
+          WORKER="$ROOT/worker.py"
+          CFG="$RUNNER_TEMP/descendant.config.json"
+          RECEIPT="$RUNNER_TEMP/descendant.receipt.json"
+          sudo rm -rf "$ROOT"
+          sudo install -d -o root -g root -m 0755 "$ROOT"
+          sudo tee "$WORKER" >/dev/null <<'PY'
+          import json, os, sys, time
+          req = json.loads(sys.stdin.buffer.readline().decode("utf-8"))
+          child = os.fork()
+          if child == 0:
+              time.sleep(0.75)
+              try:
+                  sys.stdout.write("DELAYED_DESCENDANT_EXTRA_OUTPUT\n")
+                  sys.stdout.flush()
+              except BrokenPipeError:
+                  pass
+              os._exit(0)
+          response = {
+              "schema_version": 1,
+              "operation_id": req["operation_id"],
+              "result": {"value": 42},
+          }
+          sys.stdout.write(json.dumps(response, sort_keys=True, separators=(",", ":")) + "\n")
+          sys.stdout.flush()
+          os._exit(0)
+          PY
+          sudo chown root:root "$WORKER"
+          sudo chmod 0555 "$WORKER"
+
+          python - "$CFG" "$WORKER" "$ROOT" <<'PY'
+          import json, pathlib, sys
+          cfg, worker, cwd = sys.argv[1:]
+          obj = {
+              "schema_version": 1,
+              "operation_id": "descendant-delayed-output",
+              "worker_command": ["sudo", "-u", "nobody", "-H", sys.executable, worker],
+              "worker_cwd": cwd,
+              "request_input": {"probe": "descendant"},
+              "expected_result": {"value": 42},
+              "timeout_ms": 2000,
+              "max_stdout_bytes": 4096,
+              "max_stderr_bytes": 4096,
+          }
+          pathlib.Path(cfg).write_text(json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+          PY
+          chmod 0600 "$CFG"
+
+          set +e
+          python "$SUPERVISOR" --config "$CFG" --receipt "$RECEIPT"
+          rc=$?
+          set -e
+          sleep 1
+
+          python - "$RECEIPT" "$rc" <<'PY'
+          import json, pathlib, sys
+          receipt = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+          rc = int(sys.argv[2])
+          assert rc == 0, (rc, receipt)
+          assert receipt["state"] == "SUPERVISOR_ORACLE_PASS_NONAUTHORITATIVE", receipt
+          assert receipt["worker_return_code"] == 0
+          assert receipt["response_valid"] is True
+          assert receipt["oracle_pass"] is True
+          print("SUPERVISOR_V1_DESCENDANT_FALSE_GREEN_REPRODUCED=YES")
+          print("SUPERVISOR_V1_FINALIZED_BEFORE_ALL_INHERITED_OUTPUT_FDS_CLOSED=true")
+          print("SUPERVISOR_V1_EXACTLY_ONE_COMPLETE_RESPONSE_STREAM_NOT_PROVEN=true")
+          print("INTERNAL_ADVERSARIAL_REVIEW_EXHAUSTED=false")
+          print("V16_SLICE2_FREEZE_ALLOWED=false")
+          print("AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY")
+          PY
