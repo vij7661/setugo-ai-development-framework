@@ -3,15 +3,17 @@ from __future__ import annotations
 import unittest
 
 from test_v24_v6_decision_apply import bundle
+from test_v24_v6_endpoint_projection import endpoint_bundle
 from test_v24_v6_material_surface import ledger_bundle
 from v24_v6_decision_apply import evaluate_decision_apply_latch
+from v24_v6_endpoint_projection import compile_qualified_endpoint_table
 from v24_v6_material_surface import validate_material_observation_ledger
 
 
 class V24V6ProofResolutionRegressionTests(unittest.TestCase):
     """Permanent regressions for opaque-proof false-greens found after R9.
 
-    Historical R4 RED is preserved by workflow run 35000549932.  Additional
+    Historical R4 RED is preserved by workflow run 35000549932. Additional
     authority paths are falsified before each repair and retained here so a later
     refactor cannot reintroduce label-as-proof behavior.
     """
@@ -48,18 +50,42 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
 
         result = validate_material_observation_ledger(candidate)
 
-        # Required repaired behavior: labels and a different control-domain string
-        # are not independent/current witness evidence.  On the pre-R3-repair
-        # implementation this intentionally REDs because result["qualified"] is True.
         self.assertFalse(
             result["qualified"],
-            "V6 false-green: fabricated witness labels qualified the observation ledger",
+            "V6 false-green regression: fabricated witness labels qualified the observation ledger",
         )
         self.assertTrue(
             any(
                 "WITNESS_PROOF" in problem
                 or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
                 or "PROOF_REFERENCE" in problem
+                for problem in result["problems"]
+            ),
+            result["problems"],
+        )
+
+    def test_opaque_endpoint_table_qualification_cannot_qualify_compiled_table(self):
+        candidate = endpoint_bundle()
+        q = candidate["endpoint_table_qualification"]
+        self.assertEqual(q["result"], "QUALIFIED")
+        self.assertEqual(q["currentness_result"], "CURRENT")
+        self.assertNotIn("subject_object_id", q)
+        self.assertNotIn("governance_proof_context", candidate)
+
+        result = compile_qualified_endpoint_table(candidate)
+
+        # Required V6 behavior: an embedded result/currentness label and a
+        # SHA-shaped qualification_digest cannot qualify the compiled endpoint
+        # table without an exact externally bound R1 proof record.
+        self.assertFalse(
+            result["qualified"],
+            "V6 false-green: opaque endpoint-table qualification was accepted as proof",
+        )
+        self.assertTrue(
+            any(
+                "PROOF" in problem
+                or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
+                or "QUALIFICATION_REFERENCE" in problem
                 for problem in result["problems"]
             ),
             result["problems"],
