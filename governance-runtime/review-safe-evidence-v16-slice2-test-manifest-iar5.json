@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR5-MANDATORY-TESTS-001",
+  "slice_id": "V16-S2-CONTROL-DOMAIN-INDEPENDENCE",
+  "slice1_frozen_commit": "36f22a35ff57b6994d55c705c08686609276ddb3",
+  "predecessor_slice2_candidate": "5a182a4263191ad3ed250eff25d143858a948178",
+  "test_source_git_blob_sha": "99c560edbba1c1ac8518862e432df8032680cc16",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "runtime_qualification": "NOT_CLAIMED",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_current_iar1_manifest_is_exact_test_source_bound","requirement_test_id":"V16-S2-IAR5-001"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_current_iar2_manifest_is_exact_test_source_bound","requirement_test_id":"V16-S2-IAR5-002"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_exact_historical_iar1_predecessor_content_passes","requirement_test_id":"V16-S2-IAR5-003"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_same_historical_iar1_id_with_changed_content_is_rejected","requirement_test_id":"V16-S2-IAR5-004"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_exact_historical_iar2_predecessor_content_passes","requirement_test_id":"V16-S2-IAR5-005"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_same_historical_iar2_id_with_changed_content_is_rejected","requirement_test_id":"V16-S2-IAR5-006"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_current_index_separates_and_exactly_binds_historical_iar_manifests","requirement_test_id":"V16-S2-IAR5-007"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar5.Slice2IAR5Tests.test_current_iar1_or_iar2_test_source_drift_fails_strict_set_validation","requirement_test_id":"V16-S2-IAR5-008"}
+  ]
+}
