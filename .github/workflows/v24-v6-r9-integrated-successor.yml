@@ -3,9 +3,10 @@ name: V24 V6 R9 Integrated Successor
 on:
   push:
     branches:
-      - implementation/v24-i11-v6-r9-integrated-successor
+      - remediation/v24-i11-v6-proof-resolution
     paths:
       - 'governance-runtime/v24_v6_governance_foundation.py'
+      - 'governance-runtime/v24_v6_proof_reference_closure.py'
       - 'governance-runtime/v24_v6_endpoint_projection.py'
       - 'governance-runtime/v24_v6_material_surface.py'
       - 'governance-runtime/v24_v6_decision_apply.py'
@@ -14,6 +15,8 @@ on:
       - 'governance-runtime/v24_v6_atomic_binding_modes.py'
       - 'governance-runtime/v24_v6_qualification_integrity.py'
       - 'governance-runtime/v24_v6_integrated_successor.py'
+      - 'governance-runtime/v24_endpoint_proof_compiler.py'
+      - 'governance-runtime/normative_control_catalog.py'
       - 'governance-runtime/test_v24_v6_*.py'
       - 'implementation/v24/V24-I11-V6-R*-CONSTRUCTION-EVIDENCE.md'
       - 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
@@ -44,11 +47,12 @@ jobs:
           git rev-parse HEAD
           git rev-parse HEAD^{tree}
 
-      - name: Compile V6 R1-R9
+      - name: Compile V6 R1-R9 and shared dependency closure
         working-directory: governance-runtime
         run: |
           python -m py_compile \
             v24_v6_governance_foundation.py \
+            v24_v6_proof_reference_closure.py \
             v24_v6_endpoint_projection.py \
             v24_v6_material_surface.py \
             v24_v6_decision_apply.py \
@@ -56,7 +60,17 @@ jobs:
             v24_v6_effect_ledger_closure.py \
             v24_v6_atomic_binding_modes.py \
             v24_v6_qualification_integrity.py \
-            v24_v6_integrated_successor.py
+            v24_v6_integrated_successor.py \
+            v24_endpoint_proof_compiler.py \
+            normative_control_catalog.py
+
+      - name: Run proof-reference closure and preserved false-green regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_proof_reference_closure.py \
+            test_v24_v6_proof_resolution_red.py \
+            test_v24_v6_integrated_successor_dependency_red.py
 
       - name: Run R9 mandatory integration checks
         working-directory: governance-runtime
@@ -111,46 +125,35 @@ jobs:
 
           source = Path('/tmp/v6-source-packet.md').read_bytes()
           reconstruction = json.loads(Path('/tmp/v6-reconstruction.json').read_text(encoding='utf-8'))
-
           assert len(source) == 19296, len(source)
           source_raw = hashlib.sha256(source).hexdigest()
           assert source_raw == '5164747405b2de4d97228318a200e97c6b9c0e2afe58e4daddf09fe804bbc9d9', source_raw
-
           src = reconstruction['source_repository_packet']
           assert src['git_blob_sha1'] == '8682df137aa12d57927e7891c16048e90b04caac'
           assert src['raw_sha256'] == source_raw
           assert src['bytes'] == len(source)
-
           tx = reconstruction['exact_transformation']
           assert tx['operation'] == 'INSERT_BYTES_AT_ZERO_BASED_OFFSET'
           assert tx['offset'] == 17321
           assert tx['insert_hex'] == '0a'
           marker = tx['precondition_next_bytes_utf8'].encode('utf-8')
           assert source[tx['offset']:tx['offset'] + len(marker)] == marker
-
-          insert = bytes.fromhex(tx['insert_hex'])
-          reviewed = source[:tx['offset']] + insert + source[tx['offset']:]
+          reviewed = source[:tx['offset']] + bytes.fromhex(tx['insert_hex']) + source[tx['offset']:]
           assert len(reviewed) == 19297, len(reviewed)
-
           raw = hashlib.sha256(reviewed).hexdigest()
           assert raw == '96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62', raw
-
           sep = b'---\n\n'
           assert sep in reviewed
-          body = reviewed.split(sep, 1)[1]
-          body_sha = hashlib.sha256(body).hexdigest()
+          body_sha = hashlib.sha256(reviewed.split(sep, 1)[1]).hexdigest()
           assert body_sha == '286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5', body_sha
-
           git_blob = hashlib.sha1(f'blob {len(reviewed)}\0'.encode('utf-8') + reviewed).hexdigest()
           assert git_blob == '4a15d50a0488464816d235b273d1dbf808fdce94', git_blob
-
           exact = reconstruction['exact_reviewed_packet']
           assert exact['bytes'] == len(reviewed)
           assert exact['raw_sha256'] == raw
           assert exact['plan_body_sha256'] == body_sha
           assert exact['git_blob_sha1'] == git_blob
           assert reconstruction['semantic_change'] is False
-
           print(json.dumps({
               'source_git_blob_sha1': src['git_blob_sha1'],
               'source_raw_sha256': source_raw,
@@ -170,13 +173,16 @@ jobs:
           set -euo pipefail
           for F in \
             governance-runtime/v24_v6_governance_foundation.py \
+            governance-runtime/v24_v6_proof_reference_closure.py \
             governance-runtime/v24_v6_endpoint_projection.py \
             governance-runtime/v24_v6_material_surface.py \
             governance-runtime/v24_v6_decision_apply.py \
             governance-runtime/v24_v6_normative_clause_projection.py \
             governance-runtime/v24_v6_effect_ledger_closure.py \
             governance-runtime/v24_v6_atomic_binding_modes.py \
-            governance-runtime/v24_v6_integrated_successor.py; do
+            governance-runtime/v24_v6_integrated_successor.py \
+            governance-runtime/v24_endpoint_proof_compiler.py \
+            governance-runtime/normative_control_catalog.py; do
             if grep -nE 'WDPC-[0-9]+|fixture[_ -]?branch|expected[_ -]?endpoint|reviewer[_ -]?finding[_ -]?id|material_discovery_pending' "$F"; then
               echo "Case-specific production coupling found in $F"
               exit 1
@@ -209,8 +215,10 @@ jobs:
           assert result['qualified'] is False
           assert result['authority_effect'] == 'NONE_EVIDENCE_ONLY'
           assert result['scientific_execution_state'] == r9.SCIENTIFIC_EXECUTION_CLOSED
+          assert result['bound_file_count'] == 19, result['bound_file_count']
           report = {
-              'schema_version': 1,
+              'schema_version': 2,
+              'candidate_family_id': manifest['candidate_family_id'],
               'candidate_commit': os.environ['CANDIDATE_COMMIT'],
               'candidate_tree': os.environ['CANDIDATE_TREE'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID_VALUE'],
