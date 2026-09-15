@@ -128,7 +128,7 @@ jobs:
             governance-runtime/test_review_safe_evidence_v16_independence_iar4.py \
             governance-runtime/test_review_safe_evidence_v16_independence_iar5.py
 
-      - name: Prove clean checkout and non-writer test principal before execution
+      - name: Prove clean checkout and build root-owned read-only execution snapshot
         shell: bash
         run: |
           set -euo pipefail
@@ -146,7 +146,26 @@ jobs:
             exit 1
           fi
           test ! -e governance-runtime/.v16-s2-iar5-write-probe
+
+          SNAPSHOT_ROOT=/tmp/v16-s2-iar5-readonly
+          sudo rm -rf "$SNAPSHOT_ROOT"
+          sudo install -d -o root -g root -m 0755 "$SNAPSHOT_ROOT"
+          sudo cp -a governance-runtime "$SNAPSHOT_ROOT/governance-runtime"
+          sudo chown -R root:root "$SNAPSHOT_ROOT/governance-runtime"
+          sudo chmod -R u+rwX,go+rX,go-w "$SNAPSHOT_ROOT/governance-runtime"
+          diff -qr governance-runtime "$SNAPSHOT_ROOT/governance-runtime"
+          sudo -u nobody -H test -r "$SNAPSHOT_ROOT/governance-runtime/test_review_safe_evidence_v16_independence.py"
+          sudo -u nobody -H test ! -w "$SNAPSHOT_ROOT/governance-runtime"
+          if sudo -u nobody -H sh -c "touch '$SNAPSHOT_ROOT/governance-runtime/.v16-s2-snapshot-write-probe' 2>/dev/null"; then
+            sudo rm -f "$SNAPSHOT_ROOT/governance-runtime/.v16-s2-snapshot-write-probe"
+            echo "SNAPSHOT_ISOLATION_FAILED: nobody could mutate the execution snapshot" >&2
+            exit 1
+          fi
+          test ! -e "$SNAPSHOT_ROOT/governance-runtime/.v16-s2-snapshot-write-probe"
+
+          echo "V16_SLICE2_EXECUTION_SNAPSHOT=$SNAPSHOT_ROOT/governance-runtime" >> "$GITHUB_ENV"
           echo "V16_SLICE2_TEST_EXECUTION_PRINCIPAL_PRECHECK=NON_REPOSITORY_WRITER"
+          echo "V16_SLICE2_EXECUTION_SNAPSHOT=ROOT_OWNED_NONWRITABLE_TO_TEST_PRINCIPAL"
           echo "V16_SLICE2_PRE_TEST_WORKTREE_CLEAN=PASS"
 
       - name: Run 77 mandatory adversarial tests as non-repository writer
@@ -154,11 +173,11 @@ jobs:
         run: |
           set -euo pipefail
           LOG="$RUNNER_TEMP/v16-slice2-v6-unittest.log"
-          cd governance-runtime
+          cd "$V16_SLICE2_EXECUTION_SNAPSHOT"
           sudo -u nobody -H env \
             PYTHONDONTWRITEBYTECODE=1 \
-            PYTHONPATH="$GITHUB_WORKSPACE/governance-runtime" \
-            python -m unittest -v \
+            PYTHONPATH="$V16_SLICE2_EXECUTION_SNAPSHOT" \
+            "$pythonLocation/bin/python" -m unittest -v \
               test_review_safe_evidence_v16_independence.py \
               test_review_safe_evidence_v16_independence_v2.py \
               test_review_safe_evidence_v16_independence_iar2.py \
@@ -168,10 +187,11 @@ jobs:
               2>&1 | tee "$LOG"
           echo "V16_SLICE2_TEST_LOG=$LOG" >> "$GITHUB_ENV"
 
-      - name: Re-attest clean checkout and exact governed blobs after execution
+      - name: Re-attest execution snapshot checkout and exact governed blobs after execution
         shell: bash
         run: |
           set -euo pipefail
+          diff -qr governance-runtime "$V16_SLICE2_EXECUTION_SNAPSHOT"
           git diff --exit-code
           git diff --cached --exit-code
           test -z "$(git status --porcelain=v1 --untracked-files=all)"
@@ -214,6 +234,7 @@ jobs:
           check_blob implementation/review-safe-evidence/V16-SLICE-2-INTERNAL-ADVERSARIAL-REVIEW-005.md 1dc5892874a6255cfbcc629b38150c38a783ad6d
           check_blob implementation/review-safe-evidence/V16-SLICE-2-IAR5-REPAIR-CONTRACT.md 9170a0d92aac6e696fa5bb7ea6482df90c86b9ae
 
+          echo "V16_SLICE2_POST_TEST_EXECUTION_SNAPSHOT=EXACT_MATCH"
           echo "V16_SLICE2_POST_TEST_WORKTREE_CLEAN=PASS"
           echo "V16_SLICE2_POST_TEST_GOVERNED_BLOBS=EXACT_MATCH"
 
@@ -295,6 +316,7 @@ jobs:
         run: |
           echo "V16_SLICE2_IAR5_REPAIRS=CONSTRUCTION_PASS_NONAUTHORITATIVE"
           echo "V16_SLICE2_TEST_EXECUTION_PRINCIPAL=NON_REPOSITORY_WRITER"
+          echo "V16_SLICE2_EXECUTION_SNAPSHOT=ROOT_OWNED_EXACT_READABLE_COPY_NONWRITABLE_TO_TEST_PRINCIPAL"
           echo "V16_SLICE2_PRE_POST_TEST_WORKTREE_ATTESTATION=PASS"
           echo "V16_SLICE2_POST_TEST_BLOB_REVERIFICATION=PASS"
           echo "V16_SLICE2_IAR1_IAR2_SOURCE_BINDING=REVISIONED_AND_PREDECESSOR_BLOB_BOUND"
