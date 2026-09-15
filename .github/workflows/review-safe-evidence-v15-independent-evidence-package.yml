@@ -1,0 +1,250 @@
+name: Review Safe Evidence V15 Independent Evidence Package
+
+on:
+  push:
+    branches:
+      - review/review-safe-evidence-v15-independent-evidence
+    paths:
+      - 'review/review-safe-evidence-v15/V15-IMPLEMENTATION-FREEZE.json'
+      - 'review/review-safe-evidence-v15/V15-INDEPENDENT-EVIDENCE-REVIEW-INSTRUCTIONS.md'
+      - '.github/workflows/review-safe-evidence-v15-independent-evidence-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CANDIDATE_COMMIT: 380e1d9db083a6477691bf187d5cba7c61eee280
+      CANDIDATE_TREE: 6bdd7bf8ec214e406383e084bd7c28b8c9738ee9
+      BASE_COMMIT: 87f6e3df73c0c70c5d8ff4da38365ff92721aff7
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout review metadata
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+
+      - name: Fetch and verify exact frozen candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$CANDIDATE_COMMIT" "$BASE_COMMIT"
+          test "$(git rev-parse "$CANDIDATE_COMMIT^{tree}")" = "$CANDIDATE_TREE"
+          mapfile -t CHANGED < <(git diff --name-only "$BASE_COMMIT" "$CANDIDATE_COMMIT" | LC_ALL=C sort)
+          test "${#CHANGED[@]}" -eq 30
+          printf '%s\n' "${CHANGED[@]}" > "$RUNNER_TEMP/candidate-files.txt"
+          echo "REVIEW_METADATA_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CANDIDATE_CHANGED_FILES=${#CHANGED[@]}" >> "$GITHUB_ENV"
+          echo "V15_FREEZE_BINDING=PASS commit=$CANDIDATE_COMMIT tree=$CANDIDATE_TREE files=${#CHANGED[@]}"
+
+      - name: Stage exact candidate and neutral review metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/v15-evidence-review-stage"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"/{candidate,evidence,review}
+          cp review/review-safe-evidence-v15/V15-INDEPENDENT-EVIDENCE-REVIEW-INSTRUCTIONS.md "$STAGE/00-REVIEW-INSTRUCTIONS.md"
+          cp review/review-safe-evidence-v15/V15-IMPLEMENTATION-FREEZE.json "$STAGE/review/V15-IMPLEMENTATION-FREEZE.json"
+          while IFS= read -r path; do
+            mkdir -p "$STAGE/candidate/$(dirname "$path")"
+            git show "$CANDIDATE_COMMIT:$path" > "$STAGE/candidate/$path"
+          done < "$RUNNER_TEMP/candidate-files.txt"
+          cat > "$STAGE/01-REVIEWER-SAFE-PROJECTION.md" <<EOF
+          # V15 Implementation Evidence — Neutral Reviewer Projection
+
+          This projection is navigation evidence only. It does not state or imply that the implementation is correct.
+
+          - exact candidate commit: $CANDIDATE_COMMIT
+          - exact candidate tree: $CANDIDATE_TREE
+          - baseline commit: $BASE_COMMIT
+          - changed candidate files staged: $CANDIDATE_CHANGED_FILES
+          - claimed mandatory implementation surfaces: 33
+          - final accumulated construction run: 34948589255
+          - final accumulated construction result: 199/199 PASS
+          - preserved historical RED: run 34946677355, 118/119 PASS with one failure, followed by corrected run 34946873858
+          - implementation qualification: NOT_CLAIMED
+          - runtime qualification: NOT_CLAIMED
+          - scientific execution: CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW
+          - authority effect: NONE_EVIDENCE_ONLY
+
+          The reviewer must inspect the raw candidate files and construction evidence and independently challenge every claim.
+          EOF
+          echo "STAGE=$STAGE" >> "$GITHUB_ENV"
+
+      - name: Collect GitHub Actions construction evidence
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUNS=(
+            34945260098
+            34945569703
+            34945856539
+            34946188255
+            34946457176
+            34946677355
+            34946873858
+            34947546487
+            34948097857
+            34948589255
+          )
+          for run in "${RUNS[@]}"; do
+            gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$run" > "$STAGE/evidence/run-$run.json"
+            gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$run/jobs?per_page=100" > "$STAGE/evidence/run-$run-jobs.json"
+          done
+          python - "$STAGE/evidence" <<'PY'
+          import json, pathlib, sys
+          root=pathlib.Path(sys.argv[1])
+          expected={
+            '34945260098':'success',
+            '34945569703':'success',
+            '34945856539':'success',
+            '34946188255':'success',
+            '34946457176':'success',
+            '34946677355':'failure',
+            '34946873858':'success',
+            '34947546487':'success',
+            '34948097857':'success',
+            '34948589255':'success',
+          }
+          for run,conclusion in expected.items():
+              obj=json.loads((root/f'run-{run}.json').read_text())
+              assert obj['conclusion']==conclusion,(run,obj.get('conclusion'))
+          print('V15_RUN_CONCLUSION_BINDING=PASS')
+          PY
+          for run in 34946677355 34948589255; do
+            jid="$(python - "$STAGE/evidence/run-$run-jobs.json" <<'PY'
+          import json,sys
+          obj=json.load(open(sys.argv[1],encoding='utf-8'))
+          jobs=obj.get('jobs',[])
+          assert jobs
+          print(jobs[0]['id'])
+          PY
+          )"
+            gh api "/repos/$GITHUB_REPOSITORY/actions/jobs/$jid/logs" > "$STAGE/evidence/run-$run-job-$jid.log"
+          done
+          grep -q 'Ran 199 tests' "$STAGE/evidence"/run-34948589255-job-*.log
+          grep -q 'FAILED (failures=1)' "$STAGE/evidence"/run-34946677355-job-*.log
+          grep -q 'V15_MANDATORY_IMPLEMENTATION_SURFACES=33/33_IMPLEMENTED' "$STAGE/evidence"/run-34948589255-job-*.log
+          echo 'V15_RAW_CONSTRUCTION_LOG_BINDING=PASS'
+
+      - name: Recompute all candidate file identities and build manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - "$STAGE" "$CANDIDATE_COMMIT" "$CANDIDATE_TREE" "$BASE_COMMIT" <<'PY'
+          import hashlib,json,pathlib,subprocess,sys
+          stage=pathlib.Path(sys.argv[1]); commit,tree,base=sys.argv[2:]
+          candidate_files=sorted((stage/'candidate').rglob('*'))
+          candidate_files=[p for p in candidate_files if p.is_file()]
+          assert len(candidate_files)==30
+          rows=[]
+          for p in candidate_files:
+              rel=p.relative_to(stage/'candidate').as_posix(); data=p.read_bytes()
+              repo_data=subprocess.check_output(['git','show',f'{commit}:{rel}'])
+              assert data==repo_data
+              blob=hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+              rows.append({'path':rel,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'git_blob_sha1':blob})
+          payload=[]
+          for p in sorted((x for x in stage.rglob('*') if x.is_file()),key=lambda x:x.relative_to(stage).as_posix()):
+              if p.name=='PACKAGE-MANIFEST.json': continue
+              data=p.read_bytes(); payload.append({'path':p.relative_to(stage).as_posix(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+          manifest={
+            'schema_version':1,
+            'candidate_commit':commit,
+            'candidate_tree':tree,
+            'baseline_commit':base,
+            'candidate_file_count':len(rows),
+            'candidate_files':rows,
+            'payload_file_count':len(payload),
+            'payload_files':payload,
+            'final_construction_run':'34948589255',
+            'final_construction_tests':'199/199_PASS',
+            'preserved_red_run':'34946677355',
+            'independent_manual_review_required':True,
+            'automated_external_reviewer_api_calls':False,
+            'runtime_qualification':'NOT_CLAIMED',
+            'scientific_execution':'CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW',
+            'authority_effect':'NONE_EVIDENCE_ONLY',
+          }
+          out=stage/'PACKAGE-MANIFEST.json'; out.write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          print(f'V15_PACKAGE_PAYLOAD_FILES={len(payload)} candidate_files={len(rows)}')
+          PY
+
+      - name: Build deterministic evidence ZIP twice and reverify
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/v15-evidence-out"
+          rm -rf "$OUT" && mkdir -p "$OUT"
+          python - "$STAGE" "$OUT" <<'PY'
+          import hashlib,json,pathlib,sys,zipfile
+          stage=pathlib.Path(sys.argv[1]); out=pathlib.Path(sys.argv[2])
+          key=lambda p:p.relative_to(stage).as_posix()
+          files=sorted((p for p in stage.rglob('*') if p.is_file()),key=key)
+          def build(dst):
+              with zipfile.ZipFile(dst,'w',compression=zipfile.ZIP_STORED) as z:
+                  for p in files:
+                      info=zipfile.ZipInfo(key(p),(1980,1,1,0,0,0)); info.compress_type=zipfile.ZIP_STORED; info.external_attr=0o100644<<16; info.create_system=3
+                      z.writestr(info,p.read_bytes())
+          a=out/'V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.zip'; b=out/'repeat.zip'; build(a); build(b)
+          assert a.read_bytes()==b.read_bytes(); b.unlink()
+          with zipfile.ZipFile(a) as z:
+              names=z.namelist(); assert names==sorted(names); assert len(names)==len(set(names)); assert len(names)==len(files)
+              for p in files: assert z.read(key(p))==p.read_bytes()
+          sha=hashlib.sha256(a.read_bytes()).hexdigest(); manifest_sha=hashlib.sha256((stage/'PACKAGE-MANIFEST.json').read_bytes()).hexdigest()
+          (out/'V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.sha256').write_text(f'{sha}  V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.zip\n')
+          record={
+            'schema_version':1,
+            'candidate_commit':'380e1d9db083a6477691bf187d5cba7c61eee280',
+            'candidate_tree':'6bdd7bf8ec214e406383e084bd7c28b8c9738ee9',
+            'zip_sha256':sha,
+            'zip_bytes':a.stat().st_size,
+            'zip_entry_count':len(files),
+            'manifest_sha256':manifest_sha,
+            'deterministic_double_build':'PASS',
+            'content_reverification':'PASS',
+            'final_construction_run':'34948589255',
+            'final_construction_tests':'199/199_PASS',
+            'historical_red_preserved':True,
+            'independent_manual_review_required':True,
+            'automated_reviewer_api_calls':False,
+            'authority_effect':'NONE_EVIDENCE_ONLY',
+          }
+          (out/'V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.BUILD-RECORD.json').write_text(json.dumps(record,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(record,sort_keys=True))
+          PY
+          echo "PACKAGE_OUT=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload manual independent evidence review package
+        uses: actions/upload-artifact@v4
+        with:
+          name: v15-independent-implementation-evidence-review
+          path: |
+            ${{ env.PACKAGE_OUT }}/V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.zip
+            ${{ env.PACKAGE_OUT }}/V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.sha256
+            ${{ env.PACKAGE_OUT }}/V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.BUILD-RECORD.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Review posture
+        run: |
+          echo 'V15_IMPLEMENTATION_FROZEN=TRUE'
+          echo 'V15_INDEPENDENT_MANUAL_EVIDENCE_REVIEW=REQUIRED_NEXT'
+          echo 'V15_AUTOMATED_REVIEWER_API_CALLS=NONE'
+          echo 'IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED'
+          echo 'RUNTIME_QUALIFICATION=NOT_CLAIMED'
+          echo 'SCIENTIFIC_EXECUTION=CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW'
+          echo 'AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY'

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "freeze_id": "REVIEW-SAFE-EVIDENCE-V15-IMPLEMENTATION-FREEZE-001",
+  "candidate_branch": "freeze/review-safe-evidence-v15-implementation",
+  "candidate_commit": "380e1d9db083a6477691bf187d5cba7c61eee280",
+  "candidate_tree": "6bdd7bf8ec214e406383e084bd7c28b8c9738ee9",
+  "baseline_main_commit": "87f6e3df73c0c70c5d8ff4da38365ff92721aff7",
+  "candidate_changed_file_count": 30,
+  "mandatory_surface_count": 33,
+  "mandatory_surface_implementation_state": "33_OF_33_IMPLEMENTED_CONSTRUCTION_ONLY",
+  "final_construction_run": "34948589255",
+  "final_construction_test_result": "199_OF_199_PASS",
+  "historical_reds": [
+    {
+      "run_id": "34946677355",
+      "candidate_commit": "fc76e7117206b15b395bf9e8e04af856773236d4",
+      "observed_result": "118_OF_119_PASS_ONE_FAIL",
+      "classification": "FIXTURE_EXPECTATION_DRIFT",
+      "preserved_record": "implementation/review-safe-evidence/V15-CONSTRUCTION-RED-001.md",
+      "later_corrected_run": "34946873858"
+    }
+  ],
+  "construction_run_lineage": [
+    "34945260098",
+    "34945569703",
+    "34945856539",
+    "34946188255",
+    "34946457176",
+    "34946677355",
+    "34946873858",
+    "34947546487",
+    "34948097857",
+    "34948589255"
+  ],
+  "implementation_qualification": "NOT_CLAIMED",
+  "runtime_qualification": "NOT_CLAIMED",
+  "scientific_execution": "CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW",
+  "independent_manual_review_required": true,
+  "automated_external_reviewer_api_calls": false,
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
