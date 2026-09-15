@@ -1,9 +1,11 @@
 """V24 I11 V6 R9 integrated-successor construction/freeze preflight.
 
-The committed manifest binds the exact approved V6 design identity and R1-R8
-by exact Git object identity. This verifier recomputes raw SHA-256 for the
-R1-R8 surface. It is construction-only and cannot open scientific execution
-or grant runtime, qualification, release, deployment, or terminal authority.
+The committed manifest binds the exact approved V6 design identity, R1-R8
+workstream artifacts, their construction evidence, and every audited local
+load-bearing production dependency by exact Git object identity. This verifier
+recomputes raw SHA-256 for the same bytes. It is construction-only and cannot
+open scientific execution or grant runtime, qualification, release, deployment,
+or terminal authority.
 """
 from __future__ import annotations
 
@@ -28,14 +30,25 @@ EXPECTED_EVIDENCE_FILES = {
     f"R{i}": f"implementation/v24/V24-I11-V6-R{i}-CONSTRUCTION-EVIDENCE.md"
     for i in range(1, 9)
 }
-REQUIRED_ADVERSARIAL_CHECKS = frozenset({
-    "MIXED_ALLOWED_AND_DISALLOWED_TERMINAL_REJECTED",
-    "EVERY_REACHABLE_TERMINAL_ALLOWED",
-    "GENESIS_CROSS_PAIR_REJECTED",
-    "APPLICABLE_PREDICATE_OMISSION_REJECTED",
-    "ATOMIC_BINDING_MODE_OMISSION_REJECTED",
-    "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT",
-})
+# Audited local leaves outside the eight headline workstream modules whose bytes
+# can change R1-R8 semantics. R4/R6 also depend on R3, which is already bound as
+# a workstream module; the resolver depends only on already-bound R1.
+EXPECTED_SHARED_PRODUCTION_DEPENDENCIES = {
+    "PROOF_REFERENCE_CLOSURE": "governance-runtime/v24_v6_proof_reference_closure.py",
+    "ENDPOINT_PROOF_COMPILER": "governance-runtime/v24_endpoint_proof_compiler.py",
+    "NORMATIVE_CONTROL_CATALOG": "governance-runtime/normative_control_catalog.py",
+}
+REQUIRED_ADVERSARIAL_CHECKS = frozenset(
+    {
+        "MIXED_ALLOWED_AND_DISALLOWED_TERMINAL_REJECTED",
+        "EVERY_REACHABLE_TERMINAL_ALLOWED",
+        "GENESIS_CROSS_PAIR_REJECTED",
+        "APPLICABLE_PREDICATE_OMISSION_REJECTED",
+        "ATOMIC_BINDING_MODE_OMISSION_REJECTED",
+        "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT",
+        "SHARED_PRODUCTION_DEPENDENCY_MUTATION_REJECTED",
+    }
+)
 SCIENTIFIC_EXECUTION_CLOSED = "CLOSED_PENDING_SUCCESSOR_REVIEW"
 
 # Exact identity approved by V6 Follow-Up Review 002 and its exact-byte
@@ -113,11 +126,13 @@ def _validate_approved_design_binding(manifest: Mapping[str, Any]) -> list[str]:
     return problems
 
 
-def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: Mapping[str, Any]) -> dict[str, Any]:
-    p: list[str] = []
+def validate_integrated_successor_manifest(
+    *, repo_root: str | Path, manifest: Mapping[str, Any]
+) -> dict[str, Any]:
+    problems: list[str] = []
     root = Path(repo_root)
     if manifest.get("schema_version") != 1:
-        p.append("INTEGRATED_SUCCESSOR_SCHEMA_INVALID")
+        problems.append("INTEGRATED_SUCCESSOR_SCHEMA_INVALID")
     for key in (
         "candidate_family_id",
         "approved_design_packet_sha256",
@@ -133,14 +148,14 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         "implementation_lineage_root_commit",
     ):
         if not _nonempty(manifest.get(key)):
-            p.append(f"INTEGRATED_SUCCESSOR_FIELD_REQUIRED:{key}")
+            problems.append(f"INTEGRATED_SUCCESSOR_FIELD_REQUIRED:{key}")
     for key in (
         "approved_design_packet_sha256",
         "approved_design_body_sha256",
         "approved_design_source_packet_sha256",
     ):
         if not _sha256(manifest.get(key)):
-            p.append(f"INTEGRATED_SUCCESSOR_SHA256_INVALID:{key}")
+            problems.append(f"INTEGRATED_SUCCESSOR_SHA256_INVALID:{key}")
     for key in (
         "approved_design_git_blob_sha",
         "approved_design_source_git_blob_sha",
@@ -151,32 +166,32 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         "implementation_lineage_root_commit",
     ):
         if not _git_sha(manifest.get(key)):
-            p.append(f"INTEGRATED_SUCCESSOR_GIT_ID_INVALID:{key}")
-    p.extend(_validate_approved_design_binding(manifest))
+            problems.append(f"INTEGRATED_SUCCESSOR_GIT_ID_INVALID:{key}")
+    problems.extend(_validate_approved_design_binding(manifest))
     if manifest.get("scientific_execution_state") != SCIENTIFIC_EXECUTION_CLOSED:
-        p.append("INTEGRATED_SUCCESSOR_SCIENTIFIC_EXECUTION_MUST_REMAIN_CLOSED")
+        problems.append("INTEGRATED_SUCCESSOR_SCIENTIFIC_EXECUTION_MUST_REMAIN_CLOSED")
     if manifest.get("authority_effect") != AUTHORITY_EFFECT:
-        p.append("INTEGRATED_SUCCESSOR_AUTHORITY_EFFECT_INVALID")
+        problems.append("INTEGRATED_SUCCESSOR_AUTHORITY_EFFECT_INVALID")
 
     rows = manifest.get("workstreams")
     if not isinstance(rows, list):
         rows = []
-        p.append("INTEGRATED_SUCCESSOR_WORKSTREAMS_REQUIRED")
+        problems.append("INTEGRATED_SUCCESSOR_WORKSTREAMS_REQUIRED")
     by_id: dict[str, Mapping[str, Any]] = {}
-    for i, row in enumerate(rows):
+    for index, row in enumerate(rows):
         if not isinstance(row, Mapping):
-            p.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_MALFORMED:{i}")
+            problems.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_MALFORMED:{index}")
             continue
         wid = row.get("workstream_id")
         if wid not in EXPECTED_WORKSTREAMS:
-            p.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_ID_INVALID:{wid}")
+            problems.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_ID_INVALID:{wid}")
             continue
         if wid in by_id:
-            p.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_DUPLICATE:{wid}")
+            problems.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_DUPLICATE:{wid}")
             continue
         by_id[wid] = row
     for missing in sorted(set(EXPECTED_WORKSTREAMS) - set(by_id)):
-        p.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_MISSING:{missing}")
+        problems.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_MISSING:{missing}")
 
     bound: list[dict[str, Any]] = []
     for wid in EXPECTED_WORKSTREAMS:
@@ -186,46 +201,95 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         module = EXPECTED_PRODUCTION_MODULES[wid]
         evidence = EXPECTED_EVIDENCE_FILES[wid]
         if row.get("production_module_path") != module:
-            p.append(f"INTEGRATED_SUCCESSOR_PRODUCTION_PATH_MISMATCH:{wid}")
+            problems.append(f"INTEGRATED_SUCCESSOR_PRODUCTION_PATH_MISMATCH:{wid}")
         if row.get("construction_evidence_path") != evidence:
-            p.append(f"INTEGRATED_SUCCESSOR_EVIDENCE_PATH_MISMATCH:{wid}")
+            problems.append(f"INTEGRATED_SUCCESSOR_EVIDENCE_PATH_MISMATCH:{wid}")
         if row.get("construction_state") != "PASS":
-            p.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_NOT_PASS:{wid}")
+            problems.append(f"INTEGRATED_SUCCESSOR_WORKSTREAM_NOT_PASS:{wid}")
         if row.get("runtime_qualification_state") != "NOT_CLAIMED":
-            p.append(f"INTEGRATED_SUCCESSOR_RUNTIME_QUALIFICATION_CLAIMED:{wid}")
+            problems.append(f"INTEGRATED_SUCCESSOR_RUNTIME_QUALIFICATION_CLAIMED:{wid}")
         for role, path, blob_key in (
             ("production", module, "production_git_blob_sha"),
             ("evidence", evidence, "evidence_git_blob_sha"),
         ):
             if _safe_path(path) != path:
-                p.append(f"INTEGRATED_SUCCESSOR_PATH_INVALID:{wid}:{role}")
+                problems.append(f"INTEGRATED_SUCCESSOR_PATH_INVALID:{wid}:{role}")
                 continue
             try:
                 data = _read(root, path)
             except Exception:
-                p.append(f"INTEGRATED_SUCCESSOR_BOUND_FILE_MISSING:{wid}:{role}")
+                problems.append(f"INTEGRATED_SUCCESSOR_BOUND_FILE_MISSING:{wid}:{role}")
                 continue
             actual_blob = git_blob_sha(data)
             if row.get(blob_key) != actual_blob:
-                p.append(f"INTEGRATED_SUCCESSOR_BLOB_MISMATCH:{wid}:{role}")
-            bound.append({
-                "workstream_id": wid,
-                "role": role,
+                problems.append(f"INTEGRATED_SUCCESSOR_BLOB_MISMATCH:{wid}:{role}")
+            bound.append(
+                {
+                    "workstream_id": wid,
+                    "role": role,
+                    "path": path,
+                    "git_blob_sha": actual_blob,
+                    "raw_sha256": raw_sha256(data),
+                }
+            )
+
+    dependencies = manifest.get("shared_dependencies")
+    if not isinstance(dependencies, list):
+        dependencies = []
+        problems.append("INTEGRATED_SUCCESSOR_SHARED_DEPENDENCIES_REQUIRED")
+    dependency_by_id: dict[str, Mapping[str, Any]] = {}
+    for index, row in enumerate(dependencies):
+        if not isinstance(row, Mapping):
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_MALFORMED:{index}")
+            continue
+        dep_id = row.get("dependency_id")
+        if dep_id not in EXPECTED_SHARED_PRODUCTION_DEPENDENCIES:
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_ID_INVALID:{dep_id}")
+            continue
+        if dep_id in dependency_by_id:
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_DUPLICATE:{dep_id}")
+            continue
+        dependency_by_id[dep_id] = row
+    for missing in sorted(set(EXPECTED_SHARED_PRODUCTION_DEPENDENCIES) - set(dependency_by_id)):
+        problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_MISSING:{missing}")
+    for dep_id, path in EXPECTED_SHARED_PRODUCTION_DEPENDENCIES.items():
+        row = dependency_by_id.get(dep_id)
+        if row is None:
+            continue
+        if row.get("path") != path:
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_PATH_MISMATCH:{dep_id}")
+        if _safe_path(path) != path:
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_PATH_INVALID:{dep_id}")
+            continue
+        try:
+            data = _read(root, path)
+        except Exception:
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_FILE_MISSING:{dep_id}")
+            continue
+        actual_blob = git_blob_sha(data)
+        if row.get("git_blob_sha") != actual_blob:
+            problems.append(f"INTEGRATED_SUCCESSOR_SHARED_DEPENDENCY_BLOB_MISMATCH:{dep_id}")
+        bound.append(
+            {
+                "workstream_id": f"SHARED:{dep_id}",
+                "role": "dependency",
                 "path": path,
                 "git_blob_sha": actual_blob,
                 "raw_sha256": raw_sha256(data),
-            })
+            }
+        )
 
     checks = manifest.get("mandatory_v6_adversarial_checks")
     if not isinstance(checks, list):
         checks = []
-        p.append("INTEGRATED_SUCCESSOR_MANDATORY_CHECKS_REQUIRED")
+        problems.append("INTEGRATED_SUCCESSOR_MANDATORY_CHECKS_REQUIRED")
     for missing in sorted(REQUIRED_ADVERSARIAL_CHECKS - set(checks)):
-        p.append(f"INTEGRATED_SUCCESSOR_MANDATORY_CHECK_MISSING:{missing}")
+        problems.append(f"INTEGRATED_SUCCESSOR_MANDATORY_CHECK_MISSING:{missing}")
     for extra in sorted(set(checks) - REQUIRED_ADVERSARIAL_CHECKS):
-        p.append(f"INTEGRATED_SUCCESSOR_MANDATORY_CHECK_UNKNOWN:{extra}")
+        problems.append(f"INTEGRATED_SUCCESSOR_MANDATORY_CHECK_UNKNOWN:{extra}")
 
-    p = sorted(set(p))
+    problems = sorted(set(problems))
+    bound_sorted = sorted(bound, key=lambda x: (x["workstream_id"], x["role"], x["path"]))
     material = {
         "candidate_family_id": manifest.get("candidate_family_id"),
         "approved_design_packet_sha256": manifest.get("approved_design_packet_sha256"),
@@ -243,17 +307,17 @@ def validate_integrated_successor_manifest(*, repo_root: str | Path, manifest: M
         "frozen_i10_commit": manifest.get("frozen_i10_commit"),
         "frozen_i10_tree": manifest.get("frozen_i10_tree"),
         "scientific_execution_state": manifest.get("scientific_execution_state"),
-        "bound_files": sorted(bound, key=lambda x: (x["workstream_id"], x["role"])),
+        "bound_files": bound_sorted,
         "mandatory_v6_adversarial_checks": sorted(REQUIRED_ADVERSARIAL_CHECKS),
     }
     return {
-        "state": "V24_V6_INTEGRATED_SUCCESSOR_BOUND" if not p else "V24_V6_INTEGRATED_SUCCESSOR_INVALID",
+        "state": "V24_V6_INTEGRATED_SUCCESSOR_BOUND" if not problems else "V24_V6_INTEGRATED_SUCCESSOR_INVALID",
         "qualified": False,
-        "integration_valid": not p,
-        "problems": p,
+        "integration_valid": not problems,
+        "problems": problems,
         "binding_digest": digest(material),
-        "bound_file_count": len(bound),
-        "bound_files": sorted(bound, key=lambda x: (x["workstream_id"], x["role"])),
+        "bound_file_count": len(bound_sorted),
+        "bound_files": bound_sorted,
         "scientific_execution_state": SCIENTIFIC_EXECUTION_CLOSED,
         "authority_effect": AUTHORITY_EFFECT,
     }
