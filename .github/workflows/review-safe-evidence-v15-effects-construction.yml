@@ -1,0 +1,67 @@
+name: Review Safe Evidence V15 Effects Construction
+
+on:
+  push:
+    branches:
+      - implementation/review-safe-evidence-v15
+    paths:
+      - 'governance-runtime/review_safe_evidence_v15_effects.py'
+      - 'governance-runtime/test_review_safe_evidence_v15_effects.py'
+      - '.github/workflows/review-safe-evidence-v15-effects-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  effects-construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Record construction identity
+        run: |
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "IMPLEMENTED_SURFACES=1-33_OF_33"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "SCIENTIFIC_EXECUTION=NOT_AUTHORIZED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+      - name: Compile V15 effects slice
+        run: |
+          python -m compileall -q \
+            governance-runtime/review_safe_evidence_v15.py \
+            governance-runtime/review_safe_evidence_v15_effects.py \
+            governance-runtime/test_review_safe_evidence_v15_effects.py
+      - name: Run accumulated V15 construction regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_review_safe_evidence_v15.py \
+            test_review_safe_evidence_v15_authority.py \
+            test_review_safe_evidence_v15_universe.py \
+            test_review_safe_evidence_v15_evidence.py \
+            test_review_safe_evidence_v15_projection.py \
+            test_review_safe_evidence_v15_monitors.py \
+            test_review_safe_evidence_v15_review.py \
+            test_review_safe_evidence_v15_governance.py \
+            test_review_safe_evidence_v15_effects.py
+      - name: Construction boundary
+        run: |
+          echo "V15_MANDATORY_IMPLEMENTATION_SURFACES=33/33_IMPLEMENTED"
+          echo "V15_EFFECT_GATEWAY_TAINT_STOPPING_RULE=PASS_NONAUTHORITATIVE"
+          echo "NEXT_ACTION=FREEZE_EXACT_CANDIDATE_BUILD_EVIDENCE_PACKAGE_MANUAL_INDEPENDENT_EVIDENCE_REVIEW"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "SCIENTIFIC_EXECUTION=CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
