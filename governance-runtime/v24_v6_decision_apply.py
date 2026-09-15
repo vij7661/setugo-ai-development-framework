@@ -357,6 +357,8 @@ def evaluate_decision_apply_latch(
         for problem in validate_material_effect_path(
             effect_path,
             current_observation_head=snapshot.get("material_observation_head_digest"),
+            proof_context=proof_context,
+            trusted_boundary=trusted_boundary,
         ):
             p.append(f"MATERIAL_EFFECT_PATH:{problem}")
         if effect_path.get("sink_id") != snapshot.get("authority_sink_id"):
