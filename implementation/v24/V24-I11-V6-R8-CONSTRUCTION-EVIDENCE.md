@@ -82,3 +82,42 @@ WDPC-469 and WDPC-495 remain blocked by I1 semantic qualification. WDPC-503 rema
 The next step is integrated successor construction/freeze/verification preparation. This record grants no runtime, release, deployment, production, qualification, adjudication, or terminal authority.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## Post-review proof-resolution remediation — 2026-09-15
+
+This append-only addendum records the later R8 independent-review repair and preserves the original R8 false-green history above.
+
+The proof-resolution review found a second class of qualification-integrity false-green: the anti-false-green gate itself, production-source qualification, runtime traces, case-universe completeness, result records, qualification bases, and the summary compiler could rely on caller state labels or unresolved digest references.
+
+### Preserved proof-resolution failure
+
+Run `35006705450`: **FAILURE / genuine false-green**.
+
+Resolver and R2-R7 remained GREEN. The only failing permanent regression showed that the anti-false-green gate returned `qualified=True` from opaque gate/source/trace labels without a separately trusted proof context.
+
+### Repair
+
+R8 now requires exact proof closure for:
+- anti-false-green gate qualification, gate-authority independence, and gate currentness;
+- exact production-source bytes, source qualification, and source currentness;
+- runtime-trace content, trace qualification, independent trace producer, and trace currentness;
+- any optional allowlist and its completeness chain;
+- the qualification case-universe object, its currentness, and completeness dependencies;
+- every result record's qualification/currentness and every governed qualification-basis reference;
+- the summary compiler's qualification, independence, and currentness.
+
+PASS eligibility remains strict: invalid records, wrong candidate/tree/environment, blocked/not-executed states, unresolved proof references, or stale compiler/universe state are PASS-ineligible. Historical result records remain append-only and later rounds cannot rewrite earlier pass counts.
+
+Run `35007121039`: **SUCCESS**. Compilation, the shared proof resolver, R2-R8 migrated suites, and every permanent false-green regression all passed.
+
+R9 dependency-closure run `35007800567`: **SUCCESS**, preserving R8 while widening the successor freeze boundary.
+
+Remediated R8 production blob at this evidence update: `bddfa5e2bf4919449de1ac4d76da93145ef2eb72`.
+
+No WDPC scientific case was executed. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor review.
+
+`R8_POST_REVIEW_PROOF_RESOLUTION = PASS`
+
+`R8_RUNTIME_QUALIFICATION = NOT_CLAIMED`
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
