@@ -1,8 +1,9 @@
 """Review Safe Evidence V16 authenticated trust foundation.
 
 Construction-stage implementation only. This module separates content integrity,
-issuer authenticity, authority admissibility, and out-of-band root provisioning.
-No result grants runtime, release, scientific, effect, or terminal authority.
+issuer authenticity, authority admissibility, currentness anchoring, and
+out-of-band root provisioning. No result grants runtime, release, scientific,
+effect, or terminal authority.
 """
 from __future__ import annotations
 
@@ -96,6 +97,23 @@ class PinnedBootstrapTrustSet:
 
 
 @dataclass(frozen=True)
+class PinnedRegistryHead:
+    """Out-of-band currentness anchor for one governance-key-registry head.
+
+    The validator checks exact equality to the authenticated chain head, but it
+    cannot prove that the embedding host provisioned the newest legitimate head.
+    """
+
+    anchor_id: str
+    trust_set_id: str
+    registry_id: str
+    candidate_id: str
+    sequence: int
+    generation_id: str
+    registry_digest: str
+
+
+@dataclass(frozen=True)
 class _RegistryValidation:
     valid: bool
     problems: tuple[str, ...]
@@ -136,6 +154,13 @@ def _strict_b64decode(value: Any, expected_len: int) -> bytes | None:
     return raw if len(raw) == expected_len else None
 
 
+def _normalize_string(value: str, *, path: str) -> str:
+    normalized = unicodedata.normalize("NFC", value)
+    if any(0xD800 <= ord(ch) <= 0xDFFF for ch in normalized):
+        raise CanonicalizationError(f"LONE_SURROGATE_FORBIDDEN:{path}")
+    return normalized
+
+
 def _normalize_json(value: Any, *, path: str = "$") -> Any:
     if value is None or isinstance(value, bool):
         return value
@@ -146,7 +171,7 @@ def _normalize_json(value: Any, *, path: str = "$") -> Any:
     if isinstance(value, float):
         raise CanonicalizationError(f"FLOAT_FORBIDDEN:{path}")
     if isinstance(value, str):
-        return unicodedata.normalize("NFC", value)
+        return _normalize_string(value, path=path)
     if isinstance(value, (list, tuple)):
         return [_normalize_json(v, path=f"{path}[{i}]") for i, v in enumerate(value)]
     if isinstance(value, Mapping):
@@ -154,7 +179,7 @@ def _normalize_json(value: Any, *, path: str = "$") -> Any:
         for raw_key, raw_value in value.items():
             if not isinstance(raw_key, str):
                 raise CanonicalizationError(f"NON_STRING_KEY:{path}")
-            key = unicodedata.normalize("NFC", raw_key)
+            key = _normalize_string(raw_key, path=f"{path}.<key>")
             if key in out:
                 raise CanonicalizationError(f"NORMALIZED_KEY_COLLISION:{path}.{key}")
             out[key] = _normalize_json(raw_value, path=f"{path}.{key}")
@@ -174,7 +199,7 @@ def canonical_sha256(value: Any) -> str:
 
 
 def load_strict_json(raw: bytes | str) -> Any:
-    """Strict serialized ingress: UTF-8, no duplicate keys, no floats."""
+    """Strict serialized ingress: UTF-8, no duplicate keys, floats, or surrogates."""
     if isinstance(raw, bytes):
         text = raw.decode("utf-8", errors="strict")
     elif isinstance(raw, str):
@@ -185,7 +210,7 @@ def load_strict_json(raw: bytes | str) -> Any:
     def pairs_hook(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
         out: dict[str, Any] = {}
         for key, value in pairs:
-            nkey = unicodedata.normalize("NFC", key)
+            nkey = _normalize_string(key, path="$.<key>")
             if nkey in out:
                 raise CanonicalizationError(f"DUPLICATE_OR_NORMALIZED_KEY:{nkey}")
             out[nkey] = value
@@ -300,6 +325,33 @@ def validate_bootstrap_trust_set(trust: PinnedBootstrapTrustSet) -> dict[str, An
     return out
 
 
+def validate_pinned_registry_head(
+    head: PinnedRegistryHead,
+    trust: PinnedBootstrapTrustSet,
+    *,
+    expected_candidate_id: str,
+) -> dict[str, Any]:
+    p: list[str] = []
+    if not _nonempty(head.anchor_id):
+        p.append("REGISTRY_HEAD_ANCHOR_ID_REQUIRED")
+    if head.trust_set_id != trust.trust_set_id:
+        p.append("REGISTRY_HEAD_TRUST_SET_MISMATCH")
+    if not _nonempty(head.registry_id):
+        p.append("REGISTRY_HEAD_REGISTRY_ID_REQUIRED")
+    if head.candidate_id != expected_candidate_id:
+        p.append("REGISTRY_HEAD_CANDIDATE_MISMATCH")
+    if not isinstance(head.sequence, int) or head.sequence < 1:
+        p.append("REGISTRY_HEAD_SEQUENCE_INVALID")
+    if not _nonempty(head.generation_id):
+        p.append("REGISTRY_HEAD_GENERATION_REQUIRED")
+    if not _sha256_hex(head.registry_digest):
+        p.append("REGISTRY_HEAD_DIGEST_INVALID")
+    out = _base_result(not p, p, "PINNED_REGISTRY_HEAD_STRUCTURALLY_VALID", "PINNED_REGISTRY_HEAD_INVALID")
+    out["currentness_anchor_origin"] = "OUT_OF_BAND_PINNED_CURRENTNESS_REQUIRED"
+    out["currentness_anchor_provisioning_proven"] = False
+    return out
+
+
 def _validate_registry_snapshot_structure(
     record: Mapping[str, Any], *, expected_candidate_id: str
 ) -> tuple[list[str], dict[str, Mapping[str, Any]]]:
@@ -325,6 +377,7 @@ def _validate_registry_snapshot_structure(
 
     keys = record.get("keys")
     key_index: dict[str, Mapping[str, Any]] = {}
+    seen_governance_public_keys: set[bytes] = set()
     if not isinstance(keys, list) or not keys:
         p.append("KEY_REGISTRY_KEYS_REQUIRED")
         keys = []
@@ -339,8 +392,13 @@ def _validate_registry_snapshot_structure(
                 p.append(f"KEY_REGISTRY_KEY_FIELD_REQUIRED:{idx}:{field}")
         if key.get("algorithm") != "ED25519":
             p.append(f"KEY_REGISTRY_KEY_ALGORITHM_UNSUPPORTED:{idx}")
-        if _strict_b64decode(key.get("public_key_b64"), ED25519_PUBLIC_KEY_BYTES) is None:
+        public_raw = _strict_b64decode(key.get("public_key_b64"), ED25519_PUBLIC_KEY_BYTES)
+        if public_raw is None:
             p.append(f"KEY_REGISTRY_PUBLIC_KEY_INVALID:{idx}")
+        elif public_raw in seen_governance_public_keys:
+            p.append(f"KEY_REGISTRY_PUBLIC_KEY_REUSE_FORBIDDEN:{idx}")
+        else:
+            seen_governance_public_keys.add(public_raw)
         roles = key.get("roles")
         if not isinstance(roles, list) or not roles or not all(r in ROLE_VOCABULARY for r in roles):
             p.append(f"KEY_REGISTRY_ROLES_INVALID:{idx}")
@@ -591,12 +649,13 @@ def validate_governance_key_registry_chain(
     )
     out["trust_anchor_origin"] = "OUT_OF_BAND_PINNED_CONFIG_REQUIRED"
     out["trust_anchor_provisioning_proven"] = False
+    out["registry_currentness_anchored"] = False
     out["bootstrap_authenticated_control_domains"] = list(result.authenticated_bootstrap_domains)
     if result.current is not None:
         out["registry_id"] = result.current.get("registry_id")
-        out["current_registry_digest"] = result.current.get("registry_digest")
-        out["current_registry_sequence"] = result.current.get("sequence")
-        out["current_generation_id"] = result.current.get("generation_id")
+        out["last_supplied_registry_digest"] = result.current.get("registry_digest")
+        out["last_supplied_registry_sequence"] = result.current.get("sequence")
+        out["last_supplied_generation_id"] = result.current.get("generation_id")
     return out
 
 
@@ -607,11 +666,29 @@ def validate_governance_key_registry_chain_json(
 ) -> dict[str, Any]:
     try:
         parsed = [load_strict_json(raw) for raw in registry_chain_json]
-    except CanonicalizationError as exc:
+    except (CanonicalizationError, UnicodeEncodeError) as exc:
         return _base_result(False, [f"STRICT_JSON_INGRESS:{exc}"], "UNREACHABLE", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
     if not all(isinstance(item, Mapping) for item in parsed):
         return _base_result(False, ["STRICT_JSON_REGISTRY_RECORD_MUST_BE_OBJECT"], "UNREACHABLE", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
     return validate_governance_key_registry_chain(parsed, trust, expected_candidate_id=expected_candidate_id)
+
+
+def _registry_head_matches(
+    current: Mapping[str, Any],
+    head: PinnedRegistryHead,
+) -> tuple[bool, list[str]]:
+    p: list[str] = []
+    if current.get("registry_id") != head.registry_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_ID_MISMATCH")
+    if current.get("candidate_id") != head.candidate_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_CANDIDATE_MISMATCH")
+    if current.get("sequence") != head.sequence:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_SEQUENCE_MISMATCH")
+    if current.get("generation_id") != head.generation_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_GENERATION_MISMATCH")
+    if current.get("registry_digest") != head.registry_digest:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_DIGEST_MISMATCH")
+    return not p, p
 
 
 def verify_signed_governance_record(
@@ -619,6 +696,7 @@ def verify_signed_governance_record(
     *,
     registry_chain: Sequence[Mapping[str, Any]],
     bootstrap_trust: PinnedBootstrapTrustSet,
+    expected_current_registry_head: PinnedRegistryHead,
     expected_candidate_id: str,
     expected_generation_id: str,
     expected_record_type: str,
@@ -627,6 +705,14 @@ def verify_signed_governance_record(
     forbidden_control_domain_ids: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
     p: list[str] = []
+    head_result = validate_pinned_registry_head(
+        expected_current_registry_head,
+        bootstrap_trust,
+        expected_candidate_id=expected_candidate_id,
+    )
+    if not head_result["valid"]:
+        p.extend(f"SIGNED_RECORD_CURRENTNESS_ANCHOR:{x}" for x in head_result["problems"])
+
     chain = _validate_registry_chain_internal(
         registry_chain, bootstrap_trust, expected_candidate_id=expected_candidate_id
     )
@@ -679,8 +765,15 @@ def verify_signed_governance_record(
 
     key: Mapping[str, Any] | None = None
     authority_registry_ok = False
+    currentness_anchor_matched = False
     current = chain.current if chain.valid else None
     if current is not None:
+        if head_result["valid"]:
+            currentness_anchor_matched, head_match_problems = _registry_head_matches(
+                current, expected_current_registry_head
+            )
+            p.extend(head_match_problems)
+
         current_sequence = current.get("sequence")
         current_generation = current.get("generation_id")
         if current_generation != expected_generation_id:
@@ -740,14 +833,17 @@ def verify_signed_governance_record(
     valid = not p
     out = _base_result(
         valid, p,
-        "SIGNED_GOVERNANCE_RECORD_AUTHENTICATED_UNDER_CURRENT_REGISTRY",
+        "SIGNED_GOVERNANCE_RECORD_AUTHENTICATED_UNDER_CURRENT_PINNED_REGISTRY_HEAD",
         "SIGNED_GOVERNANCE_RECORD_INVALID",
     )
     out["content_integrity_verified"] = payload_digest_ok
     out["issuer_signature_verified"] = signature_ok
     out["authority_registry_verified"] = authority_registry_ok and chain.valid
+    out["registry_currentness_anchor_matched"] = currentness_anchor_matched
     out["trust_anchor_origin"] = "OUT_OF_BAND_PINNED_CONFIG_REQUIRED"
     out["trust_anchor_provisioning_proven"] = False
+    out["currentness_anchor_origin"] = "OUT_OF_BAND_PINNED_CURRENTNESS_REQUIRED"
+    out["currentness_anchor_provisioning_proven"] = False
     if key is not None:
         out["issuer_control_domain_id"] = key.get("control_domain_id")
     return out
@@ -758,6 +854,7 @@ def verify_signed_governance_record_json(
     *,
     registry_chain_json: Sequence[bytes | str],
     bootstrap_trust: PinnedBootstrapTrustSet,
+    expected_current_registry_head: PinnedRegistryHead,
     expected_candidate_id: str,
     expected_generation_id: str,
     expected_record_type: str,
@@ -768,7 +865,7 @@ def verify_signed_governance_record_json(
     try:
         record = load_strict_json(raw_record)
         registry_chain = [load_strict_json(raw) for raw in registry_chain_json]
-    except CanonicalizationError as exc:
+    except (CanonicalizationError, UnicodeEncodeError) as exc:
         return _base_result(False, [f"STRICT_JSON_INGRESS:{exc}"], "UNREACHABLE", "SIGNED_GOVERNANCE_RECORD_INVALID")
     if not isinstance(record, Mapping) or not all(isinstance(x, Mapping) for x in registry_chain):
         return _base_result(False, ["STRICT_JSON_SIGNED_RECORD_OR_REGISTRY_MUST_BE_OBJECT"], "UNREACHABLE", "SIGNED_GOVERNANCE_RECORD_INVALID")
@@ -776,6 +873,7 @@ def verify_signed_governance_record_json(
         record,
         registry_chain=registry_chain,
         bootstrap_trust=bootstrap_trust,
+        expected_current_registry_head=expected_current_registry_head,
         expected_candidate_id=expected_candidate_id,
         expected_generation_id=expected_generation_id,
         expected_record_type=expected_record_type,
