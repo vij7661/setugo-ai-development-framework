@@ -1,0 +1,57 @@
+name: Review Safe Evidence V15 Independent Evidence Package V2
+
+on:
+  push:
+    branches:
+      - review/review-safe-evidence-v15-independent-evidence
+    paths:
+      - 'review/review-safe-evidence-v15/build_independent_evidence_package.py'
+      - '.github/workflows/review-safe-evidence-v15-independent-evidence-package-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout review metadata
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.14"
+      - name: Build exact deterministic manual evidence package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/v15-independent-evidence-out-v2"
+          python review/review-safe-evidence-v15/build_independent_evidence_package.py "$OUT"
+          echo "PACKAGE_OUT=$OUT" >> "$GITHUB_ENV"
+      - name: Upload manual independent evidence review package
+        uses: actions/upload-artifact@v4
+        with:
+          name: v15-independent-implementation-evidence-review-v2
+          path: |
+            ${{ env.PACKAGE_OUT }}/V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.zip
+            ${{ env.PACKAGE_OUT }}/V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.sha256
+            ${{ env.PACKAGE_OUT }}/V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.BUILD-RECORD.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Review posture
+        run: |
+          echo 'V15_IMPLEMENTATION_FROZEN=TRUE'
+          echo 'V15_INDEPENDENT_MANUAL_EVIDENCE_REVIEW=REQUIRED_NEXT'
+          echo 'V15_AUTOMATED_REVIEWER_API_CALLS=NONE'
+          echo 'IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED'
+          echo 'RUNTIME_QUALIFICATION=NOT_CLAIMED'
+          echo 'SCIENTIFIC_EXECUTION=CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW'
+          echo 'AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY'
