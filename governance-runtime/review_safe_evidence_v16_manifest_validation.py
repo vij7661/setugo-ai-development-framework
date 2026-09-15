@@ -1,8 +1,8 @@
 """Strict V16 Slice 2 construction-manifest validation.
 
-This module rejects duplicate JSON keys, unknown schema fields, source-semantic drift,
-and predecessor-history substitution. It is construction evidence machinery only and
-never grants implementation/runtime/scientific/effect authority.
+Reject duplicate JSON keys, unknown schema fields, source-semantic drift, and
+predecessor-history substitution. This is construction evidence machinery only; it
+never grants implementation, runtime, scientific, promotion, or effect authority.
 """
 from __future__ import annotations
 
@@ -27,7 +27,9 @@ HISTORICAL_IAR2_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR2-MANDATORY-TESTS-001"
 HISTORICAL_IAR2_BLOB = "d72f7c72b46c680e8d4f94b1d03bbb4e0765dc5c"
 
 IAR3_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR3-MANDATORY-TESTS-001"
-IAR4_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR4-MANDATORY-TESTS-001"
+CURRENT_IAR4_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR4-MANDATORY-TESTS-002"
+HISTORICAL_IAR4_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR4-MANDATORY-TESTS-001"
+HISTORICAL_IAR4_BLOB = "beda2c0ca7c8cf54ecccbfe5b765bd3c2e3ef336"
 IAR5_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR5-MANDATORY-TESTS-001"
 
 CURRENT_IDS = (
@@ -35,25 +37,28 @@ CURRENT_IDS = (
     CURRENT_IAR1_ID,
     CURRENT_IAR2_ID,
     IAR3_ID,
-    IAR4_ID,
+    CURRENT_IAR4_ID,
     IAR5_ID,
 )
 HISTORICAL_IDS = (
     HISTORICAL_BASELINE_ID,
     HISTORICAL_IAR1_ID,
     HISTORICAL_IAR2_ID,
+    HISTORICAL_IAR4_ID,
 )
 HISTORICAL_BLOBS = {
     HISTORICAL_BASELINE_ID: HISTORICAL_BASELINE_BLOB,
     HISTORICAL_IAR1_ID: HISTORICAL_IAR1_BLOB,
     HISTORICAL_IAR2_ID: HISTORICAL_IAR2_BLOB,
+    HISTORICAL_IAR4_ID: HISTORICAL_IAR4_BLOB,
 }
 
 BASELINE_TEST_BLOB = "8ed790401280862796ea1f79eadb17f18cfe7ff8"
 IAR1_TEST_BLOB = "f5f130543641d7675fe4eba9f52dca969d52d74e"
 IAR2_TEST_BLOB = "d62eb7cde62805ace95b1dff6d27a08cdf295213"
 IAR3_TEST_BLOB = "7537c9517366bbff30c430306975da3b4caf6b96"
-IAR4_TEST_BLOB = "dcbfde5e548d500cbececed331956965cc10d5ff"
+IAR4_TEST_BLOB = "f421f46c2ce67feda3c851f3d85f890026d2b813"
+HISTORICAL_IAR4_TEST_BLOB = "dcbfde5e548d500cbececed331956965cc10d5ff"
 IAR5_TEST_BLOB = "99c560edbba1c1ac8518862e432df8032680cc16"
 
 TEST_FIELDS = frozenset({"mandatory", "python_test_id", "requirement_test_id"})
@@ -72,11 +77,12 @@ HISTORICAL_IAR_FIELDS = frozenset({
     "runtime_qualification", "schema_version", "slice_id", "slice1_frozen_commit",
     "predecessor_slice2_candidate", "tests",
 })
+HISTORICAL_IAR_SOURCE_FIELDS = HISTORICAL_IAR_FIELDS | {"test_source_git_blob_sha"}
 REVISIONED_IAR_FIELDS = HISTORICAL_IAR_FIELDS | {
     "semantic_revision", "supersedes_manifest_id", "supersedes_manifest_git_blob_sha",
     "test_source_git_blob_sha", "semantic_change_reason",
 }
-IAR345_FIELDS = HISTORICAL_IAR_FIELDS | {"test_source_git_blob_sha"}
+CURRENT_UNREVISIONED_IAR_FIELDS = HISTORICAL_IAR_SOURCE_FIELDS
 INDEX_FIELDS = frozenset({
     "schema_version", "slice_id", "current_baseline_manifest_id", "current_manifest_ids",
     "historical_manifest_ids", "historical_manifest_git_blobs",
@@ -163,11 +169,12 @@ def validate_manifest_schema(obj: Any, schema_name: str) -> list[str]:
         "historical_baseline": HISTORICAL_BASELINE_FIELDS,
         "current_iar1": REVISIONED_IAR_FIELDS,
         "current_iar2": REVISIONED_IAR_FIELDS,
+        "iar3": CURRENT_UNREVISIONED_IAR_FIELDS,
+        "current_iar4": REVISIONED_IAR_FIELDS,
+        "iar5": CURRENT_UNREVISIONED_IAR_FIELDS,
         "historical_iar1": HISTORICAL_IAR_FIELDS,
         "historical_iar2": HISTORICAL_IAR_FIELDS,
-        "iar3": IAR345_FIELDS,
-        "iar4": IAR345_FIELDS,
-        "iar5": IAR345_FIELDS,
+        "historical_iar4": HISTORICAL_IAR_SOURCE_FIELDS,
         "index": INDEX_FIELDS,
     }
     expected = schemas.get(schema_name)
@@ -175,7 +182,7 @@ def validate_manifest_schema(obj: Any, schema_name: str) -> list[str]:
         return [f"UNKNOWN_SCHEMA:{schema_name}"]
     _exact_fields(obj, expected, schema_name, problems)
     if type(obj) is not dict:
-        return problems
+        return sorted(set(problems))
     if type(obj.get("schema_version")) is not int or obj.get("schema_version") != 1:
         problems.append(f"{schema_name}:SCHEMA_VERSION_INVALID")
     if obj.get("slice_id") != SLICE_ID:
@@ -194,13 +201,8 @@ def validate_manifest_schema(obj: Any, schema_name: str) -> list[str]:
 
 
 def validate_historical_manifest_binding(
-    current: dict[str, Any],
-    index: dict[str, Any],
-    historical_bytes: bytes,
-    *,
-    historical_schema_name: str,
-    historical_id: str,
-    historical_blob: str,
+    current: dict[str, Any], index: dict[str, Any], historical_bytes: bytes, *,
+    historical_schema_name: str, historical_id: str, historical_blob: str,
     code_prefix: str,
 ) -> list[str]:
     problems: list[str] = []
@@ -211,8 +213,7 @@ def validate_historical_manifest_binding(
     problems.extend(validate_manifest_schema(historical, historical_schema_name))
     if type(historical) is dict and historical.get("manifest_id") != historical_id:
         problems.append(f"{code_prefix}_HISTORICAL_ID_MISMATCH")
-    actual_blob = git_blob_sha_bytes(historical_bytes)
-    if actual_blob != historical_blob:
+    if git_blob_sha_bytes(historical_bytes) != historical_blob:
         problems.append(f"{code_prefix}_HISTORICAL_BLOB_MISMATCH")
     if current.get("supersedes_manifest_id") != historical_id:
         problems.append(f"{code_prefix}_PREDECESSOR_ID_MISMATCH")
@@ -230,18 +231,30 @@ def validate_historical_manifest_binding(
 def validate_predecessor_binding(
     baseline: dict[str, Any], index: dict[str, Any], historical_bytes: bytes,
 ) -> list[str]:
-    return validate_historical_manifest_binding(
-        baseline,
-        index,
-        historical_bytes,
+    """Compatibility wrapper preserving IAR4's historical baseline error vocabulary."""
+    problems = validate_historical_manifest_binding(
+        baseline, index, historical_bytes,
         historical_schema_name="historical_baseline",
         historical_id=HISTORICAL_BASELINE_ID,
         historical_blob=HISTORICAL_BASELINE_BLOB,
         code_prefix="BASELINE",
     )
+    mapped: list[str] = []
+    for problem in problems:
+        if problem == "BASELINE_HISTORICAL_BLOB_MISMATCH":
+            mapped.append("HISTORICAL_BASELINE_BLOB_MISMATCH")
+        elif problem == "BASELINE_HISTORICAL_ID_MISMATCH":
+            mapped.append("HISTORICAL_BASELINE_ID_MISMATCH")
+        elif problem.startswith("BASELINE_HISTORICAL_LOAD:"):
+            mapped.append("HISTORICAL_BASELINE_LOAD:" + problem.split(":", 1)[1])
+        else:
+            mapped.append(problem)
+    return sorted(set(mapped))
 
 
-def _require_manifest_identity(obj: dict[str, Any], expected_id: str, label: str, problems: list[str]) -> None:
+def _require_manifest_identity(
+    obj: dict[str, Any], expected_id: str, label: str, problems: list[str],
+) -> None:
     if obj.get("manifest_id") != expected_id:
         problems.append(f"{label}:MANIFEST_ID_MISMATCH")
 
@@ -275,7 +288,7 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         "current_iar1": root / "review-safe-evidence-v16-slice2-test-manifest-iar1-v2.json",
         "current_iar2": root / "review-safe-evidence-v16-slice2-test-manifest-iar2-v2.json",
         "iar3": root / "review-safe-evidence-v16-slice2-test-manifest-iar3.json",
-        "iar4": root / "review-safe-evidence-v16-slice2-test-manifest-iar4.json",
+        "current_iar4": root / "review-safe-evidence-v16-slice2-test-manifest-iar4-v2.json",
         "iar5": root / "review-safe-evidence-v16-slice2-test-manifest-iar5.json",
         "index": root / "review-safe-evidence-v16-slice2-current-manifests.json",
     }
@@ -292,13 +305,19 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         loaded[label] = obj
         problems.extend(validate_manifest_schema(obj, label))
     if set(loaded) != set(paths):
-        return {"valid": False, "problems": sorted(set(problems)), "authority_effect": AUTHORITY_EFFECT}
+        return {
+            "valid": False,
+            "problems": sorted(set(problems)),
+            "implementation_qualification": "NOT_CLAIMED",
+            "runtime_qualification": "NOT_CLAIMED",
+            "authority_effect": AUTHORITY_EFFECT,
+        }
 
     baseline = loaded["baseline_v2"]
     iar1 = loaded["current_iar1"]
     iar2 = loaded["current_iar2"]
     iar3 = loaded["iar3"]
-    iar4 = loaded["iar4"]
+    iar4 = loaded["current_iar4"]
     iar5 = loaded["iar5"]
     index = loaded["index"]
 
@@ -313,12 +332,13 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         historical_id=HISTORICAL_IAR2_ID, historical_blob=HISTORICAL_IAR2_BLOB,
         test_blob=IAR2_TEST_BLOB, problems=problems,
     )
-    for obj, expected, label in (
-        (iar3, IAR3_ID, "iar3"),
-        (iar4, IAR4_ID, "iar4"),
-        (iar5, IAR5_ID, "iar5"),
-    ):
-        _require_manifest_identity(obj, expected, label, problems)
+    _require_manifest_identity(iar3, IAR3_ID, "iar3", problems)
+    _validate_revisioned_manifest(
+        iar4, label="iar4", expected_id=CURRENT_IAR4_ID,
+        historical_id=HISTORICAL_IAR4_ID, historical_blob=HISTORICAL_IAR4_BLOB,
+        test_blob=IAR4_TEST_BLOB, problems=problems,
+    )
+    _require_manifest_identity(iar5, IAR5_ID, "iar5", problems)
 
     if type(baseline.get("semantic_revision")) is not int or baseline.get("semantic_revision") != 2:
         problems.append("BASELINE_SEMANTIC_REVISION_INVALID")
@@ -326,8 +346,6 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         problems.append("BASELINE_TEST_SOURCE_BINDING_INVALID")
     if iar3.get("test_source_git_blob_sha") != IAR3_TEST_BLOB:
         problems.append("IAR3_TEST_SOURCE_BINDING_INVALID")
-    if iar4.get("test_source_git_blob_sha") != IAR4_TEST_BLOB:
-        problems.append("IAR4_TEST_SOURCE_BINDING_INVALID")
     if iar5.get("test_source_git_blob_sha") != IAR5_TEST_BLOB:
         problems.append("IAR5_TEST_SOURCE_BINDING_INVALID")
 
@@ -336,8 +354,9 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         ("IAR1", root / "test_review_safe_evidence_v16_independence_v2.py", IAR1_TEST_BLOB),
         ("IAR2", root / "test_review_safe_evidence_v16_independence_iar2.py", IAR2_TEST_BLOB),
         ("IAR3", root / "test_review_safe_evidence_v16_independence_iar3.py", IAR3_TEST_BLOB),
-        ("IAR4", root / "test_review_safe_evidence_v16_independence_iar4.py", IAR4_TEST_BLOB),
+        ("IAR4", root / "test_review_safe_evidence_v16_independence_iar4_v2.py", IAR4_TEST_BLOB),
         ("IAR5", root / "test_review_safe_evidence_v16_independence_iar5.py", IAR5_TEST_BLOB),
+        ("HISTORICAL_IAR4", root / "test_review_safe_evidence_v16_independence_iar4.py", HISTORICAL_IAR4_TEST_BLOB),
     )
     for label, path, expected_blob in source_bindings:
         try:
@@ -350,19 +369,20 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
 
     historical_specs = (
         (
-            baseline,
-            root / "review-safe-evidence-v16-slice2-test-manifest.json",
+            baseline, root / "review-safe-evidence-v16-slice2-test-manifest.json",
             "historical_baseline", HISTORICAL_BASELINE_ID, HISTORICAL_BASELINE_BLOB, "BASELINE",
         ),
         (
-            iar1,
-            root / "review-safe-evidence-v16-slice2-test-manifest-iar1.json",
+            iar1, root / "review-safe-evidence-v16-slice2-test-manifest-iar1.json",
             "historical_iar1", HISTORICAL_IAR1_ID, HISTORICAL_IAR1_BLOB, "IAR1",
         ),
         (
-            iar2,
-            root / "review-safe-evidence-v16-slice2-test-manifest-iar2.json",
+            iar2, root / "review-safe-evidence-v16-slice2-test-manifest-iar2.json",
             "historical_iar2", HISTORICAL_IAR2_ID, HISTORICAL_IAR2_BLOB, "IAR2",
+        ),
+        (
+            iar4, root / "review-safe-evidence-v16-slice2-test-manifest-iar4.json",
+            "historical_iar4", HISTORICAL_IAR4_ID, HISTORICAL_IAR4_BLOB, "IAR4",
         ),
     )
     for current, historical_path, schema_name, historical_id, historical_blob, prefix in historical_specs:
@@ -372,9 +392,7 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
             problems.append(f"{prefix}_HISTORICAL_READ_FAILED:{exc}")
             continue
         problems.extend(validate_historical_manifest_binding(
-            current,
-            index,
-            historical_bytes,
+            current, index, historical_bytes,
             historical_schema_name=schema_name,
             historical_id=historical_id,
             historical_blob=historical_blob,
