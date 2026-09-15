@@ -70,8 +70,8 @@ jobs:
           source=root/"test_review_safe_evidence_v16_trust.py"
           manifest=json.loads((root/"review-safe-evidence-v16-slice1-test-manifest.json").read_text())
           log=pathlib.Path(os.environ["V16_SLICE1_TEST_LOG"]).read_text(errors="strict")
-          assert manifest["schema_version"] == 1
-          assert manifest["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-004"
+          assert type(manifest["schema_version"]) is int and manifest["schema_version"] == 1
+          assert manifest["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-005"
           assert manifest["slice_id"] == "V16-S1-AUTHENTICATED-TRUST-FOUNDATION"
           assert manifest["authority_effect"] == "NONE_EVIDENCE_ONLY"
           rows=manifest["tests"]
@@ -85,16 +85,19 @@ jobs:
                       if isinstance(child,(ast.FunctionDef,ast.AsyncFunctionDef)) and child.name.startswith("test_"):
                           discovered.append(f"{module}.{node.name}.{child.name}")
           executed=re.findall(r"^test_[A-Za-z0-9_]+ \((test_review_safe_evidence_v16_trust\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+)\) \.\.\. ok$",log,flags=re.MULTILINE)
-          assert len(rows)==50,len(rows); assert len(discovered)==50,len(discovered); assert len(executed)==50,len(executed)
+          assert len(rows)==64,len(rows); assert len(discovered)==64,len(discovered); assert len(executed)==64,len(executed)
           assert set(declared)==set(discovered),sorted(set(declared)^set(discovered))
           assert set(declared)==set(executed),sorted(set(declared)^set(executed))
           assert "skipped=" not in log; assert "FAILED" not in log; assert "\nOK\n" in log
-          print("V16_SLICE1_MANDATORY_TESTS_VERIFIED=50")
+          print("V16_SLICE1_MANDATORY_TESTS_VERIFIED=64")
           print("V16_SLICE1_SOURCE_MANIFEST_EXECUTION_SET_EQUALITY=PASS")
           PY
       - name: Construction boundary
         run: |
           echo "V16_SLICE1_AUTHENTICATED_TRUST_FOUNDATION=CONSTRUCTION_TESTS_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_TRUST_POLICY_CONTENT_BINDING=CONSTRUCTION_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_AUTHORITY_POLICY_CONTENT_BINDING=CONSTRUCTION_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE1_IDENTIFIER_CANONICALITY=CONSTRUCTION_PASS_NONAUTHORITATIVE"
           echo "V16_SLICE1_TRUST_ANCHOR_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
           echo "V16_SLICE1_CURRENTNESS_ANCHOR_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
           echo "V16_SLICE1_DOWNSTREAM_MIGRATION=NOT_STARTED"

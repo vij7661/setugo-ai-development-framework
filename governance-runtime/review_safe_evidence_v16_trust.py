@@ -1,8 +1,8 @@
 """V16 Slice 1 authenticated trust foundation.
 
-Construction-stage only. Content integrity, issuer authenticity, authority policy,
-registry currentness, and out-of-band trust provisioning are deliberately separate.
-All validation results remain non-authoritative construction evidence.
+Construction-stage only. Content integrity, issuer authenticity, authority-policy
+identity, registry currentness, and out-of-band trust provisioning are deliberately
+separate. All validation results remain non-authoritative construction evidence.
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from typing import Any, Iterable, Mapping, Sequence
 try:
     from cryptography.exceptions import InvalidSignature
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-except Exception:  # pragma: no cover
+except Exception:  # pragma: no cover - explicit fail-closed provider boundary
     InvalidSignature = Exception  # type: ignore[assignment]
     Ed25519PublicKey = None  # type: ignore[assignment]
 
@@ -29,6 +29,7 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 ED25519_PUBLIC_KEY_BYTES = 32
 ED25519_SIGNATURE_BYTES = 64
 MAX_CANONICAL_INTEGER = (2**53) - 1
+AUTHORITY_POLICY_VERSION = 1
 
 RECORD_TYPE_REQUIRED_ROLE: dict[str, str] = {
     "GOVERNANCE_GENERATION_WITNESS": "GOVERNANCE_GENERATION_WITNESS_AUTHORITY",
@@ -58,7 +59,8 @@ ROLE_VOCABULARY = frozenset(RECORD_TYPE_REQUIRED_ROLE.values())
 
 REGISTRY_TOP_LEVEL_FIELDS = frozenset({
     "schema_version", "object_type", "registry_id", "candidate_id", "generation_id",
-    "sequence", "predecessor_registry_digest", "keys", "registry_digest", "bootstrap_signatures",
+    "trust_set_id", "trust_set_digest", "authority_policy_digest", "sequence",
+    "predecessor_registry_digest", "keys", "registry_digest", "bootstrap_signatures",
 })
 REGISTRY_KEY_FIELDS = frozenset({
     "issuer_id", "key_id", "control_domain_id", "algorithm", "public_key_b64",
@@ -67,9 +69,10 @@ REGISTRY_KEY_FIELDS = frozenset({
 REGISTRY_SIGNATURE_FIELDS = frozenset({"root_id", "key_id", "algorithm", "signature_b64"})
 SIGNED_RECORD_FIELDS = frozenset({
     "schema_version", "object_type", "record_type", "record_id", "candidate_id",
-    "generation_id", "snapshot_id", "trust_set_id", "issued_registry_sequence",
-    "issued_registry_digest", "issuer_id", "key_id", "required_role", "payload_digest",
-    "payload", "signature_algorithm", "signature_b64",
+    "generation_id", "snapshot_id", "trust_set_id", "trust_set_digest",
+    "authority_policy_digest", "issued_registry_sequence", "issued_registry_digest",
+    "issuer_id", "key_id", "required_role", "payload_digest", "payload",
+    "signature_algorithm", "signature_b64",
 })
 
 
@@ -92,12 +95,15 @@ class PinnedBootstrapTrustSet:
     threshold_control_domains: int
     roots: tuple[BootstrapRoot, ...]
     candidate_control_domain_ids: frozenset[str] = frozenset()
+    trust_set_digest: str = ""
 
 
 @dataclass(frozen=True)
 class PinnedRegistryHead:
     anchor_id: str
     trust_set_id: str
+    trust_set_digest: str
+    authority_policy_digest: str
     registry_id: str
     candidate_id: str
     sequence: int
@@ -134,6 +140,10 @@ def _exact_int(value: Any, *, minimum: int = 0) -> bool:
     return type(value) is int and minimum <= value <= MAX_CANONICAL_INTEGER
 
 
+def _schema_one(value: Any) -> bool:
+    return type(value) is int and value == 1
+
+
 def _sha256_hex(value: Any) -> bool:
     return isinstance(value, str) and bool(SHA256_RE.fullmatch(value))
 
@@ -149,10 +159,10 @@ def _b64(value: Any, size: int) -> bytes | None:
 
 
 def _norm_string(value: str, path: str) -> str:
-    value = unicodedata.normalize("NFC", value)
-    if any(0xD800 <= ord(ch) <= 0xDFFF for ch in value):
+    normalized = unicodedata.normalize("NFC", value)
+    if any(0xD800 <= ord(ch) <= 0xDFFF for ch in normalized):
         raise CanonicalizationError(f"LONE_SURROGATE_FORBIDDEN:{path}")
-    return value
+    return normalized
 
 
 def _normalize(value: Any, path: str = "$") -> Any:
@@ -183,7 +193,8 @@ def _normalize(value: Any, path: str = "$") -> Any:
 
 def canonical_bytes(value: Any) -> bytes:
     return json.dumps(
-        _normalize(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+        _normalize(value), ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False,
     ).encode("utf-8")
 
 
@@ -220,6 +231,59 @@ def load_strict_json(raw: bytes | str) -> Any:
     return _normalize(parsed)
 
 
+def _canonical_identifier(value: Any) -> bool:
+    if not _nonempty(value):
+        return False
+    try:
+        return value == _norm_string(value, "identifier")
+    except CanonicalizationError:
+        return False
+
+
+def _require_identifier(problems: list[str], value: Any, code: str, *, allow_none: bool = False) -> None:
+    if allow_none and value is None:
+        return
+    if not _nonempty(value):
+        problems.append(f"{code}_REQUIRED")
+    elif not _canonical_identifier(value):
+        problems.append(f"{code}_NOT_CANONICAL_NFC")
+
+
+def authority_policy_material(mapping: Mapping[str, str] | None = None) -> dict[str, Any]:
+    mapping = RECORD_TYPE_REQUIRED_ROLE if mapping is None else mapping
+    return {
+        "authority_policy_version": AUTHORITY_POLICY_VERSION,
+        "record_type_required_role": dict(mapping),
+    }
+
+
+def authority_policy_digest(mapping: Mapping[str, str] | None = None) -> str:
+    return canonical_sha256(authority_policy_material(mapping))
+
+
+def bootstrap_trust_policy_material(trust: PinnedBootstrapTrustSet) -> dict[str, Any]:
+    roots = sorted(
+        ({
+            "root_id": r.root_id,
+            "key_id": r.key_id,
+            "control_domain_id": r.control_domain_id,
+            "public_key_b64": r.public_key_b64,
+            "algorithm": r.algorithm,
+        } for r in trust.roots),
+        key=lambda row: canonical_bytes(row),
+    )
+    return {
+        "trust_set_id": trust.trust_set_id,
+        "threshold_control_domains": trust.threshold_control_domains,
+        "roots": roots,
+        "candidate_control_domain_ids": sorted(trust.candidate_control_domain_ids),
+    }
+
+
+def bootstrap_trust_set_digest(trust: PinnedBootstrapTrustSet) -> str:
+    return canonical_sha256(bootstrap_trust_policy_material(trust))
+
+
 def _registry_material(record: Mapping[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in record.items() if k not in {"registry_digest", "bootstrap_signatures"}}
 
@@ -229,12 +293,16 @@ def registry_digest(record: Mapping[str, Any]) -> str:
 
 
 def registry_signature_message(
-    digest_hex: str, *, trust_set_id: str, root_id: str, key_id: str, control_domain_id: str
+    digest_hex: str, *, trust_set_id: str, trust_set_digest: str,
+    root_id: str, key_id: str, control_domain_id: str,
 ) -> bytes:
     if not _sha256_hex(digest_hex):
         raise ValueError("REGISTRY_DIGEST_INVALID")
+    if not _sha256_hex(trust_set_digest):
+        raise ValueError("TRUST_SET_DIGEST_INVALID")
     return b"RSE-V16:KEY-REGISTRY-ROOT:" + canonical_bytes({
         "trust_set_id": trust_set_id,
+        "trust_set_digest": trust_set_digest,
         "root_id": root_id,
         "key_id": key_id,
         "control_domain_id": control_domain_id,
@@ -264,21 +332,30 @@ def _verify_ed25519(public_key_b64: str, signature_b64: str, message: bytes) -> 
 
 def validate_bootstrap_trust_set(trust: PinnedBootstrapTrustSet) -> dict[str, Any]:
     p: list[str] = []
-    if not _nonempty(trust.trust_set_id):
-        p.append("BOOTSTRAP_TRUST_SET_ID_REQUIRED")
+    _require_identifier(p, trust.trust_set_id, "BOOTSTRAP_TRUST_SET_ID")
     if not _exact_int(trust.threshold_control_domains, minimum=2):
         p.append("BOOTSTRAP_THRESHOLD_MIN_TWO_DOMAINS")
     if not trust.roots:
         p.append("BOOTSTRAP_ROOTS_REQUIRED")
+    if not _sha256_hex(trust.trust_set_digest):
+        p.append("BOOTSTRAP_TRUST_SET_DIGEST_INVALID")
+    else:
+        try:
+            if trust.trust_set_digest != bootstrap_trust_set_digest(trust):
+                p.append("BOOTSTRAP_TRUST_SET_DIGEST_MISMATCH")
+        except CanonicalizationError:
+            p.append("BOOTSTRAP_TRUST_SET_CANONICALIZATION_FAILED")
+
     root_ids: set[str] = set()
     key_ids: set[str] = set()
     public_keys: set[bytes] = set()
     domains: set[str] = set()
     for i, root in enumerate(trust.roots):
-        if not _nonempty(root.root_id): p.append(f"BOOTSTRAP_ROOT_ID_REQUIRED:{i}")
-        if not _nonempty(root.key_id): p.append(f"BOOTSTRAP_KEY_ID_REQUIRED:{i}")
-        if not _nonempty(root.control_domain_id): p.append(f"BOOTSTRAP_CONTROL_DOMAIN_REQUIRED:{i}")
-        if root.algorithm != "ED25519": p.append(f"BOOTSTRAP_ALGORITHM_UNSUPPORTED:{i}")
+        _require_identifier(p, root.root_id, f"BOOTSTRAP_ROOT_ID:{i}")
+        _require_identifier(p, root.key_id, f"BOOTSTRAP_KEY_ID:{i}")
+        _require_identifier(p, root.control_domain_id, f"BOOTSTRAP_CONTROL_DOMAIN:{i}")
+        if root.algorithm != "ED25519":
+            p.append(f"BOOTSTRAP_ALGORITHM_UNSUPPORTED:{i}")
         pub = _b64(root.public_key_b64, ED25519_PUBLIC_KEY_BYTES)
         if pub is None:
             p.append(f"BOOTSTRAP_PUBLIC_KEY_INVALID:{i}")
@@ -286,16 +363,25 @@ def validate_bootstrap_trust_set(trust: PinnedBootstrapTrustSet) -> dict[str, An
             p.append(f"BOOTSTRAP_PUBLIC_KEY_REUSE_FORBIDDEN:{i}")
         else:
             public_keys.add(pub)
-        if root.root_id in root_ids: p.append(f"BOOTSTRAP_ROOT_ID_DUPLICATE:{root.root_id}")
-        if root.key_id in key_ids: p.append(f"BOOTSTRAP_KEY_ID_DUPLICATE:{root.key_id}")
-        root_ids.add(root.root_id); key_ids.add(root.key_id)
+        if root.root_id in root_ids:
+            p.append(f"BOOTSTRAP_ROOT_ID_DUPLICATE:{root.root_id}")
+        if root.key_id in key_ids:
+            p.append(f"BOOTSTRAP_KEY_ID_DUPLICATE:{root.key_id}")
+        root_ids.add(root.root_id)
+        key_ids.add(root.key_id)
         if root.control_domain_id in trust.candidate_control_domain_ids:
             p.append(f"BOOTSTRAP_ROOT_CANDIDATE_CONTROLLED:{root.root_id}")
-        if _nonempty(root.control_domain_id): domains.add(root.control_domain_id)
+        if _canonical_identifier(root.control_domain_id):
+            domains.add(root.control_domain_id)
+
+    for domain in trust.candidate_control_domain_ids:
+        _require_identifier(p, domain, "BOOTSTRAP_CANDIDATE_CONTROL_DOMAIN")
     if _exact_int(trust.threshold_control_domains, minimum=2) and trust.threshold_control_domains > len(domains):
         p.append("BOOTSTRAP_THRESHOLD_EXCEEDS_DISTINCT_DOMAINS")
+
     out = _result(not p, p, "BOOTSTRAP_TRUST_SET_STRUCTURALLY_VALID", "BOOTSTRAP_TRUST_SET_INVALID")
     out.update({
+        "trust_set_digest": trust.trust_set_digest,
         "trust_anchor_origin": "OUT_OF_BAND_PINNED_CONFIG_REQUIRED",
         "trust_anchor_provisioning_proven": False,
         "distinct_root_control_domains": sorted(domains),
@@ -307,13 +393,32 @@ def validate_pinned_registry_head(
     head: PinnedRegistryHead, trust: PinnedBootstrapTrustSet, *, expected_candidate_id: str
 ) -> dict[str, Any]:
     p: list[str] = []
-    if not _nonempty(head.anchor_id): p.append("REGISTRY_HEAD_ANCHOR_ID_REQUIRED")
-    if head.trust_set_id != trust.trust_set_id: p.append("REGISTRY_HEAD_TRUST_SET_MISMATCH")
-    if not _nonempty(head.registry_id): p.append("REGISTRY_HEAD_REGISTRY_ID_REQUIRED")
-    if head.candidate_id != expected_candidate_id: p.append("REGISTRY_HEAD_CANDIDATE_MISMATCH")
-    if not _exact_int(head.sequence, minimum=1): p.append("REGISTRY_HEAD_SEQUENCE_INVALID")
-    if not _nonempty(head.generation_id): p.append("REGISTRY_HEAD_GENERATION_REQUIRED")
-    if not _sha256_hex(head.registry_digest): p.append("REGISTRY_HEAD_DIGEST_INVALID")
+    _require_identifier(p, head.anchor_id, "REGISTRY_HEAD_ANCHOR_ID")
+    _require_identifier(p, head.trust_set_id, "REGISTRY_HEAD_TRUST_SET_ID")
+    _require_identifier(p, head.registry_id, "REGISTRY_HEAD_REGISTRY_ID")
+    _require_identifier(p, head.candidate_id, "REGISTRY_HEAD_CANDIDATE_ID")
+    _require_identifier(p, head.generation_id, "REGISTRY_HEAD_GENERATION_ID")
+    _require_identifier(p, expected_candidate_id, "EXPECTED_CANDIDATE_ID")
+    if head.trust_set_id != trust.trust_set_id:
+        p.append("REGISTRY_HEAD_TRUST_SET_MISMATCH")
+    if head.trust_set_digest != trust.trust_set_digest:
+        p.append("REGISTRY_HEAD_TRUST_SET_DIGEST_MISMATCH")
+    if not _sha256_hex(head.trust_set_digest):
+        p.append("REGISTRY_HEAD_TRUST_SET_DIGEST_INVALID")
+    current_policy = authority_policy_digest()
+    if head.authority_policy_digest != current_policy:
+        p.append("REGISTRY_HEAD_AUTHORITY_POLICY_DIGEST_MISMATCH")
+    if not _sha256_hex(head.authority_policy_digest):
+        p.append("REGISTRY_HEAD_AUTHORITY_POLICY_DIGEST_INVALID")
+    if head.candidate_id != expected_candidate_id:
+        p.append("REGISTRY_HEAD_CANDIDATE_MISMATCH")
+    if not _exact_int(head.sequence, minimum=1):
+        p.append("REGISTRY_HEAD_SEQUENCE_INVALID")
+    if not _sha256_hex(head.registry_digest):
+        p.append("REGISTRY_HEAD_DIGEST_INVALID")
+    trust_result = validate_bootstrap_trust_set(trust)
+    if not trust_result["valid"]:
+        p.extend(f"REGISTRY_HEAD_TRUST:{x}" for x in trust_result["problems"])
     out = _result(not p, p, "PINNED_REGISTRY_HEAD_STRUCTURALLY_VALID", "PINNED_REGISTRY_HEAD_INVALID")
     out.update({
         "currentness_anchor_origin": "OUT_OF_BAND_PINNED_CURRENTNESS_REQUIRED",
@@ -324,177 +429,292 @@ def validate_pinned_registry_head(
 
 def _snapshot_key_index(snapshot: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
     keys = snapshot.get("keys")
-    if not isinstance(keys, list): return {}
-    return {str(k.get("key_id")): k for k in keys if isinstance(k, Mapping) and _nonempty(k.get("key_id"))}
+    if not isinstance(keys, list):
+        return {}
+    return {
+        str(k.get("key_id")): k for k in keys
+        if isinstance(k, Mapping) and _canonical_identifier(k.get("key_id"))
+    }
 
 
-def _validate_snapshot(record: Mapping[str, Any], expected_candidate_id: str) -> tuple[list[str], dict[str, Mapping[str, Any]]]:
+def _validate_snapshot(
+    record: Mapping[str, Any], expected_candidate_id: str, trust: PinnedBootstrapTrustSet
+) -> tuple[list[str], dict[str, Mapping[str, Any]]]:
     p: list[str] = []
-    if set(record.keys()) != REGISTRY_TOP_LEVEL_FIELDS: p.append("KEY_REGISTRY_TOP_LEVEL_FIELDS_NOT_EXACT")
-    if record.get("schema_version") != 1: p.append("KEY_REGISTRY_SCHEMA_INVALID")
-    if record.get("object_type") != "GOVERNANCE_KEY_REGISTRY": p.append("KEY_REGISTRY_OBJECT_TYPE_INVALID")
-    if not _nonempty(record.get("registry_id")): p.append("KEY_REGISTRY_ID_REQUIRED")
-    if record.get("candidate_id") != expected_candidate_id: p.append("KEY_REGISTRY_CANDIDATE_MISMATCH")
-    if not _nonempty(record.get("generation_id")): p.append("KEY_REGISTRY_GENERATION_REQUIRED")
+    if set(record.keys()) != REGISTRY_TOP_LEVEL_FIELDS:
+        p.append("KEY_REGISTRY_TOP_LEVEL_FIELDS_NOT_EXACT")
+    if not _schema_one(record.get("schema_version")):
+        p.append("KEY_REGISTRY_SCHEMA_INVALID")
+    if record.get("object_type") != "GOVERNANCE_KEY_REGISTRY":
+        p.append("KEY_REGISTRY_OBJECT_TYPE_INVALID")
+    _require_identifier(p, record.get("registry_id"), "KEY_REGISTRY_ID")
+    _require_identifier(p, record.get("candidate_id"), "KEY_REGISTRY_CANDIDATE_ID")
+    _require_identifier(p, record.get("generation_id"), "KEY_REGISTRY_GENERATION_ID")
+    _require_identifier(p, record.get("trust_set_id"), "KEY_REGISTRY_TRUST_SET_ID")
+    if record.get("candidate_id") != expected_candidate_id:
+        p.append("KEY_REGISTRY_CANDIDATE_MISMATCH")
+    if record.get("trust_set_id") != trust.trust_set_id:
+        p.append("KEY_REGISTRY_TRUST_SET_MISMATCH")
+    if record.get("trust_set_digest") != trust.trust_set_digest:
+        p.append("KEY_REGISTRY_TRUST_SET_DIGEST_MISMATCH")
+    if not _sha256_hex(record.get("trust_set_digest")):
+        p.append("KEY_REGISTRY_TRUST_SET_DIGEST_INVALID")
+    if not _sha256_hex(record.get("authority_policy_digest")):
+        p.append("KEY_REGISTRY_AUTHORITY_POLICY_DIGEST_INVALID")
+
     sequence = record.get("sequence")
-    if not _exact_int(sequence, minimum=1): p.append("KEY_REGISTRY_SEQUENCE_INVALID")
+    if not _exact_int(sequence, minimum=1):
+        p.append("KEY_REGISTRY_SEQUENCE_INVALID")
     predecessor = record.get("predecessor_registry_digest")
-    if predecessor != "GENESIS" and not _sha256_hex(predecessor): p.append("KEY_REGISTRY_PREDECESSOR_INVALID")
+    if predecessor != "GENESIS" and not _sha256_hex(predecessor):
+        p.append("KEY_REGISTRY_PREDECESSOR_INVALID")
 
     key_index: dict[str, Mapping[str, Any]] = {}
     keys = record.get("keys")
     public_keys: set[bytes] = set()
     issuer_domains: dict[str, str] = {}
     if not isinstance(keys, list) or not keys:
-        p.append("KEY_REGISTRY_KEYS_REQUIRED"); keys = []
+        p.append("KEY_REGISTRY_KEYS_REQUIRED")
+        keys = []
     for i, key in enumerate(keys):
         if not isinstance(key, Mapping):
-            p.append(f"KEY_REGISTRY_KEY_MALFORMED:{i}"); continue
-        if set(key.keys()) != REGISTRY_KEY_FIELDS: p.append(f"KEY_REGISTRY_KEY_FIELDS_NOT_EXACT:{i}")
+            p.append(f"KEY_REGISTRY_KEY_MALFORMED:{i}")
+            continue
+        if set(key.keys()) != REGISTRY_KEY_FIELDS:
+            p.append(f"KEY_REGISTRY_KEY_FIELDS_NOT_EXACT:{i}")
         for field in ("issuer_id", "key_id", "control_domain_id"):
-            if not _nonempty(key.get(field)): p.append(f"KEY_REGISTRY_KEY_FIELD_REQUIRED:{i}:{field}")
-        if key.get("algorithm") != "ED25519": p.append(f"KEY_REGISTRY_KEY_ALGORITHM_UNSUPPORTED:{i}")
+            _require_identifier(p, key.get(field), f"KEY_REGISTRY_KEY:{i}:{field}")
+        if key.get("algorithm") != "ED25519":
+            p.append(f"KEY_REGISTRY_KEY_ALGORITHM_UNSUPPORTED:{i}")
         pub = _b64(key.get("public_key_b64"), ED25519_PUBLIC_KEY_BYTES)
-        if pub is None: p.append(f"KEY_REGISTRY_PUBLIC_KEY_INVALID:{i}")
-        elif pub in public_keys: p.append(f"KEY_REGISTRY_PUBLIC_KEY_REUSE_FORBIDDEN:{i}")
-        else: public_keys.add(pub)
+        if pub is None:
+            p.append(f"KEY_REGISTRY_PUBLIC_KEY_INVALID:{i}")
+        elif pub in public_keys:
+            p.append(f"KEY_REGISTRY_PUBLIC_KEY_REUSE_FORBIDDEN:{i}")
+        else:
+            public_keys.add(pub)
         roles = key.get("roles")
         if not isinstance(roles, list) or not roles or not all(isinstance(r, str) and r in ROLE_VOCABULARY for r in roles):
             p.append(f"KEY_REGISTRY_ROLES_INVALID:{i}")
-        elif len(roles) != len(set(roles)): p.append(f"KEY_REGISTRY_ROLE_DUPLICATE:{i}")
+        elif len(roles) != len(set(roles)):
+            p.append(f"KEY_REGISTRY_ROLE_DUPLICATE:{i}")
         state = key.get("state")
-        if state not in {"ACTIVE", "REVOKED"}: p.append(f"KEY_REGISTRY_KEY_STATE_INVALID:{i}")
+        if state not in {"ACTIVE", "REVOKED"}:
+            p.append(f"KEY_REGISTRY_KEY_STATE_INVALID:{i}")
         valid_from = key.get("valid_from_registry_sequence")
         revoked_at = key.get("revoked_at_registry_sequence")
-        if not _exact_int(valid_from, minimum=1): p.append(f"KEY_REGISTRY_VALID_FROM_INVALID:{i}")
-        elif _exact_int(sequence, minimum=1) and valid_from > sequence: p.append(f"KEY_REGISTRY_VALID_FROM_FUTURE:{i}")
-        if state == "ACTIVE" and revoked_at is not None: p.append(f"KEY_REGISTRY_ACTIVE_WITH_REVOCATION:{i}")
+        if not _exact_int(valid_from, minimum=1):
+            p.append(f"KEY_REGISTRY_VALID_FROM_INVALID:{i}")
+        elif _exact_int(sequence, minimum=1) and valid_from > sequence:
+            p.append(f"KEY_REGISTRY_VALID_FROM_FUTURE:{i}")
+        if state == "ACTIVE" and revoked_at is not None:
+            p.append(f"KEY_REGISTRY_ACTIVE_WITH_REVOCATION:{i}")
         if state == "REVOKED":
-            if not _exact_int(revoked_at, minimum=1): p.append(f"KEY_REGISTRY_REVOCATION_SEQUENCE_REQUIRED:{i}")
-            elif _exact_int(sequence, minimum=1) and revoked_at > sequence: p.append(f"KEY_REGISTRY_REVOCATION_IN_FUTURE:{i}")
-            elif _exact_int(valid_from, minimum=1) and revoked_at < valid_from: p.append(f"KEY_REGISTRY_REVOCATION_BEFORE_VALIDITY:{i}")
+            if not _exact_int(revoked_at, minimum=1):
+                p.append(f"KEY_REGISTRY_REVOCATION_SEQUENCE_REQUIRED:{i}")
+            elif _exact_int(sequence, minimum=1) and revoked_at > sequence:
+                p.append(f"KEY_REGISTRY_REVOCATION_IN_FUTURE:{i}")
+            elif _exact_int(valid_from, minimum=1) and revoked_at < valid_from:
+                p.append(f"KEY_REGISTRY_REVOCATION_BEFORE_VALIDITY:{i}")
         key_id = key.get("key_id")
-        if _nonempty(key_id):
-            if str(key_id) in key_index: p.append(f"KEY_REGISTRY_KEY_ID_DUPLICATE:{key_id}")
-            else: key_index[str(key_id)] = key
+        if _canonical_identifier(key_id):
+            if key_id in key_index:
+                p.append(f"KEY_REGISTRY_KEY_ID_DUPLICATE:{key_id}")
+            else:
+                key_index[key_id] = key
         issuer, domain = key.get("issuer_id"), key.get("control_domain_id")
-        if _nonempty(issuer) and _nonempty(domain):
-            prior = issuer_domains.get(str(issuer))
-            if prior is not None and prior != domain: p.append(f"KEY_REGISTRY_ISSUER_MULTI_DOMAIN_FORBIDDEN:{issuer}")
-            issuer_domains[str(issuer)] = str(domain)
+        if _canonical_identifier(issuer) and _canonical_identifier(domain):
+            prior = issuer_domains.get(issuer)
+            if prior is not None and prior != domain:
+                p.append(f"KEY_REGISTRY_ISSUER_MULTI_DOMAIN_FORBIDDEN:{issuer}")
+            issuer_domains[issuer] = domain
 
     supplied = record.get("registry_digest")
-    if not _sha256_hex(supplied): p.append("KEY_REGISTRY_DIGEST_INVALID")
+    if not _sha256_hex(supplied):
+        p.append("KEY_REGISTRY_DIGEST_INVALID")
     else:
         try:
-            if supplied != registry_digest(record): p.append("KEY_REGISTRY_DIGEST_MISMATCH")
+            if supplied != registry_digest(record):
+                p.append("KEY_REGISTRY_DIGEST_MISMATCH")
         except CanonicalizationError:
             p.append("KEY_REGISTRY_CANONICALIZATION_FAILED")
+
     signatures = record.get("bootstrap_signatures")
     if not isinstance(signatures, list) or not signatures:
         p.append("KEY_REGISTRY_BOOTSTRAP_SIGNATURES_REQUIRED")
     else:
         for i, sig in enumerate(signatures):
-            if not isinstance(sig, Mapping): p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_MALFORMED:{i}"); continue
-            if set(sig.keys()) != REGISTRY_SIGNATURE_FIELDS: p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_FIELDS_NOT_EXACT:{i}")
-            if not _nonempty(sig.get("root_id")) or not _nonempty(sig.get("key_id")): p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_ID_REQUIRED:{i}")
-            if sig.get("algorithm") != "ED25519": p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_ALGORITHM_UNSUPPORTED:{i}")
-            if _b64(sig.get("signature_b64"), ED25519_SIGNATURE_BYTES) is None: p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_ENCODING_INVALID:{i}")
+            if not isinstance(sig, Mapping):
+                p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_MALFORMED:{i}")
+                continue
+            if set(sig.keys()) != REGISTRY_SIGNATURE_FIELDS:
+                p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_FIELDS_NOT_EXACT:{i}")
+            _require_identifier(p, sig.get("root_id"), f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_ROOT_ID:{i}")
+            _require_identifier(p, sig.get("key_id"), f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_KEY_ID:{i}")
+            if sig.get("algorithm") != "ED25519":
+                p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_ALGORITHM_UNSUPPORTED:{i}")
+            if _b64(sig.get("signature_b64"), ED25519_SIGNATURE_BYTES) is None:
+                p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_ENCODING_INVALID:{i}")
     return p, key_index
 
 
-def _verify_bootstrap_signatures(record: Mapping[str, Any], trust: PinnedBootstrapTrustSet) -> tuple[list[str], tuple[str, ...]]:
+def _verify_bootstrap_signatures(
+    record: Mapping[str, Any], trust: PinnedBootstrapTrustSet
+) -> tuple[list[str], tuple[str, ...]]:
     p: list[str] = []
     digest = record.get("registry_digest")
-    if not _sha256_hex(digest): return ["KEY_REGISTRY_BOOTSTRAP_CANNOT_VERIFY_WITHOUT_DIGEST"], ()
+    if not _sha256_hex(digest):
+        return ["KEY_REGISTRY_BOOTSTRAP_CANNOT_VERIFY_WITHOUT_DIGEST"], ()
     roots = {(r.root_id, r.key_id): r for r in trust.roots}
-    seen: set[tuple[str, str]] = set(); domains: set[str] = set()
+    seen: set[tuple[str, str]] = set()
+    domains: set[str] = set()
     signatures = record.get("bootstrap_signatures")
-    if not isinstance(signatures, list): return ["KEY_REGISTRY_BOOTSTRAP_SIGNATURES_REQUIRED"], ()
+    if not isinstance(signatures, list):
+        return ["KEY_REGISTRY_BOOTSTRAP_SIGNATURES_REQUIRED"], ()
     for i, sig in enumerate(signatures):
-        if not isinstance(sig, Mapping): continue
+        if not isinstance(sig, Mapping):
+            continue
         pair = (sig.get("root_id"), sig.get("key_id"))
-        if pair in seen: p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNER_DUPLICATE:{i}"); continue
-        seen.add(pair)
+        if pair in seen:
+            p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNER_DUPLICATE:{i}")
+            continue
+        seen.add(pair)  # type: ignore[arg-type]
         root = roots.get(pair)  # type: ignore[arg-type]
-        if root is None: p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNER_UNKNOWN:{i}"); continue
+        if root is None:
+            p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNER_UNKNOWN:{i}")
+            continue
         if root.control_domain_id in trust.candidate_control_domain_ids:
-            p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNER_CANDIDATE_CONTROLLED:{root.root_id}"); continue
+            p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNER_CANDIDATE_CONTROLLED:{root.root_id}")
+            continue
         try:
-            msg = registry_signature_message(str(digest), trust_set_id=trust.trust_set_id,
-                root_id=root.root_id, key_id=root.key_id, control_domain_id=root.control_domain_id)
+            msg = registry_signature_message(
+                str(digest), trust_set_id=trust.trust_set_id,
+                trust_set_digest=trust.trust_set_digest,
+                root_id=root.root_id, key_id=root.key_id,
+                control_domain_id=root.control_domain_id,
+            )
         except (ValueError, CanonicalizationError):
-            p.append(f"KEY_REGISTRY_BOOTSTRAP_MESSAGE_INVALID:{i}"); continue
-        if sig.get("algorithm") != "ED25519" or not _verify_ed25519(root.public_key_b64, str(sig.get("signature_b64", "")), msg):
-            p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_INVALID:{i}"); continue
+            p.append(f"KEY_REGISTRY_BOOTSTRAP_MESSAGE_INVALID:{i}")
+            continue
+        if sig.get("algorithm") != "ED25519" or not _verify_ed25519(
+            root.public_key_b64, str(sig.get("signature_b64", "")), msg
+        ):
+            p.append(f"KEY_REGISTRY_BOOTSTRAP_SIGNATURE_INVALID:{i}")
+            continue
         domains.add(root.control_domain_id)
     if _exact_int(trust.threshold_control_domains, minimum=2) and len(domains) < trust.threshold_control_domains:
         p.append("KEY_REGISTRY_BOOTSTRAP_THRESHOLD_NOT_MET")
     return p, tuple(sorted(domains))
 
 
-def _validate_chain(registry_chain: Sequence[Mapping[str, Any]], trust: PinnedBootstrapTrustSet, expected_candidate_id: str) -> _RegistryValidation:
+def _validate_chain(
+    registry_chain: Sequence[Mapping[str, Any]], trust: PinnedBootstrapTrustSet,
+    expected_candidate_id: str,
+) -> _RegistryValidation:
     p: list[str] = []
+    _require_identifier(p, expected_candidate_id, "EXPECTED_CANDIDATE_ID")
     trust_result = validate_bootstrap_trust_set(trust)
     if not trust_result["valid"]:
-        return _RegistryValidation(False, tuple(f"CHAIN:{x}" for x in trust_result["problems"]), None, {}, ())
-    if not registry_chain: return _RegistryValidation(False, ("KEY_REGISTRY_CHAIN_REQUIRED",), None, {}, ())
+        p.extend(f"CHAIN:{x}" for x in trust_result["problems"])
+        return _RegistryValidation(False, tuple(sorted(set(p))), None, {}, ())
+    if not registry_chain:
+        return _RegistryValidation(False, ("KEY_REGISTRY_CHAIN_REQUIRED",), None, {}, ())
+
     previous: Mapping[str, Any] | None = None
     snapshots: dict[int, Mapping[str, Any]] = {}
     generations: set[str] = set()
     last_domains: tuple[str, ...] = ()
     for idx, record in enumerate(registry_chain):
-        if not isinstance(record, Mapping): p.append(f"KEY_REGISTRY_CHAIN_RECORD_MALFORMED:{idx}"); continue
-        structural, current_keys = _validate_snapshot(record, expected_candidate_id)
+        if not isinstance(record, Mapping):
+            p.append(f"KEY_REGISTRY_CHAIN_RECORD_MALFORMED:{idx}")
+            continue
+        structural, current_keys = _validate_snapshot(record, expected_candidate_id, trust)
         p.extend(f"CHAIN[{idx}]:{x}" for x in structural)
         sig_p, last_domains = _verify_bootstrap_signatures(record, trust)
         p.extend(f"CHAIN[{idx}]:{x}" for x in sig_p)
-        seq = record.get("sequence"); generation = record.get("generation_id")
-        if _nonempty(generation):
-            if generation in generations: p.append(f"KEY_REGISTRY_CHAIN_GENERATION_REUSE_FORBIDDEN:{idx}")
-            generations.add(str(generation))
+        seq = record.get("sequence")
+        generation = record.get("generation_id")
+        if _canonical_identifier(generation):
+            if generation in generations:
+                p.append(f"KEY_REGISTRY_CHAIN_GENERATION_REUSE_FORBIDDEN:{idx}")
+            generations.add(generation)
         if _exact_int(seq, minimum=1):
-            if seq in snapshots: p.append(f"KEY_REGISTRY_CHAIN_SEQUENCE_DUPLICATE:{seq}")
+            if seq in snapshots:
+                p.append(f"KEY_REGISTRY_CHAIN_SEQUENCE_DUPLICATE:{seq}")
             snapshots[int(seq)] = record
+
         if idx == 0:
-            if seq != 1 or type(seq) is not int: p.append("KEY_REGISTRY_CHAIN_GENESIS_SEQUENCE_MUST_BE_ONE")
-            if record.get("predecessor_registry_digest") != "GENESIS": p.append("KEY_REGISTRY_CHAIN_GENESIS_PREDECESSOR_REQUIRED")
+            if not (type(seq) is int and seq == 1):
+                p.append("KEY_REGISTRY_CHAIN_GENESIS_SEQUENCE_MUST_BE_ONE")
+            if record.get("predecessor_registry_digest") != "GENESIS":
+                p.append("KEY_REGISTRY_CHAIN_GENESIS_PREDECESSOR_REQUIRED")
             for key_id, key in current_keys.items():
-                if key.get("valid_from_registry_sequence") != 1 or type(key.get("valid_from_registry_sequence")) is not int:
+                if not (type(key.get("valid_from_registry_sequence")) is int and key.get("valid_from_registry_sequence") == 1):
                     p.append(f"KEY_REGISTRY_CHAIN_GENESIS_KEY_VALID_FROM_MUST_BE_ONE:{key_id}")
         else:
             assert previous is not None
             previous_seq = previous.get("sequence")
-            if not (_exact_int(previous_seq, minimum=1) and _exact_int(seq, minimum=1) and seq == previous_seq + 1):
+            if not (
+                _exact_int(previous_seq, minimum=1) and _exact_int(seq, minimum=1)
+                and seq == previous_seq + 1
+            ):
                 p.append(f"KEY_REGISTRY_CHAIN_SEQUENCE_GAP:{idx}")
-            if record.get("predecessor_registry_digest") != previous.get("registry_digest"): p.append(f"KEY_REGISTRY_CHAIN_PREDECESSOR_MISMATCH:{idx}")
-            if record.get("registry_id") != previous.get("registry_id"): p.append(f"KEY_REGISTRY_CHAIN_REGISTRY_ID_CHANGED:{idx}")
-            if record.get("generation_id") == previous.get("generation_id"): p.append(f"KEY_REGISTRY_CHAIN_MATERIAL_UPDATE_REQUIRES_NEW_GENERATION:{idx}")
+            if record.get("predecessor_registry_digest") != previous.get("registry_digest"):
+                p.append(f"KEY_REGISTRY_CHAIN_PREDECESSOR_MISMATCH:{idx}")
+            if record.get("registry_id") != previous.get("registry_id"):
+                p.append(f"KEY_REGISTRY_CHAIN_REGISTRY_ID_CHANGED:{idx}")
+            if record.get("trust_set_id") != previous.get("trust_set_id") or record.get("trust_set_digest") != previous.get("trust_set_digest"):
+                p.append(f"KEY_REGISTRY_CHAIN_TRUST_SET_CHANGED:{idx}")
+            if record.get("generation_id") == previous.get("generation_id"):
+                p.append(f"KEY_REGISTRY_CHAIN_MATERIAL_UPDATE_REQUIRES_NEW_GENERATION:{idx}")
             previous_keys = _snapshot_key_index(previous)
             for key_id, prior in previous_keys.items():
                 current = current_keys.get(key_id)
-                if current is None: p.append(f"KEY_REGISTRY_CHAIN_KEY_REMOVAL_FORBIDDEN:{key_id}"); continue
-                for field in ("issuer_id", "control_domain_id", "algorithm", "public_key_b64", "roles", "valid_from_registry_sequence"):
-                    if current.get(field) != prior.get(field): p.append(f"KEY_REGISTRY_CHAIN_KEY_IDENTITY_MUTATION_FORBIDDEN:{key_id}:{field}")
+                if current is None:
+                    p.append(f"KEY_REGISTRY_CHAIN_KEY_REMOVAL_FORBIDDEN:{key_id}")
+                    continue
+                for field in (
+                    "issuer_id", "control_domain_id", "algorithm", "public_key_b64",
+                    "roles", "valid_from_registry_sequence",
+                ):
+                    if current.get(field) != prior.get(field):
+                        p.append(f"KEY_REGISTRY_CHAIN_KEY_IDENTITY_MUTATION_FORBIDDEN:{key_id}:{field}")
                 if prior.get("state") == "REVOKED":
-                    if current.get("state") != "REVOKED": p.append(f"KEY_REGISTRY_CHAIN_REVOKED_KEY_REACTIVATION_FORBIDDEN:{key_id}")
-                    if current.get("revoked_at_registry_sequence") != prior.get("revoked_at_registry_sequence"): p.append(f"KEY_REGISTRY_CHAIN_REVOCATION_SEQUENCE_MUTATION_FORBIDDEN:{key_id}")
+                    if current.get("state") != "REVOKED":
+                        p.append(f"KEY_REGISTRY_CHAIN_REVOKED_KEY_REACTIVATION_FORBIDDEN:{key_id}")
+                    if current.get("revoked_at_registry_sequence") != prior.get("revoked_at_registry_sequence"):
+                        p.append(f"KEY_REGISTRY_CHAIN_REVOCATION_SEQUENCE_MUTATION_FORBIDDEN:{key_id}")
                 elif current.get("state") == "REVOKED" and current.get("revoked_at_registry_sequence") != seq:
                     p.append(f"KEY_REGISTRY_CHAIN_REVOCATION_MUST_BIND_CURRENT_SEQUENCE:{key_id}")
             for key_id in set(current_keys) - set(previous_keys):
                 key = current_keys[key_id]
-                if key.get("valid_from_registry_sequence") != seq or type(key.get("valid_from_registry_sequence")) is not int:
+                if not (type(key.get("valid_from_registry_sequence")) is int and key.get("valid_from_registry_sequence") == seq):
                     p.append(f"KEY_REGISTRY_CHAIN_NEW_KEY_VALID_FROM_MUST_EQUAL_FIRST_APPEARANCE:{key_id}")
                 if key.get("state") != "ACTIVE" or key.get("revoked_at_registry_sequence") is not None:
                     p.append(f"KEY_REGISTRY_CHAIN_NEW_KEY_MUST_ENTER_ACTIVE:{key_id}")
         previous = record
+
+    if registry_chain:
+        current = registry_chain[-1]
+        if current.get("authority_policy_digest") != authority_policy_digest():
+            p.append("KEY_REGISTRY_CURRENT_AUTHORITY_POLICY_DIGEST_MISMATCH")
     valid = not p
-    return _RegistryValidation(valid, tuple(sorted(set(p))), registry_chain[-1] if valid else None, snapshots if valid else {}, last_domains if valid else ())
+    return _RegistryValidation(
+        valid, tuple(sorted(set(p))), registry_chain[-1] if valid else None,
+        snapshots if valid else {}, last_domains if valid else (),
+    )
 
 
-def validate_governance_key_registry_chain(registry_chain: Sequence[Mapping[str, Any]], trust: PinnedBootstrapTrustSet, *, expected_candidate_id: str) -> dict[str, Any]:
+def validate_governance_key_registry_chain(
+    registry_chain: Sequence[Mapping[str, Any]], trust: PinnedBootstrapTrustSet,
+    *, expected_candidate_id: str,
+) -> dict[str, Any]:
     result = _validate_chain(registry_chain, trust, expected_candidate_id)
-    out = _result(result.valid, result.problems, "GOVERNANCE_KEY_REGISTRY_CHAIN_AUTHENTICATED_UNDER_PINNED_ROOTS", "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID")
+    out = _result(
+        result.valid, result.problems,
+        "GOVERNANCE_KEY_REGISTRY_CHAIN_AUTHENTICATED_UNDER_PINNED_ROOTS",
+        "GOVERNANCE_KEY_REGISTRY_CHAIN_INVALID",
+    )
     out.update({
         "trust_anchor_origin": "OUT_OF_BAND_PINNED_CONFIG_REQUIRED",
         "trust_anchor_provisioning_proven": False,
@@ -507,11 +727,16 @@ def validate_governance_key_registry_chain(registry_chain: Sequence[Mapping[str,
             "last_supplied_registry_digest": result.current.get("registry_digest"),
             "last_supplied_registry_sequence": result.current.get("sequence"),
             "last_supplied_generation_id": result.current.get("generation_id"),
+            "trust_set_digest": result.current.get("trust_set_digest"),
+            "authority_policy_digest": result.current.get("authority_policy_digest"),
         })
     return out
 
 
-def validate_governance_key_registry_chain_json(registry_chain_json: Sequence[bytes | str], trust: PinnedBootstrapTrustSet, *, expected_candidate_id: str) -> dict[str, Any]:
+def validate_governance_key_registry_chain_json(
+    registry_chain_json: Sequence[bytes | str], trust: PinnedBootstrapTrustSet,
+    *, expected_candidate_id: str,
+) -> dict[str, Any]:
     try:
         parsed = [load_strict_json(raw) for raw in registry_chain_json]
     except (CanonicalizationError, UnicodeEncodeError) as exc:
@@ -523,55 +748,115 @@ def validate_governance_key_registry_chain_json(registry_chain_json: Sequence[by
 
 def _head_match(current: Mapping[str, Any], head: PinnedRegistryHead) -> list[str]:
     p: list[str] = []
-    if current.get("registry_id") != head.registry_id: p.append("SIGNED_RECORD_REGISTRY_HEAD_ID_MISMATCH")
-    if current.get("candidate_id") != head.candidate_id: p.append("SIGNED_RECORD_REGISTRY_HEAD_CANDIDATE_MISMATCH")
-    if current.get("sequence") != head.sequence or type(current.get("sequence")) is not type(head.sequence): p.append("SIGNED_RECORD_REGISTRY_HEAD_SEQUENCE_MISMATCH")
-    if current.get("generation_id") != head.generation_id: p.append("SIGNED_RECORD_REGISTRY_HEAD_GENERATION_MISMATCH")
-    if current.get("registry_digest") != head.registry_digest: p.append("SIGNED_RECORD_REGISTRY_HEAD_DIGEST_MISMATCH")
+    if current.get("registry_id") != head.registry_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_ID_MISMATCH")
+    if current.get("candidate_id") != head.candidate_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_CANDIDATE_MISMATCH")
+    if current.get("sequence") != head.sequence or type(current.get("sequence")) is not type(head.sequence):
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_SEQUENCE_MISMATCH")
+    if current.get("generation_id") != head.generation_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_GENERATION_MISMATCH")
+    if current.get("registry_digest") != head.registry_digest:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_DIGEST_MISMATCH")
+    if current.get("trust_set_id") != head.trust_set_id:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_TRUST_SET_ID_MISMATCH")
+    if current.get("trust_set_digest") != head.trust_set_digest:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_TRUST_SET_DIGEST_MISMATCH")
+    if current.get("authority_policy_digest") != head.authority_policy_digest:
+        p.append("SIGNED_RECORD_REGISTRY_HEAD_AUTHORITY_POLICY_DIGEST_MISMATCH")
     return p
 
 
 def verify_signed_governance_record(
     record: Mapping[str, Any], *, registry_chain: Sequence[Mapping[str, Any]],
-    bootstrap_trust: PinnedBootstrapTrustSet, expected_current_registry_head: PinnedRegistryHead,
-    expected_candidate_id: str, expected_generation_id: str, expected_record_type: str,
-    expected_snapshot_id: str | None = None,
+    bootstrap_trust: PinnedBootstrapTrustSet,
+    expected_current_registry_head: PinnedRegistryHead,
+    expected_candidate_id: str, expected_generation_id: str,
+    expected_record_type: str, expected_snapshot_id: str | None = None,
     forbidden_control_domain_ids: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
     p: list[str] = []
-    head_result = validate_pinned_registry_head(expected_current_registry_head, bootstrap_trust, expected_candidate_id=expected_candidate_id)
-    if not head_result["valid"]: p.extend(f"SIGNED_RECORD_CURRENTNESS_ANCHOR:{x}" for x in head_result["problems"])
-    chain = _validate_chain(registry_chain, bootstrap_trust, expected_candidate_id)
-    if not chain.valid: p.extend(f"SIGNED_RECORD_REGISTRY:{x}" for x in chain.problems)
+    _require_identifier(p, expected_candidate_id, "EXPECTED_CANDIDATE_ID")
+    _require_identifier(p, expected_generation_id, "EXPECTED_GENERATION_ID")
+    _require_identifier(p, expected_record_type, "EXPECTED_RECORD_TYPE")
+    if expected_snapshot_id is not None:
+        _require_identifier(p, expected_snapshot_id, "EXPECTED_SNAPSHOT_ID")
+    for domain in forbidden_control_domain_ids:
+        _require_identifier(p, domain, "FORBIDDEN_CONTROL_DOMAIN_ID")
 
-    if set(record.keys()) != SIGNED_RECORD_FIELDS: p.append("SIGNED_RECORD_FIELDS_NOT_EXACT")
-    if record.get("schema_version") != 1: p.append("SIGNED_RECORD_SCHEMA_INVALID")
-    if record.get("object_type") != "SIGNED_GOVERNANCE_RECORD": p.append("SIGNED_RECORD_OBJECT_TYPE_INVALID")
-    if record.get("record_type") != expected_record_type: p.append("SIGNED_RECORD_TYPE_MISMATCH")
+    head_result = validate_pinned_registry_head(
+        expected_current_registry_head, bootstrap_trust,
+        expected_candidate_id=expected_candidate_id,
+    )
+    if not head_result["valid"]:
+        p.extend(f"SIGNED_RECORD_CURRENTNESS_ANCHOR:{x}" for x in head_result["problems"])
+    chain = _validate_chain(registry_chain, bootstrap_trust, expected_candidate_id)
+    if not chain.valid:
+        p.extend(f"SIGNED_RECORD_REGISTRY:{x}" for x in chain.problems)
+
+    if set(record.keys()) != SIGNED_RECORD_FIELDS:
+        p.append("SIGNED_RECORD_FIELDS_NOT_EXACT")
+    if not _schema_one(record.get("schema_version")):
+        p.append("SIGNED_RECORD_SCHEMA_INVALID")
+    if record.get("object_type") != "SIGNED_GOVERNANCE_RECORD":
+        p.append("SIGNED_RECORD_OBJECT_TYPE_INVALID")
+    for field, code in (
+        ("record_type", "SIGNED_RECORD_TYPE"), ("record_id", "SIGNED_RECORD_ID"),
+        ("candidate_id", "SIGNED_RECORD_CANDIDATE_ID"), ("generation_id", "SIGNED_RECORD_GENERATION_ID"),
+        ("trust_set_id", "SIGNED_RECORD_TRUST_SET_ID"), ("issuer_id", "SIGNED_RECORD_ISSUER_ID"),
+        ("key_id", "SIGNED_RECORD_KEY_ID"), ("required_role", "SIGNED_RECORD_REQUIRED_ROLE"),
+    ):
+        _require_identifier(p, record.get(field), code)
+    _require_identifier(p, record.get("snapshot_id"), "SIGNED_RECORD_SNAPSHOT_ID", allow_none=True)
+
+    if record.get("record_type") != expected_record_type:
+        p.append("SIGNED_RECORD_TYPE_MISMATCH")
     canonical_role = RECORD_TYPE_REQUIRED_ROLE.get(expected_record_type)
-    if canonical_role is None: p.append("SIGNED_RECORD_TYPE_POLICY_UNKNOWN")
-    if canonical_role is not None and record.get("required_role") != canonical_role: p.append("SIGNED_RECORD_REQUIRED_ROLE_MISMATCH")
-    if not _nonempty(record.get("record_id")): p.append("SIGNED_RECORD_ID_REQUIRED")
-    if record.get("candidate_id") != expected_candidate_id: p.append("SIGNED_RECORD_CANDIDATE_MISMATCH")
-    if record.get("generation_id") != expected_generation_id: p.append("SIGNED_RECORD_GENERATION_MISMATCH")
+    if canonical_role is None:
+        p.append("SIGNED_RECORD_TYPE_POLICY_UNKNOWN")
+    if canonical_role is not None and record.get("required_role") != canonical_role:
+        p.append("SIGNED_RECORD_REQUIRED_ROLE_MISMATCH")
+    if record.get("candidate_id") != expected_candidate_id:
+        p.append("SIGNED_RECORD_CANDIDATE_MISMATCH")
+    if record.get("generation_id") != expected_generation_id:
+        p.append("SIGNED_RECORD_GENERATION_MISMATCH")
     if expected_snapshot_id is None:
-        if record.get("snapshot_id") is not None: p.append("SIGNED_RECORD_UNEXPECTED_SNAPSHOT_BINDING")
-    elif record.get("snapshot_id") != expected_snapshot_id: p.append("SIGNED_RECORD_SNAPSHOT_MISMATCH")
-    if record.get("trust_set_id") != bootstrap_trust.trust_set_id: p.append("SIGNED_RECORD_TRUST_SET_MISMATCH")
-    if record.get("signature_algorithm") != "ED25519": p.append("SIGNED_RECORD_SIGNATURE_ALGORITHM_UNSUPPORTED")
-    if not _nonempty(record.get("issuer_id")) or not _nonempty(record.get("key_id")): p.append("SIGNED_RECORD_ISSUER_KEY_REQUIRED")
+        if record.get("snapshot_id") is not None:
+            p.append("SIGNED_RECORD_UNEXPECTED_SNAPSHOT_BINDING")
+    elif record.get("snapshot_id") != expected_snapshot_id:
+        p.append("SIGNED_RECORD_SNAPSHOT_MISMATCH")
+    if record.get("trust_set_id") != bootstrap_trust.trust_set_id:
+        p.append("SIGNED_RECORD_TRUST_SET_MISMATCH")
+    if record.get("trust_set_digest") != bootstrap_trust.trust_set_digest:
+        p.append("SIGNED_RECORD_TRUST_SET_DIGEST_MISMATCH")
+    if not _sha256_hex(record.get("trust_set_digest")):
+        p.append("SIGNED_RECORD_TRUST_SET_DIGEST_INVALID")
+    current_policy = authority_policy_digest()
+    if record.get("authority_policy_digest") != current_policy:
+        p.append("SIGNED_RECORD_AUTHORITY_POLICY_DIGEST_MISMATCH")
+    if not _sha256_hex(record.get("authority_policy_digest")):
+        p.append("SIGNED_RECORD_AUTHORITY_POLICY_DIGEST_INVALID")
+    if record.get("signature_algorithm") != "ED25519":
+        p.append("SIGNED_RECORD_SIGNATURE_ALGORITHM_UNSUPPORTED")
+
     issued_sequence = record.get("issued_registry_sequence")
-    if not _exact_int(issued_sequence, minimum=1): p.append("SIGNED_RECORD_ISSUED_REGISTRY_SEQUENCE_INVALID")
-    if not _sha256_hex(record.get("issued_registry_digest")): p.append("SIGNED_RECORD_ISSUED_REGISTRY_DIGEST_INVALID")
+    if not _exact_int(issued_sequence, minimum=1):
+        p.append("SIGNED_RECORD_ISSUED_REGISTRY_SEQUENCE_INVALID")
+    if not _sha256_hex(record.get("issued_registry_digest")):
+        p.append("SIGNED_RECORD_ISSUED_REGISTRY_DIGEST_INVALID")
 
     payload_ok = False
     supplied_payload_digest = record.get("payload_digest")
-    if not _sha256_hex(supplied_payload_digest): p.append("SIGNED_RECORD_PAYLOAD_DIGEST_INVALID")
+    if not _sha256_hex(supplied_payload_digest):
+        p.append("SIGNED_RECORD_PAYLOAD_DIGEST_INVALID")
     else:
-        try: payload_ok = canonical_sha256(record.get("payload")) == supplied_payload_digest
-        except CanonicalizationError: p.append("SIGNED_RECORD_PAYLOAD_CANONICALIZATION_FAILED")
+        try:
+            payload_ok = canonical_sha256(record.get("payload")) == supplied_payload_digest
+        except CanonicalizationError:
+            p.append("SIGNED_RECORD_PAYLOAD_CANONICALIZATION_FAILED")
         else:
-            if not payload_ok: p.append("SIGNED_RECORD_PAYLOAD_DIGEST_MISMATCH")
+            if not payload_ok:
+                p.append("SIGNED_RECORD_PAYLOAD_DIGEST_MISMATCH")
 
     key: Mapping[str, Any] | None = None
     currentness_matched = False
@@ -581,45 +866,87 @@ def verify_signed_governance_record(
         head_p = _head_match(current, expected_current_registry_head) if head_result["valid"] else []
         p.extend(head_p)
         currentness_matched = head_result["valid"] and not head_p
-        if expected_current_registry_head.trust_set_id != bootstrap_trust.trust_set_id: p.append("SIGNED_RECORD_REGISTRY_HEAD_TRUST_SET_MISMATCH")
-        if record.get("generation_id") != current.get("generation_id"): p.append("SIGNED_RECORD_GENERATION_NOT_CURRENT")
-        if expected_generation_id != current.get("generation_id"): p.append("SIGNED_RECORD_EXPECTED_GENERATION_NOT_CURRENT")
-        if not (_exact_int(current.get("sequence"), minimum=1) and _exact_int(issued_sequence, minimum=1) and issued_sequence == current.get("sequence")):
+        if current.get("authority_policy_digest") != current_policy:
+            p.append("SIGNED_RECORD_CURRENT_REGISTRY_AUTHORITY_POLICY_DIGEST_MISMATCH")
+        if expected_current_registry_head.authority_policy_digest != current_policy:
+            p.append("SIGNED_RECORD_PINNED_HEAD_AUTHORITY_POLICY_DIGEST_MISMATCH")
+        if current.get("trust_set_digest") != bootstrap_trust.trust_set_digest:
+            p.append("SIGNED_RECORD_CURRENT_REGISTRY_TRUST_SET_DIGEST_MISMATCH")
+        if expected_current_registry_head.trust_set_digest != bootstrap_trust.trust_set_digest:
+            p.append("SIGNED_RECORD_PINNED_HEAD_TRUST_SET_DIGEST_MISMATCH")
+        if record.get("generation_id") != current.get("generation_id"):
+            p.append("SIGNED_RECORD_GENERATION_NOT_CURRENT")
+        if expected_generation_id != current.get("generation_id"):
+            p.append("SIGNED_RECORD_EXPECTED_GENERATION_NOT_CURRENT")
+        if not (
+            _exact_int(current.get("sequence"), minimum=1)
+            and _exact_int(issued_sequence, minimum=1)
+            and issued_sequence == current.get("sequence")
+        ):
             p.append("SIGNED_RECORD_NOT_ISSUED_UNDER_CURRENT_REGISTRY")
-        if record.get("issued_registry_digest") != current.get("registry_digest"): p.append("SIGNED_RECORD_ISSUED_REGISTRY_DIGEST_MISMATCH")
-        if record.get("issued_registry_digest") != expected_current_registry_head.registry_digest: p.append("SIGNED_RECORD_ISSUED_REGISTRY_DIGEST_NOT_PINNED_HEAD")
+        if record.get("issued_registry_digest") != current.get("registry_digest"):
+            p.append("SIGNED_RECORD_ISSUED_REGISTRY_DIGEST_MISMATCH")
+        if record.get("issued_registry_digest") != expected_current_registry_head.registry_digest:
+            p.append("SIGNED_RECORD_ISSUED_REGISTRY_DIGEST_NOT_PINNED_HEAD")
+
         snapshot = chain.snapshots_by_sequence.get(int(issued_sequence)) if _exact_int(issued_sequence, minimum=1) else None
-        if snapshot is None: p.append("SIGNED_RECORD_ISSUANCE_REGISTRY_SNAPSHOT_NOT_FOUND")
+        if snapshot is None:
+            p.append("SIGNED_RECORD_ISSUANCE_REGISTRY_SNAPSHOT_NOT_FOUND")
         else:
-            if snapshot.get("generation_id") != record.get("generation_id"): p.append("SIGNED_RECORD_ISSUANCE_GENERATION_MISMATCH")
-            if snapshot.get("registry_digest") != record.get("issued_registry_digest"): p.append("SIGNED_RECORD_ISSUANCE_DIGEST_MISMATCH")
-            key = _snapshot_key_index(snapshot).get(str(record.get("key_id")))
-            if key is None: p.append("SIGNED_RECORD_KEY_NOT_IN_ISSUANCE_REGISTRY")
+            if snapshot.get("generation_id") != record.get("generation_id"):
+                p.append("SIGNED_RECORD_ISSUANCE_GENERATION_MISMATCH")
+            if snapshot.get("registry_digest") != record.get("issued_registry_digest"):
+                p.append("SIGNED_RECORD_ISSUANCE_DIGEST_MISMATCH")
+            if snapshot.get("trust_set_digest") != record.get("trust_set_digest"):
+                p.append("SIGNED_RECORD_ISSUANCE_TRUST_SET_DIGEST_MISMATCH")
+            if snapshot.get("authority_policy_digest") != record.get("authority_policy_digest"):
+                p.append("SIGNED_RECORD_ISSUANCE_AUTHORITY_POLICY_DIGEST_MISMATCH")
+            key = _snapshot_key_index(snapshot).get(record.get("key_id")) if _canonical_identifier(record.get("key_id")) else None
+            if key is None:
+                p.append("SIGNED_RECORD_KEY_NOT_IN_ISSUANCE_REGISTRY")
+
         before = len(p)
         if key is not None:
-            if key.get("issuer_id") != record.get("issuer_id"): p.append("SIGNED_RECORD_ISSUER_KEY_BINDING_MISMATCH")
-            if key.get("algorithm") != "ED25519": p.append("SIGNED_RECORD_KEY_ALGORITHM_UNSUPPORTED")
+            if key.get("issuer_id") != record.get("issuer_id"):
+                p.append("SIGNED_RECORD_ISSUER_KEY_BINDING_MISMATCH")
+            if key.get("algorithm") != "ED25519":
+                p.append("SIGNED_RECORD_KEY_ALGORITHM_UNSUPPORTED")
             roles = key.get("roles")
-            if canonical_role is None or not isinstance(roles, list) or canonical_role not in roles: p.append("SIGNED_RECORD_ISSUER_ROLE_NOT_AUTHORIZED")
+            if canonical_role is None or not isinstance(roles, list) or canonical_role not in roles:
+                p.append("SIGNED_RECORD_ISSUER_ROLE_NOT_AUTHORIZED")
             domain = key.get("control_domain_id")
-            if domain in forbidden_control_domain_ids: p.append("SIGNED_RECORD_ISSUER_FORBIDDEN_CONTROL_DOMAIN")
-            if domain in bootstrap_trust.candidate_control_domain_ids: p.append("SIGNED_RECORD_ISSUER_CANDIDATE_CONTROLLED_DOMAIN")
-            if key.get("state") != "ACTIVE": p.append("SIGNED_RECORD_KEY_NOT_CURRENTLY_ACTIVE")
+            if domain in forbidden_control_domain_ids:
+                p.append("SIGNED_RECORD_ISSUER_FORBIDDEN_CONTROL_DOMAIN")
+            if domain in bootstrap_trust.candidate_control_domain_ids:
+                p.append("SIGNED_RECORD_ISSUER_CANDIDATE_CONTROLLED_DOMAIN")
+            if key.get("state") != "ACTIVE":
+                p.append("SIGNED_RECORD_KEY_NOT_CURRENTLY_ACTIVE")
             if not _exact_int(key.get("valid_from_registry_sequence"), minimum=1) or key.get("valid_from_registry_sequence") > issued_sequence:
                 p.append("SIGNED_RECORD_KEY_NOT_YET_VALID")
         registry_authority_ok = key is not None and len(p) == before and currentness_matched and chain.valid
 
     signature_ok = False
-    if _b64(record.get("signature_b64"), ED25519_SIGNATURE_BYTES) is None: p.append("SIGNED_RECORD_SIGNATURE_ENCODING_INVALID")
+    if _b64(record.get("signature_b64"), ED25519_SIGNATURE_BYTES) is None:
+        p.append("SIGNED_RECORD_SIGNATURE_ENCODING_INVALID")
     elif key is not None:
-        try: message = signed_record_signature_message(record)
-        except CanonicalizationError: p.append("SIGNED_RECORD_CANONICALIZATION_FAILED")
+        try:
+            message = signed_record_signature_message(record)
+        except CanonicalizationError:
+            p.append("SIGNED_RECORD_CANONICALIZATION_FAILED")
         else:
-            signature_ok = _verify_ed25519(str(key.get("public_key_b64", "")), str(record.get("signature_b64", "")), message)
-            if not signature_ok: p.append("SIGNED_RECORD_SIGNATURE_INVALID")
+            signature_ok = _verify_ed25519(
+                str(key.get("public_key_b64", "")),
+                str(record.get("signature_b64", "")), message,
+            )
+            if not signature_ok:
+                p.append("SIGNED_RECORD_SIGNATURE_INVALID")
 
     valid = not p
-    out = _result(valid, p, "SIGNED_GOVERNANCE_RECORD_AUTHENTICATED_UNDER_CURRENT_PINNED_REGISTRY_HEAD", "SIGNED_GOVERNANCE_RECORD_INVALID")
+    out = _result(
+        valid, p,
+        "SIGNED_GOVERNANCE_RECORD_AUTHENTICATED_UNDER_CURRENT_PINNED_REGISTRY_HEAD",
+        "SIGNED_GOVERNANCE_RECORD_INVALID",
+    )
     out.update({
         "content_integrity_verified": payload_ok,
         "issuer_signature_verified": signature_ok,
@@ -630,15 +957,17 @@ def verify_signed_governance_record(
         "currentness_anchor_origin": "OUT_OF_BAND_PINNED_CURRENTNESS_REQUIRED",
         "currentness_anchor_provisioning_proven": False,
     })
-    if key is not None: out["issuer_control_domain_id"] = key.get("control_domain_id")
+    if key is not None:
+        out["issuer_control_domain_id"] = key.get("control_domain_id")
     return out
 
 
 def verify_signed_governance_record_json(
     raw_record: bytes | str, *, registry_chain_json: Sequence[bytes | str],
-    bootstrap_trust: PinnedBootstrapTrustSet, expected_current_registry_head: PinnedRegistryHead,
-    expected_candidate_id: str, expected_generation_id: str, expected_record_type: str,
-    expected_snapshot_id: str | None = None,
+    bootstrap_trust: PinnedBootstrapTrustSet,
+    expected_current_registry_head: PinnedRegistryHead,
+    expected_candidate_id: str, expected_generation_id: str,
+    expected_record_type: str, expected_snapshot_id: str | None = None,
     forbidden_control_domain_ids: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
     try:
@@ -651,7 +980,9 @@ def verify_signed_governance_record_json(
     return verify_signed_governance_record(
         record, registry_chain=chain, bootstrap_trust=bootstrap_trust,
         expected_current_registry_head=expected_current_registry_head,
-        expected_candidate_id=expected_candidate_id, expected_generation_id=expected_generation_id,
-        expected_record_type=expected_record_type, expected_snapshot_id=expected_snapshot_id,
+        expected_candidate_id=expected_candidate_id,
+        expected_generation_id=expected_generation_id,
+        expected_record_type=expected_record_type,
+        expected_snapshot_id=expected_snapshot_id,
         forbidden_control_domain_ids=forbidden_control_domain_ids,
     )

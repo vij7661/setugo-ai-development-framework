@@ -9,16 +9,20 @@ This slice repairs the V15 self-hash/caller-declaration trust failure at the con
 The current construction model requires:
 
 - an independently provisioned `PinnedBootstrapTrustSet` with threshold roots across distinct declared control domains;
+- a canonical `trust_set_digest` over the complete bootstrap trust policy: label, threshold, canonical root descriptors and candidate-controlled-domain exclusions;
+- bootstrap signatures bound to the exact `trust_set_digest`, root/key/control-domain identity and exact registry digest, so a reused human label cannot silently downgrade threshold/membership/exclusions;
 - unique bootstrap and governance public-key material so one private key cannot masquerade as multiple nominal identities;
-- bootstrap signatures bound to trust-set/root/key/control-domain identity and exact registry digest;
 - append-preserved registry history with exact predecessor chaining, key first-appearance rules, irreversible revocation and new generation IDs for updates;
-- an independently provisioned `PinnedRegistryHead` binding registry ID, candidate, sequence, generation and exact current registry digest;
-- a canonical `RECORD_TYPE_REQUIRED_ROLE` policy so callers cannot choose the authority role required for a governance action;
-- signed governance envelopes binding candidate, generation, trust-set ID, exact issuance registry sequence and exact issuance registry digest, optional snapshot context, issuer/key identity, canonical required role and payload digest;
-- exact-integer validation (`bool` is not accepted as an integer governance field);
+- an independently provisioned `PinnedRegistryHead` binding trust-set ID and digest, authority-policy digest, registry ID, candidate, sequence, generation and exact current registry digest;
+- a canonical, machine-enforced `RECORD_TYPE_REQUIRED_ROLE` policy with a canonical `authority_policy_digest`; every registry snapshot carries a policy digest and current verification requires exact equality among local policy, current registry, pinned head and signed envelope;
+- signed governance envelopes binding candidate, generation, trust-set ID and digest, authority-policy digest, exact issuance registry sequence/digest, optional snapshot context, issuer/key identity, canonical required role and payload digest;
+- rejection of non-NFC load-bearing identifiers before uniqueness/counting/lookup rather than silently normalizing identity strings;
+- exact-integer validation (`bool` is not accepted as an integer governance field), including schema versions, registry/currentness sequences and key validity/revocation sequences;
 - strict JSON ingress rejecting duplicate/normalized-duplicate keys, floats, out-of-range integers and lone UTF-16 surrogates.
 
-The construction code verifies that a supplied chain matches a supplied pinned current head. It **does not prove that the embedding host independently provisioned or refreshed either the bootstrap trust set or the current-head pin**. Those remain external qualification boundaries. Control-domain ancestry/shared-ancestor proof also remains for a later V16 slice.
+A policy change cannot retroactively reinterpret an old signed object: a different record-type→role mapping changes `authority_policy_digest`, so the current registry/head/envelope binding fails until a new registry generation and newly signed current objects are established. Historical registry snapshots may retain their prior policy digest, but the current snapshot must match the verifier's exact current policy digest.
+
+The construction code verifies that a supplied chain matches a supplied pinned current head. It **does not prove that the embedding host independently provisioned or refreshed either the bootstrap trust set or the current-head pin**. Those remain external qualification boundaries. The trust-set digest proves exact content identity, not real-world ownership or provisioning provenance. Control-domain ancestry/shared-ancestor proof also remains for a later V16 slice.
 
 A SHA-256 digest never authenticates an issuer. A valid Ed25519 signature does not grant authority unless the signer is present, active and role-qualified in the exact pinned current registry state. A signed record cannot cross registry forks because the exact issuance registry digest is inside the signed envelope.
 
