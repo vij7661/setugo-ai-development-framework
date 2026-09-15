@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "candidate": {
+    "commit": "380e1d9db083a6477691bf187d5cba7c61eee280",
+    "tree": "6bdd7bf8ec214e406383e084bd7c28b8c9738ee9",
+    "freeze_branch": "freeze/review-safe-evidence-v15-implementation",
+    "changed_file_count": 30,
+    "mandatory_surface_count": 33
+  },
+  "construction": {
+    "final_run": "34948589255",
+    "final_tests": "199/199_PASS",
+    "candidate_red_run": "34946677355",
+    "candidate_red_preserved": true,
+    "candidate_red_corrected_run": "34946873858"
+  },
+  "package_builder_history": {
+    "failed_run": "34948998139",
+    "failed_classification": "PACKAGE_BUILDER_TRANSPORT_OUTPUT_GUARD_BEFORE_PACKAGE_COMPLETION",
+    "failed_record": "review/review-safe-evidence-v15/V15-EVIDENCE-PACKAGE-RED-001.md",
+    "successful_run": "34949237896",
+    "successful_review_commit": "b229952788493160ff8aa32798dae1c9629a7dbc",
+    "deterministic_double_build": "PASS",
+    "content_reverification": "PASS",
+    "raw_final_log_binding": "PASS",
+    "raw_red_log_binding": "PASS"
+  },
+  "github_artifact": {
+    "id": "10388243039",
+    "name": "v15-independent-implementation-evidence-review-v2",
+    "bytes": 91863,
+    "sha256": "87e3f2e1f5623adcdda3bdef55e0b898da7c8cc9daaa5ed3a011dfc2adca2f5d",
+    "expires_at": "2026-12-14T08:51:08Z"
+  },
+  "inner_review_zip": {
+    "name": "V15-INDEPENDENT-IMPLEMENTATION-EVIDENCE-REVIEW.zip",
+    "bytes": 636785,
+    "sha256": "08ee206df73f5a67b677235f82a48949f6a5343bf4ad00465906d7e1863a0971",
+    "entry_count": 59,
+    "candidate_file_count": 30,
+    "manifest_sha256": "f4022f4532573ec462ed4efb7de0dfc0b7d56dbb727550fa54f7c8dd2789c8ad"
+  },
+  "manual_independent_evidence_review_required": true,
+  "automated_external_reviewer_api_calls": false,
+  "implementation_qualification": "NOT_CLAIMED",
+  "runtime_qualification": "NOT_CLAIMED",
+  "scientific_execution": "CLOSED_PENDING_INDEPENDENT_EVIDENCE_REVIEW",
+  "authority_effect": "NONE_EVIDENCE_ONLY"
+}
