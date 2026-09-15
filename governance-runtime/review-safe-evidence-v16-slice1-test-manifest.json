@@ -1,7 +1,7 @@
 {
   "authority_effect": "NONE_EVIDENCE_ONLY",
   "implementation_qualification": "NOT_CLAIMED",
-  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-001",
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-002",
   "runtime_qualification": "NOT_CLAIMED",
   "schema_version": 1,
   "slice_id": "V16-S1-AUTHENTICATED-TRUST-FOUNDATION",
@@ -35,6 +35,14 @@
     {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_explicit_forbidden_domain_fails_even_with_valid_signature", "requirement_test_id": "V16-S1-027"},
     {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_revoked_current_key_cannot_grant_current_authority", "requirement_test_id": "V16-S1-028"},
     {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_generation_binding_cannot_be_changed_without_resigning", "requirement_test_id": "V16-S1-029"},
-    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_record_extra_field_is_rejected_even_when_signature_was_valid_before_extra_field", "requirement_test_id": "V16-S1-030"}
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_record_extra_field_is_rejected_even_when_signature_was_valid_before_extra_field", "requirement_test_id": "V16-S1-030"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.CanonicalizationTests.test_large_integer_outside_interoperable_range_is_forbidden", "requirement_test_id": "V16-S1-031"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.BootstrapTests.test_duplicate_root_public_key_material_is_rejected", "requirement_test_id": "V16-S1-032"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.BootstrapTests.test_registry_signature_message_binds_root_and_trust_set_identity", "requirement_test_id": "V16-S1-033"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.RegistryTests.test_new_key_cannot_backdate_first_appearance", "requirement_test_id": "V16-S1-034"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.RegistryTests.test_generation_identifier_cannot_be_reused_after_intervening_generation", "requirement_test_id": "V16-S1-035"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_stale_expected_generation_cannot_validate_under_newer_current_registry", "requirement_test_id": "V16-S1-036"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_current_generation_record_at_current_registry_validates", "requirement_test_id": "V16-S1-037"},
+    {"mandatory": true, "python_test_id": "test_review_safe_evidence_v16_trust.SignedRecordTests.test_strict_json_ingress_rejects_duplicate_signed_record_keys", "requirement_test_id": "V16-S1-038"}
   ]
 }
