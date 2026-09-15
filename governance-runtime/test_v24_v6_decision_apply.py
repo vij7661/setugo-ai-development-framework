@@ -13,7 +13,7 @@ from v24_v6_decision_apply import (
 from v24_v6_governance_foundation import CURRENT, QUALIFIED
 from v24_v6_test_proof_context import build_test_proof_context
 
-D1="1"*64;D2="2"*64;D3="3"*64;D4="4"*64;D5="5"*64;D6="6"*64;D7="7"*64;D8="8"*64;D9="9"*64;DA="a"*64;DB="b"*64;DC="c"*64;DF="f"*64
+D1="1"*64;D2="2"*64;D3="3"*64;D4="4"*64;D5="5"*64;D6="6"*64;D7="7"*64;D8="8"*64;D9="9"*64;DA="a"*64;DB="b"*64;DC="c"*64;DF="f"*64;PATHCONTENT="0"*64
 
 
 def source():
@@ -95,12 +95,31 @@ def decision(s=None,**overrides):
 def path(s=None,**overrides):
     s=s or snapshot()
     p={
-        "path_id":"PATH-1","source_or_writer_id":"WRITER-A","sink_id":"SINK-A","effect_class_id":"WRITE",
-        "writer_admission_digest":D1,"capability_digest":D2,"guard_mechanism_digest":DA,
-        "sink_admitted_writer_set_digest":D3,"material_surface_membership_digest":D9,
-        "observation_head_digest":D7,"writer_admission_state":QUALIFIED,"capability_state":QUALIFIED,
-        "guard_qualification_state":QUALIFIED,"sink_admitted_writer_ids":["WRITER-A"],
-        "dependency_edge_digests":[D4],"control_plane_evidence_digests":[D5],"currentness_result":CURRENT,
+        "path_id":"PATH-1",
+        "path_content_digest":PATHCONTENT,
+        "source_or_writer_id":"WRITER-A",
+        "sink_id":"SINK-A",
+        "effect_class_id":"WRITE",
+        "writer_admission_id":"WRITER-ADMISSION-1",
+        "writer_admission_digest":D1,
+        "writer_admission_qualification_digest":D1,
+        "capability_id":"CAPABILITY-1",
+        "capability_digest":D2,
+        "capability_qualification_digest":D2,
+        "guard_mechanism_id":"GUARD-1",
+        "guard_mechanism_digest":DA,
+        "guard_qualification_digest":D3,
+        "currentness_binding_digest":D4,
+        "sink_admitted_writer_set_digest":D3,
+        "material_surface_membership_digest":D9,
+        "observation_head_digest":D7,
+        "writer_admission_state":QUALIFIED,
+        "capability_state":QUALIFIED,
+        "guard_qualification_state":QUALIFIED,
+        "sink_admitted_writer_ids":["WRITER-A"],
+        "dependency_edge_digests":[D4],
+        "control_plane_evidence_digests":[D5],
+        "currentness_result":CURRENT,
     }
     p.update(overrides)
     return p
@@ -112,7 +131,7 @@ def bundle():
 
 
 def attach_proofs(b):
-    src=b["snapshot_source"];snap=b["current_snapshot"];dec=b["decision"]
+    src=b["snapshot_source"];snap=b["current_snapshot"];dec=b["decision"];effect=b["material_effect_path"]
     old_snapshot_digest=snap.get("snapshot_digest")
     specs={
         "source_q":{"kind":"QUALIFICATION","subject_id":src["mechanism_id"],"content_digest":src["mechanism_content_digest"]},
@@ -121,6 +140,10 @@ def attach_proofs(b):
         "predicate_q":{"kind":"QUALIFICATION","subject_id":dec["predicate_coverage_id"],"content_digest":dec["predicate_coverage_content_digest"]},
         "decision_q":{"kind":"QUALIFICATION","subject_id":dec["decision_id"],"content_digest":dec["decision_digest"]},
         "endpoint_q":{"kind":"QUALIFICATION","subject_id":dec["endpoint_projection_id"],"content_digest":dec["endpoint_projection_digest"]},
+        "writer_q":{"kind":"QUALIFICATION","subject_id":effect["writer_admission_id"],"content_digest":effect["writer_admission_digest"]},
+        "capability_q":{"kind":"QUALIFICATION","subject_id":effect["capability_id"],"content_digest":effect["capability_digest"]},
+        "guard_q":{"kind":"QUALIFICATION","subject_id":effect["guard_mechanism_id"],"content_digest":effect["guard_mechanism_digest"]},
+        "path_c":{"kind":"CURRENTNESS","source_id":effect["path_id"],"source_digest":effect["path_content_digest"]},
     }
     rd=b.get("reevaluated_decision")
     if isinstance(rd,dict):
@@ -137,6 +160,10 @@ def attach_proofs(b):
     dec["predicate_coverage_qualification_digest"]=refs["predicate_q"]
     dec["decision_qualification_digest"]=refs["decision_q"]
     dec["endpoint_projection_qualification_digest"]=refs["endpoint_q"]
+    effect["writer_admission_qualification_digest"]=refs["writer_q"]
+    effect["capability_qualification_digest"]=refs["capability_q"]
+    effect["guard_qualification_digest"]=refs["guard_q"]
+    effect["currentness_binding_digest"]=refs["path_c"]
     if isinstance(rd,dict):
         rd["predicate_coverage_qualification_digest"]=refs["predicate_q"]
         rd["decision_qualification_digest"]=refs["reevaluated_decision_q"]
