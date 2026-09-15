@@ -65,3 +65,46 @@ WDPC-469 and WDPC-495 remain blocked by I1 semantic qualification. WDPC-503 rema
 The next workstream must descend from this evidence commit. This construction record grants no runtime, release, deployment, production, or terminal authority.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## Post-review proof-resolution remediation — 2026-09-15
+
+This append-only addendum records two later R6 false-greens discovered during independent proof-resolution review.
+
+### Preserved failure 1 — durable ledger authority
+
+Run `35004577898`: **FAILURE / genuine false-green**.
+
+The durable ledger accepted a caller-supplied qualified/current head plus an independent/current witness using opaque labels and digest-shaped references. Earlier repaired workstreams R2-R5 remained GREEN.
+
+R6 was repaired so exact governed proofs are required for:
+- durable head qualification and currentness;
+- storage qualification/currentness;
+- durable-anchor qualification, independence, and currentness;
+- witness-record qualification, witness-identity independence, and witness currentness;
+- effect-class derivation mechanism qualification, derivation-authority independence, and currentness;
+- effect-class registry and verifier qualification/currentness;
+- registry completeness dependencies and the qualified registry result consumed by an effect path.
+
+### Preserved failure 2 — registered effect-class substitution
+
+Run `35005205305`: **FAILURE / genuine digest-binding defect**.
+
+After the first R6 repair, changing `effect_class_id` from one valid registered class to another could reuse an old opaque `path_content_digest` and currentness proof. All repaired R2-R6 suites passed; only the new substitution falsification failed.
+
+The narrow repair introduced canonical effect-path content binding over the path writer, sink, effect class, writer admission, capability, guard, sink writer set, material-surface membership, observation head, dependency edges, and control-plane evidence. Any material path mutation now changes the content digest and requires fresh currentness evidence.
+
+Run `35005595286`: **SUCCESS**, closing the second R6 defect while preserving all earlier regressions.
+
+All-up proof-resolution run `35007121039`: **SUCCESS** for R2-R8 plus permanent false-green regressions.
+
+R9 dependency-closure run `35007800567`: **SUCCESS** with R6 unchanged and protected by the widened successor freeze.
+
+Remediated R6 production blob at this evidence update: `29a4fdd0f04e3fbfc3308367f0e788a7a690ebf7`.
+
+No WDPC scientific case was run. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor review.
+
+`R6_POST_REVIEW_PROOF_RESOLUTION = PASS`
+
+`R6_RUNTIME_QUALIFICATION = NOT_CLAIMED`
+
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
