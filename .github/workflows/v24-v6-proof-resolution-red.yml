@@ -7,6 +7,7 @@ on:
     paths:
       - 'governance-runtime/test_v24_v6_proof_resolution_red.py'
       - 'governance-runtime/test_v24_v6_proof_reference_closure.py'
+      - 'governance-runtime/test_v24_v6_integrated_successor_dependency_red.py'
       - 'governance-runtime/test_v24_v6_endpoint_projection.py'
       - 'governance-runtime/test_v24_v6_material_surface.py'
       - 'governance-runtime/test_v24_v6_decision_apply.py'
@@ -24,6 +25,11 @@ on:
       - 'governance-runtime/v24_v6_effect_ledger_closure.py'
       - 'governance-runtime/v24_v6_atomic_binding_modes.py'
       - 'governance-runtime/v24_v6_qualification_integrity.py'
+      - 'governance-runtime/v24_v6_integrated_successor.py'
+      - 'governance-runtime/v24_endpoint_proof_compiler.py'
+      - 'governance-runtime/normative_control_catalog.py'
+      - 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+      - 'implementation/v24/V24-I11-V6-R*-CONSTRUCTION-EVIDENCE.md'
       - '.github/workflows/v24-v6-proof-resolution-red.yml'
   workflow_dispatch:
 
@@ -51,7 +57,8 @@ jobs:
             v24_v6_normative_clause_projection.py \
             v24_v6_effect_ledger_closure.py \
             v24_v6_atomic_binding_modes.py \
-            v24_v6_qualification_integrity.py
+            v24_v6_qualification_integrity.py \
+            v24_v6_integrated_successor.py
       - name: Verify shared proof-reference closure contract
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_reference_closure.py
@@ -79,3 +86,6 @@ jobs:
       - name: Verify historical opaque-proof REDs are permanently closed
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_resolution_red.py
+      - name: Falsify R9 shared dependency freeze closure
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_integrated_successor_dependency_red.py
