@@ -4,7 +4,7 @@ Status: **PRESERVED RED HISTORY / NON-AUTHORITATIVE**
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
 
-This record preserves two failed construction runs produced while repairing the Slice 1 internal-adversarial findings. Neither RED is erased by a later green run.
+This record preserves three failed construction runs produced while repairing the Slice 1 internal-adversarial findings. No later green run erases any of them.
 
 ## RED-A — implementation/test harness transition mismatch
 
@@ -43,11 +43,30 @@ The workflow then correctly failed its manifest/source/execution equality gate b
 - `OK`
 - manifest-verification `AssertionError: 38`
 
-This run is **not green construction evidence**. The mechanism tests were green, but the governed mandatory-test-set binding failed. The repair is to update the stable manifest and workflow count to exactly the expanded 38-test set without changing the already-passing mechanisms merely to force green.
+This run is **not green construction evidence**. The mechanism tests were green, but the governed mandatory-test-set binding failed.
+
+## RED-C — manifest updated to 38 while workflow hard-count still expected 30
+
+- workflow run: `34978155073`
+- candidate commit: `c609b7c982a7d712c8e3265880c77e593ac35b0d`
+- candidate tree: `16ecc0fdeb6a731803399e815d19cdc925e8f5a2`
+- job: `104411135618`
+- conclusion: `failure`
+- classification: `HARNESS_DEFECT_BEFORE_INTENDED_ENDPOINT`
+
+This sequential-update run had the repaired code, the expanded 38-test source, and the expanded 38-entry manifest. All **38 mechanism tests passed**. The workflow itself still contained the old hard assertions `len(...) == 30`, so the manifest/source/execution verification step failed with `AssertionError: 38` before the construction boundary could emit PASS.
+
+Observed raw summary:
+
+- `Ran 38 tests in 0.031s`
+- `OK`
+- verification step failed on the stale hard-count assertion.
+
+This RED is distinct from RED-B: RED-B had an outdated 30-entry manifest; RED-C had the correct 38-entry manifest but an outdated workflow verifier. It is preserved because the implementation workflow was temporarily inconsistent during sequential repository updates.
 
 ## Historical rule
 
-Any later successful run must preserve both RED-A and RED-B. Neither may be described as if it never occurred, and neither may be used to claim implementation or runtime qualification.
+Any later successful run must preserve RED-A, RED-B, and RED-C. None may be described as if it never occurred, and none may be used to claim implementation or runtime qualification.
 
 `IMPLEMENTATION_QUALIFICATION = NOT_CLAIMED`
 
