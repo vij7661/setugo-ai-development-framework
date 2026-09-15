@@ -792,6 +792,38 @@ def validate_effect_class_registry(
     }
 
 
+def canonical_effect_path_content_digest(record: Mapping[str, Any]) -> str:
+    """Digest the exact effect-path semantics whose currentness is asserted.
+
+    Proof-reference fields and caller result labels are excluded; the underlying
+    authority/evidence digests and the effect class itself are included.  Any
+    material mutation therefore requires a new currentness binding.
+    """
+    writers = record.get("sink_admitted_writer_ids")
+    edges = record.get("dependency_edge_digests")
+    control = record.get("control_plane_evidence_digests")
+    return digest(
+        {
+            "path_id": record.get("path_id"),
+            "source_or_writer_id": record.get("source_or_writer_id"),
+            "sink_id": record.get("sink_id"),
+            "effect_class_id": record.get("effect_class_id"),
+            "writer_admission_id": record.get("writer_admission_id"),
+            "writer_admission_digest": record.get("writer_admission_digest"),
+            "capability_id": record.get("capability_id"),
+            "capability_digest": record.get("capability_digest"),
+            "guard_mechanism_id": record.get("guard_mechanism_id"),
+            "guard_mechanism_digest": record.get("guard_mechanism_digest"),
+            "sink_admitted_writer_set_digest": record.get("sink_admitted_writer_set_digest"),
+            "material_surface_membership_digest": record.get("material_surface_membership_digest"),
+            "observation_head_digest": record.get("observation_head_digest"),
+            "sink_admitted_writer_ids": sorted(writers) if isinstance(writers, list) else [],
+            "dependency_edge_digests": sorted(edges) if isinstance(edges, list) else [],
+            "control_plane_evidence_digests": sorted(control) if isinstance(control, list) else [],
+        }
+    )
+
+
 def validate_effect_path_against_registry(
     record: Mapping[str, Any],
     *,
@@ -800,13 +832,34 @@ def validate_effect_path_against_registry(
     proof_context: Mapping[str, Any] | None = None,
     trusted_boundary: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Require path proof plus an independently qualified exact registry result."""
+    """Require exact-current path proof plus an independently qualified registry result."""
     problems = validate_material_effect_path(
         record,
         current_observation_head=current_observation_head_digest,
         proof_context=proof_context,
         trusted_boundary=trusted_boundary,
     )
+    computed_path_digest = canonical_effect_path_content_digest(record)
+    if record.get("path_content_digest") != computed_path_digest:
+        problems.append("MATERIAL_EFFECT_PATH_CONTENT_DIGEST_MISMATCH")
+    # Close currentness a second time against the recomputed path content.  This
+    # makes R6 fail closed even if an upstream validator were to trust an opaque
+    # caller-supplied path_content_digest.
+    _close(
+        [
+            {
+                "kind": CURRENTNESS_BINDING,
+                "reference_digest": record.get("currentness_binding_digest"),
+                "source_id": record.get("path_id"),
+                "source_digest": computed_path_digest,
+            }
+        ],
+        proof_context=proof_context,
+        trusted_boundary=trusted_boundary,
+        prefix="MATERIAL_EFFECT_PATH_CURRENTNESS_PROOF",
+        problems=problems,
+    )
+
     material = registry_result.get("registry_binding_material")
     result_digest = registry_result.get("registry_result_digest")
     if not isinstance(material, Mapping):
@@ -876,6 +929,7 @@ def validate_effect_path_against_registry(
         "state": "MATERIAL_EFFECT_PATH_CLASSIFIED" if not problems else "MATERIAL_EFFECT_PATH_BLOCKED",
         "qualified": not problems,
         "effect_class_id": effect_class_id,
+        "path_content_digest": computed_path_digest,
         "problems": problems,
         "authority_effect": AUTHORITY_EFFECT,
     }
