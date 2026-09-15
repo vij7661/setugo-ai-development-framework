@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import unittest
 
+from test_v24_v6_atomic_binding_modes import base_sources
 from test_v24_v6_decision_apply import bundle
 from test_v24_v6_effect_ledger_closure import durable_ledger, registry_and_path_fixture
 from test_v24_v6_endpoint_projection import endpoint_bundle
 from test_v24_v6_material_surface import ledger_bundle
 from test_v24_v6_normative_clause_projection import qualified_disposition_bundle
+from v24_v6_atomic_binding_modes import derive_atomic_binding_mode_obligation_set
 from v24_v6_decision_apply import evaluate_decision_apply_latch
 from v24_v6_effect_ledger_closure import (
     validate_durable_governance_ledger,
@@ -150,9 +152,6 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         old_content_digest = path["path_content_digest"]
         old_currentness = path["currentness_binding_digest"]
 
-        # Substitute a different *registered* class without changing the opaque
-        # path content digest/currentness reference.  Registry membership alone
-        # must not make the mutated path current.
         path["effect_class_id"] = "REMOTE_EFFECT"
         self.assertEqual(path["path_content_digest"], old_content_digest)
         self.assertEqual(path["currentness_binding_digest"], old_currentness)
@@ -173,6 +172,39 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
                 "PATH_CONTENT_DIGEST_MISMATCH" in problem
                 or "PATH_CURRENTNESS" in problem
                 or "MATERIAL_EFFECT_PATH_PROOF" in problem
+                for problem in result["problems"]
+            ),
+            result["problems"],
+        )
+
+    def test_opaque_atomic_binding_contract_and_mechanism_labels_cannot_define_obligations(self):
+        candidate = base_sources()
+        contract = candidate["binding_contracts"][0]
+        mechanism = candidate["admitted_binding_mechanisms"][0]
+        self.assertEqual(contract["qualification_state"], "QUALIFIED")
+        self.assertEqual(contract["authority_independence_state"], "QUALIFIED")
+        self.assertEqual(contract["currentness_result"], "CURRENT")
+        self.assertEqual(mechanism["admission_state"], "QUALIFIED")
+        self.assertEqual(mechanism["qualification_state"], "QUALIFIED")
+        self.assertEqual(mechanism["authority_independence_state"], "QUALIFIED")
+        self.assertEqual(mechanism["currentness_result"], "CURRENT")
+        self.assertNotIn("qualification_digest", contract)
+        self.assertNotIn("currentness_binding_digest", contract)
+
+        result = derive_atomic_binding_mode_obligation_set(candidate)
+
+        # Pre-repair R7 accepts these state labels plus SHA-shaped content digests
+        # as sufficient authority to define the complete atomic-binding universe.
+        self.assertFalse(
+            result["qualified"],
+            "V6 false-green: opaque contract/mechanism labels defined atomic-binding obligations",
+        )
+        self.assertTrue(
+            any(
+                "ATOMIC_BINDING_CONTRACT_PROOF" in problem
+                or "ATOMIC_BINDING_MECHANISM_PROOF" in problem
+                or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
+                or "PROOF_REFERENCE" in problem
                 for problem in result["problems"]
             ),
             result["problems"],
