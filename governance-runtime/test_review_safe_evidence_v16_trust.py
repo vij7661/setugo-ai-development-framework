@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import copy
+import json
 import unittest
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -20,6 +21,7 @@ from review_safe_evidence_v16_trust import (
     validate_bootstrap_trust_set,
     validate_governance_key_registry_chain,
     verify_signed_governance_record,
+    verify_signed_governance_record_json,
 )
 
 
@@ -28,8 +30,7 @@ def _priv(seed_byte: int) -> Ed25519PrivateKey:
 
 
 def _pub_b64(priv: Ed25519PrivateKey) -> str:
-    raw = priv.public_key().public_bytes_raw()
-    return base64.b64encode(raw).decode("ascii")
+    return base64.b64encode(priv.public_key().public_bytes_raw()).decode("ascii")
 
 
 def _sig_b64(priv: Ed25519PrivateKey, message: bytes) -> str:
@@ -42,6 +43,12 @@ ROOT3 = _priv(3)
 ROOT4 = _priv(4)
 ISSUER = _priv(10)
 ATTACKER = _priv(11)
+
+ROOT_INFO = {
+    "root-1": ("root-key-1", "root-domain-1", ROOT1),
+    "root-2": ("root-key-2", "root-domain-2", ROOT2),
+    "root-3": ("root-key-3", "root-domain-3", ROOT3),
+}
 
 
 def trust() -> PinnedBootstrapTrustSet:
@@ -59,6 +66,8 @@ def trust() -> PinnedBootstrapTrustSet:
 
 def key_entry(
     *,
+    issuer_id: str = "issuer-1",
+    key_id: str = "issuer-key-1",
     state: str = "ACTIVE",
     control_domain: str = "issuer-domain",
     roles: list[str] | None = None,
@@ -67,8 +76,8 @@ def key_entry(
     revoked_at: int | None = None,
 ) -> dict:
     return {
-        "issuer_id": "issuer-1",
-        "key_id": "issuer-key-1",
+        "issuer_id": issuer_id,
+        "key_id": key_id,
         "control_domain_id": control_domain,
         "algorithm": "ED25519",
         "public_key_b64": public_key_b64 or _pub_b64(ISSUER),
@@ -79,14 +88,45 @@ def key_entry(
     }
 
 
+def _sign_registry(record: dict, signers: tuple[tuple[str, str, Ed25519PrivateKey], ...] | None = None) -> None:
+    signers = signers or (
+        ("root-1", "root-key-1", ROOT1),
+        ("root-2", "root-key-2", ROOT2),
+    )
+    rows = []
+    for rid, kid, priv in signers:
+        if rid in ROOT_INFO:
+            expected_kid, domain, _ = ROOT_INFO[rid]
+            assert kid == expected_kid
+        else:
+            domain = "attacker-domain"
+        msg = registry_signature_message(
+            record["registry_digest"],
+            trust_set_id="bootstrap-v16-test",
+            root_id=rid,
+            key_id=kid,
+            control_domain_id=domain,
+        )
+        rows.append({
+            "root_id": rid,
+            "key_id": kid,
+            "algorithm": "ED25519",
+            "signature_b64": _sig_b64(priv, msg),
+        })
+    record["bootstrap_signatures"] = rows
+
+
 def make_registry(
     *,
     sequence: int = 1,
     generation_id: str = "gen-1",
     predecessor: str = "GENESIS",
     key: dict | None = None,
+    keys: list[dict] | None = None,
     signers: tuple[tuple[str, str, Ed25519PrivateKey], ...] | None = None,
 ) -> dict:
+    if key is not None and keys is not None:
+        raise ValueError("provide key or keys, not both")
     record = {
         "schema_version": 1,
         "object_type": "GOVERNANCE_KEY_REGISTRY",
@@ -95,26 +135,18 @@ def make_registry(
         "generation_id": generation_id,
         "sequence": sequence,
         "predecessor_registry_digest": predecessor,
-        "keys": [key or key_entry()],
+        "keys": copy.deepcopy(keys if keys is not None else [key or key_entry()]),
         "registry_digest": "",
         "bootstrap_signatures": [],
     }
     record["registry_digest"] = registry_digest(record)
-    signers = signers or (
-        ("root-1", "root-key-1", ROOT1),
-        ("root-2", "root-key-2", ROOT2),
-    )
-    msg = registry_signature_message(record["registry_digest"])
-    record["bootstrap_signatures"] = [
-        {
-            "root_id": rid,
-            "key_id": kid,
-            "algorithm": "ED25519",
-            "signature_b64": _sig_b64(priv, msg),
-        }
-        for rid, kid, priv in signers
-    ]
+    _sign_registry(record, signers)
     return record
+
+
+def resign_registry(record: dict) -> None:
+    record["registry_digest"] = registry_digest(record)
+    _sign_registry(record)
 
 
 def make_signed_record(
@@ -159,6 +191,10 @@ class CanonicalizationTests(unittest.TestCase):
     def test_float_is_forbidden(self):
         with self.assertRaises(CanonicalizationError):
             canonical_bytes({"x": 1.25})
+
+    def test_large_integer_outside_interoperable_range_is_forbidden(self):
+        with self.assertRaises(CanonicalizationError):
+            canonical_bytes({"x": 2**53})
 
     def test_normalized_key_collision_is_forbidden(self):
         with self.assertRaises(CanonicalizationError):
@@ -205,6 +241,33 @@ class BootstrapTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertTrue(any("BOOTSTRAP_ROOT_CANDIDATE_CONTROLLED" in x for x in result["problems"]))
 
+    def test_duplicate_root_public_key_material_is_rejected(self):
+        t = PinnedBootstrapTrustSet(
+            trust_set_id="t",
+            threshold_control_domains=2,
+            roots=(
+                BootstrapRoot("r1", "k1", "d1", _pub_b64(ROOT1)),
+                BootstrapRoot("r2", "k2", "d2", _pub_b64(ROOT1)),
+            ),
+        )
+        result = validate_bootstrap_trust_set(t)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("BOOTSTRAP_PUBLIC_KEY_REUSE_FORBIDDEN" in x for x in result["problems"]))
+
+    def test_registry_signature_message_binds_root_and_trust_set_identity(self):
+        digest = "a" * 64
+        a = registry_signature_message(
+            digest, trust_set_id="t1", root_id="r1", key_id="k1", control_domain_id="d1"
+        )
+        b = registry_signature_message(
+            digest, trust_set_id="t1", root_id="r2", key_id="k2", control_domain_id="d2"
+        )
+        c = registry_signature_message(
+            digest, trust_set_id="t2", root_id="r1", key_id="k1", control_domain_id="d1"
+        )
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(a, c)
+
     def test_valid_bootstrap_still_does_not_claim_provisioning_proof(self):
         result = validate_bootstrap_trust_set(trust())
         self.assertTrue(result["valid"])
@@ -228,12 +291,7 @@ class RegistryTests(unittest.TestCase):
         self.assertTrue(any("THRESHOLD_NOT_MET" in x for x in result["problems"]))
 
     def test_unknown_root_signature_does_not_count(self):
-        r = make_registry(
-            signers=(
-                ("root-1", "root-key-1", ROOT1),
-                ("attacker-root", "attacker-key", ROOT4),
-            )
-        )
+        r = make_registry(signers=(("root-1", "root-key-1", ROOT1), ("attacker-root", "attacker-key", ROOT4)))
         result = validate_governance_key_registry_chain([r], trust(), expected_candidate_id="candidate-1")
         self.assertFalse(result["valid"])
         self.assertTrue(any("SIGNER_UNKNOWN" in x for x in result["problems"]))
@@ -256,44 +314,28 @@ class RegistryTests(unittest.TestCase):
 
     def test_registry_rotation_requires_exact_predecessor_and_new_generation(self):
         r1 = make_registry()
-        r2 = make_registry(
-            sequence=2,
-            generation_id="gen-2",
-            predecessor=r1["registry_digest"],
-            key=key_entry(valid_from=1),
-        )
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=key_entry(valid_from=1))
         result = validate_governance_key_registry_chain([r1, r2], trust(), expected_candidate_id="candidate-1")
         self.assertTrue(result["valid"], result["problems"])
 
         bad = copy.deepcopy(r2)
         bad["generation_id"] = "gen-1"
-        bad["registry_digest"] = registry_digest(bad)
-        msg = registry_signature_message(bad["registry_digest"])
-        bad["bootstrap_signatures"] = [
-            {"root_id": "root-1", "key_id": "root-key-1", "algorithm": "ED25519", "signature_b64": _sig_b64(ROOT1, msg)},
-            {"root_id": "root-2", "key_id": "root-key-2", "algorithm": "ED25519", "signature_b64": _sig_b64(ROOT2, msg)},
-        ]
+        resign_registry(bad)
         result2 = validate_governance_key_registry_chain([r1, bad], trust(), expected_candidate_id="candidate-1")
         self.assertFalse(result2["valid"])
         self.assertTrue(any("REQUIRES_NEW_GENERATION" in x for x in result2["problems"]))
 
     def test_registry_chain_predecessor_mismatch_is_rejected(self):
         r1 = make_registry()
-        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor="f" * 64)
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor="f" * 64, key=key_entry(valid_from=1))
         result = validate_governance_key_registry_chain([r1, r2], trust(), expected_candidate_id="candidate-1")
         self.assertFalse(result["valid"])
         self.assertTrue(any("PREDECESSOR_MISMATCH" in x for x in result["problems"]))
 
     def test_registry_chain_cannot_remove_prior_key(self):
         r1 = make_registry()
-        new_key = key_entry(public_key_b64=_pub_b64(ATTACKER))
-        new_key["key_id"] = "issuer-key-2"
-        r2 = make_registry(
-            sequence=2,
-            generation_id="gen-2",
-            predecessor=r1["registry_digest"],
-            key=new_key,
-        )
+        new_key = key_entry(issuer_id="issuer-2", key_id="issuer-key-2", public_key_b64=_pub_b64(ATTACKER), valid_from=2)
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=new_key)
         result = validate_governance_key_registry_chain([r1, r2], trust(), expected_candidate_id="candidate-1")
         self.assertFalse(result["valid"])
         self.assertTrue(any("KEY_REMOVAL_FORBIDDEN" in x for x in result["problems"]))
@@ -301,34 +343,40 @@ class RegistryTests(unittest.TestCase):
     def test_registry_chain_cannot_swap_public_key_under_existing_key_id(self):
         r1 = make_registry()
         swapped = key_entry(public_key_b64=_pub_b64(ATTACKER))
-        r2 = make_registry(
-            sequence=2,
-            generation_id="gen-2",
-            predecessor=r1["registry_digest"],
-            key=swapped,
-        )
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=swapped)
         result = validate_governance_key_registry_chain([r1, r2], trust(), expected_candidate_id="candidate-1")
         self.assertFalse(result["valid"])
         self.assertTrue(any("KEY_IDENTITY_MUTATION_FORBIDDEN:issuer-key-1:public_key_b64" in x for x in result["problems"]))
 
     def test_registry_chain_cannot_expand_roles_on_existing_key(self):
         r1 = make_registry()
-        expanded = key_entry(
-            roles=[
-                "RAW_EVIDENCE_CAPTURE_AUTHORITY",
-                "REVIEWER_QUALIFICATION_AUTHORITY",
-                "EFFECT_TOKEN_ISSUER_AUTHORITY",
-            ]
-        )
-        r2 = make_registry(
-            sequence=2,
-            generation_id="gen-2",
-            predecessor=r1["registry_digest"],
-            key=expanded,
-        )
+        expanded = key_entry(roles=["RAW_EVIDENCE_CAPTURE_AUTHORITY", "REVIEWER_QUALIFICATION_AUTHORITY", "EFFECT_TOKEN_ISSUER_AUTHORITY"])
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=expanded)
         result = validate_governance_key_registry_chain([r1, r2], trust(), expected_candidate_id="candidate-1")
         self.assertFalse(result["valid"])
         self.assertTrue(any("KEY_IDENTITY_MUTATION_FORBIDDEN:issuer-key-1:roles" in x for x in result["problems"]))
+
+    def test_new_key_cannot_backdate_first_appearance(self):
+        r1 = make_registry()
+        new_key = key_entry(
+            issuer_id="issuer-2", key_id="issuer-key-2", control_domain="issuer-domain-2",
+            public_key_b64=_pub_b64(ATTACKER), valid_from=1,
+        )
+        r2 = make_registry(
+            sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"],
+            keys=[key_entry(), new_key],
+        )
+        result = validate_governance_key_registry_chain([r1, r2], trust(), expected_candidate_id="candidate-1")
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("NEW_KEY_VALID_FROM_MUST_EQUAL_FIRST_APPEARANCE" in x for x in result["problems"]))
+
+    def test_generation_identifier_cannot_be_reused_after_intervening_generation(self):
+        r1 = make_registry()
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=key_entry())
+        r3 = make_registry(sequence=3, generation_id="gen-1", predecessor=r2["registry_digest"], key=key_entry())
+        result = validate_governance_key_registry_chain([r1, r2, r3], trust(), expected_candidate_id="candidate-1")
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("GENERATION_REUSE_FORBIDDEN" in x for x in result["problems"]))
 
 
 class SignedRecordTests(unittest.TestCase):
@@ -349,6 +397,7 @@ class SignedRecordTests(unittest.TestCase):
         self.assertTrue(result["valid"], result["problems"])
         self.assertTrue(result["issuer_signature_verified"])
         self.assertTrue(result["authority_registry_verified"])
+        self.assertTrue(result["content_integrity_verified"])
         self.assertFalse(result["trust_anchor_provisioning_proven"])
         self.assertFalse(result["qualified"])
         self.assertEqual(result["authority_effect"], AUTHORITY_EFFECT)
@@ -360,6 +409,7 @@ class SignedRecordTests(unittest.TestCase):
         forged["payload_digest"] = canonical_sha256(forged["payload"])
         result = self.verify(forged)
         self.assertFalse(result["valid"])
+        self.assertTrue(result["content_integrity_verified"])
         self.assertIn("SIGNED_RECORD_SIGNATURE_INVALID", result["problems"])
 
     def test_attacker_signature_with_untrusted_key_fails(self):
@@ -372,7 +422,7 @@ class SignedRecordTests(unittest.TestCase):
         r = make_signed_record(signer=ATTACKER, issuer_id="attacker", key_id="attacker-key")
         result = self.verify(r)
         self.assertFalse(result["valid"])
-        self.assertIn("SIGNED_RECORD_KEY_NOT_IN_CURRENT_REGISTRY", result["problems"])
+        self.assertIn("SIGNED_RECORD_KEY_NOT_IN_ISSUANCE_REGISTRY", result["problems"])
 
     def test_role_mismatch_fails(self):
         r = make_signed_record(role="REVIEWER_QUALIFICATION_AUTHORITY")
@@ -382,34 +432,26 @@ class SignedRecordTests(unittest.TestCase):
 
     def test_registry_key_without_required_role_fails(self):
         reg = make_registry(key=key_entry(roles=["REVIEWER_QUALIFICATION_AUTHORITY"]))
-        r = make_signed_record()
-        result = self.verify(r, [reg])
+        result = self.verify(make_signed_record(), [reg])
         self.assertFalse(result["valid"])
         self.assertIn("SIGNED_RECORD_ISSUER_ROLE_NOT_AUTHORIZED", result["problems"])
 
     def test_candidate_controlled_issuer_domain_fails_even_with_valid_signature(self):
         reg = make_registry(key=key_entry(control_domain="candidate-domain"))
-        r = make_signed_record()
-        result = self.verify(r, [reg])
+        result = self.verify(make_signed_record(), [reg])
         self.assertFalse(result["valid"])
         self.assertIn("SIGNED_RECORD_ISSUER_CANDIDATE_CONTROLLED_DOMAIN", result["problems"])
 
     def test_explicit_forbidden_domain_fails_even_with_valid_signature(self):
-        r = make_signed_record()
-        result = self.verify(r, forbidden_control_domain_ids=frozenset({"issuer-domain"}))
+        result = self.verify(make_signed_record(), forbidden_control_domain_ids=frozenset({"issuer-domain"}))
         self.assertFalse(result["valid"])
         self.assertIn("SIGNED_RECORD_ISSUER_FORBIDDEN_CONTROL_DOMAIN", result["problems"])
 
     def test_revoked_current_key_cannot_grant_current_authority(self):
         r1 = make_registry()
         revoked = key_entry(state="REVOKED", valid_from=1, revoked_at=2)
-        r2 = make_registry(
-            sequence=2,
-            generation_id="gen-2",
-            predecessor=r1["registry_digest"],
-            key=revoked,
-        )
-        record = make_signed_record(registry_sequence=1, generation_id="gen-2")
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=revoked)
+        record = make_signed_record(registry_sequence=2, generation_id="gen-2")
         result = self.verify(record, [r1, r2], expected_generation_id="gen-2")
         self.assertFalse(result["valid"])
         self.assertIn("SIGNED_RECORD_KEY_NOT_CURRENTLY_ACTIVE", result["problems"])
@@ -430,6 +472,39 @@ class SignedRecordTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("SIGNED_RECORD_FIELDS_NOT_EXACT", result["problems"])
         self.assertIn("SIGNED_RECORD_SIGNATURE_INVALID", result["problems"])
+
+    def test_stale_expected_generation_cannot_validate_under_newer_current_registry(self):
+        r1 = make_registry()
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=key_entry())
+        record = make_signed_record(registry_sequence=1, generation_id="gen-1")
+        result = self.verify(record, [r1, r2], expected_generation_id="gen-1")
+        self.assertFalse(result["valid"])
+        self.assertIn("SIGNED_RECORD_EXPECTED_GENERATION_NOT_CURRENT", result["problems"])
+        self.assertIn("SIGNED_RECORD_NOT_ISSUED_UNDER_CURRENT_REGISTRY", result["problems"])
+
+    def test_current_generation_record_at_current_registry_validates(self):
+        r1 = make_registry()
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=key_entry())
+        record = make_signed_record(registry_sequence=2, generation_id="gen-2")
+        result = self.verify(record, [r1, r2], expected_generation_id="gen-2")
+        self.assertTrue(result["valid"], result["problems"])
+
+    def test_strict_json_ingress_rejects_duplicate_signed_record_keys(self):
+        reg = make_registry()
+        record = make_signed_record()
+        raw = json.dumps(record, separators=(",", ":"))
+        raw = raw.replace('"record_id":"record-1"', '"record_id":"record-1","record_id":"evil"')
+        result = verify_signed_governance_record_json(
+            raw,
+            registry_chain_json=[json.dumps(reg, separators=(",", ":"))],
+            bootstrap_trust=trust(),
+            expected_candidate_id="candidate-1",
+            expected_generation_id="gen-1",
+            expected_record_type="RAW_EVIDENCE_CAPTURE",
+            required_role="RAW_EVIDENCE_CAPTURE_AUTHORITY",
+        )
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("STRICT_JSON_INGRESS" in x for x in result["problems"]))
 
 
 if __name__ == "__main__":
