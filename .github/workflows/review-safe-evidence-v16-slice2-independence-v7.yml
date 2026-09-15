@@ -1,0 +1,504 @@
+name: Review Safe Evidence V16 Slice 2 Independence V7
+
+on:
+  push:
+    branches: [implementation/review-safe-evidence-v16-iar5-repair]
+    paths:
+      - 'governance-runtime/review_safe_evidence_v16_trust.py'
+      - 'governance-runtime/review_safe_evidence_v16_independence.py'
+      - 'governance-runtime/review_safe_evidence_v16_independence_v2.py'
+      - 'governance-runtime/review_safe_evidence_v16_manifest_validation.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_trust.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence_v2.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence_iar2.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence_iar3.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence_iar4.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence_iar4_v2.py'
+      - 'governance-runtime/test_review_safe_evidence_v16_independence_iar5.py'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-v2.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar1.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar1-v2.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar2.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar2-v2.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar3.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar4.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar4-v2.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar5.json'
+      - 'governance-runtime/review-safe-evidence-v16-slice2-current-manifests.json'
+      - 'governance-runtime/requirements-review-safe-evidence-v16.txt'
+      - '.github/workflows/review-safe-evidence-v16-slice2-independence-v7.yml'
+
+permissions: {contents: read}
+concurrency:
+  group: review-safe-evidence-v16-slice2-v7-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trusted-parent-receipt-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 1}
+
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12.14'}
+
+      - name: Record candidate and verify exact governed blobs before execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          check_blob() {
+            local path="$1" expected="$2" actual
+            actual="$(git hash-object "$path")"
+            test "$actual" = "$expected" || {
+              echo "PRE_TEST_BLOB_MISMATCH path=$path expected=$expected actual=$actual" >&2
+              exit 1
+            }
+          }
+
+          check_blob governance-runtime/review_safe_evidence_v16_trust.py 7030d6643e76743cf086f7749292442bdadc3262
+          check_blob governance-runtime/review_safe_evidence_v16_independence.py 268095665ff8b414c532bb9289437ca72782e8db
+          check_blob governance-runtime/review_safe_evidence_v16_independence_v2.py b76a4a6ecdcb4c001107e9ce22d6addbf8b39dfa
+          check_blob governance-runtime/review_safe_evidence_v16_manifest_validation.py 40ce80bdcae53b4bb80b088b0eb80a8ca2193296
+          check_blob governance-runtime/requirements-review-safe-evidence-v16.txt c011dd5d074245a5d49692b0d7044fd80d8a855f
+
+          check_blob governance-runtime/test_review_safe_evidence_v16_trust.py 41cdb6a6caccd1a24797f0859f50ece557c83ea0
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence.py 8ed790401280862796ea1f79eadb17f18cfe7ff8
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_v2.py f5f130543641d7675fe4eba9f52dca969d52d74e
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar2.py d62eb7cde62805ace95b1dff6d27a08cdf295213
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar3.py 7537c9517366bbff30c430306975da3b4caf6b96
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar4.py dcbfde5e548d500cbececed331956965cc10d5ff
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar4_v2.py f421f46c2ce67feda3c851f3d85f890026d2b813
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar5.py 99c560edbba1c1ac8518862e432df8032680cc16
+
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest.json 27983a245408589ec39681aa69da3a003294ddd8
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-v2.json 38feefe3437b8c4460f4b89d0268eaf415af6b7f
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar1.json a63d613298ba2514a3d11fb86fd2a67dc70c756b
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar1-v2.json 7f10991935ae47bb826787223269152140513db9
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar2.json d72f7c72b46c680e8d4f94b1d03bbb4e0765dc5c
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar2-v2.json fb8c6d0685e5f66dd1bf5c2788cb36d2f966c2d9
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar3.json 76b6f42e31a8d0750f9983718bcc19f19070345c
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar4.json beda2c0ca7c8cf54ecccbfe5b765bd3c2e3ef336
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar4-v2.json 44fa2d342915f395e563872d8bcf94e015aa3237
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar5.json 4382204e713cc27051704c1bb56d984c9b79b9dd
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-current-manifests.json 494cb1e64eb8e885b4fb0744e99abf774e9c952e
+
+          echo "V16_SLICE2_PRE_TEST_GOVERNED_BLOBS=EXACT_MATCH"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+
+      - name: Install pinned crypto dependency
+        run: |
+          python -m pip install --disable-pip-version-check -r governance-runtime/requirements-review-safe-evidence-v16.txt
+          python - <<'PY'
+          import cryptography
+          assert cryptography.__version__ == "46.0.4", cryptography.__version__
+          print("V16_SLICE2_CRYPTOGRAPHY_VERSION=" + cryptography.__version__)
+          PY
+
+      - name: Compile governed sources without repository bytecode writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPYCACHEPREFIX="$RUNNER_TEMP/v16-s2-v7-pycache"
+          python -m compileall -q \
+            governance-runtime/review_safe_evidence_v16_trust.py \
+            governance-runtime/review_safe_evidence_v16_independence.py \
+            governance-runtime/review_safe_evidence_v16_independence_v2.py \
+            governance-runtime/review_safe_evidence_v16_manifest_validation.py \
+            governance-runtime/test_review_safe_evidence_v16_trust.py \
+            governance-runtime/test_review_safe_evidence_v16_independence.py \
+            governance-runtime/test_review_safe_evidence_v16_independence_v2.py \
+            governance-runtime/test_review_safe_evidence_v16_independence_iar2.py \
+            governance-runtime/test_review_safe_evidence_v16_independence_iar3.py \
+            governance-runtime/test_review_safe_evidence_v16_independence_iar4.py \
+            governance-runtime/test_review_safe_evidence_v16_independence_iar4_v2.py \
+            governance-runtime/test_review_safe_evidence_v16_independence_iar5.py
+
+      - name: Build immutable execution snapshot and trusted expected test set
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+          SNAPSHOT_ROOT=/tmp/v16-s2-v7-readonly
+          sudo rm -rf "$SNAPSHOT_ROOT"
+          sudo install -d -o root -g root -m 0755 "$SNAPSHOT_ROOT"
+          sudo cp -a governance-runtime "$SNAPSHOT_ROOT/governance-runtime"
+          sudo chown -R root:root "$SNAPSHOT_ROOT/governance-runtime"
+          sudo chmod -R u+rwX,go+rX,go-w "$SNAPSHOT_ROOT/governance-runtime"
+          diff -qr governance-runtime "$SNAPSHOT_ROOT/governance-runtime"
+
+          sudo install -d -o nobody -g nogroup -m 0700 /tmp/v16-s2-v7-nobody-home
+          sudo -u nobody -H test -r "$SNAPSHOT_ROOT/governance-runtime/test_review_safe_evidence_v16_independence.py"
+          sudo -u nobody -H test ! -w "$SNAPSHOT_ROOT/governance-runtime"
+          if sudo -u nobody -H sh -c "touch '$SNAPSHOT_ROOT/governance-runtime/.write-probe' 2>/dev/null"; then
+            sudo rm -f "$SNAPSHOT_ROOT/governance-runtime/.write-probe"
+            echo "SNAPSHOT_ISOLATION_FAILED" >&2
+            exit 1
+          fi
+          test ! -e "$SNAPSHOT_ROOT/governance-runtime/.write-probe"
+
+          EXPECTED="$RUNNER_TEMP/v16-s2-v7-expected.json"
+          python - "$SNAPSHOT_ROOT/governance-runtime" "$EXPECTED" <<'PY'
+          import ast, json, pathlib, re, sys
+
+          root = pathlib.Path(sys.argv[1])
+          out = pathlib.Path(sys.argv[2])
+          manifest_names = [
+              "review-safe-evidence-v16-slice2-test-manifest-v2.json",
+              "review-safe-evidence-v16-slice2-test-manifest-iar1-v2.json",
+              "review-safe-evidence-v16-slice2-test-manifest-iar2-v2.json",
+              "review-safe-evidence-v16-slice2-test-manifest-iar3.json",
+              "review-safe-evidence-v16-slice2-test-manifest-iar4-v2.json",
+              "review-safe-evidence-v16-slice2-test-manifest-iar5.json",
+          ]
+          expected_manifest_ids = [
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE2-MANDATORY-TESTS-002",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR1-MANDATORY-TESTS-002",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR2-MANDATORY-TESTS-002",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR3-MANDATORY-TESTS-001",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR4-MANDATORY-TESTS-002",
+              "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR5-MANDATORY-TESTS-001",
+          ]
+          source_names = [
+              "test_review_safe_evidence_v16_independence.py",
+              "test_review_safe_evidence_v16_independence_v2.py",
+              "test_review_safe_evidence_v16_independence_iar2.py",
+              "test_review_safe_evidence_v16_independence_iar3.py",
+              "test_review_safe_evidence_v16_independence_iar4_v2.py",
+              "test_review_safe_evidence_v16_independence_iar5.py",
+          ]
+          test_id_re = re.compile(
+              r"^test_review_safe_evidence_v16_independence(?:_v2|_iar2|_iar3|_iar4_v2|_iar5)?\.[A-Za-z0-9_]+\.test_[A-Za-z0-9_]+$"
+          )
+
+          def no_dupes(pairs):
+              obj = {}
+              for k, v in pairs:
+                  if k in obj:
+                      raise ValueError(f"DUPLICATE_JSON_KEY:{k}")
+                  obj[k] = v
+              return obj
+
+          declared = []
+          requirement_ids = []
+          manifest_ids = []
+          for name, expected_id in zip(manifest_names, expected_manifest_ids, strict=True):
+              manifest = json.loads((root / name).read_text(encoding="utf-8"), object_pairs_hook=no_dupes)
+              assert manifest["manifest_id"] == expected_id
+              manifest_ids.append(expected_id)
+              rows = manifest["tests"]
+              assert type(rows) is list and rows
+              for row in rows:
+                  assert type(row) is dict
+                  assert set(row) == {"mandatory", "python_test_id", "requirement_test_id"}
+                  assert row["mandatory"] is True
+                  test_id = row["python_test_id"]
+                  req_id = row["requirement_test_id"]
+                  assert isinstance(test_id, str) and test_id_re.fullmatch(test_id)
+                  assert isinstance(req_id, str) and req_id
+                  declared.append(test_id)
+                  requirement_ids.append(req_id)
+
+          discovered = []
+          for name in source_names:
+              source = root / name
+              tree = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+              module = source.stem
+              for node in tree.body:
+                  if isinstance(node, ast.ClassDef):
+                      for child in node.body:
+                          if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name.startswith("test_"):
+                              discovered.append(f"{module}.{node.name}.{child.name}")
+
+          assert len(declared) == 77, len(declared)
+          assert len(discovered) == 77, len(discovered)
+          assert len(requirement_ids) == len(set(requirement_ids))
+          assert len(declared) == len(set(declared))
+          assert set(declared) == set(discovered), sorted(set(declared) ^ set(discovered))
+
+          payload = {
+              "schema_version": 1,
+              "manifest_ids": manifest_ids,
+              "declared_test_ids": declared,
+              "source_discovered_test_ids": sorted(discovered),
+              "test_count": len(declared),
+              "authority_effect": "NONE_EVIDENCE_ONLY",
+          }
+          out.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+          print("V16_SLICE2_TRUSTED_PARENT_EXPECTED_TESTS=77")
+          print("V16_SLICE2_DECLARED_SOURCE_SET_EQUALITY=PASS")
+          PY
+
+          chmod 0444 "$EXPECTED"
+          echo "V16_SLICE2_EXECUTION_SNAPSHOT=$SNAPSHOT_ROOT/governance-runtime" >> "$GITHUB_ENV"
+          echo "V16_SLICE2_EXPECTED_RECEIPT_INPUT=$EXPECTED" >> "$GITHUB_ENV"
+          echo "V16_SLICE2_PRE_TEST_WORKTREE_CLEAN=PASS"
+          echo "V16_SLICE2_EXECUTION_SNAPSHOT_STATE=ROOT_OWNED_NONWRITABLE_TO_TEST_PRINCIPAL"
+
+      - name: Build workflow-owned strict single-test child runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHILD=/tmp/v16-s2-v7-child-runner.py
+          sudo tee "$CHILD" >/dev/null <<'PY'
+          from __future__ import annotations
+          import sys
+          import unittest
+
+          requested = sys.argv[1]
+
+          class StrictResult(unittest.TestResult):
+              def __init__(self):
+                  super().__init__()
+                  self.started = []
+                  self.succeeded = []
+
+              def startTest(self, test):
+                  self.started.append(test.id())
+                  super().startTest(test)
+
+              def addSuccess(self, test):
+                  self.succeeded.append(test.id())
+                  super().addSuccess(test)
+
+          try:
+              suite = unittest.defaultTestLoader.loadTestsFromName(requested)
+              if suite.countTestCases() != 1:
+                  raise RuntimeError(f"EXACTLY_ONE_TEST_REQUIRED:{suite.countTestCases()}")
+              result = StrictResult()
+              suite.run(result)
+              clean = (
+                  result.started == [requested]
+                  and result.succeeded == [requested]
+                  and result.testsRun == 1
+                  and not result.failures
+                  and not result.errors
+                  and not result.skipped
+                  and not result.expectedFailures
+                  and not result.unexpectedSuccesses
+                  and result.wasSuccessful()
+              )
+              if not clean:
+                  print(
+                      "STRICT_CHILD_NON_SUCCESS "
+                      f"requested={requested} started={result.started!r} succeeded={result.succeeded!r} "
+                      f"testsRun={result.testsRun} failures={len(result.failures)} errors={len(result.errors)} "
+                      f"skipped={len(result.skipped)} expectedFailures={len(result.expectedFailures)} "
+                      f"unexpectedSuccesses={len(result.unexpectedSuccesses)}",
+                      file=sys.stderr,
+                  )
+                  raise SystemExit(70)
+          except BaseException as exc:
+              if isinstance(exc, SystemExit):
+                  raise
+              print(f"STRICT_CHILD_EXCEPTION requested={requested} type={type(exc).__name__} value={exc}", file=sys.stderr)
+              raise SystemExit(71)
+
+          raise SystemExit(0)
+          PY
+          sudo chown root:root "$CHILD"
+          sudo chmod 0555 "$CHILD"
+          sudo -u nobody -H test -r "$CHILD"
+          sudo -u nobody -H test ! -w "$CHILD"
+          echo "V16_SLICE2_CHILD_RUNNER=$CHILD" >> "$GITHUB_ENV"
+          echo "V16_SLICE2_CHILD_RUNNER=WORKFLOW_OWNED_ROOT_READONLY"
+
+      - name: Falsify console-log forgery as execution identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          FORGED_ID="test_review_safe_evidence_v16_independence.CandidateControlTests.test_candidate_domain_is_derived_candidate_controlled"
+          PROBE=/tmp/v16-s2-v7-forgery-probe.py
+          sudo tee "$PROBE" >/dev/null <<PY
+          print("test_candidate_domain_is_derived_candidate_controlled (${FORGED_ID}) ... ok")
+          raise SystemExit(0)
+          PY
+          sudo chown root:root "$PROBE"
+          sudo chmod 0555 "$PROBE"
+          PROBE_LOG="$RUNNER_TEMP/v16-s2-v7-forgery-probe.log"
+          sudo -u nobody -H env HOME=/tmp/v16-s2-v7-nobody-home \
+            "$pythonLocation/bin/python" "$PROBE" >"$PROBE_LOG" 2>&1
+          grep -F "$FORGED_ID" "$PROBE_LOG" >/dev/null
+          PROBE_RECEIPT="$RUNNER_TEMP/v16-s2-v7-forgery-probe-receipt.tsv"
+          printf '1\tHARNESS_FORGERY_PROBE\t0\t%s\n' "$(sha256sum "$PROBE_LOG" | awk '{print $1}')" > "$PROBE_RECEIPT"
+          python - "$PROBE_RECEIPT" "$FORGED_ID" <<'PY'
+          import pathlib, sys
+          receipt = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+          forged = sys.argv[2]
+          assert "HARNESS_FORGERY_PROBE" in receipt
+          assert forged not in receipt
+          print("V16_SLICE2_FORGED_CONSOLE_TEST_ID_CANNOT_CREATE_PARENT_RECEIPT=PASS")
+          PY
+
+      - name: Execute every exact test with parent-controlled receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          RECEIPT="$RUNNER_TEMP/v16-s2-v7-parent-receipt.tsv"
+          LOG_DIR="$RUNNER_TEMP/v16-s2-v7-child-logs"
+          mkdir -p "$LOG_DIR"
+          : > "$RECEIPT"
+          mapfile -t TEST_IDS < <(python - "$V16_SLICE2_EXPECTED_RECEIPT_INPUT" <<'PY'
+          import json, pathlib, sys
+          obj = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+          for test_id in obj["declared_test_ids"]:
+              print(test_id)
+          PY
+          )
+          test "${#TEST_IDS[@]}" -eq 77
+
+          failures=0
+          seq=0
+          for test_id in "${TEST_IDS[@]}"; do
+            seq=$((seq + 1))
+            log="$LOG_DIR/$(printf '%03d' "$seq").log"
+            set +e
+            sudo -u nobody -H env \
+              HOME=/tmp/v16-s2-v7-nobody-home \
+              GIT_CONFIG_NOSYSTEM=1 \
+              PYTHONDONTWRITEBYTECODE=1 \
+              PYTHONPATH="$V16_SLICE2_EXECUTION_SNAPSHOT" \
+              "$pythonLocation/bin/python" "$V16_SLICE2_CHILD_RUNNER" "$test_id" \
+              >"$log" 2>&1
+            rc=$?
+            set -e
+            digest="$(sha256sum "$log" | awk '{print $1}')"
+            printf '%d\t%s\t%d\t%s\n' "$seq" "$test_id" "$rc" "$digest" >> "$RECEIPT"
+            echo "PARENT_TEST_RECEIPT seq=$seq id=$test_id rc=$rc diagnostic_sha256=$digest"
+            if [ "$rc" -ne 0 ]; then
+              failures=$((failures + 1))
+              cat "$log"
+            fi
+          done
+          echo "V16_SLICE2_PARENT_RECEIPT=$RECEIPT" >> "$GITHUB_ENV"
+          test "$seq" -eq 77
+          test "$failures" -eq 0
+          echo "V16_SLICE2_PARENT_CONTROLLED_TEST_INVOCATIONS=77"
+          echo "V16_SLICE2_CHILD_STDOUT_STDERR_AUTHORITY=DIAGNOSTIC_ONLY"
+
+      - name: Re-attest execution snapshot and governed checkout after children
+        shell: bash
+        run: |
+          set -euo pipefail
+          diff -qr governance-runtime "$V16_SLICE2_EXECUTION_SNAPSHOT"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+          check_blob() {
+            local path="$1" expected="$2" actual
+            actual="$(git hash-object "$path")"
+            test "$actual" = "$expected" || {
+              echo "POST_TEST_BLOB_MISMATCH path=$path expected=$expected actual=$actual" >&2
+              exit 1
+            }
+          }
+
+          check_blob governance-runtime/review_safe_evidence_v16_trust.py 7030d6643e76743cf086f7749292442bdadc3262
+          check_blob governance-runtime/review_safe_evidence_v16_independence.py 268095665ff8b414c532bb9289437ca72782e8db
+          check_blob governance-runtime/review_safe_evidence_v16_independence_v2.py b76a4a6ecdcb4c001107e9ce22d6addbf8b39dfa
+          check_blob governance-runtime/review_safe_evidence_v16_manifest_validation.py 40ce80bdcae53b4bb80b088b0eb80a8ca2193296
+          check_blob governance-runtime/requirements-review-safe-evidence-v16.txt c011dd5d074245a5d49692b0d7044fd80d8a855f
+          check_blob governance-runtime/test_review_safe_evidence_v16_trust.py 41cdb6a6caccd1a24797f0859f50ece557c83ea0
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence.py 8ed790401280862796ea1f79eadb17f18cfe7ff8
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_v2.py f5f130543641d7675fe4eba9f52dca969d52d74e
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar2.py d62eb7cde62805ace95b1dff6d27a08cdf295213
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar3.py 7537c9517366bbff30c430306975da3b4caf6b96
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar4.py dcbfde5e548d500cbececed331956965cc10d5ff
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar4_v2.py f421f46c2ce67feda3c851f3d85f890026d2b813
+          check_blob governance-runtime/test_review_safe_evidence_v16_independence_iar5.py 99c560edbba1c1ac8518862e432df8032680cc16
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest.json 27983a245408589ec39681aa69da3a003294ddd8
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-v2.json 38feefe3437b8c4460f4b89d0268eaf415af6b7f
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar1.json a63d613298ba2514a3d11fb86fd2a67dc70c756b
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar1-v2.json 7f10991935ae47bb826787223269152140513db9
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar2.json d72f7c72b46c680e8d4f94b1d03bbb4e0765dc5c
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar2-v2.json fb8c6d0685e5f66dd1bf5c2788cb36d2f966c2d9
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar3.json 76b6f42e31a8d0750f9983718bcc19f19070345c
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar4.json beda2c0ca7c8cf54ecccbfe5b765bd3c2e3ef336
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar4-v2.json 44fa2d342915f395e563872d8bcf94e015aa3237
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-test-manifest-iar5.json 4382204e713cc27051704c1bb56d984c9b79b9dd
+          check_blob governance-runtime/review-safe-evidence-v16-slice2-current-manifests.json 494cb1e64eb8e885b4fb0744e99abf774e9c952e
+
+          echo "V16_SLICE2_POST_TEST_EXECUTION_SNAPSHOT=EXACT_MATCH"
+          echo "V16_SLICE2_POST_TEST_WORKTREE_CLEAN=PASS"
+          echo "V16_SLICE2_POST_TEST_GOVERNED_BLOBS=EXACT_MATCH"
+
+      - name: Verify strict manifests and trusted parent receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=governance-runtime python - "$V16_SLICE2_EXPECTED_RECEIPT_INPUT" "$V16_SLICE2_PARENT_RECEIPT" <<'PY'
+          import json, pathlib, re, sys
+          import review_safe_evidence_v16_manifest_validation as mv
+
+          expected_path = pathlib.Path(sys.argv[1])
+          receipt_path = pathlib.Path(sys.argv[2])
+          expected = json.loads(expected_path.read_text(encoding="utf-8"))
+          declared = expected["declared_test_ids"]
+          discovered = expected["source_discovered_test_ids"]
+          assert len(declared) == 77
+          assert len(discovered) == 77
+          assert len(set(declared)) == 77
+          assert set(declared) == set(discovered)
+
+          rows = []
+          for line in receipt_path.read_text(encoding="utf-8").splitlines():
+              parts = line.split("\t")
+              assert len(parts) == 4, parts
+              seq_text, test_id, rc_text, diagnostic_sha = parts
+              assert re.fullmatch(r"[0-9]+", seq_text)
+              assert re.fullmatch(r"[0-9]+", rc_text)
+              assert re.fullmatch(r"[0-9a-f]{64}", diagnostic_sha)
+              rows.append((int(seq_text), test_id, int(rc_text), diagnostic_sha))
+
+          assert len(rows) == 77, len(rows)
+          assert [row[0] for row in rows] == list(range(1, 78))
+          receipt_ids = [row[1] for row in rows]
+          assert len(receipt_ids) == len(set(receipt_ids))
+          assert receipt_ids == declared
+          assert set(receipt_ids) == set(discovered)
+          assert all(row[2] == 0 for row in rows)
+
+          strict = mv.validate_current_manifest_set(pathlib.Path("governance-runtime"))
+          assert strict["valid"], strict["problems"]
+          assert strict["test_count"] == 77
+          assert strict["authority_effect"] == "NONE_EVIDENCE_ONLY"
+
+          print("V16_SLICE2_MANDATORY_PARENT_RECEIPTS_VERIFIED=77")
+          print("V16_SLICE2_DECLARED_SOURCE_PARENT_RECEIPT_EQUALITY=PASS")
+          print("V16_SLICE2_CHILD_DIAGNOSTIC_TEXT_USED_FOR_EXECUTION_IDENTITY=false")
+          print("V16_SLICE2_STRICT_MANIFEST_VALIDATION=PASS")
+          PY
+
+      - name: Construction boundary
+        run: |
+          echo "V16_SLICE2_IAR6_REPAIR=CONSTRUCTION_PASS_NONAUTHORITATIVE"
+          echo "V16_SLICE2_EXECUTION_RECEIPT=TRUSTED_PARENT_PER_EXACT_TEST_ID"
+          echo "V16_SLICE2_CHILD_STDOUT_STDERR_AUTHORITY=DIAGNOSTIC_ONLY"
+          echo "V16_SLICE2_FORGED_CONSOLE_TEST_ID_CANNOT_CREATE_PARENT_RECEIPT=PASS"
+          echo "V16_SLICE2_PRE_POST_TEST_WORKTREE_ATTESTATION=PASS"
+          echo "V16_SLICE2_PRE_POST_TEST_GOVERNED_BLOB_ATTESTATION=PASS"
+          echo "V16_SLICE2_GLOBAL_PROMOTION_BLOCKING=ENFORCED_WHILE_REAL_WORLD_COMPLETENESS_UNPROVEN"
+          echo "V16_SLICE2_VALIDATOR_ARTIFACT_MEASUREMENT_INDEPENDENTLY_PROVEN=false"
+          echo "V16_SLICE2_GENERATION_CURRENTNESS=LOCAL_EQUALITY_CONTRACT_NOT_FINAL_AUTHENTICATED_GENERATION_MECHANISM"
+          echo "V16_SLICE2_GRAPH_COMPLETENESS_REAL_WORLD_PROVEN=false"
+          echo "V16_SLICE2_TRUST_HEAD_PROVISIONING=OUT_OF_BAND_NOT_PROVEN"
+          echo "INTERNAL_ADVERSARIAL_REVIEW_EXHAUSTED=false"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "SCIENTIFIC_AUTHORITY=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
