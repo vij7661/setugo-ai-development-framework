@@ -136,8 +136,9 @@ class MonitorBundleTests(unittest.TestCase):
         self.assertIn("HIDDEN_MONITOR_SILENCE_BLOCKING:M3:O2", out["problems"])
         self.assertTrue(out["promotion_blocked"])
 
-    def test_same_control_domain_cannot_create_quorum(self):
+    def test_same_control_domain_cannot_satisfy_three_domain_quorum(self):
         b, obligations, proofs = valid_bundle()
+        b["threshold_control_domains"] = 3
         b["monitors"][1]["control_domain_id"] = "D1"
         for r in b["records"]:
             if r["monitor_id"] == "M2":
@@ -146,7 +147,20 @@ class MonitorBundleTests(unittest.TestCase):
         seal(b, "bundle_digest")
         out = validate_hidden_monitor_bundle(b, expected_obligations=obligations, independence_proofs=proofs)
         self.assertTrue(out["promotion_blocked"])
-        self.assertLess(out["control_domain_count"], 3)
+        self.assertEqual(out["control_domain_count"], 2)
+        self.assertIn("HIDDEN_MONITOR_THRESHOLD_EXCEEDS_INDEPENDENT_DOMAIN_COUNT", out["problems"])
+
+    def test_duplicate_identity_domain_does_not_count_twice_when_threshold_still_met(self):
+        b, obligations, proofs = valid_bundle()
+        b["monitors"][1]["control_domain_id"] = "D1"
+        for r in b["records"]:
+            if r["monitor_id"] == "M2":
+                r["monitor_control_domain_id"] = "D1"
+                seal(r, "record_digest")
+        seal(b, "bundle_digest")
+        out = validate_hidden_monitor_bundle(b, expected_obligations=obligations, independence_proofs=proofs)
+        self.assertEqual(out["control_domain_count"], 2)
+        self.assertFalse(out["promotion_blocked"], out["problems"])
 
     def test_single_implementation_rejected(self):
         b, obligations, proofs = valid_bundle()
