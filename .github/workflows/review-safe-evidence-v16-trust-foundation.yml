@@ -96,6 +96,7 @@ jobs:
 
           manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
           assert manifest["schema_version"] == 1
+          assert manifest["manifest_id"] == "REVIEW-SAFE-EVIDENCE-V16-SLICE1-MANDATORY-TESTS-002"
           assert manifest["slice_id"] == "V16-S1-AUTHENTICATED-TRUST-FOUNDATION"
           assert manifest["authority_effect"] == "NONE_EVIDENCE_ONLY"
 
@@ -127,9 +128,9 @@ jobs:
           discovered_set = set(discovered)
           executed_set = set(executed)
 
-          assert len(rows) == 30, len(rows)
-          assert len(discovered) == 30, len(discovered)
-          assert len(executed) == 30, len(executed)
+          assert len(rows) == 38, len(rows)
+          assert len(discovered) == 38, len(discovered)
+          assert len(executed) == 38, len(executed)
           assert declared_set == discovered_set, sorted(declared_set ^ discovered_set)
           assert declared_set == executed_set, sorted(declared_set ^ executed_set)
           assert "skipped=" not in log_text
