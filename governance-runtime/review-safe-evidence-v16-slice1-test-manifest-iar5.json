@@ -1,0 +1,23 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE1-IAR5-MANDATORY-TESTS-001",
+  "runtime_qualification": "NOT_CLAIMED",
+  "schema_version": 1,
+  "slice_id": "V16-S1-AUTHENTICATED-TRUST-FOUNDATION",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.StrictIngressIdentityTests.test_load_strict_json_preserves_non_nfc_string_value","requirement_test_id":"V16-S1-065"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.StrictIngressIdentityTests.test_strict_json_rejects_non_nfc_signed_record_identifier","requirement_test_id":"V16-S1-066"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.StrictIngressIdentityTests.test_strict_json_rejects_non_nfc_registry_identifier","requirement_test_id":"V16-S1-067"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.CrossTierKeyReuseTests.test_genesis_governance_key_cannot_reuse_bootstrap_root_key","requirement_test_id":"V16-S1-068"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.CrossTierKeyReuseTests.test_later_governance_key_cannot_reuse_bootstrap_root_key","requirement_test_id":"V16-S1-069"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.MutableIngressTests.test_bootstrap_mutable_root_list_is_rejected","requirement_test_id":"V16-S1-070"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.MutableIngressTests.test_bootstrap_mutable_candidate_domain_set_is_rejected","requirement_test_id":"V16-S1-071"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.MutableIngressTests.test_custom_mapping_registry_is_rejected_before_authority_validation","requirement_test_id":"V16-S1-072"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.MutableIngressTests.test_custom_mapping_signed_record_is_rejected_before_authority_validation","requirement_test_id":"V16-S1-073"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.ValidationProfileTests.test_validation_profile_digest_changes_when_schema_field_set_changes","requirement_test_id":"V16-S1-074"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.ValidationProfileTests.test_validation_profile_digest_changes_when_signature_domain_changes","requirement_test_id":"V16-S1-075"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.CanonicalizationProfileTests.test_non_bmp_and_bmp_object_keys_use_declared_codepoint_order","requirement_test_id":"V16-S1-076"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_trust_iar5.CanonicalizationProfileTests.test_control_character_uses_lowercase_u_escape","requirement_test_id":"V16-S1-077"}
+  ]
+}
