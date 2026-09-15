@@ -25,7 +25,7 @@ import review_safe_evidence_v16_independence as core
 AUTHORITY_EFFECT = "NONE_EVIDENCE_ONLY"
 IMPLEMENTATION_QUALIFICATION = "NOT_CLAIMED"
 RUNTIME_QUALIFICATION = "NOT_CLAIMED"
-SLICE2_BINDING_PROFILE_VERSION = 1
+SLICE2_BINDING_PROFILE_VERSION = 2
 SLICE2_BINDING_SIGNATURE_DOMAIN = "RSE-V16:SLICE2-GRAPH-VALIDATOR-BINDING-ROOT:"
 EDGE_SEMANTICS_ID = "PARENT_IDS_ARE_LOAD_BEARING_CONTROL_ANCESTORS_V1"
 INDEPENDENCE_RULE_ID = "ANCESTOR_CLOSURE_INTERSECTION_BLOCKS_INDEPENDENCE_V1"
@@ -34,6 +34,8 @@ HISTORY_RULE_ID = "DOMAINS_PARENTS_CANDIDATE_MEMBERSHIP_ADDITIVE_WITHIN_EPOCH_V1
 GLOBAL_BLOCKING_RULE_ID = "REAL_WORLD_COMPLETENESS_UNPROVEN_ALWAYS_BLOCKS_GLOBAL_PROMOTION_V1"
 GENERATION_RULE_ID = "REGISTRY_AND_GRAPH_HEADS_MUST_MATCH_EXPECTED_GOVERNANCE_GENERATION_V1"
 ROLE_RULE_ID = "RECORD_TYPE_DERIVES_REQUIRED_ROLE_FROM_SLICE1_POLICY_V1"
+ROOT_QUORUM_RULE_ID = "BOOTSTRAP_ROOTS_GRAPH_REPRESENTED_NONCANDIDATE_PAIRWISE_INDEPENDENT_V1"
+REGISTRY_QUORUM_RULE_ID = "REGISTRY_BOOTSTRAP_QUORUM_REQUALIFIED_THROUGH_CURRENT_ADDITIVE_GRAPH_V1"
 
 BINDING_CERTIFICATE_FIELDS = frozenset({
     "schema_version", "object_type", "candidate_id", "graph_id", "graph_sequence",
@@ -137,6 +139,8 @@ def slice2_validation_profile_material() -> dict[str, Any]:
         "graph_fields": sorted(core.GRAPH_FIELDS),
         "domain_fields": sorted(core.DOMAIN_FIELDS),
         "graph_signature_fields": sorted(core.SIGNATURE_FIELDS),
+        "binding_certificate_fields": sorted(BINDING_CERTIFICATE_FIELDS),
+        "binding_signature_fields": sorted(BINDING_SIGNATURE_FIELDS),
         "graph_signature_domain": core.GRAPH_SIGNATURE_DOMAIN,
         "slice2_binding_signature_domain": SLICE2_BINDING_SIGNATURE_DOMAIN,
         "edge_semantics_id": EDGE_SEMANTICS_ID,
@@ -146,6 +150,8 @@ def slice2_validation_profile_material() -> dict[str, Any]:
         "global_blocking_rule_id": GLOBAL_BLOCKING_RULE_ID,
         "generation_rule_id": GENERATION_RULE_ID,
         "role_rule_id": ROLE_RULE_ID,
+        "root_quorum_rule_id": ROOT_QUORUM_RULE_ID,
+        "registry_quorum_rule_id": REGISTRY_QUORUM_RULE_ID,
     }
 
 
@@ -161,7 +167,7 @@ def slice2_validator_bundle_material() -> dict[str, Any]:
         if path.suffix != ".py":
             raise base.CanonicalizationError("SLICE2_VALIDATOR_SOURCE_PATH_MUST_BE_PY")
     return {
-        "bundle_version": 1,
+        "bundle_version": 2,
         "base_validator": {"name": base_path.name, "sha256": _source_sha256(base_path)},
         "slice2_structural_core": {"name": core_path.name, "sha256": _source_sha256(core_path)},
         "slice2_binding_wrapper": {"name": wrapper_path.name, "sha256": _source_sha256(wrapper_path)},
@@ -392,7 +398,7 @@ def assess_bound_domain_independence(
     )
     if not core_result["valid"]:
         p.extend(f"SLICE2_CORE:{x}" for x in core_result["problems"])
-    structural = binding["valid"] and core_result["independence_result"] == "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH"
+    structural = binding["valid"] and core_result.get("construction_independence_satisfied") is True
     valid = binding["valid"] and core_result["valid"] and not p
     out = _result(valid, p, core_result["independence_result"], "BOUND_INDEPENDENCE_UNPROVEN")
     out.update({
@@ -424,7 +430,7 @@ def assess_bound_candidate_control(
     )
     if not core_result["valid"]:
         p.extend(f"SLICE2_CORE:{x}" for x in core_result["problems"])
-    clear = binding["valid"] and core_result.get("candidate_controlled") is False
+    clear = binding["valid"] and core_result.get("construction_candidate_control_clear") is True
     valid = binding["valid"] and core_result["valid"] and not p
     out = _result(valid, p, core_result["candidate_control_result"], "BOUND_CANDIDATE_CONTROL_UNPROVEN")
     out.update({
@@ -489,11 +495,11 @@ def resolve_bound_registry_key_authority(
             graph_chain=graph_chain, expected_graph_head=expected_graph_head,
             bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id,
         )
-        if not core_result["authority_admissible"]:
+        if core_result.get("authority_structurally_admissible_within_authenticated_graph") is not True:
             p.extend(f"SLICE2_CORE:{x}" for x in core_result["problems"])
     structural = (
         not p and binding["valid"] and core_result is not None
-        and core_result["authority_admissible"]
+        and core_result.get("authority_structurally_admissible_within_authenticated_graph") is True
     )
     out = _result(
         structural, p,
@@ -559,7 +565,7 @@ def assess_bound_registry_key_independence(
         p.extend(f"CORE:{x}" for x in core_result["problems"])
         result = core_result["independence_result"]
         shared = list(core_result.get("shared_load_bearing_ancestors", []))
-        construction_independent = result == "INDEPENDENT_WITHIN_AUTHENTICATED_GRAPH" and not core_result["problems"]
+        construction_independent = core_result.get("construction_independence_satisfied") is True and not core_result["problems"]
     valid = structural_a and structural_b and result != "INDEPENDENCE_UNPROVEN" and not p
     out = _result(valid, p, result, "BOUND_REGISTRY_KEY_INDEPENDENCE_UNPROVEN")
     out.update({
