@@ -1,4 +1,4 @@
-name: V24 V6 Proof Resolution RED
+name: V24 V6 Proof Resolution Repair
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
       - remediation/v24-i11-v6-proof-resolution
     paths:
       - 'governance-runtime/test_v24_v6_proof_resolution_red.py'
+      - 'governance-runtime/test_v24_v6_proof_reference_closure.py'
+      - 'governance-runtime/v24_v6_proof_reference_closure.py'
       - 'governance-runtime/v24_v6_governance_foundation.py'
       - 'governance-runtime/v24_v6_endpoint_projection.py'
       - 'governance-runtime/v24_v6_material_surface.py'
@@ -21,18 +23,19 @@ permissions:
   contents: read
 
 jobs:
-  falsify-opaque-proof-reference:
+  proof-reference-closure:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.7'
-      - name: Compile exact V6 surface
+      - name: Compile exact V6 surface and repair layer
         working-directory: governance-runtime
         run: |
           python -m py_compile \
             v24_v6_governance_foundation.py \
+            v24_v6_proof_reference_closure.py \
             v24_v6_endpoint_projection.py \
             v24_v6_material_surface.py \
             v24_v6_decision_apply.py \
@@ -40,6 +43,9 @@ jobs:
             v24_v6_effect_ledger_closure.py \
             v24_v6_atomic_binding_modes.py \
             v24_v6_qualification_integrity.py
-      - name: Falsify opaque qualification reference path
+      - name: Verify shared proof-reference closure contract
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_proof_reference_closure.py
+      - name: Preserve system-level opaque-proof falsification until downstream wiring closes it
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_resolution_red.py
