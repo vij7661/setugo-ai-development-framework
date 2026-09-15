@@ -1,0 +1,287 @@
+name: Review Safe Evidence V16 Slice 2 External Supervisor V2
+
+on:
+  push:
+    branches: [implementation/review-safe-evidence-v16-iar5-repair]
+    paths:
+      - 'governance-runtime/review_safe_evidence_v16_execution_supervisor.py'
+      - 'implementation/review-safe-evidence/V16-SLICE-2-IAR8-REPAIR-CONTRACT.md'
+      - '.github/workflows/review-safe-evidence-v16-slice2-supervisor-v2.yml'
+
+permissions: {contents: read}
+
+jobs:
+  supervisor-v2-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 1}
+
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12.14'}
+
+      - name: Bind repaired supervisor source and clean checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object governance-runtime/review_safe_evidence_v16_execution_supervisor.py)" = "a0f2c573eca92ade798550cd7fa0515bd0e56e0c"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          export PYTHONPYCACHEPREFIX="$RUNNER_TEMP/v16-s2-supervisor-v2-pycache"
+          python -m compileall -q governance-runtime/review_safe_evidence_v16_execution_supervisor.py
+          echo "V16_SLICE2_SUPERVISOR_V2_SOURCE_BLOB=a0f2c573eca92ade798550cd7fa0515bd0e56e0c"
+
+      - name: Build root-owned worker matrix fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/v16-s2-supervisor-v2
+          WORKER="$ROOT/worker.py"
+          sudo rm -rf "$ROOT"
+          sudo install -d -o root -g root -m 0755 "$ROOT"
+          sudo tee "$WORKER" >/dev/null <<'PY'
+          from __future__ import annotations
+          import json
+          import os
+          import signal
+          import sys
+          import time
+
+          mode = sys.argv[1]
+          raw = sys.stdin.buffer.readline()
+          try:
+              req = json.loads(raw.decode("utf-8"))
+              op = req.get("operation_id", "missing")
+          except Exception:
+              op = "missing"
+
+          def emit(result, *, operation_id=None, extra=None):
+              obj = {"schema_version": 1, "operation_id": operation_id or op, "result": result}
+              if extra is not None:
+                  obj.update(extra)
+              sys.stdout.write(json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n")
+              sys.stdout.flush()
+
+          if mode == "normal":
+              emit({"value": 42})
+          elif mode == "diagnostic_stderr":
+              sys.stderr.write("candidate diagnostic only\n")
+              sys.stderr.flush()
+              emit({"value": 42})
+          elif mode == "abrupt_zero":
+              os._exit(0)
+          elif mode == "nonzero":
+              os._exit(17)
+          elif mode == "signal":
+              os.kill(os.getpid(), signal.SIGTERM)
+          elif mode == "timeout":
+              time.sleep(5)
+          elif mode == "malformed":
+              sys.stdout.write("{\n")
+              sys.stdout.flush()
+          elif mode == "duplicate":
+              sys.stdout.write('{"schema_version":1,"operation_id":"%s","operation_id":"%s","result":{"value":42}}\n' % (op, op))
+              sys.stdout.flush()
+          elif mode == "extra_console":
+              sys.stdout.write("forged unittest-looking success ... ok\n")
+              emit({"value": 42})
+          elif mode == "wrong_operation":
+              emit({"value": 42}, operation_id="other-operation")
+          elif mode == "self_pass":
+              emit({"value": 42}, extra={"PASS": True})
+          elif mode == "oracle_mismatch":
+              emit({"value": 41})
+          elif mode == "oversize":
+              sys.stdout.write("X" * 5000)
+              sys.stdout.flush()
+          elif mode == "valid_then_nonzero":
+              emit({"value": 42})
+              os._exit(9)
+          elif mode == "descendant_delayed_extra":
+              child = os.fork()
+              if child == 0:
+                  time.sleep(0.30)
+                  try:
+                      sys.stdout.write("DELAYED_DESCENDANT_EXTRA_OUTPUT\n")
+                      sys.stdout.flush()
+                  except BrokenPipeError:
+                      pass
+                  os._exit(0)
+              emit({"value": 42})
+              os._exit(0)
+          elif mode == "descendant_hold_open":
+              child = os.fork()
+              if child == 0:
+                  time.sleep(5)
+                  os._exit(0)
+              emit({"value": 42})
+              os._exit(0)
+          elif mode == "descendant_overflow":
+              child = os.fork()
+              if child == 0:
+                  time.sleep(0.05)
+                  sys.stdout.write("Z" * 5000)
+                  sys.stdout.flush()
+                  os._exit(0)
+              emit({"value": 42})
+              os._exit(0)
+          else:
+              raise SystemExit(99)
+          PY
+          sudo chown root:root "$WORKER"
+          sudo chmod 0555 "$WORKER"
+          sudo -u nobody -H test -r "$WORKER"
+          sudo -u nobody -H test ! -w "$WORKER"
+          echo "V16_SUPERVISOR_V2_ROOT=$ROOT" >> "$GITHUB_ENV"
+          echo "V16_SUPERVISOR_V2_WORKER=$WORKER" >> "$GITHUB_ENV"
+
+      - name: Execute repaired fail-closed matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          SUPERVISOR="$GITHUB_WORKSPACE/governance-runtime/review_safe_evidence_v16_execution_supervisor.py"
+          CASE_ROOT="$RUNNER_TEMP/v16-s2-supervisor-v2-cases"
+          mkdir -p "$CASE_ROOT"
+
+          run_case() {
+            local name="$1" mode="$2" expected_state="$3" timeout_ms="$4" max_stdout="$5"
+            local cfg="$CASE_ROOT/$name.config.json"
+            local receipt="$CASE_ROOT/$name.receipt.json"
+            python - "$cfg" "$name" "$mode" "$timeout_ms" "$max_stdout" <<'PY'
+          import json, os, pathlib, sys
+          cfg, name, mode, timeout_ms, max_stdout = sys.argv[1:]
+          obj = {
+              "schema_version": 1,
+              "operation_id": "operation-" + name,
+              "worker_command": [
+                  "sudo", "-u", "nobody", "-H", "env",
+                  "PYTHONDONTWRITEBYTECODE=1",
+                  sys.executable,
+                  os.environ["V16_SUPERVISOR_V2_WORKER"],
+                  mode,
+              ],
+              "worker_cwd": os.environ["V16_SUPERVISOR_V2_ROOT"],
+              "request_input": {"challenge": name},
+              "expected_result": {"value": 42},
+              "timeout_ms": int(timeout_ms),
+              "max_stdout_bytes": int(max_stdout),
+              "max_stderr_bytes": 4096,
+          }
+          pathlib.Path(cfg).write_text(json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+          os.chmod(cfg, 0o600)
+          PY
+
+            set +e
+            python "$SUPERVISOR" --config "$cfg" --receipt "$receipt" >"$CASE_ROOT/$name.supervisor.log" 2>&1
+            local rc=$?
+            set -e
+
+            python - "$receipt" "$expected_state" "$rc" "$name" <<'PY'
+          import json, pathlib, sys
+          receipt_path, expected_state, rc_text, name = sys.argv[1:]
+          receipt = json.loads(pathlib.Path(receipt_path).read_text(encoding="utf-8"))
+          rc = int(rc_text)
+          assert receipt["state"] == expected_state, (name, receipt)
+          assert receipt["supervisor_post_worker_assertion_reached"] is True
+          assert receipt["qualified"] is False
+          assert receipt["implementation_qualification"] == "NOT_CLAIMED"
+          assert receipt["runtime_qualification"] == "NOT_CLAIMED"
+          assert receipt["authority_effect"] == "NONE_EVIDENCE_ONLY"
+          if expected_state == "SUPERVISOR_ORACLE_PASS_NONAUTHORITATIVE":
+              assert rc == 0
+              assert receipt["protocol_streams_eof"] is True
+              assert receipt["response_valid"] is True
+              assert receipt["oracle_pass"] is True
+              assert receipt["problems"] == []
+          else:
+              assert rc != 0
+              assert receipt["problems"]
+          print(f"SUPERVISOR_V2_CASE name={name} state={receipt['state']} worker_rc={receipt['worker_return_code']} eof={receipt['protocol_streams_eof']} problems={','.join(receipt['problems'])}")
+          PY
+          }
+
+          run_case normal normal SUPERVISOR_ORACLE_PASS_NONAUTHORITATIVE 1000 4096
+          run_case diagnostic_stderr diagnostic_stderr SUPERVISOR_ORACLE_PASS_NONAUTHORITATIVE 1000 4096
+          run_case abrupt_zero abrupt_zero SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case nonzero nonzero SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case signal signal SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case timeout timeout SUPERVISOR_FAIL_CLOSED 100 4096
+          run_case malformed malformed SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case duplicate duplicate SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case extra_console extra_console SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case wrong_operation wrong_operation SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case self_pass self_pass SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case oracle_mismatch oracle_mismatch SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case oversize oversize SUPERVISOR_FAIL_CLOSED 1000 1024
+          run_case valid_then_nonzero valid_then_nonzero SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case descendant_delayed_extra descendant_delayed_extra SUPERVISOR_FAIL_CLOSED 1000 4096
+          run_case descendant_hold_open descendant_hold_open SUPERVISOR_FAIL_CLOSED 200 4096
+          run_case descendant_overflow descendant_overflow SUPERVISOR_FAIL_CLOSED 1000 1024
+
+          python - "$CASE_ROOT" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          receipts = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(root.glob("*.receipt.json"))]
+          assert len(receipts) == 17, len(receipts)
+          passed = [r for r in receipts if r["state"] == "SUPERVISOR_ORACLE_PASS_NONAUTHORITATIVE"]
+          failed = [r for r in receipts if r["state"] == "SUPERVISOR_FAIL_CLOSED"]
+          assert len(passed) == 2
+          assert len(failed) == 15
+
+          abrupt = next(r for r in receipts if r["operation_id"] == "operation-abrupt_zero")
+          assert abrupt["worker_return_code"] == 0
+          assert abrupt["response_valid"] is False
+
+          delayed = next(r for r in receipts if r["operation_id"] == "operation-descendant_delayed_extra")
+          assert delayed["protocol_streams_eof"] is True
+          assert delayed["state"] == "SUPERVISOR_FAIL_CLOSED"
+          assert delayed["response_valid"] is False
+
+          held = next(r for r in receipts if r["operation_id"] == "operation-descendant_hold_open")
+          assert held["worker_timed_out"] is True
+          assert held["protocol_streams_eof"] is False
+          assert "WORKER_PROTOCOL_STREAMS_NOT_EOF" in held["problems"]
+          assert "WORKER_TIMEOUT" in held["problems"]
+
+          overflow = next(r for r in receipts if r["operation_id"] == "operation-descendant_overflow")
+          assert overflow["worker_overflow_stream"] == "stdout"
+          assert overflow["state"] == "SUPERVISOR_FAIL_CLOSED"
+
+          print("V16_SLICE2_SUPERVISOR_V2_MATRIX_CASES=17")
+          print("V16_SLICE2_SUPERVISOR_V2_EXPECTED_PASS_CASES=2")
+          print("V16_SLICE2_SUPERVISOR_V2_EXPECTED_FAIL_CLOSED_CASES=15")
+          print("V16_SLICE2_RED009_ABRUPT_ZERO_EXIT_REGRESSION=PASS")
+          print("V16_SLICE2_RED010_DELAYED_DESCENDANT_OUTPUT_REGRESSION=PASS")
+          print("V16_SLICE2_RED010_HELD_OPEN_PIPE_TIMEOUT_REGRESSION=PASS")
+          print("V16_SLICE2_DESCENDANT_AGGREGATE_OUTPUT_LIMIT_REGRESSION=PASS")
+          PY
+
+      - name: Re-attest repaired supervisor source and checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object governance-runtime/review_safe_evidence_v16_execution_supervisor.py)" = "a0f2c573eca92ade798550cd7fa0515bd0e56e0c"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          echo "V16_SLICE2_SUPERVISOR_V2_POST_TEST_SOURCE_BLOB=EXACT_MATCH"
+
+      - name: Construction boundary
+        run: |
+          echo "V16_SLICE2_IAR8_H1_REPAIR=CONSTRUCTION_PASS_NONAUTHORITATIVE_IF_JOB_GREEN"
+          echo "WORKER_PROCESS_REPLACEMENT_OS_ENFORCEMENT=NOT_YET_PROVEN"
+          echo "WORKER_DESCENDANT_PROCESS_ESCAPE_ENFORCEMENT=NOT_YET_PROVEN"
+          echo "SUPERVISED_TEST_PLAN_AUTHENTICATED_BINDING=NOT_YET_IMPLEMENTED"
+          echo "EXISTING_77_TESTS_EXTERNAL_SUPERVISOR_MIGRATION=NOT_COMPLETE"
+          echo "INTERNAL_ADVERSARIAL_REVIEW_EXHAUSTED=false"
+          echo "V16_SLICE2_FREEZE_ALLOWED=false"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "SCIENTIFIC_AUTHORITY=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
