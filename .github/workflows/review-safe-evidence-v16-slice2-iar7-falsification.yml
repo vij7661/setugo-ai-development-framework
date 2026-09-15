@@ -1,0 +1,124 @@
+name: Review Safe Evidence V16 Slice 2 IAR7 Falsification
+
+on:
+  push:
+    branches: [implementation/review-safe-evidence-v16-iar5-repair]
+    paths:
+      - '.github/workflows/review-safe-evidence-v16-slice2-iar7-falsification.yml'
+
+permissions: {contents: read}
+
+jobs:
+  reproduce-v8-success-self-grant:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact probe commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 1}
+
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12.14'}
+
+      - name: Reproduce abrupt zero-exit bypass of V8-style child runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/v16-s2-iar7-probe
+          HOME_NOBODY=/tmp/v16-s2-iar7-nobody-home
+          RUNNER=/tmp/v16-s2-iar7-v8-style-runner.py
+          RECEIPT="$RUNNER_TEMP/v16-s2-iar7-parent-receipt.tsv"
+          LOG="$RUNNER_TEMP/v16-s2-iar7-child.log"
+          TEST_ID="probe_module.AbruptExitTests.test_abrupt_success"
+
+          sudo rm -rf "$ROOT" "$HOME_NOBODY" "$RUNNER"
+          sudo install -d -o root -g root -m 0755 "$ROOT"
+          sudo install -d -o nobody -g nogroup -m 0700 "$HOME_NOBODY"
+
+          sudo tee "$ROOT/probe_module.py" >/dev/null <<'PY'
+          import os
+          import unittest
+
+          class AbruptExitTests(unittest.TestCase):
+              def test_abrupt_success(self):
+                  os._exit(0)
+          PY
+          sudo chown root:root "$ROOT/probe_module.py"
+          sudo chmod 0444 "$ROOT/probe_module.py"
+
+          sudo tee "$RUNNER" >/dev/null <<'PY'
+          import sys
+          import unittest
+
+          requested = sys.argv[1]
+
+          class StrictResult(unittest.TestResult):
+              def __init__(self):
+                  super().__init__()
+                  self.started = []
+                  self.succeeded = []
+              def startTest(self, test):
+                  self.started.append(test.id())
+                  super().startTest(test)
+              def addSuccess(self, test):
+                  self.succeeded.append(test.id())
+                  super().addSuccess(test)
+
+          print("TRUSTED_RUNNER_BEFORE_SUITE", flush=True)
+          suite = unittest.defaultTestLoader.loadTestsFromName(requested)
+          if suite.countTestCases() != 1:
+              raise SystemExit(72)
+          result = StrictResult()
+          suite.run(result)
+          print("TRUSTED_RUNNER_AFTER_SUITE", flush=True)
+          clean = (
+              result.started == [requested]
+              and result.succeeded == [requested]
+              and result.testsRun == 1
+              and not result.failures
+              and not result.errors
+              and not result.skipped
+              and not result.expectedFailures
+              and not result.unexpectedSuccesses
+              and result.wasSuccessful()
+          )
+          if not clean:
+              raise SystemExit(70)
+          raise SystemExit(0)
+          PY
+          sudo chown root:root "$RUNNER"
+          sudo chmod 0555 "$RUNNER"
+
+          set +e
+          (
+            cd "$ROOT"
+            sudo -u nobody -H env \
+              HOME="$HOME_NOBODY" \
+              PYTHONDONTWRITEBYTECODE=1 \
+              PYTHONUNBUFFERED=1 \
+              PYTHONPATH="$ROOT" \
+              "$pythonLocation/bin/python" "$RUNNER" "$TEST_ID"
+          ) >"$LOG" 2>&1
+          rc=$?
+          set -e
+
+          digest="$(sha256sum "$LOG" | awk '{print $1}')"
+          printf '1\t%s\t%d\t%s\n' "$TEST_ID" "$rc" "$digest" > "$RECEIPT"
+
+          test "$rc" -eq 0
+          grep -Fx 'TRUSTED_RUNNER_BEFORE_SUITE' "$LOG" >/dev/null
+          if grep -Fx 'TRUSTED_RUNNER_AFTER_SUITE' "$LOG" >/dev/null; then
+            echo "IAR7_PROBE_INVALID: trusted post-suite code unexpectedly ran" >&2
+            exit 1
+          fi
+          grep -F $'\t0\t' "$RECEIPT" >/dev/null
+
+          echo "IAR7_FALSE_GREEN_REPRODUCED=YES"
+          echo "IAR7_PARENT_OBSERVED_RC=0"
+          echo "IAR7_TRUSTED_POST_SUITE_ASSERTION_REACHED=false"
+          echo "IAR7_PARENT_RECEIPT_WOULD_ACCEPT_ZERO_EXIT_UNDER_V8_RULE=true"
+          echo "IAR7_PROBE_DISPOSITION=MECHANISM_DEFECT_CONFIRMED_NONAUTHORITATIVE"
+          echo "INTERNAL_ADVERSARIAL_REVIEW_EXHAUSTED=false"
+          echo "V16_SLICE2_FREEZE_ALLOWED=false"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
