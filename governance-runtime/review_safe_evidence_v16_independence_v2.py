@@ -93,7 +93,13 @@ def _plain(value: Any, path: str = "$") -> Any:
             raise base.CanonicalizationError(f"LONE_SURROGATE_FORBIDDEN:{path}")
         return value
     if type(value) is dict:
-        return {str(k): _plain(v, f"{path}.{k}") for k, v in value.copy().items() if type(k) is str}
+        local = value.copy()
+        out: dict[str, Any] = {}
+        for key, item in local.items():
+            if type(key) is not str:
+                raise base.CanonicalizationError(f"NON_STRING_KEY:{path}")
+            out[key] = _plain(item, f"{path}.{key}")
+        return out
     if type(value) is list:
         return [_plain(v, f"{path}[{i}]") for i, v in enumerate(list(value))]
     if type(value) is tuple:
@@ -315,7 +321,7 @@ def validate_graph_validator_binding_certificate(
         bundle = slice2_validator_bundle_digest()
     except (base.CanonicalizationError, OSError) as exc:
         out = _result(False, [f"SLICE2_BINDING_INPUT:{exc}"], "UNREACHABLE", "SLICE2_BINDING_CERTIFICATE_INVALID")
-        out.update({"construction_binding_valid": False, "promotion_blocked": True, "bootstrap_authenticated_control_domains": []})
+        out.update({"construction_binding_valid": False, "promotion_blocked": True, "bootstrap_authenticated_control_domains": [], "binding_quorum_graph_qualified": False, "graph_completeness_real_world_proven": False, "source_measurement_independently_proven": False})
         return out
 
     p: list[str] = []
