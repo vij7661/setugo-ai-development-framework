@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR3-MANDATORY-TESTS-001",
+  "slice_id": "V16-S2-CONTROL-DOMAIN-INDEPENDENCE",
+  "slice1_frozen_commit": "36f22a35ff57b6994d55c705c08686609276ddb3",
+  "predecessor_slice2_candidate": "685a56eab5c058f1120c22aca59d78f428874add",
+  "test_source_git_blob_sha": "7537c9517366bbff30c430306975da3b4caf6b96",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "runtime_qualification": "NOT_CLAIMED",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_binding_signer_domain_absent_from_exact_bound_graph_is_rejected","requirement_test_id":"V16-S2-IAR3-001"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_candidate_controlled_binding_signer_is_rejected","requirement_test_id":"V16-S2-IAR3-002"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_binding_signers_with_shared_ancestor_cannot_satisfy_quorum","requirement_test_id":"V16-S2-IAR3-003"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_graph_represented_noncandidate_pairwise_independent_binding_quorum_validates_structurally","requirement_test_id":"V16-S2-IAR3-004"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_failed_outer_binding_quorum_never_reports_construction_binding_valid","requirement_test_id":"V16-S2-IAR3-005"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_current_baseline_manifest_is_semantic_revision_two_and_blob_bound","requirement_test_id":"V16-S2-IAR3-006"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_historical_baseline_manifest_is_not_in_current_manifest_index","requirement_test_id":"V16-S2-IAR3-007"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar3.Slice2IAR3Tests.test_valid_binding_still_cannot_claim_qualification_or_effect_authority","requirement_test_id":"V16-S2-IAR3-008"}
+  ]
+}
