@@ -8,6 +8,7 @@ from test_v24_v6_effect_ledger_closure import durable_ledger, registry_and_path_
 from test_v24_v6_endpoint_projection import endpoint_bundle
 from test_v24_v6_material_surface import ledger_bundle
 from test_v24_v6_normative_clause_projection import qualified_disposition_bundle
+from test_v24_v6_qualification_integrity import gate_bundle
 from v24_v6_atomic_binding_modes import derive_atomic_binding_mode_obligation_set
 from v24_v6_decision_apply import evaluate_decision_apply_latch
 from v24_v6_effect_ledger_closure import (
@@ -17,6 +18,7 @@ from v24_v6_effect_ledger_closure import (
 from v24_v6_endpoint_projection import compile_qualified_endpoint_table
 from v24_v6_material_surface import validate_material_observation_ledger
 from v24_v6_normative_clause_projection import qualify_normative_dispositions
+from v24_v6_qualification_integrity import validate_anti_false_green_gate
 
 
 class V24V6ProofResolutionRegressionTests(unittest.TestCase):
@@ -151,11 +153,9 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         self.assertIn("REMOTE_EFFECT", registry_result["actual_members"])
         old_content_digest = path["path_content_digest"]
         old_currentness = path["currentness_binding_digest"]
-
         path["effect_class_id"] = "REMOTE_EFFECT"
         self.assertEqual(path["path_content_digest"], old_content_digest)
         self.assertEqual(path["currentness_binding_digest"], old_currentness)
-
         result = validate_effect_path_against_registry(
             path,
             current_observation_head_digest="9" * 64,
@@ -190,11 +190,7 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         self.assertEqual(mechanism["currentness_result"], "CURRENT")
         self.assertNotIn("qualification_digest", contract)
         self.assertNotIn("currentness_binding_digest", contract)
-
         result = derive_atomic_binding_mode_obligation_set(candidate)
-
-        # Pre-repair R7 accepts these state labels plus SHA-shaped content digests
-        # as sufficient authority to define the complete atomic-binding universe.
         self.assertFalse(
             result["qualified"],
             "V6 false-green: opaque contract/mechanism labels defined atomic-binding obligations",
@@ -203,6 +199,34 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
             any(
                 "ATOMIC_BINDING_CONTRACT_PROOF" in problem
                 or "ATOMIC_BINDING_MECHANISM_PROOF" in problem
+                or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
+                or "PROOF_REFERENCE" in problem
+                for problem in result["problems"]
+            ),
+            result["problems"],
+        )
+
+    def test_opaque_anti_false_green_gate_labels_cannot_clear_gate(self):
+        candidate = gate_bundle()
+        gate = candidate["gate_descriptor"]
+        self.assertEqual(gate["qualification_state"], "QUALIFIED")
+        self.assertEqual(gate["independence_state"], "QUALIFIED")
+        self.assertEqual(gate["currentness_result"], "CURRENT")
+        self.assertNotIn("gate_currentness_binding_digest", gate)
+        self.assertNotIn("governance_proof_context", candidate)
+
+        result = validate_anti_false_green_gate(candidate)
+
+        # Pre-repair R8 allows the anti-false-green gate itself to become green
+        # from caller labels and SHA-shaped fields. The gate must instead fail
+        # closed until exact Q/I/currentness references are proof-resolved.
+        self.assertFalse(
+            result["qualified"],
+            "V6 false-green: opaque anti-false-green gate labels cleared the gate",
+        )
+        self.assertTrue(
+            any(
+                "ANTI_FALSE_GREEN_GATE_PROOF" in problem
                 or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
                 or "PROOF_REFERENCE" in problem
                 for problem in result["problems"]
