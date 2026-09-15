@@ -4,7 +4,7 @@ Status: **PRESERVED RED HISTORY / NON-AUTHORITATIVE**
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
 
-This record preserves three failed construction runs produced while repairing the Slice 1 internal-adversarial findings. No later green run erases any of them.
+This record preserves five failed construction runs produced while repairing the Slice 1 internal-adversarial findings. No later green run erases any of them.
 
 ## RED-A — implementation/test harness transition mismatch
 
@@ -64,9 +64,49 @@ Observed raw summary:
 
 This RED is distinct from RED-B: RED-B had an outdated 30-entry manifest; RED-C had the correct 38-entry manifest but an outdated workflow verifier. It is preserved because the implementation workflow was temporarily inconsistent during sequential repository updates.
 
+## RED-D — currentness-anchor implementation landed before harness migration
+
+- workflow run: `34978768057`
+- candidate commit: `0e06a2648b0fbe08ed10ad902b5df2ca87460517`
+- candidate tree: `a8585192f7e90792d4031449fd2a483d4b192be6`
+- job: `104413262572`
+- conclusion: `failure`
+- classification: `HARNESS_DEFECT_BEFORE_INTENDED_ENDPOINT`
+
+The second internal-adversarial repair made `expected_current_registry_head` mandatory for current-authority verification. The pre-migration 38-test harness still invoked `verify_signed_governance_record()` and its JSON ingress helper without that required currentness anchor. Fourteen signed-record tests therefore errored at the API boundary before their intended mechanism endpoints.
+
+Observed raw summary:
+
+- `Ran 38 tests in 0.037s`
+- `FAILED (errors=14)`
+- representative error: `TypeError: verify_signed_governance_record() missing 1 required keyword-only argument: 'expected_current_registry_head'`
+
+This is a harness-transition RED, not evidence that the pinned-head mechanism itself failed. It remains preserved.
+
+## RED-E — 42 repaired mechanism tests green while mandatory manifest/workflow still declared 38
+
+- workflow run: `34978912523`
+- candidate commit: `49a84eb692ec3ec6d966e5d22623e637b4e7478c`
+- candidate tree: `9611d821e3353a8bbdf9ec126d29f1f238f7c680`
+- job: `104413765694`
+- conclusion: `failure`
+- classification: `HARNESS_DEFECT_BEFORE_INTENDED_ENDPOINT`
+
+The migrated and expanded source executed **42 tests and all 42 passed**. The added regressions exercised lone-surrogate rejection, governance-key public-key alias rejection, stale registry-prefix rejection against a newer pinned head, and pinned-head trust-set mismatch.
+
+The governed test-set verification then failed because the stable mandatory manifest and workflow still declared 38 tests.
+
+Observed raw summary:
+
+- `Ran 42 tests in 0.055s`
+- `OK`
+- manifest/source/execution gate failed with `AssertionError: 42`
+
+This run is not green construction evidence even though every mechanism test passed; the stable mandatory-test-set binding remained stale.
+
 ## Historical rule
 
-Any later successful run must preserve RED-A, RED-B, and RED-C. None may be described as if it never occurred, and none may be used to claim implementation or runtime qualification.
+Any later successful run must preserve RED-A through RED-E. None may be described as if it never occurred, and none may be used to claim implementation or runtime qualification.
 
 `IMPLEMENTATION_QUALIFICATION = NOT_CLAIMED`
 
