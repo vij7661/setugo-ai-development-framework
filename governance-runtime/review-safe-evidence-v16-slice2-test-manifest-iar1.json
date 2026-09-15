@@ -1,0 +1,27 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR1-MANDATORY-TESTS-001",
+  "runtime_qualification": "NOT_CLAIMED",
+  "schema_version": 1,
+  "slice_id": "V16-S2-CONTROL-DOMAIN-INDEPENDENCE",
+  "slice1_frozen_commit": "36f22a35ff57b6994d55c705c08686609276ddb3",
+  "predecessor_slice2_candidate": "c484a52970725e117bb8b2246e18ba47744c9b76",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_valid_binding_is_threshold_authenticated_but_global_promotion_remains_blocked","requirement_test_id":"V16-S2-IAR1-001"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_single_root_binding_signature_fails","requirement_test_id":"V16-S2-IAR1-002"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_profile_semantic_drift_invalidates_existing_binding","requirement_test_id":"V16-S2-IAR1-003"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_freshly_resigned_wrong_validator_bundle_still_fails_local_bundle_match","requirement_test_id":"V16-S2-IAR1-004"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_binding_cannot_be_reused_for_different_graph_digest","requirement_test_id":"V16-S2-IAR1-005"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_pinned_binding_digest_mismatch_fails","requirement_test_id":"V16-S2-IAR1-006"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_disconnected_bound_domains_are_structurally_independent_but_promotion_blocked","requirement_test_id":"V16-S2-IAR1-007"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_not_candidate_controlled_is_structurally_clear_but_promotion_blocked","requirement_test_id":"V16-S2-IAR1-008"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_registry_authority_structurally_admissible_but_globally_nonadmissible","requirement_test_id":"V16-S2-IAR1-009"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_mixed_registry_graph_generation_fails_closed","requirement_test_id":"V16-S2-IAR1-010"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_unknown_record_type_fails_closed","requirement_test_id":"V16-S2-IAR1-011"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_record_type_derives_role_and_missing_grant_fails","requirement_test_id":"V16-S2-IAR1-012"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_two_bound_registry_keys_structurally_independent_but_globally_blocked","requirement_test_id":"V16-S2-IAR1-013"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_stale_graph_binding_head_or_graph_substitution_fails","requirement_test_id":"V16-S2-IAR1-014"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_v2.Slice2BindingRepairTests.test_valid_results_never_claim_qualification_or_independent_source_measurement","requirement_test_id":"V16-S2-IAR1-015"}
+  ]
+}
