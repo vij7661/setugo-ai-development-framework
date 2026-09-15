@@ -25,7 +25,7 @@ import review_safe_evidence_v16_independence as core
 AUTHORITY_EFFECT = "NONE_EVIDENCE_ONLY"
 IMPLEMENTATION_QUALIFICATION = "NOT_CLAIMED"
 RUNTIME_QUALIFICATION = "NOT_CLAIMED"
-SLICE2_BINDING_PROFILE_VERSION = 3
+SLICE2_BINDING_PROFILE_VERSION = 4
 SLICE2_BINDING_SIGNATURE_DOMAIN = "RSE-V16:SLICE2-GRAPH-VALIDATOR-BINDING-ROOT:"
 EDGE_SEMANTICS_ID = "PARENT_IDS_ARE_LOAD_BEARING_CONTROL_ANCESTORS_V1"
 INDEPENDENCE_RULE_ID = "ANCESTOR_CLOSURE_INTERSECTION_BLOCKS_INDEPENDENCE_V1"
@@ -37,6 +37,7 @@ ROLE_RULE_ID = "RECORD_TYPE_DERIVES_REQUIRED_ROLE_FROM_SLICE1_POLICY_V1"
 ROOT_QUORUM_RULE_ID = "BOOTSTRAP_ROOTS_GRAPH_REPRESENTED_NONCANDIDATE_PAIRWISE_INDEPENDENT_V1"
 REGISTRY_QUORUM_RULE_ID = "REGISTRY_BOOTSTRAP_QUORUM_REQUALIFIED_THROUGH_CURRENT_ADDITIVE_GRAPH_V1"
 BINDING_ROOT_QUORUM_RULE_ID = "BINDING_ROOTS_GRAPH_REPRESENTED_NONCANDIDATE_PAIRWISE_INDEPENDENT_V1"
+OWNED_SNAPSHOT_RULE_ID = "ONE_FAIL_CLOSED_OWNED_INPUT_SNAPSHOT_PER_PUBLIC_BOUND_OPERATION_V1"
 
 BINDING_CERTIFICATE_FIELDS = frozenset({
     "schema_version", "object_type", "candidate_id", "graph_id", "graph_sequence",
@@ -107,6 +108,19 @@ def _plain(value: Any, path: str = "$") -> Any:
     raise base.CanonicalizationError(f"NON_PLAIN_JSON_CONTAINER:{path}:{type(value).__name__}")
 
 
+def _snapshot_chain(chain: Sequence[Mapping[str, Any]], label: str) -> list[dict[str, Any]]:
+    if type(chain) not in {list, tuple}:
+        raise base.CanonicalizationError(f"{label}_CONTAINER_MUST_BE_LIST_OR_TUPLE")
+    source_rows = list(chain)
+    rows: list[dict[str, Any]] = []
+    for i, row in enumerate(source_rows):
+        snap = _plain(row, f"${label}[{i}]")
+        if type(snap) is not dict:
+            raise base.CanonicalizationError(f"{label}_ROW_MUST_BE_OBJECT:{i}")
+        rows.append(snap)
+    return rows
+
+
 def _b64(value: Any, size: int) -> bytes | None:
     if not isinstance(value, str):
         return None
@@ -154,6 +168,7 @@ def slice2_validation_profile_material() -> dict[str, Any]:
         "root_quorum_rule_id": ROOT_QUORUM_RULE_ID,
         "registry_quorum_rule_id": REGISTRY_QUORUM_RULE_ID,
         "binding_root_quorum_rule_id": BINDING_ROOT_QUORUM_RULE_ID,
+        "owned_snapshot_rule_id": OWNED_SNAPSHOT_RULE_ID,
     }
 
 
@@ -166,7 +181,7 @@ def slice2_validator_bundle_material() -> dict[str, Any]:
     if any(path.suffix != ".py" for path in paths):
         raise base.CanonicalizationError("SLICE2_VALIDATOR_SOURCE_PATH_MUST_BE_PY")
     return {
-        "bundle_version": 3,
+        "bundle_version": 4,
         "base_validator": {"name": paths[0].name, "sha256": _source_sha256(paths[0])},
         "slice2_structural_core": {"name": paths[1].name, "sha256": _source_sha256(paths[1])},
         "slice2_binding_wrapper": {"name": paths[2].name, "sha256": _source_sha256(paths[2])},
@@ -259,15 +274,12 @@ def _ancestor_closure(domain_id: str, domains: Mapping[str, tuple[str, ...]]) ->
 
 
 def _qualify_binding_signers(
-    signer_domains: Sequence[str], graph_chain: Sequence[Mapping[str, Any]], threshold: int,
+    signer_domains: Sequence[str], owned_graph_chain: Sequence[Mapping[str, Any]], threshold: int,
 ) -> tuple[list[str], tuple[str, ...]]:
     p: list[str] = []
-    if type(graph_chain) not in {list, tuple} or not graph_chain:
+    if type(owned_graph_chain) not in {list, tuple} or not owned_graph_chain:
         return ["SLICE2_BINDING_GRAPH_REQUIRED_FOR_SIGNER_QUALIFICATION"], ()
-    try:
-        current = _plain(list(graph_chain)[-1], "$slice2_binding_graph")
-    except base.CanonicalizationError as exc:
-        return [f"SLICE2_BINDING_GRAPH_QUALIFICATION_INPUT:{exc}"], ()
+    current = owned_graph_chain[-1]
     if type(current) is not dict or type(current.get("domains")) is not list:
         return ["SLICE2_BINDING_GRAPH_QUALIFICATION_STATE_INVALID"], ()
     domains: dict[str, tuple[str, ...]] = {}
@@ -315,6 +327,7 @@ def validate_graph_validator_binding_certificate(
 ) -> dict[str, Any]:
     try:
         cert = _plain(certificate, "$slice2_binding_certificate")
+        owned_graph = _snapshot_chain(graph_chain, "slice2_graph_chain")
         if type(cert) is not dict:
             raise base.CanonicalizationError("SLICE2_BINDING_CERTIFICATE_MUST_BE_OBJECT")
         profile = slice2_validation_profile_digest()
@@ -329,7 +342,7 @@ def validate_graph_validator_binding_certificate(
     if not trust_result["valid"]:
         p.extend(f"SLICE2_BINDING_TRUST:{x}" for x in trust_result["problems"])
     graph_result = core.validate_control_domain_graph_chain(
-        graph_chain, bootstrap_trust=bootstrap_trust,
+        owned_graph, bootstrap_trust=bootstrap_trust,
         expected_current_head=expected_graph_head, expected_candidate_id=expected_candidate_id,
     )
     if not graph_result["valid"]:
@@ -392,7 +405,7 @@ def validate_graph_validator_binding_certificate(
     qualified_domains: tuple[str, ...] = ()
     if graph_result["valid"]:
         quorum_p, qualified_domains = _qualify_binding_signers(
-            crypto_domains, graph_chain, bootstrap_trust.threshold_control_domains,
+            crypto_domains, owned_graph, bootstrap_trust.threshold_control_domains,
         )
         p.extend(quorum_p)
     else:
@@ -412,14 +425,26 @@ def validate_graph_validator_binding_certificate(
     return out
 
 
+def _snapshot_failure(exc: base.CanonicalizationError, state: str) -> dict[str, Any]:
+    out = _result(False, [f"SLICE2_BOUND_INPUT:{exc}"], "UNREACHABLE", state)
+    out.update({"promotion_blocked": True})
+    return out
+
+
 def validate_bound_control_domain_graph_chain(
     graph_chain: Sequence[Mapping[str, Any]], *, binding_certificate: Mapping[str, Any],
     bootstrap_trust: base.PinnedBootstrapTrustSet,
     expected_graph_head: core.PinnedControlDomainGraphHead,
     pinned_binding_head: PinnedSlice2BindingHead, expected_candidate_id: str,
 ) -> dict[str, Any]:
+    try:
+        owned_graph = _snapshot_chain(graph_chain, "slice2_bound_graph_chain")
+    except base.CanonicalizationError as exc:
+        out = _snapshot_failure(exc, "BOUND_CONTROL_DOMAIN_GRAPH_INVALID")
+        out.update({"construction_graph_accepted": False, "graph_completeness_real_world_proven": False, "source_measurement_independently_proven": False})
+        return out
     binding = validate_graph_validator_binding_certificate(
-        binding_certificate, graph_chain=graph_chain, bootstrap_trust=bootstrap_trust,
+        binding_certificate, graph_chain=owned_graph, bootstrap_trust=bootstrap_trust,
         expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head,
         expected_candidate_id=expected_candidate_id,
     )
@@ -435,8 +460,14 @@ def assess_bound_domain_independence(
     expected_graph_head: core.PinnedControlDomainGraphHead,
     pinned_binding_head: PinnedSlice2BindingHead, expected_candidate_id: str,
 ) -> dict[str, Any]:
-    binding = validate_graph_validator_binding_certificate(binding_certificate, graph_chain=graph_chain, bootstrap_trust=bootstrap_trust, expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head, expected_candidate_id=expected_candidate_id)
-    core_result = core.assess_domain_independence(subject_a_control_domain_id, subject_b_control_domain_id, graph_chain=graph_chain, bootstrap_trust=bootstrap_trust, expected_current_head=expected_graph_head, expected_candidate_id=expected_candidate_id)
+    try:
+        owned_graph = _snapshot_chain(graph_chain, "slice2_bound_graph_chain")
+    except base.CanonicalizationError as exc:
+        out = _snapshot_failure(exc, "BOUND_INDEPENDENCE_UNPROVEN")
+        out.update({"independence_result": "INDEPENDENCE_UNPROVEN", "construction_independence_satisfied": False, "independence_real_world_proven": False})
+        return out
+    binding = validate_graph_validator_binding_certificate(binding_certificate, graph_chain=owned_graph, bootstrap_trust=bootstrap_trust, expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head, expected_candidate_id=expected_candidate_id)
+    core_result = core.assess_domain_independence(subject_a_control_domain_id, subject_b_control_domain_id, graph_chain=owned_graph, bootstrap_trust=bootstrap_trust, expected_current_head=expected_graph_head, expected_candidate_id=expected_candidate_id)
     p = list(binding["problems"])
     if not core_result["valid"]:
         p.extend(f"SLICE2_CORE:{x}" for x in core_result["problems"])
@@ -452,8 +483,14 @@ def assess_bound_candidate_control(
     expected_graph_head: core.PinnedControlDomainGraphHead,
     pinned_binding_head: PinnedSlice2BindingHead, expected_candidate_id: str,
 ) -> dict[str, Any]:
-    binding = validate_graph_validator_binding_certificate(binding_certificate, graph_chain=graph_chain, bootstrap_trust=bootstrap_trust, expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head, expected_candidate_id=expected_candidate_id)
-    core_result = core.assess_candidate_control(subject_control_domain_id, graph_chain=graph_chain, bootstrap_trust=bootstrap_trust, expected_current_head=expected_graph_head, expected_candidate_id=expected_candidate_id)
+    try:
+        owned_graph = _snapshot_chain(graph_chain, "slice2_bound_graph_chain")
+    except base.CanonicalizationError as exc:
+        out = _snapshot_failure(exc, "BOUND_CANDIDATE_CONTROL_UNPROVEN")
+        out.update({"candidate_control_result": "CANDIDATE_CONTROL_UNPROVEN", "construction_candidate_control_clear": False, "control_real_world_completeness_proven": False})
+        return out
+    binding = validate_graph_validator_binding_certificate(binding_certificate, graph_chain=owned_graph, bootstrap_trust=bootstrap_trust, expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head, expected_candidate_id=expected_candidate_id)
+    core_result = core.assess_candidate_control(subject_control_domain_id, graph_chain=owned_graph, bootstrap_trust=bootstrap_trust, expected_current_head=expected_graph_head, expected_candidate_id=expected_candidate_id)
     p = list(binding["problems"])
     if not core_result["valid"]:
         p.extend(f"SLICE2_CORE:{x}" for x in core_result["problems"])
@@ -488,13 +525,20 @@ def resolve_bound_registry_key_authority(
     binding_certificate: Mapping[str, Any], pinned_binding_head: PinnedSlice2BindingHead,
     bootstrap_trust: base.PinnedBootstrapTrustSet, expected_candidate_id: str,
 ) -> dict[str, Any]:
+    try:
+        owned_graph = _snapshot_chain(graph_chain, "slice2_bound_graph_chain")
+        owned_registry = _snapshot_chain(registry_chain, "slice2_bound_registry_chain")
+    except base.CanonicalizationError as exc:
+        out = _snapshot_failure(exc, "BOUND_REGISTRY_AUTHORITY_UNPROVEN")
+        out.update({"authority_structurally_admissible_within_authenticated_graph": False, "authority_admissible": False})
+        return out
     role, p = _derive_required_role(expected_record_type)
     p.extend(_generation_problems(expected_governance_generation_id, expected_registry_head, expected_graph_head))
-    binding = validate_graph_validator_binding_certificate(binding_certificate, graph_chain=graph_chain, bootstrap_trust=bootstrap_trust, expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head, expected_candidate_id=expected_candidate_id)
+    binding = validate_graph_validator_binding_certificate(binding_certificate, graph_chain=owned_graph, bootstrap_trust=bootstrap_trust, expected_graph_head=expected_graph_head, pinned_binding_head=pinned_binding_head, expected_candidate_id=expected_candidate_id)
     p.extend(f"SLICE2_BINDING:{x}" for x in binding["problems"])
     core_result: dict[str, Any] | None = None
     if role is not None:
-        core_result = core.resolve_registry_key_authority(key_id, role, registry_chain=registry_chain, expected_registry_head=expected_registry_head, graph_chain=graph_chain, expected_graph_head=expected_graph_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
+        core_result = core.resolve_registry_key_authority(key_id, role, registry_chain=owned_registry, expected_registry_head=expected_registry_head, graph_chain=owned_graph, expected_graph_head=expected_graph_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
         if core_result.get("authority_structurally_admissible_within_authenticated_graph") is not True:
             p.extend(f"SLICE2_CORE:{x}" for x in core_result["problems"])
     structural = not p and binding["valid"] and core_result is not None and core_result.get("authority_structurally_admissible_within_authenticated_graph") is True
@@ -511,14 +555,21 @@ def assess_bound_registry_key_independence(
     binding_certificate: Mapping[str, Any], pinned_binding_head: PinnedSlice2BindingHead,
     bootstrap_trust: base.PinnedBootstrapTrustSet, expected_candidate_id: str,
 ) -> dict[str, Any]:
-    a = resolve_bound_registry_key_authority(key_id_a, expected_record_type_a, expected_governance_generation_id=expected_governance_generation_id, registry_chain=registry_chain, expected_registry_head=expected_registry_head, graph_chain=graph_chain, expected_graph_head=expected_graph_head, binding_certificate=binding_certificate, pinned_binding_head=pinned_binding_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
-    b = resolve_bound_registry_key_authority(key_id_b, expected_record_type_b, expected_governance_generation_id=expected_governance_generation_id, registry_chain=registry_chain, expected_registry_head=expected_registry_head, graph_chain=graph_chain, expected_graph_head=expected_graph_head, binding_certificate=binding_certificate, pinned_binding_head=pinned_binding_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
+    try:
+        owned_graph = _snapshot_chain(graph_chain, "slice2_bound_graph_chain")
+        owned_registry = _snapshot_chain(registry_chain, "slice2_bound_registry_chain")
+    except base.CanonicalizationError as exc:
+        out = _snapshot_failure(exc, "BOUND_REGISTRY_KEY_INDEPENDENCE_UNPROVEN")
+        out.update({"independence_result": "INDEPENDENCE_UNPROVEN", "construction_independence_satisfied": False, "independence_real_world_proven": False, "authority_admissible": False})
+        return out
+    a = resolve_bound_registry_key_authority(key_id_a, expected_record_type_a, expected_governance_generation_id=expected_governance_generation_id, registry_chain=owned_registry, expected_registry_head=expected_registry_head, graph_chain=owned_graph, expected_graph_head=expected_graph_head, binding_certificate=binding_certificate, pinned_binding_head=pinned_binding_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
+    b = resolve_bound_registry_key_authority(key_id_b, expected_record_type_b, expected_governance_generation_id=expected_governance_generation_id, registry_chain=owned_registry, expected_registry_head=expected_registry_head, graph_chain=owned_graph, expected_graph_head=expected_graph_head, binding_certificate=binding_certificate, pinned_binding_head=pinned_binding_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
     p = [f"A:{x}" for x in a["problems"]] + [f"B:{x}" for x in b["problems"]]
     result = "INDEPENDENCE_UNPROVEN"
     shared: list[str] = []
     construction = False
     if a["authority_structurally_admissible_within_authenticated_graph"] and b["authority_structurally_admissible_within_authenticated_graph"]:
-        core_result = core.assess_registry_key_independence(key_id_a, a["required_role"], key_id_b, b["required_role"], registry_chain=registry_chain, expected_registry_head=expected_registry_head, graph_chain=graph_chain, expected_graph_head=expected_graph_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
+        core_result = core.assess_registry_key_independence(key_id_a, a["required_role"], key_id_b, b["required_role"], registry_chain=owned_registry, expected_registry_head=expected_registry_head, graph_chain=owned_graph, expected_graph_head=expected_graph_head, bootstrap_trust=bootstrap_trust, expected_candidate_id=expected_candidate_id)
         p.extend(f"CORE:{x}" for x in core_result["problems"])
         result = core_result["independence_result"]
         shared = list(core_result.get("shared_load_bearing_ancestors", []))
