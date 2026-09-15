@@ -1,0 +1,56 @@
+name: Review Safe Evidence V15 Authority Construction
+
+on:
+  push:
+    branches:
+      - implementation/review-safe-evidence-v15
+    paths:
+      - 'governance-runtime/review_safe_evidence_v15_authority.py'
+      - 'governance-runtime/test_review_safe_evidence_v15_authority.py'
+      - '.github/workflows/review-safe-evidence-v15-authority-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authority-construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record construction identity
+        run: |
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+
+      - name: Compile V15 authority slice
+        run: python -m compileall -q governance-runtime/review_safe_evidence_v15.py governance-runtime/review_safe_evidence_v15_authority.py governance-runtime/test_review_safe_evidence_v15_authority.py
+
+      - name: Run core trust primitives
+        working-directory: governance-runtime
+        run: python -m unittest -v test_review_safe_evidence_v15.py
+
+      - name: Run role authority and ancestry closure regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_review_safe_evidence_v15_authority.py
+
+      - name: Construction boundary
+        run: |
+          echo "V15_ROLE_AUTHORITY_AND_ANCESTRY=PASS_NONAUTHORITATIVE"
+          echo "NEXT_SLICE=EVIDENCE_UNIVERSE_DERIVATION_AND_CHALLENGE"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
