@@ -1,0 +1,120 @@
+name: Review Safe Evidence V16 Slice 2 Supervisor V2 Detached Descendant Falsification
+
+on:
+  push:
+    branches: [implementation/review-safe-evidence-v16-iar5-repair]
+    paths:
+      - '.github/workflows/review-safe-evidence-v16-slice2-supervisor-v2-detached-descendant-falsification.yml'
+
+permissions: {contents: read}
+
+jobs:
+  reproduce-detached-descendant-after-pass:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact probe commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 1}
+
+      - name: Set up exact Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12.14'}
+
+      - name: Reproduce detached descendant surviving supervisor PASS
+        shell: bash
+        run: |
+          set -euo pipefail
+          SUPERVISOR="$GITHUB_WORKSPACE/governance-runtime/review_safe_evidence_v16_execution_supervisor.py"
+          test "$(git hash-object "$SUPERVISOR")" = "a0f2c573eca92ade798550cd7fa0515bd0e56e0c"
+
+          ROOT=/tmp/v16-s2-supervisor-v2-detach-probe
+          WORKER="$ROOT/worker.py"
+          MARKER="$ROOT/detached-after-pass.marker"
+          CFG="$RUNNER_TEMP/detached.config.json"
+          RECEIPT="$RUNNER_TEMP/detached.receipt.json"
+          sudo rm -rf "$ROOT"
+          sudo install -d -o nobody -g nogroup -m 0755 "$ROOT"
+          sudo tee "$WORKER" >/dev/null <<'PY'
+          import json, os, sys, time
+
+          marker = sys.argv[1]
+          req = json.loads(sys.stdin.buffer.readline().decode("utf-8"))
+          pid = os.fork()
+          if pid == 0:
+              os.setsid()
+              # Close the supervisor protocol descriptors so the trusted parent can
+              # observe EOF even though this evaluated descendant remains alive.
+              for fd in (0, 1, 2):
+                  try:
+                      os.close(fd)
+                  except OSError:
+                      pass
+              time.sleep(0.60)
+              with open(marker, "w", encoding="utf-8") as fh:
+                  fh.write("DETACHED_DESCENDANT_SIDE_EFFECT_AFTER_SUPERVISOR_PASS\n")
+                  fh.flush()
+                  os.fsync(fh.fileno())
+              os._exit(0)
+
+          response = {
+              "schema_version": 1,
+              "operation_id": req["operation_id"],
+              "result": {"value": 42},
+          }
+          sys.stdout.write(json.dumps(response, sort_keys=True, separators=(",", ":")) + "\n")
+          sys.stdout.flush()
+          os._exit(0)
+          PY
+          sudo chown root:root "$WORKER"
+          sudo chmod 0555 "$WORKER"
+          sudo rm -f "$MARKER"
+
+          python - "$CFG" "$WORKER" "$ROOT" "$MARKER" <<'PY'
+          import json, pathlib, sys
+          cfg, worker, cwd, marker = sys.argv[1:]
+          obj = {
+              "schema_version": 1,
+              "operation_id": "detached-descendant-after-pass",
+              "worker_command": ["sudo", "-u", "nobody", "-H", sys.executable, worker, marker],
+              "worker_cwd": cwd,
+              "request_input": {"probe": "detached-descendant"},
+              "expected_result": {"value": 42},
+              "timeout_ms": 2000,
+              "max_stdout_bytes": 4096,
+              "max_stderr_bytes": 4096,
+          }
+          pathlib.Path(cfg).write_text(json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+          PY
+          chmod 0600 "$CFG"
+
+          set +e
+          python "$SUPERVISOR" --config "$CFG" --receipt "$RECEIPT"
+          rc=$?
+          set -e
+
+          python - "$RECEIPT" "$rc" <<'PY'
+          import json, pathlib, sys
+          receipt = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+          rc = int(sys.argv[2])
+          assert rc == 0, (rc, receipt)
+          assert receipt["state"] == "SUPERVISOR_ORACLE_PASS_NONAUTHORITATIVE", receipt
+          assert receipt["protocol_streams_eof"] is True
+          assert receipt["worker_return_code"] == 0
+          assert receipt["response_valid"] is True
+          assert receipt["oracle_pass"] is True
+          print("SUPERVISOR_V2_RECEIPT_ISSUED_BEFORE_DESCENDANT_CHECK=YES")
+          PY
+
+          test ! -e "$MARKER"
+          sleep 1
+          test -f "$MARKER"
+          grep -Fx 'DETACHED_DESCENDANT_SIDE_EFFECT_AFTER_SUPERVISOR_PASS' "$MARKER" >/dev/null
+
+          echo "SUPERVISOR_V2_DETACHED_DESCENDANT_FALSE_GREEN_REPRODUCED=YES"
+          echo "SUPERVISOR_V2_PASS_WHILE_EVALUATED_DESCENDANT_REMAINS_LIVE=true"
+          echo "SUPERVISOR_V2_POST_RECEIPT_SIDE_EFFECT_OBSERVED=true"
+          echo "IAR9_H1=CONFIRMED_NONAUTHORITATIVE"
+          echo "INTERNAL_ADVERSARIAL_REVIEW_EXHAUSTED=false"
+          echo "V16_SLICE2_FREEZE_ALLOWED=false"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
