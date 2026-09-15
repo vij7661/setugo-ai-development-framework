@@ -3,10 +3,12 @@ from __future__ import annotations
 import unittest
 
 from test_v24_v6_decision_apply import bundle
+from test_v24_v6_effect_ledger_closure import durable_ledger
 from test_v24_v6_endpoint_projection import endpoint_bundle
 from test_v24_v6_material_surface import ledger_bundle
 from test_v24_v6_normative_clause_projection import qualified_disposition_bundle
 from v24_v6_decision_apply import evaluate_decision_apply_latch
+from v24_v6_effect_ledger_closure import validate_durable_governance_ledger
 from v24_v6_endpoint_projection import compile_qualified_endpoint_table
 from v24_v6_material_surface import validate_material_observation_ledger
 from v24_v6_normative_clause_projection import qualify_normative_dispositions
@@ -24,9 +26,7 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         candidate = bundle()
         self.assertNotIn("governance_proof_context", candidate)
         self.assertNotIn("trusted_boundary", candidate)
-
         result = evaluate_decision_apply_latch(candidate)
-
         self.assertFalse(
             result["allowed"],
             "V6 false-green regression: opaque proof labels opened the apply latch",
@@ -49,9 +49,7 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         self.assertNotIn("witness_qualification_digest", witness)
         self.assertNotIn("witness_independence_qualification_digest", witness)
         self.assertNotIn("witness_currentness_binding_digest", witness)
-
         result = validate_material_observation_ledger(candidate)
-
         self.assertFalse(
             result["qualified"],
             "V6 false-green regression: fabricated witness labels qualified the observation ledger",
@@ -73,9 +71,7 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         self.assertEqual(q["currentness_result"], "CURRENT")
         self.assertNotIn("subject_object_id", q)
         self.assertNotIn("governance_proof_context", candidate)
-
         result = compile_qualified_endpoint_table(candidate)
-
         self.assertFalse(
             result["qualified"],
             "V6 false-green: opaque endpoint-table qualification was accepted as proof",
@@ -98,13 +94,7 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         self.assertEqual(parser["currentness_result"], "CURRENT")
         self.assertNotIn("qualification_digest", parser)
         self.assertNotIn("governance_proof_context", candidate)
-
         result = qualify_normative_dispositions(candidate)
-
-        # Pre-repair R5 accepts the three labels plus SHA-shaped implementation
-        # metadata as sufficient parser governance.  Required V6 behavior is to
-        # fail closed until exact parser qualification/independence/currentness
-        # references are resolved under the separately trusted proof boundary.
         self.assertFalse(
             result["qualified"],
             "V6 false-green: opaque parser governance labels qualified normative dispositions",
@@ -112,6 +102,39 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
         self.assertTrue(
             any(
                 "PARSER_PROOF" in problem
+                or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
+                or "PROOF_REFERENCE" in problem
+                for problem in result["problems"]
+            ),
+            result["problems"],
+        )
+
+    def test_opaque_durable_ledger_head_and_witness_labels_cannot_qualify(self):
+        candidate = durable_ledger()
+        head = candidate["head"]
+        witness = head["witness_currentness_records"][0]
+        self.assertEqual(head["head_qualification_state"], "QUALIFIED")
+        self.assertEqual(head["currentness_result"], "CURRENT")
+        self.assertEqual(witness["independence_result"], "QUALIFIED")
+        self.assertEqual(witness["currentness_result"], "CURRENT")
+        self.assertNotIn("head_qualification_digest", head)
+        self.assertNotIn("witness_qualification_digest", witness)
+
+        result = validate_durable_governance_ledger(
+            candidate,
+            ledger_kind="MATERIAL_OBSERVATION",
+        )
+
+        # Pre-repair R6 accepts these labels, a different domain string, and one
+        # opaque independence digest as sufficient durable-head/witness authority.
+        self.assertFalse(
+            result["qualified"],
+            "V6 false-green: opaque durable-ledger labels qualified the current head",
+        )
+        self.assertTrue(
+            any(
+                "LEDGER_HEAD_PROOF" in problem
+                or "LEDGER_WITNESS_PROOF" in problem
                 or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
                 or "PROOF_REFERENCE" in problem
                 for problem in result["problems"]
