@@ -8,6 +8,7 @@ on:
       - 'governance-runtime/test_v24_v6_proof_resolution_red.py'
       - 'governance-runtime/test_v24_v6_proof_reference_closure.py'
       - 'governance-runtime/test_v24_v6_integrated_successor_dependency_red.py'
+      - 'governance-runtime/test_v24_v6_integrated_successor.py'
       - 'governance-runtime/test_v24_v6_endpoint_projection.py'
       - 'governance-runtime/test_v24_v6_material_surface.py'
       - 'governance-runtime/test_v24_v6_decision_apply.py'
@@ -86,6 +87,9 @@ jobs:
       - name: Verify historical opaque-proof REDs are permanently closed
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_resolution_red.py
-      - name: Falsify R9 shared dependency freeze closure
+      - name: Verify R9 shared-dependency freeze regression
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_integrated_successor_dependency_red.py
+      - name: Verify R9 integrated successor preflight
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_integrated_successor.py
