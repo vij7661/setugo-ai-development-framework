@@ -10,6 +10,7 @@ on:
       - 'governance-runtime/test_v24_v6_endpoint_projection.py'
       - 'governance-runtime/test_v24_v6_material_surface.py'
       - 'governance-runtime/test_v24_v6_decision_apply.py'
+      - 'governance-runtime/test_v24_v6_normative_clause_projection.py'
       - 'governance-runtime/v24_v6_test_proof_context.py'
       - 'governance-runtime/v24_v6_proof_reference_closure.py'
       - 'governance-runtime/v24_v6_governance_foundation.py'
@@ -60,6 +61,9 @@ jobs:
       - name: Verify R4 decision/apply migration
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_decision_apply.py
+      - name: Verify R5 normative projection migration
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_normative_clause_projection.py
       - name: Verify historical opaque-proof REDs are permanently closed
         working-directory: governance-runtime
         run: python -m unittest -v test_v24_v6_proof_resolution_red.py
