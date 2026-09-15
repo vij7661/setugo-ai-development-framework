@@ -10,6 +10,12 @@ from v24_v6_governance_foundation import (
     INSUFFICIENT_EVIDENCE,
     digest,
 )
+from v24_v6_proof_reference_closure import (
+    CURRENTNESS_BINDING,
+    GOVERNED_QUALIFICATION,
+    INDEPENDENCE_QUALIFICATION,
+    close_governance_dependencies,
+)
 
 MATERIAL = "MATERIAL"
 PROVEN_NON_MATERIAL = "PROVEN_NON_MATERIAL"
@@ -47,8 +53,24 @@ def _record_digest(rec: Mapping[str, Any]) -> str:
     return digest(x)
 
 
-def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str, Any]:
-    """Validate append-only material observation records and durable current head."""
+def _append_proof(prefix: str, result: Mapping[str, Any], p: list[str]) -> bool:
+    if result.get("qualified") is True:
+        return True
+    child = result.get("problems")
+    if isinstance(child, list) and child:
+        p.extend(f"{prefix}:{item}" for item in child)
+    else:
+        p.append(f"{prefix}:PROOF_REFERENCE_CLOSURE_FAILED")
+    return False
+
+
+def validate_material_observation_ledger(
+    bundle: Mapping[str, Any],
+    *,
+    proof_context: Mapping[str, Any] | None = None,
+    trusted_boundary: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Validate append-only observations plus proof-closed currentness/witnesses."""
     p: list[str] = []
     records = bundle.get("records")
     if not isinstance(records, list):
@@ -88,8 +110,12 @@ def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str,
         if rec.get("predecessor_record_digest") != expected_prev:
             p.append(f"MATERIAL_OBSERVATION_PREDECESSOR_MISMATCH:{oid}")
         for key in (
-            "observer_identity", "observer_control_domain_id", "source_kind",
-            "entity_or_path_id", "evidence_class_id", "currentness_binding_digest",
+            "observer_identity",
+            "observer_control_domain_id",
+            "source_kind",
+            "entity_or_path_id",
+            "evidence_class_id",
+            "currentness_binding_digest",
         ):
             if not _nonempty(rec.get(key)):
                 p.append(f"MATERIAL_OBSERVATION_FIELD_REQUIRED:{oid}:{key}")
@@ -98,6 +124,19 @@ def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str,
         for key in ("evidence_digest", "currentness_binding_digest"):
             if not _sha(rec.get(key)):
                 p.append(f"MATERIAL_OBSERVATION_DIGEST_INVALID:{oid}:{key}")
+        proof = close_governance_dependencies(
+            [
+                {
+                    "kind": CURRENTNESS_BINDING,
+                    "reference_digest": rec.get("currentness_binding_digest"),
+                    "source_id": rec.get("entity_or_path_id"),
+                    "source_digest": rec.get("evidence_digest"),
+                }
+            ],
+            proof_context,
+            trusted_boundary,
+        )
+        _append_proof(f"MATERIAL_OBSERVATION_CURRENTNESS_PROOF:{oid}", proof, p)
         supplied = rec.get("record_digest")
         computed = _record_digest(rec)
         if supplied != computed:
@@ -110,7 +149,9 @@ def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str,
         head = {}
         p.append("MATERIAL_OBSERVATION_HEAD_REQUIRED")
     expected_latest_seq = len(records)
-    expected_latest_digest = record_digests[-1] if record_digests else bundle.get("genesis_predecessor_digest")
+    expected_latest_digest = (
+        record_digests[-1] if record_digests else bundle.get("genesis_predecessor_digest")
+    )
     expected_cumulative = digest(record_digests)
     if head.get("latest_sequence") != expected_latest_seq:
         p.append("MATERIAL_OBSERVATION_HEAD_SEQUENCE_MISMATCH")
@@ -138,6 +179,24 @@ def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str,
         if not isinstance(w, Mapping):
             p.append(f"MATERIAL_OBSERVATION_WITNESS_MALFORMED:{idx}")
             continue
+        for key in (
+            "witness_identity",
+            "witness_control_domain_id",
+            "witness_content_digest",
+            "witness_qualification_digest",
+            "witness_independence_qualification_digest",
+            "witness_currentness_binding_digest",
+        ):
+            if not _nonempty(w.get(key)):
+                p.append(f"MATERIAL_OBSERVATION_WITNESS_FIELD_REQUIRED:{idx}:{key}")
+        for key in (
+            "witness_content_digest",
+            "witness_qualification_digest",
+            "witness_independence_qualification_digest",
+            "witness_currentness_binding_digest",
+        ):
+            if not _sha(w.get(key)):
+                p.append(f"MATERIAL_OBSERVATION_WITNESS_DIGEST_INVALID:{idx}:{key}")
         if w.get("observed_head_digest") != expected_cumulative:
             p.append(f"MATERIAL_OBSERVATION_WITNESS_HEAD_MISMATCH:{idx}")
         if w.get("observed_sequence") != expected_latest_seq:
@@ -146,16 +205,50 @@ def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str,
             p.append(f"MATERIAL_OBSERVATION_WITNESS_NOT_CURRENT:{idx}")
         if w.get("independence_result") != QUALIFIED:
             p.append(f"MATERIAL_OBSERVATION_WITNESS_NOT_INDEPENDENT:{idx}")
+        witness_proof = close_governance_dependencies(
+            [
+                {
+                    "kind": GOVERNED_QUALIFICATION,
+                    "reference_digest": w.get("witness_qualification_digest"),
+                    "subject_id": w.get("witness_identity"),
+                    "subject_content_digest": w.get("witness_content_digest"),
+                },
+                {
+                    "kind": INDEPENDENCE_QUALIFICATION,
+                    "reference_digest": w.get("witness_independence_qualification_digest"),
+                    "subject_identity_id": w.get("witness_identity"),
+                },
+                {
+                    "kind": CURRENTNESS_BINDING,
+                    "reference_digest": w.get("witness_currentness_binding_digest"),
+                    "source_id": w.get("witness_identity"),
+                    "source_digest": w.get("witness_content_digest"),
+                },
+            ],
+            proof_context,
+            trusted_boundary,
+        )
+        proof_ok = _append_proof(
+            f"MATERIAL_OBSERVATION_WITNESS_PROOF:{idx}", witness_proof, p
+        )
         if w.get("witness_control_domain_id") == operator_domain:
             p.append(f"MATERIAL_OBSERVATION_WITNESS_OPERATOR_DOMAIN_CONFLICT:{idx}")
-        elif w.get("currentness_result") == CURRENT and w.get("independence_result") == QUALIFIED:
+        elif (
+            proof_ok
+            and w.get("currentness_result") == CURRENT
+            and w.get("independence_result") == QUALIFIED
+        ):
             independent_current += 1
     if independent_current < 1:
         p.append("MATERIAL_OBSERVATION_NO_QUALIFIED_INDEPENDENT_WITNESS")
 
     p = sorted(set(p))
     return {
-        "state": "MATERIAL_OBSERVATION_LEDGER_CURRENT" if not p else "MATERIAL_OBSERVATION_LEDGER_INVALID",
+        "state": (
+            "MATERIAL_OBSERVATION_LEDGER_CURRENT"
+            if not p
+            else "MATERIAL_OBSERVATION_LEDGER_INVALID"
+        ),
         "qualified": not p,
         "problems": p,
         "head_digest": expected_cumulative,
@@ -165,14 +258,36 @@ def validate_material_observation_ledger(bundle: Mapping[str, Any]) -> dict[str,
     }
 
 
-def derive_material_authority_surface(bundle: Mapping[str, Any]) -> dict[str, Any]:
-    """Require independently controlled material-surface derivations and exact consensus."""
+def derive_material_authority_surface(
+    bundle: Mapping[str, Any],
+    *,
+    proof_context: Mapping[str, Any] | None = None,
+    trusted_boundary: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Require proof-closed independently controlled derivations and exact consensus."""
     p: list[str] = []
     if bundle.get("observation_ledger_state") != QUALIFIED:
         p.append("MATERIAL_SURFACE_OBSERVATION_LEDGER_NOT_QUALIFIED")
     observation_head = bundle.get("observation_head_digest")
     if not _sha(observation_head):
         p.append("MATERIAL_SURFACE_OBSERVATION_HEAD_INVALID")
+    if not _nonempty(bundle.get("observation_ledger_id")):
+        p.append("MATERIAL_SURFACE_OBSERVATION_LEDGER_ID_REQUIRED")
+    if not _sha(bundle.get("observation_ledger_qualification_digest")):
+        p.append("MATERIAL_SURFACE_OBSERVATION_LEDGER_QUALIFICATION_DIGEST_INVALID")
+    ledger_proof = close_governance_dependencies(
+        [
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": bundle.get("observation_ledger_qualification_digest"),
+                "subject_id": bundle.get("observation_ledger_id"),
+                "subject_content_digest": observation_head,
+            }
+        ],
+        proof_context,
+        trusted_boundary,
+    )
+    _append_proof("MATERIAL_SURFACE_LEDGER_PROOF", ledger_proof, p)
     observed, op = _strings(bundle.get("observed_entity_or_path_ids"))
     p.extend(f"OBSERVED:{x}" for x in op)
 
@@ -186,15 +301,56 @@ def derive_material_authority_surface(bundle: Mapping[str, Any]) -> dict[str, An
         if not isinstance(d, Mapping):
             p.append(f"MATERIAL_SURFACE_DERIVATION_MALFORMED:{idx}")
             continue
-        for key in ("derivation_id", "derivation_mechanism_id", "derivation_authority_id", "control_domain_id"):
+        for key in (
+            "derivation_id",
+            "derivation_mechanism_id",
+            "derivation_authority_id",
+            "control_domain_id",
+            "derivation_mechanism_content_digest",
+            "mechanism_qualification_digest",
+            "authority_independence_qualification_digest",
+            "currentness_binding_digest",
+        ):
             if not _nonempty(d.get(key)):
                 p.append(f"MATERIAL_SURFACE_DERIVATION_FIELD_REQUIRED:{idx}:{key}")
+        for key in (
+            "derivation_mechanism_content_digest",
+            "mechanism_qualification_digest",
+            "authority_independence_qualification_digest",
+            "currentness_binding_digest",
+        ):
+            if not _sha(d.get(key)):
+                p.append(f"MATERIAL_SURFACE_DERIVATION_PROOF_DIGEST_INVALID:{idx}:{key}")
         if d.get("mechanism_qualification_state") != QUALIFIED:
             p.append(f"MATERIAL_SURFACE_DERIVATION_MECHANISM_NOT_QUALIFIED:{idx}")
         if d.get("authority_independence_state") != QUALIFIED:
             p.append(f"MATERIAL_SURFACE_DERIVATION_AUTHORITY_NOT_INDEPENDENT:{idx}")
         if d.get("currentness_result") != CURRENT:
             p.append(f"MATERIAL_SURFACE_DERIVATION_NOT_CURRENT:{idx}")
+        dproof = close_governance_dependencies(
+            [
+                {
+                    "kind": GOVERNED_QUALIFICATION,
+                    "reference_digest": d.get("mechanism_qualification_digest"),
+                    "subject_id": d.get("derivation_mechanism_id"),
+                    "subject_content_digest": d.get("derivation_mechanism_content_digest"),
+                },
+                {
+                    "kind": INDEPENDENCE_QUALIFICATION,
+                    "reference_digest": d.get("authority_independence_qualification_digest"),
+                    "subject_identity_id": d.get("derivation_authority_id"),
+                },
+                {
+                    "kind": CURRENTNESS_BINDING,
+                    "reference_digest": d.get("currentness_binding_digest"),
+                    "source_id": d.get("derivation_mechanism_id"),
+                    "source_digest": d.get("derivation_mechanism_content_digest"),
+                },
+            ],
+            proof_context,
+            trusted_boundary,
+        )
+        _append_proof(f"MATERIAL_SURFACE_DERIVATION_PROOF:{idx}", dproof, p)
         domain = d.get("control_domain_id")
         if _nonempty(domain):
             if domain in control_domains:
@@ -239,6 +395,23 @@ def derive_material_authority_surface(bundle: Mapping[str, Any]) -> dict[str, An
             p.append(f"MATERIALITY_CLASSIFICATION_DUPLICATE:{sid}")
             continue
         class_by_subject[sid] = c
+        for key in (
+            "classifier_id",
+            "classifier_content_digest",
+            "classifier_qualification_digest",
+            "classifier_independence_qualification_digest",
+            "currentness_binding_digest",
+        ):
+            if not _nonempty(c.get(key)):
+                p.append(f"MATERIALITY_PROOF_FIELD_REQUIRED:{sid}:{key}")
+        for key in (
+            "classifier_content_digest",
+            "classifier_qualification_digest",
+            "classifier_independence_qualification_digest",
+            "currentness_binding_digest",
+        ):
+            if not _sha(c.get(key)):
+                p.append(f"MATERIALITY_PROOF_DIGEST_INVALID:{sid}:{key}")
         if c.get("classification") not in MATERIALITY_RESULTS:
             p.append(f"MATERIALITY_CLASSIFICATION_RESULT_INVALID:{sid}")
         if c.get("classifier_qualification_state") != QUALIFIED:
@@ -247,6 +420,30 @@ def derive_material_authority_surface(bundle: Mapping[str, Any]) -> dict[str, An
             p.append(f"MATERIALITY_CLASSIFIER_NOT_INDEPENDENT:{sid}")
         if c.get("currentness_result") != CURRENT:
             p.append(f"MATERIALITY_CLASSIFICATION_NOT_CURRENT:{sid}")
+        cproof = close_governance_dependencies(
+            [
+                {
+                    "kind": GOVERNED_QUALIFICATION,
+                    "reference_digest": c.get("classifier_qualification_digest"),
+                    "subject_id": c.get("classifier_id"),
+                    "subject_content_digest": c.get("classifier_content_digest"),
+                },
+                {
+                    "kind": INDEPENDENCE_QUALIFICATION,
+                    "reference_digest": c.get("classifier_independence_qualification_digest"),
+                    "subject_identity_id": c.get("classifier_id"),
+                },
+                {
+                    "kind": CURRENTNESS_BINDING,
+                    "reference_digest": c.get("currentness_binding_digest"),
+                    "source_id": c.get("classifier_id"),
+                    "source_digest": c.get("classifier_content_digest"),
+                },
+            ],
+            proof_context,
+            trusted_boundary,
+        )
+        _append_proof(f"MATERIALITY_CLASSIFIER_PROOF:{sid}", cproof, p)
         if c.get("classification") == INSUFFICIENT_EVIDENCE:
             p.append(f"MATERIALITY_CLASSIFICATION_INSUFFICIENT:{sid}")
 
@@ -255,25 +452,80 @@ def derive_material_authority_surface(bundle: Mapping[str, Any]) -> dict[str, An
     for sid in sorted(set(class_by_subject) - consensus):
         p.append(f"MATERIALITY_CLASSIFICATION_OUTSIDE_DERIVED_SURFACE:{sid}")
 
-    material_ids = sorted(sid for sid, c in class_by_subject.items() if c.get("classification") == MATERIAL)
+    material_ids = sorted(
+        sid for sid, c in class_by_subject.items() if c.get("classification") == MATERIAL
+    )
+    p = sorted(set(p))
+    surface_id = bundle.get("material_surface_id")
+    if not _nonempty(surface_id):
+        p.append("MATERIAL_SURFACE_ID_REQUIRED")
+    surface_digest = digest(
+        {
+            "observation_head_digest": observation_head,
+            "derived_member_ids": sorted(consensus),
+            "material_member_ids": material_ids,
+        }
+    )
     p = sorted(set(p))
     return {
-        "state": "MATERIAL_AUTHORITY_SURFACE_QUALIFIED" if not p else MATERIAL_SURFACE_UNRESOLVED,
+        "state": (
+            "MATERIAL_AUTHORITY_SURFACE_QUALIFIED"
+            if not p
+            else MATERIAL_SURFACE_UNRESOLVED
+        ),
         "qualified": not p,
         "problems": p,
+        "material_surface_id": surface_id,
         "material_member_ids": material_ids,
         "derived_member_ids": sorted(consensus),
-        "surface_digest": digest({"observation_head_digest": observation_head, "derived_member_ids": sorted(consensus), "material_member_ids": material_ids}),
+        "surface_digest": surface_digest,
         "authority_effect": AUTHORITY_EFFECT,
     }
 
 
-def validate_material_effect_path(record: Mapping[str, Any], *, current_observation_head: str) -> list[str]:
+def validate_material_effect_path(
+    record: Mapping[str, Any],
+    *,
+    current_observation_head: str,
+    proof_context: Mapping[str, Any] | None = None,
+    trusted_boundary: Mapping[str, Any] | None = None,
+) -> list[str]:
     p: list[str] = []
-    for key in ("path_id", "source_or_writer_id", "sink_id", "effect_class_id", "writer_admission_digest", "capability_digest", "guard_mechanism_digest", "sink_admitted_writer_set_digest", "material_surface_membership_digest", "observation_head_digest"):
+    for key in (
+        "path_id",
+        "path_content_digest",
+        "source_or_writer_id",
+        "sink_id",
+        "effect_class_id",
+        "writer_admission_id",
+        "writer_admission_digest",
+        "writer_admission_qualification_digest",
+        "capability_id",
+        "capability_digest",
+        "capability_qualification_digest",
+        "guard_mechanism_id",
+        "guard_mechanism_digest",
+        "guard_qualification_digest",
+        "currentness_binding_digest",
+        "sink_admitted_writer_set_digest",
+        "material_surface_membership_digest",
+        "observation_head_digest",
+    ):
         if not _nonempty(record.get(key)):
             p.append(f"MATERIAL_EFFECT_PATH_FIELD_REQUIRED:{key}")
-    for key in ("writer_admission_digest", "capability_digest", "guard_mechanism_digest", "sink_admitted_writer_set_digest", "material_surface_membership_digest", "observation_head_digest"):
+    for key in (
+        "path_content_digest",
+        "writer_admission_digest",
+        "writer_admission_qualification_digest",
+        "capability_digest",
+        "capability_qualification_digest",
+        "guard_mechanism_digest",
+        "guard_qualification_digest",
+        "currentness_binding_digest",
+        "sink_admitted_writer_set_digest",
+        "material_surface_membership_digest",
+        "observation_head_digest",
+    ):
         if not _sha(record.get(key)):
             p.append(f"MATERIAL_EFFECT_PATH_DIGEST_INVALID:{key}")
     if record.get("writer_admission_state") != QUALIFIED:
@@ -298,11 +550,47 @@ def validate_material_effect_path(record: Mapping[str, Any], *, current_observat
         p.append("MATERIAL_EFFECT_PATH_NOT_CURRENT")
     if record.get("observation_head_digest") != current_observation_head:
         p.append("MATERIAL_EFFECT_PATH_OBSERVATION_HEAD_STALE")
+    path_proof = close_governance_dependencies(
+        [
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": record.get("writer_admission_qualification_digest"),
+                "subject_id": record.get("writer_admission_id"),
+                "subject_content_digest": record.get("writer_admission_digest"),
+            },
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": record.get("capability_qualification_digest"),
+                "subject_id": record.get("capability_id"),
+                "subject_content_digest": record.get("capability_digest"),
+            },
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": record.get("guard_qualification_digest"),
+                "subject_id": record.get("guard_mechanism_id"),
+                "subject_content_digest": record.get("guard_mechanism_digest"),
+            },
+            {
+                "kind": CURRENTNESS_BINDING,
+                "reference_digest": record.get("currentness_binding_digest"),
+                "source_id": record.get("path_id"),
+                "source_digest": record.get("path_content_digest"),
+            },
+        ],
+        proof_context,
+        trusted_boundary,
+    )
+    _append_proof("MATERIAL_EFFECT_PATH_PROOF", path_proof, p)
     return sorted(set(p))
 
 
-def evaluate_material_discovery(bundle: Mapping[str, Any]) -> dict[str, Any]:
-    """Latch real observations into authority evaluation; no caller discovery boolean exists."""
+def evaluate_material_discovery(
+    bundle: Mapping[str, Any],
+    *,
+    proof_context: Mapping[str, Any] | None = None,
+    trusted_boundary: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Latch real proof-closed observations into authority evaluation."""
     p: list[str] = []
     if bundle.get("observation_ledger_state") != QUALIFIED:
         p.append("MATERIAL_DISCOVERY_OBSERVATION_LEDGER_NOT_QUALIFIED")
@@ -318,18 +606,59 @@ def evaluate_material_discovery(bundle: Mapping[str, Any]) -> dict[str, Any]:
         p.append("MATERIAL_DISCOVERY_OBSERVATION_HEAD_INVALID")
     if not _sha(surface_digest):
         p.append("MATERIAL_DISCOVERY_SURFACE_DIGEST_INVALID")
+    for key in (
+        "observation_ledger_id",
+        "observation_ledger_qualification_digest",
+        "material_surface_id",
+        "material_surface_qualification_digest",
+    ):
+        if not _nonempty(bundle.get(key)):
+            p.append(f"MATERIAL_DISCOVERY_PROOF_FIELD_REQUIRED:{key}")
+    for key in (
+        "observation_ledger_qualification_digest",
+        "material_surface_qualification_digest",
+    ):
+        if not _sha(bundle.get(key)):
+            p.append(f"MATERIAL_DISCOVERY_PROOF_DIGEST_INVALID:{key}")
+    discovery_proof = close_governance_dependencies(
+        [
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": bundle.get("observation_ledger_qualification_digest"),
+                "subject_id": bundle.get("observation_ledger_id"),
+                "subject_content_digest": observation_head,
+            },
+            {
+                "kind": GOVERNED_QUALIFICATION,
+                "reference_digest": bundle.get("material_surface_qualification_digest"),
+                "subject_id": bundle.get("material_surface_id"),
+                "subject_content_digest": surface_digest,
+            },
+        ],
+        proof_context,
+        trusted_boundary,
+    )
+    _append_proof("MATERIAL_DISCOVERY_PROOF", discovery_proof, p)
 
     unadmitted = sorted(observed - admitted)
     conditions = []
     for subject_id in unadmitted:
-        conditions.append({
-            "condition_id": "UNADMITTED_MATERIAL_AUTHORITY_PATH",
-            "predicate_id": AUTHORITY_ADMISSION_REQUIRED,
-            "subject_id": subject_id,
-            "observation_head_digest": observation_head,
-            "material_surface_digest": surface_digest,
-            "condition_payload_digest": digest({"subject_id": subject_id, "observation_head_digest": observation_head, "material_surface_digest": surface_digest}),
-        })
+        conditions.append(
+            {
+                "condition_id": "UNADMITTED_MATERIAL_AUTHORITY_PATH",
+                "predicate_id": AUTHORITY_ADMISSION_REQUIRED,
+                "subject_id": subject_id,
+                "observation_head_digest": observation_head,
+                "material_surface_digest": surface_digest,
+                "condition_payload_digest": digest(
+                    {
+                        "subject_id": subject_id,
+                        "observation_head_digest": observation_head,
+                        "material_surface_digest": surface_digest,
+                    }
+                ),
+            }
+        )
     if unadmitted:
         p.append(AUTHORITY_ADMISSION_REQUIRED)
 
@@ -346,4 +675,9 @@ def evaluate_material_discovery(bundle: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def construction_frontier() -> dict[str, Any]:
-    return {"state": "V24_V6_R3_MATERIAL_SURFACE_CONSTRUCTION_READY", "qualified": False, "implementation_workstream": "R3", "authority_effect": AUTHORITY_EFFECT}
+    return {
+        "state": "V24_V6_R3_MATERIAL_SURFACE_CONSTRUCTION_READY",
+        "qualified": False,
+        "implementation_workstream": "R3",
+        "authority_effect": AUTHORITY_EFFECT,
+    }
