@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "manifest_id": "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR4-MANDATORY-TESTS-001",
+  "slice_id": "V16-S2-CONTROL-DOMAIN-INDEPENDENCE",
+  "slice1_frozen_commit": "36f22a35ff57b6994d55c705c08686609276ddb3",
+  "predecessor_slice2_candidate": "e46c60423648218e9de1716f0b3cf111c399b138",
+  "test_source_git_blob_sha": "dcbfde5e548d500cbececed331956965cc10d5ff",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "runtime_qualification": "NOT_CLAIMED",
+  "tests": [
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_public_binding_uses_owned_graph_snapshot_when_caller_mutates_after_snapshot","requirement_test_id":"V16-S2-IAR4-001"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_historical_predecessor_exact_blob_binding_passes","requirement_test_id":"V16-S2-IAR4-002"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_same_predecessor_id_with_different_content_is_rejected","requirement_test_id":"V16-S2-IAR4-003"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_duplicate_top_level_manifest_key_is_rejected","requirement_test_id":"V16-S2-IAR4-004"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_duplicate_per_test_key_is_rejected","requirement_test_id":"V16-S2-IAR4-005"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_unknown_top_level_manifest_field_is_rejected","requirement_test_id":"V16-S2-IAR4-006"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_unknown_per_test_field_is_rejected","requirement_test_id":"V16-S2-IAR4-007"},
+    {"mandatory":true,"python_test_id":"test_review_safe_evidence_v16_independence_iar4.Slice2IAR4Tests.test_valid_current_manifest_set_passes_strictly_but_remains_nonauthoritative","requirement_test_id":"V16-S2-IAR4-008"}
+  ]
+}
