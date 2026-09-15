@@ -20,9 +20,11 @@ HISTORICAL_BASELINE_BLOB = "27983a245408589ec39681aa69da3a003294ddd8"
 IAR1_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR1-MANDATORY-TESTS-001"
 IAR2_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR2-MANDATORY-TESTS-001"
 IAR3_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR3-MANDATORY-TESTS-001"
-CURRENT_IDS = (CURRENT_BASELINE_ID, IAR1_ID, IAR2_ID, IAR3_ID)
+IAR4_ID = "REVIEW-SAFE-EVIDENCE-V16-SLICE2-IAR4-MANDATORY-TESTS-001"
+CURRENT_IDS = (CURRENT_BASELINE_ID, IAR1_ID, IAR2_ID, IAR3_ID, IAR4_ID)
 BASELINE_TEST_BLOB = "8ed790401280862796ea1f79eadb17f18cfe7ff8"
 IAR3_TEST_BLOB = "7537c9517366bbff30c430306975da3b4caf6b96"
+IAR4_TEST_BLOB = "dcbfde5e548d500cbececed331956965cc10d5ff"
 
 TEST_FIELDS = frozenset({"mandatory", "python_test_id", "requirement_test_id"})
 BASELINE_V2_FIELDS = frozenset({
@@ -40,7 +42,7 @@ IAR12_FIELDS = frozenset({
     "runtime_qualification", "schema_version", "slice_id", "slice1_frozen_commit",
     "predecessor_slice2_candidate", "tests",
 })
-IAR3_FIELDS = IAR12_FIELDS | {"test_source_git_blob_sha"}
+IAR34_FIELDS = IAR12_FIELDS | {"test_source_git_blob_sha"}
 INDEX_FIELDS = frozenset({
     "schema_version", "slice_id", "current_baseline_manifest_id", "current_manifest_ids",
     "historical_manifest_ids", "historical_manifest_git_blobs",
@@ -127,7 +129,8 @@ def validate_manifest_schema(obj: Any, schema_name: str) -> list[str]:
         "historical_baseline": HISTORICAL_BASELINE_FIELDS,
         "iar1": IAR12_FIELDS,
         "iar2": IAR12_FIELDS,
-        "iar3": IAR3_FIELDS,
+        "iar3": IAR34_FIELDS,
+        "iar4": IAR34_FIELDS,
         "index": INDEX_FIELDS,
     }
     expected = schemas.get(schema_name)
@@ -171,11 +174,9 @@ def validate_predecessor_binding(
         problems.append("BASELINE_PREDECESSOR_ID_MISMATCH")
     if baseline.get("supersedes_manifest_git_blob_sha") != HISTORICAL_BASELINE_BLOB:
         problems.append("BASELINE_PREDECESSOR_BLOB_BINDING_MISMATCH")
-    historical_ids = index.get("historical_manifest_ids")
-    if historical_ids != [HISTORICAL_BASELINE_ID]:
+    if index.get("historical_manifest_ids") != [HISTORICAL_BASELINE_ID]:
         problems.append("INDEX_HISTORICAL_IDS_MISMATCH")
-    historical_blobs = index.get("historical_manifest_git_blobs")
-    if type(historical_blobs) is not dict or historical_blobs != {HISTORICAL_BASELINE_ID: HISTORICAL_BASELINE_BLOB}:
+    if index.get("historical_manifest_git_blobs") != {HISTORICAL_BASELINE_ID: HISTORICAL_BASELINE_BLOB}:
         problems.append("INDEX_HISTORICAL_BLOB_BINDING_MISMATCH")
     return sorted(set(problems))
 
@@ -197,6 +198,7 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         "iar1": root / "review-safe-evidence-v16-slice2-test-manifest-iar1.json",
         "iar2": root / "review-safe-evidence-v16-slice2-test-manifest-iar2.json",
         "iar3": root / "review-safe-evidence-v16-slice2-test-manifest-iar3.json",
+        "iar4": root / "review-safe-evidence-v16-slice2-test-manifest-iar4.json",
         "index": root / "review-safe-evidence-v16-slice2-current-manifests.json",
     }
     loaded: dict[str, dict[str, Any]] = {}
@@ -218,12 +220,14 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
     iar1 = loaded["iar1"]
     iar2 = loaded["iar2"]
     iar3 = loaded["iar3"]
+    iar4 = loaded["iar4"]
     index = loaded["index"]
     for obj, expected, label in (
         (baseline, CURRENT_BASELINE_ID, "baseline_v2"),
         (iar1, IAR1_ID, "iar1"),
         (iar2, IAR2_ID, "iar2"),
         (iar3, IAR3_ID, "iar3"),
+        (iar4, IAR4_ID, "iar4"),
     ):
         _require_manifest_identity(obj, expected, label, problems)
 
@@ -233,10 +237,14 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
         problems.append("BASELINE_TEST_SOURCE_BINDING_INVALID")
     if iar3.get("test_source_git_blob_sha") != IAR3_TEST_BLOB:
         problems.append("IAR3_TEST_SOURCE_BINDING_INVALID")
+    if iar4.get("test_source_git_blob_sha") != IAR4_TEST_BLOB:
+        problems.append("IAR4_TEST_SOURCE_BINDING_INVALID")
     if git_blob_sha_path(root / "test_review_safe_evidence_v16_independence.py") != BASELINE_TEST_BLOB:
         problems.append("BASELINE_TEST_SOURCE_BLOB_MISMATCH")
     if git_blob_sha_path(root / "test_review_safe_evidence_v16_independence_iar3.py") != IAR3_TEST_BLOB:
         problems.append("IAR3_TEST_SOURCE_BLOB_MISMATCH")
+    if git_blob_sha_path(root / "test_review_safe_evidence_v16_independence_iar4.py") != IAR4_TEST_BLOB:
+        problems.append("IAR4_TEST_SOURCE_BLOB_MISMATCH")
 
     historical_path = root / "review-safe-evidence-v16-slice2-test-manifest.json"
     try:
@@ -253,11 +261,11 @@ def validate_current_manifest_set(root: Path) -> dict[str, Any]:
     if HISTORICAL_BASELINE_ID in index.get("current_manifest_ids", []):
         problems.append("HISTORICAL_BASELINE_MARKED_CURRENT")
 
-    manifests = [baseline, iar1, iar2, iar3]
+    manifests = [baseline, iar1, iar2, iar3, iar4]
     rows = [row for manifest in manifests for row in manifest.get("tests", []) if type(row) is dict]
     requirement_ids = [row.get("requirement_test_id") for row in rows]
     python_ids = [row.get("python_test_id") for row in rows]
-    if len(rows) != 61:
+    if len(rows) != 69:
         problems.append(f"CURRENT_TEST_COUNT_MISMATCH:{len(rows)}")
     if not _unique([x for x in requirement_ids if isinstance(x, str)]) or len(requirement_ids) != len([x for x in requirement_ids if isinstance(x, str)]):
         problems.append("CURRENT_REQUIREMENT_IDS_NOT_UNIQUE_STRINGS")
