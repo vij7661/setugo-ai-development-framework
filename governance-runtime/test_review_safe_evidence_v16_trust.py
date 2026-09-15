@@ -12,6 +12,7 @@ from review_safe_evidence_v16_trust import (
     BootstrapRoot,
     CanonicalizationError,
     PinnedBootstrapTrustSet,
+    PinnedRegistryHead,
     canonical_bytes,
     canonical_sha256,
     load_strict_json,
@@ -20,6 +21,7 @@ from review_safe_evidence_v16_trust import (
     signed_record_signature_message,
     validate_bootstrap_trust_set,
     validate_governance_key_registry_chain,
+    validate_pinned_registry_head,
     verify_signed_governance_record,
     verify_signed_governance_record_json,
 )
@@ -149,6 +151,19 @@ def resign_registry(record: dict) -> None:
     _sign_registry(record)
 
 
+def head_for(chain: list[dict]) -> PinnedRegistryHead:
+    current = chain[-1]
+    return PinnedRegistryHead(
+        anchor_id=f"head-{current['sequence']}",
+        trust_set_id="bootstrap-v16-test",
+        registry_id=current["registry_id"],
+        candidate_id=current["candidate_id"],
+        sequence=current["sequence"],
+        generation_id=current["generation_id"],
+        registry_digest=current["registry_digest"],
+    )
+
+
 def make_signed_record(
     *,
     registry_sequence: int = 1,
@@ -211,6 +226,12 @@ class CanonicalizationTests(unittest.TestCase):
     def test_strict_json_rejects_float_tokens(self):
         with self.assertRaises(CanonicalizationError):
             load_strict_json('{"x":1.5}')
+
+    def test_lone_surrogate_is_rejected_as_canonicalization_error(self):
+        with self.assertRaises(CanonicalizationError):
+            canonical_bytes({"x": "\ud800"})
+        with self.assertRaises(CanonicalizationError):
+            load_strict_json('{"x":"\\ud800"}')
 
 
 class BootstrapTests(unittest.TestCase):
@@ -282,6 +303,7 @@ class RegistryTests(unittest.TestCase):
         result = validate_governance_key_registry_chain([r], trust(), expected_candidate_id="candidate-1")
         self.assertTrue(result["valid"], result["problems"])
         self.assertEqual(len(result["bootstrap_authenticated_control_domains"]), 2)
+        self.assertFalse(result["registry_currentness_anchored"])
         self.assertFalse(result["qualified"])
 
     def test_single_bootstrap_signature_cannot_authenticate_registry(self):
@@ -378,13 +400,28 @@ class RegistryTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertTrue(any("GENERATION_REUSE_FORBIDDEN" in x for x in result["problems"]))
 
+    def test_governance_registry_rejects_public_key_alias_across_two_identities(self):
+        shared = _pub_b64(ISSUER)
+        k1 = key_entry(public_key_b64=shared)
+        k2 = key_entry(
+            issuer_id="issuer-2", key_id="issuer-key-2", control_domain="issuer-domain-2",
+            public_key_b64=shared,
+        )
+        r = make_registry(keys=[k1, k2])
+        result = validate_governance_key_registry_chain([r], trust(), expected_candidate_id="candidate-1")
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("KEY_REGISTRY_PUBLIC_KEY_REUSE_FORBIDDEN" in x for x in result["problems"]))
+
 
 class SignedRecordTests(unittest.TestCase):
     def verify(self, record: dict, chain: list[dict] | None = None, **kwargs):
+        actual_chain = chain or [make_registry()]
+        expected_head = kwargs.pop("expected_current_registry_head", head_for(actual_chain))
         return verify_signed_governance_record(
             record,
-            registry_chain=chain or [make_registry()],
+            registry_chain=actual_chain,
             bootstrap_trust=trust(),
+            expected_current_registry_head=expected_head,
             expected_candidate_id="candidate-1",
             expected_generation_id=kwargs.pop("expected_generation_id", "gen-1"),
             expected_record_type="RAW_EVIDENCE_CAPTURE",
@@ -398,7 +435,9 @@ class SignedRecordTests(unittest.TestCase):
         self.assertTrue(result["issuer_signature_verified"])
         self.assertTrue(result["authority_registry_verified"])
         self.assertTrue(result["content_integrity_verified"])
+        self.assertTrue(result["registry_currentness_anchor_matched"])
         self.assertFalse(result["trust_anchor_provisioning_proven"])
+        self.assertFalse(result["currentness_anchor_provisioning_proven"])
         self.assertFalse(result["qualified"])
         self.assertEqual(result["authority_effect"], AUTHORITY_EFFECT)
 
@@ -488,6 +527,7 @@ class SignedRecordTests(unittest.TestCase):
         record = make_signed_record(registry_sequence=2, generation_id="gen-2")
         result = self.verify(record, [r1, r2], expected_generation_id="gen-2")
         self.assertTrue(result["valid"], result["problems"])
+        self.assertTrue(result["registry_currentness_anchor_matched"])
 
     def test_strict_json_ingress_rejects_duplicate_signed_record_keys(self):
         reg = make_registry()
@@ -498,6 +538,7 @@ class SignedRecordTests(unittest.TestCase):
             raw,
             registry_chain_json=[json.dumps(reg, separators=(",", ":"))],
             bootstrap_trust=trust(),
+            expected_current_registry_head=head_for([reg]),
             expected_candidate_id="candidate-1",
             expected_generation_id="gen-1",
             expected_record_type="RAW_EVIDENCE_CAPTURE",
@@ -505,6 +546,40 @@ class SignedRecordTests(unittest.TestCase):
         )
         self.assertFalse(result["valid"])
         self.assertTrue(any("STRICT_JSON_INGRESS" in x for x in result["problems"]))
+
+    def test_stale_registry_prefix_cannot_override_newer_pinned_head(self):
+        r1 = make_registry()
+        revoked = key_entry(state="REVOKED", valid_from=1, revoked_at=2)
+        r2 = make_registry(sequence=2, generation_id="gen-2", predecessor=r1["registry_digest"], key=revoked)
+        old_record = make_signed_record(registry_sequence=1, generation_id="gen-1")
+        result = self.verify(
+            old_record,
+            [r1],
+            expected_generation_id="gen-1",
+            expected_current_registry_head=head_for([r1, r2]),
+        )
+        self.assertFalse(result["valid"])
+        self.assertFalse(result["registry_currentness_anchor_matched"])
+        self.assertIn("SIGNED_RECORD_REGISTRY_HEAD_SEQUENCE_MISMATCH", result["problems"])
+        self.assertIn("SIGNED_RECORD_REGISTRY_HEAD_GENERATION_MISMATCH", result["problems"])
+        self.assertIn("SIGNED_RECORD_REGISTRY_HEAD_DIGEST_MISMATCH", result["problems"])
+
+    def test_pinned_registry_head_trust_set_mismatch_fails_closed(self):
+        reg = make_registry()
+        bad_head = PinnedRegistryHead(
+            anchor_id="bad-head",
+            trust_set_id="other-trust-set",
+            registry_id=reg["registry_id"],
+            candidate_id=reg["candidate_id"],
+            sequence=reg["sequence"],
+            generation_id=reg["generation_id"],
+            registry_digest=reg["registry_digest"],
+        )
+        head_result = validate_pinned_registry_head(bad_head, trust(), expected_candidate_id="candidate-1")
+        self.assertFalse(head_result["valid"])
+        result = self.verify(make_signed_record(), [reg], expected_current_registry_head=bad_head)
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("REGISTRY_HEAD_TRUST_SET_MISMATCH" in x for x in result["problems"]))
 
 
 if __name__ == "__main__":
