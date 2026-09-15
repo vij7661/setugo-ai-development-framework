@@ -3,23 +3,26 @@ from __future__ import annotations
 import unittest
 
 from test_v24_v6_decision_apply import bundle
-from test_v24_v6_effect_ledger_closure import durable_ledger
+from test_v24_v6_effect_ledger_closure import durable_ledger, registry_and_path_fixture
 from test_v24_v6_endpoint_projection import endpoint_bundle
 from test_v24_v6_material_surface import ledger_bundle
 from test_v24_v6_normative_clause_projection import qualified_disposition_bundle
 from v24_v6_decision_apply import evaluate_decision_apply_latch
-from v24_v6_effect_ledger_closure import validate_durable_governance_ledger
+from v24_v6_effect_ledger_closure import (
+    validate_durable_governance_ledger,
+    validate_effect_path_against_registry,
+)
 from v24_v6_endpoint_projection import compile_qualified_endpoint_table
 from v24_v6_material_surface import validate_material_observation_ledger
 from v24_v6_normative_clause_projection import qualify_normative_dispositions
 
 
 class V24V6ProofResolutionRegressionTests(unittest.TestCase):
-    """Permanent regressions for opaque-proof false-greens found after R9.
+    """Permanent regressions for proof-substitution false-greens found after R9.
 
     Historical R4 RED is preserved by workflow run 35000549932. Additional
     authority paths are falsified before each repair and retained here so a later
-    refactor cannot reintroduce label-as-proof behavior.
+    refactor cannot reintroduce label-as-proof or digest-substitution behavior.
     """
 
     def test_forged_opaque_proof_labels_cannot_open_apply_latch(self):
@@ -124,9 +127,6 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
             candidate,
             ledger_kind="MATERIAL_OBSERVATION",
         )
-
-        # Pre-repair R6 accepts these labels, a different domain string, and one
-        # opaque independence digest as sufficient durable-head/witness authority.
         self.assertFalse(
             result["qualified"],
             "V6 false-green: opaque durable-ledger labels qualified the current head",
@@ -137,6 +137,42 @@ class V24V6ProofResolutionRegressionTests(unittest.TestCase):
                 or "LEDGER_WITNESS_PROOF" in problem
                 or "TRUSTED_PROOF_BOUNDARY_REQUIRED" in problem
                 or "PROOF_REFERENCE" in problem
+                for problem in result["problems"]
+            ),
+            result["problems"],
+        )
+
+    def test_registered_effect_class_substitution_invalidates_path_currentness(self):
+        path, registry_result, context, boundary = registry_and_path_fixture(
+            "STATE_WRITE"
+        )
+        self.assertIn("REMOTE_EFFECT", registry_result["actual_members"])
+        old_content_digest = path["path_content_digest"]
+        old_currentness = path["currentness_binding_digest"]
+
+        # Substitute a different *registered* class without changing the opaque
+        # path content digest/currentness reference.  Registry membership alone
+        # must not make the mutated path current.
+        path["effect_class_id"] = "REMOTE_EFFECT"
+        self.assertEqual(path["path_content_digest"], old_content_digest)
+        self.assertEqual(path["currentness_binding_digest"], old_currentness)
+
+        result = validate_effect_path_against_registry(
+            path,
+            current_observation_head_digest="9" * 64,
+            registry_result=registry_result,
+            proof_context=context,
+            trusted_boundary=boundary,
+        )
+        self.assertFalse(
+            result["qualified"],
+            "V6 false-green: registered effect-class substitution reused stale path currentness",
+        )
+        self.assertTrue(
+            any(
+                "PATH_CONTENT_DIGEST_MISMATCH" in problem
+                or "PATH_CURRENTNESS" in problem
+                or "MATERIAL_EFFECT_PATH_PROOF" in problem
                 for problem in result["problems"]
             ),
             result["problems"],
