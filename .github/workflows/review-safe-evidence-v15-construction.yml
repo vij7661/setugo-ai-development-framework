@@ -1,0 +1,67 @@
+name: Review Safe Evidence V15 Construction
+
+on:
+  push:
+    branches:
+      - implementation/review-safe-evidence-v15
+    paths:
+      - 'governance-runtime/review_safe_evidence_v15.py'
+      - 'governance-runtime/test_review_safe_evidence_v15.py'
+      - 'governance-runtime/review-safe-evidence-v15-schema-registry.json'
+      - 'standards/review-safe-evidence-governance-v15.md'
+      - '.github/workflows/review-safe-evidence-v15-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Record construction posture
+        run: |
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "IMPLEMENTATION_QUALIFICATION=NOT_CLAIMED"
+          echo "RUNTIME_QUALIFICATION=NOT_CLAIMED"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"
+
+      - name: Compile core implementation
+        run: python -m compileall -q governance-runtime/review_safe_evidence_v15.py governance-runtime/test_review_safe_evidence_v15.py
+
+      - name: Run V15 core trust primitive regression
+        working-directory: governance-runtime
+        run: python -m unittest -v test_review_safe_evidence_v15.py
+
+      - name: Validate schema registry JSON
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('governance-runtime/review-safe-evidence-v15-schema-registry.json')
+          obj=json.loads(p.read_text(encoding='utf-8'))
+          assert obj['schema_version']==1
+          assert obj['authority_effect']=='NONE_EVIDENCE_ONLY'
+          assert len(obj['schemas'])==10
+          assert obj['schemas']['fenced_effect_token']['single_use'] is True
+          print('V15_CANONICAL_SCHEMA_REGISTRY=PASS schemas=10')
+          PY
+
+      - name: Construction boundary
+        run: |
+          echo "V15_CORE_TRUST_PRIMITIVES_CONSTRUCTION=PASS_NONAUTHORITATIVE"
+          echo "NEXT_SLICE=ROLE_AUTHORITY_AND_ANCESTRY_CLOSURE"
+          echo "AUTHORITY_EFFECT=NONE_EVIDENCE_ONLY"

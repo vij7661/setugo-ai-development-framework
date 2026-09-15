@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "registry_id": "REVIEW-SAFE-EVIDENCE-V15-CANONICAL-SCHEMAS",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "implementation_qualification": "NOT_CLAIMED",
+  "schemas": {
+    "control_domain": {
+      "required": ["schema_version", "domain_id", "generation_id", "authority_roots", "currentness_state", "record_digest"],
+      "notes": "authority_roots are load-bearing ultimate control ancestors, not display labels"
+    },
+    "control_ancestry_edge": {
+      "required": ["schema_version", "child_domain_id", "parent_root_id", "influence_class", "evidence_digest", "record_digest"]
+    },
+    "residual_trust_root": {
+      "required": ["schema_version", "root_id", "control_domain_id", "generation_id", "scope", "accepted_limitations", "currentness_state", "record_digest"]
+    },
+    "independently_rooted_proof": {
+      "required": ["schema_version", "proof_id", "subject_a", "subject_b", "generation_id", "ancestry_graph_digest", "shared_load_bearing_ancestors", "declared_residual_roots", "result", "proof_digest"],
+      "result_vocabulary": ["INDEPENDENT", "NOT_INDEPENDENT", "INDEPENDENCE_UNPROVEN"],
+      "promotion_rule": "only INDEPENDENT may satisfy a required load-bearing independence relation"
+    },
+    "governed_proof": {
+      "required": ["schema_version", "proof_id", "subject_id", "candidate_id", "snapshot_id", "generation_id", "proof_mechanism_id", "evidence_digests", "verifier_id", "verifier_independence_result", "currentness", "result", "candidate_self_authored", "proof_digest"]
+    },
+    "challenge_certificate": {
+      "required": ["schema_version", "certificate_id", "challenge_type", "candidate_id", "snapshot_id", "generation_id", "mechanism_identity", "verifier_id", "source_root_digest", "issued_sequence", "expires_sequence", "currentness_rule", "result", "verifier_independence_result", "candidate_self_authored", "certificate_digest"],
+      "challenge_types": ["UNIVERSE_NEGATIVE_SPACE", "NOT_APPLICABLE", "OBSERVATION_APPLICABILITY"]
+    },
+    "currentness_binding": {
+      "required": ["schema_version", "subject_id", "source_version", "source_digest", "observed_sequence", "verifier_id", "generation_id", "verifier_independence_result", "state", "binding_digest"]
+    },
+    "reviewer_response_coverage": {
+      "required": ["schema_version", "review_id", "snapshot_id", "reviewer_id", "session_id", "response_digest", "content_receipt_digest", "dimensions", "complete", "disposition", "receipt_digest"],
+      "positive_disposition_rule": "PASS or BOUNDED_PASS requires every mandatory dimension to be SUPPORTED"
+    },
+    "blocker_record": {
+      "required": ["schema_version", "blocker_id", "severity", "state", "review_id", "snapshot_id", "generation_id", "evidence_digests", "opened_sequence", "record_digest"],
+      "resolution_rule": "RESOLVED_IN_REOPENED_REVIEW additionally requires resolution_review_id and resolution_evidence_digest"
+    },
+    "fenced_effect_token": {
+      "required": ["schema_version", "token_id", "candidate_id", "snapshot_id", "generation_id", "ledger_head_digest", "currentness_vector_digest", "content_receipt_digest", "nonce", "expires_sequence", "single_use", "token_digest"],
+      "single_use": true
+    }
+  }
+}
