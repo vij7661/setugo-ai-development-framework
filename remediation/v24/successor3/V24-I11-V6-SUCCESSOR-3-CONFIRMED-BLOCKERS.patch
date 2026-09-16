@@ -1,0 +1,451 @@
+diff --git a/governance-runtime/v24_v6_proof_reference_closure.py b/governance-runtime/v24_v6_proof_reference_closure.py
+index 54c6d5a..0000000 100644
+--- a/governance-runtime/v24_v6_proof_reference_closure.py
++++ b/governance-runtime/v24_v6_proof_reference_closure.py
+@@ -7,6 +7,7 @@ scientific, or terminal authority.
+ """
+ from __future__ import annotations
+ 
++import os
+ from typing import Any, Mapping
+ 
+ from v24_v6_governance_foundation import (
+@@ -27,6 +28,8 @@ PROOF_REFERENCE_CLOSED = "PROOF_REFERENCE_CLOSED"
+ PROOF_REFERENCE_REJECTED = "PROOF_REFERENCE_REJECTED"
+ PROOF_REFERENCE_CYCLE_REJECTED = "PROOF_REFERENCE_CYCLE_REJECTED"
+ 
++TRUSTED_BOUNDARY_ANCHOR_ENV = "V24_V6_TRUSTED_BOUNDARY_ANCHOR_SHA256"
++
+ _SUPPORTED_KINDS = frozenset(
+     {GOVERNED_QUALIFICATION, INDEPENDENCE_QUALIFICATION, CURRENTNESS_BINDING}
+ )
+@@ -69,19 +72,14 @@ def seal_proof_context(context: dict[str, Any]) -> dict[str, Any]:
+     return context
+ 
+ 
+-def trusted_boundary_for(context: Mapping[str, Any]) -> dict[str, Any]:
+-    """Construction helper for tests and frozen successor generation.
+-
+-    Production authority must bind this boundary outside candidate decision data.
+-    """
+-    scope = context.get("genesis_trusted_scope")
+-    scope_digest = scope.get("scope_digest") if isinstance(scope, Mapping) else None
+-    return {
+-        "governance_generation_id": context.get("governance_generation_id"),
+-        "expected_proof_context_digest": context.get("context_digest"),
+-        "expected_genesis_scope_digest": scope_digest,
+-    }
++def trusted_boundary_anchor_digest(boundary: Mapping[str, Any]) -> str:
++    """Digest the exact boundary material that the trusted environment must anchor."""
++    return digest(
++        {
++            "governance_generation_id": boundary.get("governance_generation_id"),
++            "expected_proof_context_digest": boundary.get("expected_proof_context_digest"),
++            "expected_genesis_scope_digest": boundary.get("expected_genesis_scope_digest"),
++        }
++    )
+ 
+ 
+ def validate_proof_context(
+@@ -104,6 +102,13 @@ def validate_proof_context(
+         problems.append("TRUSTED_PROOF_CONTEXT_DIGEST_INVALID")
+     if not _is_sha256(expected_scope_digest):
+         problems.append("TRUSTED_GENESIS_SCOPE_DIGEST_INVALID")
++    external_anchor = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
++    if not _is_sha256(external_anchor):
++        problems.append("TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR_REQUIRED")
++    elif trusted_boundary_anchor_digest(trusted_boundary) != external_anchor:
++        problems.append("TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR_MISMATCH")
+ 
+     if not isinstance(proof_context, Mapping):
+         problems.append("GOVERNANCE_PROOF_CONTEXT_REQUIRED")
+diff --git a/governance-runtime/v24_v6_test_proof_context.py b/governance-runtime/v24_v6_test_proof_context.py
+index f5336d4..0000000 100644
+--- a/governance-runtime/v24_v6_test_proof_context.py
++++ b/governance-runtime/v24_v6_test_proof_context.py
+@@ -4,6 +4,7 @@ This module is fixture infrastructure only.  Production modules must never import
+ it or synthesize qualifications to make an authority decision pass.
+ """
+ from __future__ import annotations
+ 
++import os
+ from typing import Any, Mapping
+ 
+ from v24_v6_governance_foundation import CURRENT, QUALIFIED, digest
+@@ -11,8 +12,9 @@ from v24_v6_proof_reference_closure import (
+     GOVERNED_QUALIFICATION,
+     INDEPENDENCE_QUALIFICATION,
++    TRUSTED_BOUNDARY_ANCHOR_ENV,
+     seal_proof_context,
+-    trusted_boundary_for,
++    trusted_boundary_anchor_digest,
+ )
+@@ -170,6 +172,18 @@ def _wrap(kind: str, record: Mapping[str, Any]) -> dict[str, Any]:
+     }
+ 
+ 
++def _trusted_boundary_for_test(context: Mapping[str, Any]) -> dict[str, Any]:
++    scope = context.get("genesis_trusted_scope")
++    scope_digest = scope.get("scope_digest") if isinstance(scope, Mapping) else None
++    boundary = {
++        "governance_generation_id": context.get("governance_generation_id"),
++        "expected_proof_context_digest": context.get("context_digest"),
++        "expected_genesis_scope_digest": scope_digest,
++    }
++    os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
++    return boundary
++
++
+ def build_test_proof_context(
+@@ -232,4 +246,4 @@ def build_test_proof_context(
+         "context_digest": "",
+     }
+     seal_proof_context(context)
+-    return context, trusted_boundary_for(context), refs
++    return context, _trusted_boundary_for_test(context), refs
+diff --git a/governance-runtime/test_v24_v6_proof_reference_closure.py b/governance-runtime/test_v24_v6_proof_reference_closure.py
+index bf757f2..0000000 100644
+--- a/governance-runtime/test_v24_v6_proof_reference_closure.py
++++ b/governance-runtime/test_v24_v6_proof_reference_closure.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ import copy
++import os
+ import unittest
+ 
+ from v24_v6_governance_foundation import CURRENT, QUALIFIED, STALE, digest
+@@ -8,12 +9,13 @@ from v24_v6_proof_reference_closure import (
+     GOVERNED_QUALIFICATION,
+     INDEPENDENCE_QUALIFICATION,
+     PROOF_REFERENCE_CLOSED,
++    TRUSTED_BOUNDARY_ANCHOR_ENV,
+     close_governance_dependencies,
+     resolve_currentness_binding,
+     resolve_governed_qualification,
+     resolve_independence_qualification,
+     seal_proof_context,
+-    trusted_boundary_for,
++    trusted_boundary_anchor_digest,
+     validate_proof_context,
+ )
+@@ -29,6 +31,18 @@ D8 = "8" * 64
+ D9 = "9" * 64
+ 
+ 
++def anchored_boundary_for(context: dict) -> dict:
++    scope = context["genesis_trusted_scope"]
++    boundary = {
++        "governance_generation_id": context["governance_generation_id"],
++        "expected_proof_context_digest": context["context_digest"],
++        "expected_genesis_scope_digest": scope["scope_digest"],
++    }
++    os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
++    return boundary
++
++
+ def seal(record: dict, field: str) -> dict:
+@@ -175,7 +189,7 @@ def proof_bundle() -> tuple[dict, dict, dict]:
+         "context_digest": "",
+     }
+     seal_proof_context(context)
+-    return context, trusted_boundary_for(context), {
++    return context, anchored_boundary_for(context), {
+         "root": root["qualification_digest"],
+         "independence": ind["qualification_digest"],
+@@ -187,7 +201,7 @@ def proof_bundle() -> tuple[dict, dict, dict]:
+ 
+ def reseal_context(context: dict) -> tuple[dict, dict]:
+     seal_proof_context(context)
+-    return context, trusted_boundary_for(context)
++    return context, anchored_boundary_for(context)
+@@ -386,7 +400,11 @@ class V24V6ProofReferenceClosureTests(unittest.TestCase):
+         context, _, refs = proof_bundle()
+         fake_candidate = {
+             "governance_proof_context": context,
+-            "trusted_boundary": trusted_boundary_for(context),
++            "trusted_boundary": {
++                "governance_generation_id": context["governance_generation_id"],
++                "expected_proof_context_digest": context["context_digest"],
++                "expected_genesis_scope_digest": context["genesis_trusted_scope"]["scope_digest"],
++            },
+         }
+         self.assertIn("trusted_boundary", fake_candidate)
+diff --git a/governance-runtime/v24_v6_decision_apply.py b/governance-runtime/v24_v6_decision_apply.py
+index 19cd9e5..0000000 100644
+--- a/governance-runtime/v24_v6_decision_apply.py
++++ b/governance-runtime/v24_v6_decision_apply.py
+@@ -177,6 +177,31 @@ def decision_binding_material(decision: Mapping[str, Any]) -> dict[str, Any]:
+     return {key: decision.get(key) for key in LOAD_BEARING_BINDINGS}
+ 
+ 
++DECISION_CONTENT_BINDINGS = tuple(
++    key for key in LOAD_BEARING_BINDINGS if key != "predicate_coverage_qualification_digest"
++)
++
++
++def canonical_decision_content_digest(decision: Mapping[str, Any]) -> str:
++    return digest(
++        {
++            "decision_id": decision.get("decision_id"),
++            "decision_context_digest": decision.get("decision_context_digest"),
++            "endpoint_projection_id": decision.get("endpoint_projection_id"),
++            "endpoint_projection_digest": decision.get("endpoint_projection_digest"),
++            "predicate_coverage_id": decision.get("predicate_coverage_id"),
++            "predicate_coverage_content_digest": decision.get("predicate_coverage_content_digest"),
++            "selected_endpoint_state": decision.get("selected_endpoint_state"),
++            "authorized_effect_path_id": decision.get("authorized_effect_path_id"),
++            "authorized_effect_path_content_digest": decision.get("authorized_effect_path_content_digest"),
++            "authorized_effect_class_id": decision.get("authorized_effect_class_id"),
++            "load_bearing_bindings": {
++                key: decision.get(key) for key in DECISION_CONTENT_BINDINGS
++            },
++        }
++    )
++
++
+ def _binding_drift(decision: Mapping[str, Any], snapshot: Mapping[str, Any]) -> list[str]:
+@@ -190,6 +215,9 @@ def _validate_decision_proof_fields(decision: Mapping[str, Any]) -> list[str]:
+         "decision_id",
+         "endpoint_projection_id",
+         "predicate_coverage_id",
++        "authorized_effect_path_id",
++        "authorized_effect_class_id",
+     ):
+         if not _nonempty(decision.get(key)):
+             p.append(f"DECISION_PROOF_FIELD_REQUIRED:{key}")
+@@ -197,6 +225,8 @@ def _validate_decision_proof_fields(decision: Mapping[str, Any]) -> list[str]:
+         "decision_digest",
++        "decision_context_digest",
++        "authorized_effect_path_content_digest",
+         "decision_qualification_digest",
+         "endpoint_projection_digest",
+@@ -206,6 +236,10 @@ def _validate_decision_proof_fields(decision: Mapping[str, Any]) -> list[str]:
+         if not _sha(decision.get(key)):
+             p.append(f"DECISION_PROOF_DIGEST_INVALID:{key}")
++    expected = canonical_decision_content_digest(decision)
++    if _sha(decision.get("decision_digest")) and decision.get("decision_digest") != expected:
++        p.append("DECISION_CONTENT_DIGEST_MISMATCH")
+     return sorted(set(p))
+@@ -222,7 +256,7 @@ def _close_decision_proofs(
+                 "kind": GOVERNED_QUALIFICATION,
+                 "reference_digest": decision.get("decision_qualification_digest"),
+                 "subject_id": decision.get("decision_id"),
+-                "subject_content_digest": decision.get("decision_digest"),
++                "subject_content_digest": canonical_decision_content_digest(decision),
+             },
+@@ -360,6 +394,18 @@ def evaluate_decision_apply_latch(
+         if effect_path.get("material_surface_membership_digest") != snapshot.get("material_surface_digest"):
+             p.append("MATERIAL_EFFECT_PATH_SURFACE_BINDING_MISMATCH")
++        if effect_path.get("path_id") != active_decision.get("authorized_effect_path_id"):
++            p.append("DECISION_EFFECT_PATH_ID_BINDING_MISMATCH")
++        if effect_path.get("path_content_digest") != active_decision.get(
++            "authorized_effect_path_content_digest"
++        ):
++            p.append("DECISION_EFFECT_PATH_CONTENT_BINDING_MISMATCH")
++        if effect_path.get("effect_class_id") != active_decision.get(
++            "authorized_effect_class_id"
++        ):
++            p.append("DECISION_EFFECT_CLASS_BINDING_MISMATCH")
+@@ -374,6 +420,9 @@ def evaluate_decision_apply_latch(
+         "decision_qualification_digest": active_decision.get("decision_qualification_digest"),
+         "decision_context_digest": active_decision.get("decision_context_digest"),
++        "authorized_effect_path_id": active_decision.get("authorized_effect_path_id"),
++        "authorized_effect_path_content_digest": active_decision.get("authorized_effect_path_content_digest"),
++        "authorized_effect_class_id": active_decision.get("authorized_effect_class_id"),
+         "endpoint_projection_digest": active_decision.get("endpoint_projection_digest"),
+diff --git a/governance-runtime/test_v24_v6_decision_apply.py b/governance-runtime/test_v24_v6_decision_apply.py
+index 962dd05..0000000 100644
+--- a/governance-runtime/test_v24_v6_decision_apply.py
++++ b/governance-runtime/test_v24_v6_decision_apply.py
+@@ -7,6 +7,7 @@ from v24_v6_decision_apply import (
+     MIXED_SNAPSHOT_REJECTED,
+     REEVALUATION_REQUIRED,
++    canonical_decision_content_digest,
+     canonical_snapshot_digest,
+@@ -56,7 +57,7 @@ def decision(s=None,**overrides):
+     s=s or snapshot()
+     d={
+         "decision_id":"DECISION-1",
+-        "decision_digest":DB,
++        "decision_digest":"",
+         "decision_qualification_digest":D1,
+         "decision_context_digest":DC,
+@@ -70,6 +71,9 @@ def decision(s=None,**overrides):
+         "predicate_coverage_qualification_state":QUALIFIED,
+         "selected_endpoint_state":"ALLOW",
++        "authorized_effect_path_id":"PATH-1",
++        "authorized_effect_path_content_digest":PATHCONTENT,
++        "authorized_effect_class_id":"WRITE",
+         **{k:s[k] for k in (
+@@ -81,6 +85,7 @@ def decision(s=None,**overrides):
+     }
+     d.update(overrides)
++    d["decision_digest"]=canonical_decision_content_digest(d)
+     return d
+@@ -122,6 +127,10 @@ def attach_proofs(b):
+     src=b["snapshot_source"];snap=b["current_snapshot"];dec=b["decision"];effect=b["material_effect_path"]
+     old_snapshot_digest=snap.get("snapshot_digest")
++    dec["decision_digest"]=canonical_decision_content_digest(dec)
++    rd=b.get("reevaluated_decision")
++    if isinstance(rd,dict):
++        rd["decision_digest"]=canonical_decision_content_digest(rd)
+     specs={
+@@ -139,7 +148,6 @@ def attach_proofs(b):
+         "guard_q":{"kind":"QUALIFICATION","subject_id":effect["guard_mechanism_id"],"content_digest":effect["guard_mechanism_digest"]},
+         "path_c":{"kind":"CURRENTNESS","source_id":effect["path_id"],"source_digest":effect["path_content_digest"]},
+     }
+-    rd=b.get("reevaluated_decision")
+     if isinstance(rd,dict):
+@@ -220,14 +228,14 @@ class R4DecisionApplyTests(unittest.TestCase):
+     def test_drift_with_exact_current_reevaluation_allows_new_decision(self):
+         b=bundle();s=b["current_snapshot"];s["material_observation_head_digest"]="e"*64;s["snapshot_digest"]=canonical_snapshot_digest(s)
+         p=b["material_effect_path"];p["observation_head_digest"]="e"*64
+-        rd=decision(s,decision_digest="d"*64,endpoint_projection_digest="c"*64,source_snapshot_digest=s["snapshot_digest"])
++        rd=decision(s,endpoint_projection_digest="c"*64,source_snapshot_digest=s["snapshot_digest"])
+         b["reevaluated_decision"]=rd
+-        r=evaluate(b);self.assertTrue(r["allowed"],r["problems"]);self.assertTrue(r["re_evaluated"]);self.assertEqual(r["active_decision_digest"],"d"*64)
++        r=evaluate(b);self.assertTrue(r["allowed"],r["problems"]);self.assertTrue(r["re_evaluated"]);self.assertEqual(r["active_decision_digest"],rd["decision_digest"])
+ 
+     def test_reevaluation_not_bound_to_current_snapshot_blocks(self):
+         b=bundle();s=b["current_snapshot"];s["condition_registry_digest"]="e"*64;s["snapshot_digest"]=canonical_snapshot_digest(s)
+-        b["reevaluated_decision"]=decision(s,decision_digest="d"*64,endpoint_projection_digest="c"*64,source_snapshot_digest=D1)
++        b["reevaluated_decision"]=decision(s,endpoint_projection_digest="c"*64,source_snapshot_digest=D1)
+         r=evaluate(b);self.assertTrue(any("REEVALUATED_DECISION_SNAPSHOT_BINDING_MISMATCH" in x for x in r["problems"]))
+diff --git a/governance-runtime/v24_v6_normative_clause_projection.py b/governance-runtime/v24_v6_normative_clause_projection.py
+index f51a472..0000000 100644
+--- a/governance-runtime/v24_v6_normative_clause_projection.py
++++ b/governance-runtime/v24_v6_normative_clause_projection.py
+@@ -728,6 +728,19 @@ def qualify_normative_dispositions(
+     }
+ 
+ 
++def canonical_catalog_control_binding_digest(descriptor: Mapping[str, Any]) -> str:
++    return digest(
++        {
++            "candidate_clause_id": descriptor.get("candidate_clause_id"),
++            "control_id": descriptor.get("control_id"),
++            "artifact_sha256": descriptor.get("artifact_sha256"),
++            "normative_artifact_blob_sha": descriptor.get("normative_artifact_blob_sha"),
++            "candidate_span_digest": descriptor.get("candidate_span_digest"),
++        }
++    )
++
++
+ def validate_catalog_candidate_coverage(
+@@ -797,6 +810,11 @@ def validate_catalog_candidate_coverage(
+             p.append("NORMATIVE_CATALOG_DESCRIPTOR_MALFORMED")
+             continue
+         cid = descriptor.get("candidate_clause_id")
++        control_id = descriptor.get("control_id")
++        if not _nonempty(control_id):
++            p.append("NORMATIVE_CATALOG_CONTROL_ID_REQUIRED")
++        binding_id = descriptor.get("control_binding_id")
++        if not _nonempty(binding_id):
++            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_ID_REQUIRED:{control_id}")
+         if not _nonempty(cid):
+@@ -808,6 +826,27 @@ def validate_catalog_candidate_coverage(
+             )
+             continue
+         by_candidate.setdefault(cid, []).append(descriptor)
++        binding_digest = canonical_catalog_control_binding_digest(descriptor)
++        supplied_binding_digest = descriptor.get("control_binding_content_digest")
++        if supplied_binding_digest != binding_digest:
++            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_DIGEST_MISMATCH:{control_id}")
++        binding_q = descriptor.get("control_binding_qualification_digest")
++        if not _sha(binding_q):
++            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_QUALIFICATION_REQUIRED:{control_id}")
++        _close(
++            [
++                {
++                    "kind": GOVERNED_QUALIFICATION,
++                    "reference_digest": binding_q,
++                    "subject_id": binding_id,
++                    "subject_content_digest": binding_digest,
++                }
++            ],
++            proof_context=proof_context,
++            trusted_boundary=trusted_boundary,
++            prefix=f"NORMATIVE_CATALOG_CONTROL_BINDING_PROOF:{control_id}",
++            problems=p,
++        )
++        if descriptor.get("control_binding_qualification_state") not in (None, QUALIFIED):
++            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_NOT_QUALIFIED:{control_id}")
+         if descriptor.get("artifact_sha256") != artifact_sha:
+diff --git a/governance-runtime/test_v24_v6_normative_clause_projection.py b/governance-runtime/test_v24_v6_normative_clause_projection.py
+index 4009dbd..0000000 100644
+--- a/governance-runtime/test_v24_v6_normative_clause_projection.py
++++ b/governance-runtime/test_v24_v6_normative_clause_projection.py
+@@ -11,6 +11,7 @@ from v24_v6_normative_clause_projection import (
+     SUPERSEDED,
+     canonical_authority_set_content_digest,
++    canonical_catalog_control_binding_digest,
+     canonical_disposition_content_digest,
+@@ -218,14 +219,6 @@ def coverage_fixture(descriptors=None):
+     assert result["qualified"],result["problems"]
+     extended=dict(specs)
+     extended["disposition_set_q"]={"kind":"QUALIFICATION","subject_id":DISPOSITION_SET_ID,"content_digest":result["disposition_digest"]}
+-    context,boundary,refs=build_test_proof_context(extended)
+-    # Earlier proof refs are stable when one final spec is appended.
+-    result=qualify_normative_dispositions(bundle,proof_context=context,trusted_boundary=boundary)
+-    assert result["qualified"],result["problems"]
+     if descriptors is None:
+         mid=result["material_candidate_ids"][0]
+@@ -238,6 +231,18 @@ def coverage_fixture(descriptors=None):
+             "candidate_span_digest":span,
+         }]
++    descriptors=[dict(d) for d in descriptors]
++    for index,descriptor in enumerate(descriptors,1):
++        descriptor.setdefault("control_binding_id",f"CLAUSE-CONTROL-BINDING-{index}")
++        descriptor["control_binding_content_digest"]=canonical_catalog_control_binding_digest(descriptor)
++        extended[f"control_binding_{index}_q"]={"kind":"QUALIFICATION","subject_id":descriptor["control_binding_id"],"content_digest":descriptor["control_binding_content_digest"]}
++    context,boundary,refs=build_test_proof_context(extended)
++    result=qualify_normative_dispositions(bundle,proof_context=context,trusted_boundary=boundary)
++    assert result["qualified"],result["problems"]
++    for index,descriptor in enumerate(descriptors,1):
++        descriptor["control_binding_qualification_digest"]=refs[f"control_binding_{index}_q"]
++        descriptor["control_binding_qualification_state"]=QUALIFIED
+     coverage={
+diff --git a/governance-runtime/test_v24_v6_successor3_manual_review_red.py b/governance-runtime/test_v24_v6_successor3_manual_review_red.py
+index 4eaeed6..0000000 100644
+--- a/governance-runtime/test_v24_v6_successor3_manual_review_red.py
++++ b/governance-runtime/test_v24_v6_successor3_manual_review_red.py
+@@ -1,6 +1,8 @@
+ from __future__ import annotations
+ 
++import copy
++import os
+ import unittest
+@@ -8,7 +10,11 @@ from test_v24_v6_proof_reference_closure import ROOT_CONTENT, proof_bundle
+ from v24_v6_decision_apply import evaluate_decision_apply_latch
+ from v24_v6_normative_clause_projection import validate_catalog_candidate_coverage
+-from v24_v6_proof_reference_closure import resolve_governed_qualification
++from v24_v6_proof_reference_closure import (
++    TRUSTED_BOUNDARY_ANCHOR_ENV,
++    resolve_governed_qualification,
++    seal_proof_context,
++)
+@@ -16,15 +22,19 @@ class Successor3ManualReviewRegressions(unittest.TestCase):
+     def test_prc1_self_constructed_trusted_boundary_is_rejected(self):
+-        context, _, refs = proof_bundle()
+-        scope = context["genesis_trusted_scope"]
++        context, _, refs = proof_bundle()
++        external_anchor = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
++        forged_context = copy.deepcopy(context)
++        forged_context["proof_context_id"] = "ATTACKER-CONSTRUCTED-CONTEXT"
++        seal_proof_context(forged_context)
++        scope = forged_context["genesis_trusted_scope"]
+         self_built_boundary = {
+-            "governance_generation_id": context["governance_generation_id"],
+-            "expected_proof_context_digest": context["context_digest"],
++            "governance_generation_id": forged_context["governance_generation_id"],
++            "expected_proof_context_digest": forged_context["context_digest"],
+             "expected_genesis_scope_digest": scope["scope_digest"],
+         }
++        if external_anchor is not None:
++            os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = external_anchor
+         result = resolve_governed_qualification(
+             refs["root"],
+-            context,
++            forged_context,
+             self_built_boundary,
