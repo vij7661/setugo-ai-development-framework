@@ -104,3 +104,27 @@ No WDPC scientific execution occurred. Runtime qualification remains `NOT_CLAIME
 `R5_RUNTIME_QUALIFICATION = NOT_CLAIMED`
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+
+## Successor-3 manual-review remediation — 2026-09-16
+
+The independent manual review of frozen successor-2 (`68edfc00fdaa4dc08e36aca172158d59a361e0d0`, tree `acc760e20e5133f878237e40083376414de2ed9b`) returned `CHANGES_REQUIRED`. The original review and adjudication remain preserved verbatim on the review lineage.
+
+Preserved pre-fix falsification run `35070903107`: **FAILURE**, reproducing PRC-1, DA-1, and NCP-1 independently. This RED remains historical evidence and is not reclassified.
+
+Tooling/preflight failures `35071250976` (malformed patch) and `35071608899` (ambiguous exact-source replacement guard) are preserved separately and are **not mechanism failures**. Neither committed production mutations.
+
+Systemic repair gate `35071757663`: **SUCCESS**. Repair commit: `329feb966f44b1655a8180a9da2c8bf10f9f3c25`.
+
+Pre-refreeze all-up run `35071849800`: **SUCCESS**, covering successor-3 blocker regressions, full R1-R8/proof-resolution regressions, inherited V24 construction regressions, compile checks, and closed construction posture.
+
+No WDPC scientific execution occurred. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor-3 manual review.
+
+### NCP-1 repair
+
+Every material clause → control assignment now has canonical binding material over candidate clause, control ID, artifact SHA, normative artifact blob, and candidate span digest, plus its own proof-closed `GOVERNED_QUALIFICATION`. A control reassignment invalidates the binding and stale proof.
+
+Repaired R5 production blob: `f5dd950211fe8aa08dda1e8a050a73138861e25c`.
+
+`R5_SUCCESSOR3_MANUAL_REVIEW_REMEDIATION = PASS`
+`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
