@@ -1,0 +1,185 @@
+name: V24 V6 Successor-3 Clean Review Package
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-successor-3-clean
+    paths:
+      - '.github/workflows/v24-v6-successor3-clean-review-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Verify and extract exact frozen candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='b4b91dcf5855ae2bb7162c0b94d1a79a8a64e171'
+          TREE='a81204c73016243556c6eefd711bc91c37adda49'
+          git fetch --no-tags --depth=1 origin "$CANDIDATE"
+          test "$(git rev-parse "$CANDIDATE^{tree}")" = "$TREE"
+          PKG="$RUNNER_TEMP/v24-v6-successor3-clean-review"
+          mkdir -p "$PKG/candidate" "$PKG/evidence" "$PKG/approved-design"
+          PATHS=(
+            '.github/workflows/v24-v6-successor3-final-head.yml'
+            'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+            'implementation/v24/V24-I11-V6-SUCCESSOR-3-REMEDIATION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md'
+            'governance-runtime/v24_v6_governance_foundation.py'
+            'governance-runtime/v24_v6_proof_reference_closure.py'
+            'governance-runtime/v24_v6_test_proof_context.py'
+            'governance-runtime/v24_v6_endpoint_projection.py'
+            'governance-runtime/v24_v6_material_surface.py'
+            'governance-runtime/v24_v6_decision_apply.py'
+            'governance-runtime/v24_v6_normative_clause_projection.py'
+            'governance-runtime/v24_v6_effect_ledger_closure.py'
+            'governance-runtime/v24_v6_atomic_binding_modes.py'
+            'governance-runtime/v24_v6_qualification_integrity.py'
+            'governance-runtime/v24_v6_integrated_successor.py'
+            'governance-runtime/v24_endpoint_proof_compiler.py'
+            'governance-runtime/normative_control_catalog.py'
+            'governance-runtime/test_v24_v6_governance_foundation.py'
+            'governance-runtime/test_v24_v6_proof_reference_closure.py'
+            'governance-runtime/test_v24_v6_proof_resolution_red.py'
+            'governance-runtime/test_v24_v6_successor3_manual_review_red.py'
+            'governance-runtime/test_v24_v6_endpoint_projection.py'
+            'governance-runtime/test_v24_v6_material_surface.py'
+            'governance-runtime/test_v24_v6_decision_apply.py'
+            'governance-runtime/test_v24_v6_normative_clause_projection.py'
+            'governance-runtime/test_v24_v6_effect_ledger_closure.py'
+            'governance-runtime/test_v24_v6_atomic_binding_modes.py'
+            'governance-runtime/test_v24_v6_qualification_integrity.py'
+            'governance-runtime/test_v24_v6_integrated_successor.py'
+            'governance-runtime/test_v24_v6_integrated_successor_dependency_red.py'
+            'governance-runtime/test_v24_endpoint_proof_compiler.py'
+            'governance-runtime/test_normative_control_catalog.py'
+            'remediation/v24/V24-I11-V6-PROOF-REFERENCE-CLOSURE-REPAIR-DESIGN.md'
+            'remediation/v24/V24-I11-V6-R9-PROOF-REFERENCE-CLOSURE-FINDING.md'
+            'remediation/v24/successor3/apply_confirmed_blocker_repairs.py'
+            'remediation/v24/successor3/apply_confirmed_blocker_repairs_v2.py'
+          )
+          git archive --format=tar "$CANDIDATE" "${PATHS[@]}" | tar -xf - -C "$PKG/candidate"
+          cp review/v24/V24-I11-V6-SUCCESSOR-3-FROZEN-BINDING.json "$PKG/evidence/FROZEN-SUCCESSOR-3-BINDING.json"
+          cp review/v24/V24-I11-V6-SUCCESSOR-3-REVIEW-INSTRUCTIONS.md "$PKG/00-REVIEW-INSTRUCTIONS.md"
+          echo "PKG=$PKG" >> "$GITHUB_ENV"
+
+      - name: Download exact final-head verification artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/$GITHUB_REPOSITORY/actions/artifacts/10436816690/zip" > "$RUNNER_TEMP/verification.zip"
+          unzip -p "$RUNNER_TEMP/verification.zip" v24-v6-successor3-verification.json > "$PKG/evidence/SUCCESSOR-3-VERIFICATION.json"
+          test "$(sha256sum "$PKG/evidence/SUCCESSOR-3-VERIFICATION.json" | awk '{print $1}')" = '2415711fc32fc5f892f721c4fc06679d72ac8c4aab0d32b3ee8e12d760131e9a'
+          test "$(wc -c < "$PKG/evidence/SUCCESSOR-3-VERIFICATION.json" | tr -d ' ')" = '6820'
+
+      - name: Reconstruct exact approved V6 reviewed bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin adjudication/v24-i11-v6-exact-reviewed-bytes
+          SRC='FETCH_HEAD:remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          REC='FETCH_HEAD:remediation/v24/exact-reviewed-v6/V24-I11-V6-EXACT-REVIEWED-BYTE-RECONSTRUCTION.json'
+          git show "$SRC" > "$RUNNER_TEMP/v6-source.md"
+          git show "$REC" > "$PKG/approved-design/V6-EXACT-BYTE-RECONSTRUCTION.json"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          pkg=Path(os.environ['PKG'])
+          source=(Path(os.environ['RUNNER_TEMP'])/'v6-source.md').read_bytes()
+          rec=json.loads((pkg/'approved-design/V6-EXACT-BYTE-RECONSTRUCTION.json').read_text())
+          tx=rec['exact_transformation']; off=tx['offset']
+          reviewed=source[:off]+bytes.fromhex(tx['insert_hex'])+source[off:]
+          assert len(reviewed)==19297
+          assert hashlib.sha256(reviewed).hexdigest()=='96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62'
+          body=reviewed.split(b'---\n\n',1)[1]
+          assert hashlib.sha256(body).hexdigest()=='286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5'
+          assert hashlib.sha1(f'blob {len(reviewed)}\0'.encode()+reviewed).hexdigest()=='4a15d50a0488464816d235b273d1dbf808fdce94'
+          (pkg/'approved-design/V24-I11-V6-EXACT-REVIEWED-DESIGN.md').write_bytes(reviewed)
+          PY
+
+      - name: Generate deterministic package and bindings
+        shell: bash
+        env:
+          CANDIDATE: 'b4b91dcf5855ae2bb7162c0b94d1a79a8a64e171'
+          CANDIDATE_TREE: 'a81204c73016243556c6eefd711bc91c37adda49'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os, subprocess, zipfile
+          pkg=Path(os.environ['PKG']); candidate=os.environ['CANDIDATE']
+          entries=[]
+          for p in sorted(x for x in pkg.rglob('*') if x.is_file()):
+              rel=p.relative_to(pkg).as_posix(); data=p.read_bytes()
+              item={'path':rel,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+              if rel.startswith('candidate/'):
+                  rp=rel[len('candidate/'):]
+                  item['candidate_git_blob_sha1']=subprocess.check_output(['git','rev-parse',f'{candidate}:{rp}'],text=True).strip()
+              entries.append(item)
+          manifest={
+              'schema_version':3,
+              'package_id':'V24-I11-V6-SUCCESSOR-3-CLEAN-MANUAL-REVIEW-PACKAGE-V1',
+              'candidate_family_id':'V24-I11-V6-INTEGRATED-SUCCESSOR-3',
+              'candidate_commit':candidate,
+              'candidate_tree':os.environ['CANDIDATE_TREE'],
+              'exact_final_head_run_id':'35072181274',
+              'verification_json_sha256':'2415711fc32fc5f892f721c4fc06679d72ac8c4aab0d32b3ee8e12d760131e9a',
+              'integration_binding_digest':'26a4dcc77b804ec036e54a60f440bb5becc23e1d4e37ca2a6547da81982ad1ec',
+              'bound_file_count':19,
+              'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW',
+              'runtime_qualification_state':'NOT_CLAIMED',
+              'successor_review_state':'REQUIRED_MANUAL_INDEPENDENT_REVIEW',
+              'authority_effect':'NONE_EVIDENCE_ONLY',
+              'files':entries,
+          }
+          mp=pkg/'PACKAGE-MANIFEST.json'; mp.write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          msha=hashlib.sha256(mp.read_bytes()).hexdigest()
+          (pkg/'PACKAGE-BINDING.json').write_text(json.dumps({
+              'package_manifest_sha256':msha,
+              'candidate_family_id':manifest['candidate_family_id'],
+              'candidate_commit':candidate,
+              'candidate_tree':os.environ['CANDIDATE_TREE'],
+              'exact_final_head_run_id':'35072181274',
+              'scientific_execution_state':manifest['scientific_execution_state'],
+              'runtime_qualification_state':'NOT_CLAIMED',
+              'authority_effect':'NONE_EVIDENCE_ONLY',
+          },indent=2,sort_keys=True)+'\n')
+          zp=Path('V24-I11-V6-SUCCESSOR-3-CLEAN-MANUAL-REVIEW-PACKAGE.zip')
+          with zipfile.ZipFile(zp,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for p in sorted(x for x in pkg.rglob('*') if x.is_file()):
+                  rel=p.relative_to(pkg).as_posix(); info=zipfile.ZipInfo(rel,date_time=(1980,1,1,0,0,0)); info.compress_type=zipfile.ZIP_DEFLATED; info.external_attr=0o100644<<16
+                  z.writestr(info,p.read_bytes())
+          digest=hashlib.sha256(zp.read_bytes()).hexdigest()
+          Path(str(zp)+'.sha256').write_text(digest+'  '+zp.name+'\n')
+          print(json.dumps({'zip':zp.name,'bytes':zp.stat().st_size,'sha256':digest,'manifest_sha256':msha},sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor3-clean-manual-review-package
+          path: |
+            V24-I11-V6-SUCCESSOR-3-CLEAN-MANUAL-REVIEW-PACKAGE.zip
+            V24-I11-V6-SUCCESSOR-3-CLEAN-MANUAL-REVIEW-PACKAGE.zip.sha256
+          if-no-files-found: error
