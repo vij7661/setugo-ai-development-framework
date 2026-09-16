@@ -7,6 +7,7 @@ scientific, or terminal authority.
 """
 from __future__ import annotations
 
+import os
 from typing import Any, Mapping
 
 from v24_v6_governance_foundation import (
@@ -28,6 +29,8 @@ CURRENTNESS_BINDING = "CURRENTNESS_BINDING"
 PROOF_REFERENCE_CLOSED = "PROOF_REFERENCE_CLOSED"
 PROOF_REFERENCE_REJECTED = "PROOF_REFERENCE_REJECTED"
 PROOF_REFERENCE_CYCLE_REJECTED = "PROOF_REFERENCE_CYCLE_REJECTED"
+
+TRUSTED_BOUNDARY_ANCHOR_ENV = "V24_V6_TRUSTED_BOUNDARY_ANCHOR_SHA256"
 
 _SUPPORTED_KINDS = frozenset(
     {GOVERNED_QUALIFICATION, INDEPENDENCE_QUALIFICATION, CURRENTNESS_BINDING}
@@ -73,18 +76,15 @@ def seal_proof_context(context: dict[str, Any]) -> dict[str, Any]:
     return context
 
 
-def trusted_boundary_for(context: Mapping[str, Any]) -> dict[str, Any]:
-    """Construction helper for tests and frozen successor generation.
-
-    Production authority must bind this boundary outside candidate decision data.
-    """
-    scope = context.get("genesis_trusted_scope")
-    scope_digest = scope.get("scope_digest") if isinstance(scope, Mapping) else None
-    return {
-        "governance_generation_id": context.get("governance_generation_id"),
-        "expected_proof_context_digest": context.get("context_digest"),
-        "expected_genesis_scope_digest": scope_digest,
-    }
+def trusted_boundary_anchor_digest(boundary: Mapping[str, Any]) -> str:
+    """Digest exact trusted-boundary material for out-of-band anchoring."""
+    return digest(
+        {
+            "governance_generation_id": boundary.get("governance_generation_id"),
+            "expected_proof_context_digest": boundary.get("expected_proof_context_digest"),
+            "expected_genesis_scope_digest": boundary.get("expected_genesis_scope_digest"),
+        }
+    )
 
 
 def validate_proof_context(
@@ -109,6 +109,11 @@ def validate_proof_context(
         problems.append("TRUSTED_PROOF_CONTEXT_DIGEST_INVALID")
     if not _is_sha256(expected_scope_digest):
         problems.append("TRUSTED_GENESIS_SCOPE_DIGEST_INVALID")
+    external_anchor = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
+    if not _is_sha256(external_anchor):
+        problems.append("TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR_REQUIRED")
+    elif trusted_boundary_anchor_digest(trusted_boundary) != external_anchor:
+        problems.append("TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR_MISMATCH")
 
     if not isinstance(proof_context, Mapping):
         problems.append("GOVERNANCE_PROOF_CONTEXT_REQUIRED")

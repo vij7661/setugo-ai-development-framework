@@ -180,6 +180,33 @@ def decision_binding_material(decision: Mapping[str, Any]) -> dict[str, Any]:
     return {key: decision.get(key) for key in LOAD_BEARING_BINDINGS}
 
 
+DECISION_CONTENT_BINDINGS = tuple(
+    key for key in LOAD_BEARING_BINDINGS if key != "predicate_coverage_qualification_digest"
+)
+
+
+def canonical_decision_content_digest(decision: Mapping[str, Any]) -> str:
+    return digest(
+        {
+            "decision_id": decision.get("decision_id"),
+            "decision_context_digest": decision.get("decision_context_digest"),
+            "endpoint_projection_id": decision.get("endpoint_projection_id"),
+            "endpoint_projection_digest": decision.get("endpoint_projection_digest"),
+            "predicate_coverage_id": decision.get("predicate_coverage_id"),
+            "predicate_coverage_content_digest": decision.get("predicate_coverage_content_digest"),
+            "selected_endpoint_state": decision.get("selected_endpoint_state"),
+            "authorized_effect_path_id": decision.get("authorized_effect_path_id"),
+            "authorized_effect_path_content_digest": decision.get(
+                "authorized_effect_path_content_digest"
+            ),
+            "authorized_effect_class_id": decision.get("authorized_effect_class_id"),
+            "load_bearing_bindings": {
+                key: decision.get(key) for key in DECISION_CONTENT_BINDINGS
+            },
+        }
+    )
+
+
 def _binding_drift(decision: Mapping[str, Any], snapshot: Mapping[str, Any]) -> list[str]:
     return sorted(
         key for key in LOAD_BEARING_BINDINGS if decision.get(key) != snapshot.get(key)
@@ -192,11 +219,15 @@ def _validate_decision_proof_fields(decision: Mapping[str, Any]) -> list[str]:
         "decision_id",
         "endpoint_projection_id",
         "predicate_coverage_id",
+        "authorized_effect_path_id",
+        "authorized_effect_class_id",
     ):
         if not _nonempty(decision.get(key)):
             p.append(f"DECISION_PROOF_FIELD_REQUIRED:{key}")
     for key in (
         "decision_digest",
+        "decision_context_digest",
+        "authorized_effect_path_content_digest",
         "decision_qualification_digest",
         "endpoint_projection_digest",
         "endpoint_projection_qualification_digest",
@@ -205,6 +236,9 @@ def _validate_decision_proof_fields(decision: Mapping[str, Any]) -> list[str]:
     ):
         if not _sha(decision.get(key)):
             p.append(f"DECISION_PROOF_DIGEST_INVALID:{key}")
+    expected = canonical_decision_content_digest(decision)
+    if _sha(decision.get("decision_digest")) and decision.get("decision_digest") != expected:
+        p.append("DECISION_CONTENT_DIGEST_MISMATCH")
     return sorted(set(p))
 
 
@@ -221,7 +255,7 @@ def _close_decision_proofs(
                 "kind": GOVERNED_QUALIFICATION,
                 "reference_digest": decision.get("decision_qualification_digest"),
                 "subject_id": decision.get("decision_id"),
-                "subject_content_digest": decision.get("decision_digest"),
+                "subject_content_digest": canonical_decision_content_digest(decision),
             },
             {
                 "kind": GOVERNED_QUALIFICATION,
@@ -369,6 +403,16 @@ def evaluate_decision_apply_latch(
             p.append("MATERIAL_EFFECT_PATH_GUARD_BINDING_MISMATCH")
         if effect_path.get("material_surface_membership_digest") != snapshot.get("material_surface_digest"):
             p.append("MATERIAL_EFFECT_PATH_SURFACE_BINDING_MISMATCH")
+        if effect_path.get("path_id") != active_decision.get("authorized_effect_path_id"):
+            p.append("DECISION_EFFECT_PATH_ID_BINDING_MISMATCH")
+        if effect_path.get("path_content_digest") != active_decision.get(
+            "authorized_effect_path_content_digest"
+        ):
+            p.append("DECISION_EFFECT_PATH_CONTENT_BINDING_MISMATCH")
+        if effect_path.get("effect_class_id") != active_decision.get(
+            "authorized_effect_class_id"
+        ):
+            p.append("DECISION_EFFECT_CLASS_BINDING_MISMATCH")
 
     if active_decision.get("selected_endpoint_state") != "ALLOW":
         p.append("APPLY_SELECTED_ENDPOINT_NOT_ALLOW")
@@ -378,6 +422,11 @@ def evaluate_decision_apply_latch(
         "decision_record_digest": active_decision.get("decision_digest"),
         "decision_qualification_digest": active_decision.get("decision_qualification_digest"),
         "decision_context_digest": active_decision.get("decision_context_digest"),
+        "authorized_effect_path_id": active_decision.get("authorized_effect_path_id"),
+        "authorized_effect_path_content_digest": active_decision.get(
+            "authorized_effect_path_content_digest"
+        ),
+        "authorized_effect_class_id": active_decision.get("authorized_effect_class_id"),
         "endpoint_projection_digest": active_decision.get("endpoint_projection_digest"),
         "endpoint_projection_qualification_digest": active_decision.get(
             "endpoint_projection_qualification_digest"

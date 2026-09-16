@@ -728,6 +728,18 @@ def qualify_normative_dispositions(
     }
 
 
+def canonical_catalog_control_binding_digest(descriptor: Mapping[str, Any]) -> str:
+    return digest(
+        {
+            "candidate_clause_id": descriptor.get("candidate_clause_id"),
+            "control_id": descriptor.get("control_id"),
+            "artifact_sha256": descriptor.get("artifact_sha256"),
+            "normative_artifact_blob_sha": descriptor.get("normative_artifact_blob_sha"),
+            "candidate_span_digest": descriptor.get("candidate_span_digest"),
+        }
+    )
+
+
 def validate_catalog_candidate_coverage(
     bundle: Mapping[str, Any],
     *,
@@ -799,12 +811,41 @@ def validate_catalog_candidate_coverage(
             p.append("NORMATIVE_CATALOG_DESCRIPTOR_MALFORMED")
             continue
         cid = descriptor.get("candidate_clause_id")
+        control_id = descriptor.get("control_id")
+        if not _nonempty(control_id):
+            p.append("NORMATIVE_CATALOG_CONTROL_ID_REQUIRED")
+        binding_id = descriptor.get("control_binding_id")
+        if not _nonempty(binding_id):
+            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_ID_REQUIRED:{control_id}")
         if not _nonempty(cid):
             p.append(
                 f"NORMATIVE_CATALOG_CANDIDATE_BINDING_REQUIRED:{descriptor.get('control_id')}"
             )
             continue
         by_candidate.setdefault(cid, []).append(descriptor)
+        binding_digest = canonical_catalog_control_binding_digest(descriptor)
+        supplied_binding_digest = descriptor.get("control_binding_content_digest")
+        if supplied_binding_digest != binding_digest:
+            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_DIGEST_MISMATCH:{control_id}")
+        binding_q = descriptor.get("control_binding_qualification_digest")
+        if not _sha(binding_q):
+            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_QUALIFICATION_REQUIRED:{control_id}")
+        _close(
+            [
+                {
+                    "kind": GOVERNED_QUALIFICATION,
+                    "reference_digest": binding_q,
+                    "subject_id": binding_id,
+                    "subject_content_digest": binding_digest,
+                }
+            ],
+            proof_context=proof_context,
+            trusted_boundary=trusted_boundary,
+            prefix=f"NORMATIVE_CATALOG_CONTROL_BINDING_PROOF:{control_id}",
+            problems=p,
+        )
+        if descriptor.get("control_binding_qualification_state") not in (None, QUALIFIED):
+            p.append(f"NORMATIVE_CATALOG_CONTROL_BINDING_NOT_QUALIFIED:{control_id}")
         if descriptor.get("artifact_sha256") != artifact_sha:
             p.append(
                 f"NORMATIVE_CATALOG_ARTIFACT_SHA_BINDING_MISMATCH:{descriptor.get('control_id')}"

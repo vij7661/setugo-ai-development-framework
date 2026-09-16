@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+import os
 import unittest
 
 from test_v24_v6_decision_apply import attach_proofs as attach_decision_proofs
@@ -8,26 +10,40 @@ from test_v24_v6_normative_clause_projection import coverage_fixture
 from test_v24_v6_proof_reference_closure import ROOT_CONTENT, proof_bundle
 from v24_v6_decision_apply import evaluate_decision_apply_latch
 from v24_v6_normative_clause_projection import validate_catalog_candidate_coverage
-from v24_v6_proof_reference_closure import resolve_governed_qualification
+from v24_v6_proof_reference_closure import (
+    TRUSTED_BOUNDARY_ANCHOR_ENV,
+    resolve_governed_qualification,
+    seal_proof_context,
+)
 
 
 class Successor3ManualReviewRegressions(unittest.TestCase):
     def test_prc1_self_constructed_trusted_boundary_is_rejected(self):
         context, _, refs = proof_bundle()
-        scope = context["genesis_trusted_scope"]
+        external_anchor = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
+        self.assertIsNotNone(external_anchor)
+        forged_context = copy.deepcopy(context)
+        forged_context["proof_context_id"] = "ATTACKER-CONSTRUCTED-CONTEXT"
+        seal_proof_context(forged_context)
+        scope = forged_context["genesis_trusted_scope"]
         self_built_boundary = {
-            "governance_generation_id": context["governance_generation_id"],
-            "expected_proof_context_digest": context["context_digest"],
+            "governance_generation_id": forged_context["governance_generation_id"],
+            "expected_proof_context_digest": forged_context["context_digest"],
             "expected_genesis_scope_digest": scope["scope_digest"],
         }
+        os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = str(external_anchor)
         result = resolve_governed_qualification(
             refs["root"],
-            context,
+            forged_context,
             self_built_boundary,
             expected_subject_id="ROOT-VERIFIER",
             expected_subject_content_digest=ROOT_CONTENT,
         )
         self.assertFalse(result["qualified"], result)
+        self.assertTrue(
+            any("EXTERNAL_ANCHOR_MISMATCH" in x for x in result["problems"]),
+            result,
+        )
 
     def test_ncp1_control_reassignment_requires_new_authorized_binding(self):
         coverage, context, boundary, _ = coverage_fixture()

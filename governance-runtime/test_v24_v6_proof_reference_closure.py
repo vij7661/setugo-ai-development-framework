@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import os
 import unittest
 
 from v24_v6_governance_foundation import CURRENT, QUALIFIED, STALE, digest
@@ -9,12 +10,13 @@ from v24_v6_proof_reference_closure import (
     GOVERNED_QUALIFICATION,
     INDEPENDENCE_QUALIFICATION,
     PROOF_REFERENCE_CLOSED,
+    TRUSTED_BOUNDARY_ANCHOR_ENV,
     close_governance_dependencies,
     resolve_currentness_binding,
     resolve_governed_qualification,
     resolve_independence_qualification,
     seal_proof_context,
-    trusted_boundary_for,
+    trusted_boundary_anchor_digest,
     validate_proof_context,
 )
 
@@ -32,6 +34,17 @@ D6 = "6" * 64
 D7 = "7" * 64
 D8 = "8" * 64
 D9 = "9" * 64
+
+
+def anchored_boundary_for(context: dict) -> dict:
+    scope = context["genesis_trusted_scope"]
+    boundary = {
+        "governance_generation_id": context["governance_generation_id"],
+        "expected_proof_context_digest": context["context_digest"],
+        "expected_genesis_scope_digest": scope["scope_digest"],
+    }
+    os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
+    return boundary
 
 
 def seal(record: dict, field: str) -> dict:
@@ -193,7 +206,7 @@ def proof_bundle() -> tuple[dict, dict, dict]:
         "context_digest": "",
     }
     seal_proof_context(context)
-    return context, trusted_boundary_for(context), {
+    return context, anchored_boundary_for(context), {
         "root": root["qualification_digest"],
         "independence": ind["qualification_digest"],
         "leaf": leaf["qualification_digest"],
@@ -203,7 +216,7 @@ def proof_bundle() -> tuple[dict, dict, dict]:
 
 def reseal_context(context: dict) -> tuple[dict, dict]:
     seal_proof_context(context)
-    return context, trusted_boundary_for(context)
+    return context, anchored_boundary_for(context)
 
 
 class V24V6ProofReferenceClosureTests(unittest.TestCase):
@@ -387,7 +400,11 @@ class V24V6ProofReferenceClosureTests(unittest.TestCase):
         context, _, refs = proof_bundle()
         fake_candidate = {
             "governance_proof_context": context,
-            "trusted_boundary": trusted_boundary_for(context),
+            "trusted_boundary": {
+                "governance_generation_id": context["governance_generation_id"],
+                "expected_proof_context_digest": context["context_digest"],
+                "expected_genesis_scope_digest": context["genesis_trusted_scope"]["scope_digest"],
+            },
         }
         self.assertIn("trusted_boundary", fake_candidate)
         result = resolve_governed_qualification(refs["leaf"], context, None)

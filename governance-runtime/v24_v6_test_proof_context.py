@@ -5,6 +5,7 @@ it or synthesize qualifications to make an authority decision pass.
 """
 from __future__ import annotations
 
+import os
 from typing import Any, Mapping
 
 from v24_v6_governance_foundation import CURRENT, QUALIFIED, digest
@@ -12,8 +13,9 @@ from v24_v6_proof_reference_closure import (
     CURRENTNESS_BINDING,
     GOVERNED_QUALIFICATION,
     INDEPENDENCE_QUALIFICATION,
+    TRUSTED_BOUNDARY_ANCHOR_ENV,
     seal_proof_context,
-    trusted_boundary_for,
+    trusted_boundary_anchor_digest,
 )
 
 ROOT_CONTENT = "f0" * 32
@@ -165,6 +167,18 @@ def _wrap(kind: str, record: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _trusted_boundary_for_test(context: Mapping[str, Any]) -> dict[str, Any]:
+    scope = context.get("genesis_trusted_scope")
+    scope_digest = scope.get("scope_digest") if isinstance(scope, Mapping) else None
+    boundary = {
+        "governance_generation_id": context.get("governance_generation_id"),
+        "expected_proof_context_digest": context.get("context_digest"),
+        "expected_genesis_scope_digest": scope_digest,
+    }
+    os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
+    return boundary
+
+
 def build_test_proof_context(
     specs: Mapping[str, Mapping[str, Any]],
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, str]]:
@@ -219,4 +233,4 @@ def build_test_proof_context(
         "context_digest": "",
     }
     seal_proof_context(context)
-    return context, trusted_boundary_for(context), refs
+    return context, _trusted_boundary_for_test(context), refs

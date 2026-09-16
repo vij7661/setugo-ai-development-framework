@@ -6,6 +6,7 @@ from v24_v6_decision_apply import (
     APPLY_READY,
     MIXED_SNAPSHOT_REJECTED,
     REEVALUATION_REQUIRED,
+    canonical_decision_content_digest,
     canonical_snapshot_digest,
     construction_frontier,
     evaluate_decision_apply_latch,
@@ -69,7 +70,7 @@ def decision(s=None,**overrides):
     s=s or snapshot()
     d={
         "decision_id":"DECISION-1",
-        "decision_digest":DB,
+        "decision_digest":"",
         "decision_qualification_digest":D1,
         "decision_context_digest":DC,
         "endpoint_projection_id":"ENDPOINT-PROJECTION-1",
@@ -81,6 +82,9 @@ def decision(s=None,**overrides):
         "endpoint_projection_qualification_state":QUALIFIED,
         "predicate_coverage_qualification_state":QUALIFIED,
         "selected_endpoint_state":"ALLOW",
+        "authorized_effect_path_id":"PATH-1",
+        "authorized_effect_path_content_digest":PATHCONTENT,
+        "authorized_effect_class_id":"WRITE",
         **{k:s[k] for k in (
             "endpoint_table_digest","applicability_digest","evaluator_registry_digest",
             "condition_registry_digest","evidence_registry_digest","predicate_coverage_content_digest",
@@ -89,6 +93,7 @@ def decision(s=None,**overrides):
             "writer_identity","guard_mechanism_digest")}
     }
     d.update(overrides)
+    d["decision_digest"]=canonical_decision_content_digest(d)
     return d
 
 
@@ -133,6 +138,10 @@ def bundle():
 def attach_proofs(b):
     src=b["snapshot_source"];snap=b["current_snapshot"];dec=b["decision"];effect=b["material_effect_path"]
     old_snapshot_digest=snap.get("snapshot_digest")
+    dec["decision_digest"]=canonical_decision_content_digest(dec)
+    rd=b.get("reevaluated_decision")
+    if isinstance(rd,dict):
+        rd["decision_digest"]=canonical_decision_content_digest(rd)
     specs={
         "source_q":{"kind":"QUALIFICATION","subject_id":src["mechanism_id"],"content_digest":src["mechanism_content_digest"]},
         "source_i":{"kind":"INDEPENDENCE","subject_identity_id":src["mechanism_id"]},
@@ -145,7 +154,6 @@ def attach_proofs(b):
         "guard_q":{"kind":"QUALIFICATION","subject_id":effect["guard_mechanism_id"],"content_digest":effect["guard_mechanism_digest"]},
         "path_c":{"kind":"CURRENTNESS","source_id":effect["path_id"],"source_digest":effect["path_content_digest"]},
     }
-    rd=b.get("reevaluated_decision")
     if isinstance(rd,dict):
         specs["reevaluated_decision_q"]={"kind":"QUALIFICATION","subject_id":rd["decision_id"],"content_digest":rd["decision_digest"]}
         specs["reevaluated_endpoint_q"]={"kind":"QUALIFICATION","subject_id":rd["endpoint_projection_id"],"content_digest":rd["endpoint_projection_digest"]}
@@ -216,13 +224,13 @@ class R4DecisionApplyTests(unittest.TestCase):
     def test_drift_with_exact_current_reevaluation_allows_new_decision(self):
         b=bundle();s=b["current_snapshot"];s["material_observation_head_digest"]="e"*64;s["snapshot_digest"]=canonical_snapshot_digest(s)
         p=b["material_effect_path"];p["observation_head_digest"]="e"*64
-        rd=decision(s,decision_digest="d"*64,endpoint_projection_digest="c"*64,source_snapshot_digest=s["snapshot_digest"])
+        rd=decision(s,endpoint_projection_digest="c"*64,source_snapshot_digest=s["snapshot_digest"])
         b["reevaluated_decision"]=rd
-        r=evaluate(b);self.assertTrue(r["allowed"],r["problems"]);self.assertTrue(r["re_evaluated"]);self.assertEqual(r["active_decision_digest"],"d"*64)
+        r=evaluate(b);self.assertTrue(r["allowed"],r["problems"]);self.assertTrue(r["re_evaluated"]);self.assertEqual(r["active_decision_digest"],rd["decision_digest"])
 
     def test_reevaluation_not_bound_to_current_snapshot_blocks(self):
         b=bundle();s=b["current_snapshot"];s["condition_registry_digest"]="e"*64;s["snapshot_digest"]=canonical_snapshot_digest(s)
-        b["reevaluated_decision"]=decision(s,decision_digest="d"*64,endpoint_projection_digest="c"*64,source_snapshot_digest=D1)
+        b["reevaluated_decision"]=decision(s,endpoint_projection_digest="c"*64,source_snapshot_digest=D1)
         r=evaluate(b);self.assertTrue(any("REEVALUATED_DECISION_SNAPSHOT_BINDING_MISMATCH" in x for x in r["problems"]))
 
     def test_deny_endpoint_blocks_effect(self):

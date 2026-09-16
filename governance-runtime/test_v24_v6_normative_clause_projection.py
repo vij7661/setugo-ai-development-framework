@@ -10,6 +10,7 @@ from v24_v6_normative_clause_projection import (
     REFERENCE_ONLY,
     SUPERSEDED,
     canonical_authority_set_content_digest,
+    canonical_catalog_control_binding_digest,
     canonical_disposition_content_digest,
     canonical_parser_content_digest,
     construction_frontier,
@@ -220,10 +221,6 @@ def coverage_fixture(descriptors=None):
     assert result["qualified"],result["problems"]
     extended=dict(specs)
     extended["disposition_set_q"]={"kind":"QUALIFICATION","subject_id":DISPOSITION_SET_ID,"content_digest":result["disposition_digest"]}
-    context,boundary,refs=build_test_proof_context(extended)
-    # Earlier proof refs are stable when one final spec is appended.
-    result=qualify_normative_dispositions(bundle,proof_context=context,trusted_boundary=boundary)
-    assert result["qualified"],result["problems"]
     if descriptors is None:
         mid=result["material_candidate_ids"][0]
         span=next(x["candidate_span_digest"] for x in result["disposition_binding_material"]["candidate_span_digests"] if x["candidate_clause_id"]==mid)
@@ -234,6 +231,18 @@ def coverage_fixture(descriptors=None):
             "normative_artifact_blob_sha":result["disposition_binding_material"]["artifact_git_blob_sha1"],
             "candidate_span_digest":span,
         }]
+    descriptors=[dict(d) for d in descriptors]
+    for index,descriptor in enumerate(descriptors,1):
+        descriptor.setdefault("control_binding_id",f"CLAUSE-CONTROL-BINDING-{index}")
+        descriptor["control_binding_content_digest"]=canonical_catalog_control_binding_digest(descriptor)
+        extended[f"control_binding_{index}_q"]={"kind":"QUALIFICATION","subject_id":descriptor["control_binding_id"],"content_digest":descriptor["control_binding_content_digest"]}
+    context,boundary,refs=build_test_proof_context(extended)
+    # Earlier proof refs remain deterministic when binding proofs are appended.
+    result=qualify_normative_dispositions(bundle,proof_context=context,trusted_boundary=boundary)
+    assert result["qualified"],result["problems"]
+    for index,descriptor in enumerate(descriptors,1):
+        descriptor["control_binding_qualification_digest"]=refs[f"control_binding_{index}_q"]
+        descriptor["control_binding_qualification_state"]=QUALIFIED
     coverage={
         "disposition_set_id":DISPOSITION_SET_ID,
         "disposition_digest":result["disposition_digest"],
