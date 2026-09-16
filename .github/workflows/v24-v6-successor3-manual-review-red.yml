@@ -1,0 +1,25 @@
+name: V24 V6 Successor-3 Manual Review RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-3
+    paths:
+      - 'governance-runtime/test_v24_v6_successor3_manual_review_red.py'
+      - '.github/workflows/v24-v6-successor3-manual-review-red.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  confirmed-review-red:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+      - name: Run confirmed manual-review blocker regressions
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_successor3_manual_review_red.py
