@@ -1,0 +1,105 @@
+name: V24 V6 Successor-3 Pre-Refreeze All-Up
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-3
+    paths:
+      - '.github/workflows/v24-v6-successor3-pre-refreeze-all-up.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pre-refreeze-all-up:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: remediation/v24-i11-v6-successor-3
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Capture exact pre-refreeze identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Compile R1-R8 and shared production dependencies
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_governance_foundation.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py \
+            v24_endpoint_proof_compiler.py \
+            normative_control_catalog.py
+
+      - name: Assert test helper is not imported by production
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n --include='v24_v6_*.py' 'v24_v6_test_proof_context' governance-runtime | grep -v 'test_v24_v6_' | grep -v 'v24_v6_test_proof_context.py'; then
+            echo 'Production imports test proof context.'
+            exit 1
+          fi
+          if grep -R -n --include='v24_v6_*.py' 'trusted_boundary_for' governance-runtime | grep -v 'v24_v6_test_proof_context.py'; then
+            echo 'Production/test source exposes trusted_boundary_for.'
+            exit 1
+          fi
+
+      - name: Run successor-3 blockers and full R1-R8 proof-resolution regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_successor3_manual_review_red.py \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_proof_reference_closure.py \
+            test_v24_v6_proof_resolution_red.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py
+
+      - name: Run inherited V24 construction regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Assert construction-only posture remains closed
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import v24_v6_governance_foundation as r1
+          import v24_v6_decision_apply as r4
+          import v24_v6_normative_clause_projection as r5
+          for module in (r1, r4, r5):
+              frontier = module.construction_frontier()
+              assert frontier['qualified'] is False
+              assert frontier['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          print('construction posture remains NONE_EVIDENCE_ONLY')
+          PY
