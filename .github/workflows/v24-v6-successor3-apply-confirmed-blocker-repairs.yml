@@ -6,6 +6,7 @@ on:
       - remediation/v24-i11-v6-successor-3
     paths:
       - 'remediation/v24/successor3/apply_confirmed_blocker_repairs.py'
+      - 'remediation/v24/successor3/apply_confirmed_blocker_repairs_v2.py'
       - '.github/workflows/v24-v6-successor3-apply-confirmed-blocker-repairs.yml'
   workflow_dispatch:
 
@@ -29,7 +30,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python remediation/v24/successor3/apply_confirmed_blocker_repairs.py
+          python remediation/v24/successor3/apply_confirmed_blocker_repairs_v2.py
           git diff --check
 
       - name: Assert production cannot synthesize trusted boundary
