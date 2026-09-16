@@ -1,0 +1,155 @@
+name: V24 V6 Successor-3 Exact Final Head
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-3
+    paths:
+      - '.github/workflows/v24-v6-successor3-final-head.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-final-head:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: remediation/v24-i11-v6-successor-3
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Capture exact candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Compile full successor production surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_governance_foundation.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py \
+            v24_v6_integrated_successor.py \
+            v24_endpoint_proof_compiler.py \
+            normative_control_catalog.py
+
+      - name: Run successor-3 and complete R1-R9 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_successor3_manual_review_red.py \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_proof_reference_closure.py \
+            test_v24_v6_proof_resolution_red.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py \
+            test_v24_v6_integrated_successor.py \
+            test_v24_v6_integrated_successor_dependency_red.py
+
+      - name: Run inherited V24 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Assert anti-self-grant and construction-only boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n --include='v24_v6_*.py' 'v24_v6_test_proof_context' governance-runtime | grep -v 'test_v24_v6_' | grep -v 'v24_v6_test_proof_context.py'; then
+            exit 1
+          fi
+          if grep -R -n --include='v24_v6_*.py' 'trusted_boundary_for' governance-runtime | grep -v 'v24_v6_test_proof_context.py'; then
+            exit 1
+          fi
+          grep -n 'TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR' governance-runtime/v24_v6_proof_reference_closure.py
+          grep -n 'DECISION_EFFECT_PATH_ID_BINDING_MISMATCH' governance-runtime/v24_v6_decision_apply.py
+          grep -n 'NORMATIVE_CATALOG_CONTROL_BINDING_PROOF' governance-runtime/v24_v6_normative_clause_projection.py
+
+      - name: Generate exact successor-3 verification report
+        working-directory: governance-runtime
+        env:
+          CANDIDATE_COMMIT: ${{ env.CANDIDATE_COMMIT }}
+          CANDIDATE_TREE: ${{ env.CANDIDATE_TREE }}
+          GITHUB_RUN_ID_VALUE: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import v24_v6_integrated_successor as r9
+          root = Path('..').resolve()
+          manifest = json.loads((root/'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json').read_text())
+          result = r9.validate_integrated_successor_manifest(repo_root=root, manifest=manifest)
+          assert result['integration_valid'], result['problems']
+          assert result['qualified'] is False
+          assert result['bound_file_count'] == 19
+          assert result['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert result['scientific_execution_state'] == r9.SCIENTIFIC_EXECUTION_CLOSED
+          assert manifest['candidate_family_id'] == 'V24-I11-V6-INTEGRATED-SUCCESSOR-3'
+          required = {
+              'EXTERNAL_TRUSTED_BOUNDARY_ANCHOR_REQUIRED',
+              'DECISION_EFFECT_PATH_TARGET_MISMATCH_REJECTED',
+              'CLAUSE_CONTROL_REASSIGNMENT_REJECTED',
+          }
+          assert required.issubset(set(manifest['mandatory_v6_adversarial_checks']))
+          report = {
+              'schema_version': 3,
+              'candidate_family_id': manifest['candidate_family_id'],
+              'candidate_commit': os.environ['CANDIDATE_COMMIT'],
+              'candidate_tree': os.environ['CANDIDATE_TREE'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID_VALUE'],
+              'integration_binding_digest': result['binding_digest'],
+              'bound_file_count': result['bound_file_count'],
+              'bound_files': result['bound_files'],
+              'approved_design_packet_sha256': manifest['approved_design_packet_sha256'],
+              'approved_design_body_sha256': manifest['approved_design_body_sha256'],
+              'approved_design_git_blob_sha': manifest['approved_design_git_blob_sha'],
+              'preserved_manual_review_red_run_id': '35070903107',
+              'preserved_tooling_failure_run_ids': ['35071250976', '35071608899'],
+              'repair_gate_run_id': '35071757663',
+              'pre_refreeze_all_up_run_id': '35071849800',
+              'r9_migration_run_id': '35072081665',
+              'scientific_execution_state': result['scientific_execution_state'],
+              'runtime_qualification_state': 'NOT_CLAIMED',
+              'successor_review_state': 'REQUIRED_MANUAL_INDEPENDENT_REVIEW',
+              'authority_effect': result['authority_effect'],
+          }
+          out = root/'v24-v6-successor3-verification.json'
+          out.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+          print(out.read_text())
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor3-exact-verification
+          path: v24-v6-successor3-verification.json
+          if-no-files-found: error
