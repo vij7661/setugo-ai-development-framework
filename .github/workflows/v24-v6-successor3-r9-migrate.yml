@@ -1,0 +1,127 @@
+name: V24 V6 Successor-3 R9 Migration
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-3
+    paths:
+      - '.github/workflows/v24-v6-successor3-r9-migrate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-r9:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: remediation/v24-i11-v6-successor-3
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Append successor-3 evidence and refresh R9 manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+
+          root = Path('.')
+          def blob(data: bytes) -> str:
+              return hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+
+          r4 = root/'implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md'
+          r5 = root/'implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md'
+          marker = '## Successor-3 manual-review remediation — 2026-09-16'
+          common = '''\n\n## Successor-3 manual-review remediation — 2026-09-16\n\nThe independent manual review of frozen successor-2 (`68edfc00fdaa4dc08e36aca172158d59a361e0d0`, tree `acc760e20e5133f878237e40083376414de2ed9b`) returned `CHANGES_REQUIRED`. The original review and adjudication remain preserved verbatim on the review lineage.\n\nPreserved pre-fix falsification run `35070903107`: **FAILURE**, reproducing PRC-1, DA-1, and NCP-1 independently. This RED remains historical evidence and is not reclassified.\n\nTooling/preflight failures `35071250976` (malformed patch) and `35071608899` (ambiguous exact-source replacement guard) are preserved separately and are **not mechanism failures**. Neither committed production mutations.\n\nSystemic repair gate `35071757663`: **SUCCESS**. Repair commit: `329feb966f44b1655a8180a9da2c8bf10f9f3c25`.\n\nPre-refreeze all-up run `35071849800`: **SUCCESS**, covering successor-3 blocker regressions, full R1-R8/proof-resolution regressions, inherited V24 construction regressions, compile checks, and closed construction posture.\n\nNo WDPC scientific execution occurred. Runtime qualification remains `NOT_CLAIMED`; scientific execution remains closed pending successor-3 manual review.\n'''
+          r4_text = r4.read_text()
+          if marker not in r4_text:
+              r4_text += common + '''\n### DA-1 repair\n\nThe decision qualification now binds a canonical decision-content digest containing the exact authorized effect-path ID, effect-path content digest, and effect class. Apply-time validation rejects any mismatch between the active decision and the actual material effect path.\n\nRepaired R4 production blob: `fa39bcec11a19826be3b391877023c93703c4bcc`.\n\n`R4_SUCCESSOR3_MANUAL_REVIEW_REMEDIATION = PASS`\n`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`\n'''
+              r4.write_text(r4_text)
+          r5_text = r5.read_text()
+          if marker not in r5_text:
+              r5_text += common + '''\n### NCP-1 repair\n\nEvery material clause → control assignment now has canonical binding material over candidate clause, control ID, artifact SHA, normative artifact blob, and candidate span digest, plus its own proof-closed `GOVERNED_QUALIFICATION`. A control reassignment invalidates the binding and stale proof.\n\nRepaired R5 production blob: `f5dd950211fe8aa08dda1e8a050a73138861e25c`.\n\n`R5_SUCCESSOR3_MANUAL_REVIEW_REMEDIATION = PASS`\n`AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`\n'''
+              r5.write_text(r5_text)
+
+          ev = root/'implementation/v24/V24-I11-V6-SUCCESSOR-3-REMEDIATION-EVIDENCE.md'
+          ev.write_text('''# V24 I11 V6 Successor-3 — Manual-Review Remediation Evidence\n\nStatus: **CONSTRUCTION REPAIR GREEN / MANUAL RE-REVIEW REQUIRED**\n\nAuthority effect: `NONE_EVIDENCE_ONLY`\n\n## Frozen predecessor\n\n- family: `V24-I11-V6-INTEGRATED-SUCCESSOR-2`\n- commit: `68edfc00fdaa4dc08e36aca172158d59a361e0d0`\n- tree: `acc760e20e5133f878237e40083376414de2ed9b`\n- final independent disposition: `CHANGES_REQUIRED`\n\n## Confirmed blockers\n\n- PRC-1 Critical — candidate/self-constructible trusted proof boundary.\n- DA-1 High — decision lacked exact effect-path/target binding.\n- NCP-1 Critical — clause → `control_id` relationship was not proof-closed.\n\n## Preserved falsification and tooling history\n\n- `35070903107` — **FAILURE / genuine mechanism RED**: all three confirmed blockers reproduced before repair.\n- `35071250976` — **FAILURE / tooling-preflight only**: malformed preregistered patch; no production mutation.\n- `35071608899` — **FAILURE / tooling-preflight only**: exact-source transformation ambiguity guard; no production mutation.\n- `35071757663` — **SUCCESS / narrow systemic repair gate**.\n- `35071849800` — **SUCCESS / pre-refreeze all-up**.\n\n## Repair identity\n\n- semantic repair commit: `329feb966f44b1655a8180a9da2c8bf10f9f3c25`\n- semantic repair tree: `9fa464e4cdfa68ff4521863977ff2b8aea36bfeb`\n- repaired proof-reference closure blob: `1601377231cfd816b28394388f9a9de3f1868dd2`\n- repaired decision/apply blob: `fa39bcec11a19826be3b391877023c93703c4bcc`\n- repaired normative projection blob: `f5dd950211fe8aa08dda1e8a050a73138861e25c`\n\n## Repair semantics\n\nPRC-1: production proof-context validation now requires a separately supplied environment anchor `V24_V6_TRUSTED_BOUNDARY_ANCHOR_SHA256` over exact generation/context/genesis boundary material. Test-only infrastructure may synthesize the anchor; production modules may not import that helper.\n\nDA-1: the qualified decision content now binds exact authorized effect-path ID/content digest/effect class, and the apply latch rejects a different current path even when generation-wide snapshot bindings match.\n\nNCP-1: each clause→control assignment now has canonical binding material and a separate governed qualification; changing `control_id` with stale proof fails closed.\n\n## Scope\n\nThis is construction evidence only. It does not prove durable external writes, runtime fencing/idempotency, external verifier semantics, or WDPC scientific outcomes. Scientific execution remains `CLOSED_PENDING_SUCCESSOR_REVIEW`; runtime qualification is `NOT_CLAIMED`.\n''')
+
+          r9 = root/'governance-runtime/v24_v6_integrated_successor.py'
+          text = r9.read_text()
+          for check in (
+              'EXTERNAL_TRUSTED_BOUNDARY_ANCHOR_REQUIRED',
+              'DECISION_EFFECT_PATH_TARGET_MISMATCH_REJECTED',
+              'CLAUSE_CONTROL_REASSIGNMENT_REJECTED',
+          ):
+              if f'"{check}"' not in text:
+                  needle = '        "SHARED_PRODUCTION_DEPENDENCY_MUTATION_REJECTED",\n'
+                  assert needle in text
+                  text = text.replace(needle, needle + f'        "{check}",\n', 1)
+          r9.write_text(text)
+
+          manifest_path = root/'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+          m = json.loads(manifest_path.read_text())
+          m['candidate_family_id'] = 'V24-I11-V6-INTEGRATED-SUCCESSOR-3'
+          prod = {row['workstream_id']: row for row in m['workstreams']}
+          prod['R4']['production_git_blob_sha'] = blob((root/prod['R4']['production_module_path']).read_bytes())
+          prod['R5']['production_git_blob_sha'] = blob((root/prod['R5']['production_module_path']).read_bytes())
+          prod['R4']['evidence_git_blob_sha'] = blob(r4.read_bytes())
+          prod['R5']['evidence_git_blob_sha'] = blob(r5.read_bytes())
+          deps = {row['dependency_id']: row for row in m['shared_dependencies']}
+          deps['PROOF_REFERENCE_CLOSURE']['git_blob_sha'] = blob((root/deps['PROOF_REFERENCE_CLOSURE']['path']).read_bytes())
+          m['mandatory_v6_adversarial_checks'] = sorted(set(m['mandatory_v6_adversarial_checks']) | {
+              'EXTERNAL_TRUSTED_BOUNDARY_ANCHOR_REQUIRED',
+              'DECISION_EFFECT_PATH_TARGET_MISMATCH_REJECTED',
+              'CLAUSE_CONTROL_REASSIGNMENT_REJECTED',
+          })
+          manifest_path.write_text(json.dumps(m, indent=2) + '\n')
+          PY
+          git diff --check
+
+      - name: Run successor-3 R9 and blocker regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_successor3_manual_review_red.py \
+            test_v24_v6_integrated_successor.py \
+            test_v24_v6_integrated_successor_dependency_red.py \
+            test_v24_v6_proof_resolution_red.py
+
+      - name: Validate refreshed integrated successor manifest
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import v24_v6_integrated_successor as r9
+          root = Path('..').resolve()
+          m = json.loads((root/'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json').read_text())
+          r = r9.validate_integrated_successor_manifest(repo_root=root, manifest=m)
+          assert r['integration_valid'], r['problems']
+          assert r['qualified'] is False
+          assert r['bound_file_count'] == 19
+          assert r['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert r['scientific_execution_state'] == 'CLOSED_PENDING_SUCCESSOR_REVIEW'
+          print(r['binding_digest'])
+          PY
+
+      - name: Commit migrated successor-3 R9 state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'vij7661'
+          git config user.email '58181021+vij7661@users.noreply.github.com'
+          git add \
+            implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md \
+            implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md \
+            implementation/v24/V24-I11-V6-SUCCESSOR-3-REMEDIATION-EVIDENCE.md \
+            implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json \
+            governance-runtime/v24_v6_integrated_successor.py
+          git diff --cached --check
+          git commit -m 'Migrate R9 freeze metadata to successor-3'
+          git push origin HEAD:remediation/v24-i11-v6-successor-3
