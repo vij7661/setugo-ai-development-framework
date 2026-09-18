@@ -23,7 +23,6 @@ jobs:
           V24_V6_ATTESTATION_INVENTORY_DIR: ${{ runner.temp }}/v24-v6-attestation-inventory
         run: |
           set -euo pipefail
-          mv test_v24_v6_successor4_external_anchor_red.py "${RUNNER_TEMP}/"
           python -m unittest discover -v -p 'test_v24_v6_*.py'
       - name: Build unsigned inventory manifest
         env:
