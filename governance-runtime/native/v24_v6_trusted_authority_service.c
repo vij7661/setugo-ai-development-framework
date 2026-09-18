@@ -364,8 +364,12 @@ static int serve(void) {
     if (!pf) { unlink(SOCKET_PATH); close(s); return 2; }
     fprintf(pf, "%ld\n", (long)getpid());
     fclose(pf);
-    chown(PID_PATH, 0, 0);
-    chmod(PID_PATH, 0444);
+    if (chown(PID_PATH, 0, 0) != 0 || chmod(PID_PATH, 0444) != 0) {
+        unlink(SOCKET_PATH);
+        unlink(PID_PATH);
+        close(s);
+        return 2;
+    }
 
     signal(SIGPIPE, SIG_IGN);
     while (1) {
