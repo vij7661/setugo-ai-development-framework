@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-7 — Trusted Service Execution and Bootstrap Repair Design
 
-Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-7 RED / IMPLEMENTATION NOT YET QUALIFIED**
+Status: **IMPLEMENTED / ALL-UP GREEN / EXACT FINAL-HEAD FREEZE PENDING**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -190,3 +190,38 @@ Successor-7 may be frozen for independent manual review only after:
 - DA-1/NCP-1 compound attacks are rerun through the service boundary;
 - scientific execution remains closed;
 - runtime qualification remains `NOT_CLAIMED`.
+
+
+## 12. Implemented construction evidence
+
+Successor-7 now has a separately controlled root authority service, a root-private authority result channel, and an external bootstrap authority that independently pins the exact source/build identities before installation.
+
+Preserved historical failures remain unchanged:
+- Successor-7 loader-injection RED: run `35336888966`;
+- initial trusted-service mechanism failure: run `35338295835`;
+- external-bootstrap v1 trust-manifest mismatch: run `35339093613`;
+- hardened-v3 pre-integrated-binding run: `35340164729`, which failed only because the integrated manifest still bound the predecessor gate-source blob.
+
+Final integrated all-up evidence before exact final-head freeze:
+- remediation head tested: `f4f0f8d55dd7a525efed5a5626b9cfe1456b17a5`;
+- workflow: `V24 V6 Successor-7 External Bootstrap All-Up`;
+- workflow run: `35340391007`;
+- job: `105584706975`;
+- Successor-7 plus inherited authority regressions: `43/43 GREEN`;
+- complete V24-V6 R1-R9 regressions: `199/199 GREEN`;
+- inherited V24 regressions: `90/90 GREEN`;
+- total: `332/332 GREEN`;
+- evidence artifact: `10544906479`;
+- evidence artifact digest: `sha256:d0d8dba5dded21669f3d86cb7811f5a7d438e0ee0c87a209ea303ba9761fa3fe`;
+- external bootstrap trust commit: `ffd215e0c73b1ca0294cbd06ddd8ddac77007b2a`;
+- trust tree: `8bff10c7601d0472e8d20966fe789d8e5a63bca4`;
+- bootstrap manifest blob: `ccfa227d511934b8c5068ee395604f06d7097aed`;
+- bootstrap script blob: `1ed659e082fec1e4c1d2f22b7137ab4223d3176e`;
+- hardened gate build-input SHA-256: `b0f0b0f91c88b1746d6bffa7d3b4955aa6f494cc525de45d7435582dfb77f1b9`;
+- hardened gate binary SHA-256: `7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069`;
+- trusted service build-input SHA-256: `b3016817f1587d6282ef5a41e2b9b48d49a5461fa5845d9af59c19bbcb509383`;
+- trusted service binary SHA-256: `34f1190c11e78a4db693b16f93dc4f6a72e618ff99ab764c5471db3c1596dc8a`.
+
+This is bounded construction evidence only. It does not open scientific execution and does not claim runtime qualification.
+
+The next permitted step is exact final-head freeze followed by independent manual review.

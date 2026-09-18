@@ -292,8 +292,17 @@
     "gate_binary_sha256": "7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069",
     "service_build_input_sha256": "b3016817f1587d6282ef5a41e2b9b48d49a5461fa5845d9af59c19bbcb509383",
     "service_binary_sha256": "34f1190c11e78a4db693b16f93dc4f6a72e618ff99ab764c5471db3c1596dc8a",
-    "construction_state": "PENDING_ALL_UP_AFTER_INTEGRATED_BINDING",
+    "construction_state": "READY_FOR_EXACT_FINAL_HEAD",
     "runtime_qualification_state": "NOT_CLAIMED",
-    "authority_effect": "NONE_EVIDENCE_ONLY"
+    "authority_effect": "NONE_EVIDENCE_ONLY",
+    "all_up_run_id": "35340391007",
+    "all_up_job_id": "105584706975",
+    "all_up_head_sha": "f4f0f8d55dd7a525efed5a5626b9cfe1456b17a5",
+    "security_regression_count": 43,
+    "r1_r9_regression_count": 199,
+    "inherited_v24_regression_count": 90,
+    "total_all_up_test_count": 332,
+    "evidence_artifact_id": "10544906479",
+    "evidence_artifact_digest": "sha256:d0d8dba5dded21669f3d86cb7811f5a7d438e0ee0c87a209ea303ba9761fa3fe"
   }
 }
