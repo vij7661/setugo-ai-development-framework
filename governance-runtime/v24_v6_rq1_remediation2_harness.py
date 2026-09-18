@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, hashlib, json, shutil, signal, subprocess, sys, time
+import argparse, hashlib, json, os, shutil, signal, subprocess, sys, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -226,7 +226,7 @@ def case_28(out):
     for row in rows:
         r=row.get("response") or {}; reasons.append(r.get("reason") or r.get("exception") or ("closed" if r.get("closed") else "UNKNOWN"))
     expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception"]) for x in reasons)
-    return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
+    return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
 
 IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
 
