@@ -1,0 +1,29 @@
+{
+    "record_id":  "V24-I11-V6-RQ1-REMEDIATION-2-BLOCKED-ROW-ADJUDICATION",
+    "rows":  [
+                 {
+                     "semantic_status":  "CURRENT_IMPLEMENTATION_IS_PROXY",
+                     "finding":  "Crash-before-validation semantics are clear; deterministic boundary proof is missing.",
+                     "rq_id":  "RQ-13",
+                     "decision":  "REPLACE"
+                 },
+                 {
+                     "semantic_status":  "CURRENT_IMPLEMENTATION_IS_PROXY",
+                     "finding":  "Crash-after-validation-before-rename semantics are clear; deterministic boundary proof is missing.",
+                     "rq_id":  "RQ-14",
+                     "decision":  "REPLACE"
+                 },
+                 {
+                     "semantic_status":  "CURRENT_IMPLEMENTATION_IS_PROXY",
+                     "finding":  "Crash-after-rename semantics are clear; deterministic boundary proof is missing.",
+                     "rq_id":  "RQ-15",
+                     "decision":  "REPLACE"
+                 },
+                 {
+                     "semantic_status":  "CURRENT_IMPLEMENTATION_IS_PROXY",
+                     "finding":  "Kernel denial at namespace creation plus before/after trusted-state measurements satisfies the frozen prevention oracle; no RQ-23b.",
+                     "rq_id":  "RQ-23",
+                     "decision":  "EXTEND"
+                 }
+             ]
+}

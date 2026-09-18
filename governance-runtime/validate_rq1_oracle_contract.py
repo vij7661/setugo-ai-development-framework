@@ -26,6 +26,13 @@ def validate(path: Path) -> dict:
         assert r.get("reviewer_semantics_rationale") and r["reviewer_semantics_rationale"] != "true"
         assert r.get("independent_evidence_source") and r.get("cleanup_recovery_requirement")
         assert r.get("destructive_restoration_evidence")
+        assert r.get("ambiguity_record") is not None
+        assert r.get("successor_preregistration_reason") is not None
+        if r["semantic_status"] == "FROZEN_PLAN_AMBIGUOUS":
+            assert "not semantically ambiguous" not in r["ambiguity_record"].lower()
+            assert "interpretation" in r["ambiguity_record"].lower() and " vs " in r["ambiguity_record"].lower()
+        if r["semantic_status"] == "REQUIRES_SUCCESSOR_PREREGISTRATION":
+            assert r["successor_preregistration_reason"]
         if r["implementation_decision"] == "KEEP":
             assert r["semantic_status"] == "EXACT_MATCH" and r["literal_trigger_execution"] and r["literal_oracle_proven"] and r["evidence_independent"] and r["cleanup_demonstrated"]
             assert "Claude Review #2" in r["reviewer_semantics_rationale"]
