@@ -28,7 +28,7 @@ gcc \
   -Wall \
   -Wextra \
   -Werror \
-  -DBUILD_INPUT_SHA256="\\\"$BUILD_INPUT_SHA\\\"" \
+  -DBUILD_INPUT_SHA256="\"$BUILD_INPUT_SHA\"" \
   "$SRC" \
   -o "$OUT" \
   -lcrypto
