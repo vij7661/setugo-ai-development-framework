@@ -39,29 +39,39 @@ jobs:
     needs: source-preflight
     runs-on: [self-hosted, v24-rq1]
     timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: rq1-worktree-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
         with:
-          # A prior authorized root-context import left bounded Python caches
-          # in this self-hosted worktree.  Do not ask checkout to recursively
-          # delete them before we can perform the bounded cleanup below.
-          clean: false
+          # Use a fresh run-specific worktree so stale root-owned caches in the
+          # legacy runner worktree cannot block checkout.  No runner state is
+          # deleted or rewritten.
+          path: rq1-worktree-${{ github.run_id }}
+      - name: Use fresh bound-runtime worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$GITHUB_WORKSPACE/rq1-worktree-${GITHUB_RUN_ID}/governance-runtime"
+          echo "RQ1_WORKTREE=$GITHUB_WORKSPACE/rq1-worktree-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
       - name: Bounded workspace hygiene cleanup
         id: workspace_hygiene
         shell: bash
         run: |
           set -euo pipefail
           report="$RUNNER_TEMP/v24-rq1-workspace-hygiene-${GITHUB_RUN_ID}.txt"
+          worktree="$GITHUB_WORKSPACE/rq1-worktree-${GITHUB_RUN_ID}"
           {
             echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "workspace=$GITHUB_WORKSPACE"
+            echo "workspace=$worktree"
             echo "before_root_owned_cache_files"
-            sudo find "$GITHUB_WORKSPACE/governance-runtime" -type f -name '*.pyc' -printf '%u:%g %p\\n' 2>&1 || true
-            # Scope is strictly the checked-out governance-runtime tree.
-            sudo find "$GITHUB_WORKSPACE/governance-runtime" -type f -name '*.pyc' -delete
-            sudo find "$GITHUB_WORKSPACE/governance-runtime" -type d -name '__pycache__' -empty -delete
+            sudo find "$worktree/governance-runtime" -type f -name '*.pyc' -printf '%u:%g %p\\n' 2>&1 || true
+            # Scope is strictly this fresh checked-out governance-runtime tree.
+            sudo find "$worktree/governance-runtime" -type f -name '*.pyc' -delete
+            sudo find "$worktree/governance-runtime" -type d -name '__pycache__' -empty -delete
             echo "after_cache_files"
-            if sudo find "$GITHUB_WORKSPACE/governance-runtime" -type f -name '*.pyc' -print -quit | grep -q .; then
+            if sudo find "$worktree/governance-runtime" -type f -name '*.pyc' -print -quit | grep -q .; then
               echo "workspace_hygiene=FAIL"
               exit 1
             fi
@@ -209,7 +219,7 @@ jobs:
         if: steps.stage_evidence.outcome == 'success'
         with:
           name: rq1-remediation2-exact-safe-${{ github.sha }}
-          path: rq1-remediation2-evidence
+          path: rq1-worktree-${{ github.run_id }}/rq1-remediation2-evidence
           if-no-files-found: error
           retention-days: 30
       - name: Fail closed on RED or harness defect
