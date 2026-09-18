@@ -1,0 +1,36 @@
+name: V24 V6 Successor-5 Mutable Verifier RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-5
+    paths:
+      - '.github/workflows/v24-v6-successor5-mutable-verifier-red.yml'
+      - 'governance-runtime/test_v24_v6_successor5_mutable_verifier_red.py'
+      - 'governance-runtime/test_v24_v6_successor4_external_anchor_red.py'
+      - 'governance-runtime/v24_v6_proof_reference_closure.py'
+      - 'governance-runtime/v24_v6_root_attestation.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preserve-red:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile attack surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile             v24_v6_proof_reference_closure.py             v24_v6_root_attestation.py             test_v24_v6_successor4_external_anchor_red.py             test_v24_v6_successor5_mutable_verifier_red.py
+
+      - name: Reproduce same-process verifier substitution
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v test_v24_v6_successor5_mutable_verifier_red.py
