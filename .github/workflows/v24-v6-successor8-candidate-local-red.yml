@@ -1,0 +1,66 @@
+name: V24 V6 Successor-8 Candidate-Local Authority RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-8
+    paths:
+      - '.github/workflows/v24-v6-successor8-candidate-local-red.yml'
+      - 'governance-runtime/test_v24_v6_successor8_candidate_local_red.py'
+      - 'governance-runtime/v24_v6_trusted_service_client.py'
+      - 'implementation/v24/V24-I11-V6-SUCCESSOR-8-AUTHENTICATED-AUTHORITY-CHANNEL-REPAIR-DESIGN.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preserve-red:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Create unprivileged candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Compile deterministic attack surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_trusted_service_client.py \
+            test_v24_v6_successor8_candidate_local_red.py \
+            test_v24_v6_proof_reference_closure.py
+
+      - name: Stage root-owned read-only candidate test bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-successor8-red
+          sudo cp -a governance-runtime /tmp/v24candidate-successor8-red
+          sudo chown -R root:root /tmp/v24candidate-successor8-red
+          sudo find /tmp/v24candidate-successor8-red -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-successor8-red -type f -exec chmod 0444 {} +
+
+      - name: Reproduce candidate-local forged root-service ALLOW
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor8-red
+          sudo -u v24candidate -- env \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-successor8-red \
+            /usr/bin/python3 -m unittest -v test_v24_v6_successor8_candidate_local_red.py
