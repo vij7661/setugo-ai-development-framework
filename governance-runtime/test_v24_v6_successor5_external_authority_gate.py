@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import copy
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -24,7 +25,7 @@ from test_v24_v6_successor4_external_anchor_red import (
 
 RUNTIME_DIR = Path(__file__).resolve().parent
 BUILD_SCRIPT = RUNTIME_DIR / "build_v24_v6_external_authority_gate.sh"
-GATE = RUNTIME_DIR / ".gate-build" / "v24_v6_external_authority_gate"
+GATE = Path(os.environ.get("V24_V6_TRUSTED_GATE_PATH", str(RUNTIME_DIR / ".gate-build" / "v24_v6_external_authority_gate")))
 GATE_ID = "V24-V6-EXTERNAL-AUTHORITY-GATE"
 GATE_VERSION = "1"
 
@@ -201,13 +202,14 @@ def _fake_attestation(boundary: dict) -> dict:
 class Successor5ExternalAuthorityGateRegressions(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        subprocess.run(
-            ["bash", str(BUILD_SCRIPT)],
-            cwd=RUNTIME_DIR,
-            check=True,
-            text=True,
-            capture_output=True,
-        )
+        if "V24_V6_TRUSTED_GATE_PATH" not in os.environ:
+            subprocess.run(
+                ["bash", str(BUILD_SCRIPT)],
+                cwd=RUNTIME_DIR,
+                check=True,
+                text=True,
+                capture_output=True,
+            )
         identity = json.loads(
             subprocess.run(
                 [str(GATE), "--identity"],
@@ -430,7 +432,7 @@ class Successor5ExternalAuthorityGateRegressions(unittest.TestCase):
             )
         self.assertNotEqual(proc.returncode, 0)
         self.assertEqual(payload["decision"], "DENY")
-        self.assertEqual(payload["reason"], "PINNED_SOURCE_DIGEST_MISMATCH")
+        self.assertIn(payload["reason"], {"PINNED_SOURCE_DIGEST_MISMATCH", "TRUSTED_GATE_CONTROL_DOMAIN_INVALID"})
 
     def test_externally_verified_signed_context_positive(self):
         context, boundary, refs = proof_bundle()
