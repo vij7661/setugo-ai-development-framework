@@ -47,7 +47,7 @@ CASES = {
 STATE = {"scientific_execution_state":"CLOSED_PENDING_SUCCESSOR_REVIEW",
          "authority_effect":"NONE_EVIDENCE_ONLY", "qualification":"NOT_QUALIFIED"}
 
-def _run(argv, *, user=None, timeout=30):
+def _run(argv, *, user=None, timeout=10):
     cmd = list(argv)
     if user: cmd = ["sudo", "-u", user, "--"] + cmd
     return subprocess.run(cmd, text=True, capture_output=True, timeout=timeout)
@@ -185,7 +185,20 @@ def run_all(out_dir: Path):
     out_dir.mkdir(parents=True, exist_ok=True)
     results=[]
     for case_id in CASES:
-        started=time.time(); status, observation, raw_evidence = _case(case_id, out_dir)
+        started=time.time(); pid=os.getpid()
+        progress = out_dir / "case-progress.jsonl"
+        with progress.open("a", encoding="utf-8") as log:
+            log.write(json.dumps({"event":"case_start","case_id":case_id,"pid":pid,"timestamp":time.time()}, sort_keys=True)+"\n")
+        try:
+            status, observation, raw_evidence = _case(case_id, out_dir)
+        except subprocess.TimeoutExpired as exc:
+            status, observation, raw_evidence = "HARNESS_DEFECT", f"case timeout: {exc}", str(out_dir / f"{case_id}.timeout.raw.json")
+            Path(raw_evidence).write_text(json.dumps({"case_id":case_id,"oracle":CASES[case_id]["oracle"],"status":status,"observation":observation,"stdout":getattr(exc,"stdout",None),"stderr":getattr(exc,"stderr",None),"timestamp":time.time()}, sort_keys=True, indent=2)+"\n", encoding="utf-8")
+        except Exception as exc:
+            status, observation, raw_evidence = "HARNESS_DEFECT", f"case exception: {type(exc).__name__}: {exc}", str(out_dir / f"{case_id}.exception.raw.json")
+            Path(raw_evidence).write_text(json.dumps({"case_id":case_id,"oracle":CASES[case_id]["oracle"],"status":status,"observation":observation,"timestamp":time.time()}, sort_keys=True, indent=2)+"\n", encoding="utf-8")
+        with progress.open("a", encoding="utf-8") as log:
+            log.write(json.dumps({"event":"case_end","case_id":case_id,"pid":pid,"status":status,"timestamp":time.time()}, sort_keys=True)+"\n")
         evidence = [raw_evidence]
         result={"case_id":case_id,"oracle":CASES[case_id]["oracle"],"status":status,
                 "setup":CASES[case_id]["mode"],"trigger":CASES[case_id]["mode"],
