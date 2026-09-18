@@ -1,0 +1,26 @@
+{
+  "algorithm": "RSA-PKCS1-v1_5-SHA256",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_may_select_key": false,
+  "key_id": "V24-V6-CONSTRUCTION-ROOT-ATTESTATION-V3",
+  "mutable_environment_anchor_is_authority": false,
+  "notes": [
+    "V1 and V2 remain historical incomplete artifacts because neither branch materialized detached fixture signatures.",
+    "V3 public key and all 56 detached signatures were issued together on a fresh trust-branch runner.",
+    "The signing job did not execute candidate/test Python; it consumed only the frozen unsigned inventory artifact.",
+    "The private signing key is deleted before commit and is not persisted.",
+    "This construction key grants no runtime, deployment, release, or scientific authority."
+  ],
+  "private_signing_key_available_to_candidate_python": false,
+  "private_signing_key_committed": false,
+  "public_key_der_sha256": "fbb2cea7474505f0c0d8f77be81c97a949d4ea70eb38b7caef4ffd0e9606f61c",
+  "purpose": "CONSTRUCTION_PROOF_CONTEXT_ATTESTATION_ONLY",
+  "rsa_modulus_hex": "a859b1d6e482ee3a0b59cefea9a1506f27e2a76fb30b142bd2f224a3930ff4f904f765c3ad749dd81f7fa9a702f0a84cf29fdb25cefa8437c6403f72167195e4b87daa9f4dd2a3d25afd611f3732a3bbe1ab0225ed1922528e2b84fd141dea95f9feb07e901d94e6fb033af3f1a1c718c8c8952f8bf66a29723d3a7b8755e030dd5d29a87be2472a3fa3d2b51596092734a78113f4c6846790f02b6a9e2bce87abb69ebaf86fe2eb0d3de78c6f3dee723957f30593fc6bc4e7f41026ccb22d5271f3a391b355d5a62281f0193f33e5de96df50bbdfe554769cafe55b7a8f1e471ce47deb03bdbfafc37af2669570f89d1d512ebfb55c55e515dd9c69df9be65b",
+  "rsa_public_exponent": 65537,
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "schema_version": 3,
+  "signed_context_count": 56,
+  "source_inventory_artifact_id": "10537477367",
+  "source_inventory_artifact_sha256": "fd4639cb0f7f61ba033391291b284527e208741425986085447bd46af129ef65",
+  "source_inventory_workflow_run_id": "35322076552"
+}
