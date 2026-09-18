@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-7 — Trusted Service Execution and Bootstrap Repair Design
 
-Status: **PREREGISTERED AFTER SUCCESSOR-6 MANUAL REVIEW / RED EXECUTION PENDING**
+Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-7 RED / IMPLEMENTATION NOT YET QUALIFIED**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -70,7 +70,22 @@ The attack MUST:
 5. demonstrate that the native gate emits `construction_authoritative=true, decision=ALLOW` for the unknown reference;
 6. assert that such an ALLOW must be impossible.
 
-If this produces ALLOW, the failure is a genuine mechanism defect and must be permanently preserved as RED.
+The attack produced ALLOW and is now permanently preserved as a genuine mechanism RED.
+
+Preserved Successor-7 RED:
+- branch head tested: `1837fab5e3a15e5fabebdedfaccc259a2a350227`
+- workflow: `V24 V6 Successor-7 Candidate Loader RED`
+- workflow run: `35336888966`
+- job: `105573671594`
+- test: `test_candidate_ld_preload_cannot_forge_authoritative_allow`
+- setup/build/install/candidate-staging steps: `GREEN`
+- attack regression: `RED`
+- observed authoritative result: `construction_authoritative=True`, `decision=ALLOW`
+- forged unknown reference: `ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
+- gate build-input SHA-256 observed: `4e76eeaf554293d7f3a1faa615aec6c422c4b37d9b1677b94cdf1279fdcee818`
+- forged worker-result SHA-256: `e722a643e11f1cdbe4d307c925d8b388cf0c81c675fe3f688e9ae3324eca95f0`
+
+The baseline unmodified invocation rejected the unknown reference. Only the candidate-controlled dynamic-loader injection changed the authority outcome to ALLOW. This is a mechanism defect, not a fixture or expectation defect, and must never be relabeled as PASS.
 
 ## 5. Mandatory permanent regressions
 
