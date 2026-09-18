@@ -46,6 +46,7 @@
 #define GATE_ID "V24-V6-EXTERNAL-AUTHORITY-GATE"
 #define GATE_VERSION "1"
 #define AUTHORITY_EFFECT "NONE_EVIDENCE_ONLY"
+#define TRUSTED_PRIVATE_DIR "/run/v24-v6-authority/private"
 
 #define ATTESTATION_SCHEMA "1"
 #define KEY_ID "V24-V6-CONSTRUCTION-ROOT-ATTESTATION-V3"
@@ -377,11 +378,17 @@ static char *run_downstream_worker(
 }
 
 static bool write_temp_json(const char *content, char path_out[PATH_MAX]) {
-    char tmpl[] = "/tmp/v24-v6-gate-worker-XXXXXX";
+    const char *base = geteuid() == 0 ? TRUSTED_PRIVATE_DIR : "/tmp";
+    char tmpl[PATH_MAX];
+    int n = snprintf(tmpl, sizeof(tmpl), "%s/v24-v6-gate-worker-XXXXXX", base);
+    if (n <= 0 || n >= (int)sizeof(tmpl)) return false;
     int fd = mkstemp(tmpl);
     if (fd < 0) return false;
     size_t len = strlen(content);
     ssize_t wrote = write(fd, content, len);
+    if (wrote == (ssize_t)len) {
+        if (fsync(fd) != 0) wrote = -1;
+    }
     close(fd);
     if (wrote != (ssize_t)len) { unlink(tmpl); return false; }
     strncpy(path_out, tmpl, PATH_MAX-1);
