@@ -104,10 +104,12 @@ class Successor7TrustedServiceTests(unittest.TestCase):
             expected_digest=ROOT_CONTENT,
         )
         self.assertEqual(result["decision"], "ALLOW", result)
-        self.assertTrue(result["service_authoritative"])
-        self.assertTrue(result["construction_authoritative"])
+        self.assertFalse(result["service_authoritative"])
+        self.assertFalse(result["construction_authoritative"])
+        self.assertTrue(result["diagnostic_only"])
         self.assertEqual(len(result["request_sha256"]), 64)
         self.assertEqual(len(result["gate_result_sha256"]), 64)
+        self.assertEqual(len(result["trusted_record_id"]), 64)
 
     def test_unknown_reference_is_denied(self):
         result = _unknown_request()
