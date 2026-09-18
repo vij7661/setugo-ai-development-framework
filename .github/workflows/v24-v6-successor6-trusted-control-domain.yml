@@ -1,0 +1,89 @@
+name: V24 V6 Successor-6 Trusted Control Domain
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-6
+    paths:
+      - '.github/workflows/v24-v6-successor6-trusted-control-domain.yml'
+      - 'governance-runtime/native/v24_v6_external_authority_gate.c'
+      - 'governance-runtime/build_v24_v6_external_authority_gate.sh'
+      - 'governance-runtime/install_v24_v6_trusted_authority_gate.sh'
+      - 'governance-runtime/test_v24_v6_successor6_trusted_control_domain.py'
+      - 'governance-runtime/test_v24_v6_successor5_external_authority_gate.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-control-domain:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile trusted-control tests
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            test_v24_v6_successor6_trusted_control_domain.py \
+            test_v24_v6_successor5_external_authority_gate.py
+
+      - name: Build candidate gate artifact
+        run: bash governance-runtime/build_v24_v6_external_authority_gate.sh
+
+      - name: Install root-owned trusted runtime
+        run: sudo bash governance-runtime/install_v24_v6_trusted_authority_gate.sh
+
+      - name: Create unprivileged candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          id v24candidate
+          test "$(id -u v24candidate)" != "0"
+
+      - name: Run Successor-6 control-domain regressions as candidate
+        shell: bash
+        working-directory: governance-runtime
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"
+          sudo -u v24candidate -- env \
+            V24_V6_TRUSTED_ROOT=/opt/v24-v6-trusted-runtime \
+            V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            PYTHONPATH="$PWD" \
+            "$PY" -m unittest -v test_v24_v6_successor6_trusted_control_domain.py
+
+      - name: Re-run Successor-5 authority regressions through trusted gate
+        shell: bash
+        working-directory: governance-runtime
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"
+          sudo -u v24candidate -- env \
+            V24_V6_TRUSTED_ROOT=/opt/v24-v6-trusted-runtime \
+            V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            PYTHONPATH="$PWD" \
+            "$PY" -m unittest -v \
+              test_v24_v6_successor5_external_authority_gate.py \
+              test_v24_v6_successor4_root_attestation.py \
+              test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Record trusted runtime identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate --identity
+          sha256sum /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate
+          stat -c '%u:%g %a %n' \
+            /opt/v24-v6-trusted-runtime \
+            /opt/v24-v6-trusted-runtime/.gate-build \
+            /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            /opt/v24-v6-trusted-runtime/v24_v6_external_gate_worker.py
