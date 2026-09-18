@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-8 — Authenticated Authority Channel Repair Design
 
-Status: **PREREGISTERED AFTER SUCCESSOR-7 MANUAL REVIEW / RED EXECUTION PENDING**
+Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-8 RED / IMPLEMENTATION NOT YET QUALIFIED**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -85,6 +85,32 @@ Attack shape:
 7. assert that candidate-local replacement must never be sufficient to create an authoritative result.
 
 This RED is intentionally deterministic and does not depend on whether the current CI host permits unprivileged user namespaces. A separate permanent namespace regression remains mandatory.
+
+Preserved Successor-8 RED:
+- branch head tested: `6c39d23feed010421c53338d25ddcac69a9a5403`
+- workflow: `V24 V6 Successor-8 Candidate-Local Authority RED`
+- workflow run: `35342416032`
+- job: `105591133930`
+- test: `test_candidate_local_socket_peer_forgery_cannot_self_grant`
+- compile/staging steps: `GREEN`
+- attack regression: `RED`
+- observed forged result: `service_authoritative=True`, `construction_authoritative=True`, `decision=ALLOW`
+- observed forged reason: `FORGED-CANDIDATE-LOCAL-ALLOW`
+
+The candidate-local fake socket never contacted or modified the genuine trusted service. The failure therefore proves that the candidate-visible Python result object itself was incorrectly sufficient to represent authority. This is a genuine mechanism defect and MUST NOT be relabeled as PASS.
+
+### Chosen bounded repair mechanism
+
+Successor-8 will use **trusted authority record + root-only consume semantics**:
+
+1. the genuine root service evaluates the request through the already-pinned gate;
+2. the candidate-visible response is diagnostic only and can never itself carry construction authority;
+3. for each genuine evaluation, the root service writes an exact request-bound authority record into root-private state under `/run/v24-v6-authority/private/records`;
+4. the record binds request digest, decision, gate-result digest, service identity/version/build identity and exact protocol version;
+5. only a root-only native consume operation may convert an unconsumed record into an authoritative construction effect;
+6. consumption is one-shot: the record is atomically moved into consumed state, so replay fails closed;
+7. fake Python clients, fake namespace-local sockets and fabricated JSON can at most manufacture diagnostic bytes; they cannot create or consume the root-owned authority record;
+8. DA-1/NCP-1 authoritative adjudication must be based on the consumed root record, not on the candidate-visible dictionary.
 
 ## 5. Mandatory permanent regressions
 
