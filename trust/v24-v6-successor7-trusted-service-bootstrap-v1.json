@@ -1,0 +1,32 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_identity": "v24candidate",
+  "files": {
+    "build_v24_v6_external_authority_gate.sh": "af8d7031c16921a58be3d3a4e1df5098697e77f18d41ec0a402e824178dbd813",
+    "build_v24_v6_trusted_authority_service.sh": "f13b22aae2421099a43966cc0c22c60a3149b2f67e24e46e40e73670bec71c8b",
+    "native/v24_v6_external_authority_gate.c": "a5641eb194828ea1deb6a31f31a9b4c08168a6bdbe4b0f4a5b3353849eaee0d1",
+    "native/v24_v6_trusted_authority_service.c": "8ca4d1719f084407232150d8aa17d9a1059129eb578bd4f54e00eac941cdf2cd",
+    "normative_control_catalog.py": "5a239be5641806995170fa0382d53c1e1d3fc202543b208a0e2f351f66279cf3",
+    "v24_v6_decision_apply.py": "ef8e2a24b442c477b3974df73036ac28163f342bbad88d7e93ad37abd381d67e",
+    "v24_v6_external_gate_worker.py": "8f6d2982bc5a9fc47a5267677f36bc22b74559a68b9c2c7812f7d0847826b62b",
+    "v24_v6_governance_foundation.py": "f0d429ab812cc694f79eaa4aa40acf944564691221943a045caf057094d53828",
+    "v24_v6_material_surface.py": "b58f2bbe1eb5136ca008c1b6e3c7dcdc638ba5dc324766bd3f8f7d8eec08db66",
+    "v24_v6_normative_clause_projection.py": "408f5309eaf415f4c9c8344d5b661cbb61b9b84cdb0c5f12432aec585b12f8fe",
+    "v24_v6_proof_reference_closure.py": "5837b031d7da96aa193220ead57854784a328a1c226f64638ba82dade316505e",
+    "v24_v6_root_attestation.py": "8a9f6b256a056b48f4062a3c2fb8a0a9263b38599b5cbc6e2a19b18b7a3de70a"
+  },
+  "gate_binary_sha256": "724543687125ae63c62d801bd9e77721adaccc8b8c9726b1b3730b2368e7af5b",
+  "gate_build_input_sha256": "4e76eeaf554293d7f3a1faa615aec6c422c4b37d9b1677b94cdf1279fdcee818",
+  "gate_id": "V24-V6-EXTERNAL-AUTHORITY-GATE",
+  "gate_version": "1",
+  "manifest_id": "V24-V6-SUCCESSOR7-TRUSTED-SERVICE-BOOTSTRAP-V1",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "schema_version": 1,
+  "service_binary_sha256": "34f1190c11e78a4db693b16f93dc4f6a72e618ff99ab764c5471db3c1596dc8a",
+  "service_build_input_sha256": "b3016817f1587d6282ef5a41e2b9b48d49a5461fa5845d9af59c19bbcb509383",
+  "service_id": "V24-V6-TRUSTED-AUTHORITY-SERVICE",
+  "service_version": "1",
+  "source_commit_observed": "466038c28d51abdd9c07009e9b0857e66a230fbf",
+  "trusted_root": "/opt/v24-v6-trusted-runtime",
+  "trusted_socket_path": "/run/v24-v6-authority/service.sock"
+}
