@@ -30,3 +30,9 @@ Inherited reruns were sealed in both contexts:
 The inherited failures/errors remain adjudication inputs, not silently converted to PASS. In particular, candidate-private socket visibility, root-only setup, gate digest/ownership assertions, and lifecycle assumptions are recorded in the raw transcripts for independent classification.
 
 Runtime remains `NOT_QUALIFIED`; scientific execution remains `CLOSED`; authority effect remains `NONE_EVIDENCE_ONLY`. This remediation is incomplete and must not be presented as a qualification claim.
+
+## Instrumented rerun and RQ-32 boundary
+
+The prior empty-directory timeout is preserved as historical harness-defect evidence. Per-case JSONL logging then isolated the stall at `RQ-08`: candidate diagnostic/consume transport blocked until the bounded subprocess timeout. The instrumented run reached all 32 cases and produced bundle SHA-256 `27c774c93fccf097febc28655f91d6df6f215804ddb3a397bb4ab60d0753e417`. Counts were `PASS=19`, `HARNESS_DEFECT=13`, `RED=0`; unresolved IDs: `RQ-01`, `RQ-02`, `RQ-04`, `RQ-08`, `RQ-09`, `RQ-10`, `RQ-12`, `RQ-16`, `RQ-24`, `RQ-25`, `RQ-28`, `RQ-29`, `RQ-31`. The timeout and every case start/end timestamp remain append-only on the VM.
+
+The authorized real RQ-32 reboot was executed. Pre-reboot and post-reboot transcripts are sealed on the VM. Post-reboot evidence revalidated service binary SHA-256 `a9567ea1677456949e79bb64c06c6880426afcaaaa5235e5579ca3e62e7b021d`, active/enabled service, socket listener, AppArmor/auditd, and all load-bearing sysctls. This is runtime evidence only; it does not qualify the subject.
