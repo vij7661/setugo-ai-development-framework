@@ -1,0 +1,33 @@
+{
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "candidate_identity": "v24candidate",
+  "file_hash_mode": "git_blob_sha1",
+  "files": {
+    "build_v24_v6_external_authority_gate.sh": "4ea37d86495828a3c14dd6e81e18b6b981fe8ed2",
+    "build_v24_v6_trusted_authority_service.sh": "08d5e43dc1e30122c37999f7a942417e5dcbc799",
+    "native/v24_v6_external_authority_gate.c": "662e638b4490feb58ba9eec03b7313b7d25f632a",
+    "native/v24_v6_trusted_authority_service.c": "fe70edc4e0c6fe54c7fcbcc6d0b164b383cc4b73",
+    "normative_control_catalog.py": "5fdbd561c93049222d55bbc81c2baf592ff906aa",
+    "v24_v6_decision_apply.py": "fa39bcec11a19826be3b391877023c93703c4bcc",
+    "v24_v6_external_gate_worker.py": "7c47fba7e2d1a0f6ea405c09271c2acd140cc150",
+    "v24_v6_governance_foundation.py": "069a0575c5bf4841cbf752180bbe192094d60623",
+    "v24_v6_material_surface.py": "7040fa0b481e630ee106ebad78d6eb4982df4ea9",
+    "v24_v6_normative_clause_projection.py": "f5dd950211fe8aa08dda1e8a050a73138861e25c",
+    "v24_v6_proof_reference_closure.py": "80c653008e1501250e37fb8cb7e0cb49b38baed4",
+    "v24_v6_root_attestation.py": "64f3048881f3a4c2af172f57b0c3f773f5fdda7c"
+  },
+  "gate_binary_sha256": "724543687125ae63c62d801bd9e77721adaccc8b8c9726b1b3730b2368e7af5b",
+  "gate_build_input_sha256": "4e76eeaf554293d7f3a1faa615aec6c422c4b37d9b1677b94cdf1279fdcee818",
+  "gate_id": "V24-V6-EXTERNAL-AUTHORITY-GATE",
+  "gate_version": "1",
+  "manifest_id": "V24-V6-SUCCESSOR7-TRUSTED-SERVICE-BOOTSTRAP-V2",
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "schema_version": 2,
+  "service_binary_sha256": "34f1190c11e78a4db693b16f93dc4f6a72e618ff99ab764c5471db3c1596dc8a",
+  "service_build_input_sha256": "b3016817f1587d6282ef5a41e2b9b48d49a5461fa5845d9af59c19bbcb509383",
+  "service_id": "V24-V6-TRUSTED-AUTHORITY-SERVICE",
+  "service_version": "1",
+  "source_commit_observed": "466038c28d51abdd9c07009e9b0857e66a230fbf",
+  "trusted_root": "/opt/v24-v6-trusted-runtime",
+  "trusted_socket_path": "/run/v24-v6-authority/service.sock"
+}
