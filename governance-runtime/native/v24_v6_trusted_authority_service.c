@@ -248,22 +248,6 @@ static bool write_authority_record(const char *record_id, const char *decision,
     return true;
 }
 
-static bool field_value(const char *body, const char *key, char *out, size_t cap) {
-    char needle[128];
-    int nn = snprintf(needle, sizeof(needle), "%s=", key);
-    if (nn <= 0 || (size_t)nn >= sizeof(needle)) return false;
-    const char *p = strstr(body, needle);
-    if (!p || (p != body && p[-1] != '\n')) return false;
-    p += nn;
-    const char *end = strchr(p, '\n');
-    if (!end) return false;
-    size_t len = (size_t)(end - p);
-    if (len == 0 || len >= cap) return false;
-    memcpy(out, p, len);
-    out[len] = '\0';
-    return true;
-}
-
 static int consume_record(const char *record_id, const char *expected_request_digest) {
     (void)record_id;
     (void)expected_request_digest;
