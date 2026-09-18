@@ -8,6 +8,10 @@ WORKER="$RUNTIME_DIR/v24_v6_external_gate_worker.py"
 PRC="$RUNTIME_DIR/v24_v6_proof_reference_closure.py"
 ROOT_ATTEST="$RUNTIME_DIR/v24_v6_root_attestation.py"
 FOUNDATION="$RUNTIME_DIR/v24_v6_governance_foundation.py"
+DECISION_APPLY="$RUNTIME_DIR/v24_v6_decision_apply.py"
+MATERIAL_SURFACE="$RUNTIME_DIR/v24_v6_material_surface.py"
+NORMATIVE_PROJECTION="$RUNTIME_DIR/v24_v6_normative_clause_projection.py"
+NORMATIVE_CATALOG="$RUNTIME_DIR/normative_control_catalog.py"
 OUT="$BUILD_DIR/v24_v6_external_authority_gate"
 
 mkdir -p "$BUILD_DIR"
@@ -21,6 +25,10 @@ WORKER_SHA="$(sha_file "$WORKER")"
 PRC_SHA="$(sha_file "$PRC")"
 ROOT_SHA="$(sha_file "$ROOT_ATTEST")"
 FOUNDATION_SHA="$(sha_file "$FOUNDATION")"
+DECISION_APPLY_SHA="$(sha_file "$DECISION_APPLY")"
+MATERIAL_SURFACE_SHA="$(sha_file "$MATERIAL_SURFACE")"
+NORMATIVE_PROJECTION_SHA="$(sha_file "$NORMATIVE_PROJECTION")"
+NORMATIVE_CATALOG_SHA="$(sha_file "$NORMATIVE_CATALOG")"
 BUILD_SCRIPT_SHA="$(sha_file "${BASH_SOURCE[0]}")"
 
 BUILD_INPUT_SHA="$(
@@ -31,6 +39,10 @@ BUILD_INPUT_SHA="$(
     "proof_reference_closure=$PRC_SHA" \
     "root_attestation=$ROOT_SHA" \
     "governance_foundation=$FOUNDATION_SHA" \
+    "decision_apply=$DECISION_APPLY_SHA" \
+    "material_surface=$MATERIAL_SURFACE_SHA" \
+    "normative_clause_projection=$NORMATIVE_PROJECTION_SHA" \
+    "normative_control_catalog=$NORMATIVE_CATALOG_SHA" \
     "build_script=$BUILD_SCRIPT_SHA" \
   | sha256sum | awk '{print $1}'
 )"
@@ -45,6 +57,10 @@ gcc \
   -DEXPECTED_PRC_SHA256="\"$PRC_SHA\"" \
   -DEXPECTED_ROOT_SHA256="\"$ROOT_SHA\"" \
   -DEXPECTED_FOUNDATION_SHA256="\"$FOUNDATION_SHA\"" \
+  -DEXPECTED_DECISION_APPLY_SHA256="\"$DECISION_APPLY_SHA\"" \
+  -DEXPECTED_MATERIAL_SURFACE_SHA256="\"$MATERIAL_SURFACE_SHA\"" \
+  -DEXPECTED_NORMATIVE_PROJECTION_SHA256="\"$NORMATIVE_PROJECTION_SHA\"" \
+  -DEXPECTED_NORMATIVE_CATALOG_SHA256="\"$NORMATIVE_CATALOG_SHA\"" \
   -DBUILD_INPUT_SHA256="\"$BUILD_INPUT_SHA\"" \
   "$SRC" \
   -o "$OUT" \
@@ -65,6 +81,10 @@ cat > "$BUILD_DIR/v24_v6_external_authority_gate_build.json" <<EOF
   "proof_reference_closure_sha256": "$PRC_SHA",
   "root_attestation_sha256": "$ROOT_SHA",
   "governance_foundation_sha256": "$FOUNDATION_SHA",
+  "decision_apply_sha256": "$DECISION_APPLY_SHA",
+  "material_surface_sha256": "$MATERIAL_SURFACE_SHA",
+  "normative_clause_projection_sha256": "$NORMATIVE_PROJECTION_SHA",
+  "normative_control_catalog_sha256": "$NORMATIVE_CATALOG_SHA",
   "authority_effect": "NONE_EVIDENCE_ONLY",
   "runtime_qualification_state": "NOT_CLAIMED"
 }
