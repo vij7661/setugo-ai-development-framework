@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import ctypes
+import errno
 import inspect
 import json
 import os
@@ -139,6 +141,27 @@ class Successor7TrustedServiceTests(unittest.TestCase):
         pid = int(SERVICE_PID.read_text(encoding="utf-8").strip())
         with self.assertRaises(PermissionError):
             os.kill(pid, signal.SIGUSR1)
+
+    def test_candidate_cannot_ptrace_trusted_service(self):
+        pid = int(SERVICE_PID.read_text(encoding="utf-8").strip())
+        libc = ctypes.CDLL(None, use_errno=True)
+        libc.ptrace.restype = ctypes.c_long
+        libc.ptrace.argtypes = [
+            ctypes.c_ulong,
+            ctypes.c_ulong,
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+        ]
+        ctypes.set_errno(0)
+        rc = libc.ptrace(16, pid, None, None)  # PTRACE_ATTACH
+        if rc == 0:
+            libc.ptrace(17, pid, None, None)  # PTRACE_DETACH
+        self.assertEqual(rc, -1)
+        self.assertIn(ctypes.get_errno(), {errno.EPERM, errno.EACCES})
+
+    def test_candidate_cannot_replace_service_endpoint(self):
+        with self.assertRaises(PermissionError):
+            os.unlink(SERVICE_SOCKET)
 
     def test_candidate_cannot_access_trusted_private_result_channel(self):
         self.assertTrue(SERVICE_PRIVATE.exists())
