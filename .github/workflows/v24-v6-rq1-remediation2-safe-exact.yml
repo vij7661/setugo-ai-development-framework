@@ -52,32 +52,49 @@ jobs:
           sudo chown "$(id -u):$(id -g)" "$E"
           printf 'EVIDENCE_DIR=%s\n' "$E" >> "$GITHUB_ENV"
           printf 'HARNESS_RC=99\n' >> "$GITHUB_ENV"
-      - name: Verify exact bound runner and restore trusted service
+      - name: Diagnose and restore exact bound runtime
         id: preflight
         shell: bash
-        continue-on-error: true
         run: |
           set -uo pipefail
+          ready=true
           {
             echo "runner=$RUNNER_NAME"
-            test "$RUNNER_NAME" = 'v24-rq1-aws'
-            sudo -n true
-            id v24candidate
+            test "$RUNNER_NAME" = 'v24-rq1-aws' || ready=false
+            sudo -n true || ready=false
+            id v24candidate || ready=false
             if ! systemctl is-active --quiet v24-v6-trusted-authority.service; then
-              echo "service inactive; restoring trusted service"
-              sudo systemctl restart v24-v6-trusted-authority.service
+              echo "service inactive; attempting restore"
+              sudo systemctl restart v24-v6-trusted-authority.service || ready=false
             fi
-            systemctl is-active v24-v6-trusted-authority.service
-            test -S /run/v24-v6-authority/service.sock
-            test -f /run/v24-v6-authority/service.pid
-            sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
+            systemctl is-active v24-v6-trusted-authority.service || ready=false
+            echo "--- unit ---"
+            sudo systemctl cat v24-v6-trusted-authority.service || true
+            echo "--- status ---"
+            sudo systemctl status --no-pager -l v24-v6-trusted-authority.service || true
+            echo "--- runtime dir ---"
+            sudo find /run/v24-v6-authority -maxdepth 3 -printf '%M %u:%g %p -> %l\n' 2>&1 || true
+            echo "--- trusted root ---"
+            sudo find /opt/v24-v6-trusted-runtime -maxdepth 2 -printf '%M %u:%g %p -> %l\n' 2>&1 || true
+            echo "--- journal ---"
+            sudo journalctl -u v24-v6-trusted-authority.service -n 80 --no-pager -o short-iso 2>&1 || true
+            echo "--- processes ---"
+            ps -ef | grep -E 'v24_v6_trusted_authority_service|v24-v6-authority' | grep -v grep || true
+            if test -S /run/v24-v6-authority/service.sock; then echo "socket_present=true"; else echo "socket_present=false"; ready=false; fi
+            if test -f /run/v24-v6-authority/service.pid; then echo "pid_present=true"; else echo "pid_present=false"; ready=false; fi
+            if test -f /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service; then
+              sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
+            else
+              echo "service_binary_missing=true"; ready=false
+            fi
             if command -v strace; then echo "strace_present=true"; else echo "strace_present=false"; fi
+            echo "bound_ready=$ready"
           } 2>&1 | tee "$EVIDENCE_DIR/preflight.txt"
-          rc=${PIPESTATUS[0]}
-          printf '%s\n' "$rc" > "$EVIDENCE_DIR/preflight-exit-code.txt"
-          exit "$rc"
+          printf 'ready=%s\n' "$ready" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$ready" > "$EVIDENCE_DIR/bound-ready.txt"
+          exit 0
       - name: Execute exact safe RQ slice
-        if: steps.preflight.outcome == 'success'
+        if: steps.preflight.outputs.ready == 'true'
         id: exact
         shell: bash
         run: |
