@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-9 — Trusted In-Service Consume and Semantic Binding Repair Design
 
-Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-9 RED / IMPLEMENTATION NOT YET QUALIFIED**
+Status: **IMPLEMENTED / TARGETED GREEN / EXTERNAL BOOTSTRAP FROZEN / ALL-UP PENDING**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -167,3 +167,43 @@ Successor-9 may be frozen for independent manual review only after:
 - DA-1/NCP-1 compound attacks are rerun through the new consume boundary;
 - scientific execution remains closed;
 - runtime qualification remains `NOT_CLAIMED`.
+
+
+## 11. Implemented targeted construction evidence
+
+The preserved Successor-9 consume-loader RED remains historical and has not been relabeled.
+
+Direct consume deauthorization:
+- candidate-launchable `--consume-record` is permanently diagnostic/non-authoritative;
+- direct loader regression GREEN run: `35348080001`.
+
+Trusted semantic consume:
+- workflow: `V24 V6 Successor-9 Trusted Semantic Consume`;
+- run: `35348778508`;
+- job: `105611608932`;
+- result: `GREEN`;
+- trusted service version: `3`;
+- trusted consume protocol: `V24-V6-S9-CONSUME/1`;
+- consumption mode: `ROOT_PEER_SEMANTIC_ONE_SHOT`;
+- service build input SHA-256: `b74631643c529e26264be7aa56f1df278749aea7f61326e0d18f47c6fc82a0fc`;
+- service binary SHA-256: `a9567ea1677456949e79bb64c06c6880426afcaaaa5235e5579ca3e62e7b021d`;
+- gate binary SHA-256 remains `7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069`.
+
+The targeted workflow demonstrates:
+- direct candidate consume remains non-authoritative even under the preserved loader attack;
+- the trusted consume protocol is root-peer-only;
+- the trusted service recomputes the exact request binding from operation, reference/subject identity, context, boundary, and payload;
+- a genuine ALLOW record cannot be rebound to another operation;
+- a genuine ALLOW record cannot be rebound to another payload/effect;
+- exact positive consume succeeds once;
+- replay is rejected;
+- DA-1 and NCP-1 attacked requests remain authoritative DENY after trusted-side semantic reconstruction.
+
+External bootstrap trust has been frozen separately:
+- trust branch: `trust/v24-v6-successor9-trusted-consume-bootstrap-v1`;
+- trust commit: `af3ab8ab846119292a1b3a36fca5d0cc2c71b1ee`;
+- trust tree: `fc063773b077c855cf34eebf28c886ee496d3fe9`;
+- manifest blob: `488f50501b945f4f4a7f56ff6935587c091f4372`;
+- bootstrap script blob: `ca1a108f7899d3e81c01c8eaa2219528cd945dcc`.
+
+Scientific execution remains closed. Runtime qualification remains `NOT_CLAIMED`. The next permitted step is the externally bootstrapped complete all-up construction suite.
