@@ -35,7 +35,25 @@ jobs:
           set -euo pipefail
           test "$(cat "${INVENTORY_DIR}/CONTEXT_COUNT")" = "56"
           test "$(find "${INVENTORY_DIR}" -maxdepth 1 -name '*.json' -type f | wc -l | tr -d ' ')" = "56"
-          (cd "${INVENTORY_DIR}" && sha256sum -c SHA256SUMS)
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["INVENTORY_DIR"])
+          lines = (root / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
+          if len(lines) != 56:
+              raise SystemExit(f"expected 56 checksum entries, saw {len(lines)}")
+          for line in lines:
+              expected, recorded = line.split(None, 1)
+              name = Path(recorded.strip()).name
+              path = root / name
+              if not path.is_file():
+                  raise SystemExit(f"missing inventory file: {name}")
+              actual = hashlib.sha256(path.read_bytes()).hexdigest()
+              if actual != expected:
+                  raise SystemExit(f"checksum mismatch: {name}")
+          PY
 
       - name: Sign exact construction contexts on isolated runner
         env:
