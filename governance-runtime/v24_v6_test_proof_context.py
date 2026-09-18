@@ -15,9 +15,13 @@ from v24_v6_proof_reference_closure import (
     CURRENTNESS_BINDING,
     GOVERNED_QUALIFICATION,
     INDEPENDENCE_QUALIFICATION,
-    TRUSTED_BOUNDARY_ANCHOR_ENV,
     seal_proof_context,
-    trusted_boundary_anchor_digest,
+)
+from v24_v6_root_attestation import (
+    ROOT_ATTESTATION_ALGORITHM,
+    ROOT_ATTESTATION_KEY_ID,
+    ROOT_ATTESTATION_PURPOSE,
+    ROOT_ATTESTATION_SCHEMA_VERSION,
 )
 
 ROOT_CONTENT = "f0" * 32
@@ -198,15 +202,58 @@ def record_test_attestation_inventory(
         encoding="utf-8",
     )
 
-def _trusted_boundary_for_test(context: Mapping[str, Any]) -> dict[str, Any]:
+_SIGNATURE_BUNDLE_PATH = (
+    Path(__file__).with_name("fixtures")
+    / "v24-v6-construction-context-signatures-v3.json"
+)
+
+
+def _construction_signature(context_digest: str) -> str:
+    bundle = json.loads(_SIGNATURE_BUNDLE_PATH.read_text(encoding="utf-8"))
+    if bundle.get("key_id") != ROOT_ATTESTATION_KEY_ID:
+        raise ValueError("construction signature bundle key mismatch")
+    if bundle.get("algorithm") != ROOT_ATTESTATION_ALGORITHM:
+        raise ValueError("construction signature bundle algorithm mismatch")
+    if bundle.get("purpose") != ROOT_ATTESTATION_PURPOSE:
+        raise ValueError("construction signature bundle purpose mismatch")
+    signatures = bundle.get("signatures")
+    if not isinstance(signatures, dict):
+        raise ValueError("construction signature bundle malformed")
+    signature = signatures.get(context_digest)
+    if not isinstance(signature, str) or not signature:
+        raise ValueError(
+            f"no external construction attestation for context {context_digest}"
+        )
+    return signature
+
+
+def attested_boundary_for_test(context: Mapping[str, Any]) -> dict[str, Any]:
+    """Bind an exact deterministic fixture to its externally issued signature."""
     scope = context.get("genesis_trusted_scope")
     scope_digest = scope.get("scope_digest") if isinstance(scope, Mapping) else None
+    context_digest = context.get("context_digest")
+    generation = context.get("governance_generation_id")
+    if not isinstance(context_digest, str):
+        raise ValueError("sealed context_digest required")
+    if not isinstance(scope_digest, str):
+        raise ValueError("sealed genesis scope digest required")
+    if not isinstance(generation, str):
+        raise ValueError("governance generation required")
     boundary = {
-        "governance_generation_id": context.get("governance_generation_id"),
-        "expected_proof_context_digest": context.get("context_digest"),
+        "governance_generation_id": generation,
+        "expected_proof_context_digest": context_digest,
         "expected_genesis_scope_digest": scope_digest,
+        "root_attestation": {
+            "schema_version": ROOT_ATTESTATION_SCHEMA_VERSION,
+            "key_id": ROOT_ATTESTATION_KEY_ID,
+            "algorithm": ROOT_ATTESTATION_ALGORITHM,
+            "purpose": ROOT_ATTESTATION_PURPOSE,
+            "governance_generation_id": generation,
+            "proof_context_digest": context_digest,
+            "genesis_trusted_scope_digest": scope_digest,
+            "signature_b64": _construction_signature(context_digest),
+        },
     }
-    os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
     record_test_attestation_inventory(context, boundary)
     return boundary
 
@@ -265,4 +312,4 @@ def build_test_proof_context(
         "context_digest": "",
     }
     seal_proof_context(context)
-    return context, _trusted_boundary_for_test(context), refs
+    return context, attested_boundary_for_test(context), refs
