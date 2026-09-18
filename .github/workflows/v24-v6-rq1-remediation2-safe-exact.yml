@@ -66,8 +66,53 @@ jobs:
             if ! systemctl is-active --quiet v24-v6-trusted-authority.service || ! test -S /run/v24-v6-authority/service.sock; then
               echo "service inactive or socket unlinked; attempting restore"
               sudo systemctl restart v24-v6-trusted-authority.service || ready=false
-              sleep 1
             fi
+            # Type=simple reaches active before serve() has necessarily bound the
+            # socket and written service.pid.  Wait only for the original
+            # invariants, with a bounded loop, and never treat partial readiness
+            # as success.
+            expected_service_hash='a9567ea1677456949e79bb64c06c6880426afcaaaa5235e5579ca3e62e7b021d'
+            ready=false
+            for attempt in $(seq 1 30); do
+              attempt_ready=true
+              systemctl is-active --quiet v24-v6-trusted-authority.service || attempt_ready=false
+              test -S /run/v24-v6-authority/service.sock || attempt_ready=false
+              test -f /run/v24-v6-authority/service.pid || attempt_ready=false
+              if test -S /run/v24-v6-authority/service.sock; then
+                test "$(stat -c '%u:%g:%a' /run/v24-v6-authority/service.sock 2>/dev/null || true)" = '0:0:666' || attempt_ready=false
+              fi
+              if test -f /run/v24-v6-authority/service.pid; then
+                service_pid="$(cat /run/v24-v6-authority/service.pid 2>/dev/null || true)"
+                case "$service_pid" in
+                  ''|*[!0-9]*) attempt_ready=false ;;
+                  *)
+                    test -r "/proc/$service_pid/status" || attempt_ready=false
+                    service_uid="$(awk '/^Uid:/{print $2; exit}' "/proc/$service_pid/status" 2>/dev/null || true)"
+                    service_exe="$(readlink -f "/proc/$service_pid/exe" 2>/dev/null || true)"
+                    service_hash="$(sha256sum "/proc/$service_pid/exe" 2>/dev/null | awk '{print $1}' || true)"
+                    test "$service_uid" = '0' || attempt_ready=false
+                    test "$service_exe" = '/opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service' || attempt_ready=false
+                    test "$service_hash" = "$expected_service_hash" || attempt_ready=false
+                    ;;
+                esac
+              fi
+              test -d /run/v24-v6-authority || attempt_ready=false
+              if test -d /run/v24-v6-authority; then
+                test "$(stat -c '%u:%g' /run/v24-v6-authority 2>/dev/null || true)" = '0:0' || attempt_ready=false
+              fi
+              test -f /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service || attempt_ready=false
+              if test -f /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service; then
+                test "$(stat -c '%u:%a' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service 2>/dev/null || true)" = '0:755' || attempt_ready=false
+                test "$(sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service | awk '{print $1}')" = "$expected_service_hash" || attempt_ready=false
+              fi
+              if $attempt_ready; then
+                ready=true
+                echo "bound readiness achieved on attempt=$attempt"
+                break
+              fi
+              echo "bound readiness pending attempt=$attempt"
+              sleep 0.5
+            done
             systemctl is-active v24-v6-trusted-authority.service || ready=false
             echo "--- unit ---"
             sudo systemctl cat v24-v6-trusted-authority.service || true
