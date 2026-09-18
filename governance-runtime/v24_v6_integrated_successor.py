@@ -42,8 +42,10 @@ EXPECTED_SHARED_PRODUCTION_DEPENDENCIES = {
     "INTEGRATED_SUCCESSOR_VALIDATOR": "governance-runtime/v24_v6_integrated_successor.py",
     "EXTERNAL_AUTHORITY_GATE_SOURCE": "governance-runtime/native/v24_v6_external_authority_gate.c",
     "EXTERNAL_AUTHORITY_GATE_BUILD_SCRIPT": "governance-runtime/build_v24_v6_external_authority_gate.sh",
-    "EXTERNAL_AUTHORITY_GATE_INSTALLER": "governance-runtime/install_v24_v6_trusted_authority_gate.sh",
     "EXTERNAL_AUTHORITY_GATE_WORKER": "governance-runtime/v24_v6_external_gate_worker.py",
+    "TRUSTED_AUTHORITY_SERVICE_SOURCE": "governance-runtime/native/v24_v6_trusted_authority_service.c",
+    "TRUSTED_AUTHORITY_SERVICE_BUILD_SCRIPT": "governance-runtime/build_v24_v6_trusted_authority_service.sh",
+    "TRUSTED_SERVICE_CLIENT": "governance-runtime/v24_v6_trusted_service_client.py",
 }
 REQUIRED_ADVERSARIAL_CHECKS = frozenset(
     {
@@ -80,6 +82,15 @@ REQUIRED_ADVERSARIAL_CHECKS = frozenset(
         "CALLER_SELECTED_GATE_PATH_REJECTED",
         "LIVE_GATE_DIGEST_MISMATCH_REJECTED",
         "TRUSTED_GATE_POSITIVE",
+        "CANDIDATE_LD_PRELOAD_GATE_INJECTION_REJECTED",
+        "CANDIDATE_LD_LIBRARY_PATH_REBIND_REJECTED",
+        "SAME_UID_GATE_PROCESS_TRACE_OR_INJECTION_REJECTED",
+        "CANDIDATE_TEMP_RESULT_SUBSTITUTION_REJECTED",
+        "TRUSTED_SERVICE_PEER_IDENTITY_ENFORCED",
+        "CALLER_CANNOT_SELECT_SERVICE_EXECUTABLE_OR_WORKER",
+        "COHERENT_GATE_AND_BUILD_MANIFEST_SUBSTITUTION_REJECTED",
+        "CANDIDATE_SELECTED_TRUSTED_ROOT_REJECTED",
+        "TRUSTED_SERVICE_POSITIVE",
     }
 )
 SCIENTIFIC_EXECUTION_CLOSED = "CLOSED_PENDING_SUCCESSOR_REVIEW"
