@@ -58,20 +58,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TRUST_COMMIT='1968178169d970e0ebb65cdce8dd9e50f39df01b'
-          TRUST_TREE='16f329e6d144f8e83f1998e72c555315a2af8bef'
-          MANIFEST_BLOB='bbde11f1c6fd7d910b5fdb6deaf583244a731178'
-          BOOTSTRAP_BLOB='8de287400c0c26f5c660c37fd3b26b8e2e3b7c94'
+          TRUST_COMMIT='ffd215e0c73b1ca0294cbd06ddd8ddac77007b2a'
+          TRUST_TREE='8bff10c7601d0472e8d20966fe789d8e5a63bca4'
+          MANIFEST_BLOB='ccfa227d511934b8c5068ee395604f06d7097aed'
+          BOOTSTRAP_BLOB='1ed659e082fec1e4c1d2f22b7137ab4223d3176e'
 
           git fetch --no-tags --depth=1 origin "$TRUST_COMMIT"
           test "$(git rev-parse FETCH_HEAD)" = "$TRUST_COMMIT"
           test "$(git rev-parse FETCH_HEAD^{tree})" = "$TRUST_TREE"
-          test "$(git ls-tree FETCH_HEAD trust/v24-v6-successor7-trusted-service-bootstrap-v2.json | awk '{print $3}')" = "$MANIFEST_BLOB"
-          test "$(git ls-tree FETCH_HEAD trust/install-v24-v6-successor7-trusted-service-v2.sh | awk '{print $3}')" = "$BOOTSTRAP_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-successor7-trusted-service-bootstrap-v3.json | awk '{print $3}')" = "$MANIFEST_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/install-v24-v6-successor7-trusted-service-v3.sh | awk '{print $3}')" = "$BOOTSTRAP_BLOB"
 
           mkdir -p "$RUNNER_TEMP/v24-s7-trust"
-          git show "$TRUST_COMMIT:trust/v24-v6-successor7-trusted-service-bootstrap-v2.json" > "$RUNNER_TEMP/v24-s7-trust/manifest.json"
-          git show "$TRUST_COMMIT:trust/install-v24-v6-successor7-trusted-service-v2.sh" > "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh"
+          git show "$TRUST_COMMIT:trust/v24-v6-successor7-trusted-service-bootstrap-v3.json" > "$RUNNER_TEMP/v24-s7-trust/manifest.json"
+          git show "$TRUST_COMMIT:trust/install-v24-v6-successor7-trusted-service-v3.sh" > "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh"
           chmod 0555 "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh"
           test "$(git hash-object "$RUNNER_TEMP/v24-s7-trust/manifest.json")" = "$MANIFEST_BLOB"
 
@@ -122,7 +122,7 @@ jobs:
           test "$(stat -c '%u' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service)" = "0"
           test "$(stat -c '%a' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service)" = "555"
           test "$(sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service | awk '{print $1}')" = '34f1190c11e78a4db693b16f93dc4f6a72e618ff99ab764c5471db3c1596dc8a'
-          test "$(sha256sum /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate | awk '{print $1}')" = '724543687125ae63c62d801bd9e77721adaccc8b8c9726b1b3730b2368e7af5b'
+          test "$(sha256sum /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate | awk '{print $1}')" = '7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069'
 
       - name: Start trusted service outside candidate process domain
         shell: bash
@@ -242,7 +242,7 @@ jobs:
           mkdir -p successor7-trusted-service-evidence
           cp /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json successor7-trusted-service-evidence/
           cp /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate_build.json successor7-trusted-service-evidence/
-          cp /opt/v24-v6-trusted-runtime/bootstrap/v24-v6-successor7-trusted-service-bootstrap-v2.json successor7-trusted-service-evidence/
+          cp /opt/v24-v6-trusted-runtime/bootstrap/v24-v6-successor7-trusted-service-bootstrap-v3.json successor7-trusted-service-evidence/
           stat -c '%u:%g %a %n' \
             /opt/v24-v6-trusted-runtime \
             /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
