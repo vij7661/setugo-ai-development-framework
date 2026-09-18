@@ -49,28 +49,40 @@ jobs:
           id v24candidate
           test "$(id -u v24candidate)" != "0"
 
+      - name: Stage root-owned read-only candidate test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-runtime
+          sudo cp -a governance-runtime /tmp/v24candidate-runtime
+          sudo chown -R root:root /tmp/v24candidate-runtime
+          sudo find /tmp/v24candidate-runtime -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-runtime -type f -exec chmod 0444 {} +
+
       - name: Run Successor-6 control-domain regressions as candidate
         shell: bash
-        working-directory: governance-runtime
         run: |
           set -euo pipefail
           PY="$(command -v python)"
+          cd /tmp/v24candidate-runtime
           sudo -u v24candidate -- env \
             V24_V6_TRUSTED_ROOT=/opt/v24-v6-trusted-runtime \
             V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
-            PYTHONPATH="$PWD" \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-runtime \
             "$PY" -m unittest -v test_v24_v6_successor6_trusted_control_domain.py
 
       - name: Re-run Successor-5 authority regressions through trusted gate
         shell: bash
-        working-directory: governance-runtime
         run: |
           set -euo pipefail
           PY="$(command -v python)"
+          cd /tmp/v24candidate-runtime
           sudo -u v24candidate -- env \
             V24_V6_TRUSTED_ROOT=/opt/v24-v6-trusted-runtime \
             V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
-            PYTHONPATH="$PWD" \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-runtime \
             "$PY" -m unittest -v \
               test_v24_v6_successor5_external_authority_gate.py \
               test_v24_v6_successor4_root_attestation.py \
