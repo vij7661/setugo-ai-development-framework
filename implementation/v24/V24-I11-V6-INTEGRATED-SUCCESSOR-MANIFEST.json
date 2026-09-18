@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "candidate_family_id": "V24-I11-V6-INTEGRATED-SUCCESSOR-4",
+  "candidate_family_id": "V24-I11-V6-INTEGRATED-SUCCESSOR-5",
   "approved_design_packet_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
   "approved_design_body_sha256": "286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5",
   "approved_design_git_blob_sha": "4a15d50a0488464816d235b273d1dbf808fdce94",
@@ -94,9 +94,39 @@
   ],
   "shared_dependencies": [
     {
+      "dependency_id": "CONSTRUCTION_ROOT_ATTESTATION_VERIFIER",
+      "path": "governance-runtime/v24_v6_root_attestation.py",
+      "git_blob_sha": "64f3048881f3a4c2af172f57b0c3f773f5fdda7c"
+    },
+    {
+      "dependency_id": "CONSTRUCTION_ROOT_PUBLIC_ARTIFACT",
+      "path": "governance-runtime/fixtures/v24-v6-construction-root-attestation-v3.json",
+      "git_blob_sha": "7722a5725324fb805283bce9764b2d151a774ec2"
+    },
+    {
       "dependency_id": "ENDPOINT_PROOF_COMPILER",
       "path": "governance-runtime/v24_endpoint_proof_compiler.py",
       "git_blob_sha": "1d43d650f6181c87bdd1fb18b5e017e505f9bde6"
+    },
+    {
+      "dependency_id": "EXTERNAL_AUTHORITY_GATE_BUILD_SCRIPT",
+      "path": "governance-runtime/build_v24_v6_external_authority_gate.sh",
+      "git_blob_sha": "af03504a1b8ebf94e3dad8c9244796baf7993ba8"
+    },
+    {
+      "dependency_id": "EXTERNAL_AUTHORITY_GATE_SOURCE",
+      "path": "governance-runtime/native/v24_v6_external_authority_gate.c",
+      "git_blob_sha": "8a72f380b186ac5f758d08a63eddb37d813497ab"
+    },
+    {
+      "dependency_id": "EXTERNAL_AUTHORITY_GATE_WORKER",
+      "path": "governance-runtime/v24_v6_external_gate_worker.py",
+      "git_blob_sha": "7c47fba7e2d1a0f6ea405c09271c2acd140cc150"
+    },
+    {
+      "dependency_id": "INTEGRATED_SUCCESSOR_VALIDATOR",
+      "path": "governance-runtime/v24_v6_integrated_successor.py",
+      "git_blob_sha": "9f56ba4d23e08b180a37a745b46a28ca22b7af59"
     },
     {
       "dependency_id": "NORMATIVE_CONTROL_CATALOG",
@@ -107,16 +137,6 @@
       "dependency_id": "PROOF_REFERENCE_CLOSURE",
       "path": "governance-runtime/v24_v6_proof_reference_closure.py",
       "git_blob_sha": "80c653008e1501250e37fb8cb7e0cb49b38baed4"
-    },
-    {
-      "dependency_id": "CONSTRUCTION_ROOT_ATTESTATION_VERIFIER",
-      "path": "governance-runtime/v24_v6_root_attestation.py",
-      "git_blob_sha": "64f3048881f3a4c2af172f57b0c3f773f5fdda7c"
-    },
-    {
-      "dependency_id": "CONSTRUCTION_ROOT_PUBLIC_ARTIFACT",
-      "path": "governance-runtime/fixtures/v24-v6-construction-root-attestation-v3.json",
-      "git_blob_sha": "7722a5725324fb805283bce9764b2d151a774ec2"
     }
   ],
   "mandatory_v6_adversarial_checks": [
@@ -125,15 +145,27 @@
     "ATTESTATION_SCOPE_SUBSTITUTION_REJECTED",
     "CALLER_SELECTED_PUBLIC_KEY_REJECTED",
     "CLAUSE_CONTROL_REASSIGNMENT_REJECTED",
+    "DA1_FRESH_EFFECT_PATH_SELF_GRANT_REJECTED",
     "DECISION_EFFECT_PATH_TARGET_MISMATCH_REJECTED",
+    "DIRECT_PYTHON_QUALIFIED_IS_NONAUTHORITATIVE",
     "EVERY_REACHABLE_TERMINAL_ALLOWED",
+    "EXTERNALLY_VERIFIED_SIGNED_CONTEXT_POSITIVE",
+    "EXTERNAL_GATE_FAILURE_FAILS_CLOSED",
+    "FORGED_EXTERNAL_VERDICT_REJECTED",
     "GENESIS_CROSS_PAIR_REJECTED",
     "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT",
     "MIXED_ALLOWED_AND_DISALLOWED_TERMINAL_REJECTED",
+    "NCP1_FRESH_CLAUSE_CONTROL_SELF_GRANT_REJECTED",
     "SAME_PROCESS_ANCHOR_REWRITE_REJECTED",
+    "SAME_PROCESS_IMPORTED_VERIFIER_SUBSTITUTION_REJECTED",
+    "SAME_PROCESS_ROOT_KEY_SUBSTITUTION_REJECTED",
+    "SAME_PROCESS_RSA_HELPER_SUBSTITUTION_REJECTED",
     "SHARED_PRODUCTION_DEPENDENCY_MUTATION_REJECTED",
     "SIGNED_CONTEXT_POSITIVE",
     "UNSIGNED_CONTEXT_REJECTED",
+    "VERDICT_CONTEXT_REBIND_REJECTED",
+    "VERDICT_SCOPE_OR_GENERATION_REBIND_REJECTED",
+    "VERIFIER_IDENTITY_VERSION_REBIND_REJECTED",
     "WRONG_CONTEXT_SIGNATURE_REJECTED"
   ],
   "successor4_root_attestation": {
@@ -148,6 +180,19 @@
     "unsigned_inventory_artifact_id": "10537477367",
     "unsigned_inventory_artifact_sha256": "fd4639cb0f7f61ba033391291b284527e208741425986085447bd46af129ef65",
     "signed_context_count": 56,
+    "runtime_qualification_state": "NOT_CLAIMED",
+    "authority_effect": "NONE_EVIDENCE_ONLY"
+  },
+  "successor5_external_authority_gate": {
+    "preserved_red_run_id": "35326754734",
+    "preserved_red_test": "test_same_process_imported_verifier_substitution_cannot_self_grant",
+    "gate_id": "V24-V6-EXTERNAL-AUTHORITY-GATE",
+    "gate_version": "1",
+    "gate_source_git_blob_sha": "8a72f380b186ac5f758d08a63eddb37d813497ab",
+    "build_script_git_blob_sha": "af03504a1b8ebf94e3dad8c9244796baf7993ba8",
+    "worker_git_blob_sha": "7c47fba7e2d1a0f6ea405c09271c2acd140cc150",
+    "integrated_validator_git_blob_sha": "9f56ba4d23e08b180a37a745b46a28ca22b7af59",
+    "construction_state": "IMPLEMENTED_PENDING_EXACT_FINAL_HEAD",
     "runtime_qualification_state": "NOT_CLAIMED",
     "authority_effect": "NONE_EVIDENCE_ONLY"
   }
