@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "phase_id": "V24-I11-V6-RUNTIME-QUALIFICATION-1",
+  "record_type": "HUMAN_RUNTIME_NOMINATION_CORRECTION",
+  "supersedes": "V24-I11-V6-RUNTIME-QUALIFICATION-1-HUMAN-NOMINATION-20260919.json",
+  "record_status": "NOMINATED_ENTRY_PENDING",
+  "runtime_owner": "Vijay Kumar",
+  "evidence_custodian": "Vijay Kumar",
+  "runtime_binding": {
+    "instance_id": "i-05063c49c656d01ad",
+    "source_launch_ami_id": "ami-03f1d2b3639314198",
+    "frozen_baseline_ami_id": "ami-0990d6cd071996c3c",
+    "frozen_baseline_snapshot_id": "snap-02073dd5c4e924a8f",
+    "root_device": "/dev/sda1",
+    "root_nvme_device": "/dev/nvme0n1",
+    "root_ebs_volume_id": "vol-0c603626c752512ff",
+    "immutable_host_baseline_evidence_sha256": "88ee8170025439692ab6997ac7765a8417001c14d75fc814646116794b0deb93",
+    "architecture": "x86_64",
+    "os_release": "Ubuntu 24.04.4 LTS",
+    "kernel_release": "6.17.0-1017-aws",
+    "service_manager": "systemd 255.4-1ubuntu8.16",
+    "filesystem_type": "ext4",
+    "root_mount_options": "rw,relatime,discard,errors=remount-ro,commit=30",
+    "record_fs_device": 28,
+    "consumed_fs_device": 28,
+    "trusted_root_fs_device": 66305,
+    "candidate_uid": 2002,
+    "trusted_uid": 0,
+    "trusted_path_owner_uid": 0,
+    "socket_parent_owner_uid": 0,
+    "unprivileged_userns_blocked": true,
+    "ptrace_candidate_to_service_denied": true,
+    "synthetic_sinks_only": true
+  },
+  "sealed_evidence": {
+    "persistence_boundary_sha256": "a6aa206a19696e6752ca70af1903fe350c31d067e319d0451e152f93806438de",
+    "source_image_mismatch_sha256": "4e47d39caa3f274d54211ff2dfb4f93cc2c293dc12c361a6dacc25f574bdbeaa",
+    "artifact_binding_red_sha256": "67f007a45be1baf0802d340e518230c352a186b545d33b681127c8e513d573ce"
+  },
+  "runtime_artifact_measurements": {
+    "trusted_service_sha256": null,
+    "gate_sha256": null,
+    "bootstrap_sha256": null,
+    "runtime_dependency_hashes": null,
+    "status": "PENDING_ARTIFACT_DEPLOYMENT_AND_MEASUREMENT"
+  },
+  "independent_final_reviewer": null,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "rq_execution_authorized": false
+}
