@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 #define SERVICE_ID "V24-V6-TRUSTED-AUTHORITY-SERVICE"
-#define SERVICE_VERSION "2"
+#define SERVICE_VERSION "3"
 #define AUTHORITY_EFFECT "NONE_EVIDENCE_ONLY"
 #define SOCKET_PATH "/run/v24-v6-authority/service.sock"
 #define PID_PATH "/run/v24-v6-authority/service.pid"
@@ -265,77 +265,15 @@ static bool field_value(const char *body, const char *key, char *out, size_t cap
 }
 
 static int consume_record(const char *record_id, const char *expected_request_digest) {
-    if (geteuid() != 0 || !prepare_runtime()) {
-        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"ROOT_CONSUMER_REQUIRED\"}\n");
-        return 1;
-    }
-    if (!is_hex64_or_dash(record_id) || strcmp(record_id, "-") == 0 ||
-        !is_hex64_or_dash(expected_request_digest) || strcmp(expected_request_digest, "-") == 0) {
-        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"RECORD_ARGUMENT_INVALID\"}\n");
-        return 1;
-    }
-    char src[PATH_MAX], dst[PATH_MAX];
-    if (snprintf(src, sizeof(src), "%s/%s.record", RECORD_DIR, record_id) >= (int)sizeof(src) ||
-        snprintf(dst, sizeof(dst), "%s/%s.record", CONSUMED_DIR, record_id) >= (int)sizeof(dst)) {
-        return 1;
-    }
-
-    FILE *fp = fopen(src, "rb");
-    if (!fp) {
-        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED\"}\n");
-        return 1;
-    }
-    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return 1; }
-    long n = ftell(fp);
-    if (n <= 0 || n > 8192 || fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return 1; }
-    unsigned char *data = malloc((size_t)n + 1);
-    if (!data) { fclose(fp); return 1; }
-    size_t len = fread(data, 1, (size_t)n, fp);
-    fclose(fp);
-    if (len != (size_t)n) { free(data); return 1; }
-    data[len] = '\0';
-
-    char rec_id[65], service_id[128], service_version[64], build[65];
-    char request[65], decision[32], gate[65], effect[64], schema[128];
-    bool valid =
-        field_value((char *)data, "schema", schema, sizeof(schema)) &&
-        field_value((char *)data, "record_id", rec_id, sizeof(rec_id)) &&
-        field_value((char *)data, "service_id", service_id, sizeof(service_id)) &&
-        field_value((char *)data, "service_version", service_version, sizeof(service_version)) &&
-        field_value((char *)data, "service_build_input_sha256", build, sizeof(build)) &&
-        field_value((char *)data, "request_sha256", request, sizeof(request)) &&
-        field_value((char *)data, "decision", decision, sizeof(decision)) &&
-        field_value((char *)data, "gate_result_sha256", gate, sizeof(gate)) &&
-        field_value((char *)data, "authority_effect", effect, sizeof(effect)) &&
-        strcmp(schema, "V24_V6_S8_AUTHORITY_RECORD_V1") == 0 &&
-        strcmp(rec_id, record_id) == 0 &&
-        strcmp(service_id, SERVICE_ID) == 0 &&
-        strcmp(service_version, SERVICE_VERSION) == 0 &&
-        strcmp(build, BUILD_INPUT_SHA256) == 0 &&
-        strcmp(request, expected_request_digest) == 0 &&
-        is_hex64_or_dash(gate) && strcmp(gate, "-") != 0 &&
-        strcmp(effect, AUTHORITY_EFFECT) == 0 &&
-        (strcmp(decision, "ALLOW") == 0 || strcmp(decision, "DENY") == 0);
-    free(data);
-    if (!valid) {
-        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"AUTHORITY_RECORD_BINDING_INVALID\"}\n");
-        return 1;
-    }
-    if (rename(src, dst) != 0) {
-        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED\"}\n");
-        return 1;
-    }
-    printf(
-        "{\"authority_effect\":\"%s\",\"construction_authoritative\":true,"
-        "\"decision\":\"%s\",\"gate_result_sha256\":\"%s\","
-        "\"request_sha256\":\"%s\",\"service_authoritative\":true,"
-        "\"service_build_input_sha256\":\"%s\",\"service_id\":\"%s\","
-        "\"service_version\":\"%s\",\"trusted_record_id\":\"%s\","
-        "\"record_state\":\"CONSUMED\"}\n",
-        AUTHORITY_EFFECT, decision, gate, request, BUILD_INPUT_SHA256,
-        SERVICE_ID, SERVICE_VERSION, record_id
-    );
-    return strcmp(decision, "ALLOW") == 0 ? 0 : 1;
+    (void)record_id;
+    (void)expected_request_digest;
+    printf("{\\\"authority_effect\\\":\\\"%s\\\",\\\"construction_authoritative\\\":false,"
+           "\\\"decision\\\":\\\"DENY\\\",\\\"diagnostic_only\\\":true,"
+           "\\\"service_authoritative\\\":false,\\\"service_id\\\":\\\"%s\\\","
+           "\\\"service_version\\\":\\\"%s\\\","
+           "\\\"reason\\\":\\\"DIRECT_CONSUMER_DEAUTHORIZED\\\"}\\n",
+           AUTHORITY_EFFECT, SERVICE_ID, SERVICE_VERSION);
+    return 1;
 }
 
 static bool valid_operation(const char *op) {
