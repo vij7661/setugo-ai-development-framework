@@ -20,6 +20,17 @@ def validate(path: Path) -> dict:
     for r in rows:
         assert r["exact_frozen_trigger"] and r["exact_frozen_oracle"]
         assert r["semantic_status"] in ALLOWED
+        assert "PENDING_CLAUDE_REVIEW_2" not in json.dumps(r)
+        assert r.get("implementation_decision") in {"KEEP", "REPLACE", "EXTEND", "BLOCK"}
+        assert r.get("corrected_implementation_approach") and "generic" not in r["corrected_implementation_approach"].lower()
+        assert r.get("reviewer_semantics_rationale") and r["reviewer_semantics_rationale"] != "true"
+        assert r.get("independent_evidence_source") and r.get("cleanup_recovery_requirement")
+        assert r.get("destructive_restoration_evidence")
+        if r["implementation_decision"] == "KEEP":
+            assert r["semantic_status"] == "EXACT_MATCH" and r["literal_trigger_execution"] and r["literal_oracle_proven"] and r["evidence_independent"] and r["cleanup_demonstrated"]
+            assert "Claude Review #2" in r["reviewer_semantics_rationale"]
+        if r["implementation_decision"] == "BLOCK":
+            assert r["semantic_status"] in {"REQUIRES_SUCCESSOR_PREREGISTRATION", "FROZEN_PLAN_AMBIGUOUS"}
         assert r["semantic_status"] != "EXACT_MATCH" or (r["literal_trigger_execution"] and r["literal_oracle_proven"] and r["evidence_independent"] and r["cleanup_demonstrated"])
         assert r["cleanup_recovery_requirement"]
         assert r["independent_evidence_source"]
