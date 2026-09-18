@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-8 — Authenticated Authority Channel Repair Design
 
-Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-8 RED / IMPLEMENTATION NOT YET QUALIFIED**
+Status: **IMPLEMENTED / INTEGRATED ALL-UP GREEN / EXACT FINAL-HEAD FREEZE PENDING**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -214,3 +214,33 @@ Successor-8 may be frozen for independent manual review only after:
 - DA-1/NCP-1 compound attacks are rerun through the authenticated authority channel;
 - scientific execution remains closed;
 - runtime qualification remains `NOT_CLAIMED`.
+
+
+## 12. Implemented construction evidence
+
+The preregistered authority-record repair is implemented while preserving the Successor-8 RED as historical mechanism evidence.
+
+Integrated all-up evidence:
+- branch head tested: `80acbe828484004a3337badfef3e24f7dd7dcf1e`
+- workflow: `V24 V6 Successor-8 External Bootstrap All-Up`
+- workflow run: `35345347709`
+- job: `105600496279`
+- Successor-8 plus inherited authority regressions: `48/48 GREEN`
+- complete V24-V6 R1-R9 regressions: `199/199 GREEN`
+- inherited V24 construction regressions: `90/90 GREEN`
+- total automated construction tests: `337/337 GREEN`
+- evidence artifact: `10546499394`
+- evidence artifact digest: `sha256:4b6a86258146319ee6b0a915237833d77c7ed28a21779078cf679ac34cc272ad`
+- frozen-host namespace policy: `candidate_user_mount_namespace=BLOCKED_LOAD_BEARING`
+- independent namespace falsification run: `35345014849`
+- namespace primitive result: `unshare --user --map-root-user --mount` rejected with `Operation not permitted`
+
+The candidate-visible client response is diagnostic only. The genuine trusted service creates request-bound root-private authority records, and only the root-only native consume path may emit a construction-authoritative decision. Records are one-shot and request-bound; replay and request rebinding fail closed. DA-1 and NCP-1 attacked payloads remain authoritative DENY after trusted record consumption.
+
+The namespace prohibition is intentionally part of this bounded construction environment because the current root-only consume identity is namespace-relative. The integrated workflow now fails if an unprivileged candidate can create the relevant user/mount namespace. This is a bounded construction condition, not a production runtime-qualification claim.
+
+Run `35345236566` failed only because the unauthorized-peer harness expected a structured response after the service had already rejected and closed the connection; the trusted service rejection itself occurred correctly. The harness was replaced with a raw-socket assertion, and the exact successor run above is GREEN. That earlier harness failure remains historical evidence and is not relabeled as a mechanism PASS.
+
+Scientific execution remains closed. Runtime qualification remains `NOT_CLAIMED`.
+
+The next permitted step is exact final-head freeze and independent manual review.
