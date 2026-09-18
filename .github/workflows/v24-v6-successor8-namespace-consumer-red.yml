@@ -1,0 +1,106 @@
+name: V24 V6 Successor-8 Namespace Consumer RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-8
+    paths:
+      - '.github/workflows/v24-v6-successor8-namespace-consumer-red.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  namespace-red:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert host dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v sudo
+          command -v unshare
+          test -x /usr/bin/python3
+
+      - name: Create unprivileged candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+
+      - name: Build and provision Successor-8 service binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash governance-runtime/build_v24_v6_external_authority_gate.sh
+          bash governance-runtime/build_v24_v6_trusted_authority_service.sh
+          sudo rm -rf /opt/v24-v6-trusted-runtime
+          sudo install -d -o root -g root -m 0555 /opt/v24-v6-trusted-runtime
+          sudo install -o root -g root -m 0555 \
+            governance-runtime/.service-build/v24_v6_trusted_authority_service \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
+
+      - name: Attempt candidate user-namespace root consumer forgery
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! sudo -u v24candidate -- unshare --user --map-root-user --mount /bin/true; then
+            echo "UNPRIVILEGED_USER_NAMESPACE=BLOCKED"
+            echo "The frozen host blocks this primitive; Successor-8 may rely on it only if the prohibition is made load-bearing."
+            exit 0
+          fi
+
+          echo "UNPRIVILEGED_USER_NAMESPACE=AVAILABLE"
+          cat > /tmp/v24-s8-namespace-attack.sh <<'ATTACK'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          mount --make-rprivate /
+          mount -t tmpfs tmpfs /run
+          install -d -m 0755 /run/v24-v6-authority
+          install -d -m 0700 /run/v24-v6-authority/private
+          install -d -m 0700 /run/v24-v6-authority/private/records
+          install -d -m 0700 /run/v24-v6-authority/private/consumed
+
+          RID=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          REQ=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          cat > "/run/v24-v6-authority/private/records/$RID.record" <<EOF
+          schema=V24_V6_S8_AUTHORITY_RECORD_V1
+          record_id=$RID
+          service_id=V24-V6-TRUSTED-AUTHORITY-SERVICE
+          service_version=2
+          service_build_input_sha256=a30bc2742d0eb730b4340e852879884a15e71f8422742c4501eac4beb041e746
+          request_sha256=$REQ
+          decision=ALLOW
+          gate_result_sha256=cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          authority_effect=NONE_EVIDENCE_ONLY
+          EOF
+          chmod 0600 "/run/v24-v6-authority/private/records/$RID.record"
+
+          /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service \
+            --consume-record "$RID" "$REQ"
+          ATTACK
+          chmod 0755 /tmp/v24-s8-namespace-attack.sh
+
+          set +e
+          sudo -u v24candidate -- unshare --user --map-root-user --mount \
+            /tmp/v24-s8-namespace-attack.sh > /tmp/v24-s8-namespace-result.json 2>/tmp/v24-s8-namespace-error.log
+          rc=$?
+          set -e
+          cat /tmp/v24-s8-namespace-result.json || true
+          cat /tmp/v24-s8-namespace-error.log || true
+
+          if [[ "$rc" -eq 0 ]] \
+             && [[ "$(jq -r '.construction_authoritative // false' /tmp/v24-s8-namespace-result.json 2>/dev/null)" == "true" ]] \
+             && [[ "$(jq -r '.decision // empty' /tmp/v24-s8-namespace-result.json 2>/dev/null)" == "ALLOW" ]]; then
+            echo "Candidate namespace-root forged an authoritative ALLOW."
+            exit 1
+          fi
