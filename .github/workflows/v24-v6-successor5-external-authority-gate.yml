@@ -1,0 +1,111 @@
+name: V24 V6 Successor-5 External Authority Gate
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-5
+    paths:
+      - '.github/workflows/v24-v6-successor5-external-authority-gate.yml'
+      - 'governance-runtime/native/v24_v6_external_authority_gate.c'
+      - 'governance-runtime/build_v24_v6_external_authority_gate.sh'
+      - 'governance-runtime/v24_v6_external_gate_worker.py'
+      - 'governance-runtime/test_v24_v6_successor5_external_authority_gate.py'
+      - 'governance-runtime/v24_v6_proof_reference_closure.py'
+      - 'governance-runtime/v24_v6_root_attestation.py'
+      - 'governance-runtime/v24_v6_governance_foundation.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  external-authority-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Assert native build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          test -x /usr/bin/python3
+          openssl version
+          jq --version
+          /usr/bin/python3 --version
+
+      - name: Compile Python gate surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_external_gate_worker.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_root_attestation.py \
+            v24_v6_governance_foundation.py \
+            test_v24_v6_successor5_external_authority_gate.py
+
+      - name: Build pinned native authority gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash governance-runtime/build_v24_v6_external_authority_gate.sh
+
+      - name: Run Successor-5 external-gate regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_successor5_external_authority_gate.py \
+            test_v24_v6_successor4_root_attestation.py \
+            test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Run complete V24-V6 R1-R9 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_proof_reference_closure.py \
+            test_v24_v6_proof_resolution_red.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py \
+            test_v24_v6_integrated_successor.py \
+            test_v24_v6_integrated_successor_dependency_red.py
+
+      - name: Run inherited V24 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Record gate artifact identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum governance-runtime/.gate-build/v24_v6_external_authority_gate
+          cat governance-runtime/.gate-build/v24_v6_external_authority_gate_build.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor5-external-authority-gate
+          path: |
+            governance-runtime/.gate-build/v24_v6_external_authority_gate
+            governance-runtime/.gate-build/v24_v6_external_authority_gate_build.json
+          if-no-files-found: error
