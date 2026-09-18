@@ -1,0 +1,288 @@
+name: V24 V6 Successor-8 External Bootstrap All-Up
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-8
+    paths:
+      - '.github/workflows/v24-v6-successor8-external-bootstrap-all-up.yml'
+      - 'governance-runtime/native/v24_v6_trusted_authority_service.c'
+      - 'governance-runtime/build_v24_v6_trusted_authority_service.sh'
+      - 'governance-runtime/v24_v6_trusted_service_client.py'
+      - 'governance-runtime/v24_v6_successor8_record_probe.py'
+      - 'governance-runtime/test_v24_v6_successor8_authenticated_authority.py'
+      - 'governance-runtime/test_v24_v6_successor8_candidate_local_red.py'
+      - 'governance-runtime/test_v24_v6_successor7_trusted_service.py'
+      - 'implementation/v24/V24-I11-V6-SUCCESSOR-8-AUTHENTICATED-AUTHORITY-CHANNEL-REPAIR-DESIGN.md'
+      - 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  external-bootstrap-all-up:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Assert host construction dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          command -v sudo
+          command -v git
+          command -v unshare
+          test -x /usr/bin/python3
+
+      - name: Create fixed candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Fetch exact Successor-8 external bootstrap authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          TRUST_COMMIT='bd1000404d6e7c7f2f0e130a49c2747e7b2d83ac'
+          TRUST_TREE='0a1c277976fdc6c51eb5465d2f7c945e7de090eb'
+          MANIFEST_BLOB='8fe0ad1c96d1f1c2ce855846dfe342c79d947483'
+          BOOTSTRAP_BLOB='7412614144e160d6a493d6e39e5a2cf3805375a1'
+
+          git fetch --no-tags --depth=1 origin "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD)" = "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD^{tree})" = "$TRUST_TREE"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-successor8-trusted-authority-bootstrap-v4.json | awk '{print $3}')" = "$MANIFEST_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/install-v24-v6-successor8-trusted-authority-v4.sh | awk '{print $3}')" = "$BOOTSTRAP_BLOB"
+
+          mkdir -p "$RUNNER_TEMP/v24-s8-trust"
+          git show "$TRUST_COMMIT:trust/v24-v6-successor8-trusted-authority-bootstrap-v4.json" > "$RUNNER_TEMP/v24-s8-trust/manifest.json"
+          git show "$TRUST_COMMIT:trust/install-v24-v6-successor8-trusted-authority-v4.sh" > "$RUNNER_TEMP/v24-s8-trust/bootstrap.sh"
+          chmod 0555 "$RUNNER_TEMP/v24-s8-trust/bootstrap.sh"
+          test "$(git hash-object "$RUNNER_TEMP/v24-s8-trust/manifest.json")" = "$MANIFEST_BLOB"
+
+      - name: Reject candidate-selected trusted root
+        shell: bash
+        run: |
+          set -euo pipefail
+          if sudo env V24_V6_TRUSTED_ROOT=/tmp/candidate-selected-root               bash "$RUNNER_TEMP/v24-s8-trust/bootstrap.sh"               "$GITHUB_WORKSPACE/governance-runtime"               "$RUNNER_TEMP/v24-s8-trust/manifest.json"; then
+            echo "external bootstrap accepted candidate-selected trusted root"
+            exit 1
+          fi
+          test ! -e /tmp/candidate-selected-root
+
+      - name: Reject coherent candidate source and self-manifest substitution
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/v24-s8-coherent-substitution
+          cp -a governance-runtime /tmp/v24-s8-coherent-substitution
+          printf '\n/* coherent candidate substitution */\n' >> /tmp/v24-s8-coherent-substitution/native/v24_v6_trusted_authority_service.c
+          bash /tmp/v24-s8-coherent-substitution/build_v24_v6_external_authority_gate.sh
+          bash /tmp/v24-s8-coherent-substitution/build_v24_v6_trusted_authority_service.sh
+          if sudo bash "$RUNNER_TEMP/v24-s8-trust/bootstrap.sh"               /tmp/v24-s8-coherent-substitution               "$RUNNER_TEMP/v24-s8-trust/manifest.json"; then
+            echo "external bootstrap accepted coherent Successor-8 substitution"
+            exit 1
+          fi
+          sudo rm -rf /tmp/v24-s8-coherent-substitution
+
+      - name: Install only externally pinned Successor-8 trusted runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo bash "$RUNNER_TEMP/v24-s8-trust/bootstrap.sh"             "$GITHUB_WORKSPACE/governance-runtime"             "$RUNNER_TEMP/v24-s8-trust/manifest.json"
+
+          test "$(sha256sum /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate | awk '{print $1}')" = '7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069'
+          test "$(sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service | awk '{print $1}')" = '77a6f8c68a16fc4277c087d68a4338664106f232cf538459707e22af8b3c1124'
+          test "$(jq -r '.build_input_sha256' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json)" = 'a30bc2742d0eb730b4340e852879884a15e71f8422742c4501eac4beb041e746'
+          test "$(jq -r '.service_version' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json)" = '2'
+
+      - name: Start trusted service outside candidate process domain
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /run/v24-v6-authority
+          sudo env -i PATH=/usr/bin:/bin LC_ALL=C.UTF-8             /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service --serve             >/tmp/v24-v6-successor8-service.log 2>&1 &
+          for i in $(seq 1 50); do
+            test -S /run/v24-v6-authority/service.sock && break
+            sleep 0.1
+          done
+          test -S /run/v24-v6-authority/service.sock
+          test "$(stat -c '%u' /run/v24-v6-authority/service.sock)" = "0"
+          test "$(sudo stat -c '%a' /run/v24-v6-authority/private)" = "700"
+          test "$(sudo stat -c '%a' /run/v24-v6-authority/private/records)" = "700"
+          test "$(sudo stat -c '%a' /run/v24-v6-authority/private/consumed)" = "700"
+
+      - name: Probe namespace availability without making it load-bearing
+        shell: bash
+        run: |
+          set -euo pipefail
+          if sudo -u v24candidate -- unshare -Urnm true 2>/dev/null; then
+            echo 'candidate_user_mount_namespace=AVAILABLE' | tee /tmp/s8-namespace-policy.txt
+          else
+            echo 'candidate_user_mount_namespace=UNAVAILABLE_ON_FROZEN_HOST' | tee /tmp/s8-namespace-policy.txt
+          fi
+
+      - name: Compile full Successor-8 candidate test surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile             v24_v6_trusted_service_client.py             v24_v6_successor8_record_probe.py             test_v24_v6_successor8_candidate_local_red.py             test_v24_v6_successor8_authenticated_authority.py             test_v24_v6_successor7_trusted_service.py             test_v24_v6_successor6_trusted_control_domain.py             test_v24_v6_successor5_external_authority_gate.py             test_v24_v6_successor4_root_attestation.py             test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Stage root-owned read-only candidate test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-successor8
+          sudo cp -a governance-runtime /tmp/v24candidate-successor8
+          sudo chown -R root:root /tmp/v24candidate-successor8
+          sudo find /tmp/v24candidate-successor8 -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-successor8 -type f -exec chmod 0444 {} +
+
+      - name: Run Successor-8 and inherited authority regressions as candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor8
+          sudo -u v24candidate -- env             V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate             PYTHONDONTWRITEBYTECODE=1             PYTHONPATH=/tmp/v24candidate-successor8             /usr/bin/python3 -m unittest -v               test_v24_v6_successor8_candidate_local_red.py               test_v24_v6_successor8_authenticated_authority.py               test_v24_v6_successor7_trusted_service.py               test_v24_v6_successor6_trusted_control_domain.py               test_v24_v6_successor5_external_authority_gate.py               test_v24_v6_successor4_root_attestation.py               test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Produce genuine candidate diagnostic records
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor8
+          for mode in positive da1 ncp1; do
+            sudo -u v24candidate -- env               PYTHONDONTWRITEBYTECODE=1               PYTHONPATH=/tmp/v24candidate-successor8               /usr/bin/python3 v24_v6_successor8_record_probe.py "$mode"               > "/tmp/s8-$mode.json"
+          done
+          test "$(jq -r '.decision' /tmp/s8-positive.json)" = "ALLOW"
+          test "$(jq -r '.decision' /tmp/s8-da1.json)" = "DENY"
+          test "$(jq -r '.decision' /tmp/s8-ncp1.json)" = "DENY"
+
+      - name: Enforce one-shot root-only authority records
+        shell: bash
+        run: |
+          set -euo pipefail
+          RID="$(jq -r '.trusted_record_id' /tmp/s8-positive.json)"
+          REQ="$(jq -r '.request_sha256' /tmp/s8-positive.json)"
+          sudo /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service             --consume-record "$RID" "$REQ" > /tmp/s8-positive-consumed.json
+          test "$(jq -r '.construction_authoritative' /tmp/s8-positive-consumed.json)" = "true"
+          test "$(jq -r '.decision' /tmp/s8-positive-consumed.json)" = "ALLOW"
+          test "$(jq -r '.service_build_input_sha256' /tmp/s8-positive-consumed.json)" = 'a30bc2742d0eb730b4340e852879884a15e71f8422742c4501eac4beb041e746'
+
+          if sudo /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service               --consume-record "$RID" "$REQ" > /tmp/s8-positive-replay.json; then
+            echo "authority record replay unexpectedly succeeded"
+            exit 1
+          fi
+          test "$(jq -r '.reason' /tmp/s8-positive-replay.json)" = "AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED"
+
+      - name: Reject authority-record request rebind
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor8
+          sudo -u v24candidate -- env             PYTHONDONTWRITEBYTECODE=1             PYTHONPATH=/tmp/v24candidate-successor8             /usr/bin/python3 v24_v6_successor8_record_probe.py positive > /tmp/s8-rebind.json
+          RID="$(jq -r '.trusted_record_id' /tmp/s8-rebind.json)"
+          REQ="$(jq -r '.request_sha256' /tmp/s8-rebind.json)"
+          if sudo /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service               --consume-record "$RID" "$(printf 'f%.0s' {1..64})" > /tmp/s8-rebind-denied.json; then
+            echo "request-rebound authority record unexpectedly succeeded"
+            exit 1
+          fi
+          test "$(jq -r '.reason' /tmp/s8-rebind-denied.json)" = "AUTHORITY_RECORD_BINDING_INVALID"
+          sudo /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service             --consume-record "$RID" "$REQ" > /tmp/s8-rebind-correct.json
+
+      - name: Preserve authoritative DA-1 and NCP-1 denial
+        shell: bash
+        run: |
+          set -euo pipefail
+          for mode in da1 ncp1; do
+            RID="$(jq -r '.trusted_record_id' /tmp/s8-$mode.json)"
+            REQ="$(jq -r '.request_sha256' /tmp/s8-$mode.json)"
+            if sudo /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service                 --consume-record "$RID" "$REQ" > "/tmp/s8-$mode-consumed.json"; then
+              echo "$mode authoritative denial unexpectedly returned success"
+              exit 1
+            fi
+            test "$(jq -r '.construction_authoritative' /tmp/s8-$mode-consumed.json)" = "true"
+            test "$(jq -r '.decision' /tmp/s8-$mode-consumed.json)" = "DENY"
+          done
+
+      - name: Prove fabricated client record cannot become authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          if sudo /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service               --consume-record "$(printf 'a%.0s' {1..64})" "$(printf 'b%.0s' {1..64})"               > /tmp/s8-fabricated-record.json; then
+            echo "fabricated authority record unexpectedly consumed"
+            exit 1
+          fi
+          test "$(jq -r '.construction_authoritative' /tmp/s8-fabricated-record.json)" = "false"
+
+      - name: Prove unauthorized peer remains rejected
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          from test_v24_v6_proof_reference_closure import proof_bundle
+          from v24_v6_trusted_service_client import request_service
+          c,b,_=proof_bundle()
+          r=request_service(
+              "resolve-governed",
+              context=c,
+              boundary=b,
+              reference="f"*64,
+              expected_id="UNAUTHORIZED-ROOT-PEER",
+              expected_digest="a"*64,
+          )
+          assert r["decision"] == "DENY", r
+          assert r["reason"] == "PEER_IDENTITY_REJECTED", r
+          assert r["service_authoritative"] is False, r
+          assert r["construction_authoritative"] is False, r
+          PY
+
+      - name: Run complete V24-V6 R1-R9 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v             test_v24_v6_governance_foundation.py             test_v24_v6_proof_reference_closure.py             test_v24_v6_proof_resolution_red.py             test_v24_v6_endpoint_projection.py             test_v24_v6_material_surface.py             test_v24_v6_decision_apply.py             test_v24_v6_normative_clause_projection.py             test_v24_v6_effect_ledger_closure.py             test_v24_v6_atomic_binding_modes.py             test_v24_v6_qualification_integrity.py             test_v24_v6_integrated_successor.py             test_v24_v6_integrated_successor_dependency_red.py
+
+      - name: Run inherited V24 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v             test_normative_control_catalog.py             test_v24_authority_universe.py             test_v24_effective_control.py             test_v24_completeness_bootstrap.py             test_v24_endpoint_proof_compiler.py             test_v24_admission_application_witness.py             test_v24_aggregate_budget.py             test_v24_generation_migration.py             test_v24_review_proof_audit.py
+
+      - name: Assert preserved Successor-8 RED and predecessor review
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -n '35342416032' implementation/v24/V24-I11-V6-SUCCESSOR-8-AUTHENTICATED-AUTHORITY-CHANNEL-REPAIR-DESIGN.md
+          grep -n '3cb3a9efb82f58bca9fb7734b285e2e2d8a2bde1' implementation/v24/V24-I11-V6-SUCCESSOR-8-AUTHENTICATED-AUTHORITY-CHANNEL-REPAIR-DESIGN.md
+
+      - name: Record Successor-8 evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p successor8-authority-evidence
+          cp /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json successor8-authority-evidence/
+          cp /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate_build.json successor8-authority-evidence/
+          cp /opt/v24-v6-trusted-runtime/bootstrap/v24-v6-successor8-trusted-authority-bootstrap-v4.json successor8-authority-evidence/
+          cp /tmp/s8-namespace-policy.txt successor8-authority-evidence/
+          cp /tmp/s8-positive-consumed.json successor8-authority-evidence/
+          cp /tmp/s8-da1-consumed.json successor8-authority-evidence/
+          cp /tmp/s8-ncp1-consumed.json successor8-authority-evidence/
+          stat -c '%u:%g %a %n'             /opt/v24-v6-trusted-runtime             /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service             /run/v24-v6-authority             /run/v24-v6-authority/private             /run/v24-v6-authority/service.sock             > successor8-authority-evidence/control-domain-stat.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor8-authority-evidence
+          path: successor8-authority-evidence
+          if-no-files-found: error
