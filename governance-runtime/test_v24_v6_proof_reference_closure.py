@@ -5,6 +5,7 @@ import os
 import unittest
 
 from v24_v6_governance_foundation import CURRENT, QUALIFIED, STALE, digest
+from v24_v6_test_proof_context import record_test_attestation_inventory
 from v24_v6_proof_reference_closure import (
     CURRENTNESS_BINDING,
     GOVERNED_QUALIFICATION,
@@ -44,6 +45,7 @@ def anchored_boundary_for(context: dict) -> dict:
         "expected_genesis_scope_digest": scope["scope_digest"],
     }
     os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
+    record_test_attestation_inventory(context, boundary)
     return boundary
 
 
