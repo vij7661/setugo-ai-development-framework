@@ -350,5 +350,5 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sha256sum governance-runtime/.service-build/v24_v6_trusted_authority_service
-          cat governance-runtime/.service-build/v24_v6_trusted_authority_service_build.json
+          sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
+          cat /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json
