@@ -5,6 +5,7 @@ socket, verifies the live server peer is UID 0, and returns the service response
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import socket
 import struct
@@ -12,7 +13,7 @@ from typing import Any
 
 SERVICE_SOCKET = "/run/v24-v6-authority/service.sock"
 SERVICE_ID = "V24-V6-TRUSTED-AUTHORITY-SERVICE"
-SERVICE_VERSION = "1"
+SERVICE_VERSION = "2"
 
 
 def _canonical_bytes(value: Any) -> bytes:
@@ -20,6 +21,29 @@ def _canonical_bytes(value: Any) -> bytes:
         json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         + "\n"
     ).encode("utf-8")
+
+
+def request_binding_digest(
+    operation: str,
+    *,
+    context: dict[str, Any],
+    boundary: dict[str, Any],
+    reference: str,
+    expected_id: str,
+    expected_digest: str,
+    payload: dict[str, Any] | None = None,
+) -> str:
+    context_bytes = _canonical_bytes(context)
+    boundary_bytes = _canonical_bytes(boundary)
+    payload_bytes = b"" if payload is None else _canonical_bytes(payload)
+    material = (
+        operation.encode("utf-8") + b"\0"
+        + reference.encode("utf-8") + b"\0"
+        + expected_id.encode("utf-8") + b"\0"
+        + expected_digest.encode("utf-8") + b"\0"
+        + context_bytes + boundary_bytes + payload_bytes
+    )
+    return hashlib.sha256(material).hexdigest()
 
 
 def request_service(
@@ -35,9 +59,18 @@ def request_service(
     context_bytes = _canonical_bytes(context)
     boundary_bytes = _canonical_bytes(boundary)
     payload_bytes = b"" if payload is None else _canonical_bytes(payload)
+    expected_request_digest = request_binding_digest(
+        operation,
+        context=context,
+        boundary=boundary,
+        reference=reference,
+        expected_id=expected_id,
+        expected_digest=expected_digest,
+        payload=payload,
+    )
 
     header = (
-        "V24-V6-S7/1\n"
+        "V24-V6-S8/1\n"
         f"{operation}\n"
         f"{reference}\n"
         f"{expected_id}\n"
@@ -88,6 +121,22 @@ def request_service(
         raise RuntimeError("trusted authority service identity mismatch")
     if result.get("service_version") != SERVICE_VERSION:
         raise RuntimeError("trusted authority service version mismatch")
-    if result.get("service_authoritative") is not True:
-        raise RuntimeError("trusted authority service response is not authoritative")
+    if result.get("diagnostic_only") is not True:
+        raise RuntimeError("trusted authority service response is not diagnostic-only")
+    if result.get("service_authoritative") is not False:
+        raise RuntimeError("candidate-visible service response must not be authoritative")
+    if result.get("construction_authoritative") is not False:
+        raise RuntimeError("candidate-visible construction response must not be authoritative")
+
+    request_digest = result.get("request_sha256")
+    if request_digest not in {"-", expected_request_digest}:
+        raise RuntimeError("trusted authority service request binding mismatch")
+
+    record_id = result.get("trusted_record_id")
+    if record_id != "-" and (
+        not isinstance(record_id, str)
+        or len(record_id) != 64
+        or any(ch not in "0123456789abcdef" for ch in record_id)
+    ):
+        raise RuntimeError("trusted authority record id malformed")
     return result
