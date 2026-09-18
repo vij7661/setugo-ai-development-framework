@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "candidate_family_id": "V24-I11-V6-INTEGRATED-SUCCESSOR-3",
+  "candidate_family_id": "V24-I11-V6-INTEGRATED-SUCCESSOR-4",
   "approved_design_packet_sha256": "96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62",
   "approved_design_body_sha256": "286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5",
   "approved_design_git_blob_sha": "4a15d50a0488464816d235b273d1dbf808fdce94",
@@ -106,19 +106,49 @@
     {
       "dependency_id": "PROOF_REFERENCE_CLOSURE",
       "path": "governance-runtime/v24_v6_proof_reference_closure.py",
-      "git_blob_sha": "1601377231cfd816b28394388f9a9de3f1868dd2"
+      "git_blob_sha": "80c653008e1501250e37fb8cb7e0cb49b38baed4"
+    },
+    {
+      "dependency_id": "CONSTRUCTION_ROOT_ATTESTATION_VERIFIER",
+      "path": "governance-runtime/v24_v6_root_attestation.py",
+      "git_blob_sha": "64f3048881f3a4c2af172f57b0c3f773f5fdda7c"
+    },
+    {
+      "dependency_id": "CONSTRUCTION_ROOT_PUBLIC_ARTIFACT",
+      "path": "governance-runtime/fixtures/v24-v6-construction-root-attestation-v3.json",
+      "git_blob_sha": "7722a5725324fb805283bce9764b2d151a774ec2"
     }
   ],
   "mandatory_v6_adversarial_checks": [
     "APPLICABLE_PREDICATE_OMISSION_REJECTED",
     "ATOMIC_BINDING_MODE_OMISSION_REJECTED",
+    "ATTESTATION_SCOPE_SUBSTITUTION_REJECTED",
+    "CALLER_SELECTED_PUBLIC_KEY_REJECTED",
     "CLAUSE_CONTROL_REASSIGNMENT_REJECTED",
     "DECISION_EFFECT_PATH_TARGET_MISMATCH_REJECTED",
     "EVERY_REACHABLE_TERMINAL_ALLOWED",
-    "EXTERNAL_TRUSTED_BOUNDARY_ANCHOR_REQUIRED",
     "GENESIS_CROSS_PAIR_REJECTED",
     "LATER_RESOLUTION_PRESERVES_HISTORICAL_PASS_COUNT",
     "MIXED_ALLOWED_AND_DISALLOWED_TERMINAL_REJECTED",
-    "SHARED_PRODUCTION_DEPENDENCY_MUTATION_REJECTED"
-  ]
+    "SAME_PROCESS_ANCHOR_REWRITE_REJECTED",
+    "SHARED_PRODUCTION_DEPENDENCY_MUTATION_REJECTED",
+    "SIGNED_CONTEXT_POSITIVE",
+    "UNSIGNED_CONTEXT_REJECTED",
+    "WRONG_CONTEXT_SIGNATURE_REJECTED"
+  ],
+  "successor4_root_attestation": {
+    "trust_branch": "trust/v24-v6-construction-root-attestation-v3",
+    "trust_commit_sha": "2515582a5e2f0e1041bf5cc83523ffa732620724",
+    "trust_tree_sha": "1c2a1d0f60d3e2a62a2355831dc46f76ff72df7e",
+    "public_artifact_source_blob_sha": "7722a5725324fb805283bce9764b2d151a774ec2",
+    "signature_bundle_source_blob_sha": "b16e2a2bfac013e6e600cf9944595a88eefd2ca8",
+    "signing_ceremony_source_blob_sha": "cc2d8bec17b6775392094920f9549ca2e5174d44",
+    "signing_workflow_run_id": "35322951975",
+    "unsigned_inventory_workflow_run_id": "35322076552",
+    "unsigned_inventory_artifact_id": "10537477367",
+    "unsigned_inventory_artifact_sha256": "fd4639cb0f7f61ba033391291b284527e208741425986085447bd46af129ef65",
+    "signed_context_count": 56,
+    "runtime_qualification_state": "NOT_CLAIMED",
+    "authority_effect": "NONE_EVIDENCE_ONLY"
+  }
 }
