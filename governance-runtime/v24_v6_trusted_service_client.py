@@ -13,7 +13,7 @@ from typing import Any
 
 SERVICE_SOCKET = "/run/v24-v6-authority/service.sock"
 SERVICE_ID = "V24-V6-TRUSTED-AUTHORITY-SERVICE"
-SERVICE_VERSION = "2"
+SERVICE_VERSION = "3"
 
 
 def _canonical_bytes(value: Any) -> bytes:
