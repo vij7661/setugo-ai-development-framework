@@ -55,23 +55,17 @@ class Successor8CandidateLocalAuthorityRed(unittest.TestCase):
         original_socket = client.socket.socket
         try:
             client.socket.socket = _ForgedRootServiceSocket
-            result = client.request_service(
-                "resolve-governed",
-                context=context,
-                boundary=boundary,
-                reference="f" * 64,
-                expected_id="SUCCESSOR8-FORGED-SUBJECT",
-                expected_digest="a" * 64,
-            )
+            with self.assertRaisesRegex(RuntimeError, "diagnostic-only|must not be authoritative"):
+                client.request_service(
+                    "resolve-governed",
+                    context=context,
+                    boundary=boundary,
+                    reference="f" * 64,
+                    expected_id="SUCCESSOR8-FORGED-SUBJECT",
+                    expected_digest="a" * 64,
+                )
         finally:
             client.socket.socket = original_socket
-
-        self.assertFalse(
-            result.get("service_authoritative") is True
-            and result.get("construction_authoritative") is True
-            and result.get("decision") == "ALLOW",
-            result,
-        )
 
 
 if __name__ == "__main__":
