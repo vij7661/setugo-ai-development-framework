@@ -253,24 +253,60 @@ static bool join_path(char out[PATH_MAX], const char *base, const char *leaf) {
     return n > 0 && n < PATH_MAX;
 }
 
+static bool root_owned_nonwritable_file(const char *path) {
+    struct stat st;
+    if (stat(path, &st) != 0) return false;
+    if (!S_ISREG(st.st_mode)) return false;
+    if (st.st_uid != 0) return false;
+    if ((st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) != 0) return false;
+    return true;
+}
+
+static bool root_owned_nonwritable_dir(const char *path) {
+    struct stat st;
+    if (stat(path, &st) != 0) return false;
+    if (!S_ISDIR(st.st_mode)) return false;
+    if (st.st_uid != 0) return false;
+    if ((st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) != 0) return false;
+    return true;
+}
+
+static bool verify_trusted_runtime(const char *runtime) {
+    char self[PATH_MAX];
+    ssize_t n = readlink("/proc/self/exe", self, sizeof(self)-1);
+    if (n <= 0 || n >= (ssize_t)sizeof(self)) return false;
+    self[n] = '\0';
+    if (!root_owned_nonwritable_file(self)) return false;
+    if (!root_owned_nonwritable_dir(runtime)) return false;
+
+    char gate_dir[PATH_MAX];
+    if (!join_path(gate_dir, runtime, ".gate-build")) return false;
+    if (!root_owned_nonwritable_dir(gate_dir)) return false;
+    return true;
+}
+
+static bool pinned_source_matches(const char *path, const char *expected) {
+    return root_owned_nonwritable_file(path) && sha256_file_matches(path, expected);
+}
+
 static bool verify_pinned_python_sources(const char *runtime) {
     char path[PATH_MAX];
     if (!join_path(path, runtime, "v24_v6_external_gate_worker.py") ||
-        !sha256_file_matches(path, EXPECTED_WORKER_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_WORKER_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_proof_reference_closure.py") ||
-        !sha256_file_matches(path, EXPECTED_PRC_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_PRC_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_root_attestation.py") ||
-        !sha256_file_matches(path, EXPECTED_ROOT_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_ROOT_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_governance_foundation.py") ||
-        !sha256_file_matches(path, EXPECTED_FOUNDATION_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_FOUNDATION_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_decision_apply.py") ||
-        !sha256_file_matches(path, EXPECTED_DECISION_APPLY_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_DECISION_APPLY_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_material_surface.py") ||
-        !sha256_file_matches(path, EXPECTED_MATERIAL_SURFACE_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_MATERIAL_SURFACE_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_normative_clause_projection.py") ||
-        !sha256_file_matches(path, EXPECTED_NORMATIVE_PROJECTION_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_NORMATIVE_PROJECTION_SHA256)) return false;
     if (!join_path(path, runtime, "normative_control_catalog.py") ||
-        !sha256_file_matches(path, EXPECTED_NORMATIVE_CATALOG_SHA256)) return false;
+        !pinned_source_matches(path, EXPECTED_NORMATIVE_CATALOG_SHA256)) return false;
     return true;
 }
 
@@ -383,6 +419,7 @@ static int resolve_command(int argc, char **argv) {
 
     char runtime[PATH_MAX];
     if (!runtime_dir(runtime)) { deny("GATE_RUNTIME_ROOT_UNRESOLVED"); return 1; }
+    if (!verify_trusted_runtime(runtime)) { deny("TRUSTED_GATE_CONTROL_DOMAIN_INVALID"); return 1; }
     if (!verify_pinned_python_sources(runtime)) { deny("PINNED_SOURCE_DIGEST_MISMATCH"); return 1; }
 
     int st = 0;
@@ -606,6 +643,7 @@ static int downstream_command(int argc, char **argv) {
 
     char runtime[PATH_MAX];
     if (!runtime_dir(runtime)) { deny("GATE_RUNTIME_ROOT_UNRESOLVED"); return 1; }
+    if (!verify_trusted_runtime(runtime)) { deny("TRUSTED_GATE_CONTROL_DOMAIN_INVALID"); return 1; }
     if (!verify_pinned_python_sources(runtime)) { deny("PINNED_SOURCE_DIGEST_MISMATCH"); return 1; }
 
     char self[PATH_MAX];
@@ -750,6 +788,12 @@ static int downstream_command(int argc, char **argv) {
 
 int main(int argc, char **argv) {
     if (argc == 2 && strcmp(argv[1], "--identity") == 0) {
+        char runtime[PATH_MAX];
+        if (!runtime_dir(runtime) || !verify_trusted_runtime(runtime) ||
+            !verify_pinned_python_sources(runtime)) {
+            deny("TRUSTED_GATE_CONTROL_DOMAIN_INVALID");
+            return 1;
+        }
         printf("{\"authority_effect\":\"%s\",\"build_input_sha256\":\"%s\","
                "\"gate_id\":\"%s\",\"gate_version\":\"%s\"}\n",
                AUTHORITY_EFFECT, BUILD_INPUT_SHA256, GATE_ID, GATE_VERSION);
