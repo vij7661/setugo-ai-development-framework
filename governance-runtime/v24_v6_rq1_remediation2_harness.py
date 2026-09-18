@@ -68,6 +68,9 @@ def stage_candidate_files(names, tag):
     for name in names:
         src=RUNTIME/name
         if not src.is_file(): raise RuntimeError(f"candidate source missing: {src}")
+        parent=stage/Path(name).parent
+        mk_parent=run(["mkdir","-p",str(parent)],user="root",timeout=10)
+        if mk_parent.returncode: raise RuntimeError(f"candidate staging mkdir failed for {parent}: {mk_parent.stderr}")
         cp=run(["install","-o",CANDIDATE,"-g",CANDIDATE,"-m","0555",str(src),str(stage/name)],user="root",timeout=10)
         if cp.returncode: raise RuntimeError(f"candidate staging failed for {name}: {cp.stderr}")
     return stage
@@ -172,6 +175,7 @@ print(json.dumps(x,sort_keys=True))'''
             "v24_v6_test_proof_context.py","normative_control_catalog.py",
             "test_v24_v6_decision_apply.py","test_v24_v6_normative_clause_projection.py",
             "test_v24_v6_proof_reference_closure.py",
+            "fixtures/v24-v6-construction-context-signatures-v3.json",
         ],f"{mode}-diag")
         p=run(["env",f"PYTHONPATH={stage}","python3","-c",code,mode],user=CANDIDATE,timeout=30)
     except RuntimeError as exc:
