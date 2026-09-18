@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "phase_id": "V24-I11-V6-RUNTIME-QUALIFICATION-1",
+  "case_id_pattern": "^RQ-(0[1-9]|[12][0-9]|3[0-2])$",
+  "required_fields": ["case_id", "oracle", "status", "setup", "trigger", "observation", "cleanup", "evidence", "scientific_execution_state", "authority_effect", "qualification"],
+  "statuses": ["PASS", "RED", "INSUFFICIENT_EVIDENCE", "HARNESS_DEFECT", "INFRASTRUCTURE_FAILURE"],
+  "pass_requirements": ["exactly_one_known_case_id", "nonempty_evidence", "cleanup_verified", "scientific_execution_state_starts_CLOSED", "authority_effect_equals_NONE_EVIDENCE_ONLY", "qualification_equals_NOT_QUALIFIED"],
+  "unknown_case_policy": "REJECT",
+  "missing_evidence_policy": "PASS_FORBIDDEN",
+  "cleanup_failure_policy": "BLOCK_CONTINUATION",
+  "unexpected_success_policy": "RECORD_RED",
+  "historical_evidence_policy": "APPEND_ONLY"
+}
