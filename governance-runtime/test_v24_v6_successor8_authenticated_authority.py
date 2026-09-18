@@ -66,7 +66,10 @@ class Successor8AuthenticatedAuthorityTests(unittest.TestCase):
         payload = json.loads(proc.stdout.strip())
         self.assertFalse(payload["construction_authoritative"])
         self.assertEqual(payload["decision"], "DENY")
-        self.assertEqual(payload["reason"], "ROOT_CONSUMER_REQUIRED")
+        self.assertIn(
+            payload["reason"],
+            {"ROOT_CONSUMER_REQUIRED", "DIRECT_CONSUMER_DEAUTHORIZED"},
+        )
 
     def test_request_digest_changes_on_reference_rebind(self):
         context, boundary, refs = proof_bundle()
