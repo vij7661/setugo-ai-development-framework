@@ -7,7 +7,6 @@ scientific, or terminal authority.
 """
 from __future__ import annotations
 
-import os
 from typing import Any, Mapping
 
 from v24_v6_governance_foundation import (
@@ -21,6 +20,7 @@ from v24_v6_governance_foundation import (
     validate_governed_qualification,
     validate_independence_qualification,
 )
+from v24_v6_root_attestation import validate_root_attestation
 
 GOVERNED_QUALIFICATION = "GOVERNED_QUALIFICATION"
 INDEPENDENCE_QUALIFICATION = "INDEPENDENCE_QUALIFICATION"
@@ -109,11 +109,21 @@ def validate_proof_context(
         problems.append("TRUSTED_PROOF_CONTEXT_DIGEST_INVALID")
     if not _is_sha256(expected_scope_digest):
         problems.append("TRUSTED_GENESIS_SCOPE_DIGEST_INVALID")
-    external_anchor = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
-    if not _is_sha256(external_anchor):
-        problems.append("TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR_REQUIRED")
-    elif trusted_boundary_anchor_digest(trusted_boundary) != external_anchor:
-        problems.append("TRUSTED_PROOF_BOUNDARY_EXTERNAL_ANCHOR_MISMATCH")
+    # Successor-4: the old mutable environment digest is deliberately
+    # non-authoritative.  Exact context/scope identity must carry a detached
+    # signature verifiable with the pinned construction root public key.
+    attestation = trusted_boundary.get("root_attestation")
+    for item in validate_root_attestation(
+        attestation if isinstance(attestation, Mapping) else None,
+        governance_generation_id=generation if isinstance(generation, str) else "",
+        proof_context_digest=(
+            expected_context_digest if isinstance(expected_context_digest, str) else ""
+        ),
+        genesis_trusted_scope_digest=(
+            expected_scope_digest if isinstance(expected_scope_digest, str) else ""
+        ),
+    ):
+        problems.append(item)
 
     if not isinstance(proof_context, Mapping):
         problems.append("GOVERNANCE_PROOF_CONTEXT_REQUIRED")
