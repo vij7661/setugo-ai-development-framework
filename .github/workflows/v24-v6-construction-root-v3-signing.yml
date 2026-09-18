@@ -1,0 +1,206 @@
+name: V24 V6 Construction Root V3 Signing Ceremony
+
+on:
+  push:
+    branches:
+      - trust/v24-v6-construction-root-attestation-v3
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  sign:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: trust/v24-v6-construction-root-attestation-v3
+          fetch-depth: 0
+
+      - name: Download frozen unsigned context inventory
+        uses: actions/download-artifact@v4
+        with:
+          name: v24-v6-successor4-unsigned-attestation-inventory
+          path: ${{ runner.temp }}/inventory
+          github-token: ${{ github.token }}
+          repository: vij7661/setugo-ai-development-framework
+          run-id: 35322076552
+
+      - name: Verify frozen inventory
+        env:
+          INVENTORY_DIR: ${{ runner.temp }}/inventory
+        run: |
+          set -euo pipefail
+          test "$(cat "${INVENTORY_DIR}/CONTEXT_COUNT")" = "56"
+          test "$(find "${INVENTORY_DIR}" -maxdepth 1 -name '*.json' -type f | wc -l | tr -d ' ')" = "56"
+          (cd "${INVENTORY_DIR}" && sha256sum -c SHA256SUMS)
+
+      - name: Sign exact construction contexts on isolated runner
+        env:
+          INVENTORY_DIR: ${{ runner.temp }}/inventory
+          WORK_DIR: ${{ runner.temp }}/signing
+        run: |
+          set -euo pipefail
+          mkdir -p "${WORK_DIR}/material" "${WORK_DIR}/signatures" trust
+          openssl genpkey -algorithm RSA \
+            -pkeyopt rsa_keygen_bits:2048 \
+            -pkeyopt rsa_keygen_pubexp:65537 \
+            -out "${WORK_DIR}/private.pem"
+          openssl pkey -in "${WORK_DIR}/private.pem" -pubout -out "${WORK_DIR}/public.pem"
+          openssl pkey -pubin -in "${WORK_DIR}/public.pem" -outform DER -out "${WORK_DIR}/public.der"
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          inventory = Path(os.environ["INVENTORY_DIR"])
+          work = Path(os.environ["WORK_DIR"])
+          key_id = "V24-V6-CONSTRUCTION-ROOT-ATTESTATION-V3"
+          algorithm = "RSA-PKCS1-v1_5-SHA256"
+          purpose = "V24_V6_CONSTRUCTION_PROOF_CONTEXT_ATTESTATION"
+
+          seen = 0
+          for path in sorted(inventory.glob("*.json")):
+              record = json.loads(path.read_text(encoding="utf-8"))
+              context = record["proof_context"]
+              boundary = record["trusted_boundary"]
+              context_digest = context["context_digest"]
+              if path.stem != context_digest:
+                  raise SystemExit(f"filename/context mismatch: {path.name}")
+              if boundary["expected_proof_context_digest"] != context_digest:
+                  raise SystemExit(f"boundary/context mismatch: {path.name}")
+              if boundary["governance_generation_id"] != context["governance_generation_id"]:
+                  raise SystemExit(f"generation mismatch: {path.name}")
+              if boundary["expected_genesis_scope_digest"] != context["genesis_trusted_scope"]["scope_digest"]:
+                  raise SystemExit(f"scope mismatch: {path.name}")
+              material = {
+                  "algorithm": algorithm,
+                  "genesis_trusted_scope_digest": boundary["expected_genesis_scope_digest"],
+                  "governance_generation_id": boundary["governance_generation_id"],
+                  "key_id": key_id,
+                  "proof_context_digest": context_digest,
+                  "purpose": purpose,
+                  "schema_version": 1,
+              }
+              (work / "material" / f"{context_digest}.json").write_text(
+                  json.dumps(material, sort_keys=True, separators=(",", ":")),
+                  encoding="utf-8",
+              )
+              seen += 1
+          if seen != 56:
+              raise SystemExit(f"expected 56 contexts, saw {seen}")
+          PY
+
+          for material in "${WORK_DIR}"/material/*.json; do
+            digest="$(basename "${material}" .json)"
+            openssl dgst -sha256 -sign "${WORK_DIR}/private.pem" \
+              -out "${WORK_DIR}/signatures/${digest}.sig" "${material}"
+          done
+
+          MODULUS_HEX="$(openssl rsa -pubin -in "${WORK_DIR}/public.pem" -modulus -noout | cut -d= -f2 | tr 'A-F' 'a-f')"
+          DER_SHA256="$(sha256sum "${WORK_DIR}/public.der" | awk '{print $1}')"
+          export MODULUS_HEX DER_SHA256
+
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          work = Path(os.environ["WORK_DIR"])
+          trust = Path("trust")
+          key_id = "V24-V6-CONSTRUCTION-ROOT-ATTESTATION-V3"
+          algorithm = "RSA-PKCS1-v1_5-SHA256"
+          purpose = "V24_V6_CONSTRUCTION_PROOF_CONTEXT_ATTESTATION"
+          artifact_sha = "fd4639cb0f7f61ba033391291b284527e208741425986085447bd46af129ef65"
+
+          signatures = {
+              p.stem: base64.b64encode(p.read_bytes()).decode("ascii")
+              for p in sorted((work / "signatures").glob("*.sig"))
+          }
+          if len(signatures) != 56:
+              raise SystemExit(f"expected 56 signatures, saw {len(signatures)}")
+
+          public_artifact = {
+              "schema_version": 3,
+              "key_id": key_id,
+              "algorithm": algorithm,
+              "rsa_public_exponent": 65537,
+              "rsa_modulus_hex": os.environ["MODULUS_HEX"],
+              "public_key_der_sha256": os.environ["DER_SHA256"],
+              "purpose": "CONSTRUCTION_PROOF_CONTEXT_ATTESTATION_ONLY",
+              "source_inventory_workflow_run_id": "35322076552",
+              "source_inventory_artifact_id": "10537477367",
+              "source_inventory_artifact_sha256": artifact_sha,
+              "signed_context_count": 56,
+              "private_signing_key_committed": False,
+              "private_signing_key_available_to_candidate_python": False,
+              "candidate_may_select_key": False,
+              "mutable_environment_anchor_is_authority": False,
+              "runtime_qualification_state": "NOT_CLAIMED",
+              "authority_effect": "NONE_EVIDENCE_ONLY",
+              "notes": [
+                  "V1 and V2 remain historical incomplete artifacts because neither branch materialized detached fixture signatures.",
+                  "V3 public key and all 56 detached signatures were issued together on a fresh trust-branch runner.",
+                  "The signing job did not execute candidate/test Python; it consumed only the frozen unsigned inventory artifact.",
+                  "The private signing key is deleted before commit and is not persisted.",
+                  "This construction key grants no runtime, deployment, release, or scientific authority."
+              ],
+          }
+          signature_bundle = {
+              "schema_version": 1,
+              "key_id": key_id,
+              "algorithm": algorithm,
+              "purpose": purpose,
+              "source_inventory_workflow_run_id": "35322076552",
+              "source_inventory_artifact_sha256": artifact_sha,
+              "context_count": 56,
+              "signatures": signatures,
+              "authority_effect": "NONE_EVIDENCE_ONLY",
+              "runtime_qualification_state": "NOT_CLAIMED",
+          }
+
+          public_path = trust / "v24-v6-construction-root-attestation-v3.json"
+          sig_path = trust / "v24-v6-construction-context-signatures-v3.json"
+          public_path.write_text(json.dumps(public_artifact, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          sig_path.write_text(json.dumps(signature_bundle, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+          ceremony = {
+              "schema_version": 1,
+              "ceremony_id": "V24-V6-CONSTRUCTION-ROOT-V3",
+              "source_inventory_workflow_run_id": "35322076552",
+              "source_inventory_artifact_id": "10537477367",
+              "source_inventory_artifact_sha256": artifact_sha,
+              "context_count": 56,
+              "public_artifact_sha256": hashlib.sha256(public_path.read_bytes()).hexdigest(),
+              "signature_bundle_sha256": hashlib.sha256(sig_path.read_bytes()).hexdigest(),
+              "public_key_der_sha256": os.environ["DER_SHA256"],
+              "private_key_persisted": False,
+              "candidate_python_executed_in_signing_job": False,
+              "authority_effect": "NONE_EVIDENCE_ONLY",
+              "runtime_qualification_state": "NOT_CLAIMED",
+          }
+          (trust / "v24-v6-construction-signing-ceremony-v3.json").write_text(
+              json.dumps(ceremony, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+          rm -f "${WORK_DIR}/private.pem"
+          test ! -e "${WORK_DIR}/private.pem"
+
+      - name: Commit public artifacts only
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trust/v24-v6-construction-root-attestation-v3.json \
+                  trust/v24-v6-construction-context-signatures-v3.json \
+                  trust/v24-v6-construction-signing-ceremony-v3.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Issue V24 V6 construction root v3 attestations"
+          git push origin HEAD:trust/v24-v6-construction-root-attestation-v3
