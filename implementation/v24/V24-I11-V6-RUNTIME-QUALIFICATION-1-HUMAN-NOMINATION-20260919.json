@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "phase_id": "V24-I11-V6-RUNTIME-QUALIFICATION-1",
+  "record_type": "HUMAN_RUNTIME_NOMINATION",
+  "record_status": "NOMINATED_ENTRY_PENDING",
+  "recorded_at": "2026-09-19",
+  "runtime_owner": "Vijay Kumar",
+  "evidence_custodian": "Vijay Kumar",
+  "runtime": {
+    "provider": "AWS",
+    "region": "ap-south-2",
+    "instance_id": "i-05063c49c656d01ad",
+    "image_id": "ami-0990d6cd071996c3c",
+    "backing_snapshot_id": "snap-02073dd5c4e924a8f",
+    "image_name": "v24-rq1-qualified-baseline-20260918",
+    "runner_name": "v24-rq1-aws",
+    "required_runner_label": "v24-rq1",
+    "architecture": "x86_64",
+    "os": "Ubuntu 24.04 LTS"
+  },
+  "trust_assumption_acceptance": {
+    "accepted_by": "Vijay Kumar",
+    "scope": "Exact nominated runtime only, bounded by the preregistered RQ1 trust assumptions and stated out-of-scope exclusions.",
+    "waivers": [],
+    "scientific_execution_authorized": false,
+    "authority_granted": false,
+    "authority_effect": "NONE_EVIDENCE_ONLY"
+  },
+  "independent_final_reviewer": null,
+  "entry_gate_constraints": {
+    "rq_cases_may_start": false,
+    "qualification_claimed": false,
+    "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+    "runtime_status": "NOMINATED_ENTRY_PENDING"
+  },
+  "evidence_bindings_pending": [
+    "immutable host/image evidence digest",
+    "mount options digest",
+    "service and dependency hashes on the nominated image",
+    "independent final reviewer designation"
+  ]
+}
