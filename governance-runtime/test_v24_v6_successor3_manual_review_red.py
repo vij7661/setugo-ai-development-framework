@@ -14,14 +14,13 @@ from v24_v6_proof_reference_closure import (
     TRUSTED_BOUNDARY_ANCHOR_ENV,
     resolve_governed_qualification,
     seal_proof_context,
+    trusted_boundary_anchor_digest,
 )
 
 
 class Successor3ManualReviewRegressions(unittest.TestCase):
     def test_prc1_self_constructed_trusted_boundary_is_rejected(self):
         context, _, refs = proof_bundle()
-        external_anchor = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
-        self.assertIsNotNone(external_anchor)
         forged_context = copy.deepcopy(context)
         forged_context["proof_context_id"] = "ATTACKER-CONSTRUCTED-CONTEXT"
         seal_proof_context(forged_context)
@@ -31,19 +30,31 @@ class Successor3ManualReviewRegressions(unittest.TestCase):
             "expected_proof_context_digest": forged_context["context_digest"],
             "expected_genesis_scope_digest": scope["scope_digest"],
         }
-        os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = str(external_anchor)
-        result = resolve_governed_qualification(
-            refs["root"],
-            forged_context,
-            self_built_boundary,
-            expected_subject_id="ROOT-VERIFIER",
-            expected_subject_content_digest=ROOT_CONTENT,
-        )
+
+        # Reproduce the exact Successor-3 attack: the same caller computes and
+        # rewrites the old environment digest to match its forged boundary.
+        # Successor-4 must ignore that mutable value and still require an
+        # externally issued asymmetric root attestation.
+        old = os.environ.get(TRUSTED_BOUNDARY_ANCHOR_ENV)
+        try:
+            os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(
+                self_built_boundary
+            )
+            result = resolve_governed_qualification(
+                refs["root"],
+                forged_context,
+                self_built_boundary,
+                expected_subject_id="ROOT-VERIFIER",
+                expected_subject_content_digest=ROOT_CONTENT,
+            )
+        finally:
+            if old is None:
+                os.environ.pop(TRUSTED_BOUNDARY_ANCHOR_ENV, None)
+            else:
+                os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = old
+
         self.assertFalse(result["qualified"], result)
-        self.assertTrue(
-            any("EXTERNAL_ANCHOR_MISMATCH" in x for x in result["problems"]),
-            result,
-        )
+        self.assertIn("ROOT_ATTESTATION_REQUIRED", result["problems"])
 
     def test_ncp1_control_reassignment_requires_new_authorized_binding(self):
         coverage, context, boundary, _ = coverage_fixture()
