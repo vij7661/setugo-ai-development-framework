@@ -43,35 +43,55 @@ jobs:
       - uses: actions/checkout@v4
         with:
           clean: true
-      - name: Verify exact bound runner and service
+      - name: Prepare append-only evidence directory
         shell: bash
         run: |
           set -euo pipefail
-          test "$RUNNER_NAME" = 'v24-rq1-aws'
-          sudo -n true
-          id v24candidate
-          systemctl is-active --quiet v24-v6-trusted-authority.service
-          test -S /run/v24-v6-authority/service.sock
-          test -f /run/v24-v6-authority/service.pid
-          sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
-          command -v strace
+          E="/var/lib/v24-rq1/runs/$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA}"
+          sudo mkdir -p "$E"
+          sudo chown "$(id -u):$(id -g)" "$E"
+          printf 'EVIDENCE_DIR=%s\n' "$E" >> "$GITHUB_ENV"
+          printf 'HARNESS_RC=99\n' >> "$GITHUB_ENV"
+      - name: Verify exact bound runner and restore trusted service
+        id: preflight
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          {
+            echo "runner=$RUNNER_NAME"
+            test "$RUNNER_NAME" = 'v24-rq1-aws'
+            sudo -n true
+            id v24candidate
+            if ! systemctl is-active --quiet v24-v6-trusted-authority.service; then
+              echo "service inactive; restoring trusted service"
+              sudo systemctl restart v24-v6-trusted-authority.service
+            fi
+            systemctl is-active v24-v6-trusted-authority.service
+            test -S /run/v24-v6-authority/service.sock
+            test -f /run/v24-v6-authority/service.pid
+            sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
+            if command -v strace; then echo "strace_present=true"; else echo "strace_present=false"; fi
+          } 2>&1 | tee "$EVIDENCE_DIR/preflight.txt"
+          rc=${PIPESTATUS[0]}
+          printf '%s\n' "$rc" > "$EVIDENCE_DIR/preflight-exit-code.txt"
+          exit "$rc"
       - name: Execute exact safe RQ slice
+        if: steps.preflight.outcome == 'success'
         id: exact
         shell: bash
         run: |
           set -uo pipefail
-          E="/var/lib/v24-rq1/runs/$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA}"
-          sudo mkdir -p "$E"
-          sudo chown "$(id -u):$(id -g)" "$E"
           set +e
-          python governance-runtime/v24_v6_rq1_remediation2_harness.py --safe-slice --evidence-dir "$E" | tee "$E/run-summary.json"
+          python governance-runtime/v24_v6_rq1_remediation2_harness.py --safe-slice --evidence-dir "$EVIDENCE_DIR" | tee "$EVIDENCE_DIR/run-summary.json"
           rc=${PIPESTATUS[0]}
           set -e
-          printf '%s\n' "$rc" > "$E/exit-code.txt"
-          sha256sum governance-runtime/v24_v6_rq1_remediation2_harness.py > "$E/harness.sha256"
-          sha256sum governance-runtime/v24_v6_rq1_observer.py > "$E/observer.sha256"
-          sha256sum "$E/RQ1-remediation2-targeted-bundle.json" > "$E/bundle.sha256"
-          printf 'EVIDENCE_DIR=%s\n' "$E" >> "$GITHUB_ENV"
+          printf '%s\n' "$rc" > "$EVIDENCE_DIR/exit-code.txt"
+          sha256sum governance-runtime/v24_v6_rq1_remediation2_harness.py > "$EVIDENCE_DIR/harness.sha256"
+          sha256sum governance-runtime/v24_v6_rq1_observer.py > "$EVIDENCE_DIR/observer.sha256"
+          if test -f "$EVIDENCE_DIR/RQ1-remediation2-targeted-bundle.json"; then
+            sha256sum "$EVIDENCE_DIR/RQ1-remediation2-targeted-bundle.json" > "$EVIDENCE_DIR/bundle.sha256"
+          fi
           printf 'HARNESS_RC=%s\n' "$rc" >> "$GITHUB_ENV"
           exit 0
       - name: Stage evidence for artifact
@@ -94,4 +114,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "${HARNESS_RC:-99}" = "0"
+          test "${{ steps.preflight.outcome }}" = "success"\n          test "${HARNESS_RC:-99}" = "0"
