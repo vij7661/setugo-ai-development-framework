@@ -1,0 +1,381 @@
+name: V24 V6 Successor-7 Exact Final Head
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-successor7-trusted-service
+    paths:
+      - '.github/workflows/v24-v6-successor7-final-head.yml'
+      - 'governance-runtime/native/v24_v6_trusted_authority_service.c'
+      - 'governance-runtime/build_v24_v6_trusted_authority_service.sh'
+      - 'governance-runtime/v24_v6_trusted_service_client.py'
+      - 'governance-runtime/test_v24_v6_successor7_trusted_service.py'
+      - 'governance-runtime/native/v24_v6_external_authority_gate.c'
+      - 'governance-runtime/build_v24_v6_external_authority_gate.sh'
+      - 'governance-runtime/v24_v6_external_gate_worker.py'
+      - 'implementation/v24/V24-I11-V6-SUCCESSOR-7-TRUSTED-SERVICE-REPAIR-DESIGN.md'
+      - 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-final-head:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: implementation/v24-i11-v6-successor7-trusted-service
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Capture exact candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Assert host construction dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          command -v sudo
+          command -v git
+          test -x /usr/bin/python3
+
+      - name: Create fixed candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Fetch exact external bootstrap authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          TRUST_COMMIT='ffd215e0c73b1ca0294cbd06ddd8ddac77007b2a'
+          TRUST_TREE='8bff10c7601d0472e8d20966fe789d8e5a63bca4'
+          MANIFEST_BLOB='ccfa227d511934b8c5068ee395604f06d7097aed'
+          BOOTSTRAP_BLOB='1ed659e082fec1e4c1d2f22b7137ab4223d3176e'
+
+          git fetch --no-tags --depth=1 origin "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD)" = "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD^{tree})" = "$TRUST_TREE"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-successor7-trusted-service-bootstrap-v3.json | awk '{print $3}')" = "$MANIFEST_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/install-v24-v6-successor7-trusted-service-v3.sh | awk '{print $3}')" = "$BOOTSTRAP_BLOB"
+
+          mkdir -p "$RUNNER_TEMP/v24-s7-trust"
+          git show "$TRUST_COMMIT:trust/v24-v6-successor7-trusted-service-bootstrap-v3.json" > "$RUNNER_TEMP/v24-s7-trust/manifest.json"
+          git show "$TRUST_COMMIT:trust/install-v24-v6-successor7-trusted-service-v3.sh" > "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh"
+          chmod 0555 "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh"
+          test "$(git hash-object "$RUNNER_TEMP/v24-s7-trust/manifest.json")" = "$MANIFEST_BLOB"
+
+      - name: Reject candidate-selected trusted root
+        shell: bash
+        run: |
+          set -euo pipefail
+          if sudo env V24_V6_TRUSTED_ROOT=/tmp/candidate-selected-root \
+              bash "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh" \
+              "$GITHUB_WORKSPACE/governance-runtime" \
+              "$RUNNER_TEMP/v24-s7-trust/manifest.json"; then
+            echo "external bootstrap accepted candidate-selected trusted root"
+            exit 1
+          fi
+          test ! -e /tmp/candidate-selected-root
+
+      - name: Reject coherent candidate source and self-manifest substitution
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/v24-s7-coherent-substitution
+          cp -a governance-runtime /tmp/v24-s7-coherent-substitution
+          printf '\n/* coherent candidate substitution */\n' >> /tmp/v24-s7-coherent-substitution/native/v24_v6_external_authority_gate.c
+          printf '\n/* coherent candidate substitution */\n' >> /tmp/v24-s7-coherent-substitution/native/v24_v6_trusted_authority_service.c
+          bash /tmp/v24-s7-coherent-substitution/build_v24_v6_external_authority_gate.sh
+          bash /tmp/v24-s7-coherent-substitution/build_v24_v6_trusted_authority_service.sh
+          test -f /tmp/v24-s7-coherent-substitution/.gate-build/v24_v6_external_authority_gate_build.json
+          test -f /tmp/v24-s7-coherent-substitution/.service-build/v24_v6_trusted_authority_service_build.json
+
+          if sudo bash "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh" \
+              /tmp/v24-s7-coherent-substitution \
+              "$RUNNER_TEMP/v24-s7-trust/manifest.json"; then
+            echo "external bootstrap accepted coherent candidate substitution"
+            exit 1
+          fi
+          sudo rm -rf /tmp/v24-s7-coherent-substitution
+
+      - name: Install only externally pinned trusted service runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo bash "$RUNNER_TEMP/v24-s7-trust/bootstrap.sh" \
+            "$GITHUB_WORKSPACE/governance-runtime" \
+            "$RUNNER_TEMP/v24-s7-trust/manifest.json"
+
+          test "$(stat -c '%u' /opt/v24-v6-trusted-runtime)" = "0"
+          test "$(stat -c '%a' /opt/v24-v6-trusted-runtime)" = "555"
+          test "$(stat -c '%u' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service)" = "0"
+          test "$(stat -c '%a' /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service)" = "555"
+          test "$(sha256sum /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service | awk '{print $1}')" = '34f1190c11e78a4db693b16f93dc4f6a72e618ff99ab764c5471db3c1596dc8a'
+          test "$(sha256sum /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate | awk '{print $1}')" = '7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069'
+
+      - name: Start trusted service outside candidate process domain
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /run/v24-v6-authority
+          sudo env -i PATH=/usr/bin:/bin LC_ALL=C.UTF-8 \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service --serve \
+            >/tmp/v24-v6-successor7-service.log 2>&1 &
+          for i in $(seq 1 50); do
+            test -S /run/v24-v6-authority/service.sock && break
+            sleep 0.1
+          done
+          test -S /run/v24-v6-authority/service.sock
+          test "$(stat -c '%u' /run/v24-v6-authority/service.sock)" = "0"
+          test "$(stat -c '%u' /run/v24-v6-authority/private)" = "0"
+          test "$(stat -c '%a' /run/v24-v6-authority/private)" = "700"
+
+      - name: Compile full Successor-7 candidate test surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_trusted_service_client.py \
+            test_v24_v6_successor7_trusted_service.py \
+            test_v24_v6_successor6_trusted_control_domain.py \
+            test_v24_v6_successor5_external_authority_gate.py \
+            test_v24_v6_successor4_root_attestation.py \
+            test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Stage root-owned read-only candidate test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-successor7
+          sudo cp -a governance-runtime /tmp/v24candidate-successor7
+          sudo chown -R root:root /tmp/v24candidate-successor7
+          sudo find /tmp/v24candidate-successor7 -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-successor7 -type f -exec chmod 0444 {} +
+
+      - name: Run Successor-7 and inherited authority regressions as candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor7
+          sudo -u v24candidate -- env \
+            V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-successor7 \
+            /usr/bin/python3 -m unittest -v \
+              test_v24_v6_successor7_trusted_service.py \
+              test_v24_v6_successor6_trusted_control_domain.py \
+              test_v24_v6_successor5_external_authority_gate.py \
+              test_v24_v6_successor4_root_attestation.py \
+              test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Prove unauthorized peer remains rejected
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          from test_v24_v6_proof_reference_closure import proof_bundle
+          from v24_v6_trusted_service_client import request_service
+          c,b,_=proof_bundle()
+          r=request_service(
+              "resolve-governed",
+              context=c,
+              boundary=b,
+              reference="f"*64,
+              expected_id="UNAUTHORIZED-ROOT-PEER",
+              expected_digest="a"*64,
+          )
+          assert r["decision"] == "DENY", r
+          assert r["reason"] == "PEER_IDENTITY_REJECTED", r
+          PY
+
+      - name: Run complete V24-V6 R1-R9 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_proof_reference_closure.py \
+            test_v24_v6_proof_resolution_red.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py \
+            test_v24_v6_integrated_successor.py \
+            test_v24_v6_integrated_successor_dependency_red.py
+
+      - name: Run inherited V24 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Assert preserved failure history
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -n '35336888966' implementation/v24/V24-I11-V6-SUCCESSOR-7-TRUSTED-SERVICE-REPAIR-DESIGN.md
+          grep -n '15678f4416a1b35b71e5fd7877edd5b64c8c4e9a' implementation/v24/V24-I11-V6-SUCCESSOR-7-TRUSTED-SERVICE-REPAIR-DESIGN.md
+
+      - name: Generate exact Successor-7 verification report
+        working-directory: governance-runtime
+        env:
+          CANDIDATE_COMMIT: ${{ env.CANDIDATE_COMMIT }}
+          CANDIDATE_TREE: ${{ env.CANDIDATE_TREE }}
+          GITHUB_RUN_ID_VALUE: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import v24_v6_integrated_successor as r9
+          import v24_v6_root_attestation as root
+
+          repo = Path('..').resolve()
+          manifest = json.loads(
+              (repo / 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json').read_text(encoding='utf-8')
+          )
+          result = r9.validate_integrated_successor_manifest(repo_root=repo, manifest=manifest)
+          trusted = Path('/opt/v24-v6-trusted-runtime')
+          gate_build = json.loads(
+              (trusted / '.gate-build/v24_v6_external_authority_gate_build.json').read_text(encoding='utf-8')
+          )
+          service_build = json.loads(
+              (trusted / 'v24_v6_trusted_authority_service_build.json').read_text(encoding='utf-8')
+          )
+
+          assert result['integration_valid'], result['problems']
+          assert result['qualified'] is False
+          assert result['bound_file_count'] == 16 + len(r9.EXPECTED_SHARED_PRODUCTION_DEPENDENCIES)
+          assert result['bound_file_count'] == 28
+          assert result['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert result['scientific_execution_state'] == r9.SCIENTIFIC_EXECUTION_CLOSED
+          assert manifest['candidate_family_id'] == 'V24-I11-V6-INTEGRATED-SUCCESSOR-7'
+
+          s7 = manifest['successor7_trusted_service']
+          assert s7['preserved_red_run_id'] == '35336888966'
+          assert s7['predecessor_successor6_review_commit'] == '15678f4416a1b35b71e5fd7877edd5b64c8c4e9a'
+          assert s7['trust_commit_sha'] == 'ffd215e0c73b1ca0294cbd06ddd8ddac77007b2a'
+          assert s7['trust_tree_sha'] == '8bff10c7601d0472e8d20966fe789d8e5a63bca4'
+          assert s7['bootstrap_manifest_blob_sha'] == 'ccfa227d511934b8c5068ee395604f06d7097aed'
+          assert s7['bootstrap_script_blob_sha'] == '1ed659e082fec1e4c1d2f22b7137ab4223d3176e'
+          assert s7['construction_state'] == 'READY_FOR_EXACT_FINAL_HEAD'
+          assert s7['runtime_qualification_state'] == 'NOT_CLAIMED'
+          assert s7['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert gate_build['build_input_sha256'] == s7['gate_build_input_sha256']
+          assert gate_build['binary_sha256'] == s7['gate_binary_sha256']
+          assert service_build['build_input_sha256'] == s7['service_build_input_sha256']
+          assert service_build['binary_sha256'] == s7['service_binary_sha256']
+
+          trust = manifest['successor4_root_attestation']
+          assert trust['trust_commit_sha'] == root.TRUST_COMMIT_SHA
+          assert trust['public_artifact_source_blob_sha'] == root.TRUST_PUBLIC_ARTIFACT_BLOB_SHA
+          assert trust['signature_bundle_source_blob_sha'] == root.TRUST_SIGNATURE_BUNDLE_BLOB_SHA
+          assert trust['signing_ceremony_source_blob_sha'] == root.TRUST_CEREMONY_BLOB_SHA
+
+          required = {
+              'CANDIDATE_LD_PRELOAD_GATE_INJECTION_REJECTED',
+              'CANDIDATE_LD_LIBRARY_PATH_REBIND_REJECTED',
+              'SAME_UID_GATE_PROCESS_TRACE_OR_INJECTION_REJECTED',
+              'CANDIDATE_TEMP_RESULT_SUBSTITUTION_REJECTED',
+              'TRUSTED_SERVICE_PEER_IDENTITY_ENFORCED',
+              'CALLER_CANNOT_SELECT_SERVICE_EXECUTABLE_OR_WORKER',
+              'COHERENT_GATE_AND_BUILD_MANIFEST_SUBSTITUTION_REJECTED',
+              'CANDIDATE_SELECTED_TRUSTED_ROOT_REJECTED',
+              'TRUSTED_SERVICE_POSITIVE',
+              'DA1_FRESH_EFFECT_PATH_SELF_GRANT_REJECTED',
+              'NCP1_FRESH_CLAUSE_CONTROL_SELF_GRANT_REJECTED',
+          }
+          assert required.issubset(set(manifest['mandatory_v6_adversarial_checks']))
+
+          report = {
+              'schema_version': 7,
+              'candidate_family_id': manifest['candidate_family_id'],
+              'candidate_commit': os.environ['CANDIDATE_COMMIT'],
+              'candidate_tree': os.environ['CANDIDATE_TREE'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID_VALUE'],
+              'integration_binding_digest': result['binding_digest'],
+              'bound_file_count': result['bound_file_count'],
+              'bound_files': result['bound_files'],
+              'predecessor_successor6_review_disposition': 'CHANGES_REQUIRED',
+              'predecessor_successor6_review_commit': s7['predecessor_successor6_review_commit'],
+              'preserved_successor7_red_run_id': s7['preserved_red_run_id'],
+              'successor7_all_up_run_id': s7['all_up_run_id'],
+              'service_id': s7['service_id'],
+              'service_version': s7['service_version'],
+              'trusted_root': s7['trusted_root'],
+              'trusted_socket_path': s7['trusted_socket_path'],
+              'candidate_os_identity': s7['candidate_os_identity'],
+              'bootstrap_trust_commit': s7['trust_commit_sha'],
+              'bootstrap_trust_tree': s7['trust_tree_sha'],
+              'bootstrap_manifest_blob_sha': s7['bootstrap_manifest_blob_sha'],
+              'bootstrap_script_blob_sha': s7['bootstrap_script_blob_sha'],
+              'gate_build_input_sha256': gate_build['build_input_sha256'],
+              'gate_binary_sha256': gate_build['binary_sha256'],
+              'service_build_input_sha256': service_build['build_input_sha256'],
+              'service_binary_sha256': service_build['binary_sha256'],
+              'root_attestation_trust_commit': root.TRUST_COMMIT_SHA,
+              'scientific_execution_state': result['scientific_execution_state'],
+              'runtime_qualification_state': 'NOT_CLAIMED',
+              'successor_review_state': 'REQUIRED_MANUAL_INDEPENDENT_REVIEW',
+              'authority_effect': result['authority_effect'],
+          }
+          out = repo / 'v24-v6-successor7-verification.json'
+          out.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(out.read_text())
+          PY
+
+      - name: Record trusted service evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p successor7-trusted-service-evidence
+          cp /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json successor7-trusted-service-evidence/
+          cp /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate_build.json successor7-trusted-service-evidence/
+          cp /opt/v24-v6-trusted-runtime/bootstrap/v24-v6-successor7-trusted-service-bootstrap-v3.json successor7-trusted-service-evidence/
+          stat -c '%u:%g %a %n' \
+            /opt/v24-v6-trusted-runtime \
+            /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service \
+            /run/v24-v6-authority \
+            /run/v24-v6-authority/private \
+            /run/v24-v6-authority/service.sock \
+            > successor7-trusted-service-evidence/control-domain-stat.txt
+          cat /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor7-exact-verification
+          path: |
+            v24-v6-successor7-verification.json
+            successor7-trusted-service-evidence
+          if-no-files-found: error
