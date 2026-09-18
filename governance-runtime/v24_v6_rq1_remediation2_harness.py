@@ -189,7 +189,7 @@ print(json.dumps(x,sort_keys=True))'''
     return p
 
 def trusted_consume(mode,diag):
-    return run(["env",f"PYTHONPATH={RUNTIME}","python3",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),mode,str(diag)],timeout=30)
+    return run(["env",f"PYTHONPATH={RUNTIME}","python3",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),mode,str(diag)],user="root",timeout=30)
 
 def case_24_25(cid,out):
     mode="da1" if cid=="RQ-24" else "ncp1"; b=observe(out/f"{cid}.before.observer.json"); diag=out/f"{cid}.diagnostic.json"
