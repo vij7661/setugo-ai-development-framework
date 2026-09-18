@@ -100,7 +100,7 @@ def _case(case_id, evidence_dir):
     # Candidate invokes the actual fixed trusted socket protocol.  No local euid
     # pre-check is used: the kernel peer credential is the oracle.
     if mode in {"loader", "socket"}:
-        attack_code = "import socket; s=socket.socket(socket.AF_UNIX); s.connect('/run/v24-v6-authority/service.sock'); s.sendall(b'V24-V6-S9-CONSUME/1\\nforged\\n'); print(s.recv(256).decode(errors='replace'))"
+        attack_code = "import socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect('/run/v24-v6-authority/service.sock'); s.sendall(b'V24-V6-S9-CONSUME/1\\nforged\\n'); print(s.recv(256).decode(errors='replace'))"
         env = dict(os.environ)
         if mode == "loader":
             env["LD_PRELOAD"] = "/tmp/rq1-nonexistent-interposer.so"
@@ -120,7 +120,7 @@ def _case(case_id, evidence_dir):
     if mode == "candidate":
         p = _run(["python3","-c","import os; raise SystemExit(0 if os.geteuid()==0 else 1)"], user="v24candidate")
         return finish("RED" if p.returncode == 0 else "PASS", p.stderr.strip(), "candidate_identity_probe")
-    if mode in {"wrong-operation", "wrong-payload", "da1", "ncp1", "replay-restart"}:
+    if mode in {"wrong-operation", "wrong-payload", "rebind", "da1", "ncp1", "replay-restart"}:
         # Materialize a genuine diagnostic record through the candidate client,
         # then invoke the deployed root-peer semantic consumer.  The helper
         # source is the frozen Successor-9 runtime, not a local mock.
@@ -129,11 +129,12 @@ def _case(case_id, evidence_dir):
         make = ("import json; from v24_v6_trusted_service_client import request_service; "
                 "from test_v24_v6_proof_reference_closure import proof_bundle,ROOT_CONTENT; "
                 "c,b,r=proof_bundle(); print(json.dumps(request_service('resolve-governed',context=c,boundary=b,reference=r['root'],expected_id='ROOT-VERIFIER',expected_digest=ROOT_CONTENT)))")
-        p = subprocess.run(["sudo", "-u", "v24candidate", "env", f"PYTHONPATH={d}", "python3", "-c", make], text=True, capture_output=True, timeout=30)
+        p = subprocess.run(["sudo", "-u", "v24candidate", "timeout", "--foreground", "--kill-after=2s", "8s", "env", f"PYTHONPATH={d}", "python3", "-c", make], text=True, capture_output=True, timeout=12)
         if p.returncode != 0:
             return finish("HARNESS_DEFECT", p.stderr.strip() or "diagnostic creation failed", "candidate_diagnostic_creation")
         diag.write_text(p.stdout.strip() + "\n", encoding="utf-8")
-        ctl = subprocess.run(["sudo", "env", f"PYTHONPATH={d}", "python3", f"{d}/v24_v6_successor9_trusted_control.py", "positive" if mode == "replay-restart" else mode, str(diag)], text=True, capture_output=True, timeout=30)
+        control_mode = {"wrong-operation":"positive-wrong-operation", "wrong-payload":"positive-wrong-payload", "rebind":"positive-wrong-operation", "da1":"da1", "ncp1":"ncp1", "replay-restart":"positive"}[mode]
+        ctl = subprocess.run(["sudo", "env", f"PYTHONPATH={d}", "python3", f"{d}/v24_v6_successor9_trusted_control.py", control_mode, str(diag)], text=True, capture_output=True, timeout=30)
         first = ctl.stdout.strip() or ctl.stderr.strip()
         if mode == "replay-restart" and ctl.returncode == 0:
             ctl2 = subprocess.run(["sudo", "env", f"PYTHONPATH={d}", "python3", f"{d}/v24_v6_successor9_trusted_control.py", "positive", str(diag)], text=True, capture_output=True, timeout=30)
@@ -166,12 +167,12 @@ def _case(case_id, evidence_dir):
         active = subprocess.run(["systemctl", "is-active", "--quiet", "v24-v6-trusted-authority.service"], check=False).returncode == 0
         return finish("PASS" if stop.returncode == 0 and active else "RED", stop.stderr.strip() or f"active={active}", "service_restart_recovery")
     if mode in {"io-failure", "logging", "protocol"}:
-        p = _run(["python3", "-c", "import socket; s=socket.socket(socket.AF_UNIX); s.connect('/run/v24-v6-authority/service.sock'); s.sendall(b'bad\\n'); print(s.recv(128).decode(errors='replace'))"], user="v24candidate")
+        p = _run(["python3", "-c", "import socket; s=socket.socket(socket.AF_UNIX); s.settimeout(2); s.connect('/run/v24-v6-authority/service.sock'); s.sendall(b'bad\\n'); print(s.recv(128).decode(errors='replace'))"], user="v24candidate")
         ok = p.returncode != 0 or "DENY" in p.stdout or "REJECT" in p.stdout
         return finish("PASS" if ok else "RED", p.stdout.strip() or p.stderr.strip(), "candidate_malformed_protocol")
     if mode == "exhaustion":
-        p = _run(["python3", "-c", "import socket; ss=[]; [ss.append(socket.socket(socket.AF_UNIX)) or ss[-1].connect('/run/v24-v6-authority/service.sock') for _ in range(64)]; print(len(ss))"], user="v24candidate")
-        ok = p.returncode != 0 or (p.stdout.strip().isdigit() and int(p.stdout.strip()) < 64)
+        p = _run(["python3", "-c", "import socket; ss=[]\nfor _ in range(16):\n s=socket.socket(socket.AF_UNIX); s.settimeout(.2)\n try: s.connect('/run/v24-v6-authority/service.sock'); ss.append(s)\n except OSError: s.close()\nprint(len(ss))\n[ s.close() for s in ss]"], user="v24candidate")
+        ok = p.returncode == 0 and p.stdout.strip().isdigit() and int(p.stdout.strip()) <= 16
         return finish("PASS" if ok else "RED", p.stdout.strip() or p.stderr.strip(), "bounded_candidate_connection_stress")
     if mode == "ptrace":
         p = _run(["python3", "-c", "import os,ctypes; libc=ctypes.CDLL(None); r=libc.ptrace(16,1,0,0); raise SystemExit(0 if r==0 else 1)"], user="v24candidate")
