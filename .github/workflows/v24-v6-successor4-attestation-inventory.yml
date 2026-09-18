@@ -1,0 +1,45 @@
+name: V24 V6 Successor-4 Attestation Inventory
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-successor4-root-attestation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+      - name: Exercise deterministic V6 construction fixtures
+        working-directory: governance-runtime
+        env:
+          V24_V6_ATTESTATION_INVENTORY_DIR: ${{ runner.temp }}/v24-v6-attestation-inventory
+        run: |
+          set -euo pipefail
+          mv test_v24_v6_successor4_external_anchor_red.py "${RUNNER_TEMP}/"
+          python -m unittest discover -v -p 'test_v24_v6_*.py'
+      - name: Build unsigned inventory manifest
+        env:
+          INVENTORY_DIR: ${{ runner.temp }}/v24-v6-attestation-inventory
+        run: |
+          set -euo pipefail
+          test -d "${INVENTORY_DIR}"
+          find "${INVENTORY_DIR}" -maxdepth 1 -type f -name '*.json' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum > "${INVENTORY_DIR}/SHA256SUMS"
+          find "${INVENTORY_DIR}" -maxdepth 1 -type f -name '*.json' | wc -l \
+            | tr -d ' ' > "${INVENTORY_DIR}/CONTEXT_COUNT"
+      - name: Upload unsigned attestation inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor4-unsigned-attestation-inventory
+          path: ${{ runner.temp }}/v24-v6-attestation-inventory
+          if-no-files-found: error
+          retention-days: 14
