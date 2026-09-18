@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "record_type": "FINAL_MACHINE_RUNTIME_BINDING",
+  "subject_phase": "V24-I11-V6-RUNTIME-QUALIFICATION-1",
+  "source_nomination_correction": "V24-I11-V6-RUNTIME-QUALIFICATION-1-HUMAN-NOMINATION-CORRECTION-20260919.json",
+  "instance_id": "i-05063c49c656d01ad",
+  "source_launch_ami_id": "ami-03f1d2b3639314198",
+  "frozen_pre_subject_baseline_ami_id": "ami-0990d6cd071996c3c",
+  "frozen_pre_subject_baseline_snapshot_id": "snap-02073dd5c4e924a8f",
+  "final_post_subject_ami_id": "ami-0e39abbdfe052ad85",
+  "final_post_subject_snapshot_id": "snap-005032959f20da09c",
+  "root_ebs_volume_id": "vol-0c603626c752512ff",
+  "immutable_host_baseline_evidence_sha256": "5043ff944f514f9775f2dafe14b86728f2b4dadaa54e51bb841c915d9a4cf536",
+  "mount_options_digest": "ed527c22cba570d5aec4068ac5b2a54d732ff7db24208e5a321dc0773b0aadb6",
+  "runtime_artifacts": {
+    "service_sha256": "a9567ea1677456949e79bb64c06c6880426afcaaaa5235e5579ca3e62e7b021d",
+    "service_build_input_sha256": "b74631643c529e26264be7aa56f1df278749aea7f61326e0d18f47c6fc82a0fc",
+    "gate_sha256": "7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069",
+    "gate_build_input_sha256": "b0f0b0f91c88b1746d6bffa7d3b4955aa6f494cc525de45d7435582dfb77f1b9",
+    "bootstrap_commit_sha": "af3ab8ab846119292a1b3a36fca5d0cc2c71b1ee",
+    "bootstrap_tree_sha": "fc063773b077c855cf34eebf28c886ee496d3fe9",
+    "dependency_hashes": {
+      "libc.so.6": "3a15d66867d83762c7f2f1e37359cb8f6c5743edb369c65285cb0b1c4f7498bf",
+      "libcrypto.so.3": "6a66c3ba6b3749aacc9497973fff00f6ba61c703ba7015d0d7ab3fd9510974b6"
+    }
+  },
+  "independent_final_reviewer": null,
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "rq_execution_authorized": false
+}
