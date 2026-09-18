@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-5 — External Authority Gate Repair Design
 
-Status: **PREREGISTERED AFTER SUCCESSOR-4 MANUAL REVIEW / RED EXECUTION PENDING**
+Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-5 RED / IMPLEMENTATION NOT YET QUALIFIED**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -29,7 +29,20 @@ from v24_v6_root_attestation import validate_root_attestation
 
 A same-process caller can replace that module-global function before invoking a proof resolver. The structurally valid attacker context already preserved from Successor-4's predecessor attack can then reach the normal resolver path.
 
-The first Successor-5 regression MUST attempt this exact substitution against production code and remain permanently frozen after it is observed RED.
+The first Successor-5 regression attempted this exact substitution against production code and is now permanently preserved RED.
+
+Preserved Successor-5 RED:
+- branch head tested: `2531bd4f619a4c2d4c57cc44369a063fe1c92acd`
+- workflow: `V24 V6 Successor-5 Mutable Verifier RED`
+- workflow run: `35326754734`
+- job: `105541474606`
+- test: `test_same_process_imported_verifier_substitution_cannot_self_grant`
+- compile step: `GREEN`
+- attack regression: `RED`
+- observed result: `qualified=True`, `state=PROOF_REFERENCE_CLOSED`, `problems=[]`
+- observed forged reference digest: `aa33564e090c903d68d4189c5ffe75ee86d2671c0193ae73dc940d6e344fab84`
+
+This is a genuine mechanism defect. It is not a fixture defect and MUST NOT be relabeled as PASS.
 
 ## 3. Root cause
 
