@@ -1,0 +1,337 @@
+name: V24 V6 Successor-6 Exact Final Head
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-successor6-trusted-control-domain
+    paths:
+      - '.github/workflows/v24-v6-successor6-final-head.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-final-head:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: implementation/v24-i11-v6-successor6-trusted-control-domain
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Capture exact candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CANDIDATE_TREE=$(git rev-parse HEAD^{tree})" >> "$GITHUB_ENV"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Verify exact external construction trust artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          TRUST_COMMIT='2515582a5e2f0e1041bf5cc83523ffa732620724'
+          TRUST_TREE='1c2a1d0f60d3e2a62a2355831dc46f76ff72df7e'
+          PUBLIC_BLOB='7722a5725324fb805283bce9764b2d151a774ec2'
+          SIGNATURE_BLOB='b16e2a2bfac013e6e600cf9944595a88eefd2ca8'
+          CEREMONY_BLOB='cc2d8bec17b6775392094920f9549ca2e5174d44'
+
+          git fetch --no-tags --depth=1 origin "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD)" = "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD^{tree})" = "$TRUST_TREE"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-construction-root-attestation-v3.json | awk '{print $3}')" = "$PUBLIC_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-construction-context-signatures-v3.json | awk '{print $3}')" = "$SIGNATURE_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-construction-signing-ceremony-v3.json | awk '{print $3}')" = "$CEREMONY_BLOB"
+          test "$(git hash-object governance-runtime/fixtures/v24-v6-construction-root-attestation-v3.json)" = "$PUBLIC_BLOB"
+          test "$(git hash-object governance-runtime/fixtures/v24-v6-construction-context-signatures-v3.json)" = "$SIGNATURE_BLOB"
+
+      - name: Assert native build and control-domain dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          command -v sudo
+          test -x /usr/bin/python3
+          openssl version
+          jq --version
+          /usr/bin/python3 --version
+
+      - name: Compile complete Successor-6 production surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_external_gate_worker.py \
+            v24_v6_governance_foundation.py \
+            v24_v6_root_attestation.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_endpoint_projection.py \
+            v24_v6_material_surface.py \
+            v24_v6_decision_apply.py \
+            v24_v6_normative_clause_projection.py \
+            v24_v6_effect_ledger_closure.py \
+            v24_v6_atomic_binding_modes.py \
+            v24_v6_qualification_integrity.py \
+            v24_v6_integrated_successor.py \
+            v24_endpoint_proof_compiler.py \
+            normative_control_catalog.py \
+            test_v24_v6_successor6_trusted_control_domain.py \
+            test_v24_v6_successor5_external_authority_gate.py
+
+      - name: Build exact native authority gate
+        run: bash governance-runtime/build_v24_v6_external_authority_gate.sh
+
+      - name: Prove tampered gate binary cannot be trusted-installed
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/v24-tampered-runtime
+          cp -a governance-runtime /tmp/v24-tampered-runtime
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/v24-tampered-runtime/.gate-build/v24_v6_external_authority_gate')
+          p.chmod(0o755)
+          data=bytearray(p.read_bytes())
+          data[len(data)//2] ^= 1
+          p.write_bytes(data)
+          PY
+          if sudo env V24_V6_TRUSTED_ROOT=/opt/v24-v6-tampered \
+              bash /tmp/v24-tampered-runtime/install_v24_v6_trusted_authority_gate.sh; then
+            echo "tampered gate unexpectedly installed"
+            exit 1
+          fi
+          sudo rm -rf /opt/v24-v6-tampered /tmp/v24-tampered-runtime
+
+      - name: Install exact root-owned trusted runtime
+        run: sudo bash governance-runtime/install_v24_v6_trusted_authority_gate.sh
+
+      - name: Create unprivileged candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Stage root-owned read-only candidate test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-runtime
+          sudo cp -a governance-runtime /tmp/v24candidate-runtime
+          sudo chown -R root:root /tmp/v24candidate-runtime
+          sudo find /tmp/v24candidate-runtime -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-runtime -type f -exec chmod 0444 {} +
+
+      - name: Run Successor-6 and predecessor authority regressions as candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"
+          cd /tmp/v24candidate-runtime
+          sudo -u v24candidate -- env \
+            V24_V6_TRUSTED_ROOT=/opt/v24-v6-trusted-runtime \
+            V24_V6_TRUSTED_GATE_PATH=/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-runtime \
+            "$PY" -m unittest -v \
+              test_v24_v6_successor6_trusted_control_domain.py \
+              test_v24_v6_successor5_external_authority_gate.py \
+              test_v24_v6_successor4_root_attestation.py \
+              test_v24_v6_successor4_external_anchor_red.py
+
+      - name: Run complete V24-V6 R1-R9 regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_v24_v6_governance_foundation.py \
+            test_v24_v6_proof_reference_closure.py \
+            test_v24_v6_proof_resolution_red.py \
+            test_v24_v6_endpoint_projection.py \
+            test_v24_v6_material_surface.py \
+            test_v24_v6_decision_apply.py \
+            test_v24_v6_normative_clause_projection.py \
+            test_v24_v6_effect_ledger_closure.py \
+            test_v24_v6_atomic_binding_modes.py \
+            test_v24_v6_qualification_integrity.py \
+            test_v24_v6_integrated_successor.py \
+            test_v24_v6_integrated_successor_dependency_red.py
+
+      - name: Run inherited V24 construction regressions
+        working-directory: governance-runtime
+        run: |
+          python -m unittest -v \
+            test_normative_control_catalog.py \
+            test_v24_authority_universe.py \
+            test_v24_effective_control.py \
+            test_v24_completeness_bootstrap.py \
+            test_v24_endpoint_proof_compiler.py \
+            test_v24_admission_application_witness.py \
+            test_v24_aggregate_budget.py \
+            test_v24_generation_migration.py \
+            test_v24_review_proof_audit.py
+
+      - name: Assert preserved RED and construction-only boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -n '35333023688' implementation/v24/V24-I11-V6-SUCCESSOR-6-CONTROL-DOMAIN-REPAIR-DESIGN.md
+          grep -n '35333023688' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n '35334689053' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n 'SAME_USER_GATE_EXECUTABLE_REPLACEMENT_REJECTED' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n 'GATE_PARENT_DIRECTORY_RENAME_UNLINK_REPLACEMENT_REJECTED' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n 'PINNED_SOURCE_POST_MEASUREMENT_SUBSTITUTION_REJECTED' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n 'CALLER_SELECTED_GATE_PATH_REJECTED' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n 'LIVE_GATE_DIGEST_MISMATCH_REJECTED' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+          grep -n 'TRUSTED_GATE_POSITIVE' implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json
+
+          if grep -R -n -E 'BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' governance-runtime implementation/v24; then
+            echo 'Private signing key material found in candidate surface.'
+            exit 1
+          fi
+
+      - name: Generate exact Successor-6 verification report
+        working-directory: governance-runtime
+        env:
+          CANDIDATE_COMMIT: ${{ env.CANDIDATE_COMMIT }}
+          CANDIDATE_TREE: ${{ env.CANDIDATE_TREE }}
+          GITHUB_RUN_ID_VALUE: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json, os, stat
+          from pathlib import Path
+          import v24_v6_integrated_successor as r9
+          import v24_v6_root_attestation as root
+
+          repo = Path('..').resolve()
+          trusted = Path('/opt/v24-v6-trusted-runtime')
+          manifest = json.loads(
+              (repo / 'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json').read_text(encoding='utf-8')
+          )
+          result = r9.validate_integrated_successor_manifest(repo_root=repo, manifest=manifest)
+          build = json.loads(
+              (trusted / '.gate-build/v24_v6_external_authority_gate_build.json').read_text(encoding='utf-8')
+          )
+
+          assert result['integration_valid'], result['problems']
+          assert result['qualified'] is False
+          assert result['bound_file_count'] == 16 + len(r9.EXPECTED_SHARED_PRODUCTION_DEPENDENCIES)
+          assert result['bound_file_count'] == 26
+          assert result['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert result['scientific_execution_state'] == r9.SCIENTIFIC_EXECUTION_CLOSED
+          assert manifest['candidate_family_id'] == 'V24-I11-V6-INTEGRATED-SUCCESSOR-6'
+
+          gate = manifest['successor6_trusted_control_domain']
+          assert gate['preserved_red_run_id'] == '35333023688'
+          assert gate['predecessor_successor5_review_commit'] == '47f55b1be51a35980cc720e676686addc04beb00'
+          assert gate['gate_id'] == 'V24-V6-EXTERNAL-AUTHORITY-GATE'
+          assert gate['gate_version'] == '1'
+          assert gate['construction_state'] == 'READY_FOR_EXACT_FINAL_HEAD'
+          assert gate['runtime_qualification_state'] == 'NOT_CLAIMED'
+          assert gate['authority_effect'] == 'NONE_EVIDENCE_ONLY'
+          assert build['build_input_sha256'] == gate['build_input_sha256']
+          assert build['binary_sha256'] == gate['gate_binary_sha256']
+
+          for p in (
+              trusted,
+              trusted / '.gate-build',
+              trusted / '.gate-build/v24_v6_external_authority_gate',
+              trusted / 'v24_v6_external_gate_worker.py',
+          ):
+              st = p.stat()
+              assert st.st_uid == 0, (p, st.st_uid)
+              assert (st.st_mode & 0o222) == 0, (p, oct(st.st_mode))
+
+          trust = manifest['successor4_root_attestation']
+          assert trust['trust_commit_sha'] == root.TRUST_COMMIT_SHA
+          assert trust['public_artifact_source_blob_sha'] == root.TRUST_PUBLIC_ARTIFACT_BLOB_SHA
+          assert trust['signature_bundle_source_blob_sha'] == root.TRUST_SIGNATURE_BUNDLE_BLOB_SHA
+          assert trust['signing_ceremony_source_blob_sha'] == root.TRUST_CEREMONY_BLOB_SHA
+
+          required = {
+              'SAME_USER_GATE_EXECUTABLE_REPLACEMENT_REJECTED',
+              'GATE_PARENT_DIRECTORY_RENAME_UNLINK_REPLACEMENT_REJECTED',
+              'PINNED_SOURCE_POST_MEASUREMENT_SUBSTITUTION_REJECTED',
+              'CALLER_SELECTED_GATE_PATH_REJECTED',
+              'LIVE_GATE_DIGEST_MISMATCH_REJECTED',
+              'TRUSTED_GATE_POSITIVE',
+              'SAME_PROCESS_IMPORTED_VERIFIER_SUBSTITUTION_REJECTED',
+              'SAME_PROCESS_ROOT_KEY_SUBSTITUTION_REJECTED',
+              'SAME_PROCESS_RSA_HELPER_SUBSTITUTION_REJECTED',
+              'DIRECT_PYTHON_QUALIFIED_IS_NONAUTHORITATIVE',
+              'DA1_FRESH_EFFECT_PATH_SELF_GRANT_REJECTED',
+              'NCP1_FRESH_CLAUSE_CONTROL_SELF_GRANT_REJECTED',
+          }
+          assert required.issubset(set(manifest['mandatory_v6_adversarial_checks']))
+
+          report = {
+              'schema_version': 6,
+              'candidate_family_id': manifest['candidate_family_id'],
+              'candidate_commit': os.environ['CANDIDATE_COMMIT'],
+              'candidate_tree': os.environ['CANDIDATE_TREE'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID_VALUE'],
+              'integration_binding_digest': result['binding_digest'],
+              'bound_file_count': result['bound_file_count'],
+              'bound_files': result['bound_files'],
+              'predecessor_successor5_review_disposition': 'CHANGES_REQUIRED',
+              'predecessor_successor5_review_commit': gate['predecessor_successor5_review_commit'],
+              'preserved_successor6_red_run_id': gate['preserved_red_run_id'],
+              'successor6_all_up_run_id': gate['all_up_run_id'],
+              'manifest_bound_all_up_run_id': '35335100210',
+              'gate_id': gate['gate_id'],
+              'gate_version': gate['gate_version'],
+              'trusted_root': gate['trusted_root'],
+              'candidate_os_identity': gate['candidate_os_identity'],
+              'gate_build_input_sha256': build['build_input_sha256'],
+              'gate_binary_sha256': build['binary_sha256'],
+              'trust_branch': root.TRUST_BRANCH,
+              'trust_commit_sha': root.TRUST_COMMIT_SHA,
+              'trust_public_artifact_blob_sha': root.TRUST_PUBLIC_ARTIFACT_BLOB_SHA,
+              'trust_signature_bundle_blob_sha': root.TRUST_SIGNATURE_BUNDLE_BLOB_SHA,
+              'trust_ceremony_blob_sha': root.TRUST_CEREMONY_BLOB_SHA,
+              'scientific_execution_state': result['scientific_execution_state'],
+              'runtime_qualification_state': 'NOT_CLAIMED',
+              'successor_review_state': 'REQUIRED_MANUAL_INDEPENDENT_REVIEW',
+              'authority_effect': result['authority_effect'],
+          }
+          out = repo / 'v24-v6-successor6-verification.json'
+          out.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(out.read_text())
+          PY
+
+      - name: Prepare exact trusted-runtime evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p successor6-final-evidence
+          cp /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+             successor6-final-evidence/
+          cp /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate_build.json \
+             successor6-final-evidence/
+          stat -c '%u:%g %a %n' \
+            /opt/v24-v6-trusted-runtime \
+            /opt/v24-v6-trusted-runtime/.gate-build \
+            /opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate \
+            /opt/v24-v6-trusted-runtime/v24_v6_external_gate_worker.py \
+            > successor6-final-evidence/control-domain-stat.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor6-exact-verification
+          path: |
+            v24-v6-successor6-verification.json
+            successor6-final-evidence
+          if-no-files-found: error
