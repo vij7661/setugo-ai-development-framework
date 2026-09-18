@@ -340,8 +340,22 @@
     "gate_binary_sha256": "7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069",
     "service_build_input_sha256": "a30bc2742d0eb730b4340e852879884a15e71f8422742c4501eac4beb041e746",
     "service_binary_sha256": "77a6f8c68a16fc4277c087d68a4338664106f232cf538459707e22af8b3c1124",
-    "construction_state": "IMPLEMENTED_PENDING_INTEGRATED_ALL_UP",
+    "construction_state": "READY_FOR_EXACT_FINAL_HEAD",
     "runtime_qualification_state": "NOT_CLAIMED",
-    "authority_effect": "NONE_EVIDENCE_ONLY"
+    "authority_effect": "NONE_EVIDENCE_ONLY",
+    "all_up_run_id": "35345347709",
+    "all_up_job_id": "105600496279",
+    "all_up_head_sha": "80acbe828484004a3337badfef3e24f7dd7dcf1e",
+    "security_regression_count": 48,
+    "r1_r9_regression_count": 199,
+    "inherited_v24_regression_count": 90,
+    "total_all_up_test_count": 337,
+    "evidence_artifact_id": "10546499394",
+    "evidence_artifact_digest": "sha256:4b6a86258146319ee6b0a915237833d77c7ed28a21779078cf679ac34cc272ad",
+    "namespace_policy": "BLOCKED_LOAD_BEARING",
+    "namespace_falsification_run_id": "35345014849",
+    "namespace_falsification_result": "UNPRIVILEGED_USER_NAMESPACE_BLOCKED",
+    "harness_failure_run_id": "35345236566",
+    "harness_failure_classification": "TEST_HARNESS_EXPECTATION_DEFECT"
   }
 }
