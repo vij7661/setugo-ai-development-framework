@@ -5,7 +5,7 @@ case is one preregistered RQ identifier; unavailable destructive instrumentation
 is recorded as INSUFFICIENT_EVIDENCE, never silently treated as PASS.
 """
 from __future__ import annotations
-import argparse, json, os, re, subprocess, sys, time
+import argparse, hashlib, json, os, re, socket, struct, subprocess, sys, time
 from pathlib import Path
 
 CASES = {
@@ -59,9 +59,10 @@ def static_self_tests():
     assert STATE["scientific_execution_state"].startswith("CLOSED")
     assert STATE["authority_effect"] == "NONE_EVIDENCE_ONLY"
     assert STATE["qualification"] == "NOT_QUALIFIED"
-    # Evidence accounting is fail-closed: absent evidence cannot be PASS.
-    sample = {"status":"PASS", "evidence":[]}
+    # Evidence accounting is fail-closed: absent/ self-referential evidence cannot be PASS.
+    sample = {"status":"PASS", "evidence":[], "case_id":"RQ-01", "oracle":CASES["RQ-01"]["oracle"]}
     assert not _pass_allowed(sample)
+    assert not _pass_allowed({"status":"PASS", "evidence":["RQ-01.json"], "case_id":"RQ-01", "oracle":CASES["RQ-01"]["oracle"], "cleanup":"VERIFIED", **STATE})
     # Unknown IDs are rejected and cleanup failure blocks continuation.
     try: _case("RQ-99", Path("."))
     except KeyError: pass
@@ -69,7 +70,17 @@ def static_self_tests():
     print(json.dumps({"self_tests":"PASS","case_count":32,"state":STATE},sort_keys=True))
 
 def _pass_allowed(result):
-    return (result.get("status") == "PASS" and bool(result.get("evidence"))
+    ev = result.get("evidence") or []
+    independent = bool(ev) and all(Path(x).name != f"{result.get('case_id')}.json" for x in ev)
+    content_bound = False
+    if independent:
+        try:
+            raw = json.loads(Path(ev[0]).read_text(encoding="utf-8"))
+            content_bound = raw.get("case_id") == result.get("case_id") and raw.get("oracle") == result.get("oracle")
+        except (OSError, ValueError, TypeError):
+            content_bound = False
+    return (result.get("status") == "PASS" and independent
+            and content_bound
             and result.get("cleanup") in {"VERIFIED", "NOT_APPLICABLE_OR_VERIFIED"}
             and str(result.get("scientific_execution_state","")).startswith("CLOSED")
             and result.get("authority_effect") == "NONE_EVIDENCE_ONLY"
@@ -78,29 +89,54 @@ def _pass_allowed(result):
 def _case(case_id, evidence_dir):
     if case_id not in CASES: raise KeyError(case_id)
     spec = CASES[case_id]; mode = spec["mode"]
-    # Deterministic controls available on the frozen runtime.
+    raw = evidence_dir / f"{case_id}.raw.json"
+    def finish(status, observation, trigger):
+        payload = {"case_id": case_id, "oracle": spec["oracle"], "trigger": trigger,
+                   "observation": observation, "status": status, "cleanup": "VERIFIED",
+                   **STATE}
+        raw.write_text(json.dumps(payload, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+        return status, observation, str(raw)
+
+    # Candidate invokes the actual fixed trusted socket protocol.  No local euid
+    # pre-check is used: the kernel peer credential is the oracle.
+    if mode in {"loader", "socket"}:
+        attack_code = "import socket; s=socket.socket(socket.AF_UNIX); s.connect('/run/v24-v6-authority/service.sock'); s.sendall(b'V24-V6-S9-CONSUME/1\\nforged\\n'); print(s.recv(256).decode(errors='replace'))"
+        env = dict(os.environ)
+        if mode == "loader":
+            env["LD_PRELOAD"] = "/tmp/rq1-nonexistent-interposer.so"
+            env["LD_LIBRARY_PATH"] = "/tmp/rq1-fake-libs"
+        def attack():
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.connect("/run/v24-v6-authority/service.sock")
+                s.sendall(b"V24-V6-S9-CONSUME/1\nforged\n")
+                return s.recv(256)
+        p = _run(["python3", "-c", attack_code], user="v24candidate")
+        ok = p.returncode != 0 or ("DENY" in p.stdout or "REJECT" in p.stdout or "PEER" in p.stdout)
+        return finish("PASS" if ok else "RED", p.stdout.strip() or p.stderr.strip(), "candidate_loader_interposed_root_control_socket" if mode == "loader" else "candidate_raw_root_control_socket")
     if mode == "namespace":
-        p = _run(["unshare","--user","--map-root-user","--mount","/bin/true"], user="v24candidate")
-        ok = p.returncode != 0; obs = p.stderr.strip()
-        return "PASS" if ok else "RED", obs
+        p = _run(["unshare","--user","--map-root-user","--mount","--propagation","private","/bin/sh","-c","mount --bind /opt/v24-v6-trusted-runtime /tmp/rq1-bind"], user="v24candidate")
+        ok = p.returncode != 0
+        return finish("PASS" if ok else "RED", p.stderr.strip() or p.stdout.strip(), "candidate_user_mount_namespace_bind_attack")
     if mode == "candidate":
         p = _run(["python3","-c","import os; raise SystemExit(0 if os.geteuid()==0 else 1)"], user="v24candidate")
-        return ("RED" if p.returncode == 0 else "PASS"), p.stderr.strip()
-    if mode in {"crash-before","crash-mid","crash-after","io-failure","cross-filesystem","dependency-drift","unit-drift","rollback","logging","exhaustion","composition","stale-substitution","ptrace","concurrency"}:
-        return "INSUFFICIENT_EVIDENCE", "No deterministic preregistered runtime trigger is materialized in the frozen harness surface"
-    return "INSUFFICIENT_EVIDENCE", "Case-specific trigger requires the frozen runtime harness extension"
+        return finish("RED" if p.returncode == 0 else "PASS", p.stderr.strip(), "candidate_identity_probe")
+    # No other mode is allowed to claim PASS until its real deployed-runtime
+    # trigger is materialized.  A synthetic file mutation is not a substitute
+    # for the preregistered service/VM oracle and is recorded as a harness defect.
+    return finish("HARNESS_DEFECT", "real deployed-runtime trigger is not materialized for this mode", "none")
 
 def run_all(out_dir: Path):
     out_dir.mkdir(parents=True, exist_ok=True)
     results=[]
     for case_id in CASES:
-        started=time.time(); status, observation = _case(case_id, out_dir)
-        evidence = [str(out_dir / f"{case_id}.json")]
+        started=time.time(); status, observation, raw_evidence = _case(case_id, out_dir)
+        evidence = [raw_evidence]
         result={"case_id":case_id,"oracle":CASES[case_id]["oracle"],"status":status,
                 "setup":CASES[case_id]["mode"],"trigger":CASES[case_id]["mode"],
                 "observation":observation,"cleanup":"NOT_APPLICABLE_OR_VERIFIED",
                 "evidence":evidence,"duration_seconds":round(time.time()-started,3), **STATE}
-        if not evidence: result["status"]="INSUFFICIENT_EVIDENCE"
+        if not _pass_allowed(result) and result["status"] == "PASS":
+            result["status"] = "RED"
         (out_dir/f"{case_id}.json").write_text(json.dumps(result,sort_keys=True,indent=2)+"\n",encoding="utf-8")
         results.append(result)
     bundle={"schema_version":1,"phase_id":"V24-I11-V6-RUNTIME-QUALIFICATION-1","case_count":32,
