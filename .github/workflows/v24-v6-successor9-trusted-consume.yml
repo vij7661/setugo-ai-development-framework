@@ -1,0 +1,255 @@
+name: V24 V6 Successor-9 Trusted Semantic Consume
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-9
+    paths:
+      - '.github/workflows/v24-v6-successor9-trusted-consume.yml'
+      - 'governance-runtime/native/v24_v6_trusted_authority_service.c'
+      - 'governance-runtime/build_v24_v6_trusted_authority_service.sh'
+      - 'governance-runtime/v24_v6_trusted_service_client.py'
+      - 'governance-runtime/v24_v6_successor8_record_probe.py'
+      - 'governance-runtime/v24_v6_successor9_trusted_control.py'
+      - 'governance-runtime/test_v24_v6_successor9_consume_loader_red.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-semantic-consume:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Assert construction dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          command -v sudo
+          command -v unshare
+          test -x /usr/bin/python3
+
+      - name: Create fixed candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Compile Successor-9 surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_trusted_service_client.py \
+            v24_v6_successor8_record_probe.py \
+            v24_v6_successor9_trusted_control.py \
+            test_v24_v6_successor9_consume_loader_red.py
+
+      - name: Build gate and service
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash governance-runtime/build_v24_v6_external_authority_gate.sh
+          bash governance-runtime/build_v24_v6_trusted_authority_service.sh
+
+      - name: Install provisional root-owned trusted runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=governance-runtime
+          T=/opt/v24-v6-trusted-runtime
+          sudo rm -rf "$T"
+          sudo install -d -o root -g root -m 0755 "$T"
+          sudo install -d -o root -g root -m 0755 "$T/.gate-build"
+          for name in \
+            v24_v6_external_gate_worker.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_root_attestation.py \
+            v24_v6_governance_foundation.py \
+            v24_v6_decision_apply.py \
+            v24_v6_material_surface.py \
+            v24_v6_normative_clause_projection.py \
+            normative_control_catalog.py; do
+            sudo install -o root -g root -m 0444 "$R/$name" "$T/$name"
+          done
+          sudo install -o root -g root -m 0555 \
+            "$R/.gate-build/v24_v6_external_authority_gate" \
+            "$T/.gate-build/v24_v6_external_authority_gate"
+          sudo install -o root -g root -m 0555 \
+            "$R/.service-build/v24_v6_trusted_authority_service" \
+            "$T/v24_v6_trusted_authority_service"
+          sudo chown -R root:root "$T"
+          sudo chmod 0555 "$T" "$T/.gate-build"
+          "$T/.gate-build/v24_v6_external_authority_gate" --identity
+          "$T/v24_v6_trusted_authority_service" --identity
+
+      - name: Start separately controlled trusted service
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /run/v24-v6-authority
+          sudo env -i PATH=/usr/bin:/bin LC_ALL=C.UTF-8 \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service --serve \
+            >/tmp/v24-v6-successor9-service.log 2>&1 &
+          for i in $(seq 1 50); do
+            test -S /run/v24-v6-authority/service.sock && break
+            sleep 0.1
+          done
+          test -S /run/v24-v6-authority/service.sock
+          test "$(stat -c '%u' /run/v24-v6-authority/service.sock)" = "0"
+          test "$(sudo stat -c '%a' /run/v24-v6-authority/private)" = "700"
+
+      - name: Preserve load-bearing namespace prohibition
+        shell: bash
+        run: |
+          set -euo pipefail
+          if sudo -u v24candidate -- unshare --user --map-root-user --mount /bin/true 2>/dev/null; then
+            echo "unprivileged namespace unexpectedly available"
+            exit 1
+          fi
+
+      - name: Stage read-only candidate test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-successor9
+          sudo cp -a governance-runtime /tmp/v24candidate-successor9
+          sudo chown -R root:root /tmp/v24candidate-successor9
+          sudo find /tmp/v24candidate-successor9 -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-successor9 -type f -exec chmod 0444 {} +
+
+      - name: Direct candidate consume remains non-authoritative
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor9
+          sudo -u v24candidate -- env \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-successor9 \
+            /usr/bin/python3 -m unittest -v test_v24_v6_successor9_consume_loader_red.py
+
+      - name: Candidate cannot use trusted consume protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor9
+          if sudo -u v24candidate -- env \
+              PYTHONDONTWRITEBYTECODE=1 \
+              PYTHONPATH=/tmp/v24candidate-successor9 \
+              /usr/bin/python3 v24_v6_successor9_trusted_control.py \
+              positive /tmp/nonexistent.json; then
+            echo "candidate unexpectedly invoked trusted consume harness"
+            exit 1
+          fi
+
+      - name: Produce genuine diagnostic records as candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor9
+          for mode in positive da1 ncp1; do
+            sudo -u v24candidate -- env \
+              PYTHONDONTWRITEBYTECODE=1 \
+              PYTHONPATH=/tmp/v24candidate-successor9 \
+              /usr/bin/python3 v24_v6_successor8_record_probe.py "$mode" \
+              > "/tmp/s9-$mode.json"
+          done
+          test "$(jq -r '.decision' /tmp/s9-positive.json)" = "ALLOW"
+          test "$(jq -r '.decision' /tmp/s9-da1.json)" = "DENY"
+          test "$(jq -r '.decision' /tmp/s9-ncp1.json)" = "DENY"
+
+      - name: Reject genuine ALLOW record rebound to another operation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          if sudo env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD" \
+              /usr/bin/python3 v24_v6_successor9_trusted_control.py \
+              positive-wrong-operation /tmp/s9-positive.json \
+              > /tmp/s9-wrong-operation.json; then
+            echo "cross-operation ALLOW substitution unexpectedly succeeded"
+            exit 1
+          fi
+          test "$(jq -r '.decision' /tmp/s9-wrong-operation.json)" = "DENY"
+          test "$(jq -r '.reason' /tmp/s9-wrong-operation.json)" = "AUTHORITY_RECORD_BINDING_INVALID"
+
+      - name: Reject genuine ALLOW record rebound to another payload effect
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          if sudo env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD" \
+              /usr/bin/python3 v24_v6_successor9_trusted_control.py \
+              positive-wrong-payload /tmp/s9-positive.json \
+              > /tmp/s9-wrong-payload.json; then
+            echo "cross-payload ALLOW substitution unexpectedly succeeded"
+            exit 1
+          fi
+          test "$(jq -r '.decision' /tmp/s9-wrong-payload.json)" = "DENY"
+          test "$(jq -r '.reason' /tmp/s9-wrong-payload.json)" = "AUTHORITY_RECORD_BINDING_INVALID"
+
+      - name: Trusted in-service exact positive consume
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          sudo env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD" \
+            /usr/bin/python3 v24_v6_successor9_trusted_control.py \
+            positive /tmp/s9-positive.json > /tmp/s9-positive-consumed.json
+          test "$(jq -r '.construction_authoritative' /tmp/s9-positive-consumed.json)" = "true"
+          test "$(jq -r '.service_authoritative' /tmp/s9-positive-consumed.json)" = "true"
+          test "$(jq -r '.decision' /tmp/s9-positive-consumed.json)" = "ALLOW"
+          test "$(jq -r '.record_state' /tmp/s9-positive-consumed.json)" = "CONSUMED"
+
+      - name: One-shot replay remains rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          if sudo env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD" \
+              /usr/bin/python3 v24_v6_successor9_trusted_control.py \
+              positive /tmp/s9-positive.json > /tmp/s9-positive-replay.json; then
+            echo "trusted record replay unexpectedly succeeded"
+            exit 1
+          fi
+          test "$(jq -r '.decision' /tmp/s9-positive-replay.json)" = "DENY"
+          test "$(jq -r '.reason' /tmp/s9-positive-replay.json)" = "AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED"
+
+      - name: DA-1 and NCP-1 remain authoritative DENY
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          for mode in da1 ncp1; do
+            if sudo env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD" \
+                /usr/bin/python3 v24_v6_successor9_trusted_control.py \
+                "$mode" "/tmp/s9-$mode.json" > "/tmp/s9-$mode-consumed.json"; then
+              echo "$mode authoritative denial unexpectedly returned success"
+              exit 1
+            fi
+            test "$(jq -r '.construction_authoritative' /tmp/s9-$mode-consumed.json)" = "true"
+            test "$(jq -r '.service_authoritative' /tmp/s9-$mode-consumed.json)" = "true"
+            test "$(jq -r '.decision' /tmp/s9-$mode-consumed.json)" = "DENY"
+          done
+
+      - name: Record targeted Successor-9 identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum governance-runtime/.service-build/v24_v6_trusted_authority_service
+          cat governance-runtime/.service-build/v24_v6_trusted_authority_service_build.json
