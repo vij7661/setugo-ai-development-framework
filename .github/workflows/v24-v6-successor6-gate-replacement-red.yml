@@ -1,0 +1,33 @@
+name: V24 V6 Successor-6 Gate Replacement RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-6
+    paths:
+      - '.github/workflows/v24-v6-successor6-gate-replacement-red.yml'
+      - 'governance-runtime/test_v24_v6_successor6_gate_replacement_red.py'
+      - 'governance-runtime/build_v24_v6_external_authority_gate.sh'
+      - 'governance-runtime/native/v24_v6_external_authority_gate.c'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preserve-red:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Compile RED regression
+        working-directory: governance-runtime
+        run: python -m py_compile test_v24_v6_successor6_gate_replacement_red.py
+
+      - name: Reproduce same-user native gate replacement
+        working-directory: governance-runtime
+        run: python -m unittest -v test_v24_v6_successor6_gate_replacement_red.py
