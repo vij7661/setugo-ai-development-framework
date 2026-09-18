@@ -267,11 +267,11 @@ static bool field_value(const char *body, const char *key, char *out, size_t cap
 static int consume_record(const char *record_id, const char *expected_request_digest) {
     (void)record_id;
     (void)expected_request_digest;
-    printf("{\\\"authority_effect\\\":\\\"%s\\\",\\\"construction_authoritative\\\":false,"
-           "\\\"decision\\\":\\\"DENY\\\",\\\"diagnostic_only\\\":true,"
-           "\\\"service_authoritative\\\":false,\\\"service_id\\\":\\\"%s\\\","
-           "\\\"service_version\\\":\\\"%s\\\","
-           "\\\"reason\\\":\\\"DIRECT_CONSUMER_DEAUTHORIZED\\\"}\\n",
+    printf("{\"authority_effect\":\"%s\",\"construction_authoritative\":false,"
+           "\"decision\":\"DENY\",\"diagnostic_only\":true,"
+           "\"service_authoritative\":false,\"service_id\":\"%s\","
+           "\"service_version\":\"%s\","
+           "\"reason\":\"DIRECT_CONSUMER_DEAUTHORIZED\"}\n",
            AUTHORITY_EFFECT, SERVICE_ID, SERVICE_VERSION);
     return 1;
 }
