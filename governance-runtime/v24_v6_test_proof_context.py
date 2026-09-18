@@ -5,7 +5,9 @@ it or synthesize qualifications to make an authority decision pass.
 """
 from __future__ import annotations
 
+import json
 import os
+from pathlib import Path
 from typing import Any, Mapping
 
 from v24_v6_governance_foundation import CURRENT, QUALIFIED, digest
@@ -167,6 +169,35 @@ def _wrap(kind: str, record: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+
+def record_test_attestation_inventory(
+    context: Mapping[str, Any],
+    boundary: Mapping[str, Any],
+) -> None:
+    """Persist unsigned deterministic context material for external signing.
+
+    Inventory mode contains no signing key and grants no authority. It exists
+    only so an out-of-process signer can attest the exact construction contexts
+    later without exposing private key material to candidate/test Python.
+    """
+    directory = os.environ.get("V24_V6_ATTESTATION_INVENTORY_DIR")
+    if not directory:
+        return
+    context_digest = context.get("context_digest")
+    if not isinstance(context_digest, str) or len(context_digest) != 64:
+        raise ValueError("attestation inventory requires sealed context_digest")
+    payload = {
+        "proof_context": context,
+        "trusted_boundary": boundary,
+    }
+    root = Path(directory)
+    root.mkdir(parents=True, exist_ok=True)
+    target = root / f"{context_digest}.json"
+    target.write_text(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
 def _trusted_boundary_for_test(context: Mapping[str, Any]) -> dict[str, Any]:
     scope = context.get("genesis_trusted_scope")
     scope_digest = scope.get("scope_digest") if isinstance(scope, Mapping) else None
@@ -176,6 +207,7 @@ def _trusted_boundary_for_test(context: Mapping[str, Any]) -> dict[str, Any]:
         "expected_genesis_scope_digest": scope_digest,
     }
     os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
+    record_test_attestation_inventory(context, boundary)
     return boundary
 
 
