@@ -46,6 +46,7 @@ EXPECTED_SHARED_PRODUCTION_DEPENDENCIES = {
     "TRUSTED_AUTHORITY_SERVICE_SOURCE": "governance-runtime/native/v24_v6_trusted_authority_service.c",
     "TRUSTED_AUTHORITY_SERVICE_BUILD_SCRIPT": "governance-runtime/build_v24_v6_trusted_authority_service.sh",
     "TRUSTED_SERVICE_CLIENT": "governance-runtime/v24_v6_trusted_service_client.py",
+    "TRUSTED_SEMANTIC_CONSUME_CLIENT": "governance-runtime/v24_v6_successor9_trusted_control.py",
 }
 REQUIRED_ADVERSARIAL_CHECKS = frozenset(
     {

@@ -126,7 +126,7 @@
     {
       "dependency_id": "INTEGRATED_SUCCESSOR_VALIDATOR",
       "path": "governance-runtime/v24_v6_integrated_successor.py",
-      "git_blob_sha": "5ef7806a13380c55eb039e336f12c39faa30d759"
+      "git_blob_sha": "84897317317ddc04239a650db40593969c3897f6"
     },
     {
       "dependency_id": "NORMATIVE_CONTROL_CATALOG",
@@ -152,6 +152,11 @@
       "dependency_id": "TRUSTED_SERVICE_CLIENT",
       "path": "governance-runtime/v24_v6_trusted_service_client.py",
       "git_blob_sha": "d65160f33d3f565ddb72917d642cd0f047d2dfba"
+    },
+    {
+      "dependency_id": "TRUSTED_SEMANTIC_CONSUME_CLIENT",
+      "path": "governance-runtime/v24_v6_successor9_trusted_control.py",
+      "git_blob_sha": "5b4a73188f538fb2dee8c15b017f4987103fdbef"
     }
   ],
   "mandatory_v6_adversarial_checks": [
