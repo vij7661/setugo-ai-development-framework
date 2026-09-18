@@ -234,17 +234,31 @@ jobs:
         working-directory: governance-runtime
         run: |
           python - <<'PY'
-          from test_v24_v6_proof_reference_closure import proof_bundle
-          from v24_v6_trusted_service_client import request_service
-          c,b,_=proof_bundle()
-          r=request_service(
-              "resolve-governed",
-              context=c,
-              boundary=b,
-              reference="f"*64,
-              expected_id="UNAUTHORIZED-ROOT-PEER",
-              expected_digest="a"*64,
-          )
+          import json
+          import socket
+
+          sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+          try:
+              sock.connect("/run/v24-v6-authority/service.sock")
+              size = bytearray()
+              while True:
+                  b = sock.recv(1)
+                  if not b:
+                      raise AssertionError("service closed before unauthorized-peer denial")
+                  if b == b"\n":
+                      break
+                  size.extend(b)
+              n = int(size.decode("ascii"))
+              body = bytearray()
+              while len(body) < n:
+                  chunk = sock.recv(n - len(body))
+                  if not chunk:
+                      raise AssertionError("truncated unauthorized-peer denial")
+                  body.extend(chunk)
+          finally:
+              sock.close()
+
+          r = json.loads(body)
           assert r["decision"] == "DENY", r
           assert r["reason"] == "PEER_IDENTITY_REJECTED", r
           assert r["service_authoritative"] is False, r
