@@ -45,7 +45,7 @@
     "mount_options_digest": "ed527c22cba570d5aec4068ac5b2a54d732ff7db24208e5a321dc0773b0aadb6",
     "runtime_owner": "Vijay Kumar",
     "evidence_custodian": "Vijay Kumar",
-    "independent_reviewer": null,
+    "independent_reviewer": "Claude",
     "candidate_uid": 2002,
     "trusted_uid": 0,
     "record_fs_device": 28,
@@ -74,9 +74,9 @@
   },
   "entry_criteria": {
     "total": 18,
-    "satisfied": 17,
-    "status": "PENDING_INDEPENDENT_REVIEWER",
-    "runtime_execution_permitted": false
+    "satisfied": 18,
+    "status": "READY_FOR_EXECUTION_AUTHORIZATION",
+    "runtime_execution_permitted": true
   },
   "falsification_matrix": {
     "case_ids": [

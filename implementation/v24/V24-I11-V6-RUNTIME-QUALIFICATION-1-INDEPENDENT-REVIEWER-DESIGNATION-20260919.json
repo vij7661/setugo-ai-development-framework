@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "record_type": "INDEPENDENT_FINAL_REVIEWER_DESIGNATION",
+  "phase_id": "V24-I11-V6-RUNTIME-QUALIFICATION-1",
+  "reviewer": "Claude",
+  "role": "external manual independent technical/falsification reviewer",
+  "independence_boundary": "Independent from Codex implementation/remediation.",
+  "review_mode": "manual review from a frozen review packet",
+  "api_calls_authorized": false,
+  "write_access": {
+    "repository": false,
+    "vm": false,
+    "runner": false,
+    "evidence_store": false
+  },
+  "reviewer_prohibitions": [
+    "modify test expectations",
+    "modify falsification oracles",
+    "modify historical RED evidence",
+    "modify qualification criteria"
+  ],
+  "authority_scope": "review/adjudication only; no runtime, scientific, or external-effect authority",
+  "scientific_execution_state": "CLOSED_PENDING_SUCCESSOR_REVIEW",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "runtime_qualification_claimed": false
+}
