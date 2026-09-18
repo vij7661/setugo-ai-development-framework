@@ -35,6 +35,8 @@ EXPECTED_EVIDENCE_FILES = {
 # a workstream module; the resolver depends only on already-bound R1.
 EXPECTED_SHARED_PRODUCTION_DEPENDENCIES = {
     "PROOF_REFERENCE_CLOSURE": "governance-runtime/v24_v6_proof_reference_closure.py",
+    "CONSTRUCTION_ROOT_ATTESTATION_VERIFIER": "governance-runtime/v24_v6_root_attestation.py",
+    "CONSTRUCTION_ROOT_PUBLIC_ARTIFACT": "governance-runtime/fixtures/v24-v6-construction-root-attestation-v3.json",
     "ENDPOINT_PROOF_COMPILER": "governance-runtime/v24_endpoint_proof_compiler.py",
     "NORMATIVE_CONTROL_CATALOG": "governance-runtime/normative_control_catalog.py",
 }
@@ -49,7 +51,12 @@ REQUIRED_ADVERSARIAL_CHECKS = frozenset(
         "SHARED_PRODUCTION_DEPENDENCY_MUTATION_REJECTED",
         "CLAUSE_CONTROL_REASSIGNMENT_REJECTED",
         "DECISION_EFFECT_PATH_TARGET_MISMATCH_REJECTED",
-        "EXTERNAL_TRUSTED_BOUNDARY_ANCHOR_REQUIRED",
+        "SAME_PROCESS_ANCHOR_REWRITE_REJECTED",
+        "UNSIGNED_CONTEXT_REJECTED",
+        "WRONG_CONTEXT_SIGNATURE_REJECTED",
+        "CALLER_SELECTED_PUBLIC_KEY_REJECTED",
+        "ATTESTATION_SCOPE_SUBSTITUTION_REJECTED",
+        "SIGNED_CONTEXT_POSITIVE",
     }
 )
 SCIENTIFIC_EXECUTION_CLOSED = "CLOSED_PENDING_SUCCESSOR_REVIEW"
