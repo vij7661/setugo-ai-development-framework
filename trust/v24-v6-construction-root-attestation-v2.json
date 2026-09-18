@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "key_id": "V24-V6-CONSTRUCTION-ROOT-ATTESTATION-V2",
+  "algorithm": "RSA-PKCS1-v1_5-SHA256",
+  "rsa_public_exponent": 65537,
+  "rsa_modulus_hex": "b219fbca13dad82d6691031d401608c91f57f1f64f153097a531a7be0ed3c1549bce89285bfa5744136b361d09eba49fbd7105a2ff55b49221e2ed3d5fbb1c5178792f33b66040c7fc5aebda55fd5426fcf680d8bd627db31e0c787f8ef8dced66c0faed8dd32d44abc0517794485c9c2d14857db2dc30c26b6a0cc5476660b1d63446112f3b6b04dee65c780c95b84c29fbf84d17cec18e6c286b8deb6e7c4caf3556803f51b8d8596d41cb36b6519bd5a98093d89ce97c7a86ec4518145f5fe570f703882c0d2efb230ca267a827d161676368f4eafbe595d1b0903051f018a58317ed95bf7d325c39d866cc2703585a08ca80dadbf029d331bb5bdfa285cd",
+  "public_key_der_sha256": "fe0f6526541361070cd4e609f49dfe9d2153fb599157ef25e0dda442a099ae65",
+  "purpose": "CONSTRUCTION_PROOF_CONTEXT_ATTESTATION_ONLY",
+  "private_signing_key_committed": false,
+  "private_signing_key_available_to_candidate_python": false,
+  "candidate_may_select_key": false,
+  "mutable_environment_anchor_is_authority": false,
+  "runtime_qualification_state": "NOT_CLAIMED",
+  "authority_effect": "NONE_EVIDENCE_ONLY",
+  "notes": [
+    "V2 replaces V1 because V1 had no materialized pre-signed fixture attestations available to the implementation branch.",
+    "The V2 private half was used transiently only to sign deterministic construction fixtures and is not committed.",
+    "Successor-4 must pin this exact public artifact and reject caller-selected keys, unsigned contexts, wrong-context signatures, scope substitution, and mutable environment digests.",
+    "This construction key does not establish production/runtime root-key management or native process isolation."
+  ]
+}
