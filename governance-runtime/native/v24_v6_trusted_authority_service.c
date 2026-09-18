@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <openssl/sha.h>
+#include <openssl/rand.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -17,17 +18,22 @@
 #include <unistd.h>
 
 #define SERVICE_ID "V24-V6-TRUSTED-AUTHORITY-SERVICE"
-#define SERVICE_VERSION "1"
+#define SERVICE_VERSION "2"
 #define AUTHORITY_EFFECT "NONE_EVIDENCE_ONLY"
 #define SOCKET_PATH "/run/v24-v6-authority/service.sock"
 #define PID_PATH "/run/v24-v6-authority/service.pid"
 #define PRIVATE_DIR "/run/v24-v6-authority/private"
+#define RECORD_DIR "/run/v24-v6-authority/private/records"
+#define CONSUMED_DIR "/run/v24-v6-authority/private/consumed"
 #define GATE_PATH "/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate"
 #define GATE_ID "V24-V6-EXTERNAL-AUTHORITY-GATE"
 #define GATE_VERSION "1"
 #define CANDIDATE_USER "v24candidate"
 #define MAX_FIELD (8U * 1024U * 1024U)
 #define MAX_CAPTURE (8U * 1024U * 1024U)
+#ifndef BUILD_INPUT_SHA256
+#define BUILD_INPUT_SHA256 "UNBUILT"
+#endif
 
 static void sha256_hex(const unsigned char *data, size_t len, char out[65]) {
     unsigned char digest[SHA256_DIGEST_LENGTH];
@@ -120,6 +126,8 @@ static bool prepare_runtime(void) {
     if (geteuid() != 0) return false;
     if (!ensure_root_dir("/run/v24-v6-authority", 0755)) return false;
     if (!ensure_root_dir(PRIVATE_DIR, 0700)) return false;
+    if (!ensure_root_dir(RECORD_DIR, 0700)) return false;
+    if (!ensure_root_dir(CONSUMED_DIR, 0700)) return false;
     return true;
 }
 
@@ -181,22 +189,153 @@ static bool child_ok(int status) {
 }
 
 static bool send_response(int fd, const char *decision, const char *reason,
-                          const char *request_digest, const char *gate_digest) {
-    char json[2048];
+                          const char *request_digest, const char *gate_digest,
+                          const char *record_id) {
+    char json[3072];
     int n = snprintf(
         json, sizeof(json),
-        "{\"authority_effect\":\"%s\",\"construction_authoritative\":true,"
-        "\"decision\":\"%s\",\"gate_result_sha256\":\"%s\","
-        "\"request_sha256\":\"%s\",\"service_authoritative\":true,"
-        "\"service_id\":\"%s\",\"service_version\":\"%s\",\"reason\":\"%s\"}",
+        "{\"authority_effect\":\"%s\",\"construction_authoritative\":false,"
+        "\"decision\":\"%s\",\"diagnostic_only\":true,"
+        "\"gate_result_sha256\":\"%s\",\"request_sha256\":\"%s\","
+        "\"service_authoritative\":false,\"service_build_input_sha256\":\"%s\","
+        "\"service_id\":\"%s\",\"service_version\":\"%s\","
+        "\"trusted_record_id\":\"%s\",\"reason\":\"%s\"}",
         AUTHORITY_EFFECT, decision, gate_digest ? gate_digest : "-",
-        request_digest ? request_digest : "-", SERVICE_ID, SERVICE_VERSION,
+        request_digest ? request_digest : "-", BUILD_INPUT_SHA256,
+        SERVICE_ID, SERVICE_VERSION, record_id ? record_id : "-",
         reason ? reason : "-"
     );
     if (n <= 0 || (size_t)n >= sizeof(json)) return false;
     char header[64];
     int hn = snprintf(header, sizeof(header), "%d\n", n);
     return hn > 0 && send_all(fd, header, (size_t)hn) && send_all(fd, json, (size_t)n);
+}
+
+static bool random_record_id(char out[65]) {
+    unsigned char raw[32];
+    if (RAND_bytes(raw, sizeof(raw)) != 1) return false;
+    for (size_t i = 0; i < sizeof(raw); ++i) sprintf(out + i * 2, "%02x", raw[i]);
+    out[64] = '\0';
+    return true;
+}
+
+static bool write_authority_record(const char *record_id, const char *decision,
+                                   const char *request_digest, const char *gate_digest) {
+    if (!record_id || !decision || !request_digest || !gate_digest) return false;
+    char path[PATH_MAX];
+    if (snprintf(path, sizeof(path), "%s/%s.record", RECORD_DIR, record_id) >= (int)sizeof(path)) return false;
+    int fd = open(path, O_CREAT | O_EXCL | O_WRONLY | O_CLOEXEC | O_NOFOLLOW, 0600);
+    if (fd < 0) return false;
+    char body[2048];
+    int n = snprintf(
+        body, sizeof(body),
+        "schema=V24_V6_S8_AUTHORITY_RECORD_V1\n"
+        "record_id=%s\n"
+        "service_id=%s\n"
+        "service_version=%s\n"
+        "service_build_input_sha256=%s\n"
+        "request_sha256=%s\n"
+        "decision=%s\n"
+        "gate_result_sha256=%s\n"
+        "authority_effect=%s\n",
+        record_id, SERVICE_ID, SERVICE_VERSION, BUILD_INPUT_SHA256,
+        request_digest, decision, gate_digest, AUTHORITY_EFFECT
+    );
+    bool ok = n > 0 && (size_t)n < sizeof(body) &&
+              write_all_fd(fd, body, (size_t)n) && fsync(fd) == 0;
+    close(fd);
+    if (!ok) { unlink(path); return false; }
+    return true;
+}
+
+static bool field_value(const char *body, const char *key, char *out, size_t cap) {
+    char needle[128];
+    int nn = snprintf(needle, sizeof(needle), "%s=", key);
+    if (nn <= 0 || (size_t)nn >= sizeof(needle)) return false;
+    const char *p = strstr(body, needle);
+    if (!p || (p != body && p[-1] != '\n')) return false;
+    p += nn;
+    const char *end = strchr(p, '\n');
+    if (!end) return false;
+    size_t len = (size_t)(end - p);
+    if (len == 0 || len >= cap) return false;
+    memcpy(out, p, len);
+    out[len] = '\0';
+    return true;
+}
+
+static int consume_record(const char *record_id, const char *expected_request_digest) {
+    if (geteuid() != 0 || !prepare_runtime()) {
+        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"ROOT_CONSUMER_REQUIRED\"}\n");
+        return 1;
+    }
+    if (!is_hex64_or_dash(record_id) || strcmp(record_id, "-") == 0 ||
+        !is_hex64_or_dash(expected_request_digest) || strcmp(expected_request_digest, "-") == 0) {
+        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"RECORD_ARGUMENT_INVALID\"}\n");
+        return 1;
+    }
+    char src[PATH_MAX], dst[PATH_MAX];
+    if (snprintf(src, sizeof(src), "%s/%s.record", RECORD_DIR, record_id) >= (int)sizeof(src) ||
+        snprintf(dst, sizeof(dst), "%s/%s.record", CONSUMED_DIR, record_id) >= (int)sizeof(dst)) {
+        return 1;
+    }
+
+    FILE *fp = fopen(src, "rb");
+    if (!fp) {
+        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED\"}\n");
+        return 1;
+    }
+    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return 1; }
+    long n = ftell(fp);
+    if (n <= 0 || n > 8192 || fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return 1; }
+    unsigned char *data = malloc((size_t)n + 1);
+    if (!data) { fclose(fp); return 1; }
+    size_t len = fread(data, 1, (size_t)n, fp);
+    fclose(fp);
+    if (len != (size_t)n) { free(data); return 1; }
+    data[len] = '\0';
+
+    char rec_id[65], service_id[128], service_version[64], build[65];
+    char request[65], decision[32], gate[65], effect[64], schema[128];
+    bool valid =
+        field_value((char *)data, "schema", schema, sizeof(schema)) &&
+        field_value((char *)data, "record_id", rec_id, sizeof(rec_id)) &&
+        field_value((char *)data, "service_id", service_id, sizeof(service_id)) &&
+        field_value((char *)data, "service_version", service_version, sizeof(service_version)) &&
+        field_value((char *)data, "service_build_input_sha256", build, sizeof(build)) &&
+        field_value((char *)data, "request_sha256", request, sizeof(request)) &&
+        field_value((char *)data, "decision", decision, sizeof(decision)) &&
+        field_value((char *)data, "gate_result_sha256", gate, sizeof(gate)) &&
+        field_value((char *)data, "authority_effect", effect, sizeof(effect)) &&
+        strcmp(schema, "V24_V6_S8_AUTHORITY_RECORD_V1") == 0 &&
+        strcmp(rec_id, record_id) == 0 &&
+        strcmp(service_id, SERVICE_ID) == 0 &&
+        strcmp(service_version, SERVICE_VERSION) == 0 &&
+        strcmp(build, BUILD_INPUT_SHA256) == 0 &&
+        strcmp(request, expected_request_digest) == 0 &&
+        is_hex64_or_dash(gate) && strcmp(gate, "-") != 0 &&
+        strcmp(effect, AUTHORITY_EFFECT) == 0 &&
+        (strcmp(decision, "ALLOW") == 0 || strcmp(decision, "DENY") == 0);
+    free(data);
+    if (!valid) {
+        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"AUTHORITY_RECORD_BINDING_INVALID\"}\n");
+        return 1;
+    }
+    if (rename(src, dst) != 0) {
+        printf("{\"construction_authoritative\":false,\"decision\":\"DENY\",\"reason\":\"AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED\"}\n");
+        return 1;
+    }
+    printf(
+        "{\"authority_effect\":\"%s\",\"construction_authoritative\":true,"
+        "\"decision\":\"%s\",\"gate_result_sha256\":\"%s\","
+        "\"request_sha256\":\"%s\",\"service_authoritative\":true,"
+        "\"service_build_input_sha256\":\"%s\",\"service_id\":\"%s\","
+        "\"service_version\":\"%s\",\"trusted_record_id\":\"%s\","
+        "\"record_state\":\"CONSUMED\"}\n",
+        AUTHORITY_EFFECT, decision, gate, request, BUILD_INPUT_SHA256,
+        SERVICE_ID, SERVICE_VERSION, record_id
+    );
+    return strcmp(decision, "ALLOW") == 0 ? 0 : 1;
 }
 
 static bool valid_operation(const char *op) {
@@ -212,7 +351,7 @@ static void handle_client(int fd, uid_t candidate_uid) {
     socklen_t cred_len = sizeof(cred);
     if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &cred, &cred_len) != 0 ||
         cred_len != sizeof(cred) || cred.uid != candidate_uid) {
-        send_response(fd, "DENY", "PEER_IDENTITY_REJECTED", NULL, NULL);
+        send_response(fd, "DENY", "PEER_IDENTITY_REJECTED", NULL, NULL, NULL);
         return;
     }
 
@@ -226,12 +365,12 @@ static void handle_client(int fd, uid_t candidate_uid) {
         !recv_line(fd, context_len_s, sizeof(context_len_s)) ||
         !recv_line(fd, boundary_len_s, sizeof(boundary_len_s)) ||
         !recv_line(fd, payload_len_s, sizeof(payload_len_s))) {
-        send_response(fd, "DENY", "IPC_HEADER_MALFORMED", NULL, NULL);
+        send_response(fd, "DENY", "IPC_HEADER_MALFORMED", NULL, NULL, NULL);
         return;
     }
-    if (strcmp(magic, "V24-V6-S7/1") != 0 || !valid_operation(op) ||
+    if (strcmp(magic, "V24-V6-S8/1") != 0 || !valid_operation(op) ||
         !is_hex64_or_dash(reference) || !is_hex64_or_dash(expected_digest)) {
-        send_response(fd, "DENY", "IPC_HEADER_INVALID", NULL, NULL);
+        send_response(fd, "DENY", "IPC_HEADER_INVALID", NULL, NULL, NULL);
         return;
     }
 
@@ -240,7 +379,7 @@ static void handle_client(int fd, uid_t candidate_uid) {
         !parse_size(boundary_len_s, &boundary_len) ||
         !parse_size(payload_len_s, &payload_len) ||
         context_len == 0 || boundary_len == 0) {
-        send_response(fd, "DENY", "IPC_LENGTH_INVALID", NULL, NULL);
+        send_response(fd, "DENY", "IPC_LENGTH_INVALID", NULL, NULL, NULL);
         return;
     }
 
@@ -249,14 +388,14 @@ static void handle_client(int fd, uid_t candidate_uid) {
     unsigned char *payload = payload_len ? malloc(payload_len) : NULL;
     if (!context || !boundary || (payload_len && !payload)) {
         free(context); free(boundary); free(payload);
-        send_response(fd, "DENY", "IPC_ALLOCATION_FAILED", NULL, NULL);
+        send_response(fd, "DENY", "IPC_ALLOCATION_FAILED", NULL, NULL, NULL);
         return;
     }
     if (!recv_exact(fd, context, context_len) ||
         !recv_exact(fd, boundary, boundary_len) ||
         (payload_len && !recv_exact(fd, payload, payload_len))) {
         free(context); free(boundary); free(payload);
-        send_response(fd, "DENY", "IPC_BODY_TRUNCATED", NULL, NULL);
+        send_response(fd, "DENY", "IPC_BODY_TRUNCATED", NULL, NULL, NULL);
         return;
     }
 
@@ -265,7 +404,7 @@ static void handle_client(int fd, uid_t candidate_uid) {
     unsigned char *bind = malloc(bind_len);
     if (!bind) {
         free(context); free(boundary); free(payload);
-        send_response(fd, "DENY", "REQUEST_BINDING_FAILED", NULL, NULL);
+        send_response(fd, "DENY", "REQUEST_BINDING_FAILED", NULL, NULL, NULL);
         return;
     }
     size_t off = 0;
@@ -287,7 +426,7 @@ static void handle_client(int fd, uid_t candidate_uid) {
     if (ok && payload_len) ok = materialize_private(payload, payload_len, "payload", payload_path);
     free(context); free(boundary); free(payload);
     if (!ok) {
-        send_response(fd, "DENY", "TRUSTED_PRIVATE_MATERIALIZATION_FAILED", request_digest, NULL);
+        send_response(fd, "DENY", "TRUSTED_PRIVATE_MATERIALIZATION_FAILED", request_digest, NULL, NULL);
         return;
     }
 
@@ -303,7 +442,7 @@ static void handle_client(int fd, uid_t candidate_uid) {
     } else {
         if (!payload_len) {
             unlink(context_path); unlink(boundary_path);
-            send_response(fd, "DENY", "DOWNSTREAM_PAYLOAD_REQUIRED", request_digest, NULL);
+            send_response(fd, "DENY", "DOWNSTREAM_PAYLOAD_REQUIRED", request_digest, NULL, NULL);
             return;
         }
         char *argv[] = {
@@ -319,7 +458,7 @@ static void handle_client(int fd, uid_t candidate_uid) {
     if (payload_len) unlink(payload_path);
 
     if (!gate_output) {
-        send_response(fd, "DENY", "TRUSTED_GATE_EXECUTION_FAILED", request_digest, NULL);
+        send_response(fd, "DENY", "TRUSTED_GATE_EXECUTION_FAILED", request_digest, NULL, NULL);
         return;
     }
 
@@ -332,8 +471,18 @@ static void handle_client(int fd, uid_t candidate_uid) {
     bool allow = child_ok(st) && identity_ok &&
                  strstr(gate_output, "\"decision\":\"ALLOW\"") != NULL;
 
-    if (allow) send_response(fd, "ALLOW", "TRUSTED_GATE_ALLOWED", request_digest, gate_digest);
-    else send_response(fd, "DENY", "TRUSTED_GATE_REJECTED", request_digest, gate_digest);
+    const char *decision = allow ? "ALLOW" : "DENY";
+    char record_id[65] = {0};
+    bool recorded = random_record_id(record_id) &&
+                    write_authority_record(record_id, decision, request_digest, gate_digest);
+    if (!recorded) {
+        send_response(fd, "DENY", "AUTHORITY_RECORD_WRITE_FAILED", request_digest, gate_digest, NULL);
+        free(gate_output);
+        return;
+    }
+
+    if (allow) send_response(fd, "ALLOW", "TRUSTED_GATE_ALLOWED_DIAGNOSTIC", request_digest, gate_digest, record_id);
+    else send_response(fd, "DENY", "TRUSTED_GATE_REJECTED_DIAGNOSTIC", request_digest, gate_digest, record_id);
     free(gate_output);
 }
 
@@ -384,11 +533,15 @@ static int serve(void) {
 
 int main(int argc, char **argv) {
     if (argc == 2 && strcmp(argv[1], "--identity") == 0) {
-        printf("{\"authority_effect\":\"%s\",\"service_id\":\"%s\",\"service_version\":\"%s\"}\n",
-               AUTHORITY_EFFECT, SERVICE_ID, SERVICE_VERSION);
+        printf("{\"authority_effect\":\"%s\",\"service_build_input_sha256\":\"%s\","
+               "\"service_id\":\"%s\",\"service_version\":\"%s\"}\n",
+               AUTHORITY_EFFECT, BUILD_INPUT_SHA256, SERVICE_ID, SERVICE_VERSION);
         return 0;
     }
     if (argc == 2 && strcmp(argv[1], "--serve") == 0) return serve();
-    fprintf(stderr, "usage: %s --identity|--serve\n", argv[0]);
+    if (argc == 4 && strcmp(argv[1], "--consume-record") == 0) {
+        return consume_record(argv[2], argv[3]);
+    }
+    fprintf(stderr, "usage: %s --identity|--serve|--consume-record RECORD_ID EXPECTED_REQUEST_SHA256\n", argv[0]);
     return 2;
 }
