@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-6 — Candidate-Nonwritable Authority Gate Repair Design
 
-Status: **PREREGISTERED AFTER SUCCESSOR-5 MANUAL REVIEW / RED EXECUTION PENDING**
+Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-6 RED / IMPLEMENTATION IN PROGRESS**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -64,9 +64,19 @@ The first Successor-6 regression MUST:
 4. invoke the substituted path;
 5. assert that such a forged authoritative ALLOW must be impossible.
 
-Against Successor-5 this assertion is expected to fail and MUST be preserved as a genuine RED.
+Against Successor-5 this assertion failed as expected and is now preserved as a genuine RED.
 
-This RED must never later be relabeled as a fixture failure.
+Preserved Successor-6 RED:
+- branch head tested: `1d7f7024cddd6215a513a6c6f604561de0d4c417`
+- workflow: `V24 V6 Successor-6 Gate Replacement RED`
+- workflow run: `35333023688`
+- job: `105561433493`
+- test: `test_same_user_gate_executable_replacement_cannot_forge_authoritative_allow`
+- compile step: `GREEN`
+- attack regression: `RED`
+- observed forged result: `construction_authoritative=True`, `decision=ALLOW`, expected gate id/version accepted at the substituted pathname.
+
+This is a genuine mechanism defect. It is not a fixture defect and must never be relabeled as PASS.
 
 ## 5. Mandatory permanent regressions
 
