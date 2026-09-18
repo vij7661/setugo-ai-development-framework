@@ -72,6 +72,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           p=Path('/tmp/v24-tampered-runtime/.gate-build/v24_v6_external_authority_gate')
+          p.chmod(0o755)
           data=bytearray(p.read_bytes())
           data[len(data)//2] ^= 1
           p.write_bytes(data)
