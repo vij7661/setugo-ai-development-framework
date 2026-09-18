@@ -90,5 +90,4 @@ cat > "$BUILD_DIR/v24_v6_external_authority_gate_build.json" <<EOF
 }
 EOF
 
-"$OUT" --identity
 cat "$BUILD_DIR/v24_v6_external_authority_gate_build.json"
