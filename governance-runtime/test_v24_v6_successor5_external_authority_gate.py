@@ -9,8 +9,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import v24_v6_decision_apply as decision_apply
+import v24_v6_material_surface as material_surface
+import v24_v6_normative_clause_projection as normative_projection
 import v24_v6_proof_reference_closure as prc
 import v24_v6_root_attestation as root_attestation
+from test_v24_v6_decision_apply import attach_proofs as attach_decision_proofs, bundle as decision_bundle
+from test_v24_v6_normative_clause_projection import DISPOSITION_SET_ID, coverage_fixture
 from test_v24_v6_proof_reference_closure import ROOT_CONTENT, proof_bundle
 from test_v24_v6_successor4_external_anchor_red import (
     TARGET_CONTENT,
@@ -70,6 +75,46 @@ def _run_gate(
         )
     payload = json.loads(proc.stdout.strip())
     return proc, payload
+
+
+def _run_downstream_gate(
+    operation: str,
+    context: dict,
+    boundary: dict,
+    payload: dict,
+    *,
+    probe_reference: str,
+    probe_expected_id: str,
+    probe_expected_digest: str,
+) -> tuple[subprocess.CompletedProcess[str], dict]:
+    with tempfile.TemporaryDirectory() as td:
+        directory = Path(td)
+        context_path, boundary_path = _write_bundle(directory, context, boundary)
+        payload_path = directory / "payload.json"
+        payload_path.write_text(
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        proc = subprocess.run(
+            [
+                str(GATE),
+                operation,
+                str(context_path),
+                str(boundary_path),
+                str(payload_path),
+                probe_reference,
+                probe_expected_id,
+                probe_expected_digest,
+                GATE_ID,
+                GATE_VERSION,
+                "enforce",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    payload_out = json.loads(proc.stdout.strip())
+    return proc, payload_out
 
 
 def _attacker_signed_boundary(context: dict, boundary: dict, directory: Path) -> tuple[dict, int]:
@@ -406,6 +451,124 @@ class Successor5ExternalAuthorityGateRegressions(unittest.TestCase):
             payload["scope_digest"],
             context["genesis_trusted_scope"]["scope_digest"],
         )
+
+
+    def test_external_gate_decision_apply_positive(self):
+        payload = decision_bundle()
+        context, boundary = attach_decision_proofs(payload)
+        source = payload["snapshot_source"]
+        proc, authoritative = _run_downstream_gate(
+            "evaluate-decision-apply",
+            context,
+            boundary,
+            payload,
+            probe_reference=source["qualification_digest"],
+            probe_expected_id=source["mechanism_id"],
+            probe_expected_digest=source["mechanism_content_digest"],
+        )
+        self.assertEqual(proc.returncode, 0, (proc.stdout, proc.stderr))
+        self.assertEqual(authoritative["decision"], "ALLOW")
+        self.assertTrue(authoritative["construction_authoritative"])
+        self.assertEqual(authoritative["operation"], "evaluate-decision-apply")
+
+    def test_da1_same_process_fresh_effect_path_self_grant_rejected_by_external_gate(self):
+        payload = decision_bundle()
+        context, boundary = attach_decision_proofs(payload)
+        source = payload["snapshot_source"]
+
+        payload["decision"]["authorized_effect_path_id"] = "PATH-ATTACK"
+        payload["material_effect_path"]["path_id"] = "PATH-ATTACK"
+        payload["decision"]["decision_digest"] = decision_apply.canonical_decision_content_digest(
+            payload["decision"]
+        )
+
+        original_da = decision_apply.close_governance_dependencies
+        original_material = material_surface.close_governance_dependencies
+        try:
+            forged_close = lambda *args, **kwargs: {
+                "qualified": True,
+                "state": "PROOF_REFERENCE_CLOSED",
+                "problems": [],
+                "authority_effect": "NONE_EVIDENCE_ONLY",
+            }
+            decision_apply.close_governance_dependencies = forged_close
+            material_surface.close_governance_dependencies = forged_close
+            local = decision_apply.evaluate_decision_apply_latch(
+                payload,
+                proof_context=context,
+                trusted_boundary=boundary,
+            )
+            self.assertTrue(local["allowed"], local)
+        finally:
+            decision_apply.close_governance_dependencies = original_da
+            material_surface.close_governance_dependencies = original_material
+
+        proc, authoritative = _run_downstream_gate(
+            "evaluate-decision-apply",
+            context,
+            boundary,
+            payload,
+            probe_reference=source["qualification_digest"],
+            probe_expected_id=source["mechanism_id"],
+            probe_expected_digest=source["mechanism_content_digest"],
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertEqual(authoritative["decision"], "DENY")
+        self.assertEqual(authoritative["reason"], "EXTERNAL_GATE_WORKER_DECISION_REJECTED")
+
+    def test_external_gate_normative_coverage_positive(self):
+        payload, context, boundary, _ = coverage_fixture()
+        proc, authoritative = _run_downstream_gate(
+            "validate-normative-coverage",
+            context,
+            boundary,
+            payload,
+            probe_reference=payload["disposition_qualification_digest"],
+            probe_expected_id=DISPOSITION_SET_ID,
+            probe_expected_digest=payload["disposition_digest"],
+        )
+        self.assertEqual(proc.returncode, 0, (proc.stdout, proc.stderr))
+        self.assertEqual(authoritative["decision"], "ALLOW")
+        self.assertTrue(authoritative["construction_authoritative"])
+        self.assertEqual(authoritative["operation"], "validate-normative-coverage")
+
+    def test_ncp1_same_process_fresh_clause_control_self_grant_rejected_by_external_gate(self):
+        payload, context, boundary, _ = coverage_fixture()
+        descriptor = payload["catalog_descriptors"][0]
+        descriptor["control_id"] = "CTRL-ATTACK"
+        descriptor["control_binding_content_digest"] = (
+            normative_projection.canonical_catalog_control_binding_digest(descriptor)
+        )
+
+        original = normative_projection.close_governance_dependencies
+        try:
+            normative_projection.close_governance_dependencies = lambda *args, **kwargs: {
+                "qualified": True,
+                "state": "PROOF_REFERENCE_CLOSED",
+                "problems": [],
+                "authority_effect": "NONE_EVIDENCE_ONLY",
+            }
+            local = normative_projection.validate_catalog_candidate_coverage(
+                payload,
+                proof_context=context,
+                trusted_boundary=boundary,
+            )
+            self.assertTrue(local["qualified"], local)
+        finally:
+            normative_projection.close_governance_dependencies = original
+
+        proc, authoritative = _run_downstream_gate(
+            "validate-normative-coverage",
+            context,
+            boundary,
+            payload,
+            probe_reference=payload["disposition_qualification_digest"],
+            probe_expected_id=DISPOSITION_SET_ID,
+            probe_expected_digest=payload["disposition_digest"],
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertEqual(authoritative["decision"], "DENY")
+        self.assertEqual(authoritative["reason"], "EXTERNAL_GATE_WORKER_DECISION_REJECTED")
 
 
 if __name__ == "__main__":
