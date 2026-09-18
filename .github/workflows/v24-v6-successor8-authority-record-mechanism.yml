@@ -95,8 +95,8 @@ jobs:
           test -S /run/v24-v6-authority/service.sock
           test "$(stat -c '%u' /run/v24-v6-authority/private)" = "0"
           test "$(stat -c '%a' /run/v24-v6-authority/private)" = "700"
-          test "$(stat -c '%a' /run/v24-v6-authority/private/records)" = "700"
-          test "$(stat -c '%a' /run/v24-v6-authority/private/consumed)" = "700"
+          test "$(sudo stat -c '%a' /run/v24-v6-authority/private/records)" = "700"
+          test "$(sudo stat -c '%a' /run/v24-v6-authority/private/consumed)" = "700"
 
       - name: Stage read-only candidate test surface
         shell: bash
