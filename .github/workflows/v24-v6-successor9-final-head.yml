@@ -68,43 +68,71 @@ jobs:
             v24_v6_successor9_trusted_control.py \
             test_v24_v6_successor9_consume_loader_red.py
 
-      - name: Build gate and service
+      - name: Fetch exact Successor-9 external bootstrap authority
         shell: bash
         run: |
           set -euo pipefail
-          bash governance-runtime/build_v24_v6_external_authority_gate.sh
-          bash governance-runtime/build_v24_v6_trusted_authority_service.sh
+          TRUST_COMMIT='af3ab8ab846119292a1b3a36fca5d0cc2c71b1ee'
+          TRUST_TREE='fc063773b077c855cf34eebf28c886ee496d3fe9'
+          MANIFEST_BLOB='488f50501b945f4f4a7f56ff6935587c091f4372'
+          BOOTSTRAP_BLOB='ca1a108f7899d3e81c01c8eaa2219528cd945dcc'
 
-      - name: Install provisional root-owned trusted runtime
+          git fetch --no-tags --depth=1 origin "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD)" = "$TRUST_COMMIT"
+          test "$(git rev-parse FETCH_HEAD^{tree})" = "$TRUST_TREE"
+          test "$(git ls-tree FETCH_HEAD trust/v24-v6-successor9-trusted-consume-bootstrap-v1.json | awk '{print $3}')" = "$MANIFEST_BLOB"
+          test "$(git ls-tree FETCH_HEAD trust/install-v24-v6-successor9-trusted-consume-v1.sh | awk '{print $3}')" = "$BOOTSTRAP_BLOB"
+
+          mkdir -p "$RUNNER_TEMP/v24-s9-trust"
+          git show "$TRUST_COMMIT:trust/v24-v6-successor9-trusted-consume-bootstrap-v1.json" > "$RUNNER_TEMP/v24-s9-trust/manifest.json"
+          git show "$TRUST_COMMIT:trust/install-v24-v6-successor9-trusted-consume-v1.sh" > "$RUNNER_TEMP/v24-s9-trust/bootstrap.sh"
+          chmod 0555 "$RUNNER_TEMP/v24-s9-trust/bootstrap.sh"
+          test "$(git hash-object "$RUNNER_TEMP/v24-s9-trust/manifest.json")" = "$MANIFEST_BLOB"
+
+      - name: Reject candidate-selected trusted root
         shell: bash
         run: |
           set -euo pipefail
-          R=governance-runtime
+          if sudo env V24_V6_TRUSTED_ROOT=/tmp/candidate-selected-root \
+              bash "$RUNNER_TEMP/v24-s9-trust/bootstrap.sh" \
+              "$GITHUB_WORKSPACE/governance-runtime" \
+              "$RUNNER_TEMP/v24-s9-trust/manifest.json"; then
+            echo "external bootstrap accepted candidate-selected trusted root"
+            exit 1
+          fi
+          test ! -e /tmp/candidate-selected-root
+
+      - name: Reject coherent candidate source and self-manifest substitution
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/v24-s9-coherent-substitution
+          cp -a governance-runtime /tmp/v24-s9-coherent-substitution
+          printf '\n/* coherent candidate substitution */\n' >> /tmp/v24-s9-coherent-substitution/native/v24_v6_trusted_authority_service.c
+          bash /tmp/v24-s9-coherent-substitution/build_v24_v6_external_authority_gate.sh
+          bash /tmp/v24-s9-coherent-substitution/build_v24_v6_trusted_authority_service.sh
+          if sudo bash "$RUNNER_TEMP/v24-s9-trust/bootstrap.sh" \
+              /tmp/v24-s9-coherent-substitution \
+              "$RUNNER_TEMP/v24-s9-trust/manifest.json"; then
+            echo "external bootstrap accepted coherent Successor-9 substitution"
+            exit 1
+          fi
+          sudo rm -rf /tmp/v24-s9-coherent-substitution
+
+      - name: Install only externally pinned Successor-9 trusted runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo bash "$RUNNER_TEMP/v24-s9-trust/bootstrap.sh" \
+            "$GITHUB_WORKSPACE/governance-runtime" \
+            "$RUNNER_TEMP/v24-s9-trust/manifest.json"
+
           T=/opt/v24-v6-trusted-runtime
-          sudo rm -rf "$T"
-          sudo install -d -o root -g root -m 0755 "$T"
-          sudo install -d -o root -g root -m 0755 "$T/.gate-build"
-          for name in \
-            v24_v6_external_gate_worker.py \
-            v24_v6_proof_reference_closure.py \
-            v24_v6_root_attestation.py \
-            v24_v6_governance_foundation.py \
-            v24_v6_decision_apply.py \
-            v24_v6_material_surface.py \
-            v24_v6_normative_clause_projection.py \
-            normative_control_catalog.py; do
-            sudo install -o root -g root -m 0444 "$R/$name" "$T/$name"
-          done
-          sudo install -o root -g root -m 0555 \
-            "$R/.gate-build/v24_v6_external_authority_gate" \
-            "$T/.gate-build/v24_v6_external_authority_gate"
-          sudo install -o root -g root -m 0555 \
-            "$R/.service-build/v24_v6_trusted_authority_service" \
-            "$T/v24_v6_trusted_authority_service"
-          sudo chown -R root:root "$T"
-          sudo chmod 0555 "$T" "$T/.gate-build"
-          "$T/.gate-build/v24_v6_external_authority_gate" --identity
-          "$T/v24_v6_trusted_authority_service" --identity
+          test "$(sha256sum "$T/.gate-build/v24_v6_external_authority_gate" | awk '{print $1}')" = '7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069'
+          test "$(sha256sum "$T/v24_v6_trusted_authority_service" | awk '{print $1}')" = 'a9567ea1677456949e79bb64c06c6880426afcaaaa5235e5579ca3e62e7b021d'
+          test "$(jq -r '.build_input_sha256' "$T/.gate-build/v24_v6_external_authority_gate_build.json")" = 'b0f0b0f91c88b1746d6bffa7d3b4955aa6f494cc525de45d7435582dfb77f1b9'
+          test "$(jq -r '.build_input_sha256' "$T/v24_v6_trusted_authority_service_build.json")" = 'b74631643c529e26264be7aa56f1df278749aea7f61326e0d18f47c6fc82a0fc'
+          test "$(jq -r '.service_version' "$T/v24_v6_trusted_authority_service_build.json")" = '3'
 
       - name: Start separately controlled trusted service
         shell: bash
