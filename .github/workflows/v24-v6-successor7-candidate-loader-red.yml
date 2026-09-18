@@ -1,0 +1,87 @@
+name: V24 V6 Successor-7 Candidate Loader RED
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-7
+    paths:
+      - '.github/workflows/v24-v6-successor7-candidate-loader-red.yml'
+      - 'governance-runtime/test_v24_v6_successor7_candidate_loader_red.py'
+      - 'governance-runtime/native/v24_v6_external_authority_gate.c'
+      - 'governance-runtime/build_v24_v6_external_authority_gate.sh'
+      - 'governance-runtime/install_v24_v6_trusted_authority_gate.sh'
+      - 'governance-runtime/v24_v6_external_gate_worker.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preserve-red:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Assert build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          command -v sudo
+          test -x /usr/bin/python3
+
+      - name: Compile attack surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            test_v24_v6_successor7_candidate_loader_red.py \
+            test_v24_v6_proof_reference_closure.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_root_attestation.py \
+            v24_v6_external_gate_worker.py
+
+      - name: Build frozen Successor-6 authority gate
+        run: bash governance-runtime/build_v24_v6_external_authority_gate.sh
+
+      - name: Install root-owned Successor-6 trusted runtime
+        run: sudo bash governance-runtime/install_v24_v6_trusted_authority_gate.sh
+
+      - name: Create unprivileged candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Stage read-only RED test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-successor7-red
+          sudo cp -a governance-runtime /tmp/v24candidate-successor7-red
+          sudo chown -R root:root /tmp/v24candidate-successor7-red
+          sudo find /tmp/v24candidate-successor7-red -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-successor7-red -type f -exec chmod 0444 {} +
+
+      - name: Reproduce candidate dynamic-loader injection
+        shell: bash
+        run: |
+          set -euo pipefail
+          PY="$(command -v python)"
+          cd /tmp/v24candidate-successor7-red
+          sudo -u v24candidate -- env \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-successor7-red \
+            "$PY" -m unittest -v test_v24_v6_successor7_candidate_loader_red.py
