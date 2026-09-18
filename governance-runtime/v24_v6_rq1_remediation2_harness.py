@@ -25,6 +25,7 @@ CASES = {
  "RQ-28":("Fail closed; service remains recoverable","protocol-fuzz"),
 }
 RUNNABLE=[k for k,v in CASES.items() if v[1]!="keep-existing"]
+REMAINING_SELECTED=["RQ-05","RQ-06","RQ-07","RQ-08","RQ-09","RQ-10","RQ-11","RQ-12","RQ-13","RQ-14","RQ-15","RQ-16","RQ-17","RQ-18","RQ-19","RQ-20","RQ-21","RQ-26","RQ-27","RQ-29","RQ-30","RQ-31","RQ-32"]
 
 def run(argv,*,user=None,timeout=20):
     cmd=list(argv)
@@ -254,8 +255,8 @@ def execute(cid,out):
     r["duration_seconds"]=round(time.time()-start,3); write_json(out/f"{cid}.result.json",r); return r
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("--case",action="append",choices=sorted(CASES)); ap.add_argument("--safe-slice",action="store_true"); ap.add_argument("--evidence-dir",required=True); a=ap.parse_args()
-    selected=a.case or (RUNNABLE if a.safe_slice else [])
+    ap=argparse.ArgumentParser(); ap.add_argument("--case",action="append",choices=sorted(CASES)); ap.add_argument("--safe-slice",action="store_true"); ap.add_argument("--remaining-slice",action="store_true"); ap.add_argument("--evidence-dir",required=True); a=ap.parse_args()
+    selected=a.case or (REMAINING_SELECTED if a.remaining_slice else (RUNNABLE if a.safe_slice else []))
     if not selected: ap.error("select --case or --safe-slice")
     out=Path(a.evidence_dir); out.mkdir(parents=True,exist_ok=True); rs=[execute(c,out) for c in selected]
     write_json(out/"RQ1-remediation2-targeted-bundle.json",{"schema_version":1,"phase_id":"V24-I11-V6-RUNTIME-QUALIFICATION-1","remediation":"2","results":rs,"state":STATE})
