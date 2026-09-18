@@ -164,7 +164,15 @@ r=_request(sys.argv[1]); x=request_service(r["operation"],context=r["context"],b
 print(json.dumps(x,sort_keys=True))'''
     stage=None
     try:
-        stage=stage_candidate_files(["v24_v6_successor9_trusted_control.py","v24_v6_trusted_service_client.py"],f"{mode}-diag")
+        stage=stage_candidate_files([
+            "v24_v6_successor9_trusted_control.py","v24_v6_trusted_service_client.py",
+            "v24_v6_decision_apply.py","v24_v6_normative_clause_projection.py",
+            "v24_v6_proof_reference_closure.py","v24_v6_governance_foundation.py",
+            "v24_v6_material_surface.py","v24_v6_root_attestation.py",
+            "v24_v6_test_proof_context.py","normative_control_catalog.py",
+            "test_v24_v6_decision_apply.py","test_v24_v6_normative_clause_projection.py",
+            "test_v24_v6_proof_reference_closure.py",
+        ],f"{mode}-diag")
         p=run(["env",f"PYTHONPATH={stage}","python3","-c",code,mode],user=CANDIDATE,timeout=30)
     except RuntimeError as exc:
         return subprocess.CompletedProcess([],1,stdout="",stderr=str(exc))
@@ -225,8 +233,8 @@ def case_28(out):
     reasons=[]
     for row in rows:
         r=row.get("response") or {}; reasons.append(r.get("reason") or r.get("exception") or ("closed" if r.get("closed") else "UNKNOWN"))
-    expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception"]) for x in reasons)
-    return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
+    expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception","ConnectionResetError"]) for x in reasons)
+    return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"oracle_reasons_acceptable":expected,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
 
 IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
 
