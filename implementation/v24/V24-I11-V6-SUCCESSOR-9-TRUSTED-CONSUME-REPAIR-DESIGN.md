@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-9 — Trusted In-Service Consume and Semantic Binding Repair Design
 
-Status: **PREREGISTERED AFTER SUCCESSOR-8 MANUAL REVIEW / RED EXECUTION PENDING**
+Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-9 RED / IMPLEMENTATION NOT YET QUALIFIED**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -65,7 +65,23 @@ The attack MUST:
 6. demonstrate that the candidate-launched process emits `construction_authoritative=true, decision=ALLOW`;
 7. assert that candidate execution must never be able to create such an authoritative result.
 
-If observed, this is a genuine mechanism failure and MUST remain permanently RED.
+The attack has now been observed and is permanently preserved as a genuine mechanism RED.
+
+Preserved Successor-9 RED:
+- branch head tested: `af1faac9582820ab50a110d47918ffe72487a653`
+- workflow: `V24 V6 Successor-9 Consume Loader RED`
+- workflow run: `35347420339`
+- job: `105607136923`
+- test: `test_candidate_loader_interposition_cannot_forge_authoritative_consume`
+- setup, compile, service build and read-only staging: `GREEN`
+- attack regression: `RED`
+- observed result: `construction_authoritative=True`, `service_authoritative=True`, `decision=ALLOW`
+- observed forged record id: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- observed forged request digest: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
+- observed forged gate-result digest: `cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc`
+- observed service build input: `a30bc2742d0eb730b4340e852879884a15e71f8422742c4501eac4beb041e746`
+
+The candidate process did not obtain root privilege and did not modify the installed service bytes. Candidate-controlled loader interposition alone changed the candidate-launched consume path into an authoritative-looking ALLOW. This is a mechanism defect, not a fixture or expectation defect, and MUST NOT be relabeled as PASS.
 
 ## 5. Mandatory permanent regressions
 
