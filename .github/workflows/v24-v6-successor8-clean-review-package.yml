@@ -1,0 +1,302 @@
+name: V24 V6 Successor-8 Clean Review Package
+
+on:
+  push:
+    branches:
+      - review/v24-i11-v6-successor-8-clean
+    paths:
+      - '.github/workflows/v24-v6-successor8-clean-review-package.yml'
+      - 'review/v24/V24-I11-V6-SUCCESSOR-8-FROZEN-BINDING.json'
+      - 'review/v24/V24-I11-V6-SUCCESSOR-8-REVIEW-INSTRUCTIONS.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package-review:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Verify and extract exact frozen candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE='2accab62a8437b74c5ad599f0c3d338b7825bbbf'
+          TREE='36f020a7f1553259cc4dd76253e9fc0850a59974'
+          git fetch --no-tags --depth=1 origin "$CANDIDATE"
+          test "$(git rev-parse "$CANDIDATE^{tree}")" = "$TREE"
+
+          PKG="$RUNNER_TEMP/v24-v6-successor8-clean-review"
+          mkdir -p "$PKG/candidate" "$PKG/evidence/final-head" "$PKG/approved-design" \
+            "$PKG/root-attestation-trust" "$PKG/successor8-bootstrap-trust" "$PKG/predecessor-review"
+
+          PATHS=(
+            '.github/workflows/v24-v6-successor8-final-head.yml'
+            '.github/workflows/v24-v6-successor8-external-bootstrap-all-up.yml'
+            '.github/workflows/v24-v6-successor8-authority-record-mechanism.yml'
+            '.github/workflows/v24-v6-successor8-candidate-local-red.yml'
+            '.github/workflows/v24-v6-successor8-namespace-consumer-red.yml'
+            'implementation/v24/V24-I11-V6-INTEGRATED-SUCCESSOR-MANIFEST.json'
+            'implementation/v24/V24-I11-V6-SUCCESSOR-8-AUTHENTICATED-AUTHORITY-CHANNEL-REPAIR-DESIGN.md'
+            'implementation/v24/V24-I11-V6-R1-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R2-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R3-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R4-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R5-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R6-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R7-CONSTRUCTION-EVIDENCE.md'
+            'implementation/v24/V24-I11-V6-R8-CONSTRUCTION-EVIDENCE.md'
+            'governance-runtime/native/v24_v6_trusted_authority_service.c'
+            'governance-runtime/build_v24_v6_trusted_authority_service.sh'
+            'governance-runtime/v24_v6_trusted_service_client.py'
+            'governance-runtime/v24_v6_successor8_record_probe.py'
+            'governance-runtime/native/v24_v6_external_authority_gate.c'
+            'governance-runtime/build_v24_v6_external_authority_gate.sh'
+            'governance-runtime/v24_v6_external_gate_worker.py'
+            'governance-runtime/v24_v6_governance_foundation.py'
+            'governance-runtime/v24_v6_root_attestation.py'
+            'governance-runtime/v24_v6_proof_reference_closure.py'
+            'governance-runtime/v24_v6_test_proof_context.py'
+            'governance-runtime/fixtures/v24-v6-construction-root-attestation-v3.json'
+            'governance-runtime/fixtures/v24-v6-construction-context-signatures-v3.json'
+            'governance-runtime/v24_v6_endpoint_projection.py'
+            'governance-runtime/v24_v6_material_surface.py'
+            'governance-runtime/v24_v6_decision_apply.py'
+            'governance-runtime/v24_v6_normative_clause_projection.py'
+            'governance-runtime/v24_v6_effect_ledger_closure.py'
+            'governance-runtime/v24_v6_atomic_binding_modes.py'
+            'governance-runtime/v24_v6_qualification_integrity.py'
+            'governance-runtime/v24_v6_integrated_successor.py'
+            'governance-runtime/v24_endpoint_proof_compiler.py'
+            'governance-runtime/normative_control_catalog.py'
+            'governance-runtime/test_v24_v6_successor8_candidate_local_red.py'
+            'governance-runtime/test_v24_v6_successor8_authenticated_authority.py'
+            'governance-runtime/test_v24_v6_successor7_candidate_loader_red.py'
+            'governance-runtime/test_v24_v6_successor7_trusted_service.py'
+            'governance-runtime/test_v24_v6_successor6_gate_replacement_red.py'
+            'governance-runtime/test_v24_v6_successor6_trusted_control_domain.py'
+            'governance-runtime/test_v24_v6_successor5_mutable_verifier_red.py'
+            'governance-runtime/test_v24_v6_successor5_external_authority_gate.py'
+            'governance-runtime/test_v24_v6_successor4_external_anchor_red.py'
+            'governance-runtime/test_v24_v6_successor4_root_attestation.py'
+            'governance-runtime/test_v24_v6_governance_foundation.py'
+            'governance-runtime/test_v24_v6_proof_reference_closure.py'
+            'governance-runtime/test_v24_v6_proof_resolution_red.py'
+            'governance-runtime/test_v24_v6_endpoint_projection.py'
+            'governance-runtime/test_v24_v6_material_surface.py'
+            'governance-runtime/test_v24_v6_decision_apply.py'
+            'governance-runtime/test_v24_v6_normative_clause_projection.py'
+            'governance-runtime/test_v24_v6_effect_ledger_closure.py'
+            'governance-runtime/test_v24_v6_atomic_binding_modes.py'
+            'governance-runtime/test_v24_v6_qualification_integrity.py'
+            'governance-runtime/test_v24_v6_integrated_successor.py'
+            'governance-runtime/test_v24_v6_integrated_successor_dependency_red.py'
+            'governance-runtime/test_v24_endpoint_proof_compiler.py'
+            'governance-runtime/test_normative_control_catalog.py'
+            'remediation/v24/V24-I11-V6-PROOF-REFERENCE-CLOSURE-REPAIR-DESIGN.md'
+            'remediation/v24/V24-I11-V6-R9-PROOF-REFERENCE-CLOSURE-FINDING.md'
+          )
+
+          git archive --format=tar "$CANDIDATE" "${PATHS[@]}" | tar -xf - -C "$PKG/candidate"
+          cp review/v24/V24-I11-V6-SUCCESSOR-8-FROZEN-BINDING.json "$PKG/evidence/FROZEN-SUCCESSOR-8-BINDING.json"
+          cp review/v24/V24-I11-V6-SUCCESSOR-8-REVIEW-INSTRUCTIONS.md "$PKG/00-REVIEW-INSTRUCTIONS.md"
+          echo "PKG=$PKG" >> "$GITHUB_ENV"
+
+      - name: Download exact final-head verification artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/$GITHUB_REPOSITORY/actions/artifacts/10547385398/zip" > "$RUNNER_TEMP/verification.zip"
+          test "$(sha256sum "$RUNNER_TEMP/verification.zip" | awk '{print $1}')" = 'd9e4bb6aef3587f22ec2cc9cdbaa3578c4f2010762f7c4a8262416ff313c1fda'
+
+          unzip -q "$RUNNER_TEMP/verification.zip" -d "$PKG/evidence/final-head"
+          V="$PKG/evidence/final-head/v24-v6-successor8-verification.json"
+          test -f "$V"
+          test "$(jq -r '.candidate_commit' "$V")" = '2accab62a8437b74c5ad599f0c3d338b7825bbbf'
+          test "$(jq -r '.candidate_tree' "$V")" = '36f020a7f1553259cc4dd76253e9fc0850a59974'
+          test "$(jq -r '.integration_binding_digest' "$V")" = 'b7820190d1892ae572e52e5a52d64bab5a006ad9aefe7186b9ab84a29aae976e'
+          test "$(jq -r '.bound_file_count' "$V")" = '28'
+          test "$(jq -r '.gate_binary_sha256' "$V")" = '7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069'
+          test "$(jq -r '.service_binary_sha256' "$V")" = '77a6f8c68a16fc4277c087d68a4338664106f232cf538459707e22af8b3c1124'
+          test "$(jq -r '.namespace_policy' "$V")" = 'BLOCKED_LOAD_BEARING'
+          grep -qx 'candidate_user_mount_namespace=BLOCKED_LOAD_BEARING' \
+            "$PKG/evidence/final-head/successor8-authority-evidence/s8-namespace-policy.txt"
+
+      - name: Extract exact Successor-8 bootstrap trust
+        shell: bash
+        run: |
+          set -euo pipefail
+          TRUST='bd1000404d6e7c7f2f0e130a49c2747e7b2d83ac'
+          TREE='0a1c277976fdc6c51eb5465d2f7c945e7de090eb'
+          git fetch --no-tags --depth=1 origin "$TRUST"
+          test "$(git rev-parse "$TRUST^{tree}")" = "$TREE"
+          git show "$TRUST:trust/v24-v6-successor8-trusted-authority-bootstrap-v4.json" > "$PKG/successor8-bootstrap-trust/v24-v6-successor8-trusted-authority-bootstrap-v4.json"
+          git show "$TRUST:trust/install-v24-v6-successor8-trusted-authority-v4.sh" > "$PKG/successor8-bootstrap-trust/install-v24-v6-successor8-trusted-authority-v4.sh"
+          test "$(git hash-object "$PKG/successor8-bootstrap-trust/v24-v6-successor8-trusted-authority-bootstrap-v4.json")" = '8fe0ad1c96d1f1c2ce855846dfe342c79d947483'
+          test "$(git hash-object "$PKG/successor8-bootstrap-trust/install-v24-v6-successor8-trusted-authority-v4.sh")" = '7412614144e160d6a493d6e39e5a2cf3805375a1'
+
+      - name: Extract exact root-attestation trust
+        shell: bash
+        run: |
+          set -euo pipefail
+          TRUST='2515582a5e2f0e1041bf5cc83523ffa732620724'
+          TREE='1c2a1d0f60d3e2a62a2355831dc46f76ff72df7e'
+          git fetch --no-tags --depth=1 origin "$TRUST"
+          test "$(git rev-parse "$TRUST^{tree}")" = "$TREE"
+          git show "$TRUST:trust/v24-v6-construction-root-attestation-v3.json" > "$PKG/root-attestation-trust/v24-v6-construction-root-attestation-v3.json"
+          git show "$TRUST:trust/v24-v6-construction-context-signatures-v3.json" > "$PKG/root-attestation-trust/v24-v6-construction-context-signatures-v3.json"
+          git show "$TRUST:trust/v24-v6-construction-signing-ceremony-v3.json" > "$PKG/root-attestation-trust/v24-v6-construction-signing-ceremony-v3.json"
+          test "$(git hash-object "$PKG/root-attestation-trust/v24-v6-construction-root-attestation-v3.json")" = '7722a5725324fb805283bce9764b2d151a774ec2'
+          test "$(git hash-object "$PKG/root-attestation-trust/v24-v6-construction-context-signatures-v3.json")" = 'b16e2a2bfac013e6e600cf9944595a88eefd2ca8'
+          test "$(git hash-object "$PKG/root-attestation-trust/v24-v6-construction-signing-ceremony-v3.json")" = 'cc2d8bec17b6775392094920f9549ca2e5174d44'
+
+      - name: Preserve predecessor Successor-7 manual review
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREDECESSOR='3cb3a9efb82f58bca9fb7734b285e2e2d8a2bde1'
+          git fetch --no-tags --depth=1 origin "$PREDECESSOR"
+          git show "$PREDECESSOR:review/v24/V24-I11-V6-SUCCESSOR-7-FINAL-MANUAL-REVIEW.md" > "$PKG/predecessor-review/SUCCESSOR-7-FINAL-MANUAL-REVIEW.md"
+
+      - name: Reconstruct exact approved V6 reviewed bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin adjudication/v24-i11-v6-exact-reviewed-bytes
+          SRC='FETCH_HEAD:remediation/v24/V24-I11-SYSTEMIC-REMEDIATION-DESIGN-V6-CLEAN-REVIEW-PACKET.md'
+          REC='FETCH_HEAD:remediation/v24/exact-reviewed-v6/V24-I11-V6-EXACT-REVIEWED-BYTE-RECONSTRUCTION.json'
+          git show "$SRC" > "$RUNNER_TEMP/v6-source.md"
+          git show "$REC" > "$PKG/approved-design/V6-EXACT-BYTE-RECONSTRUCTION.json"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          pkg=Path(os.environ['PKG'])
+          source=(Path(os.environ['RUNNER_TEMP'])/'v6-source.md').read_bytes()
+          rec=json.loads((pkg/'approved-design/V6-EXACT-BYTE-RECONSTRUCTION.json').read_text())
+          tx=rec['exact_transformation']; off=tx['offset']
+          reviewed=source[:off]+bytes.fromhex(tx['insert_hex'])+source[off:]
+          assert len(reviewed)==19297
+          assert hashlib.sha256(reviewed).hexdigest()=='96ec464fbf602ac6b8c89fca5af16aa71a8d53f9f042605e46a07b4cd628ca62'
+          body=reviewed.split(b'---\n\n',1)[1]
+          assert hashlib.sha256(body).hexdigest()=='286217399947144630c29e991c3529dfee64d382be08a6ccd3f87e9fc5173ad5'
+          assert hashlib.sha1(f'blob {len(reviewed)}\0'.encode()+reviewed).hexdigest()=='4a15d50a0488464816d235b273d1dbf808fdce94'
+          (pkg/'approved-design/V24-I11-V6-EXACT-REVIEWED-DESIGN.md').write_bytes(reviewed)
+          PY
+
+      - name: Generate deterministic package manifest and binding
+        shell: bash
+        env:
+          CANDIDATE: '2accab62a8437b74c5ad599f0c3d338b7825bbbf'
+          CANDIDATE_TREE: '36f020a7f1553259cc4dd76253e9fc0850a59974'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os, subprocess, zipfile
+          pkg=Path(os.environ['PKG'])
+          candidate=os.environ['CANDIDATE']
+          verification=pkg/'evidence/final-head/v24-v6-successor8-verification.json'
+          verification_sha=hashlib.sha256(verification.read_bytes()).hexdigest()
+          entries=[]
+          for p in sorted(x for x in pkg.rglob('*') if x.is_file()):
+              rel=p.relative_to(pkg).as_posix()
+              data=p.read_bytes()
+              item={'path':rel,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+              if rel.startswith('candidate/'):
+                  rp=rel[len('candidate/'):]
+                  item['candidate_git_blob_sha1']=subprocess.check_output(['git','rev-parse',f'{candidate}:{rp}'],text=True).strip()
+              entries.append(item)
+
+          manifest={
+              'schema_version':8,
+              'package_id':'V24-I11-V6-SUCCESSOR-8-CLEAN-MANUAL-REVIEW-PACKAGE-V1',
+              'candidate_family_id':'V24-I11-V6-INTEGRATED-SUCCESSOR-8',
+              'candidate_commit':candidate,
+              'candidate_tree':os.environ['CANDIDATE_TREE'],
+              'exact_final_head_run_id':'35345890327',
+              'verification_artifact_id':10547385398,
+              'verification_artifact_digest':'sha256:d9e4bb6aef3587f22ec2cc9cdbaa3578c4f2010762f7c4a8262416ff313c1fda',
+              'verification_json_sha256':verification_sha,
+              'integration_binding_digest':'b7820190d1892ae572e52e5a52d64bab5a006ad9aefe7186b9ab84a29aae976e',
+              'bound_file_count':28,
+              'preserved_successor8_red_run_id':'35342416032',
+              'successor8_all_up_run_id':'35345347709',
+              'successor8_evidence_bound_revalidation_run_id':'35345531082',
+              'namespace_falsification_run_id':'35345014849',
+              'namespace_policy':'BLOCKED_LOAD_BEARING',
+              'bootstrap_trust_commit':'bd1000404d6e7c7f2f0e130a49c2747e7b2d83ac',
+              'bootstrap_trust_tree':'0a1c277976fdc6c51eb5465d2f7c945e7de090eb',
+              'bootstrap_manifest_blob_sha':'8fe0ad1c96d1f1c2ce855846dfe342c79d947483',
+              'bootstrap_script_blob_sha':'7412614144e160d6a493d6e39e5a2cf3805375a1',
+              'gate_build_input_sha256':'b0f0b0f91c88b1746d6bffa7d3b4955aa6f494cc525de45d7435582dfb77f1b9',
+              'gate_binary_sha256':'7c69d78f5bf0f0d09dfe0ec92b738f86f7b6c18de3895cef23662ecb91e30069',
+              'service_build_input_sha256':'a30bc2742d0eb730b4340e852879884a15e71f8422742c4501eac4beb041e746',
+              'service_binary_sha256':'77a6f8c68a16fc4277c087d68a4338664106f232cf538459707e22af8b3c1124',
+              'authority_record_schema':'V24_V6_S8_AUTHORITY_RECORD_V1',
+              'consumption_mode':'ROOT_ONLY_ONE_SHOT',
+              'predecessor_successor7_review_commit':'3cb3a9efb82f58bca9fb7734b285e2e2d8a2bde1',
+              'predecessor_successor7_review_disposition':'CHANGES_REQUIRED',
+              'scientific_execution_state':'CLOSED_PENDING_SUCCESSOR_REVIEW',
+              'runtime_qualification_state':'NOT_CLAIMED',
+              'successor_review_state':'REQUIRED_MANUAL_INDEPENDENT_REVIEW',
+              'authority_effect':'NONE_EVIDENCE_ONLY',
+              'files':entries,
+          }
+          mp=pkg/'PACKAGE-MANIFEST.json'
+          mp.write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          msha=hashlib.sha256(mp.read_bytes()).hexdigest()
+          binding={
+              'package_manifest_sha256':msha,
+              'candidate_family_id':manifest['candidate_family_id'],
+              'candidate_commit':candidate,
+              'candidate_tree':os.environ['CANDIDATE_TREE'],
+              'exact_final_head_run_id':manifest['exact_final_head_run_id'],
+              'verification_json_sha256':verification_sha,
+              'integration_binding_digest':manifest['integration_binding_digest'],
+              'gate_binary_sha256':manifest['gate_binary_sha256'],
+              'service_binary_sha256':manifest['service_binary_sha256'],
+              'bootstrap_trust_commit':manifest['bootstrap_trust_commit'],
+              'namespace_policy':manifest['namespace_policy'],
+              'scientific_execution_state':manifest['scientific_execution_state'],
+              'runtime_qualification_state':'NOT_CLAIMED',
+              'authority_effect':'NONE_EVIDENCE_ONLY',
+          }
+          (pkg/'PACKAGE-BINDING.json').write_text(json.dumps(binding,indent=2,sort_keys=True)+'\n')
+          zp=Path('V24-I11-V6-SUCCESSOR-8-CLEAN-MANUAL-REVIEW-PACKAGE.zip')
+          with zipfile.ZipFile(zp,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for p in sorted(x for x in pkg.rglob('*') if x.is_file()):
+                  rel=p.relative_to(pkg).as_posix()
+                  info=zipfile.ZipInfo(rel,date_time=(1980,1,1,0,0,0))
+                  info.compress_type=zipfile.ZIP_DEFLATED
+                  info.external_attr=0o100644<<16
+                  z.writestr(info,p.read_bytes())
+          digest=hashlib.sha256(zp.read_bytes()).hexdigest()
+          Path(str(zp)+'.sha256').write_text(digest+'  '+zp.name+'\n')
+          print(json.dumps({
+              'zip':zp.name,
+              'bytes':zp.stat().st_size,
+              'sha256':digest,
+              'manifest_sha256':msha,
+              'verification_json_sha256':verification_sha,
+              'file_count':len(entries)+2,
+          },sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v24-v6-successor8-clean-manual-review-package
+          path: |
+            V24-I11-V6-SUCCESSOR-8-CLEAN-MANUAL-REVIEW-PACKAGE.zip
+            V24-I11-V6-SUCCESSOR-8-CLEAN-MANUAL-REVIEW-PACKAGE.zip.sha256
+          if-no-files-found: error
