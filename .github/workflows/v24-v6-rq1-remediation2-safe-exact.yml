@@ -60,9 +60,12 @@ jobs:
           ready=true
           {
             echo "runner=$RUNNER_NAME"
-            test "$RUNNER_NAME" = 'v24-rq1-aws' || ready=false
-            sudo -n true || ready=false
-            id v24candidate || ready=false
+            preconditions=true
+            test "$RUNNER_NAME" = 'v24-rq1-aws' || preconditions=false
+            sudo -n true || preconditions=false
+            id v24candidate || preconditions=false
+            candidate_uid="$(id -u v24candidate 2>/dev/null || true)"
+            test -n "$candidate_uid" && test "$candidate_uid" != '0' || preconditions=false
             if ! systemctl is-active --quiet v24-v6-trusted-authority.service || ! test -S /run/v24-v6-authority/service.sock; then
               echo "service inactive or socket unlinked; attempting restore"
               sudo systemctl restart v24-v6-trusted-authority.service || ready=false
@@ -74,7 +77,7 @@ jobs:
             expected_service_hash='a9567ea1677456949e79bb64c06c6880426afcaaaa5235e5579ca3e62e7b021d'
             ready=false
             for attempt in $(seq 1 30); do
-              attempt_ready=true
+              attempt_ready="$preconditions"
               systemctl is-active --quiet v24-v6-trusted-authority.service || attempt_ready=false
               test -S /run/v24-v6-authority/service.sock || attempt_ready=false
               test -f /run/v24-v6-authority/service.pid || attempt_ready=false
