@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-EXPECTED_MANIFEST_SHA256="42e24fc1f7fac57966fcfdf67c06c68e0ffb9c4b102ddb487559fc4f2bb66e03"
+EXPECTED_MANIFEST_SHA256="95310d44f6a8cd1098f70c61d55080c39916765d421e12576e30bd1ffc892ef2"
 TRUSTED_ROOT="/opt/v24-v6-trusted-runtime"
 EXPECTED_SOCKET="/run/v24-v6-authority/service.sock"
 EXPECTED_CANDIDATE="v24candidate"
