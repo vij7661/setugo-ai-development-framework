@@ -120,6 +120,28 @@ def _case(case_id, evidence_dir):
     if mode == "candidate":
         p = _run(["python3","-c","import os; raise SystemExit(0 if os.geteuid()==0 else 1)"], user="v24candidate")
         return finish("RED" if p.returncode == 0 else "PASS", p.stderr.strip(), "candidate_identity_probe")
+    if mode in {"wrong-operation", "wrong-payload", "da1", "ncp1", "replay-restart"}:
+        # Materialize a genuine diagnostic record through the candidate client,
+        # then invoke the deployed root-peer semantic consumer.  The helper
+        # source is the frozen Successor-9 runtime, not a local mock.
+        d = "/tmp/v24-s9-build-20260919/governance-runtime"
+        diag = evidence_dir / f"{case_id}.diagnostic.json"
+        make = ("import json; from v24_v6_trusted_service_client import request_service; "
+                "from test_v24_v6_proof_reference_closure import proof_bundle,ROOT_CONTENT; "
+                "c,b,r=proof_bundle(); print(json.dumps(request_service('resolve-governed',context=c,boundary=b,reference=r['root'],expected_id='ROOT-VERIFIER',expected_digest=ROOT_CONTENT)))")
+        p = subprocess.run(["sudo", "-u", "v24candidate", "env", f"PYTHONPATH={d}", "python3", "-c", make], text=True, capture_output=True, timeout=30)
+        if p.returncode != 0:
+            return finish("HARNESS_DEFECT", p.stderr.strip() or "diagnostic creation failed", "candidate_diagnostic_creation")
+        diag.write_text(p.stdout.strip() + "\n", encoding="utf-8")
+        ctl = subprocess.run(["sudo", "env", f"PYTHONPATH={d}", "python3", f"{d}/v24_v6_successor9_trusted_control.py", "positive" if mode == "replay-restart" else mode, str(diag)], text=True, capture_output=True, timeout=30)
+        first = ctl.stdout.strip() or ctl.stderr.strip()
+        if mode == "replay-restart" and ctl.returncode == 0:
+            ctl2 = subprocess.run(["sudo", "env", f"PYTHONPATH={d}", "python3", f"{d}/v24_v6_successor9_trusted_control.py", "positive", str(diag)], text=True, capture_output=True, timeout=30)
+            first += "\nREPLAY=" + (ctl2.stdout.strip() or ctl2.stderr.strip())
+            ok = ctl2.returncode != 0
+        else:
+            ok = ctl.returncode != 0 and '"decision": "DENY"' in first
+        return finish("PASS" if ok else "RED", first, "candidate_diagnostic_then_deployed_root_consume")
     # No other mode is allowed to claim PASS until its real deployed-runtime
     # trigger is materialized.  A synthetic file mutation is not a substitute
     # for the preregistered service/VM oracle and is recorded as a harness defect.
