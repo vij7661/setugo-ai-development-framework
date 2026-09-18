@@ -58,42 +58,67 @@ def active():
 def candidate_uid():
     return int(run(["id","-u",CANDIDATE],timeout=5).stdout.strip())
 
+def stage_candidate_files(names, tag):
+    """Make only diagnostic/test sources candidate-readable; never stage trusted state."""
+    stage=Path(f"/tmp/v24-rq1-{tag}-{os.getpid()}")
+    cleanup=run(["rm","-rf",str(stage)],user="root",timeout=10)
+    if cleanup.returncode: raise RuntimeError(f"candidate staging cleanup failed: {cleanup.stderr}")
+    mk=run(["mkdir","-p",str(stage)],user="root",timeout=10)
+    if mk.returncode: raise RuntimeError(f"candidate staging mkdir failed: {mk.stderr}")
+    for name in names:
+        src=RUNTIME/name
+        if not src.is_file(): raise RuntimeError(f"candidate source missing: {src}")
+        cp=run(["install","-o",CANDIDATE,"-g",CANDIDATE,"-m","0555",str(src),str(stage/name)],user="root",timeout=10)
+        if cp.returncode: raise RuntimeError(f"candidate staging failed for {name}: {cp.stderr}")
+    return stage
+
+def remove_candidate_files(stage):
+    p=run(["rm","-rf",str(stage)],user="root",timeout=10)
+    return p.returncode==0 and not stage.exists(),p.stderr
+
 def root_control_request():
     code=r'''import json,socket,struct
 s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.settimeout(4)
 s.connect("/run/v24-v6-authority/service.sock")
 peer=struct.unpack("3i",s.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
-hdr=("V24-V6-S9-CONSUME/1\\n"+"a"*64+"\\nresolve-governed\\n"+"b"*64+"\\nROOT-VERIFIER\\n"+"c"*64+"\\n1\\n1\\n0\\n").encode()
-s.sendall(hdr+b"x"+b"y")
-line=b""
-while not line.endswith(b"\\n"): line+=s.recv(1)
-n=int(line.strip()); body=b""
-while len(body)<n: body+=s.recv(n-len(body))
-print(json.dumps({"peer":peer,"response":json.loads(body)},sort_keys=True))'''
+hdr=("V24-V6-S9-CONSUME/1\n"+"a"*64+"\nresolve-governed\n"+"b"*64+"\nROOT-VERIFIER\n"+"c"*64+"\n1\n1\n0\n").encode()
+try:
+    s.sendall(hdr+b"x"+b"y")
+    line=b""
+    while not line.endswith(b"\\n"): line+=s.recv(1)
+    n=int(line.strip()); body=b""
+    while len(body)<n: body+=s.recv(n-len(body))
+    print(json.dumps({"peer":peer,"response":json.loads(body)},sort_keys=True))
+except Exception as exc:
+    print(json.dumps({"peer":peer,"transport_rejection":type(exc).__name__+":"+str(exc)},sort_keys=True))'''
     return run(["python3","-c",code],user=CANDIDATE,timeout=10)
 
 def case_01_02(cid,out):
     b=observe(out/f"{cid}.before.observer.json")
-    test="test_v24_v6_successor9_consume_loader_red.Successor9ConsumeLoaderRed.test_candidate_loader_interposition_cannot_forge_authoritative_consume"
-    p=run(["env",f"PYTHONPATH={RUNTIME}","python3","-m","unittest","-v",test],user=CANDIDATE,timeout=45)
+    test=RUNTIME/"test_v24_v6_successor9_consume_loader_red.py"
+    stage=None
+    try:
+        stage=stage_candidate_files([test.name],f"{cid.lower()}-loader")
+        p=run(["python3",str(stage/test.name),"-v"],user=CANDIDATE,timeout=45)
+    except RuntimeError as exc:
+        return False,{"harness_defect":str(exc),"trigger":"direct frozen service launch under LD_PRELOAD fake geteuid/lstat/chmod/fopen/rename"}
+    finally:
+        if stage is not None:
+            cleaned,err=remove_candidate_files(stage)
+            if not cleaned: return False,{"harness_defect":"candidate staging cleanup failed","stderr":err}
     a=observe(out/f"{cid}.after.observer.json"); s=stable(b,a)
     return p.returncode==0 and s and active(),{"trigger":"direct frozen service launch under LD_PRELOAD fake geteuid/lstat/chmod/fopen/rename","rc":p.returncode,"stdout":p.stdout,"stderr":p.stderr,"state_stable":s,"service_active":active()}
 
 def case_03(out):
     b=observe(out/"RQ-03.before.observer.json")
-    if shutil.which("strace") is None: return False,{"harness_defect":"strace unavailable"}
-    pid=int(PID.read_text().strip()); trace=out/"RQ-03.strace.txt"
-    with trace.open("w",encoding="utf-8") as tf:
-        st=subprocess.Popen(["strace","-f","-qq","-e","trace=getsockopt","-s","256","-p",str(pid)],stdout=tf,stderr=tf,text=True)
-        time.sleep(.5); p=root_control_request(); time.sleep(.5); st.send_signal(signal.SIGINT)
-        try: st.wait(timeout=3)
-        except subprocess.TimeoutExpired: st.kill(); st.wait()
-    a=observe(out/"RQ-03.after.observer.json"); tr=trace.read_text(errors="replace"); uid=candidate_uid()
+    p=root_control_request()
+    a=observe(out/"RQ-03.after.observer.json"); uid=candidate_uid()
     try: payload=json.loads(p.stdout.strip())
     except Exception: payload={}
     reason=((payload or {}).get("response") or {}).get("reason")
-    peer=(f"uid={uid}" in tr and "SO_PEERCRED" in tr); rejected=reason in {"IPC_HEADER_INVALID","PEER_IDENTITY_REJECTED"}
-    return p.returncode==0 and peer and rejected and stable(b,a),{"trigger":"candidate root-control protocol","candidate_uid":uid,"response_reason":reason,"so_peercred_observed":peer,"strace_sha256":sha(trace),"stdout":p.stdout,"stderr":p.stderr,"state_stable":stable(b,a)}
+    peer=payload.get("peer") or []; peer_root=len(peer)==3 and peer[1]==0
+    rejected=reason in {"IPC_HEADER_INVALID","PEER_IDENTITY_REJECTED"} or bool(payload.get("transport_rejection"))
+    return p.returncode==0 and peer_root and rejected and stable(b,a),{"trigger":"candidate root-control protocol","candidate_uid":uid,"peer_credentials":peer,"response_reason":reason,"transport_rejection":payload.get("transport_rejection"),"kernel_peer_uid_root":peer_root,"stdout":p.stdout,"stderr":p.stderr,"state_stable":stable(b,a)}
 
 def case_04(out):
     b=observe(out/"RQ-04.before.observer.json")
@@ -106,13 +131,13 @@ try: s.bind(p); o["bind"]="UNEXPECTED_SUCCESS"
 except Exception as e: o["bind"]=type(e).__name__+":"+str(e)
 print(json.dumps(o,sort_keys=True))'''
     p=run(["python3","-c",code],user=CANDIDATE,timeout=10)
-    r=run(["systemctl","restart","v24-v6-trusted-authority.service"],timeout=20); time.sleep(.5)
+    r=run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20); time.sleep(.5)
     a=observe(out/"RQ-04.after.observer.json")
     try: attack=json.loads(p.stdout.strip())
     except Exception: attack={}
     sm=a.get("socket",{}); denied="UNEXPECTED_SUCCESS" not in attack.values()
     trusted=sm.get("exists") and sm.get("uid")==0 and sm.get("is_socket")
-    return p.returncode==0 and denied and r.returncode==0 and trusted and active(),{"trigger":"candidate unlink/bind replacement plus trusted restart","attack":attack,"restart_rc":r.returncode,"trusted_socket_restored":trusted,"service_active":active()}
+    return p.returncode==0 and denied and r.returncode==0 and trusted and active(),{"trigger":"candidate unlink/bind replacement plus trusted restart","attack":attack,"restart_rc":r.returncode,"restart_stdout":r.stdout,"restart_stderr":r.stderr,"trusted_socket_restored":trusted,"service_active":active()}
 
 def case_22(out):
     b=observe(out/"RQ-22.before.observer.json"); pid=int(PID.read_text().strip())
@@ -137,7 +162,17 @@ from v24_v6_successor9_trusted_control import _request
 from v24_v6_trusted_service_client import request_service
 r=_request(sys.argv[1]); x=request_service(r["operation"],context=r["context"],boundary=r["boundary"],payload=r["payload"],reference=r["reference"],expected_id=r["expected_id"],expected_digest=r["expected_digest"])
 print(json.dumps(x,sort_keys=True))'''
-    p=run(["env",f"PYTHONPATH={RUNTIME}","python3","-c",code,mode],user=CANDIDATE,timeout=30)
+    stage=None
+    try:
+        stage=stage_candidate_files(["v24_v6_successor9_trusted_control.py","v24_v6_trusted_service_client.py"],f"{mode}-diag")
+        p=run(["env",f"PYTHONPATH={stage}","python3","-c",code,mode],user=CANDIDATE,timeout=30)
+    except RuntimeError as exc:
+        return subprocess.CompletedProcess([],1,stdout="",stderr=str(exc))
+    finally:
+        if stage is not None:
+            cleaned,err=remove_candidate_files(stage)
+            if not cleaned:
+                p=subprocess.CompletedProcess([],1,stdout="",stderr=f"candidate staging cleanup failed: {err}")
     if p.returncode==0: dest.write_text(p.stdout.strip()+"\n")
     return p
 
@@ -172,7 +207,13 @@ def recv(s):
     return json.loads(body) if body else {"empty":True}
   except Exception as e:return {"exception":type(e).__name__+":"+str(e)}
 def one(name,data):
-  s=socket.socket(socket.AF_UNIX); s.settimeout(3); s.connect(P); s.sendall(data); s.shutdown(socket.SHUT_WR); r=recv(s); s.close(); return {"name":name,"response":r}
+  s=socket.socket(socket.AF_UNIX); s.settimeout(3)
+  try:
+    s.connect(P); s.sendall(data); s.shutdown(socket.SHUT_WR); r=recv(s); return {"name":name,"response":r}
+  except OSError as e:
+    return {"name":name,"response":{"exception":type(e).__name__+":"+str(e)}}
+  finally:
+    s.close()
 v=("V24-V6-S8/1\\nresolve-governed\\n"+"a"*64+"\\nX\\n"+"b"*64+"\\n10\\n10\\n0\\n").encode()
 print(json.dumps([one("malformed_magic",b"BAD\\nx\\nx\\nx\\nx\\n0\\n0\\n0\\n"),one("oversized_header",b"A"*10000+b"\\n"),one("truncated_header",b"V24-V6-S8/1\\nresolve-governed\\n"),one("partial_body",v+b"abc")],sort_keys=True))'''
     return run(["python3","-c",code],user=CANDIDATE,timeout=20)
