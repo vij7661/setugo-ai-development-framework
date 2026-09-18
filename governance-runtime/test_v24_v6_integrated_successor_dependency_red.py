@@ -55,7 +55,7 @@ class R9SharedDependencyFreezeRedTests(unittest.TestCase):
         manifest = current_manifest()
         baseline = validate_integrated_successor_manifest(repo_root=ROOT, manifest=manifest)
         self.assertTrue(baseline["integration_valid"], baseline["problems"])
-        self.assertEqual(baseline["bound_file_count"], 19)
+        self.assertEqual(baseline["bound_file_count"], 21)
 
         for dep_id, repo_path in sorted(EXPECTED_SHARED_PRODUCTION_DEPENDENCIES.items()):
             with self.subTest(dependency_id=dep_id):
