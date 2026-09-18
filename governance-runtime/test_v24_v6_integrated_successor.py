@@ -43,9 +43,10 @@ class IntegratedSuccessorBindingTests(unittest.TestCase):
         )
         self.assertTrue(result["integration_valid"], result["problems"])
         self.assertFalse(result["qualified"])
-        self.assertEqual(result["bound_file_count"], 21)
+        expected_bound_count = 16 + len(EXPECTED_SHARED_PRODUCTION_DEPENDENCIES)
+        self.assertEqual(result["bound_file_count"], expected_bound_count)
         self.assertEqual(result["scientific_execution_state"], SCIENTIFIC_EXECUTION_CLOSED)
-        self.assertEqual(len({x["raw_sha256"] for x in result["bound_files"]}), 21)
+        self.assertEqual(len({x["raw_sha256"] for x in result["bound_files"]}), expected_bound_count)
         dependency_paths = {
             row["path"]
             for row in result["bound_files"]
