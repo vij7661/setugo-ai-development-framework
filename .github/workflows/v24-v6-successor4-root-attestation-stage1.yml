@@ -1,0 +1,24 @@
+name: V24 V6 Successor-4 Root Attestation Stage 1
+
+on:
+  push:
+    branches:
+      - implementation/v24-i11-v6-successor4-root-attestation-stage1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  root-attestation-stage1:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+      - name: Run successor-4 construction root attestation tests
+        working-directory: governance-runtime
+        run: |
+          set -euo pipefail
+          python -m unittest -v test_v24_v6_successor4_construction_root_attestation.py
