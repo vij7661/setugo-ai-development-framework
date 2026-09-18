@@ -96,6 +96,12 @@ jobs:
                     test "$service_uid" = '0' || attempt_ready=false
                     test "$service_exe" = '/opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service' || attempt_ready=false
                     test "$service_hash" = "$expected_service_hash" || attempt_ready=false
+                    if sudo -n -u v24candidate kill -0 "$service_pid" 2>/dev/null; then
+                      echo "candidate_signal_probe=UNEXPECTED_SUCCESS"
+                      attempt_ready=false
+                    else
+                      echo "candidate_signal_probe=DENIED"
+                    fi
                     ;;
                 esac
               fi
