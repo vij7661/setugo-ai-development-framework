@@ -42,7 +42,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          clean: true
+          # A prior authorized root-context import left bounded Python caches
+          # in this self-hosted worktree.  Do not ask checkout to recursively
+          # delete them before we can perform the bounded cleanup below.
+          clean: false
+      - name: Bounded workspace hygiene cleanup
+        id: workspace_hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/v24-rq1-workspace-hygiene-${GITHUB_RUN_ID}.txt"
+          {
+            echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "workspace=$GITHUB_WORKSPACE"
+            echo "before_root_owned_cache_files"
+            sudo find "$GITHUB_WORKSPACE/governance-runtime" -type f -name '*.pyc' -printf '%u:%g %p\\n' 2>&1 || true
+            # Scope is strictly the checked-out governance-runtime tree.
+            sudo find "$GITHUB_WORKSPACE/governance-runtime" -type f -name '*.pyc' -delete
+            sudo find "$GITHUB_WORKSPACE/governance-runtime" -type d -name '__pycache__' -empty -delete
+            echo "after_cache_files"
+            if sudo find "$GITHUB_WORKSPACE/governance-runtime" -type f -name '*.pyc' -print -quit | grep -q .; then
+              echo "workspace_hygiene=FAIL"
+              exit 1
+            fi
+            echo "workspace_hygiene=PASS"
+          } | tee "$report"
       - name: Prepare append-only evidence directory
         shell: bash
         run: |
@@ -50,6 +74,9 @@ jobs:
           E="/var/lib/v24-rq1/runs/$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_SHA}"
           sudo mkdir -p "$E"
           sudo chown "$(id -u):$(id -g)" "$E"
+          if test -f "$RUNNER_TEMP/v24-rq1-workspace-hygiene-${GITHUB_RUN_ID}.txt"; then
+            cp "$RUNNER_TEMP/v24-rq1-workspace-hygiene-${GITHUB_RUN_ID}.txt" "$E/workspace-hygiene.txt"
+          fi
           printf 'EVIDENCE_DIR=%s\n' "$E" >> "$GITHUB_ENV"
           printf 'HARNESS_RC=99\n' >> "$GITHUB_ENV"
       - name: Diagnose and restore exact bound runtime
@@ -170,7 +197,8 @@ jobs:
           printf 'HARNESS_RC=%s\n' "$rc" >> "$GITHUB_ENV"
           exit 0
       - name: Stage evidence for artifact
-        if: always()
+        id: stage_evidence
+        if: steps.preflight.outcome == 'success' && steps.workspace_hygiene.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
@@ -178,7 +206,7 @@ jobs:
           mkdir rq1-remediation2-evidence
           cp -a "$EVIDENCE_DIR"/. rq1-remediation2-evidence/
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: steps.stage_evidence.outcome == 'success'
         with:
           name: rq1-remediation2-exact-safe-${{ github.sha }}
           path: rq1-remediation2-evidence

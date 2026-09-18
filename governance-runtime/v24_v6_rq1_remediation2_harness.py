@@ -29,6 +29,10 @@ REMAINING_SELECTED=["RQ-05","RQ-06","RQ-07","RQ-08","RQ-09","RQ-10","RQ-11","RQ-
 
 def run(argv,*,user=None,timeout=20):
     cmd=list(argv)
+    # Root-context imports must never write bytecode into the checkout.  This
+    # is a workspace-hygiene boundary only; it does not alter runtime logic.
+    if user == "root":
+        cmd=["env","PYTHONDONTWRITEBYTECODE=1"]+cmd
     if user: cmd=["sudo","-u",user,"--"]+cmd
     return subprocess.run(cmd,text=True,capture_output=True,check=False,timeout=timeout)
 
@@ -190,7 +194,7 @@ print(json.dumps(x,sort_keys=True))'''
     return p
 
 def trusted_consume(mode,diag):
-    return run(["env",f"PYTHONPATH={RUNTIME}","python3",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),mode,str(diag)],user="root",timeout=30)
+    return run(["env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),mode,str(diag)],user="root",timeout=30)
 
 def case_24_25(cid,out):
     mode="da1" if cid=="RQ-24" else "ncp1"; b=observe(out/f"{cid}.before.observer.json"); diag=out/f"{cid}.diagnostic.json"
