@@ -63,9 +63,10 @@ jobs:
             test "$RUNNER_NAME" = 'v24-rq1-aws' || ready=false
             sudo -n true || ready=false
             id v24candidate || ready=false
-            if ! systemctl is-active --quiet v24-v6-trusted-authority.service; then
-              echo "service inactive; attempting restore"
+            if ! systemctl is-active --quiet v24-v6-trusted-authority.service || ! test -S /run/v24-v6-authority/service.sock; then
+              echo "service inactive or socket unlinked; attempting restore"
               sudo systemctl restart v24-v6-trusted-authority.service || ready=false
+              sleep 1
             fi
             systemctl is-active v24-v6-trusted-authority.service || ready=false
             echo "--- unit ---"
@@ -100,7 +101,7 @@ jobs:
         run: |
           set -uo pipefail
           set +e
-          python governance-runtime/v24_v6_rq1_remediation2_harness.py --safe-slice --evidence-dir "$EVIDENCE_DIR" | tee "$EVIDENCE_DIR/run-summary.json"
+          python3 governance-runtime/v24_v6_rq1_remediation2_harness.py --safe-slice --evidence-dir "$EVIDENCE_DIR" | tee "$EVIDENCE_DIR/run-summary.json"
           rc=${PIPESTATUS[0]}
           set -e
           printf '%s\n' "$rc" > "$EVIDENCE_DIR/exit-code.txt"
@@ -131,4 +132,5 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "${{ steps.preflight.outcome }}" = "success"\n          test "${HARNESS_RC:-99}" = "0"
+          test "${{ steps.preflight.outputs.ready }}" = "true"
+          test "${HARNESS_RC:-99}" = "0"
