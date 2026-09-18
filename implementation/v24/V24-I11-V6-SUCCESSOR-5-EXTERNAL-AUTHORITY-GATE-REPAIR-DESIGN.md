@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-5 — External Authority Gate Repair Design
 
-Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-5 RED / IMPLEMENTATION NOT YET QUALIFIED**
+Status: **IMPLEMENTED / ALL-UP GREEN / EXACT FINAL-HEAD FREEZE PENDING**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -227,3 +227,33 @@ Successor-5 may be frozen for independent manual review only after:
 - runtime qualification remains `NOT_CLAIMED`.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## 12. Implemented construction evidence
+
+The preregistered repair has now been implemented without reclassifying the preserved RED.
+
+All-up implementation evidence:
+- branch head tested: `c2a1c8215b755ac2aee9fe007c5b1b6fe159e246`
+- workflow: `V24 V6 Successor-5 External Authority Gate`
+- workflow run: `35331004892`
+- job: `105555085219`
+- Successor-5 + inherited Successor-4 external-gate regressions: `21/21 GREEN`
+- complete V24-V6 R1-R9 regressions: `199/199 GREEN`
+- inherited V24 construction regressions: `90/90 GREEN`
+- total tests in the all-up gate: `310/310 GREEN`
+- gate build input SHA-256: `0065c4334cd23c55f241aeb7f7e221a414b2e5d01ba74bb85cd0968557ecff84`
+- native gate binary SHA-256: `e2145e97c96e1af335234c2d58b4a9c0be2bba5e32da696bb36bc38b28f6ca5a`
+- gate artifact: `10541365345`
+- gate artifact digest: `sha256:cd0e509bc290b87acbd1ad456447689718d1ed7e38fbb57c3f6206765ae3cac3`
+
+The external gate pins the worker plus all load-bearing Python dependencies used by proof resolution, DA-1, and NCP-1. The native parent performs an externally enforced context/attestation probe, executes the downstream operation in a clean interpreter, and independently verifies exact context, scope, generation, payload, gate identity/version, and worker-result binding before emitting `ALLOW`.
+
+Compound falsification evidence:
+- `test_da1_same_process_fresh_effect_path_self_grant_rejected_by_external_gate` — GREEN.
+- `test_ncp1_same_process_fresh_clause_control_self_grant_rejected_by_external_gate` — GREEN.
+- each test first demonstrates a local same-process Python false-green after deliberate mutation, then proves that the native gate rejects the identical attacked payload.
+
+This evidence remains construction-only. Scientific execution remains closed and runtime qualification remains `NOT_CLAIMED`.
+
+The next permitted step is exact final-head freeze and independent manual review.
+
