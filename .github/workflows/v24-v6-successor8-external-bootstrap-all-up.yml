@@ -128,15 +128,16 @@ jobs:
           test "$(sudo stat -c '%a' /run/v24-v6-authority/private/records)" = "700"
           test "$(sudo stat -c '%a' /run/v24-v6-authority/private/consumed)" = "700"
 
-      - name: Probe namespace availability without making it load-bearing
+      - name: Enforce frozen host namespace prohibition
         shell: bash
         run: |
           set -euo pipefail
-          if sudo -u v24candidate -- unshare -Urnm true 2>/dev/null; then
+          if sudo -u v24candidate -- unshare --user --map-root-user --mount /bin/true 2>/dev/null; then
             echo 'candidate_user_mount_namespace=AVAILABLE' | tee /tmp/s8-namespace-policy.txt
-          else
-            echo 'candidate_user_mount_namespace=UNAVAILABLE_ON_FROZEN_HOST' | tee /tmp/s8-namespace-policy.txt
+            echo 'Successor-8 construction requires unprivileged user/mount namespace creation to be blocked.'
+            exit 1
           fi
+          echo 'candidate_user_mount_namespace=BLOCKED_LOAD_BEARING' | tee /tmp/s8-namespace-policy.txt
 
       - name: Compile full Successor-8 candidate test surface
         working-directory: governance-runtime
