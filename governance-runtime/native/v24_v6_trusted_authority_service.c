@@ -211,6 +211,29 @@ static bool send_response(int fd, const char *decision, const char *reason,
     return hn > 0 && send_all(fd, header, (size_t)hn) && send_all(fd, json, (size_t)n);
 }
 
+
+static bool send_authoritative_response(int fd, const char *decision,
+                                        const char *request_digest,
+                                        const char *gate_digest,
+                                        const char *record_id) {
+    char json[3072];
+    int n = snprintf(
+        json, sizeof(json),
+        "{\"authority_effect\":\"%s\",\"construction_authoritative\":true,"
+        "\"decision\":\"%s\",\"diagnostic_only\":false,"
+        "\"gate_result_sha256\":\"%s\",\"request_sha256\":\"%s\","
+        "\"service_authoritative\":true,\"service_build_input_sha256\":\"%s\","
+        "\"service_id\":\"%s\",\"service_version\":\"%s\","
+        "\"trusted_record_id\":\"%s\",\"record_state\":\"CONSUMED\"}",
+        AUTHORITY_EFFECT, decision, gate_digest, request_digest, BUILD_INPUT_SHA256,
+        SERVICE_ID, SERVICE_VERSION, record_id
+    );
+    if (n <= 0 || (size_t)n >= sizeof(json)) return false;
+    char header[64];
+    int hn = snprintf(header, sizeof(header), "%d\n", n);
+    return hn > 0 && send_all(fd, header, (size_t)hn) && send_all(fd, json, (size_t)n);
+}
+
 static bool random_record_id(char out[65]) {
     unsigned char raw[32];
     if (RAND_bytes(raw, sizeof(raw)) != 1) return false;
@@ -248,6 +271,226 @@ static bool write_authority_record(const char *record_id, const char *decision,
     return true;
 }
 
+
+static bool valid_operation(const char *op);
+
+static bool field_value(const char *body, const char *key, char *out, size_t cap) {
+    char needle[128];
+    int nn = snprintf(needle, sizeof(needle), "%s=", key);
+    if (nn <= 0 || (size_t)nn >= sizeof(needle)) return false;
+    const char *p = strstr(body, needle);
+    if (!p || (p != body && p[-1] != '\n')) return false;
+    p += nn;
+    const char *end = strchr(p, '\n');
+    if (!end) return false;
+    size_t len = (size_t)(end - p);
+    if (len == 0 || len >= cap) return false;
+    memcpy(out, p, len);
+    out[len] = '\0';
+    return true;
+}
+
+static bool canonical_request_digest(const char *op,
+                                     const char *reference,
+                                     const char *expected_id,
+                                     const char *expected_digest,
+                                     const unsigned char *context,
+                                     size_t context_len,
+                                     const unsigned char *boundary,
+                                     size_t boundary_len,
+                                     const unsigned char *payload,
+                                     size_t payload_len,
+                                     char out[65]) {
+    size_t bind_len = context_len + boundary_len + payload_len +
+                      strlen(op) + strlen(reference) + strlen(expected_id) +
+                      strlen(expected_digest) + 4;
+    unsigned char *bind = malloc(bind_len);
+    if (!bind) return false;
+    size_t off = 0;
+    const char *parts[] = {op, reference, expected_id, expected_digest};
+    for (size_t i = 0; i < 4; ++i) {
+        size_t n = strlen(parts[i]);
+        memcpy(bind + off, parts[i], n);
+        off += n;
+        bind[off++] = '\0';
+    }
+    memcpy(bind + off, context, context_len);
+    off += context_len;
+    memcpy(bind + off, boundary, boundary_len);
+    off += boundary_len;
+    if (payload_len) {
+        memcpy(bind + off, payload, payload_len);
+        off += payload_len;
+    }
+    sha256_hex(bind, off, out);
+    free(bind);
+    return true;
+}
+
+static bool consume_record_trusted(int fd, const char *record_id,
+                                   const char *expected_request_digest) {
+    if (!is_hex64_or_dash(record_id) || strcmp(record_id, "-") == 0 ||
+        !is_hex64_or_dash(expected_request_digest) ||
+        strcmp(expected_request_digest, "-") == 0) {
+        return send_response(fd, "DENY", "RECORD_ARGUMENT_INVALID", NULL, NULL, NULL);
+    }
+
+    char src[PATH_MAX], dst[PATH_MAX];
+    if (snprintf(src, sizeof(src), "%s/%s.record", RECORD_DIR, record_id) >= (int)sizeof(src) ||
+        snprintf(dst, sizeof(dst), "%s/%s.record", CONSUMED_DIR, record_id) >= (int)sizeof(dst)) {
+        return send_response(fd, "DENY", "RECORD_PATH_INVALID", NULL, NULL, NULL);
+    }
+
+    int rfd = open(src, O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    if (rfd < 0) {
+        return send_response(fd, "DENY", "AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED",
+                             expected_request_digest, NULL, NULL);
+    }
+    struct stat st;
+    if (fstat(rfd, &st) != 0 || !S_ISREG(st.st_mode) || st.st_uid != 0 ||
+        st.st_gid != 0 || (st.st_mode & 0077) != 0 ||
+        st.st_size <= 0 || st.st_size > 8192) {
+        close(rfd);
+        return send_response(fd, "DENY", "AUTHORITY_RECORD_CONTROL_DOMAIN_INVALID",
+                             expected_request_digest, NULL, NULL);
+    }
+
+    size_t len = (size_t)st.st_size;
+    unsigned char *data = malloc(len + 1);
+    if (!data) {
+        close(rfd);
+        return send_response(fd, "DENY", "AUTHORITY_RECORD_READ_FAILED",
+                             expected_request_digest, NULL, NULL);
+    }
+    size_t off = 0;
+    while (off < len) {
+        ssize_t n = read(rfd, data + off, len - off);
+        if (n < 0) {
+            if (errno == EINTR) continue;
+            free(data); close(rfd);
+            return send_response(fd, "DENY", "AUTHORITY_RECORD_READ_FAILED",
+                                 expected_request_digest, NULL, NULL);
+        }
+        if (n == 0) break;
+        off += (size_t)n;
+    }
+    close(rfd);
+    if (off != len) {
+        free(data);
+        return send_response(fd, "DENY", "AUTHORITY_RECORD_READ_FAILED",
+                             expected_request_digest, NULL, NULL);
+    }
+    data[len] = '\0';
+
+    char rec_id[65], service_id[128], service_version[64], build[65];
+    char request[65], decision[32], gate[65], effect[64], schema[128];
+    bool valid =
+        field_value((char *)data, "schema", schema, sizeof(schema)) &&
+        field_value((char *)data, "record_id", rec_id, sizeof(rec_id)) &&
+        field_value((char *)data, "service_id", service_id, sizeof(service_id)) &&
+        field_value((char *)data, "service_version", service_version, sizeof(service_version)) &&
+        field_value((char *)data, "service_build_input_sha256", build, sizeof(build)) &&
+        field_value((char *)data, "request_sha256", request, sizeof(request)) &&
+        field_value((char *)data, "decision", decision, sizeof(decision)) &&
+        field_value((char *)data, "gate_result_sha256", gate, sizeof(gate)) &&
+        field_value((char *)data, "authority_effect", effect, sizeof(effect)) &&
+        strcmp(schema, "V24_V6_S8_AUTHORITY_RECORD_V1") == 0 &&
+        strcmp(rec_id, record_id) == 0 &&
+        strcmp(service_id, SERVICE_ID) == 0 &&
+        strcmp(service_version, SERVICE_VERSION) == 0 &&
+        strcmp(build, BUILD_INPUT_SHA256) == 0 &&
+        strcmp(request, expected_request_digest) == 0 &&
+        is_hex64_or_dash(gate) && strcmp(gate, "-") != 0 &&
+        strcmp(effect, AUTHORITY_EFFECT) == 0 &&
+        (strcmp(decision, "ALLOW") == 0 || strcmp(decision, "DENY") == 0);
+    free(data);
+
+    if (!valid) {
+        return send_response(fd, "DENY", "AUTHORITY_RECORD_BINDING_INVALID",
+                             expected_request_digest, NULL, NULL);
+    }
+    if (rename(src, dst) != 0) {
+        return send_response(fd, "DENY", "AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED",
+                             expected_request_digest, gate, NULL);
+    }
+    return send_authoritative_response(fd, decision, request, gate, record_id);
+}
+
+static void handle_root_control(int fd) {
+    char magic[64], record_id[128], op[96], reference[256], expected_id[512], expected_digest[256];
+    char context_len_s[64], boundary_len_s[64], payload_len_s[64];
+
+    if (!recv_line(fd, magic, sizeof(magic)) ||
+        !recv_line(fd, record_id, sizeof(record_id)) ||
+        !recv_line(fd, op, sizeof(op)) ||
+        !recv_line(fd, reference, sizeof(reference)) ||
+        !recv_line(fd, expected_id, sizeof(expected_id)) ||
+        !recv_line(fd, expected_digest, sizeof(expected_digest)) ||
+        !recv_line(fd, context_len_s, sizeof(context_len_s)) ||
+        !recv_line(fd, boundary_len_s, sizeof(boundary_len_s)) ||
+        !recv_line(fd, payload_len_s, sizeof(payload_len_s))) {
+        send_response(fd, "DENY", "CONTROL_HEADER_MALFORMED", NULL, NULL, NULL);
+        return;
+    }
+
+    if (strcmp(magic, "V24-V6-S9-CONSUME/1") != 0 ||
+        !is_hex64_or_dash(record_id) || strcmp(record_id, "-") == 0 ||
+        !valid_operation(op) || !is_hex64_or_dash(reference) ||
+        !is_hex64_or_dash(expected_digest)) {
+        send_response(fd, "DENY", "CONTROL_HEADER_INVALID", NULL, NULL, NULL);
+        return;
+    }
+
+    size_t context_len = 0, boundary_len = 0, payload_len = 0;
+    if (!parse_size(context_len_s, &context_len) ||
+        !parse_size(boundary_len_s, &boundary_len) ||
+        !parse_size(payload_len_s, &payload_len) ||
+        context_len == 0 || boundary_len == 0) {
+        send_response(fd, "DENY", "CONTROL_LENGTH_INVALID", NULL, NULL, NULL);
+        return;
+    }
+
+    unsigned char *context = malloc(context_len);
+    unsigned char *boundary = malloc(boundary_len);
+    unsigned char *payload = payload_len ? malloc(payload_len) : NULL;
+    if (!context || !boundary || (payload_len && !payload)) {
+        free(context); free(boundary); free(payload);
+        send_response(fd, "DENY", "CONTROL_ALLOCATION_FAILED", NULL, NULL, NULL);
+        return;
+    }
+    if (!recv_exact(fd, context, context_len) ||
+        !recv_exact(fd, boundary, boundary_len) ||
+        (payload_len && !recv_exact(fd, payload, payload_len))) {
+        free(context); free(boundary); free(payload);
+        send_response(fd, "DENY", "CONTROL_BODY_TRUNCATED", NULL, NULL, NULL);
+        return;
+    }
+
+    bool payload_contract_ok =
+        ((strncmp(op, "resolve-", 8) == 0) && payload_len == 0) ||
+        ((strcmp(op, "evaluate-decision-apply") == 0 ||
+          strcmp(op, "validate-normative-coverage") == 0) && payload_len > 0);
+    if (!payload_contract_ok) {
+        free(context); free(boundary); free(payload);
+        send_response(fd, "DENY", "CONTROL_PAYLOAD_CONTRACT_INVALID", NULL, NULL, NULL);
+        return;
+    }
+
+    char request_digest[65];
+    bool digest_ok = canonical_request_digest(
+        op, reference, expected_id, expected_digest,
+        context, context_len, boundary, boundary_len,
+        payload, payload_len, request_digest
+    );
+    free(context); free(boundary); free(payload);
+    if (!digest_ok) {
+        send_response(fd, "DENY", "CONTROL_REQUEST_BINDING_FAILED", NULL, NULL, NULL);
+        return;
+    }
+
+    consume_record_trusted(fd, record_id, request_digest);
+}
+
 static int consume_record(const char *record_id, const char *expected_request_digest) {
     (void)record_id;
     (void)expected_request_digest;
@@ -272,7 +515,15 @@ static void handle_client(int fd, uid_t candidate_uid) {
     struct ucred cred;
     socklen_t cred_len = sizeof(cred);
     if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &cred, &cred_len) != 0 ||
-        cred_len != sizeof(cred) || cred.uid != candidate_uid) {
+        cred_len != sizeof(cred)) {
+        send_response(fd, "DENY", "PEER_IDENTITY_REJECTED", NULL, NULL, NULL);
+        return;
+    }
+    if (cred.uid == 0) {
+        handle_root_control(fd);
+        return;
+    }
+    if (cred.uid != candidate_uid) {
         send_response(fd, "DENY", "PEER_IDENTITY_REJECTED", NULL, NULL, NULL);
         return;
     }
