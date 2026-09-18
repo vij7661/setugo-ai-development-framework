@@ -1,0 +1,159 @@
+name: V24 V6 Successor-7 Trusted Service Mechanism
+
+on:
+  push:
+    branches:
+      - remediation/v24-i11-v6-successor-7
+    paths:
+      - '.github/workflows/v24-v6-successor7-trusted-service-mechanism.yml'
+      - 'governance-runtime/native/v24_v6_trusted_authority_service.c'
+      - 'governance-runtime/build_v24_v6_trusted_authority_service.sh'
+      - 'governance-runtime/v24_v6_trusted_service_client.py'
+      - 'governance-runtime/test_v24_v6_successor7_trusted_service.py'
+      - 'governance-runtime/native/v24_v6_external_authority_gate.c'
+      - 'governance-runtime/build_v24_v6_external_authority_gate.sh'
+      - 'governance-runtime/install_v24_v6_trusted_authority_gate.sh'
+      - 'governance-runtime/v24_v6_external_gate_worker.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-service-mechanism:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Assert construction dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gcc
+          command -v jq
+          command -v openssl
+          command -v sudo
+          test -x /usr/bin/python3
+
+      - name: Create fixed unprivileged candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! id v24candidate >/dev/null 2>&1; then
+            sudo useradd --system --no-create-home --shell /usr/sbin/nologin v24candidate
+          fi
+          test "$(id -u v24candidate)" != "0"
+          if sudo -u v24candidate -- sudo -n true 2>/dev/null; then
+            echo "candidate identity unexpectedly has sudo"
+            exit 1
+          fi
+
+      - name: Compile Successor-7 Python surface
+        working-directory: governance-runtime
+        run: |
+          python -m py_compile \
+            v24_v6_trusted_service_client.py \
+            test_v24_v6_successor7_trusted_service.py \
+            v24_v6_external_gate_worker.py \
+            v24_v6_proof_reference_closure.py \
+            v24_v6_root_attestation.py
+
+      - name: Build and install frozen Successor-6 gate for mechanism-only validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash governance-runtime/build_v24_v6_external_authority_gate.sh
+          sudo bash governance-runtime/install_v24_v6_trusted_authority_gate.sh
+
+      - name: Build Successor-7 trusted service
+        run: bash governance-runtime/build_v24_v6_trusted_authority_service.sh
+
+      - name: Install service executable root-owned for mechanism validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo install -o root -g root -m 0555 \
+            governance-runtime/.service-build/v24_v6_trusted_authority_service \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service
+          sudo install -o root -g root -m 0444 \
+            governance-runtime/.service-build/v24_v6_trusted_authority_service_build.json \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service_build.json
+
+      - name: Start separately controlled root authority service
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /run/v24-v6-authority
+          sudo env -i PATH=/usr/bin:/bin LC_ALL=C.UTF-8 \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service --serve \
+            >/tmp/v24-v6-successor7-service.log 2>&1 &
+          for i in $(seq 1 50); do
+            test -S /run/v24-v6-authority/service.sock && break
+            sleep 0.1
+          done
+          test -S /run/v24-v6-authority/service.sock
+          test "$(stat -c '%u' /run/v24-v6-authority/service.sock)" = "0"
+          test "$(stat -c '%u' /run/v24-v6-authority/private)" = "0"
+          test "$(stat -c '%a' /run/v24-v6-authority/private)" = "700"
+
+      - name: Stage read-only candidate test surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /tmp/v24candidate-successor7
+          sudo cp -a governance-runtime /tmp/v24candidate-successor7
+          sudo chown -R root:root /tmp/v24candidate-successor7
+          sudo find /tmp/v24candidate-successor7 -type d -exec chmod 0555 {} +
+          sudo find /tmp/v24candidate-successor7 -type f -exec chmod 0444 {} +
+
+      - name: Run trusted-service regressions as candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/v24candidate-successor7
+          sudo -u v24candidate -- env \
+            PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONPATH=/tmp/v24candidate-successor7 \
+            /usr/bin/python3 -m unittest -v test_v24_v6_successor7_trusted_service.py
+
+      - name: Prove unauthorized root peer is rejected
+        working-directory: governance-runtime
+        run: |
+          python - <<'PY'
+          from test_v24_v6_proof_reference_closure import proof_bundle
+          from v24_v6_trusted_service_client import request_service
+          c,b,_=proof_bundle()
+          r=request_service(
+              "resolve-governed",
+              context=c,
+              boundary=b,
+              reference="f"*64,
+              expected_id="UNAUTHORIZED-ROOT-PEER",
+              expected_digest="a"*64,
+          )
+          assert r["decision"] == "DENY", r
+          assert r["reason"] == "PEER_IDENTITY_REJECTED", r
+          print(r)
+          PY
+
+      - name: Record provisional mechanism identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat governance-runtime/.service-build/v24_v6_trusted_authority_service_build.json
+          sha256sum governance-runtime/.service-build/v24_v6_trusted_authority_service
+          stat -c '%u:%g %a %n' \
+            /opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service \
+            /run/v24-v6-authority \
+            /run/v24-v6-authority/private \
+            /run/v24-v6-authority/service.sock
+
+      - name: Preserve bootstrap limitation
+        shell: bash
+        run: |
+          echo 'MECHANISM_ONLY: trusted bootstrap manifest not yet externalized.'
+          echo 'This workflow is not final Successor-7 qualification evidence.'
