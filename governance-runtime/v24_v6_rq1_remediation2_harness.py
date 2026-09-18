@@ -226,6 +226,37 @@ def case_24_25(cid,out):
     exact=x.get("decision")=="DENY" and x.get("construction_authoritative") is True and x.get("service_authoritative") is True and x.get("record_state")=="CONSUMED"
     return c.returncode!=0 and exact and active(),{"trigger":f"{mode.upper()} attacked diagnostic then matching root-peer consume","diagnostic":json.loads(diag.read_text()),"consume_stdout":c.stdout,"consume_stderr":c.stderr,"authoritative_deny":exact,"service_hash_stable":b.get("service",{}).get("sha256")==a.get("service",{}).get("sha256")}
 
+def case_11(out):
+    b=observe(out/"RQ-11.before.observer.json"); diag=out/"RQ-11.diagnostic.json"
+    d=candidate_diag("positive",diag)
+    if d.returncode: return False,{"harness_defect":"diagnostic creation failed","stderr":d.stderr}
+    procs=[]
+    for _ in range(4):
+        cmd=["sudo","-u","root","--","env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),"positive",str(diag)]
+        procs.append(subprocess.Popen(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE))
+    rows=[]
+    for p in procs:
+        try: so,se=p.communicate(timeout=30)
+        except subprocess.TimeoutExpired: p.kill(); so,se=p.communicate()
+        rows.append({"rc":p.returncode,"stdout":so,"stderr":se})
+    a=observe(out/"RQ-11.after.observer.json")
+    success=sum(1 for r in rows if '"decision": "ALLOW"' in r["stdout"])
+    rejected=sum(1 for r in rows if 'REPLAY' in r["stdout"] or 'UNAVAILABLE' in r["stdout"])
+    ok=success==1 and rejected==3 and stable(b,a) and active()
+    return ok,{"trigger":"four concurrent root-peer consumers of one record","results":rows,"success_count":success,"replay_or_unavailable_count":rejected,"state_stable":stable(b,a),"service_active":active()}
+
+def case_12(out):
+    b=observe(out/"RQ-12.before.observer.json"); diag=out/"RQ-12.diagnostic.json"
+    d=candidate_diag("positive",diag)
+    if d.returncode: return False,{"harness_defect":"diagnostic creation failed","stderr":d.stderr}
+    first=trusted_consume("positive",diag)
+    restart=run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20)
+    second=trusted_consume("positive",diag)
+    a=observe(out/"RQ-12.after.observer.json")
+    replay=('REPLAY' in second.stdout or 'UNAVAILABLE' in second.stdout or 'replayed' in second.stdout.lower())
+    ok=first.returncode!=0 and restart.returncode==0 and replay and stable(b,a) and active()
+    return ok,{"trigger":"successful consume, trusted service restart, replay same record","first":{"rc":first.returncode,"stdout":first.stdout,"stderr":first.stderr},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"replay":{"rc":second.returncode,"stdout":second.stdout,"stderr":second.stderr},"replay_rejected":replay,"state_stable":stable(b,a),"service_active":active()}
+
 def protocol_variants():
     code=r'''import json,socket
 P="/run/v24-v6-authority/service.sock"
@@ -265,7 +296,7 @@ def case_28(out):
     expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception","ConnectionResetError"]) for x in reasons)
     return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"oracle_reasons_acceptable":expected,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
 
-IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
+IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
 
 def execute(cid,out):
     oracle,mode=CASES[cid]; start=time.time()
