@@ -240,7 +240,10 @@ def case_11(out):
         except subprocess.TimeoutExpired: p.kill(); so,se=p.communicate()
         rows.append({"rc":p.returncode,"stdout":so,"stderr":se})
     a=observe(out/"RQ-11.after.observer.json")
-    success=sum(1 for r in rows if '"decision": "ALLOW"' in r["stdout"])
+    # The frozen one-shot oracle counts the authoritative consume transition,
+    # whose decision is DENY in this evidence-only subject; ALLOW is not the
+    # success criterion here.
+    success=sum(1 for r in rows if '"service_authoritative": true' in r["stdout"] and '"record_state": "CONSUMED"' in r["stdout"])
     rejected=sum(1 for r in rows if 'REPLAY' in r["stdout"] or 'UNAVAILABLE' in r["stdout"])
     ok=success==1 and rejected==3 and stable(b,a) and active()
     return ok,{"trigger":"four concurrent root-peer consumers of one record","results":rows,"success_count":success,"replay_or_unavailable_count":rejected,"state_stable":stable(b,a),"service_active":active()}
