@@ -1,6 +1,6 @@
 # V24-I11-V6 Successor-6 — Candidate-Nonwritable Authority Gate Repair Design
 
-Status: **PREREGISTERED AFTER PRESERVED SUCCESSOR-6 RED / IMPLEMENTATION IN PROGRESS**
+Status: **IMPLEMENTED / ALL-UP GREEN / EXACT FINAL-HEAD FREEZE PENDING**
 
 Authority effect: `NONE_EVIDENCE_ONLY`
 
@@ -116,3 +116,30 @@ Successor-6 remains construction-only. It does not claim hostile-host resistance
 Scientific execution remains closed. Runtime qualification remains `NOT_CLAIMED`.
 
 `AUTHORITY_EFFECT = NONE_EVIDENCE_ONLY`
+
+## 9. Implemented construction evidence
+
+The preregistered Successor-6 repair has been implemented without reclassifying the preserved RED.
+
+All-up evidence:
+- branch head tested: `b86e87ef199779b116224af0793cc3630519e662`
+- workflow: `V24 V6 Successor-6 All-Up Trusted Gate`
+- workflow run: `35334689053`
+- job: `105566697724`
+- Successor-6 + predecessor authority-boundary regressions: `29/29 GREEN`
+- complete V24-V6 R1-R9 regressions: `199/199 GREEN`
+- inherited V24 construction regressions: `90/90 GREEN`
+- total all-up tests: `318/318 GREEN`
+- trusted runtime: `/opt/v24-v6-trusted-runtime`
+- candidate OS identity: `v24candidate` (unprivileged, no sudo)
+- trusted runtime owner/mode: root-owned and candidate-nonwritable
+- gate build-input SHA-256: `4e76eeaf554293d7f3a1faa615aec6c422c4b37d9b1677b94cdf1279fdcee818`
+- trusted gate binary SHA-256: `724543687125ae63c62d801bd9e77721adaccc8b8c9726b1b3730b2368e7af5b`
+- trusted gate evidence artifact: `10542249862`
+- artifact digest: `sha256:402f2f7d4bc16e327f876e7c933547ca8cfd5e72f18fcac8e351e688be477644`
+
+The all-up run also demonstrates that a tampered repository-built gate cannot be trusted-installed, installs the exact measured gate and worker/source set into a root-owned nonwritable control domain, and executes authority regressions under an unprivileged candidate identity. The candidate identity cannot chmod, unlink, replace, rename, or rewrite the trusted gate/worker paths. Caller-selected copies of the gate are rejected as non-authoritative.
+
+This remains bounded construction evidence only. Scientific execution remains closed and runtime qualification remains `NOT_CLAIMED`.
+
+The next permitted step is exact final-head freeze followed by independent manual review.
