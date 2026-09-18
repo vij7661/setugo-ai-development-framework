@@ -28,6 +28,7 @@ gcc \
   -Wall \
   -Wextra \
   -Werror \
+  -DBUILD_INPUT_SHA256="\\\"$BUILD_INPUT_SHA\\\"" \
   "$SRC" \
   -o "$OUT" \
   -lcrypto
@@ -39,7 +40,7 @@ cat > "$BUILD_DIR/v24_v6_trusted_authority_service_build.json" <<EOF
 {
   "schema_version": 1,
   "service_id": "V24-V6-TRUSTED-AUTHORITY-SERVICE",
-  "service_version": "1",
+  "service_version": "2",
   "build_input_sha256": "$BUILD_INPUT_SHA",
   "binary_sha256": "$BINARY_SHA",
   "service_source_sha256": "$SRC_SHA",
