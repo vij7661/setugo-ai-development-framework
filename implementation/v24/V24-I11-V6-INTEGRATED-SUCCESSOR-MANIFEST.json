@@ -234,8 +234,19 @@
     "integrated_validator_git_blob_sha": "5c659c4ca245fdf35dc4cdc6124047677d9311f6",
     "targeted_green_run_id": "35334206717",
     "targeted_green_job_id": "105565189290",
-    "construction_state": "TARGETED_GREEN_ALL_UP_PENDING",
+    "construction_state": "READY_FOR_EXACT_FINAL_HEAD",
     "runtime_qualification_state": "NOT_CLAIMED",
-    "authority_effect": "NONE_EVIDENCE_ONLY"
+    "authority_effect": "NONE_EVIDENCE_ONLY",
+    "all_up_run_id": "35334689053",
+    "all_up_job_id": "105566697724",
+    "all_up_head_sha": "b86e87ef199779b116224af0793cc3630519e662",
+    "security_regression_count": 29,
+    "r1_r9_regression_count": 199,
+    "inherited_v24_regression_count": 90,
+    "total_all_up_test_count": 318,
+    "build_input_sha256": "4e76eeaf554293d7f3a1faa615aec6c422c4b37d9b1677b94cdf1279fdcee818",
+    "gate_binary_sha256": "724543687125ae63c62d801bd9e77721adaccc8b8c9726b1b3730b2368e7af5b",
+    "gate_artifact_id": "10542249862",
+    "gate_artifact_digest": "sha256:402f2f7d4bc16e327f876e7c933547ca8cfd5e72f18fcac8e351e688be477644"
   }
 }
