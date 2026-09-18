@@ -27,6 +27,18 @@
 #ifndef EXPECTED_FOUNDATION_SHA256
 #define EXPECTED_FOUNDATION_SHA256 "UNBUILT"
 #endif
+#ifndef EXPECTED_DECISION_APPLY_SHA256
+#define EXPECTED_DECISION_APPLY_SHA256 "UNBUILT"
+#endif
+#ifndef EXPECTED_MATERIAL_SURFACE_SHA256
+#define EXPECTED_MATERIAL_SURFACE_SHA256 "UNBUILT"
+#endif
+#ifndef EXPECTED_NORMATIVE_PROJECTION_SHA256
+#define EXPECTED_NORMATIVE_PROJECTION_SHA256 "UNBUILT"
+#endif
+#ifndef EXPECTED_NORMATIVE_CATALOG_SHA256
+#define EXPECTED_NORMATIVE_CATALOG_SHA256 "UNBUILT"
+#endif
 #ifndef BUILD_INPUT_SHA256
 #define BUILD_INPUT_SHA256 "UNBUILT"
 #endif
@@ -251,6 +263,14 @@ static bool verify_pinned_python_sources(const char *runtime) {
         !sha256_file_matches(path, EXPECTED_ROOT_SHA256)) return false;
     if (!join_path(path, runtime, "v24_v6_governance_foundation.py") ||
         !sha256_file_matches(path, EXPECTED_FOUNDATION_SHA256)) return false;
+    if (!join_path(path, runtime, "v24_v6_decision_apply.py") ||
+        !sha256_file_matches(path, EXPECTED_DECISION_APPLY_SHA256)) return false;
+    if (!join_path(path, runtime, "v24_v6_material_surface.py") ||
+        !sha256_file_matches(path, EXPECTED_MATERIAL_SURFACE_SHA256)) return false;
+    if (!join_path(path, runtime, "v24_v6_normative_clause_projection.py") ||
+        !sha256_file_matches(path, EXPECTED_NORMATIVE_PROJECTION_SHA256)) return false;
+    if (!join_path(path, runtime, "normative_control_catalog.py") ||
+        !sha256_file_matches(path, EXPECTED_NORMATIVE_CATALOG_SHA256)) return false;
     return true;
 }
 
@@ -284,6 +304,37 @@ static char *run_worker(
         (char *)reference,
         (char *)expected_id,
         (char *)expected_digest,
+        NULL
+    };
+    return capture_exec(argv, envp, status_out);
+}
+
+static char *run_downstream_worker(
+    const char *runtime,
+    const char *operation,
+    const char *context_path,
+    const char *boundary_path,
+    const char *payload_path,
+    int *status_out
+) {
+    char worker[PATH_MAX];
+    if (!join_path(worker, runtime, "v24_v6_external_gate_worker.py")) return NULL;
+    char *const envp[] = {
+        "PATH=/usr/bin:/bin",
+        "LC_ALL=C.UTF-8",
+        "PYTHONNOUSERSITE=1",
+        "PYTHONDONTWRITEBYTECODE=1",
+        NULL
+    };
+    char *argv[] = {
+        "/usr/bin/python3",
+        "-E",
+        "-s",
+        worker,
+        (char *)operation,
+        (char *)context_path,
+        (char *)boundary_path,
+        (char *)payload_path,
         NULL
     };
     return capture_exec(argv, envp, status_out);
@@ -525,6 +576,178 @@ static int resolve_command(int argc, char **argv) {
     return 0;
 }
 
+static int downstream_command(int argc, char **argv) {
+    if (argc != 11) {
+        deny("ARGUMENT_COUNT_INVALID");
+        return 2;
+    }
+    const char *operation = argv[1];
+    const char *context_path = argv[2];
+    const char *boundary_path = argv[3];
+    const char *payload_path = argv[4];
+    const char *probe_reference = argv[5];
+    const char *probe_expected_id = argv[6];
+    const char *probe_expected_digest = argv[7];
+    const char *required_gate_id = argv[8];
+    const char *required_gate_version = argv[9];
+    const char *mode = argv[10];
+
+    if (strcmp(mode, "enforce") != 0) { deny("ENFORCEMENT_MODE_REQUIRED"); return 1; }
+    if (strcmp(required_gate_id, GATE_ID) != 0) { deny("VERIFIER_IDENTITY_MISMATCH"); return 1; }
+    if (strcmp(required_gate_version, GATE_VERSION) != 0) { deny("VERIFIER_VERSION_MISMATCH"); return 1; }
+    if (!(strcmp(operation, "evaluate-decision-apply") == 0 ||
+          strcmp(operation, "validate-normative-coverage") == 0)) {
+        deny("OPERATION_UNSUPPORTED"); return 1;
+    }
+    if (!is_hex64(probe_reference)) { deny("REFERENCE_DIGEST_INVALID"); return 1; }
+    if (strcmp(probe_expected_digest, "-") != 0 && !is_hex64(probe_expected_digest)) {
+        deny("EXPECTED_DIGEST_INVALID"); return 1;
+    }
+
+    char runtime[PATH_MAX];
+    if (!runtime_dir(runtime)) { deny("GATE_RUNTIME_ROOT_UNRESOLVED"); return 1; }
+    if (!verify_pinned_python_sources(runtime)) { deny("PINNED_SOURCE_DIGEST_MISMATCH"); return 1; }
+
+    char self[PATH_MAX];
+    ssize_t self_len = readlink("/proc/self/exe", self, sizeof(self)-1);
+    if (self_len <= 0 || self_len >= (ssize_t)sizeof(self)) {
+        deny("GATE_SELF_IDENTITY_UNRESOLVED"); return 1;
+    }
+    self[self_len] = '\0';
+
+    char *const envp[] = {
+        "PATH=/usr/bin:/bin",
+        "LC_ALL=C.UTF-8",
+        "PYTHONNOUSERSITE=1",
+        "PYTHONDONTWRITEBYTECODE=1",
+        NULL
+    };
+    char *probe_argv[] = {
+        self,
+        "resolve-governed",
+        (char *)context_path,
+        (char *)boundary_path,
+        (char *)probe_reference,
+        (char *)probe_expected_id,
+        (char *)probe_expected_digest,
+        GATE_ID,
+        GATE_VERSION,
+        "enforce",
+        NULL
+    };
+    int st = 0;
+    char *probe_output = capture_exec(probe_argv, envp, &st);
+    if (!probe_output || !child_ok(st)) {
+        free(probe_output); deny("EXTERNAL_CONTEXT_PROBE_REJECTED"); return 1;
+    }
+    char probe_tmp[PATH_MAX];
+    if (!write_temp_json(probe_output, probe_tmp)) {
+        free(probe_output); deny("EXTERNAL_CONTEXT_PROBE_UNMATERIALIZED"); return 1;
+    }
+    const char *probe_filter =
+        "["
+        "(.decision // \"\"),"
+        "(.construction_authoritative|tostring),"
+        "(.gate_id // \"\"),"
+        "(.gate_version // \"\"),"
+        "(.context_digest // \"\"),"
+        "(.scope_digest // \"\")"
+        "]|@tsv";
+    char *probe_fields = run_jq("-r", probe_filter, probe_tmp, &st);
+    unlink(probe_tmp);
+    free(probe_output);
+    if (!probe_fields || !child_ok(st)) {
+        free(probe_fields); deny("EXTERNAL_CONTEXT_PROBE_MALFORMED"); return 1;
+    }
+    char *pf[6] = {0};
+    int pcount = split_tsv(probe_fields, pf, 6);
+    if (pcount != 6 ||
+        strcmp(pf[0], "ALLOW") != 0 ||
+        strcmp(pf[1], "true") != 0 ||
+        strcmp(pf[2], GATE_ID) != 0 ||
+        strcmp(pf[3], GATE_VERSION) != 0 ||
+        !is_hex64(pf[4]) || !is_hex64(pf[5])) {
+        free(probe_fields); deny("EXTERNAL_CONTEXT_PROBE_INVALID"); return 1;
+    }
+    char expected_context_digest[65];
+    char expected_scope_digest[65];
+    strncpy(expected_context_digest, pf[4], 64); expected_context_digest[64] = '\0';
+    strncpy(expected_scope_digest, pf[5], 64); expected_scope_digest[64] = '\0';
+    free(probe_fields);
+
+    int generation_status = 0;
+    char *generation = run_jq("-r", ".governance_generation_id // \"\"", context_path, &generation_status);
+    if (!generation || !child_ok(generation_status) || generation[0] == '\0') {
+        free(generation); deny("PROOF_CONTEXT_GENERATION_INVALID"); return 1;
+    }
+
+    size_t payload_len = 0;
+    unsigned char *payload_bytes = read_file(payload_path, &payload_len);
+    if (!payload_bytes) {
+        free(generation); deny("DOWNSTREAM_PAYLOAD_UNREADABLE"); return 1;
+    }
+    char payload_digest[65];
+    sha256_hex_bytes(payload_bytes, payload_len, payload_digest);
+    free(payload_bytes);
+
+    char *worker_output = run_downstream_worker(
+        runtime, operation, context_path, boundary_path, payload_path, &st
+    );
+    if (!worker_output || !child_ok(st)) {
+        free(generation); free(worker_output);
+        deny("EXTERNAL_GATE_WORKER_FAILED"); return 1;
+    }
+    char worker_tmp[PATH_MAX];
+    if (!write_temp_json(worker_output, worker_tmp)) {
+        free(generation); free(worker_output);
+        deny("EXTERNAL_GATE_WORKER_OUTPUT_UNMATERIALIZED"); return 1;
+    }
+    const char *worker_filter =
+        "["
+        "(.success|tostring),"
+        "(.state // \"\"),"
+        "(.authority_effect // \"\"),"
+        "(.input_binding.governance_generation_id // \"\"),"
+        "(.input_binding.context_digest // \"\"),"
+        "(.input_binding.genesis_trusted_scope_digest // \"\"),"
+        "(.payload_sha256 // \"\")"
+        "]|@tsv";
+    char *worker_fields = run_jq("-r", worker_filter, worker_tmp, &st);
+    unlink(worker_tmp);
+    if (!worker_fields || !child_ok(st)) {
+        free(generation); free(worker_output); free(worker_fields);
+        deny("EXTERNAL_GATE_WORKER_OUTPUT_MALFORMED"); return 1;
+    }
+    char *wf[7] = {0};
+    int wcount = split_tsv(worker_fields, wf, 7);
+    if (wcount != 7 ||
+        strcmp(wf[0], "true") != 0 ||
+        wf[1][0] == '\0' ||
+        strcmp(wf[2], AUTHORITY_EFFECT) != 0 ||
+        strcmp(wf[3], generation) != 0 ||
+        strcmp(wf[4], expected_context_digest) != 0 ||
+        strcmp(wf[5], expected_scope_digest) != 0 ||
+        strcmp(wf[6], payload_digest) != 0) {
+        free(generation); free(worker_output); free(worker_fields);
+        deny("EXTERNAL_GATE_WORKER_DECISION_REJECTED"); return 1;
+    }
+
+    char worker_digest[65];
+    sha256_hex_bytes((unsigned char *)worker_output, strlen(worker_output), worker_digest);
+    printf("{\"authority_effect\":\"%s\",\"build_input_sha256\":\"%s\","
+           "\"construction_authoritative\":true,\"context_digest\":\"%s\","
+           "\"decision\":\"ALLOW\",\"gate_id\":\"%s\",\"gate_version\":\"%s\","
+           "\"operation\":\"%s\",\"payload_sha256\":\"%s\",\"scope_digest\":\"%s\","
+           "\"worker_result_sha256\":\"%s\"}\n",
+           AUTHORITY_EFFECT, BUILD_INPUT_SHA256, expected_context_digest,
+           GATE_ID, GATE_VERSION, operation, payload_digest, expected_scope_digest, worker_digest);
+
+    free(generation);
+    free(worker_output);
+    free(worker_fields);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     if (argc == 2 && strcmp(argv[1], "--identity") == 0) {
         printf("{\"authority_effect\":\"%s\",\"build_input_sha256\":\"%s\","
@@ -535,6 +758,11 @@ int main(int argc, char **argv) {
     if (argc >= 2 && strcmp(argv[1], "consume-verdict") == 0) {
         deny("CALLER_SUPPLIED_VERDICT_UNSUPPORTED");
         return 1;
+    }
+    if (argc >= 2 &&
+        (strcmp(argv[1], "evaluate-decision-apply") == 0 ||
+         strcmp(argv[1], "validate-normative-coverage") == 0)) {
+        return downstream_command(argc, argv);
     }
     return resolve_command(argc, argv);
 }
