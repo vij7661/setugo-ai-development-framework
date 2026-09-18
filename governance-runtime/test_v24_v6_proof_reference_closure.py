@@ -1,23 +1,20 @@
 from __future__ import annotations
 
 import copy
-import os
 import unittest
 
 from v24_v6_governance_foundation import CURRENT, QUALIFIED, STALE, digest
-from v24_v6_test_proof_context import record_test_attestation_inventory
+from v24_v6_test_proof_context import attested_boundary_for_test
 from v24_v6_proof_reference_closure import (
     CURRENTNESS_BINDING,
     GOVERNED_QUALIFICATION,
     INDEPENDENCE_QUALIFICATION,
     PROOF_REFERENCE_CLOSED,
-    TRUSTED_BOUNDARY_ANCHOR_ENV,
     close_governance_dependencies,
     resolve_currentness_binding,
     resolve_governed_qualification,
     resolve_independence_qualification,
     seal_proof_context,
-    trusted_boundary_anchor_digest,
     validate_proof_context,
 )
 
@@ -38,15 +35,7 @@ D9 = "9" * 64
 
 
 def anchored_boundary_for(context: dict) -> dict:
-    scope = context["genesis_trusted_scope"]
-    boundary = {
-        "governance_generation_id": context["governance_generation_id"],
-        "expected_proof_context_digest": context["context_digest"],
-        "expected_genesis_scope_digest": scope["scope_digest"],
-    }
-    os.environ[TRUSTED_BOUNDARY_ANCHOR_ENV] = trusted_boundary_anchor_digest(boundary)
-    record_test_attestation_inventory(context, boundary)
-    return boundary
+    return attested_boundary_for_test(context)
 
 
 def seal(record: dict, field: str) -> dict:
