@@ -1041,9 +1041,9 @@ Do not use live provider APIs.
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=14c2ec315b5c4182ffc3bf2d47f1d8a4544770fe
-tree=cf3c061536720a8b5040fe7013a8f531161bef7e
-parent=d9b8cdbfca19652ab43d3836e082683688f65654
+commit=3b2967df0c7df715b2fb124f8c6140441907cbce
+tree=c69f3b70348d34d6f23fdb2f9771fe60850c75a8
+parent=b5886bec558bd31d5c5e00d057dba7fa84705562
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -1051,14 +1051,14 @@ live_provider_execution=false
 ## Fresh evidence execution identity
 {
   "execution_hashes": {
-    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "e264f2ced03dbddb07243d1afd2325cd31acf2187e03b4ac04e957526a1231db",
-    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "23f3249c9834d0380f3ae7a447c38205e82b85f73a8997c694e138e7614f4fec",
-    "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "bb6026716045c1e5b0550e7e4eae3dba98ad1f90d378612a8c48af89b59c3d2a",
-    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "bb46e87af5807d1de2955a4bf5ac55e8cc936fbae317bf2424594b49f31a81c9",
-    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "d0a37974d79b0cab2d549a2ab5ff8b2a1847b6a67b6bccbac057264e22a98eee"
+    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "a9bcce90a2afdb464683ae0ab8a991ec32d4f13c7323ef428e654f160480a08f",
+    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "b7d25a702afeb5d58905c1b5539bad1229deb560e529e7347fadb5c0c4f9f36c",
+    "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "ef61d4c08bad66c9c17f5cba77788530d892617b8f5f09ec13b6ec393e08bb6e",
+    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "b0f09b410216770b94ae44805c5d40e5b8dec5741757a3f3f5722f81ab0aab8c",
+    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "d647ccd00a275be9d04ad986f9593b4fe7008922cb4c561721791a53e876bb55"
   },
-  "source_commit": "14c2ec315b5c4182ffc3bf2d47f1d8a4544770fe",
-  "source_tree": "cf3c061536720a8b5040fe7013a8f531161bef7e"
+  "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
+  "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8"
 }
 
 ## Deterministic exit gates
@@ -1085,11 +1085,11 @@ high_self_falsification_survivors=0
 ```json
 {
   "governance-runtime/build_exp_m_review_packet.py": "cfee5632769bb9a12aba5b76399a82bd36f3c3ed54b6a39a9cc946136e97271f",
-  "governance-runtime/exp_m_deterministic.py": "11770e456097656cecb56396b3376b9391b696379bb0d0676192baed36a993a5",
-  "governance-runtime/run_exp_m_deterministic.py": "6ab4b48de8b93e104395663884bb90378100c8f29eb970fb89729c5654b32031",
+  "governance-runtime/exp_m_deterministic.py": "57883528428f76c602bc4e7895aacd5281efb40128fc9ca4c3b179b3a861520d",
+  "governance-runtime/run_exp_m_deterministic.py": "98b97bb4da4b11d12e77a4a2281af9ca5c73f613711ac829a43a0e333f17782e",
   "governance-runtime/run_exp_m_mutations.py": "b06fb9f3e28635e3fa764f1e0c83478cb8d587a1caab9b83ff6eaca27cba5cbd",
   "governance-runtime/self_falsify_exp_m.py": "38e0a7cd845030c36a51ab74762e889c0e7fb8925fa790961497afef8f074d19",
-  "governance-runtime/test_exp_m_deterministic.py": "3d5b5145623bfe2cf41ff3020bc50527d893017ad5da2d039443629d97b08702",
+  "governance-runtime/test_exp_m_deterministic.py": "ff23c8139b31322f408a0d7acd934a839eaa301156a6c93d692ff383e1881ff2",
   "governance-runtime/test_exp_m_phases.py": "2b91d45e5d8c7f899ec9a1171495be0e45730367a3e6a8836b0c45fdde3e084d"
 }
 ```
@@ -1101,9 +1101,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "14c2ec315b5c4182ffc3bf2d47f1d8a4544770fe",
-    "source_tree": "cf3c061536720a8b5040fe7013a8f531161bef7e",
-    "utc": "2026-09-19T22:01:55.865507+00:00"
+    "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
+    "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8",
+    "utc": "2026-09-19T22:03:30.941165+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -1663,9 +1663,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "14c2ec315b5c4182ffc3bf2d47f1d8a4544770fe",
-    "source_tree": "cf3c061536720a8b5040fe7013a8f531161bef7e",
-    "utc": "2026-09-19T22:01:55.163508+00:00"
+    "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
+    "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8",
+    "utc": "2026-09-19T22:03:29.961163+00:00"
   },
   "experiment": "EXP-M",
   "mutations": [
@@ -2392,9 +2392,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "14c2ec315b5c4182ffc3bf2d47f1d8a4544770fe",
-    "source_tree": "cf3c061536720a8b5040fe7013a8f531161bef7e",
-    "utc": "2026-09-19T22:01:56.249508+00:00"
+    "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
+    "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8",
+    "utc": "2026-09-19T22:03:31.325164+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
@@ -3031,6 +3031,7 @@ def preflight_delivery(
     risk_policy: ProviderAccessibilityRiskPolicy | None = None,
     expected_transition_class: str = "LOWER",
     expected_fence_version: str = "1",
+    observed_interactions: Sequence[Sequence[str]] | None = None,
 ) -> DeliveryPreflightResult:
     reasons: list[str] = []
     if not snapshot.outside_candidate_write_authority:
@@ -3043,6 +3044,8 @@ def preflight_delivery(
         reasons.append("evidence_contract_unresolved")
     if not interactions.closed or not interactions.interactions or any(not set(interaction).issubset(manifest.items) for interaction in interactions.interactions):
         reasons.append("interaction_contract_unresolved")
+    if observed_interactions is None or {tuple(x) for x in observed_interactions} != {tuple(x) for x in interactions.interactions}:
+        reasons.append("interaction_observation_unbound")
     if plan is None or qualification is None:
         reasons.append("qualification_records_missing")
     else:
@@ -3609,7 +3612,7 @@ def valid_preflight(snapshot, contract, interactions, manifest, provider, items)
         qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
         context_policy=ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"),
         context_evidence=ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
-        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False))
+        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False), observed_interactions=(("required-a", "required-b"),))
 
 
 def run_phases() -> dict:
@@ -4007,6 +4010,7 @@ def preflight(*args, **kwargs):
         "context_evidence": ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
         "fence": AdmissionFenceRecord("fence", "1", True),
         "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False),
+        "observed_interactions": (("a", "b"),),
     }
     for key, value in defaults.items():
         kwargs.setdefault(key, value)
