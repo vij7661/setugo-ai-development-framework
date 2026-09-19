@@ -4,6 +4,93 @@ Status: preregistered design only. No experiment in this matrix is claimed execu
 
 Every experiment must implement: frozen version, deterministic oracle, positive control, negative fixtures, test-the-test mutation, first-failure preservation, generated counts and independent review.
 
+## FP-IDENT-001 — Canonical record identity
+
+Pass iff structured identity is deterministic and collision-resistant across all supported subject/type/version inputs.
+
+Negative fixtures:
+
+- delimiter collision;
+- Unicode normalization ambiguity;
+- path separator/case ambiguity where platform semantics differ;
+- duplicate canonical field;
+- type confusion;
+- length-framing ambiguity;
+- same semantic object serialized in alternative order.
+
+Positive control:
+
+- equivalent canonical object produces identical identity.
+
+Test-the-test:
+
+- replace structured framing with naive delimiter concatenation -> collision fixture must fail.
+
+## FP-CAS-001 — Authority generation / CAS
+
+Pass iff only current generation may mutate protected state and a successful write advances generation atomically.
+
+Negative fixtures:
+
+- stale writer;
+- two concurrent same-generation writers;
+- ABA/replayed generation token;
+- crash before/after CAS;
+- missing generation;
+- generation reset after restart.
+
+Positive control:
+
+- one current writer succeeds and advances generation once.
+
+Test-the-test:
+
+- remove expected-generation comparison -> stale/concurrent fixture must fail.
+
+## FP-LEDGER-001 — Tamper-evident ledger
+
+Pass iff append history, chain, sequence and independent anchor agree.
+
+Negative fixtures:
+
+- truncate tail;
+- rollback snapshot;
+- fork same sequence;
+- delete middle record;
+- rewrite historical payload;
+- restart from older local checkpoint;
+- anchor unavailable;
+- anchor points to unknown head.
+
+Positive control:
+
+- valid append advances chain and anchor.
+
+Test-the-test:
+
+- remove anchor comparison -> rollback fixture must fail.
+
+## FP-DATAFLOW-001 — Data-flow label propagation
+
+Pass iff protected labels propagate monotonically and only explicit authorized declassification may reduce them.
+
+Negative fixtures:
+
+- transform drops SENSITIVE;
+- untrusted ingest loses UNTRUSTED label;
+- egress with unknown label;
+- candidate self-declassifies;
+- declassification reused for another subject/destination;
+- join combines protected and public input but output marked public.
+
+Positive control:
+
+- authorized declassification with exact source/transform/destination binding succeeds.
+
+Test-the-test:
+
+- remove label join/propagation -> exfiltration fixture must fail.
+
 ## RA-CAP-001 — Capability Truth
 
 Pass iff:
