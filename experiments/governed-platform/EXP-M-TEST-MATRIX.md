@@ -290,6 +290,23 @@ Test dispositions:
 | L23 | Retrieval returns exact required full content/hash | Eligible for downstream semantic coverage |
 | L24 | Candidate modifies egress decision/profile | Untrusted; delivery blocked |
 
+## Phase M — TOCTOU and reviewer-tool boundary tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| M01 | Source file mutated after manifest hash before upload | Frozen bytes used or mismatch detected |
+| M02 | Generated representation mutated after freeze | Representation/wire mismatch |
+| M03 | Capability profile expires between preflight and final call | Block completion |
+| M04 | Egress authorization revoked before send | Block dispatch |
+| M05 | Provider file replaced/mutated after qualification | File identity/access mismatch |
+| M06 | Final review uses stale provider file version | Verdict inadmissible |
+| M07 | Reviewer web search finds ungoverned evidence and uses it for PASS | Cannot count as frozen review evidence |
+| M08 | Reviewer tool fetches different revision of governed file | Revision/hash mismatch |
+| M09 | Governed supplemental tool evidence captured with provenance | Requires explicit supplemental/new boundary; not silent rebind |
+| M10 | Tool result omitted from audit record but cited in verdict | Coverage invalid |
+| M11 | Candidate changes source path after preflight but before adapter serialization | No TOCTOU substitution |
+| M12 | Retry after state drift reuses old attempt identity | Reject/new attempt required |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
