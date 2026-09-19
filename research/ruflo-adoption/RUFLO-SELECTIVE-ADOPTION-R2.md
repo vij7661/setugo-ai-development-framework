@@ -133,6 +133,8 @@ A child may not re-lend returned capacity until the release commit is authoritat
 
 Depth x breadth fan-out must never amplify aggregate authority.
 
+Hierarchical rule: a child may subdelegate consumables only from its own currently reserved balance. The same units cannot simultaneously back the child's own consumption and a descendant reservation. Every reserve/release operation carries parent-ledger generation and lineage; local conservation at each edge plus immutable upstream reservations must imply global conservation.
+
 ### R2-I05 — Generated registry cannot mint capability truth
 
 RA-05 generated inventory is diagnostic/read-only until separately qualified.
@@ -176,9 +178,10 @@ ExecutionContextReceipt:
 - toolchain versions;
 - container/image digest where used;
 - dependency lock digests;
-- fetched dependency identities used by the execution;
-- declared runtime input files;
-- relevant environment/configuration hashes excluding secrets;
+- fetched dependency identities/digests used by the execution;
+- declared runtime input files and their digests;
+- relevant environment/configuration hashes excluding secret values;
+- secret/credential provider identity + non-secret version/fingerprint when the claim depends on a secret-backed external interaction;
 - runner/OS/architecture identity where the claim depends on them.
 
 Promotion/release hard-requires `COMMITTED_SOURCE_STATE`.
@@ -214,8 +217,8 @@ RA-07/RA-08 append-only logs use:
 
 - hash chaining;
 - monotonic sequence/generation;
-- externally anchored checkpoint or independent monotonic authority anchor;
-- restart/recovery validation.
+- an anchor stored outside the writable archive state (for example a separately authorized monotonic authority store or signed external checkpoint);
+- load-time and restart/recovery comparison against that independent anchor.
 
 Rollback, truncation and fork are detectable.
 
@@ -244,6 +247,8 @@ over typed dimensions.
 
 A tool/plugin cannot lower filesystem/network/process/credential/egress/destructive/promotion risk by self-description.
 
+The platform floor comes from a versioned `ToolRiskRegistry` outside plugin/candidate write authority. Unknown tool identity or missing registry entry defaults to deny for authority-bearing dispatch.
+
 ### R2-I10 — Data-flow composition is governed
 
 Individually permitted actions may still compose into exfiltration.
@@ -254,7 +259,11 @@ The combination:
 
 is denied by default inside one capability envelope unless an explicit governing grant authorizes that exact composed flow.
 
-This is checked at plan/dispatch time, not only per-tool.
+The platform uses typed `DataFlowLabel` metadata on governed inputs and tool outputs. Labels propagate monotonically across transforms unless a separately authorized declassification operation records the exact source labels, transform and destination classification.
+
+A plan that cannot determine data-flow labels for a protected value fails closed before external egress.
+
+This is checked at plan/dispatch time and again at the egress boundary, not only per-tool.
 
 ### R2-I11 — Fencing is enforced by the protected resource
 
@@ -282,8 +291,9 @@ Enforcement must cover:
 
 - source/signature identity;
 - publisher/trust-root policy;
-- transitive dependency closure;
+- transitive dependency closure including runtime-resolved executable dependencies;
 - content-addressed verified load target;
+- no post-verification dynamic code fetch unless the fetched object is separately content-addressed, trusted, permission-checked and included in the dependency closure;
 - verify-then-load TOCTOU resistance;
 - tool permission contract;
 - sandbox/capability envelope;
