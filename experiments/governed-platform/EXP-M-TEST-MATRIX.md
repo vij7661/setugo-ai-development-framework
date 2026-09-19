@@ -534,6 +534,21 @@ Test dispositions:
 | TM-S09 | Confirmation trial ID reused across drift epochs | Reject/rebind to new epoch required |
 | TM-S10 | Every planned slot reconciles to one first-attempt dispatch/provider request and all pass | Attempt-set closure passes subject to all other gates |
 
+## Phase T — Retry transparency and admissibility-registry closure
+
+| ID | Test | Expected result |
+|---|---|---|
+| TM-T01 | SDK automatic retry hides first failed physical request then returns success | IMPLICIT_RETRY_UNOBSERVED or explicit hard failure; no single-success claim |
+| TM-T02 | Client retry disabled and one physical request maps to one WireDeliveryRecord | Retry transparency passes |
+| TM-T03 | Two physical retries exposed as two append-only attempts | Both retained; earlier failure cannot be erased |
+| TM-T04 | AdmissibilityPredicateRegistry adds predicate P but Phase O/mutation catalog lacks P | ADMISSIBILITY_PREDICATE_COVERAGE_INCOMPLETE |
+| TM-T05 | VerdictAdmissibilityResult omits registry predicate P | Set-closure failure |
+| TM-T06 | Mutation target for P exists but no independently killing negative fixture | Coverage incomplete |
+| TM-T07 | Negative fixture exists but validator mutation for P survives | Coverage incomplete |
+| TM-T08 | Registry/verdict/mutation/killed sets are exactly equal | Predicate-coverage closure passes |
+| TM-T09 | Candidate attempts to edit predicate registry used for own review | Untrusted/self-approval boundary violation |
+| TM-T10 | Registry version changes after preflight before admission | Attempt void/revalidation required |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
@@ -553,6 +568,7 @@ Every EXP-M execution must retain:
 - ProviderQualificationExecutionPlan;
 - ProviderCapabilityQualificationRecord with append-only trial ledger and planned/observed call reconciliation;
 - ProviderContextStateEvidence;
+- AdmissibilityPredicateRegistry and exact predicate/mutation closure record;
 - PromptIsolationQualificationRecord;
 - DeliveryPreflightResult;
 - each EvidenceChunk;
@@ -573,7 +589,7 @@ Every EXP-M execution must retain:
 
 EXP-M deterministic testing is complete only when:
 
-- **all deterministic phases A–S pass**;
+- **all deterministic phases A–T pass**;
 - unified data/state mutation survivors = 0;
 - validator-logic mutation survivors = 0;
 - crash/retry tests preserve exact identity/history;
@@ -583,6 +599,8 @@ EXP-M deterministic testing is complete only when:
 - RequiredEvidenceContract and RequiredInteractionContract non-vacuity/closure tests pass;
 - statistical-protocol tests reject insufficient, rerolled, burst-only, mixed exploration/confirmation, production-envelope-mismatched, and attempt-set cherry-picked evidence;
 - every planned confirmation slot is reconciled or counted failed and qualification credentials are outside candidate/operator control;
+- implicit client/SDK retries are disabled or every physical attempt is visible and append-only;
+- admissibility predicate registry/verdict/mutation/killed sets have exact closure;
 - per-attempt content-bound witness tests and canary-preserving content-drop oracle pass;
 - model-selected retrieval is blocked without deterministic full-range access logs;
 - atomic final CAS admission and permanent-attempt-void semantics pass;
