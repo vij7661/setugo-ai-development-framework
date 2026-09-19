@@ -31,7 +31,27 @@ The selective-adoption catalog remains:
 - RA-12 Deterministic-First Routing / Orchestration Threshold
 - RA-13 Bounded Research / Dream Cycle
 
-## 2. R2 invariant corrections
+## 2. Foundational primitives
+
+Before authority-bearing RA items may use them, the following shared primitives require their own deterministic falsification and independent review.
+
+### FP-01 — CanonicalRecordIdentity
+
+Canonical structured/length-framed identity, stable subject/type/version semantics, collision-resistant SHA-256 digesting, no ambiguous delimiter concatenation.
+
+### FP-02 — AuthorityGenerationCAS
+
+Platform-owned monotonic generation and compare-and-set primitive for authority-bearing state. It detects stale writer, ABA/replay, and concurrent writer conflict. Unknown generation fails closed.
+
+### FP-03 — TamperEvidentLedger
+
+Append-only hash chain + monotonic sequence + anchor outside the writable ledger state. On open/restart, chain/head/anchor mismatch fails closed. Anchor unavailability never silently resets history.
+
+### FP-04 — DataFlowLabel
+
+Typed data classification/provenance labels with monotonic propagation. Declassification requires an explicit separately-authorized operation that binds source labels, transformation, destination label, actor and authority snapshot.
+
+## 3. R2 invariant corrections
 
 ### R2-I01 — Capability truth is scoped, generation-bound and non-collapsible
 
@@ -392,7 +412,7 @@ The review handoff records separately:
 
 Pasted/manual reviewer text is user-attested external review evidence unless independently authenticated by another mechanism.
 
-## 3. Dependency/prerequisite rules
+## 4. Dependency/prerequisite rules
 
 See `RUFLO-SELECTIVE-ADOPTION-R2-PREREQUISITES.md`.
 
@@ -404,13 +424,13 @@ Important:
 - RA-07 cannot depend on authority-bearing RA-08 semantics before the shared canonical identity primitive is reviewed.
 - EXP-M continues under R5 independently of this adoption program.
 
-## 4. R2 experiment families
+## 5. R2 experiment families
 
 See `RUFLO-SELECTIVE-ADOPTION-R2-TEST-MATRIX.md`.
 
 Each family is preregistration-only until separately implemented and reviewed.
 
-## 5. Frozen-boundary declaration
+## 6. Frozen-boundary declaration
 
 ```text
 RQ16_STOP_PRESERVED        = REQUIRED
