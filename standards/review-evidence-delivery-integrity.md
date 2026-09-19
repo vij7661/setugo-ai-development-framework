@@ -296,6 +296,8 @@ At minimum it binds:
 - allowed accessibility proof modes;
 - maximum tolerated residual selective/sub-segment loss risk;
 - required statistical lower bound;
+- whether evidence of trial-independence/correlation control is mandatory for the statistical probability claim;
+- whether a deterministic per-attempt proof mode may substitute when statistical independence is unproven;
 - whether per-attempt content-bound witnesses are sufficient;
 - whether deterministic full-range/page/member access proof is mandatory.
 
@@ -322,7 +324,7 @@ Unless a stricter transition-specific policy is independently governed before ex
 - repeated attempts from the same provider session/request lineage do not count as independent confirmation trials;
 - every trial uses a fresh delivery-attempt identity, fresh clean provider context, fresh content-bound witnesses, and the production-equivalent request envelope;
 - the qualification record captures any provider-exposed routing/deployment/region identity and demonstrates the preregistered time/interleaving diversity;
-- the Clopper–Pearson probability interpretation is explicitly conditional on the trial-independence model. When provider-side correlation/route allocation is not observable, the profile records `STATISTICAL_INDEPENDENCE_UNPROVEN`; the numerical bound is not presented as a universal provider failure probability and cannot replace per-attempt accessibility proof.
+- the Clopper–Pearson probability interpretation is explicitly conditional on the trial-independence model. When provider-side correlation/route allocation is not observable, the profile records `STATISTICAL_INDEPENDENCE_UNPROVEN`; the numerical bound is not presented as a universal provider failure probability and `statistical_qualified=true` is forbidden unless the governing ProviderAccessibilityRiskPolicy explicitly waives the probability claim and requires a deterministic per-attempt accessibility proof mode instead.
 
 ### Qualification execution authority and attempt closure
 
