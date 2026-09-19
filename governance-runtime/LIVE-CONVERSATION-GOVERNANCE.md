@@ -63,6 +63,8 @@ There are exactly two platform review execution classes:
 
 Both use trusted provider adapters and the same ReviewRequest, semantic coverage, identity, independence, fail-closed, and promotion semantics. Neither class derives reviewer provenance from reviewer-authored content.
 
+For material review, the provider execution must also use a fresh/clean semantic context under the qualified provider capability profile. Reused threads/conversations with ungoverned prior messages, tool outputs, memory, custom instructions, or knowledge connectors are not eligible unless the entire pre-existing context is independently captured and governed. Unknown mutable provider-side semantic context disqualifies the provider/mode for material review.
+
 Copy/paste is **not** a platform review transport.
 
 ## External evidence ingestion
@@ -118,6 +120,8 @@ A mandatory platform review is represented by an integrity-bound `ReviewRequest`
 - material/standard/path classification context.
 
 For material promotion, the runtime additionally requires a semantic review contract (ReviewRequest schema 4+) containing machine-readable `required_review_dimensions`. A legacy review request without this semantic contract may be preserved as historical content but cannot authorize material promotion.
+
+The ReviewRequest is not authoritative about its own completeness. Before delivery, a pinned platform governor independently derives a `RequiredEvidenceContract` and mandatory-dimension/interaction set from governing standards, experiment/qualification contract, protected-transition classification, and platform-owned evidence-selection rules. The ReviewRequest must cover that independently derived contract; any omitted standard-required evidence, mandatory dimension, or required cross-evidence interaction fails closed as `EVIDENCE_SELECTION_INCOMPLETE`.
 
 Promotion must bind review evidence to the currently authoritative review request and current reviewed artifact. A review for a superseded request or older revision cannot be replayed into a later candidate.
 
@@ -292,6 +296,12 @@ At minimum preserve/surface:
 - `PORTABLE_REVIEW_MANIFEST_MISMATCH`
 - `PORTABLE_REVIEW_RAW_HASH_UNREPRODUCIBLE`
 - `SCIENTIFIC_EVIDENCE_MISSING`
+- `EVIDENCE_SELECTION_INCOMPLETE`
+- `REVIEW_CONTEXT_DIRTY_OR_UNBOUND`
+- `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
+- `PROVIDER_CAPABILITY_STATISTICAL_POLICY_FAILED`
+- `ACCESSIBILITY_PROBE_COVERAGE_INSUFFICIENT`
+- `REVIEW_INTERACTION_CONTRACT_INCOMPLETE`
 - `EVIDENCE_DELIVERY_INCOMPLETE`
 - `REVIEW_CONTEXT_INCOMPLETE`
 - `EVIDENCE_FORMAT_UNSUPPORTED`
@@ -331,15 +341,18 @@ At minimum preserve/surface:
 11. Reclassify pasted content to `USER_ATTESTED_EXTERNAL_LLM_REVIEW` only when the user explicitly identifies the source; never equate that attestation with API authentication.
 12. Bind platform reviewer identity from trusted execution provenance.
 13. Materialize and hash every required review evidence item.
-14. Validate the provider capability profile and freeze the evidence delivery manifest.
-15. Deliver through a qualified one-shot or deterministic chunk protocol.
-16. Establish reviewer-context completeness before accepting a disposition.
-17. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + platform API execution envelope + delivery completeness.
-18. Require a positive promotable disposition before platform review can satisfy material promotion.
-19. Apply deterministic governor/evidence gate.
-20. Persist authoritative checkpoint.
-21. Synchronize shared memory.
-22. New chat resumes from shared memory then verifies Git.
+14. Independently derive and validate the RequiredEvidenceContract, mandatory dimensions, and required cross-evidence interactions.
+15. Validate a current provider capability profile under the preregistered statistical/expiry policy and establish a fresh/clean material-review context.
+16. Freeze the evidence delivery manifest.
+17. Deliver through a qualified one-shot or deterministic chunk/file/retrieval protocol.
+18. Establish reviewer-context completeness using dense witnesses or deterministic range/retrieval evidence where required.
+19. Revalidate capability/egress/session state at verdict admission.
+20. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + platform API execution envelope + delivery completeness.
+21. Require a positive promotable disposition before platform review can satisfy material promotion.
+22. Apply deterministic governor/evidence gate.
+23. Persist authoritative checkpoint.
+24. Synchronize shared memory.
+25. New chat resumes from shared memory then verifies Git.
 
 ## Current collaboration limitation
 
