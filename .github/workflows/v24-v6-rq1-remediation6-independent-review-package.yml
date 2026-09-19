@@ -106,11 +106,33 @@ jobs:
           (cd "$PKG" && sha256sum manifest.txt > manifest.sha256)
           tar -cf "$PKG/package.tar" -C "$PKG" source design raw-evidence historical-failed-packaging exact-diff-remediation4-to-remediation6.patch OPEN-REVIEW-QUESTIONS.md manifest.txt manifest.sha256 package-file-hashes.sha256 regression-tests.txt oracle-validator.txt source-evidence-identity.txt
           (cd "$PKG" && sha256sum package.tar > package.tar.sha256)
-          mkdir -p review-package-artifact
-          cp -a "$PKG"/. review-package-artifact/
+          test -s "$PKG/regression-tests.txt"
+          test -s "$PKG/oracle-validator.txt"
+          test -s "$PKG/OPEN-REVIEW-QUESTIONS.md"
+          test -s "$PKG/manifest.txt"
+          test -s "$PKG/manifest.sha256"
+          test -s "$PKG/package-file-hashes.sha256"
+          test -s "$PKG/exact-diff-remediation4-to-remediation6.patch"
+          (cd "$PKG" && sha256sum -c manifest.sha256)
+          (cd "$PKG" && sha256sum -c package.tar.sha256)
+          (cd "$PKG" && sha256sum -c package-file-hashes.sha256)
+          STAGE="$RUNNER_TEMP/rq1-remediation6-review-artifact-${GITHUB_RUN_ID}"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
+          cp -a "$PKG"/. "$STAGE"/
+          if find "$STAGE" -type d -name __pycache__ -print -quit | grep -q .; then
+            echo 'unexpected __pycache__ in review artifact' >&2
+            exit 1
+          fi
+          if find "$STAGE" -type f \( -name '*.pyc' -o -name '*.pyo' \) -print -quit | grep -q .; then
+            echo 'unexpected Python bytecode in review artifact' >&2
+            exit 1
+          fi
+          (cd "$STAGE" && find . -type f -printf '%P\n' | sort > staged-file-list.txt)
+          test -s "$STAGE/staged-file-list.txt"
       - uses: actions/upload-artifact@v4
         with:
           name: rq1-remediation6-independent-manual-review-package
-          path: review-package-artifact
+          path: ${{ runner.temp }}/rq1-remediation6-review-artifact-${{ github.run_id }}
           if-no-files-found: error
           retention-days: 30
