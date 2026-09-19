@@ -110,7 +110,7 @@ Retries do not erase or rewrite failed delivery attempts.
 
 ### M-I16 — Requiredness is platform-owned
 
-A delivery manifest may not decide which evidence is required. Mandatory/optional status must be derived from the current governed ReviewRequest, dimensions, evidence refs, standards, and experiment contract.
+A delivery manifest and ReviewRequest may not decide which evidence is required. Mandatory/optional status is derived only from the immutable GovernanceAuthoritySnapshot and its platform-owned transition-class, dimension, evidence-selection, evidence-relationship, and governing-standard registries. The ReviewRequest is checked against that contract but is not an input that can narrow it.
 
 ### M-I17 — Wire payload is bound
 
@@ -152,9 +152,9 @@ Where provider/model-visible accessibility cannot be established from trusted tr
 
 The capability profile/registry used to judge review delivery cannot be widened by the candidate under review.
 
-### M-I27 — Retrieval-backed coverage is grounded where possible
+### M-I27 — Retrieval-backed coverage is mandatory for model-selected retrieval
 
-When provider retrieval/file tools are used, reviewer evidence references must not claim tested support for evidence known to be inaccessible; platform/tool access logs are retained and used when available.
+When the provider/model chooses which file ranges/pages/members to retrieve, deterministic per-attempt access logs are mandatory for material review and must prove hash-matched coverage of every required range before admission. If the provider cannot expose those logs, that retrieval/file mode is diagnostic-only. Reviewer citations never substitute for access logs.
 
 ### M-I28 — Delivery governor is outside candidate self-approval
 
@@ -198,11 +198,11 @@ Material reviews use a fresh stateless request or fresh stateful provider sessio
 
 ### M-I38 — Capability qualification thresholds are preregistered
 
-Live provider capability qualification uses a fixed statistical acceptance policy before exposure: at least 59 independent fresh trials per claimed operating point, zero hard failures, one-sided 95% exact-binomial lower bound at least approximately 0.95, conservative 80% safety-margin rule, and 7-day/default drift-triggered requalification.
+Live provider capability qualification uses a fixed risk-budget protocol before exposure: default p_min=0.99, one-sided 95% exact Clopper–Pearson, at least 299/299 successful disjoint confirmation trials at each claimed operating point, zero hard failures, no exclusions/rerolls/optional stopping, production-equivalent envelope/content classes, append-only failure history, conservative 80% scalar safety cap, and 7-day/default drift-triggered requalification.
 
-### M-I39 — Accessibility probes are dense enough for the claimed bound
+### M-I39 — Accessibility probes are dense and per-attempt
 
-When deterministic truncation/range evidence is unavailable, no required raw-text segment larger than 2048 UTF-8 bytes remains unprobed during capability qualification; opaque files require page/range/member-level probes or deterministic retrieval logs.
+When deterministic range/retrieval proof is unavailable, qualification and every production material-review attempt use content-bound witnesses for every required lossless slice. Each text slice is no larger than min(2048 UTF-8 bytes, 512 provider-tokenizer tokens). Every slice is challenged in every confirmation trial. Opaque files require media/modality-specific page/range/member proof or governed lossless transformation.
 
 ### M-I40 — Provider-injected semantic context is fail-closed
 
@@ -210,7 +210,27 @@ Provider/model modes must inventory or disable mutable default/custom prompts, p
 
 ### M-I41 — Cross-evidence interaction requirements are independently derived
 
-Review decomposition uses a platform-derived RequiredInteractionContract from standards/mandatory dimensions/evidence relationships; proposer-declared interaction lists cannot silently omit required interaction families.
+Review decomposition uses a RequiredInteractionContract derived only from the GovernanceAuthoritySnapshot's platform-owned relationship registry, mandatory dimensions, transition class, and governing standards. Each interaction is an explicit set of raw evidence refs that must coexist in one qualified context; proposer-declared interaction lists cannot narrow it.
+
+### M-I42 — Governor decision inputs are outside candidate self-approval
+
+The GovernanceAuthoritySnapshot, transition-class registry, evidence-selection registry, relationship registry, capability registry, and authority-snapshot pointer are outside the candidate write set. Candidate edits to governing inputs are reviewed as evidence and cannot narrow their own review.
+
+### M-I43 — Provider context state is observed per attempt
+
+Every material review carries ProviderContextStateEvidence from the trusted adapter at preflight, before each dispatch, and at atomic admission. Mutable semantic channels that are neither readable nor disable-able make the provider/mode NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+
+### M-I44 — Confirmation trials are disjoint, scheduled, and append-only
+
+Exploration cannot count as confirmation. Confirmation trial identities/schedule are frozen, all attempted trials count, failures cannot be erased by reruns, and the claimed operating point itself is tested under the production-equivalent envelope.
+
+### M-I45 — Verdict admission is atomic and final
+
+Capability, egress, provider-context/session/file state, authority snapshot, ReviewRequest, and prompt-isolation qualification remain valid from first dispatch through a final compare-and-set admission. Any invalidation in that interval permanently voids the attempt; later requalification cannot revive it.
+
+### M-I46 — Prompt isolation dependency is machine-bound
+
+Material review requires a current hash-bound PromptIsolationQualificationRecord selected deterministically by the governor for the exact provider/representation mode and checked again at atomic admission.
 
 ## Required mechanism surfaces
 
@@ -556,12 +576,12 @@ Provider/model repeats manifest IDs yet fails exact fresh witness values embedde
 Expected:
 accessibility qualification fails; self-acknowledgement is insufficient.
 
-### M-46 — Fresh head/middle/tail witness probes
+### M-46 — Dense per-slice content-bound witness probes
 
-Fresh canaries are placed across context boundaries.
+Every required lossless text slice carries a fresh content-bound challenge and framing/end witness in every confirmation trial and production attempt when deterministic range/retrieval proof is unavailable.
 
 Expected:
-all exact values recoverable under the qualified provider profile; any missing position lowers the safe capability bound.
+all slice-local challenges succeed in the same adjudication session; any missing/incorrect slice challenge fails accessibility qualification/admission. Sparse head/middle/tail probes alone never qualify full content.
 
 ### M-47 — Stale canary replay
 
@@ -754,7 +774,7 @@ material review mode NOT_QUALIFIED or separately governed supplemental boundary.
 
 ### M-74 — Insufficient provider qualification trials
 
-Operating point has fewer than 59 independent fresh trials even if all pass.
+Operating point has fewer than 299 disjoint confirmation trials even if all pass.
 
 Expected:
 capability point remains unqualified.
@@ -803,15 +823,136 @@ global review aggregation blocked.
 
 ### M-81 — Capability expires after final provider response before verdict admission
 
-Provider response exists, but the capability profile becomes expired before verdict admissibility.
+Provider response exists, but the capability profile becomes expired before atomic verdict admission.
 
 Expected:
-verdict non-promotable until newly governed validation.
+the attempt is permanently void; later requalification cannot revive that response.
 
 ### M-82 — Egress authorization revoked after final provider response before verdict admission
 
 Expected:
-verdict admission blocked according to current policy; stale preflight cannot authorize promotion.
+the attempt is permanently void; stale preflight and later reauthorization cannot revive the old response.
+
+### M-83 — Candidate poisons governing standard input
+
+Candidate head removes a required evidence rule from a governance file.
+
+Expected:
+GovernanceAuthoritySnapshot/base-head conservative union preserves the base requirement; changed governance file is itself required evidence.
+
+### M-84 — Candidate poisons relationship/classification registry
+
+Candidate supplies a weaker transition class or removes a required evidence relationship.
+
+Expected:
+registry outside candidate write set wins; snapshot mismatch/rebinding is rejected.
+
+### M-85 — Unknown transition class / empty contract
+
+Derivation returns unknown class, zero mandatory dimensions, or empty evidence despite a non-vacuous baseline.
+
+Expected:
+EVIDENCE_SELECTION_CONTRACT_UNRESOLVED.
+
+### M-86 — Lying provider context readback
+
+Provider adapter/readback claims memory/connectors/custom instructions disabled while behavioral sentinel shows influence.
+
+Expected:
+ProviderContextStateEvidence invalid; provider mode unqualified.
+
+### M-87 — Hidden dirty provider state
+
+A mutable provider channel is neither readable nor disable-able.
+
+Expected:
+NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+
+### M-88 — Context state changes between preflight and dispatch
+
+Custom instruction/memory/connector state changes after preflight.
+
+Expected:
+monotonic state-version mismatch; attempt void before dispatch.
+
+### M-89 — Context state changes between dispatch and admission
+
+Expected:
+atomic admission fails and attempt is permanently void.
+
+### M-90 — Correlated burst confirmation
+
+299 trials are run back-to-back in one short burst rather than the preregistered multi-day/time-block schedule.
+
+Expected:
+confirmation protocol invalid even if all pass.
+
+### M-91 — Excluded failed trial / reroll
+
+One attempted confirmation trial fails and is discarded before collecting 299 successes.
+
+Expected:
+qualification fails; append-only attempt ledger exposes the exclusion.
+
+### M-92 — Exploration reused as confirmation
+
+Expected:
+qualification fails due to non-disjoint evidence families.
+
+### M-93 — Production-envelope mismatch
+
+Confirmation uses synthetic easy content while production uses denser prompt/tools/structured-output/content modality.
+
+Expected:
+operating point mismatch; profile cannot authorize production review.
+
+### M-94 — Canary-preserving content loss
+
+Provider preserves framing/sentinels but removes the challenged content span from one slice.
+
+Expected:
+content-bound slice challenge fails.
+
+### M-95 — Selective unchallenged sub-slice loss
+
+Provider drops content outside the challenged offset but within a qualified slice.
+
+Expected:
+recorded residual/nonclaim risk; transition classes that disallow this residual risk require deterministic range/retrieval proof.
+
+### M-96 — Model-selected retrieval without deterministic access logs
+
+Expected:
+retrieval/file mode diagnostic-only; verdict inadmissible.
+
+### M-97 — Retrieval logs miss one required range
+
+Expected:
+PROVIDER_RETRIEVAL_COVERAGE_UNPROVEN.
+
+### M-98 — Requalification after mid-attempt expiry
+
+Capability expires after response, then is requalified before checkpoint.
+
+Expected:
+old attempt remains void; a new attempt is required.
+
+### M-99 — Delete one VerdictAdmissibilityResult conjunct
+
+Mutation removes any one load-bearing predicate.
+
+Expected:
+at least one test kills the mutation; no surviving logic mutation.
+
+### M-100 — Weaken required-evidence closure equality to subset
+
+Expected:
+logic mutation killed.
+
+### M-101 — Skip dirty-context, 299-trial, dense-witness, retrieval-log, or atomic-CAS check
+
+Expected:
+each logic mutation is independently killed by the suite.
 
 ## Required mutation/falsification cases
 
@@ -861,12 +1002,25 @@ Mutation suite must attempt to make a verdict admissible by:
 - omitting a standard-required mandatory dimension;
 - reusing a dirty provider session;
 - ignoring provider custom-prompt/memory/connector drift;
-- accepting fewer than 59 capability trials;
+- accepting fewer than 299 disjoint confirmation trials;
 - accepting any hard capability failure at a claimed point;
 - skipping the governed 80% safety margin;
 - treating sparse canaries as proof for unprobed required regions;
 - omitting a platform-derived cross-evidence interaction;
-- accepting an expired capability/egress state at verdict admission.
+- accepting an expired capability/egress state at verdict admission;
+- deriving authority contracts from candidate-mutated governing inputs;
+- accepting unknown/empty transition-class contracts;
+- trusting lying/incomplete provider context readback;
+- accepting hidden mutable provider state;
+- allowing excluded/re-rolled confirmation failures;
+- mixing exploration and confirmation evidence;
+- qualifying a non-production request envelope;
+- treating framing canaries as content-bound proof;
+- allowing model-selected retrieval without deterministic coverage logs;
+- reviving an invalidated attempt after requalification;
+- deleting or weakening any VerdictAdmissibilityResult conjunct;
+- weakening equality closure to subset/superset;
+- skipping atomic compare-and-set admission.
 
 Every load-bearing mutation must be rejected.
 
@@ -922,26 +1076,43 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `SparseCanaryGapAdapter`
 - `MissingInteractionFamilyAdapter`
 - `PostResponseExpiryAdapter`
+- `AuthorityInputPoisoningAdapter`
+- `UnknownTransitionClassAdapter`
+- `LyingContextReadbackAdapter`
+- `HiddenDirtyStateAdapter`
+- `CorrelatedBurstFailureAdapter`
+- `FailedTrialReplayAdapter`
+- `ProductionEnvelopeMismatchAdapter`
+- `CanaryPreservingContentDropAdapter`
+- `MissingRetrievalLogAdapter`
+- `AtomicAdmissionRaceAdapter`
+- `VerdictConjunctMutationAdapter`
 
-Live API pilots come only after deterministic adapters prove the governor behavior.
+Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
 ## Live provider pilots
 
-For each configured real provider/model/API mode, preregister a capability pilot that measures rather than assumes:
+Live pilots begin only after all deterministic phases and validator-logic mutation tests are green.
 
-- maximum safe review corpus size;
-- usable attachment formats;
-- attachment count/size limits;
-- whether uploaded files are actually model-visible;
-- one-shot vs staged review support;
-- response behavior near context limit;
-- deterministic or detectable truncation behavior;
-- fresh unpredictable witness-canary recovery at beginning/middle/end and across attachment/file boundaries;
-- retrieval/tool access-log behavior when that mode is used.
+For each exact provider/account/endpoint/region/model/deployment/adapter/session/file/retrieval mode, preregister exploration and confirmation separately.
 
-Provider limits are observations bound to provider/model/API/adapter version and an expiry/requalification policy; they are not universal constants.
+Exploration identifies candidate operating points and observed failure boundaries. Confirmation then tests each claimed operating point itself using the frozen default or stricter risk budget:
 
-A live pilot must also preserve exact wire-request hashes, provider request/session/file identifiers, and any server-reported usage/context metadata available. Provider marketing/documentation values may inform preregistration but do not replace observed platform-qualified limits.
+- 299/299 required successful confirmation trials by default;
+- zero hard failures;
+- no exclusions/rerolls/optional stopping;
+- trials distributed over the preregistered multi-day/time-block schedule;
+- fresh clean context and fresh content-bound witnesses every trial;
+- production-equivalent prompt/tools/structured-output/output budget;
+- worst-case token-density and required media/modality classes;
+- every required slice/page/range/member challenged in every trial unless deterministic access/range proof exists;
+- append-only trial/failure history.
+
+Pilot evidence also preserves post-SDK transport-semantic hashes, provider context-state records, request/session/file identifiers, retrieval/access logs where the delivery mode requires them, usage/context metadata, and exact profile/drift-epoch identity.
+
+Sparse beginning/middle/end probes are diagnostic only and cannot qualify full required content.
+
+Provider documentation and marketing limits may inform exploration but never substitute for the governed confirmation evidence.
 
 ## Acceptance rule
 
@@ -974,7 +1145,16 @@ EXP-M can reach bounded pass only when:
 25. provider-injected mutable semantic context is inventoried/disabled or the provider/mode is disqualified;
 26. accessibility probing is dense enough for the claimed content range;
 27. cross-evidence interaction requirements are independently derived;
-28. capability/egress/session validity is rechecked at verdict admission.
+28. capability/egress/session validity is rechecked at verdict admission;
+29. GovernanceAuthoritySnapshot inputs are pinned outside candidate write authority and base/head governance changes use the conservative merge rule;
+30. unknown/empty/vacuous transition contracts fail closed;
+31. ProviderContextStateEvidence is observed per attempt and behaviorally sentinel-qualified;
+32. confirmation evidence is disjoint from exploration, scheduled, append-only, and uses the exact production operating point;
+33. per-attempt content-bound witnesses are mandatory when deterministic range/retrieval proof is unavailable;
+34. model-selected retrieval requires deterministic per-attempt full-range coverage logs;
+35. VerdictAdmissibilityResult enumerates every load-bearing predicate and atomic compare-and-set admission is the final authority step;
+36. every validator-logic conjunct deletion/weakening mutation is killed;
+37. PromptIsolationQualificationRecord is machine-checkable, current, and admission-bound.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
@@ -986,7 +1166,8 @@ EXP-M does not prove:
 - arbitrary provider internals;
 - cryptographic proof of remote model memory;
 - universal provider limits;
-- scientific correctness of the evidence itself.
+- scientific correctness of the evidence itself;
+- detection of arbitrary selective/sub-slice provider loss when deterministic range/retrieval proof is unavailable; such residual risk is explicitly recorded and may be disallowed by higher-risk transition classes.
 
 It governs what the platform can prove about materialization, delivery, context completeness, and verdict admissibility.
 
