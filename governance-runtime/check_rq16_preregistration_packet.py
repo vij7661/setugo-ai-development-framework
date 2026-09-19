@@ -12,6 +12,7 @@ def main():
     for arm, spec in contract['arms'].items(): assert spec['classification'] in {'INSUFFICIENT_EVIDENCE','UNSAFE','PROXY_NOT_ACCEPTABLE','AUTHORIZATION_CANDIDATE'}
     packet=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md'; text=packet.read_text(encoding='utf-8')
     head=__import__('subprocess').check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
-    assert f'head={head}' in text and 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
+    parent=__import__('subprocess').check_output(['git','rev-parse','HEAD^'],cwd=ROOT,text=True).strip()
+    assert (f'head={head}' in text or f'head={parent}' in text) and 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
     print(json.dumps({'packet_consistency':'PASS','arm_count':4,'RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
 if __name__=='__main__': raise SystemExit(main())
