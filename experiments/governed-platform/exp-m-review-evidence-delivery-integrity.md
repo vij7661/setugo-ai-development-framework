@@ -276,6 +276,14 @@ WitnessProtocolQualificationRecord and its registry are platform-owned, outside 
 
 ProviderQualificationExecutionPlan freezes confirmation trial IDs, schedule, interleaving seed, trusted runner and credential/egress identity before confirmation exposure. Candidate/user/operator code cannot select which observed attempts count after results are known. Missing scheduled slots are failures; retries cannot replace failures; unexplained calls on the qualification credential invalidate the epoch when they cannot be reconciled.
 
+### M-I58 — SDK/client retries are observable attempts
+
+Trusted provider adapters disable implicit retries or expose every physical retry with its own immutable WireDeliveryRecord/qualification attempt. A hidden failed request followed by transparent-to-caller retry success cannot count as one success.
+
+### M-I59 — Admissibility predicate coverage is machine-closed
+
+A platform-owned AdmissibilityPredicateRegistry defines every load-bearing predicate, validator identity, negative fixture and logic mutation. The required predicate set, VerdictAdmissibilityResult predicate set, mutation targets and independently killed mutations must be exactly equal.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -299,6 +307,7 @@ Future implementation should expose governed objects equivalent to:
 - `ReviewerReceipt`
 - `DeliveryCompletenessResult`
 - `InsufficientEvidenceAdjudication`
+- `AdmissibilityPredicateRegistry`
 - `VerdictAdmissibilityResult`
 
 Names are not authoritative; semantics are.
@@ -1167,6 +1176,28 @@ if provider audit reconciliation exposes them, confirmation epoch invalidated; i
 Expected:
 qualification runner trust boundary fails; profile cannot be material-review qualified.
 
+### M-127 — SDK hides failed physical attempt behind automatic retry success
+
+Expected:
+IMPLICIT_RETRY_UNOBSERVED or explicit first-attempt hard failure; no single-success representation.
+
+### M-128 — Admissibility predicate added without mutation target
+
+Registry contains a new load-bearing predicate but mutation catalog does not target it.
+
+Expected:
+ADMISSIBILITY_PREDICATE_COVERAGE_INCOMPLETE.
+
+### M-129 — Mutation target exists without independent killing fixture
+
+Expected:
+ADMISSIBILITY_PREDICATE_COVERAGE_INCOMPLETE.
+
+### M-130 — Verdict result omits one registry predicate
+
+Expected:
+predicate-set closure mismatch; verdict inadmissible.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1253,7 +1284,9 @@ Mutation suite must attempt to make a verdict admissible by:
 - ignoring provider-isolation documentation/account-class/config-template drift;
 - dropping a planned failed/missing confirmation slot;
 - replacing a failed confirmation attempt with a successful retry;
-- accepting unreconciled qualification calls or candidate-accessible qualification credentials.
+- accepting unreconciled qualification calls or candidate-accessible qualification credentials;
+- hiding a failed physical provider attempt behind implicit SDK retry;
+- adding/removing an admissibility predicate without exact mutation/fixture closure.
 
 Every load-bearing mutation must be rejected.
 
@@ -1338,6 +1371,8 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `QualificationPlanTamperAdapter`
 - `FailedTrialReplacementAdapter`
 - `UnreconciledQualificationCallAdapter`
+- `ImplicitSdkRetryAdapter`
+- `AdmissibilityPredicateDriftAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1420,7 +1455,9 @@ EXP-M can reach bounded pass only when:
 49. witness qualification authority is outside candidate write control;
 50. provider isolation documentation/account-class/config-template drift invalidates the associated context-isolation qualification;
 51. confirmation attempt membership is frozen before exposure and every planned slot is reconciled or counted failed;
-52. qualification credentials/runner are outside candidate and ordinary operator control, and unreconciled calls cannot manufacture a passing sample.
+52. qualification credentials/runner are outside candidate and ordinary operator control, and unreconciled calls cannot manufacture a passing sample;
+53. implicit SDK/client retries are disabled or every physical attempt is independently recorded;
+54. AdmissibilityPredicateRegistry, verdict predicates, logic-mutation targets and killed mutations have exact set closure.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
