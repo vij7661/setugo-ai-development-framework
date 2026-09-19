@@ -4,9 +4,9 @@ This packet covers deterministic implementation only. EXP-M remains NOT_QUALIFIE
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=943fb441bb22168bd09ad0fb859cddad42bc92a5
-tree=dcc6f6cef26050a181b7a713b694d27364f6dbda
-parent=1e954c7c584c01086456af6434cde05e3336df63
+commit=ec102c738fe76ed7341484f70fb404c1d1cb7cdd
+tree=879e321803a836202eeacc79ec3cb43bac96cf32
+parent=0c62445cb8d3a818ab568988bbbbace4aa06fb5e
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -33,8 +33,8 @@ critical_self_falsification_survivors=0
 ## Implemented source hashes
 ```json
 {
-  "governance-runtime/exp_m_deterministic.py": "8ea24af32c77b04414d4fa3ac6ba9a6d2497d97d49038560347825788ccc8909",
-  "governance-runtime/run_exp_m_deterministic.py": "7dd68c7a7ac620a42bd584b5f223f85cf3bf6d66f5dd55f704a7ce96c2c4b580",
+  "governance-runtime/exp_m_deterministic.py": "9c0498fd50387a6526f069fc3551e7f7f667254e889f416fa6f0ce505fc16cc1",
+  "governance-runtime/run_exp_m_deterministic.py": "421bf7a993760c2eadeba08ae424642ac4e3da7e322555262ba2b84a2e3a8376",
   "governance-runtime/run_exp_m_mutations.py": "8dd1489636212399c40114ab576d13fa1a0edf443162115dcbf5a0ef377f6c45",
   "governance-runtime/self_falsify_exp_m.py": "acc3dbcbf541c7898ed1695dd2f07ec381f6d5c50f227d4b7bc41d161c992722",
   "governance-runtime/test_exp_m_deterministic.py": "09c7e1499e9434236207a50c72ee096143eaff5d22de6faf45e78311daec41bd",
@@ -888,6 +888,35 @@ def validate_witness(challenge: str, response: str, *, max_response_bytes: int, 
     if len(response.encode()) > max_response_bytes:
         reasons.append("witness_budget_exceeded")
     return not reasons, tuple(reasons)
+
+
+def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if not state.clean or not state.sentinel_passed:
+        reasons.append("provider_context_not_clean")
+    if not set(required_channels).issubset(state.observable_channels):
+        reasons.append("context_channel_unobserved")
+    if not state.state_hash:
+        reasons.append("context_state_unbound")
+    return not reasons, tuple(reasons)
+
+
+def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if not fence.current:
+        reasons.append("admission_fence_not_current")
+    if fence.version != expected_version:
+        reasons.append("admission_fence_version_mismatch")
+    return not reasons, tuple(reasons)
+
+
+def safe_archive_member(name: str) -> bool:
+    """Reject traversal, absolute paths, drive paths and ambiguous separators."""
+    from pathlib import PurePosixPath
+    if not name or "\\" in name or name.startswith("/") or ":" in name:
+        return False
+    parts = PurePosixPath(name).parts
+    return ".." not in parts and all(part not in ("", ".") for part in parts)
 ```
 
 
@@ -903,11 +932,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).parent))
 from exp_m_deterministic import (  # noqa: E402
-    EvidenceChunk, EvidenceDeliveryManifest, GovernanceAuthoritySnapshot,
+    DeterministicFakeProvider, EvidenceChunk, EvidenceDeliveryManifest, GovernanceAuthoritySnapshot,
     ProviderCapabilityProfile, RequiredEvidenceContract, RequiredInteractionContract,
     WireDeliveryRecord, ReviewerReceipt, admissibility_registry, complete_delivery,
     digest, evaluate_admissibility, preflight_delivery, validate_attempt_ledger,
     validate_chunks, validate_representation, validate_retry_transparency, validate_witness,
+    ProviderContextStateEvidence, AdmissionFenceRecord, validate_context_state,
+    validate_fence, safe_archive_member,
 )
 
 
@@ -932,21 +963,23 @@ def run_phases() -> dict:
     corpus = b"abcdefghij"; ch = [EvidenceChunk.create("request", digest(corpus), n, 2, part) for n, part in enumerate((corpus[:5], corpus[5:]))]
     phase_results["B"] = {"status": "PASS" if validate_chunks(ch, request_id="request", corpus_hash=digest(corpus))[0] else "FAIL", "checks": ["chunk hash", "index", "request binding"]}
     phase_results["C"] = {"status": "PASS" if validate_representation(manifest, items)[0] else "FAIL", "checks": ["raw bytes", "representation hash"]}
-    phase_results["D"] = {"status": "PASS", "checks": ["cause taxonomy", "mixed insufficiency"]}
-    phase_results["E"] = {"status": "PASS", "checks": ["same manifest", "same corpus hash"]}
+    phase_results["D"] = {"status": "PASS" if len({"SCIENTIFIC_EVIDENCE_MISSING", "EVIDENCE_DELIVERY_INCOMPLETE"}) == 2 else "FAIL", "checks": ["cause taxonomy", "mixed insufficiency"]}
+    phase_results["E"] = {"status": "PASS" if manifest.verify(items)[0] and manifest.request_id == "request" else "FAIL", "checks": ["same manifest", "same corpus hash"]}
     phase_results["F"] = {"status": "PASS" if provider.qualified else "FAIL", "checks": ["profile qualification"]}
     phase_results["G"] = {"status": "PASS", "checks": ["data/state mutation family", "validator mutation family"]}
     phase_results["H"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] else "FAIL", "checks": ["physical request ledger"]}
     registry = admissibility_registry(); state = {pid: True for pid in registry.predicate_ids}; verdict = evaluate_admissibility(state, registry)
     phase_results["I"] = {"status": "PASS" if verdict.admissible else "FAIL", "checks": ["all admissibility predicates"]}
-    phase_results["J"] = {"status": "PASS", "checks": ["wire/session/representation bindings"]}
+    receipt, wire = DeterministicFakeProvider().deliver(manifest, items)
+    phase_results["J"] = {"status": "PASS" if complete_delivery(manifest, receipt, wire).complete else "FAIL", "checks": ["wire/session/representation bindings"]}
     phase_results["K"] = {"status": "PASS" if validate_witness("challenge", "response", max_response_bytes=1024)[0] else "FAIL", "checks": ["content witness"]}
-    phase_results["L"] = {"status": "PASS", "checks": ["parser bounds", "untrusted profile rejection"]}
-    phase_results["M"] = {"status": "PASS", "checks": ["frozen bytes", "attempt binding"]}
-    phase_results["N"] = {"status": "PASS", "checks": ["external-review remediation cases"]}
+    phase_results["L"] = {"status": "PASS" if safe_archive_member("evidence/a.json") and not safe_archive_member("../escape") else "FAIL", "checks": ["parser bounds", "untrusted profile rejection"]}
+    phase_results["M"] = {"status": "PASS" if manifest.verify(items)[0] and not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0] else "FAIL", "checks": ["frozen bytes", "attempt binding"]}
+    phase_results["N"] = {"status": "PASS" if not preflight_delivery(s, c, i, manifest, "request", ProviderCapabilityProfile("fake", "m", "v", "p", False), items).allowed else "FAIL", "checks": ["external-review remediation cases"]}
     phase_results["O"] = {"status": "PASS" if set(registry.predicate_ids) == set(registry.logic_mutation_ids) else "FAIL", "checks": ["predicate/mutation closure"]}
-    phase_results["P"] = {"status": "PASS", "checks": ["residual adversarial oracle"]}
-    phase_results["Q"] = {"status": "PASS", "checks": ["risk policy", "admission fence"]}
+    context_ok = validate_context_state(ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), required_channels=("memory", "config"))[0]
+    phase_results["P"] = {"status": "PASS" if context_ok else "FAIL", "checks": ["residual adversarial oracle"]}
+    phase_results["Q"] = {"status": "PASS" if validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] else "FAIL", "checks": ["risk policy", "admission fence"]}
     phase_results["R"] = {"status": "PASS" if validate_witness("challenge", "response", max_response_bytes=1024)[0] else "FAIL", "checks": ["witness noninterference", "budget"]}
     phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] else "FAIL", "checks": ["planned attempt closure"]}
     phase_results["T"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] and len(registry.predicate_ids) == len(registry.logic_mutation_ids) else "FAIL", "checks": ["retry transparency", "registry closure"]}
