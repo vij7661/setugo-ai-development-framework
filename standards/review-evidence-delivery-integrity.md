@@ -46,6 +46,18 @@ For a material review, the following must execute from an independently governed
 
 A candidate under review must not be able to modify the implementation that decides whether its own evidence was complete. Candidate-supplied delivery code may be tested as an artifact, but it cannot grant its own review admissibility.
 
+The governor's **decision inputs** are also part of this trust root. Every material review must bind an immutable `GovernanceAuthoritySnapshot` created from a pre-candidate authority state outside the candidate write set. It contains the governing standard/experiment/registry/classification/evidence-relationship identities and hashes used to derive required evidence and required interactions.
+
+If the candidate changes any governing input in its own head, that head version cannot silently replace the pre-candidate authority snapshot for the candidate's own review. The review uses a conservative merge rule:
+
+- mandatory evidence refs = union(base-authority requirements, candidate-head proposed requirements);
+- mandatory dimensions = union(base-authority dimensions, candidate-head proposed dimensions);
+- required interaction sets = union(base-authority interactions, candidate-head proposed interactions);
+- restrictive classifications/egress/provider constraints use the stricter applicable rule;
+- every governing-input change is itself a mandatory review evidence ref.
+
+Registries and the authority-snapshot pointer are maintained outside the candidate write set. A candidate may propose changes to governing inputs, but those proposed changes cannot authorize or narrow their own review.
+
 ## Core authority rule
 
 **A reviewer disposition is inadmissible for a material authority transition unless every mandatory evidence item is governed from source through delivery and the selected provider/mode is qualified to make that exact representation available to the reviewer.**
@@ -56,15 +68,20 @@ A `PASS` cannot cure incomplete delivery. A negative result from incomplete deli
 
 The delivery manifest and the ReviewRequest do not decide what evidence is required by themselves.
 
-Before a ReviewRequest is eligible for delivery, the pinned delivery governor must independently derive a `RequiredEvidenceContract` from the governing standards, experiment/qualification contract, protected transition type, mandatory review dimensions, path/material classification, and any platform-owned evidence-selection rules.
+Before a ReviewRequest is eligible for delivery, the pinned delivery governor must independently derive a `RequiredEvidenceContract` from the immutable `GovernanceAuthoritySnapshot`, including the protected transition class, platform-owned mandatory-dimension registry, evidence-selection registry, evidence-relationship registry, and applicable governing standards/experiment contracts.
 
-The `ReviewRequest` is a declaration that must be validated against that independently derived contract. It is never the sole source of requiredness.
+The `ReviewRequest` is a declaration that must be validated against that independently derived contract. It is never an input that can define requiredness.
+
+Every protected transition class has a governed non-vacuous baseline. Unknown transition class, missing registry rule, empty mandatory-dimension set, empty required-evidence set where the baseline requires evidence, or unresolved authority snapshot produces `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`. Deterministic derivation of an empty set is not sufficient.
 
 The `RequiredEvidenceContract` must contain at least:
 
 - contract schema/version;
-- governing standard/experiment identities and hashes;
-- protected transition classification;
+- GovernanceAuthoritySnapshot ID/hash/version;
+- pre-candidate governing standard/experiment/registry identities and hashes;
+- candidate-head governing-input identities/hashes when changed;
+- conservative base/head merge result;
+- protected transition classification from the governed registry;
 - complete mandatory review-dimension set;
 - complete required evidence-reference set or deterministic derivation rules;
 - representation requirements for each evidence reference/dimension;
@@ -110,6 +127,12 @@ At minimum preserve:
 - `SCIENTIFIC_EVIDENCE_MISSING`
 - `EVIDENCE_SELECTION_INCOMPLETE`
 - `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`
+- `GOVERNANCE_AUTHORITY_SNAPSHOT_MISMATCH`
+- `REVIEWER_EVIDENCE_ASSESSMENT_CONTRADICTION`
+- `PROVIDER_CONTEXT_STATE_UNPROVEN`
+- `PROVIDER_CONTEXT_STATE_DRIFT`
+- `PROVIDER_RETRIEVAL_COVERAGE_UNPROVEN`
+- `VERDICT_ADMISSION_STATE_CHANGED`
 - `REVIEW_CONTEXT_DIRTY_OR_UNBOUND`
 - `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
 - `PROVIDER_CAPABILITY_STATISTICAL_POLICY_FAILED`
@@ -224,25 +247,65 @@ If required evidence cannot be safely/legally sent in a qualified representation
 
 ## Provider capability qualification policy
 
-Live provider qualification must use a preregistered statistical policy; words such as “repeated” or “conservative” are not sufficient.
+Live provider qualification uses a preregistered risk-budget and confirmation protocol. Exploration and confirmation are separate evidence families.
 
-Unless a stricter provider-specific policy is independently governed before exposure, the default EXP-M material-review capability policy is:
+### Default material-review risk budget
 
-- every claimed operating point uses at least **59 independent fresh trials**;
-- a hard delivery/accessibility failure count greater than **0** disqualifies that operating point;
-- with 59/59 successes, the one-sided 95% exact binomial lower confidence bound is at least approximately 0.95;
-- each trial uses fresh unpredictable witness challenges and fresh delivery-attempt/session identity;
-- required evidence/chunk/page positions are randomized across trials so a fixed omission location cannot hide between probes;
-- a capability limit is never set above the largest operating point satisfying the criterion;
-- the qualified byte/token/file-count limit is additionally capped at **80% of the smallest observed failing boundary** when a failure boundary is observed;
-- when no failing boundary has been observed, the qualified bound is capped at **80% of the largest fully tested passing point**, never at an untested vendor-advertised maximum;
-- intermittent, timeout, ambiguous, or unverifiable outcomes count as failures for qualification;
-- provider profiles expire after **7 days** by default and immediately on material provider/model/deployment/account/endpoint/region/adapter/file-processing/session behavior drift;
-- requalification repeats the full applicable acceptance protocol; a single “health check” cannot renew an expired profile.
+Unless a stricter transition-specific policy is independently governed before exposure:
+
+- target lower bound for per-trial delivery/accessibility success: **p_min = 0.99**;
+- confidence: **one-sided 95% exact Clopper–Pearson**;
+- zero hard failures are allowed at a claimed operating point;
+- with zero failures, the minimum confirmation sample is **299/299** successful trials, because the exact one-sided lower bound is `0.05^(1/299) >= 0.99`;
+- every attempted confirmation trial counts, including timeout, provider error, rate-limit, ambiguous, unverifiable, or infrastructure failure; no exclusions, rerolls, or optional stopping;
+- exploration trials used to discover limits are never reused as confirmation trials;
+- confirmation trial IDs and schedule are frozen before confirmation exposure;
+- confirmation trials are distributed across at least **3 distinct UTC days** and at least **4 preregistered time blocks per day**, with operating points interleaved in randomized order;
+- repeated attempts from the same provider session/request lineage do not count as independent confirmation trials;
+- every trial uses a fresh delivery-attempt identity, fresh clean provider context, fresh content-bound witnesses, and the production-equivalent request envelope.
+
+### Hard failure
+
+A hard failure is any attempted trial with one or more of:
+
+- required evidence/range/member/page inaccessible or incorrect;
+- content-bound witness missing/incorrect;
+- provider context state unproven or dirty;
+- wrong model/deployment/account/endpoint/session identity;
+- wire/manifest/retrieval hash mismatch;
+- incomplete retrieval/access log when that mode requires it;
+- timeout, provider/API error, rate limit, parser failure, or ambiguous result;
+- output truncation/structured-output failure that prevents the required review protocol.
+
+### Operating point
+
+An operating point is the full tuple of:
+
+- provider/account/project;
+- endpoint/region;
+- exact requested and provider-reported deployment identity;
+- trusted adapter/API version;
+- session/file/retrieval mode;
+- enabled tools/connectors;
+- structured-output mode;
+- review prompt class;
+- corpus representation/media classes;
+- corpus byte size and provider-tokenizer token size;
+- file count/per-file sizes;
+- output/reasoning budget;
+- transformation mode.
+
+The **claimed operating point itself must be tested**. The protocol does not assume monotonic provider behavior and does not qualify untested intermediate points by interpolation.
+
+For scalar size dimensions, the 80% margin is only an additional conservative cap on a point that is itself confirmed. If a failing boundary is observed, the runtime cap cannot exceed 80% of the smallest observed failing boundary. If no failure boundary is observed, the runtime cap cannot exceed 80% of the largest independently confirmed passing point.
+
+The production qualification corpus must exercise the production request envelope and the preregistered worst-case token-density/content-modality classes. Synthetic low-entropy text alone cannot qualify a production review envelope.
+
+Observed failures and failure boundaries are append-only within a provider drift epoch. Re-running until a clean sample appears cannot erase prior failures. A new drift epoch requires a new profile identity and preserves the prior epoch.
+
+Profiles expire after **7 days** by default and immediately on material provider/model/deployment/account/endpoint/region/adapter/session/file-processing behavior drift. Health checks may invalidate a profile but can never renew or extend it.
 
 Provider-specific policies may be stricter but may not be weakened by the candidate under review.
-
-For capabilities that are categorical rather than scalar (for example archive parsing or file visibility), the same 59-fresh-trial/zero-hard-failure criterion applies to every claimed supported mode unless a stricter governed policy is preregistered.
 
 ## Provider capability profile
 
@@ -253,7 +316,7 @@ It must bind:
 - provider;
 - provider account/tenant/project identity where relevant;
 - API endpoint/region/data-residency boundary;
-- exact requested model and provider-reported model/deployment identity where available;
+- exact requested model and provider-reported model/deployment identity; if the provider cannot expose the deployment identity required by the drift policy, the mode is `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`;
 - model alias/version drift policy;
 - API/adapter version;
 - trusted adapter hash/version;
@@ -274,7 +337,7 @@ It must bind:
 - context eviction/truncation behavior;
 - structured-output behavior;
 - provider response/output constraints;
-- empirical qualification evidence from repeated fresh witness trials;
+- exact ProviderCapabilityQualificationRecord hash containing all exploration/confirmation attempts, schedule, hard-failure classifications, Clopper–Pearson calculation, content classes, operating-point tuple, and append-only failure history;
 - qualification timestamp;
 - expiry/requalification policy;
 - conservative qualified limit and safety margin derived from repeated trials, not a single success.
@@ -301,8 +364,9 @@ For every provider call, retain a `WireDeliveryRecord` containing:
 - adapter identity/hash/version;
 - call sequence number;
 - evidence/chunk IDs included;
-- canonical secret-redacted request-body hash;
-- exact non-secret request metadata relevant to semantics;
+- canonical platform request hash before SDK serialization;
+- canonical **transport-bound semantic envelope hash after SDK serialization at the lowest observable adapter boundary**, excluding only authentication secrets and explicitly volatile transport fields;
+- exact non-secret headers/fields that can alter semantics, tools, routing, model selection, file/session binding, or output behavior;
 - provider account/endpoint/region identity used;
 - requested model identity and provider-reported model/deployment identity when the latter is required by the governed drift policy; if the provider cannot expose a required deployment identity, that identity-dependent qualification cannot be claimed;
 - provider request/message/file/thread/session IDs;
@@ -315,29 +379,32 @@ A manifest and prompt hash without wire binding do not prove that the adapter in
 
 The adapter must serialize from the frozen representation bytes/chunks referenced by the manifest. Hashing one file and later reopening the same pathname for upload is insufficient unless byte identity is reverified immediately before dispatch.
 
-Provider secrets are excluded from reproducible hashes but their exclusion must not permit semantic request fields to be omitted from binding.
+Provider secrets are excluded from reproducible hashes but their exclusion must not permit semantic request fields to be omitted from binding. If the provider SDK prevents the trusted adapter from observing a semantic field that can materially change the request after serialization, that adapter/mode cannot claim exact wire binding for material review.
 
 ## Delivery preflight
 
-Before review adjudication:
+Before any review dispatch:
 
-1. Verify current ReviewRequest integrity.
-2. Derive required evidence set from governed sources.
-3. Materialize every required reference.
-4. Verify source bytes/hashes.
-5. Apply only governed representations/transforms.
-6. Resolve data-classification/egress authorization.
-7. Resolve a non-expired trusted provider capability profile.
-8. Build and freeze the EvidenceDeliveryManifest.
-9. Prove the exact delivery plan fits the qualified provider/mode.
-10. Freeze exact call/chunk ordering and prompt identities.
-11. Emit `DELIVERY_PREFLIGHT_PASS` only if every mandatory item is deliverable.
-12. Immediately before each wire call, revalidate the still-current capability/egress/session prerequisites.
-13. Dispatch the exact frozen representation bytes/chunks produced during preflight; do not re-read mutable source paths.
+1. Verify the current ReviewRequest integrity.
+2. Resolve and verify the immutable GovernanceAuthoritySnapshot.
+3. Derive RequiredEvidenceContract and RequiredInteractionContract from that snapshot.
+4. Validate ReviewRequest dimensions/refs/interactions against those contracts.
+5. Materialize every required evidence reference from frozen source identity.
+6. Verify source bytes/hashes and apply only governed representations/transforms.
+7. Resolve data-classification/egress authorization.
+8. Resolve a current trusted ProviderCapabilityProfile and machine-checkable PromptIsolationQualificationRecord.
+9. Create or verify a clean ProviderContextStateEvidence record for this exact attempt.
+10. Build and freeze the EvidenceDeliveryManifest.
+11. Prove the exact production-equivalent delivery plan fits the qualified operating point.
+12. Freeze exact call/chunk/file ordering, prompt identities, context-state version, capability-profile version, egress-policy version, and prompt-isolation record version.
+13. Emit `DELIVERY_PREFLIGHT_PASS` only if every mandatory item and interaction is deliverable in the qualified mode.
+14. Immediately before every wire call, compare-and-check the still-current context/capability/egress/prompt-isolation monotonic state versions.
+15. Dispatch only the frozen representation bytes/chunks/file objects produced during preflight.
+16. Record the final SDK-serialized semantic envelope hash at the trusted adapter boundary.
 
 If a required item cannot be safely represented or delivered, fail before treating any reviewer disposition as authoritative.
 
-Manifest freeze and wire dispatch form a TOCTOU boundary. A source path, generated representation, capability profile, egress decision, or provider file may not change between validation and use without invalidating the attempt or creating a new governed attempt.
+Manifest freeze and wire dispatch form a TOCTOU boundary. A source path, generated representation, capability profile, egress decision, provider context state, prompt-isolation qualification, or provider file may not change between validation and use without voiding the attempt. A later requalification cannot revive an already-void attempt.
 
 ## Chunking limitation
 
@@ -355,36 +422,40 @@ A plain multi-message sequence must not be used to claim arbitrarily large conte
 
 ## Clean material-review context and delivery session binding
 
-A material review must start from a **fresh semantic context** unless the platform can prove the entire pre-existing context is governed and equivalent to the frozen review context.
+A material review uses a fresh stateless request or a **platform-created fresh stateful session**. Reuse of an arbitrary pre-existing provider thread/conversation is prohibited.
 
-Preferred rule:
+Every attempt carries `ProviderContextStateEvidence` created by the trusted adapter. It must bind:
 
-- stateless API mode: use a fresh request containing or referencing all mandatory governed evidence through a qualified mechanism;
-- stateful API mode: create a new provider session/thread/conversation for the review attempt, with no prior user/assistant/tool messages.
+- provider account/project/workspace identity;
+- provider session/thread/conversation identity;
+- complete platform-visible transcript/message IDs and transcript hash;
+- platform-supplied system/developer/user prompts;
+- enabled tools and connectors;
+- custom/project/workspace instruction state and hash;
+- provider memory/personalization state and hash;
+- provider-side knowledge/retrieval connector state and hash;
+- file set and processing/readiness state;
+- provider-reported model/deployment identity;
+- configuration-state version;
+- evidence timestamp and trusted adapter identity.
 
-For a stateful mode, the platform must bind:
+The state is read and compared against the qualified profile:
 
-- provider session/thread/conversation ID;
-- all platform-supplied system/developer/user prompts;
-- file IDs;
-- message IDs;
-- manifest hash;
-- delivery attempt ID;
-- enabled tools/connectors;
-- account/project/workspace custom instructions;
-- persistent memory state/configuration;
-- provider-side knowledge/retrieval connectors;
-- any other mutable semantic context the provider exposes.
+- during preflight;
+- immediately before every dispatch;
+- immediately before final atomic verdict admission.
 
-Prior conversation messages, prior tool outputs, account/workspace memory, custom instructions, or knowledge connectors must be absent, disabled, or completely captured and governed.
+Any mutable semantic channel that is neither disable-able nor readable by the trusted platform makes the mode `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`.
 
-If the provider/mode injects mutable semantic context that cannot be enumerated, disabled, or drift-bound, that provider/mode is `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`.
+The only exception is a dedicated platform-owned provider account/project whose configuration write access is change-controlled outside candidate and user control, whose mutable semantic features are disabled by policy, and whose state is behaviorally requalified. Provider documentation is necessary background evidence but never sufficient by itself.
 
-Provider-internal fixed safety/model policy that cannot be extracted is a provider capability property, not governed review content. The platform must not claim to hash or know it. Material use is allowed only when the provider/mode documents that no additional mutable account/session/project semantic context is injected and the exact provider/model/deployment profile has passed the governed behavioral qualification. Material drift requires requalification.
+Stateful session reuse is allowed only inside the same delivery-attempt lineage when the session was created by the trusted adapter for that attempt and every prior message/tool/file mutation has a matching WireDeliveryRecord and context-state transition record.
 
-For stateless provider modes, every final review request must itself contain or reference all mandatory evidence through a qualified mechanism.
+Provider-context qualification must include **sentinel tests** for every mutable semantic channel available to the provider mode: enable a controlled sentinel and prove it influences the model when enabled; disable/clear it and prove absence across the governed confirmation trials. Lying/incomplete readback is explicitly tested.
 
-A receipt from one session/request cannot prove completeness for a verdict from another. A clean receipt followed by a verdict in a dirty or different context is inadmissible.
+Provider-internal fixed service/model safety behavior that cannot be extracted is a nonclaim. It is tolerated only when it is not mutable at account/project/session scope and the exact provider/deployment mode passes the governed behavioral qualification. Unknown mutable semantic context is never tolerated.
+
+For stateless provider modes, the final request itself must contain or qualified-reference all mandatory evidence and context. A receipt from one session/request cannot prove completeness for another.
 
 ## Server-side file references
 
@@ -403,9 +474,11 @@ A provider file mechanism is qualified only when the platform has evidence for:
 
 If these are unknown, file-reference delivery is non-authoritative for material review.
 
-When final adjudication depends on provider retrieval/file tools, the ProviderCapabilityProfile must declare whether deterministic access/range logs are required for the claimed review mode. If those logs are required to prove completeness and the provider does not expose them, the mode is not qualified for that claim.
+When the model/provider chooses what file content or ranges to retrieve, **per-attempt deterministic access/range logs are mandatory** for material review. Before verdict admission, those logs must prove hash-matched access to every required page/range/member required by the relevant review dimension and RequiredInteractionContract.
 
-A semantic review citation to an evidence ID that the platform knows was inaccessible or never retrievable cannot be treated as `TESTED_SUPPORTED`. When deterministic retrieval logs are available and required, review coverage is grounded to those logs rather than reviewer-authored citation text alone.
+If the provider does not expose deterministic per-attempt access logs with sufficient range/version identity, that retrieval/file mode is diagnostic-only and `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`. The alternative is platform-forced inline inclusion of the governed representation inside the qualified final context.
+
+Reviewer citation text, file IDs, or attach-time binding cannot substitute for per-attempt retrieval coverage when retrieval is model-selected.
 
 ## Reviewer receipt and availability acknowledgement
 
@@ -426,33 +499,39 @@ A reviewer statement such as `received_all=true` cannot override missing wire re
 
 ## Delivery witness probes
 
-For provider/modes where the platform cannot otherwise establish model-visible accessibility, qualification and/or per-attempt delivery may use platform-generated unpredictable witness probes.
+Witnesses are non-dispositive accessibility evidence. They never prove cognition, attention, or semantic use.
 
-A witness probe:
+### Qualification witnesses
 
-- is generated by the trusted platform after the delivery attempt identity is fixed;
-- is not derived from candidate content;
-- uses fresh high-entropy values not repeated in the ordinary prompt/manifest visible to the reviewer;
-- is placed in platform-controlled framing or synthetic qualification artifacts without modifying the authoritative scientific bytes;
-- requires an exact response bound to request/session/chunk/evidence identity;
-- is verified by the platform against the secret expected value;
-- is non-dispositive and cannot itself satisfy semantic review.
+When deterministic provider range/retrieval proof is unavailable, **every confirmation trial challenges every required segment**. Sparse head/middle/end probing is prohibited as qualification for full required content.
 
-For live provider capability qualification, sparse beginning/middle/end canaries are not sufficient when the provider does not expose deterministic truncation/range semantics.
+The default raw-text failure model is explicitly bounded to **contiguous loss/eviction at or above the segment granularity**. It does not claim detection of arbitrary selective or sub-granularity loss.
 
-In that case, qualification must use one of these governed accessibility methods:
+A governed lossless text representation is sliced so each slice is no larger than:
 
-1. **dense witness mode** — every required transport chunk/evidence boundary is independently challenged with fresh canaries, and no unprobed required segment exceeds the governed probe granularity;
-2. **deterministic range/retrieval mode** — provider retrieval logs or range semantics independently prove complete access to every required range/member/page;
-3. **reduced safe bound** — only the densely probed region is qualified and all unprobed required content is treated as context-incomplete.
+- 2048 UTF-8 bytes; and
+- 512 provider-tokenizer tokens;
 
-Default dense-witness granularity for raw-text capability qualification is a maximum of **2048 UTF-8 bytes per probed segment**, with fresh independent witness framing at every segment boundary and randomized content-location challenges across trials. Provider-specific experiments may adopt a smaller granularity or deterministic range proof, but not a larger unprobed interval without independent review.
+whichever limit is reached first.
 
-For opaque attachments, qualification must probe each independently reviewable page/range/member or use deterministic provider retrieval/access logs. If neither is possible, the attachment mode is not qualified for full-artifact material review.
+For every slice in every confirmation trial, the platform creates a fresh content-bound challenge after representation freeze. The challenge selects unpredictable slice-local offsets and asks the reviewer to return exact short content extracts whose expected values are withheld from the reviewer prompt. Each slice also carries fresh framing/end sentinels. A canary-preserving content drop must therefore be independently attackable by the test adapters.
 
-For a material review attempt, witness probes may strengthen evidence that the provider/model could access delivered representations, but they still do not prove semantic attention.
+For production material review attempts using a mode without deterministic range/retrieval proof, the same **per-attempt content-bound witness protocol is mandatory in the same final adjudication session**. Qualification is a prior; it is not a substitute for per-attempt accessibility evidence.
 
-A copied item ID or hash that was already supplied in the prompt is not a valid witness of content access.
+The residual possibility of selective loss outside challenged offsets is recorded in `VerdictAdmissibilityResult` as a nonclaim/risk. A transition class whose governed risk budget does not permit that residual risk must use deterministic retrieval/range proof or a platform-forced representation with stronger observability.
+
+### Opaque attachments
+
+Opaque attachments are qualified per media type **and content-modality class**. Scanned images, text PDFs, tables, embedded objects, archives, and other materially distinct modalities are separate classes.
+
+Full-artifact material review requires either:
+
+- deterministic provider access/range logs proving every required page/range/member/version; or
+- governed lossless transformation into a qualified text/structured representation followed by the per-slice protocol.
+
+Synthetic text-layer PDFs cannot qualify scans, tables, images, or embedded-object modalities.
+
+A copied item ID/hash already present in the prompt is not a valid witness.
 
 ## Meaning of REVIEW_CONTEXT_COMPLETE
 
@@ -469,9 +548,11 @@ It does **not** mean the platform proved model cognition, attention, or semantic
 
 EXP-M does not qualify prompt-injection safety.
 
-For material authority review, delivery admissibility additionally depends on the applicable EXP-L or successor prompt/evidence-isolation controls being qualified.
+For material authority review, the pinned governor deterministically maps the transition/provider/representation mode to a required `PromptIsolationQualificationRecord` from EXP-L or its governed successor. That record must be machine-checkable, hash-bound to the exact isolation mechanism/provider mode, non-expired, and checked at preflight and atomic verdict admission.
 
-Delivering all evidence perfectly must not be treated as safe if candidate-controlled evidence can hijack the reviewer instructions.
+If no current matching record exists, the review is non-promotable. “Applicable” is not caller- or proposer-selected.
+
+Delivering all evidence perfectly must not be treated as safe if candidate-controlled evidence can hijack reviewer instructions.
 
 EXP-M may test delivery independently, but a production review path requires both boundaries.
 
@@ -488,47 +569,65 @@ A decomposed protocol must preregister:
 - evidence needed by the aggregator;
 - conditions under which no global disposition is allowed.
 
-The proposer may not define the interaction list by itself. The pinned delivery/review governor must independently derive a `RequiredInteractionContract` from governing standards, mandatory dimensions, evidence relationships, and protected-transition rules. Any proposer/ReviewRequest interaction declaration is checked against that independently derived contract. Omitted required interaction families block a global disposition before subreview aggregation.
+The proposer may not define the interaction list by itself. The pinned delivery/review governor derives a `RequiredInteractionContract` only from the GovernanceAuthoritySnapshot's platform-owned evidence-relationship registry, mandatory dimensions, transition class, and governing standards.
+
+Each required interaction is an explicit set of evidence refs/representations that must coexist **raw in one qualified reviewer context** for that interaction. The aggregator must inspect the raw evidence set for each interaction family; subreview verdict summaries alone cannot satisfy the interaction.
+
+Any proposer/ReviewRequest declaration is checked against this contract. Unknown relationship class, empty required interaction set where the transition baseline requires one, or missing registry rule yields `REVIEW_INTERACTION_CONTRACT_INCOMPLETE` and blocks a global disposition.
 
 If material cross-evidence interactions cannot be reviewed within a qualified context, the review remains bounded/incomplete.
 
 ## Verdict admissibility
 
-A reviewer verdict may enter the promotable review path only when all are true:
+`VerdictAdmissibilityResult` contains an explicit predicate for every load-bearing requirement:
 
-- current valid ReviewRequest;
-- governed required-evidence closure;
+- ReviewRequest current/integrity-valid;
+- GovernanceAuthoritySnapshot current and outside candidate write authority;
+- RequiredEvidenceContract resolved, non-vacuous, and closed;
+- RequiredInteractionContract resolved and closed;
 - complete materialization;
 - governed representation/transformation;
-- egress authorization;
-- trusted non-expired provider capability profile;
-- trusted adapter/wire binding;
-- complete required item/chunk delivery;
-- valid session/file-reference binding where used;
-- qualified reviewer-context availability;
-- applicable prompt/evidence-isolation dependency satisfied;
+- current egress authorization;
+- ProviderCapabilityProfile current and statistically qualified for the exact operating point;
+- ProviderContextStateEvidence clean/current;
+- provider mutable semantic-context qualification satisfied;
+- trusted adapter and post-SDK wire binding valid;
+- complete item/chunk delivery;
+- per-attempt content-bound accessibility witness valid **or** deterministic range/retrieval proof complete;
+- session/file/retrieval coverage valid for the delivery mode;
+- PromptIsolationQualificationRecord current/matching;
 - semantic review coverage valid;
-- reviewer provenance valid;
+- reviewer provenance/independence valid;
 - disposition otherwise promotable.
 
-Immediately before verdict admission, revalidate that the ProviderCapabilityProfile, egress authorization, provider session/file state, and required prompt/evidence-isolation dependencies are still current. Expiry or revocation after the final wire call but before verdict admission blocks promotion or requires a newly governed decision, according to the governing expiry policy.
+Admission is the **last authority operation** and is atomic with checkpoint persistence:
 
-A semantic `PASS` with unproven delivery completeness is non-promotable.
+1. capture monotonic versions/hashes for authority snapshot, capability profile, egress policy, provider context/session/file state, prompt-isolation record, and current review request;
+2. validate all predicates;
+3. compare-and-set the authoritative checkpoint only if every version/hash is unchanged;
+4. persist the VerdictAdmissibilityResult and checkpoint in the same authority transaction/boundary.
+
+All load-bearing state must remain valid over the entire interval from first provider dispatch through admission. Any expiry, revocation, drift, dirty-context event, file/session invalidation, or prompt-isolation invalidation during the interval **voids the attempt permanently**. Later requalification cannot revive that old provider response; only a new delivery attempt may proceed.
+
+A semantic `PASS` with any false/unproven predicate is non-promotable.
 
 ## Insufficient-evidence cause adjudication
 
-When a reviewer returns `INSUFFICIENT_EVIDENCE` or equivalent:
+When a reviewer returns `INSUFFICIENT_EVIDENCE` or equivalent, the platform evaluates all cause predicates independently rather than first-match ordering:
 
-1. Compare the reviewer's claimed missing items/dimensions with the authoritative evidence inventory.
-2. If required evidence never existed: `SCIENTIFIC_EVIDENCE_MISSING`.
-3. If the governed required set was incomplete: `EVIDENCE_SELECTION_INCOMPLETE`.
-4. If source existed but materialization failed: `EVIDENCE_MATERIALIZATION_FAILED`.
-5. If transformation/representation was unqualified: `EVIDENCE_TRANSFORMATION_UNQUALIFIED`.
-6. If materialized representation was omitted/corrupted in delivery: `EVIDENCE_DELIVERY_INCOMPLETE`.
-7. If provider/session/file capability was insufficient: `REVIEW_CONTEXT_INCOMPLETE`, `EVIDENCE_FORMAT_UNSUPPORTED`, or `EVIDENCE_ATTACHMENT_UNAVAILABLE`.
-8. If both scientific and delivery gaps exist: `MIXED_INSUFFICIENCY`.
-9. If cause cannot be proven: `INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED`.
-10. Never convert delivery failure into scientific failure or scientific absence into a transport excuse.
+- scientific source missing → `SCIENTIFIC_EVIDENCE_MISSING`;
+- requiredness contract unresolved → `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`;
+- governed required set incomplete → `EVIDENCE_SELECTION_INCOMPLETE`;
+- source materialization failed → `EVIDENCE_MATERIALIZATION_FAILED`;
+- transformation/representation unqualified → `EVIDENCE_TRANSFORMATION_UNQUALIFIED`;
+- delivery omitted/corrupted material → `EVIDENCE_DELIVERY_INCOMPLETE`;
+- provider context dirty/unproven → `PROVIDER_CONTEXT_STATE_UNPROVEN` / `REVIEW_CONTEXT_INCOMPLETE`;
+- attachment/file/retrieval coverage unavailable → `EVIDENCE_ATTACHMENT_UNAVAILABLE` / `PROVIDER_RETRIEVAL_COVERAGE_UNPROVEN`;
+- reviewer says evidence is missing although the platform has strong contradictory accessibility evidence → `REVIEWER_EVIDENCE_ASSESSMENT_CONTRADICTION`.
+
+If more than one cause predicate is true, the result is `MIXED_INSUFFICIENCY` with the complete cause set. If no cause can be proven, use `INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED`.
+
+Never convert delivery failure into scientific failure or scientific absence into a transport excuse.
 
 ## Multi-reviewer equivalence
 
@@ -615,11 +714,11 @@ Every material platform API review must retain:
 - DeliveryCompletenessResult;
 - provider raw responses;
 - witness-probe challenges/results where used;
-- provider retrieval/tool access logs where available;
+- mandatory provider retrieval/access logs for any retrieval-selected material-review mode;
 - parsed review;
 - insufficient-evidence adjudication where needed;
 - semantic validation;
-- VerdictAdmissibilityResult.
+- VerdictAdmissibilityResult, including provider statistical lower bound, qualified operating-point identity, per-attempt accessibility method, and explicitly retained residual/nonclaim risk.
 
 ## Governance scope
 
