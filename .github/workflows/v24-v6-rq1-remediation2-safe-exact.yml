@@ -54,6 +54,7 @@ jobs:
           # legacy runner worktree cannot block checkout.  No runner state is
           # deleted or rewritten.
           path: rq1-worktree-${{ github.run_id }}
+          fetch-depth: 2
       - name: Use fresh bound-runtime worktree
         shell: bash
         run: |
@@ -218,6 +219,7 @@ jobs:
           set -euo pipefail
           BUNDLE="$EVIDENCE_DIR/remediation-5-review-bundle"
           mkdir -p "$BUNDLE/source" "$BUNDLE/design" "$BUNDLE/raw-evidence"
+          git cat-file -e 479ce0459b6065bc2626b56c9faf5cb31f7b7558^{commit}
           git diff 479ce0459b6065bc2626b56c9faf5cb31f7b7558 "$GITHUB_SHA" > "$BUNDLE/exact-diff-from-remediation-4.patch"
           cp governance-runtime/v24_v6_rq1_remediation2_harness.py "$BUNDLE/source/"
           cp governance-runtime/v24_v6_rq1_observer.py "$BUNDLE/source/"
@@ -239,6 +241,24 @@ jobs:
             echo "governance=NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY"
           } > "$BUNDLE/manifest.txt"
           find "$BUNDLE" -type f ! -name manifest.sha256 -print0 | sort -z | xargs -0 sha256sum > "$BUNDLE/manifest.sha256"
+          test -s "$BUNDLE/manifest.txt"
+          test -s "$BUNDLE/manifest.sha256"
+          test -s "$BUNDLE/exact-diff-from-remediation-4.patch"
+          test -s "$BUNDLE/source/v24_v6_rq1_remediation2_harness.py"
+          test -s "$BUNDLE/source/v24_v6_rq1_observer.py"
+          test -s "$BUNDLE/source/test_v24_v6_rq1_crash_observation.py"
+          test -s "$BUNDLE/source/validate_rq1_oracle_contract.py"
+          test -s "$BUNDLE/regression-tests.txt"
+          test -s "$BUNDLE/oracle-validator.txt"
+          for c in RQ-13 RQ-14 RQ-15; do
+            test -s "$BUNDLE/raw-evidence/$c.result.json"
+            test -s "$BUNDLE/raw-evidence/$c.baseline.observer.json"
+            test -s "$BUNDLE/raw-evidence/$c.prepared.observer.json"
+            test -s "$BUNDLE/raw-evidence/$c.boundary.json"
+            test -s "$BUNDLE/raw-evidence/$c.recovery.observer.json"
+            test -s "$BUNDLE/raw-evidence/$c.post-retry.observer.json"
+            test -s "$BUNDLE/raw-evidence/$c.post-replay.observer.json"
+          done
       - name: Stage evidence for artifact
         id: stage_evidence
         if: steps.preflight.outcome == 'success' && steps.workspace_hygiene.outcome == 'success'
