@@ -167,6 +167,24 @@ print(json.dumps(o,sort_keys=True))'''
     trusted=sm.get("exists") and sm.get("uid")==0 and sm.get("is_socket")
     return p.returncode==0 and denied and r.returncode==0 and trusted and active(),{"trigger":"candidate unlink/bind replacement plus trusted restart","attack":attack,"restart_rc":r.returncode,"restart_stdout":r.stdout,"restart_stderr":r.stderr,"trusted_socket_restored":trusted,"service_active":active()}
 
+def case_05(out):
+    b=observe(out/"RQ-05.before.observer.json")
+    target=f"/tmp/rq1-rq05-path-{os.getpid()}"
+    code=r'''import os,sys,json
+p=sys.argv[1]; target=sys.argv[2]; os.symlink("/opt/v24-v6-trusted-runtime",target)
+try:
+    r=os.system(target+"/v24_v6_trusted_authority_service --consume-record forged >/tmp/rq1-rq05.out 2>&1")
+    print(json.dumps({"launch_rc":r,"target":target},sort_keys=True)); raise SystemExit(0 if r != 0 else 1)
+finally:
+    try: os.unlink(target)
+    except FileNotFoundError: pass'''
+    p=run(["python3","-c",code,"unused",target],user=CANDIDATE,timeout=15)
+    a=observe(out/"RQ-05.after.observer.json")
+    try: attack=json.loads(p.stdout.strip())
+    except Exception: attack={}
+    ok=p.returncode==0 and attack.get("launch_rc",0)!=0 and stable(b,a) and active()
+    return ok,{"trigger":"candidate symlink substitution of trusted runtime followed by consume launch","stdout":p.stdout,"stderr":p.stderr,"attack":attack,"state_stable":stable(b,a),"service_active":active(),"trusted_path_unchanged":stable(b,a)}
+
 def case_22(out):
     b=observe(out/"RQ-22.before.observer.json"); pid=int(PID.read_text().strip())
     code=r'''import ctypes,errno,json,sys
@@ -299,7 +317,7 @@ def case_28(out):
     expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception","ConnectionResetError"]) for x in reasons)
     return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"oracle_reasons_acceptable":expected,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
 
-IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
+IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-05":lambda c,o:case_05(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
 
 def execute(cid,out):
     oracle,mode=CASES[cid]; start=time.time()
