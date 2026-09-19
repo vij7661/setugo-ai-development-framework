@@ -319,6 +319,77 @@ def case_12(out):
     ok=first.returncode!=0 and restart.returncode==0 and replay and stable(b,a) and active()
     return ok,{"trigger":"successful consume, trusted service restart, replay same record","first":{"rc":first.returncode,"stdout":first.stdout,"stderr":first.stderr},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"replay":{"rc":second.returncode,"stdout":second.stdout,"stderr":second.stderr},"replay_rejected":replay,"state_stable":stable(b,a),"service_active":active()}
 
+def _ptrace_crash(pid:int, boundary:str, evidence:Path):
+    """Attach as root and kill only at an observed syscall boundary.
+
+    The trusted binary is not changed.  PTRACE_SYSCALL stops are kernel-derived;
+    the tracer records the syscall number, phase and timestamp before SIGKILL.
+    """
+    import ctypes, ctypes.util
+    libc=ctypes.CDLL(ctypes.util.find_library("c"),use_errno=True)
+    PTRACE_ATTACH=16; PTRACE_DETACH=17; PTRACE_SYSCALL=24
+    PTRACE_SETOPTIONS=0x4200; PTRACE_O_TRACESYSGOOD=1
+    class Regs(ctypes.Structure):
+        _fields_=[("r15",ctypes.c_ulonglong),("r14",ctypes.c_ulonglong),("r13",ctypes.c_ulonglong),("r12",ctypes.c_ulonglong),("rbp",ctypes.c_ulonglong),("rbx",ctypes.c_ulonglong),("r11",ctypes.c_ulonglong),("r10",ctypes.c_ulonglong),("r9",ctypes.c_ulonglong),("r8",ctypes.c_ulonglong),("rax",ctypes.c_ulonglong),("rcx",ctypes.c_ulonglong),("rdx",ctypes.c_ulonglong),("rsi",ctypes.c_ulonglong),("rdi",ctypes.c_ulonglong),("orig_rax",ctypes.c_ulonglong),("rip",ctypes.c_ulonglong),("cs",ctypes.c_ulonglong),("eflags",ctypes.c_ulonglong),("rsp",ctypes.c_ulonglong),("ss",ctypes.c_ulonglong),("fs_base",ctypes.c_ulonglong),("gs_base",ctypes.c_ulonglong),("ds",ctypes.c_ulonglong),("es",ctypes.c_ulonglong),("fs",ctypes.c_ulonglong),("gs",ctypes.c_ulonglong)]
+    rec={"pid":pid,"boundary":boundary,"attached":False,"event":None,"error":None,"timestamp":time.time()}
+    if libc.ptrace(PTRACE_ATTACH,pid,None,None)!=0:
+        rec["error"]=f"attach_errno={ctypes.get_errno()}"; write_json(evidence,rec); return rec
+    rec["attached"]=True
+    status=ctypes.c_int()
+    if libc.waitpid(pid,ctypes.byref(status),0)<0:
+        rec["error"]=f"wait_attach_errno={ctypes.get_errno()}"; write_json(evidence,rec); return rec
+    libc.ptrace(PTRACE_SETOPTIONS,pid,None,PTRACE_O_TRACESYSGOOD)
+    libc.ptrace(PTRACE_SYSCALL,pid,None,None)
+    entry=True
+    wanted={"before-validation":{257},"after-validation-before-rename":{82,264,316},"after-rename":{82,264,316}}[boundary]
+    deadline=time.time()+20
+    while time.time()<deadline:
+        if libc.waitpid(pid,ctypes.byref(status),0)<0: break
+        if os.WIFEXITED(status.value) or os.WIFSIGNALED(status.value): break
+        if os.WIFSTOPPED(status.value) and (os.WSTOPSIG(status.value)&0x80):
+            regs=Regs()
+            if libc.ptrace(12,pid,None,ctypes.byref(regs))!=0: break
+            nr=int(regs.orig_rax)
+            if entry and nr in wanted:
+                if boundary=="after-rename":
+                    # First stop is syscall entry; allow it, then kill at exit.
+                    entry=False; libc.ptrace(PTRACE_SYSCALL,pid,None,None); continue
+                rec.update({"event":"syscall_entry","syscall":nr,"timestamp":time.time()})
+                os.kill(pid,signal.SIGKILL); write_json(evidence,rec); return rec
+            if (not entry) and boundary=="after-rename" and nr in wanted:
+                rec.update({"event":"syscall_exit","syscall":nr,"return_value":int(regs.rax),"timestamp":time.time()})
+                os.kill(pid,signal.SIGKILL); write_json(evidence,rec); return rec
+            entry=not entry
+            libc.ptrace(PTRACE_SYSCALL,pid,None,None)
+    rec["error"]="boundary_not_observed"; write_json(evidence,rec); return rec
+
+def _crash_case(cid,out,boundary):
+    b=observe(out/f"{cid}.before.observer.json"); diag=out/f"{cid}.diagnostic.json"
+    d=candidate_diag("positive",diag)
+    if d.returncode: return False,{"harness_defect":"diagnostic creation failed","stderr":d.stderr}
+    pid=int(PID.read_text().strip()); control=subprocess.Popen(["sudo","-u","root","--","env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),"positive",str(diag)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    trace=_ptrace_crash(pid,boundary,out/f"{cid}.boundary.json")
+    try: so,se=control.communicate(timeout=10)
+    except subprocess.TimeoutExpired: control.kill(); so,se=control.communicate()
+    restart=run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20)
+    time.sleep(.5)
+    retry=trusted_consume("positive",diag)
+    a=observe(out/f"{cid}.after.observer.json")
+    try: first=json.loads(so.strip()) if so.strip() else {}
+    except Exception: first={}
+    try: second=json.loads(retry.stdout.strip()) if retry.stdout.strip() else {}
+    except Exception: second={}
+    consumed=list((a.get("consumed") or {}).keys()); records=list((a.get("records") or {}).keys())
+    if cid=="RQ-13": ok=trace.get("event")=="syscall_entry" and boundary=="before-validation" and not consumed and bool(records) and not second.get("service_authoritative",False)
+    elif cid=="RQ-14": ok=trace.get("event")=="syscall_entry" and boundary=="after-validation-before-rename" and bool(second.get("service_authoritative")) and len(consumed)>=1
+    else: ok=trace.get("event")=="syscall_exit" and boundary=="after-rename" and len(consumed)>=1 and not second.get("service_authoritative",False)
+    ok=ok and restart.returncode==0 and active() and stable(b,a)
+    return ok,{"trigger":boundary,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr},"records_after":records,"consumed_after":consumed,"state_stable":stable(b,a),"service_active":active()}
+
+def case_13(out): return _crash_case("RQ-13",out,"before-validation")
+def case_14(out): return _crash_case("RQ-14",out,"after-validation-before-rename")
+def case_15(out): return _crash_case("RQ-15",out,"after-rename")
+
 def protocol_variants():
     code=r'''import json,socket
 P="/run/v24-v6-authority/service.sock"
@@ -358,7 +429,7 @@ def case_28(out):
     expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception","ConnectionResetError"]) for x in reasons)
     return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"oracle_reasons_acceptable":expected,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
 
-IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-05":lambda c,o:case_05(o),"RQ-06":lambda c,o:case_06(o),"RQ-07":lambda c,o:case_07(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
+IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-05":lambda c,o:case_05(o),"RQ-06":lambda c,o:case_06(o),"RQ-07":lambda c,o:case_07(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-13":lambda c,o:case_13(o),"RQ-14":lambda c,o:case_14(o),"RQ-15":lambda c,o:case_15(o),"RQ-22":lambda c,o:case_22(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-23":lambda c,o:case_23(o),"RQ-28":lambda c,o:case_28(o)}
 
 def execute(cid,out):
     oracle,mode=CASES[cid]; start=time.time()
