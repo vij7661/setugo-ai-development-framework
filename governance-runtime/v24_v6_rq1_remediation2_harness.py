@@ -327,6 +327,7 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
     """
     import ctypes, ctypes.util
     libc=ctypes.CDLL(ctypes.util.find_library("c"),use_errno=True)
+    libc.ptrace.restype=ctypes.c_long
     PTRACE_ATTACH=16; PTRACE_DETACH=17; PTRACE_SYSCALL=24
     PTRACE_PEEKDATA=2
     PTRACE_SETOPTIONS=0x4200; PTRACE_O_TRACESYSGOOD=1
