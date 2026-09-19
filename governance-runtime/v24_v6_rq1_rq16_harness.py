@@ -11,7 +11,10 @@ MECHANISM_CLASSES={"kernel_quota","dedicated_ro_mount","disposable_fault_layer",
 def expected_context(arm, record_id="abc123"):
     if arm not in ARMS or not re.fullmatch(r"[A-Za-z0-9_-]+",record_id): raise ValueError("invalid expected context")
     rp=f"{BASE}/records/{record_id}.record"; cp=f"{BASE}/consumed/{record_id}.record"
-    return {"rq_id":"RQ-16","arm":arm,"mechanism_id":f"preregistered-{arm.lower()}","mechanism_digest":"mechanism-sha","target_record_id":record_id,"expected_service_pid":42,"expected_records_path":rp,"expected_consumed_path":cp,"expected_records_realpath":rp,"expected_consumed_realpath":cp,"expected_records_device":"d1","expected_consumed_device":"d1","expected_records_mount":"m1","expected_consumed_mount":"m1","expected_records_fs":"fs1","expected_consumed_fs":"fs1","expected_records_symlink":False,"expected_consumed_symlink":False,"expected_service_identity":"uid0:trusted-service","expected_service_binary_sha256":"service-sha","expected_gate_sha256":"gate-sha","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound","plan_commit":"plan-commit","plan_tree":"plan-tree","plan_digest":"plan-sha","execution_contract_digest":"contract-sha","cleanup_contract_digest":"cleanup-sha","review_disposition":"MANUAL_REVIEW_REQUIRED","review_artifact_sha256":"review-sha"}
+    baseline={"service_binary_sha256":"service-sha","gate_sha256":"gate-sha","records_device":"d1","consumed_device":"d1","records_mount":"m1","consumed_mount":"m1","records_fs":"fs1","consumed_fs":"fs1","records_realpath":rp,"consumed_realpath":cp,"owner":{"uid":0,"gid":0},"mode":{"records":"0700","consumed":"0700"},"socket_state":{"path":"/run/v24-v6-authority/socket","active":True},"service_identity":"uid0:trusted-service","security_controls":{"policy":"stable"},"fault_state":{"active":False},"records_entries":[record_id+".record"],"consumed_entries":[],"historical_evidence":{"intact":True}}
+    stages={s:{"target_in_records":True,"target_in_consumed":False,"target_hash":"target-hash"} for s in ("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")}
+    lifecycle={"status":"MANUAL_REVIEW_REQUIRED","stages":stages,"permitted_transitions":[]}
+    return {"rq_id":"RQ-16","arm":arm,"mechanism_id":f"preregistered-{arm.lower()}","mechanism_digest":"mechanism-sha","target_record_id":record_id,"expected_target_hash":"target-hash","expected_service_pid":42,"expected_records_path":rp,"expected_consumed_path":cp,"expected_records_realpath":rp,"expected_consumed_realpath":cp,"expected_records_device":"d1","expected_consumed_device":"d1","expected_records_mount":"m1","expected_consumed_mount":"m1","expected_records_fs":"fs1","expected_consumed_fs":"fs1","expected_records_symlink":False,"expected_consumed_symlink":False,"expected_service_identity":"uid0:trusted-service","expected_service_binary_sha256":"service-sha","expected_gate_sha256":"gate-sha","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound","plan_commit":"plan-commit","plan_tree":"plan-tree","plan_digest":"plan-sha","execution_contract_digest":"contract-sha","cleanup_contract_digest":"cleanup-sha","review_disposition":"MANUAL_REVIEW_REQUIRED","review_artifact_sha256":"review-sha","expected_restoration":baseline,"expected_lifecycle_contract":lifecycle}
 
 def check_rq17_contamination(expected, observed):
     reasons=[]
@@ -85,57 +88,128 @@ def _obs_complete(observations, expected):
             if k not in o: reasons.append(f"observation_field_missing:{s}:{k}")
     return reasons
 
-def _has_exact(entries, target):
-    if not isinstance(entries,list): return False,0
-    names=[]
-    for e in entries:
-        names.append(e if isinstance(e,str) else e.get("name") if isinstance(e,dict) else "")
-    return target in names, names.count(target)
+def _entry_name(entry):
+    return entry if isinstance(entry,str) else entry.get("name") if isinstance(entry,dict) else None
+
+def _entry_hash(entry):
+    return entry.get("hash") if isinstance(entry,dict) else None
+
+def derive_target_state(observation, expected):
+    """Derive target membership from structured entries, never summary flags."""
+    if not isinstance(observation,dict): return {"errors":["observation_malformed"]}
+    target=expected["target_record_id"]+".record"; errors=[]
+    states={}
+    for field in ("records_entries","consumed_entries"):
+        entries=observation.get(field)
+        if not isinstance(entries,list): errors.append(f"{field}_missing"); continue
+        names=[_entry_name(e) for e in entries]
+        count=names.count(target)
+        if count>1: errors.append(f"duplicate_target_entry:{field}")
+        if any(n is None for n in names): errors.append(f"malformed_entry:{field}")
+        if target in names:
+            match=entries[names.index(target)]
+            if isinstance(match,dict) and match.get("hash") not in (None,expected.get("expected_target_hash")):
+                errors.append(f"target_hash_mismatch:{field}")
+            if isinstance(match,dict) and match.get("record_id") not in (None,expected["target_record_id"]):
+                errors.append(f"target_identity_mismatch:{field}")
+        states[field]={"names":names,"target_present":count==1,"target_count":count}
+    r=states.get("records_entries",{}).get("target_present",False); c=states.get("consumed_entries",{}).get("target_present",False)
+    if r and c: errors.append("target_in_both")
+    if not r and not c: errors.append("target_missing_from_both")
+    if observation.get("target_hash") not in (None,expected.get("expected_target_hash")): errors.append("target_hash_mismatch:observation")
+    if observation.get("target_record_id") != expected["target_record_id"]: errors.append("target_identity_mismatch:observation")
+    response=observation.get("response")
+    if observation.get("authoritative_success") is True or (isinstance(response,dict) and response.get("service_authoritative") is True): errors.append("authoritative_response_in_observation")
+    return {"records":states.get("records_entries",{}),"consumed":states.get("consumed_entries",{}),"target_in_records":r,"target_in_consumed":c,"target_hash":observation.get("target_hash"),"errors":errors}
+
+def derive_lifecycle_transition(before, after, expected):
+    b=derive_target_state(before,expected); a=derive_target_state(after,expected); errors=list(b.get("errors",[]))+list(a.get("errors",[]));
+    if errors: return {"added_records":[],"removed_records":[],"added_consumed":[],"removed_consumed":[],"errors":errors}
+    def delta(k):
+        bs=set(b[k]["names"]); as_=set(a[k]["names"]); return sorted(as_-bs),sorted(bs-as_)
+    ar,rr=delta("records"); ac,rc=delta("consumed")
+    allowed=[]
+    for t in expected.get("expected_lifecycle_contract",{}).get("permitted_transitions",[]):
+        if isinstance(t,dict): allowed.append((tuple(sorted(t.get("added_records",[]))),tuple(sorted(t.get("removed_records",[]))),tuple(sorted(t.get("added_consumed",[]))),tuple(sorted(t.get("removed_consumed",[])))))
+    actual=(tuple(ar),tuple(rr),tuple(ac),tuple(rc))
+    if actual != ((),(),(),()) and actual not in allowed: errors.append("unauthorized_lifecycle_transition")
+    return {"added_records":ar,"removed_records":rr,"added_consumed":ac,"removed_consumed":rc,"errors":errors}
+
+def validate_lifecycle_sequence(expected_contract, observations, expected):
+    if not isinstance(expected_contract,dict): return ["lifecycle_contract_missing"]
+    order=("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored"); reasons=[]; states={}
+    if not isinstance(observations,dict): return ["observations_missing"]
+    for stage in order:
+        if stage not in observations: reasons.append(f"observation_missing:{stage}"); continue
+        derived=derive_target_state(observations[stage],expected); states[stage]=derived; reasons += [f"{stage}:{x}" for x in derived.get("errors",[])]
+        contract=expected_contract.get("stages",{}).get(stage,{})
+        if derived.get("target_in_records") != contract.get("target_in_records") or derived.get("target_in_consumed") != contract.get("target_in_consumed"): reasons.append(f"{stage}:unexpected_target_state")
+        if derived.get("target_hash") not in (None,expected.get("expected_target_hash")): reasons.append(f"{stage}:target_hash_mismatch")
+    for before,after in zip(order,order[1:]):
+        if before in observations and after in observations: reasons += [f"{before}->{after}:{x}" for x in derive_lifecycle_transition(observations[before],observations[after],expected).get("errors",[])]
+    return reasons
 
 def derive_target_lifecycle(observations, expected):
-    """Derive membership/deltas from observed directory entries, never summary flags."""
-    target=expected["target_record_id"]+".record"; states={}; errors=[]
-    if not isinstance(observations,dict): return {"states":{},"errors":["observations_missing"]}
-    for stage,o in observations.items():
-        if not isinstance(o,dict): errors.append(f"stage_malformed:{stage}"); continue
-        r,rc=_has_exact(o.get("records_entries"),target); c,cc=_has_exact(o.get("consumed_entries"),target)
-        if rc>1 or cc>1: errors.append(f"duplicate_target_entry:{stage}")
-        states[stage]={"target_in_records":r,"target_in_consumed":c,"record_count":rc,"consumed_count":cc,"target_hash":o.get("target_hash")}
-        if r and c: errors.append(f"target_in_both:{stage}")
-    if states.get("baseline",{}).get("target_in_records") is not True or states.get("baseline",{}).get("target_in_consumed") is not False: errors.append("baseline_target_contract")
-    for stage,s in states.items():
-        if stage!="baseline" and not s["target_in_records"] and not s["target_in_consumed"]: errors.append(f"unexplained_disappearance:{stage}")
-    return {"states":states,"errors":errors}
+    contract=expected.get("expected_lifecycle_contract",{})
+    return {"errors":validate_lifecycle_sequence(contract,observations,expected)}
 
 def _lifecycle_valid(life, expected, observations):
-    derived=derive_target_lifecycle(observations,expected); reasons=list(derived["errors"])
-    if not isinstance(life,dict): reasons.append("lifecycle_missing")
-    if not isinstance(life.get("deltas") if isinstance(life,dict) else None,dict): reasons.append("lifecycle_deltas_missing")
-    # Summary booleans are diagnostics only; derived errors are authoritative.
+    reasons=derive_target_lifecycle(observations,expected).get("errors",[])
+    if not isinstance(life,dict) or not isinstance(life.get("deltas"),dict): reasons.append("lifecycle_summary_missing")
     return reasons
+
+RESTORATION_VOLATILE_FIELDS={"service_pid":"controlled restart may change PID","timestamp":"observation time changes","inode":"recreation may change inode only when preregistered"}
+RESTORATION_FIELDS=("service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount","consumed_mount","records_fs","consumed_fs","records_realpath","consumed_realpath","owner","mode","socket_state","service_identity","security_controls","fault_state","records_entries","consumed_entries","historical_evidence")
+
+def compare_restoration(baseline, restored, expected, arm_cleanup_contract=None):
+    result={"matched_fields":[],"allowed_changed_fields":[],"unexpected_changed_fields":[],"missing_fields":[],"fault_mechanism_disabled":False,"restoration_pass":False}
+    expected_baseline=expected.get("expected_restoration",{})
+    if not isinstance(baseline,dict) or not isinstance(restored,dict): result["missing_fields"] += ["baseline_observation","restored_observation"]; return result
+    for field in RESTORATION_FIELDS:
+        if field not in baseline or field not in restored: result["missing_fields"].append(field); continue
+        if field in RESTORATION_VOLATILE_FIELDS:
+            if baseline[field]!=restored[field]: result["allowed_changed_fields"].append(field)
+        elif baseline[field]!=restored[field]: result["unexpected_changed_fields"].append(field)
+        elif field in expected_baseline and baseline[field]!=expected_baseline[field]: result["unexpected_changed_fields"].append(f"baseline:{field}")
+        else: result["matched_fields"].append(field)
+    result["fault_mechanism_disabled"]=restored.get("fault_state")==expected_baseline.get("fault_state") and restored.get("fault_state",{}).get("active") is False
+    result["restoration_pass"]=not result["missing_fields"] and not result["unexpected_changed_fields"] and result["fault_mechanism_disabled"]
+    return result
 
 def validate_cleanup(cleanup, expected):
     if not isinstance(cleanup,dict): return ["cleanup_proof_missing"]
-    req=("mechanism_id","mutation","inverse_action","pre_state","post_inverse_state","hashes","ownership","modes","device_ids","mount_identities","filesystem_identities","service_identity","service_health","socket_state","records_state","consumed_state","fault_disabled","independently_verified")
+    req=("mechanism_id","mutation","inverse_action","pre_state","post_inverse_state","hashes","ownership","modes","device_ids","mount_identities","filesystem_identities","service_identity","service_health","socket_state","records_state","consumed_state","fault_disabled","independently_verified","baseline_observation","restored_observation")
     reasons=[f"cleanup_field_missing:{k}" for k in req if k not in cleanup]
     if cleanup.get("mechanism_id")!=expected["mechanism_id"]: reasons.append("cleanup_wrong_mechanism")
-    if cleanup.get("independently_verified") is not True or cleanup.get("fault_disabled") is not True: reasons.append("cleanup_not_verified")
-    baseline, restored=cleanup.get("baseline_observation"), cleanup.get("restored_observation")
-    if not isinstance(baseline,dict) or not isinstance(restored,dict): reasons.append("cleanup_baseline_restored_missing")
-    else:
-        volatile={"service_pid","timestamp","inode"}; required=("service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount","consumed_mount","records_fs","consumed_fs","records_realpath","consumed_realpath","owner","mode","socket_state","service_identity","security_controls","fault_state","records_entries","consumed_entries","historical_evidence")
-        for k in required:
-            if k not in baseline or k not in restored: reasons.append(f"cleanup_field_missing:{k}")
-            elif k not in volatile and baseline.get(k)!=restored.get(k): reasons.append(f"cleanup_changed:{k}")
+    comparison=compare_restoration(cleanup.get("baseline_observation"),cleanup.get("restored_observation"),expected)
+    if not comparison["restoration_pass"]: reasons += ["restoration:"+x for x in comparison["missing_fields"]+comparison["unexpected_changed_fields"]];
+    if cleanup.get("independently_verified") is not True or cleanup.get("fault_disabled") is not True or not comparison["fault_mechanism_disabled"]: reasons.append("cleanup_not_verified")
     return reasons
 
-def expected_authorization_context(expected):
-    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"RQ16_ARM_EXECUTION_AUTHORIZED","review_artifact_sha256":hashlib.sha256(b"independent-review-artifact-binding").hexdigest(),"reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":hashlib.sha256(b"trusted-governance-authority-binding").hexdigest()}
+def expected_authorization_context(expected, trusted_provenance=None):
+    out={"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"RQ16_ARM_EXECUTION_AUTHORIZED"}
+    if trusted_provenance: out.update({"review_artifact_sha256":trusted_provenance["review_artifact_sha256"],"reviewer_designation":trusted_provenance["reviewer_designation"],"issuer_identity":trusted_provenance["issuer_identity"],"issuer_authority_artifact_sha256":trusted_provenance["issuer_authority_artifact_sha256"]})
+    return out
 
-def validate_authorization_token(token, expected, now=None, used_nonces=None):
+def validate_authorization_provenance(token, expected_trusted_provenance, actual_file_metadata=None, actual_artifact_digest=None):
+    if not isinstance(expected_trusted_provenance,dict): return ["trusted_authorization_provenance_unavailable"]
+    req=("issuer_identity","issuer_authority_artifact_sha256","reviewer_designation","review_artifact_sha256","trusted_storage_identity","trusted_owner","trusted_mode")
+    reasons=[f"trusted_provenance_missing:{k}" for k in req if k not in expected_trusted_provenance]
+    if reasons: return reasons
+    for k in ("issuer_identity","reviewer_designation","review_artifact_sha256","issuer_authority_artifact_sha256"):
+        if token.get(k)!=expected_trusted_provenance.get(k): reasons.append(f"authorization_provenance_mismatch:{k}")
+    if not isinstance(actual_file_metadata,dict): reasons.append("trusted_storage_metadata_missing")
+    else:
+        for k in ("trusted_storage_identity","trusted_owner","trusted_mode"):
+            if actual_file_metadata.get(k)!=expected_trusted_provenance.get(k): reasons.append(f"trusted_storage_mismatch:{k}")
+    if actual_artifact_digest is None or actual_artifact_digest!=expected_trusted_provenance.get("review_artifact_sha256"): reasons.append("review_artifact_digest_unverified")
+    if actual_file_metadata is None or actual_file_metadata.get("issuer_authority_artifact_digest")!=expected_trusted_provenance.get("issuer_authority_artifact_sha256"): reasons.append("issuer_artifact_digest_unverified")
+    return reasons
+
+def validate_authorization_token(token, expected, now=None, used_nonces=None, trusted_provenance=None, actual_file_metadata=None, actual_review_artifact_digest=None):
     fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer_identity","issuer_authority_artifact_sha256","source_path","single_use_registry")
     reasons=[f"token_field_missing:{k}" for k in fields if k not in token]
-    ctx=expected_authorization_context(expected)
+    ctx=expected_authorization_context(expected,trusted_provenance)
     for k,v in ctx.items():
         if token.get(k)!=v: reasons.append(f"token_mismatch:{k}")
     try:
@@ -149,6 +223,7 @@ def validate_authorization_token(token, expected, now=None, used_nonces=None):
     if used_nonces is not None and token.get("nonce") in used_nonces: reasons.append("nonce_replay")
     if token.get("source_path")!="/root-owned/rq16-authorization": reasons.append("authorization_source_untrusted")
     if token.get("single_use_registry")!="root-owned-durable-ledger": reasons.append("nonce_registry_untrusted")
+    reasons += validate_authorization_provenance(token,trusted_provenance,actual_file_metadata,actual_review_artifact_digest)
     return reasons
 
 def evaluate_arm(arm, observed, expected, observer_context=None, actual_raw_artifact_digest=None):

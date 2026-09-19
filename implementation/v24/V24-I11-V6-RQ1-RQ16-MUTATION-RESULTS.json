@@ -1,0 +1,1325 @@
+{
+  "RQ16_EXECUTED": false,
+  "all_rejected": true,
+  "exit_code": 0,
+  "mutations": [
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_device",
+      "path": "wrong_device",
+      "reasons": [
+        "fault_active:records_device_mismatch",
+        "fault_active:split_filesystem",
+        "rq17_contamination",
+        "target_binding:records_device"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_mount",
+      "path": "wrong_mount",
+      "reasons": [
+        "fault_active:records_mount_mismatch",
+        "rq17_contamination",
+        "target_binding:records_mount"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_filesystem",
+      "path": "wrong_filesystem",
+      "reasons": [
+        "fault_active:records_fs_mismatch",
+        "rq17_contamination",
+        "target_binding:records_fs"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "symlink",
+      "path": "symlink",
+      "reasons": [
+        "target_binding:records_symlink"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_target",
+      "path": "wrong_target",
+      "reasons": [
+        "wrong_target_id"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_syscall",
+      "path": "wrong_syscall",
+      "reasons": [
+        "wrong_syscall"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_errno",
+      "path": "wrong_errno",
+      "reasons": [
+        "wrong_errno"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "missing_activation",
+      "path": "missing_activation",
+      "reasons": [
+        "activation_not_proven"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "missing_operation",
+      "path": "missing_operation",
+      "reasons": [
+        "operation_not_proven"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "attestation_missing_raw_activation",
+      "path": "attestation_missing_raw_activation",
+      "reasons": [
+        "attestation_field_missing:fault_activation_raw_evidence"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "attestation_missing_raw_operation",
+      "path": "attestation_missing_raw_operation",
+      "reasons": [
+        "attestation_field_missing:operation_raw_evidence"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "attestation_wrong_observer",
+      "path": "attestation_wrong_observer",
+      "reasons": [
+        "observer_context_mismatch:observer_identity"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "attestation_wrong_pid",
+      "path": "attestation_wrong_pid",
+      "reasons": [
+        "attestation_service_mismatch"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "attestation_wrong_artifact_hash",
+      "path": "attestation_wrong_artifact_hash",
+      "reasons": [
+        "raw_artifact_digest_mismatch"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "missing_observer",
+      "path": "missing_observer",
+      "reasons": [
+        "observation_missing:restored"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "bool_only_observer",
+      "path": "bool_only_observer",
+      "reasons": [
+        "observations_missing"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "missing_cleanup",
+      "path": "missing_cleanup",
+      "reasons": [
+        "cleanup_proof_missing"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "bool_only_cleanup",
+      "path": "bool_only_cleanup",
+      "reasons": [
+        "cleanup_proof_missing"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "duplicate_consume",
+      "path": "duplicate_consume",
+      "reasons": [
+        "fault_active->post_failure:duplicate_target_entry:consumed_entries",
+        "post_failure->pre_cleanup:duplicate_target_entry:consumed_entries",
+        "post_failure:duplicate_target_entry:consumed_entries"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "both_directories",
+      "path": "both_directories",
+      "reasons": [
+        "fault_active->post_failure:target_in_both",
+        "post_failure->pre_cleanup:target_in_both",
+        "post_failure:target_in_both",
+        "post_failure:unexpected_target_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "rq17_false_but_changed",
+      "path": "rq17_false_but_changed",
+      "reasons": [
+        "fault_active:records_device_mismatch",
+        "fault_active:split_filesystem",
+        "rq17_contamination",
+        "target_binding:records_device"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "RED",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "authoritative_success",
+      "path": "authoritative_success",
+      "reasons": [
+        "authoritative_success_after_fault"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "RED",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "invalid_transition",
+      "path": "invalid_transition",
+      "reasons": [
+        "invalid_transition_after_fault"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "untrusted_expected_context",
+      "path": "untrusted_expected_context",
+      "reasons": [
+        "wrong_mechanism"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_service_hash",
+      "path": "cleanup_service_hash",
+      "reasons": [
+        "restoration:service_binary_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_gate_hash",
+      "path": "cleanup_gate_hash",
+      "reasons": [
+        "restoration:gate_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_mode",
+      "path": "cleanup_mode",
+      "reasons": [
+        "restoration:mode"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_owner",
+      "path": "cleanup_owner",
+      "reasons": [
+        "restoration:owner"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_socket",
+      "path": "cleanup_socket",
+      "reasons": [
+        "restoration:socket_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_fault_active",
+      "path": "cleanup_fault_active",
+      "reasons": [
+        "cleanup_not_verified"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_target_state",
+      "path": "cleanup_target_state",
+      "reasons": [
+        "restoration:records_entries"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_historical_evidence",
+      "path": "cleanup_historical_evidence",
+      "reasons": [
+        "restoration:historical_evidence"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_missing_restored",
+      "path": "cleanup_missing_restored",
+      "reasons": [
+        "cleanup_not_verified",
+        "restoration:consumed_device",
+        "restoration:consumed_entries",
+        "restoration:consumed_fs",
+        "restoration:consumed_mount",
+        "restoration:consumed_realpath",
+        "restoration:fault_state",
+        "restoration:gate_sha256",
+        "restoration:historical_evidence",
+        "restoration:mode",
+        "restoration:owner",
+        "restoration:records_device",
+        "restoration:records_entries",
+        "restoration:records_fs",
+        "restoration:records_mount",
+        "restoration:records_realpath",
+        "restoration:security_controls",
+        "restoration:service_binary_sha256",
+        "restoration:service_identity",
+        "restoration:socket_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "baseline_target_missing",
+      "path": "baseline_target_missing",
+      "reasons": [
+        "baseline->pre_injection:target_missing_from_both",
+        "baseline:target_missing_from_both",
+        "baseline:unexpected_target_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "baseline_already_consumed",
+      "path": "baseline_already_consumed",
+      "reasons": [
+        "baseline->pre_injection:target_in_both",
+        "baseline:target_in_both",
+        "baseline:unexpected_target_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "post_failure_missing_both",
+      "path": "post_failure_missing_both",
+      "reasons": [
+        "fault_active->post_failure:target_missing_from_both",
+        "post_failure->pre_cleanup:target_missing_from_both",
+        "post_failure:target_missing_from_both",
+        "post_failure:unexpected_target_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "post_failure_both",
+      "path": "post_failure_both",
+      "reasons": [
+        "fault_active->post_failure:target_in_both",
+        "post_failure->pre_cleanup:target_in_both",
+        "post_failure:target_in_both",
+        "post_failure:unexpected_target_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "wrong_target_consumed",
+      "path": "wrong_target_consumed",
+      "reasons": [
+        "fault_active->post_failure:unauthorized_lifecycle_transition",
+        "post_failure->pre_cleanup:unauthorized_lifecycle_transition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "historical_target_consumed",
+      "path": "historical_target_consumed",
+      "reasons": [
+        "fault_active->post_failure:unauthorized_lifecycle_transition",
+        "post_failure->pre_cleanup:unauthorized_lifecycle_transition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "unrelated_target_transition",
+      "path": "unrelated_target_transition",
+      "reasons": [
+        "fault_active->post_failure:unauthorized_lifecycle_transition",
+        "post_failure->pre_cleanup:unauthorized_lifecycle_transition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "RED",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "duplicate_authoritative_consumption",
+      "path": "duplicate_authoritative_consumption",
+      "reasons": [
+        "authoritative_success_after_fault"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "second_authoritative_retry",
+      "path": "second_authoritative_retry",
+      "reasons": [
+        "fault_active->post_failure:authoritative_response_in_observation",
+        "post_failure->pre_cleanup:authoritative_response_in_observation",
+        "post_failure:authoritative_response_in_observation"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "replay_state_mutation",
+      "path": "replay_state_mutation",
+      "reasons": [
+        "post_cleanup->restored:target_missing_from_both",
+        "restored:target_missing_from_both",
+        "restored:unexpected_target_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "target_hash_changed",
+      "path": "target_hash_changed",
+      "reasons": [
+        "fault_active->post_failure:target_hash_mismatch:observation",
+        "post_failure->pre_cleanup:target_hash_mismatch:observation",
+        "post_failure:target_hash_mismatch",
+        "post_failure:target_hash_mismatch:observation"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "target_identity_changed",
+      "path": "target_identity_changed",
+      "reasons": [
+        "fault_active->post_failure:target_identity_mismatch:observation",
+        "post_failure->pre_cleanup:target_identity_mismatch:observation",
+        "post_failure:target_identity_mismatch:observation",
+        "target_binding:target_record_id"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_gate_hash",
+      "path": "cleanup_gate_hash",
+      "reasons": [
+        "restoration:gate_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_device",
+      "path": "cleanup_device",
+      "reasons": [
+        "restoration:records_device"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_mount",
+      "path": "cleanup_mount",
+      "reasons": [
+        "restoration:records_mount"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_fs",
+      "path": "cleanup_fs",
+      "reasons": [
+        "restoration:records_fs"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_realpath",
+      "path": "cleanup_realpath",
+      "reasons": [
+        "restoration:records_realpath"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_owner",
+      "path": "cleanup_owner",
+      "reasons": [
+        "restoration:owner"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_mode",
+      "path": "cleanup_mode",
+      "reasons": [
+        "restoration:mode"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_socket",
+      "path": "cleanup_socket",
+      "reasons": [
+        "restoration:socket_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_fault_still_active",
+      "path": "cleanup_fault_still_active",
+      "reasons": [
+        "cleanup_not_verified",
+        "restoration:fault_state"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_unrelated_record",
+      "path": "cleanup_unrelated_record",
+      "reasons": [
+        "restoration:records_entries"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_historical_changed",
+      "path": "cleanup_historical_changed",
+      "reasons": [
+        "restoration:historical_evidence"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_arbitrary_hash",
+      "path": "cleanup_arbitrary_hash",
+      "reasons": [
+        "restoration:service_binary_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_arbitrary_owner",
+      "path": "cleanup_arbitrary_owner",
+      "reasons": [
+        "restoration:owner"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "HARNESS_DEFECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "ENOSPC",
+      "expected_result": "REJECT",
+      "mutation_id": "cleanup_arbitrary_mode",
+      "path": "cleanup_arbitrary_mode",
+      "reasons": [
+        "restoration:mode"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_arm",
+      "path": "arm",
+      "reasons": [
+        "token_mismatch:arm"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_mechanism_id",
+      "path": "mechanism_id",
+      "reasons": [
+        "token_mismatch:mechanism_id"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_mechanism_digest",
+      "path": "mechanism_digest",
+      "reasons": [
+        "token_mismatch:mechanism_digest"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_plan_commit",
+      "path": "plan_commit",
+      "reasons": [
+        "token_mismatch:plan_commit"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_plan_tree",
+      "path": "plan_tree",
+      "reasons": [
+        "token_mismatch:plan_tree"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_plan_digest",
+      "path": "plan_digest",
+      "reasons": [
+        "token_mismatch:plan_digest"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_execution_contract_digest",
+      "path": "execution_contract_digest",
+      "reasons": [
+        "token_mismatch:execution_contract_digest"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_cleanup_contract_digest",
+      "path": "cleanup_contract_digest",
+      "reasons": [
+        "token_mismatch:cleanup_contract_digest"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_host_identity",
+      "path": "host_identity",
+      "reasons": [
+        "token_mismatch:host_identity"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_runtime_identity",
+      "path": "runtime_identity",
+      "reasons": [
+        "token_mismatch:runtime_identity"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_service_binary_sha256",
+      "path": "service_binary_sha256",
+      "reasons": [
+        "token_mismatch:service_binary_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_gate_sha256",
+      "path": "gate_sha256",
+      "reasons": [
+        "token_mismatch:gate_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_records_device",
+      "path": "records_device",
+      "reasons": [
+        "token_mismatch:records_device"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_consumed_device",
+      "path": "consumed_device",
+      "reasons": [
+        "token_mismatch:consumed_device"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_records_mount_id",
+      "path": "records_mount_id",
+      "reasons": [
+        "token_mismatch:records_mount_id"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_consumed_mount_id",
+      "path": "consumed_mount_id",
+      "reasons": [
+        "token_mismatch:consumed_mount_id"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_independent_review_disposition",
+      "path": "independent_review_disposition",
+      "reasons": [
+        "token_mismatch:independent_review_disposition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_review_artifact_sha256",
+      "path": "review_artifact_sha256",
+      "reasons": [
+        "token_mismatch:review_artifact_sha256",
+        "authorization_provenance_mismatch:review_artifact_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_reviewer_designation",
+      "path": "reviewer_designation",
+      "reasons": [
+        "token_mismatch:reviewer_designation",
+        "authorization_provenance_mismatch:reviewer_designation"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_issuer_identity",
+      "path": "issuer_identity",
+      "reasons": [
+        "token_mismatch:issuer_identity",
+        "authorization_provenance_mismatch:issuer_identity"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "mutated",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_issuer_authority_artifact_sha256",
+      "path": "issuer_authority_artifact_sha256",
+      "reasons": [
+        "token_mismatch:issuer_authority_artifact_sha256",
+        "authorization_provenance_mismatch:issuer_authority_artifact_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "2025-01-01T00:00:00Z",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_expired",
+      "path": "expiration",
+      "reasons": [
+        "expiration_invalid"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "2030-01-01T00:00:00Z",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_future_issued",
+      "path": "authorization_timestamp",
+      "reasons": [
+        "authorization_in_future",
+        "expiration_invalid"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "bad",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_malformed_timestamp",
+      "path": "expiration",
+      "reasons": [
+        "timestamp_unparseable"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_empty_nonce",
+      "path": "nonce",
+      "reasons": [
+        "nonce_invalid"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "used",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_reused_nonce",
+      "path": "nonce",
+      "reasons": [
+        "nonce_replay"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "candidate",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_untrusted_source",
+      "path": "source_path",
+      "reasons": [
+        "authorization_source_untrusted"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "memory",
+      "before": "valid",
+      "case": "AUTHORIZATION",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_untrusted_registry",
+      "path": "single_use_registry",
+      "reasons": [
+        "nonce_registry_untrusted"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "candidate",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_self_issued",
+      "path": "issuer_identity",
+      "reasons": [
+        "token_mismatch:issuer_identity",
+        "authorization_provenance_mismatch:issuer_identity"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "candidate",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_candidate_writable",
+      "path": "source_path",
+      "reasons": [
+        "authorization_source_untrusted"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "issuer-sha",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_placeholder_issuer_hash",
+      "path": "issuer_authority_artifact_sha256",
+      "reasons": [
+        "token_mismatch:issuer_authority_artifact_sha256",
+        "authorization_provenance_mismatch:issuer_authority_artifact_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "review-sha",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_placeholder_review_hash",
+      "path": "review_artifact_sha256",
+      "reasons": [
+        "token_mismatch:review_artifact_sha256",
+        "authorization_provenance_mismatch:review_artifact_sha256"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "candidate",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_wrong_reviewer",
+      "path": "reviewer_designation",
+      "reasons": [
+        "token_mismatch:reviewer_designation",
+        "authorization_provenance_mismatch:reviewer_designation"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "BOUNDED_PASS",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_generic_bounded_pass",
+      "path": "independent_review_disposition",
+      "reasons": [
+        "token_mismatch:independent_review_disposition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "CHANGES_REQUIRED",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_changes_required",
+      "path": "independent_review_disposition",
+      "reasons": [
+        "token_mismatch:independent_review_disposition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "INSUFFICIENT_EVIDENCE",
+      "before": "valid",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_insufficient_evidence",
+      "path": "independent_review_disposition",
+      "reasons": [
+        "token_mismatch:independent_review_disposition"
+      ],
+      "rejected": true
+    },
+    {
+      "actual_result": "REJECT",
+      "after": "absent",
+      "before": "absent",
+      "case": "AUTHORIZATION_PROVENANCE",
+      "expected_result": "REJECT",
+      "mutation_id": "auth_provenance_unavailable",
+      "path": "trusted_provenance",
+      "reasons": [
+        "trusted_authorization_provenance_unavailable"
+      ],
+      "rejected": true
+    }
+  ],
+  "rejected_mutations": 96,
+  "surviving_mutations": 0,
+  "total_mutations": 96
+}
