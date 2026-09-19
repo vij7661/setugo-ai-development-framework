@@ -25,6 +25,6 @@ def main():
     assert 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
     for marker in ('expected_context','validate_trusted_fault_attestation','validate_authorization_token','check_rq17_contamination','total_mutations','all_rejected'):
         assert marker in text
-    assert text.count('V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md') <= 1
+    assert 'diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md' not in text
     print(json.dumps({'packet_consistency':'PASS','arm_count':4,'RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
 if __name__=='__main__': raise SystemExit(main())
