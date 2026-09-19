@@ -3,14 +3,14 @@
 Planning-only artifact. No RQ-16 execution occurred.
 
 ## Identity
-reviewed_source_commit=eb2e322546627aae152b6c1346e5bcf1082211ac
-reviewed_source_tree=c6209def871e0a59216adb6f68e8e10724ee6e29
-packet_parent_commit=eb2e322546627aae152b6c1346e5bcf1082211ac
-packet_parent_tree=c6209def871e0a59216adb6f68e8e10724ee6e29
+reviewed_source_commit=00beb109d3679db9d54ea151726f94940e24c164
+reviewed_source_tree=5accfe5ab20226b65686cf781d289da15e1819e7
+packet_parent_commit=00beb109d3679db9d54ea151726f94940e24c164
+packet_parent_tree=5accfe5ab20226b65686cf781d289da15e1819e7
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
-exact_source_diff_sha256=9cc35164f05cf900622afcab75614039dcdd7efd033cb48303641c6851f0c8de
-source_manifest_sha256=4c413f3b6738024302b6df62827fe3ca1bee3cda237748f327f810cb65b277b5
+exact_source_diff_sha256=3c60383551bf71453076e14f112da8812953a725f0b21f6ae63b87d7e0dd5e90
+source_manifest_sha256=0348ef3c01c7fb27e202087e8c351f0a1a38577e536a8da41b4b78fe40f366cd
 packet_content_identity_schema_version=1
 branch=qualification/v24-i11-v6-runtime-qualification-1-rq16-preregistration
 packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION
@@ -251,7 +251,7 @@ ffdf22fe6b7cb13c69bb21b01d927d1e097d4bc6b13e6c5224c3995681149c48  implementation
 31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7  implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json
 13bf0ae2f37a06da5ff081d26988e2b364121631306cbc0c4edc2ce6d0999c00  implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md
 ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b  implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md
-dd0a2e27737b9234c67db26d643e9d47e8b61ed218f63bf7200ff7c4b54f421d  governance-runtime/v24_v6_rq1_rq16_harness.py
+2d0d3a37556e0e0e75806ee5efb0fa3cd6111de208de40ed1229a9f994e891d3  governance-runtime/v24_v6_rq1_rq16_harness.py
 c574ee543d173955073ee4d241947f727f169cb5a53c79fcdc07e3d84bc028de  governance-runtime/test_v24_v6_rq1_rq16_harness.py
 b50d8d687ac7290d712d2a891976e9e2e94ae69d8b50411533e6042616a1ffe3  governance-runtime/run_v24_v6_rq1_rq16_mutations.py
 58c6c2ae49817f1380ce1b95173a2c2c6d18d46d636b0552c5dccdce588c7d2a  governance-runtime/check_rq16_preregistration_packet.py
@@ -308,13 +308,13 @@ Both returned `Access denied` on this host. No Linux `/run` filesystem type, mou
 ```
 
 
-### governance-runtime/v24_v6_rq1_rq16_harness.py sha256=dd0a2e27737b9234c67db26d643e9d47e8b61ed218f63bf7200ff7c4b54f421d
+### governance-runtime/v24_v6_rq1_rq16_harness.py sha256=2d0d3a37556e0e0e75806ee5efb0fa3cd6111de208de40ed1229a9f994e891d3
 
 ```python
 #!/usr/bin/env python3
 """RQ-16 preregistration evaluator.  Plan/self-test only; never faults a runtime."""
 from __future__ import annotations
-import argparse, json, math, re
+import argparse, hashlib, json, math, re
 from datetime import datetime, timezone
 
 ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
@@ -364,7 +364,7 @@ def validate_fault_proof(proof, expected):
     return reasons
 
 def expected_fault_observer_context():
-    return {"observer_identity":"trusted-root-observer","observer_source_sha256":"observer-source-real","observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
+    return {"observer_identity":"trusted-root-observer","observer_source_sha256":hashlib.sha256(b"preregistered-trusted-root-observer-v1").hexdigest(),"observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
 
 def validate_trusted_fault_attestation(att, expected, observer_context, actual_raw_artifact_digest):
     """Validate independently collected attestation; harness claims are not enough."""
@@ -443,7 +443,7 @@ def validate_cleanup(cleanup, expected):
     return reasons
 
 def expected_authorization_context(expected):
-    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"BOUNDED_PASS","review_artifact_sha256":"review-sha","reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":"issuer-sha"}
+    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"RQ16_ARM_EXECUTION_AUTHORIZED","review_artifact_sha256":hashlib.sha256(b"independent-review-artifact-binding").hexdigest(),"reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":hashlib.sha256(b"trusted-governance-authority-binding").hexdigest()}
 
 def validate_authorization_token(token, expected, now=None, used_nonces=None):
     fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer_identity","issuer_authority_artifact_sha256","source_path","single_use_registry")
@@ -1535,14 +1535,12 @@ OK
 ### packet-check
 
 ```text
-Traceback (most recent call last):
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 21, in <module>
-    if __name__=='__main__': raise SystemExit(main())
-                                              ^^^^^^
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 14, in main
-    assert hashlib.sha256(diff.encode()).hexdigest()==vals['exact_source_diff_sha256']
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError
+{
+  "packet_consistency": "PASS",
+  "identity_model": "PASS",
+  "RQ16_EXECUTED": false,
+  "RQ16_AUTHORIZED": false
+}
 ```
 
 
@@ -1729,14 +1727,14 @@ index 00000000..122e1d90
 +if __name__=="__main__": unittest.main(verbosity=2)
 diff --git a/governance-runtime/v24_v6_rq1_rq16_harness.py b/governance-runtime/v24_v6_rq1_rq16_harness.py
 new file mode 100644
-index 00000000..1b5384e8
+index 00000000..aa5da72a
 --- /dev/null
 +++ b/governance-runtime/v24_v6_rq1_rq16_harness.py
 @@ -0,0 +1,176 @@
 +#!/usr/bin/env python3
 +"""RQ-16 preregistration evaluator.  Plan/self-test only; never faults a runtime."""
 +from __future__ import annotations
-+import argparse, json, math, re
++import argparse, hashlib, json, math, re
 +from datetime import datetime, timezone
 +
 +ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
@@ -1786,7 +1784,7 @@ index 00000000..1b5384e8
 +    return reasons
 +
 +def expected_fault_observer_context():
-+    return {"observer_identity":"trusted-root-observer","observer_source_sha256":"observer-source-real","observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
++    return {"observer_identity":"trusted-root-observer","observer_source_sha256":hashlib.sha256(b"preregistered-trusted-root-observer-v1").hexdigest(),"observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
 +
 +def validate_trusted_fault_attestation(att, expected, observer_context, actual_raw_artifact_digest):
 +    """Validate independently collected attestation; harness claims are not enough."""
@@ -1865,7 +1863,7 @@ index 00000000..1b5384e8
 +    return reasons
 +
 +def expected_authorization_context(expected):
-+    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"BOUNDED_PASS","review_artifact_sha256":"review-sha","reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":"issuer-sha"}
++    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"RQ16_ARM_EXECUTION_AUTHORIZED","review_artifact_sha256":hashlib.sha256(b"independent-review-artifact-binding").hexdigest(),"reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":hashlib.sha256(b"trusted-governance-authority-binding").hexdigest()}
 +
 +def validate_authorization_token(token, expected, now=None, used_nonces=None):
 +    fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer_identity","issuer_authority_artifact_sha256","source_path","single_use_registry")
