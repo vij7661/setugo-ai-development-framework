@@ -29,7 +29,7 @@ def main() -> int:
     historical = packet.split("## Historical superseded review material (non-authoritative)", 1)
     nonhistorical = historical[0]
     if len(historical) == 2:
-        tail = historical[1].split("## Included source SHA-256", 1)
+        tail = historical[1].split("\n## Included source SHA-256\n", 1)
         nonhistorical += tail[-1]
     for forbidden in ("scientific_rerun=true", "RQ16_started=true"):
         if forbidden in nonhistorical:
