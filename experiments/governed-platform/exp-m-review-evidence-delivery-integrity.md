@@ -272,6 +272,10 @@ Witness challenges may test exact accessibility only; they cannot ask for evalua
 
 WitnessProtocolQualificationRecord and its registry are platform-owned, outside candidate write authority, version/hash/expiry bound, and invalidated by provider/prompt-isolation/witness-protocol drift. Candidate code/content cannot mint or widen the record.
 
+### M-I57 — Capability confirmation attempt set is closed before exposure
+
+ProviderQualificationExecutionPlan freezes confirmation trial IDs, schedule, interleaving seed, trusted runner and credential/egress identity before confirmation exposure. Candidate/user/operator code cannot select which observed attempts count after results are known. Missing scheduled slots are failures; retries cannot replace failures; unexplained calls on the qualification credential invalidate the epoch when they cannot be reconciled.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -285,6 +289,7 @@ Future implementation should expose governed objects equivalent to:
 - `ProviderContextIsolationPolicy`
 - `WitnessProtocolQualificationRecord`
 - `AdmissionFenceRecord`
+- `ProviderQualificationExecutionPlan`
 - `ProviderCapabilityQualificationRecord`
 - `ProviderContextStateEvidence`
 - `PromptIsolationQualificationRecord`
@@ -1136,6 +1141,32 @@ Pinned provider account-class documentation or production configuration-template
 Expected:
 ProviderContextIsolationPolicy/ProviderCapabilityProfile binding invalidated; requalification required.
 
+### M-123 — Confirmation schedule omits failed slot
+
+A planned trial fails or is skipped, then the runner removes that trial ID before final qualification calculation.
+
+Expected:
+plan/ledger mismatch; QUALIFICATION_ATTEMPT_CLOSURE_UNPROVEN and qualification fails.
+
+### M-124 — Retry replaces failed confirmation attempt
+
+A failed trial is rerun successfully and only the successful retry is counted.
+
+Expected:
+original hard failure remains append-only; zero-failure criterion cannot pass.
+
+### M-125 — Unscheduled hidden qualification calls
+
+Additional provider calls use the dedicated qualification credential outside the frozen plan.
+
+Expected:
+if provider audit reconciliation exposes them, confirmation epoch invalidated; if reconciliation is unavailable and credential/egress exclusivity is unproven, QUALIFICATION_ATTEMPT_CLOSURE_UNPROVEN.
+
+### M-126 — Candidate/operator can invoke qualification credential
+
+Expected:
+qualification runner trust boundary fails; profile cannot be material-review qualified.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1219,7 +1250,10 @@ Mutation suite must attempt to make a verdict admissible by:
 - allowing evaluative witness prompts;
 - omitting/staling WitnessProtocolQualificationRecord;
 - accepting candidate-authored witness qualification;
-- ignoring provider-isolation documentation/account-class/config-template drift.
+- ignoring provider-isolation documentation/account-class/config-template drift;
+- dropping a planned failed/missing confirmation slot;
+- replacing a failed confirmation attempt with a successful retry;
+- accepting unreconciled qualification calls or candidate-accessible qualification credentials.
 
 Every load-bearing mutation must be rejected.
 
@@ -1301,6 +1335,9 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `WitnessOutcomeShiftAdapter`
 - `CandidateWitnessQualificationAdapter`
 - `ProviderIsolationTemplateDriftAdapter`
+- `QualificationPlanTamperAdapter`
+- `FailedTrialReplacementAdapter`
+- `UnreconciledQualificationCallAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1381,7 +1418,9 @@ EXP-M can reach bounded pass only when:
 47. witness challenge/response traffic is part of the qualified cumulative context and cannot evict required evidence before adjudication;
 48. witness protocols are non-evaluative and have a current provider/mode-bound WitnessProtocolQualificationRecord;
 49. witness qualification authority is outside candidate write control;
-50. provider isolation documentation/account-class/config-template drift invalidates the associated context-isolation qualification.
+50. provider isolation documentation/account-class/config-template drift invalidates the associated context-isolation qualification;
+51. confirmation attempt membership is frozen before exposure and every planned slot is reconciled or counted failed;
+52. qualification credentials/runner are outside candidate and ordinary operator control, and unreconciled calls cannot manufacture a passing sample.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
