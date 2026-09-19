@@ -7,18 +7,20 @@ Presence is not sufficient. A prerequisite marked `QUALIFIED` must have complete
 | Gate 0 R2 design closure | independent R2 manual design review; zero unresolved Critical/High |
 | Gate 1 EXP-M deterministic implementation | frozen EXP-M R5 only; independent of RA adoption |
 | FP-01 CanonicalRecordIdentity | Gate 0 bounded pass |
+| FP-02 AuthorityGenerationCAS | Gate 0 bounded pass; protected-state storage contract defined |
+| FP-03 TamperEvidentLedger | Gate 0 bounded pass; independent anchor store/authority defined |
+| FP-04 DataFlowLabel | Gate 0 bounded pass; data-classification/declassification authority defined |
 | RA-01 diagnostic projection | Gate 0 bounded pass; named authoritative source map |
 | RA-05 generated inventory | Gate 0 bounded pass; diagnostic-only status |
 | RA-06 source/execution receipts | Gate 0 bounded pass; FP-01 qualified |
-| RA-07 advisory negative archive | FP-01 qualified; rollback/tamper primitive qualified; no deny-list authority |
+| RA-07 advisory negative archive | FP-01 + FP-03 qualified; no deny-list authority |
 | RA-11 diagnostics | Gate 0 bounded pass; provenance-safe representation |
-| FP-02 AuthorityGenerationCAS | Gate 0 bounded pass; protected-state store defined |
 | RA-02 evidence assurance | FP-01 qualified; governing composition rules reviewed |
-| RA-03 evaluation/promotion transaction | FP-01 + FP-02 qualified; evaluator write isolation; external-auth policy derived from authority snapshot |
+| RA-03 evaluation/promotion transaction | FP-01 + FP-02 + FP-03 qualified; evaluator write isolation; external-auth policy derived from authority snapshot |
 | RA-04 capability envelope | FP-02 qualified; canonical scope comparator; atomic consumable reservation ledger |
 | RA-08 authority-bearing memory supersession | FP-01 + FP-02 + RA-02 + RA-07 mechanism qualified; namespace authority defined; active-projection CAS defined |
-| RA-09 tool permission contract | RA-04 qualified; platform tool-risk registry qualified |
-| RA-11 enforcement | RA-02 + RA-04 + RA-09 qualified; signature/publisher/dependency/load/sandbox mechanisms qualified |
+| RA-09 tool permission contract | FP-04 + RA-04 qualified; platform tool-risk registry qualified |
+| RA-11 enforcement | FP-04 + RA-02 + RA-04 + RA-09 qualified; signature/publisher/dependency/load/sandbox mechanisms qualified |
 | RA-10 multi-writer worktrees/leases/fencing | RA-03 + RA-04 + RA-06 + RA-09 + RA-11 enforcement + FP-02 qualified |
 | RA-12 swarm-capable routing | RA-01 capability projection correctness + RA-03 + RA-04 + RA-09 + RA-10 + RA-11 enforcement qualified |
 | RA-13 bounded research/dream cycle | RA-01 + RA-03 + RA-04 + RA-06 + RA-07 + RA-08 provenance/supersession + RA-09 + RA-10 + RA-11 enforcement + RA-12 qualified; authoritative policy/gold/evaluation write isolation |
