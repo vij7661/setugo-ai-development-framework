@@ -192,7 +192,7 @@ It must contain at least:
 - per-chunk hash/length/index;
 - canonical ordering;
 - whole canonical corpus hash;
-- exact system/developer/user review prompt hashes where applicable;
+- exact hashes for every platform-supplied semantic prompt layer (system/developer/user); an absent layer is represented explicitly as EMPTY rather than omitted;
 - egress/data-classification decision hash;
 - expected wire-call count.
 
@@ -314,7 +314,7 @@ A `ProviderCapabilityProfile` is trusted platform configuration/evidence, not ca
 It must bind:
 
 - provider;
-- provider account/tenant/project identity where relevant;
+- exact provider credential/account/project scope identity used by the platform; if the API does not expose a remote tenant/project identifier, bind the platform-owned credential/configuration identity and do not claim an unobservable remote identity;
 - API endpoint/region/data-residency boundary;
 - exact requested model and provider-reported model/deployment identity; if the provider cannot expose the deployment identity required by the drift policy, the mode is `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`;
 - model alias/version drift policy;
