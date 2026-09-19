@@ -188,6 +188,30 @@ The bytes hashed/materialized during preflight are the bytes dispatched. Mutable
 
 Web/search/plugin/retrieval evidence outside the frozen delivery corpus is non-authoritative unless separately governed and captured. Tool access cannot silently become part of the review basis.
 
+### M-I36 — ReviewRequest completeness is independently derived
+
+The pinned governor derives a RequiredEvidenceContract and mandatory-dimension set independently from governing standards/experiment/protected-transition rules. ReviewRequest refs/dimensions are validated against that contract and cannot narrow it.
+
+### M-I37 — Material review context is clean
+
+Material reviews use a fresh stateless request or fresh stateful provider session with no ungoverned prior messages, memory, tool outputs, custom instructions, or knowledge connectors. Uncapturable mutable provider-side semantic context disqualifies the provider/mode.
+
+### M-I38 — Capability qualification thresholds are preregistered
+
+Live provider capability qualification uses a fixed statistical acceptance policy before exposure: at least 59 independent fresh trials per claimed operating point, zero hard failures, one-sided 95% exact-binomial lower bound at least approximately 0.95, conservative 80% safety-margin rule, and 7-day/default drift-triggered requalification.
+
+### M-I39 — Accessibility probes are dense enough for the claimed bound
+
+When deterministic truncation/range evidence is unavailable, no required raw-text segment larger than 2048 UTF-8 bytes remains unprobed during capability qualification; opaque files require page/range/member-level probes or deterministic retrieval logs.
+
+### M-I40 — Provider-injected semantic context is fail-closed
+
+Provider/model modes must inventory or disable mutable default/custom prompts, project/account memory, and provider-side knowledge connectors. Unknown mutable semantic context makes the mode NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+
+### M-I41 — Cross-evidence interaction requirements are independently derived
+
+Review decomposition uses a platform-derived RequiredInteractionContract from standards/mandatory dimensions/evidence relationships; proposer-declared interaction lists cannot silently omit required interaction families.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -686,6 +710,109 @@ Allowlisted tool returns captured, provenance-bound supplemental evidence under 
 Expected:
 may be retained only under explicit supplemental/new review evidence semantics; no silent manifest rebinding.
 
+### M-68 — ReviewRequest omits standard-required evidence
+
+The governing RequiredEvidenceContract requires evidence E, but the ReviewRequest does not reference or deterministically derive E.
+
+Expected:
+EVIDENCE_SELECTION_INCOMPLETE before manifest freeze.
+
+### M-69 — ReviewRequest omits standard-required mandatory dimension
+
+A mandatory dimension derived from governing standards is absent from the ReviewRequest.
+
+Expected:
+ReviewRequest invalid; no delivery attempt.
+
+### M-70 — Dirty reused provider thread
+
+Manifest evidence is delivered into a stateful session containing prior ungoverned messages/tool outputs.
+
+Expected:
+provider/mode attempt not context-clean; verdict inadmissible.
+
+### M-71 — Provider default/custom prompt drift
+
+Provider/project custom instruction or injected mutable prompt differs from the qualified profile.
+
+Expected:
+profile/context drift; NOT_QUALIFIED or requalification required.
+
+### M-72 — Provider-side memory enabled
+
+Account/project/session memory is active but not captured/disabled.
+
+Expected:
+material review mode NOT_QUALIFIED.
+
+### M-73 — Provider-side knowledge connector silently enabled
+
+Provider account injects retrieval/knowledge context not governed by the manifest.
+
+Expected:
+material review mode NOT_QUALIFIED or separately governed supplemental boundary.
+
+### M-74 — Insufficient provider qualification trials
+
+Operating point has fewer than 59 independent fresh trials even if all pass.
+
+Expected:
+capability point remains unqualified.
+
+### M-75 — One hard failure among qualification trials
+
+At least one hard visibility/truncation failure occurs at the claimed operating point.
+
+Expected:
+operating point disqualified.
+
+### M-76 — Safety margin omitted
+
+The tested passing/failure boundary is used directly instead of applying the governed 80% cap.
+
+Expected:
+profile invalid.
+
+### M-77 — Internal omission between sparse canaries
+
+Head/middle/tail probes pass, but an unprobed required internal segment is omitted.
+
+Expected:
+sparse witness method cannot qualify the claimed range; fail closed.
+
+### M-78 — Dense per-segment witness detects omission
+
+A required text segment within the 2048-byte probe granularity is omitted.
+
+Expected:
+missing witness/content challenge causes qualification failure.
+
+### M-79 — Opaque attachment has unprobed required page/range
+
+Attachment mode lacks deterministic retrieval logs and not every required page/range/member is probed.
+
+Expected:
+full-artifact material review mode unqualified.
+
+### M-80 — Interaction family omitted from proposer plan
+
+Platform RequiredInteractionContract contains interaction X; proposer ReviewRequest/subreview plan omits X.
+
+Expected:
+global review aggregation blocked.
+
+### M-81 — Capability expires after final provider response before verdict admission
+
+Provider response exists, but the capability profile becomes expired before verdict admissibility.
+
+Expected:
+verdict non-promotable until newly governed validation.
+
+### M-82 — Egress authorization revoked after final provider response before verdict admission
+
+Expected:
+verdict admission blocked according to current policy; stale preflight cannot authorize promotion.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -729,7 +856,17 @@ Mutation suite must attempt to make a verdict admissible by:
 - treating upload success as file processing readiness;
 - re-reading mutable source bytes after manifest freeze without revalidation;
 - ignoring capability/egress expiry between preflight and dispatch;
-- admitting ungoverned reviewer web/tool evidence as frozen corpus evidence.
+- admitting ungoverned reviewer web/tool evidence as frozen corpus evidence;
+- trusting an incomplete ReviewRequest as the full required-evidence authority;
+- omitting a standard-required mandatory dimension;
+- reusing a dirty provider session;
+- ignoring provider custom-prompt/memory/connector drift;
+- accepting fewer than 59 capability trials;
+- accepting any hard capability failure at a claimed point;
+- skipping the governed 80% safety margin;
+- treating sparse canaries as proof for unprobed required regions;
+- omitting a platform-derived cross-evidence interaction;
+- accepting an expired capability/egress state at verdict admission.
 
 Every load-bearing mutation must be rejected.
 
@@ -775,6 +912,16 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `ExpiredMidAttemptAdapter`
 - `EgressRevokedAdapter`
 - `UngovernedReviewerToolAdapter`
+- `IncompleteReviewRequestAdapter`
+- `DirtySessionAdapter`
+- `ProviderPromptDriftAdapter`
+- `ProviderMemoryEnabledAdapter`
+- `ProviderKnowledgeConnectorAdapter`
+- `InsufficientTrialsAdapter`
+- `FlakyCapabilityAdapter`
+- `SparseCanaryGapAdapter`
+- `MissingInteractionFamilyAdapter`
+- `PostResponseExpiryAdapter`
 
 Live API pilots come only after deterministic adapters prove the governor behavior.
 
@@ -820,7 +967,14 @@ EXP-M can reach bounded pass only when:
 18. representation transformers/materializers are trusted and resource/path safe;
 19. stable evidence IDs cannot collide or rebind required content;
 20. manifest-to-wire TOCTOU cannot substitute later mutable bytes/state;
-21. ungoverned reviewer tools cannot silently widen the evidence basis.
+21. ungoverned reviewer tools cannot silently widen the evidence basis;
+22. ReviewRequest completeness is independently cross-checked against a platform-derived RequiredEvidenceContract;
+23. material reviews use a fresh/clean semantic context or the provider/mode is disqualified;
+24. provider capability qualification obeys preregistered statistical thresholds, safety margin, and requalification interval;
+25. provider-injected mutable semantic context is inventoried/disabled or the provider/mode is disqualified;
+26. accessibility probing is dense enough for the claimed content range;
+27. cross-evidence interaction requirements are independently derived;
+28. capability/egress/session validity is rechecked at verdict admission.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
