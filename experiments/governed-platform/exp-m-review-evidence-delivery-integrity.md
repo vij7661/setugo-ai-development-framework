@@ -180,6 +180,14 @@ Candidate-controlled parsers, archive path traversal, symlink escape, duplicate 
 
 Stable evidence IDs bind governed source identity plus content hash; canonical path/ID collisions cannot replace one required item with another.
 
+### M-I34 — Frozen bytes survive manifest-to-wire TOCTOU
+
+The bytes hashed/materialized during preflight are the bytes dispatched. Mutable source paths, transformed outputs, capability state, egress decisions, or provider files cannot change after validation without revalidation/new attempt identity.
+
+### M-I35 — Reviewer tools cannot silently widen evidence
+
+Web/search/plugin/retrieval evidence outside the frozen delivery corpus is non-authoritative unless separately governed and captured. Tool access cannot silently become part of the review basis.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -636,6 +644,48 @@ Provider retrieval returns only a snippet/range while review contract requires f
 Expected:
 coverage incomplete; no TESTED_SUPPORTED for full-artifact dimension.
 
+### M-62 — Source bytes mutate after manifest freeze
+
+Hash/materialize file, mutate pathname before adapter upload, then attempt delivery.
+
+Expected:
+adapter uses frozen bytes or immediate revalidation detects mismatch; no silent TOCTOU substitution.
+
+### M-63 — Generated representation mutates before wire send
+
+Transformation output changes after manifest freeze.
+
+Expected:
+wire/representation hash mismatch; attempt invalid.
+
+### M-64 — Capability profile expires mid-attempt
+
+Profile valid at preflight but expired/materially invalid before final wire call/verdict.
+
+Expected:
+pre-dispatch/final admissibility revalidation blocks completion.
+
+### M-65 — Egress authorization revoked after preflight
+
+Policy allowed at manifest freeze but is revoked before send.
+
+Expected:
+dispatch blocked or new authorization required.
+
+### M-66 — Ungoverned reviewer web search
+
+Reviewer uses external web/tool source not in governed evidence set and cites it as basis for PASS.
+
+Expected:
+external evidence non-authoritative; review cannot claim frozen-evidence coverage from it.
+
+### M-67 — Governed reviewer tool retrieval
+
+Allowlisted tool returns captured, provenance-bound supplemental evidence under governed boundary.
+
+Expected:
+may be retained only under explicit supplemental/new review evidence semantics; no silent manifest rebinding.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -676,7 +726,10 @@ Mutation suite must attempt to make a verdict admissible by:
 - trusting candidate-provided transformation parser;
 - ignoring archive traversal/resource-limit failures;
 - allowing evidence-ID collision to replace required content;
-- treating upload success as file processing readiness.
+- treating upload success as file processing readiness;
+- re-reading mutable source bytes after manifest freeze without revalidation;
+- ignoring capability/egress expiry between preflight and dispatch;
+- admitting ungoverned reviewer web/tool evidence as frozen corpus evidence.
 
 Every load-bearing mutation must be rejected.
 
@@ -718,6 +771,10 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `EndpointDriftAdapter`
 - `FallbackProfileReuseAdapter`
 - `FileProcessingPendingAdapter`
+- `PostManifestSourceMutationAdapter`
+- `ExpiredMidAttemptAdapter`
+- `EgressRevokedAdapter`
+- `UngovernedReviewerToolAdapter`
 
 Live API pilots come only after deterministic adapters prove the governor behavior.
 
@@ -761,7 +818,9 @@ EXP-M can reach bounded pass only when:
 16. provider capability bounds are repeated/conservative and invalidate on material drift;
 17. provider/model fallback cannot inherit a different delivery qualification;
 18. representation transformers/materializers are trusted and resource/path safe;
-19. stable evidence IDs cannot collide or rebind required content.
+19. stable evidence IDs cannot collide or rebind required content;
+20. manifest-to-wire TOCTOU cannot substitute later mutable bytes/state;
+21. ungoverned reviewer tools cannot silently widen the evidence basis.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
