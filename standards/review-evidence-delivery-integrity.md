@@ -4,269 +4,446 @@
 
 `PREREGISTERED_FOR_EXP_M_FALSIFICATION`
 
-This standard defines the governance boundary between an authoritative evidence set and the reviewer context actually delivered to an external or platform reviewer.
+This standard governs the boundary between an authoritative evidence set and the evidence context made available to a reviewer through a platform API transport.
 
-It does not claim that provider context windows, file ingestion, attachment parsing, or model attention are intrinsically trustworthy. Those properties must be evidenced by the delivery protocol before a reviewer verdict may become admissible.
+It does **not** claim that a platform can cryptographically prove that a remote model cognitively attended to every delivered token. The platform may prove its own materialization and wire delivery, and may rely only on separately qualified provider/model/API capabilities for remote context accessibility. Model attention is a nonclaim.
 
-## Problem statement
+## Core problem
 
-A review can return `INSUFFICIENT_EVIDENCE`, `CHANGES_REQUIRED`, `PASS`, or another disposition even when the underlying scientific evidence is unchanged, simply because the reviewer received a different subset or representation of that evidence.
+An unchanged scientific evidence set can produce different reviewer outcomes when different providers, models, API modes, file transports, context limits, or chunking paths expose different subsets or representations of that evidence.
 
-Examples include:
+Therefore these are separate governed facts:
 
-- provider context truncation;
-- unsupported ZIP/TAR/PDF/file types;
-- attachment accepted by transport but unavailable to the model;
-- one chunk omitted, duplicated, reordered, or corrupted;
-- prompt plus evidence exceeding provider input limits;
-- generated Markdown omitting decisive raw files;
-- a provider silently dropping trailing context;
-- a review beginning before all required evidence is delivered;
-- evidence referenced in a manifest but not materialized into reviewer context;
-- reviewer citations referring only to summaries rather than required raw evidence.
+1. authoritative evidence existence;
+2. required-evidence selection;
+3. evidence materialization;
+4. representation/transformation;
+5. wire delivery;
+6. provider/session/file accessibility;
+7. qualified reviewer-context availability;
+8. reviewer semantic adjudication;
+9. verdict admissibility.
 
-Therefore evidence existence and evidence delivery are separate governed facts.
+A later stage may not self-prove an earlier stage.
 
 ## Core authority rule
 
-**A reviewer verdict is inadmissible for an authority transition unless delivery completeness for the required evidence set is proven first.**
+**A reviewer disposition is inadmissible for a material authority transition unless every mandatory evidence item is governed from source through delivery and the selected provider/mode is qualified to make that exact representation available to the reviewer.**
 
-A review result may still be stored as diagnostic/external evidence when completeness is unproven, but it cannot satisfy a mandatory review gate.
+A `PASS` cannot cure incomplete delivery. A negative result from incomplete delivery may remain useful defect/diagnostic evidence, but it is not a complete scientific adjudication.
 
-Missing scientific evidence and missing delivered evidence must never be conflated.
+## Required-evidence authority
 
-## Required failure taxonomy
+The delivery manifest does not decide what evidence is required.
 
-At minimum the platform must distinguish:
+Required/optional status must be derived from platform-owned governed inputs such as:
 
-- `SCIENTIFIC_EVIDENCE_MISSING` — required scientific evidence does not exist in the authoritative evidence set.
-- `EVIDENCE_DELIVERY_INCOMPLETE` — authoritative evidence exists but required material was not delivered or acknowledged.
-- `REVIEW_CONTEXT_INCOMPLETE` — provider/model context capability was insufficient for the required review corpus.
-- `EVIDENCE_FORMAT_UNSUPPORTED` — required evidence representation could not be consumed by the selected reviewer.
+- the current integrity-bound `ReviewRequest`;
+- mandatory review dimensions;
+- governed evidence references;
+- governed standards/experiment contract;
+- deterministic platform classification.
+
+The proposer, packet builder, reviewer, transport adapter, or delivery manifest may not silently:
+
+- omit a governed evidence reference;
+- change required to optional;
+- substitute a summary for required raw evidence;
+- narrow the required item set because of provider limits.
+
+Before delivery, the platform must prove closure:
+
+`required_evidence_refs == materialized_required_evidence_refs == manifest_required_evidence_refs`
+
+subject only to explicitly governed representation mappings.
+
+## Failure taxonomy
+
+At minimum preserve:
+
+- `SCIENTIFIC_EVIDENCE_MISSING`
+- `EVIDENCE_SELECTION_INCOMPLETE`
+- `EVIDENCE_MATERIALIZATION_FAILED`
+- `EVIDENCE_TRANSFORMATION_UNQUALIFIED`
+- `EVIDENCE_DELIVERY_INCOMPLETE`
+- `REVIEW_CONTEXT_INCOMPLETE`
+- `EVIDENCE_FORMAT_UNSUPPORTED`
+- `EVIDENCE_ATTACHMENT_UNAVAILABLE`
 - `EVIDENCE_CHUNK_MISSING`
 - `EVIDENCE_CHUNK_DUPLICATE`
 - `EVIDENCE_CHUNK_REORDERED`
 - `EVIDENCE_CHUNK_HASH_MISMATCH`
 - `EVIDENCE_MANIFEST_MISMATCH`
-- `EVIDENCE_ATTACHMENT_UNAVAILABLE`
-- `EVIDENCE_TRUNCATION_SUSPECTED`
+- `EVIDENCE_WIRE_REQUEST_MISMATCH`
+- `EVIDENCE_SESSION_BINDING_MISMATCH`
+- `EVIDENCE_FILE_REFERENCE_UNQUALIFIED`
+- `PROVIDER_CAPABILITY_PROFILE_UNQUALIFIED`
+- `PROVIDER_CAPABILITY_PROFILE_STALE`
+- `EVIDENCE_EGRESS_NOT_AUTHORIZED`
 - `EVIDENCE_RECEIPT_UNPROVEN`
 - `REVIEW_STARTED_BEFORE_DELIVERY_COMPLETE`
 - `REVIEW_VERDICT_INADMISSIBLE_DELIVERY_FAILURE`
+- `INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED`
+- `MIXED_INSUFFICIENCY`
 
-A generic `INSUFFICIENT_EVIDENCE` reviewer response must be adjudicated into one of:
-
-- scientific insufficiency;
-- delivery/context insufficiency;
-- mixed/undetermined insufficiency.
-
-If the platform cannot determine which, the verdict remains non-promotable.
+A generic reviewer `INSUFFICIENT_EVIDENCE` token is not the platform's final cause classification.
 
 ## Evidence Delivery Manifest
 
-Before provider invocation, the platform must create an immutable content-addressed delivery manifest containing at least:
+Before any provider invocation, create an immutable content-addressed `EvidenceDeliveryManifest` bound to the exact current `ReviewRequest`.
 
-- review request ID;
+It must contain at least:
+
+- review request ID/hash;
 - reviewed artifact commit/tree;
-- reviewer provider/model constraint;
-- delivery protocol version;
-- provider capability profile ID/hash;
 - required review dimensions;
-- required evidence item count;
-- per-item stable ID;
-- evidence class;
+- authoritative required evidence refs and count;
+- provider/model/API mode;
+- trusted adapter identity/hash/version;
+- provider capability profile ID/hash/version/expiry;
+- delivery protocol version;
+- delivery attempt ID;
+- per-item stable evidence ID;
 - authoritative source reference;
-- raw SHA-256;
-- exact byte length;
-- media/content type;
-- required/optional flag;
-- chunking plan if chunked;
+- evidence class;
+- source raw SHA-256 and byte length;
+- governed representation ID;
+- representation media type;
+- representation SHA-256 and byte length;
+- required/optional status derived from governed source;
+- transformation record when source and representation differ;
+- chunk plan where applicable;
 - total chunk count;
-- per-chunk SHA-256 and byte length;
+- per-chunk hash/length/index;
 - canonical ordering;
-- whole-corpus SHA-256;
-- prompt SHA-256;
-- expected total delivered bytes/tokens where measurable.
+- whole canonical corpus hash;
+- exact system/developer/user review prompt hashes where applicable;
+- egress/data-classification decision hash;
+- expected wire-call count.
 
-The manifest itself must be integrity-bound before dispatch.
+The manifest hash is frozen before delivery.
+
+## Representation and transformation governance
+
+A source artifact and a reviewer representation are not automatically equivalent.
+
+When evidence is transformed, record:
+
+- source evidence ID/hash/length/media type;
+- transformation tool identity/version/hash;
+- transformation parameters;
+- produced representation hash/length/media type;
+- byte/page/range coverage where relevant;
+- whether transformation is lossless, bounded-loss, or summary;
+- governed rule permitting the representation for each review dimension.
+
+Examples requiring explicit transformation governance:
+
+- PDF to extracted text;
+- binary log to decoded text;
+- JSON to Markdown;
+- archive extraction;
+- image to text/OCR;
+- page/range slicing;
+- proposer-written summary.
+
+A lossy or partial representation cannot satisfy a full-raw-evidence requirement.
+
+## Data classification and egress authorization
+
+Evidence must not be sent to an external provider merely because it is required for review.
+
+Before delivery, classify each evidence item for:
+
+- secrets/credentials;
+- personal/sensitive data;
+- proprietary/restricted data;
+- provider/region restrictions;
+- retention/training restrictions where applicable;
+- permitted transformation/redaction.
+
+The egress decision must be platform/governance-owned and bound to the delivery manifest.
+
+If required evidence cannot be safely/legally sent in a qualified representation, that provider/mode is not qualified for the review. The platform must not silently redact or omit load-bearing evidence and then call the review complete.
 
 ## Provider capability profile
 
-Before material review, the platform must bind a capability profile for the selected provider/model/API mode. At minimum it records known or experimentally qualified support for:
+A `ProviderCapabilityProfile` is trusted platform configuration/evidence, not candidate-authored content.
 
-- maximum accepted request/body size;
-- maximum model context;
+It must bind:
+
+- provider;
+- exact model or model class;
+- API/adapter version;
+- trusted adapter hash/version;
+- qualified request/body size;
+- qualified cumulative context size with safety margin;
 - attachment/file support;
-- supported file types;
+- supported representations/media types;
 - maximum file count;
 - per-file size limits;
-- whether attachment content is exposed to the model;
-- whether multi-message/chunk continuation is supported;
-- whether server-side file references are stable across turns;
-- structured-output constraints;
-- truncation/error behavior;
-- provider/API revision or adapter version.
+- file visibility semantics;
+- server-side file reference semantics;
+- session/thread/conversation semantics;
+- staged-message behavior;
+- context eviction/truncation behavior;
+- structured-output behavior;
+- provider response/output constraints;
+- empirical qualification evidence;
+- qualification timestamp;
+- expiry/requalification policy.
 
-Unknown capability is not evidence of capability.
+Unknown capability is not capability.
 
-If the required evidence corpus cannot fit the qualified delivery profile, dispatch must fail closed or switch to an explicitly qualified chunk protocol. It must not silently omit evidence.
+Profiles must expire or be invalidated on material provider/model/adapter/API behavior drift. Candidate code may not mint or widen a profile.
+
+## Trusted adapter and wire binding
+
+The platform must bind what it intended to send to what its trusted provider adapter actually serialized.
+
+For every provider call, retain a `WireDeliveryRecord` containing:
+
+- delivery attempt ID;
+- review request ID;
+- manifest hash;
+- adapter identity/hash/version;
+- call sequence number;
+- evidence/chunk IDs included;
+- canonical secret-redacted request-body hash;
+- exact non-secret request metadata relevant to semantics;
+- provider request/message/file/thread/session IDs;
+- transport status;
+- response hash;
+- retry/idempotency identity;
+- timestamp.
+
+A manifest and prompt hash without wire binding do not prove that the adapter included the frozen evidence in the API request.
+
+Provider secrets are excluded from reproducible hashes but their exclusion must not permit semantic request fields to be omitted from binding.
 
 ## Delivery preflight
 
-Before reviewer invocation:
+Before review adjudication:
 
-1. Materialize every required evidence reference.
-2. Verify raw bytes/hash against authoritative source.
-3. Build the delivery manifest.
-4. Resolve provider capability profile.
-5. Determine whether one-shot delivery is qualified.
-6. If not, select a qualified deterministic chunk protocol.
-7. Verify all required items are representable in the selected format.
-8. Verify no required evidence was dropped for size or format reasons.
-9. Freeze the exact prompt and evidence ordering.
-10. Emit `DELIVERY_PREFLIGHT_PASS` only if all mandatory evidence is deliverable.
+1. Verify current ReviewRequest integrity.
+2. Derive required evidence set from governed sources.
+3. Materialize every required reference.
+4. Verify source bytes/hashes.
+5. Apply only governed representations/transforms.
+6. Resolve data-classification/egress authorization.
+7. Resolve a non-expired trusted provider capability profile.
+8. Build and freeze the EvidenceDeliveryManifest.
+9. Prove the exact delivery plan fits the qualified provider/mode.
+10. Freeze exact call/chunk ordering and prompt identities.
+11. Emit `DELIVERY_PREFLIGHT_PASS` only if every mandatory item is deliverable.
 
-Failure must occur before a reviewer disposition can be treated as authoritative.
+If a required item cannot be safely represented or delivered, fail before treating any reviewer disposition as authoritative.
 
-## Chunk protocol
+## Chunking limitation
 
-When evidence is too large for a single request, the platform must use deterministic chunking.
+**Chunking is a transport mechanism, not a way to exceed the model's qualified adjudication context.**
 
-Each chunk must bind:
+Sending N chunks over time does not prove that all N remain simultaneously available to the model at final adjudication. Earlier messages may be evicted, summarized, or otherwise unavailable.
 
-- review request ID;
-- corpus hash;
-- chunk index;
-- total chunk count;
-- evidence item IDs included;
-- chunk SHA-256;
-- prior/next chunk linkage where applicable.
+Therefore a chunked material review is admissible only when one of these is qualified:
 
-Rules:
+1. the complete final adjudication working set, including prompt and all mandatory representations, remains within the provider's qualified cumulative context; or
+2. the provider exposes a qualified persistent file/retrieval mechanism whose content identity, accessibility, and final-review binding are validated; or
+3. a governed decomposed-review protocol explicitly scopes independent subreviews and a separately qualified aggregation review covers required cross-evidence interactions.
 
-- stable deterministic ordering;
-- no semantic summarization as a substitute for required raw evidence unless the review contract explicitly allows it;
-- no missing chunk;
-- no duplicate chunk;
-- no reordering without explicit canonical reconstruction;
-- no mutation after manifest freeze;
-- chunks from one review request cannot be replayed into another request;
-- retries must preserve exact chunk identity.
+A plain multi-message sequence must not be used to claim arbitrarily large context.
 
-## Reviewer receipt and completeness acknowledgement
+## Delivery session binding
 
-Where the provider/API supports a structured staged protocol, the reviewer must first return a non-dispositive receipt acknowledging:
+Receipt, evidence delivery, and final adjudication must be bound to the same qualified delivery context.
 
-- review request ID;
-- corpus SHA-256;
-- expected evidence item count;
-- expected chunk count;
-- received chunk IDs/count;
-- received evidence item IDs/count;
-- any inaccessible/unsupported evidence;
-- completeness state.
+For stateful provider modes, bind:
 
-A final review prompt may be issued only after deterministic platform validation establishes:
+- provider session/thread/conversation ID;
+- file IDs;
+- message IDs;
+- manifest hash;
+- delivery attempt ID.
 
-`REVIEW_CONTEXT_COMPLETE=true`.
+For stateless provider modes, every final review request must itself contain or reference all mandatory evidence through a qualified mechanism.
 
-Reviewer self-assertion alone is not sufficient where the platform can independently verify transport receipts or reconstructed delivery state.
+A receipt from one session/request cannot prove completeness for a verdict from another.
 
-If the provider cannot support a reliable receipt/completeness protocol for the required corpus, that provider/mode is not qualified for that material review.
+## Server-side file references
+
+A successful file upload or opaque provider file ID does not prove model accessibility.
+
+A provider file mechanism is qualified only when the platform has evidence for:
+
+- content identity at upload;
+- stable association with exact provider account/context;
+- accessibility from the final review request;
+- retention/expiry behavior;
+- file replacement/mutability behavior;
+- supported format parsing;
+- failure behavior.
+
+If these are unknown, file-reference delivery is non-authoritative for material review.
+
+## Reviewer receipt and availability acknowledgement
+
+A reviewer receipt is a useful diagnostic, not an independent trust root.
+
+Where supported, a staged reviewer may return a non-dispositive receipt with:
+
+- request ID;
+- manifest/corpus hash;
+- evidence/chunk IDs reported accessible;
+- unsupported/inaccessible items;
+- session/file references;
+- completeness claim.
+
+The platform must compare this receipt against its own delivery records and provider capability profile.
+
+A reviewer statement such as `received_all=true` cannot override missing wire records, hash mismatches, unsupported formats, or an unqualified capability profile.
+
+## Meaning of REVIEW_CONTEXT_COMPLETE
+
+`REVIEW_CONTEXT_COMPLETE=true` means only:
+
+- the platform proved complete governed materialization and wire delivery;
+- the selected provider/mode has a current qualified capability profile for the representation/session mechanism;
+- all required evidence is bound to the final adjudication request/session under that profile;
+- no known delivery/context defect is present.
+
+It does **not** mean the platform proved model cognition, attention, or semantic use of every token.
+
+## Prompt/evidence isolation dependency
+
+EXP-M does not qualify prompt-injection safety.
+
+For material authority review, delivery admissibility additionally depends on the applicable EXP-L or successor prompt/evidence-isolation controls being qualified.
+
+Delivering all evidence perfectly must not be treated as safe if candidate-controlled evidence can hijack the reviewer instructions.
+
+EXP-M may test delivery independently, but a production review path requires both boundaries.
+
+## Review decomposition and aggregation
+
+If evidence cannot fit one qualified final context, the platform may not simply split it into several reviews and call their agreement a full review.
+
+A decomposed protocol must preregister:
+
+- dimension/subreview scopes;
+- exact evidence set per subreview;
+- cross-dimension interaction requirements;
+- aggregation logic;
+- evidence needed by the aggregator;
+- conditions under which no global disposition is allowed.
+
+If material cross-evidence interactions cannot be reviewed within a qualified context, the review remains bounded/incomplete.
 
 ## Verdict admissibility
 
-A reviewer verdict is promotable only when all are true:
+A reviewer verdict may enter the promotable review path only when all are true:
 
-- platform-authenticated review transport;
-- valid current ReviewRequest;
-- complete required evidence materialization;
-- delivery preflight passed;
-- provider capability profile covers the delivery;
-- every required chunk/item was delivered;
-- corpus/hash identity preserved;
-- review context completeness established;
-- review started only after completeness;
-- semantic review coverage is valid;
-- reviewer disposition is otherwise promotable.
+- current valid ReviewRequest;
+- governed required-evidence closure;
+- complete materialization;
+- governed representation/transformation;
+- egress authorization;
+- trusted non-expired provider capability profile;
+- trusted adapter/wire binding;
+- complete required item/chunk delivery;
+- valid session/file-reference binding where used;
+- qualified reviewer-context availability;
+- applicable prompt/evidence-isolation dependency satisfied;
+- semantic review coverage valid;
+- reviewer provenance valid;
+- disposition otherwise promotable.
 
-A valid semantic `PASS` with unproven delivery completeness is non-promotable.
+A semantic `PASS` with unproven delivery completeness is non-promotable.
 
-## Insufficient-evidence adjudication
+## Insufficient-evidence cause adjudication
 
 When a reviewer returns `INSUFFICIENT_EVIDENCE` or equivalent:
 
-1. Compare missing items claimed by reviewer against the authoritative evidence manifest.
-2. If the evidence did not exist: classify `SCIENTIFIC_EVIDENCE_MISSING`.
-3. If it existed but was omitted/unavailable/truncated in delivery: classify `EVIDENCE_DELIVERY_INCOMPLETE` or `REVIEW_CONTEXT_INCOMPLETE`.
-4. If provider format capability caused omission: classify `EVIDENCE_FORMAT_UNSUPPORTED`.
-5. If cause cannot be proven: classify `INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED`.
-6. Never downgrade a delivery defect into a scientific failure.
-7. Never convert a scientific absence into a transport excuse.
+1. Compare the reviewer's claimed missing items/dimensions with the authoritative evidence inventory.
+2. If required evidence never existed: `SCIENTIFIC_EVIDENCE_MISSING`.
+3. If the governed required set was incomplete: `EVIDENCE_SELECTION_INCOMPLETE`.
+4. If source existed but materialization failed: `EVIDENCE_MATERIALIZATION_FAILED`.
+5. If transformation/representation was unqualified: `EVIDENCE_TRANSFORMATION_UNQUALIFIED`.
+6. If materialized representation was omitted/corrupted in delivery: `EVIDENCE_DELIVERY_INCOMPLETE`.
+7. If provider/session/file capability was insufficient: `REVIEW_CONTEXT_INCOMPLETE`, `EVIDENCE_FORMAT_UNSUPPORTED`, or `EVIDENCE_ATTACHMENT_UNAVAILABLE`.
+8. If both scientific and delivery gaps exist: `MIXED_INSUFFICIENCY`.
+9. If cause cannot be proven: `INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED`.
+10. Never convert delivery failure into scientific failure or scientific absence into a transport excuse.
 
 ## Multi-reviewer equivalence
 
-For review consensus/comparison, all reviewers that are being compared must be bound to equivalent evidence manifests or an explicitly documented provider-qualified representation.
+Reviewer agreement is not consensus evidence unless the platform proves evidence-delivery comparability.
 
-If Claude, DeepSeek, Gemini, or another reviewer receives materially different evidence, their dispositions are not directly comparable as evidence of model disagreement.
+For every compared reviewer retain:
 
-The platform must preserve:
-
-- reviewer-specific delivery manifest;
+- reviewer-specific manifest;
 - provider capability profile;
-- corpus/chunk hashes;
-- delivery completeness result;
+- representation/transformation records;
+- wire delivery records;
+- session/file bindings;
+- completeness result;
 - final verdict.
 
-## Required audit evidence
+Two reviewers receiving different representations are comparable only if a governed equivalence rule permits those representations for all compared review dimensions.
 
-Every material API review must retain:
+## Retry and failure history
 
-- review request;
-- delivery manifest;
-- provider capability profile;
-- exact prompt;
-- exact evidence item list;
-- chunk records where used;
-- delivery/preflight result;
-- receipt/completeness result;
-- provider raw response;
-- parsed review;
-- semantic validation result;
-- disposition admissibility result.
+Each delivery attempt has a stable attempt ID and immutable records.
+
+A retry must either:
+
+- reproduce the same frozen manifest and delivery semantics under a new attempt ID; or
+- create a new governed delivery manifest when representation/protocol materially changes.
+
+Failed attempts remain preserved. A later complete retry cannot rewrite an earlier incomplete attempt as complete.
 
 ## Security and false-green rules
 
-The following must never establish delivery completeness by themselves:
+The following must never independently establish delivery completeness:
 
-- reviewer says "I received everything";
-- HTTP 200;
-- provider accepted an attachment upload;
-- token count estimate only;
-- evidence count copied from the outgoing request;
-- model cites one file from a multi-file corpus;
+- reviewer says it received everything;
+- HTTP 2xx;
+- provider upload success;
+- opaque file ID;
+- evidence count copied from outgoing metadata;
+- token estimate;
+- whole-corpus hash without required-item closure;
+- citation to one or more artifacts;
 - green CI;
 - proposer assertion;
-- aggregate corpus hash without per-item materialization.
+- candidate-authored provider capability profile;
+- chunk count without cumulative-context qualification;
+- multi-reviewer agreement.
 
-## Required platform behavior
+## Required audit evidence
 
-If delivery completeness fails:
+Every material platform API review must retain:
 
-- do not ask the reviewer to adjudicate as though complete;
-- or, if a reviewer response already exists, mark it diagnostic/non-authoritative;
-- do not interpret `INSUFFICIENT_EVIDENCE` as a scientific result without cause adjudication;
-- preserve the failed delivery attempt;
-- retry only with the same frozen review/evidence identity or a newly governed review request if representation materially changes.
+- ReviewRequest;
+- governed evidence inventory;
+- EvidenceDeliveryManifest;
+- source and representation hashes;
+- transformation records;
+- egress decision;
+- ProviderCapabilityProfile identity;
+- prompt identities;
+- WireDeliveryRecords;
+- chunks where used;
+- provider session/file/message IDs where used;
+- reviewer receipt if used;
+- DeliveryCompletenessResult;
+- provider raw responses;
+- parsed review;
+- insufficient-evidence adjudication where needed;
+- semantic validation;
+- VerdictAdmissibilityResult.
 
 ## Governance scope
 
-This standard supplements existing:
+This standard supplements review provenance, semantic review coverage, portable packet integrity, external-evidence classification, and independent-review prompt/evidence governance.
 
-- review transport/provenance controls;
-- semantic review coverage rules;
-- portable packet integrity;
-- external-evidence classification;
-- independent-review evidence/prompt governance.
-
-It specifically governs **evidence delivery completeness and reviewer context integrity**.
+It specifically governs **required-evidence closure, delivery integrity, provider-context qualification, and verdict admissibility**.
