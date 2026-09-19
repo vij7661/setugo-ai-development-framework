@@ -105,6 +105,18 @@ No live provider pilot may be treated as scientific evidence until the determini
 
 For each provider/model/API mode execute a provider-specific qualification fixture.
 
+Default EXP-M statistical acceptance policy, unless a stricter provider-specific policy is independently governed before exposure:
+
+- at least 59 independent fresh trials at every claimed operating point;
+- 0 hard delivery/accessibility failures;
+- one-sided 95% exact-binomial lower confidence bound of approximately 0.95 or greater;
+- intermittent/timeout/ambiguous/unverifiable outcomes count as failures;
+- qualified operating point no higher than the largest point satisfying the criterion;
+- if a failing boundary is observed, qualified scalar limits are capped at 80% of the smallest observed failing boundary;
+- if no failure boundary is observed, qualified scalar limits are capped at 80% of the largest fully tested passing point;
+- profile expiry is 7 days by default and immediate on material provider/model/deployment/account/endpoint/region/adapter/session/file behavior drift;
+- requalification repeats the applicable protocol and may not be replaced by one health-check request.
+
 Required measurements:
 
 1. one-shot raw text corpus near increasing sizes;
@@ -307,6 +319,41 @@ Test dispositions:
 | M11 | Candidate changes source path after preflight but before adapter serialization | No TOCTOU substitution |
 | M12 | Retry after state drift reuses old attempt identity | Reject/new attempt required |
 
+## Phase N — External-review remediation tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| N01 | Governing standard requires evidence E; ReviewRequest omits E | EVIDENCE_SELECTION_INCOMPLETE before manifest freeze |
+| N02 | Governing standard requires mandatory dimension D; ReviewRequest omits D | ReviewRequest rejected |
+| N03 | ReviewRequest/manifest are internally closed but RequiredEvidenceContract contains extra mandatory ref | Required-evidence closure fails |
+| N04 | Reused provider thread contains prior ungoverned user message | Material review context dirty; verdict inadmissible |
+| N05 | Reused provider thread contains prior tool result | Context dirty unless fully governed and bound |
+| N06 | Fresh provider session contains only frozen governed content | Session cleanliness passes subject to provider profile |
+| N07 | Provider account/project custom instruction changes after qualification | Provider mode/profile invalidated |
+| N08 | Provider memory is enabled and cannot be disabled/captured | NOT_QUALIFIED_FOR_MATERIAL_REVIEW |
+| N09 | Provider-side knowledge connector enabled but absent from manifest/profile | NOT_QUALIFIED_FOR_MATERIAL_REVIEW |
+| N10 | Provider exposes fixed service policy but no mutable account/session context | May proceed only under qualified provider profile/nonclaim |
+| N11 | 58/58 fresh capability trials pass | Insufficient trials; operating point unqualified |
+| N12 | 59/59 fresh trials pass | Statistical criterion satisfied at tested point, subject to all other gates |
+| N13 | 58 successes + 1 hard failure | Operating point disqualified |
+| N14 | One ambiguous/timeout trial among 59 | Counts as failure; disqualify point |
+| N15 | Smallest observed failure boundary B; profile claims >0.8B | Profile invalid |
+| N16 | No failure observed; profile claims >80% of largest tested passing point | Profile invalid |
+| N17 | Profile older than 7 days without requalification | Expired |
+| N18 | Sparse head/middle/tail canaries pass while internal segment omitted | Claimed range unqualified |
+| N19 | Dense 2048-byte-or-smaller text segments all witness-qualified | Accessibility criterion may pass for tested representation |
+| N20 | One dense segment witness fails | Operating point fails |
+| N21 | Opaque attachment has required pages/ranges not individually probed and no deterministic access logs | Full artifact mode unqualified |
+| N22 | Provider retrieval logs prove complete exact required ranges | Eligible for downstream semantic validation |
+| N23 | Proposer interaction list omits platform-derived required interaction | Aggregation/global verdict blocked |
+| N24 | Platform RequiredInteractionContract and proposer plan match completely | Interaction closure passes |
+| N25 | Capability profile expires after provider response but before verdict admission | Verdict non-promotable |
+| N26 | Egress permission revoked after provider response but before verdict admission | Verdict non-promotable according to current policy |
+| N27 | Session/file state invalidates after provider response but before verdict admission | Verdict blocked |
+| N28 | Deployment identity is required by drift policy but provider cannot expose it | Identity-dependent qualification not claimable |
+| N29 | Retrieval logs required for completeness but provider does not expose them | Retrieval-based mode unqualified |
+| N30 | Dirty-session review returns PASS with otherwise perfect manifest/wire records | PASS remains inadmissible |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
@@ -337,6 +384,13 @@ EXP-M testing is complete only when:
 - admissibility integration tests fail closed;
 - at least the platform's intended production provider/API modes have qualified capability profiles;
 - no `INSUFFICIENT_EVIDENCE` can be accepted without cause adjudication;
-- review consensus cannot hide corpus divergence.
+- review consensus cannot hide corpus divergence;
+- RequiredEvidenceContract closure prevents an incomplete ReviewRequest from narrowing evidence;
+- material-review sessions are fresh/clean or fully governed;
+- provider capability profiles satisfy the preregistered statistical thresholds and expiry policy;
+- provider-injected mutable semantic context is inventoried/disabled or the mode is disqualified;
+- dense accessibility probing or deterministic range evidence covers every required region at the claimed bound;
+- RequiredInteractionContract closure prevents proposer-only interaction omission;
+- capability/egress/session state remains valid through verdict admission.
 
 Live provider limitations may result in provider-specific `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`; that is an acceptable fail-closed outcome.
