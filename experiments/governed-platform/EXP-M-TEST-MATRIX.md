@@ -511,7 +511,7 @@ Test dispositions:
 | TM-R04 | WitnessProtocolQualificationRecord is expired | Witness-based material review inadmissible |
 | TM-R05 | WitnessProtocolQualificationRecord is for another provider/model/prompt-isolation mode | Binding mismatch; inadmissible |
 | TM-R06 | Baseline and witness-enabled qualification runs use non-identical governed corpus/request envelope | Noninterference experiment invalid |
-| TM-R07 | Witness-enabled run shifts structured semantic outcome beyond preregistered tolerance | Witness mode unqualified |
+| TM-R07 | Witness output is accepted as semantic evidence or satisfies a review dimension | Structural-isolation failure; witness output cannot create review authority |
 | TM-R08 | Framing/content witness succeeds but final semantic prompt occurs after evidence eviction | Attempt void |
 | TM-R09 | Deterministic retrieval mode uses no witness protocol | Witness record not required; retrieval predicates remain required |
 | TM-R10 | Witness output includes sensitive evidence and retention/egress policy forbids that response form | Mode/representation blocked or governed safer witness form required |
@@ -613,7 +613,7 @@ EXP-M deterministic testing is complete only when:
 - health checks cannot renew expired capability profiles;
 - typed base/head comparison rules are mutation-tested and incomparable semantic changes fail unresolved;
 - witness challenge/response overhead is included in qualified final-context budgeting and rechecked before adjudication;
-- witness protocol is non-evaluative and separately noninterference-qualified for provider/mode/prompt-isolation binding;
+- witness protocol is non-evaluative, structurally isolated from semantic evidence/authority, and bound to provider/mode/prompt-isolation qualification;
 - witness qualification registry is outside candidate write authority;
 - provider context-isolation documentation/account-class/config-template drift invalidates qualification;
 - legacy REVIEW_CONTEXT_COMPLETE cannot create authority;
