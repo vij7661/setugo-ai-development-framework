@@ -7,6 +7,7 @@ on:
       - qualification/v24-i11-v6-runtime-qualification-1-remediation-3
       - qualification/v24-i11-v6-runtime-qualification-1-remediation-4
       - qualification/v24-i11-v6-runtime-qualification-1-remediation-5
+      - qualification/v24-i11-v6-runtime-qualification-1-remediation-6
     paths:
       - '.github/workflows/v24-v6-rq1-remediation2-safe-exact.yml'
       - 'governance-runtime/v24_v6_rq1_observer.py'
@@ -54,7 +55,7 @@ jobs:
           # legacy runner worktree cannot block checkout.  No runner state is
           # deleted or rewritten.
           path: rq1-worktree-${{ github.run_id }}
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Use fresh bound-runtime worktree
         shell: bash
         run: |
@@ -217,7 +218,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BUNDLE="$EVIDENCE_DIR/remediation-5-review-bundle"
+          BUNDLE="$EVIDENCE_DIR/remediation-6-review-bundle"
           mkdir -p "$BUNDLE/source" "$BUNDLE/design" "$BUNDLE/raw-evidence"
           git cat-file -e 479ce0459b6065bc2626b56c9faf5cb31f7b7558^{commit}
           git diff 479ce0459b6065bc2626b56c9faf5cb31f7b7558 "$GITHUB_SHA" > "$BUNDLE/exact-diff-from-remediation-4.patch"
@@ -237,7 +238,7 @@ jobs:
             git rev-parse HEAD^{tree} | sed 's/^/tree=/'
             echo "workflow_run=${{ github.run_id }}"
             echo "workflow_job=${{ github.job }}"
-            echo "artifact_name=rq1-remediation2-exact-safe-${GITHUB_SHA}"
+          echo "artifact_name=rq1-remediation6-exact-safe-${GITHUB_SHA}"
             echo "governance=NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY"
           } > "$BUNDLE/manifest.txt"
           find "$BUNDLE" -type f ! -name manifest.sha256 -print0 | sort -z | xargs -0 sha256sum > "$BUNDLE/manifest.sha256"
@@ -271,7 +272,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.stage_evidence.outcome == 'success'
         with:
-          name: rq1-remediation2-exact-safe-${{ github.sha }}
+          name: rq1-remediation6-exact-safe-${{ github.sha }}
           path: rq1-worktree-${{ github.run_id }}/rq1-remediation2-evidence
           if-no-files-found: error
           retention-days: 30

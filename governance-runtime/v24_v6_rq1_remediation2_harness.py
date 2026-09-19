@@ -105,6 +105,10 @@ def exact_boundary_target(cid, target_name, trace):
 def exact_delta(delta, added=(), removed=()):
     return delta == {"added":sorted(added),"removed":sorted(removed)}
 
+def valid_tracer_ready(ready, pid, boundary, target_name):
+    return (isinstance(ready,dict) and ready.get("pid")==pid and ready.get("boundary")==boundary and
+            ready.get("target_name")==target_name and ready.get("attached") is True and ready.get("armed") is True)
+
 def stable(before,after):
     for k in ["service","gate","unit"]:
         for f in ["sha256","uid","mode"]:
@@ -353,7 +357,7 @@ def case_12(out):
     ok=first.returncode!=0 and restart.returncode==0 and replay and stable(b,a) and active()
     return ok,{"trigger":"successful consume, trusted service restart, replay same record","first":{"rc":first.returncode,"stdout":first.stdout,"stderr":first.stderr},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"replay":{"rc":second.returncode,"stdout":second.stdout,"stderr":second.stderr},"replay_rejected":replay,"state_stable":stable(b,a),"service_active":active()}
 
-def _ptrace_crash(pid:int, boundary:str, evidence:Path):
+def _ptrace_crash(pid:int, boundary:str, target_name:str, evidence:Path, ready:Path):
     """Attach as root and kill only at an observed syscall boundary.
 
     The trusted binary is not changed.  PTRACE_SYSCALL stops are kernel-derived;
@@ -367,15 +371,21 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
     PTRACE_SETOPTIONS=0x4200; PTRACE_O_TRACESYSGOOD=1
     class Regs(ctypes.Structure):
         _fields_=[("r15",ctypes.c_ulonglong),("r14",ctypes.c_ulonglong),("r13",ctypes.c_ulonglong),("r12",ctypes.c_ulonglong),("rbp",ctypes.c_ulonglong),("rbx",ctypes.c_ulonglong),("r11",ctypes.c_ulonglong),("r10",ctypes.c_ulonglong),("r9",ctypes.c_ulonglong),("r8",ctypes.c_ulonglong),("rax",ctypes.c_ulonglong),("rcx",ctypes.c_ulonglong),("rdx",ctypes.c_ulonglong),("rsi",ctypes.c_ulonglong),("rdi",ctypes.c_ulonglong),("orig_rax",ctypes.c_ulonglong),("rip",ctypes.c_ulonglong),("cs",ctypes.c_ulonglong),("eflags",ctypes.c_ulonglong),("rsp",ctypes.c_ulonglong),("ss",ctypes.c_ulonglong),("fs_base",ctypes.c_ulonglong),("gs_base",ctypes.c_ulonglong),("ds",ctypes.c_ulonglong),("es",ctypes.c_ulonglong),("fs",ctypes.c_ulonglong),("gs",ctypes.c_ulonglong)]
-    rec={"pid":pid,"boundary":boundary,"attached":False,"event":None,"error":None,"timestamp":time.time()}
+    rec={"pid":pid,"boundary":boundary,"target_name":target_name,"attached":False,"event":None,"error":None,"timestamp":time.time()}
+    src=f"/run/v24-v6-authority/private/records/{target_name}"
+    dst=f"/run/v24-v6-authority/private/consumed/{target_name}"
     if libc.ptrace(PTRACE_ATTACH,pid,None,None)!=0:
         rec["error"]=f"attach_errno={ctypes.get_errno()}"; write_json(evidence,rec); return rec
     rec["attached"]=True
     status=ctypes.c_int()
     if libc.waitpid(pid,ctypes.byref(status),0)<0:
         rec["error"]=f"wait_attach_errno={ctypes.get_errno()}"; write_json(evidence,rec); return rec
-    libc.ptrace(PTRACE_SETOPTIONS,pid,None,PTRACE_O_TRACESYSGOOD)
-    libc.ptrace(PTRACE_SYSCALL,pid,None,None)
+    if libc.ptrace(PTRACE_SETOPTIONS,pid,None,PTRACE_O_TRACESYSGOOD)!=0:
+        rec["error"]=f"setoptions_errno={ctypes.get_errno()}"; write_json(evidence,rec); return rec
+    if libc.ptrace(PTRACE_SYSCALL,pid,None,None)!=0:
+        rec["error"]=f"resume_errno={ctypes.get_errno()}"; write_json(evidence,rec); return rec
+    ready_payload={"pid":pid,"boundary":boundary,"target_name":target_name,"attached":True,"armed":True,"timestamp":time.time()}
+    write_json(ready,ready_payload)
     entry=True
     wanted={"before-validation":{257},"after-validation-before-rename":{82,264,316},"after-rename":{82,264,316}}[boundary]
     def peek_string(addr):
@@ -387,8 +397,12 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
             if b"\0" in raw: break
         return raw.split(b"\0",1)[0].decode("utf-8","replace")
     deadline=time.time()+20
+    detached=False
     while time.time()<deadline:
-        if libc.waitpid(pid,ctypes.byref(status),0)<0: break
+        waited=libc.waitpid(pid,ctypes.byref(status),1)
+        if waited==0:
+            time.sleep(0.01); continue
+        if waited<0: break
         if os.WIFEXITED(status.value) or os.WIFSIGNALED(status.value): break
         if os.WIFSTOPPED(status.value) and (os.WSTOPSIG(status.value)&0x80):
             regs=Regs()
@@ -402,29 +416,26 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
                     # First stop is syscall entry; allow it, then kill at exit.
                     rec["entry_paths"]=paths; entry=False; libc.ptrace(PTRACE_SYSCALL,pid,None,None); continue
                 rec.update({"event":"syscall_entry","syscall":nr,"paths":paths,"timestamp":time.time()})
-                if boundary=="before-validation" and not any("/run/v24-v6-authority/private/records/" in x for x in paths):
+                if boundary=="before-validation" and paths != [src]:
                     libc.ptrace(PTRACE_SYSCALL,pid,None,None); entry=False; continue
-                if boundary=="after-validation-before-rename" and not (len(paths)==2 and "/run/v24-v6-authority/private/records/" in paths[0] and "/run/v24-v6-authority/private/consumed/" in paths[1]):
+                if boundary=="after-validation-before-rename" and paths != [src,dst]:
                     libc.ptrace(PTRACE_SYSCALL,pid,None,None); entry=False; continue
                 os.kill(pid,signal.SIGKILL); write_json(evidence,rec); return rec
             if (not entry) and boundary=="after-rename" and nr in wanted:
                 paths=[peek_string(int(regs.rdi)),peek_string(int(regs.rsi))]
                 rec.update({"event":"syscall_exit","syscall":nr,"paths":paths,"return_value":int(regs.rax),"timestamp":time.time()})
-                if not (len(paths)==2 and "/run/v24-v6-authority/private/records/" in paths[0] and "/run/v24-v6-authority/private/consumed/" in paths[1] and int(regs.rax)==0):
+                if not (paths == [src,dst] and int(regs.rax)==0):
                     entry=True; libc.ptrace(PTRACE_SYSCALL,pid,None,None); continue
                 os.kill(pid,signal.SIGKILL); write_json(evidence,rec); return rec
             entry=not entry
             libc.ptrace(PTRACE_SYSCALL,pid,None,None)
-    rec["error"]="boundary_not_observed"; write_json(evidence,rec); return rec
+    libc.ptrace(PTRACE_DETACH,pid,None,None); detached=True
+    rec["error"]="boundary_not_observed"; rec["detached"]=detached; write_json(evidence,rec); return rec
 
-def _root_ptrace_crash(pid:int,boundary:str,evidence:Path):
-    if os.geteuid()==0:
-        return _ptrace_crash(pid,boundary,evidence)
-    p=subprocess.run(["sudo","-n","env","PYTHONDONTWRITEBYTECODE=1","python3","-B",str(Path(__file__).resolve()),"--trace-pid",str(pid),"--trace-boundary",boundary,"--trace-evidence",str(evidence)],text=True,capture_output=True,timeout=30)
-    if not evidence.exists():
-        write_json(evidence,{"pid":pid,"boundary":boundary,"error":"root tracer missing evidence","stdout":p.stdout,"stderr":p.stderr})
-    try: return json.loads(evidence.read_text(encoding="utf-8"))
-    except Exception: return {"pid":pid,"boundary":boundary,"error":"root tracer evidence invalid","stdout":p.stdout,"stderr":p.stderr}
+def _root_ptrace_start(pid:int,boundary:str,target_name:str,evidence:Path,ready:Path):
+    cmd=["env","PYTHONDONTWRITEBYTECODE=1","python3","-B",str(Path(__file__).resolve()),"--trace-pid",str(pid),"--trace-boundary",boundary,"--trace-target",target_name,"--trace-evidence",str(evidence),"--trace-ready",str(ready)]
+    if os.geteuid()!=0: cmd=["sudo","-n"]+cmd
+    return subprocess.Popen(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 def _crash_case(cid,out,boundary):
     baseline=observe(out/f"{cid}.baseline.observer.json"); diag=out/f"{cid}.diagnostic.json"
@@ -442,8 +453,32 @@ def _crash_case(cid,out,boundary):
     if not prepared_life["records"] or prepared_life["consumed"]:
         return False,{"harness_defect":"prepared target lifecycle invalid","target_name":target_name,"prepared":prepared_life}
     pid=int(PID.read_text().strip())
+    ready_path=out/f"{cid}.tracer-ready.json"; boundary_path=out/f"{cid}.boundary.json"
+    tracer=_root_ptrace_start(pid,boundary,target_name,boundary_path,ready_path)
+    ready_deadline=time.time()+5
+    while time.time()<ready_deadline and not ready_path.exists(): time.sleep(0.01)
+    armed_ts=time.time()
+    if not ready_path.exists():
+        tracer.terminate()
+        try: tracer.communicate(timeout=3)
+        except subprocess.TimeoutExpired: tracer.kill(); tracer.communicate()
+        run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20)
+        return False,{"harness_defect":"tracer_ready_timeout","tracer_armed":False,"control_launched":False}
+    try: ready=json.loads(ready_path.read_text(encoding="utf-8"))
+    except Exception: ready={}
+    ready_ok=valid_tracer_ready(ready,pid,boundary,target_name)
+    if not ready_ok:
+        tracer.terminate()
+        try: tracer.communicate(timeout=3)
+        except subprocess.TimeoutExpired: tracer.kill(); tracer.communicate()
+        run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20)
+        return False,{"harness_defect":"malformed_or_wrong_tracer_ready","ready":ready,"tracer_armed":False,"control_launched":False}
+    control_launch_ts=time.time()
     control=subprocess.Popen(["sudo","-u","root","--","env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),"positive",str(diag)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    trace=_root_ptrace_crash(pid,boundary,out/f"{cid}.boundary.json")
+    try: tracer_out,tracer_err=tracer.communicate(timeout=25)
+    except subprocess.TimeoutExpired:
+        tracer.kill(); tracer_out,tracer_err=tracer.communicate()
+    trace=json.loads(boundary_path.read_text(encoding="utf-8")) if boundary_path.exists() else {"error":"boundary_evidence_missing"}
     paths=trace.get("paths") or trace.get("entry_paths") or []
     if not exact_boundary_target(cid,target_name,trace):
         try: control.kill()
@@ -496,7 +531,7 @@ def _crash_case(cid,out,boundary):
             recovery_life["consumed"] and not recovery_life["records"] and
             replay_obj.get("service_authoritative") is not True and replay_noop and post_retry_life["consumed"] and not post_retry_life["records"])
     ok=ok and restart.returncode==0 and active() and stable(baseline,post_replay)
-    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"prepared":prepared_life,"recovery":recovery_life,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr},"post_retry":post_retry_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"post_replay":post_replay_life,"records_delta_prepared":prepared_records_delta,"consumed_delta_prepared":prepared_consumed_delta,"records_delta_recovery":recovery_records_delta,"consumed_delta_recovery":recovery_consumed_delta,"records_delta_retry":retry_records_delta,"consumed_delta_retry":retry_consumed_delta,"records_delta_post_replay":replay_records_delta,"consumed_delta_post_replay":replay_consumed_delta,"state_stable":stable(baseline,post_replay),"service_active":active()}
+    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"tracer_ready":ready,"tracer_armed_timestamp":ready.get("timestamp"),"control_launch_timestamp":control_launch_ts,"ordering_proven":ready.get("timestamp",0)<control_launch_ts,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"prepared":prepared_life,"recovery":recovery_life,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr},"post_retry":post_retry_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"post_replay":post_replay_life,"records_delta_prepared":prepared_records_delta,"consumed_delta_prepared":prepared_consumed_delta,"records_delta_recovery":recovery_records_delta,"consumed_delta_recovery":recovery_consumed_delta,"records_delta_retry":retry_records_delta,"consumed_delta_retry":retry_consumed_delta,"records_delta_post_replay":replay_records_delta,"consumed_delta_post_replay":replay_consumed_delta,"state_stable":stable(baseline,post_replay),"service_active":active()}
     return ok,detail
 
 def case_13(out): return _crash_case("RQ-13",out,"before-validation")
@@ -556,10 +591,10 @@ def execute(cid,out):
     r["duration_seconds"]=round(time.time()-start,3); write_json(out/f"{cid}.result.json",r); return r
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("--trace-pid",type=int); ap.add_argument("--trace-boundary"); ap.add_argument("--trace-evidence"); ap.add_argument("--case",action="append",choices=sorted(CASES)); ap.add_argument("--safe-slice",action="store_true"); ap.add_argument("--remaining-slice",action="store_true"); ap.add_argument("--evidence-dir",required=False); a=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument("--trace-pid",type=int); ap.add_argument("--trace-boundary"); ap.add_argument("--trace-target"); ap.add_argument("--trace-evidence"); ap.add_argument("--trace-ready"); ap.add_argument("--case",action="append",choices=sorted(CASES)); ap.add_argument("--safe-slice",action="store_true"); ap.add_argument("--remaining-slice",action="store_true"); ap.add_argument("--evidence-dir",required=False); a=ap.parse_args()
     if a.trace_pid is not None:
-        if os.geteuid()!=0 or not a.trace_boundary or not a.trace_evidence: return 2
-        _ptrace_crash(a.trace_pid,a.trace_boundary,Path(a.trace_evidence)); return 0
+        if os.geteuid()!=0 or not a.trace_boundary or not a.trace_target or not a.trace_evidence or not a.trace_ready: return 2
+        _ptrace_crash(a.trace_pid,a.trace_boundary,a.trace_target,Path(a.trace_evidence),Path(a.trace_ready)); return 0
     if not a.evidence_dir: ap.error("--evidence-dir is required")
     selected=a.case or (REMAINING_SELECTED if a.remaining_slice else (RUNNABLE if a.safe_slice else []))
     if not selected: ap.error("select --case or --safe-slice")
