@@ -96,6 +96,8 @@ def main() -> int:
             result["cases"][case] = {"status": "INSUFFICIENT_EVIDENCE", "reason": str(exc)}
             exit_code = 2
             continue
+        for item in provenance:
+            item["classification"] = "REPRESENTATIONAL_ONLY"
         ok, reasons = evaluate_crash_case(case, evidence)
         result["cases"][case] = {"status": "PASS" if ok else "NOT_PASS", "reasons": reasons, "result_sha256": digest(path), "normalization_provenance": provenance}
         if not ok:
