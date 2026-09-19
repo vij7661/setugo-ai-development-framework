@@ -519,6 +519,21 @@ Test dispositions:
 | TM-R12 | Witness qualification registry record is candidate-writable | Review path blocked |
 | TM-R13 | Provider account-class documentation/config template changes after witness/context qualification | Qualification invalidated; requalification required |
 
+## Phase S — Qualification attempt-selection and ledger-closure tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| TM-S01 | Frozen confirmation plan contains 299 IDs; one failed ID is deleted before calculation | Plan/ledger mismatch; qualification fails |
+| TM-S02 | Failed trial rerun succeeds and retry is substituted for original | Original failure remains; zero-failure criterion fails |
+| TM-S03 | Planned trial is never dispatched | Missing slot counts hard failure |
+| TM-S04 | Extra unscheduled call appears in provider audit log | Confirmation epoch invalidated |
+| TM-S05 | Provider audit logs unavailable but qualification credential is exclusive to trusted runner/egress | Attempt closure may remain provable from exclusive runner ledger |
+| TM-S06 | Provider audit logs unavailable and ordinary operator can use credential | QUALIFICATION_ATTEMPT_CLOSURE_UNPROVEN |
+| TM-S07 | Candidate code can invoke qualification endpoint/credential | Qualification trust boundary fails |
+| TM-S08 | Randomization/interleaving seed chosen after early trial results | Plan invalid; no qualification |
+| TM-S09 | Confirmation trial ID reused across drift epochs | Reject/rebind to new epoch required |
+| TM-S10 | Every planned slot reconciles to one first-attempt dispatch/provider request and all pass | Attempt-set closure passes subject to all other gates |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
@@ -535,7 +550,8 @@ Every EXP-M execution must retain:
 - WitnessProtocolQualificationRecord when witnesses are used;
 - pinned provider context-isolation documentation/account-class/config-template identities where the dedicated-account basis is used;
 - AdmissionFenceRecord;
-- ProviderCapabilityQualificationRecord with append-only trial ledger;
+- ProviderQualificationExecutionPlan;
+- ProviderCapabilityQualificationRecord with append-only trial ledger and planned/observed call reconciliation;
 - ProviderContextStateEvidence;
 - PromptIsolationQualificationRecord;
 - DeliveryPreflightResult;
@@ -557,7 +573,7 @@ Every EXP-M execution must retain:
 
 EXP-M deterministic testing is complete only when:
 
-- **all deterministic phases A–R pass**;
+- **all deterministic phases A–S pass**;
 - unified data/state mutation survivors = 0;
 - validator-logic mutation survivors = 0;
 - crash/retry tests preserve exact identity/history;
@@ -565,7 +581,8 @@ EXP-M deterministic testing is complete only when:
 - authority-snapshot/base-head poisoning tests pass;
 - clean-context state/sentinel tests pass;
 - RequiredEvidenceContract and RequiredInteractionContract non-vacuity/closure tests pass;
-- statistical-protocol tests reject insufficient, rerolled, burst-only, mixed exploration/confirmation, and production-envelope-mismatched evidence;
+- statistical-protocol tests reject insufficient, rerolled, burst-only, mixed exploration/confirmation, production-envelope-mismatched, and attempt-set cherry-picked evidence;
+- every planned confirmation slot is reconciled or counted failed and qualification credentials are outside candidate/operator control;
 - per-attempt content-bound witness tests and canary-preserving content-drop oracle pass;
 - model-selected retrieval is blocked without deterministic full-range access logs;
 - atomic final CAS admission and permanent-attempt-void semantics pass;
