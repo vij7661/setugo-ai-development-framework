@@ -60,8 +60,79 @@ INVENTORY
 -> FIX
 -> RETEST
 -> RE-FALSIFY
+-> CHECK GIT/REPO FOR NEXT INCOMPLETE TASK
+-> CONTINUE
 -> REPEAT
 ```
+
+## No-stop continuation rule
+
+Do not stop merely because the current subtask, test file, phase, or commit is complete.
+
+Before stopping for any reason, classify the reason as one of:
+
+- `MANUAL_INTERVENTION_REQUIRED`
+- `EXTERNAL_REVIEW_REQUIRED`
+- `DETERMINISTIC_EXIT_REACHED`
+- `AUTOMATABLE_WORK_REMAINS`
+
+If the reason is `AUTOMATABLE_WORK_REMAINS`, stopping is prohibited.
+
+In that case, immediately inspect the repository/Git state and continue with the next highest-priority incomplete task.
+
+Use this repository continuation procedure:
+
+1. `git status --short --branch`
+2. `git fetch origin`
+3. verify the current branch is still:
+   `experiment/exp-m-deterministic-implementation`
+4. inspect current HEAD and recent commits;
+5. compare local branch with `origin/experiment/exp-m-deterministic-implementation`;
+6. inspect this kickoff file and the frozen EXP-M R5 source-of-truth files;
+7. inspect the EXP-M A-T test matrix and determine the first incomplete/failing deterministic phase;
+8. inspect failing tests, mutation survivors, predicate-closure gaps, TODO/FIXME markers created by this implementation, and generated evidence status;
+9. select the next task using the priority order below;
+10. continue implementation automatically.
+
+Next-task priority:
+
+1. current failing production-path test;
+2. surviving validator-logic mutation;
+3. surviving data/state mutation;
+4. incomplete admissibility-predicate closure;
+5. incomplete deterministic A-T phase in order;
+6. missing required production-path implementation used by the next phase;
+7. missing generated evidence required by deterministic exit;
+8. self-falsification finding;
+9. repository hygiene needed to make the current EXP-M branch reproducible;
+10. only after all above are complete, prepare the independent deterministic-review packet.
+
+Do not switch to unrelated branches or begin unrelated project work merely because EXP-M has no immediate failing test.
+
+Do not treat:
+- a green single test file,
+- a successful commit,
+- one completed deterministic phase,
+- zero failures in the current command,
+- lack of TODOs in one file,
+- or temporary absence of a next prompt
+
+as permission to stop.
+
+If GitHub/repository inspection shows more automatable EXP-M work, continue.
+
+If local state is behind the remote branch and the remote changes belong to this EXP-M implementation work, reconcile safely before continuing. Never overwrite uncommitted work. Never reset away evidence or first-failure history.
+
+Do not create new manual-review requirements merely to stop. Manual intervention is genuine only when the next required action cannot be completed safely or authoritatively by Codex, such as:
+
+- independent external review;
+- user approval explicitly required by governance;
+- unavailable secret/credential that the user must supply;
+- unavailable exact host/device/environment required by the frozen experiment;
+- a destructive or external side effect that is not already authorized;
+- an unresolved policy choice that the frozen design does not decide.
+
+Ordinary coding decisions, test repair, fixture generation, deterministic fake-provider work, refactoring needed to satisfy the frozen design, Git inspection, committing/pushing current branch work, and proceeding to the next A-T phase are **not** manual intervention.
 
 Do not stop for ordinary coding/test failures.
 
