@@ -2,6 +2,7 @@
 """RQ-16 preregistration evaluator.  Plan/self-test only; never faults a runtime."""
 from __future__ import annotations
 import argparse, json, math, re
+from datetime import datetime, timezone
 
 ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
 OPS={"ENOSPC":{"operation":"write_authority_record","syscalls":{"write","fsync"}},"EROFS":{"operation":"write_authority_record","syscalls":{"write","fsync","rename"}},"EIO":{"operation":"record_io","syscalls":{"read","write","fsync","rename"}},"EACCES":{"operation":"record_access","syscalls":{"open","write","rename"}}}
@@ -10,7 +11,7 @@ MECHANISM_CLASSES={"kernel_quota","dedicated_ro_mount","disposable_fault_layer",
 def expected_context(arm, record_id="abc123"):
     if arm not in ARMS or not re.fullmatch(r"[A-Za-z0-9_-]+",record_id): raise ValueError("invalid expected context")
     rp=f"{BASE}/records/{record_id}.record"; cp=f"{BASE}/consumed/{record_id}.record"
-    return {"rq_id":"RQ-16","arm":arm,"mechanism_id":f"preregistered-{arm.lower()}","mechanism_digest":"mechanism-sha","target_record_id":record_id,"expected_records_path":rp,"expected_consumed_path":cp,"expected_records_realpath":rp,"expected_consumed_realpath":cp,"expected_records_device":"d1","expected_consumed_device":"d1","expected_records_mount":"m1","expected_consumed_mount":"m1","expected_records_fs":"fs1","expected_consumed_fs":"fs1","expected_records_symlink":False,"expected_consumed_symlink":False,"expected_service_identity":"uid0:trusted-service","expected_service_binary_sha256":"service-sha","expected_gate_sha256":"gate-sha","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound","plan_commit":"plan-commit","plan_tree":"plan-tree","plan_digest":"plan-sha","execution_contract_digest":"contract-sha","cleanup_contract_digest":"cleanup-sha","review_disposition":"MANUAL_REVIEW_REQUIRED","review_artifact_sha256":"review-sha"}
+    return {"rq_id":"RQ-16","arm":arm,"mechanism_id":f"preregistered-{arm.lower()}","mechanism_digest":"mechanism-sha","target_record_id":record_id,"expected_service_pid":42,"expected_records_path":rp,"expected_consumed_path":cp,"expected_records_realpath":rp,"expected_consumed_realpath":cp,"expected_records_device":"d1","expected_consumed_device":"d1","expected_records_mount":"m1","expected_consumed_mount":"m1","expected_records_fs":"fs1","expected_consumed_fs":"fs1","expected_records_symlink":False,"expected_consumed_symlink":False,"expected_service_identity":"uid0:trusted-service","expected_service_binary_sha256":"service-sha","expected_gate_sha256":"gate-sha","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound","plan_commit":"plan-commit","plan_tree":"plan-tree","plan_digest":"plan-sha","execution_contract_digest":"contract-sha","cleanup_contract_digest":"cleanup-sha","review_disposition":"MANUAL_REVIEW_REQUIRED","review_artifact_sha256":"review-sha"}
 
 def check_rq17_contamination(expected, observed):
     reasons=[]
@@ -49,6 +50,24 @@ def validate_fault_proof(proof, expected):
     if not isinstance(proof["timestamp"],(int,float)) or not math.isfinite(proof["timestamp"]): reasons.append("timestamp_invalid")
     return reasons
 
+def validate_trusted_fault_attestation(att, expected):
+    """Validate independently collected attestation; harness claims are not enough."""
+    req=("attestation_schema_version","rq_id","arm","mechanism_id","mechanism_digest","service_pid","service_executable_sha256","target_record_id","target_operation","target_syscall","target_path","records_device","consumed_device","records_mount_id","consumed_mount_id","filesystem_identity","fault_activation_source","fault_activation_raw_evidence","operation_raw_evidence","observed_errno","observation_timestamp","observer_identity","observer_source_sha256","raw_artifact_sha256","cleanup_reference")
+    if not isinstance(att,dict): return ["trusted_attestation_missing"]
+    reasons=[f"attestation_field_missing:{k}" for k in req if k not in att]
+    if reasons: return reasons
+    if att["rq_id"]!="RQ-16" or att["arm"]!=expected["arm"]: reasons.append("attestation_arm_mismatch")
+    if att["mechanism_id"]!=expected["mechanism_id"] or att["mechanism_digest"]!=expected["mechanism_digest"]: reasons.append("attestation_mechanism_mismatch")
+    if att["target_record_id"]!=expected["target_record_id"] or att["target_path"]!=expected["expected_records_path"]: reasons.append("attestation_target_mismatch")
+    if att["target_operation"]!=OPS[expected["arm"]]["operation"] or att["target_syscall"] not in OPS[expected["arm"]]["syscalls"]: reasons.append("attestation_operation_mismatch")
+    if att["service_pid"]!=expected.get("expected_service_pid") or att["service_executable_sha256"]!=expected.get("expected_service_binary_sha256"): reasons.append("attestation_service_mismatch")
+    if att["observed_errno"]!=expected["arm"]: reasons.append("attestation_errno_mismatch")
+    if att["records_device"]!=expected["expected_records_device"] or att["consumed_device"]!=expected["expected_consumed_device"] or att["records_mount_id"]!=expected["expected_records_mount"] or att["consumed_mount_id"]!=expected["expected_consumed_mount"] or att["filesystem_identity"]!=expected["expected_records_fs"]: reasons.append("attestation_topology_mismatch")
+    if not isinstance(att["fault_activation_raw_evidence"],(dict,list,str)) or not att["fault_activation_raw_evidence"]: reasons.append("activation_raw_missing")
+    if not isinstance(att["operation_raw_evidence"],(dict,list,str)) or not att["operation_raw_evidence"]: reasons.append("operation_raw_missing")
+    if att["observer_identity"] in ("candidate","harness","untrusted") or att["observer_source_sha256"]!="observer-sha" or att["raw_artifact_sha256"]!="artifact-sha": reasons.append("observer_provenance_untrusted")
+    return reasons
+
 def _obs_complete(observations, expected):
     reasons=[]; stages=("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")
     if not isinstance(observations,dict): return ["observations_missing"]
@@ -78,15 +97,25 @@ def validate_cleanup(cleanup, expected):
     if cleanup.get("independently_verified") is not True or cleanup.get("fault_disabled") is not True: reasons.append("cleanup_not_verified")
     return reasons
 
-def validate_authorization_token(token, expected):
-    fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer","source_path","single_use_registry")
+def expected_authorization_context(expected):
+    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"BOUNDED_PASS","review_artifact_sha256":"review-sha","reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":"issuer-sha"}
+
+def validate_authorization_token(token, expected, now=None, used_nonces=None):
+    fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer_identity","issuer_authority_artifact_sha256","source_path","single_use_registry")
     reasons=[f"token_field_missing:{k}" for k in fields if k not in token]
-    if token.get("rq_id")!="RQ-16" or token.get("arm")!=expected.get("arm"): reasons.append("token_arm_mismatch")
-    if token.get("mechanism_id")!=expected.get("mechanism_id"): reasons.append("token_mechanism_mismatch")
-    for k in ("plan_commit","plan_tree","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","review_artifact_sha256"):
-        if k in token and token[k] != expected.get(k.replace("records_mount_id","expected_records_mount").replace("consumed_mount_id","expected_consumed_mount").replace("records_device","expected_records_device").replace("consumed_device","expected_consumed_device").replace("service_binary_sha256","expected_service_binary_sha256").replace("gate_sha256","expected_gate_sha256")): reasons.append(f"token_mismatch:{k}")
+    ctx=expected_authorization_context(expected)
+    for k,v in ctx.items():
+        if token.get(k)!=v: reasons.append(f"token_mismatch:{k}")
+    try:
+        issued=datetime.fromisoformat(token.get("authorization_timestamp","" ).replace("Z","+00:00")); expires=datetime.fromisoformat(token.get("expiration","").replace("Z","+00:00"))
+        now=now or datetime.now(timezone.utc)
+        if issued > now: reasons.append("authorization_in_future")
+        if expires <= now or expires <= issued: reasons.append("expiration_invalid")
+        if expires-issued > __import__('datetime').timedelta(hours=1): reasons.append("expiration_unbounded")
+    except Exception: reasons.append("timestamp_unparseable")
     if not isinstance(token.get("nonce"),str) or not token.get("nonce"): reasons.append("nonce_invalid")
-    if token.get("issuer")!="trusted-review-authority": reasons.append("issuer_untrusted")
+    if used_nonces is not None and token.get("nonce") in used_nonces: reasons.append("nonce_replay")
+    if token.get("source_path")!="/root-owned/rq16-authorization": reasons.append("authorization_source_untrusted")
     if token.get("single_use_registry")!="root-owned-durable-ledger": reasons.append("nonce_registry_untrusted")
     return reasons
 
@@ -97,6 +126,7 @@ def evaluate_arm(arm, observed, expected):
     if observed.get("authoritative_success") is True: return "RED",["authoritative_success_after_fault"]
     if observed.get("invalid_transition") is True: return "RED",["invalid_transition_after_fault"]
     reasons += validate_fault_proof(observed.get("fault_proof"),expected)
+    reasons += validate_trusted_fault_attestation(observed.get("trusted_fault_attestation"),expected)
     reasons += _obs_complete(observed.get("observations"),expected)
     topo_ok, topo_reasons=check_rq17_contamination(expected,observed.get("observations")); reasons += topo_reasons
     reasons += _lifecycle_valid(observed.get("lifecycle"),expected)

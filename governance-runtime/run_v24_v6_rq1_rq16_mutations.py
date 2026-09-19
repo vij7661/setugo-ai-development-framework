@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import copy, json
-from v24_v6_rq1_rq16_harness import evaluate_arm, expected_context
+from datetime import datetime, timezone
+from v24_v6_rq1_rq16_harness import evaluate_arm, expected_context, expected_authorization_context, validate_authorization_token
 from test_v24_v6_rq1_rq16_harness import good
 EXPECTED=expected_context("ENOSPC")
 def main():
@@ -14,6 +15,11 @@ def main():
       ("wrong_errno",lambda e:e["fault_proof"].update(observed_errno="EROFS")),
       ("missing_activation",lambda e:e["fault_proof"].update(activation_evidence={})),
       ("missing_operation",lambda e:e["fault_proof"].update(operation_evidence={})),
+      ("attestation_missing_raw_activation",lambda e:e["trusted_fault_attestation"].pop("fault_activation_raw_evidence")),
+      ("attestation_missing_raw_operation",lambda e:e["trusted_fault_attestation"].pop("operation_raw_evidence")),
+      ("attestation_wrong_observer",lambda e:e["trusted_fault_attestation"].update(observer_identity="candidate")),
+      ("attestation_wrong_pid",lambda e:e["trusted_fault_attestation"].update(service_pid=99)),
+      ("attestation_wrong_artifact_hash",lambda e:e["trusted_fault_attestation"].update(raw_artifact_sha256="fake")),
       ("missing_observer",lambda e:e["observations"].pop("restored")),
       ("bool_only_observer",lambda e:e.pop("observations")),
       ("missing_cleanup",lambda e:e.pop("cleanup_proof")),
@@ -29,6 +35,12 @@ def main():
     for name,mut in specs:
         e=copy.deepcopy(good()); mut(e); actual,reasons=evaluate_arm("ENOSPC",e,EXPECTED)
         rows.append({"mutation_id":name,"case":"ENOSPC","path":name,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":actual,"reasons":reasons,"rejected":actual!="PASS"})
+    token=expected_authorization_context(EXPECTED)|{"authorization_timestamp":"2026-01-01T00:00:00Z","expiration":"2026-01-01T00:30:00Z","nonce":"n1","source_path":"/root-owned/rq16-authorization","single_use_registry":"root-owned-durable-ledger"}
+    auth_fields=["arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","issuer_identity","issuer_authority_artifact_sha256"]
+    for field in auth_fields:
+        bad=dict(token); bad[field]="mutated"; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc)); rows.append({"mutation_id":"auth_"+field,"case":"AUTHORIZATION","path":field,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
+    for name,field,value in (("expired","expiration","2025-01-01T00:00:00Z"),("future_issued","authorization_timestamp","2030-01-01T00:00:00Z"),("malformed_timestamp","expiration","bad"),("empty_nonce","nonce",""),("reused_nonce","nonce","used"),("untrusted_source","source_path","candidate"),("untrusted_registry","single_use_registry","memory")):
+        bad=dict(token); bad[field]=value; used={"used"} if name=="reused_nonce" else None; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),used_nonces=used); rows.append({"mutation_id":"auth_"+name,"case":"AUTHORIZATION","path":field,"before":"valid","after":value,"expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
     out={"total_mutations":len(rows),"rejected_mutations":sum(r["rejected"] for r in rows),"surviving_mutations":sum(not r["rejected"] for r in rows),"all_rejected":all(r["rejected"] for r in rows),"mutations":rows,"RQ16_EXECUTED":False}
     print(json.dumps(out,indent=2,sort_keys=True)); return 0 if out["all_rejected"] else 2
 if __name__=="__main__": raise SystemExit(main())

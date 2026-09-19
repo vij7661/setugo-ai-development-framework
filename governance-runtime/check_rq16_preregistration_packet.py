@@ -23,5 +23,8 @@ def main():
     assert subprocess.run(['git','merge-base','--is-ancestor',vals['packet_commit'],head],cwd=ROOT).returncode==0
     assert vals['predecessor_commit']=='8477830f5f35a35a8c9b19fdca9c5b6c39e2916d' and vals['predecessor_tree']=='82457b9307f133db281055dbbdae26b618f8c3cf'
     assert 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
+    for marker in ('expected_context','validate_trusted_fault_attestation','validate_authorization_token','check_rq17_contamination','total_mutations','all_rejected'):
+        assert marker in text
+    assert text.count('V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md') <= 1
     print(json.dumps({'packet_consistency':'PASS','arm_count':4,'RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
 if __name__=='__main__': raise SystemExit(main())
