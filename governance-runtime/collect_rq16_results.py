@@ -6,9 +6,10 @@ ROOT=Path(__file__).resolve().parents[1]
 TEST_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json'
 MUT_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json'
 def main():
-    t=subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True)
+    runs=[subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True),subprocess.run(['python','governance-runtime/test_rq16_manifest.py'],cwd=ROOT,text=True,capture_output=True)]
+    t=subprocess.CompletedProcess([],max((x.returncode for x in runs),default=0),stdout='\n'.join(x.stdout for x in runs),stderr='\n'.join(x.stderr for x in runs))
     m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
-    match=re.search(r'Ran (\d+) tests?',t.stderr+t.stdout); total=int(match.group(1)) if match else 0
+    matches=re.findall(r'Ran (\d+) tests?',t.stderr+t.stdout); total=sum(int(x) for x in matches)
     tests=[]
     for line in (t.stderr+t.stdout).splitlines():
         hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
