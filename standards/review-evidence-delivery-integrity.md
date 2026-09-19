@@ -37,6 +37,8 @@ For a material review, the following must execute from an independently governed
 - representation transformer;
 - manifest builder;
 - provider capability registry reader;
+- provider context-isolation policy registry reader;
+- witness-protocol qualification registry reader;
 - delivery preflight;
 - chunk/session protocol;
 - trusted provider adapter/wire serializer;
@@ -59,7 +61,7 @@ If the candidate changes any governing input in its own head, that head version 
 - if two governing inputs conflict and no platform-defined partial order can prove which is stricter, derivation fails as `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`;
 - every governing-input change is itself a mandatory review evidence ref.
 
-Registries and the authority-snapshot pointer are maintained outside the candidate write set. A candidate may propose changes to governing inputs, but those proposed changes cannot authorize or narrow their own review.
+Registries, context-isolation policies, witness-protocol qualification records, and the authority-snapshot pointer are maintained outside the candidate write set. A candidate may propose changes to governing inputs, but those proposed changes cannot authorize or narrow their own review.
 
 ### Conservative base/head comparison rules
 
@@ -495,7 +497,7 @@ The policy chooses one of these admissible isolation bases:
    - behavioral sentinel qualification is run on a disposable qualification account/project of the same provider/account class and configuration template, never by contaminating the production review account;
    - production account configuration template/hash is independently matched to the qualified template and fenced.
 
-Provider documentation is necessary provenance, not sufficient proof.
+Provider documentation is necessary provenance, not sufficient proof. The pinned documentation/contract version, provider account class, production configuration-template hash, and isolation-policy identity are part of the ProviderCapabilityProfile/context-isolation binding. A change to any of them invalidates the profile/isolation qualification and requires requalification.
 
 ### Hidden provider-internal state nonclaim
 
@@ -638,7 +640,7 @@ After the witness phase and immediately before the final semantic adjudication p
 
 Witness challenges are strictly extraction/accessibility operations. They may not ask for evaluation, summarization, ranking, defect identification, or conclusions.
 
-A material review mode using witnesses additionally requires a `WitnessProtocolQualificationRecord` bound to the exact prompt-isolation mechanism/provider mode. That record covers:
+A material review mode using witnesses additionally requires a platform-owned `WitnessProtocolQualificationRecord` from a qualified registry outside candidate write authority, bound to the exact prompt-isolation mechanism/provider mode. Candidate content/code cannot mint or widen it. That record covers:
 
 - exact witness protocol/version;
 - challenge syntax;
