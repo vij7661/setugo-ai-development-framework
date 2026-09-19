@@ -214,7 +214,7 @@ Review decomposition uses a RequiredInteractionContract derived only from the Go
 
 ### M-I42 — Governor decision inputs are outside candidate self-approval
 
-The GovernanceAuthoritySnapshot, transition-class registry, evidence-selection registry, relationship registry, capability registry, and authority-snapshot pointer are outside the candidate write set. Candidate edits to governing inputs are reviewed as evidence and cannot narrow their own review.
+The GovernanceAuthoritySnapshot, transition-class registry, evidence-selection registry, relationship registry, capability registry, accessibility-risk registry, and authority-snapshot pointer are outside the candidate write set. Candidate edits to governing inputs are reviewed as evidence and cannot narrow their own review. Governing elements are stable-ID + content-hash bound; changing semantics under the same ID is treated as a changed input, and base/head representation/acceptance/risk constraints preserve the stricter rule or fail unresolved.
 
 ### M-I43 — Provider context state is observed per attempt
 
@@ -864,10 +864,10 @@ the attempt is permanently void; stale preflight and later reauthorization canno
 
 ### M-83 — Candidate poisons governing standard input
 
-Candidate head removes a required evidence rule from a governance file.
+Candidate head removes or weakens a required evidence/representation/risk rule, including semantic replacement under the same stable ID.
 
 Expected:
-GovernanceAuthoritySnapshot/base-head conservative union preserves the base requirement; changed governance file is itself required evidence.
+GovernanceAuthoritySnapshot/base-head conservative merge preserves the stricter base/head semantics; changed governance file is itself required evidence; incomparable conflicts fail unresolved.
 
 ### M-84 — Candidate poisons relationship/classification registry
 
