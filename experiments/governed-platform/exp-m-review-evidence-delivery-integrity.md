@@ -264,9 +264,9 @@ Base/head governance merge uses explicit per-element partial orders. Set require
 
 The provider operating point and preflight include witness challenges, maximum witness-response budget, wrappers, final semantic prompt, and final output budget. Actual context size is rechecked after the witness phase and before semantic adjudication. Witness-induced eviction voids the attempt.
 
-### M-I55 — Witness protocol is semantically non-evaluative and separately qualified
+### M-I55 — Witness protocol is non-evaluative and structurally isolated
 
-Witness challenges may test exact accessibility only; they cannot ask for evaluation or conclusions. Material witness-based review requires a current WitnessProtocolQualificationRecord bound to provider/mode/prompt-isolation mechanism. If the witness protocol's noninterference cannot be bounded on the governed qualification corpus, the witness mode is diagnostic-only.
+Witness challenges may test exact accessibility only; they cannot ask for evaluation or conclusions. Material witness-based review requires a current WitnessProtocolQualificationRecord bound to provider/mode/prompt-isolation mechanism. Witness outputs are non-evidence/non-adjudicative and cannot satisfy semantic review dimensions. EXP-M does not claim counterfactual semantic invariance of stochastic model outcomes.
 
 ### M-I56 — Witness qualification cannot self-authorize
 
@@ -1124,12 +1124,12 @@ A challenge asks the reviewer to summarize or judge evidence rather than return 
 Expected:
 WitnessProtocolQualificationRecord/protocol validation fails.
 
-### M-119 — Witness protocol changes semantic review outcome on qualification corpus
+### M-119 — Witness output is treated as semantic review evidence
 
-Exact same governed corpus/provider mode is run under baseline qualified delivery and under witness protocol; semantic structured outcome changes beyond preregistered tolerance.
+The final semantic validator allows witness extracts/answers to satisfy a required review dimension or create authority.
 
 Expected:
-witness mode not qualified for material review.
+structural isolation failure; witness output remains non-evidence/non-adjudicative.
 
 ### M-120 — Witness protocol record stale or wrong provider/prompt-isolation mode
 
@@ -1365,7 +1365,7 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `GovernanceComparatorWeakeningAdapter`
 - `WitnessContextEvictionAdapter`
 - `EvaluativeWitnessAdapter`
-- `WitnessOutcomeShiftAdapter`
+- `WitnessEvidenceLeakAdapter`
 - `CandidateWitnessQualificationAdapter`
 - `ProviderIsolationTemplateDriftAdapter`
 - `QualificationPlanTamperAdapter`
@@ -1451,7 +1451,7 @@ EXP-M can reach bounded pass only when:
 45. health checks cannot renew or extend an expired capability profile;
 46. every base/head “stricter” comparison uses a typed governed partial order and incomparable changes fail unresolved;
 47. witness challenge/response traffic is part of the qualified cumulative context and cannot evict required evidence before adjudication;
-48. witness protocols are non-evaluative and have a current provider/mode-bound WitnessProtocolQualificationRecord;
+48. witness protocols are non-evaluative, structurally isolated from semantic evidence/authority, and have a current provider/mode-bound WitnessProtocolQualificationRecord;
 49. witness qualification authority is outside candidate write control;
 50. provider isolation documentation/account-class/config-template drift invalidates the associated context-isolation qualification;
 51. confirmation attempt membership is frozen before exposure and every planned slot is reconciled or counted failed;
