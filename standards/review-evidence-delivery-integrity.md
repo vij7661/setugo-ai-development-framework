@@ -134,6 +134,8 @@ At minimum preserve:
 - `PROVIDER_CONTEXT_STATE_UNPROVEN`
 - `PROVIDER_CONTEXT_STATE_DRIFT`
 - `PROVIDER_RETRIEVAL_COVERAGE_UNPROVEN`
+- `PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN`
+- `STATISTICAL_INDEPENDENCE_UNPROVEN`
 - `VERDICT_ADMISSION_STATE_CHANGED`
 - `REVIEW_CONTEXT_DIRTY_OR_UNBOUND`
 - `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
@@ -283,7 +285,9 @@ Unless a stricter transition-specific policy is independently governed before ex
 - confirmation trial IDs and schedule are frozen before confirmation exposure;
 - confirmation trials are distributed across at least **3 distinct UTC days** and at least **4 preregistered time blocks per day**, with operating points interleaved in randomized order;
 - repeated attempts from the same provider session/request lineage do not count as independent confirmation trials;
-- every trial uses a fresh delivery-attempt identity, fresh clean provider context, fresh content-bound witnesses, and the production-equivalent request envelope.
+- every trial uses a fresh delivery-attempt identity, fresh clean provider context, fresh content-bound witnesses, and the production-equivalent request envelope;
+- the qualification record captures any provider-exposed routing/deployment/region identity and demonstrates the preregistered time/interleaving diversity;
+- the Clopper–Pearson probability interpretation is explicitly conditional on the trial-independence model. When provider-side correlation/route allocation is not observable, the profile records `STATISTICAL_INDEPENDENCE_UNPROVEN`; the numerical bound is not presented as a universal provider failure probability and cannot replace per-attempt accessibility proof.
 
 ### Hard failure
 
@@ -497,9 +501,18 @@ A provider file mechanism is qualified only when the platform has evidence for:
 
 If these are unknown, file-reference delivery is non-authoritative for material review.
 
-When the model/provider chooses what file content or ranges to retrieve, **per-attempt deterministic access/range logs are mandatory** for material review. Before verdict admission, those logs must prove hash-matched access to every required page/range/member required by the relevant review dimension and RequiredInteractionContract.
+When the model/provider chooses what file content or ranges to retrieve, **per-attempt deterministic access/range logs are mandatory** for material review. Before verdict admission, those logs must prove for every required page/range/member:
 
-If the provider does not expose deterministic per-attempt access logs with sufficient range/version identity, that retrieval/file mode is diagnostic-only and `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`. The alternative is platform-forced inline inclusion of the governed representation inside the qualified final context.
+- exact source/version identity;
+- requested range/member;
+- returned content hash and byte/range length;
+- successful retrieval time;
+- tool/result message identity;
+- binding of that tool result to the same final adjudication session/context.
+
+A log that proves only “a file was opened” is insufficient. If the provider cannot prove both hash-matched returned content and binding of the retrieval result into the final adjudication context, that retrieval/file mode is diagnostic-only and `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`.
+
+The alternative is platform-forced inline inclusion of the governed representation inside the qualified final context.
 
 Reviewer citation text, file IDs, or attach-time binding cannot substitute for per-attempt retrieval coverage when retrieval is model-selected.
 
