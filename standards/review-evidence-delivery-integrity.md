@@ -170,6 +170,7 @@ At minimum preserve:
 - `REVIEW_CONTEXT_DIRTY_OR_UNBOUND`
 - `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
 - `PROVIDER_CAPABILITY_STATISTICAL_POLICY_FAILED`
+- `QUALIFICATION_ATTEMPT_CLOSURE_UNPROVEN`
 - `ACCESSIBILITY_PROBE_COVERAGE_INSUFFICIENT`
 - `WITNESS_PROTOCOL_UNQUALIFIED`
 - `WITNESS_CONTEXT_EVICTION`
@@ -321,6 +322,35 @@ Unless a stricter transition-specific policy is independently governed before ex
 - the qualification record captures any provider-exposed routing/deployment/region identity and demonstrates the preregistered time/interleaving diversity;
 - the Clopper–Pearson probability interpretation is explicitly conditional on the trial-independence model. When provider-side correlation/route allocation is not observable, the profile records `STATISTICAL_INDEPENDENCE_UNPROVEN`; the numerical bound is not presented as a universal provider failure probability and cannot replace per-attempt accessibility proof.
 
+### Qualification execution authority and attempt closure
+
+Confirmation qualification uses a dedicated platform-controlled qualification runner and credential scope that candidate code, candidate users, and ordinary operators cannot invoke directly.
+
+Before confirmation exposure, freeze a `ProviderQualificationExecutionPlan` containing:
+
+- provider/profile drift epoch;
+- exact operating-point IDs;
+- complete scheduled confirmation trial IDs;
+- UTC day/time-block assignment;
+- deterministic/randomization seed committed before exposure;
+- trusted runner identity/hash;
+- qualification credential/configuration identity;
+- network/egress policy identity;
+- expected number of calls.
+
+Every scheduled trial slot must produce exactly one first-attempt record. A missing/skipped slot is a hard failure. A retry or additional call is a new attempt and cannot replace the original failed/missing slot.
+
+The append-only `ProviderCapabilityQualificationRecord` must reconcile:
+
+- every planned trial ID;
+- every trusted-runner dispatch record;
+- every provider request ID returned;
+- provider usage/audit records when exposed.
+
+If provider usage/audit logs are unavailable, the dedicated qualification credential must be technically inaccessible outside the trusted runner and its governed egress path. If neither provider-side call reconciliation nor credential/egress exclusivity can be established, the confirmation set is `QUALIFICATION_ATTEMPT_CLOSURE_UNPROVEN` and cannot qualify a material review mode.
+
+Unscheduled calls cannot contribute successes. An unexplained call using the dedicated qualification credential invalidates the confirmation epoch.
+
 ### Hard failure
 
 A hard failure is any attempted trial with one or more of:
@@ -395,7 +425,7 @@ It must bind:
 - context eviction/truncation behavior;
 - structured-output behavior;
 - provider response/output constraints;
-- exact ProviderCapabilityQualificationRecord hash containing all exploration/confirmation attempts, schedule, hard-failure classifications, Clopper–Pearson calculation, content classes, operating-point tuple, and append-only failure history;
+- exact ProviderQualificationExecutionPlan identity/hash and exact ProviderCapabilityQualificationRecord hash containing all planned/observed exploration/confirmation attempts, schedule, runner/credential binding, provider request reconciliation, hard-failure classifications, Clopper–Pearson calculation, content classes, operating-point tuple, and append-only failure history;
 - qualification timestamp;
 - expiry/requalification policy;
 - conservative qualified limit and safety margin derived from repeated trials, not a single success.
@@ -845,6 +875,7 @@ Every material platform API review must retain:
 - transformation records;
 - egress decision;
 - ProviderCapabilityProfile identity;
+- ProviderQualificationExecutionPlan and trusted qualification-runner/credential identity;
 - ProviderAccessibilityRiskPolicy identity;
 - ProviderContextIsolationPolicy identity and selected isolation basis;
 - WitnessProtocolQualificationRecord identity when witnesses are used;
