@@ -82,20 +82,42 @@ def _json_response(value: Any) -> dict[str, Any] | None:
     return None
 
 
-def _first_interrupted(first: Any, target_id: str) -> bool:
+def interpret_first_attempt(first: Any, target_id: str) -> tuple[bool, list[str]]:
+    """Interpret the interrupted control attempt from raw process evidence.
+
+    A return code alone is never evidence of non-authority.  Raw stdout takes
+    precedence over any convenience ``parsed`` field, and an empty response is
+    accepted only with the exact observed transport-close diagnostic.
+    """
+    reasons: list[str] = []
     if not isinstance(first, dict) or not isinstance(first.get("rc"), int) or first["rc"] == 0:
-        return False
-    parsed = _json_response(first.get("parsed"))
-    if parsed is not None:
-        if parsed.get("service_authoritative") is True:
-            return False
+        return False, ["first_attempt_returncode_invalid"]
+    stdout = first.get("stdout", "")
+    if not isinstance(stdout, str):
+        return False, ["first_attempt_stdout_invalid"]
+    convenience_present = "parsed" in first and first.get("parsed") is not None
+    if stdout.strip():
+        try:
+            parsed = json.loads(stdout)
+        except (TypeError, ValueError):
+            return False, ["first_attempt_stdout_malformed"]
+        if not isinstance(parsed, dict):
+            return False, ["first_attempt_response_not_object"]
+        if parsed.get("service_authoritative") is not False:
+            return False, ["first_attempt_authority_not_false"]
         if parsed.get("trusted_record_id") not in (None, target_id):
-            return False
-        return True
-    # A ptrace-killed control may exit nonzero after the socket closes.  Empty
-    # output is accepted only with the independent, exact close-before-response
-    # diagnostic; arbitrary nonzero/empty output remains a hard failure.
-    return "trusted service closed before control response" in str(first.get("stderr", ""))
+            return False, ["first_attempt_target_mismatch"]
+        return True, reasons
+    if convenience_present:
+        return False, ["first_attempt_convenience_parsed_without_stdout"]
+    if "trusted service closed before control response" not in str(first.get("stderr", "")):
+        return False, ["first_attempt_close_diagnostic_missing"]
+    return True, reasons
+
+
+def _first_interrupted(first: Any, target_id: str) -> bool:
+    ok, _ = interpret_first_attempt(first, target_id)
+    return ok
 
 
 def _allow_response(value: Any, target_id: str) -> bool:

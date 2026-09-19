@@ -4,7 +4,8 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from v24_v6_rq1_crash_predicates import evaluate_crash_case
+from v24_v6_rq1_crash_predicates import evaluate_crash_case, interpret_first_attempt
+from v24_v6_rq1_remediation2_harness import current_live_first_attempt
 
 
 def obs(records, consumed):
@@ -88,6 +89,35 @@ class CrashPredicateBehaviourTests(unittest.TestCase):
         self.assert_fails("RQ-13", lambda e: e.update(recovery={"records": {"entries": [], "error": "PermissionError"}, "consumed": {"entries": []}}))
         self.assert_fails("RQ-13", lambda e: e.update(state_stable=False))
         self.assert_fails("RQ-13", lambda e: e.update(restart_returncode=1))
+
+    def test_first_attempt_requires_raw_close_diagnostic(self):
+        target = "a" * 64
+        good = {"rc": 1, "stdout": "", "stderr": "RuntimeError: trusted service closed before control response"}
+        self.assertEqual(interpret_first_attempt(good, target), (True, []))
+        for bad in (
+            {"rc": 1, "stdout": "", "stderr": ""},
+            {"rc": 1, "stdout": "", "stderr": "unrelated"},
+            {"rc": 1, "stdout": "not-json", "stderr": "trusted service closed before control response"},
+            {"rc": 1, "stdout": '{"service_authoritative": true}', "stderr": ""},
+            {"rc": 1, "stdout": '{"service_authoritative": true, "trusted_record_id": "%s"}' % target, "stderr": ""},
+            {"rc": 1, "stdout": '{"service_authoritative": false, "trusted_record_id": "wrong"}', "stderr": ""},
+            {"rc": 0, "stdout": "", "stderr": "trusted service closed before control response"},
+            {"rc": 1, "stdout": "", "stderr": "trusted service closed before control response", "parsed": {}},
+        ):
+            ok, _ = interpret_first_attempt(bad, target)
+            self.assertFalse(ok, bad)
+
+    def test_live_builder_uses_raw_shape_and_shared_interpreter(self):
+        class Control:
+            returncode = 1
+            stdout = ""
+            stderr = "RuntimeError: trusted service closed before control response"
+        evidence = current_live_first_attempt(Control())
+        self.assertIsNone(evidence["parsed"])
+        self.assertEqual(interpret_first_attempt(evidence, "a" * 64), (True, []))
+        Control.stdout = '{"service_authoritative": true}'
+        bad = current_live_first_attempt(Control())
+        self.assertFalse(interpret_first_attempt(bad, "a" * 64)[0])
 
 
 if __name__ == "__main__":

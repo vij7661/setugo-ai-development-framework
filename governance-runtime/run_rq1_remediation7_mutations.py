@@ -28,12 +28,20 @@ def main() -> int:
             "first_authoritative": lambda e: e["first_consume"].update(parsed={"service_authoritative": True}),
             "tracer_not_armed": lambda e: e["tracer_ready"].update(armed=False),
             "launch_before_ready": lambda e: e.update(control_launch_timestamp=0),
+            "first_empty_stderr": lambda e: e["first_consume"].update(stderr=""),
+            "first_unrelated_stderr": lambda e: e["first_consume"].update(stderr="unrelated failure"),
+            "first_malformed_stdout": lambda e: e["first_consume"].update(stdout="not-json", parsed=None),
+            "first_authoritative_stdout": lambda e: e["first_consume"].update(stdout='{"service_authoritative":true}', parsed=None),
+            "first_wrong_target_stdout": lambda e: e["first_consume"].update(stdout='{"service_authoritative":false,"trusted_record_id":"wrong"}', parsed=None),
+            "first_convenience_empty_parsed": lambda e: e["first_consume"].update(parsed={}),
+            "first_stdout_authority_hidden_by_parsed": lambda e: e["first_consume"].update(stdout='{"service_authoritative":true}', parsed={"service_authoritative":False}),
+            "first_rc_zero": lambda e: e["first_consume"].update(rc=0),
         }
         if case == "RQ-15":
             mutations["failed_rename"] = lambda e: e["boundary_evidence"].update(return_value=1)
         for name, mutate in mutations.items():
             evidence = copy.deepcopy(base); mutate(evidence); ok, reasons = evaluate_crash_case(case, evidence)
-            checks.append({"case": case, "mutation": name, "pass": ok, "reasons": reasons})
+            checks.append({"case": case, "mutation": name, "source_representation": "Run-35-shaped adapted evidence", "field": "first_consume" if name.startswith("first_") else "case evidence", "expected": "REJECT", "actual": "PASS" if ok else "REJECT", "pass": ok, "reasons": reasons})
     args.output.write_text(json.dumps({"operation": "OFFLINE_MUTATION_FALSIFICATION", "checks": checks, "all_rejected": all(not c["pass"] for c in checks)}, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     return 0 if all(not c["pass"] for c in checks) else 2
 

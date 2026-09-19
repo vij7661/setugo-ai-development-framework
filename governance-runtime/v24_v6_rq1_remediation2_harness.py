@@ -4,6 +4,24 @@ import argparse, hashlib, json, os, shutil, signal, subprocess, sys, time
 from pathlib import Path
 from v24_v6_rq1_crash_predicates import evaluate_crash_case
 
+
+def current_live_first_attempt(control):
+    """Build canonical first-attempt evidence from a live subprocess result.
+
+    Empty stdout is represented as ``None`` rather than synthetic ``{}``; the
+    shared evaluator then requires the exact transport-close diagnostic.
+    """
+    stdout = control.stdout if isinstance(control.stdout, str) else ""
+    parsed = None
+    if stdout.strip():
+        try:
+            parsed = json.loads(stdout)
+        except Exception:
+            parsed = None
+    return {"rc": control.returncode, "stdout": stdout,
+            "stderr": control.stderr if isinstance(control.stderr, str) else "",
+            "parsed": parsed}
+
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / "governance-runtime"
 OBSERVER = RUNTIME / "v24_v6_rq1_observer.py"
@@ -494,8 +512,7 @@ def _crash_case(cid,out,boundary):
     except RuntimeError as exc: return False,{"harness_defect":str(exc),"boundary_evidence":trace}
     retry=trusted_consume("positive",diag)
     post_retry=observe(out/f"{cid}.post-retry.observer.json")
-    try: first=json.loads(so.strip()) if so.strip() else {}
-    except Exception: first={}
+    first = current_live_first_attempt(control)
     try: second=json.loads(retry.stdout.strip()) if retry.stdout.strip() else {}
     except Exception: second={}
     replay=None; replay_obj={}
