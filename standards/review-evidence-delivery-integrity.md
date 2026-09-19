@@ -26,6 +26,26 @@ Therefore these are separate governed facts:
 
 A later stage may not self-prove an earlier stage.
 
+## Delivery-governor trust root
+
+The code that decides whether evidence delivery is complete is itself load-bearing governance.
+
+For a material review, the following must execute from an independently governed, pinned platform implementation that is outside the reviewed candidate's self-approval boundary:
+
+- required-evidence derivation;
+- evidence materializer;
+- representation transformer;
+- manifest builder;
+- provider capability registry reader;
+- delivery preflight;
+- chunk/session protocol;
+- trusted provider adapter/wire serializer;
+- delivery completeness validator;
+- insufficient-evidence cause adjudicator;
+- verdict-admissibility validator.
+
+A candidate under review must not be able to modify the implementation that decides whether its own evidence was complete. Candidate-supplied delivery code may be tested as an artifact, but it cannot grant its own review admissibility.
+
 ## Core authority rule
 
 **A reviewer disposition is inadmissible for a material authority transition unless every mandatory evidence item is governed from source through delivery and the selected provider/mode is qualified to make that exact representation available to the reviewer.**
@@ -103,7 +123,7 @@ It must contain at least:
 - provider capability profile ID/hash/version/expiry;
 - delivery protocol version;
 - delivery attempt ID;
-- per-item stable evidence ID;
+- per-item stable evidence ID derived from governed source identity and content hash;
 - authoritative source reference;
 - evidence class;
 - source raw SHA-256 and byte length;
@@ -149,6 +169,10 @@ Examples requiring explicit transformation governance:
 
 A lossy or partial representation cannot satisfy a full-raw-evidence requirement.
 
+Transformation tools/parsers must be platform-owned/pinned or otherwise independently qualified; candidate-provided parser code cannot transform its own evidence into an authoritative reviewer representation.
+
+Archive/document materialization must be bounded against path traversal, symlink escape, duplicate-name ambiguity, decompression/resource bombs, recursive archive expansion, and parser time/memory exhaustion. Unsafe opaque archives may be preserved as source evidence but cannot be treated as successfully materialized reviewer content merely because an external provider accepts them.
+
 ## Data classification and egress authorization
 
 Evidence must not be sent to an external provider merely because it is required for review.
@@ -173,7 +197,10 @@ A `ProviderCapabilityProfile` is trusted platform configuration/evidence, not ca
 It must bind:
 
 - provider;
-- exact model or model class;
+- provider account/tenant/project identity where relevant;
+- API endpoint/region/data-residency boundary;
+- exact requested model and provider-reported model/deployment identity where available;
+- model alias/version drift policy;
 - API/adapter version;
 - trusted adapter hash/version;
 - qualified request/body size;
@@ -189,13 +216,18 @@ It must bind:
 - context eviction/truncation behavior;
 - structured-output behavior;
 - provider response/output constraints;
-- empirical qualification evidence;
+- empirical qualification evidence from repeated fresh witness trials;
 - qualification timestamp;
-- expiry/requalification policy.
+- expiry/requalification policy;
+- conservative qualified limit and safety margin derived from repeated trials, not a single success.
 
 Unknown capability is not capability.
 
 Profiles must expire or be invalidated on material provider/model/adapter/API behavior drift. Candidate code may not mint or widen a profile.
+
+A single successful provider call near a limit is not sufficient to widen the qualified bound. Qualification uses fresh canaries over repeated trials and chooses a conservative safe limit under the governed acceptance policy.
+
+Automatic provider/model fallback is a new delivery context. A failure on provider/model A may not silently fall back to B using A's manifest/profile. The fallback requires its own qualified profile, delivery plan/attempt identity, and admissibility record.
 
 The authoritative capability registry must be outside the candidate's self-approval boundary. A capability-profile change is itself governed configuration requiring independent review appropriate to its authority. Material candidate changes must not be able to edit the profile that decides whether their own review delivery is complete.
 
@@ -213,6 +245,8 @@ For every provider call, retain a `WireDeliveryRecord` containing:
 - evidence/chunk IDs included;
 - canonical secret-redacted request-body hash;
 - exact non-secret request metadata relevant to semantics;
+- provider account/endpoint/region identity used;
+- requested and provider-reported model/deployment identity where available;
 - provider request/message/file/thread/session IDs;
 - transport status;
 - response hash;
@@ -282,7 +316,8 @@ A provider file mechanism is qualified only when the platform has evidence for:
 - accessibility from the final review request;
 - retention/expiry behavior;
 - file replacement/mutability behavior;
-- supported format parsing;
+- supported format parsing and processing/ingestion readiness states;
+- retrieval range/coverage semantics where partial retrieval is possible;
 - failure behavior.
 
 If these are unknown, file-reference delivery is non-authoritative for material review.
@@ -441,7 +476,10 @@ The following must never independently establish delivery completeness:
 - proposer assertion;
 - candidate-authored provider capability profile;
 - chunk count without cumulative-context qualification;
-- multi-reviewer agreement.
+- multi-reviewer agreement;
+- candidate-supplied materializer/manifest/checker code;
+- one successful provider call near a claimed capability limit;
+- automatic fallback to a different provider/model without a new qualified delivery attempt.
 
 ## Required audit evidence
 
@@ -451,6 +489,8 @@ Every material platform API review must retain:
 - governed evidence inventory;
 - EvidenceDeliveryManifest;
 - source and representation hashes;
+- stable evidence IDs and canonical source-path/identity mapping;
+- pinned delivery-governor implementation identity;
 - transformation records;
 - egress decision;
 - ProviderCapabilityProfile identity;
