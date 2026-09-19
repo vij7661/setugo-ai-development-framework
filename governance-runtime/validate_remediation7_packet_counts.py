@@ -26,8 +26,13 @@ def main() -> int:
     for stale in ("8/8", "46/46", "46 checks", "46 mutations"):
         if stale in current:
             raise SystemExit(f"unlabeled stale count in current packet: {stale}")
+    historical = packet.split("## Historical superseded review material (non-authoritative)", 1)
+    nonhistorical = historical[0]
+    if len(historical) == 2:
+        tail = historical[1].split("## Included source SHA-256", 1)
+        nonhistorical += tail[-1]
     for forbidden in ("scientific_rerun=true", "RQ16_started=true"):
-        if forbidden in packet:
+        if forbidden in nonhistorical:
             raise SystemExit(forbidden)
     print(json.dumps({"status":"PASS","behavioral_tests":tests,"mutation_total":total,"mutation_rejected":rejected,"mutation_surviving":surviving,"historical_section_labeled":True}, sort_keys=True))
     return 0
