@@ -24,6 +24,7 @@ SOURCE_RELATIVE=(
 EVIDENCE_RELATIVE=(
     "implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json",
     "implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-PACKET-CHECK-CURRENT.json",
 )
 
 def canonical_review_source_files(root=ROOT):
