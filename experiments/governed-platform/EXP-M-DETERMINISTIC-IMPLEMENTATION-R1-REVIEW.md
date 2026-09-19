@@ -10,7 +10,7 @@ R1-C01..C11 and R1-H01..H10 are addressed by production validators, adversarial 
 | Finding family | Production mechanism | Fresh evidence |
 |---|---|---|
 | C-01/H-10 taxonomy and closure | `adjudicate_insufficient_evidence`, independent predicate registry | Phase D, O/T and mutation closure |
-| C-02/C-10/H-01 | production mutation runner with data/state and validator-logic families | Phase G; 40/40 rejected |
+| C-02/C-10/H-01 | production mutation runner with data/state and validator-logic families | Phase G; 46/46 rejected |
 | C-03/H-02 | evidence-derived predicate dispatch with independently declared targets | structured admissibility fixtures and negative controls |
 | C-04/H-04 | `validate_capability` binds profile, plan, record, expiry, format, context and attempts | capability mutation cases |
 | C-05/H-05 | `validate_context_isolation` binds policy, sentinel state and fence | dirty/hidden/stale-context cases |
@@ -18,22 +18,22 @@ R1-C01..C11 and R1-H01..H10 are addressed by production validators, adversarial 
 | C-07 | `RetrievalEvidenceRecord` raw-byte and final-context binding | retrieval byte/session/context mutation |
 | C-08 | current witness qualification, semantic prompt and eviction checks | witness positive/negative cases |
 | C-09/H-09 | byte, representation, semantic and source/wire/receipt binding | returned-byte mutation |
-| C-11 | expanded self-falsification includes every current mutation family | 48 cases, 0 critical/high survivors |
+| C-11 | expanded self-falsification includes every current mutation family | 54 cases, 0 critical/0 high survivors |
 | H-03/H-06/H-07/H-08 | source identity, egress/currentness, attempt ledger, bounded materialization | production validators and mutations |
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=e9df74085b1be46b270435ffd1042257e4cd7cd7
-tree=1c00235fc15995d113e902bb109801de570c4ab7
-parent=e0afa430b993313446a2c0cb5f6a496f166b0174
+commit=66129025f9b5211a551f191c4367713e78ef14c4
+tree=1e496ec029092536b0e90bc98483353b957ba8a0
+parent=92768598e446e83c5d68e5ee09000e7288816e4a
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
 
 ## Deterministic exit gates
 all_phases_A_to_T_pass=True
-mutation_total=40
-mutation_rejected=40
+mutation_total=46
+mutation_rejected=46
 mutation_survivors=0
 all_mutations_rejected=True
 critical_self_falsification_survivors=0
@@ -53,11 +53,11 @@ high_self_falsification_survivors=0
 ## Implemented source hashes
 ```json
 {
-  "governance-runtime/exp_m_deterministic.py": "72da8f8754f683693fe2782015c5dc903f71a5e05cb1d601544ac43d63906c89",
+  "governance-runtime/exp_m_deterministic.py": "463e05eb3720adc1ff8ec26be848033f9c79464ececec5ce896a24f987a6f622",
   "governance-runtime/run_exp_m_deterministic.py": "f8f1c7b60e3fec862245f85580bd42c5f13f3b6b0778203a4222994fb5fc8162",
-  "governance-runtime/run_exp_m_mutations.py": "4294724c37d3e900d9c50b953a41ca04594ecffcaab3df23bb03e64102ea72c9",
+  "governance-runtime/run_exp_m_mutations.py": "7a787d509dd23dca474185a556dd2ef966dac96de13e63ecc2459bf6aca09282",
   "governance-runtime/self_falsify_exp_m.py": "cee359975921a1aed87d49a0bb53fa5e1574b09a79d0036b13a7e50d1ca2ee1f",
-  "governance-runtime/test_exp_m_deterministic.py": "b8dd40e05acee163b468bc4420a9863dec8cfeb5a1a4c3ae4ff5c3bf876f74f9",
+  "governance-runtime/test_exp_m_deterministic.py": "c65d39b2768513191bb48d8441c157707fcc5d5777473b6d5149644fee0d82ca",
   "governance-runtime/test_exp_m_phases.py": "26cb2c37d21a02b9cd1854e2681b5b1b496f0e442820db02900d5dc7ee66b632"
 }
 ```
@@ -122,7 +122,7 @@ high_self_falsification_survivors=0
         "data/state mutation family",
         "validator mutation family"
       ],
-      "mutation_total": 40,
+      "mutation_total": 46,
       "status": "PASS"
     },
     "H": {
@@ -595,11 +595,77 @@ high_self_falsification_survivors=0
         "generation_drift"
       ],
       "target": "atomic_admission_generation"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-egress-revoked",
+      "killed": true,
+      "reasons": [
+        "egress_revoked_or_drifted"
+      ],
+      "target": "egress"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-prompt-isolation-expired",
+      "killed": true,
+      "reasons": [
+        "prompt_isolation_expired"
+      ],
+      "target": "prompt_isolation"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-hidden-retry",
+      "killed": true,
+      "reasons": [
+        "implicit_retry_unobserved"
+      ],
+      "target": "retry_transparency"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-retrieval-session",
+      "killed": true,
+      "reasons": [
+        "retrieval_identity_mismatch"
+      ],
+      "target": "retrieval_session"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-registry-drift",
+      "killed": true,
+      "reasons": [
+        "predicate_registry_drift"
+      ],
+      "target": "predicate_registry"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-wire-semantic-binding",
+      "killed": true,
+      "reasons": [
+        "semantic_wire_hash_mismatch"
+      ],
+      "target": "wire_semantic_hash"
     }
   ],
-  "rejected_mutations": 40,
+  "rejected_mutations": 46,
   "surviving_mutations": 0,
-  "total_mutations": 40
+  "total_mutations": 46
 }
 ```
 
@@ -799,11 +865,35 @@ high_self_falsification_survivors=0
     {
       "id": "mutation:TM-R1-admission-drift",
       "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-egress-revoked",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-prompt-isolation-expired",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-hidden-retry",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-retrieval-session",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-registry-drift",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-wire-semantic-binding",
+      "rejected": true
     }
   ],
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 48
+  "total": 54
 }
 ```
 
@@ -1145,6 +1235,34 @@ def admissibility_registry() -> AdmissibilityPredicateRegistry:
 
 
 def _predicate_validators() -> dict[str, Any]:
+    def egress_valid(state: Mapping[str, Any]) -> bool:
+        egress = state.get("egress")
+        if not isinstance(egress, Mapping):
+            return False
+        expected_version = str(state.get("expected_egress_version", egress.get("version", "")))
+        return validate_egress(egress, expected_version)[0]
+
+    def prompt_valid(state: Mapping[str, Any]) -> bool:
+        prompt = state.get("prompt_isolation")
+        if isinstance(prompt, PromptIsolationQualificationRecord):
+            record = prompt
+        elif isinstance(prompt, Mapping):
+            record = PromptIsolationQualificationRecord(
+                str(prompt.get("record_id", "prompt")),
+                str(prompt.get("provider_id", state.get("expected_provider", "fake"))),
+                str(prompt.get("mode", state.get("expected_mode", "inline"))),
+                prompt.get("current") is True,
+                prompt.get("expires_at"),
+            )
+        else:
+            return False
+        return validate_prompt_isolation(
+            record,
+            provider_id=str(state.get("expected_provider", "fake")),
+            mode=str(state.get("expected_mode", "inline")),
+            now=str(state.get("now", "2099-01-01T00:00:00Z")),
+        )[0]
+
     return {
         "review_request_current": lambda s: s.get("review_request", {}).get("current") is True and bool(s.get("review_request", {}).get("request_id")),
         "authority_snapshot_current": lambda s: isinstance(s.get("authority_snapshot"), GovernanceAuthoritySnapshot) and s["authority_snapshot"].outside_candidate_write_authority,
@@ -1152,7 +1270,7 @@ def _predicate_validators() -> dict[str, Any]:
         "interaction_contract_closed": lambda s: isinstance(s.get("interaction_contract"), RequiredInteractionContract) and s["interaction_contract"].closed and bool(s["interaction_contract"].interactions),
         "materialization_complete": lambda s: isinstance(s.get("materialization"), MaterializationResult) and s["materialization"].success,
         "representation_governed": lambda s: bool(s.get("representation", {}).get("governed")) and bool(s.get("representation", {}).get("transform_id")),
-        "egress_authorized": lambda s: s.get("egress", {}).get("authorized") is True and bool(s.get("egress", {}).get("version")),
+        "egress_authorized": egress_valid,
         "capability_current": lambda s: s.get("capability_current") is True,
         "accessibility_policy_satisfied": lambda s: s.get("accessibility_policy", {}).get("satisfied") is True,
         "context_isolation_satisfied": lambda s: s.get("context_isolation", {}).get("satisfied") is True,
@@ -1165,7 +1283,7 @@ def _predicate_validators() -> dict[str, Any]:
         "accessibility_proven": lambda s: s.get("accessibility", {}).get("proven") is True,
         "witness_record_current": lambda s: s.get("witness", {}).get("current") is True,
         "session_retrieval_coverage": lambda s: s.get("retrieval", {}).get("complete") is True,
-        "prompt_isolation_current": lambda s: s.get("prompt_isolation", {}).get("current") is True,
+        "prompt_isolation_current": prompt_valid,
         "semantic_coverage": lambda s: isinstance(s.get("semantic_coverage"), Mapping) and s["semantic_coverage"].get("complete") is True,
         "reviewer_provenance": lambda s: s.get("reviewer", {}).get("trusted") is True,
         "disposition_promotable": lambda s: s.get("disposition") == "PASS" and s.get("disposition_promotable") is True,
@@ -1367,6 +1485,26 @@ def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[
     if fence.version != expected_version:
         reasons.append("admission_fence_version_mismatch")
     return not reasons, tuple(reasons)
+
+
+def validate_egress(egress: Mapping[str, Any], expected_version: str) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if egress.get("authorized") is not True or egress.get("version") != expected_version:
+        reasons.append("egress_revoked_or_drifted")
+    return not reasons, tuple(reasons)
+
+
+def validate_prompt_isolation(record: PromptIsolationQualificationRecord, *, provider_id: str, mode: str, now: str) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if not record.current or record.provider_id != provider_id or record.mode != mode:
+        reasons.append("prompt_isolation_binding")
+    if record.expires_at is not None and record.expires_at <= now:
+        reasons.append("prompt_isolation_expired")
+    return not reasons, tuple(reasons)
+
+
+def validate_registry_version(expected_version: str, observed_version: str) -> tuple[bool, tuple[str, ...]]:
+    return (True, ()) if expected_version == observed_version else (False, ("predicate_registry_drift",))
 
 
 def safe_archive_member(name: str) -> bool:
@@ -1629,7 +1767,8 @@ from exp_m_deterministic import (  # noqa: E402
     AdmissionFenceRecord, RetrievalEvidenceRecord, WitnessProtocolQualificationRecord, AttemptState, DeterministicFakeProvider,
     complete_delivery, evaluate_admissibility, digest, validate_chunks, validate_capability,
     validate_context_isolation, materialize_entries, validate_retrieval, validate_witness_qualification,
-    admit_review_attempt, validate_wire_delivery,
+    admit_review_attempt, validate_wire_delivery, WireDeliveryRecord, validate_egress, validate_prompt_isolation,
+    validate_registry_version, validate_retry_transparency,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1721,6 +1860,23 @@ def run() -> dict:
     expected_attempt = AttemptState("a", 1, "auth", "req", "cap", "eg", "ctx", "fence", "prompt", "wit", "session", "reg")
     admission = admit_review_attempt({"generation": 2, "authority_version": "auth", "request_version": "req", "capability_hash": "cap", "egress_version": "eg", "context_hash": "ctx", "fence_version": "fence", "prompt_hash": "prompt", "witness_hash": "wit", "session_hash": "session", "registry_version": "reg"}, expected_attempt, attempt_id="a", expected_generation=1)
     mutations.append({"id": "TM-R1-admission-drift", "family": "data_state", "target": "atomic_admission_generation", "expected": "REJECT", "actual": "REJECT" if admission.void else "PASS", "reasons": list(admission.reasons), "killed": admission.void})
+    # R1 integration gates: each mutation exercises the production validator on
+    # evidence that would otherwise permit a false-green review.
+    egress_ok, egress_reasons = validate_egress({"authorized": False, "version": "1"}, "1")
+    mutations.append({"id": "TM-R1-egress-revoked", "family": "data_state", "target": "egress", "expected": "REJECT", "actual": "REJECT" if not egress_ok else "PASS", "reasons": list(egress_reasons), "killed": not egress_ok})
+    prompt = __import__("exp_m_deterministic").PromptIsolationQualificationRecord("p", "fake", "inline", True, "2000-01-01T00:00:00Z")
+    prompt_ok, prompt_reasons = validate_prompt_isolation(prompt, provider_id="fake", mode="inline", now="2025-01-01T00:00:00Z")
+    mutations.append({"id": "TM-R1-prompt-isolation-expired", "family": "data_state", "target": "prompt_isolation", "expected": "REJECT", "actual": "REJECT" if not prompt_ok else "PASS", "reasons": list(prompt_reasons), "killed": not prompt_ok})
+    retry_ok, retry_reasons = validate_retry_transparency([{"attempt_id": "a1", "wire_hash": "w"}], automatic_retry_hidden=True)
+    mutations.append({"id": "TM-R1-hidden-retry", "family": "data_state", "target": "retry_transparency", "expected": "REJECT", "actual": "REJECT" if not retry_ok else "PASS", "reasons": list(retry_reasons), "killed": not retry_ok})
+    retrieval_session = RetrievalEvidenceRecord("r", "a", "wrong-session", "file", "v", 0, len(raw), digest(raw), len(raw), "tool", 1, "ctx", "ctx-h")
+    session_ok, session_reasons = validate_retrieval(retrieval_session, raw, expected_request="r", expected_attempt="a", expected_session="s", expected_source="file", expected_version="v", expected_context_id="ctx", expected_context_hash="ctx-h")
+    mutations.append({"id": "TM-R1-retrieval-session", "family": "data_state", "target": "retrieval_session", "expected": "REJECT", "actual": "REJECT" if not session_ok else "PASS", "reasons": list(session_reasons), "killed": not session_ok})
+    registry_ok, registry_reasons = validate_registry_version("registry-v2", "registry-v1")
+    mutations.append({"id": "TM-R1-registry-drift", "family": "data_state", "target": "predicate_registry", "expected": "REJECT", "actual": "REJECT" if not registry_ok else "PASS", "reasons": list(registry_reasons), "killed": not registry_ok})
+    bad_wire = WireDeliveryRecord(wire.attempt_id, wire.request_id, wire.wire_hash, "wrong-semantic", wire.session_id, wire.item_ids)
+    wire_semantic_ok, wire_semantic_reasons = validate_wire_delivery(wire_manifest, materialize_entries(wire_items, source_hash="source-commit"), bad_wire, receipt, wire_items, expected_commit="source-commit", expected_semantic_hash=wire.semantic_hash)
+    mutations.append({"id": "TM-R1-wire-semantic-binding", "family": "data_state", "target": "wire_semantic_hash", "expected": "REJECT", "actual": "REJECT" if not wire_semantic_ok else "PASS", "reasons": list(wire_semantic_reasons), "killed": not wire_semantic_ok})
     rejected = sum(1 for m in mutations if m["killed"])
     return {"experiment": "EXP-M", "total_mutations": len(mutations), "rejected_mutations": rejected, "surviving_mutations": len(mutations) - rejected, "all_rejected": rejected == len(mutations), "mutations": mutations}
 
@@ -1818,6 +1974,8 @@ from exp_m_deterministic import (  # noqa: E402
     RetrievalEvidenceRecord, materialize_entries, validate_retrieval,
     validate_wire_delivery, WitnessProtocolQualificationRecord,
     validate_witness_qualification, AttemptState, admit_review_attempt,
+    PromptIsolationQualificationRecord, validate_egress, validate_prompt_isolation,
+    validate_registry_version, validate_retry_transparency,
 )
 
 
@@ -2012,6 +2170,15 @@ class ExpMCoreTests(unittest.TestCase):
         current = {"generation": 2, "authority_version": "authority", "request_version": "request", "capability_hash": "cap", "egress_version": "egress", "context_hash": "context", "fence_version": "fence", "prompt_hash": "prompt", "witness_hash": "witness", "session_hash": "session", "registry_version": "registry"}
         result = admit_review_attempt(current, expected, attempt_id="a", expected_generation=1)
         self.assertTrue(result.void); self.assertFalse(result.committed)
+
+    def test_r1_egress_prompt_retry_registry_are_evidence_validated(self):
+        self.assertTrue(validate_egress({"authorized": True, "version": "v1"}, "v1")[0])
+        self.assertFalse(validate_egress({"authorized": False, "version": "v1"}, "v1")[0])
+        current = PromptIsolationQualificationRecord("p", "fake", "inline", True, "2099-01-01T00:00:00Z")
+        self.assertTrue(validate_prompt_isolation(current, provider_id="fake", mode="inline", now="2025-01-01T00:00:00Z")[0])
+        self.assertFalse(validate_prompt_isolation(current, provider_id="other", mode="inline", now="2025-01-01T00:00:00Z")[0])
+        self.assertFalse(validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},), automatic_retry_hidden=True)[0])
+        self.assertFalse(validate_registry_version("v2", "v1")[0])
 
 
 if __name__ == "__main__":
