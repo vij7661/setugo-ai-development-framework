@@ -232,6 +232,18 @@ Capability, egress, provider-context/session/file state, authority snapshot, Rev
 
 Material review requires a current hash-bound PromptIsolationQualificationRecord selected deterministically by the governor for the exact provider/representation mode and checked again at atomic admission.
 
+### M-I47 — Accessibility risk is transition-class governed
+
+Every protected transition class has a ProviderAccessibilityRiskPolicy in the GovernanceAuthoritySnapshot. Unknown policy fails closed. The highest material-authority class requires deterministic full-range/page/member proof or an equivalently observable inline mode; probabilistic per-attempt witnesses alone cannot silently satisfy it.
+
+### M-I48 — Mutable provider context is fenced through admission
+
+Every load-bearing mutable provider/account/project/session configuration channel has a readable monotonic version or a platform-enforceable AdmissionFenceRecord. If neither exists, the mode is NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+
+### M-I49 — “Complete” is not an admissibility claim
+
+The platform uses REVIEW_CONTEXT_QUALIFIED_AVAILABLE, not REVIEW_CONTEXT_COMPLETE, and records the qualified failure model plus residual/nonclaim risk in VerdictAdmissibilityResult.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -241,6 +253,8 @@ Future implementation should expose governed objects equivalent to:
 - `RequiredInteractionContract`
 - `EvidenceDeliveryManifest`
 - `ProviderCapabilityProfile`
+- `ProviderAccessibilityRiskPolicy`
+- `AdmissionFenceRecord`
 - `ProviderCapabilityQualificationRecord`
 - `ProviderContextStateEvidence`
 - `PromptIsolationQualificationRecord`
@@ -961,6 +975,31 @@ logic mutation killed.
 Expected:
 each logic mutation is independently killed by the suite.
 
+### M-102 — Missing transition accessibility-risk policy
+
+Expected:
+review ineligible; no default implicit risk acceptance.
+
+### M-103 — Highest-authority transition uses probabilistic witnesses only
+
+Expected:
+admissibility fails because deterministic access proof is required by policy.
+
+### M-104 — Mutable provider config has no version/fence
+
+Expected:
+NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+
+### M-105 — Provider configuration changes between final read and checkpoint CAS
+
+Expected:
+AdmissionFence/version mismatch kills the attempt.
+
+### M-106 — Legacy REVIEW_CONTEXT_COMPLETE flag forced true
+
+Expected:
+flag is ignored/deprecated; authority depends on REVIEW_CONTEXT_QUALIFIED_AVAILABLE predicates and residual-risk record.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1027,7 +1066,11 @@ Mutation suite must attempt to make a verdict admissible by:
 - reviving an invalidated attempt after requalification;
 - deleting or weakening any VerdictAdmissibilityResult conjunct;
 - weakening equality closure to subset/superset;
-- skipping atomic compare-and-set admission.
+- skipping atomic compare-and-set admission;
+- omitting ProviderAccessibilityRiskPolicy;
+- allowing probabilistic witnesses for a transition class requiring deterministic proof;
+- accepting mutable provider context without a version/fence;
+- trusting a legacy REVIEW_CONTEXT_COMPLETE boolean.
 
 Every load-bearing mutation must be rejected.
 
@@ -1094,6 +1137,9 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `MissingRetrievalLogAdapter`
 - `AtomicAdmissionRaceAdapter`
 - `VerdictConjunctMutationAdapter`
+- `MissingAccessibilityRiskPolicyAdapter`
+- `UnfencedProviderConfigAdapter`
+- `AdmissionFenceRaceAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1161,7 +1207,10 @@ EXP-M can reach bounded pass only when:
 34. model-selected retrieval requires deterministic per-attempt full-range coverage logs;
 35. VerdictAdmissibilityResult enumerates every load-bearing predicate and atomic compare-and-set admission is the final authority step;
 36. every validator-logic conjunct deletion/weakening mutation is killed;
-37. PromptIsolationQualificationRecord is machine-checkable, current, and admission-bound.
+37. PromptIsolationQualificationRecord is machine-checkable, current, and admission-bound;
+38. ProviderAccessibilityRiskPolicy is explicit for every transition class and the selected proof mode satisfies it;
+39. mutable provider context has readable versions or a valid AdmissionFenceRecord through atomic admission;
+40. no legacy REVIEW_CONTEXT_COMPLETE boolean can substitute for the explicit qualified-availability predicates.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
