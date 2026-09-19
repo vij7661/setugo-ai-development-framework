@@ -548,6 +548,8 @@ Test dispositions:
 | TM-T08 | Registry/verdict/mutation/killed sets are exactly equal | Predicate-coverage closure passes |
 | TM-T09 | Candidate attempts to edit predicate registry used for own review | Untrusted/self-approval boundary violation |
 | TM-T10 | Registry version changes after preflight before admission | Attempt void/revalidation required |
+| TM-T11 | Statistical independence unproven but profile claims CP probability-qualified under policy requiring it | Profile invalid |
+| TM-T12 | Independence unproven; transition policy explicitly waives probability claim and requires deterministic per-attempt proof | No CP probability claim; eligibility depends on deterministic proof and all other gates |
 
 ## Required evidence outputs
 
