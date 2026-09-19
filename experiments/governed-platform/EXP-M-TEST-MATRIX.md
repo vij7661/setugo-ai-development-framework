@@ -421,6 +421,28 @@ Test dispositions:
 | TM-O27 | Reintroduce legacy REVIEW_CONTEXT_COMPLETE as authority | Killed |
 | TM-O28 | Infer statistical independence from fresh request IDs only | Killed |
 | TM-O29 | Accept retrieval-open log without returned bytes/context binding | Killed |
+| TM-O30 | Delete ReviewRequest current/integrity predicate | Killed by stale/wrong-request fixture |
+| TM-O31 | Delete GovernanceAuthoritySnapshot predicate | Killed by authority-snapshot mismatch fixture |
+| TM-O32 | Delete RequiredEvidenceContract resolved/non-vacuous/closed predicate | Killed by missing/empty-contract fixture |
+| TM-O33 | Delete RequiredInteractionContract predicate | Killed by omitted-interaction fixture |
+| TM-O34 | Delete complete materialization predicate | Killed by materialization-missing fixture |
+| TM-O35 | Delete governed representation/transformation predicate | Killed by lossy/untrusted-transform fixture |
+| TM-O36 | Delete current egress authorization predicate | Killed by egress-denied/revoked fixture |
+| TM-O37 | Delete exact-operating-point capability qualification predicate | Killed by unqualified/expired/profile-mismatch fixture |
+| TM-O38 | Delete ProviderAccessibilityRiskPolicy predicate | Killed by missing/wrong-proof-mode fixture |
+| TM-O39 | Delete ProviderContextIsolationPolicy predicate | Killed by hidden-state-policy fixture |
+| TM-O40 | Delete hidden-state-residual transition-policy predicate | Killed by highest-authority residual-disallow fixture |
+| TM-O41 | Delete ProviderContextStateEvidence predicate | Killed by lying/dirty-state fixture |
+| TM-O42 | Delete AdmissionFenceRecord/version predicate | Killed by provider-config race fixture |
+| TM-O43 | Delete provider mutable-semantic-context qualification predicate | Killed by memory/custom-instruction/connector fixture |
+| TM-O44 | Delete trusted adapter/post-SDK wire-binding predicate | Killed by SDK/wire mutation fixture |
+| TM-O45 | Delete complete required item/chunk delivery predicate | Killed by missing/duplicate/corrupt item fixture |
+| TM-O46 | Delete per-attempt accessibility proof predicate | Killed by canary-preserving/content-loss fixture |
+| TM-O47 | Delete session/file/retrieval coverage predicate | Killed by partial/unbound retrieval fixture |
+| TM-O48 | Delete PromptIsolationQualificationRecord predicate | Killed by missing/expired/wrong-mode isolation fixture |
+| TM-O49 | Delete semantic review coverage predicate | Killed by untested mandatory-dimension fixture |
+| TM-O50 | Delete reviewer provenance/independence predicate | Killed by self/untrusted-reviewer fixture |
+| TM-O51 | Delete promotable-disposition predicate | Killed by CHANGES_REQUIRED/INSUFFICIENT disposition fixture |
 
 ## Phase P — R3 residual adversarial-oracle tests
 
@@ -466,6 +488,15 @@ Test dispositions:
 | TM-Q11 | Fresh request IDs but correlated route/deployment/time burst | Statistical independence remains unproven; no universal probability claim |
 | TM-Q12 | Retrieval log records open/citation but no returned-content hash | Retrieval context binding unproven |
 | TM-Q13 | Retrieval returns correct bytes but tool-result message is absent from final adjudication context | Retrieval context binding unproven |
+| TM-Q14 | Hidden unexposed mutable provider semantic state; no ProviderContextIsolationPolicy | NOT_QUALIFIED_FOR_MATERIAL_REVIEW |
+| TM-Q15 | Highest-authority transition tries dedicated-account hidden-state residual | Blocked; residual defaults DISALLOW |
+| TM-Q16 | Dedicated lower-authority transition explicitly permits dedicated-account residual with pinned policy/config/sentinel evidence | Eligible only with residual/nonclaim recorded |
+| TM-Q17 | Sentinel qualification writes memory/customization into production review account | Qualification invalid |
+| TM-Q18 | Health check succeeds after ProviderCapabilityProfile expiry | Profile remains expired; full confirmation requalification required |
+| TM-Q19 | Same-dimension governing semantic change has no defined comparator | EVIDENCE_SELECTION_CONTRACT_UNRESOLVED |
+| TM-Q20 | Mutate evidence-set union to intersection | Comparator mutation killed |
+| TM-Q21 | Mutate allowed-provider set intersection to union | Comparator mutation killed |
+| TM-Q22 | Mutate shorter-expiry-is-stricter to longer-expiry-is-stricter | Comparator mutation killed |
 
 ## Required evidence outputs
 
@@ -479,6 +510,7 @@ Every EXP-M execution must retain:
 - RequiredInteractionContract;
 - ProviderCapabilityProfile;
 - ProviderAccessibilityRiskPolicy;
+- ProviderContextIsolationPolicy;
 - AdmissionFenceRecord;
 - ProviderCapabilityQualificationRecord with append-only trial ledger;
 - ProviderContextStateEvidence;
@@ -516,7 +548,12 @@ EXP-M deterministic testing is complete only when:
 - atomic final CAS admission and permanent-attempt-void semantics pass;
 - prompt-isolation qualification is machine-bound and admission-checked;
 - ProviderAccessibilityRiskPolicy exists for every transition class and selected proof mode;
-- mutable provider context is versioned/fenced through admission;
+- mutable observable provider context is versioned/fenced through admission;
+- hidden provider-internal mutable-state residual is governed by ProviderContextIsolationPolicy and never mislabeled observed-clean;
+- highest-authority transition default DISALLOW for hidden provider-state residual is enforced;
+- sentinel qualification cannot contaminate production review account;
+- health checks cannot renew expired capability profiles;
+- typed base/head comparison rules are mutation-tested and incomparable semantic changes fail unresolved;
 - legacy REVIEW_CONTEXT_COMPLETE cannot create authority;
 - statistical independence assumptions are explicit and cannot be inferred solely from fresh request IDs;
 - model-selected retrieval logs bind exact returned bytes to final adjudication context;
