@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "ruflo_snapshot": {
+    "repository": "ruvnet/ruflo",
+    "commit": "e558f0c0fc29c1a658085f6e6f80ad27d4fe811f",
+    "tree": "08e9ee0dcd7095f082b1047a48c028d6a2b00b84"
+  },
+  "sources": [
+    {
+      "path": "v3/docs/adr/ADR-171-provenance-tiered-evaluation-oracle.md",
+      "blob": "addd6afbff05d5e2b3b5fa4f6c625fa58afaf171",
+      "declared_status": "Proposed — implemented on feat/agenticow-integration",
+      "use": "conceptual evidence-tier reference only"
+    },
+    {
+      "path": "v3/docs/adr/ADR-176-proven-self-benchmarking-harness-loop.md",
+      "blob": "633d019028855d8291651387f02012f8cc3c2a91",
+      "declared_status": "Accepted — demonstrated",
+      "use": "bounded self-improvement / anti-pattern reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-322A-evaluation-promotion-transaction.md",
+      "blob": "ce746872b301b7e7387ec4983ff9cca64a0aecee",
+      "declared_status": "Accepted — implemented",
+      "use": "evaluation/promotion transaction reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-322C-receipt-ledger-verification.md",
+      "blob": "b17a4abd468269a30748ae6a66d2cd02d406d1a5",
+      "declared_status": "Accepted — implemented",
+      "use": "receipt/provenance reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-323-typed-memory-provenance.md",
+      "blob": "126110d64a67dd3deb5be4839cf3559bd381ea45",
+      "declared_status": "Accepted",
+      "use": "memory provenance reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-324-agentic-policy-engine-codex-swarm.md",
+      "blob": "bf82b697b32d01f272197ae7d13318416418ad6f",
+      "declared_status": "Accepted; implementation marked complete",
+      "use": "capability/policy reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-327-federated-concurrent-development-harness.md",
+      "blob": "c61fa9efe8a9a3719809f1090720480f16c4b7d6",
+      "declared_status": "Proposed; distributed enforcement pending",
+      "use": "worktree/lease/fence concept only"
+    },
+    {
+      "path": "v3/docs/adr/ADR-329-ruflo-capability-brain-mcp-guidance.md",
+      "blob": "89095e3fd9b2917974dee00bf1c884d0b2d0d6d6",
+      "declared_status": "Accepted",
+      "use": "capability-truth model reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-352-mcp-tool-permission-attestation.md",
+      "blob": "a226e7cbff444ab9ef0fa4cab6e88f46827072e2",
+      "declared_status": "Proposed",
+      "use": "tool permission concept only"
+    },
+    {
+      "path": "v3/docs/adr/ADR-145-plugin-supply-chain-integrity-memory-governance.md",
+      "blob": "d0e98af91ff3cae481cc9c4bc8d10718cea16f62",
+      "declared_status": "Proposed",
+      "use": "plugin/retrieval threat reference only"
+    },
+    {
+      "path": "v3/docs/adr/ADR-169-benchmark-reporting-integrity-standard.md",
+      "blob": "6ee60178a102ee3a5adddf21979e7f453bd71035",
+      "declared_status": "Accepted",
+      "use": "reporting-integrity reference"
+    },
+    {
+      "path": "v3/docs/adr/ADR-384-generalized-bounded-evolution-methodology.md",
+      "blob": "78e5f53fc1fbc2c3468570e13b8b583dd232c5ff",
+      "declared_status": "Proposed",
+      "use": "bounded-evolution concept/nonclaim reference"
+    }
+  ],
+  "rule": "Declared Ruflo status is contextual evidence only. No source becomes trusted/qualified in this project from Ruflo status."
+}
