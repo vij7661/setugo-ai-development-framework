@@ -9,12 +9,13 @@ def main():
     runs=[subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True),subprocess.run(['python','governance-runtime/test_rq16_manifest.py'],cwd=ROOT,text=True,capture_output=True)]
     t=subprocess.CompletedProcess([],max((x.returncode for x in runs),default=0),stdout='\n'.join(x.stdout for x in runs),stderr='\n'.join(x.stderr for x in runs))
     m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
-    matches=re.findall(r'Ran (\d+) tests?',t.stderr+t.stdout); total=sum(int(x) for x in matches)
+    combined=re.sub(r'Ran (\d+) tests? in [0-9.]+s',r'Ran \1 tests in <elapsed>',t.stderr+t.stdout)
+    matches=re.findall(r'Ran (\d+) tests?',combined); total=sum(int(x) for x in matches)
     tests=[]
-    for line in (t.stderr+t.stdout).splitlines():
+    for line in combined.splitlines():
         hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
         if hit: tests.append({'name':line.split(' (',1)[0],'result':'PASS' if hit.group(1)=='ok' else 'FAIL'})
-    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':t.stdout,'stderr':t.stderr}
+    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':'','stderr':combined}
     mutation_result=json.loads(m.stdout)
     mutation_result['exit_code']=m.returncode
     TEST_OUT.write_text(json.dumps(test_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
