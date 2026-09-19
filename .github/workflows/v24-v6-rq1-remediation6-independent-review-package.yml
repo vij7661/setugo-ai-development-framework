@@ -1,0 +1,99 @@
+name: V24 V6 RQ1 Remediation 6 Independent Review Package
+
+on:
+  push:
+    branches:
+      - evidence/v24-i11-v6-rq1-remediation6-independent-review-package
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-review-evidence:
+    runs-on: [self-hosted, v24-rq1]
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact scientific source into unique path
+        uses: actions/checkout@v4
+        with:
+          ref: d79db50568cccaffe67ed1de5a6ee63bf5027284
+          fetch-depth: 0
+          path: source-${{ github.run_id }}
+      - name: Build self-contained review package without scientific execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/source-${GITHUB_RUN_ID}"
+          SOURCE=/var/lib/v24-rq1/runs/20260919T090711Z-d79db50568cccaffe67ed1de5a6ee63bf5027284
+          PKG="$RUNNER_TEMP/rq1-remediation6-independent-review-package"
+          rm -rf "$PKG"
+          mkdir -p "$PKG/source" "$PKG/design" "$PKG/raw-evidence" "$PKG/historical-failed-packaging"
+          test "$(git -C "$SRC" rev-parse HEAD)" = d79db50568cccaffe67ed1de5a6ee63bf5027284
+          test "$(git -C "$SRC" rev-parse HEAD^{tree})" = 2b86dad37b38bc2579dd09d4e545fb5248b17ae8
+          git -C "$SRC" cat-file -e 479ce0459b6065bc2626b56c9faf5cb31f7b7558^{commit}
+          sudo test -d "$SOURCE"
+          cp "$SRC/.github/workflows/v24-v6-rq1-remediation2-safe-exact.yml" "$PKG/source/"
+          cp "$SRC/governance-runtime/v24_v6_rq1_remediation2_harness.py" "$PKG/source/"
+          cp "$SRC/governance-runtime/v24_v6_rq1_observer.py" "$PKG/source/"
+          cp "$SRC/governance-runtime/test_v24_v6_rq1_crash_observation.py" "$PKG/source/"
+          cp "$SRC/governance-runtime/validate_rq1_oracle_contract.py" "$PKG/source/"
+          cp "$SRC/implementation/v24/V24-I11-V6-RQ1-REMEDIATION-2-ORACLE-CONTRACT.json" "$PKG/design/"
+          cp "$SRC/implementation/v24/V24-I11-V6-RQ1-REMEDIATION-2-ORACLE-CONTRACT.md" "$PKG/design/"
+          cp "$SRC/implementation/v24/V24-I11-V6-RUNTIME-QUALIFICATION-1-PLAN.md" "$PKG/design/"
+          cp "$SRC/implementation/v24/V24-I11-V6-RQ1-REMAINING-CASE-EXECUTION-PLAN-20260919.md" "$PKG/design/"
+          git -C "$SRC" diff 479ce0459b6065bc2626b56c9faf5cb31f7b7558 d79db50568cccaffe67ed1de5a6ee63bf5027284 > "$PKG/exact-diff-remediation4-to-remediation6.patch"
+          {
+            echo 'scientific_branch=qualification/v24-i11-v6-runtime-qualification-1-remediation-6'
+            echo 'scientific_commit=d79db50568cccaffe67ed1de5a6ee63bf5027284'
+            echo 'scientific_tree=2b86dad37b38bc2579dd09d4e545fb5248b17ae8'
+            echo 'scientific_run=35433799081'
+            echo 'scientific_harness_rc=0'
+            echo 'scientific_results=RQ-13:PASS,RQ-14:PASS,RQ-15:PASS'
+            echo "source_evidence_directory=$SOURCE"
+            echo 'prior_recovery_run=35434225562'
+            echo 'prior_recovery_artifact=10581777398'
+            echo 'governance=NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY'
+            echo 'package_operation=EVIDENCE_ONLY_NO_SCIENTIFIC_REEXECUTION'
+          } > "$PKG/manifest.txt"
+          cat > "$PKG/OPEN-REVIEW-QUESTIONS.md" <<'EOF'
+# Open Review Questions
+
+- RQ6-REVIEW-01: `ordering_proven` is recorded but is it a required PASS predicate?
+- RQ6-REVIEW-02: `valid_tracer_ready` does not validate timestamp type/range; is this a false-green path?
+- RQ6-REVIEW-03: timeout `PTRACE_DETACH` return value is not checked; can evidence claim successful detach falsely?
+- RQ6-REVIEW-04: timeout cleanup does not prove every traced service is resumed; is additional evidence required?
+
+Packaging defects preserved from the scientific run: `python` was unavailable; active bundle exclusion still named `remediation-5-review-bundle`.
+EOF
+          python3 "$PKG/source/test_v24_v6_rq1_crash_observation.py" > "$PKG/regression-tests.txt"
+          python3 "$PKG/source/validate_rq1_oracle_contract.py" "$PKG/design/V24-I11-V6-RQ1-REMEDIATION-2-ORACLE-CONTRACT.json" > "$PKG/oracle-validator.txt"
+          {
+            echo 'source_stat='
+            sudo stat -c '%n %F %U:%G %a %u:%g %i %D %s %y %z' "$SOURCE"
+            echo 'source_listing='
+            sudo find "$SOURCE" -printf '%M %u:%g %s %TY-%Tm-%TdT%TH:%TM:%TS %p\n' | sort
+            echo 'source_file_hashes='
+            sudo bash -c "find '$SOURCE' -type f -print0 | sort -z | xargs -0 sha256sum"
+          } > "$PKG/source-evidence-identity.txt"
+          while IFS= read -r -d '' item; do
+            base=$(basename "$item")
+            if [ "$base" = remediation-6-review-bundle ]; then
+              sudo cp -a "$item"/. "$PKG/historical-failed-packaging/"
+            else
+              sudo cp -a "$item" "$PKG/raw-evidence/"
+            fi
+          done < <(sudo find "$SOURCE" -mindepth 1 -maxdepth 1 -print0 | sort -z)
+          sudo chown -R "$USER":"$USER" "$PKG"
+          find "$PKG" -type f ! -name manifest.sha256 ! -name package-file-hashes.sha256 ! -name package.tar ! -name package.tar.sha256 -print0 | sort -z | xargs -0 sha256sum > "$PKG/package-file-hashes.sha256"
+          sha256sum "$PKG/manifest.txt" > "$PKG/manifest.sha256"
+          tar -cf "$PKG/package.tar" -C "$PKG" source design raw-evidence historical-failed-packaging exact-diff-remediation4-to-remediation6.patch OPEN-REVIEW-QUESTIONS.md manifest.txt manifest.sha256 package-file-hashes.sha256 regression-tests.txt oracle-validator.txt source-evidence-identity.txt
+          sha256sum "$PKG/package.tar" > "$PKG/package.tar.sha256"
+          mkdir -p review-package-artifact
+          cp -a "$PKG"/. review-package-artifact/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rq1-remediation6-independent-manual-review-package
+          path: review-package-artifact
+          if-no-files-found: error
+          retention-days: 30
