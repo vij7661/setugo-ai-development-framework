@@ -1,0 +1,140 @@
+{
+  "all_phases_pass": true,
+  "experiment": "EXP-M",
+  "mode": "DETERMINISTIC_ONLY",
+  "phases": {
+    "A": {
+      "checks": [
+        "required closure",
+        "manifest bytes",
+        "trusted profile"
+      ],
+      "status": "PASS"
+    },
+    "B": {
+      "checks": [
+        "chunk hash",
+        "index",
+        "request binding"
+      ],
+      "status": "PASS"
+    },
+    "C": {
+      "checks": [
+        "raw bytes",
+        "representation hash"
+      ],
+      "status": "PASS"
+    },
+    "D": {
+      "checks": [
+        "cause taxonomy",
+        "mixed insufficiency"
+      ],
+      "status": "PASS"
+    },
+    "E": {
+      "checks": [
+        "same manifest",
+        "same corpus hash"
+      ],
+      "status": "PASS"
+    },
+    "F": {
+      "checks": [
+        "profile qualification"
+      ],
+      "status": "PASS"
+    },
+    "G": {
+      "checks": [
+        "data/state mutation family",
+        "validator mutation family"
+      ],
+      "status": "PASS"
+    },
+    "H": {
+      "checks": [
+        "physical request ledger"
+      ],
+      "status": "PASS"
+    },
+    "I": {
+      "checks": [
+        "all admissibility predicates"
+      ],
+      "status": "PASS"
+    },
+    "J": {
+      "checks": [
+        "wire/session/representation bindings"
+      ],
+      "status": "PASS"
+    },
+    "K": {
+      "checks": [
+        "content witness"
+      ],
+      "status": "PASS"
+    },
+    "L": {
+      "checks": [
+        "parser bounds",
+        "untrusted profile rejection"
+      ],
+      "status": "PASS"
+    },
+    "M": {
+      "checks": [
+        "frozen bytes",
+        "attempt binding"
+      ],
+      "status": "PASS"
+    },
+    "N": {
+      "checks": [
+        "external-review remediation cases"
+      ],
+      "status": "PASS"
+    },
+    "O": {
+      "checks": [
+        "predicate/mutation closure"
+      ],
+      "status": "PASS"
+    },
+    "P": {
+      "checks": [
+        "residual adversarial oracle"
+      ],
+      "status": "PASS"
+    },
+    "Q": {
+      "checks": [
+        "risk policy",
+        "admission fence"
+      ],
+      "status": "PASS"
+    },
+    "R": {
+      "checks": [
+        "witness noninterference",
+        "budget"
+      ],
+      "status": "PASS"
+    },
+    "S": {
+      "checks": [
+        "planned attempt closure"
+      ],
+      "status": "PASS"
+    },
+    "T": {
+      "checks": [
+        "retry transparency",
+        "registry closure"
+      ],
+      "status": "PASS"
+    }
+  }
+}
