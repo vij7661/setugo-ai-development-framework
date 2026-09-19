@@ -14,7 +14,6 @@ jobs:
     runs-on: [self-hosted, v24-rq1]
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
       - name: Read-only recover run 35432866726 evidence
         shell: bash
         run: |
