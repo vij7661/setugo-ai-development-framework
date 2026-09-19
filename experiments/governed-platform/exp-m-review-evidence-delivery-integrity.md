@@ -156,6 +156,30 @@ The capability profile/registry used to judge review delivery cannot be widened 
 
 When provider retrieval/file tools are used, reviewer evidence references must not claim tested support for evidence known to be inaccessible; platform/tool access logs are retained and used when available.
 
+### M-I28 — Delivery governor is outside candidate self-approval
+
+The materializer, manifest builder, representation transformer, capability-profile authority, preflight, adapter, completeness validator, and verdict-admissibility code must be pinned to an independently governed platform implementation, not mutable candidate code.
+
+### M-I29 — Capability qualification is repeated and conservative
+
+A provider/model/API capability profile cannot be widened from one successful call. Qualification uses repeated fresh probes and a governed safety margin.
+
+### M-I30 — Endpoint/model/account drift invalidates qualification
+
+Provider account/tenant, endpoint/region, adapter, requested model, or provider-reported deployment drift requires requalification or a separately bound delivery attempt.
+
+### M-I31 — Automatic fallback cannot inherit another provider's qualification
+
+Fallback to a different provider/model/API mode requires a new qualified profile and delivery attempt identity.
+
+### M-I32 — Transformation/parsing is a governed attack surface
+
+Candidate-controlled parsers, archive path traversal, symlink escape, duplicate member names, decompression bombs, and parser resource exhaustion cannot silently produce an authoritative reviewer representation.
+
+### M-I33 — Evidence IDs are collision-resistant and canonical
+
+Stable evidence IDs bind governed source identity plus content hash; canonical path/ID collisions cannot replace one required item with another.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -535,6 +559,83 @@ Tool access succeeds for stale/wrong content hash.
 Expected:
 evidence identity mismatch; verdict inadmissible.
 
+### M-51 — Candidate modifies delivery governor
+
+Candidate changes its own manifest builder/completeness validator to omit decisive evidence.
+
+Expected:
+candidate delivery-governor implementation is not authoritative; review path blocked.
+
+### M-52 — Candidate supplies transformation parser
+
+Candidate-provided parser converts a required artifact into a favorable representation.
+
+Expected:
+untrusted transformation implementation rejected.
+
+### M-53 — ZIP path traversal / symlink escape
+
+Archive contains ../ paths, absolute paths, symlink escapes, or duplicate member names.
+
+Expected:
+safe materializer rejects/quarantines; no complete evidence claim.
+
+### M-54 — Decompression/resource bomb
+
+Archive/document expansion exceeds governed size/time/memory limits.
+
+Expected:
+materialization fails closed without host damage.
+
+### M-55 — Evidence ID collision
+
+Two different source artifacts are assigned same stable ID/path after normalization.
+
+Expected:
+collision detected; manifest invalid.
+
+### M-56 — Single lucky capability success
+
+One near-limit canary trial succeeds while repeated trials expose intermittent loss.
+
+Expected:
+profile not widened from single success; conservative safe bound retained.
+
+### M-57 — Model alias/backend drift
+
+Requested model name stays the same but provider-reported deployment/version changes materially.
+
+Expected:
+profile invalidated or bounded according to drift policy.
+
+### M-58 — Endpoint/region/account mismatch
+
+Qualified profile is for one endpoint/account/region; review runs through another.
+
+Expected:
+profile mismatch; preflight/verdict inadmissible.
+
+### M-59 — Automatic fallback reuses primary profile
+
+Primary provider fails and orchestrator silently uses fallback provider/model without new manifest/profile binding.
+
+Expected:
+reject; new delivery attempt/profile required.
+
+### M-60 — File processing pending
+
+Provider upload returns success but file ingestion/indexing remains pending at final review.
+
+Expected:
+attachment unavailable/context incomplete.
+
+### M-61 — Partial retrieval coverage
+
+Provider retrieval returns only a snippet/range while review contract requires full artifact.
+
+Expected:
+coverage incomplete; no TESTED_SUPPORTED for full-artifact dimension.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -567,7 +668,15 @@ Mutation suite must attempt to make a verdict admissible by:
 - bypassing evidence egress policy;
 - aggregating decomposed subreviews without cross-interaction coverage;
 - omitting wire-request hash binding;
-- admitting material verdict when prompt/evidence-isolation dependency is unqualified.
+- admitting material verdict when prompt/evidence-isolation dependency is unqualified;
+- trusting candidate-owned manifest/materializer/completeness code;
+- accepting one successful near-limit capability probe as qualification;
+- ignoring endpoint/account/region/model-deployment drift;
+- inheriting capability profile across provider/model fallback;
+- trusting candidate-provided transformation parser;
+- ignoring archive traversal/resource-limit failures;
+- allowing evidence-ID collision to replace required content;
+- treating upload success as file processing readiness.
 
 Every load-bearing mutation must be rejected.
 
@@ -599,6 +708,16 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `CandidateProfileOverrideAdapter`
 - `RetrievalCitationWithoutAccessAdapter`
 - `WrongRetrievalVersionAdapter`
+- `CandidateGovernorOverrideAdapter`
+- `UntrustedTransformerAdapter`
+- `ArchiveTraversalAdapter`
+- `ArchiveBombAdapter`
+- `EvidenceIdCollisionAdapter`
+- `FlakyNearLimitAdapter`
+- `ModelDriftAdapter`
+- `EndpointDriftAdapter`
+- `FallbackProfileReuseAdapter`
+- `FileProcessingPendingAdapter`
 
 Live API pilots come only after deterministic adapters prove the governor behavior.
 
@@ -637,7 +756,12 @@ EXP-M can reach bounded pass only when:
 11. provider capability profiles are trusted, version-bound, and non-expired;
 12. representation transformations and evidence egress are governed;
 13. material review remains blocked when the applicable prompt/evidence-isolation dependency is unqualified;
-14. decomposed review cannot overclaim cross-evidence coverage.
+14. decomposed review cannot overclaim cross-evidence coverage;
+15. delivery-governor implementation is pinned outside candidate self-approval;
+16. provider capability bounds are repeated/conservative and invalidate on material drift;
+17. provider/model fallback cannot inherit a different delivery qualification;
+18. representation transformers/materializers are trusted and resource/path safe;
+19. stable evidence IDs cannot collide or rebind required content.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
