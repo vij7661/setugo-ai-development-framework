@@ -192,9 +192,9 @@ Web/search/plugin/retrieval evidence outside the frozen delivery corpus is non-a
 
 The pinned governor derives a RequiredEvidenceContract and mandatory-dimension set independently from governing standards/experiment/protected-transition rules. ReviewRequest refs/dimensions are validated against that contract and cannot narrow it.
 
-### M-I37 — Material review context is clean
+### M-I37 — Material review context isolation is policy-bound
 
-Material reviews use a fresh stateless request or fresh stateful provider session with no ungoverned prior messages, memory, tool outputs, custom instructions, or knowledge connectors. Uncapturable mutable provider-side semantic context disqualifies the provider/mode.
+Material reviews use a fresh stateless request or fresh trusted-adapter stateful session under a ProviderContextIsolationPolicy. Observable mutable provider context must be absent/disabled/readable/fenced. Hidden provider-internal mutable semantic state is never silently called clean: it is either disallowed or retained as an explicit dedicated-account external-trust residual authorized by the transition-class policy.
 
 ### M-I38 — Capability qualification thresholds are preregistered
 
@@ -206,7 +206,7 @@ When deterministic range/retrieval proof is unavailable, qualification and every
 
 ### M-I40 — Provider-injected semantic context is fail-closed
 
-Provider/model modes must inventory or disable mutable default/custom prompts, project/account memory, and provider-side knowledge connectors. Unknown mutable semantic context makes the mode NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+Provider/model modes must inventory or disable exposed mutable default/custom prompts, project/account memory, and provider-side knowledge connectors. A hidden/unexposed mutable-semantic-state possibility is governed by ProviderContextIsolationPolicy: DISALLOW means NOT_QUALIFIED; the dedicated-account residual mode is permitted only when independently authorized for that transition class and is recorded as a nonclaim.
 
 ### M-I41 — Cross-evidence interaction requirements are independently derived
 
@@ -218,7 +218,7 @@ The GovernanceAuthoritySnapshot, transition-class registry, evidence-selection r
 
 ### M-I43 — Provider context state is observed per attempt
 
-Every material review carries ProviderContextStateEvidence from the trusted adapter at preflight, before each dispatch, and at atomic admission. Mutable semantic channels that are neither readable nor disable-able make the provider/mode NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+Every material review carries ProviderContextStateEvidence from the trusted adapter at preflight, before each dispatch, and at atomic admission for every observable semantic channel. ProviderContextIsolationPolicy separately governs unexposed provider-internal mutable-state residuals; observable channels that are neither readable nor disable-able make the provider/mode NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
 
 ### M-I44 — Confirmation trials are disjoint, scheduled, and append-only
 
@@ -236,9 +236,9 @@ Material review requires a current hash-bound PromptIsolationQualificationRecord
 
 Every protected transition class has a ProviderAccessibilityRiskPolicy in the GovernanceAuthoritySnapshot. Unknown policy fails closed. The highest material-authority class requires deterministic full-range/page/member proof or an equivalently observable inline mode; probabilistic per-attempt witnesses alone cannot silently satisfy it.
 
-### M-I48 — Mutable provider context is fenced through admission
+### M-I48 — Observable mutable provider context is fenced through admission
 
-Every load-bearing mutable provider/account/project/session configuration channel has a readable monotonic version or a platform-enforceable AdmissionFenceRecord. If neither exists, the mode is NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
+Every load-bearing observable mutable provider/account/project/session configuration channel has a readable monotonic version or a platform-enforceable AdmissionFenceRecord. If neither exists, the mode is NOT_QUALIFIED_FOR_MATERIAL_REVIEW. Hidden provider-internal state cannot be “fenced by assertion”; it is handled only by ProviderContextIsolationPolicy/nonclaim.
 
 ### M-I49 — “Complete” is not an admissibility claim
 
@@ -252,6 +252,14 @@ Provider capability qualification records time/routing/deployment diversity and 
 
 Model-selected retrieval logs must prove exact returned content hash/range/version and the resulting tool/message binding into the same final adjudication context. “File opened” or citation-only logs are insufficient.
 
+### M-I52 — Hidden provider state is an explicit trust residual, never an observed-clean claim
+
+A material review binds ProviderContextIsolationPolicy. The admissible bases are COMPLETE_READABLE_FENCED_STATE or DEDICATED_PLATFORM_ACCOUNT_STATELESS_BOUNDARY. The highest material-authority transition defaults to DISALLOW for hidden provider mutable-state residuals. Dedicated-account residual acceptance must be independently governed and recorded in VerdictAdmissibilityResult.
+
+### M-I53 — Governing “stricter” comparisons are typed and fail closed
+
+Base/head governance merge uses explicit per-element partial orders. Set requirements use union/intersection rules as applicable; fidelity/review level/risk/statistical/expiry/limit classes have governed comparators. Incomparable same-dimension semantic changes remain unresolved and cannot be auto-merged.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -262,6 +270,7 @@ Future implementation should expose governed objects equivalent to:
 - `EvidenceDeliveryManifest`
 - `ProviderCapabilityProfile`
 - `ProviderAccessibilityRiskPolicy`
+- `ProviderContextIsolationPolicy`
 - `AdmissionFenceRecord`
 - `ProviderCapabilityQualificationRecord`
 - `ProviderContextStateEvidence`
@@ -1025,6 +1034,55 @@ PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN; material verdict inadmissible.
 Expected:
 PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN.
 
+### M-110 — Hidden unexposed provider mutable state with no isolation policy
+
+A fake provider has an unexposed semantic-state channel that changes the verdict.
+
+Expected:
+ProviderContextIsolationPolicy missing/unsatisfied; material review NOT_QUALIFIED.
+
+### M-111 — Highest-authority transition attempts dedicated-account residual mode
+
+The provider cannot prove complete readable/fenced mutable state and the transition policy defaults hidden residual to DISALLOW.
+
+Expected:
+material review blocked.
+
+### M-112 — Dedicated-account residual explicitly governed for a permitted lower transition
+
+Use a dedicated platform-owned account/project with candidate/user writes disabled, pinned provider product policy, exposed configuration disabled/read/fenced, disposable-account sentinel qualification, and explicit hidden-state residual acceptance.
+
+Expected:
+context-isolation predicate may pass only with the residual recorded; no “observed clean” claim.
+
+### M-113 — Sentinel qualification contaminates production review account
+
+Qualification enables a memory/customization sentinel on the production review account rather than a disposable qualification account.
+
+Expected:
+qualification invalid; production review account must never be contaminated by sentinel setup.
+
+### M-114 — Health check attempts to renew expired provider profile
+
+An expired capability profile receives a successful health check without full confirmation requalification.
+
+Expected:
+profile remains expired; health check can invalidate only.
+
+### M-115 — Incomparable same-dimension governance change
+
+Base and head representation/risk semantics conflict with no defined partial-order winner.
+
+Expected:
+EVIDENCE_SELECTION_CONTRACT_UNRESOLVED; no auto-merge.
+
+### M-116 — Typed stricter comparator regression
+
+Mutate one comparator (for example allow-set intersection→union, evidence-set union→intersection, expiry shorter→longer).
+
+Expected:
+logic mutation killed.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1097,7 +1155,13 @@ Mutation suite must attempt to make a verdict admissible by:
 - accepting mutable provider context without a version/fence;
 - trusting a legacy REVIEW_CONTEXT_COMPLETE boolean;
 - treating fresh request IDs as proof of statistical independence;
-- accepting retrieval/open logs without returned-content and final-context binding.
+- accepting retrieval/open logs without returned-content and final-context binding;
+- treating hidden unexposed provider state as observed-clean without ProviderContextIsolationPolicy;
+- permitting dedicated-account hidden-state residual when transition policy says DISALLOW;
+- contaminating production account during sentinel qualification;
+- renewing an expired capability profile from a health check;
+- auto-merging incomparable governing semantics;
+- weakening typed base/head comparator direction.
 
 Every load-bearing mutation must be rejected.
 
@@ -1170,6 +1234,10 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `CorrelatedRouteAdapter`
 - `RetrievalOpenOnlyAdapter`
 - `RetrievalUnboundToolResultAdapter`
+- `HiddenUnexposedProviderStateAdapter`
+- `ProductionAccountSentinelContaminationAdapter`
+- `HealthCheckRenewalAdapter`
+- `GovernanceComparatorWeakeningAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1242,7 +1310,11 @@ EXP-M can reach bounded pass only when:
 39. mutable provider context has readable versions or a valid AdmissionFenceRecord through atomic admission;
 40. no legacy REVIEW_CONTEXT_COMPLETE boolean can substitute for the explicit qualified-availability predicates;
 41. statistical independence assumptions are explicit and cannot be inferred solely from fresh request IDs;
-42. model-selected retrieval proves returned-byte identity and final-context tool-result binding.
+42. model-selected retrieval proves returned-byte identity and final-context tool-result binding;
+43. ProviderContextIsolationPolicy explicitly governs hidden provider-internal mutable-state residuals and highest-authority transitions fail closed by default;
+44. sentinel qualification cannot contaminate the production review account;
+45. health checks cannot renew or extend an expired capability profile;
+46. every base/head “stricter” comparison uses a typed governed partial order and incomparable changes fail unresolved.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
