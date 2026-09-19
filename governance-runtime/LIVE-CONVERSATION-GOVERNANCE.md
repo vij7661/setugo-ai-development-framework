@@ -63,7 +63,7 @@ There are exactly two platform review execution classes:
 
 Both use trusted provider adapters and the same ReviewRequest, semantic coverage, identity, independence, fail-closed, and promotion semantics. Neither class derives reviewer provenance from reviewer-authored content.
 
-For material review, the provider execution must also use a fresh/clean semantic context under the qualified provider capability profile. Reused threads/conversations with ungoverned prior messages, tool outputs, memory, custom instructions, or knowledge connectors are not eligible unless the entire pre-existing context is independently captured and governed. Unknown mutable provider-side semantic context disqualifies the provider/mode for material review.
+For material review, the provider execution must use a fresh stateless request or a fresh stateful session created by the trusted adapter for that delivery attempt. Arbitrary pre-existing threads/conversations are prohibited. ProviderContextStateEvidence must be observed at preflight, before every dispatch, and at atomic admission. Any mutable semantic channel (memory, custom instructions, project/workspace configuration, tools/connectors, knowledge sources) that is neither readable nor disable-able makes the provider/mode NOT_QUALIFIED_FOR_MATERIAL_REVIEW.
 
 Copy/paste is **not** a platform review transport.
 
@@ -121,7 +121,9 @@ A mandatory platform review is represented by an integrity-bound `ReviewRequest`
 
 For material promotion, the runtime additionally requires a semantic review contract (ReviewRequest schema 4+) containing machine-readable `required_review_dimensions`. A legacy review request without this semantic contract may be preserved as historical content but cannot authorize material promotion.
 
-The ReviewRequest is not authoritative about its own completeness. Before delivery, a pinned platform governor independently derives a `RequiredEvidenceContract` and mandatory-dimension/interaction set from governing standards, experiment/qualification contract, protected-transition classification, and platform-owned evidence-selection rules. The ReviewRequest must cover that independently derived contract; any omitted standard-required evidence, mandatory dimension, or required cross-evidence interaction fails closed as `EVIDENCE_SELECTION_INCOMPLETE`.
+The ReviewRequest is not authoritative about its own completeness. Before delivery, a pinned platform governor resolves an immutable `GovernanceAuthoritySnapshot` from a pre-candidate authority state outside the candidate write set. RequiredEvidenceContract and RequiredInteractionContract are derived only from that snapshot's transition-class, mandatory-dimension, evidence-selection, relationship, and governing-standard registries.
+
+If the candidate changes governing inputs, the review uses the conservative union/strictest combination of pre-candidate authority requirements and proposed head requirements, and the governing-input change itself becomes mandatory review evidence. Unknown transition class, missing registry rule, or vacuous required set fails as `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`. ReviewRequest refs/dimensions/interactions are declarations checked against those contracts; they cannot narrow them.
 
 Promotion must bind review evidence to the currently authoritative review request and current reviewed artifact. A review for a superseded request or older revision cannot be replayed into a later candidate.
 
@@ -209,6 +211,10 @@ Core rules:
 - required evidence may not be silently dropped because of context, file-count, file-type, attachment, or request-size limits;
 - large corpora require a qualified deterministic chunk protocol with request/corpus/chunk identity and hashes;
 - a reviewer disposition is inadmissible until required evidence delivery/context completeness is established;
+- model-selected retrieval/file modes require deterministic per-attempt access logs covering every required range/page/member, otherwise the mode is diagnostic-only;
+- modes without deterministic range/retrieval proof require mandatory per-attempt content-bound witnesses, not qualification-only sparse canaries;
+- provider capability qualification uses disjoint exploration/confirmation evidence and the exact production operating point under the governed risk budget;
+- provider context cleanliness is observed per attempt rather than declared;
 - HTTP success, file-upload success, reviewer self-acknowledgement, or a copied evidence count cannot independently prove completeness;
 - `INSUFFICIENT_EVIDENCE` must be adjudicated into scientific-source insufficiency, delivery/context insufficiency, format/capability insufficiency, mixed insufficiency, or unresolved cause;
 - delivery failure must never be silently converted into scientific failure, and scientific absence must never be excused as delivery failure;
@@ -340,19 +346,24 @@ At minimum preserve/surface:
 10. Treat copy/paste as external evidence ingestion, initially `USER_PROVIDED_EXTERNAL_CONTENT`.
 11. Reclassify pasted content to `USER_ATTESTED_EXTERNAL_LLM_REVIEW` only when the user explicitly identifies the source; never equate that attestation with API authentication.
 12. Bind platform reviewer identity from trusted execution provenance.
-13. Materialize and hash every required review evidence item.
-14. Independently derive and validate the RequiredEvidenceContract, mandatory dimensions, and required cross-evidence interactions.
-15. Validate a current provider capability profile under the preregistered statistical/expiry policy and establish a fresh/clean material-review context.
-16. Freeze the evidence delivery manifest.
-17. Deliver through a qualified one-shot or deterministic chunk/file/retrieval protocol.
-18. Establish reviewer-context completeness using dense witnesses or deterministic range/retrieval evidence where required.
-19. Revalidate capability/egress/session state at verdict admission.
-20. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + platform API execution envelope + delivery completeness.
-21. Require a positive promotable disposition before platform review can satisfy material promotion.
-22. Apply deterministic governor/evidence gate.
-23. Persist authoritative checkpoint.
-24. Synchronize shared memory.
-25. New chat resumes from shared memory then verifies Git.
+13. Resolve and verify the pre-candidate GovernanceAuthoritySnapshot outside candidate write authority.
+14. Derive RequiredEvidenceContract and RequiredInteractionContract; validate ReviewRequest against them before materialization.
+15. Materialize and hash every required review evidence item from frozen source identity.
+16. Apply governed transformation and egress policy.
+17. Validate a current statistically qualified ProviderCapabilityProfile and machine-checkable PromptIsolationQualificationRecord for the exact production operating point.
+18. Create a fresh provider review context and capture ProviderContextStateEvidence.
+19. Freeze the EvidenceDeliveryManifest and monotonic authority/capability/egress/context/prompt-isolation state versions.
+20. Before each provider call, re-read/compare context/config state and serialize only frozen representation bytes.
+21. Record both platform request hash and post-SDK transport-bound semantic envelope hash.
+22. Deliver through the qualified inline/chunk/file/retrieval mechanism.
+23. Establish per-attempt accessibility using mandatory content-bound slice witnesses or deterministic full-range retrieval/access logs, according to delivery mode.
+24. Validate ReviewRequest + ReviewEvidence + semantic coverage + authenticated execution envelope + delivery/context completeness.
+25. If the reviewer reports insufficiency, evaluate all independent cause predicates and return MIXED when multiple causes hold.
+26. Immediately before authority admission, re-read all monotonic state versions/hashes and every load-bearing admissibility predicate.
+27. Atomically compare-and-set the authoritative checkpoint together with VerdictAdmissibilityResult only if every state/version remains unchanged since its required observation.
+28. Any expiry, revocation, drift, dirty-context event, file/session invalidation, or prompt-isolation invalidation from first dispatch through step 27 permanently voids that attempt; later requalification cannot revive the old response.
+29. Synchronize shared memory only after authoritative persistence.
+30. New chat resumes from shared memory then verifies Git.
 
 ## Current collaboration limitation
 
