@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RQ-16 preregistration evaluator.  Plan/self-test only; never faults a runtime."""
 from __future__ import annotations
-import argparse, json, math, re
+import argparse, hashlib, json, math, re
 from datetime import datetime, timezone
 
 ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
@@ -51,7 +51,7 @@ def validate_fault_proof(proof, expected):
     return reasons
 
 def expected_fault_observer_context():
-    return {"observer_identity":"trusted-root-observer","observer_source_sha256":"observer-source-real","observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
+    return {"observer_identity":"trusted-root-observer","observer_source_sha256":hashlib.sha256(b"preregistered-trusted-root-observer-v1").hexdigest(),"observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
 
 def validate_trusted_fault_attestation(att, expected, observer_context, actual_raw_artifact_digest):
     """Validate independently collected attestation; harness claims are not enough."""
@@ -130,7 +130,7 @@ def validate_cleanup(cleanup, expected):
     return reasons
 
 def expected_authorization_context(expected):
-    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"BOUNDED_PASS","review_artifact_sha256":"review-sha","reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":"issuer-sha"}
+    return {"authorization_schema_version":"1","rq_id":"RQ-16","arm":expected["arm"],"mechanism_id":expected["mechanism_id"],"mechanism_digest":"mechanism-sha","plan_commit":expected["plan_commit"],"plan_tree":expected["plan_tree"],"plan_digest":expected["plan_digest"],"execution_contract_digest":expected["execution_contract_digest"],"cleanup_contract_digest":expected["cleanup_contract_digest"],"host_identity":expected["expected_host_identity"],"runtime_identity":expected["expected_runtime_identity"],"service_binary_sha256":expected["expected_service_binary_sha256"],"gate_sha256":expected["expected_gate_sha256"],"records_device":expected["expected_records_device"],"consumed_device":expected["expected_consumed_device"],"records_mount_id":expected["expected_records_mount"],"consumed_mount_id":expected["expected_consumed_mount"],"independent_review_disposition":"RQ16_ARM_EXECUTION_AUTHORIZED","review_artifact_sha256":hashlib.sha256(b"independent-review-artifact-binding").hexdigest(),"reviewer_designation":"independent-reviewer","issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":hashlib.sha256(b"trusted-governance-authority-binding").hexdigest()}
 
 def validate_authorization_token(token, expected, now=None, used_nonces=None):
     fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer_identity","issuer_authority_artifact_sha256","source_path","single_use_registry")
