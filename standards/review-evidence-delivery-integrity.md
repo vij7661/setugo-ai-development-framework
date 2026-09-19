@@ -54,6 +54,7 @@ If the candidate changes any governing input in its own head, that head version 
 - mandatory dimensions = union(base-authority dimensions, candidate-head proposed dimensions);
 - required interaction sets = union(base-authority interactions, candidate-head proposed interactions);
 - restrictive classifications/egress/provider constraints use the stricter applicable rule;
+- if two governing inputs conflict and no platform-defined partial order can prove which is stricter, derivation fails as `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`;
 - every governing-input change is itself a mandatory review evidence ref.
 
 Registries and the authority-snapshot pointer are maintained outside the candidate write set. A candidate may propose changes to governing inputs, but those proposed changes cannot authorize or narrow their own review.
@@ -87,6 +88,7 @@ The `RequiredEvidenceContract` must contain at least:
 - representation requirements for each evidence reference/dimension;
 - required cross-evidence interaction families;
 - deterministic optional-evidence rules;
+- ProviderAccessibilityRiskPolicy identity for the protected transition class;
 - contract hash.
 
 Before manifest freeze, prove all of:
@@ -244,6 +246,25 @@ Before delivery, classify each evidence item for:
 The egress decision must be platform/governance-owned and bound to the delivery manifest.
 
 If required evidence cannot be safely/legally sent in a qualified representation, that provider/mode is not qualified for the review. The platform must not silently redact or omit load-bearing evidence and then call the review complete.
+
+## Provider accessibility risk policy
+
+Every protected transition class has a platform-owned `ProviderAccessibilityRiskPolicy` in the GovernanceAuthoritySnapshot.
+
+The policy states whether a material review may rely on probabilistic/content-bound accessibility evidence or requires deterministic range/retrieval proof.
+
+At minimum it binds:
+
+- transition class;
+- allowed accessibility proof modes;
+- maximum tolerated residual selective/sub-segment loss risk;
+- required statistical lower bound;
+- whether per-attempt content-bound witnesses are sufficient;
+- whether deterministic full-range/page/member access proof is mandatory.
+
+Unknown/missing risk policy fails closed.
+
+The default for the highest material-authority transition class is deterministic full-range/page/member proof or platform-forced inline content under a provider mode whose qualified failure model covers the complete representation. Per-attempt sampling/witnesses alone cannot satisfy that class.
 
 ## Provider capability qualification policy
 
@@ -445,6 +466,8 @@ The state is read and compared against the qualified profile:
 - immediately before every dispatch;
 - immediately before final atomic verdict admission.
 
+For mutable provider/account/project/session configuration used by a material review, the trusted platform must also obtain an `AdmissionFenceRecord`: a provider ETag/version/fencing token or a platform-owned dedicated-account configuration lock/version that makes concurrent configuration mutation detectable and prevents user/candidate writes during the attempt. If a load-bearing mutable channel exposes neither a readable version nor a platform-enforceable fence, the mode is not qualified for material review.
+
 Any mutable semantic channel that is neither disable-able nor readable by the trusted platform makes the mode `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`.
 
 The only exception is a dedicated platform-owned provider account/project whose configuration write access is change-controlled outside candidate and user control, whose mutable semantic features are disabled by policy, and whose state is behaviorally requalified. Provider documentation is necessary background evidence but never sufficient by itself.
@@ -533,16 +556,16 @@ Synthetic text-layer PDFs cannot qualify scans, tables, images, or embedded-obje
 
 A copied item ID/hash already present in the prompt is not a valid witness.
 
-## Meaning of REVIEW_CONTEXT_COMPLETE
+## Meaning of REVIEW_CONTEXT_QUALIFIED_AVAILABLE
 
-`REVIEW_CONTEXT_COMPLETE=true` means only:
+`REVIEW_CONTEXT_QUALIFIED_AVAILABLE=true` means only:
 
 - the platform proved complete governed materialization and wire delivery;
 - the selected provider/mode has a current qualified capability profile for the representation/session mechanism;
 - all required evidence is bound to the final adjudication request/session under that profile;
-- no known delivery/context defect is present.
+- no known delivery/context defect is present under the explicitly qualified failure model and ProviderAccessibilityRiskPolicy.
 
-It does **not** mean the platform proved model cognition, attention, or semantic use of every token.
+It does **not** mean the platform proved model cognition, attention, semantic use of every token, or absence of risks outside the qualified failure model. The prior name `REVIEW_CONTEXT_COMPLETE` is deprecated because it overstates what an external API can prove.
 
 ## Prompt/evidence isolation dependency
 
@@ -589,7 +612,9 @@ If material cross-evidence interactions cannot be reviewed within a qualified co
 - governed representation/transformation;
 - current egress authorization;
 - ProviderCapabilityProfile current and statistically qualified for the exact operating point;
+- ProviderAccessibilityRiskPolicy current and satisfied by the selected accessibility proof mode;
 - ProviderContextStateEvidence clean/current;
+- AdmissionFenceRecord valid for every load-bearing mutable provider configuration channel;
 - provider mutable semantic-context qualification satisfied;
 - trusted adapter and post-SDK wire binding valid;
 - complete item/chunk delivery;
@@ -602,7 +627,7 @@ If material cross-evidence interactions cannot be reviewed within a qualified co
 
 Admission is the **last authority operation** and is atomic with checkpoint persistence:
 
-1. capture monotonic versions/hashes for authority snapshot, capability profile, egress policy, provider context/session/file state, prompt-isolation record, and current review request;
+1. capture monotonic versions/hashes for authority snapshot, capability profile, accessibility-risk policy, egress policy, provider context/session/file state, AdmissionFenceRecord, prompt-isolation record, and current review request;
 2. validate all predicates;
 3. compare-and-set the authoritative checkpoint only if every version/hash is unchanged;
 4. persist the VerdictAdmissibilityResult and checkpoint in the same authority transaction/boundary.
@@ -705,6 +730,8 @@ Every material platform API review must retain:
 - transformation records;
 - egress decision;
 - ProviderCapabilityProfile identity;
+- ProviderAccessibilityRiskPolicy identity;
+- AdmissionFenceRecord;
 - prompt identities;
 - pre-dispatch revalidation result for capability/egress/session state;
 - WireDeliveryRecords;
