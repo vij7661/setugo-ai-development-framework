@@ -53,6 +53,24 @@ Typed data classification/provenance labels with monotonic propagation. Declassi
 
 ## 3. R2 invariant corrections
 
+### R2-I00 — Adoption governance inputs cannot self-authorize
+
+Every platform-owned registry/policy introduced by this adoption program is bound through the existing pre-candidate governance authority (or a separately reviewed successor) and is outside candidate/plugin/reviewer write authority for the candidate being judged.
+
+This includes at least:
+
+- capability source map;
+- evidence-assurance acceptance rules;
+- promotion policy;
+- capability scope/canonicalization rules;
+- ToolRiskRegistry;
+- data-classification/declassification policy;
+- publisher/trust-root registry;
+- context/retrieval enforcement policy;
+- experiment oracle/version registry.
+
+A candidate may propose changes, but the proposed version cannot narrow or authorize the same candidate's review/execution. Unknown/missing governing version fails closed.
+
 ### R2-I01 — Capability truth is scoped, generation-bound and non-collapsible
 
 Capability facts are independent predicates, not a state-machine arrow:
@@ -145,11 +163,15 @@ For parent grant G:
 
 Reservation/release is atomic against a parent capability ledger.
 
+Every reservation and release has a globally unique operation ID and idempotency key. A release may credit capacity at most once; replayed reserve/release operations return the original result and never change balance twice.
+
 Unused child allocation returns only via a recorded release operation.
 
 Expiry cannot exceed the parent's remaining lifetime.
 
 A child may not re-lend returned capacity until the release commit is authoritative.
+
+Parent revocation/expiry invalidates descendant use immediately. Every authority-bearing child use validates its grant lineage against the current ancestor generation/revocation fence; a reserved balance is not a detached bearer token.
 
 Depth x breadth fan-out must never amplify aggregate authority.
 
@@ -240,6 +262,8 @@ RA-07/RA-08 append-only logs use:
 - an anchor stored outside the writable archive state (for example a separately authorized monotonic authority store or signed external checkpoint);
 - load-time and restart/recovery comparison against that independent anchor.
 
+The authoritative ledger head is the externally anchored head. A locally appended tail that has not yet advanced the independent anchor is `PENDING_NON_AUTHORITATIVE`. Crash recovery may either complete the exact pending append through the governed anchor CAS or discard/quarantine the unanchored tail; it may never silently treat an unanchored tail as authoritative.
+
 Rollback, truncation and fork are detectable.
 
 Sensitive payload quarantine:
@@ -283,7 +307,9 @@ The platform uses typed `DataFlowLabel` metadata on governed inputs and tool out
 
 A plan that cannot determine data-flow labels for a protected value fails closed before external egress.
 
-This is checked at plan/dispatch time and again at the egress boundary, not only per-tool.
+Labels are platform-attached from authoritative resource/source classification and provenance. An untrusted tool/plugin may add restrictions but cannot remove or downgrade platform labels.
+
+This is checked at ingestion, transformation, plan/dispatch time and again at the egress boundary, not only per-tool.
 
 ### R2-I11 — Fencing is enforced by the protected resource
 
@@ -351,7 +377,7 @@ Every RA experiment has:
 - generated evidence counts;
 - independent review before any authority effect.
 
-The R2 matrix remains a design contract until implemented.
+The R2 matrix remains a design contract until implemented. Test-the-test mutations must modify the production validator/enforcement path (or an exact compiled/injected mutation of it), not merely flip expected fixture metadata.
 
 ### R2-I15 — Withheld self-adjudication uses commit-reveal
 
