@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R2-REVIEW.md"
 SOURCES = [
     Path("governance-runtime/exp_m_deterministic.py"),
+    Path("governance-runtime/build_exp_m_review_packet.py"),
     Path("governance-runtime/run_exp_m_deterministic.py"),
     Path("governance-runtime/run_exp_m_mutations.py"),
     Path("governance-runtime/self_falsify_exp_m.py"),
