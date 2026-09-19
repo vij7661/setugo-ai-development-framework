@@ -260,6 +260,14 @@ A material review binds ProviderContextIsolationPolicy. The admissible bases are
 
 Base/head governance merge uses explicit per-element partial orders. Set requirements use union/intersection rules as applicable; fidelity/review level/risk/statistical/expiry/limit classes have governed comparators. Incomparable same-dimension semantic changes remain unresolved and cannot be auto-merged.
 
+### M-I54 — Witness traffic cannot evict the evidence it is proving
+
+The provider operating point and preflight include witness challenges, maximum witness-response budget, wrappers, final semantic prompt, and final output budget. Actual context size is rechecked after the witness phase and before semantic adjudication. Witness-induced eviction voids the attempt.
+
+### M-I55 — Witness protocol is semantically non-evaluative and separately qualified
+
+Witness challenges may test exact accessibility only; they cannot ask for evaluation or conclusions. Material witness-based review requires a current WitnessProtocolQualificationRecord bound to provider/mode/prompt-isolation mechanism. If the witness protocol's noninterference cannot be bounded on the governed qualification corpus, the witness mode is diagnostic-only.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -271,6 +279,7 @@ Future implementation should expose governed objects equivalent to:
 - `ProviderCapabilityProfile`
 - `ProviderAccessibilityRiskPolicy`
 - `ProviderContextIsolationPolicy`
+- `WitnessProtocolQualificationRecord`
 - `AdmissionFenceRecord`
 - `ProviderCapabilityQualificationRecord`
 - `ProviderContextStateEvidence`
@@ -1083,6 +1092,32 @@ Mutate one comparator (for example allow-set intersection→union, evidence-set 
 Expected:
 logic mutation killed.
 
+### M-117 — Witness response causes context eviction
+
+A witness challenge/response transcript pushes an earlier required evidence slice outside the qualified final context.
+
+Expected:
+post-witness pre-adjudication context check fails; attempt void.
+
+### M-118 — Witness protocol asks evaluative question
+
+A challenge asks the reviewer to summarize or judge evidence rather than return exact accessibility content.
+
+Expected:
+WitnessProtocolQualificationRecord/protocol validation fails.
+
+### M-119 — Witness protocol changes semantic review outcome on qualification corpus
+
+Exact same governed corpus/provider mode is run under baseline qualified delivery and under witness protocol; semantic structured outcome changes beyond preregistered tolerance.
+
+Expected:
+witness mode not qualified for material review.
+
+### M-120 — Witness protocol record stale or wrong provider/prompt-isolation mode
+
+Expected:
+verdict inadmissible.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1161,7 +1196,10 @@ Mutation suite must attempt to make a verdict admissible by:
 - contaminating production account during sentinel qualification;
 - renewing an expired capability profile from a health check;
 - auto-merging incomparable governing semantics;
-- weakening typed base/head comparator direction.
+- weakening typed base/head comparator direction;
+- excluding witness challenge/response overhead from final-context budgeting;
+- allowing evaluative witness prompts;
+- omitting/staling WitnessProtocolQualificationRecord.
 
 Every load-bearing mutation must be rejected.
 
@@ -1238,6 +1276,9 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `ProductionAccountSentinelContaminationAdapter`
 - `HealthCheckRenewalAdapter`
 - `GovernanceComparatorWeakeningAdapter`
+- `WitnessContextEvictionAdapter`
+- `EvaluativeWitnessAdapter`
+- `WitnessOutcomeShiftAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1314,7 +1355,9 @@ EXP-M can reach bounded pass only when:
 43. ProviderContextIsolationPolicy explicitly governs hidden provider-internal mutable-state residuals and highest-authority transitions fail closed by default;
 44. sentinel qualification cannot contaminate the production review account;
 45. health checks cannot renew or extend an expired capability profile;
-46. every base/head “stricter” comparison uses a typed governed partial order and incomparable changes fail unresolved.
+46. every base/head “stricter” comparison uses a typed governed partial order and incomparable changes fail unresolved;
+47. witness challenge/response traffic is part of the qualified cumulative context and cannot evict required evidence before adjudication;
+48. witness protocols are non-evaluative and have a current provider/mode-bound WitnessProtocolQualificationRecord.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
