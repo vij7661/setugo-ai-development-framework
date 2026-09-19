@@ -50,10 +50,14 @@ def validate_fault_proof(proof, expected):
     if not isinstance(proof["timestamp"],(int,float)) or not math.isfinite(proof["timestamp"]): reasons.append("timestamp_invalid")
     return reasons
 
-def validate_trusted_fault_attestation(att, expected):
+def expected_fault_observer_context():
+    return {"observer_identity":"trusted-root-observer","observer_source_sha256":"observer-source-real","observer_execution_identity":"root-observer-v1","expected_evidence_root":"/var/lib/v24-rq1/rq16-attestations","expected_owner":"root","expected_mode":"0600","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound"}
+
+def validate_trusted_fault_attestation(att, expected, observer_context, actual_raw_artifact_digest):
     """Validate independently collected attestation; harness claims are not enough."""
-    req=("attestation_schema_version","rq_id","arm","mechanism_id","mechanism_digest","service_pid","service_executable_sha256","target_record_id","target_operation","target_syscall","target_path","records_device","consumed_device","records_mount_id","consumed_mount_id","filesystem_identity","fault_activation_source","fault_activation_raw_evidence","operation_raw_evidence","observed_errno","observation_timestamp","observer_identity","observer_source_sha256","raw_artifact_sha256","cleanup_reference")
+    req=("attestation_schema_version","rq_id","arm","mechanism_id","mechanism_digest","service_pid","service_executable_sha256","target_record_id","target_operation","target_syscall","target_path","records_device","consumed_device","records_mount_id","consumed_mount_id","filesystem_identity","fault_activation_source","fault_activation_raw_evidence","operation_raw_evidence","observed_errno","observation_timestamp","observer_identity","observer_source_sha256","observer_execution_identity","expected_evidence_root","expected_owner","expected_mode","expected_host_identity","expected_runtime_identity","raw_artifact_path","raw_artifact_sha256","cleanup_reference")
     if not isinstance(att,dict): return ["trusted_attestation_missing"]
+    if not isinstance(observer_context,dict): return ["expected_observer_context_missing"]
     reasons=[f"attestation_field_missing:{k}" for k in req if k not in att]
     if reasons: return reasons
     if att["rq_id"]!="RQ-16" or att["arm"]!=expected["arm"]: reasons.append("attestation_arm_mismatch")
@@ -65,7 +69,9 @@ def validate_trusted_fault_attestation(att, expected):
     if att["records_device"]!=expected["expected_records_device"] or att["consumed_device"]!=expected["expected_consumed_device"] or att["records_mount_id"]!=expected["expected_records_mount"] or att["consumed_mount_id"]!=expected["expected_consumed_mount"] or att["filesystem_identity"]!=expected["expected_records_fs"]: reasons.append("attestation_topology_mismatch")
     if not isinstance(att["fault_activation_raw_evidence"],(dict,list,str)) or not att["fault_activation_raw_evidence"]: reasons.append("activation_raw_missing")
     if not isinstance(att["operation_raw_evidence"],(dict,list,str)) or not att["operation_raw_evidence"]: reasons.append("operation_raw_missing")
-    if att["observer_identity"] in ("candidate","harness","untrusted") or att["observer_source_sha256"]!="observer-sha" or att["raw_artifact_sha256"]!="artifact-sha": reasons.append("observer_provenance_untrusted")
+    for k in ("observer_identity","observer_source_sha256","observer_execution_identity","expected_evidence_root","expected_owner","expected_mode","expected_host_identity","expected_runtime_identity"):
+        if att.get(k) != observer_context.get(k): reasons.append(f"observer_context_mismatch:{k}")
+    if not isinstance(actual_raw_artifact_digest,str) or att["raw_artifact_sha256"] != actual_raw_artifact_digest: reasons.append("raw_artifact_digest_mismatch")
     return reasons
 
 def _obs_complete(observations, expected):
@@ -145,14 +151,14 @@ def validate_authorization_token(token, expected, now=None, used_nonces=None):
     if token.get("single_use_registry")!="root-owned-durable-ledger": reasons.append("nonce_registry_untrusted")
     return reasons
 
-def evaluate_arm(arm, observed, expected):
+def evaluate_arm(arm, observed, expected, observer_context=None, actual_raw_artifact_digest=None):
     if arm not in ARMS or not isinstance(expected,dict): return "HARNESS_DEFECT",["expected_context_missing"]
     reasons=[]
     if expected.get("arm")!=arm: reasons.append("expected_arm_mismatch")
     if observed.get("authoritative_success") is True: return "RED",["authoritative_success_after_fault"]
     if observed.get("invalid_transition") is True: return "RED",["invalid_transition_after_fault"]
     reasons += validate_fault_proof(observed.get("fault_proof"),expected)
-    reasons += validate_trusted_fault_attestation(observed.get("trusted_fault_attestation"),expected)
+    reasons += validate_trusted_fault_attestation(observed.get("trusted_fault_attestation"),expected,observer_context,actual_raw_artifact_digest)
     reasons += _obs_complete(observed.get("observations"),expected)
     topo_ok, topo_reasons=check_rq17_contamination(expected,observed.get("observations")); reasons += topo_reasons
     reasons += _lifecycle_valid(observed.get("lifecycle"),expected,observed.get("observations"))

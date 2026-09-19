@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-import copy, json
+import copy, hashlib, json
 from datetime import datetime, timezone
-from v24_v6_rq1_rq16_harness import evaluate_arm, expected_context, expected_authorization_context, validate_authorization_token
+from v24_v6_rq1_rq16_harness import evaluate_arm, expected_context, expected_authorization_context, expected_fault_observer_context, validate_authorization_token
 from test_v24_v6_rq1_rq16_harness import good
 EXPECTED=expected_context("ENOSPC")
+OBSERVER=expected_fault_observer_context(); ARTIFACT_DIGEST=hashlib.sha256(b"attestation").hexdigest()
 def main():
     specs=[
       ("wrong_device",lambda e:e["observations"]["fault_active"].update(records_device="d2")),
@@ -42,7 +43,7 @@ def main():
     ]
     rows=[]
     for name,mut in specs:
-        e=copy.deepcopy(good()); mut(e); actual,reasons=evaluate_arm("ENOSPC",e,EXPECTED)
+        e=copy.deepcopy(good()); mut(e); actual,reasons=evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)
         rows.append({"mutation_id":name,"case":"ENOSPC","path":name,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":actual,"reasons":reasons,"rejected":actual!="PASS"})
     token=expected_authorization_context(EXPECTED)|{"authorization_timestamp":"2026-01-01T00:00:00Z","expiration":"2026-01-01T00:30:00Z","nonce":"n1","source_path":"/root-owned/rq16-authorization","single_use_registry":"root-owned-durable-ledger"}
     auth_fields=["arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","issuer_identity","issuer_authority_artifact_sha256"]
