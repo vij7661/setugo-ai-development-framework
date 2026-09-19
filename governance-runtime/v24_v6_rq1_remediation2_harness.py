@@ -185,6 +185,46 @@ finally:
     ok=p.returncode==0 and attack.get("launch_rc",0)!=0 and stable(b,a) and active()
     return ok,{"trigger":"candidate symlink substitution of trusted runtime followed by consume launch","stdout":p.stdout,"stderr":p.stderr,"attack":attack,"state_stable":stable(b,a),"service_active":active(),"trusted_path_unchanged":stable(b,a)}
 
+def case_06(out):
+    b=observe(out/"RQ-06.before.observer.json")
+    code=r'''import json,os,subprocess
+env=dict(os.environ); env.update({"V24_V6_TRUSTED_RUNTIME":"/tmp/candidate-root","PYTHONPATH":"/tmp/candidate-root","LD_LIBRARY_PATH":"/tmp/candidate-root","V24_V6_SERVICE_SOCKET":"/tmp/candidate.sock"})
+p=subprocess.run(["/opt/v24-v6-trusted-runtime/v24_v6_trusted_authority_service","--consume-record","candidate-forged"],env=env,text=True,capture_output=True)
+print(json.dumps({"uid":os.getuid(),"env":{k:env[k] for k in ["V24_V6_TRUSTED_RUNTIME","PYTHONPATH","LD_LIBRARY_PATH","V24_V6_SERVICE_SOCKET"]},"rc":p.returncode,"stdout":p.stdout,"stderr":p.stderr},sort_keys=True))'''
+    p=run(["python3","-c",code],user=CANDIDATE,timeout=15)
+    a=observe(out/"RQ-06.after.observer.json")
+    try: attack=json.loads(p.stdout.strip())
+    except Exception: attack={}
+    rejected=("diagnostic_only" in attack.get("stdout","") or attack.get("rc",0)!=0)
+    ok=p.returncode==0 and attack.get("uid")!=0 and rejected and stable(b,a) and active()
+    return ok,{"trigger":"candidate-selected trusted-root/path/library/socket environment with direct trusted launch","candidate_uid":attack.get("uid"),"environment":attack.get("env"),"stdout":attack.get("stdout"),"stderr":attack.get("stderr"),"rc":attack.get("rc"),"bootstrap_service_rejected":rejected,"state_stable":stable(b,a),"service_active":active()}
+
+def case_07(out):
+    b=observe(out/"RQ-07.before.observer.json")
+    stage=f"/tmp/rq1-rq07-pin-{os.getpid()}"
+    code=r'''import hashlib,json,os,shutil,sys
+s=sys.argv[1]; os.makedirs(s,exist_ok=True)
+src="/opt/v24-v6-trusted-runtime"; gate=src+"/.gate-build/v24_v6_external_authority_gate"
+shutil.copy2(gate,s+"/gate");
+for n in ["v24_v6_external_gate_worker.py","v24_v6_proof_reference_closure.py","v24_v6_root_attestation.py","v24_v6_governance_foundation.py","v24_v6_decision_apply.py","v24_v6_material_surface.py","v24_v6_normative_clause_projection.py","normative_control_catalog.py"]: shutil.copy2(src+"/"+n,s+"/"+n)
+p=s+"/v24_v6_external_gate_worker.py"; open(p,"a",encoding="utf-8").write("\\n# candidate coherent substitution\\n")
+for n in os.listdir(s):
+  if n.endswith(".py"): os.chmod(s+"/"+n,0o555)
+manifest={"candidate_source_sha256":hashlib.sha256(open(p,"rb").read()).hexdigest(),"candidate_manifest":True}
+open(s+"/forged-manifest.json","w").write(json.dumps(manifest,sort_keys=True))
+print(json.dumps({"stage":s,"substituted_source_sha256":manifest["candidate_source_sha256"],"forged_manifest_sha256":hashlib.sha256(open(s+"/forged-manifest.json","rb").read()).hexdigest()},sort_keys=True))'''
+    prep=run(["python3","-c",code,stage],user=CANDIDATE,timeout=20)
+    verify=run([stage+"/gate","--identity"],user="root",timeout=15)
+    cleanup=remove_candidate_files(Path(stage))
+    a=observe(out/"RQ-07.after.observer.json")
+    try: sub=json.loads(prep.stdout.strip())
+    except Exception: sub={}
+    try: verdict=json.loads(verify.stdout.strip())
+    except Exception: verdict={}
+    reason=verdict.get("reason","")
+    ok=prep.returncode==0 and verify.returncode!=0 and reason=="PINNED_SOURCE_DIGEST_MISMATCH" and cleanup[0] and stable(b,a) and active()
+    return ok,{"trigger":"candidate coherent substituted source plus forged manifest presented to external gate","prep_rc":prep.returncode,"substituted_source_sha256":sub.get("substituted_source_sha256"),"forged_manifest_sha256":sub.get("forged_manifest_sha256"),"verifier_rc":verify.returncode,"verifier_stdout":verify.stdout,"verifier_stderr":verify.stderr,"verifier_reason":reason,"expected_reason":"PINNED_SOURCE_DIGEST_MISMATCH","cleanup_verified":cleanup[0],"state_stable":stable(b,a),"service_active":active()}
+
 def case_22(out):
     b=observe(out/"RQ-22.before.observer.json"); pid=int(PID.read_text().strip())
     code=r'''import ctypes,errno,json,sys
@@ -317,7 +357,7 @@ def case_28(out):
     expected=len(reasons)==4 and all(any(t in str(x) for t in ["MALFORMED","INVALID","TRUNCATED","closed","exception","ConnectionResetError"]) for x in reasons)
     return p.returncode==0 and expected and active() and stable(b,a),{"trigger":"malformed/oversized/truncated/partial protocol variants","protocol_rc":p.returncode,"protocol_stdout":p.stdout,"protocol_stderr":p.stderr,"oracle_reasons_acceptable":expected,"variants":rows,"reasons":reasons,"service_recoverable":active(),"state_stable":stable(b,a)}
 
-IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-05":lambda c,o:case_05(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
+IMPL={"RQ-01":case_01_02,"RQ-02":case_01_02,"RQ-03":lambda c,o:case_03(o),"RQ-04":lambda c,o:case_04(o),"RQ-05":lambda c,o:case_05(o),"RQ-06":lambda c,o:case_06(o),"RQ-07":lambda c,o:case_07(o),"RQ-11":lambda c,o:case_11(o),"RQ-12":lambda c,o:case_12(o),"RQ-22":lambda c,o:case_22(o),"RQ-23":lambda c,o:case_23(o),"RQ-24":case_24_25,"RQ-25":case_24_25,"RQ-28":lambda c,o:case_28(o)}
 
 def execute(cid,out):
     oracle,mode=CASES[cid]; start=time.time()
