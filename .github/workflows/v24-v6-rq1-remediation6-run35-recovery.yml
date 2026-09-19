@@ -1,0 +1,53 @@
+name: V24 V6 RQ1 Remediation 6 Run 35 Evidence Recovery
+
+on:
+  push:
+    branches:
+      - evidence/v24-i11-v6-rq1-remediation6-run35-recovery
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover-run35:
+    runs-on: [self-hosted, v24-rq1]
+    timeout-minutes: 15
+    steps:
+      - name: Read-only recover run 35433799081 evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE=/var/lib/v24-rq1/runs/20260919T090711Z-d79db50568cccaffe67ed1de5a6ee63bf5027284
+          STAGE="$RUNNER_TEMP/rq1-remediation6-run35433799081-recovery"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE/raw-evidence"
+          sudo test -d "$SOURCE"
+          {
+            echo "original_workflow_run=35433799081"
+            echo "original_head_sha=d79db50568cccaffe67ed1de5a6ee63bf5027284"
+            echo "original_tree_sha=2b86dad37b38bc2579dd09d4e545fb5248b17ae8"
+            echo "original_evidence_directory=$SOURCE"
+            echo "recovery_operation=READ_ONLY_EVIDENCE_RECOVERY"
+            echo "authority_effect=NONE_EVIDENCE_ONLY"
+            echo "source_stat="
+            sudo stat -c '%n %F %U:%G %a %u:%g %i %D %s %y %z' "$SOURCE"
+            echo "source_listing="
+            sudo find "$SOURCE" -printf '%M %u:%g %s %TY-%Tm-%TdT%TH:%TM:%TS %p\n' | sort
+            echo "source_file_hashes="
+            sudo bash -c "find '$SOURCE' -type f -print0 | sort -z | xargs -0 sha256sum"
+          } > "$STAGE/recovery-manifest.txt"
+          sudo cp -a "$SOURCE"/. "$STAGE/raw-evidence/"
+          sudo chown -R "$USER":"$USER" "$STAGE"
+          find "$STAGE" -type f -print0 | sort -z | xargs -0 sha256sum > "$STAGE/recovery-file-hashes.sha256"
+          sha256sum "$STAGE/recovery-manifest.txt" > "$STAGE/recovery-manifest.sha256"
+          tar -cf "$STAGE/recovery-bundle.tar" -C "$STAGE" raw-evidence recovery-manifest.txt recovery-file-hashes.sha256 recovery-manifest.sha256
+          sha256sum "$STAGE/recovery-bundle.tar" > "$STAGE/recovery-bundle.tar.sha256"
+          mkdir -p run35-recovery-artifact
+          cp -a "$STAGE"/. run35-recovery-artifact/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rq1-remediation6-run35433799081-raw-evidence-recovery
+          path: run35-recovery-artifact
+          if-no-files-found: error
+          retention-days: 30
