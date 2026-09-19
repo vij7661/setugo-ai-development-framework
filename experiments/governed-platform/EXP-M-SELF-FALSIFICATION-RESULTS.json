@@ -1,0 +1,39 @@
+{
+  "all_rejected": true,
+  "cases": [
+    {
+      "id": "manifest_byte_mutation",
+      "rejected": true
+    },
+    {
+      "id": "candidate_writable_snapshot",
+      "rejected": true
+    },
+    {
+      "id": "admissibility_predicate_removed",
+      "rejected": true
+    },
+    {
+      "id": "missing_chunk",
+      "rejected": true
+    },
+    {
+      "id": "retry_hidden",
+      "rejected": true
+    },
+    {
+      "id": "attempt_set_open",
+      "rejected": true
+    },
+    {
+      "id": "witness_over_budget",
+      "rejected": true
+    },
+    {
+      "id": "empty_witness",
+      "rejected": true
+    }
+  ],
+  "surviving_critical": 0,
+  "total": 8
+}
