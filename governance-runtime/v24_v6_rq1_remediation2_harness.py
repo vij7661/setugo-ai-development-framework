@@ -201,29 +201,27 @@ print(json.dumps({"uid":os.getuid(),"env":{k:env[k] for k in ["V24_V6_TRUSTED_RU
 
 def case_07(out):
     b=observe(out/"RQ-07.before.observer.json")
-    stage=f"/tmp/rq1-rq07-pin-{os.getpid()}"
-    code=r'''import hashlib,json,os,shutil,sys
-s=sys.argv[1]; os.makedirs(s,exist_ok=True)
-src="/opt/v24-v6-trusted-runtime"; gate=src+"/.gate-build/v24_v6_external_authority_gate"
-shutil.copy2(gate,s+"/gate");
-for n in ["v24_v6_external_gate_worker.py","v24_v6_proof_reference_closure.py","v24_v6_root_attestation.py","v24_v6_governance_foundation.py","v24_v6_decision_apply.py","v24_v6_material_surface.py","v24_v6_normative_clause_projection.py","normative_control_catalog.py"]: shutil.copy2(src+"/"+n,s+"/"+n)
-p=s+"/v24_v6_external_gate_worker.py"; open(p,"a",encoding="utf-8").write("\\n# candidate coherent substitution\\n")
-for n in os.listdir(s):
-  if n.endswith(".py"): os.chmod(s+"/"+n,0o555)
-manifest={"candidate_source_sha256":hashlib.sha256(open(p,"rb").read()).hexdigest(),"candidate_manifest":True}
-open(s+"/forged-manifest.json","w").write(json.dumps(manifest,sort_keys=True))
-print(json.dumps({"stage":s,"substituted_source_sha256":manifest["candidate_source_sha256"],"forged_manifest_sha256":hashlib.sha256(open(s+"/forged-manifest.json","rb").read()).hexdigest()},sort_keys=True))'''
-    prep=run(["python3","-c",code,stage],user=CANDIDATE,timeout=20)
-    verify=run([stage+"/gate","--identity"],user="root",timeout=15)
-    cleanup=remove_candidate_files(Path(stage))
+    stage=stage_candidate_files(["v24_v6_external_gate_worker.py"],"rq07-pin")
+    worker=stage/"v24_v6_external_gate_worker.py"; manifest=stage/"forged-manifest.json"
+    run(["chmod","u+w",str(worker)],user=CANDIDATE,timeout=10)
+    mutate_code='import hashlib,json,sys; p=sys.argv[1]; open(p,"a",encoding="utf-8").write("\\n# candidate coherent substitution\\n"); h=hashlib.sha256(open(p,"rb").read()).hexdigest(); m={"candidate_source_sha256":h,"candidate_manifest":True}; open(sys.argv[2],"w").write(json.dumps(m,sort_keys=True)+"\\n"); print(json.dumps({"substituted_source_sha256":h,"forged_manifest_sha256":hashlib.sha256(open(sys.argv[2],"rb").read()).hexdigest()}))'
+    prep=run(["python3","-c",mutate_code,str(worker),str(manifest)],user=CANDIDATE,timeout=20)
+    trusted_worker=Path("/opt/v24-v6-trusted-runtime/v24_v6_external_gate_worker.py")
+    backup=Path(f"/tmp/rq1-rq07-worker-backup-{os.getpid()}")
+    save=run(["cp",str(trusted_worker),str(backup)],user="root",timeout=10)
+    install=run(["install","-o","root","-g","root","-m","0444",str(worker),str(trusted_worker)],user="root",timeout=10) if save.returncode==0 else save
+    verify=run(["/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate","--identity"],user="root",timeout=15) if install.returncode==0 else install
+    restore=run(["install","-o","root","-g","root","-m","0444",str(backup),str(trusted_worker)],user="root",timeout=10) if save.returncode==0 else save
+    cleanup=remove_candidate_files(stage)
+    run(["rm","-f",str(backup)],user="root",timeout=10)
     a=observe(out/"RQ-07.after.observer.json")
     try: sub=json.loads(prep.stdout.strip())
     except Exception: sub={}
     try: verdict=json.loads(verify.stdout.strip())
     except Exception: verdict={}
     reason=verdict.get("reason","")
-    ok=prep.returncode==0 and verify.returncode!=0 and reason=="PINNED_SOURCE_DIGEST_MISMATCH" and cleanup[0] and stable(b,a) and active()
-    return ok,{"trigger":"candidate coherent substituted source plus forged manifest presented to external gate","prep_rc":prep.returncode,"substituted_source_sha256":sub.get("substituted_source_sha256"),"forged_manifest_sha256":sub.get("forged_manifest_sha256"),"verifier_rc":verify.returncode,"verifier_stdout":verify.stdout,"verifier_stderr":verify.stderr,"verifier_reason":reason,"expected_reason":"PINNED_SOURCE_DIGEST_MISMATCH","cleanup_verified":cleanup[0],"state_stable":stable(b,a),"service_active":active()}
+    ok=prep.returncode==0 and verify.returncode!=0 and reason=="PINNED_SOURCE_DIGEST_MISMATCH" and restore.returncode==0 and cleanup[0] and stable(b,a) and active()
+    return ok,{"trigger":"candidate coherent substituted source plus forged manifest installed temporarily in real trusted source slot and presented to restored external gate","prep_rc":prep.returncode,"substituted_source_sha256":sub.get("substituted_source_sha256"),"forged_manifest_sha256":sub.get("forged_manifest_sha256"),"verifier_rc":verify.returncode,"verifier_stdout":verify.stdout,"verifier_stderr":verify.stderr,"verifier_reason":reason,"expected_reason":"PINNED_SOURCE_DIGEST_MISMATCH","restore_rc":restore.returncode,"cleanup_verified":cleanup[0],"state_stable":stable(b,a),"service_active":active()}
 
 def case_22(out):
     b=observe(out/"RQ-22.before.observer.json"); pid=int(PID.read_text().strip())
