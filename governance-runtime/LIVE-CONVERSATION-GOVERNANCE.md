@@ -321,6 +321,8 @@ At minimum preserve/surface:
 - `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
 - `PROVIDER_CAPABILITY_STATISTICAL_POLICY_FAILED`
 - `ACCESSIBILITY_PROBE_COVERAGE_INSUFFICIENT`
+- `WITNESS_PROTOCOL_UNQUALIFIED`
+- `WITNESS_CONTEXT_EVICTION`
 - `REVIEW_INTERACTION_CONTRACT_INCOMPLETE`
 - `EVIDENCE_DELIVERY_INCOMPLETE`
 - `REVIEW_CONTEXT_INCOMPLETE`
@@ -365,16 +367,16 @@ At minimum preserve/surface:
 14. Derive RequiredEvidenceContract and RequiredInteractionContract; validate ReviewRequest against them before materialization.
 15. Materialize and hash every required review evidence item from frozen source identity.
 16. Apply governed transformation and egress policy.
-17. Validate a current statistically qualified ProviderCapabilityProfile, transition-class ProviderAccessibilityRiskPolicy, ProviderContextIsolationPolicy, and machine-checkable PromptIsolationQualificationRecord for the exact production operating point.
+17. Validate a current statistically qualified ProviderCapabilityProfile, transition-class ProviderAccessibilityRiskPolicy, ProviderContextIsolationPolicy, machine-checkable PromptIsolationQualificationRecord, and—when witnesses are used—a current WitnessProtocolQualificationRecord for the exact production operating point.
 18. Create a fresh provider review context, capture ProviderContextStateEvidence for every observable channel, apply the selected context-isolation basis, record any permitted hidden-provider-state residual, and establish a readable monotonic provider configuration version or AdmissionFenceRecord for every observable load-bearing mutable channel.
 19. Freeze the EvidenceDeliveryManifest and monotonic authority/capability/egress/context/prompt-isolation state versions.
 20. Before each provider call, re-read/compare context/config state and serialize only frozen representation bytes.
 21. Record both platform request hash and post-SDK transport-bound semantic envelope hash.
 22. Deliver through the qualified inline/chunk/file/retrieval mechanism.
-23. Establish per-attempt accessibility using mandatory content-bound slice witnesses or deterministic full-range retrieval/access logs, according to delivery mode.
+23. Establish per-attempt accessibility using mandatory content-bound slice witnesses or deterministic full-range retrieval/access logs, according to delivery mode. When witnesses are used, include challenge/response overhead in cumulative context and recheck actual context size immediately before semantic adjudication.
 24. Validate ReviewRequest + ReviewEvidence + semantic coverage + authenticated execution envelope + delivery/context completeness.
 25. If the reviewer reports insufficiency, evaluate all independent cause predicates and return MIXED when multiple causes hold.
-26. Immediately before authority admission, re-read all monotonic state versions/hashes, accessibility-risk-policy state, context-isolation-policy state, AdmissionFenceRecord, and every load-bearing admissibility predicate.
+26. Immediately before authority admission, re-read all monotonic state versions/hashes, accessibility-risk-policy state, context-isolation-policy state, witness-protocol qualification state where used, AdmissionFenceRecord, and every load-bearing admissibility predicate.
 27. Atomically compare-and-set the authoritative checkpoint together with VerdictAdmissibilityResult only if every state/version remains unchanged since its required observation.
 28. Any expiry, revocation, drift, dirty-context event, file/session invalidation, or prompt-isolation invalidation from first dispatch through step 27 permanently voids that attempt; later requalification cannot revive the old response.
 29. Synchronize shared memory only after authoritative persistence.
