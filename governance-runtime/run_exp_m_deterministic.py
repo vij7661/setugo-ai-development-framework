@@ -47,7 +47,7 @@ def valid_preflight(snapshot, contract, interactions, manifest, provider, items)
         qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
         context_policy=ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"),
         context_evidence=ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
-        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False))
+        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False), observed_interactions=(("required-a", "required-b"),))
 
 
 def run_phases() -> dict:

@@ -618,6 +618,7 @@ def preflight_delivery(
     risk_policy: ProviderAccessibilityRiskPolicy | None = None,
     expected_transition_class: str = "LOWER",
     expected_fence_version: str = "1",
+    observed_interactions: Sequence[Sequence[str]] | None = None,
 ) -> DeliveryPreflightResult:
     reasons: list[str] = []
     if not snapshot.outside_candidate_write_authority:
@@ -630,6 +631,8 @@ def preflight_delivery(
         reasons.append("evidence_contract_unresolved")
     if not interactions.closed or not interactions.interactions or any(not set(interaction).issubset(manifest.items) for interaction in interactions.interactions):
         reasons.append("interaction_contract_unresolved")
+    if observed_interactions is None or {tuple(x) for x in observed_interactions} != {tuple(x) for x in interactions.interactions}:
+        reasons.append("interaction_observation_unbound")
     if plan is None or qualification is None:
         reasons.append("qualification_records_missing")
     else:

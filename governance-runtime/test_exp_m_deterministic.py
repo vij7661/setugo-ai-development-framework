@@ -54,6 +54,7 @@ def preflight(*args, **kwargs):
         "context_evidence": ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
         "fence": AdmissionFenceRecord("fence", "1", True),
         "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False),
+        "observed_interactions": (("a", "b"),),
     }
     for key, value in defaults.items():
         kwargs.setdefault(key, value)
