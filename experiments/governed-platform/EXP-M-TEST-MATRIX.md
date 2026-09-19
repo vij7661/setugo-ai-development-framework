@@ -443,6 +443,7 @@ Test dispositions:
 | TM-O49 | Delete semantic review coverage predicate | Killed by untested mandatory-dimension fixture |
 | TM-O50 | Delete reviewer provenance/independence predicate | Killed by self/untrusted-reviewer fixture |
 | TM-O51 | Delete promotable-disposition predicate | Killed by CHANGES_REQUIRED/INSUFFICIENT disposition fixture |
+| TM-O52 | Delete WitnessProtocolQualificationRecord/context-budget predicate when witnesses are used | Killed by witness-eviction/stale-record fixture |
 
 ## Phase P — R3 residual adversarial-oracle tests
 
@@ -498,6 +499,21 @@ Test dispositions:
 | TM-Q21 | Mutate allowed-provider set intersection to union | Comparator mutation killed |
 | TM-Q22 | Mutate shorter-expiry-is-stricter to longer-expiry-is-stricter | Comparator mutation killed |
 
+## Phase R — Witness noninterference and context-budget tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| TM-R01 | Preflight excludes witness challenge/response budget | Delivery plan rejected |
+| TM-R02 | Actual witness response exceeds preregistered maximum and pushes context over bound | Post-witness pre-adjudication check fails; attempt void |
+| TM-R03 | Witness challenge asks for summary/evaluation/defect judgment | Witness protocol invalid |
+| TM-R04 | WitnessProtocolQualificationRecord is expired | Witness-based material review inadmissible |
+| TM-R05 | WitnessProtocolQualificationRecord is for another provider/model/prompt-isolation mode | Binding mismatch; inadmissible |
+| TM-R06 | Baseline and witness-enabled qualification runs use non-identical governed corpus/request envelope | Noninterference experiment invalid |
+| TM-R07 | Witness-enabled run shifts structured semantic outcome beyond preregistered tolerance | Witness mode unqualified |
+| TM-R08 | Framing/content witness succeeds but final semantic prompt occurs after evidence eviction | Attempt void |
+| TM-R09 | Deterministic retrieval mode uses no witness protocol | Witness record not required; retrieval predicates remain required |
+| TM-R10 | Witness output includes sensitive evidence and retention/egress policy forbids that response form | Mode/representation blocked or governed safer witness form required |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
@@ -511,6 +527,7 @@ Every EXP-M execution must retain:
 - ProviderCapabilityProfile;
 - ProviderAccessibilityRiskPolicy;
 - ProviderContextIsolationPolicy;
+- WitnessProtocolQualificationRecord when witnesses are used;
 - AdmissionFenceRecord;
 - ProviderCapabilityQualificationRecord with append-only trial ledger;
 - ProviderContextStateEvidence;
@@ -534,7 +551,7 @@ Every EXP-M execution must retain:
 
 EXP-M deterministic testing is complete only when:
 
-- **all deterministic phases A–Q pass**;
+- **all deterministic phases A–R pass**;
 - unified data/state mutation survivors = 0;
 - validator-logic mutation survivors = 0;
 - crash/retry tests preserve exact identity/history;
@@ -554,6 +571,8 @@ EXP-M deterministic testing is complete only when:
 - sentinel qualification cannot contaminate production review account;
 - health checks cannot renew expired capability profiles;
 - typed base/head comparison rules are mutation-tested and incomparable semantic changes fail unresolved;
+- witness challenge/response overhead is included in qualified final-context budgeting and rechecked before adjudication;
+- witness protocol is non-evaluative and separately noninterference-qualified for provider/mode/prompt-isolation binding;
 - legacy REVIEW_CONTEXT_COMPLETE cannot create authority;
 - statistical independence assumptions are explicit and cannot be inferred solely from fresh request IDs;
 - model-selected retrieval logs bind exact returned bytes to final adjudication context;
