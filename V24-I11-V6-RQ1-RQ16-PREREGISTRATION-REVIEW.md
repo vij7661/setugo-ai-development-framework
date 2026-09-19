@@ -5,8 +5,8 @@ Planning-only artifact. No RQ-16 execution occurred.
 ## Identity
 reviewed_source_commit=54785802b8e48cc037f00bda6636d873d56dd60f
 reviewed_source_tree=5cb7c9f5506bf3d213911fa322d122926e53dcdb
-packet_commit=54785802b8e48cc037f00bda6636d873d56dd60f
-packet_tree=5cb7c9f5506bf3d213911fa322d122926e53dcdb
+packet_commit=2c2d3d19f259ed2e9ef3caed59d56c7682b53f58
+packet_tree=b5d4a37bea7caef9e033d0366c1eef02b2eea7ab
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
 exact_diff_sha256=224d006b19248692cc8343b61413bf08c7f28535c98c698892b28e7e54a3e5c9
@@ -648,7 +648,7 @@ test_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requi
 test_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok
 
 ----------------------------------------------------------------------
-Ran 10 tests in 0.003s
+Ran 10 tests in 0.004s
 
 OK
 ```
@@ -1363,9 +1363,9 @@ Traceback (most recent call last):
   File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 30, in <module>
     if __name__=='__main__': raise SystemExit(main())
                                               ^^^^^^
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 27, in main
-    assert marker in text
-           ^^^^^^^^^^^^^^
+  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 28, in main
+    assert text.count('V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md') <= 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError
 ```
 
