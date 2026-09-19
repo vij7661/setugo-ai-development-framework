@@ -419,6 +419,8 @@ Test dispositions:
 | TM-O25 | Delete ProviderAccessibilityRiskPolicy predicate | Killed |
 | TM-O26 | Delete AdmissionFence/version predicate | Killed |
 | TM-O27 | Reintroduce legacy REVIEW_CONTEXT_COMPLETE as authority | Killed |
+| TM-O28 | Infer statistical independence from fresh request IDs only | Killed |
+| TM-O29 | Accept retrieval-open log without returned bytes/context binding | Killed |
 
 ## Phase P — R3 residual adversarial-oracle tests
 
@@ -461,6 +463,9 @@ Test dispositions:
 | TM-Q08 | Legacy REVIEW_CONTEXT_COMPLETE=true injected | Ignored/deprecated; cannot authorize |
 | TM-Q09 | Verdict record omits residual/nonclaim risk for probabilistic mode | Admissibility fails |
 | TM-Q10 | Accessibility proof mode does not satisfy transition-class policy | Admissibility fails |
+| TM-Q11 | Fresh request IDs but correlated route/deployment/time burst | Statistical independence remains unproven; no universal probability claim |
+| TM-Q12 | Retrieval log records open/citation but no returned-content hash | Retrieval context binding unproven |
+| TM-Q13 | Retrieval returns correct bytes but tool-result message is absent from final adjudication context | Retrieval context binding unproven |
 
 ## Required evidence outputs
 
@@ -513,6 +518,8 @@ EXP-M deterministic testing is complete only when:
 - ProviderAccessibilityRiskPolicy exists for every transition class and selected proof mode;
 - mutable provider context is versioned/fenced through admission;
 - legacy REVIEW_CONTEXT_COMPLETE cannot create authority;
+- statistical independence assumptions are explicit and cannot be inferred solely from fresh request IDs;
+- model-selected retrieval logs bind exact returned bytes to final adjudication context;
 - insufficient-evidence cause adjudication returns all causes and MIXED when multiple predicates hold;
 - review consensus cannot hide corpus divergence.
 
