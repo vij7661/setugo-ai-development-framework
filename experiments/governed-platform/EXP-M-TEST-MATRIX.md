@@ -261,6 +261,35 @@ Test dispositions:
 | K14 | Same-session final review fits qualified cumulative context after canary qualification | Eligible for downstream semantic validation |
 | K15 | Canary value copied into prompt/manifest | Probe invalid because value is not evidence-access dependent |
 
+## Phase L — Delivery-governor trust, parser safety, and provider-drift tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| L01 | Candidate branch edits manifest builder to omit decisive evidence | Candidate implementation cannot authorize its own delivery |
+| L02 | Candidate edits completeness validator to always return true | Trusted platform validator wins; review blocked |
+| L03 | Candidate provides its own capability profile | Profile rejected |
+| L04 | Candidate provides its own representation transformer | Transformer rejected as untrusted |
+| L05 | Archive contains `../` traversal | Safe materializer rejects |
+| L06 | Archive contains absolute-path member | Reject |
+| L07 | Archive contains symlink escape | Reject |
+| L08 | Archive contains duplicate normalized member names | Reject ambiguity |
+| L09 | Decompression expansion exceeds size limit | Fail closed without resource exhaustion |
+| L10 | Parser exceeds time/memory budget | Fail closed |
+| L11 | Two evidence paths normalize to same stable ID | Collision detected |
+| L12 | Two different hashes attempt same declared evidence ID | Collision/rebind rejected |
+| L13 | One near-limit provider canary run succeeds, subsequent fresh trials fail | Qualified limit not widened |
+| L14 | Repeated trials all pass below conservative margin | Bound may be qualified under policy |
+| L15 | Same model alias reports different backend/deployment | Drift invalidates profile or requires bounded requalification |
+| L16 | Qualified endpoint/region differs from actual call | Fail |
+| L17 | Qualified account/tenant differs from actual call | Fail |
+| L18 | Primary provider failure triggers fallback with primary profile | Fail/new delivery boundary required |
+| L19 | Fallback has its own qualified profile and new attempt | Eligible for downstream validation |
+| L20 | File upload accepted but processing/indexing pending | Context incomplete |
+| L21 | File later becomes ready in same bound session | May proceed only after new readiness evidence |
+| L22 | Retrieval returns only snippet of full-required file | Coverage insufficient |
+| L23 | Retrieval returns exact required full content/hash | Eligible for downstream semantic coverage |
+| L24 | Candidate modifies egress decision/profile | Untrusted; delivery blocked |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
