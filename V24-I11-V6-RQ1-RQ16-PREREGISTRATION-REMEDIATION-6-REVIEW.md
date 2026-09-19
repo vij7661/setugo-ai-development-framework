@@ -3,15 +3,15 @@
 Planning-only artifact. No RQ-16 execution occurred.
 
 ## Identity
-reviewed_source_commit=1356d2527909cc8396ea31dd37a6b2e1874c0654
-reviewed_source_tree=fe2acf37d240a6829b9f46bb592970cf4c782bf3
-packet_parent_commit=1356d2527909cc8396ea31dd37a6b2e1874c0654
-packet_parent_tree=fe2acf37d240a6829b9f46bb592970cf4c782bf3
+reviewed_source_commit=5f2bd1b88ca2f0c593da6e0fab5c5b8866058b13
+reviewed_source_tree=b770f25aa0d8e0b41594e23684be0c8aab203dcc
+packet_parent_commit=5f2bd1b88ca2f0c593da6e0fab5c5b8866058b13
+packet_parent_tree=b770f25aa0d8e0b41594e23684be0c8aab203dcc
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
-exact_source_diff_sha256=1cf0dd21dbc57f8bf65331310916fe5947b5b3b7733d517490472fb4b98581c3
-source_manifest_sha256=0e2b00adb51710baf858581ac05f279972639d0f550348aaf57a1bdc6a4f3785
-generated_evidence_manifest_sha256=9f3771f9bcd0c0b4f36aad819b9cbbccf1104d30edc12a6847cb5dfec528366e
+exact_source_diff_sha256=b5fc030bb938e0d137b4d5b3005550e42c35207cff28afc79848bf2ceabecb97
+source_manifest_sha256=f04ee8ce6d020579079d64c97266d973391304ec329c7c97bf6a95877e2625dd
+generated_evidence_manifest_sha256=23767343e0b20f09823fb648bd2853b4507842e9ddf67fe75b1a04129bb77aa0
 packet_content_identity_schema_version=2
 branch=qualification/v24-i11-v6-runtime-qualification-1-rq16-preregistration
 packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION
@@ -249,10 +249,10 @@ commit, plan digest, and separately generated authorization token are bound.
 ```
 
 ## Source manifest
-[{"path":"governance-runtime/build_rq16_preregistration_review.py","sha256":"ce6f7d679c824b2b495decd989be9d174582c94a3b90e6ecbadc52b97dca233a"},{"path":"governance-runtime/check_rq16_preregistration_packet.py","sha256":"cf1a6cc443631994bd40897ddc26aa5a9d640305eb5fc2b5b64fa327aee5a6be"},{"path":"governance-runtime/collect_rq16_results.py","sha256":"2fd16d9efadb83b283e1b3cbdace295a1e66c86879c9e26338de3c286674407f"},{"path":"governance-runtime/rq16_manifest.py","sha256":"895e468776d0d4a6894bbffa4c4d8de0887956ebf5def1d7efded6a80458f1b7"},{"path":"governance-runtime/run_v24_v6_rq1_rq16_mutations.py","sha256":"4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916"},{"path":"governance-runtime/test_rq16_manifest.py","sha256":"122338e681ef5df65953567d2593bea96481f470f2a3775de9e8bfc2f66d5881"},{"path":"governance-runtime/test_v24_v6_rq1_rq16_harness.py","sha256":"fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5"},{"path":"governance-runtime/v24_v6_rq1_rq16_harness.py","sha256":"babe9b5030f415ce87b77c288f53776d3f14dcdbbdfeca4f3c4be532b9bff476"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json","sha256":"31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md","sha256":"958c15eed2d13d0b74a0b2f3d95d5f2f909b97ac9f88fde419eda2ddf7dca769"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json","sha256":"efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md","sha256":"13bf0ae2f37a06da5ff081d26988e2b364121631306cbc0c4edc2ce6d0999c00"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json","sha256":"527ac480abf1e6b74fab31374886fde58f6dffd77c7274b92e4e481711a8fdfd"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md","sha256":"19eaca68666f2b61aea648a7b6fce74912649a45ac20e6155d6cd8fdba3e2fc6"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md","sha256":"ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b"}]
+[{"path":"governance-runtime/build_rq16_preregistration_review.py","sha256":"ce6f7d679c824b2b495decd989be9d174582c94a3b90e6ecbadc52b97dca233a"},{"path":"governance-runtime/check_rq16_preregistration_packet.py","sha256":"cf1a6cc443631994bd40897ddc26aa5a9d640305eb5fc2b5b64fa327aee5a6be"},{"path":"governance-runtime/collect_rq16_results.py","sha256":"adab691dadc650852ea07bfa09ef5aa568b7dba628e9d6d1a6b870ef196a7ff0"},{"path":"governance-runtime/rq16_manifest.py","sha256":"895e468776d0d4a6894bbffa4c4d8de0887956ebf5def1d7efded6a80458f1b7"},{"path":"governance-runtime/run_v24_v6_rq1_rq16_mutations.py","sha256":"4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916"},{"path":"governance-runtime/test_rq16_manifest.py","sha256":"122338e681ef5df65953567d2593bea96481f470f2a3775de9e8bfc2f66d5881"},{"path":"governance-runtime/test_v24_v6_rq1_rq16_harness.py","sha256":"fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5"},{"path":"governance-runtime/v24_v6_rq1_rq16_harness.py","sha256":"babe9b5030f415ce87b77c288f53776d3f14dcdbbdfeca4f3c4be532b9bff476"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json","sha256":"31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md","sha256":"958c15eed2d13d0b74a0b2f3d95d5f2f909b97ac9f88fde419eda2ddf7dca769"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json","sha256":"efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md","sha256":"13bf0ae2f37a06da5ff081d26988e2b364121631306cbc0c4edc2ce6d0999c00"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json","sha256":"527ac480abf1e6b74fab31374886fde58f6dffd77c7274b92e4e481711a8fdfd"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md","sha256":"19eaca68666f2b61aea648a7b6fce74912649a45ac20e6155d6cd8fdba3e2fc6"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md","sha256":"ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b"}]
 
 ## Generated evidence manifest
-[{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json","sha256":"13352f4d9f42e8ae94d9157414f3cbde667add5b7d85e65990929cb036e5b40a"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json","sha256":"887f8955003c4424e7e22549b62e47d9127ece39395858ebf6e945e817537cfc"}]
+[{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json","sha256":"13352f4d9f42e8ae94d9157414f3cbde667add5b7d85e65990929cb036e5b40a"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json","sha256":"c54b27af07686999f812264ff3540c4af8f780279c2cc395c2c4d718130e8c34"}]
 
 
 ### implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json sha256=31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7
@@ -595,7 +595,7 @@ if __name__=='__main__': raise SystemExit(main())
 ```
 
 
-### governance-runtime/collect_rq16_results.py sha256=2fd16d9efadb83b283e1b3cbdace295a1e66c86879c9e26338de3c286674407f
+### governance-runtime/collect_rq16_results.py sha256=adab691dadc650852ea07bfa09ef5aa568b7dba628e9d6d1a6b870ef196a7ff0
 
 ```python
 #!/usr/bin/env python3
@@ -609,12 +609,13 @@ def main():
     runs=[subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True),subprocess.run(['python','governance-runtime/test_rq16_manifest.py'],cwd=ROOT,text=True,capture_output=True)]
     t=subprocess.CompletedProcess([],max((x.returncode for x in runs),default=0),stdout='\n'.join(x.stdout for x in runs),stderr='\n'.join(x.stderr for x in runs))
     m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
-    matches=re.findall(r'Ran (\d+) tests?',t.stderr+t.stdout); total=sum(int(x) for x in matches)
+    combined=re.sub(r'Ran (\d+) tests? in [0-9.]+s',r'Ran \1 tests in <elapsed>',t.stderr+t.stdout)
+    matches=re.findall(r'Ran (\d+) tests?',combined); total=sum(int(x) for x in matches)
     tests=[]
-    for line in (t.stderr+t.stdout).splitlines():
+    for line in combined.splitlines():
         hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
         if hit: tests.append({'name':line.split(' (',1)[0],'result':'PASS' if hit.group(1)=='ok' else 'FAIL'})
-    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':t.stdout,'stderr':t.stderr}
+    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':'','stderr':combined}
     mutation_result=json.loads(m.stdout)
     mutation_result['exit_code']=m.returncode
     TEST_OUT.write_text(json.dumps(test_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
@@ -1159,13 +1160,13 @@ if __name__=="__main__": raise SystemExit(main())
 ```
 
 
-### implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json sha256=887f8955003c4424e7e22549b62e47d9127ece39395858ebf6e945e817537cfc
+### implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json sha256=c54b27af07686999f812264ff3540c4af8f780279c2cc395c2c4d718130e8c34
 
 ```json
 {
   "exit_code": 0,
-  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.028s\n\nOK\n\ntest_absolute_outside_root_rejected (__main__.ManifestTests.test_absolute_outside_root_rejected) ... ok\ntest_clean_manifest_is_deterministic (__main__.ManifestTests.test_clean_manifest_is_deterministic) ... ok\ntest_duplicate_path_rejected (__main__.ManifestTests.test_duplicate_path_rejected) ... ok\ntest_generated_packet_is_not_source (__main__.ManifestTests.test_generated_packet_is_not_source) ... ok\ntest_manifest_hash_is_content_hash (__main__.ManifestTests.test_manifest_hash_is_content_hash) ... ok\ntest_missing_file_fails (__main__.ManifestTests.test_missing_file_fails) ... ok\ntest_source_byte_change_changes_manifest (__main__.ManifestTests.test_source_byte_change_changes_manifest) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.072s\n\nOK\n",
-  "stdout": "\n",
+  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in <elapsed>\n\nOK\n\ntest_absolute_outside_root_rejected (__main__.ManifestTests.test_absolute_outside_root_rejected) ... ok\ntest_clean_manifest_is_deterministic (__main__.ManifestTests.test_clean_manifest_is_deterministic) ... ok\ntest_duplicate_path_rejected (__main__.ManifestTests.test_duplicate_path_rejected) ... ok\ntest_generated_packet_is_not_source (__main__.ManifestTests.test_generated_packet_is_not_source) ... ok\ntest_manifest_hash_is_content_hash (__main__.ManifestTests.test_manifest_hash_is_content_hash) ... ok\ntest_missing_file_fails (__main__.ManifestTests.test_missing_file_fails) ... ok\ntest_source_byte_change_changes_manifest (__main__.ManifestTests.test_source_byte_change_changes_manifest) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in <elapsed>\n\nOK\n\n",
+  "stdout": "",
   "tests": [
     {
       "name": "test_absent_response_not_success",
@@ -3968,10 +3969,10 @@ Traceback (most recent call last):
   File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 35, in <module>
     if __name__=='__main__': raise SystemExit(main())
                                               ^^^^^^
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 17, in main
-    assert vals['packet_content_identity_schema_version']=='2'
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError
+  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 22, in main
+    assert declared==expected_manifest, 'source_manifest_entries_mismatch'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: source_manifest_entries_mismatch
 ```
 
 
@@ -4057,10 +4058,10 @@ index 00000000..1b0ca493
 +if __name__=='__main__': raise SystemExit(main())
 diff --git a/governance-runtime/collect_rq16_results.py b/governance-runtime/collect_rq16_results.py
 new file mode 100644
-index 00000000..abf06e30
+index 00000000..d1339df2
 --- /dev/null
 +++ b/governance-runtime/collect_rq16_results.py
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,25 @@
 +#!/usr/bin/env python3
 +"""Generate the single authoritative offline RQ-16 test and mutation results."""
 +import json, re, subprocess
@@ -4072,12 +4073,13 @@ index 00000000..abf06e30
 +    runs=[subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True),subprocess.run(['python','governance-runtime/test_rq16_manifest.py'],cwd=ROOT,text=True,capture_output=True)]
 +    t=subprocess.CompletedProcess([],max((x.returncode for x in runs),default=0),stdout='\n'.join(x.stdout for x in runs),stderr='\n'.join(x.stderr for x in runs))
 +    m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
-+    matches=re.findall(r'Ran (\d+) tests?',t.stderr+t.stdout); total=sum(int(x) for x in matches)
++    combined=re.sub(r'Ran (\d+) tests? in [0-9.]+s',r'Ran \1 tests in <elapsed>',t.stderr+t.stdout)
++    matches=re.findall(r'Ran (\d+) tests?',combined); total=sum(int(x) for x in matches)
 +    tests=[]
-+    for line in (t.stderr+t.stdout).splitlines():
++    for line in combined.splitlines():
 +        hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
 +        if hit: tests.append({'name':line.split(' (',1)[0],'result':'PASS' if hit.group(1)=='ok' else 'FAIL'})
-+    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':t.stdout,'stderr':t.stderr}
++    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':'','stderr':combined}
 +    mutation_result=json.loads(m.stdout)
 +    mutation_result['exit_code']=m.returncode
 +    TEST_OUT.write_text(json.dumps(test_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
@@ -6223,14 +6225,14 @@ index 00000000..d60eee26
 +`RQ16_EXECUTED=false`; no mount, quota, device-mapper, ACL, ownership, mode, service, or filesystem mutation occurred.
 diff --git a/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json b/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
 new file mode 100644
-index 00000000..7b5019e3
+index 00000000..ed1df712
 --- /dev/null
 +++ b/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
 @@ -0,0 +1,82 @@
 +{
 +  "exit_code": 0,
-+  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.027s\n\nOK\n\ntest_absolute_outside_root_rejected (__main__.ManifestTests.test_absolute_outside_root_rejected) ... ok\ntest_clean_manifest_is_deterministic (__main__.ManifestTests.test_clean_manifest_is_deterministic) ... ok\ntest_duplicate_path_rejected (__main__.ManifestTests.test_duplicate_path_rejected) ... ok\ntest_generated_packet_is_not_source (__main__.ManifestTests.test_generated_packet_is_not_source) ... ok\ntest_manifest_hash_is_content_hash (__main__.ManifestTests.test_manifest_hash_is_content_hash) ... ok\ntest_missing_file_fails (__main__.ManifestTests.test_missing_file_fails) ... ok\ntest_source_byte_change_changes_manifest (__main__.ManifestTests.test_source_byte_change_changes_manifest) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.079s\n\nOK\n",
-+  "stdout": "\n",
++  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in <elapsed>\n\nOK\n\ntest_absolute_outside_root_rejected (__main__.ManifestTests.test_absolute_outside_root_rejected) ... ok\ntest_clean_manifest_is_deterministic (__main__.ManifestTests.test_clean_manifest_is_deterministic) ... ok\ntest_duplicate_path_rejected (__main__.ManifestTests.test_duplicate_path_rejected) ... ok\ntest_generated_packet_is_not_source (__main__.ManifestTests.test_generated_packet_is_not_source) ... ok\ntest_manifest_hash_is_content_hash (__main__.ManifestTests.test_manifest_hash_is_content_hash) ... ok\ntest_missing_file_fails (__main__.ManifestTests.test_missing_file_fails) ... ok\ntest_source_byte_change_changes_manifest (__main__.ManifestTests.test_source_byte_change_changes_manifest) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in <elapsed>\n\nOK\n\n",
++  "stdout": "",
 +  "tests": [
 +    {
 +      "name": "test_absent_response_not_success",
