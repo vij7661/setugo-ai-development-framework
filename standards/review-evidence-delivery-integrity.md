@@ -346,6 +346,7 @@ An operating point is the full tuple of:
 - corpus byte size and provider-tokenizer token size;
 - file count/per-file sizes;
 - output/reasoning budget;
+- witness protocol identity/version and maximum challenge/response budget when witnesses are used;
 - transformation mode.
 
 The **claimed operating point itself must be tested**. The protocol does not assume monotonic provider behavior and does not qualify untested intermediate points by interpolation.
@@ -618,6 +619,38 @@ For production material review attempts using a mode without deterministic range
 
 The residual possibility of selective loss outside challenged offsets is recorded in `VerdictAdmissibilityResult` as a nonclaim/risk. A transition class whose governed risk budget does not permit that residual risk must use deterministic retrieval/range proof or a platform-forced representation with stronger observability.
 
+### Witness protocol context budget and noninterference
+
+The witness protocol is part of the qualified production operating point; it is not “free” metadata.
+
+Before dispatch, preflight must include in the cumulative final-context budget:
+
+- evidence representations;
+- witness framing/challenges;
+- maximum witness-response tokens/bytes;
+- tool/result wrappers;
+- final semantic adjudication prompt;
+- required final review output budget.
+
+After the witness phase and immediately before the final semantic adjudication prompt, the platform rechecks the actual transcript/context size against the qualified bound. If witness traffic could evict required evidence, the attempt is void.
+
+Witness challenges are strictly extraction/accessibility operations. They may not ask for evaluation, summarization, ranking, defect identification, or conclusions.
+
+A material review mode using witnesses additionally requires a `WitnessProtocolQualificationRecord` bound to the exact prompt-isolation mechanism/provider mode. That record covers:
+
+- exact witness protocol/version;
+- challenge syntax;
+- ordering relative to evidence and final adjudication;
+- maximum challenge/response budget;
+- evidence-slice selection procedure;
+- deterministic fake-adapter noninterference tests;
+- live-provider bounded noninterference pilot where that provider/mode will be used materially;
+- expiry/drift binding.
+
+Noninterference means the witness protocol has not been shown to change the structured semantic review outcome on the governed adversarial qualification corpus beyond the preregistered tolerance. It is not a proof of universal cognitive neutrality.
+
+If noninterference cannot be qualified, that witness-based mode is diagnostic-only; deterministic range/retrieval proof or another provider/mode is required.
+
 ### Opaque attachments
 
 Opaque attachments are qualified per media type **and content-modality class**. Scanned images, text PDFs, tables, embedded objects, archives, and other materially distinct modalities are separate classes.
@@ -696,6 +729,7 @@ If material cross-evidence interactions cannot be reviewed within a qualified co
 - trusted adapter and post-SDK wire binding valid;
 - complete item/chunk delivery;
 - per-attempt content-bound accessibility witness valid **or** deterministic range/retrieval proof complete;
+- when witnesses are used, WitnessProtocolQualificationRecord current/matching and actual witness transcript remains within the qualified final-context budget;
 - session/file/retrieval coverage valid for the delivery mode;
 - PromptIsolationQualificationRecord current/matching;
 - semantic review coverage valid;
@@ -809,6 +843,7 @@ Every material platform API review must retain:
 - ProviderCapabilityProfile identity;
 - ProviderAccessibilityRiskPolicy identity;
 - ProviderContextIsolationPolicy identity and selected isolation basis;
+- WitnessProtocolQualificationRecord identity when witnesses are used;
 - hidden-provider-state residual/nonclaim decision;
 - pinned provider documentation/contract identity where the dedicated-account basis is used;
 - AdmissionFenceRecord;
