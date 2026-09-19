@@ -3,14 +3,14 @@
 Planning-only artifact. No RQ-16 execution occurred.
 
 ## Identity
-reviewed_source_commit=cc0a92efb908eb296ad0a977706dccc333076842
-reviewed_source_tree=ea181997b17efcdeda310b768de7b0ae3660ed31
-packet_parent_commit=cc0a92efb908eb296ad0a977706dccc333076842
-packet_parent_tree=ea181997b17efcdeda310b768de7b0ae3660ed31
+reviewed_source_commit=83af59fcf717d51988ca01833150b15ec5f85e96
+reviewed_source_tree=4a8189d664ddf89e53f37adaf8042ffd6cfcb119
+packet_parent_commit=83af59fcf717d51988ca01833150b15ec5f85e96
+packet_parent_tree=4a8189d664ddf89e53f37adaf8042ffd6cfcb119
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
-exact_source_diff_sha256=f83142e394e1e12fdf2a7910481676bd1e786ca5607bf1faa180722e89add894
-source_manifest_sha256=5b8927fe115bbdaf2455e74c2ce5aa0fe0ecdab68af72ae0430c16ab94634c88
+exact_source_diff_sha256=0a6f7f740fbf0c6850a916160340033f5142090b95c090a2f43fe1d2d4019aa2
+source_manifest_sha256=87ab9f719dd15cb5e4a4d51d926fee2aa72d75c96e7c19b395c6f0ef8fd1607e
 packet_content_identity_schema_version=1
 branch=qualification/v24-i11-v6-runtime-qualification-1-rq16-preregistration
 packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION
@@ -252,7 +252,7 @@ dd674e1bfc0afca03cb80248b2b131fdbf8cea1e628ecc6105a37c5e374bd834  governance-run
 1d949be263795a24cb247a5e764eeb684e793a505553dcdbe6e2db9e82b5e9be  governance-runtime/collect_rq16_results.py
 4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916  governance-runtime/run_v24_v6_rq1_rq16_mutations.py
 fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5  governance-runtime/test_v24_v6_rq1_rq16_harness.py
-2bbfecd9bdba443b2c7145a40a2e3d73cfa89102732ce7b8f4b3ccde2bce692f  governance-runtime/v24_v6_rq1_rq16_harness.py
+babe9b5030f415ce87b77c288f53776d3f14dcdbbdfeca4f3c4be532b9bff476  governance-runtime/v24_v6_rq1_rq16_harness.py
 31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7  implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json
 958c15eed2d13d0b74a0b2f3d95d5f2f909b97ac9f88fde419eda2ddf7dca769  implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md
 efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422  implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json
@@ -261,7 +261,7 @@ efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422  implementation
 527ac480abf1e6b74fab31374886fde58f6dffd77c7274b92e4e481711a8fdfd  implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json
 19eaca68666f2b61aea648a7b6fce74912649a45ac20e6155d6cd8fdba3e2fc6  implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md
 ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b  implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md
-065a12d147dc92064b01f5cd399c1166882c8f5b7c6b15b500bc6f818d792e42  implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
+94c34f8d86f9421968d5a3050a55a048cf0c0ad513c1a80584ea5ffcd411a977  implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
 
 ### implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json sha256=31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7
 
@@ -315,7 +315,7 @@ Both returned `Access denied` on this host. No Linux `/run` filesystem type, mou
 ```
 
 
-### governance-runtime/v24_v6_rq1_rq16_harness.py sha256=2bbfecd9bdba443b2c7145a40a2e3d73cfa89102732ce7b8f4b3ccde2bce692f
+### governance-runtime/v24_v6_rq1_rq16_harness.py sha256=babe9b5030f415ce87b77c288f53776d3f14dcdbbdfeca4f3c4be532b9bff476
 
 ```python
 #!/usr/bin/env python3
@@ -327,6 +327,11 @@ from datetime import datetime, timezone
 ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
 OPS={"ENOSPC":{"operation":"write_authority_record","syscalls":{"write","fsync"}},"EROFS":{"operation":"write_authority_record","syscalls":{"write","fsync","rename"}},"EIO":{"operation":"record_io","syscalls":{"read","write","fsync","rename"}},"EACCES":{"operation":"record_access","syscalls":{"open","write","rename"}}}
 MECHANISM_CLASSES={"kernel_quota","dedicated_ro_mount","disposable_fault_layer","kernel_policy"}
+TRUSTED_AUTHORIZATION_PROVENANCE_AVAILABLE=False
+
+def expected_trusted_authorization_provenance():
+    """No governance-authorized issuer is available during preregistration."""
+    return None
 
 def expected_context(arm, record_id="abc123"):
     if arm not in ARMS or not re.fullmatch(r"[A-Za-z0-9_-]+",record_id): raise ValueError("invalid expected context")
@@ -809,12 +814,12 @@ if __name__=='__main__': raise SystemExit(main())
 ```
 
 
-### implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json sha256=065a12d147dc92064b01f5cd399c1166882c8f5b7c6b15b500bc6f818d792e42
+### implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json sha256=94c34f8d86f9421968d5a3050a55a048cf0c0ad513c1a80584ea5ffcd411a977
 
 ```python
 {
   "exit_code": 0,
-  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.022s\n\nOK\n",
+  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.019s\n\nOK\n",
   "stdout": "",
   "tests": [
     {
@@ -2254,7 +2259,7 @@ test_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requi
 test_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 0.019s
+Ran 11 tests in 0.016s
 
 OK
 ```
@@ -3880,10 +3885,10 @@ index 00000000..54e6f15c
 +if __name__=="__main__": unittest.main(verbosity=2)
 diff --git a/governance-runtime/v24_v6_rq1_rq16_harness.py b/governance-runtime/v24_v6_rq1_rq16_harness.py
 new file mode 100644
-index 00000000..e4c9d2c8
+index 00000000..4918ad16
 --- /dev/null
 +++ b/governance-runtime/v24_v6_rq1_rq16_harness.py
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,256 @@
 +#!/usr/bin/env python3
 +"""RQ-16 preregistration evaluator.  Plan/self-test only; never faults a runtime."""
 +from __future__ import annotations
@@ -3893,6 +3898,11 @@ index 00000000..e4c9d2c8
 +ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
 +OPS={"ENOSPC":{"operation":"write_authority_record","syscalls":{"write","fsync"}},"EROFS":{"operation":"write_authority_record","syscalls":{"write","fsync","rename"}},"EIO":{"operation":"record_io","syscalls":{"read","write","fsync","rename"}},"EACCES":{"operation":"record_access","syscalls":{"open","write","rename"}}}
 +MECHANISM_CLASSES={"kernel_quota","dedicated_ro_mount","disposable_fault_layer","kernel_policy"}
++TRUSTED_AUTHORIZATION_PROVENANCE_AVAILABLE=False
++
++def expected_trusted_authorization_provenance():
++    """No governance-authorized issuer is available during preregistration."""
++    return None
 +
 +def expected_context(arm, record_id="abc123"):
 +    if arm not in ARMS or not re.fullmatch(r"[A-Za-z0-9_-]+",record_id): raise ValueError("invalid expected context")
@@ -5739,13 +5749,13 @@ index 00000000..d60eee26
 +`RQ16_EXECUTED=false`; no mount, quota, device-mapper, ACL, ownership, mode, service, or filesystem mutation occurred.
 diff --git a/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json b/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
 new file mode 100644
-index 00000000..fc7911a8
+index 00000000..9f179470
 --- /dev/null
 +++ b/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
 @@ -0,0 +1,54 @@
 +{
 +  "exit_code": 0,
-+  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.022s\n\nOK\n",
++  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.019s\n\nOK\n",
 +  "stdout": "",
 +  "tests": [
 +    {
