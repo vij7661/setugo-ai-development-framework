@@ -61,6 +61,29 @@ If the candidate changes any governing input in its own head, that head version 
 
 Registries and the authority-snapshot pointer are maintained outside the candidate write set. A candidate may propose changes to governing inputs, but those proposed changes cannot authorize or narrow their own review.
 
+### Conservative base/head comparison rules
+
+The platform-defined “stricter” relation is explicit per governing element class:
+
+| Governing element | Stricter relation |
+|---|---|
+| required evidence refs / mandatory dimensions / required interactions | set superset is stricter |
+| allowed representations | set intersection is stricter; empty intersection => unresolved |
+| representation fidelity | raw/lossless > bounded-loss > summary; incomparable media semantics => unresolved |
+| required review level | REQUIRED > RECOMMENDED > NONE |
+| allowed provider/account/region/tool set | set intersection is stricter; empty set => not qualified |
+| data egress / retention / training permissions | deny > conditional allow > allow; conflicting conditions with no partial order => unresolved |
+| minimum statistical success bound / confidence | larger lower-bound requirement and larger confidence are stricter |
+| tolerated hard failures / residual risk | smaller tolerated value is stricter |
+| required confirmation trials | larger minimum is stricter when all other acceptance semantics match |
+| profile expiry / requalification interval | shorter validity is stricter |
+| runtime byte/token/file limits | smaller maximum is stricter |
+| accessibility proof mode | deterministic full-range proof > probabilistic/content-bound proof > self-attestation |
+| prompt-isolation requirement | superset of required isolation predicates is stricter |
+| transition-class rank | only the authority registry may define the rank; missing/incomparable rank => unresolved |
+
+A same-dimension semantic change with no comparator is **never auto-merged**. It requires a separate independently authorized governance update; for the candidate review it remains `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`.
+
 ## Core authority rule
 
 **A reviewer disposition is inadmissible for a material authority transition unless every mandatory evidence item is governed from source through delivery and the selected provider/mode is qualified to make that exact representation available to the reviewer.**
@@ -91,6 +114,7 @@ The `RequiredEvidenceContract` must contain at least:
 - required cross-evidence interaction families;
 - deterministic optional-evidence rules;
 - ProviderAccessibilityRiskPolicy identity for the protected transition class;
+- ProviderContextIsolationPolicy identity for the protected transition class/provider mode;
 - contract hash.
 
 Before manifest freeze, prove all of:
@@ -135,6 +159,8 @@ At minimum preserve:
 - `REVIEWER_EVIDENCE_ASSESSMENT_CONTRADICTION`
 - `PROVIDER_CONTEXT_STATE_UNPROVEN`
 - `PROVIDER_CONTEXT_STATE_DRIFT`
+- `PROVIDER_CONTEXT_HIDDEN_STATE_RESIDUAL`
+- `PROVIDER_CONTEXT_ISOLATION_POLICY_MISSING`
 - `PROVIDER_RETRIEVAL_COVERAGE_UNPROVEN`
 - `PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN`
 - `STATISTICAL_INDEPENDENCE_UNPROVEN`
@@ -447,6 +473,40 @@ Therefore a chunked material review is admissible only when one of these is qual
 
 A plain multi-message sequence must not be used to claim arbitrarily large context.
 
+## Provider context isolation policy
+
+Every material review binds a platform-owned `ProviderContextIsolationPolicy` selected from the GovernanceAuthoritySnapshot for the exact protected transition class and provider mode.
+
+The policy chooses one of these admissible isolation bases:
+
+1. `COMPLETE_READABLE_FENCED_STATE`
+   - the provider exposes the complete account/project/session mutable semantic-state inventory relevant to the mode;
+   - each mutable channel is readable or disable-able;
+   - each load-bearing channel has a monotonic version/fence through admission.
+
+2. `DEDICATED_PLATFORM_ACCOUNT_STATELESS_BOUNDARY`
+   - a dedicated platform-owned provider account/project/credential is used only for governed review;
+   - candidate and end-user writes to provider configuration are impossible by authorization policy;
+   - provider product documentation/contract for the exact API mode is hash/version pinned and states that account/project/session memory, personalization, custom instructions and knowledge connectors are disabled or absent;
+   - platform configuration readback proves all exposed mutable semantic features disabled;
+   - behavioral sentinel qualification is run on a disposable qualification account/project of the same provider/account class and configuration template, never by contaminating the production review account;
+   - production account configuration template/hash is independently matched to the qualified template and fenced.
+
+Provider documentation is necessary provenance, not sufficient proof.
+
+### Hidden provider-internal state nonclaim
+
+The platform cannot prove absence of provider-internal mutable semantic state that the provider does not expose through API/configuration and that cannot be independently controlled.
+
+Therefore each `ProviderContextIsolationPolicy` declares a `hidden_provider_state_residual` rule:
+
+- `DISALLOW` — any unexposed mutable-semantic-state possibility makes the provider/mode `NOT_QUALIFIED_FOR_MATERIAL_REVIEW`;
+- `DEDICATED_ACCOUNT_EXTERNAL_TRUST_BOUNDARY` — only the dedicated-account basis above is permitted, and the residual is recorded explicitly as `PROVIDER_CONTEXT_HIDDEN_STATE_RESIDUAL`.
+
+The highest material-authority transition class defaults to `DISALLOW` unless an independent governance decision explicitly authorizes the dedicated-account external trust boundary.
+
+No result may be labeled “clean context” without recording the selected isolation basis and residual/nonclaim.
+
 ## Clean material-review context and delivery session binding
 
 A material review uses a fresh stateless request or a **platform-created fresh stateful session**. Reuse of an arbitrary pre-existing provider thread/conversation is prohibited.
@@ -482,7 +542,7 @@ Stateful session reuse is allowed only inside the same delivery-attempt lineage 
 
 Provider-context qualification must include **sentinel tests** for every mutable semantic channel available to the provider mode: enable a controlled sentinel and prove it influences the model when enabled; disable/clear it and prove absence across the governed confirmation trials. Lying/incomplete readback is explicitly tested.
 
-Provider-internal fixed service/model safety behavior that cannot be extracted is a nonclaim. It is tolerated only when it is not mutable at account/project/session scope and the exact provider/deployment mode passes the governed behavioral qualification. Unknown mutable semantic context is never tolerated.
+Provider-internal fixed service/model safety behavior that cannot be extracted is a nonclaim. Hidden provider-internal mutable semantic state is governed only through the ProviderContextIsolationPolicy above: it is either disallowed or explicitly retained as a dedicated-account external trust-boundary residual. The platform never claims that such hidden state was observed clean.
 
 For stateless provider modes, the final request itself must contain or qualified-reference all mandatory evidence and context. A receipt from one session/request cannot prove completeness for another.
 
@@ -628,7 +688,9 @@ If material cross-evidence interactions cannot be reviewed within a qualified co
 - current egress authorization;
 - ProviderCapabilityProfile current and statistically qualified for the exact operating point;
 - ProviderAccessibilityRiskPolicy current and satisfied by the selected accessibility proof mode;
-- ProviderContextStateEvidence clean/current;
+- ProviderContextIsolationPolicy current, exact-mode-bound, and satisfied;
+- hidden-provider-state residual allowed by the protected transition policy, if any;
+- ProviderContextStateEvidence clean/current for all observable channels;
 - AdmissionFenceRecord valid for every load-bearing mutable provider configuration channel;
 - provider mutable semantic-context qualification satisfied;
 - trusted adapter and post-SDK wire binding valid;
@@ -642,7 +704,7 @@ If material cross-evidence interactions cannot be reviewed within a qualified co
 
 Admission is the **last authority operation** and is atomic with checkpoint persistence:
 
-1. capture monotonic versions/hashes for authority snapshot, capability profile, accessibility-risk policy, egress policy, provider context/session/file state, AdmissionFenceRecord, prompt-isolation record, and current review request;
+1. capture monotonic versions/hashes for authority snapshot, capability profile, accessibility-risk policy, context-isolation policy, egress policy, provider context/session/file state, AdmissionFenceRecord, prompt-isolation record, and current review request;
 2. validate all predicates;
 3. compare-and-set the authoritative checkpoint only if every version/hash is unchanged;
 4. persist the VerdictAdmissibilityResult and checkpoint in the same authority transaction/boundary.
@@ -746,6 +808,9 @@ Every material platform API review must retain:
 - egress decision;
 - ProviderCapabilityProfile identity;
 - ProviderAccessibilityRiskPolicy identity;
+- ProviderContextIsolationPolicy identity and selected isolation basis;
+- hidden-provider-state residual/nonclaim decision;
+- pinned provider documentation/contract identity where the dedicated-account basis is used;
 - AdmissionFenceRecord;
 - prompt identities;
 - pre-dispatch revalidation result for capability/egress/session state;
