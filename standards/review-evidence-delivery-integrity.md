@@ -101,6 +101,8 @@ subject only to explicitly governed representation mappings.
 
 Any mismatch fails before manifest freeze as `EVIDENCE_SELECTION_INCOMPLETE`.
 
+If the pinned governor cannot deterministically derive a complete required-evidence or required-interaction contract from the governing materials, the review is not eligible for material authority. Ambiguity is classified as `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`; the platform may not fall back to trusting the proposer/ReviewRequest declaration.
+
 ## Failure taxonomy
 
 At minimum preserve:
