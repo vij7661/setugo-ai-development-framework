@@ -5,21 +5,21 @@ from pathlib import Path
 from v24_v6_rq1_crash_predicates import evaluate_crash_case
 
 
-def current_live_first_attempt(control):
+def current_live_first_attempt(returncode, stdout, stderr):
     """Build canonical first-attempt evidence from a live subprocess result.
 
     Empty stdout is represented as ``None`` rather than synthetic ``{}``; the
     shared evaluator then requires the exact transport-close diagnostic.
     """
-    stdout = control.stdout if isinstance(control.stdout, str) else ""
+    stdout = stdout if isinstance(stdout, str) else ""
     parsed = None
     if stdout.strip():
         try:
             parsed = json.loads(stdout)
         except Exception:
             parsed = None
-    return {"rc": control.returncode, "stdout": stdout,
-            "stderr": control.stderr if isinstance(control.stderr, str) else "",
+    return {"rc": returncode, "stdout": stdout,
+            "stderr": stderr if isinstance(stderr, str) else "",
             "parsed": parsed}
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -512,7 +512,7 @@ def _crash_case(cid,out,boundary):
     except RuntimeError as exc: return False,{"harness_defect":str(exc),"boundary_evidence":trace}
     retry=trusted_consume("positive",diag)
     post_retry=observe(out/f"{cid}.post-retry.observer.json")
-    first = current_live_first_attempt(control)
+    first = current_live_first_attempt(control.returncode, so, se)
     try: second=json.loads(retry.stdout.strip()) if retry.stdout.strip() else {}
     except Exception: second={}
     replay=None; replay_obj={}
@@ -531,25 +531,7 @@ def _crash_case(cid,out,boundary):
     retry_consumed_delta=set_delta(recovery,post_retry,"consumed")
     replay_records_delta=set_delta(post_retry,post_replay,"records")
     replay_consumed_delta=set_delta(post_retry,post_replay,"consumed")
-    prep_ok=(exact_delta(prepared_records_delta,[target_name]) and exact_delta(prepared_consumed_delta))
-    recovery_noop=exact_delta(recovery_records_delta) and exact_delta(recovery_consumed_delta)
-    replay_noop=exact_delta(replay_records_delta) and exact_delta(replay_consumed_delta)
-    if cid=="RQ-13":
-        ok=(prep_ok and trace.get("event")=="syscall_entry" and recovery_noop and recovery_life["records"] and not recovery_life["consumed"] and
-            not first.get("service_authoritative",False) and second.get("service_authoritative") is True and
-            exact_delta(retry_records_delta,removed=[target_name]) and exact_delta(retry_consumed_delta,added=[target_name]) and
-            post_retry_life["consumed"] and not post_retry_life["records"] and replay_obj.get("service_authoritative") is not True and replay_noop)
-    elif cid=="RQ-14":
-        ok=(prep_ok and trace.get("event")=="syscall_entry" and recovery_noop and recovery_life["records"] and not recovery_life["consumed"] and
-            second.get("service_authoritative") is True and exact_delta(retry_records_delta,removed=[target_name]) and exact_delta(retry_consumed_delta,added=[target_name]) and
-            post_retry_life["consumed"] and not post_retry_life["records"] and replay_obj.get("service_authoritative") is not True and replay_noop)
-    else:
-        ok=(prep_ok and trace.get("event")=="syscall_exit" and trace.get("return_value")==0 and
-            exact_delta(recovery_records_delta,removed=[target_name]) and exact_delta(recovery_consumed_delta,added=[target_name]) and
-            recovery_life["consumed"] and not recovery_life["records"] and
-            replay_obj.get("service_authoritative") is not True and replay_noop and post_retry_life["consumed"] and not post_retry_life["records"])
-    ok=ok and restart.returncode==0 and active() and stable(baseline,post_replay)
-    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"service_pid":pid,"boundary":boundary,"tracer_ready":ready,"tracer_armed_timestamp":ready.get("timestamp"),"control_launch_timestamp":control_launch_ts,"ordering_proven":ready.get("timestamp",0)<control_launch_ts,"boundary_evidence":trace,"baseline":baseline,"prepared_observation":prepared,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se,"parsed":first},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"restart_returncode":restart.returncode,"prepared":prepared_life,"recovery":recovery_life,"recovery_observation":recovery,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr,"parsed":second},"post_retry":post_retry_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"post_replay":post_replay_life,"records_delta_prepared":prepared_records_delta,"consumed_delta_prepared":prepared_consumed_delta,"records_delta_recovery":recovery_records_delta,"consumed_delta_recovery":recovery_consumed_delta,"records_delta_retry":retry_records_delta,"consumed_delta_retry":retry_consumed_delta,"records_delta_post_replay":replay_records_delta,"consumed_delta_post_replay":replay_consumed_delta,"state_stable":stable(baseline,post_replay),"service_active":active()}
+    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"service_pid":pid,"boundary":boundary,"tracer_ready":ready,"tracer_armed_timestamp":ready.get("timestamp"),"control_launch_timestamp":control_launch_ts,"ordering_proven":ready.get("timestamp",0)<control_launch_ts,"boundary_evidence":trace,"baseline":baseline,"prepared_observation":prepared,"first_consume":first,"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"restart_returncode":restart.returncode,"prepared":prepared_life,"recovery":recovery_life,"recovery_observation":recovery,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr,"parsed":second},"post_retry":post_retry_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"post_replay":post_replay_life,"records_delta_prepared":prepared_records_delta,"consumed_delta_prepared":prepared_consumed_delta,"records_delta_recovery":recovery_records_delta,"consumed_delta_recovery":recovery_consumed_delta,"records_delta_retry":retry_records_delta,"consumed_delta_retry":retry_consumed_delta,"records_delta_post_replay":replay_records_delta,"consumed_delta_post_replay":replay_consumed_delta,"state_stable":stable(baseline,post_replay),"service_active":active()}
     detail["prepared"] = prepared
     detail["recovery"] = recovery
     ok, predicate_reasons = evaluate_crash_case(cid, detail)

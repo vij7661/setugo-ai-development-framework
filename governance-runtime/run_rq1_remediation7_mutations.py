@@ -42,8 +42,10 @@ def main() -> int:
         for name, mutate in mutations.items():
             evidence = copy.deepcopy(base); mutate(evidence); ok, reasons = evaluate_crash_case(case, evidence)
             checks.append({"case": case, "mutation": name, "source_representation": "Run-35-shaped adapted evidence", "field": "first_consume" if name.startswith("first_") else "case evidence", "expected": "REJECT", "actual": "PASS" if ok else "REJECT", "pass": ok, "reasons": reasons})
-    args.output.write_text(json.dumps({"operation": "OFFLINE_MUTATION_FALSIFICATION", "checks": checks, "all_rejected": all(not c["pass"] for c in checks)}, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    return 0 if all(not c["pass"] for c in checks) else 2
+    rejected = sum(1 for c in checks if not c["pass"])
+    surviving = len(checks) - rejected
+    args.output.write_text(json.dumps({"operation": "OFFLINE_MUTATION_FALSIFICATION", "total_mutations": len(checks), "rejected_mutations": rejected, "surviving_mutations": surviving, "all_rejected": surviving == 0, "checks": checks}, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    return 0 if surviving == 0 else 2
 
 
 if __name__ == "__main__":

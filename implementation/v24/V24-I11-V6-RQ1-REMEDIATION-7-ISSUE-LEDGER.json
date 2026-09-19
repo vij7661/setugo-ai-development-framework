@@ -1,0 +1,18 @@
+{
+  "issues": [
+    {
+      "issue_id": "F-02-LIVE-FIRST-ATTEMPT-CAPTURE",
+      "source": "independent review / current_live_first_attempt integration",
+      "severity": "BLOCKING",
+      "description": "The live crash path nested the canonical first-attempt builder output inside parsed and passed the exhausted Popen object instead of captured communicate() strings.",
+      "reproduction": "After control.communicate(), current_live_first_attempt(control) receives a Popen whose stdout/stderr are not captured strings; first_consume is not canonical.",
+      "root_cause": "live builder call-site and stale duplicated pre-evaluator decision logic",
+      "affected_files": ["governance-runtime/v24_v6_rq1_remediation2_harness.py"],
+      "fix": "Build first_consume from control.returncode, captured so, and captured se; make evaluate_crash_case the sole load-bearing verdict path.",
+      "tests_added": ["test_live_builder_uses_raw_shape_and_shared_interpreter", "first-attempt mutation cases"],
+      "status": "VALIDATED"
+    }
+  ],
+  "open_automatable_issues": 0,
+  "governance": "NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY"
+}

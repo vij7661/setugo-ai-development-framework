@@ -103,6 +103,9 @@ class CrashPredicateBehaviourTests(unittest.TestCase):
             {"rc": 1, "stdout": '{"service_authoritative": false, "trusted_record_id": "wrong"}', "stderr": ""},
             {"rc": 0, "stdout": "", "stderr": "trusted service closed before control response"},
             {"rc": 1, "stdout": "", "stderr": "trusted service closed before control response", "parsed": {}},
+            {"rc": 1, "stdout": "", "stderr": "trusted service closed before control response", "parsed": {"service_authoritative": False}},
+            {"rc": 1, "stdout": None, "stderr": "trusted service closed before control response"},
+            {"rc": 1, "stdout": "", "stderr": None},
         ):
             ok, _ = interpret_first_attempt(bad, target)
             self.assertFalse(ok, bad)
@@ -112,12 +115,19 @@ class CrashPredicateBehaviourTests(unittest.TestCase):
             returncode = 1
             stdout = ""
             stderr = "RuntimeError: trusted service closed before control response"
-        evidence = current_live_first_attempt(Control())
+        control = Control()
+        evidence = current_live_first_attempt(control.returncode, control.stdout, control.stderr)
         self.assertIsNone(evidence["parsed"])
         self.assertEqual(interpret_first_attempt(evidence, "a" * 64), (True, []))
+        canonical = base("RQ-13")
+        canonical["first_consume"] = evidence
+        self.assertEqual(evaluate_crash_case("RQ-13", canonical), (True, []))
         Control.stdout = '{"service_authoritative": true}'
-        bad = current_live_first_attempt(Control())
+        bad_control = Control()
+        bad = current_live_first_attempt(bad_control.returncode, bad_control.stdout, bad_control.stderr)
         self.assertFalse(interpret_first_attempt(bad, "a" * 64)[0])
+        canonical["first_consume"] = bad
+        self.assertFalse(evaluate_crash_case("RQ-13", canonical)[0])
 
 
 if __name__ == "__main__":
