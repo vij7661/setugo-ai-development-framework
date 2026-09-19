@@ -403,3 +403,32 @@ def validate_witness(challenge: str, response: str, *, max_response_bytes: int, 
     if len(response.encode()) > max_response_bytes:
         reasons.append("witness_budget_exceeded")
     return not reasons, tuple(reasons)
+
+
+def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if not state.clean or not state.sentinel_passed:
+        reasons.append("provider_context_not_clean")
+    if not set(required_channels).issubset(state.observable_channels):
+        reasons.append("context_channel_unobserved")
+    if not state.state_hash:
+        reasons.append("context_state_unbound")
+    return not reasons, tuple(reasons)
+
+
+def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if not fence.current:
+        reasons.append("admission_fence_not_current")
+    if fence.version != expected_version:
+        reasons.append("admission_fence_version_mismatch")
+    return not reasons, tuple(reasons)
+
+
+def safe_archive_member(name: str) -> bool:
+    """Reject traversal, absolute paths, drive paths and ambiguous separators."""
+    from pathlib import PurePosixPath
+    if not name or "\\" in name or name.startswith("/") or ":" in name:
+        return False
+    parts = PurePosixPath(name).parts
+    return ".." not in parts and all(part not in ("", ".") for part in parts)
