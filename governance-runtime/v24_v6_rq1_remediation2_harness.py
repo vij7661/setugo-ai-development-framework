@@ -66,10 +66,20 @@ def write_json(path:Path,obj):
     path.write_text(json.dumps(obj,sort_keys=True,indent=2)+"\n",encoding="utf-8")
 
 def observe(path:Path):
-    p=subprocess.run([sys.executable,str(OBSERVER)],text=True,capture_output=True,check=False,timeout=15)
+    cmd=[sys.executable,str(OBSERVER)]
+    if os.geteuid()!=0:
+        cmd=["sudo","-n","env","PYTHONDONTWRITEBYTECODE=1","python3","-B",str(OBSERVER)]
+    p=subprocess.run(cmd,text=True,capture_output=True,check=False,timeout=15)
     if p.returncode: raise RuntimeError(f"observer failed: {p.stderr}")
     path.write_text(p.stdout.strip()+"\n",encoding="utf-8")
     return json.loads(p.stdout)
+
+def observed_entries(observation, label):
+    """Return actual directory entries; never treat metadata keys as entries."""
+    obj=observation.get(label)
+    if not isinstance(obj,dict) or obj.get("error") is not None or not isinstance(obj.get("entries"),list):
+        raise RuntimeError(f"HARNESS_DEFECT: indeterminate {label} observation")
+    return obj["entries"]
 
 def stable(before,after):
     for k in ["service","gate","unit"]:
@@ -408,7 +418,10 @@ def _crash_case(cid,out,boundary):
     except Exception: first={}
     try: second=json.loads(retry.stdout.strip()) if retry.stdout.strip() else {}
     except Exception: second={}
-    consumed=list((a.get("consumed") or {}).keys()); records=list((a.get("records") or {}).keys())
+    try:
+        consumed=observed_entries(a,"consumed"); records=observed_entries(a,"records")
+    except RuntimeError as exc:
+        return False,{"harness_defect":str(exc),"trigger":boundary,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr}}
     if cid=="RQ-13": ok=trace.get("event")=="syscall_entry" and boundary=="before-validation" and not consumed and bool(records) and not second.get("service_authoritative",False)
     elif cid=="RQ-14": ok=trace.get("event")=="syscall_entry" and boundary=="after-validation-before-rename" and bool(second.get("service_authoritative")) and len(consumed)>=1
     else: ok=trace.get("event")=="syscall_exit" and boundary=="after-rename" and len(consumed)>=1 and not second.get("service_authoritative",False)
