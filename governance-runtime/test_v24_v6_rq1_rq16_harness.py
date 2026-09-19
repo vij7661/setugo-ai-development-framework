@@ -1,30 +1,41 @@
 #!/usr/bin/env python3
-import unittest
-from v24_v6_rq1_rq16_harness import evaluate_arm, exact_paths, check_rq17_contamination, validate_authorization_token
+import copy, unittest
+from v24_v6_rq1_rq16_harness import expected_context, evaluate_arm, check_rq17_contamination, validate_authorization_token
 
-TARGET="abc123"; RP,CP=exact_paths(TARGET)
-def obs():
-    return {s:{"service_pid":123,"records_path":RP,"consumed_path":CP,"records_device":"d1","consumed_device":"d1","mount_id":"m1","service_binary_sha256":"svc","gate_sha256":"gate","socket_state":"ok","records_entries":[],"consumed_entries":[]} for s in ("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")}
-def good(errno="ENOSPC"):
-    return {"target_record_id":TARGET,"fault_proof":{"arm":"ENOSPC","mechanism_id":"m","mechanism_class":"kernel_quota","target_operation":"write_authority_record","target_syscall":"write","target_path":RP,"expected_errno":errno,"observed_errno":errno,"kernel_or_filesystem_source":"kernel","activation_evidence":{"observed":True},"operation_evidence":{"observed":True},"timestamp":1.0,"service_pid":123,"target_record_id":TARGET,"device_id":"d1","mount_id":"m1","independent_observer_reference":"obs","cleanup_reference":"clean"},"observations":obs(),"lifecycle":{"target_record_id":TARGET,"target_in_records":True,"target_in_consumed":False,"deltas":{}},"cleanup_proof":{"mutation":"quota","inverse_action":"remove","pre_state":"p","post_inverse_state":"p","hashes":"h","ownership":"o","modes":"m","device_ids":"d","mount_identity":"mi","service_identity":"si","socket_state":"ss","records_consumed_state":"rc","fault_disabled":True,"independently_verified":True},"rq17_contamination":False,"service_recoverable":True}
+EXPECTED=expected_context("ENOSPC"); TARGET=EXPECTED["target_record_id"]
+def observation():
+    return {s:{"target_record_id":TARGET,"records_path":EXPECTED["expected_records_path"],"consumed_path":EXPECTED["expected_consumed_path"],"records_realpath":EXPECTED["expected_records_realpath"],"consumed_realpath":EXPECTED["expected_consumed_realpath"],"records_device":"d1","consumed_device":"d1","records_mount":"m1","consumed_mount":"m1","records_fs":"fs1","consumed_fs":"fs1","records_symlink":False,"consumed_symlink":False,"service_pid":42,"service_binary_sha256":"service-sha","gate_sha256":"gate-sha","socket_state":"ok","records_entries":[],"consumed_entries":[]} for s in ("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")}
+def good():
+    return {"fault_proof":{"arm":"ENOSPC","mechanism_id":EXPECTED["mechanism_id"],"mechanism_class":"kernel_quota","target_operation":"write_authority_record","target_syscall":"write","target_path":EXPECTED["expected_records_path"],"expected_errno":"ENOSPC","observed_errno":"ENOSPC","kernel_or_filesystem_source":"kernel","activation_evidence":{"observed":True},"operation_evidence":{"observed":True},"timestamp":1.0,"service_pid":42,"target_record_id":TARGET,"device_id":"d1","mount_id":"m1","filesystem_identity":"fs1","independent_observer_reference":"obs","cleanup_reference":"clean"},"observations":observation(),"lifecycle":{"target_record_id":TARGET,"target_in_records":True,"target_in_consumed":False,"deltas":{}},"cleanup_proof":{"mechanism_id":EXPECTED["mechanism_id"],"mutation":"quota","inverse_action":"remove","pre_state":"p","post_inverse_state":"p","hashes":"h","ownership":"o","modes":"m","device_ids":"d","mount_identities":"m","filesystem_identities":"f","service_identity":"s","service_health":"ok","socket_state":"ok","records_state":"r","consumed_state":"c","fault_disabled":True,"independently_verified":True},"service_recoverable":True}
 
 class RQ16Tests(unittest.TestCase):
-    def test_structured_candidate_passes(self): self.assertEqual(evaluate_arm("ENOSPC",good())[0],"PASS")
-    def test_exact_target_and_paths(self):
-        e=good(); e["target_record_id"]="other"; self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-        e=good(); e["fault_proof"]["target_path"]="/run/v24-v6-authority/private/records/abc123-other.record"; self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-    def test_provenance_and_syscall(self):
-        for k,v in (("activation_evidence",{}),("operation_evidence",{}),("target_syscall","rename"),("observed_errno","EROFS")):
-            e=good(); e["fault_proof"][k]=v; self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-    def test_observer_cleanup_and_lifecycle(self):
-        e=good(); e["observations"].pop("restored"); self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-        e=good(); e["cleanup_proof"]["independently_verified"]=False; self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-        e=good(); e["lifecycle"]["target_in_consumed"]=True; self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-    def test_authority_and_contamination_red_or_reject(self):
-        e=good(); e["authoritative_success"]=True; self.assertEqual(evaluate_arm("ENOSPC",e)[0],"RED")
-        e=good(); e["rq17_contamination"]=True; self.assertNotEqual(evaluate_arm("ENOSPC",e)[0],"PASS")
-        self.assertFalse(check_rq17_contamination({"records_device":"d1","consumed_device":"d1","records_fs":"f","consumed_fs":"f","mount_topology":"m"},{"records_device":"d2","consumed_device":"d1","records_fs":"f","consumed_fs":"f","mount_topology":"m"})[0])
-    def test_token_is_explicitly_bound(self):
-        self.assertTrue(validate_authorization_token({}, {}) )
+    def test_valid_structured_expected_observed_passes(self): self.assertEqual(evaluate_arm("ENOSPC",good(),EXPECTED)[0],"PASS")
+    def test_expected_context_required(self): self.assertNotEqual(evaluate_arm("ENOSPC",good(),None)[0],"PASS")
+    def test_target_mutations_reject(self):
+        for field,value in (("target_record_id","other"),("records_path","/run/v24-v6-authority/private/records/x.record"),("records_realpath","/alias"),("records_device","d2"),("records_mount","m2"),("records_fs","fs2"),("records_symlink",True)):
+            e=good(); e["fault_proof"]["target_record_id" if field=="target_record_id" else "target_path" if field=="records_path" else "target_path"] = value if field in ("target_record_id","records_path") else e["fault_proof"]["target_path"]
+            if field not in ("target_record_id","records_path"): e["observations"]["baseline"][field]=value
+            self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+    def test_provenance_mutations_reject(self):
+        for field,value in (("activation_evidence",{}),("operation_evidence",{}),("target_syscall","rename"),("observed_errno","EROFS"),("mechanism_id","fake")):
+            e=good(); e["fault_proof"][field]=value; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+    def test_observer_cleanup_lifecycle_mutations_reject(self):
+        e=good(); e["observations"].pop("restored"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+        e=good(); e["cleanup_proof"].pop("hashes"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+        e=good(); e["lifecycle"]["target_in_consumed"]=True; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+    def test_rq17_gate_cannot_be_overridden_by_boolean(self):
+        e=good(); e["observations"]["fault_active"]["records_device"]="d2"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+        self.assertFalse(check_rq17_contamination(EXPECTED,e["observations"])[0])
+    def test_authority_and_duplicate_transitions_red_or_reject(self):
+        e=good(); e["authoritative_success"]=True; self.assertEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"RED")
+        e=good(); e["lifecycle"]["duplicate_authoritative_consume"]=True; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
+    def test_token_requires_durable_trusted_binding(self):
+        self.assertTrue(validate_authorization_token({},EXPECTED))
+        token={"rq_id":"RQ-16","arm":"ENOSPC","mechanism_id":EXPECTED["mechanism_id"],"issuer":"candidate","single_use_registry":"memory"}
+        self.assertTrue(validate_authorization_token(token,EXPECTED))
+    def test_cross_arm_proof_rejected(self):
+        e=good(); self.assertNotEqual(evaluate_arm("EROFS",e,expected_context("EROFS"))[0],"PASS")
+    def test_absent_response_not_success(self):
+        e=good(); e["lifecycle"]["deltas"]={"response":"absent"}; e["service_recoverable"]=False; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED)[0],"PASS")
 
-if __name__ == "__main__": unittest.main(verbosity=2)
+if __name__=="__main__": unittest.main(verbosity=2)

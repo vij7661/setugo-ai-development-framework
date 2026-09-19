@@ -1,104 +1,114 @@
 #!/usr/bin/env python3
-"""RQ-16 preregistration evaluator; plan/self-test only, never performs faults."""
+"""RQ-16 preregistration evaluator.  Plan/self-test only; never faults a runtime."""
 from __future__ import annotations
 import argparse, json, math, re
 
-ARMS = {"ENOSPC", "EROFS", "EIO", "EACCES"}
-BASE = "/run/v24-v6-authority/private"
-OPS = {
-    "ENOSPC": {"operation": "write_authority_record", "syscalls": {"write", "fsync"}},
-    "EROFS": {"operation": "write_authority_record", "syscalls": {"write", "fsync", "rename"}},
-    "EIO": {"operation": "record_io", "syscalls": {"read", "write", "fsync", "rename"}},
-    "EACCES": {"operation": "record_access", "syscalls": {"open", "write", "rename"}},
-}
-MECHANISM_CLASSES = {"kernel_quota", "dedicated_ro_mount", "disposable_fault_layer", "kernel_policy"}
+ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
+OPS={"ENOSPC":{"operation":"write_authority_record","syscalls":{"write","fsync"}},"EROFS":{"operation":"write_authority_record","syscalls":{"write","fsync","rename"}},"EIO":{"operation":"record_io","syscalls":{"read","write","fsync","rename"}},"EACCES":{"operation":"record_access","syscalls":{"open","write","rename"}}}
+MECHANISM_CLASSES={"kernel_quota","dedicated_ro_mount","disposable_fault_layer","kernel_policy"}
 
-def exact_paths(record_id: str):
-    if not isinstance(record_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", record_id): return None
-    return f"{BASE}/records/{record_id}.record", f"{BASE}/consumed/{record_id}.record"
+def expected_context(arm, record_id="abc123"):
+    if arm not in ARMS or not re.fullmatch(r"[A-Za-z0-9_-]+",record_id): raise ValueError("invalid expected context")
+    rp=f"{BASE}/records/{record_id}.record"; cp=f"{BASE}/consumed/{record_id}.record"
+    return {"rq_id":"RQ-16","arm":arm,"mechanism_id":f"preregistered-{arm.lower()}","mechanism_digest":"mechanism-sha","target_record_id":record_id,"expected_records_path":rp,"expected_consumed_path":cp,"expected_records_realpath":rp,"expected_consumed_realpath":cp,"expected_records_device":"d1","expected_consumed_device":"d1","expected_records_mount":"m1","expected_consumed_mount":"m1","expected_records_fs":"fs1","expected_consumed_fs":"fs1","expected_records_symlink":False,"expected_consumed_symlink":False,"expected_service_identity":"uid0:trusted-service","expected_service_binary_sha256":"service-sha","expected_gate_sha256":"gate-sha","expected_host_identity":"host-bound","expected_runtime_identity":"runtime-bound","plan_commit":"plan-commit","plan_tree":"plan-tree","plan_digest":"plan-sha","execution_contract_digest":"contract-sha","cleanup_contract_digest":"cleanup-sha","review_disposition":"MANUAL_REVIEW_REQUIRED","review_artifact_sha256":"review-sha"}
 
-def check_rq17_contamination(baseline: dict, test: dict):
+def check_rq17_contamination(expected, observed):
     reasons=[]
-    for k in ("records_device", "consumed_device", "records_fs", "consumed_fs", "mount_topology"):
-        if baseline.get(k) != test.get(k): reasons.append(f"topology_changed:{k}")
-    if baseline.get("records_device") != baseline.get("consumed_device"): reasons.append("baseline_already_split")
-    return (not reasons, reasons)
+    if expected.get("expected_records_device") != expected.get("expected_consumed_device"): reasons.append("expected_baseline_split")
+    for stage, o in (observed or {}).items():
+        if not isinstance(o,dict): reasons.append(f"stage_malformed:{stage}"); continue
+        pairs=(("records_device","expected_records_device"),("consumed_device","expected_consumed_device"),("records_mount","expected_records_mount"),("consumed_mount","expected_consumed_mount"),("records_fs","expected_records_fs"),("consumed_fs","expected_consumed_fs"))
+        for actual, exp in pairs:
+            if o.get(actual) != expected.get(exp): reasons.append(f"{stage}:{actual}_mismatch")
+        if o.get("records_device") != o.get("consumed_device"): reasons.append(f"{stage}:split_filesystem")
+    return not reasons, reasons
 
-def _structured_map(obj, keys):
-    return isinstance(obj, dict) and all(k in obj and obj[k] not in (None, "") for k in keys)
-
-def validate_fault_proof(arm, proof, target_id, expected_paths):
-    required=("arm","mechanism_id","mechanism_class","target_operation","target_syscall","target_path","expected_errno","observed_errno","kernel_or_filesystem_source","activation_evidence","operation_evidence","timestamp","service_pid","target_record_id","device_id","mount_id","independent_observer_reference","cleanup_reference")
+def validate_target_binding(observed, expected):
     reasons=[]
-    if not _structured_map(proof, required): reasons.append("fault_proof_incomplete")
-    else:
-        if proof["arm"] != arm: reasons.append("wrong_arm")
-        if proof["mechanism_class"] not in MECHANISM_CLASSES: reasons.append("mechanism_class_not_allowed")
-        if proof["target_record_id"] != target_id: reasons.append("wrong_target_id")
-        if proof["target_path"] not in expected_paths: reasons.append("wrong_target_path")
-        if proof["expected_errno"] != arm or proof["observed_errno"] != arm: reasons.append("wrong_errno")
-        if proof["target_operation"] != OPS[arm]["operation"]: reasons.append("wrong_operation")
-        if proof["target_syscall"] not in OPS[arm]["syscalls"]: reasons.append("wrong_syscall")
-        if not isinstance(proof["activation_evidence"], dict) or not proof["activation_evidence"].get("observed"): reasons.append("activation_not_proven")
-        if not isinstance(proof["operation_evidence"], dict) or not proof["operation_evidence"].get("observed"): reasons.append("operation_not_proven")
-        if not isinstance(proof["service_pid"], int) or proof["service_pid"] <= 0: reasons.append("service_pid_invalid")
-        if not isinstance(proof["timestamp"], (int,float)) or not math.isfinite(proof["timestamp"]): reasons.append("timestamp_invalid")
+    fields=(("target_record_id","target_record_id"),("records_path","expected_records_path"),("consumed_path","expected_consumed_path"),("records_realpath","expected_records_realpath"),("consumed_realpath","expected_consumed_realpath"),("records_device","expected_records_device"),("consumed_device","expected_consumed_device"),("records_mount","expected_records_mount"),("consumed_mount","expected_consumed_mount"),("records_fs","expected_records_fs"),("consumed_fs","expected_consumed_fs"),("records_symlink","expected_records_symlink"),("consumed_symlink","expected_consumed_symlink"))
+    for a,e in fields:
+        if observed.get(a) != expected.get(e): reasons.append(f"target_binding:{a}")
     return reasons
 
-def _observations_complete(obs, target_id, paths):
+def validate_fault_proof(proof, expected):
+    reasons=[]; arm=expected["arm"]
+    req=("arm","mechanism_id","mechanism_class","target_operation","target_syscall","target_path","expected_errno","observed_errno","kernel_or_filesystem_source","activation_evidence","operation_evidence","timestamp","service_pid","target_record_id","device_id","mount_id","filesystem_identity","independent_observer_reference","cleanup_reference")
+    if not isinstance(proof,dict) or any(k not in proof for k in req): return ["fault_proof_incomplete"]
+    if proof["arm"]!=arm: reasons.append("wrong_arm")
+    if proof["mechanism_id"]!=expected["mechanism_id"]: reasons.append("wrong_mechanism")
+    if proof["mechanism_class"] not in MECHANISM_CLASSES: reasons.append("mechanism_class_invalid")
+    if proof["target_record_id"]!=expected["target_record_id"]: reasons.append("wrong_target_id")
+    if proof["target_path"]!=expected["expected_records_path"]: reasons.append("wrong_target_path")
+    if proof["expected_errno"]!=arm or proof["observed_errno"]!=arm: reasons.append("wrong_errno")
+    if proof["target_operation"]!=OPS[arm]["operation"]: reasons.append("wrong_operation")
+    if proof["target_syscall"] not in OPS[arm]["syscalls"]: reasons.append("wrong_syscall")
+    if proof["device_id"]!=expected["expected_records_device"] or proof["mount_id"]!=expected["expected_records_mount"] or proof["filesystem_identity"]!=expected["expected_records_fs"]: reasons.append("wrong_filesystem_identity")
+    if not isinstance(proof["activation_evidence"],dict) or proof["activation_evidence"].get("observed") is not True: reasons.append("activation_not_proven")
+    if not isinstance(proof["operation_evidence"],dict) or proof["operation_evidence"].get("observed") is not True: reasons.append("operation_not_proven")
+    if not isinstance(proof["service_pid"],int) or proof["service_pid"]<=0: reasons.append("service_pid_invalid")
+    if not isinstance(proof["timestamp"],(int,float)) or not math.isfinite(proof["timestamp"]): reasons.append("timestamp_invalid")
+    return reasons
+
+def _obs_complete(observations, expected):
     reasons=[]; stages=("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")
-    if not isinstance(obs, dict): return ["observations_missing"]
-    for stage in stages:
-        o=obs.get(stage)
-        if not isinstance(o, dict): reasons.append(f"observation_missing:{stage}"); continue
-        for k in ("service_pid","records_path","consumed_path","records_device","consumed_device","mount_id","service_binary_sha256","gate_sha256","socket_state","records_entries","consumed_entries"):
-            if k not in o: reasons.append(f"observation_field_missing:{stage}:{k}")
-        if o.get("records_path") != paths[0] or o.get("consumed_path") != paths[1]: reasons.append(f"observation_path_mismatch:{stage}")
+    if not isinstance(observations,dict): return ["observations_missing"]
+    for s in stages:
+        o=observations.get(s)
+        if not isinstance(o,dict): reasons.append(f"observation_missing:{s}"); continue
+        reasons += validate_target_binding(o,expected)
+        for k in ("service_pid","service_binary_sha256","gate_sha256","socket_state","records_entries","consumed_entries"):
+            if k not in o: reasons.append(f"observation_field_missing:{s}:{k}")
     return reasons
 
-def _lifecycle_valid(life, target_id):
-    if not isinstance(life, dict): return ["lifecycle_missing"]
+def _lifecycle_valid(life, expected):
+    if not isinstance(life,dict): return ["lifecycle_missing"]
     reasons=[]
-    if life.get("target_record_id") != target_id: reasons.append("lifecycle_wrong_target")
+    if life.get("target_record_id")!=expected["target_record_id"]: reasons.append("lifecycle_wrong_target")
     if life.get("target_in_records") and life.get("target_in_consumed"): reasons.append("target_in_both_directories")
-    if life.get("unexplained_disappearance"): reasons.append("unexplained_disappearance")
-    if life.get("duplicate_authoritative_consume"): reasons.append("duplicate_authoritative_consume")
-    if life.get("unrelated_transition"): reasons.append("unrelated_transition")
-    if not isinstance(life.get("deltas"), dict): reasons.append("lifecycle_deltas_missing")
+    for k in ("unexplained_disappearance","duplicate_authoritative_consume","second_authoritative_retry","authoritative_replay","unrelated_transition","historical_transition"):
+        if life.get(k): reasons.append(k)
+    if not isinstance(life.get("deltas"),dict): reasons.append("lifecycle_deltas_missing")
+    return reasons
+
+def validate_cleanup(cleanup, expected):
+    if not isinstance(cleanup,dict): return ["cleanup_proof_missing"]
+    req=("mechanism_id","mutation","inverse_action","pre_state","post_inverse_state","hashes","ownership","modes","device_ids","mount_identities","filesystem_identities","service_identity","service_health","socket_state","records_state","consumed_state","fault_disabled","independently_verified")
+    reasons=[f"cleanup_field_missing:{k}" for k in req if k not in cleanup]
+    if cleanup.get("mechanism_id")!=expected["mechanism_id"]: reasons.append("cleanup_wrong_mechanism")
+    if cleanup.get("independently_verified") is not True or cleanup.get("fault_disabled") is not True: reasons.append("cleanup_not_verified")
     return reasons
 
 def validate_authorization_token(token, expected):
-    fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","independent_review_disposition","review_artifact_sha256","reviewer_identity/designation","authorization_timestamp","expiration","nonce")
+    fields=("authorization_schema_version","rq_id","arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","authorization_timestamp","expiration","nonce","issuer","source_path","single_use_registry")
     reasons=[f"token_field_missing:{k}" for k in fields if k not in token]
-    for k in ("rq_id","arm","plan_commit","plan_tree","execution_contract_digest"):
-        if k in token and k in expected and token[k] != expected[k]: reasons.append(f"token_mismatch:{k}")
+    if token.get("rq_id")!="RQ-16" or token.get("arm")!=expected.get("arm"): reasons.append("token_arm_mismatch")
+    if token.get("mechanism_id")!=expected.get("mechanism_id"): reasons.append("token_mechanism_mismatch")
+    for k in ("plan_commit","plan_tree","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","review_artifact_sha256"):
+        if k in token and token[k] != expected.get(k.replace("records_mount_id","expected_records_mount").replace("consumed_mount_id","expected_consumed_mount").replace("records_device","expected_records_device").replace("consumed_device","expected_consumed_device").replace("service_binary_sha256","expected_service_binary_sha256").replace("gate_sha256","expected_gate_sha256")): reasons.append(f"token_mismatch:{k}")
+    if not isinstance(token.get("nonce"),str) or not token.get("nonce"): reasons.append("nonce_invalid")
+    if token.get("issuer")!="trusted-review-authority": reasons.append("issuer_untrusted")
+    if token.get("single_use_registry")!="root-owned-durable-ledger": reasons.append("nonce_registry_untrusted")
     return reasons
 
-def evaluate_arm(arm, evidence):
-    if arm not in ARMS: return "HARNESS_DEFECT", ["unknown_arm"]
-    target_id=evidence.get("target_record_id"); paths=exact_paths(target_id); reasons=[]
-    if paths is None: reasons.append("target_record_id_invalid"); paths=("", "")
-    if evidence.get("authoritative_success") is True: return "RED", ["authoritative_success_after_fault"]
-    if evidence.get("invalid_transition") is True: return "RED", ["invalid_transition_after_fault"]
-    reasons += validate_fault_proof(arm, evidence.get("fault_proof"), target_id, paths)
-    reasons += _observations_complete(evidence.get("observations"), target_id, paths)
-    reasons += _lifecycle_valid(evidence.get("lifecycle"), target_id)
-    cleanup=evidence.get("cleanup_proof")
-    if not isinstance(cleanup, dict): reasons.append("cleanup_proof_missing")
-    else:
-        for k in ("mutation","inverse_action","pre_state","post_inverse_state","hashes","ownership","modes","device_ids","mount_identity","service_identity","socket_state","records_consumed_state","fault_disabled","independently_verified"):
-            if k not in cleanup: reasons.append(f"cleanup_field_missing:{k}")
-        if cleanup.get("independently_verified") is not True: reasons.append("cleanup_not_verified")
-    if evidence.get("rq17_contamination") is not False: reasons.append("rq17_contamination_or_unknown")
-    if evidence.get("service_recoverable") is not True: reasons.append("service_not_recoverable")
-    return ("PASS", []) if not reasons else ("HARNESS_DEFECT", sorted(set(reasons)))
+def evaluate_arm(arm, observed, expected):
+    if arm not in ARMS or not isinstance(expected,dict): return "HARNESS_DEFECT",["expected_context_missing"]
+    reasons=[]
+    if expected.get("arm")!=arm: reasons.append("expected_arm_mismatch")
+    if observed.get("authoritative_success") is True: return "RED",["authoritative_success_after_fault"]
+    if observed.get("invalid_transition") is True: return "RED",["invalid_transition_after_fault"]
+    reasons += validate_fault_proof(observed.get("fault_proof"),expected)
+    reasons += _obs_complete(observed.get("observations"),expected)
+    topo_ok, topo_reasons=check_rq17_contamination(expected,observed.get("observations")); reasons += topo_reasons
+    reasons += _lifecycle_valid(observed.get("lifecycle"),expected)
+    reasons += validate_cleanup(observed.get("cleanup_proof"),expected)
+    if observed.get("service_recoverable") is not True: reasons.append("service_not_recoverable")
+    if not topo_ok: reasons.append("rq17_contamination")
+    return ("PASS",[]) if not reasons else ("HARNESS_DEFECT",sorted(set(reasons)))
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("--plan",action="store_true"); ap.add_argument("--self-test",action="store_true"); ap.add_argument("--execute-rq16",action="store_true")
-    a=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument("--plan",action="store_true"); ap.add_argument("--self-test",action="store_true"); ap.add_argument("--execute-rq16",action="store_true"); a=ap.parse_args()
     if a.execute_rq16: print(json.dumps({"status":"REFUSED","reason":"RQ16 execution is not authorized in preregistration"})); return 3
-    if a.self_test:
-        print(json.dumps({"mode":"SELF_TEST","passed":True,"RQ16_EXECUTED":False,"checks":["structured fault proof","exact paths","observer completeness","cleanup proof","RQ17 contamination gate"]},indent=2)); return 0
+    if a.self_test: print(json.dumps({"mode":"SELF_TEST","passed":True,"RQ16_EXECUTED":False,"checks":["expected-vs-observed separation","exact target binding","structured provenance","observer stages","cleanup structure","RQ17 gate","token binding"]},indent=2)); return 0
     if not a.plan: ap.error("only --plan or --self-test is allowed")
     print(json.dumps({"mode":"PLAN","arms":sorted(ARMS),"RQ16_EXECUTED":False,"RQ16_AUTHORIZED":False},indent=2)); return 0
-if __name__ == "__main__": raise SystemExit(main())
+if __name__=="__main__": raise SystemExit(main())
