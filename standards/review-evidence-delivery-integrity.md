@@ -255,6 +255,8 @@ For every provider call, retain a `WireDeliveryRecord` containing:
 
 A manifest and prompt hash without wire binding do not prove that the adapter included the frozen evidence in the API request.
 
+The adapter must serialize from the frozen representation bytes/chunks referenced by the manifest. Hashing one file and later reopening the same pathname for upload is insufficient unless byte identity is reverified immediately before dispatch.
+
 Provider secrets are excluded from reproducible hashes but their exclusion must not permit semantic request fields to be omitted from binding.
 
 ## Delivery preflight
@@ -272,8 +274,12 @@ Before review adjudication:
 9. Prove the exact delivery plan fits the qualified provider/mode.
 10. Freeze exact call/chunk ordering and prompt identities.
 11. Emit `DELIVERY_PREFLIGHT_PASS` only if every mandatory item is deliverable.
+12. Immediately before each wire call, revalidate the still-current capability/egress/session prerequisites.
+13. Dispatch the exact frozen representation bytes/chunks produced during preflight; do not re-read mutable source paths.
 
 If a required item cannot be safely represented or delivered, fail before treating any reviewer disposition as authoritative.
+
+Manifest freeze and wire dispatch form a TOCTOU boundary. A source path, generated representation, capability profile, egress decision, or provider file may not change between validation and use without invalidating the attempt or creating a new governed attempt.
 
 ## Chunking limitation
 
@@ -460,6 +466,19 @@ A retry must either:
 
 Failed attempts remain preserved. A later complete retry cannot rewrite an earlier incomplete attempt as complete.
 
+## Reviewer tools and out-of-manifest evidence
+
+A material reviewer must not silently introduce ungoverned external evidence through web search, retrieval plugins, arbitrary tools, or provider-side knowledge connectors.
+
+For a material review, reviewer tools are either:
+
+- disabled; or
+- explicitly governed, allowlisted, and their retrieved evidence is captured with provenance, hashes/identifiers, and review-dimension binding under an applicable external-evidence governance path.
+
+Evidence discovered through reviewer tools cannot retroactively count as if it had been part of the frozen delivery manifest. If new material evidence changes the review basis, the platform records a governed supplemental evidence boundary or a new review request/delivery attempt as required.
+
+Model recollection/training knowledge remains non-authoritative evidence.
+
 ## Security and false-green rules
 
 The following must never independently establish delivery completeness:
@@ -479,7 +498,9 @@ The following must never independently establish delivery completeness:
 - multi-reviewer agreement;
 - candidate-supplied materializer/manifest/checker code;
 - one successful provider call near a claimed capability limit;
-- automatic fallback to a different provider/model without a new qualified delivery attempt.
+- automatic fallback to a different provider/model without a new qualified delivery attempt;
+- hashing one byte set and uploading a later re-read mutable path without revalidation;
+- ungoverned reviewer web/tool retrieval presented as frozen evidence.
 
 ## Required audit evidence
 
@@ -495,6 +516,7 @@ Every material platform API review must retain:
 - egress decision;
 - ProviderCapabilityProfile identity;
 - prompt identities;
+- pre-dispatch revalidation result for capability/egress/session state;
 - WireDeliveryRecords;
 - chunks where used;
 - provider session/file/message IDs where used;
