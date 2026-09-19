@@ -195,7 +195,7 @@ jobs:
         run: |
           set -uo pipefail
           set +e
-          python3 governance-runtime/v24_v6_rq1_remediation2_harness.py --remaining-slice --evidence-dir "$EVIDENCE_DIR" | tee "$EVIDENCE_DIR/run-summary.json"
+          python3 governance-runtime/v24_v6_rq1_remediation2_harness.py --case RQ-07 --evidence-dir "$EVIDENCE_DIR" | tee "$EVIDENCE_DIR/run-summary.json"
           rc=${PIPESTATUS[0]}
           set -e
           printf '%s\n' "$rc" > "$EVIDENCE_DIR/exit-code.txt"
