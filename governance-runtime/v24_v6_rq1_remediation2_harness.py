@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse, hashlib, json, os, shutil, signal, subprocess, sys, time
 from pathlib import Path
+from v24_v6_rq1_crash_predicates import evaluate_crash_case
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / "governance-runtime"
@@ -531,7 +532,11 @@ def _crash_case(cid,out,boundary):
             recovery_life["consumed"] and not recovery_life["records"] and
             replay_obj.get("service_authoritative") is not True and replay_noop and post_retry_life["consumed"] and not post_retry_life["records"])
     ok=ok and restart.returncode==0 and active() and stable(baseline,post_replay)
-    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"tracer_ready":ready,"tracer_armed_timestamp":ready.get("timestamp"),"control_launch_timestamp":control_launch_ts,"ordering_proven":ready.get("timestamp",0)<control_launch_ts,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"prepared":prepared_life,"recovery":recovery_life,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr},"post_retry":post_retry_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"post_replay":post_replay_life,"records_delta_prepared":prepared_records_delta,"consumed_delta_prepared":prepared_consumed_delta,"records_delta_recovery":recovery_records_delta,"consumed_delta_recovery":recovery_consumed_delta,"records_delta_retry":retry_records_delta,"consumed_delta_retry":retry_consumed_delta,"records_delta_post_replay":replay_records_delta,"consumed_delta_post_replay":replay_consumed_delta,"state_stable":stable(baseline,post_replay),"service_active":active()}
+    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"service_pid":pid,"boundary":boundary,"tracer_ready":ready,"tracer_armed_timestamp":ready.get("timestamp"),"control_launch_timestamp":control_launch_ts,"ordering_proven":ready.get("timestamp",0)<control_launch_ts,"boundary_evidence":trace,"baseline":baseline,"prepared_observation":prepared,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se,"parsed":first},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"restart_returncode":restart.returncode,"prepared":prepared_life,"recovery":recovery_life,"recovery_observation":recovery,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr,"parsed":second},"post_retry":post_retry_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"post_replay":post_replay_life,"records_delta_prepared":prepared_records_delta,"consumed_delta_prepared":prepared_consumed_delta,"records_delta_recovery":recovery_records_delta,"consumed_delta_recovery":recovery_consumed_delta,"records_delta_retry":retry_records_delta,"consumed_delta_retry":retry_consumed_delta,"records_delta_post_replay":replay_records_delta,"consumed_delta_post_replay":replay_consumed_delta,"state_stable":stable(baseline,post_replay),"service_active":active()}
+    detail["prepared"] = prepared
+    detail["recovery"] = recovery
+    ok, predicate_reasons = evaluate_crash_case(cid, detail)
+    detail["predicate_reasons"] = predicate_reasons
     return ok,detail
 
 def case_13(out): return _crash_case("RQ-13",out,"before-validation")
