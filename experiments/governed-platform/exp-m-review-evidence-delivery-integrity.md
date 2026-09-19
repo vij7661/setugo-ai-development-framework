@@ -1198,6 +1198,13 @@ ADMISSIBILITY_PREDICATE_COVERAGE_INCOMPLETE.
 Expected:
 predicate-set closure mismatch; verdict inadmissible.
 
+### M-131 — Statistical independence unproven but profile claims probability-qualified
+
+Provider-side route/correlation independence cannot be evidenced, yet the profile sets statistical_qualified=true under a policy requiring the 0.99 probability claim.
+
+Expected:
+profile invalid. Only a transition policy that explicitly waives the probability claim and requires deterministic per-attempt proof may proceed.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1286,7 +1293,8 @@ Mutation suite must attempt to make a verdict admissible by:
 - replacing a failed confirmation attempt with a successful retry;
 - accepting unreconciled qualification calls or candidate-accessible qualification credentials;
 - hiding a failed physical provider attempt behind implicit SDK retry;
-- adding/removing an admissibility predicate without exact mutation/fixture closure.
+- adding/removing an admissibility predicate without exact mutation/fixture closure;
+- marking a profile statistically qualified when independence is unproven and policy requires the probability claim.
 
 Every load-bearing mutation must be rejected.
 
