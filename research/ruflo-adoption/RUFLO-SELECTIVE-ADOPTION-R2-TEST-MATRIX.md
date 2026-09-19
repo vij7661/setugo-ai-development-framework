@@ -95,6 +95,8 @@ Negative fixtures:
 - release then double re-lend;
 - child expiry > parent;
 - depth x breadth amplification;
+- child spends units while simultaneously subdelegating the same units;
+- descendant release races parent reclaim;
 - wildcard/canonical path ambiguity;
 - stale/revoked parent delegation.
 
@@ -135,6 +137,7 @@ Negative fixtures:
 - same HEAD different dirty bytes;
 - untracked file/mode/symlink/submodule drift;
 - source receipt reused across different execution context;
+- secret-backed external interaction changes credential version/fingerprint without receipt change;
 - dirty evidence transferred to commit;
 - SHA-1 Git ID accepted without independent canonical SHA-256;
 - undeclared runtime input affects test.
@@ -199,6 +202,8 @@ Negative fixtures:
 - tool understates network/fs/process/credential risk;
 - manifest swap after approval;
 - valid tool permission but sensitive-read + untrusted-ingest + egress composition;
+- missing/unknown DataFlowLabel at egress;
+- transform incorrectly drops a sensitive/untrusted label without authorized declassification;
 - approval resource replay;
 - fallback provider broadens capability;
 - path/command escape.
@@ -244,6 +249,7 @@ Negative fixtures:
 - revoked publisher/key;
 - trusted signature from untrusted publisher;
 - transitive dependency substitution;
+- verified plugin dynamically fetches unverified executable code;
 - valid signature + sandbox escape;
 - unsigned plugin classifier says benign;
 - signed plugin contains injection;
