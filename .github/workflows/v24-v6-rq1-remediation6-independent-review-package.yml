@@ -66,8 +66,14 @@ jobs:
             printf '%s\n' ''
             printf '%s\n' 'Packaging defects preserved from the scientific run: `python` was unavailable; active bundle exclusion still named `remediation-5-review-bundle`.'
           } > "$PKG/OPEN-REVIEW-QUESTIONS.md"
-          python3 "$PKG/source/test_v24_v6_rq1_crash_observation.py" > "$PKG/regression-tests.txt"
-          python3 "$PKG/source/validate_rq1_oracle_contract.py" "$PKG/design/V24-I11-V6-RQ1-REMEDIATION-2-ORACLE-CONTRACT.json" > "$PKG/oracle-validator.txt"
+          python3 "$PKG/source/test_v24_v6_rq1_crash_observation.py" > "$PKG/regression-tests.txt" 2>&1
+          test -s "$PKG/regression-tests.txt"
+          grep -Eq '^Ran [0-9]+ tests? in ' "$PKG/regression-tests.txt"
+          grep -Eq '^OK$' "$PKG/regression-tests.txt"
+          python3 "$PKG/source/validate_rq1_oracle_contract.py" "$PKG/design/V24-I11-V6-RQ1-REMEDIATION-2-ORACLE-CONTRACT.json" > "$PKG/oracle-validator.txt" 2>&1
+          test -s "$PKG/oracle-validator.txt"
+          grep -q '"contract_validator": "PASS"' "$PKG/oracle-validator.txt"
+          find "$PKG/source" -type d -name __pycache__ -prune -exec rm -rf {} +
           {
             echo 'source_stat='
             sudo stat -c '%n %F %U:%G %a %u:%g %i %D %s %y %z' "$SOURCE"
@@ -85,10 +91,21 @@ jobs:
             fi
           done < <(sudo find "$SOURCE" -mindepth 1 -maxdepth 1 -print0 | sort -z)
           sudo chown -R "$USER":"$USER" "$PKG"
-          find "$PKG" -type f ! -name manifest.sha256 ! -name package-file-hashes.sha256 ! -name package.tar ! -name package.tar.sha256 -print0 | sort -z | xargs -0 sha256sum > "$PKG/package-file-hashes.sha256"
-          sha256sum "$PKG/manifest.txt" > "$PKG/manifest.sha256"
+          test -s "$PKG/OPEN-REVIEW-QUESTIONS.md"
+          test -s "$PKG/manifest.txt"
+          test -s "$PKG/exact-diff-remediation4-to-remediation6.patch"
+          for c in RQ-13 RQ-14 RQ-15; do
+            test -s "$PKG/raw-evidence/$c.result.json"
+            test -s "$PKG/raw-evidence/$c.tracer-ready.json"
+            test -s "$PKG/raw-evidence/$c.boundary.json"
+            test -s "$PKG/raw-evidence/$c.recovery.observer.json"
+            test -s "$PKG/raw-evidence/$c.post-retry.observer.json"
+            test -s "$PKG/raw-evidence/$c.post-replay.observer.json"
+          done
+          (cd "$PKG" && find . -type f ! -name manifest.sha256 ! -name package-file-hashes.sha256 ! -name package.tar ! -name package.tar.sha256 -print0 | sort -z | xargs -0 sha256sum > package-file-hashes.sha256)
+          (cd "$PKG" && sha256sum manifest.txt > manifest.sha256)
           tar -cf "$PKG/package.tar" -C "$PKG" source design raw-evidence historical-failed-packaging exact-diff-remediation4-to-remediation6.patch OPEN-REVIEW-QUESTIONS.md manifest.txt manifest.sha256 package-file-hashes.sha256 regression-tests.txt oracle-validator.txt source-evidence-identity.txt
-          sha256sum "$PKG/package.tar" > "$PKG/package.tar.sha256"
+          (cd "$PKG" && sha256sum package.tar > package.tar.sha256)
           mkdir -p review-package-artifact
           cp -a "$PKG"/. review-package-artifact/
       - uses: actions/upload-artifact@v4
