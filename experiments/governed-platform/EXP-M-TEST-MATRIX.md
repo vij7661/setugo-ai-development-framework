@@ -10,7 +10,7 @@ No live provider pilot may be treated as scientific evidence until the determini
 
 | ID | Test | Setup | Expected result |
 |---|---|---|---|
-| TM-A01 | Complete one-shot delivery | All mandatory items delivered exactly once | REVIEW_CONTEXT_COMPLETE |
+| TM-A01 | Complete one-shot delivery | All mandatory items delivered exactly once | REVIEW_CONTEXT_QUALIFIED_AVAILABLE |
 | TM-A02 | Required item missing | Remove one required item | EVIDENCE_DELIVERY_INCOMPLETE |
 | TM-A03 | Optional item missing | Remove optional item | Complete if contract permits |
 | TM-A04 | Manifest hash mismatch | Alter manifest after freeze | Reject |
@@ -416,6 +416,9 @@ Test dispositions:
 | TM-O22 | Permit later requalification to revive old response | Killed |
 | TM-O23 | Remove mixed-cause adjudication and first-match scientific cause | Killed |
 | TM-O24 | Accept reviewer contradiction code absent from taxonomy | Killed |
+| TM-O25 | Delete ProviderAccessibilityRiskPolicy predicate | Killed |
+| TM-O26 | Delete AdmissionFence/version predicate | Killed |
+| TM-O27 | Reintroduce legacy REVIEW_CONTEXT_COMPLETE as authority | Killed |
 
 ## Phase P — R3 residual adversarial-oracle tests
 
@@ -444,6 +447,21 @@ Test dispositions:
 | TM-P21 | Provider default deployment identity required but unavailable | Provider/mode NOT_QUALIFIED |
 | TM-P22 | Reviewer says evidence missing while strong per-attempt access proof exists | REVIEWER_EVIDENCE_ASSESSMENT_CONTRADICTION diagnostic; not silently scientific failure |
 
+## Phase Q — Accessibility-risk and admission-fence tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| TM-Q01 | Transition class has no ProviderAccessibilityRiskPolicy | Review ineligible |
+| TM-Q02 | Highest-authority transition uses probabilistic witnesses without deterministic range proof | Admissibility fails |
+| TM-Q03 | Lower transition class explicitly permits bounded probabilistic witness mode and all predicates pass | Eligible subject to recorded residual risk |
+| TM-Q04 | Mutable provider config has neither readable version nor fence | NOT_QUALIFIED_FOR_MATERIAL_REVIEW |
+| TM-Q05 | AdmissionFenceRecord changes between final read and CAS | Atomic admission fails |
+| TM-Q06 | Candidate/user tries to mutate dedicated-account config while fence held | Write blocked or version mismatch; attempt void |
+| TM-Q07 | Provider-internal state changes without observable version/fence | Mode unqualified |
+| TM-Q08 | Legacy REVIEW_CONTEXT_COMPLETE=true injected | Ignored/deprecated; cannot authorize |
+| TM-Q09 | Verdict record omits residual/nonclaim risk for probabilistic mode | Admissibility fails |
+| TM-Q10 | Accessibility proof mode does not satisfy transition-class policy | Admissibility fails |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
@@ -455,6 +473,8 @@ Every EXP-M execution must retain:
 - RequiredEvidenceContract;
 - RequiredInteractionContract;
 - ProviderCapabilityProfile;
+- ProviderAccessibilityRiskPolicy;
+- AdmissionFenceRecord;
 - ProviderCapabilityQualificationRecord with append-only trial ledger;
 - ProviderContextStateEvidence;
 - PromptIsolationQualificationRecord;
@@ -477,7 +497,7 @@ Every EXP-M execution must retain:
 
 EXP-M deterministic testing is complete only when:
 
-- **all deterministic phases A–P pass**;
+- **all deterministic phases A–Q pass**;
 - unified data/state mutation survivors = 0;
 - validator-logic mutation survivors = 0;
 - crash/retry tests preserve exact identity/history;
@@ -490,6 +510,9 @@ EXP-M deterministic testing is complete only when:
 - model-selected retrieval is blocked without deterministic full-range access logs;
 - atomic final CAS admission and permanent-attempt-void semantics pass;
 - prompt-isolation qualification is machine-bound and admission-checked;
+- ProviderAccessibilityRiskPolicy exists for every transition class and selected proof mode;
+- mutable provider context is versioned/fenced through admission;
+- legacy REVIEW_CONTEXT_COMPLETE cannot create authority;
 - insufficient-evidence cause adjudication returns all causes and MIXED when multiple predicates hold;
 - review consensus cannot hide corpus divergence.
 
