@@ -303,6 +303,19 @@ At minimum preserve/surface:
 - `PORTABLE_REVIEW_RAW_HASH_UNREPRODUCIBLE`
 - `SCIENTIFIC_EVIDENCE_MISSING`
 - `EVIDENCE_SELECTION_INCOMPLETE`
+- `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`
+- `GOVERNANCE_AUTHORITY_SNAPSHOT_MISMATCH`
+- `REVIEWER_EVIDENCE_ASSESSMENT_CONTRADICTION`
+- `PROVIDER_CONTEXT_STATE_UNPROVEN`
+- `PROVIDER_CONTEXT_STATE_DRIFT`
+- `PROVIDER_CONTEXT_HIDDEN_STATE_RESIDUAL`
+- `PROVIDER_CONTEXT_ISOLATION_POLICY_MISSING`
+- `PROVIDER_RETRIEVAL_COVERAGE_UNPROVEN`
+- `PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN`
+- `STATISTICAL_INDEPENDENCE_UNPROVEN`
+- `VERDICT_ADMISSION_STATE_CHANGED`
+- `INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED`
+- `MIXED_INSUFFICIENCY`
 - `REVIEW_CONTEXT_DIRTY_OR_UNBOUND`
 - `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
 - `PROVIDER_CAPABILITY_STATISTICAL_POLICY_FAILED`
@@ -350,8 +363,8 @@ At minimum preserve/surface:
 14. Derive RequiredEvidenceContract and RequiredInteractionContract; validate ReviewRequest against them before materialization.
 15. Materialize and hash every required review evidence item from frozen source identity.
 16. Apply governed transformation and egress policy.
-17. Validate a current statistically qualified ProviderCapabilityProfile, transition-class ProviderAccessibilityRiskPolicy, and machine-checkable PromptIsolationQualificationRecord for the exact production operating point.
-18. Create a fresh provider review context, capture ProviderContextStateEvidence, and establish a readable monotonic provider configuration version or AdmissionFenceRecord for every load-bearing mutable channel.
+17. Validate a current statistically qualified ProviderCapabilityProfile, transition-class ProviderAccessibilityRiskPolicy, ProviderContextIsolationPolicy, and machine-checkable PromptIsolationQualificationRecord for the exact production operating point.
+18. Create a fresh provider review context, capture ProviderContextStateEvidence for every observable channel, apply the selected context-isolation basis, record any permitted hidden-provider-state residual, and establish a readable monotonic provider configuration version or AdmissionFenceRecord for every observable load-bearing mutable channel.
 19. Freeze the EvidenceDeliveryManifest and monotonic authority/capability/egress/context/prompt-isolation state versions.
 20. Before each provider call, re-read/compare context/config state and serialize only frozen representation bytes.
 21. Record both platform request hash and post-SDK transport-bound semantic envelope hash.
@@ -359,7 +372,7 @@ At minimum preserve/surface:
 23. Establish per-attempt accessibility using mandatory content-bound slice witnesses or deterministic full-range retrieval/access logs, according to delivery mode.
 24. Validate ReviewRequest + ReviewEvidence + semantic coverage + authenticated execution envelope + delivery/context completeness.
 25. If the reviewer reports insufficiency, evaluate all independent cause predicates and return MIXED when multiple causes hold.
-26. Immediately before authority admission, re-read all monotonic state versions/hashes, accessibility-risk-policy state, AdmissionFenceRecord, and every load-bearing admissibility predicate.
+26. Immediately before authority admission, re-read all monotonic state versions/hashes, accessibility-risk-policy state, context-isolation-policy state, AdmissionFenceRecord, and every load-bearing admissibility predicate.
 27. Atomically compare-and-set the authoritative checkpoint together with VerdictAdmissibilityResult only if every state/version remains unchanged since its required observation.
 28. Any expiry, revocation, drift, dirty-context event, file/session invalidation, or prompt-isolation invalidation from first dispatch through step 27 permanently voids that attempt; later requalification cannot revive the old response.
 29. Synchronize shared memory only after authoritative persistence.
