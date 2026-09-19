@@ -350,8 +350,8 @@ At minimum preserve/surface:
 14. Derive RequiredEvidenceContract and RequiredInteractionContract; validate ReviewRequest against them before materialization.
 15. Materialize and hash every required review evidence item from frozen source identity.
 16. Apply governed transformation and egress policy.
-17. Validate a current statistically qualified ProviderCapabilityProfile and machine-checkable PromptIsolationQualificationRecord for the exact production operating point.
-18. Create a fresh provider review context and capture ProviderContextStateEvidence.
+17. Validate a current statistically qualified ProviderCapabilityProfile, transition-class ProviderAccessibilityRiskPolicy, and machine-checkable PromptIsolationQualificationRecord for the exact production operating point.
+18. Create a fresh provider review context, capture ProviderContextStateEvidence, and establish a readable monotonic provider configuration version or AdmissionFenceRecord for every load-bearing mutable channel.
 19. Freeze the EvidenceDeliveryManifest and monotonic authority/capability/egress/context/prompt-isolation state versions.
 20. Before each provider call, re-read/compare context/config state and serialize only frozen representation bytes.
 21. Record both platform request hash and post-SDK transport-bound semantic envelope hash.
@@ -359,7 +359,7 @@ At minimum preserve/surface:
 23. Establish per-attempt accessibility using mandatory content-bound slice witnesses or deterministic full-range retrieval/access logs, according to delivery mode.
 24. Validate ReviewRequest + ReviewEvidence + semantic coverage + authenticated execution envelope + delivery/context completeness.
 25. If the reviewer reports insufficiency, evaluate all independent cause predicates and return MIXED when multiple causes hold.
-26. Immediately before authority admission, re-read all monotonic state versions/hashes and every load-bearing admissibility predicate.
+26. Immediately before authority admission, re-read all monotonic state versions/hashes, accessibility-risk-policy state, AdmissionFenceRecord, and every load-bearing admissibility predicate.
 27. Atomically compare-and-set the authoritative checkpoint together with VerdictAdmissibilityResult only if every state/version remains unchanged since its required observation.
 28. Any expiry, revocation, drift, dirty-context event, file/session invalidation, or prompt-isolation invalidation from first dispatch through step 27 permanently voids that attempt; later requalification cannot revive the old response.
 29. Synchronize shared memory only after authoritative persistence.
