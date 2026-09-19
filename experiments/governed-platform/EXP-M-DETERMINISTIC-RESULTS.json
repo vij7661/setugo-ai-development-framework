@@ -43,7 +43,11 @@
     },
     "F": {
       "checks": [
-        "profile qualification"
+        "profile identity",
+        "expiry",
+        "operating point",
+        "attempt closure",
+        "context limit"
       ],
       "status": "PASS"
     },
@@ -75,7 +79,9 @@
     },
     "K": {
       "checks": [
-        "content witness"
+        "current witness record",
+        "content-bound response",
+        "budget"
       ],
       "status": "PASS"
     },
@@ -121,7 +127,7 @@
     "R": {
       "checks": [
         "witness noninterference",
-        "budget"
+        "context eviction rejection"
       ],
       "status": "PASS"
     },

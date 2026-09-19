@@ -17,6 +17,7 @@ from exp_m_deterministic import (  # noqa: E402
     ProviderContextStateEvidence, AdmissionFenceRecord, validate_context_state,
     validate_fence, safe_archive_member,
     adjudicate_insufficient_evidence,
+    validate_capability, validate_witness_qualification, WitnessProtocolQualificationRecord,
 )
 from run_exp_m_mutations import run as run_mutations
 
@@ -56,7 +57,8 @@ def run_phases() -> dict:
     unresolved = adjudicate_insufficient_evidence({})
     phase_results["D"] = {"status": "PASS" if single.disposition == "SCIENTIFIC_EVIDENCE_MISSING" and mixed.disposition == "MIXED_INSUFFICIENCY" and unresolved.disposition == "INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED" else "FAIL", "checks": ["single cause", "mixed causes", "unresolved cause"]}
     phase_results["E"] = {"status": "PASS" if manifest.verify(items)[0] and manifest.request_id == "request" else "FAIL", "checks": ["same manifest", "same corpus hash"]}
-    phase_results["F"] = {"status": "PASS" if provider.qualified else "FAIL", "checks": ["profile qualification"]}
+    capability = validate_capability(provider, ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)), ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"), now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="default", expected_profile_hash="profile-hash", required_format="text", required_context_bytes=1)
+    phase_results["F"] = {"status": "PASS" if capability[0] else "FAIL", "checks": ["profile identity", "expiry", "operating point", "attempt closure", "context limit"]}
     mutation_result = run_mutations()
     phase_results["G"] = {"status": "PASS" if mutation_result["all_rejected"] and mutation_result["surviving_mutations"] == 0 else "FAIL", "checks": ["data/state mutation family", "validator mutation family"], "mutation_total": mutation_result["total_mutations"]}
     phase_results["H"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] else "FAIL", "checks": ["physical request ledger"]}
@@ -73,7 +75,9 @@ def run_phases() -> dict:
     phase_results["I"] = {"status": "PASS" if verdict.admissible else "FAIL", "checks": ["all admissibility predicates"]}
     receipt, wire = DeterministicFakeProvider().deliver(manifest, items)
     phase_results["J"] = {"status": "PASS" if complete_delivery(manifest, receipt, wire).complete else "FAIL", "checks": ["wire/session/representation bindings"]}
-    phase_results["K"] = {"status": "PASS" if validate_witness("challenge", "response", max_response_bytes=1024)[0] else "FAIL", "checks": ["content witness"]}
+    witness_record = WitnessProtocolQualificationRecord("w", "fake", "inline", 1024, True, "prompt", "2099-01-01T00:00:00Z")
+    witness = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="response", challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
+    phase_results["K"] = {"status": "PASS" if witness[0] else "FAIL", "checks": ["current witness record", "content-bound response", "budget"]}
     phase_results["L"] = {"status": "PASS" if safe_archive_member("evidence/a.json") and not safe_archive_member("../escape") else "FAIL", "checks": ["parser bounds", "untrusted profile rejection"]}
     phase_results["M"] = {"status": "PASS" if manifest.verify(items)[0] and not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0] else "FAIL", "checks": ["frozen bytes", "attempt binding"]}
     phase_results["N"] = {"status": "PASS" if not valid_preflight(s, c, i, manifest, ProviderCapabilityProfile("fake", "m", "v", "p", False), items).allowed else "FAIL", "checks": ["external-review remediation cases"]}
@@ -81,7 +85,8 @@ def run_phases() -> dict:
     context_ok = validate_context_state(ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), required_channels=("memory", "config"))[0]
     phase_results["P"] = {"status": "PASS" if context_ok else "FAIL", "checks": ["residual adversarial oracle"]}
     phase_results["Q"] = {"status": "PASS" if validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] else "FAIL", "checks": ["risk policy", "admission fence"]}
-    phase_results["R"] = {"status": "PASS" if validate_witness("challenge", "response", max_response_bytes=1024)[0] else "FAIL", "checks": ["witness noninterference", "budget"]}
+    witness_negative = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="x" * 2000, challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
+    phase_results["R"] = {"status": "PASS" if witness[0] and not witness_negative[0] else "FAIL", "checks": ["witness noninterference", "context eviction rejection"]}
     phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] else "FAIL", "checks": ["planned attempt closure"]}
     phase_results["T"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] and len(registry.predicate_ids) == len(registry.logic_mutation_ids) else "FAIL", "checks": ["retry transparency", "registry closure"]}
     return {"experiment": "EXP-M", "mode": "DETERMINISTIC_ONLY", "phases": phase_results, "all_phases_pass": all(v["status"] == "PASS" for v in phase_results.values())}
