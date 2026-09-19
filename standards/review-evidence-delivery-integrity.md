@@ -167,6 +167,8 @@ At minimum preserve:
 - `PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN`
 - `STATISTICAL_INDEPENDENCE_UNPROVEN`
 - `VERDICT_ADMISSION_STATE_CHANGED`
+- `ADMISSIBILITY_PREDICATE_COVERAGE_INCOMPLETE`
+- `IMPLICIT_RETRY_UNOBSERVED`
 - `REVIEW_CONTEXT_DIRTY_OR_UNBOUND`
 - `PROVIDER_SEMANTIC_CONTEXT_UNQUALIFIED`
 - `PROVIDER_CAPABILITY_STATISTICAL_POLICY_FAILED`
@@ -351,6 +353,8 @@ If provider usage/audit logs are unavailable, the dedicated qualification creden
 
 Unscheduled calls cannot contribute successes. An unexplained call using the dedicated qualification credential invalidates the confirmation epoch.
 
+Qualification adapters must disable implicit SDK retries or expose every physical retry as a separate append-only attempt. If the platform cannot observe whether the SDK/client retried, qualification attempt closure is unproven.
+
 ### Hard failure
 
 A hard failure is any attempted trial with one or more of:
@@ -468,6 +472,8 @@ A manifest and prompt hash without wire binding do not prove that the adapter in
 The adapter must serialize from the frozen representation bytes/chunks referenced by the manifest. Hashing one file and later reopening the same pathname for upload is insufficient unless byte identity is reverified immediately before dispatch.
 
 Provider secrets are excluded from reproducible hashes but their exclusion must not permit semantic request fields to be omitted from binding. If the provider SDK prevents the trusted adapter from observing a semantic field that can materially change the request after serialization, that adapter/mode cannot claim exact wire binding for material review.
+
+Implicit client/SDK retries are prohibited unless every physical provider attempt is surfaced to the trusted adapter with its own WireDeliveryRecord and immutable attempt identity. For material review and provider qualification, the preferred mode is client retry disabled. A hidden first failure followed by an SDK-retried success cannot be represented as one successful attempt.
 
 ## Delivery preflight
 
@@ -742,6 +748,30 @@ Any proposer/ReviewRequest declaration is checked against this contract. Unknown
 
 If material cross-evidence interactions cannot be reviewed within a qualified context, the review remains bounded/incomplete.
 
+## Admissibility predicate registry and mutation closure
+
+The platform maintains a machine-readable `AdmissibilityPredicateRegistry` outside candidate write authority.
+
+Each load-bearing verdict-admissibility predicate has:
+
+- stable predicate ID;
+- schema/version;
+- human meaning;
+- validator function identity/hash;
+- required negative fixture ID;
+- required logic-mutation ID;
+- authority snapshot binding.
+
+`VerdictAdmissibilityResult` must contain exactly the required predicate-ID set for the protected transition/mode.
+
+The deterministic test plan proves set closure:
+
+`required_admissibility_predicates == verdict_result_predicates == validator_logic_mutation_targets == independently_killed_mutations`
+
+Any missing predicate, extra ungoverned predicate, or predicate without a killed deletion/weakening mutation yields `ADMISSIBILITY_PREDICATE_COVERAGE_INCOMPLETE`.
+
+Adding a new load-bearing predicate without updating its negative fixture and logic mutation cannot pass deterministic EXP-M testing.
+
 ## Verdict admissibility
 
 `VerdictAdmissibilityResult` contains an explicit predicate for every load-bearing requirement:
@@ -895,6 +925,7 @@ Every material platform API review must retain:
 - parsed review;
 - insufficient-evidence adjudication where needed;
 - semantic validation;
+- AdmissibilityPredicateRegistry identity and predicate/mutation-coverage closure result;
 - VerdictAdmissibilityResult, including provider statistical lower bound, qualified operating-point identity, per-attempt accessibility method, and explicitly retained residual/nonclaim risk.
 
 ## Governance scope
