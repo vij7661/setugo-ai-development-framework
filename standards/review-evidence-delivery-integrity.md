@@ -53,6 +53,8 @@ If the candidate changes any governing input in its own head, that head version 
 - mandatory evidence refs = union(base-authority requirements, candidate-head proposed requirements);
 - mandatory dimensions = union(base-authority dimensions, candidate-head proposed dimensions);
 - required interaction sets = union(base-authority interactions, candidate-head proposed interactions);
+- representation requirements, evidence semantics, statistical thresholds, accessibility-risk policies, and review constraints preserve the stricter base/head requirement;
+- every governing element is content-addressed by stable ID plus hash; reuse of the same ID with different semantics/hash is treated as a changed governing input, never as an in-place semantic replacement;
 - restrictive classifications/egress/provider constraints use the stricter applicable rule;
 - if two governing inputs conflict and no platform-defined partial order can prove which is stricter, derivation fails as `EVIDENCE_SELECTION_CONTRACT_UNRESOLVED`;
 - every governing-input change is itself a mandatory review evidence ref.
