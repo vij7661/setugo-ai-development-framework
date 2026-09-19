@@ -328,6 +328,7 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
     import ctypes, ctypes.util
     libc=ctypes.CDLL(ctypes.util.find_library("c"),use_errno=True)
     PTRACE_ATTACH=16; PTRACE_DETACH=17; PTRACE_SYSCALL=24
+    PTRACE_PEEKDATA=2
     PTRACE_SETOPTIONS=0x4200; PTRACE_O_TRACESYSGOOD=1
     class Regs(ctypes.Structure):
         _fields_=[("r15",ctypes.c_ulonglong),("r14",ctypes.c_ulonglong),("r13",ctypes.c_ulonglong),("r12",ctypes.c_ulonglong),("rbp",ctypes.c_ulonglong),("rbx",ctypes.c_ulonglong),("r11",ctypes.c_ulonglong),("r10",ctypes.c_ulonglong),("r9",ctypes.c_ulonglong),("r8",ctypes.c_ulonglong),("rax",ctypes.c_ulonglong),("rcx",ctypes.c_ulonglong),("rdx",ctypes.c_ulonglong),("rsi",ctypes.c_ulonglong),("rdi",ctypes.c_ulonglong),("orig_rax",ctypes.c_ulonglong),("rip",ctypes.c_ulonglong),("cs",ctypes.c_ulonglong),("eflags",ctypes.c_ulonglong),("rsp",ctypes.c_ulonglong),("ss",ctypes.c_ulonglong),("fs_base",ctypes.c_ulonglong),("gs_base",ctypes.c_ulonglong),("ds",ctypes.c_ulonglong),("es",ctypes.c_ulonglong),("fs",ctypes.c_ulonglong),("gs",ctypes.c_ulonglong)]
@@ -342,6 +343,14 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
     libc.ptrace(PTRACE_SYSCALL,pid,None,None)
     entry=True
     wanted={"before-validation":{257},"after-validation-before-rename":{82,264,316},"after-rename":{82,264,316}}[boundary]
+    def peek_string(addr):
+        raw=bytearray()
+        for i in range(64):
+            ctypes.set_errno(0); word=libc.ptrace(PTRACE_PEEKDATA,pid,ctypes.c_void_p(addr+i*ctypes.sizeof(ctypes.c_long)),None)
+            if word == -1 and ctypes.get_errno(): break
+            raw.extend(int(word).to_bytes(ctypes.sizeof(ctypes.c_long),"little",signed=False))
+            if b"\0" in raw: break
+        return raw.split(b"\0",1)[0].decode("utf-8","replace")
     deadline=time.time()+20
     while time.time()<deadline:
         if libc.waitpid(pid,ctypes.byref(status),0)<0: break
@@ -351,13 +360,23 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
             if libc.ptrace(12,pid,None,ctypes.byref(regs))!=0: break
             nr=int(regs.orig_rax)
             if entry and nr in wanted:
+                paths=[]
+                if nr==257: paths=[peek_string(int(regs.rsi))]
+                else: paths=[peek_string(int(regs.rdi)),peek_string(int(regs.rsi))]
                 if boundary=="after-rename":
                     # First stop is syscall entry; allow it, then kill at exit.
-                    entry=False; libc.ptrace(PTRACE_SYSCALL,pid,None,None); continue
-                rec.update({"event":"syscall_entry","syscall":nr,"timestamp":time.time()})
+                    rec["entry_paths"]=paths; entry=False; libc.ptrace(PTRACE_SYSCALL,pid,None,None); continue
+                rec.update({"event":"syscall_entry","syscall":nr,"paths":paths,"timestamp":time.time()})
+                if boundary=="before-validation" and not any("/run/v24-v6-authority/private/records/" in x for x in paths):
+                    libc.ptrace(PTRACE_SYSCALL,pid,None,None); entry=False; continue
+                if boundary=="after-validation-before-rename" and not (len(paths)==2 and "/run/v24-v6-authority/private/records/" in paths[0] and "/run/v24-v6-authority/private/consumed/" in paths[1]):
+                    libc.ptrace(PTRACE_SYSCALL,pid,None,None); entry=False; continue
                 os.kill(pid,signal.SIGKILL); write_json(evidence,rec); return rec
             if (not entry) and boundary=="after-rename" and nr in wanted:
-                rec.update({"event":"syscall_exit","syscall":nr,"return_value":int(regs.rax),"timestamp":time.time()})
+                paths=[peek_string(int(regs.rdi)),peek_string(int(regs.rsi))]
+                rec.update({"event":"syscall_exit","syscall":nr,"paths":paths,"return_value":int(regs.rax),"timestamp":time.time()})
+                if not (len(paths)==2 and "/run/v24-v6-authority/private/records/" in paths[0] and "/run/v24-v6-authority/private/consumed/" in paths[1] and int(regs.rax)==0):
+                    entry=True; libc.ptrace(PTRACE_SYSCALL,pid,None,None); continue
                 os.kill(pid,signal.SIGKILL); write_json(evidence,rec); return rec
             entry=not entry
             libc.ptrace(PTRACE_SYSCALL,pid,None,None)
