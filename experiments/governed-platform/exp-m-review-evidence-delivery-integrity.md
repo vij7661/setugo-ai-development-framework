@@ -268,6 +268,10 @@ The provider operating point and preflight include witness challenges, maximum w
 
 Witness challenges may test exact accessibility only; they cannot ask for evaluation or conclusions. Material witness-based review requires a current WitnessProtocolQualificationRecord bound to provider/mode/prompt-isolation mechanism. If the witness protocol's noninterference cannot be bounded on the governed qualification corpus, the witness mode is diagnostic-only.
 
+### M-I56 — Witness qualification cannot self-authorize
+
+WitnessProtocolQualificationRecord and its registry are platform-owned, outside candidate write authority, version/hash/expiry bound, and invalidated by provider/prompt-isolation/witness-protocol drift. Candidate code/content cannot mint or widen the record.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -1118,6 +1122,20 @@ witness mode not qualified for material review.
 Expected:
 verdict inadmissible.
 
+### M-121 — Candidate-authored witness qualification record
+
+Candidate supplies a record claiming its own witness protocol is noninterfering.
+
+Expected:
+untrusted record rejected; witness-based material review inadmissible.
+
+### M-122 — Provider isolation documentation/config template drifts
+
+Pinned provider account-class documentation or production configuration-template hash changes after qualification.
+
+Expected:
+ProviderContextIsolationPolicy/ProviderCapabilityProfile binding invalidated; requalification required.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1199,7 +1217,9 @@ Mutation suite must attempt to make a verdict admissible by:
 - weakening typed base/head comparator direction;
 - excluding witness challenge/response overhead from final-context budgeting;
 - allowing evaluative witness prompts;
-- omitting/staling WitnessProtocolQualificationRecord.
+- omitting/staling WitnessProtocolQualificationRecord;
+- accepting candidate-authored witness qualification;
+- ignoring provider-isolation documentation/account-class/config-template drift.
 
 Every load-bearing mutation must be rejected.
 
@@ -1279,6 +1299,8 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `WitnessContextEvictionAdapter`
 - `EvaluativeWitnessAdapter`
 - `WitnessOutcomeShiftAdapter`
+- `CandidateWitnessQualificationAdapter`
+- `ProviderIsolationTemplateDriftAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1294,7 +1316,7 @@ Exploration identifies candidate operating points and observed failure boundarie
 - zero hard failures;
 - no exclusions/rerolls/optional stopping;
 - trials distributed over the preregistered multi-day/time-block schedule;
-- fresh clean context and fresh content-bound witnesses every trial;
+- fresh ProviderContextIsolationPolicy-qualified context and fresh content-bound witnesses every trial;
 - production-equivalent prompt/tools/structured-output/output budget;
 - worst-case token-density and required media/modality classes;
 - every required slice/page/range/member challenged in every trial unless deterministic access/range proof exists;
@@ -1357,7 +1379,9 @@ EXP-M can reach bounded pass only when:
 45. health checks cannot renew or extend an expired capability profile;
 46. every base/head “stricter” comparison uses a typed governed partial order and incomparable changes fail unresolved;
 47. witness challenge/response traffic is part of the qualified cumulative context and cannot evict required evidence before adjudication;
-48. witness protocols are non-evaluative and have a current provider/mode-bound WitnessProtocolQualificationRecord.
+48. witness protocols are non-evaluative and have a current provider/mode-bound WitnessProtocolQualificationRecord;
+49. witness qualification authority is outside candidate write control;
+50. provider isolation documentation/account-class/config-template drift invalidates the associated context-isolation qualification.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
