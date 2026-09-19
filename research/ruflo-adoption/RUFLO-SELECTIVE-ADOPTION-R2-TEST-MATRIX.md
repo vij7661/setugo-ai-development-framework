@@ -60,7 +60,9 @@ Negative fixtures:
 - rewrite historical payload;
 - restart from older local checkpoint;
 - anchor unavailable;
-- anchor points to unknown head.
+- anchor points to unknown head;
+- crash after local append before anchor update;
+- crash after anchor CAS before local acknowledgement.
 
 Positive control:
 
@@ -80,6 +82,7 @@ Negative fixtures:
 - untrusted ingest loses UNTRUSTED label;
 - egress with unknown label;
 - candidate self-declassifies;
+- untrusted tool/plugin downgrades a platform-attached label;
 - declassification reused for another subject/destination;
 - join combines protected and public input but output marked public.
 
@@ -181,6 +184,9 @@ Negative fixtures:
 - parent use + child reservations > grant;
 - release then double re-lend;
 - child expiry > parent;
+- parent revoked while descendant still holds reserved balance;
+- replay same release twice to over-credit;
+- retry same reserve twice;
 - depth x breadth amplification;
 - child spends units while simultaneously subdelegating the same units;
 - descendant release races parent reclaim;
