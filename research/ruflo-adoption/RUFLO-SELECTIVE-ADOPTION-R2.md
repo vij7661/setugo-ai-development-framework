@@ -376,7 +376,7 @@ RA-12 emits a content-addressed `RoutePlan` bound to:
 
 The plan is policy-checked after routing and before execution. Any fallback or route change creates a new RoutePlan and must be reauthorized; fallback cannot inherit authority from the failed path.
 
-## R2-I14 — Failure archive content is untrusted data on retrieval
+### R2-I14 — Failure archive content is untrusted data on retrieval
 
 Agent-authored failure text, external content and model output stored in RA-07/08 never re-enter an agent/system prompt as instructions.
 
@@ -412,7 +412,7 @@ The R2 self-adjudication ledger remains withheld during independent review to re
 
 Commitment:
 
-`sha256:2692e6f66b80519980d2d2e46caf50cb00bda8ec712ad852703efa4c68e15d7e`
+`sha256:e013203536cbd64d7df21c1c27d3666a2d3364c0b6ad2f195ac5c8358502fd58`
 
 After the independent R2 review is returned, the ledger may be revealed and its hash checked.
 
@@ -464,6 +464,20 @@ The review handoff records separately:
 - source commit/tree/blob identities.
 
 Pasted/manual reviewer text is user-attested external review evidence unless independently authenticated by another mechanism.
+
+### R2-I20 — Architectural adoption does not silently copy runtime trust
+
+R2 adopts ideas, not Ruflo authority.
+
+No Ruflo source code/package/plugin is copied into the trusted path by this design. Any future code reuse requires:
+
+- exact source/version identity;
+- license compatibility review;
+- dependency/supply-chain review;
+- project-native security/falsification tests;
+- an explicit decision whether the reused component is diagnostic or authority-bearing.
+
+Ruflo's declared ADR status or implementation claim never substitutes for this project's qualification.
 
 ## 4. Dependency/prerequisite rules
 
