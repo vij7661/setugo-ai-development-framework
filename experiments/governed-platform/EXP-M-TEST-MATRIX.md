@@ -206,6 +206,41 @@ Test dispositions:
 - INSUFFICIENT_EVIDENCE + delivery defect => adjudicate cause as delivery/context.
 - PASS + complete delivery + semantic coverage => delivery layer permits downstream review validation only; it does not independently grant promotion.
 
+## Phase J — Trust-root, wire, representation, and egress tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| J01 | Manifest marks governed required item optional | Required-evidence closure fails |
+| J02 | Manifest omits governed evidence ref entirely | Preflight fails before provider call |
+| J03 | Candidate supplies permissive provider profile | Profile rejected as untrusted |
+| J04 | Provider profile expired | Requalification required |
+| J05 | Provider model/adapter version drifts from profile | Profile invalid |
+| J06 | Manifest complete but trusted adapter omits item from wire body | Wire mismatch; verdict inadmissible |
+| J07 | Adapter changes system/developer prompt on retry | Wire hash mismatch |
+| J08 | Adapter changes tool/file bindings on retry | Wire/session mismatch |
+| J09 | Receipt session A, verdict session B | Verdict inadmissible |
+| J10 | Stateless verdict request omits earlier required evidence | Incomplete |
+| J11 | Opaque file ID from another attempt/session | Reject |
+| J12 | Provider file expired between receipt and verdict | Context incomplete |
+| J13 | Chunk sequence individually fits but cumulative final context does not | Preflight fails; chunking cannot expand context |
+| J14 | Persistent retrieval mechanism qualified and final request binds all file IDs | Eligible for downstream review validation |
+| J15 | Full raw required, partial PDF/text extraction delivered | Representation incomplete |
+| J16 | Transformation tool/version/hash mismatch | Reject |
+| J17 | Lossy transform not explicitly permitted | Reject |
+| J18 | Data classification forbids provider egress | Preflight blocks |
+| J19 | Silent redaction of required evidence | Incomplete/unqualified representation |
+| J20 | Permitted redaction preserves all load-bearing fields | Eligible only if governed transformation rule says sufficient |
+| J21 | All delivery checks pass but EXP-L/prompt-isolation dependency unqualified | Material verdict non-promotable |
+| J22 | Two subreviews pass but defect exists only across evidence subsets | No global PASS |
+| J23 | Aggregator lacks cross-evidence interaction corpus | Global disposition blocked |
+| J24 | Aggregation contract includes interaction evidence and qualified aggregator | Eligible for downstream review validation |
+| J25 | Reviewer self-receipt claims inaccessible file visible | Platform delivery/capability record wins; incomplete |
+| J26 | Provider docs claim large context but empirical qualified profile is smaller | Empirical qualified bound governs |
+| J27 | Provider capability registry record candidate-writable | Profile untrusted |
+| J28 | Egress policy record candidate-writable | Egress decision untrusted |
+| J29 | Wire record excludes semantic field from canonical hash | Test must fail; semantic request binding incomplete |
+| J30 | Secret redaction from wire hash removes only credentials, not semantics | Reproducible semantic wire binding passes |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
