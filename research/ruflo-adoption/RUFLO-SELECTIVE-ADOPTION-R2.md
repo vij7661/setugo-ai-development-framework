@@ -148,18 +148,27 @@ Non-consumable dimensions use canonical subset semantics:
 
 Issuance and enforcement use the same canonicalizer. Incomparable scope is rejected.
 
-Consumable dimensions use conservation semantics:
+Consumable dimensions use typed conservation semantics.
 
-- money/spend
-- tokens
-- concurrency slots
-- request counts
-- delegation counts
-- bounded compute/time
+Each dimension is declared by platform policy as one of:
 
-For parent grant G:
+- `CUMULATIVE_NONREPLENISHABLE` — e.g. spend, consumed tokens, completed request count, consumed compute quota;
+- `LEASED_REPLENISHABLE_CAPACITY` — e.g. concurrent worker slots;
+- `BOUNDED_ALLOCATION_WITH_UNUSED_RETURN` — a finite delegated allocation whose unconsumed remainder may be returned.
 
-`parent_own_reserved + sum(live_child_reserved) <= G`
+Unknown accounting type is rejected.
+
+For a cumulative parent grant G:
+
+`parent_committed_consumption + parent_outstanding_allocation + sum(child_outstanding_allocation) <= G`
+
+Consumed units can never be returned.
+
+For leased capacity:
+
+`parent_live_use + sum(child_live_leases) <= G`
+
+Only a valid recorded lease release/expiry may restore leased capacity.
 
 Reservation/release is atomic against a parent capability ledger.
 
@@ -232,6 +241,8 @@ Evidence from `IMMUTABLE_DIRTY_SNAPSHOT` never transfers to a later commit merel
 
 Source-only receipts do not claim execution reproducibility.
 
+An execution receipt may claim `EXECUTION_CONTEXT_BOUND=true` only when the run is hermetic/allowlisted or the platform can observe and reconcile all load-bearing file/network/dependency inputs against the receipt. Otherwise it is explicitly `UNBOUNDED_EXECUTION_CONTEXT` and cannot satisfy a promotion predicate that requires exact executed-state evidence.
+
 ### R2-I07 — Shared canonical record identity precedes RA-07/08
 
 A shared foundational primitive is reviewed before either RA-07 or authority-bearing RA-08:
@@ -251,7 +262,7 @@ It provides immutable:
 
 RA-07 may initially store only opaque/digest links through this primitive.
 
-RA-08 later adds governed active projections and namespace authority.
+RA-08 later adds governed active projections and namespace authority. A retraction/supersession of evidence referenced by a derived authoritative memory/claim triggers dependency reassessment; no derived active projection survives merely because the old record remains in append-only history.
 
 ### R2-I08 — Append-only history has rollback detection and privacy quarantine
 
@@ -293,6 +304,8 @@ A tool/plugin cannot lower filesystem/network/process/credential/egress/destruct
 
 The platform floor comes from a versioned `ToolRiskRegistry` outside plugin/candidate write authority. Unknown tool identity or missing registry entry defaults to deny for authority-bearing dispatch.
 
+The permission contract is an enforcement ceiling, not evidence that the tool behaves benignly. Authority-bearing execution additionally requires runtime sandbox/capability enforcement or an equivalently qualified side-effect boundary.
+
 ### R2-I10 — Data-flow composition is governed
 
 Individually permitted actions may still compose into exfiltration.
@@ -313,7 +326,7 @@ This is checked at ingestion, transformation, plan/dispatch time and again at th
 
 ### R2-I11 — Fencing is enforced by the protected resource
 
-RA-10 lease/fencing validity is checked atomically by the protected write authority/resource:
+RA-10 lease/fencing validity is checked atomically by the protected write authority/resource. Lease/fence issuance state is platform-owned and outside candidate/writer mutation:
 
 - Git ref CAS;
 - write broker;
@@ -349,7 +362,21 @@ Semantic/LLM scanning remains diagnostic and never substitutes for deterministic
 
 Gate 4/5 automation cannot begin until RA-11 enforcement is qualified.
 
-### R2-I13 — Failure archive content is untrusted data on retrieval
+### R2-I13 — Routing decisions are frozen and reauthorized
+
+RA-12 emits a content-addressed `RoutePlan` bound to:
+
+- task/request identity;
+- authority snapshot;
+- capability-state generations;
+- selected deterministic/single/swarm path;
+- provider/tool identities;
+- budget allocation;
+- prerequisite qualification identities.
+
+The plan is policy-checked after routing and before execution. Any fallback or route change creates a new RoutePlan and must be reauthorized; fallback cannot inherit authority from the failed path.
+
+## R2-I14 — Failure archive content is untrusted data on retrieval
 
 Agent-authored failure text, external content and model output stored in RA-07/08 never re-enter an agent/system prompt as instructions.
 
@@ -362,7 +389,7 @@ Retrieval wraps it as data with:
 
 Persistent injection from archived failure content is part of RA-CONTEXT-001.
 
-### R2-I14 — Experiments require preregistered oracles, positive controls and test-the-test mutations
+### R2-I15 — Experiments require preregistered oracles, positive controls and test-the-test mutations
 
 Every RA experiment has:
 
@@ -379,7 +406,7 @@ Every RA experiment has:
 
 The R2 matrix remains a design contract until implemented. Test-the-test mutations must modify the production validator/enforcement path (or an exact compiled/injected mutation of it), not merely flip expected fixture metadata.
 
-### R2-I15 — Withheld self-adjudication uses commit-reveal
+### R2-I16 — Withheld self-adjudication uses commit-reveal
 
 The R2 self-adjudication ledger remains withheld during independent review to reduce anchoring.
 
@@ -391,7 +418,7 @@ After the independent R2 review is returned, the ledger may be revealed and its 
 
 The commitment has no authority effect.
 
-### R2-I16 — Authority boundaries are enumerated
+### R2-I17 — Authority boundaries are enumerated
 
 For this adoption program, an authority boundary includes any operation that can:
 
@@ -409,7 +436,7 @@ For this adoption program, an authority boundary includes any operation that can
 
 Unknown boundary classification fails closed.
 
-### R2-I17 — EXP-M stability trigger is exact
+### R2-I18 — EXP-M stability trigger is exact
 
 "Stable EXP-M deterministic result" means all of:
 
@@ -425,7 +452,7 @@ Unknown boundary classification fails closed.
 
 Live provider qualification is not required for this trigger unless EXP-M itself later changes that rule.
 
-### R2-I18 — Package/review identity is explicit
+### R2-I19 — Package/review identity is explicit
 
 A package manifest does not recursively hash itself.
 
