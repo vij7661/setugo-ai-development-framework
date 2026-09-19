@@ -5,8 +5,8 @@ Planning-only artifact. No RQ-16 execution occurred.
 ## Identity
 reviewed_source_commit=ec1da26711b7cc8cd58432f5e698cb8f474ac85b
 reviewed_source_tree=2ab69f7de2c95b63c2e94dda3a629cc860f2a2a7
-packet_commit=ec1da26711b7cc8cd58432f5e698cb8f474ac85b
-packet_tree=2ab69f7de2c95b63c2e94dda3a629cc860f2a2a7
+packet_commit=1ec4fb90aac0b5c476d04b99bd5b63195fc934b6
+packet_tree=2410933078c19f664e1b61e998e5da07f416bbb0
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
 exact_diff_sha256=b949e9b9d136a8173339d9bb4257cab93779d86a4e043ee10d999f551022bb9b
@@ -590,7 +590,7 @@ test_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requi
 test_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok
 
 ----------------------------------------------------------------------
-Ran 10 tests in 0.002s
+Ran 10 tests in 0.004s
 
 OK
 ```
