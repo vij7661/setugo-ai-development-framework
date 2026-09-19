@@ -236,9 +236,16 @@ Material review requires a current hash-bound PromptIsolationQualificationRecord
 
 Future implementation should expose governed objects equivalent to:
 
+- `GovernanceAuthoritySnapshot`
+- `RequiredEvidenceContract`
+- `RequiredInteractionContract`
 - `EvidenceDeliveryManifest`
 - `ProviderCapabilityProfile`
+- `ProviderCapabilityQualificationRecord`
+- `ProviderContextStateEvidence`
+- `PromptIsolationQualificationRecord`
 - `DeliveryPreflightResult`
+- `WireDeliveryRecord`
 - `EvidenceChunk`
 - `ReviewerReceipt`
 - `DeliveryCompletenessResult`
