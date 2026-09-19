@@ -244,6 +244,14 @@ Every load-bearing mutable provider/account/project/session configuration channe
 
 The platform uses REVIEW_CONTEXT_QUALIFIED_AVAILABLE, not REVIEW_CONTEXT_COMPLETE, and records the qualified failure model plus residual/nonclaim risk in VerdictAdmissibilityResult.
 
+### M-I50 — Statistical independence is not silently assumed
+
+Provider capability qualification records time/routing/deployment diversity and whether trial independence is actually evidenced. If provider-side correlation cannot be observed, STATISTICAL_INDEPENDENCE_UNPROVEN is recorded and the exact-binomial bound is not treated as a universal provider failure probability.
+
+### M-I51 — Retrieval proof binds returned bytes into final context
+
+Model-selected retrieval logs must prove exact returned content hash/range/version and the resulting tool/message binding into the same final adjudication context. “File opened” or citation-only logs are insufficient.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -1000,6 +1008,23 @@ AdmissionFence/version mismatch kills the attempt.
 Expected:
 flag is ignored/deprecated; authority depends on REVIEW_CONTEXT_QUALIFIED_AVAILABLE predicates and residual-risk record.
 
+### M-107 — Correlated provider route hidden behind fresh request IDs
+
+All requests are fresh but provider-exposed route/deployment identity shows the same correlated backend/time burst.
+
+Expected:
+STATISTICAL_INDEPENDENCE_UNPROVEN or confirmation-schedule failure; probability claim not overgeneralized.
+
+### M-108 — Retrieval log says file opened but returned bytes are unbound
+
+Expected:
+PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN; material verdict inadmissible.
+
+### M-109 — Retrieval returns correct range but tool result is not bound to final adjudication session
+
+Expected:
+PROVIDER_RETRIEVAL_CONTEXT_BINDING_UNPROVEN.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -1070,7 +1095,9 @@ Mutation suite must attempt to make a verdict admissible by:
 - omitting ProviderAccessibilityRiskPolicy;
 - allowing probabilistic witnesses for a transition class requiring deterministic proof;
 - accepting mutable provider context without a version/fence;
-- trusting a legacy REVIEW_CONTEXT_COMPLETE boolean.
+- trusting a legacy REVIEW_CONTEXT_COMPLETE boolean;
+- treating fresh request IDs as proof of statistical independence;
+- accepting retrieval/open logs without returned-content and final-context binding.
 
 Every load-bearing mutation must be rejected.
 
@@ -1140,6 +1167,9 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `MissingAccessibilityRiskPolicyAdapter`
 - `UnfencedProviderConfigAdapter`
 - `AdmissionFenceRaceAdapter`
+- `CorrelatedRouteAdapter`
+- `RetrievalOpenOnlyAdapter`
+- `RetrievalUnboundToolResultAdapter`
 
 Live API pilots come only after deterministic adapters and validator-logic mutation tests prove the governor behavior.
 
@@ -1210,7 +1240,9 @@ EXP-M can reach bounded pass only when:
 37. PromptIsolationQualificationRecord is machine-checkable, current, and admission-bound;
 38. ProviderAccessibilityRiskPolicy is explicit for every transition class and the selected proof mode satisfies it;
 39. mutable provider context has readable versions or a valid AdmissionFenceRecord through atomic admission;
-40. no legacy REVIEW_CONTEXT_COMPLETE boolean can substitute for the explicit qualified-availability predicates.
+40. no legacy REVIEW_CONTEXT_COMPLETE boolean can substitute for the explicit qualified-availability predicates;
+41. statistical independence assumptions are explicit and cannot be inferred solely from fresh request IDs;
+42. model-selected retrieval proves returned-byte identity and final-context tool-result binding.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
