@@ -1041,9 +1041,9 @@ Do not use live provider APIs.
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=3b2967df0c7df715b2fb124f8c6140441907cbce
-tree=c69f3b70348d34d6f23fdb2f9771fe60850c75a8
-parent=b5886bec558bd31d5c5e00d057dba7fa84705562
+commit=586e36091815472f4674e6122416a25e68412191
+tree=0ac1b6a984c2cdb68ea25800e3cbcb2d4bbaae6d
+parent=c0efaf7fdc9c35e05f424643015f299e014605e0
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -1052,13 +1052,13 @@ live_provider_execution=false
 {
   "execution_hashes": {
     "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "a9bcce90a2afdb464683ae0ab8a991ec32d4f13c7323ef428e654f160480a08f",
-    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "b7d25a702afeb5d58905c1b5539bad1229deb560e529e7347fadb5c0c4f9f36c",
+    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "edc824ec9bc9c6c31e050fea99ed0b7a384d5b100fac07fa6ac77c46040151b8",
     "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "ef61d4c08bad66c9c17f5cba77788530d892617b8f5f09ec13b6ec393e08bb6e",
-    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "b0f09b410216770b94ae44805c5d40e5b8dec5741757a3f3f5722f81ab0aab8c",
-    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "d647ccd00a275be9d04ad986f9593b4fe7008922cb4c561721791a53e876bb55"
+    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "06ed34b768b0d4b3ac1eb45ae8954b44e5b602ae6a4de950b13ad837563e9d7d",
+    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "1b4cf1e7d3b91b83e8fb1dffab632528f29e6e2ae30a5f21e95ce52c3f9bf238"
   },
-  "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
-  "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8"
+  "source_commit": "c0efaf7fdc9c35e05f424643015f299e014605e0",
+  "source_tree": "5f501b8fa485832f9313aa037627da0a7de8b5df"
 }
 
 ## Deterministic exit gates
@@ -1101,9 +1101,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
-    "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8",
-    "utc": "2026-09-19T22:03:30.941165+00:00"
+    "source_commit": "c0efaf7fdc9c35e05f424643015f299e014605e0",
+    "source_tree": "5f501b8fa485832f9313aa037627da0a7de8b5df",
+    "utc": "2026-09-19T22:06:10.185909+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -1663,9 +1663,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
-    "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8",
-    "utc": "2026-09-19T22:03:29.961163+00:00"
+    "source_commit": "c0efaf7fdc9c35e05f424643015f299e014605e0",
+    "source_tree": "5f501b8fa485832f9313aa037627da0a7de8b5df",
+    "utc": "2026-09-19T22:06:10.598909+00:00"
   },
   "experiment": "EXP-M",
   "mutations": [
@@ -2392,9 +2392,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "3b2967df0c7df715b2fb124f8c6140441907cbce",
-    "source_tree": "c69f3b70348d34d6f23fdb2f9771fe60850c75a8",
-    "utc": "2026-09-19T22:03:31.325164+00:00"
+    "source_commit": "c0efaf7fdc9c35e05f424643015f299e014605e0",
+    "source_tree": "5f501b8fa485832f9313aa037627da0a7de8b5df",
+    "utc": "2026-09-19T22:06:11.052909+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
