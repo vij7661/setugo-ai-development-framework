@@ -683,13 +683,21 @@ A material review mode using witnesses additionally requires a platform-owned `W
 - ordering relative to evidence and final adjudication;
 - maximum challenge/response budget;
 - evidence-slice selection procedure;
-- deterministic fake-adapter noninterference tests;
-- live-provider bounded noninterference pilot where that provider/mode will be used materially;
+- deterministic fake-adapter structural-isolation tests;
+- machine-checkable binding to the applicable PromptIsolationQualificationRecord;
 - expiry/drift binding.
 
-Noninterference means the witness protocol has not been shown to change the structured semantic review outcome on the governed adversarial qualification corpus beyond the preregistered tolerance. It is not a proof of universal cognitive neutrality.
+The platform does **not** claim counterfactual semantic noninterference (“the model would have produced the same verdict without the witness phase”). That is not reliably observable for a stochastic remote model.
 
-If noninterference cannot be qualified, that witness-based mode is diagnostic-only; deterministic range/retrieval proof or another provider/mode is required.
+Instead, structural isolation requires:
+
+- witness prompts contain accessibility/extraction instructions only;
+- witness outputs are tagged non-evidence/non-adjudicative and cannot satisfy semantic review dimensions;
+- the final semantic adjudication prompt hash is fixed and governed;
+- prompt-isolation controls prevent witness output from being treated as candidate evidence or authority;
+- the exact witness transcript remains inside the qualified context budget.
+
+A/B semantic-outcome comparisons may be retained as diagnostics but cannot by themselves qualify or disqualify the witness protocol.
 
 ### Opaque attachments
 
