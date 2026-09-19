@@ -213,7 +213,7 @@ def case_07(out):
     backup=Path(f"/tmp/rq1-rq07-worker-backup-{os.getpid()}")
     save=run(["cp",str(trusted_worker),str(backup)],user="root",timeout=10)
     install=run(["install","-o","root","-g","root","-m","0444",str(worker),str(trusted_worker)],user="root",timeout=10) if save.returncode==0 else save
-    verify=run(["/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate","--identity"],user="root",timeout=15) if install.returncode==0 else install
+    verify=run(["/opt/v24-v6-trusted-runtime/.gate-build/v24_v6_external_authority_gate","resolve-governed","/tmp/rq07-context-missing","/tmp/rq07-boundary-missing","candidate-reference","candidate-id","0"*64,"V24-V6-EXTERNAL-AUTHORITY-GATE","1","enforce"],user="root",timeout=15) if install.returncode==0 else install
     restore=run(["install","-o","root","-g","root","-m","0444",str(backup),str(trusted_worker)],user="root",timeout=10) if save.returncode==0 else save
     cleanup=remove_candidate_files(stage)
     run(["rm","-f",str(backup)],user="root",timeout=10)
