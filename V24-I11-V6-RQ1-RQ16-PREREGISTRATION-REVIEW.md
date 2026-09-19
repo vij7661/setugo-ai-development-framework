@@ -3,13 +3,13 @@
 Planning-only artifact. No RQ-16 execution occurred.
 
 ## Identity
-reviewed_source_commit=80fee68ad55cbe7a588f7af56c346b298b9de99d
-reviewed_source_tree=272fe41eafba83e9aa8353ce79f949b4ad00f04f
-packet_commit=64a8ae7dde73ebf74849faf6f37e30f01c0528a1
-packet_tree=8c9e3a7464ed0bbe52849b8c313412d6f50aa585
+reviewed_source_commit=877d7e6b3e489fa677d65d5f448b373ff9247ab6
+reviewed_source_tree=6119247e0311f638ec02cab73cd48c8e5dd0d61f
+packet_commit=877d7e6b3e489fa677d65d5f448b373ff9247ab6
+packet_tree=6119247e0311f638ec02cab73cd48c8e5dd0d61f
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
-exact_diff_sha256=114b1389d2606845a85bc7b0feff2c7a3a7e30bd628ef7d61b18dcb9ed9d36e2
+exact_diff_sha256=d00717240df72b1561e119ebe7d1505a9c507578098e5f6fa0e75955d4bca528
 branch=qualification/v24-i11-v6-runtime-qualification-1-rq16-preregistration
 RQ16_EXECUTED=false
 RQ16_AUTHORIZED=false
@@ -249,7 +249,7 @@ ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b  implementation
 0567a3ad2e16dd07ff6f71a724218645d341389d3aad100f6f1b9f19f607f555  governance-runtime/v24_v6_rq1_rq16_harness.py
 8377c3a93fe387ec227fe6111c8d0cf8a13286890ed449c14c1f27ac41e985e6  governance-runtime/test_v24_v6_rq1_rq16_harness.py
 86570af72fc8c6be29121175f0e44a9d985309591af5f3228abdbb5a598f31a5  governance-runtime/run_v24_v6_rq1_rq16_mutations.py
-f784a7cf46ee38da81bbe13932658cd9f214b64347b9694ea0f6d9754ffb134a  governance-runtime/check_rq16_preregistration_packet.py
+701ba0b9adb3764732d0580db4d1624d427149305870076697973feaae7d022b  governance-runtime/check_rq16_preregistration_packet.py
 
 ### implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json sha256=31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7
 
@@ -559,7 +559,7 @@ if __name__=="__main__": raise SystemExit(main())
 ```
 
 
-### governance-runtime/check_rq16_preregistration_packet.py sha256=f784a7cf46ee38da81bbe13932658cd9f214b64347b9694ea0f6d9754ffb134a
+### governance-runtime/check_rq16_preregistration_packet.py sha256=701ba0b9adb3764732d0580db4d1624d427149305870076697973feaae7d022b
 
 ```python
 #!/usr/bin/env python3
@@ -589,7 +589,7 @@ def main():
     assert 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
     for marker in ('expected_context','validate_trusted_fault_attestation','validate_authorization_token','check_rq17_contamination','total_mutations','all_rejected'):
         assert marker in text
-    assert 'diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md' not in text
+    assert not re.search(r'^diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW\.md', text, re.M)
     print(json.dumps({'packet_consistency':'PASS','arm_count':4,'RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
 if __name__=='__main__': raise SystemExit(main())
 ```
@@ -1359,14 +1359,12 @@ OK
 ### packet-check
 
 ```text
-Traceback (most recent call last):
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 30, in <module>
-    if __name__=='__main__': raise SystemExit(main())
-                                              ^^^^^^
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 28, in main
-    assert 'diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md' not in text
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError
+{
+  "packet_consistency": "PASS",
+  "arm_count": 4,
+  "RQ16_EXECUTED": false,
+  "RQ16_AUTHORIZED": false
+}
 ```
 
 
@@ -1408,7 +1406,7 @@ index 00000000..70b8ccac
 +if __name__=='__main__': main()
 diff --git a/governance-runtime/check_rq16_preregistration_packet.py b/governance-runtime/check_rq16_preregistration_packet.py
 new file mode 100644
-index 00000000..74ccd764
+index 00000000..d0f3edf5
 --- /dev/null
 +++ b/governance-runtime/check_rq16_preregistration_packet.py
 @@ -0,0 +1,30 @@
@@ -1439,7 +1437,7 @@ index 00000000..74ccd764
 +    assert 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
 +    for marker in ('expected_context','validate_trusted_fault_attestation','validate_authorization_token','check_rq17_contamination','total_mutations','all_rejected'):
 +        assert marker in text
-+    assert 'diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md' not in text
++    assert not re.search(r'^diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW\.md', text, re.M)
 +    print(json.dumps({'packet_consistency':'PASS','arm_count':4,'RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
 +if __name__=='__main__': raise SystemExit(main())
 diff --git a/governance-runtime/run_v24_v6_rq1_rq16_mutations.py b/governance-runtime/run_v24_v6_rq1_rq16_mutations.py
