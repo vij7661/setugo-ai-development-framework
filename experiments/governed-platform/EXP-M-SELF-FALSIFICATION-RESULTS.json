@@ -32,8 +32,168 @@
     {
       "id": "empty_witness",
       "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-review_request_current",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-authority_snapshot_current",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-evidence_contract_closed",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-interaction_contract_closed",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-materialization_complete",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-representation_governed",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-egress_authorized",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-capability_current",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-accessibility_policy_satisfied",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-context_isolation_satisfied",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-hidden_state_policy_satisfied",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-context_state_clean",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-admission_fence_current",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-semantic_context_qualified",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-wire_binding_valid",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-delivery_complete",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-accessibility_proven",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-witness_record_current",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-session_retrieval_coverage",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-prompt_isolation_current",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-semantic_coverage",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-reviewer_provenance",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-O-disposition_promotable",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-G-missing_chunk",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-G-wrong_request",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-G-wrong_corpus",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-G-duplicate_index",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-G-corrupt_chunk",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-G-empty_chunk",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-expired_profile",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-wrong_profile_hash",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-wrong_operating_point",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-missing_attempt",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-unsupported_format",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-context-isolation",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-materialization-traversal",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-wrong-reviewed-source",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-retrieval-bytes",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-witness-expired",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-admission-drift",
+      "rejected": true
     }
   ],
   "surviving_critical": 0,
-  "total": 8
+  "total": 48
 }

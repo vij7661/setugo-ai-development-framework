@@ -28,8 +28,9 @@
     },
     "D": {
       "checks": [
-        "cause taxonomy",
-        "mixed insufficiency"
+        "single cause",
+        "mixed causes",
+        "unresolved cause"
       ],
       "status": "PASS"
     },
@@ -51,6 +52,7 @@
         "data/state mutation family",
         "validator mutation family"
       ],
+      "mutation_total": 40,
       "status": "PASS"
     },
     "H": {

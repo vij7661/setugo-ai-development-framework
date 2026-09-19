@@ -3,187 +3,210 @@
   "experiment": "EXP-M",
   "mutations": [
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-review_request_current",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "review_request_current"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-authority_snapshot_current",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "authority_snapshot_current"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-evidence_contract_closed",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "evidence_contract_closed"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-interaction_contract_closed",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "interaction_contract_closed"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-materialization_complete",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "materialization_complete"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-representation_governed",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "representation_governed"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-egress_authorized",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "egress_authorized"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-capability_current",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "capability_current"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-accessibility_policy_satisfied",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "accessibility_policy_satisfied"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-context_isolation_satisfied",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "context_isolation_satisfied"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-hidden_state_policy_satisfied",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "hidden_state_policy_satisfied"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-context_state_clean",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "context_state_clean"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-admission_fence_current",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "admission_fence_current"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-semantic_context_qualified",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "semantic_context_qualified"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-wire_binding_valid",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "wire_binding_valid"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-delivery_complete",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "delivery_complete"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-accessibility_proven",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "accessibility_proven"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-witness_record_current",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "witness_record_current"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-session_retrieval_coverage",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "session_retrieval_coverage"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-prompt_isolation_current",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "prompt_isolation_current"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-semantic_coverage",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "semantic_coverage"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-reviewer_provenance",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "reviewer_provenance"
     },
     {
-      "actual": "REJECT",
+      "actual": "PASS",
       "expected": "REJECT",
       "family": "validator_logic",
       "id": "TM-O-disposition_promotable",
       "killed": true,
+      "negative_control": "REJECT",
       "target": "disposition_promotable"
     },
     {
@@ -233,9 +256,130 @@
       "id": "TM-G-empty_chunk",
       "killed": true,
       "target": "empty_chunk"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-expired_profile",
+      "killed": true,
+      "reasons": [
+        "profile_expired"
+      ],
+      "target": "expired_profile"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-wrong_profile_hash",
+      "killed": true,
+      "reasons": [
+        "profile_hash_mismatch"
+      ],
+      "target": "wrong_profile_hash"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-wrong_operating_point",
+      "killed": true,
+      "reasons": [
+        "operating_point_mismatch"
+      ],
+      "target": "wrong_operating_point"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-missing_attempt",
+      "killed": true,
+      "reasons": [
+        "qualification_attempt_closure"
+      ],
+      "target": "missing_attempt"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-unsupported_format",
+      "killed": true,
+      "reasons": [
+        "unsupported_format"
+      ],
+      "target": "unsupported_format"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-context-isolation",
+      "killed": true,
+      "reasons": [
+        "provider_context_not_clean",
+        "context_channel_unobserved",
+        "context_state_unbound",
+        "admission_fence_stale"
+      ],
+      "target": "dirty_hidden_stale_context"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-materialization-traversal",
+      "killed": true,
+      "target": "materialization"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-wrong-reviewed-source",
+      "killed": true,
+      "reasons": [
+        "materialization_source_mismatch"
+      ],
+      "target": "reviewed_commit"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-retrieval-bytes",
+      "killed": true,
+      "reasons": [
+        "retrieval_bytes_mismatch"
+      ],
+      "target": "retrieval_returned_bytes"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-witness-expired",
+      "killed": true,
+      "reasons": [
+        "witness_record_expired"
+      ],
+      "target": "witness_qualification"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-admission-drift",
+      "killed": true,
+      "reasons": [
+        "generation_drift"
+      ],
+      "target": "atomic_admission_generation"
     }
   ],
-  "rejected_mutations": 29,
+  "rejected_mutations": 40,
   "surviving_mutations": 0,
-  "total_mutations": 29
+  "total_mutations": 40
 }
