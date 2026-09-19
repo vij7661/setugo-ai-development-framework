@@ -241,6 +241,26 @@ Test dispositions:
 | J29 | Wire record excludes semantic field from canonical hash | Test must fail; semantic request binding incomplete |
 | J30 | Secret redaction from wire hash removes only credentials, not semantics | Reproducible semantic wire binding passes |
 
+## Phase K — Remote accessibility witness and retrieval grounding tests
+
+| ID | Test | Expected result |
+|---|---|---|
+| K01 | Reviewer echoes manifest IDs but fails fresh hidden content canary | Context accessibility not qualified |
+| K02 | Fresh beginning/middle/end canaries all recovered exactly | Accessibility probe passes for tested bound |
+| K03 | Tail canary missing near context limit | Safe qualified limit lowered; review over limit blocked |
+| K04 | Middle canary missing while head/tail pass | Internal omission detected |
+| K05 | Canary from prior attempt replayed | Attempt/session binding rejection |
+| K06 | Candidate learns/controls canary before delivery | Probe invalid; cannot establish accessibility |
+| K07 | Candidate modifies capability registry record | Profile untrusted |
+| K08 | Capability registry commit/profile changes with candidate under review | Self-approval boundary violation |
+| K09 | Provider file citation with no successful retrieval log in retrieval-required mode | Coverage cannot be TESTED_SUPPORTED |
+| K10 | Retrieval log resolves wrong content hash/version | Evidence identity mismatch |
+| K11 | Retrieval log shows access after verdict generation | Verdict timing invalid |
+| K12 | Receipt and canary probes pass but final adjudication occurs in another session | Session mismatch |
+| K13 | Stateless final request omits canary-qualified earlier evidence | Incomplete final context |
+| K14 | Same-session final review fits qualified cumulative context after canary qualification | Eligible for downstream semantic validation |
+| K15 | Canary value copied into prompt/manifest | Probe invalid because value is not evidence-access dependent |
+
 ## Required evidence outputs
 
 Every EXP-M execution must retain:
