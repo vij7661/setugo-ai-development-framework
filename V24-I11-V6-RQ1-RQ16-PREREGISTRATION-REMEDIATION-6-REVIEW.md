@@ -3,15 +3,16 @@
 Planning-only artifact. No RQ-16 execution occurred.
 
 ## Identity
-reviewed_source_commit=83af59fcf717d51988ca01833150b15ec5f85e96
-reviewed_source_tree=4a8189d664ddf89e53f37adaf8042ffd6cfcb119
-packet_parent_commit=83af59fcf717d51988ca01833150b15ec5f85e96
-packet_parent_tree=4a8189d664ddf89e53f37adaf8042ffd6cfcb119
+reviewed_source_commit=1356d2527909cc8396ea31dd37a6b2e1874c0654
+reviewed_source_tree=fe2acf37d240a6829b9f46bb592970cf4c782bf3
+packet_parent_commit=1356d2527909cc8396ea31dd37a6b2e1874c0654
+packet_parent_tree=fe2acf37d240a6829b9f46bb592970cf4c782bf3
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
-exact_source_diff_sha256=0a6f7f740fbf0c6850a916160340033f5142090b95c090a2f43fe1d2d4019aa2
-source_manifest_sha256=87ab9f719dd15cb5e4a4d51d926fee2aa72d75c96e7c19b395c6f0ef8fd1607e
-packet_content_identity_schema_version=1
+exact_source_diff_sha256=1cf0dd21dbc57f8bf65331310916fe5947b5b3b7733d517490472fb4b98581c3
+source_manifest_sha256=0e2b00adb51710baf858581ac05f279972639d0f550348aaf57a1bdc6a4f3785
+generated_evidence_manifest_sha256=9f3771f9bcd0c0b4f36aad819b9cbbccf1104d30edc12a6847cb5dfec528366e
+packet_content_identity_schema_version=2
 branch=qualification/v24-i11-v6-runtime-qualification-1-rq16-preregistration
 packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION
 packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION
@@ -247,21 +248,12 @@ commit, plan digest, and separately generated authorization token are bound.
 }
 ```
 
-## Included file SHA-256
-dd674e1bfc0afca03cb80248b2b131fdbf8cea1e628ecc6105a37c5e374bd834  governance-runtime/check_rq16_preregistration_packet.py
-1d949be263795a24cb247a5e764eeb684e793a505553dcdbe6e2db9e82b5e9be  governance-runtime/collect_rq16_results.py
-4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916  governance-runtime/run_v24_v6_rq1_rq16_mutations.py
-fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5  governance-runtime/test_v24_v6_rq1_rq16_harness.py
-babe9b5030f415ce87b77c288f53776d3f14dcdbbdfeca4f3c4be532b9bff476  governance-runtime/v24_v6_rq1_rq16_harness.py
-31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7  implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json
-958c15eed2d13d0b74a0b2f3d95d5f2f909b97ac9f88fde419eda2ddf7dca769  implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md
-efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422  implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json
-13352f4d9f42e8ae94d9157414f3cbde667add5b7d85e65990929cb036e5b40a  implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json
-13bf0ae2f37a06da5ff081d26988e2b364121631306cbc0c4edc2ce6d0999c00  implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md
-527ac480abf1e6b74fab31374886fde58f6dffd77c7274b92e4e481711a8fdfd  implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json
-19eaca68666f2b61aea648a7b6fce74912649a45ac20e6155d6cd8fdba3e2fc6  implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md
-ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b  implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md
-94c34f8d86f9421968d5a3050a55a048cf0c0ad513c1a80584ea5ffcd411a977  implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
+## Source manifest
+[{"path":"governance-runtime/build_rq16_preregistration_review.py","sha256":"ce6f7d679c824b2b495decd989be9d174582c94a3b90e6ecbadc52b97dca233a"},{"path":"governance-runtime/check_rq16_preregistration_packet.py","sha256":"cf1a6cc443631994bd40897ddc26aa5a9d640305eb5fc2b5b64fa327aee5a6be"},{"path":"governance-runtime/collect_rq16_results.py","sha256":"2fd16d9efadb83b283e1b3cbdace295a1e66c86879c9e26338de3c286674407f"},{"path":"governance-runtime/rq16_manifest.py","sha256":"895e468776d0d4a6894bbffa4c4d8de0887956ebf5def1d7efded6a80458f1b7"},{"path":"governance-runtime/run_v24_v6_rq1_rq16_mutations.py","sha256":"4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916"},{"path":"governance-runtime/test_rq16_manifest.py","sha256":"122338e681ef5df65953567d2593bea96481f470f2a3775de9e8bfc2f66d5881"},{"path":"governance-runtime/test_v24_v6_rq1_rq16_harness.py","sha256":"fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5"},{"path":"governance-runtime/v24_v6_rq1_rq16_harness.py","sha256":"babe9b5030f415ce87b77c288f53776d3f14dcdbbdfeca4f3c4be532b9bff476"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json","sha256":"31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md","sha256":"958c15eed2d13d0b74a0b2f3d95d5f2f909b97ac9f88fde419eda2ddf7dca769"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json","sha256":"efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md","sha256":"13bf0ae2f37a06da5ff081d26988e2b364121631306cbc0c4edc2ce6d0999c00"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json","sha256":"527ac480abf1e6b74fab31374886fde58f6dffd77c7274b92e4e481711a8fdfd"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md","sha256":"19eaca68666f2b61aea648a7b6fce74912649a45ac20e6155d6cd8fdba3e2fc6"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md","sha256":"ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b"}]
+
+## Generated evidence manifest
+[{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json","sha256":"13352f4d9f42e8ae94d9157414f3cbde667add5b7d85e65990929cb036e5b40a"},{"path":"implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json","sha256":"887f8955003c4424e7e22549b62e47d9127ece39395858ebf6e945e817537cfc"}]
+
 
 ### implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json sha256=31cfafeeae6fbfdd511cc54583efe37768ceaad7e2aa93b66bf1505336ee5bb7
 
@@ -276,6 +268,85 @@ ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b  implementation
 ```
 
 
+### implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md sha256=958c15eed2d13d0b74a0b2f3d95d5f2f909b97ac9f88fde419eda2ddf7dca769
+
+```python
+# RQ-16 cleanup and restoration contract
+
+RQ-16 remains preregistration-only. No mutation has been executed.
+
+Every future arm must capture an immutable baseline and restore it before any
+dependent case. The baseline includes service/gate hashes, unit bytes, PID and
+socket identity, records/consumed ownership and modes, filesystem device IDs,
+mount options, security controls, and exact target lifecycle.
+
+The inverse operation must be explicit: remove only the bounded fault fixture,
+restore the saved mount/quota/metadata state, restart only as required by the
+approved recovery procedure, and independently remeasure every baseline field.
+If a mount operation fails, root recovery is unavailable, a fault fixture
+cannot be removed, or any hash/device/mode differs, cleanup is FAILED and all
+dependent cases abort. Historical evidence directories are never targets.
+
+The future harness must refuse destructive execution unless the exact host,
+commit, plan digest, and separately generated authorization token are bound.
+`--plan` and `--self-test` are the only permitted modes in this preregistration.
+```
+
+
+### implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json sha256=efc4d6fbd6c13f7aed519999570a1a21efe0aba9a819b07a0de54bbd6ec5d422
+
+```python
+{
+  "rq_id": "RQ-16",
+  "trigger": "Disk full / read-only / I/O / permission failure",
+  "oracle": "Fail closed without fabricated success",
+  "execution_required": true,
+  "execution_authorized": false,
+  "arms": {
+    "ENOSPC": {
+      "operation": "write_authority_record or fsync on exact bound records path",
+      "proposed_mechanism": "pre-existing project/quota limit on the exact bound filesystem, only after topology and free-space preflight prove it is isolated and bounded",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "reason": "Current repository evidence does not prove a safe quota/project-quota facility on the bound /run filesystem; filling /run is unsafe and a loop mount would alter device topology/RQ-17 semantics."
+    },
+    "EROFS": {
+      "operation": "write_authority_record or rename on exact bound path",
+      "proposed_mechanism": "controlled read-only remount only if the target is a dedicated qualification filesystem and device identity remains preregistered",
+      "classification": "UNSAFE",
+      "reason": "The source proves /run is load-bearing for socket, PID and private state, but does not prove a dedicated remount boundary. Remounting host /run read-only could break the runner and unrelated state."
+    },
+    "EIO": {
+      "operation": "exact record read/write/fsync/rename syscall",
+      "proposed_mechanism": "kernel fault layer such as dm-error only on a dedicated disposable block device, with independently captured errno",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "reason": "No bound-runtime evidence proves a disposable fault device or safe device-mapper boundary. A mocked exception or arbitrary I/O wrapper is a proxy and cannot qualify RQ-16."
+    },
+    "EACCES": {
+      "operation": "exact service access to records/consumed path",
+      "proposed_mechanism": "controlled ACL/ownership/mode mutation only if the actual service identity is non-root for the operation",
+      "classification": "PROXY_NOT_ACCEPTABLE",
+      "reason": "The frozen runtime binds the trusted service as UID 0; chmod/chown denial is not proven to yield EACCES for root. A Python exception or candidate-side denial would be a proxy."
+    }
+  },
+  "classification_rules": {
+    "PASS": ["fault proof exact", "intended operation observed with errno", "no authoritative success", "exact lifecycle explained", "service recoverable", "cleanup independently verified", "post-state hashes/security exact", "observer complete"],
+    "RED": ["literal injected fault observed and trusted service fabricates authoritative success or invalid transition"],
+    "HARNESS_DEFECT": ["trigger/fault proof/observer/cleanup evidence missing or malformed"],
+    "INSUFFICIENT_EVIDENCE": ["safe literal mechanism or required external fact unavailable"]
+  },
+  "state_machine": {
+    "ENOSPC": {"BASELINE":"target absent; service active; exact device/mount/free-space recorded","PREPARED":"target in records only; same device IDs","FAILURE_TRIGGERED":"exact write/fsync syscall returns ENOSPC","POST_FAILURE":"no authoritative response; target remains explainable; no fabricated consumed state","RECOVERY":"service restart only if required; target state independently observed","RETRY":"only if frozen recovery path permits; exact single transition or explicit denial","POST_RETRY":"exact lifecycle delta recorded","CLEANUP":"quota/fault fixture removed","RESTORED":"all baseline hashes, devices, mounts, modes, socket and security controls match"},
+    "EROFS": {"BASELINE":"target absent; dedicated mount boundary and rw mode recorded","PREPARED":"target in records only; topology unchanged","FAILURE_TRIGGERED":"exact syscall returns EROFS","POST_FAILURE":"no authoritative response; no fabricated transition","RECOVERY":"mount restored rw and service state observed","RETRY":"only after restoration and exact frozen recovery rule","POST_RETRY":"target-specific result recorded","CLEANUP":"read-only fixture removed","RESTORED":"mount options, device IDs, hashes, ownership/modes and service controls match"},
+    "EIO": {"BASELINE":"target absent; disposable fault device and mapping recorded","PREPARED":"target in records only","FAILURE_TRIGGERED":"exact syscall returns EIO","POST_FAILURE":"no authoritative response; no invalid transition","RECOVERY":"fault mapping removed and service recovered","RETRY":"only after independent restoration","POST_RETRY":"target-specific result recorded","CLEANUP":"fault layer detached","RESTORED":"device topology, hashes, mounts, modes and service controls match"},
+    "EACCES": {"BASELINE":"target absent; exact service identity and path metadata recorded","PREPARED":"target in records only","FAILURE_TRIGGERED":"exact trusted operation returns EACCES/EPERM at preregistered boundary","POST_FAILURE":"no authoritative response; no fabricated transition","RECOVERY":"metadata restored and service recovered","RETRY":"only after independent restoration","POST_RETRY":"target-specific result recorded","CLEANUP":"permission fixture removed","RESTORED":"ownership/modes, hashes, device IDs, socket and service controls match"}
+  },
+  "governance": "NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY",
+  "RQ16_EXECUTED": false,
+  "RQ16_AUTHORIZED": false
+}
+```
+
+
 ### implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md sha256=13bf0ae2f37a06da5ff081d26988e2b364121631306cbc0c4edc2ce6d0999c00
 
 ```python
@@ -284,6 +355,146 @@ ad008c6e249b05bea0abbb266050cd0bd6e70ef86db03a4d5ea651ffbb8e819b  implementation
 No live nonce is created in preregistration. Future authorization must use a root-owned, trusted append-only nonce ledger outside the candidate workspace. Consumption is an atomic create-with-exclusive semantics operation containing the nonce, authorization hash, arm, and timestamp. A second consume attempt fails closed as replay. The ledger must survive process restart, be non-candidate-writable, and be independently observed before and after use.
 
 The JSON token is not authoritative by itself. The trusted issuer/reviewer artifact hash, exact plan/contract/runtime bindings, and root-owned source path must all validate before the nonce ledger is touched. No trusted issuer mechanism is available on this planning host, so future authorization remains `MANUAL_REVIEW_REQUIRED`.
+```
+
+
+### implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json sha256=527ac480abf1e6b74fab31374886fde58f6dffd77c7274b92e4e481711a8fdfd
+
+```python
+{
+  "issues": [
+    {"issue_id":"RQ16-ENOSPC-MECHANISM","severity":"BLOCKING","area":"fault mechanism","description":"No safe literal quota/project-quota boundary is evidenced for the bound /run filesystem.","false_green_path":"proxy exception or host-wide fill treated as ENOSPC proof","root_cause":"runtime topology/quota capability not available in repository evidence","narrow_fix":"obtain provider/runtime evidence for an isolated same-filesystem quota or preregister a successor mechanism","status":"MANUAL_REVIEW_REQUIRED"},
+    {"issue_id":"RQ16-EROFS-MECHANISM","severity":"BLOCKING","area":"fault mechanism","description":"Read-only remount boundary is not proven dedicated and bounded.","false_green_path":"host /run remount breaks service/runner or becomes RQ-17 topology mutation","root_cause":"/run contains socket, PID and private state","narrow_fix":"require dedicated qualification mount evidence before any remount design","status":"MANUAL_REVIEW_REQUIRED"},
+    {"issue_id":"RQ16-EIO-MECHANISM","severity":"BLOCKING","area":"fault mechanism","description":"No safe literal EIO fault layer is evidenced.","false_green_path":"mocked exception or non-kernel wrapper accepted as EIO","root_cause":"no disposable fault device evidence","narrow_fix":"obtain bounded disposable device/fault-layer evidence or preregister successor","status":"MANUAL_REVIEW_REQUIRED"},
+    {"issue_id":"RQ16-EACCES-MECHANISM","severity":"BLOCKING","area":"fault mechanism","description":"Trusted service is root; chmod/chown does not prove EACCES for root.","false_green_path":"candidate-side permission failure substituted for trusted operation failure","root_cause":"root DAC bypass","narrow_fix":"obtain a literal kernel access boundary or classify arm insufficient","status":"MANUAL_REVIEW_REQUIRED"},
+    {"issue_id":"RQ16-STRUCTURED-PROOF","severity":"HIGH","area":"evaluator","description":"Summary booleans could accept fabricated fault/observer/cleanup claims.","false_green_path":"injected=true or observer_ok=true without kernel evidence yields PASS","root_cause":"under-specified evidence schema","narrow_fix":"require structured fault proof, seven observations, lifecycle, cleanup and topology evidence","status":"RESOLVED"},
+    {"issue_id":"RQ16-RQ17-CONTAMINATION","severity":"HIGH","area":"topology","description":"RQ-16 mechanism could silently become an RQ-17 filesystem split.","false_green_path":"device or mount identity changes during fault arm","root_cause":"no topology gate","narrow_fix":"check_rq17_contamination requires unchanged device/fs/mount identity","status":"RESOLVED"},
+    {"issue_id":"RQ16-AUTH-TOKEN-BINDING","severity":"HIGH","area":"authorization","description":"A future token must not authorize a different arm, host or plan.","false_green_path":"replayed or cross-arm token enables destructive execution","root_cause":"missing binding schema","narrow_fix":"require exact commit/tree/plan/mechanism/host/runtime/review/nonce bindings","status":"RESOLVED"}
+  ],
+  "open_automatable_issues": 0,
+  "manual_review_required": true,
+  "RQ16_EXECUTED": false,
+  "RQ16_AUTHORIZED": false,
+  "latest_remediation_status": {
+    "RQ16-TRUSTED-ATTESTATION": "RESOLVED",
+    "RQ16-AUTH-PROVENANCE": "MANUAL_REVIEW_REQUIRED",
+    "RQ16-IDENTITY-MODEL": "RESOLVED",
+    "RQ16-TEST-SUFFICIENCY": "RESOLVED",
+    "RQ16-LIFECYCLE-DERIVATION": "RESOLVED",
+    "RQ16-CLEANUP-BASELINE-COMPARISON": "RESOLVED",
+    "RQ16-AUTHORIZATION-PROVENANCE": "MANUAL_REVIEW_REQUIRED",
+    "RQ16-SOURCE-MANIFEST-RECOMPUTATION": "RESOLVED"
+  }
+}
+```
+
+
+### implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md sha256=19eaca68666f2b61aea648a7b6fce74912649a45ac20e6155d6cd8fdba3e2fc6
+
+```python
+# V24-I11-V6 RQ-16 preregistration (planning only)
+
+Predecessor: commit `8477830f5f35a35a8c9b19fdca9c5b6c39e2916d`, tree
+`82457b9307f133db281055dbbdae26b618f8c3cf`. This branch is based exactly on
+that closed Remediation-7 head.
+
+Frozen case: **RQ-16**. Trigger: **Disk full / read-only / I/O / permission
+failure**. Oracle: **Fail closed without fabricated success**. This document
+does not authorize execution.
+
+## Actual write path
+
+In `governance-runtime/native/v24_v6_trusted_authority_service.c`:
+
+- `materialize_private()` calls `mkstemp`, `fchmod(0600)`, `write_all_fd`, and
+  `fsync`, then closes and unlinks on failure.
+- candidate handling calls `materialize_private()` for context, boundary and
+  payload before gate execution.
+- root control calls `consume_record_trusted()`.
+- `consume_record_trusted()` opens `RECORD_DIR/<id>.record` with
+  `open(O_RDONLY|O_NOFOLLOW)`, reads it, closes it, and calls `rename(src,dst)`
+  from records to consumed. It returns an authoritative response only after
+  `rename` succeeds.
+- `write_authority_record()` creates records with
+  `open(O_CREAT|O_EXCL|O_WRONLY|O_CLOEXEC|O_NOFOLLOW)`, writes the body, calls
+  `fsync`, closes, and unlinks on failure.
+
+RQ-16 must bind the injected errno to one of these exact operations; mocked
+Python exceptions and candidate-side failures are proxies.
+
+## Execution arms and classifications
+
+ENOSPC requires a project/quota limit on the exact existing filesystem. Filling
+host `/run` is prohibited. No repository evidence proves such a quota boundary,
+so the arm is `INSUFFICIENT_EVIDENCE` pending runtime/provider evidence.
+
+EROFS requires a dedicated qualification filesystem whose read-only transition
+does not affect service socket/PID or unrelated `/run`. A host `/run` remount is
+unsafe and a separate filesystem would collide with RQ-17 topology semantics;
+the arm is `UNSAFE` pending dedicated-mount evidence.
+
+EIO requires a disposable kernel fault layer returning EIO on the exact target
+operation. `dm-error` or equivalent is acceptable only with a dedicated device
+and independent activation/errno proof. No such boundary is evidenced;
+classification is `INSUFFICIENT_EVIDENCE`.
+
+EACCES cannot be obtained by merely chmod/chowning a root-owned path because the
+trusted service runs as UID 0. Candidate-side permission failure or a mocked
+exception is a proxy; classification is `PROXY_NOT_ACCEPTABLE`.
+
+These are execution arms under one frozen case, not new cases.
+
+## Required state machine and proof
+
+Each arm must record BASELINE, PREPARED, FAILURE_TRIGGERED, POST_FAILURE,
+RECOVERY, optional authorized RETRY, POST_RETRY, CLEANUP and RESTORED. At every
+state record target membership in records/consumed, response and authority,
+errno proof, service state, filesystem/device/mount metadata, ownership/modes,
+and hashes. PASS requires exact fault activation plus syscall errno, no
+authoritative success, explainable target lifecycle, recoverable service,
+complete observers, and exact post-restoration hashes/security state. Absence
+of a response alone is never PASS. Authoritative success after a proven fault
+is RED. Missing/malformed proof or observer/cleanup failure is
+HARNESS_DEFECT/INSUFFICIENT_EVIDENCE.
+
+## Restoration, safety and aborts
+
+The only permitted future mutation is a bounded fixture on a dedicated,
+preflight-verified boundary. The host root filesystem, repository, historical
+evidence, `/run` outside the exact dedicated boundary, IAM/network, and runner
+workspace are never targets. Cleanup removes the fixture, restores mount/quota
+and metadata, revalidates service/socket/PID, records/consumed integrity,
+device IDs, mount options, ownership/modes, hashes and security controls. Any
+failure blocks all dependent cases.
+
+Abort before mutation if predecessor/runtime hashes, device IDs, mount topology,
+free-space margin, backup material, root recovery, service health or observer
+access differ from the preregistered baseline, or if an evidence directory could
+be overwritten.
+
+Evidence is append-only under `RQ-16/{baseline,arm-enospc,arm-erofs,arm-eio,arm-eacces,summary,hashes}` with transcripts, exact commands, errno,
+responses, observers, lifecycle deltas, cleanup proofs and SHA-256 sidecars.
+
+## Harness safety and governance
+
+`v24_v6_rq1_rq16_harness.py` supports only `--plan` and `--self-test` here.
+`--execute-rq16` refuses with a nonzero result. Future execution requires a
+separately generated authorization token bound to exact commit, host/runtime
+identity and plan digest. No token exists in this branch.
+
+`RQ16_EXECUTED=false`, `RQ16_AUTHORIZED=false`, `SCIENTIFIC_RERUN=false`.
+Qualification remains `NOT_QUALIFIED`; scientific execution remains
+`CLOSED_PENDING_SUCCESSOR_REVIEW`; authority effect remains
+`NONE_EVIDENCE_ONLY`. Independent manual review is required for the four arm
+mechanism classifications before any execution authorization.
+
+## Remediation-2 hardening
+
+The future evaluator binds each arm to `/run/v24-v6-authority/private/records/<target>.record` and `/run/v24-v6-authority/private/consumed/<target>.record`, with exact target ID, device, mount, service identity, operation, syscall, errno, activation proof, operation proof, and independent observer references. Summary booleans are insufficient.
+
+Every future arm requires structured observations at baseline, pre-injection, fault-active, post-failure, pre-cleanup, post-cleanup, and restored. Lifecycle proof rejects target-in-both-directories, unexplained disappearance, duplicate authoritative consumption, unrelated transitions, and unknown RQ-17 topology. Cleanup proof requires inverse action, hashes, ownership, modes, device IDs, mount identity, service/socket identity, records/consumed state, fault-disabled proof, and independent verification.
+
+No arm is currently authorization-ready. ENOSPC and EIO remain INSUFFICIENT_EVIDENCE; EROFS remains LITERAL_BUT_UNSAFE; EACCES remains PROXY_NOT_ACCEPTABLE. No host capability was enabled or mutated.
 ```
 
 
@@ -312,6 +523,377 @@ Get-CimInstance Win32_LogicalDisk | Select-Object DeviceID,FileSystem,Size,FreeS
 Both returned `Access denied` on this host. No Linux `/run` filesystem type, mount ID, device ID, quota configuration, disposable fault layer, or UID-0 LSM denial boundary is evidenced. Consequently ENOSPC, EIO and EACCES remain non-authorized, and EROFS remains unsafe.
 
 `RQ16_EXECUTED=false`; no mount, quota, device-mapper, ACL, ownership, mode, service, or filesystem mutation occurred.
+```
+
+
+### governance-runtime/build_rq16_preregistration_review.py sha256=ce6f7d679c824b2b495decd989be9d174582c94a3b90e6ecbadc52b97dca233a
+
+```python
+from __future__ import annotations
+import hashlib, os, subprocess
+from pathlib import Path
+from rq16_manifest import canonical_review_source_files, canonical_evidence_files, build_source_manifest, build_evidence_manifest, manifest_sha256
+ROOT=Path(__file__).resolve().parents[1]
+OUT=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'
+FILES=canonical_review_source_files(ROOT)
+EVIDENCE_FILES=canonical_evidence_files(ROOT)
+def run(cmd): return subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True)
+def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+def fence(name,body,lang='text'): return f'\n### {name}\n\n```{lang}\n{body.rstrip()}\n```\n'
+def main():
+    current=run(['git','rev-parse','HEAD']).stdout.strip(); current_tree=run(['git','rev-parse','HEAD^{tree}']).stdout.strip(); reviewed=os.environ.get('REVIEWED_SOURCE_COMMIT',current); reviewed_tree=os.environ.get('REVIEWED_SOURCE_TREE',run(['git','rev-parse',f'{reviewed}^{{tree}}']).stdout.strip()); predecessor='8477830f5f35a35a8c9b19fdca9c5b6c39e2916d'; packet_parent=current; packet_parent_tree=current_tree
+    diff=run(['git','diff',predecessor,reviewed,'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md']).stdout
+    tests=run(['python','governance-runtime/collect_rq16_results.py']); mutations=run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py']); selftest=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--self-test']); plan=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--plan']); refuse=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--execute-rq16']); consistency=run(['python','governance-runtime/check_rq16_preregistration_packet.py'])
+    source_manifest=build_source_manifest(FILES,ROOT); evidence_manifest=build_evidence_manifest(ROOT); ids=[f'reviewed_source_commit={reviewed}',f'reviewed_source_tree={reviewed_tree}',f'packet_parent_commit={packet_parent}',f'packet_parent_tree={packet_parent_tree}',f'predecessor_commit={predecessor}','predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf',f'exact_source_diff_sha256={hashlib.sha256(diff.encode()).hexdigest()}',f'source_manifest_sha256={manifest_sha256(source_manifest)}',f'generated_evidence_manifest_sha256={manifest_sha256(evidence_manifest)}','packet_content_identity_schema_version=2']
+    parts=['# V24-I11-V6 RQ-16 preregistration remediation-6 review','','Planning-only artifact. No RQ-16 execution occurred.','','## Identity',*ids,f"branch={run(['git','branch','--show-current']).stdout.strip()}",'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION','packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION','packet_file_sha256=EXTERNALLY_BOUND_AFTER_GENERATION','RQ16_EXECUTED=false','RQ16_AUTHORIZED=false','RQ16_started=false','scientific_rerun=false','qualification=NOT_QUALIFIED','scientific_execution_state=CLOSED_PENDING_SUCCESSOR_REVIEW','authority_effect=NONE_EVIDENCE_ONLY','', '## Frozen contract', fence('execution contract',FILES[2].read_text(),'json'), '## Source-path analysis', fence('preregistration',FILES[5].read_text(),'markdown'), '## Cleanup contract', fence('cleanup',FILES[1].read_text(),'markdown'), '## Issues', fence('issue ledger',FILES[4].read_text(),'json'), '## Source manifest',source_manifest,'## Generated evidence manifest',evidence_manifest]
+    for p in FILES: parts.append(fence(p.relative_to(ROOT).as_posix()+f' sha256={sha(p)}',p.read_text(),'python'))
+    for p in EVIDENCE_FILES: parts.append(fence(p.relative_to(ROOT).as_posix()+f' sha256={sha(p)}',p.read_text(),'json'))
+    parts += ['## Static and behavioral results',fence('plan',plan.stdout+plan.stderr),fence('self-test',selftest.stdout+selftest.stderr),fence('tests',tests.stdout+tests.stderr),fence('mutations',mutations.stdout+mutations.stderr,'json'),fence('packet-check',consistency.stdout+consistency.stderr),fence('execution-refusal',refuse.stdout+refuse.stderr), '## Exact predecessor-to-reviewed-source diff', fence('diff',diff), '## Manual-review questions','Determine independently whether any arm has safe literal Linux bound-runtime capability. No arm is authorized; do not execute RQ-16.']
+    OUT.write_text('\n'.join(parts)+'\n',encoding='utf-8'); print(OUT)
+if __name__=='__main__': main()
+```
+
+
+### governance-runtime/check_rq16_preregistration_packet.py sha256=cf1a6cc443631994bd40897ddc26aa5a9d640305eb5fc2b5b64fa327aee5a6be
+
+```python
+#!/usr/bin/env python3
+"""Verify preregistration identities knowable before packet commit."""
+import hashlib, json, re, subprocess
+from pathlib import Path
+from rq16_manifest import canonical_review_source_files, build_source_manifest, canonical_evidence_files, build_evidence_manifest, manifest_sha256
+ROOT=Path(__file__).resolve().parents[1]
+PACKET=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'
+SOURCE_FILES=canonical_review_source_files(ROOT)
+def main():
+    text=PACKET.read_text(encoding='utf-8'); vals=dict(re.findall(r'^(reviewed_source_commit|reviewed_source_tree|packet_parent_commit|packet_parent_tree|predecessor_commit|predecessor_tree|exact_source_diff_sha256|source_manifest_sha256|packet_content_identity_schema_version)=(.+)$',text,re.M))
+    assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_parent_commit','packet_parent_tree','predecessor_commit','predecessor_tree','exact_source_diff_sha256','source_manifest_sha256','packet_content_identity_schema_version'}
+    assert subprocess.check_output(['git','rev-parse',vals['reviewed_source_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['reviewed_source_tree']
+    assert subprocess.check_output(['git','rev-parse',vals['packet_parent_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['packet_parent_tree']
+    assert subprocess.check_output(['git','rev-parse',vals['predecessor_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['predecessor_tree']
+    diff=subprocess.run(['git','diff',vals['predecessor_commit'],vals['reviewed_source_commit'],'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'],cwd=ROOT,text=True,capture_output=True,check=True).stdout
+    assert hashlib.sha256(diff.encode()).hexdigest()==vals['exact_source_diff_sha256']
+    assert vals['packet_content_identity_schema_version']=='2'
+    manifest_match=re.search(r'## Source manifest\n(.*?)(?:\n### |\n## )',text,re.S)
+    assert manifest_match, 'source_manifest_section_missing'
+    declared=json.loads(manifest_match.group(1).strip())
+    expected_manifest=json.loads(build_source_manifest(SOURCE_FILES,ROOT))
+    assert declared==expected_manifest, 'source_manifest_entries_mismatch'
+    manifest=build_source_manifest(SOURCE_FILES,ROOT)
+    assert manifest_sha256(manifest)==vals['source_manifest_sha256'], 'source_manifest_hash_mismatch'
+    evidence_match=re.search(r'## Generated evidence manifest\n(.*?)(?:\n### |\n## )',text,re.S); assert evidence_match, 'evidence_manifest_section_missing'
+    assert json.loads(evidence_match.group(1).strip())==json.loads(build_evidence_manifest(ROOT)), 'evidence_manifest_entries_mismatch'
+    tests=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json').read_text()); muts=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json').read_text())
+    assert tests['tests_total']==tests['tests_passed']+tests['tests_failed'] and tests['exit_code']==0, 'test_result_binding_mismatch'
+    assert muts['total_mutations']==len(muts['mutations']) and muts['rejected_mutations']+muts['surviving_mutations']==muts['total_mutations'] and muts['all_rejected']==(muts['surviving_mutations']==0), 'mutation_result_binding_mismatch'
+    assert 'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION' in text and 'packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION' in text
+    contract=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json').read_text()); assert contract['RQ16_EXECUTED'] is False and contract['RQ16_AUTHORIZED'] is False
+    assert 'NONE_EVIDENCE_ONLY' in text and 'RQ16_started=false' in text
+    assert not re.search(r'^diff --git a/V24-I11-V6-RQ1-RQ16-(PRE|REMEDIATION-[56]-REVIEW)\.md',text,re.M)
+    print(json.dumps({'packet_consistency':'PASS','identity_model':'PASS','RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
+if __name__=='__main__': raise SystemExit(main())
+```
+
+
+### governance-runtime/collect_rq16_results.py sha256=2fd16d9efadb83b283e1b3cbdace295a1e66c86879c9e26338de3c286674407f
+
+```python
+#!/usr/bin/env python3
+"""Generate the single authoritative offline RQ-16 test and mutation results."""
+import json, re, subprocess
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+TEST_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json'
+MUT_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json'
+def main():
+    runs=[subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True),subprocess.run(['python','governance-runtime/test_rq16_manifest.py'],cwd=ROOT,text=True,capture_output=True)]
+    t=subprocess.CompletedProcess([],max((x.returncode for x in runs),default=0),stdout='\n'.join(x.stdout for x in runs),stderr='\n'.join(x.stderr for x in runs))
+    m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
+    matches=re.findall(r'Ran (\d+) tests?',t.stderr+t.stdout); total=sum(int(x) for x in matches)
+    tests=[]
+    for line in (t.stderr+t.stdout).splitlines():
+        hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
+        if hit: tests.append({'name':line.split(' (',1)[0],'result':'PASS' if hit.group(1)=='ok' else 'FAIL'})
+    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':t.stdout,'stderr':t.stderr}
+    mutation_result=json.loads(m.stdout)
+    mutation_result['exit_code']=m.returncode
+    TEST_OUT.write_text(json.dumps(test_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+    MUT_OUT.write_text(json.dumps(mutation_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+    print(json.dumps({'tests_total':test_result['tests_total'],'tests_passed':test_result['tests_passed'],'tests_failed':test_result['tests_failed'],'mutation_total':mutation_result['total_mutations'],'mutation_rejected':mutation_result['rejected_mutations'],'mutation_surviving':mutation_result['surviving_mutations'],'all_rejected':mutation_result['all_rejected']},indent=2))
+    return 0 if t.returncode==0 and m.returncode==0 else 1
+if __name__=='__main__': raise SystemExit(main())
+```
+
+
+### governance-runtime/run_v24_v6_rq1_rq16_mutations.py sha256=4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916
+
+```python
+#!/usr/bin/env python3
+import copy, hashlib, json
+from datetime import datetime, timezone
+from v24_v6_rq1_rq16_harness import evaluate_arm, expected_context, expected_authorization_context, expected_fault_observer_context, validate_authorization_token
+from test_v24_v6_rq1_rq16_harness import good, TRUSTED
+EXPECTED=expected_context("ENOSPC")
+OBSERVER=expected_fault_observer_context(); ARTIFACT_DIGEST=hashlib.sha256(b"attestation").hexdigest()
+def main():
+    specs=[
+      ("wrong_device",lambda e:e["observations"]["fault_active"].update(records_device="d2")),
+      ("wrong_mount",lambda e:e["observations"]["fault_active"].update(records_mount="m2")),
+      ("wrong_filesystem",lambda e:e["observations"]["fault_active"].update(records_fs="fs2")),
+      ("symlink",lambda e:e["observations"]["fault_active"].update(records_symlink=True)),
+      ("wrong_target",lambda e:e["fault_proof"].update(target_record_id="other")),
+      ("wrong_syscall",lambda e:e["fault_proof"].update(target_syscall="rename")),
+      ("wrong_errno",lambda e:e["fault_proof"].update(observed_errno="EROFS")),
+      ("missing_activation",lambda e:e["fault_proof"].update(activation_evidence={})),
+      ("missing_operation",lambda e:e["fault_proof"].update(operation_evidence={})),
+      ("attestation_missing_raw_activation",lambda e:e["trusted_fault_attestation"].pop("fault_activation_raw_evidence")),
+      ("attestation_missing_raw_operation",lambda e:e["trusted_fault_attestation"].pop("operation_raw_evidence")),
+      ("attestation_wrong_observer",lambda e:e["trusted_fault_attestation"].update(observer_identity="candidate")),
+      ("attestation_wrong_pid",lambda e:e["trusted_fault_attestation"].update(service_pid=99)),
+      ("attestation_wrong_artifact_hash",lambda e:e["trusted_fault_attestation"].update(raw_artifact_sha256="fake")),
+      ("missing_observer",lambda e:e["observations"].pop("restored")),
+      ("bool_only_observer",lambda e:e.pop("observations")),
+      ("missing_cleanup",lambda e:e.pop("cleanup_proof")),
+      ("bool_only_cleanup",lambda e:(e.pop("cleanup_proof"),e.update(cleanup_verified=True,restored=True))),
+      ("duplicate_consume",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record","abc123.record"])),
+      ("both_directories",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record"])),
+      ("rq17_false_but_changed",lambda e:e["observations"]["fault_active"].update(records_device="d2")),
+      ("authoritative_success",lambda e:e.update(authoritative_success=True)),
+      ("invalid_transition",lambda e:e.update(invalid_transition=True)),
+      ("untrusted_expected_context",lambda e:e["fault_proof"].update(mechanism_id="fake")),
+      ("cleanup_service_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(service_binary_sha256="bad")),
+      ("cleanup_gate_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(gate_sha256="bad")),
+      ("cleanup_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="0777")),
+      ("cleanup_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="candidate")),
+      ("cleanup_socket",lambda e:e["cleanup_proof"]["restored_observation"].update(socket_state="changed")),
+      ("cleanup_fault_active",lambda e:e["cleanup_proof"].update(fault_disabled=False)),
+      ("cleanup_target_state",lambda e:e["cleanup_proof"]["restored_observation"].update(records_entries=[])),
+      ("cleanup_historical_evidence",lambda e:e["cleanup_proof"]["restored_observation"].update(historical_evidence="changed")),
+      ("cleanup_missing_restored",lambda e:e["cleanup_proof"].update(restored_observation={})),
+      ("baseline_target_missing",lambda e:e["observations"]["baseline"].update(records_entries=[])),
+      ("baseline_already_consumed",lambda e:e["observations"]["baseline"].update(consumed_entries=["abc123.record"])),
+      ("post_failure_missing_both",lambda e:e["observations"]["post_failure"].update(records_entries=[],consumed_entries=[])),
+      ("post_failure_both",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record"])),
+      ("wrong_target_consumed",lambda e:e["observations"]["post_failure"].update(consumed_entries=["other.record"])),
+      ("historical_target_consumed",lambda e:e["observations"]["post_failure"].update(consumed_entries=["historical.record"])),
+      ("unrelated_target_transition",lambda e:e["observations"]["post_failure"].update(records_entries=["abc123.record","other.record"])),
+      ("duplicate_authoritative_consumption",lambda e:e.update(authoritative_success=True)),
+      ("second_authoritative_retry",lambda e:e["observations"]["post_failure"].update(response={"service_authoritative":True})),
+      ("replay_state_mutation",lambda e:e["observations"]["restored"].update(records_entries=["other.record"])),
+      ("target_hash_changed",lambda e:e["observations"]["post_failure"].update(target_hash="changed")),
+      ("target_identity_changed",lambda e:e["observations"]["post_failure"].update(target_record_id="other")),
+      ("cleanup_gate_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(gate_sha256="bad")),
+      ("cleanup_device",lambda e:e["cleanup_proof"]["restored_observation"].update(records_device="bad")),
+      ("cleanup_mount",lambda e:e["cleanup_proof"]["restored_observation"].update(records_mount="bad")),
+      ("cleanup_fs",lambda e:e["cleanup_proof"]["restored_observation"].update(records_fs="bad")),
+      ("cleanup_realpath",lambda e:e["cleanup_proof"]["restored_observation"].update(records_realpath="bad")),
+      ("cleanup_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="candidate")),
+      ("cleanup_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="0777")),
+      ("cleanup_socket",lambda e:e["cleanup_proof"]["restored_observation"].update(socket_state="changed")),
+      ("cleanup_fault_still_active",lambda e:e["cleanup_proof"]["restored_observation"].update(fault_state={"active":True})),
+      ("cleanup_unrelated_record",lambda e:e["cleanup_proof"]["restored_observation"].update(records_entries=["abc123.record","other.record"])),
+      ("cleanup_historical_changed",lambda e:e["cleanup_proof"]["restored_observation"].update(historical_evidence={"intact":False})),
+      ("cleanup_arbitrary_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(service_binary_sha256="arbitrary")),
+      ("cleanup_arbitrary_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="arbitrary")),
+      ("cleanup_arbitrary_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="arbitrary")),
+    ]
+    rows=[]
+    for name,mut in specs:
+        e=copy.deepcopy(good()); mut(e); actual,reasons=evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)
+        rows.append({"mutation_id":name,"case":"ENOSPC","path":name,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":actual,"reasons":reasons,"rejected":actual!="PASS"})
+    token=expected_authorization_context(EXPECTED,TRUSTED)|{"authorization_timestamp":"2026-01-01T00:00:00Z","expiration":"2026-01-01T00:30:00Z","nonce":"n1","source_path":"/root-owned/rq16-authorization","single_use_registry":"root-owned-durable-ledger"}
+    metadata={"trusted_storage_identity":"root-owned-rq16-authorization","trusted_owner":"root","trusted_mode":"0600","issuer_authority_artifact_digest":TRUSTED["issuer_authority_artifact_sha256"]}
+    auth_fields=["arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","issuer_identity","issuer_authority_artifact_sha256"]
+    for field in auth_fields:
+        bad=dict(token); bad[field]="mutated"; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]); rows.append({"mutation_id":"auth_"+field,"case":"AUTHORIZATION","path":field,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
+    for name,field,value in (("expired","expiration","2025-01-01T00:00:00Z"),("future_issued","authorization_timestamp","2030-01-01T00:00:00Z"),("malformed_timestamp","expiration","bad"),("empty_nonce","nonce",""),("reused_nonce","nonce","used"),("untrusted_source","source_path","candidate"),("untrusted_registry","single_use_registry","memory")):
+        bad=dict(token); bad[field]=value; used={"used"} if name=="reused_nonce" else None; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),used_nonces=used,trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]); rows.append({"mutation_id":"auth_"+name,"case":"AUTHORIZATION","path":field,"before":"valid","after":value,"expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
+    for name,field,value in (("self_issued","issuer_identity","candidate"),("candidate_writable","source_path","candidate"),("placeholder_issuer_hash","issuer_authority_artifact_sha256","issuer-sha"),("placeholder_review_hash","review_artifact_sha256","review-sha"),("wrong_reviewer","reviewer_designation","candidate"),("generic_bounded_pass","independent_review_disposition","BOUNDED_PASS"),("changes_required","independent_review_disposition","CHANGES_REQUIRED"),("insufficient_evidence","independent_review_disposition","INSUFFICIENT_EVIDENCE")):
+        bad=dict(token); bad[field]=value; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]); rows.append({"mutation_id":"auth_provenance_"+name,"case":"AUTHORIZATION_PROVENANCE","path":field,"before":"valid","after":value,"expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
+    reasons=validate_authorization_token(token,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc)); rows.append({"mutation_id":"auth_provenance_unavailable","case":"AUTHORIZATION_PROVENANCE","path":"trusted_provenance","before":"absent","after":"absent","expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
+    out={"total_mutations":len(rows),"rejected_mutations":sum(r["rejected"] for r in rows),"surviving_mutations":sum(not r["rejected"] for r in rows),"all_rejected":all(r["rejected"] for r in rows),"mutations":rows,"RQ16_EXECUTED":False}
+    print(json.dumps(out,indent=2,sort_keys=True)); return 0 if out["all_rejected"] else 2
+if __name__=="__main__": raise SystemExit(main())
+```
+
+
+### governance-runtime/rq16_manifest.py sha256=895e468776d0d4a6894bbffa4c4d8de0887956ebf5def1d7efded6a80458f1b7
+
+```python
+#!/usr/bin/env python3
+"""Canonical source/evidence manifest definitions for the RQ-16 review packet."""
+import hashlib, json
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+SOURCE_RELATIVE=(
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md",
+    "governance-runtime/build_rq16_preregistration_review.py",
+    "governance-runtime/check_rq16_preregistration_packet.py",
+    "governance-runtime/collect_rq16_results.py",
+    "governance-runtime/run_v24_v6_rq1_rq16_mutations.py",
+    "governance-runtime/rq16_manifest.py",
+    "governance-runtime/test_v24_v6_rq1_rq16_harness.py",
+    "governance-runtime/test_rq16_manifest.py",
+    "governance-runtime/v24_v6_rq1_rq16_harness.py",
+)
+EVIDENCE_RELATIVE=(
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json",
+    "implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json",
+)
+
+def canonical_review_source_files(root=ROOT):
+    return [root / rel for rel in SOURCE_RELATIVE]
+
+def canonical_evidence_files(root=ROOT):
+    return [root / rel for rel in EVIDENCE_RELATIVE]
+
+def _entries(files, root=ROOT):
+    entries=[]
+    for path in files:
+        rel=path.resolve().relative_to(root.resolve()).as_posix()
+        if rel.startswith("/") or Path(rel).is_absolute() or ".." in Path(rel).parts:
+            raise ValueError(f"non-canonical path: {rel}")
+        entries.append({"path":rel,"sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
+    if len({e["path"] for e in entries}) != len(entries):
+        raise ValueError("duplicate canonical path")
+    return sorted(entries,key=lambda e:e["path"])
+
+def build_source_manifest(files=None, root=ROOT):
+    return json.dumps(_entries(files or canonical_review_source_files(root),root),ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n"
+
+def build_evidence_manifest(root=ROOT):
+    return json.dumps(_entries(canonical_evidence_files(root),root),ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n"
+
+def manifest_sha256(manifest):
+    return hashlib.sha256(manifest.encode("utf-8")).hexdigest()
+```
+
+
+### governance-runtime/test_v24_v6_rq1_rq16_harness.py sha256=fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5
+
+```python
+#!/usr/bin/env python3
+import copy, hashlib, unittest
+from v24_v6_rq1_rq16_harness import expected_context, evaluate_arm, check_rq17_contamination, validate_authorization_token, expected_authorization_context, expected_fault_observer_context
+
+EXPECTED=expected_context("ENOSPC"); TARGET=EXPECTED["target_record_id"]
+OBSERVER=expected_fault_observer_context(); ARTIFACT_DIGEST=hashlib.sha256(b"attestation").hexdigest()
+TRUSTED={"issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":hashlib.sha256(b"issuer").hexdigest(),"reviewer_designation":"independent-reviewer","review_artifact_sha256":hashlib.sha256(b"review").hexdigest(),"trusted_storage_identity":"root-owned-rq16-authorization","trusted_owner":"root","trusted_mode":"0600"}
+def observation():
+    return {s:{"target_record_id":TARGET,"target_hash":"target-hash","records_path":EXPECTED["expected_records_path"],"consumed_path":EXPECTED["expected_consumed_path"],"records_realpath":EXPECTED["expected_records_realpath"],"consumed_realpath":EXPECTED["expected_consumed_realpath"],"records_device":"d1","consumed_device":"d1","records_mount":"m1","consumed_mount":"m1","records_fs":"fs1","consumed_fs":"fs1","records_symlink":False,"consumed_symlink":False,"service_pid":42,"service_binary_sha256":"service-sha","gate_sha256":"gate-sha","socket_state":{"path":"/run/v24-v6-authority/socket","active":True},"records_entries":[TARGET+".record"],"consumed_entries":[]} for s in ("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")}
+def good():
+    att={"attestation_schema_version":"1","rq_id":"RQ-16","arm":"ENOSPC","mechanism_id":EXPECTED["mechanism_id"],"mechanism_digest":"mechanism-sha","service_pid":42,"service_executable_sha256":"service-sha","target_record_id":TARGET,"target_operation":"write_authority_record","target_syscall":"write","target_path":EXPECTED["expected_records_path"],"records_device":"d1","consumed_device":"d1","records_mount_id":"m1","consumed_mount_id":"m1","filesystem_identity":"fs1","fault_activation_source":"trusted-root-observer","fault_activation_raw_evidence":{"syscall":"quota-state"},"operation_raw_evidence":{"syscall":"write","errno":"ENOSPC"},"observed_errno":"ENOSPC","observation_timestamp":"2026-01-01T00:00:00Z","observer_identity":OBSERVER["observer_identity"],"observer_source_sha256":OBSERVER["observer_source_sha256"],"observer_execution_identity":OBSERVER["observer_execution_identity"],"expected_evidence_root":OBSERVER["expected_evidence_root"],"expected_owner":OBSERVER["expected_owner"],"expected_mode":OBSERVER["expected_mode"],"expected_host_identity":OBSERVER["expected_host_identity"],"expected_runtime_identity":OBSERVER["expected_runtime_identity"],"raw_artifact_path":"/var/lib/v24-rq1/rq16-attestations/a.raw","raw_artifact_sha256":ARTIFACT_DIGEST,"cleanup_reference":"clean"}
+    base=copy.deepcopy(EXPECTED["expected_restoration"])
+    return {"fault_proof":{"arm":"ENOSPC","mechanism_id":EXPECTED["mechanism_id"],"mechanism_class":"kernel_quota","target_operation":"write_authority_record","target_syscall":"write","target_path":EXPECTED["expected_records_path"],"expected_errno":"ENOSPC","observed_errno":"ENOSPC","kernel_or_filesystem_source":"kernel","activation_evidence":{"observed":True},"operation_evidence":{"observed":True},"timestamp":1.0,"service_pid":42,"target_record_id":TARGET,"device_id":"d1","mount_id":"m1","filesystem_identity":"fs1","independent_observer_reference":"obs","cleanup_reference":"clean"},"trusted_fault_attestation":att,"observations":observation(),"lifecycle":{"target_record_id":TARGET,"deltas":{}},"cleanup_proof":{"mechanism_id":EXPECTED["mechanism_id"],"mutation":"quota","inverse_action":"remove","pre_state":"p","post_inverse_state":"p","hashes":"h","ownership":"o","modes":"m","device_ids":"d","mount_identities":"m","filesystem_identities":"f","service_identity":"s","service_health":"ok","socket_state":"ok","records_state":"r","consumed_state":"c","fault_disabled":True,"independently_verified":True,"baseline_observation":base,"restored_observation":copy.deepcopy(base)},"service_recoverable":True}
+
+class RQ16Tests(unittest.TestCase):
+    def test_valid_structured_expected_observed_passes(self): self.assertEqual(evaluate_arm("ENOSPC",good(),EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_expected_context_required(self): self.assertNotEqual(evaluate_arm("ENOSPC",good(),None)[0],"PASS")
+    def test_target_mutations_reject(self):
+        for field,value in (("target_record_id","other"),("records_path","/run/v24-v6-authority/private/records/x.record"),("records_realpath","/alias"),("records_device","d2"),("records_mount","m2"),("records_fs","fs2"),("records_symlink",True)):
+            e=good(); e["fault_proof"]["target_record_id" if field=="target_record_id" else "target_path" if field=="records_path" else "target_path"] = value if field in ("target_record_id","records_path") else e["fault_proof"]["target_path"]
+            if field not in ("target_record_id","records_path"): e["observations"]["baseline"][field]=value
+            self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_provenance_mutations_reject(self):
+        for field,value in (("activation_evidence",{}),("operation_evidence",{}),("target_syscall","rename"),("observed_errno","EROFS"),("mechanism_id","fake")):
+            e=good(); e["fault_proof"][field]=value; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        e=good(); e["trusted_fault_attestation"].pop("operation_raw_evidence"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        e=good(); e["trusted_fault_attestation"]["observer_identity"]="candidate"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        e=good(); e["trusted_fault_attestation"]["service_pid"]=99; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_observer_cleanup_lifecycle_mutations_reject(self):
+        e=good(); e["observations"].pop("restored"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        e=good(); e["cleanup_proof"].pop("hashes"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        e=good(); e["observations"]["post_failure"]["consumed_entries"]=[TARGET+".record"]; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        mutations=[
+            ("baseline_target_missing",lambda x:x["observations"]["baseline"].update(records_entries=[])),
+            ("baseline_target_already_consumed",lambda x:x["observations"]["baseline"].update(consumed_entries=[TARGET+".record"])),
+            ("post_failure_target_missing_both",lambda x:x["observations"]["post_failure"].update(records_entries=[],consumed_entries=[])),
+            ("post_failure_target_both",lambda x:x["observations"]["post_failure"].update(consumed_entries=[TARGET+".record"])),
+            ("wrong_target_consumed",lambda x:x["observations"]["post_failure"].update(consumed_entries=["other.record"])),
+            ("historical_target_consumed",lambda x:x["observations"]["post_failure"].update(consumed_entries=["historical.record"])),
+            ("unrelated_target_transition",lambda x:x["observations"]["post_failure"].update(records_entries=[TARGET+".record","other.record"])),
+            ("duplicate_authoritative_consumption",lambda x:x.update(authoritative_success=True)),
+            ("second_authoritative_retry",lambda x:x["observations"]["post_failure"].update(response={"service_authoritative":True})),
+            ("replay_state_mutation",lambda x:x["observations"]["restored"].update(records_entries=["other.record"])),
+            ("target_hash_changed",lambda x:x["observations"]["post_failure"].update(target_hash="changed")),
+            ("target_identity_changed",lambda x:x["observations"]["post_failure"].update(target_record_id="other")),
+        ]
+        for _,mut in mutations:
+            e=good(); mut(e); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_rq17_gate_cannot_be_overridden_by_boolean(self):
+        e=good(); e["observations"]["fault_active"]["records_device"]="d2"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        self.assertFalse(check_rq17_contamination(EXPECTED,e["observations"])[0])
+    def test_cleanup_exact_baseline_comparison(self):
+        fields=("service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount","consumed_mount","records_fs","consumed_fs","records_realpath","consumed_realpath","owner","mode","socket_state","service_identity","security_controls","fault_state","records_entries","consumed_entries","historical_evidence")
+        for field in fields:
+            e=good(); e["cleanup_proof"]["restored_observation"][field]="arbitrary"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+        e=good(); e["cleanup_proof"].update(cleanup_ok=True); e["cleanup_proof"].pop("baseline_observation"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_authority_and_duplicate_transitions_red_or_reject(self):
+        e=good(); e["authoritative_success"]=True; self.assertEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"RED")
+        e=good(); e["observations"]["post_failure"]["consumed_entries"]=[TARGET+".record",TARGET+".record"]; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_token_requires_durable_trusted_binding(self):
+        self.assertTrue(validate_authorization_token({},EXPECTED))
+        token=expected_authorization_context(EXPECTED,TRUSTED)|{"authorization_schema_version":"1","authorization_timestamp":"2026-01-01T00:00:00Z","expiration":"2026-01-01T00:30:00Z","nonce":"n1","source_path":"/root-owned/rq16-authorization","single_use_registry":"root-owned-durable-ledger"}
+        metadata={"trusted_storage_identity":"root-owned-rq16-authorization","trusted_owner":"root","trusted_mode":"0600","issuer_authority_artifact_digest":TRUSTED["issuer_authority_artifact_sha256"]}
+        self.assertFalse(validate_authorization_token(token,EXPECTED,now=__import__('datetime').datetime(2026,1,1,tzinfo=__import__('datetime').timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]))
+        for field,value in (("arm","EIO"),("issuer_identity","candidate"),("nonce",""),("expiration","2025-01-01T00:00:00Z"),("authorization_timestamp","2030-01-01T00:00:00Z")):
+            bad=dict(token); bad[field]=value; self.assertTrue(validate_authorization_token(bad,EXPECTED,now=__import__('datetime').datetime(2026,1,1,tzinfo=__import__('datetime').timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]))
+        self.assertTrue(validate_authorization_token(token,EXPECTED,now=__import__('datetime').datetime(2026,1,1,tzinfo=__import__('datetime').timezone.utc),used_nonces={"n1"},trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]))
+    def test_cross_arm_proof_rejected(self):
+        e=good(); self.assertNotEqual(evaluate_arm("EROFS",e,expected_context("EROFS"),OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+    def test_absent_response_not_success(self):
+        e=good(); e["lifecycle"]["deltas"]={"response":"absent"}; e["service_recoverable"]=False; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
+
+if __name__=="__main__": unittest.main(verbosity=2)
+```
+
+
+### governance-runtime/test_rq16_manifest.py sha256=122338e681ef5df65953567d2593bea96481f470f2a3775de9e8bfc2f66d5881
+
+```python
+#!/usr/bin/env python3
+import shutil, unittest
+from contextlib import contextmanager
+from pathlib import Path
+from rq16_manifest import ROOT, canonical_review_source_files, build_source_manifest, manifest_sha256
+
+class ManifestTests(unittest.TestCase):
+    @contextmanager
+    def scratch(self):
+        d=ROOT/".rq16-manifest-test"; shutil.rmtree(d,ignore_errors=True); d.mkdir()
+        try: yield d
+        finally: shutil.rmtree(d,ignore_errors=True)
+    def test_clean_manifest_is_deterministic(self):
+        files=canonical_review_source_files(ROOT)
+        self.assertEqual(build_source_manifest(files),build_source_manifest(list(reversed(files))))
+        self.assertEqual(len({x.relative_to(ROOT).as_posix() for x in files}),len(files))
+    def test_source_byte_change_changes_manifest(self):
+        with self.scratch() as d:
+            p=d/"x.py"; p.write_bytes(b"x=1\n"); before=build_source_manifest([p],d); p.write_bytes(b"x=2\n"); self.assertNotEqual(before,build_source_manifest([p],d))
+    def test_duplicate_path_rejected(self):
+        with self.scratch() as d:
+            p=d/"x"; p.write_bytes(b"x");
+            with self.assertRaises(ValueError): build_source_manifest([p,p],d)
+    def test_missing_file_fails(self):
+        with self.assertRaises(FileNotFoundError): build_source_manifest([ROOT/"does-not-exist"],ROOT)
+    def test_absolute_outside_root_rejected(self):
+        with self.scratch() as d:
+            p=d/"x"; p.write_bytes(b"x");
+            with self.assertRaises(ValueError): build_source_manifest([Path("C:/outside-rq16/x")],ROOT)
+    def test_generated_packet_is_not_source(self):
+        names={p.name for p in canonical_review_source_files(ROOT)}
+        self.assertNotIn("V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md",names)
+    def test_manifest_hash_is_content_hash(self):
+        self.assertEqual(len(manifest_sha256(build_source_manifest())),64)
+
+if __name__=="__main__": unittest.main(verbosity=2)
 ```
 
 
@@ -577,250 +1159,13 @@ if __name__=="__main__": raise SystemExit(main())
 ```
 
 
-### governance-runtime/test_v24_v6_rq1_rq16_harness.py sha256=fa54ab8c395e1fc958b996a7e5e30957bbeac6617733d34aa0272a798f5154f5
+### implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json sha256=887f8955003c4424e7e22549b62e47d9127ece39395858ebf6e945e817537cfc
 
-```python
-#!/usr/bin/env python3
-import copy, hashlib, unittest
-from v24_v6_rq1_rq16_harness import expected_context, evaluate_arm, check_rq17_contamination, validate_authorization_token, expected_authorization_context, expected_fault_observer_context
-
-EXPECTED=expected_context("ENOSPC"); TARGET=EXPECTED["target_record_id"]
-OBSERVER=expected_fault_observer_context(); ARTIFACT_DIGEST=hashlib.sha256(b"attestation").hexdigest()
-TRUSTED={"issuer_identity":"trusted-governance-authority","issuer_authority_artifact_sha256":hashlib.sha256(b"issuer").hexdigest(),"reviewer_designation":"independent-reviewer","review_artifact_sha256":hashlib.sha256(b"review").hexdigest(),"trusted_storage_identity":"root-owned-rq16-authorization","trusted_owner":"root","trusted_mode":"0600"}
-def observation():
-    return {s:{"target_record_id":TARGET,"target_hash":"target-hash","records_path":EXPECTED["expected_records_path"],"consumed_path":EXPECTED["expected_consumed_path"],"records_realpath":EXPECTED["expected_records_realpath"],"consumed_realpath":EXPECTED["expected_consumed_realpath"],"records_device":"d1","consumed_device":"d1","records_mount":"m1","consumed_mount":"m1","records_fs":"fs1","consumed_fs":"fs1","records_symlink":False,"consumed_symlink":False,"service_pid":42,"service_binary_sha256":"service-sha","gate_sha256":"gate-sha","socket_state":{"path":"/run/v24-v6-authority/socket","active":True},"records_entries":[TARGET+".record"],"consumed_entries":[]} for s in ("baseline","pre_injection","fault_active","post_failure","pre_cleanup","post_cleanup","restored")}
-def good():
-    att={"attestation_schema_version":"1","rq_id":"RQ-16","arm":"ENOSPC","mechanism_id":EXPECTED["mechanism_id"],"mechanism_digest":"mechanism-sha","service_pid":42,"service_executable_sha256":"service-sha","target_record_id":TARGET,"target_operation":"write_authority_record","target_syscall":"write","target_path":EXPECTED["expected_records_path"],"records_device":"d1","consumed_device":"d1","records_mount_id":"m1","consumed_mount_id":"m1","filesystem_identity":"fs1","fault_activation_source":"trusted-root-observer","fault_activation_raw_evidence":{"syscall":"quota-state"},"operation_raw_evidence":{"syscall":"write","errno":"ENOSPC"},"observed_errno":"ENOSPC","observation_timestamp":"2026-01-01T00:00:00Z","observer_identity":OBSERVER["observer_identity"],"observer_source_sha256":OBSERVER["observer_source_sha256"],"observer_execution_identity":OBSERVER["observer_execution_identity"],"expected_evidence_root":OBSERVER["expected_evidence_root"],"expected_owner":OBSERVER["expected_owner"],"expected_mode":OBSERVER["expected_mode"],"expected_host_identity":OBSERVER["expected_host_identity"],"expected_runtime_identity":OBSERVER["expected_runtime_identity"],"raw_artifact_path":"/var/lib/v24-rq1/rq16-attestations/a.raw","raw_artifact_sha256":ARTIFACT_DIGEST,"cleanup_reference":"clean"}
-    base=copy.deepcopy(EXPECTED["expected_restoration"])
-    return {"fault_proof":{"arm":"ENOSPC","mechanism_id":EXPECTED["mechanism_id"],"mechanism_class":"kernel_quota","target_operation":"write_authority_record","target_syscall":"write","target_path":EXPECTED["expected_records_path"],"expected_errno":"ENOSPC","observed_errno":"ENOSPC","kernel_or_filesystem_source":"kernel","activation_evidence":{"observed":True},"operation_evidence":{"observed":True},"timestamp":1.0,"service_pid":42,"target_record_id":TARGET,"device_id":"d1","mount_id":"m1","filesystem_identity":"fs1","independent_observer_reference":"obs","cleanup_reference":"clean"},"trusted_fault_attestation":att,"observations":observation(),"lifecycle":{"target_record_id":TARGET,"deltas":{}},"cleanup_proof":{"mechanism_id":EXPECTED["mechanism_id"],"mutation":"quota","inverse_action":"remove","pre_state":"p","post_inverse_state":"p","hashes":"h","ownership":"o","modes":"m","device_ids":"d","mount_identities":"m","filesystem_identities":"f","service_identity":"s","service_health":"ok","socket_state":"ok","records_state":"r","consumed_state":"c","fault_disabled":True,"independently_verified":True,"baseline_observation":base,"restored_observation":copy.deepcopy(base)},"service_recoverable":True}
-
-class RQ16Tests(unittest.TestCase):
-    def test_valid_structured_expected_observed_passes(self): self.assertEqual(evaluate_arm("ENOSPC",good(),EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_expected_context_required(self): self.assertNotEqual(evaluate_arm("ENOSPC",good(),None)[0],"PASS")
-    def test_target_mutations_reject(self):
-        for field,value in (("target_record_id","other"),("records_path","/run/v24-v6-authority/private/records/x.record"),("records_realpath","/alias"),("records_device","d2"),("records_mount","m2"),("records_fs","fs2"),("records_symlink",True)):
-            e=good(); e["fault_proof"]["target_record_id" if field=="target_record_id" else "target_path" if field=="records_path" else "target_path"] = value if field in ("target_record_id","records_path") else e["fault_proof"]["target_path"]
-            if field not in ("target_record_id","records_path"): e["observations"]["baseline"][field]=value
-            self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_provenance_mutations_reject(self):
-        for field,value in (("activation_evidence",{}),("operation_evidence",{}),("target_syscall","rename"),("observed_errno","EROFS"),("mechanism_id","fake")):
-            e=good(); e["fault_proof"][field]=value; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        e=good(); e["trusted_fault_attestation"].pop("operation_raw_evidence"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        e=good(); e["trusted_fault_attestation"]["observer_identity"]="candidate"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        e=good(); e["trusted_fault_attestation"]["service_pid"]=99; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_observer_cleanup_lifecycle_mutations_reject(self):
-        e=good(); e["observations"].pop("restored"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        e=good(); e["cleanup_proof"].pop("hashes"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        e=good(); e["observations"]["post_failure"]["consumed_entries"]=[TARGET+".record"]; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        mutations=[
-            ("baseline_target_missing",lambda x:x["observations"]["baseline"].update(records_entries=[])),
-            ("baseline_target_already_consumed",lambda x:x["observations"]["baseline"].update(consumed_entries=[TARGET+".record"])),
-            ("post_failure_target_missing_both",lambda x:x["observations"]["post_failure"].update(records_entries=[],consumed_entries=[])),
-            ("post_failure_target_both",lambda x:x["observations"]["post_failure"].update(consumed_entries=[TARGET+".record"])),
-            ("wrong_target_consumed",lambda x:x["observations"]["post_failure"].update(consumed_entries=["other.record"])),
-            ("historical_target_consumed",lambda x:x["observations"]["post_failure"].update(consumed_entries=["historical.record"])),
-            ("unrelated_target_transition",lambda x:x["observations"]["post_failure"].update(records_entries=[TARGET+".record","other.record"])),
-            ("duplicate_authoritative_consumption",lambda x:x.update(authoritative_success=True)),
-            ("second_authoritative_retry",lambda x:x["observations"]["post_failure"].update(response={"service_authoritative":True})),
-            ("replay_state_mutation",lambda x:x["observations"]["restored"].update(records_entries=["other.record"])),
-            ("target_hash_changed",lambda x:x["observations"]["post_failure"].update(target_hash="changed")),
-            ("target_identity_changed",lambda x:x["observations"]["post_failure"].update(target_record_id="other")),
-        ]
-        for _,mut in mutations:
-            e=good(); mut(e); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_rq17_gate_cannot_be_overridden_by_boolean(self):
-        e=good(); e["observations"]["fault_active"]["records_device"]="d2"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        self.assertFalse(check_rq17_contamination(EXPECTED,e["observations"])[0])
-    def test_cleanup_exact_baseline_comparison(self):
-        fields=("service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount","consumed_mount","records_fs","consumed_fs","records_realpath","consumed_realpath","owner","mode","socket_state","service_identity","security_controls","fault_state","records_entries","consumed_entries","historical_evidence")
-        for field in fields:
-            e=good(); e["cleanup_proof"]["restored_observation"][field]="arbitrary"; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-        e=good(); e["cleanup_proof"].update(cleanup_ok=True); e["cleanup_proof"].pop("baseline_observation"); self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_authority_and_duplicate_transitions_red_or_reject(self):
-        e=good(); e["authoritative_success"]=True; self.assertEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"RED")
-        e=good(); e["observations"]["post_failure"]["consumed_entries"]=[TARGET+".record",TARGET+".record"]; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_token_requires_durable_trusted_binding(self):
-        self.assertTrue(validate_authorization_token({},EXPECTED))
-        token=expected_authorization_context(EXPECTED,TRUSTED)|{"authorization_schema_version":"1","authorization_timestamp":"2026-01-01T00:00:00Z","expiration":"2026-01-01T00:30:00Z","nonce":"n1","source_path":"/root-owned/rq16-authorization","single_use_registry":"root-owned-durable-ledger"}
-        metadata={"trusted_storage_identity":"root-owned-rq16-authorization","trusted_owner":"root","trusted_mode":"0600","issuer_authority_artifact_digest":TRUSTED["issuer_authority_artifact_sha256"]}
-        self.assertFalse(validate_authorization_token(token,EXPECTED,now=__import__('datetime').datetime(2026,1,1,tzinfo=__import__('datetime').timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]))
-        for field,value in (("arm","EIO"),("issuer_identity","candidate"),("nonce",""),("expiration","2025-01-01T00:00:00Z"),("authorization_timestamp","2030-01-01T00:00:00Z")):
-            bad=dict(token); bad[field]=value; self.assertTrue(validate_authorization_token(bad,EXPECTED,now=__import__('datetime').datetime(2026,1,1,tzinfo=__import__('datetime').timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]))
-        self.assertTrue(validate_authorization_token(token,EXPECTED,now=__import__('datetime').datetime(2026,1,1,tzinfo=__import__('datetime').timezone.utc),used_nonces={"n1"},trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]))
-    def test_cross_arm_proof_rejected(self):
-        e=good(); self.assertNotEqual(evaluate_arm("EROFS",e,expected_context("EROFS"),OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-    def test_absent_response_not_success(self):
-        e=good(); e["lifecycle"]["deltas"]={"response":"absent"}; e["service_recoverable"]=False; self.assertNotEqual(evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)[0],"PASS")
-
-if __name__=="__main__": unittest.main(verbosity=2)
-```
-
-
-### governance-runtime/run_v24_v6_rq1_rq16_mutations.py sha256=4cc446fa6ff059cf99bad895f5947f9091e04d4709e2a87335d7b15e5c9a4916
-
-```python
-#!/usr/bin/env python3
-import copy, hashlib, json
-from datetime import datetime, timezone
-from v24_v6_rq1_rq16_harness import evaluate_arm, expected_context, expected_authorization_context, expected_fault_observer_context, validate_authorization_token
-from test_v24_v6_rq1_rq16_harness import good, TRUSTED
-EXPECTED=expected_context("ENOSPC")
-OBSERVER=expected_fault_observer_context(); ARTIFACT_DIGEST=hashlib.sha256(b"attestation").hexdigest()
-def main():
-    specs=[
-      ("wrong_device",lambda e:e["observations"]["fault_active"].update(records_device="d2")),
-      ("wrong_mount",lambda e:e["observations"]["fault_active"].update(records_mount="m2")),
-      ("wrong_filesystem",lambda e:e["observations"]["fault_active"].update(records_fs="fs2")),
-      ("symlink",lambda e:e["observations"]["fault_active"].update(records_symlink=True)),
-      ("wrong_target",lambda e:e["fault_proof"].update(target_record_id="other")),
-      ("wrong_syscall",lambda e:e["fault_proof"].update(target_syscall="rename")),
-      ("wrong_errno",lambda e:e["fault_proof"].update(observed_errno="EROFS")),
-      ("missing_activation",lambda e:e["fault_proof"].update(activation_evidence={})),
-      ("missing_operation",lambda e:e["fault_proof"].update(operation_evidence={})),
-      ("attestation_missing_raw_activation",lambda e:e["trusted_fault_attestation"].pop("fault_activation_raw_evidence")),
-      ("attestation_missing_raw_operation",lambda e:e["trusted_fault_attestation"].pop("operation_raw_evidence")),
-      ("attestation_wrong_observer",lambda e:e["trusted_fault_attestation"].update(observer_identity="candidate")),
-      ("attestation_wrong_pid",lambda e:e["trusted_fault_attestation"].update(service_pid=99)),
-      ("attestation_wrong_artifact_hash",lambda e:e["trusted_fault_attestation"].update(raw_artifact_sha256="fake")),
-      ("missing_observer",lambda e:e["observations"].pop("restored")),
-      ("bool_only_observer",lambda e:e.pop("observations")),
-      ("missing_cleanup",lambda e:e.pop("cleanup_proof")),
-      ("bool_only_cleanup",lambda e:(e.pop("cleanup_proof"),e.update(cleanup_verified=True,restored=True))),
-      ("duplicate_consume",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record","abc123.record"])),
-      ("both_directories",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record"])),
-      ("rq17_false_but_changed",lambda e:e["observations"]["fault_active"].update(records_device="d2")),
-      ("authoritative_success",lambda e:e.update(authoritative_success=True)),
-      ("invalid_transition",lambda e:e.update(invalid_transition=True)),
-      ("untrusted_expected_context",lambda e:e["fault_proof"].update(mechanism_id="fake")),
-      ("cleanup_service_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(service_binary_sha256="bad")),
-      ("cleanup_gate_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(gate_sha256="bad")),
-      ("cleanup_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="0777")),
-      ("cleanup_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="candidate")),
-      ("cleanup_socket",lambda e:e["cleanup_proof"]["restored_observation"].update(socket_state="changed")),
-      ("cleanup_fault_active",lambda e:e["cleanup_proof"].update(fault_disabled=False)),
-      ("cleanup_target_state",lambda e:e["cleanup_proof"]["restored_observation"].update(records_entries=[])),
-      ("cleanup_historical_evidence",lambda e:e["cleanup_proof"]["restored_observation"].update(historical_evidence="changed")),
-      ("cleanup_missing_restored",lambda e:e["cleanup_proof"].update(restored_observation={})),
-      ("baseline_target_missing",lambda e:e["observations"]["baseline"].update(records_entries=[])),
-      ("baseline_already_consumed",lambda e:e["observations"]["baseline"].update(consumed_entries=["abc123.record"])),
-      ("post_failure_missing_both",lambda e:e["observations"]["post_failure"].update(records_entries=[],consumed_entries=[])),
-      ("post_failure_both",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record"])),
-      ("wrong_target_consumed",lambda e:e["observations"]["post_failure"].update(consumed_entries=["other.record"])),
-      ("historical_target_consumed",lambda e:e["observations"]["post_failure"].update(consumed_entries=["historical.record"])),
-      ("unrelated_target_transition",lambda e:e["observations"]["post_failure"].update(records_entries=["abc123.record","other.record"])),
-      ("duplicate_authoritative_consumption",lambda e:e.update(authoritative_success=True)),
-      ("second_authoritative_retry",lambda e:e["observations"]["post_failure"].update(response={"service_authoritative":True})),
-      ("replay_state_mutation",lambda e:e["observations"]["restored"].update(records_entries=["other.record"])),
-      ("target_hash_changed",lambda e:e["observations"]["post_failure"].update(target_hash="changed")),
-      ("target_identity_changed",lambda e:e["observations"]["post_failure"].update(target_record_id="other")),
-      ("cleanup_gate_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(gate_sha256="bad")),
-      ("cleanup_device",lambda e:e["cleanup_proof"]["restored_observation"].update(records_device="bad")),
-      ("cleanup_mount",lambda e:e["cleanup_proof"]["restored_observation"].update(records_mount="bad")),
-      ("cleanup_fs",lambda e:e["cleanup_proof"]["restored_observation"].update(records_fs="bad")),
-      ("cleanup_realpath",lambda e:e["cleanup_proof"]["restored_observation"].update(records_realpath="bad")),
-      ("cleanup_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="candidate")),
-      ("cleanup_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="0777")),
-      ("cleanup_socket",lambda e:e["cleanup_proof"]["restored_observation"].update(socket_state="changed")),
-      ("cleanup_fault_still_active",lambda e:e["cleanup_proof"]["restored_observation"].update(fault_state={"active":True})),
-      ("cleanup_unrelated_record",lambda e:e["cleanup_proof"]["restored_observation"].update(records_entries=["abc123.record","other.record"])),
-      ("cleanup_historical_changed",lambda e:e["cleanup_proof"]["restored_observation"].update(historical_evidence={"intact":False})),
-      ("cleanup_arbitrary_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(service_binary_sha256="arbitrary")),
-      ("cleanup_arbitrary_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="arbitrary")),
-      ("cleanup_arbitrary_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="arbitrary")),
-    ]
-    rows=[]
-    for name,mut in specs:
-        e=copy.deepcopy(good()); mut(e); actual,reasons=evaluate_arm("ENOSPC",e,EXPECTED,OBSERVER,ARTIFACT_DIGEST)
-        rows.append({"mutation_id":name,"case":"ENOSPC","path":name,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":actual,"reasons":reasons,"rejected":actual!="PASS"})
-    token=expected_authorization_context(EXPECTED,TRUSTED)|{"authorization_timestamp":"2026-01-01T00:00:00Z","expiration":"2026-01-01T00:30:00Z","nonce":"n1","source_path":"/root-owned/rq16-authorization","single_use_registry":"root-owned-durable-ledger"}
-    metadata={"trusted_storage_identity":"root-owned-rq16-authorization","trusted_owner":"root","trusted_mode":"0600","issuer_authority_artifact_digest":TRUSTED["issuer_authority_artifact_sha256"]}
-    auth_fields=["arm","mechanism_id","mechanism_digest","plan_commit","plan_tree","plan_digest","execution_contract_digest","cleanup_contract_digest","host_identity","runtime_identity","service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount_id","consumed_mount_id","independent_review_disposition","review_artifact_sha256","reviewer_designation","issuer_identity","issuer_authority_artifact_sha256"]
-    for field in auth_fields:
-        bad=dict(token); bad[field]="mutated"; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]); rows.append({"mutation_id":"auth_"+field,"case":"AUTHORIZATION","path":field,"before":"valid","after":"mutated","expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
-    for name,field,value in (("expired","expiration","2025-01-01T00:00:00Z"),("future_issued","authorization_timestamp","2030-01-01T00:00:00Z"),("malformed_timestamp","expiration","bad"),("empty_nonce","nonce",""),("reused_nonce","nonce","used"),("untrusted_source","source_path","candidate"),("untrusted_registry","single_use_registry","memory")):
-        bad=dict(token); bad[field]=value; used={"used"} if name=="reused_nonce" else None; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),used_nonces=used,trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]); rows.append({"mutation_id":"auth_"+name,"case":"AUTHORIZATION","path":field,"before":"valid","after":value,"expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
-    for name,field,value in (("self_issued","issuer_identity","candidate"),("candidate_writable","source_path","candidate"),("placeholder_issuer_hash","issuer_authority_artifact_sha256","issuer-sha"),("placeholder_review_hash","review_artifact_sha256","review-sha"),("wrong_reviewer","reviewer_designation","candidate"),("generic_bounded_pass","independent_review_disposition","BOUNDED_PASS"),("changes_required","independent_review_disposition","CHANGES_REQUIRED"),("insufficient_evidence","independent_review_disposition","INSUFFICIENT_EVIDENCE")):
-        bad=dict(token); bad[field]=value; reasons=validate_authorization_token(bad,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc),trusted_provenance=TRUSTED,actual_file_metadata=metadata,actual_review_artifact_digest=TRUSTED["review_artifact_sha256"]); rows.append({"mutation_id":"auth_provenance_"+name,"case":"AUTHORIZATION_PROVENANCE","path":field,"before":"valid","after":value,"expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
-    reasons=validate_authorization_token(token,EXPECTED,now=datetime(2026,1,1,tzinfo=timezone.utc)); rows.append({"mutation_id":"auth_provenance_unavailable","case":"AUTHORIZATION_PROVENANCE","path":"trusted_provenance","before":"absent","after":"absent","expected_result":"REJECT","actual_result":"REJECT" if reasons else "PASS","reasons":reasons,"rejected":bool(reasons)})
-    out={"total_mutations":len(rows),"rejected_mutations":sum(r["rejected"] for r in rows),"surviving_mutations":sum(not r["rejected"] for r in rows),"all_rejected":all(r["rejected"] for r in rows),"mutations":rows,"RQ16_EXECUTED":False}
-    print(json.dumps(out,indent=2,sort_keys=True)); return 0 if out["all_rejected"] else 2
-if __name__=="__main__": raise SystemExit(main())
-```
-
-
-### governance-runtime/check_rq16_preregistration_packet.py sha256=dd674e1bfc0afca03cb80248b2b131fdbf8cea1e628ecc6105a37c5e374bd834
-
-```python
-#!/usr/bin/env python3
-"""Verify preregistration identities knowable before packet commit."""
-import hashlib, json, re, subprocess
-from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-PACKET=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'
-SOURCE_FILES=[ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md',ROOT/'governance-runtime/v24_v6_rq1_rq16_harness.py',ROOT/'governance-runtime/test_v24_v6_rq1_rq16_harness.py',ROOT/'governance-runtime/run_v24_v6_rq1_rq16_mutations.py',ROOT/'governance-runtime/check_rq16_preregistration_packet.py',ROOT/'governance-runtime/collect_rq16_results.py',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json']
-def main():
-    text=PACKET.read_text(encoding='utf-8'); vals=dict(re.findall(r'^(reviewed_source_commit|reviewed_source_tree|packet_parent_commit|packet_parent_tree|predecessor_commit|predecessor_tree|exact_source_diff_sha256|source_manifest_sha256|packet_content_identity_schema_version)=(.+)$',text,re.M))
-    assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_parent_commit','packet_parent_tree','predecessor_commit','predecessor_tree','exact_source_diff_sha256','source_manifest_sha256','packet_content_identity_schema_version'}
-    assert subprocess.check_output(['git','rev-parse',vals['reviewed_source_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['reviewed_source_tree']
-    assert subprocess.check_output(['git','rev-parse',vals['packet_parent_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['packet_parent_tree']
-    assert subprocess.check_output(['git','rev-parse',vals['predecessor_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['predecessor_tree']
-    diff=subprocess.run(['git','diff',vals['predecessor_commit'],vals['reviewed_source_commit'],'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'],cwd=ROOT,text=True,capture_output=True,check=True).stdout
-    assert hashlib.sha256(diff.encode()).hexdigest()==vals['exact_source_diff_sha256']
-    assert vals['packet_content_identity_schema_version']=='1'
-    manifest_match=re.search(r'## Included file SHA-256\n(.*?)(?:\n### |\n## )',text,re.S)
-    assert manifest_match, 'source_manifest_section_missing'
-    declared=[]
-    for line in manifest_match.group(1).strip().splitlines():
-        hit=re.fullmatch(r'([0-9a-f]{64})  (.+)',line.strip()); assert hit, f'malformed_manifest_line:{line}'; declared.append((hit.group(2),hit.group(1)))
-    expected_manifest=sorted((p.relative_to(ROOT).as_posix(),hashlib.sha256(p.read_bytes()).hexdigest()) for p in SOURCE_FILES)
-    assert sorted(declared)==expected_manifest, 'source_manifest_entries_mismatch'
-    manifest='\n'.join(f'{h}  {path}' for path,h in expected_manifest)
-    assert hashlib.sha256(manifest.encode()).hexdigest()==vals['source_manifest_sha256'], 'source_manifest_hash_mismatch'
-    assert 'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION' in text and 'packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION' in text
-    contract=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json').read_text()); assert contract['RQ16_EXECUTED'] is False and contract['RQ16_AUTHORIZED'] is False
-    assert 'NONE_EVIDENCE_ONLY' in text and 'RQ16_started=false' in text
-    assert not re.search(r'^diff --git a/V24-I11-V6-RQ1-RQ16-(PRE|REMEDIATION-[56]-REVIEW)\.md',text,re.M)
-    print(json.dumps({'packet_consistency':'PASS','identity_model':'PASS','RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
-if __name__=='__main__': raise SystemExit(main())
-```
-
-
-### governance-runtime/collect_rq16_results.py sha256=1d949be263795a24cb247a5e764eeb684e793a505553dcdbe6e2db9e82b5e9be
-
-```python
-#!/usr/bin/env python3
-"""Generate the single authoritative offline RQ-16 test and mutation results."""
-import json, re, subprocess
-from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-TEST_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json'
-MUT_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json'
-def main():
-    t=subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True)
-    m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
-    match=re.search(r'Ran (\d+) tests?',t.stderr+t.stdout); total=int(match.group(1)) if match else 0
-    tests=[]
-    for line in (t.stderr+t.stdout).splitlines():
-        hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
-        if hit: tests.append({'name':line.split(' (',1)[0],'result':'PASS' if hit.group(1)=='ok' else 'FAIL'})
-    test_result={'tests_total':total,'tests_passed':sum(x['result']=='PASS' for x in tests),'tests_failed':sum(x['result']=='FAIL' for x in tests),'exit_code':t.returncode,'tests':tests,'stdout':t.stdout,'stderr':t.stderr}
-    mutation_result=json.loads(m.stdout)
-    mutation_result['exit_code']=m.returncode
-    TEST_OUT.write_text(json.dumps(test_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
-    MUT_OUT.write_text(json.dumps(mutation_result,indent=2,sort_keys=True)+'\n',encoding='utf-8')
-    print(json.dumps({'tests_total':test_result['tests_total'],'tests_passed':test_result['tests_passed'],'tests_failed':test_result['tests_failed'],'mutation_total':mutation_result['total_mutations'],'mutation_rejected':mutation_result['rejected_mutations'],'mutation_surviving':mutation_result['surviving_mutations'],'all_rejected':mutation_result['all_rejected']},indent=2))
-    return 0 if t.returncode==0 and m.returncode==0 else 1
-if __name__=='__main__': raise SystemExit(main())
-```
-
-
-### implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json sha256=94c34f8d86f9421968d5a3050a55a048cf0c0ad513c1a80584ea5ffcd411a977
-
-```python
+```json
 {
   "exit_code": 0,
-  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.019s\n\nOK\n",
-  "stdout": "",
+  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.028s\n\nOK\n\ntest_absolute_outside_root_rejected (__main__.ManifestTests.test_absolute_outside_root_rejected) ... ok\ntest_clean_manifest_is_deterministic (__main__.ManifestTests.test_clean_manifest_is_deterministic) ... ok\ntest_duplicate_path_rejected (__main__.ManifestTests.test_duplicate_path_rejected) ... ok\ntest_generated_packet_is_not_source (__main__.ManifestTests.test_generated_packet_is_not_source) ... ok\ntest_manifest_hash_is_content_hash (__main__.ManifestTests.test_manifest_hash_is_content_hash) ... ok\ntest_missing_file_fails (__main__.ManifestTests.test_missing_file_fails) ... ok\ntest_source_byte_change_changes_manifest (__main__.ManifestTests.test_source_byte_change_changes_manifest) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.072s\n\nOK\n",
+  "stdout": "\n",
   "tests": [
     {
       "name": "test_absent_response_not_success",
@@ -865,18 +1210,46 @@ if __name__=='__main__': raise SystemExit(main())
     {
       "name": "test_valid_structured_expected_observed_passes",
       "result": "PASS"
+    },
+    {
+      "name": "test_absolute_outside_root_rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "test_clean_manifest_is_deterministic",
+      "result": "PASS"
+    },
+    {
+      "name": "test_duplicate_path_rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "test_generated_packet_is_not_source",
+      "result": "PASS"
+    },
+    {
+      "name": "test_manifest_hash_is_content_hash",
+      "result": "PASS"
+    },
+    {
+      "name": "test_missing_file_fails",
+      "result": "PASS"
+    },
+    {
+      "name": "test_source_byte_change_changes_manifest",
+      "result": "PASS"
     }
   ],
   "tests_failed": 0,
-  "tests_passed": 11,
-  "tests_total": 11
+  "tests_passed": 18,
+  "tests_total": 18
 }
 ```
 
 
 ### implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json sha256=13352f4d9f42e8ae94d9157414f3cbde667add5b7d85e65990929cb036e5b40a
 
-```python
+```json
 {
   "RQ16_EXECUTED": false,
   "all_rejected": true,
@@ -2246,22 +2619,15 @@ if __name__=='__main__': raise SystemExit(main())
 ### tests
 
 ```text
-test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok
-test_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok
-test_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok
-test_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok
-test_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok
-test_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok
-test_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok
-test_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok
-test_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok
-test_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok
-test_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok
-
-----------------------------------------------------------------------
-Ran 11 tests in 0.016s
-
-OK
+{
+  "tests_total": 18,
+  "tests_passed": 18,
+  "tests_failed": 0,
+  "mutation_total": 96,
+  "mutation_rejected": 96,
+  "mutation_surviving": 0,
+  "all_rejected": true
+}
 ```
 
 
@@ -3599,13 +3965,13 @@ OK
 
 ```text
 Traceback (most recent call last):
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 31, in <module>
+  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 35, in <module>
     if __name__=='__main__': raise SystemExit(main())
                                               ^^^^^^
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 23, in main
-    assert sorted(declared)==expected_manifest, 'source_manifest_entries_mismatch'
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: source_manifest_entries_mismatch
+  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 17, in main
+    assert vals['packet_content_identity_schema_version']=='2'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
 ```
 
 
@@ -3622,43 +3988,46 @@ AssertionError: source_manifest_entries_mismatch
 ```text
 diff --git a/governance-runtime/build_rq16_preregistration_review.py b/governance-runtime/build_rq16_preregistration_review.py
 new file mode 100644
-index 00000000..4119a102
+index 00000000..50e3ae54
 --- /dev/null
 +++ b/governance-runtime/build_rq16_preregistration_review.py
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,22 @@
 +from __future__ import annotations
 +import hashlib, os, subprocess
 +from pathlib import Path
++from rq16_manifest import canonical_review_source_files, canonical_evidence_files, build_source_manifest, build_evidence_manifest, manifest_sha256
 +ROOT=Path(__file__).resolve().parents[1]
 +OUT=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'
-+FILES=[ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md',ROOT/'governance-runtime/v24_v6_rq1_rq16_harness.py',ROOT/'governance-runtime/test_v24_v6_rq1_rq16_harness.py',ROOT/'governance-runtime/run_v24_v6_rq1_rq16_mutations.py',ROOT/'governance-runtime/check_rq16_preregistration_packet.py']
-+FILES += [ROOT/'governance-runtime/collect_rq16_results.py',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json']
++FILES=canonical_review_source_files(ROOT)
++EVIDENCE_FILES=canonical_evidence_files(ROOT)
 +def run(cmd): return subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True)
 +def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 +def fence(name,body,lang='text'): return f'\n### {name}\n\n```{lang}\n{body.rstrip()}\n```\n'
 +def main():
 +    current=run(['git','rev-parse','HEAD']).stdout.strip(); current_tree=run(['git','rev-parse','HEAD^{tree}']).stdout.strip(); reviewed=os.environ.get('REVIEWED_SOURCE_COMMIT',current); reviewed_tree=os.environ.get('REVIEWED_SOURCE_TREE',run(['git','rev-parse',f'{reviewed}^{{tree}}']).stdout.strip()); predecessor='8477830f5f35a35a8c9b19fdca9c5b6c39e2916d'; packet_parent=current; packet_parent_tree=current_tree
 +    diff=run(['git','diff',predecessor,reviewed,'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md']).stdout
-+    tests=run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py']); mutations=run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py']); selftest=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--self-test']); plan=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--plan']); refuse=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--execute-rq16']); consistency=run(['python','governance-runtime/check_rq16_preregistration_packet.py'])
-+    manifest='\n'.join(f'{h}  {path}' for path,h in sorted((p.relative_to(ROOT).as_posix(),sha(p)) for p in FILES)); ids=[f'reviewed_source_commit={reviewed}',f'reviewed_source_tree={reviewed_tree}',f'packet_parent_commit={packet_parent}',f'packet_parent_tree={packet_parent_tree}',f'predecessor_commit={predecessor}','predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf',f'exact_source_diff_sha256={hashlib.sha256(diff.encode()).hexdigest()}',f'source_manifest_sha256={hashlib.sha256(manifest.encode()).hexdigest()}','packet_content_identity_schema_version=1']
-+    parts=['# V24-I11-V6 RQ-16 preregistration remediation-6 review','','Planning-only artifact. No RQ-16 execution occurred.','','## Identity',*ids,f"branch={run(['git','branch','--show-current']).stdout.strip()}",'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION','packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION','packet_file_sha256=EXTERNALLY_BOUND_AFTER_GENERATION','RQ16_EXECUTED=false','RQ16_AUTHORIZED=false','RQ16_started=false','scientific_rerun=false','qualification=NOT_QUALIFIED','scientific_execution_state=CLOSED_PENDING_SUCCESSOR_REVIEW','authority_effect=NONE_EVIDENCE_ONLY','', '## Frozen contract', fence('execution contract',FILES[1].read_text(),'json'), '## Source-path analysis', fence('preregistration',FILES[0].read_text(),'markdown'), '## Cleanup contract', fence('cleanup',FILES[2].read_text(),'markdown'), '## Issues', fence('issue ledger',FILES[3].read_text(),'json'), '## Included file SHA-256', manifest]
-+    for p in FILES[4:]: parts.append(fence(p.relative_to(ROOT).as_posix()+f' sha256={sha(p)}',p.read_text(),'python'))
++    tests=run(['python','governance-runtime/collect_rq16_results.py']); mutations=run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py']); selftest=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--self-test']); plan=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--plan']); refuse=run(['python','governance-runtime/v24_v6_rq1_rq16_harness.py','--execute-rq16']); consistency=run(['python','governance-runtime/check_rq16_preregistration_packet.py'])
++    source_manifest=build_source_manifest(FILES,ROOT); evidence_manifest=build_evidence_manifest(ROOT); ids=[f'reviewed_source_commit={reviewed}',f'reviewed_source_tree={reviewed_tree}',f'packet_parent_commit={packet_parent}',f'packet_parent_tree={packet_parent_tree}',f'predecessor_commit={predecessor}','predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf',f'exact_source_diff_sha256={hashlib.sha256(diff.encode()).hexdigest()}',f'source_manifest_sha256={manifest_sha256(source_manifest)}',f'generated_evidence_manifest_sha256={manifest_sha256(evidence_manifest)}','packet_content_identity_schema_version=2']
++    parts=['# V24-I11-V6 RQ-16 preregistration remediation-6 review','','Planning-only artifact. No RQ-16 execution occurred.','','## Identity',*ids,f"branch={run(['git','branch','--show-current']).stdout.strip()}",'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION','packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION','packet_file_sha256=EXTERNALLY_BOUND_AFTER_GENERATION','RQ16_EXECUTED=false','RQ16_AUTHORIZED=false','RQ16_started=false','scientific_rerun=false','qualification=NOT_QUALIFIED','scientific_execution_state=CLOSED_PENDING_SUCCESSOR_REVIEW','authority_effect=NONE_EVIDENCE_ONLY','', '## Frozen contract', fence('execution contract',FILES[2].read_text(),'json'), '## Source-path analysis', fence('preregistration',FILES[5].read_text(),'markdown'), '## Cleanup contract', fence('cleanup',FILES[1].read_text(),'markdown'), '## Issues', fence('issue ledger',FILES[4].read_text(),'json'), '## Source manifest',source_manifest,'## Generated evidence manifest',evidence_manifest]
++    for p in FILES: parts.append(fence(p.relative_to(ROOT).as_posix()+f' sha256={sha(p)}',p.read_text(),'python'))
++    for p in EVIDENCE_FILES: parts.append(fence(p.relative_to(ROOT).as_posix()+f' sha256={sha(p)}',p.read_text(),'json'))
 +    parts += ['## Static and behavioral results',fence('plan',plan.stdout+plan.stderr),fence('self-test',selftest.stdout+selftest.stderr),fence('tests',tests.stdout+tests.stderr),fence('mutations',mutations.stdout+mutations.stderr,'json'),fence('packet-check',consistency.stdout+consistency.stderr),fence('execution-refusal',refuse.stdout+refuse.stderr), '## Exact predecessor-to-reviewed-source diff', fence('diff',diff), '## Manual-review questions','Determine independently whether any arm has safe literal Linux bound-runtime capability. No arm is authorized; do not execute RQ-16.']
 +    OUT.write_text('\n'.join(parts)+'\n',encoding='utf-8'); print(OUT)
 +if __name__=='__main__': main()
 diff --git a/governance-runtime/check_rq16_preregistration_packet.py b/governance-runtime/check_rq16_preregistration_packet.py
 new file mode 100644
-index 00000000..3ec0af74
+index 00000000..1b0ca493
 --- /dev/null
 +++ b/governance-runtime/check_rq16_preregistration_packet.py
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,35 @@
 +#!/usr/bin/env python3
 +"""Verify preregistration identities knowable before packet commit."""
 +import hashlib, json, re, subprocess
 +from pathlib import Path
++from rq16_manifest import canonical_review_source_files, build_source_manifest, canonical_evidence_files, build_evidence_manifest, manifest_sha256
 +ROOT=Path(__file__).resolve().parents[1]
 +PACKET=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'
-+SOURCE_FILES=[ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md',ROOT/'governance-runtime/v24_v6_rq1_rq16_harness.py',ROOT/'governance-runtime/test_v24_v6_rq1_rq16_harness.py',ROOT/'governance-runtime/run_v24_v6_rq1_rq16_mutations.py',ROOT/'governance-runtime/check_rq16_preregistration_packet.py',ROOT/'governance-runtime/collect_rq16_results.py',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json',ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json']
++SOURCE_FILES=canonical_review_source_files(ROOT)
 +def main():
 +    text=PACKET.read_text(encoding='utf-8'); vals=dict(re.findall(r'^(reviewed_source_commit|reviewed_source_tree|packet_parent_commit|packet_parent_tree|predecessor_commit|predecessor_tree|exact_source_diff_sha256|source_manifest_sha256|packet_content_identity_schema_version)=(.+)$',text,re.M))
 +    assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_parent_commit','packet_parent_tree','predecessor_commit','predecessor_tree','exact_source_diff_sha256','source_manifest_sha256','packet_content_identity_schema_version'}
@@ -3667,16 +4036,19 @@ index 00000000..3ec0af74
 +    assert subprocess.check_output(['git','rev-parse',vals['predecessor_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['predecessor_tree']
 +    diff=subprocess.run(['git','diff',vals['predecessor_commit'],vals['reviewed_source_commit'],'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md'],cwd=ROOT,text=True,capture_output=True,check=True).stdout
 +    assert hashlib.sha256(diff.encode()).hexdigest()==vals['exact_source_diff_sha256']
-+    assert vals['packet_content_identity_schema_version']=='1'
-+    manifest_match=re.search(r'## Included file SHA-256\n(.*?)(?:\n### |\n## )',text,re.S)
++    assert vals['packet_content_identity_schema_version']=='2'
++    manifest_match=re.search(r'## Source manifest\n(.*?)(?:\n### |\n## )',text,re.S)
 +    assert manifest_match, 'source_manifest_section_missing'
-+    declared=[]
-+    for line in manifest_match.group(1).strip().splitlines():
-+        hit=re.fullmatch(r'([0-9a-f]{64})  (.+)',line.strip()); assert hit, f'malformed_manifest_line:{line}'; declared.append((hit.group(2),hit.group(1)))
-+    expected_manifest=sorted((p.relative_to(ROOT).as_posix(),hashlib.sha256(p.read_bytes()).hexdigest()) for p in SOURCE_FILES)
-+    assert sorted(declared)==expected_manifest, 'source_manifest_entries_mismatch'
-+    manifest='\n'.join(f'{h}  {path}' for path,h in expected_manifest)
-+    assert hashlib.sha256(manifest.encode()).hexdigest()==vals['source_manifest_sha256'], 'source_manifest_hash_mismatch'
++    declared=json.loads(manifest_match.group(1).strip())
++    expected_manifest=json.loads(build_source_manifest(SOURCE_FILES,ROOT))
++    assert declared==expected_manifest, 'source_manifest_entries_mismatch'
++    manifest=build_source_manifest(SOURCE_FILES,ROOT)
++    assert manifest_sha256(manifest)==vals['source_manifest_sha256'], 'source_manifest_hash_mismatch'
++    evidence_match=re.search(r'## Generated evidence manifest\n(.*?)(?:\n### |\n## )',text,re.S); assert evidence_match, 'evidence_manifest_section_missing'
++    assert json.loads(evidence_match.group(1).strip())==json.loads(build_evidence_manifest(ROOT)), 'evidence_manifest_entries_mismatch'
++    tests=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json').read_text()); muts=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json').read_text())
++    assert tests['tests_total']==tests['tests_passed']+tests['tests_failed'] and tests['exit_code']==0, 'test_result_binding_mismatch'
++    assert muts['total_mutations']==len(muts['mutations']) and muts['rejected_mutations']+muts['surviving_mutations']==muts['total_mutations'] and muts['all_rejected']==(muts['surviving_mutations']==0), 'mutation_result_binding_mismatch'
 +    assert 'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION' in text and 'packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION' in text
 +    contract=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json').read_text()); assert contract['RQ16_EXECUTED'] is False and contract['RQ16_AUTHORIZED'] is False
 +    assert 'NONE_EVIDENCE_ONLY' in text and 'RQ16_started=false' in text
@@ -3685,10 +4057,10 @@ index 00000000..3ec0af74
 +if __name__=='__main__': raise SystemExit(main())
 diff --git a/governance-runtime/collect_rq16_results.py b/governance-runtime/collect_rq16_results.py
 new file mode 100644
-index 00000000..c8fdaf3a
+index 00000000..abf06e30
 --- /dev/null
 +++ b/governance-runtime/collect_rq16_results.py
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,24 @@
 +#!/usr/bin/env python3
 +"""Generate the single authoritative offline RQ-16 test and mutation results."""
 +import json, re, subprocess
@@ -3697,9 +4069,10 @@ index 00000000..c8fdaf3a
 +TEST_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json'
 +MUT_OUT=ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json'
 +def main():
-+    t=subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True)
++    runs=[subprocess.run(['python','governance-runtime/test_v24_v6_rq1_rq16_harness.py'],cwd=ROOT,text=True,capture_output=True),subprocess.run(['python','governance-runtime/test_rq16_manifest.py'],cwd=ROOT,text=True,capture_output=True)]
++    t=subprocess.CompletedProcess([],max((x.returncode for x in runs),default=0),stdout='\n'.join(x.stdout for x in runs),stderr='\n'.join(x.stderr for x in runs))
 +    m=subprocess.run(['python','governance-runtime/run_v24_v6_rq1_rq16_mutations.py'],cwd=ROOT,text=True,capture_output=True)
-+    match=re.search(r'Ran (\d+) tests?',t.stderr+t.stdout); total=int(match.group(1)) if match else 0
++    matches=re.findall(r'Ran (\d+) tests?',t.stderr+t.stdout); total=sum(int(x) for x in matches)
 +    tests=[]
 +    for line in (t.stderr+t.stdout).splitlines():
 +        hit=re.match(r'test_\w+ \(__main__\.[^)]+\) \.\.\. (ok|FAIL)',line)
@@ -3712,6 +4085,65 @@ index 00000000..c8fdaf3a
 +    print(json.dumps({'tests_total':test_result['tests_total'],'tests_passed':test_result['tests_passed'],'tests_failed':test_result['tests_failed'],'mutation_total':mutation_result['total_mutations'],'mutation_rejected':mutation_result['rejected_mutations'],'mutation_surviving':mutation_result['surviving_mutations'],'all_rejected':mutation_result['all_rejected']},indent=2))
 +    return 0 if t.returncode==0 and m.returncode==0 else 1
 +if __name__=='__main__': raise SystemExit(main())
+diff --git a/governance-runtime/rq16_manifest.py b/governance-runtime/rq16_manifest.py
+new file mode 100644
+index 00000000..1f1d6bfd
+--- /dev/null
++++ b/governance-runtime/rq16_manifest.py
+@@ -0,0 +1,53 @@
++#!/usr/bin/env python3
++"""Canonical source/evidence manifest definitions for the RQ-16 review packet."""
++import hashlib, json
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[1]
++SOURCE_RELATIVE=(
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-AUTHORIZATION-TOKEN-SCHEMA.json",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-CLEANUP-CONTRACT.md",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-NONCE-LEDGER-DESIGN.md",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-ISSUES.json",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-PREREGISTRATION.md",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-READONLY-CAPABILITY-INSPECTION.md",
++    "governance-runtime/build_rq16_preregistration_review.py",
++    "governance-runtime/check_rq16_preregistration_packet.py",
++    "governance-runtime/collect_rq16_results.py",
++    "governance-runtime/run_v24_v6_rq1_rq16_mutations.py",
++    "governance-runtime/rq16_manifest.py",
++    "governance-runtime/test_v24_v6_rq1_rq16_harness.py",
++    "governance-runtime/test_rq16_manifest.py",
++    "governance-runtime/v24_v6_rq1_rq16_harness.py",
++)
++EVIDENCE_RELATIVE=(
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json",
++    "implementation/v24/V24-I11-V6-RQ1-RQ16-MUTATION-RESULTS.json",
++)
++
++def canonical_review_source_files(root=ROOT):
++    return [root / rel for rel in SOURCE_RELATIVE]
++
++def canonical_evidence_files(root=ROOT):
++    return [root / rel for rel in EVIDENCE_RELATIVE]
++
++def _entries(files, root=ROOT):
++    entries=[]
++    for path in files:
++        rel=path.resolve().relative_to(root.resolve()).as_posix()
++        if rel.startswith("/") or Path(rel).is_absolute() or ".." in Path(rel).parts:
++            raise ValueError(f"non-canonical path: {rel}")
++        entries.append({"path":rel,"sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
++    if len({e["path"] for e in entries}) != len(entries):
++        raise ValueError("duplicate canonical path")
++    return sorted(entries,key=lambda e:e["path"])
++
++def build_source_manifest(files=None, root=ROOT):
++    return json.dumps(_entries(files or canonical_review_source_files(root),root),ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n"
++
++def build_evidence_manifest(root=ROOT):
++    return json.dumps(_entries(canonical_evidence_files(root),root),ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n"
++
++def manifest_sha256(manifest):
++    return hashlib.sha256(manifest.encode("utf-8")).hexdigest()
 diff --git a/governance-runtime/run_v24_v6_rq1_rq16_mutations.py b/governance-runtime/run_v24_v6_rq1_rq16_mutations.py
 new file mode 100644
 index 00000000..51b75148
@@ -3804,6 +4236,48 @@ index 00000000..51b75148
 +    out={"total_mutations":len(rows),"rejected_mutations":sum(r["rejected"] for r in rows),"surviving_mutations":sum(not r["rejected"] for r in rows),"all_rejected":all(r["rejected"] for r in rows),"mutations":rows,"RQ16_EXECUTED":False}
 +    print(json.dumps(out,indent=2,sort_keys=True)); return 0 if out["all_rejected"] else 2
 +if __name__=="__main__": raise SystemExit(main())
+diff --git a/governance-runtime/test_rq16_manifest.py b/governance-runtime/test_rq16_manifest.py
+new file mode 100644
+index 00000000..eee9c711
+--- /dev/null
++++ b/governance-runtime/test_rq16_manifest.py
+@@ -0,0 +1,36 @@
++#!/usr/bin/env python3
++import shutil, unittest
++from contextlib import contextmanager
++from pathlib import Path
++from rq16_manifest import ROOT, canonical_review_source_files, build_source_manifest, manifest_sha256
++
++class ManifestTests(unittest.TestCase):
++    @contextmanager
++    def scratch(self):
++        d=ROOT/".rq16-manifest-test"; shutil.rmtree(d,ignore_errors=True); d.mkdir()
++        try: yield d
++        finally: shutil.rmtree(d,ignore_errors=True)
++    def test_clean_manifest_is_deterministic(self):
++        files=canonical_review_source_files(ROOT)
++        self.assertEqual(build_source_manifest(files),build_source_manifest(list(reversed(files))))
++        self.assertEqual(len({x.relative_to(ROOT).as_posix() for x in files}),len(files))
++    def test_source_byte_change_changes_manifest(self):
++        with self.scratch() as d:
++            p=d/"x.py"; p.write_bytes(b"x=1\n"); before=build_source_manifest([p],d); p.write_bytes(b"x=2\n"); self.assertNotEqual(before,build_source_manifest([p],d))
++    def test_duplicate_path_rejected(self):
++        with self.scratch() as d:
++            p=d/"x"; p.write_bytes(b"x");
++            with self.assertRaises(ValueError): build_source_manifest([p,p],d)
++    def test_missing_file_fails(self):
++        with self.assertRaises(FileNotFoundError): build_source_manifest([ROOT/"does-not-exist"],ROOT)
++    def test_absolute_outside_root_rejected(self):
++        with self.scratch() as d:
++            p=d/"x"; p.write_bytes(b"x");
++            with self.assertRaises(ValueError): build_source_manifest([Path("C:/outside-rq16/x")],ROOT)
++    def test_generated_packet_is_not_source(self):
++        names={p.name for p in canonical_review_source_files(ROOT)}
++        self.assertNotIn("V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-6-REVIEW.md",names)
++    def test_manifest_hash_is_content_hash(self):
++        self.assertEqual(len(manifest_sha256(build_source_manifest())),64)
++
++if __name__=="__main__": unittest.main(verbosity=2)
 diff --git a/governance-runtime/test_v24_v6_rq1_rq16_harness.py b/governance-runtime/test_v24_v6_rq1_rq16_harness.py
 new file mode 100644
 index 00000000..54e6f15c
@@ -5749,14 +6223,14 @@ index 00000000..d60eee26
 +`RQ16_EXECUTED=false`; no mount, quota, device-mapper, ACL, ownership, mode, service, or filesystem mutation occurred.
 diff --git a/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json b/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
 new file mode 100644
-index 00000000..9f179470
+index 00000000..7b5019e3
 --- /dev/null
 +++ b/implementation/v24/V24-I11-V6-RQ1-RQ16-TEST-RESULTS.json
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,82 @@
 +{
 +  "exit_code": 0,
-+  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.019s\n\nOK\n",
-+  "stdout": "",
++  "stderr": "test_absent_response_not_success (__main__.RQ16Tests.test_absent_response_not_success) ... ok\ntest_authority_and_duplicate_transitions_red_or_reject (__main__.RQ16Tests.test_authority_and_duplicate_transitions_red_or_reject) ... ok\ntest_cleanup_exact_baseline_comparison (__main__.RQ16Tests.test_cleanup_exact_baseline_comparison) ... ok\ntest_cross_arm_proof_rejected (__main__.RQ16Tests.test_cross_arm_proof_rejected) ... ok\ntest_expected_context_required (__main__.RQ16Tests.test_expected_context_required) ... ok\ntest_observer_cleanup_lifecycle_mutations_reject (__main__.RQ16Tests.test_observer_cleanup_lifecycle_mutations_reject) ... ok\ntest_provenance_mutations_reject (__main__.RQ16Tests.test_provenance_mutations_reject) ... ok\ntest_rq17_gate_cannot_be_overridden_by_boolean (__main__.RQ16Tests.test_rq17_gate_cannot_be_overridden_by_boolean) ... ok\ntest_target_mutations_reject (__main__.RQ16Tests.test_target_mutations_reject) ... ok\ntest_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requires_durable_trusted_binding) ... ok\ntest_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.027s\n\nOK\n\ntest_absolute_outside_root_rejected (__main__.ManifestTests.test_absolute_outside_root_rejected) ... ok\ntest_clean_manifest_is_deterministic (__main__.ManifestTests.test_clean_manifest_is_deterministic) ... ok\ntest_duplicate_path_rejected (__main__.ManifestTests.test_duplicate_path_rejected) ... ok\ntest_generated_packet_is_not_source (__main__.ManifestTests.test_generated_packet_is_not_source) ... ok\ntest_manifest_hash_is_content_hash (__main__.ManifestTests.test_manifest_hash_is_content_hash) ... ok\ntest_missing_file_fails (__main__.ManifestTests.test_missing_file_fails) ... ok\ntest_source_byte_change_changes_manifest (__main__.ManifestTests.test_source_byte_change_changes_manifest) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.079s\n\nOK\n",
++  "stdout": "\n",
 +  "tests": [
 +    {
 +      "name": "test_absent_response_not_success",
@@ -5801,11 +6275,39 @@ index 00000000..9f179470
 +    {
 +      "name": "test_valid_structured_expected_observed_passes",
 +      "result": "PASS"
++    },
++    {
++      "name": "test_absolute_outside_root_rejected",
++      "result": "PASS"
++    },
++    {
++      "name": "test_clean_manifest_is_deterministic",
++      "result": "PASS"
++    },
++    {
++      "name": "test_duplicate_path_rejected",
++      "result": "PASS"
++    },
++    {
++      "name": "test_generated_packet_is_not_source",
++      "result": "PASS"
++    },
++    {
++      "name": "test_manifest_hash_is_content_hash",
++      "result": "PASS"
++    },
++    {
++      "name": "test_missing_file_fails",
++      "result": "PASS"
++    },
++    {
++      "name": "test_source_byte_change_changes_manifest",
++      "result": "PASS"
 +    }
 +  ],
 +  "tests_failed": 0,
-+  "tests_passed": 11,
-+  "tests_total": 11
++  "tests_passed": 18,
++  "tests_total": 18
 +}
 ```
 
