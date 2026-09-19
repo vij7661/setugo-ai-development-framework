@@ -5,6 +5,7 @@ on:
     branches:
       - qualification/v24-i11-v6-runtime-qualification-1-remediation-2
       - qualification/v24-i11-v6-runtime-qualification-1-remediation-3
+      - qualification/v24-i11-v6-runtime-qualification-1-remediation-4
     paths:
       - '.github/workflows/v24-v6-rq1-remediation2-safe-exact.yml'
       - 'governance-runtime/v24_v6_rq1_observer.py'

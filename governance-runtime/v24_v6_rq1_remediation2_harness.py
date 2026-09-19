@@ -81,6 +81,19 @@ def observed_entries(observation, label):
         raise RuntimeError(f"HARNESS_DEFECT: indeterminate {label} observation")
     return obj["entries"]
 
+def record_names(observation, label):
+    return {str(e.get("name")) for e in observed_entries(observation,label)
+            if isinstance(e,dict) and isinstance(e.get("name"),str)}
+
+def target_lifecycle(observation, target_name):
+    records=record_names(observation,"records"); consumed=record_names(observation,"consumed")
+    return {"records":target_name in records,"consumed":target_name in consumed,
+            "record_names":sorted(records),"consumed_names":sorted(consumed)}
+
+def set_delta(before, after, label):
+    b=record_names(before,label); a=record_names(after,label)
+    return {"added":sorted(a-b),"removed":sorted(b-a)}
+
 def stable(before,after):
     for k in ["service","gate","unit"]:
         for f in ["sha256","uid","mode"]:
@@ -403,30 +416,60 @@ def _root_ptrace_crash(pid:int,boundary:str,evidence:Path):
     except Exception: return {"pid":pid,"boundary":boundary,"error":"root tracer evidence invalid","stdout":p.stdout,"stderr":p.stderr}
 
 def _crash_case(cid,out,boundary):
-    b=observe(out/f"{cid}.before.observer.json"); diag=out/f"{cid}.diagnostic.json"
+    baseline=observe(out/f"{cid}.baseline.observer.json"); diag=out/f"{cid}.diagnostic.json"
     d=candidate_diag("positive",diag)
     if d.returncode: return False,{"harness_defect":"diagnostic creation failed","stderr":d.stderr}
-    pid=int(PID.read_text().strip()); control=subprocess.Popen(["sudo","-u","root","--","env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),"positive",str(diag)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    try:
+        diagnostic=json.loads(diag.read_text(encoding="utf-8")); target_id=diagnostic["trusted_record_id"]
+        if not isinstance(target_id,str) or len(target_id)!=64: raise ValueError("invalid trusted_record_id")
+    except Exception as exc:
+        return False,{"harness_defect":f"diagnostic target identity invalid: {exc}"}
+    target_name=target_id+".record"
+    prepared=observe(out/f"{cid}.prepared.observer.json")
+    try: prepared_life=target_lifecycle(prepared,target_name)
+    except RuntimeError as exc: return False,{"harness_defect":str(exc),"target_name":target_name}
+    if not prepared_life["records"] or prepared_life["consumed"]:
+        return False,{"harness_defect":"prepared target lifecycle invalid","target_name":target_name,"prepared":prepared_life}
+    pid=int(PID.read_text().strip())
+    control=subprocess.Popen(["sudo","-u","root","--","env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),"positive",str(diag)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     trace=_root_ptrace_crash(pid,boundary,out/f"{cid}.boundary.json")
+    paths=trace.get("paths") or trace.get("entry_paths") or []
+    if not any(target_name in str(x) for x in paths):
+        try: control.kill()
+        except Exception: pass
+        return False,{"harness_defect":"boundary did not reference target record","target_name":target_name,"boundary_paths":paths,"boundary_evidence":trace}
     try: so,se=control.communicate(timeout=10)
     except subprocess.TimeoutExpired: control.kill(); so,se=control.communicate()
     restart=run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20)
     time.sleep(.5)
+    recovery=observe(out/f"{cid}.recovery.observer.json")
+    try: recovery_life=target_lifecycle(recovery,target_name)
+    except RuntimeError as exc: return False,{"harness_defect":str(exc),"boundary_evidence":trace}
     retry=trusted_consume("positive",diag)
-    a=observe(out/f"{cid}.after.observer.json")
+    final=observe(out/f"{cid}.final.observer.json")
     try: first=json.loads(so.strip()) if so.strip() else {}
     except Exception: first={}
     try: second=json.loads(retry.stdout.strip()) if retry.stdout.strip() else {}
     except Exception: second={}
-    try:
-        consumed=observed_entries(a,"consumed"); records=observed_entries(a,"records")
-    except RuntimeError as exc:
-        return False,{"harness_defect":str(exc),"trigger":boundary,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr}}
-    if cid=="RQ-13": ok=trace.get("event")=="syscall_entry" and boundary=="before-validation" and not consumed and bool(records) and not second.get("service_authoritative",False)
-    elif cid=="RQ-14": ok=trace.get("event")=="syscall_entry" and boundary=="after-validation-before-rename" and bool(second.get("service_authoritative")) and len(consumed)>=1
-    else: ok=trace.get("event")=="syscall_exit" and boundary=="after-rename" and len(consumed)>=1 and not second.get("service_authoritative",False)
-    ok=ok and restart.returncode==0 and active() and stable(b,a)
-    return ok,{"trigger":boundary,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr},"records_after":records,"consumed_after":consumed,"state_stable":stable(b,a),"service_active":active()}
+    replay=None; replay_obj={}
+    if cid in {"RQ-14","RQ-15"} or (cid=="RQ-13" and second.get("service_authoritative")):
+        replay=trusted_consume("positive",diag)
+        try: replay_obj=json.loads(replay.stdout.strip()) if replay.stdout.strip() else {}
+        except Exception: replay_obj={}
+    final_life=target_lifecycle(final,target_name)
+    if cid=="RQ-13":
+        ok=(trace.get("event")=="syscall_entry" and recovery_life["records"] and not recovery_life["consumed"] and
+            not first.get("service_authoritative",False) and second.get("service_authoritative") is True and
+            final_life["consumed"] and not final_life["records"] and replay_obj.get("service_authoritative") is not True)
+    elif cid=="RQ-14":
+        ok=(trace.get("event")=="syscall_entry" and recovery_life["records"] and not recovery_life["consumed"] and
+            second.get("service_authoritative") is True and final_life["consumed"] and not final_life["records"] and replay_obj.get("service_authoritative") is not True)
+    else:
+        ok=(trace.get("event")=="syscall_exit" and recovery_life["consumed"] and not recovery_life["records"] and
+            replay_obj.get("service_authoritative") is not True and final_life["consumed"] and not final_life["records"])
+    ok=ok and restart.returncode==0 and active() and stable(baseline,final)
+    detail={"trigger":boundary,"target_id":target_id,"target_name":target_name,"boundary_evidence":trace,"first_consume":{"rc":control.returncode,"stdout":so,"stderr":se},"restart":{"rc":restart.returncode,"stdout":restart.stdout,"stderr":restart.stderr},"prepared":prepared_life,"recovery":recovery_life,"retry":{"rc":retry.returncode,"stdout":retry.stdout,"stderr":retry.stderr},"final":final_life,"replay":({"rc":replay.returncode,"stdout":replay.stdout,"stderr":replay.stderr,"parsed":replay_obj} if replay is not None else None),"records_delta_prepared":set_delta(baseline,prepared,"records"),"consumed_delta_prepared":set_delta(baseline,prepared,"consumed"),"records_delta_recovery":set_delta(prepared,recovery,"records"),"consumed_delta_recovery":set_delta(prepared,recovery,"consumed"),"records_delta_final":set_delta(recovery,final,"records"),"consumed_delta_final":set_delta(recovery,final,"consumed"),"state_stable":stable(baseline,final),"service_active":active()}
+    return ok,detail
 
 def case_13(out): return _crash_case("RQ-13",out,"before-validation")
 def case_14(out): return _crash_case("RQ-14",out,"after-validation-before-rename")
