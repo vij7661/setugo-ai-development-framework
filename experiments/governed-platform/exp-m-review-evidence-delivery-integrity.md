@@ -144,6 +144,18 @@ A material review path cannot qualify from EXP-M alone when candidate-controlled
 
 Several bounded subreviews cannot be aggregated into a global review unless the protocol preregisters cross-dimension interactions and a qualified aggregation step.
 
+### M-I25 — Remote accessibility is probed, not self-attested
+
+Where provider/model-visible accessibility cannot be established from trusted transport semantics alone, qualification or delivery uses fresh platform-generated witness probes. Reviewer echo of already supplied IDs/hashes is insufficient.
+
+### M-I26 — Capability authority is outside candidate self-approval
+
+The capability profile/registry used to judge review delivery cannot be widened by the candidate under review.
+
+### M-I27 — Retrieval-backed coverage is grounded where possible
+
+When provider retrieval/file tools are used, reviewer evidence references must not claim tested support for evidence known to be inaccessible; platform/tool access logs are retained and used when available.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -481,6 +493,48 @@ Retry uses same manifest/attempt semantics but adapter changes system prompt, to
 Expected:
 wire hash mismatch and immutable failed-attempt record.
 
+### M-45 — Reviewer echoes visible evidence IDs but cannot answer hidden canary
+
+Provider/model repeats manifest IDs yet fails exact fresh witness values embedded only in delivered content.
+
+Expected:
+accessibility qualification fails; self-acknowledgement is insufficient.
+
+### M-46 — Fresh head/middle/tail witness probes
+
+Fresh canaries are placed across context boundaries.
+
+Expected:
+all exact values recoverable under the qualified provider profile; any missing position lowers the safe capability bound.
+
+### M-47 — Stale canary replay
+
+Reviewer/provider returns a canary from an earlier qualification attempt.
+
+Expected:
+attempt-bound witness mismatch.
+
+### M-48 — Candidate modifies capability registry
+
+Candidate branch changes profile limits/format support used to review itself.
+
+Expected:
+untrusted capability authority; review path blocked.
+
+### M-49 — Retrieval citation without tool access
+
+Reviewer cites a required evidence ID but provider tool logs show no successful retrieval/access and mode requires retrieval for availability.
+
+Expected:
+coverage cannot be TESTED_SUPPORTED.
+
+### M-50 — Retrieval log proves wrong file version
+
+Tool access succeeds for stale/wrong content hash.
+
+Expected:
+evidence identity mismatch; verdict inadmissible.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -540,6 +594,11 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `EgressDeniedAdapter`
 - `ContextEvictionAdapter`
 - `DecomposedCrossInteractionAdapter`
+- `CanaryBlindAdapter`
+- `StaleCanaryReplayAdapter`
+- `CandidateProfileOverrideAdapter`
+- `RetrievalCitationWithoutAccessAdapter`
+- `WrongRetrievalVersionAdapter`
 
 Live API pilots come only after deterministic adapters prove the governor behavior.
 
@@ -553,7 +612,9 @@ For each configured real provider/model/API mode, preregister a capability pilot
 - whether uploaded files are actually model-visible;
 - one-shot vs staged review support;
 - response behavior near context limit;
-- deterministic or detectable truncation behavior.
+- deterministic or detectable truncation behavior;
+- fresh unpredictable witness-canary recovery at beginning/middle/end and across attachment/file boundaries;
+- retrieval/tool access-log behavior when that mode is used.
 
 Provider limits are observations bound to provider/model/API/adapter version and an expiry/requalification policy; they are not universal constants.
 
