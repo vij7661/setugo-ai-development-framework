@@ -191,6 +191,27 @@ Review fails closed when execution is missing, pending, errored, non-platform tr
 
 Consensus is metadata, not evidence, and cannot bypass deterministic evidence gates.
 
+## Review evidence delivery completeness
+
+Material review requires a second independent boundary between **evidence existence/materialization** and **evidence actually delivered into reviewer context**.
+
+The normative delivery rules are defined in `standards/review-evidence-delivery-integrity.md` and falsified by EXP-M.
+
+Core rules:
+
+- a valid ReviewRequest and complete authoritative evidence store do not prove reviewer-context completeness;
+- every material API review must freeze a content-addressed evidence delivery manifest before dispatch;
+- provider/model/API capability for the selected evidence representation must be explicitly qualified or the review fails closed;
+- required evidence may not be silently dropped because of context, file-count, file-type, attachment, or request-size limits;
+- large corpora require a qualified deterministic chunk protocol with request/corpus/chunk identity and hashes;
+- a reviewer disposition is inadmissible until required evidence delivery/context completeness is established;
+- HTTP success, file-upload success, reviewer self-acknowledgement, or a copied evidence count cannot independently prove completeness;
+- `INSUFFICIENT_EVIDENCE` must be adjudicated into scientific-source insufficiency, delivery/context insufficiency, format/capability insufficiency, mixed insufficiency, or unresolved cause;
+- delivery failure must never be silently converted into scientific failure, and scientific absence must never be excused as delivery failure;
+- multi-reviewer consensus is meaningful only when reviewer-specific delivery manifests prove equivalent required evidence or explicitly governed provider-specific representations.
+
+Until EXP-M qualifies this boundary for a provider/mode, large, multipart, or file-dependent platform API reviews remain non-promotable when reviewer-context completeness is unproven.
+
 ## Shared-memory grounding
 
 Before material promotion, shared memory must reconcile with authoritative checkpoint state for at least:
@@ -270,6 +291,19 @@ At minimum preserve/surface:
 - `PORTABLE_REVIEW_BUNDLE_TAMPERED`
 - `PORTABLE_REVIEW_MANIFEST_MISMATCH`
 - `PORTABLE_REVIEW_RAW_HASH_UNREPRODUCIBLE`
+- `SCIENTIFIC_EVIDENCE_MISSING`
+- `EVIDENCE_DELIVERY_INCOMPLETE`
+- `REVIEW_CONTEXT_INCOMPLETE`
+- `EVIDENCE_FORMAT_UNSUPPORTED`
+- `EVIDENCE_ATTACHMENT_UNAVAILABLE`
+- `EVIDENCE_CHUNK_MISSING`
+- `EVIDENCE_CHUNK_DUPLICATE`
+- `EVIDENCE_CHUNK_REORDERED`
+- `EVIDENCE_CHUNK_HASH_MISMATCH`
+- `EVIDENCE_MANIFEST_MISMATCH`
+- `EVIDENCE_RECEIPT_UNPROVEN`
+- `REVIEW_STARTED_BEFORE_DELIVERY_COMPLETE`
+- `REVIEW_VERDICT_INADMISSIBLE_DELIVERY_FAILURE`
 - `FAILURE_HISTORY_REWRITTEN`
 - `TERMINAL_AUTHORITY_SELF_GRANTED`
 
@@ -287,12 +321,16 @@ At minimum preserve/surface:
 10. Treat copy/paste as external evidence ingestion, initially `USER_PROVIDED_EXTERNAL_CONTENT`.
 11. Reclassify pasted content to `USER_ATTESTED_EXTERNAL_LLM_REVIEW` only when the user explicitly identifies the source; never equate that attestation with API authentication.
 12. Bind platform reviewer identity from trusted execution provenance.
-13. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + platform API execution envelope.
-14. Require a positive promotable disposition before platform review can satisfy material promotion.
-15. Apply deterministic governor/evidence gate.
-16. Persist authoritative checkpoint.
-17. Synchronize shared memory.
-18. New chat resumes from shared memory then verifies Git.
+13. Materialize and hash every required review evidence item.
+14. Validate the provider capability profile and freeze the evidence delivery manifest.
+15. Deliver through a qualified one-shot or deterministic chunk protocol.
+16. Establish reviewer-context completeness before accepting a disposition.
+17. Validate ReviewRequest + ReviewEvidence + structured semantic coverage + platform API execution envelope + delivery completeness.
+18. Require a positive promotable disposition before platform review can satisfy material promotion.
+19. Apply deterministic governor/evidence gate.
+20. Persist authoritative checkpoint.
+21. Synchronize shared memory.
+22. New chat resumes from shared memory then verifies Git.
 
 ## Current collaboration limitation
 
