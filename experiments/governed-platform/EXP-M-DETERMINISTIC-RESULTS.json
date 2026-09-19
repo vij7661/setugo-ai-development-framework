@@ -1,5 +1,12 @@
 {
   "all_phases_pass": true,
+  "execution": {
+    "command": "python governance-runtime/run_exp_m_deterministic.py",
+    "interpreter": "D:\\Python312\\python.exe",
+    "source_commit": "817942dd4123a183fb1b67ae203cdacf2489bc98",
+    "source_tree": "d5198e418e5f052af02f1586892a05333c73f23c",
+    "utc": "2026-09-19T21:56:50.988003+00:00"
+  },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
   "phases": {
@@ -56,7 +63,7 @@
         "data/state mutation family",
         "validator mutation family"
       ],
-      "mutation_total": 46,
+      "mutation_total": 50,
       "status": "PASS"
     },
     "H": {
@@ -107,9 +114,15 @@
     },
     "O": {
       "checks": [
-        "predicate/mutation closure"
+        "predicate/verdict/mutation/fixture closure"
       ],
-      "status": "PASS"
+      "status": "PASS",
+      "target_counts": {
+        "executed": 23,
+        "fixtures": 23,
+        "killed": 23,
+        "required": 23
+      }
     },
     "P": {
       "checks": [

@@ -27,6 +27,12 @@ from exp_m_deterministic import (  # noqa: E402
     validate_witness_qualification, AttemptState, admit_review_attempt,
     PromptIsolationQualificationRecord, validate_egress, validate_prompt_isolation,
     validate_registry_version, validate_retry_transparency,
+    bundle_from_state, context_from_state,
+    PersistentAdmissionLedger, PhysicalAttemptRecord,
+    AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord,
+    DeliveryCompletenessResult,
+    RepresentationRecord,
+    MaterializationEntry,
 )
 
 
@@ -47,6 +53,7 @@ def preflight(*args, **kwargs):
         "context_policy": ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE", False),
         "context_evidence": ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
         "fence": AdmissionFenceRecord("fence", "1", True),
+        "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False),
     }
     for key, value in defaults.items():
         kwargs.setdefault(key, value)
@@ -60,12 +67,12 @@ def admissibility_fixture():
         "evidence_contract": RequiredEvidenceContract("e", "s", ("a",)),
         "interaction_contract": RequiredInteractionContract("i", "s", (("a",),)),
         "materialization": MaterializationResult(True, {"a": b"a"}, "rep", "src", "raw-v1"),
-        "representation": {"governed": True, "transform_id": "raw-v1"}, "egress": {"authorized": True, "version": "1"},
-        "capability_current": True, "accessibility_policy": {"satisfied": True}, "accessibility": {"satisfied": True, "proven": True}, "context_isolation": {"satisfied": True},
-        "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True},
-        "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True}, "wire": {"valid": True},
-        "delivery": {"complete": True}, "witness": {"current": True}, "retrieval": {"complete": True},
-        "prompt_isolation": {"current": True}, "semantic_coverage": {"complete": True}, "reviewer": {"trusted": True},
+        "representation": RepresentationRecord("raw-v1", "1", "transform", "registry-exp-m-r1", "src", "rep", "params", "coverage"), "egress": {"authorized": True, "version": "1"},
+        "capability": {"validated": True}, "accessibility_policy": {"satisfied": True, "risk_policy_version": "r1"}, "accessibility": AccessibilityProofRecord("proof", "ch", "fake", "inline", "ctx", True), "context_isolation": {"satisfied": True, "transition_class": "LOWER"},
+        "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True, "state_hash": "state"},
+        "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "wire": WireDeliveryRecord("a", "r", "w", "s", "s", ("a",)),
+        "delivery": DeliveryCompletenessResult(True), "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, sha256(b"a").hexdigest(), 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a",
+        "prompt_isolation": {"current": True}, "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True), "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True),
         "disposition": "PASS", "disposition_promotable": True,
     }
 
@@ -136,9 +143,9 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_admissibility_requires_every_predicate(self):
         reg = admissibility_registry(); state = admissibility_fixture()
-        self.assertTrue(evaluate_admissibility(state, reg).admissible)
+        self.assertTrue(evaluate_admissibility(bundle_from_state(state), context_from_state(state), reg).admissible)
         state["delivery"] = {"complete": False}
-        result = evaluate_admissibility(state, reg)
+        result = evaluate_admissibility(bundle_from_state(state), context_from_state(state), reg)
         self.assertFalse(result.admissible); self.assertIn("delivery_complete", result.reasons)
 
     def test_admissibility_exact_predicate_closure(self):
@@ -230,6 +237,44 @@ class ExpMCoreTests(unittest.TestCase):
         self.assertFalse(validate_prompt_isolation(current, provider_id="other", mode="inline", now="2025-01-01T00:00:00Z")[0])
         self.assertFalse(validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},), automatic_retry_hidden=True)[0])
         self.assertFalse(validate_registry_version("v2", "v1")[0])
+
+    def test_r2_summary_only_bundle_is_rejected(self):
+        state = {name: True for name in admissibility_registry().predicate_ids}
+        state["disposition"] = "PASS"
+        self.assertFalse(evaluate_admissibility(bundle_from_state(state), context_from_state(state)).admissible)
+
+    def test_r2_persistent_void_is_terminal_across_reload(self):
+        path = Path("experiments/governed-platform/.exp-m-test-ledger.json")
+        try:
+            if path.exists(): path.unlink()
+            first = PersistentAdmissionLedger(path).compare_and_set("a", 1, "VOID")
+            second = PersistentAdmissionLedger(path).compare_and_set("a", 1, "COMMITTED")
+            self.assertTrue(first.void); self.assertTrue(second.void); self.assertEqual(second.reasons, ("terminal_state",))
+        finally:
+            if path.exists(): path.unlink()
+
+    def test_r2_retry_lineage_is_explicit(self):
+        records = (PhysicalAttemptRecord("a", "a", None, "FIRST", "r", "s", "w1", "FAILED"), PhysicalAttemptRecord("a-retry", "a", "a", "RETRY", "r", "s", "w2", "OK"))
+        self.assertTrue(validate_retry_transparency(records, planned_root_ids=("a",), expected_request="r", expected_session="s")[0])
+        broken = (PhysicalAttemptRecord("a-retry", "a", None, "RETRY", "r", "s", "w2", "OK"),)
+        self.assertFalse(validate_retry_transparency(broken, planned_root_ids=("a",), expected_request="r", expected_session="s")[0])
+
+    def test_r2_production_evaluator_has_no_bypass_parameter(self):
+        import inspect
+        self.assertNotIn("disabled_predicates", inspect.signature(evaluate_admissibility).parameters)
+
+    def test_r2_empty_or_mismatched_qualification_closure_rejected(self):
+        s, c, i, items, m, p = fixture()
+        empty = ProviderQualificationExecutionPlan("plan", "fake", "default", (), ())
+        result = preflight(s, c, i, m, "request-1", p, items, plan=empty, qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", (), (), "fake", "deterministic"))
+        self.assertFalse(result.allowed); self.assertIn("qualification_sets_empty", result.reasons)
+
+    def test_r2_typed_materialization_bounds_and_transform_registry(self):
+        duplicate = (MaterializationEntry("a", "x", "file", b"a"), MaterializationEntry("b", "x", "file", b"b"))
+        self.assertFalse(materialize_entries(duplicate, source_hash="s").success)
+        symlink = (MaterializationEntry("link", "link", "symlink", b"", "../escape"),)
+        self.assertFalse(materialize_entries(symlink, source_hash="s").success)
+        self.assertFalse(materialize_entries({"a": b"a"}, source_hash="s", transform_id="unknown").success)
 
 
 if __name__ == "__main__":

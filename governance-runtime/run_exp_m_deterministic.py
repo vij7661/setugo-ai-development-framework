@@ -2,6 +2,8 @@
 from __future__ import annotations
 import json
 import sys
+import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,13 +13,17 @@ from exp_m_deterministic import (  # noqa: E402
     ProviderCapabilityProfile, ProviderQualificationExecutionPlan, ProviderCapabilityQualificationRecord,
     ProviderContextIsolationPolicy, ProviderContextStateEvidence, AdmissionFenceRecord,
     RequiredEvidenceContract, RequiredInteractionContract,
+    ProviderAccessibilityRiskPolicy,
     WireDeliveryRecord, ReviewerReceipt, admissibility_registry, complete_delivery,
     digest, evaluate_admissibility, preflight_delivery, validate_attempt_ledger,
     validate_chunks, validate_representation, validate_retry_transparency, validate_witness,
     ProviderContextStateEvidence, AdmissionFenceRecord, validate_context_state,
     validate_fence, safe_archive_member,
     adjudicate_insufficient_evidence,
-    validate_capability, validate_witness_qualification, WitnessProtocolQualificationRecord,
+    validate_capability, validate_witness_qualification, WitnessProtocolQualificationRecord, RetrievalEvidenceRecord,
+    bundle_from_state, context_from_state,
+    AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
+    RepresentationRecord,
 )
 from run_exp_m_mutations import run as run_mutations
 
@@ -41,7 +47,7 @@ def valid_preflight(snapshot, contract, interactions, manifest, provider, items)
         qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
         context_policy=ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"),
         context_evidence=ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
-        fence=AdmissionFenceRecord("fence", "1", True))
+        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False))
 
 
 def run_phases() -> dict:
@@ -65,13 +71,13 @@ def run_phases() -> dict:
     registry = admissibility_registry(); state = {
         "review_request": {"current": True, "request_id": "r"}, "authority_snapshot": s,
         "evidence_contract": c, "interaction_contract": i, "materialization": __import__("exp_m_deterministic").MaterializationResult(True, items, "rep", "src", "raw-v1"),
-        "representation": {"governed": True, "transform_id": "raw-v1"}, "egress": {"authorized": True, "version": "1"},
-        "capability_current": True, "accessibility_policy": {"satisfied": True}, "accessibility": {"satisfied": True, "proven": True},
-        "context_isolation": {"satisfied": True}, "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True},
-        "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True}, "wire": {"valid": True}, "delivery": {"complete": True},
-        "witness": {"current": True}, "retrieval": {"complete": True}, "prompt_isolation": {"current": True}, "semantic_coverage": {"complete": True},
-        "reviewer": {"trusted": True}, "disposition": "PASS", "disposition_promotable": True,
-    }; verdict = evaluate_admissibility(state, registry)
+        "representation": RepresentationRecord("raw-v1", "1", "transform", "registry-exp-m-r1", "src", "rep", "params", "coverage"), "egress": {"authorized": True, "version": "1"},
+        "capability": {"validated": True}, "accessibility_policy": {"satisfied": True, "risk_policy_version": "r1"}, "accessibility": AccessibilityProofRecord("proof", "ch", "fake", "inline", "ctx", True),
+        "context_isolation": {"satisfied": True, "transition_class": "LOWER"}, "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True, "state_hash": "state"},
+        "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "wire": WireDeliveryRecord("a", "r", "w", "s", "s", ("a",)), "delivery": DeliveryCompletenessResult(True),
+        "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, digest(b"a"), 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a", "prompt_isolation": {"current": True}, "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True),
+        "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True), "disposition": "PASS", "disposition_promotable": True,
+    }; verdict = evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry)
     phase_results["I"] = {"status": "PASS" if verdict.admissible else "FAIL", "checks": ["all admissibility predicates"]}
     receipt, wire = DeterministicFakeProvider().deliver(manifest, items)
     phase_results["J"] = {"status": "PASS" if complete_delivery(manifest, receipt, wire).complete else "FAIL", "checks": ["wire/session/representation bindings"]}
@@ -81,19 +87,24 @@ def run_phases() -> dict:
     phase_results["L"] = {"status": "PASS" if safe_archive_member("evidence/a.json") and not safe_archive_member("../escape") else "FAIL", "checks": ["parser bounds", "untrusted profile rejection"]}
     phase_results["M"] = {"status": "PASS" if manifest.verify(items)[0] and not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0] else "FAIL", "checks": ["frozen bytes", "attempt binding"]}
     phase_results["N"] = {"status": "PASS" if not valid_preflight(s, c, i, manifest, ProviderCapabilityProfile("fake", "m", "v", "p", False), items).allowed else "FAIL", "checks": ["external-review remediation cases"]}
-    phase_results["O"] = {"status": "PASS" if set(registry.predicate_ids) == set(registry.logic_mutation_ids) else "FAIL", "checks": ["predicate/mutation closure"]}
+    logic = [m for m in mutation_result["mutations"] if m.get("family") == "validator_logic"]
+    actual_targets = {m.get("target_predicate_id") for m in logic if m.get("executed")}
+    killed_targets = {m.get("target_predicate_id") for m in logic if m.get("executed") and m.get("killed")}
+    fixture_targets = {m.get("negative_fixture_target_id") for m in logic if m.get("negative_fixture_target_id")}
+    phase_results["O"] = {"status": "PASS" if actual_targets == killed_targets == fixture_targets == set(registry.predicate_ids) else "FAIL", "checks": ["predicate/verdict/mutation/fixture closure"], "target_counts": {"required": len(registry.predicate_ids), "executed": len(actual_targets), "killed": len(killed_targets), "fixtures": len(fixture_targets)}}
     context_ok = validate_context_state(ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), required_channels=("memory", "config"))[0]
     phase_results["P"] = {"status": "PASS" if context_ok else "FAIL", "checks": ["residual adversarial oracle"]}
     phase_results["Q"] = {"status": "PASS" if validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] else "FAIL", "checks": ["risk policy", "admission fence"]}
     witness_negative = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="x" * 2000, challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
     phase_results["R"] = {"status": "PASS" if witness[0] and not witness_negative[0] else "FAIL", "checks": ["witness noninterference", "context eviction rejection"]}
     phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] else "FAIL", "checks": ["planned attempt closure"]}
-    phase_results["T"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] and len(registry.predicate_ids) == len(registry.logic_mutation_ids) else "FAIL", "checks": ["retry transparency", "registry closure"]}
+    phase_results["T"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] and actual_targets == killed_targets == fixture_targets == set(registry.predicate_ids) else "FAIL", "checks": ["retry transparency", "registry closure"]}
     return {"experiment": "EXP-M", "mode": "DETERMINISTIC_ONLY", "phases": phase_results, "all_phases_pass": all(v["status"] == "PASS" for v in phase_results.values())}
 
 
 def main() -> int:
     result = run_phases()
+    result["execution"] = {"source_commit": subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=ROOT, text=True).strip(), "source_tree": subprocess.check_output(("git", "rev-parse", "HEAD^{tree}"), cwd=ROOT, text=True).strip(), "utc": datetime.now(timezone.utc).isoformat(), "command": "python governance-runtime/run_exp_m_deterministic.py", "interpreter": sys.executable}
     out = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-RESULTS.json"
     out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))

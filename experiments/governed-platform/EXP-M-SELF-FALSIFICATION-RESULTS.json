@@ -10,7 +10,7 @@
       "rejected": true
     },
     {
-      "id": "admissibility_predicate_removed",
+      "id": "admissibility_summary_only_rejected",
       "rejected": true
     },
     {
@@ -34,191 +34,58 @@
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-review_request_current",
+      "id": "production_bypass_absent",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-authority_snapshot_current",
+      "id": "all_true_summary_only",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-evidence_contract_closed",
+      "id": "empty_qualification_sets",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-interaction_contract_closed",
+      "id": "stale_fence",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-materialization_complete",
+      "id": "void_revival_after_reload",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-representation_governed",
+      "id": "retrieval_complete_only",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-egress_authorized",
+      "id": "forged_complete_receipt",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-capability_current",
+      "id": "witness_current_only",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-accessibility_policy_satisfied",
+      "id": "duplicate_normalized_member",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-context_isolation_satisfied",
+      "id": "unqualified_transform",
       "rejected": true
     },
     {
-      "id": "mutation:TM-O-hidden_state_policy_satisfied",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-context_state_clean",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-admission_fence_current",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-semantic_context_qualified",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-wire_binding_valid",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-delivery_complete",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-accessibility_proven",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-witness_record_current",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-session_retrieval_coverage",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-prompt_isolation_current",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-semantic_coverage",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-reviewer_provenance",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-O-disposition_promotable",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-G-missing_chunk",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-G-wrong_request",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-G-wrong_corpus",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-G-duplicate_index",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-G-corrupt_chunk",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-G-empty_chunk",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-expired_profile",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-wrong_profile_hash",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-wrong_operating_point",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-missing_attempt",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-unsupported_format",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-context-isolation",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-materialization-traversal",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-wrong-reviewed-source",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-retrieval-bytes",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-witness-expired",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-admission-drift",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-egress-revoked",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-prompt-isolation-expired",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-hidden-retry",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-retrieval-session",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-registry-drift",
-      "rejected": true
-    },
-    {
-      "id": "mutation:TM-R1-wire-semantic-binding",
+      "id": "broken_retry_lineage",
       "rejected": true
     }
   ],
+  "execution": {
+    "command": "python governance-runtime/self_falsify_exp_m.py",
+    "interpreter": "D:\\Python312\\python.exe",
+    "source_commit": "817942dd4123a183fb1b67ae203cdacf2489bc98",
+    "source_tree": "d5198e418e5f052af02f1586892a05333c73f23c",
+    "utc": "2026-09-19T21:56:51.395001+00:00"
+  },
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 54
+  "total": 19
 }

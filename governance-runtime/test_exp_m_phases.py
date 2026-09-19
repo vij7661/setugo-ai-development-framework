@@ -5,7 +5,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from exp_m_deterministic import (  # noqa: E402
     admissibility_registry, GovernanceAuthoritySnapshot, RequiredEvidenceContract,
-    RequiredInteractionContract, MaterializationResult,
+    RequiredInteractionContract, MaterializationResult, AccessibilityProofRecord,
+    WireDeliveryRecord, DeliveryCompletenessResult, WitnessProtocolQualificationRecord,
+    RetrievalEvidenceRecord, SemanticCoverageRecord, ReviewerProvenanceRecord,
+    RepresentationRecord,
 )
 from run_exp_m_deterministic import run_phases  # noqa: E402
 from run_exp_m_mutations import run as run_mutations  # noqa: E402
@@ -35,17 +38,18 @@ class ExpMPhaseTests(unittest.TestCase):
             "evidence_contract": RequiredEvidenceContract("e", "s", ("a",)),
             "interaction_contract": RequiredInteractionContract("i", "s", (("a",),)),
             "materialization": MaterializationResult(True, {"a": b"a"}, "rep", "src", "raw-v1"),
-            "representation": {"governed": True, "transform_id": "raw-v1"},
+            "representation": RepresentationRecord("raw-v1", "1", "transform", "registry-exp-m-r1", "src", "rep", "params", "coverage"),
             "egress": {"authorized": True, "version": "1"},
-            "capability_current": True, "accessibility_policy": {"satisfied": True}, "accessibility": {"satisfied": True, "proven": True},
-            "context_isolation": {"satisfied": True}, "hidden_state_policy": {"satisfied": True},
-            "context_state": {"clean": True, "sentinel_passed": True}, "fence": {"current": True, "version": "1"},
-            "semantic_context": {"qualified": True}, "wire": {"valid": True}, "delivery": {"complete": True},
-            "witness": {"current": True}, "retrieval": {"complete": True}, "prompt_isolation": {"current": True},
-            "semantic_coverage": {"complete": True}, "reviewer": {"trusted": True},
+            "capability": {"validated": True}, "accessibility_policy": {"satisfied": True, "risk_policy_version": "r1"}, "accessibility": AccessibilityProofRecord("proof", "ch", "fake", "inline", "ctx", True),
+            "context_isolation": {"satisfied": True, "transition_class": "LOWER"}, "hidden_state_policy": {"satisfied": True},
+            "context_state": {"clean": True, "sentinel_passed": True, "state_hash": "state"}, "fence": {"current": True, "version": "1"},
+            "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "wire": WireDeliveryRecord("a", "r", "w", "s", "s", ("a",)), "delivery": DeliveryCompletenessResult(True),
+            "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb", 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a", "prompt_isolation": {"current": True},
+            "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True), "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True),
             "disposition": "PASS", "disposition_promotable": True,
         }
-        self.assertTrue(__import__("exp_m_deterministic").evaluate_admissibility(state, reg).admissible)
+        mod = __import__("exp_m_deterministic")
+        self.assertTrue(mod.evaluate_admissibility(mod.bundle_from_state(state), mod.context_from_state(state), reg).admissible)
 
 
 if __name__ == "__main__":

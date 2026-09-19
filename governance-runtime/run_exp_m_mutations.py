@@ -2,10 +2,13 @@
 from __future__ import annotations
 import json
 import sys
+import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from exp_m_deterministic import (  # noqa: E402
     EvidenceChunk, EvidenceDeliveryManifest, admissibility_registry,
+    ReviewerReceipt,
     GovernanceAuthoritySnapshot, RequiredEvidenceContract, RequiredInteractionContract,
     MaterializationResult, ProviderCapabilityProfile, ProviderQualificationExecutionPlan,
     ProviderCapabilityQualificationRecord, ProviderContextIsolationPolicy, ProviderContextStateEvidence,
@@ -14,9 +17,17 @@ from exp_m_deterministic import (  # noqa: E402
     validate_context_isolation, materialize_entries, validate_retrieval, validate_witness_qualification,
     admit_review_attempt, validate_wire_delivery, WireDeliveryRecord, validate_egress, validate_prompt_isolation,
     validate_registry_version, validate_retry_transparency,
+    bundle_from_state, context_from_state,
+    AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
+    RepresentationRecord,
+    PhysicalAttemptRecord,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def evaluate(state, registry):
+    return evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry)
 
 
 def run() -> dict:
@@ -25,12 +36,12 @@ def run() -> dict:
     base = {
         "review_request": {"current": True, "request_id": "r"}, "authority_snapshot": GovernanceAuthoritySnapshot("s", "1", "h", True),
         "evidence_contract": RequiredEvidenceContract("e", "s", ("a",)), "interaction_contract": RequiredInteractionContract("i", "s", (("a",),)),
-        "materialization": MaterializationResult(True, {"a": b"a"}, "rep", "src", "raw-v1"), "representation": {"governed": True, "transform_id": "raw-v1"},
-        "egress": {"authorized": True, "version": "1"}, "capability_current": True, "accessibility_policy": {"satisfied": True}, "accessibility": {"satisfied": True, "proven": True},
-        "context_isolation": {"satisfied": True}, "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True},
-        "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True}, "wire": {"valid": True}, "delivery": {"complete": True},
-        "witness": {"current": True}, "retrieval": {"complete": True}, "prompt_isolation": {"current": True}, "semantic_coverage": {"complete": True},
-        "reviewer": {"trusted": True}, "disposition": "PASS", "disposition_promotable": True,
+        "materialization": MaterializationResult(True, {"a": b"a"}, "rep", "src", "raw-v1"), "representation": RepresentationRecord("raw-v1", "1", "transform", "registry-exp-m-r1", "src", "rep", "params", "coverage"),
+        "egress": {"authorized": True, "version": "1"}, "capability": {"validated": True}, "accessibility_policy": {"satisfied": True, "risk_policy_version": "r1"}, "accessibility": AccessibilityProofRecord("proof", "ch", "fake", "inline", "ctx", True),
+        "context_isolation": {"satisfied": True, "transition_class": "LOWER"}, "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True, "state_hash": "state"},
+        "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "wire": WireDeliveryRecord("a", "r", "w", "s", "s", ("a",)), "delivery": DeliveryCompletenessResult(True),
+        "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, digest(b"a"), 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a", "prompt_isolation": {"current": True}, "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True),
+        "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True), "disposition": "PASS", "disposition_promotable": True,
     }
     def negative(state, predicate):
         s = dict(state)
@@ -42,21 +53,37 @@ def run() -> dict:
             "materialization_complete": ("materialization", MaterializationResult(False, {}, "", "src", "raw-v1")),
             "representation_governed": ("representation", {"governed": False, "transform_id": ""}),
             "egress_authorized": ("egress", {"authorized": False, "version": "1"}),
-            "capability_current": ("capability_current", False), "accessibility_policy_satisfied": ("accessibility_policy", {"satisfied": False}),
-            "context_isolation_satisfied": ("context_isolation", {"satisfied": False}), "hidden_state_policy_satisfied": ("hidden_state_policy", {"satisfied": False}),
-            "context_state_clean": ("context_state", {"clean": False, "sentinel_passed": False}), "admission_fence_current": ("fence", {"current": False, "version": "1"}),
-            "semantic_context_qualified": ("semantic_context", {"qualified": False}), "wire_binding_valid": ("wire", {"valid": False}),
-            "delivery_complete": ("delivery", {"complete": False}), "accessibility_proven": ("accessibility", {"satisfied": True, "proven": False}),
-            "witness_record_current": ("witness", {"current": False}), "session_retrieval_coverage": ("retrieval", {"complete": False}),
+            "capability_current": ("capability", {"validated": False}), "accessibility_policy_satisfied": ("accessibility_policy", {"satisfied": False, "risk_policy_version": "r1"}),
+            "context_isolation_satisfied": ("context_isolation", {"satisfied": False, "transition_class": "LOWER"}), "hidden_state_policy_satisfied": ("hidden_state_policy", {"satisfied": False}),
+            "context_state_clean": ("context_state", {"clean": False, "sentinel_passed": False, "state_hash": "state"}), "admission_fence_current": ("fence", {"current": False, "version": "1"}),
+            "semantic_context_qualified": ("semantic_context", {"qualified": False, "context_hash": "ctx-h"}), "wire_binding_valid": ("wire", {"valid": False, "request_id": "r"}),
+            "delivery_complete": ("delivery", {"computed_complete": False}), "accessibility_proven": ("accessibility", {"satisfied": True, "proven": False, "challenge_id": "ch"}),
+            "witness_record_current": ("witness", {"validated": False}), "session_retrieval_coverage": ("retrieval", {"validated": False, "final_context_id": "ctx"}),
             "prompt_isolation_current": ("prompt_isolation", {"current": False}), "semantic_coverage": ("semantic_coverage", {"complete": False}),
             "reviewer_provenance": ("reviewer", {"trusted": False}), "disposition_promotable": ("disposition", "CHANGES_REQUIRED"),
         }
         key, value = mapping[predicate]; s[key] = value; return s
     for predicate in reg.logic_mutation_ids:
         negative_state = negative(base, predicate)
-        mutated_result = evaluate_admissibility(negative_state, reg, disabled_predicates=(predicate,))
-        normal_result = evaluate_admissibility(negative_state, reg)
-        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible})
+        normal_result = evaluate(negative_state, reg)
+        # Authentic mutation: alter the validator dispatch only in this
+        # isolated mutation process; production exposes no bypass parameter.
+        import exp_m_deterministic as production
+        original = production._predicate_validators
+        original_disposition = production._validate_disposition
+        def mutated_validators(context, _original=original, _predicate=predicate):
+            validators = _original(context)
+            validators[_predicate] = lambda _state: True
+            return validators
+        production._predicate_validators = mutated_validators
+        if predicate == "disposition_promotable":
+            production._validate_disposition = lambda _state, _context, _results: True
+        try:
+            mutated_result = evaluate(negative_state, reg)
+        finally:
+            production._predicate_validators = original
+            production._validate_disposition = original_disposition
+        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": f"negative:{predicate}", "negative_fixture_target_id": predicate, "executed": True, "fixture_hash": digest(negative_state), "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible})
     corpus = b"abcdefghij"; corpus_hash = digest(corpus)
     chunks = [EvidenceChunk.create("request", corpus_hash, 0, 2, corpus[:5]), EvidenceChunk.create("request", corpus_hash, 1, 2, corpus[5:])]
     data_mutations = [
@@ -122,12 +149,24 @@ def run() -> dict:
     bad_wire = WireDeliveryRecord(wire.attempt_id, wire.request_id, wire.wire_hash, "wrong-semantic", wire.session_id, wire.item_ids)
     wire_semantic_ok, wire_semantic_reasons = validate_wire_delivery(wire_manifest, materialize_entries(wire_items, source_hash="source-commit"), bad_wire, receipt, wire_items, expected_commit="source-commit", expected_semantic_hash=wire.semantic_hash)
     mutations.append({"id": "TM-R1-wire-semantic-binding", "family": "data_state", "target": "wire_semantic_hash", "expected": "REJECT", "actual": "REJECT" if not wire_semantic_ok else "PASS", "reasons": list(wire_semantic_reasons), "killed": not wire_semantic_ok})
+    summary_state = {p: True for p in reg.predicate_ids}; summary_state["disposition"] = "PASS"
+    summary_result = evaluate(summary_state, reg)
+    mutations.append({"id": "TM-R2-summary-only", "family": "data_state", "target": "evidence_bundle", "expected": "REJECT", "actual": "REJECT" if not summary_result.admissible else "PASS", "reasons": list(summary_result.reasons), "killed": not summary_result.admissible})
+    mismatch_plan = ProviderQualificationExecutionPlan("other", "fake", "op", ("a",), ("a",))
+    plan_ok, plan_reasons = validate_capability(profile, mismatch_plan, record, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
+    mutations.append({"id": "TM-R2-plan-record-mismatch", "family": "data_state", "target": "qualification_plan_id", "expected": "REJECT", "actual": "REJECT" if not plan_ok else "PASS", "reasons": list(plan_reasons), "killed": not plan_ok})
+    forged_receipt = ReviewerReceipt(receipt.attempt_id, receipt.request_id, receipt.session_id, receipt.manifest_hash, receipt.received_item_ids, receipt.received_bytes, True)
+    forged_ok, forged_reasons = validate_wire_delivery(wire_manifest, materialize_entries(wire_items, source_hash="source-commit"), wire, forged_receipt, {"a": b"forged"}, expected_commit="source-commit", expected_semantic_hash=wire.semantic_hash)
+    mutations.append({"id": "TM-R2-forged-complete-receipt", "family": "data_state", "target": "receipt_returned_bytes", "expected": "REJECT", "actual": "REJECT" if not forged_ok else "PASS", "reasons": list(forged_reasons), "killed": not forged_ok})
+    lineage_ok, lineage_reasons = validate_retry_transparency((PhysicalAttemptRecord("retry", "root", None, "RETRY", "r", "s", "w", "OK"),), planned_root_ids=("root",), expected_request="r", expected_session="s")
+    mutations.append({"id": "TM-R2-broken-retry-lineage", "family": "data_state", "target": "retry_lineage", "expected": "REJECT", "actual": "REJECT" if not lineage_ok else "PASS", "reasons": list(lineage_reasons), "killed": not lineage_ok})
     rejected = sum(1 for m in mutations if m["killed"])
     return {"experiment": "EXP-M", "total_mutations": len(mutations), "rejected_mutations": rejected, "surviving_mutations": len(mutations) - rejected, "all_rejected": rejected == len(mutations), "mutations": mutations}
 
 
 if __name__ == "__main__":
     result = run()
+    result["execution"] = {"source_commit": subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=ROOT, text=True).strip(), "source_tree": subprocess.check_output(("git", "rev-parse", "HEAD^{tree}"), cwd=ROOT, text=True).strip(), "utc": datetime.now(timezone.utc).isoformat(), "command": "python governance-runtime/run_exp_m_mutations.py", "interpreter": sys.executable}
     path = ROOT / "experiments" / "governed-platform" / "EXP-M-MUTATION-RESULTS.json"
     path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))

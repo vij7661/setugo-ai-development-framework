@@ -1,213 +1,335 @@
 {
   "all_rejected": true,
+  "execution": {
+    "command": "python governance-runtime/run_exp_m_mutations.py",
+    "interpreter": "D:\\Python312\\python.exe",
+    "source_commit": "817942dd4123a183fb1b67ae203cdacf2489bc98",
+    "source_tree": "d5198e418e5f052af02f1586892a05333c73f23c",
+    "utc": "2026-09-19T21:56:50.606002+00:00"
+  },
   "experiment": "EXP-M",
   "mutations": [
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "3df0842dbd323876d6b11a730ed54b480d2ed07c934d832735e884c7314512c6",
       "id": "TM-O-review_request_current",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "review_request_current"
+      "negative_fixture_id": "negative:review_request_current",
+      "negative_fixture_target_id": "review_request_current",
+      "target": "review_request_current",
+      "target_predicate_id": "review_request_current"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "3cc3e165457f926b70a960d0666576640d9113de7fdf8853394f83be0918753f",
       "id": "TM-O-authority_snapshot_current",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "authority_snapshot_current"
+      "negative_fixture_id": "negative:authority_snapshot_current",
+      "negative_fixture_target_id": "authority_snapshot_current",
+      "target": "authority_snapshot_current",
+      "target_predicate_id": "authority_snapshot_current"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "df62d3a3edfbb96be4914a8c852648febc3adccdd450b9fbf8fbd8263123dbe4",
       "id": "TM-O-evidence_contract_closed",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "evidence_contract_closed"
+      "negative_fixture_id": "negative:evidence_contract_closed",
+      "negative_fixture_target_id": "evidence_contract_closed",
+      "target": "evidence_contract_closed",
+      "target_predicate_id": "evidence_contract_closed"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "96e17caa9e74855db8259f90363611a5638a1f47bf9d559a27a71d63fee3440a",
       "id": "TM-O-interaction_contract_closed",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "interaction_contract_closed"
+      "negative_fixture_id": "negative:interaction_contract_closed",
+      "negative_fixture_target_id": "interaction_contract_closed",
+      "target": "interaction_contract_closed",
+      "target_predicate_id": "interaction_contract_closed"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "6ebc53123c5d24dc8292565fea8548ad62ffd12b434b1b6181c67e117f6588c6",
       "id": "TM-O-materialization_complete",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "materialization_complete"
+      "negative_fixture_id": "negative:materialization_complete",
+      "negative_fixture_target_id": "materialization_complete",
+      "target": "materialization_complete",
+      "target_predicate_id": "materialization_complete"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "a9370b6d5a89b8c126d7a024c8adb4f3ae8ecb616e17e593b08f0929882bdfd5",
       "id": "TM-O-representation_governed",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "representation_governed"
+      "negative_fixture_id": "negative:representation_governed",
+      "negative_fixture_target_id": "representation_governed",
+      "target": "representation_governed",
+      "target_predicate_id": "representation_governed"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "42f690df0af943ffd88958fb033d0def976f98ef9a88dca4329dfc2a0a67fd32",
       "id": "TM-O-egress_authorized",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "egress_authorized"
+      "negative_fixture_id": "negative:egress_authorized",
+      "negative_fixture_target_id": "egress_authorized",
+      "target": "egress_authorized",
+      "target_predicate_id": "egress_authorized"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "391f862bf9cc501b7ff00a7b5d98794e89f38920f99a2654f4b018c75e9f49c3",
       "id": "TM-O-capability_current",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "capability_current"
+      "negative_fixture_id": "negative:capability_current",
+      "negative_fixture_target_id": "capability_current",
+      "target": "capability_current",
+      "target_predicate_id": "capability_current"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "7b3247544275937b6e7b96f920caf76efb6173dc5d46ed68f2beb51116e04fd9",
       "id": "TM-O-accessibility_policy_satisfied",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "accessibility_policy_satisfied"
+      "negative_fixture_id": "negative:accessibility_policy_satisfied",
+      "negative_fixture_target_id": "accessibility_policy_satisfied",
+      "target": "accessibility_policy_satisfied",
+      "target_predicate_id": "accessibility_policy_satisfied"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "775f85e56dc3651ab3e7c64ac0d9f0b53799f0af2146e0bb80c898daca9c1a6d",
       "id": "TM-O-context_isolation_satisfied",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "context_isolation_satisfied"
+      "negative_fixture_id": "negative:context_isolation_satisfied",
+      "negative_fixture_target_id": "context_isolation_satisfied",
+      "target": "context_isolation_satisfied",
+      "target_predicate_id": "context_isolation_satisfied"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "a7e5531a8691cb2149e1c539fe13f1797e5436e3bab39e2f3692ef59f7ea9852",
       "id": "TM-O-hidden_state_policy_satisfied",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "hidden_state_policy_satisfied"
+      "negative_fixture_id": "negative:hidden_state_policy_satisfied",
+      "negative_fixture_target_id": "hidden_state_policy_satisfied",
+      "target": "hidden_state_policy_satisfied",
+      "target_predicate_id": "hidden_state_policy_satisfied"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "ca4c248b03b1564779327788c8ddde5196f9617c460808db72dc728d1373d26e",
       "id": "TM-O-context_state_clean",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "context_state_clean"
+      "negative_fixture_id": "negative:context_state_clean",
+      "negative_fixture_target_id": "context_state_clean",
+      "target": "context_state_clean",
+      "target_predicate_id": "context_state_clean"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "c1e6692b12618ec760f4b0f7acc9f3179af5a28b326d2933b7cfe0d277190a98",
       "id": "TM-O-admission_fence_current",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "admission_fence_current"
+      "negative_fixture_id": "negative:admission_fence_current",
+      "negative_fixture_target_id": "admission_fence_current",
+      "target": "admission_fence_current",
+      "target_predicate_id": "admission_fence_current"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "4119db7a3e413e308aaaa1fa8cece5f240e0d08d2dc1262ca674ba3665e84d93",
       "id": "TM-O-semantic_context_qualified",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "semantic_context_qualified"
+      "negative_fixture_id": "negative:semantic_context_qualified",
+      "negative_fixture_target_id": "semantic_context_qualified",
+      "target": "semantic_context_qualified",
+      "target_predicate_id": "semantic_context_qualified"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "9877d52e8c1abfaca6af3dfb517203bc5a9a0eb1d545e0459414947c1369abd7",
       "id": "TM-O-wire_binding_valid",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "wire_binding_valid"
+      "negative_fixture_id": "negative:wire_binding_valid",
+      "negative_fixture_target_id": "wire_binding_valid",
+      "target": "wire_binding_valid",
+      "target_predicate_id": "wire_binding_valid"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "4ef63ad92b84eb04e52a0d9a13238eecd3c705ef0c55d75eaec55e0544c334b4",
       "id": "TM-O-delivery_complete",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "delivery_complete"
+      "negative_fixture_id": "negative:delivery_complete",
+      "negative_fixture_target_id": "delivery_complete",
+      "target": "delivery_complete",
+      "target_predicate_id": "delivery_complete"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "7db1b29a62c06bce906ab6516ac293c0067792e416fcae90b6ae6dfef43019e8",
       "id": "TM-O-accessibility_proven",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "accessibility_proven"
+      "negative_fixture_id": "negative:accessibility_proven",
+      "negative_fixture_target_id": "accessibility_proven",
+      "target": "accessibility_proven",
+      "target_predicate_id": "accessibility_proven"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "d040a56927a91cf942f41a351e63dbc2697fd19330ec7c44a9f513a91959fef7",
       "id": "TM-O-witness_record_current",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "witness_record_current"
+      "negative_fixture_id": "negative:witness_record_current",
+      "negative_fixture_target_id": "witness_record_current",
+      "target": "witness_record_current",
+      "target_predicate_id": "witness_record_current"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "e2f5335bbc35479ae1e0005dc964271bfbc999d728907c755e2c25003601d540",
       "id": "TM-O-session_retrieval_coverage",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "session_retrieval_coverage"
+      "negative_fixture_id": "negative:session_retrieval_coverage",
+      "negative_fixture_target_id": "session_retrieval_coverage",
+      "target": "session_retrieval_coverage",
+      "target_predicate_id": "session_retrieval_coverage"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "9adb92c6ec241e8af5f6953095cc4565eb04ac5876474b48723e0af9c0a0dc58",
       "id": "TM-O-prompt_isolation_current",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "prompt_isolation_current"
+      "negative_fixture_id": "negative:prompt_isolation_current",
+      "negative_fixture_target_id": "prompt_isolation_current",
+      "target": "prompt_isolation_current",
+      "target_predicate_id": "prompt_isolation_current"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "d8924405d344ec894f5a79ff85b2c11e6d019291bc425c3abfad6a2d25268498",
       "id": "TM-O-semantic_coverage",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "semantic_coverage"
+      "negative_fixture_id": "negative:semantic_coverage",
+      "negative_fixture_target_id": "semantic_coverage",
+      "target": "semantic_coverage",
+      "target_predicate_id": "semantic_coverage"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "cb6cdd4d9f65cb73f28ad08703e910bc9479837d969d8ef1981e2c61f3b4d6da",
       "id": "TM-O-reviewer_provenance",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "reviewer_provenance"
+      "negative_fixture_id": "negative:reviewer_provenance",
+      "negative_fixture_target_id": "reviewer_provenance",
+      "target": "reviewer_provenance",
+      "target_predicate_id": "reviewer_provenance"
     },
     {
       "actual": "PASS",
+      "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
+      "fixture_hash": "10d560e184ee145fca0a4045232e6313b05cd325e7db0ddebe07941014c5d2b3",
       "id": "TM-O-disposition_promotable",
       "killed": true,
       "negative_control": "REJECT",
-      "target": "disposition_promotable"
+      "negative_fixture_id": "negative:disposition_promotable",
+      "negative_fixture_target_id": "disposition_promotable",
+      "target": "disposition_promotable",
+      "target_predicate_id": "disposition_promotable"
     },
     {
       "actual": "REJECT",
@@ -374,6 +496,7 @@
       "id": "TM-R1-admission-drift",
       "killed": true,
       "reasons": [
+        "generation_drift",
         "generation_drift"
       ],
       "target": "atomic_admission_generation"
@@ -440,12 +563,85 @@
       "id": "TM-R1-wire-semantic-binding",
       "killed": true,
       "reasons": [
-        "semantic_wire_hash_mismatch"
+        "semantic_wire_hash_mismatch",
+        "semantic_envelope_hash_mismatch"
       ],
       "target": "wire_semantic_hash"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R2-summary-only",
+      "killed": true,
+      "reasons": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "target": "evidence_bundle"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R2-plan-record-mismatch",
+      "killed": true,
+      "reasons": [
+        "qualification_plan_identity_mismatch"
+      ],
+      "target": "qualification_plan_id"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R2-forged-complete-receipt",
+      "killed": true,
+      "reasons": [
+        "size_mismatch:a",
+        "hash_mismatch:a",
+        "representation_hash_mismatch",
+        "receipt_byte_count_mismatch",
+        "wire_hash_mismatch",
+        "semantic_envelope_hash_mismatch"
+      ],
+      "target": "receipt_returned_bytes"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R2-broken-retry-lineage",
+      "killed": true,
+      "reasons": [
+        "planned_first_attempt_closure",
+        "retry_lineage_invalid"
+      ],
+      "target": "retry_lineage"
     }
   ],
-  "rejected_mutations": 46,
+  "rejected_mutations": 50,
   "surviving_mutations": 0,
-  "total_mutations": 46
+  "total_mutations": 50
 }
