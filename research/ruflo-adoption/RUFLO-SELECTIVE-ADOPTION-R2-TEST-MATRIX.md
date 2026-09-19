@@ -187,6 +187,9 @@ Negative fixtures:
 - parent revoked while descendant still holds reserved balance;
 - replay same release twice to over-credit;
 - retry same reserve twice;
+- child consumes part of cumulative allocation then releases full reservation to over-credit;
+- leased slot release replay;
+- accounting type omitted/changed;
 - depth x breadth amplification;
 - child spends units while simultaneously subdelegating the same units;
 - descendant release races parent reclaim;
@@ -233,7 +236,8 @@ Negative fixtures:
 - secret-backed external interaction changes credential version/fingerprint without receipt change;
 - dirty evidence transferred to commit;
 - SHA-1 Git ID accepted without independent canonical SHA-256;
-- undeclared runtime input affects test.
+- undeclared runtime input affects test;
+- non-hermetic execution claims EXECUTION_CONTEXT_BOUND despite unobserved filesystem/network input.
 
 Positive control:
 
@@ -274,6 +278,7 @@ Negative fixtures:
 - unauthorized namespace write;
 - concurrent same-key updates;
 - supersession cycle;
+- superseded/retracted evidence leaves dependent authoritative projection active without reassessment;
 - stale restore after restart;
 - repeated model memory gains authority;
 - quarantine/tombstone ignored.
@@ -299,7 +304,8 @@ Negative fixtures:
 - transform incorrectly drops a sensitive/untrusted label without authorized declassification;
 - approval resource replay;
 - fallback provider broadens capability;
-- path/command escape.
+- path/command escape;
+- tool has correct declared contract but runtime side effect escapes unenforced boundary.
 
 Positive control:
 
@@ -322,6 +328,7 @@ Negative fixtures:
 - lease without authorization;
 - authorization without required lease;
 - integration-owner conflict;
+- candidate/writer mutates lease service state;
 - restart/multi-host race.
 
 Positive control:
@@ -365,7 +372,8 @@ Pass iff routing cannot create authority or bypass prerequisites.
 Negative fixtures:
 
 - route result grants tool/provider;
-- route changes after exposure;
+- route changes after exposure without new RoutePlan/authorization;
+- fallback reuses failed path's authority without reauthorization;
 - learned model treated as policy;
 - fallback inherits authority;
 - swarm selected before RA-10/11 enforcement;
