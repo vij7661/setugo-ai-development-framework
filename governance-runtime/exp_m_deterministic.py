@@ -327,6 +327,34 @@ def admissibility_registry() -> AdmissibilityPredicateRegistry:
 
 
 def _predicate_validators() -> dict[str, Any]:
+    def egress_valid(state: Mapping[str, Any]) -> bool:
+        egress = state.get("egress")
+        if not isinstance(egress, Mapping):
+            return False
+        expected_version = str(state.get("expected_egress_version", egress.get("version", "")))
+        return validate_egress(egress, expected_version)[0]
+
+    def prompt_valid(state: Mapping[str, Any]) -> bool:
+        prompt = state.get("prompt_isolation")
+        if isinstance(prompt, PromptIsolationQualificationRecord):
+            record = prompt
+        elif isinstance(prompt, Mapping):
+            record = PromptIsolationQualificationRecord(
+                str(prompt.get("record_id", "prompt")),
+                str(prompt.get("provider_id", state.get("expected_provider", "fake"))),
+                str(prompt.get("mode", state.get("expected_mode", "inline"))),
+                prompt.get("current") is True,
+                prompt.get("expires_at"),
+            )
+        else:
+            return False
+        return validate_prompt_isolation(
+            record,
+            provider_id=str(state.get("expected_provider", "fake")),
+            mode=str(state.get("expected_mode", "inline")),
+            now=str(state.get("now", "2099-01-01T00:00:00Z")),
+        )[0]
+
     return {
         "review_request_current": lambda s: s.get("review_request", {}).get("current") is True and bool(s.get("review_request", {}).get("request_id")),
         "authority_snapshot_current": lambda s: isinstance(s.get("authority_snapshot"), GovernanceAuthoritySnapshot) and s["authority_snapshot"].outside_candidate_write_authority,
@@ -334,7 +362,7 @@ def _predicate_validators() -> dict[str, Any]:
         "interaction_contract_closed": lambda s: isinstance(s.get("interaction_contract"), RequiredInteractionContract) and s["interaction_contract"].closed and bool(s["interaction_contract"].interactions),
         "materialization_complete": lambda s: isinstance(s.get("materialization"), MaterializationResult) and s["materialization"].success,
         "representation_governed": lambda s: bool(s.get("representation", {}).get("governed")) and bool(s.get("representation", {}).get("transform_id")),
-        "egress_authorized": lambda s: s.get("egress", {}).get("authorized") is True and bool(s.get("egress", {}).get("version")),
+        "egress_authorized": egress_valid,
         "capability_current": lambda s: s.get("capability_current") is True,
         "accessibility_policy_satisfied": lambda s: s.get("accessibility_policy", {}).get("satisfied") is True,
         "context_isolation_satisfied": lambda s: s.get("context_isolation", {}).get("satisfied") is True,
@@ -347,7 +375,7 @@ def _predicate_validators() -> dict[str, Any]:
         "accessibility_proven": lambda s: s.get("accessibility", {}).get("proven") is True,
         "witness_record_current": lambda s: s.get("witness", {}).get("current") is True,
         "session_retrieval_coverage": lambda s: s.get("retrieval", {}).get("complete") is True,
-        "prompt_isolation_current": lambda s: s.get("prompt_isolation", {}).get("current") is True,
+        "prompt_isolation_current": prompt_valid,
         "semantic_coverage": lambda s: isinstance(s.get("semantic_coverage"), Mapping) and s["semantic_coverage"].get("complete") is True,
         "reviewer_provenance": lambda s: s.get("reviewer", {}).get("trusted") is True,
         "disposition_promotable": lambda s: s.get("disposition") == "PASS" and s.get("disposition_promotable") is True,
@@ -549,6 +577,26 @@ def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[
     if fence.version != expected_version:
         reasons.append("admission_fence_version_mismatch")
     return not reasons, tuple(reasons)
+
+
+def validate_egress(egress: Mapping[str, Any], expected_version: str) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if egress.get("authorized") is not True or egress.get("version") != expected_version:
+        reasons.append("egress_revoked_or_drifted")
+    return not reasons, tuple(reasons)
+
+
+def validate_prompt_isolation(record: PromptIsolationQualificationRecord, *, provider_id: str, mode: str, now: str) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if not record.current or record.provider_id != provider_id or record.mode != mode:
+        reasons.append("prompt_isolation_binding")
+    if record.expires_at is not None and record.expires_at <= now:
+        reasons.append("prompt_isolation_expired")
+    return not reasons, tuple(reasons)
+
+
+def validate_registry_version(expected_version: str, observed_version: str) -> tuple[bool, tuple[str, ...]]:
+    return (True, ()) if expected_version == observed_version else (False, ("predicate_registry_drift",))
 
 
 def safe_archive_member(name: str) -> bool:

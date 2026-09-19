@@ -192,9 +192,33 @@
     {
       "id": "mutation:TM-R1-admission-drift",
       "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-egress-revoked",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-prompt-isolation-expired",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-hidden-retry",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-retrieval-session",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-registry-drift",
+      "rejected": true
+    },
+    {
+      "id": "mutation:TM-R1-wire-semantic-binding",
+      "rejected": true
     }
   ],
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 48
+  "total": 54
 }

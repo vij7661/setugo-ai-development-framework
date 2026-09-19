@@ -377,9 +377,75 @@
         "generation_drift"
       ],
       "target": "atomic_admission_generation"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-egress-revoked",
+      "killed": true,
+      "reasons": [
+        "egress_revoked_or_drifted"
+      ],
+      "target": "egress"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-prompt-isolation-expired",
+      "killed": true,
+      "reasons": [
+        "prompt_isolation_expired"
+      ],
+      "target": "prompt_isolation"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-hidden-retry",
+      "killed": true,
+      "reasons": [
+        "implicit_retry_unobserved"
+      ],
+      "target": "retry_transparency"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-retrieval-session",
+      "killed": true,
+      "reasons": [
+        "retrieval_identity_mismatch"
+      ],
+      "target": "retrieval_session"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-registry-drift",
+      "killed": true,
+      "reasons": [
+        "predicate_registry_drift"
+      ],
+      "target": "predicate_registry"
+    },
+    {
+      "actual": "REJECT",
+      "expected": "REJECT",
+      "family": "data_state",
+      "id": "TM-R1-wire-semantic-binding",
+      "killed": true,
+      "reasons": [
+        "semantic_wire_hash_mismatch"
+      ],
+      "target": "wire_semantic_hash"
     }
   ],
-  "rejected_mutations": 40,
+  "rejected_mutations": 46,
   "surviving_mutations": 0,
-  "total_mutations": 40
+  "total_mutations": 46
 }

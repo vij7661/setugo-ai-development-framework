@@ -25,6 +25,8 @@ from exp_m_deterministic import (  # noqa: E402
     RetrievalEvidenceRecord, materialize_entries, validate_retrieval,
     validate_wire_delivery, WitnessProtocolQualificationRecord,
     validate_witness_qualification, AttemptState, admit_review_attempt,
+    PromptIsolationQualificationRecord, validate_egress, validate_prompt_isolation,
+    validate_registry_version, validate_retry_transparency,
 )
 
 
@@ -219,6 +221,15 @@ class ExpMCoreTests(unittest.TestCase):
         current = {"generation": 2, "authority_version": "authority", "request_version": "request", "capability_hash": "cap", "egress_version": "egress", "context_hash": "context", "fence_version": "fence", "prompt_hash": "prompt", "witness_hash": "witness", "session_hash": "session", "registry_version": "registry"}
         result = admit_review_attempt(current, expected, attempt_id="a", expected_generation=1)
         self.assertTrue(result.void); self.assertFalse(result.committed)
+
+    def test_r1_egress_prompt_retry_registry_are_evidence_validated(self):
+        self.assertTrue(validate_egress({"authorized": True, "version": "v1"}, "v1")[0])
+        self.assertFalse(validate_egress({"authorized": False, "version": "v1"}, "v1")[0])
+        current = PromptIsolationQualificationRecord("p", "fake", "inline", True, "2099-01-01T00:00:00Z")
+        self.assertTrue(validate_prompt_isolation(current, provider_id="fake", mode="inline", now="2025-01-01T00:00:00Z")[0])
+        self.assertFalse(validate_prompt_isolation(current, provider_id="other", mode="inline", now="2025-01-01T00:00:00Z")[0])
+        self.assertFalse(validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},), automatic_retry_hidden=True)[0])
+        self.assertFalse(validate_registry_version("v2", "v1")[0])
 
 
 if __name__ == "__main__":
