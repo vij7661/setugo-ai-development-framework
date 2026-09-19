@@ -15,6 +15,11 @@ def main():
     vals=dict(re.findall(r'^(reviewed_source_commit|reviewed_source_tree|packet_commit|packet_tree|predecessor_commit|predecessor_tree|exact_diff_sha256)=(.+)$',text,re.M))
     assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_commit','packet_tree','predecessor_commit','predecessor_tree','exact_diff_sha256'}
     head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    assert subprocess.check_output(['git','rev-parse',vals['reviewed_source_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['reviewed_source_tree']
+    assert subprocess.check_output(['git','rev-parse',vals['packet_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['packet_tree']
+    assert subprocess.check_output(['git','rev-parse',vals['predecessor_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['predecessor_tree']
+    diff=subprocess.run(['git','diff',vals['predecessor_commit'],vals['reviewed_source_commit']],cwd=ROOT,text=True,capture_output=True,check=True).stdout
+    assert __import__('hashlib').sha256(diff.encode()).hexdigest()==vals['exact_diff_sha256']
     assert subprocess.run(['git','merge-base','--is-ancestor',vals['packet_commit'],head],cwd=ROOT).returncode==0
     assert vals['predecessor_commit']=='8477830f5f35a35a8c9b19fdca9c5b6c39e2916d' and vals['predecessor_tree']=='82457b9307f133db281055dbbdae26b618f8c3cf'
     assert 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
