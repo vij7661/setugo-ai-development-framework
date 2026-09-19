@@ -108,6 +108,42 @@ A reviewer `CHANGES_REQUIRED` or `INSUFFICIENT_EVIDENCE` based on incomplete del
 
 Retries do not erase or rewrite failed delivery attempts.
 
+### M-I16 — Requiredness is platform-owned
+
+A delivery manifest may not decide which evidence is required. Mandatory/optional status must be derived from the current governed ReviewRequest, dimensions, evidence refs, standards, and experiment contract.
+
+### M-I17 — Wire payload is bound
+
+A frozen manifest must be bound to the exact trusted-adapter request payloads that were actually dispatched. Manifest intent without wire binding is insufficient.
+
+### M-I18 — Provider capability profiles are trusted and expiring
+
+Provider/model/API/adapter capability profiles must come from a platform-owned qualified registry, include qualification evidence and expiry, and fail closed on drift or unknown state.
+
+### M-I19 — Chunking cannot manufacture context
+
+Multi-message chunking may transport evidence but may not be used to claim context beyond the provider's qualified cumulative final-review availability.
+
+### M-I20 — Delivery session identity is load-bearing
+
+Evidence delivery, receipt, provider file references, and final verdict must bind to the same qualified delivery attempt/session or to a stateless request that rebinds every mandatory item.
+
+### M-I21 — Representation transformation is governed
+
+Raw evidence converted to text, pages, Markdown, archive members, OCR, or summaries must carry source/representation hashes and an allowed transformation contract. Partial/lossy representations cannot silently satisfy raw evidence requirements.
+
+### M-I22 — Evidence egress is governed
+
+Required evidence may not be sent to a provider unless data-classification and egress policy authorize that provider/mode/representation. Unsafe evidence cannot be silently redacted or omitted and still count complete.
+
+### M-I23 — Prompt/evidence isolation is a production dependency
+
+A material review path cannot qualify from EXP-M alone when candidate-controlled evidence can alter reviewer instructions. Applicable EXP-L/successor prompt-isolation controls must also be qualified.
+
+### M-I24 — Review decomposition cannot overclaim global coverage
+
+Several bounded subreviews cannot be aggregated into a global review unless the protocol preregisters cross-dimension interactions and a qualified aggregation step.
+
 ## Required mechanism surfaces
 
 Future implementation should expose governed objects equivalent to:
@@ -347,6 +383,104 @@ Expected:
 platform deterministically attributes missing requirement to:
 scientific source, delivery/context, format capability, or unresolved cause.
 
+### M-31 — Required evidence downgraded to optional
+
+Mutate a governed mandatory evidence ref to optional only inside the delivery manifest.
+
+Expected:
+required-evidence closure mismatch; reject before dispatch.
+
+### M-32 — Trusted adapter omits manifest item from wire request
+
+Manifest is complete but serialized API request drops one required item.
+
+Expected:
+wire delivery record mismatch; verdict inadmissible.
+
+### M-33 — Candidate-authored capability profile widens limits
+
+Candidate supplies a permissive profile claiming unsupported files/context are qualified.
+
+Expected:
+untrusted profile rejected.
+
+### M-34 — Expired provider capability profile
+
+Use previously qualified profile after expiry or material adapter/model version drift.
+
+Expected:
+preflight fail closed; requalification required.
+
+### M-35 — Chunk sequence exceeds cumulative final context
+
+Each chunk individually fits, but the final conversation/context would evict earlier required evidence.
+
+Expected:
+chunking does not qualify delivery; review blocked unless qualified persistent retrieval exists.
+
+### M-36 — Receipt and verdict use different provider sessions
+
+Evidence/receipt is bound to session A and final verdict to session B.
+
+Expected:
+session binding mismatch; verdict inadmissible.
+
+### M-37 — Opaque provider file ID replay
+
+Reuse a previously valid provider file ID in another request/account/session without independently qualified binding.
+
+Expected:
+file reference unqualified or session mismatch.
+
+### M-38 — Lossy representation treated as raw
+
+Send a summary/partial extraction where full raw evidence is required.
+
+Expected:
+transformation/representation rejection.
+
+### M-39 — Partial PDF/page extraction
+
+Required PDF has decisive content outside delivered page range.
+
+Expected:
+range coverage incomplete; no full-artifact claim.
+
+### M-40 — Unauthorized evidence egress
+
+Required corpus contains evidence not permitted for the selected provider/region/mode.
+
+Expected:
+preflight blocks delivery; no silent omission/redaction.
+
+### M-41 — Redaction changes load-bearing evidence
+
+Redaction removes or changes content needed by a mandatory review dimension.
+
+Expected:
+representation not sufficient; provider not qualified for that review.
+
+### M-42 — Perfect delivery with prompt-injection boundary unqualified
+
+All evidence delivery checks pass, but applicable EXP-L/successor prompt-isolation gate is not qualified.
+
+Expected:
+delivery may be recorded complete but material verdict remains non-promotable.
+
+### M-43 — Decomposed reviews miss cross-evidence interaction
+
+Two subreviews each pass on separate evidence subsets while the defect exists only in their interaction.
+
+Expected:
+no global PASS unless cross-interaction aggregation contract is satisfied.
+
+### M-44 — Wire retry changes semantic request body
+
+Retry uses same manifest/attempt semantics but adapter changes system prompt, tool config, or evidence payload.
+
+Expected:
+wire hash mismatch and immutable failed-attempt record.
+
 ## Required mutation/falsification cases
 
 Mutation suite must attempt to make a verdict admissible by:
@@ -368,7 +502,18 @@ Mutation suite must attempt to make a verdict admissible by:
 - rebinding corpus hash;
 - ignoring provider capability profile;
 - treating different reviewer corpora as consensus;
-- admitting PASS before receipt completion.
+- admitting PASS before receipt completion;
+- allowing manifest-requiredness to override governed requiredness;
+- accepting candidate-authored capability profile;
+- accepting expired capability profile;
+- treating chunk count as proof of cumulative final context;
+- accepting receipt from another session;
+- accepting opaque file ID without qualified content/session binding;
+- accepting lossy transformation as full raw evidence;
+- bypassing evidence egress policy;
+- aggregating decomposed subreviews without cross-interaction coverage;
+- omitting wire-request hash binding;
+- admitting material verdict when prompt/evidence-isolation dependency is unqualified.
 
 Every load-bearing mutation must be rejected.
 
@@ -387,6 +532,14 @@ The experiment should use deterministic fake/provider adapters before live-provi
 - `PartialFileAdapter`
 - `EarlyVerdictAdapter`
 - `UnsupportedFormatAdapter`
+- `WireOmissionAdapter`
+- `ExpiredCapabilityProfileAdapter`
+- `CrossSessionVerdictAdapter`
+- `OpaqueFileReplayAdapter`
+- `LossyRepresentationAdapter`
+- `EgressDeniedAdapter`
+- `ContextEvictionAdapter`
+- `DecomposedCrossInteractionAdapter`
 
 Live API pilots come only after deterministic adapters prove the governor behavior.
 
@@ -402,7 +555,9 @@ For each configured real provider/model/API mode, preregister a capability pilot
 - response behavior near context limit;
 - deterministic or detectable truncation behavior.
 
-Provider limits are observations bound to provider/model/API version; they are not universal constants.
+Provider limits are observations bound to provider/model/API/adapter version and an expiry/requalification policy; they are not universal constants.
+
+A live pilot must also preserve exact wire-request hashes, provider request/session/file identifiers, and any server-reported usage/context metadata available. Provider marketing/documentation values may inform preregistration but do not replace observed platform-qualified limits.
 
 ## Acceptance rule
 
@@ -414,7 +569,14 @@ EXP-M can reach bounded pass only when:
 4. provider capability uncertainty fails closed;
 5. multi-reviewer comparison preserves reviewer-specific delivery identity;
 6. failed delivery history is preserved;
-7. no review authority is minted from completeness self-attestation.
+7. no review authority is minted from completeness self-attestation;
+8. required-evidence status cannot be downgraded by the delivery layer;
+9. exact trusted-adapter wire requests are bound to the frozen manifest;
+10. chunking cannot claim context beyond the provider's qualified final-review availability;
+11. provider capability profiles are trusted, version-bound, and non-expired;
+12. representation transformations and evidence egress are governed;
+13. material review remains blocked when the applicable prompt/evidence-isolation dependency is unqualified;
+14. decomposed review cannot overclaim cross-evidence coverage.
 
 A one-provider success cannot prove cross-provider delivery integrity.
 
