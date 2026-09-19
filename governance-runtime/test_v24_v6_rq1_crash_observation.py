@@ -19,12 +19,12 @@ def base(case):
     if case == "RQ-13":
         trace = {"pid": 7, "boundary": "before-validation", "event": "syscall_entry", "syscall": 257, "paths": [src], "error": None}
         recovery = obs([target], []); recovery_delta = ({"added": [], "removed": []}, {"added": [], "removed": []})
-        retry = {"parsed": {"trusted_record_id": target_id, "service_authoritative": True, "decision": "ALLOW", "record_state": "CONSUMED"}}
+        retry = {"parsed": {"trusted_record_id": target_id, "service_authoritative": True, "decision": "DENY", "record_state": "CONSUMED"}}
         retry_delta = ({"added": [], "removed": [target]}, {"added": [target], "removed": []})
     elif case == "RQ-14":
         trace = {"pid": 7, "boundary": "after-validation-before-rename", "event": "syscall_entry", "syscall": 82, "paths": [src, dst], "error": None}
         recovery = obs([target], []); recovery_delta = ({"added": [], "removed": []}, {"added": [], "removed": []})
-        retry = {"parsed": {"trusted_record_id": target_id, "service_authoritative": True, "decision": "ALLOW", "record_state": "CONSUMED"}}
+        retry = {"parsed": {"trusted_record_id": target_id, "service_authoritative": True, "decision": "DENY", "record_state": "CONSUMED"}}
         retry_delta = ({"added": [], "removed": [target]}, {"added": [target], "removed": []})
     else:
         trace = {"pid": 7, "boundary": "after-rename", "event": "syscall_exit", "syscall": 82, "paths": [src, dst], "return_value": 0, "error": None}
@@ -35,9 +35,9 @@ def base(case):
         "target_id": target_id, "target_name": target, "service_pid": 7, "boundary": trace["boundary"],
         "tracer_ready": {"pid": 7, "boundary": trace["boundary"], "target_name": target, "attached": True, "armed": True, "timestamp": 1.0}, "control_launch_timestamp": 2.0,
         "boundary_evidence": trace, "baseline": obs([], []), "prepared": obs([target], []), "recovery": recovery,
-        "first_consume": {"rc": -9, "parsed": {}}, "records_delta_prepared": {"added": [target], "removed": []}, "consumed_delta_prepared": {"added": [], "removed": []},
+        "first_consume": {"rc": 1, "stderr": "RuntimeError: trusted service closed before control response", "stdout": ""}, "records_delta_prepared": {"added": [target], "removed": []}, "consumed_delta_prepared": {"added": [], "removed": []},
         "records_delta_recovery": recovery_delta[0], "consumed_delta_recovery": recovery_delta[1], "retry": retry, "records_delta_retry": retry_delta[0], "consumed_delta_retry": retry_delta[1],
-        "replay": {"parsed": {"trusted_record_id": target_id, "service_authoritative": False, "reason": "AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED"}}, "records_delta_post_replay": {"added": [], "removed": []}, "consumed_delta_post_replay": {"added": [], "removed": []},
+        "replay": {"parsed": {"trusted_record_id": "-", "service_authoritative": False, "reason": "AUTHORITY_RECORD_UNAVAILABLE_OR_REPLAYED"}}, "records_delta_post_replay": {"added": [], "removed": []}, "consumed_delta_post_replay": {"added": [], "removed": []},
         "restart_returncode": 0, "service_active": True, "state_stable": True,
     }
 

@@ -28,6 +28,7 @@ def main() -> int:
     ap.add_argument("--mutation-output", type=Path, required=True)
     ap.add_argument("--test-output", type=Path, required=True)
     ap.add_argument("--validator-output", type=Path, required=True)
+    ap.add_argument("--direct-output", type=Path, required=True)
     args = ap.parse_args()
     required = [f"{case}.result.json" for case in CASES]
     required += [f"{case}.boundary.json" for case in CASES]
@@ -49,6 +50,7 @@ def main() -> int:
     shutil.copy2(args.mutation_output, args.output / "mutation-results.json")
     shutil.copy2(args.test_output, args.output / "regression-tests.txt")
     shutil.copy2(args.validator_output, args.output / "oracle-validator.txt")
+    shutil.copy2(args.direct_output, args.output / "direct-untouched-detail-replay.json")
     diff = subprocess.check_output(["git", "-C", str(args.repo_root), "diff", "d79db50568cccaffe67ed1de5a6ee63bf5027284", "HEAD"], text=True)
     (args.output / "exact-diff-remediation6-to-remediation7.patch").write_text(diff, encoding="utf-8")
     manifest = {
