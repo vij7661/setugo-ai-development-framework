@@ -201,10 +201,14 @@ print(json.dumps({"uid":os.getuid(),"env":{k:env[k] for k in ["V24_V6_TRUSTED_RU
 
 def case_07(out):
     b=observe(out/"RQ-07.before.observer.json")
-    stage=Path(f"/tmp/rq1-rq07-pin-{os.getpid()}")
+    stage=stage_candidate_files(["v24_v6_external_gate_worker.py"],"rq07-pin")
     worker=stage/"v24_v6_external_gate_worker.py"; manifest=stage/"forged-manifest.json"
-    mutate_code='import hashlib,json,os,shutil,sys; s=sys.argv[1]; os.makedirs(s,exist_ok=True); p=os.path.join(s,"v24_v6_external_gate_worker.py"); shutil.copyfile(sys.argv[2],p); open(p,"a",encoding="utf-8").write("\\n# candidate coherent substitution\\n"); h=hashlib.sha256(open(p,"rb").read()).hexdigest(); m={"candidate_source_sha256":h,"candidate_manifest":True}; mp=os.path.join(s,"forged-manifest.json"); open(mp,"w").write(json.dumps(m,sort_keys=True)+"\\n"); print(json.dumps({"substituted_source_sha256":h,"forged_manifest_sha256":hashlib.sha256(open(mp,"rb").read()).hexdigest()}))'
-    prep=run(["python3","-c",mutate_code,str(stage),str(RUNTIME/"v24_v6_external_gate_worker.py")],user=CANDIDATE,timeout=20)
+    run(["chown",CANDIDATE+":"+CANDIDATE,str(worker)],user="root",timeout=10)
+    run(["chmod","u+w",str(worker)],user=CANDIDATE,timeout=10)
+    run(["touch",str(manifest)],user="root",timeout=10)
+    run(["chown",CANDIDATE+":"+CANDIDATE,str(manifest)],user="root",timeout=10)
+    mutate_code='import hashlib,json,os,sys; p=sys.argv[1]; open(p,"a",encoding="utf-8").write("\\n# candidate coherent substitution\\n"); h=hashlib.sha256(open(p,"rb").read()).hexdigest(); m={"candidate_source_sha256":h,"candidate_manifest":True}; mp=sys.argv[2]; open(mp,"w").write(json.dumps(m,sort_keys=True)+"\\n"); print(json.dumps({"substituted_source_sha256":h,"forged_manifest_sha256":hashlib.sha256(open(mp,"rb").read()).hexdigest()}))'
+    prep=run(["python3","-c",mutate_code,str(worker),str(manifest)],user=CANDIDATE,timeout=20)
     trusted_worker=Path("/opt/v24-v6-trusted-runtime/v24_v6_external_gate_worker.py")
     backup=Path(f"/tmp/rq1-rq07-worker-backup-{os.getpid()}")
     save=run(["cp",str(trusted_worker),str(backup)],user="root",timeout=10)
