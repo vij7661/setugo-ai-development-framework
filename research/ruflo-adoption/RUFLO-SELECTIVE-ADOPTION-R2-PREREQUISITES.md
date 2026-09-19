@@ -16,12 +16,12 @@ Presence is not sufficient. A prerequisite marked `QUALIFIED` must have complete
 | RA-02 evidence assurance | FP-01 qualified; governing composition rules reviewed |
 | RA-03 evaluation/promotion transaction | FP-01 + FP-02 qualified; evaluator write isolation; external-auth policy derived from authority snapshot |
 | RA-04 capability envelope | FP-02 qualified; canonical scope comparator; atomic consumable reservation ledger |
-| RA-08 authority-bearing memory supersession | FP-01 + RA-02 + RA-07 mechanism qualified; namespace authority defined |
+| RA-08 authority-bearing memory supersession | FP-01 + FP-02 + RA-02 + RA-07 mechanism qualified; namespace authority defined; active-projection CAS defined |
 | RA-09 tool permission contract | RA-04 qualified; platform tool-risk registry qualified |
 | RA-11 enforcement | RA-02 + RA-04 + RA-09 qualified; signature/publisher/dependency/load/sandbox mechanisms qualified |
-| RA-10 multi-writer worktrees/leases/fencing | RA-03 + RA-04 + RA-09 + RA-11 enforcement + FP-02 qualified |
-| RA-12 swarm-capable routing | RA-03 + RA-04 + RA-09 + RA-10 + RA-11 enforcement qualified |
-| RA-13 bounded research/dream cycle | RA-03 + RA-04 + RA-06 + RA-07 + RA-09 + RA-10 + RA-11 enforcement + RA-12 qualified; authoritative policy/gold/evaluation write isolation |
+| RA-10 multi-writer worktrees/leases/fencing | RA-03 + RA-04 + RA-06 + RA-09 + RA-11 enforcement + FP-02 qualified |
+| RA-12 swarm-capable routing | RA-01 capability projection correctness + RA-03 + RA-04 + RA-09 + RA-10 + RA-11 enforcement qualified |
+| RA-13 bounded research/dream cycle | RA-01 + RA-03 + RA-04 + RA-06 + RA-07 + RA-08 provenance/supersession + RA-09 + RA-10 + RA-11 enforcement + RA-12 qualified; authoritative policy/gold/evaluation write isolation |
 
 ## Rules
 
@@ -30,6 +30,6 @@ Presence is not sufficient. A prerequisite marked `QUALIFIED` must have complete
 3. A route that is single-executor-only may be tested before RA-10, but it must be structurally unable to spawn concurrent writers.
 4. Any target that uses memory as authority also requires RA-08; advisory retrieval does not.
 5. Any target that changes promotion/release authority requires RA-03.
-6. Any target that delegates consumable resources requires RA-04 conservation semantics.
+6. Any target that delegates consumable resources requires RA-04 hierarchical conservation semantics and atomic parent-ledger reservation.
 7. Any target ingesting external/untrusted content into an executable/reviewer context requires RA-11 enforcement before authority-bearing use.
 8. Unknown prerequisite state fails closed.
