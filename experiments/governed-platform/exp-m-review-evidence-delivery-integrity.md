@@ -214,7 +214,7 @@ Review decomposition uses a RequiredInteractionContract derived only from the Go
 
 ### M-I42 — Governor decision inputs are outside candidate self-approval
 
-The GovernanceAuthoritySnapshot, transition-class registry, evidence-selection registry, relationship registry, capability registry, accessibility-risk registry, and authority-snapshot pointer are outside the candidate write set. Candidate edits to governing inputs are reviewed as evidence and cannot narrow their own review. Governing elements are stable-ID + content-hash bound; changing semantics under the same ID is treated as a changed input, and base/head representation/acceptance/risk constraints preserve the stricter rule or fail unresolved.
+The GovernanceAuthoritySnapshot, transition-class registry, evidence-selection registry, relationship registry, capability registry, accessibility-risk registry, context-isolation-policy registry, and authority-snapshot pointer are outside the candidate write set. Candidate edits to governing inputs are reviewed as evidence and cannot narrow their own review. Governing elements are stable-ID + content-hash bound; changing semantics under the same ID is treated as a changed input, and base/head representation/acceptance/risk constraints preserve the stricter rule or fail unresolved.
 
 ### M-I43 — Provider context state is observed per attempt
 
