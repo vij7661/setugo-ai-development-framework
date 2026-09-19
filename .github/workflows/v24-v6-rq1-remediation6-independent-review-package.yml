@@ -56,16 +56,16 @@ jobs:
             echo 'governance=NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY'
             echo 'package_operation=EVIDENCE_ONLY_NO_SCIENTIFIC_REEXECUTION'
           } > "$PKG/manifest.txt"
-          cat > "$PKG/OPEN-REVIEW-QUESTIONS.md" <<'EOF'
-# Open Review Questions
-
-- RQ6-REVIEW-01: `ordering_proven` is recorded but is it a required PASS predicate?
-- RQ6-REVIEW-02: `valid_tracer_ready` does not validate timestamp type/range; is this a false-green path?
-- RQ6-REVIEW-03: timeout `PTRACE_DETACH` return value is not checked; can evidence claim successful detach falsely?
-- RQ6-REVIEW-04: timeout cleanup does not prove every traced service is resumed; is additional evidence required?
-
-Packaging defects preserved from the scientific run: `python` was unavailable; active bundle exclusion still named `remediation-5-review-bundle`.
-EOF
+          {
+            printf '%s\n' '# Open Review Questions'
+            printf '%s\n' ''
+            printf '%s\n' '- RQ6-REVIEW-01: `ordering_proven` is recorded but is it a required PASS predicate?'
+            printf '%s\n' '- RQ6-REVIEW-02: `valid_tracer_ready` does not validate timestamp type/range; is this a false-green path?'
+            printf '%s\n' '- RQ6-REVIEW-03: timeout `PTRACE_DETACH` return value is not checked; can evidence claim successful detach falsely?'
+            printf '%s\n' '- RQ6-REVIEW-04: timeout cleanup does not prove every traced service is resumed; is additional evidence required?'
+            printf '%s\n' ''
+            printf '%s\n' 'Packaging defects preserved from the scientific run: `python` was unavailable; active bundle exclusion still named `remediation-5-review-bundle`.'
+          } > "$PKG/OPEN-REVIEW-QUESTIONS.md"
           python3 "$PKG/source/test_v24_v6_rq1_crash_observation.py" > "$PKG/regression-tests.txt"
           python3 "$PKG/source/validate_rq1_oracle_contract.py" "$PKG/design/V24-I11-V6-RQ1-REMEDIATION-2-ORACLE-CONTRACT.json" > "$PKG/oracle-validator.txt"
           {
