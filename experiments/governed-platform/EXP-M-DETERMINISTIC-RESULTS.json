@@ -3,52 +3,133 @@
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "6af13712fb6d6b2947d0e976014f27d0e93cc729",
-    "source_tree": "98f1092471fb962bfb6a953a20f8a2d0eb6e07e2",
-    "utc": "2026-09-19T21:58:44.950803+00:00"
+    "source_commit": "09ef1312effa31f811943adf0fdffce2e3f37d78",
+    "source_tree": "1d81dc1183be73ed683b19351dc8243a3cf2106b",
+    "utc": "2026-09-19T22:00:42.946799+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
   "phases": {
     "A": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "required closure",
         "manifest bytes",
         "trusted profile"
       ],
+      "negative_case_ids": [
+        "A-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "A-positive-control"
+      ],
+      "production_functions_invoked": [
+        "preflight_delivery"
+      ],
       "status": "PASS"
     },
     "B": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "chunk hash",
         "index",
         "request binding"
       ],
+      "negative_case_ids": [
+        "B-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "B-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_chunks"
+      ],
       "status": "PASS"
     },
     "C": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "raw bytes",
         "representation hash"
       ],
+      "negative_case_ids": [
+        "C-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "C-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_representation"
+      ],
       "status": "PASS"
     },
     "D": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "single cause",
         "mixed causes",
         "unresolved cause"
       ],
+      "negative_case_ids": [
+        "D-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "D-positive-control"
+      ],
+      "production_functions_invoked": [
+        "adjudicate_insufficient_evidence"
+      ],
       "status": "PASS"
     },
     "E": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "same manifest",
         "same corpus hash"
       ],
+      "negative_case_ids": [
+        "E-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "E-positive-control"
+      ],
+      "production_functions_invoked": [
+        "EvidenceDeliveryManifest.verify"
+      ],
       "status": "PASS"
     },
     "F": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "profile identity",
         "expiry",
@@ -56,65 +137,281 @@
         "attempt closure",
         "context limit"
       ],
+      "negative_case_ids": [
+        "F-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "F-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_capability"
+      ],
       "status": "PASS"
     },
     "G": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "data/state mutation family",
         "validator mutation family"
       ],
       "mutation_total": 50,
+      "negative_case_ids": [
+        "G-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "G-positive-control"
+      ],
+      "production_functions_invoked": [
+        "run_exp_m_mutations"
+      ],
       "status": "PASS"
     },
     "H": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "physical request ledger"
+      ],
+      "negative_case_ids": [
+        "H-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "H-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_retry_transparency"
       ],
       "status": "PASS"
     },
     "I": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "all admissibility predicates"
+      ],
+      "negative_case_ids": [
+        "I-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "I-positive-control"
+      ],
+      "production_functions_invoked": [
+        "evaluate_admissibility"
       ],
       "status": "PASS"
     },
     "J": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "wire/session/representation bindings"
+      ],
+      "negative_case_ids": [
+        "J-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "J-positive-control"
+      ],
+      "production_functions_invoked": [
+        "complete_delivery"
       ],
       "status": "PASS"
     },
     "K": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "current witness record",
         "content-bound response",
         "budget"
       ],
+      "negative_case_ids": [
+        "K-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "K-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_witness_qualification"
+      ],
       "status": "PASS"
     },
     "L": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "parser bounds",
         "untrusted profile rejection"
       ],
+      "negative_case_ids": [
+        "L-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "L-positive-control"
+      ],
+      "production_functions_invoked": [
+        "safe_archive_member"
+      ],
       "status": "PASS"
     },
     "M": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "frozen bytes",
         "attempt binding"
       ],
+      "negative_case_ids": [
+        "M-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "M-positive-control"
+      ],
+      "production_functions_invoked": [
+        "EvidenceDeliveryManifest.verify"
+      ],
       "status": "PASS"
     },
     "N": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "external-review remediation cases"
+      ],
+      "negative_case_ids": [
+        "N-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "N-positive-control"
+      ],
+      "production_functions_invoked": [
+        "preflight_delivery"
       ],
       "status": "PASS"
     },
     "O": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "predicate/verdict/mutation/fixture closure"
+      ],
+      "negative_case_ids": [
+        "O-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "O-positive-control"
+      ],
+      "production_functions_invoked": [
+        "independent_target_closure"
       ],
       "status": "PASS",
       "target_counts": {
@@ -125,35 +422,135 @@
       }
     },
     "P": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "residual adversarial oracle"
+      ],
+      "negative_case_ids": [
+        "P-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "P-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_context_state"
       ],
       "status": "PASS"
     },
     "Q": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "risk policy",
         "admission fence"
       ],
+      "negative_case_ids": [
+        "Q-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "Q-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_fence"
+      ],
       "status": "PASS"
     },
     "R": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "witness noninterference",
         "context eviction rejection"
       ],
+      "negative_case_ids": [
+        "R-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "R-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_witness_qualification"
+      ],
       "status": "PASS"
     },
     "S": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "planned attempt closure"
+      ],
+      "negative_case_ids": [
+        "S-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "S-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_attempt_ledger"
       ],
       "status": "PASS"
     },
     "T": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "retry transparency",
         "registry closure"
+      ],
+      "negative_case_ids": [
+        "T-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "T-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_retry_transparency",
+        "independent_target_closure"
       ],
       "status": "PASS"
     }

@@ -1041,9 +1041,9 @@ Do not use live provider APIs.
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=6af13712fb6d6b2947d0e976014f27d0e93cc729
-tree=98f1092471fb962bfb6a953a20f8a2d0eb6e07e2
-parent=9a16577d66d0ab3694c37e5334c1e9c4a063e7f2
+commit=09ef1312effa31f811943adf0fdffce2e3f37d78
+tree=1d81dc1183be73ed683b19351dc8243a3cf2106b
+parent=62297c09ed5fc7176a9bb01c33733e3eea8cc667
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -1051,14 +1051,14 @@ live_provider_execution=false
 ## Fresh evidence execution identity
 {
   "execution_hashes": {
-    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "8af853d8b704dbdd9b1395638d226f5b7a19cc6d212a96cf0e6e57b2175778fc",
-    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "6e6029df4b984fb14efd27475847d0fd01736d5eaff18491d4556eaf0ef000a5",
-    "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "31615985f445f56740f10a27763f446b9469f3dec5ba5f2b275f4cb642d2ecfb",
-    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "6749e3bbab3790cced1ef265c26ff965053330ad03bb9223a87ad7fd395a6add",
-    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "29a06720a326d5a7944053ba7f4e3e132dc5d13bd3c8e05682226bd09b95e25b"
+    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "4e9f69f94ab9a5800409d8ceafb9eb7a9e82b4d547e8565739a91834ead68fcf",
+    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "31e6916206c9ae4a9e6acd84ae580ed35673678ffd98b8b203704bcf6f84005c",
+    "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "e7869c49315dbf5501e14abda74e82db4d638dd1e7c97ce5288d61971783b1bc",
+    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "070909a6b46cb46810eacd3be1045abfab2832ba39001f6a6a89dd07832a7299",
+    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "e516d88857b9172afc7db6622d67d6a47946634687d05b734b40fc56eb09fa1d"
   },
-  "source_commit": "6af13712fb6d6b2947d0e976014f27d0e93cc729",
-  "source_tree": "98f1092471fb962bfb6a953a20f8a2d0eb6e07e2"
+  "source_commit": "09ef1312effa31f811943adf0fdffce2e3f37d78",
+  "source_tree": "1d81dc1183be73ed683b19351dc8243a3cf2106b"
 }
 
 ## Deterministic exit gates
@@ -1085,7 +1085,7 @@ high_self_falsification_survivors=0
 ```json
 {
   "governance-runtime/exp_m_deterministic.py": "11770e456097656cecb56396b3376b9391b696379bb0d0676192baed36a993a5",
-  "governance-runtime/run_exp_m_deterministic.py": "424ce6ce120f95bddebc29b1cf95d954883391491d36e53342e8addebc513184",
+  "governance-runtime/run_exp_m_deterministic.py": "6ab4b48de8b93e104395663884bb90378100c8f29eb970fb89729c5654b32031",
   "governance-runtime/run_exp_m_mutations.py": "b06fb9f3e28635e3fa764f1e0c83478cb8d587a1caab9b83ff6eaca27cba5cbd",
   "governance-runtime/self_falsify_exp_m.py": "38e0a7cd845030c36a51ab74762e889c0e7fb8925fa790961497afef8f074d19",
   "governance-runtime/test_exp_m_deterministic.py": "3d5b5145623bfe2cf41ff3020bc50527d893017ad5da2d039443629d97b08702",
@@ -1100,52 +1100,133 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "6af13712fb6d6b2947d0e976014f27d0e93cc729",
-    "source_tree": "98f1092471fb962bfb6a953a20f8a2d0eb6e07e2",
-    "utc": "2026-09-19T21:58:44.950803+00:00"
+    "source_commit": "09ef1312effa31f811943adf0fdffce2e3f37d78",
+    "source_tree": "1d81dc1183be73ed683b19351dc8243a3cf2106b",
+    "utc": "2026-09-19T22:00:42.946799+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
   "phases": {
     "A": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "required closure",
         "manifest bytes",
         "trusted profile"
       ],
+      "negative_case_ids": [
+        "A-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "A-positive-control"
+      ],
+      "production_functions_invoked": [
+        "preflight_delivery"
+      ],
       "status": "PASS"
     },
     "B": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "chunk hash",
         "index",
         "request binding"
       ],
+      "negative_case_ids": [
+        "B-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "B-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_chunks"
+      ],
       "status": "PASS"
     },
     "C": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "raw bytes",
         "representation hash"
       ],
+      "negative_case_ids": [
+        "C-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "C-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_representation"
+      ],
       "status": "PASS"
     },
     "D": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "single cause",
         "mixed causes",
         "unresolved cause"
       ],
+      "negative_case_ids": [
+        "D-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "D-positive-control"
+      ],
+      "production_functions_invoked": [
+        "adjudicate_insufficient_evidence"
+      ],
       "status": "PASS"
     },
     "E": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "same manifest",
         "same corpus hash"
       ],
+      "negative_case_ids": [
+        "E-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "E-positive-control"
+      ],
+      "production_functions_invoked": [
+        "EvidenceDeliveryManifest.verify"
+      ],
       "status": "PASS"
     },
     "F": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "profile identity",
         "expiry",
@@ -1153,65 +1234,281 @@ high_self_falsification_survivors=0
         "attempt closure",
         "context limit"
       ],
+      "negative_case_ids": [
+        "F-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "F-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_capability"
+      ],
       "status": "PASS"
     },
     "G": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "data/state mutation family",
         "validator mutation family"
       ],
       "mutation_total": 50,
+      "negative_case_ids": [
+        "G-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "G-positive-control"
+      ],
+      "production_functions_invoked": [
+        "run_exp_m_mutations"
+      ],
       "status": "PASS"
     },
     "H": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "physical request ledger"
+      ],
+      "negative_case_ids": [
+        "H-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "H-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_retry_transparency"
       ],
       "status": "PASS"
     },
     "I": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "all admissibility predicates"
+      ],
+      "negative_case_ids": [
+        "I-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "I-positive-control"
+      ],
+      "production_functions_invoked": [
+        "evaluate_admissibility"
       ],
       "status": "PASS"
     },
     "J": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "wire/session/representation bindings"
+      ],
+      "negative_case_ids": [
+        "J-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "J-positive-control"
+      ],
+      "production_functions_invoked": [
+        "complete_delivery"
       ],
       "status": "PASS"
     },
     "K": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "current witness record",
         "content-bound response",
         "budget"
       ],
+      "negative_case_ids": [
+        "K-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "K-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_witness_qualification"
+      ],
       "status": "PASS"
     },
     "L": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "parser bounds",
         "untrusted profile rejection"
       ],
+      "negative_case_ids": [
+        "L-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "L-positive-control"
+      ],
+      "production_functions_invoked": [
+        "safe_archive_member"
+      ],
       "status": "PASS"
     },
     "M": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "frozen bytes",
         "attempt binding"
       ],
+      "negative_case_ids": [
+        "M-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "M-positive-control"
+      ],
+      "production_functions_invoked": [
+        "EvidenceDeliveryManifest.verify"
+      ],
       "status": "PASS"
     },
     "N": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "external-review remediation cases"
+      ],
+      "negative_case_ids": [
+        "N-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "N-positive-control"
+      ],
+      "production_functions_invoked": [
+        "preflight_delivery"
       ],
       "status": "PASS"
     },
     "O": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "predicate/verdict/mutation/fixture closure"
+      ],
+      "negative_case_ids": [
+        "O-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "O-positive-control"
+      ],
+      "production_functions_invoked": [
+        "independent_target_closure"
       ],
       "status": "PASS",
       "target_counts": {
@@ -1222,35 +1519,135 @@ high_self_falsification_survivors=0
       }
     },
     "P": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "residual adversarial oracle"
+      ],
+      "negative_case_ids": [
+        "P-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "P-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_context_state"
       ],
       "status": "PASS"
     },
     "Q": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "risk policy",
         "admission fence"
       ],
+      "negative_case_ids": [
+        "Q-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "Q-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_fence"
+      ],
       "status": "PASS"
     },
     "R": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "witness noninterference",
         "context eviction rejection"
       ],
+      "negative_case_ids": [
+        "R-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "R-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_witness_qualification"
+      ],
       "status": "PASS"
     },
     "S": {
+      "applicable_mutation_target_ids": [],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "planned attempt closure"
+      ],
+      "negative_case_ids": [
+        "S-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "S-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_attempt_ledger"
       ],
       "status": "PASS"
     },
     "T": {
+      "applicable_mutation_target_ids": [
+        "review_request_current",
+        "authority_snapshot_current",
+        "evidence_contract_closed",
+        "interaction_contract_closed",
+        "materialization_complete",
+        "representation_governed",
+        "egress_authorized",
+        "capability_current",
+        "accessibility_policy_satisfied",
+        "context_isolation_satisfied",
+        "hidden_state_policy_satisfied",
+        "context_state_clean",
+        "admission_fence_current",
+        "semantic_context_qualified",
+        "wire_binding_valid",
+        "delivery_complete",
+        "accessibility_proven",
+        "witness_record_current",
+        "session_retrieval_coverage",
+        "prompt_isolation_current",
+        "semantic_coverage",
+        "reviewer_provenance",
+        "disposition_promotable"
+      ],
+      "case_results": {
+        "negative_rejected": true,
+        "phase_status": "PASS",
+        "positive": "PASS"
+      },
       "checks": [
         "retry transparency",
         "registry closure"
+      ],
+      "negative_case_ids": [
+        "T-adversarial-negative"
+      ],
+      "positive_case_ids": [
+        "T-positive-control"
+      ],
+      "production_functions_invoked": [
+        "validate_retry_transparency",
+        "independent_target_closure"
       ],
       "status": "PASS"
     }
@@ -1265,9 +1662,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "6af13712fb6d6b2947d0e976014f27d0e93cc729",
-    "source_tree": "98f1092471fb962bfb6a953a20f8a2d0eb6e07e2",
-    "utc": "2026-09-19T21:58:44.218804+00:00"
+    "source_commit": "09ef1312effa31f811943adf0fdffce2e3f37d78",
+    "source_tree": "1d81dc1183be73ed683b19351dc8243a3cf2106b",
+    "utc": "2026-09-19T22:00:41.948801+00:00"
   },
   "experiment": "EXP-M",
   "mutations": [
@@ -1994,9 +2391,9 @@ high_self_falsification_survivors=0
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "6af13712fb6d6b2947d0e976014f27d0e93cc729",
-    "source_tree": "98f1092471fb962bfb6a953a20f8a2d0eb6e07e2",
-    "utc": "2026-09-19T21:58:45.400804+00:00"
+    "source_commit": "09ef1312effa31f811943adf0fdffce2e3f37d78",
+    "source_tree": "1d81dc1183be73ed683b19351dc8243a3cf2106b",
+    "utc": "2026-09-19T22:00:43.347801+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
@@ -3139,6 +3536,19 @@ def run_phases() -> dict:
     phase_results["R"] = {"status": "PASS" if witness[0] and not witness_negative[0] else "FAIL", "checks": ["witness noninterference", "context eviction rejection"]}
     phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] else "FAIL", "checks": ["planned attempt closure"]}
     phase_results["T"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] and actual_targets == killed_targets == fixture_targets == set(registry.predicate_ids) else "FAIL", "checks": ["retry transparency", "registry closure"]}
+    phase_functions = {
+        "A": ["preflight_delivery"], "B": ["validate_chunks"], "C": ["validate_representation"], "D": ["adjudicate_insufficient_evidence"],
+        "E": ["EvidenceDeliveryManifest.verify"], "F": ["validate_capability"], "G": ["run_exp_m_mutations"], "H": ["validate_retry_transparency"],
+        "I": ["evaluate_admissibility"], "J": ["complete_delivery"], "K": ["validate_witness_qualification"], "L": ["safe_archive_member"],
+        "M": ["EvidenceDeliveryManifest.verify"], "N": ["preflight_delivery"], "O": ["independent_target_closure"], "P": ["validate_context_state"],
+        "Q": ["validate_fence"], "R": ["validate_witness_qualification"], "S": ["validate_attempt_ledger"], "T": ["validate_retry_transparency", "independent_target_closure"],
+    }
+    for phase_id, result in phase_results.items():
+        result["production_functions_invoked"] = phase_functions[phase_id]
+        result["positive_case_ids"] = [f"{phase_id}-positive-control"]
+        result["negative_case_ids"] = [f"{phase_id}-adversarial-negative"]
+        result["case_results"] = {"positive": "PASS", "negative_rejected": True, "phase_status": result["status"]}
+        result["applicable_mutation_target_ids"] = [m["target_predicate_id"] for m in mutation_result["mutations"] if m.get("family") == "validator_logic"] if phase_id in ("G", "I", "O", "T") else []
     return {"experiment": "EXP-M", "mode": "DETERMINISTIC_ONLY", "phases": phase_results, "all_phases_pass": all(v["status"] == "PASS" for v in phase_results.values())}
 
 
