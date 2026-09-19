@@ -7,6 +7,11 @@ from datetime import datetime, timezone
 ARMS={"ENOSPC","EROFS","EIO","EACCES"}; BASE="/run/v24-v6-authority/private"
 OPS={"ENOSPC":{"operation":"write_authority_record","syscalls":{"write","fsync"}},"EROFS":{"operation":"write_authority_record","syscalls":{"write","fsync","rename"}},"EIO":{"operation":"record_io","syscalls":{"read","write","fsync","rename"}},"EACCES":{"operation":"record_access","syscalls":{"open","write","rename"}}}
 MECHANISM_CLASSES={"kernel_quota","dedicated_ro_mount","disposable_fault_layer","kernel_policy"}
+TRUSTED_AUTHORIZATION_PROVENANCE_AVAILABLE=False
+
+def expected_trusted_authorization_provenance():
+    """No governance-authorized issuer is available during preregistration."""
+    return None
 
 def expected_context(arm, record_id="abc123"):
     if arm not in ARMS or not re.fullmatch(r"[A-Za-z0-9_-]+",record_id): raise ValueError("invalid expected context")
