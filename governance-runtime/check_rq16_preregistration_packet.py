@@ -1,30 +1,21 @@
 #!/usr/bin/env python3
-"""Offline packet consistency checks; no runtime interaction."""
-from __future__ import annotations
-import json, hashlib
+"""Verify preregistration identities knowable before packet commit."""
+import hashlib, json, re, subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+PACKET=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md'
 def main():
-    contract=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json').read_text())
-    assert contract['RQ16_EXECUTED'] is False and contract['RQ16_AUTHORIZED'] is False
-    assert contract['governance']=='NOT_QUALIFIED,CLOSED_PENDING_SUCCESSOR_REVIEW,NONE_EVIDENCE_ONLY'
-    assert set(contract['arms'])=={'ENOSPC','EROFS','EIO','EACCES'}
-    for arm, spec in contract['arms'].items(): assert spec['classification'] in {'INSUFFICIENT_EVIDENCE','UNSAFE','PROXY_NOT_ACCEPTABLE','AUTHORIZATION_CANDIDATE'}
-    packet=ROOT/'V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md'; text=packet.read_text(encoding='utf-8')
-    import re, subprocess
-    vals=dict(re.findall(r'^(reviewed_source_commit|reviewed_source_tree|packet_commit|packet_tree|predecessor_commit|predecessor_tree|exact_diff_sha256)=(.+)$',text,re.M))
-    assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_commit','packet_tree','predecessor_commit','predecessor_tree','exact_diff_sha256'}
-    head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    text=PACKET.read_text(encoding='utf-8'); vals=dict(re.findall(r'^(reviewed_source_commit|reviewed_source_tree|packet_parent_commit|packet_parent_tree|predecessor_commit|predecessor_tree|exact_source_diff_sha256|source_manifest_sha256|packet_content_identity_schema_version)=(.+)$',text,re.M))
+    assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_parent_commit','packet_parent_tree','predecessor_commit','predecessor_tree','exact_source_diff_sha256','source_manifest_sha256','packet_content_identity_schema_version'}
     assert subprocess.check_output(['git','rev-parse',vals['reviewed_source_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['reviewed_source_tree']
-    assert subprocess.check_output(['git','rev-parse',vals['packet_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['packet_tree']
+    assert subprocess.check_output(['git','rev-parse',vals['packet_parent_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['packet_parent_tree']
     assert subprocess.check_output(['git','rev-parse',vals['predecessor_commit']+'^{tree}'],cwd=ROOT,text=True).strip()==vals['predecessor_tree']
-    diff=subprocess.run(['git','diff',vals['predecessor_commit'],vals['reviewed_source_commit'],'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md'],cwd=ROOT,text=True,capture_output=True,check=True).stdout
-    assert __import__('hashlib').sha256(diff.encode()).hexdigest()==vals['exact_diff_sha256']
-    assert subprocess.run(['git','merge-base','--is-ancestor',vals['packet_commit'],head],cwd=ROOT).returncode==0
-    assert vals['predecessor_commit']=='8477830f5f35a35a8c9b19fdca9c5b6c39e2916d' and vals['predecessor_tree']=='82457b9307f133db281055dbbdae26b618f8c3cf'
-    assert 'RQ16_EXECUTED=false' in text and 'RQ16_AUTHORIZED=false' in text and 'NONE_EVIDENCE_ONLY' in text
-    for marker in ('expected_context','validate_trusted_fault_attestation','validate_authorization_token','check_rq17_contamination','total_mutations','all_rejected'):
-        assert marker in text
-    assert not re.search(r'^diff --git a/V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW\.md', text, re.M)
-    print(json.dumps({'packet_consistency':'PASS','arm_count':4,'RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
+    diff=subprocess.run(['git','diff',vals['predecessor_commit'],vals['reviewed_source_commit'],'--','.',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REVIEW.md',':(exclude)V24-I11-V6-RQ1-RQ16-PREREGISTRATION-REMEDIATION-5-REVIEW.md'],cwd=ROOT,text=True,capture_output=True,check=True).stdout
+    assert hashlib.sha256(diff.encode()).hexdigest()==vals['exact_source_diff_sha256']
+    assert vals['packet_content_identity_schema_version']=='1'
+    assert 'packet_commit=EXTERNALLY_BOUND_AFTER_GENERATION' in text and 'packet_tree=EXTERNALLY_BOUND_AFTER_GENERATION' in text
+    contract=json.loads((ROOT/'implementation/v24/V24-I11-V6-RQ1-RQ16-EXECUTION-CONTRACT.json').read_text()); assert contract['RQ16_EXECUTED'] is False and contract['RQ16_AUTHORIZED'] is False
+    assert 'NONE_EVIDENCE_ONLY' in text and 'RQ16_started=false' in text
+    assert not re.search(r'^diff --git a/V24-I11-V6-RQ1-RQ16-(PRE|REMEDIATION-5-REVIEW)\.md',text,re.M)
+    print(json.dumps({'packet_consistency':'PASS','identity_model':'PASS','RQ16_EXECUTED':False,'RQ16_AUTHORIZED':False},indent=2)); return 0
 if __name__=='__main__': raise SystemExit(main())

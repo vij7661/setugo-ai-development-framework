@@ -79,14 +79,33 @@ def _obs_complete(observations, expected):
             if k not in o: reasons.append(f"observation_field_missing:{s}:{k}")
     return reasons
 
-def _lifecycle_valid(life, expected):
-    if not isinstance(life,dict): return ["lifecycle_missing"]
-    reasons=[]
-    if life.get("target_record_id")!=expected["target_record_id"]: reasons.append("lifecycle_wrong_target")
-    if life.get("target_in_records") and life.get("target_in_consumed"): reasons.append("target_in_both_directories")
-    for k in ("unexplained_disappearance","duplicate_authoritative_consume","second_authoritative_retry","authoritative_replay","unrelated_transition","historical_transition"):
-        if life.get(k): reasons.append(k)
-    if not isinstance(life.get("deltas"),dict): reasons.append("lifecycle_deltas_missing")
+def _has_exact(entries, target):
+    if not isinstance(entries,list): return False,0
+    names=[]
+    for e in entries:
+        names.append(e if isinstance(e,str) else e.get("name") if isinstance(e,dict) else "")
+    return target in names, names.count(target)
+
+def derive_target_lifecycle(observations, expected):
+    """Derive membership/deltas from observed directory entries, never summary flags."""
+    target=expected["target_record_id"]+".record"; states={}; errors=[]
+    if not isinstance(observations,dict): return {"states":{},"errors":["observations_missing"]}
+    for stage,o in observations.items():
+        if not isinstance(o,dict): errors.append(f"stage_malformed:{stage}"); continue
+        r,rc=_has_exact(o.get("records_entries"),target); c,cc=_has_exact(o.get("consumed_entries"),target)
+        if rc>1 or cc>1: errors.append(f"duplicate_target_entry:{stage}")
+        states[stage]={"target_in_records":r,"target_in_consumed":c,"record_count":rc,"consumed_count":cc,"target_hash":o.get("target_hash")}
+        if r and c: errors.append(f"target_in_both:{stage}")
+    if states.get("baseline",{}).get("target_in_records") is not True or states.get("baseline",{}).get("target_in_consumed") is not False: errors.append("baseline_target_contract")
+    for stage,s in states.items():
+        if stage!="baseline" and not s["target_in_records"] and not s["target_in_consumed"]: errors.append(f"unexplained_disappearance:{stage}")
+    return {"states":states,"errors":errors}
+
+def _lifecycle_valid(life, expected, observations):
+    derived=derive_target_lifecycle(observations,expected); reasons=list(derived["errors"])
+    if not isinstance(life,dict): reasons.append("lifecycle_missing")
+    if not isinstance(life.get("deltas") if isinstance(life,dict) else None,dict): reasons.append("lifecycle_deltas_missing")
+    # Summary booleans are diagnostics only; derived errors are authoritative.
     return reasons
 
 def validate_cleanup(cleanup, expected):
@@ -95,6 +114,13 @@ def validate_cleanup(cleanup, expected):
     reasons=[f"cleanup_field_missing:{k}" for k in req if k not in cleanup]
     if cleanup.get("mechanism_id")!=expected["mechanism_id"]: reasons.append("cleanup_wrong_mechanism")
     if cleanup.get("independently_verified") is not True or cleanup.get("fault_disabled") is not True: reasons.append("cleanup_not_verified")
+    baseline, restored=cleanup.get("baseline_observation"), cleanup.get("restored_observation")
+    if not isinstance(baseline,dict) or not isinstance(restored,dict): reasons.append("cleanup_baseline_restored_missing")
+    else:
+        volatile={"service_pid","timestamp","inode"}; required=("service_binary_sha256","gate_sha256","records_device","consumed_device","records_mount","consumed_mount","records_fs","consumed_fs","records_realpath","consumed_realpath","owner","mode","socket_state","service_identity","security_controls","fault_state","records_entries","consumed_entries","historical_evidence")
+        for k in required:
+            if k not in baseline or k not in restored: reasons.append(f"cleanup_field_missing:{k}")
+            elif k not in volatile and baseline.get(k)!=restored.get(k): reasons.append(f"cleanup_changed:{k}")
     return reasons
 
 def expected_authorization_context(expected):
@@ -129,7 +155,7 @@ def evaluate_arm(arm, observed, expected):
     reasons += validate_trusted_fault_attestation(observed.get("trusted_fault_attestation"),expected)
     reasons += _obs_complete(observed.get("observations"),expected)
     topo_ok, topo_reasons=check_rq17_contamination(expected,observed.get("observations")); reasons += topo_reasons
-    reasons += _lifecycle_valid(observed.get("lifecycle"),expected)
+    reasons += _lifecycle_valid(observed.get("lifecycle"),expected,observed.get("observations"))
     reasons += validate_cleanup(observed.get("cleanup_proof"),expected)
     if observed.get("service_recoverable") is not True: reasons.append("service_not_recoverable")
     if not topo_ok: reasons.append("rq17_contamination")

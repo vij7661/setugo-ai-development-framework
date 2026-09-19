@@ -24,12 +24,21 @@ def main():
       ("bool_only_observer",lambda e:e.pop("observations")),
       ("missing_cleanup",lambda e:e.pop("cleanup_proof")),
       ("bool_only_cleanup",lambda e:(e.pop("cleanup_proof"),e.update(cleanup_verified=True,restored=True))),
-      ("duplicate_consume",lambda e:e["lifecycle"].update(duplicate_authoritative_consume=True)),
-      ("both_directories",lambda e:e["lifecycle"].update(target_in_consumed=True)),
+      ("duplicate_consume",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record","abc123.record"])),
+      ("both_directories",lambda e:e["observations"]["post_failure"].update(consumed_entries=["abc123.record"])),
       ("rq17_false_but_changed",lambda e:e["observations"]["fault_active"].update(records_device="d2")),
       ("authoritative_success",lambda e:e.update(authoritative_success=True)),
       ("invalid_transition",lambda e:e.update(invalid_transition=True)),
       ("untrusted_expected_context",lambda e:e["fault_proof"].update(mechanism_id="fake")),
+      ("cleanup_service_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(service_binary_sha256="bad")),
+      ("cleanup_gate_hash",lambda e:e["cleanup_proof"]["restored_observation"].update(gate_sha256="bad")),
+      ("cleanup_mode",lambda e:e["cleanup_proof"]["restored_observation"].update(mode="0777")),
+      ("cleanup_owner",lambda e:e["cleanup_proof"]["restored_observation"].update(owner="candidate")),
+      ("cleanup_socket",lambda e:e["cleanup_proof"]["restored_observation"].update(socket_state="changed")),
+      ("cleanup_fault_active",lambda e:e["cleanup_proof"].update(fault_disabled=False)),
+      ("cleanup_target_state",lambda e:e["cleanup_proof"]["restored_observation"].update(records_entries=[])),
+      ("cleanup_historical_evidence",lambda e:e["cleanup_proof"]["restored_observation"].update(historical_evidence="changed")),
+      ("cleanup_missing_restored",lambda e:e["cleanup_proof"].update(restored_observation={})),
     ]
     rows=[]
     for name,mut in specs:
