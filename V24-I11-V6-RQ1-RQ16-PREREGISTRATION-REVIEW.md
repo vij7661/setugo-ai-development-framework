@@ -5,8 +5,8 @@ Planning-only artifact. No RQ-16 execution occurred.
 ## Identity
 reviewed_source_commit=8280f69d3fbbc1e3c140eb98d38cf55c6a12fa87
 reviewed_source_tree=3159b811ccaab9ed267cebb34a4b0a3ddb1b6166
-packet_commit=0fc66c7292732f91c2d7fbcd1e0bfdb29f66dac7
-packet_tree=ba4bec126482583f171d6f153a44becf09b62d2e
+packet_commit=e2a08fa3167f405ad1a9d79103bf39a2e8518993
+packet_tree=139c01a57149cc4bc25749656254462b031a4ebb
 predecessor_commit=8477830f5f35a35a8c9b19fdca9c5b6c39e2916d
 predecessor_tree=82457b9307f133db281055dbbdae26b618f8c3cf
 exact_diff_sha256=36379cb72a44ea880a9a4e0e5d7be29e6718a3cb210fb28e537facb2b825c4d3
@@ -585,7 +585,7 @@ test_token_requires_durable_trusted_binding (__main__.RQ16Tests.test_token_requi
 test_valid_structured_expected_observed_passes (__main__.RQ16Tests.test_valid_structured_expected_observed_passes) ... ok
 
 ----------------------------------------------------------------------
-Ran 10 tests in 0.002s
+Ran 10 tests in 0.003s
 
 OK
 ```
@@ -866,14 +866,12 @@ OK
 ### packet consistency
 
 ```text
-Traceback (most recent call last):
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 22, in <module>
-    if __name__=='__main__': raise SystemExit(main())
-                                              ^^^^^^
-  File "C:\Users\hp\Downloads\ps final\pashusetu_app4_admin_web_connected\setugo-runtime-qualification-1\governance-runtime\check_rq16_preregistration_packet.py", line 16, in main
-    assert set(vals)=={'reviewed_source_commit','reviewed_source_tree','packet_commit','packet_tree','predecessor_commit','predecessor_tree','exact_diff_sha256'}
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError
+{
+  "packet_consistency": "PASS",
+  "arm_count": 4,
+  "RQ16_EXECUTED": false,
+  "RQ16_AUTHORIZED": false
+}
 ```
 
 
