@@ -5,7 +5,7 @@ import json, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R1-REVIEW.md"
+OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R2-REVIEW.md"
 SOURCES = [
     Path("governance-runtime/exp_m_deterministic.py"),
     Path("governance-runtime/run_exp_m_deterministic.py"),
@@ -28,18 +28,26 @@ def main() -> int:
     phase = json.loads((ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json").read_text())
     mutation = json.loads((ROOT / "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json").read_text())
     falsify = json.loads((ROOT / "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json").read_text())
+    r2_review = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-EXTERNAL-REVIEW-R2.md").read_text(encoding="utf-8")
+    r2_adjudication = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-R2-SOLUTION-ADJUDICATION.md").read_text(encoding="utf-8")
+    r2_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-REMEDIATION-R2.md").read_text(encoding="utf-8")
+    execution_files = [Path("experiments/governed-platform/EXP-M-UNIT-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-PHASE-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-SELF-STDOUT.txt")]
+    execution_hashes = {p.as_posix(): sha256((ROOT / p).read_bytes()).hexdigest() for p in execution_files if (ROOT / p).exists()}
     hashes = {p.as_posix(): sha256((ROOT / p).read_bytes()).hexdigest() for p in SOURCES}
     frozen = {}
     for p in ["standards/review-evidence-delivery-integrity.md", "experiments/governed-platform/exp-m-review-evidence-delivery-integrity.md", "experiments/governed-platform/EXP-M-TEST-MATRIX.md", "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md", "experiments/governed-platform/EXP-M-R5-EXTERNAL-REVIEW.md"]:
         frozen[p] = sha256((ROOT / p).read_bytes()).hexdigest()
     lines = [
-        "# EXP-M Deterministic Implementation and Falsification Review Packet",
+        "# EXP-M Deterministic Implementation R2 Independent Review Packet",
         "",
         "This packet covers deterministic implementation only. EXP-M remains NOT_QUALIFIED; no live provider/API call occurred.",
         "",
         "## Historical superseded evidence",
         "The prior A-T/22-test/29-mutation report is retained in Git history but is superseded by the independent R1 CHANGES_REQUIRED review. It is not used as closure evidence.",
-        "R1-C01..C11 and R1-H01..H10 are addressed by production validators, adversarial fixtures, and fresh mutation/self-falsification evidence below.",
+        "R2 is the current remediation authority. Prior R1 and historical false-green outputs are superseded evidence only.",
+        "",
+        "## R2 authority inputs",
+        fence("External R2 review", r2_review), fence("R2 solution adjudication", r2_adjudication), fence("R2 remediation", r2_remediation),
         "",
         "## R1 remediation matrix",
         "| Finding family | Production mechanism | Fresh evidence |",
@@ -54,7 +62,7 @@ def main() -> int:
         "| C-08 | current witness qualification, semantic prompt and eviction checks | witness positive/negative cases |",
         "| C-09/H-09 | byte, representation, semantic and source/wire/receipt binding | returned-byte mutation |",
         f"| C-11 | expanded self-falsification includes every current mutation family | {falsify['total']} cases, {falsify['surviving_critical']} critical/{falsify.get('surviving_high', falsify['surviving_critical'])} high survivors |",
-        "| H-03/H-06/H-07/H-08 | source identity, egress/currentness, attempt ledger, bounded materialization | production validators and mutations |",
+        "| NC-01/NC-11/NH-01..NH-08 | no production bypass, typed evidence/context, persistent admission, lineage and freshness binding | static/behavioral/mutation/self-falsification evidence |",
         "",
         "## Identity",
         f"branch={sh('git','branch','--show-current')}",
@@ -64,6 +72,9 @@ def main() -> int:
         "frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45",
         "authority_status=NOT_QUALIFIED",
         "live_provider_execution=false",
+        "",
+        "## Fresh evidence execution identity",
+        json.dumps({"source_commit": phase.get("execution", {}).get("source_commit"), "source_tree": phase.get("execution", {}).get("source_tree"), "execution_hashes": execution_hashes}, indent=2, sort_keys=True),
         "",
         "## Deterministic exit gates",
         f"all_phases_A_to_T_pass={phase['all_phases_pass']}",
