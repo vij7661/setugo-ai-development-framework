@@ -444,6 +444,8 @@ Test dispositions:
 | TM-O50 | Delete reviewer provenance/independence predicate | Killed by self/untrusted-reviewer fixture |
 | TM-O51 | Delete promotable-disposition predicate | Killed by CHANGES_REQUIRED/INSUFFICIENT disposition fixture |
 | TM-O52 | Delete WitnessProtocolQualificationRecord/context-budget predicate when witnesses are used | Killed by witness-eviction/stale-record fixture |
+| TM-O53 | Trust candidate-authored WitnessProtocolQualificationRecord | Killed |
+| TM-O54 | Ignore provider-isolation documentation/account-class/config-template drift | Killed |
 
 ## Phase P — R3 residual adversarial-oracle tests
 
@@ -513,6 +515,9 @@ Test dispositions:
 | TM-R08 | Framing/content witness succeeds but final semantic prompt occurs after evidence eviction | Attempt void |
 | TM-R09 | Deterministic retrieval mode uses no witness protocol | Witness record not required; retrieval predicates remain required |
 | TM-R10 | Witness output includes sensitive evidence and retention/egress policy forbids that response form | Mode/representation blocked or governed safer witness form required |
+| TM-R11 | Candidate supplies its own WitnessProtocolQualificationRecord | Rejected as untrusted |
+| TM-R12 | Witness qualification registry record is candidate-writable | Review path blocked |
+| TM-R13 | Provider account-class documentation/config template changes after witness/context qualification | Qualification invalidated; requalification required |
 
 ## Required evidence outputs
 
@@ -528,6 +533,7 @@ Every EXP-M execution must retain:
 - ProviderAccessibilityRiskPolicy;
 - ProviderContextIsolationPolicy;
 - WitnessProtocolQualificationRecord when witnesses are used;
+- pinned provider context-isolation documentation/account-class/config-template identities where the dedicated-account basis is used;
 - AdmissionFenceRecord;
 - ProviderCapabilityQualificationRecord with append-only trial ledger;
 - ProviderContextStateEvidence;
@@ -573,6 +579,8 @@ EXP-M deterministic testing is complete only when:
 - typed base/head comparison rules are mutation-tested and incomparable semantic changes fail unresolved;
 - witness challenge/response overhead is included in qualified final-context budgeting and rechecked before adjudication;
 - witness protocol is non-evaluative and separately noninterference-qualified for provider/mode/prompt-isolation binding;
+- witness qualification registry is outside candidate write authority;
+- provider context-isolation documentation/account-class/config-template drift invalidates qualification;
 - legacy REVIEW_CONTEXT_COMPLETE cannot create authority;
 - statistical independence assumptions are explicit and cannot be inferred solely from fresh request IDs;
 - model-selected retrieval logs bind exact returned bytes to final adjudication context;
