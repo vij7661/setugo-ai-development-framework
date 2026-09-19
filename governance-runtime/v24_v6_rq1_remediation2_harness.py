@@ -383,12 +383,21 @@ def _ptrace_crash(pid:int, boundary:str, evidence:Path):
             libc.ptrace(PTRACE_SYSCALL,pid,None,None)
     rec["error"]="boundary_not_observed"; write_json(evidence,rec); return rec
 
+def _root_ptrace_crash(pid:int,boundary:str,evidence:Path):
+    if os.geteuid()==0:
+        return _ptrace_crash(pid,boundary,evidence)
+    p=subprocess.run(["sudo","-n","env","PYTHONDONTWRITEBYTECODE=1","python3","-B",str(Path(__file__).resolve()),"--trace-pid",str(pid),"--trace-boundary",boundary,"--trace-evidence",str(evidence)],text=True,capture_output=True,timeout=30)
+    if not evidence.exists():
+        write_json(evidence,{"pid":pid,"boundary":boundary,"error":"root tracer missing evidence","stdout":p.stdout,"stderr":p.stderr})
+    try: return json.loads(evidence.read_text(encoding="utf-8"))
+    except Exception: return {"pid":pid,"boundary":boundary,"error":"root tracer evidence invalid","stdout":p.stdout,"stderr":p.stderr}
+
 def _crash_case(cid,out,boundary):
     b=observe(out/f"{cid}.before.observer.json"); diag=out/f"{cid}.diagnostic.json"
     d=candidate_diag("positive",diag)
     if d.returncode: return False,{"harness_defect":"diagnostic creation failed","stderr":d.stderr}
     pid=int(PID.read_text().strip()); control=subprocess.Popen(["sudo","-u","root","--","env","PYTHONDONTWRITEBYTECODE=1",f"PYTHONPATH={RUNTIME}","python3","-B",str(RUNTIME/"v24_v6_successor9_trusted_control.py"),"positive",str(diag)],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    trace=_ptrace_crash(pid,boundary,out/f"{cid}.boundary.json")
+    trace=_root_ptrace_crash(pid,boundary,out/f"{cid}.boundary.json")
     try: so,se=control.communicate(timeout=10)
     except subprocess.TimeoutExpired: control.kill(); so,se=control.communicate()
     restart=run(["systemctl","restart","v24-v6-trusted-authority.service"],user="root",timeout=20)
@@ -463,7 +472,11 @@ def execute(cid,out):
     r["duration_seconds"]=round(time.time()-start,3); write_json(out/f"{cid}.result.json",r); return r
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("--case",action="append",choices=sorted(CASES)); ap.add_argument("--safe-slice",action="store_true"); ap.add_argument("--remaining-slice",action="store_true"); ap.add_argument("--evidence-dir",required=True); a=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument("--trace-pid",type=int); ap.add_argument("--trace-boundary"); ap.add_argument("--trace-evidence"); ap.add_argument("--case",action="append",choices=sorted(CASES)); ap.add_argument("--safe-slice",action="store_true"); ap.add_argument("--remaining-slice",action="store_true"); ap.add_argument("--evidence-dir",required=False); a=ap.parse_args()
+    if a.trace_pid is not None:
+        if os.geteuid()!=0 or not a.trace_boundary or not a.trace_evidence: return 2
+        _ptrace_crash(a.trace_pid,a.trace_boundary,Path(a.trace_evidence)); return 0
+    if not a.evidence_dir: ap.error("--evidence-dir is required")
     selected=a.case or (REMAINING_SELECTED if a.remaining_slice else (RUNNABLE if a.safe_slice else []))
     if not selected: ap.error("select --case or --safe-slice")
     out=Path(a.evidence_dir); out.mkdir(parents=True,exist_ok=True); rs=[execute(c,out) for c in selected]
