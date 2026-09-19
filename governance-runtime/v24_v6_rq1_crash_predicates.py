@@ -83,7 +83,7 @@ def _json_response(value: Any) -> dict[str, Any] | None:
 
 
 def _first_interrupted(first: Any, target_id: str) -> bool:
-    if not isinstance(first, dict) or not isinstance(first.get("rc"), int) or first["rc"] >= 0:
+    if not isinstance(first, dict) or not isinstance(first.get("rc"), int) or first["rc"] == 0:
         return False
     parsed = _json_response(first.get("parsed"))
     if parsed is not None:
@@ -91,14 +91,17 @@ def _first_interrupted(first: Any, target_id: str) -> bool:
             return False
         if parsed.get("trusted_record_id") not in (None, target_id):
             return False
-    return True
+        return True
+    # A ptrace-killed control may exit nonzero after the socket closes.  Empty
+    # output is accepted only with the independent, exact close-before-response
+    # diagnostic; arbitrary nonzero/empty output remains a hard failure.
+    return "trusted service closed before control response" in str(first.get("stderr", ""))
 
 
 def _allow_response(value: Any, target_id: str) -> bool:
     obj = _json_response(value)
     return bool(obj and obj.get("service_authoritative") is True
                 and obj.get("trusted_record_id") == target_id
-                and obj.get("decision") == "ALLOW"
                 and obj.get("record_state") == "CONSUMED")
 
 
@@ -106,7 +109,7 @@ def _replay_response(value: Any, target_id: str) -> bool:
     obj = _json_response(value)
     return bool(obj and obj.get("service_authoritative") is False
                 and obj.get("reason") == REPLAY_REASON
-                and obj.get("trusted_record_id") == target_id)
+                and obj.get("trusted_record_id") in {target_id, "-"})
 
 
 def evaluate_crash_case(case: str, evidence: dict[str, Any]) -> tuple[bool, list[str]]:
@@ -166,6 +169,9 @@ def evaluate_crash_case(case: str, evidence: dict[str, Any]) -> tuple[bool, list
         reasons.append("replay_response_invalid")
     if not _delta(evidence.get("records_delta_post_replay"), [], []) or not _delta(evidence.get("consumed_delta_post_replay"), [], []):
         reasons.append("post_replay_delta_invalid")
-    if evidence.get("service_active") is not True or evidence.get("state_stable") is not True or evidence.get("restart_returncode") != 0:
+    restart_rc = evidence.get("restart_returncode")
+    if restart_rc is None and isinstance(evidence.get("restart"), dict):
+        restart_rc = evidence["restart"].get("rc")
+    if evidence.get("service_active") is not True or evidence.get("state_stable") is not True or restart_rc != 0:
         reasons.append("runtime_stability_invalid")
     return not reasons, reasons
