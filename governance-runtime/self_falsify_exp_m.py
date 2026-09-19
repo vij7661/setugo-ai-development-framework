@@ -11,6 +11,7 @@ from exp_m_deterministic import (  # noqa: E402
     preflight_delivery, validate_attempt_ledger, validate_chunks,
     validate_retry_transparency, validate_witness,
 )
+from run_exp_m_mutations import run as run_mutations
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,8 +33,11 @@ def run():
     case("attempt_set_open", not validate_attempt_ledger(("a", "b"), ("a",), ())[0])
     case("witness_over_budget", not validate_witness("c", "0123456789", max_response_bytes=2)[0])
     case("empty_witness", not validate_witness("", "", max_response_bytes=2)[0])
+    mutation_result = run_mutations()
+    for mutation in mutation_result["mutations"]:
+        case(f"mutation:{mutation['id']}", mutation["killed"])
     survivors = [c for c in cases if not c["rejected"]]
-    return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "all_rejected": not survivors}
+    return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "surviving_high": len(survivors), "all_rejected": not survivors}
 
 
 if __name__ == "__main__":

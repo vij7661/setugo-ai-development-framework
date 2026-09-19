@@ -5,7 +5,7 @@ import json, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-REVIEW.md"
+OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R1-REVIEW.md"
 SOURCES = [
     Path("governance-runtime/exp_m_deterministic.py"),
     Path("governance-runtime/run_exp_m_deterministic.py"),
@@ -37,6 +37,10 @@ def main() -> int:
         "",
         "This packet covers deterministic implementation only. EXP-M remains NOT_QUALIFIED; no live provider/API call occurred.",
         "",
+        "## Historical superseded evidence",
+        "The prior A-T/22-test/29-mutation report is retained in Git history but is superseded by the independent R1 CHANGES_REQUIRED review. It is not used as closure evidence.",
+        "R1-C01..C11 and R1-H01..H10 are addressed by production validators, adversarial fixtures, and fresh mutation/self-falsification evidence below.",
+        "",
         "## Identity",
         f"branch={sh('git','branch','--show-current')}",
         f"commit={sh('git','rev-parse','HEAD')}",
@@ -53,6 +57,7 @@ def main() -> int:
         f"mutation_survivors={mutation['surviving_mutations']}",
         f"all_mutations_rejected={mutation['all_rejected']}",
         f"critical_self_falsification_survivors={falsify['surviving_critical']}",
+        f"high_self_falsification_survivors={falsify.get('surviving_high', falsify['surviving_critical'])}",
         "",
         "## Frozen source-of-truth hashes",
         "```json", json.dumps(frozen, indent=2, sort_keys=True), "```",
