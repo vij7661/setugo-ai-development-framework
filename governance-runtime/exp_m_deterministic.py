@@ -664,6 +664,7 @@ class PredicateContext:
     final_context_hash: str
     max_context_bytes: int
     predicate_registry_version: str
+    reviewed_tree: str = ""
     promotable_dispositions: tuple[str, ...] = ("PASS",)
     expected_semantic_hash: str = ""
     expected_transition_class: str = "LOWER"
