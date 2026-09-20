@@ -17,6 +17,8 @@ EXPLICIT_SOURCE_PATHS = (
     "governance-runtime/freeze_source.py",
     "governance-runtime/generate_evidence.py",
     "governance-runtime/verify_sep_sequence.py",
+    "governance-runtime/build_prior_evidence_index.py",
+    "governance-runtime/run_reviewer_compound_attacks.py",
     "governance-runtime/self_adjudicate_r2d.py",
     ".github/workflows/exp-m-r2e-offline.yml",
     ".github/workflows/exp-m-r2e-sep.yml",
@@ -54,9 +56,19 @@ def delivery_manifest_hash(request_id: str, reviewed_commit: str, items: dict[st
 
 
 def build() -> dict:
-    dirty = _git("status", "--porcelain", "--untracked-files=no")
+    raw_status = subprocess.check_output(
+        ("git", "status", "--porcelain", "--untracked-files=all"), cwd=ROOT, text=True
+    ).splitlines()
+    dirty = []
+    for line in raw_status:
+        rel = line[3:].strip().replace("\\", "/")
+        if " -> " in rel:
+            rel = rel.split(" -> ", 1)[1]
+        if "/__pycache__/" in f"/{rel}" or rel.endswith(".pyc"):
+            continue
+        dirty.append(rel)
     if dirty:
-        raise SystemExit("source_freeze_requires_clean_worktree")
+        raise SystemExit("source_freeze_requires_clean_worktree:" + ",".join(dirty))
     source_commit = _git("rev-parse", "HEAD")
     source_tree = _git("rev-parse", "HEAD^{tree}")
     paths = source_paths()
