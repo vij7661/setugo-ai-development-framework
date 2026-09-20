@@ -222,9 +222,11 @@ class ExpMCoreTests(unittest.TestCase):
         self.assertFalse(result.success); self.assertTrue(any("unsafe_member" in r for r in result.reasons))
 
     def test_retrieval_binds_raw_bytes_and_final_context(self):
-        raw = b"page"; rec = RetrievalEvidenceRecord("r", "a", "s", "file", "v1", 0, len(raw), sha256(raw).hexdigest(), len(raw), "tool", 1, "ctx", "ctx-h")
-        self.assertTrue(validate_retrieval(rec, raw, expected_request="r", expected_attempt="a", expected_session="s", expected_source="file", expected_version="v1", expected_context_id="ctx", expected_context_hash="ctx-h")[0])
-        self.assertFalse(validate_retrieval(rec, b"wrong", expected_request="r", expected_attempt="a", expected_session="s", expected_source="file", expected_version="v1", expected_context_id="ctx", expected_context_hash="ctx-h")[0])
+        raw = AUTHORITY.resolve_retrieval_bytes("file", "v", 0, 1)
+        rec = RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, sha256(raw).hexdigest(), 1, "tool", 1, "ctx", "ctx-h")
+        self.assertTrue(validate_retrieval(rec, expected_request="r", expected_attempt="a", expected_session="s", expected_source="file", expected_version="v", expected_context_id="ctx", expected_context_hash="ctx-h", authority=AUTHORITY)[0])
+        forged = RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, sha256(b"wrong").hexdigest(), len(b"wrong"), "tool", 1, "ctx", "ctx-h")
+        self.assertFalse(validate_retrieval(forged, expected_request="r", expected_attempt="a", expected_session="s", expected_source="file", expected_version="v", expected_context_id="ctx", expected_context_hash="ctx-h", authority=AUTHORITY)[0])
 
     def test_wire_delivery_rejects_returned_byte_mismatch(self):
         s, c, i, items, m, p = fixture(); provider = DeterministicFakeProvider(); receipt, wire = provider.deliver(m, items); materialized = materialize_entries(items, source_hash="request-1")
