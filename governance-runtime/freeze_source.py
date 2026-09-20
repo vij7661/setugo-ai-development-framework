@@ -50,6 +50,19 @@ def sha256_path(path: str) -> str:
     return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
 
 
+def canonical_json(value) -> bytes:
+    return (json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode()
+
+
+def delivery_manifest_hash(request_id: str, reviewed_commit: str, items: dict[str, bytes]) -> str:
+    records = {
+        key: {"sha256": hashlib.sha256(value).hexdigest(), "size": len(value)}
+        for key, value in sorted(items.items())
+    }
+    body = {"request_id": request_id, "reviewed_commit": reviewed_commit, "items": records}
+    return hashlib.sha256(canonical_json(body)).hexdigest()
+
+
 def build() -> dict:
     dirty = _git("status", "--porcelain")
     if dirty:
@@ -59,11 +72,20 @@ def build() -> dict:
     missing = [path for path in SOURCE_PATHS if not (ROOT / path).is_file()]
     if missing:
         raise SystemExit("source_freeze_missing_files:" + ",".join(missing))
+    frozen_items = {"a": b"a"}
     return {
         "schema": "EXP-M-SOURCE-FREEZE/v1",
         "source_commit": source_commit,
         "source_tree": source_tree,
         "source_files": {path: sha256_path(path) for path in SOURCE_PATHS},
+        "delivery_authority": {
+            "requests": {
+                "r": {
+                    "reviewed_commit": source_commit,
+                    "manifest_hash": delivery_manifest_hash("r", source_commit, frozen_items),
+                }
+            }
+        },
         "authority_effect": "NONE",
         "exp_m_state": "NOT_QUALIFIED",
         "live_provider_api_execution": False,
