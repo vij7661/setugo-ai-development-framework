@@ -64,7 +64,7 @@ def delivery_manifest_hash(request_id: str, reviewed_commit: str, items: dict[st
 
 
 def build() -> dict:
-    dirty = _git("status", "--porcelain")
+    dirty = _git("status", "--porcelain", "--untracked-files=no")
     if dirty:
         raise SystemExit("source_freeze_requires_clean_worktree")
     source_commit = _git("rev-parse", "HEAD")
