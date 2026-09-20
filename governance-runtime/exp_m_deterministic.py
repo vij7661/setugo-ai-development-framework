@@ -228,6 +228,10 @@ class PromptIsolationQualificationRecord:
     issued_at: str | None = None
     record_hash: str = ""
 
+    def __post_init__(self) -> None:
+        if not self.record_hash:
+            object.__setattr__(self, "record_hash", digest({"record_id": self.record_id, "provider_id": self.provider_id, "mode": self.mode, "current": self.current, "expires_at": self.expires_at}))
+
 
 @dataclass(frozen=True)
 class WitnessProtocolQualificationRecord:
@@ -240,6 +244,10 @@ class WitnessProtocolQualificationRecord:
     expires_at: str | None = None
     issued_at: str | None = None
     record_hash: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.record_hash:
+            object.__setattr__(self, "record_hash", digest({"record_id": self.record_id, "provider_id": self.provider_id, "mode": self.mode, "max_response_bytes": self.max_response_bytes, "current": self.current, "prompt_isolation_mode": self.prompt_isolation_mode, "expires_at": self.expires_at}))
 
 
 @dataclass(frozen=True)
@@ -556,6 +564,7 @@ class PredicateContext:
     expected_challenge_id: str = ""
     expected_reviewer_policy_hash: str = "policy"
     expected_context_state_hash: str = "state"
+    expected_fence_state_hash: str = ""
     expected_qualification_profile: str = "TEST_PROFILE"
 
 
@@ -594,7 +603,8 @@ def context_from_state(state: Mapping[str, Any]) -> PredicateContext:
         expected_witness_answer_hash=str(state.get("expected_witness_answer_hash", digest(state.get("witness_expected_answer", "answer")))),
         expected_challenge_id=str(state.get("expected_challenge_id", "challenge")),
         expected_reviewer_policy_hash=str(state.get("expected_reviewer_policy_hash", "policy")),
-        expected_context_state_hash=str(state.get("expected_context_state_hash", "state")),
+        expected_context_state_hash=str(state.get("expected_context_state_hash", digest({"channels": ("memory", "config"), "state_hash": "state", "clean": True, "sentinel_passed": True}))),
+        expected_fence_state_hash=str(state.get("expected_fence_state_hash", digest({"fence_id": "fence", "version": "1", "current": True}))),
         expected_qualification_profile=str(state.get("expected_qualification_profile", "TEST_PROFILE")),
     )
 
@@ -784,7 +794,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         record = state.get("context_isolation_verdict")
         if not isinstance(record, ContextIsolationVerdict):
             return False
-        return validate_context_isolation(record.policy, record.evidence, record.fence, transition_class=record.transition_class, required_channels=record.required_channels)[0]
+        return validate_context_isolation(record.policy, record.evidence, record.fence, transition_class=record.transition_class, required_channels=record.required_channels, expected_observation_hash=context.expected_context_state_hash if context.expected_context_state_hash and len(context.expected_context_state_hash) == 64 else None, expected_fence_state_hash=context.expected_fence_state_hash)[0]
 
     def accessibility_policy_valid(state: Mapping[str, Any]) -> bool:
         policy, proof = state.get("accessibility_policy_record"), state.get("accessibility")
@@ -1108,7 +1118,7 @@ def validate_witness(challenge: str, response: str, *, max_response_bytes: int, 
     return not reasons, tuple(reasons)
 
 
-def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
+def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str], expected_observation_hash: str | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     # clean/sentinel_passed are diagnostic cache fields; the observed channel
     # set and a content-bound state hash are authoritative.
@@ -1120,6 +1130,8 @@ def validate_context_state(state: ProviderContextStateEvidence, *, required_chan
         reasons.append("context_state_unbound")
     if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash, "clean": state.clean, "sentinel_passed": state.sentinel_passed}):
         reasons.append("context_observation_hash_mismatch")
+    if expected_observation_hash is not None and state.observation_hash != expected_observation_hash:
+        reasons.append("context_expected_observation_mismatch")
     if not state.observation_hash:
         reasons.append("provider_context_observation_unbound")
     return not reasons, tuple(reasons)
@@ -1131,9 +1143,8 @@ def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[
         reasons.append("admission_fence_version_mismatch")
     if not fence.fence_id or (fence.state_hash and not isinstance(fence.state_hash, str)):
         reasons.append("admission_fence_unbound")
-    if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": fence.current}):
+    if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": True}):
         reasons.append("admission_fence_state_mismatch")
-    if fence.current is not True:
         reasons.append("admission_fence_stale")
     return not reasons, tuple(reasons)
 
@@ -1149,6 +1160,8 @@ def validate_prompt_isolation(record: PromptIsolationQualificationRecord, *, pro
     reasons: list[str] = []
     if record.provider_id != provider_id or record.mode != mode or not record.record_id:
         reasons.append("prompt_isolation_binding")
+    if record.record_hash != digest({"record_id": record.record_id, "provider_id": record.provider_id, "mode": record.mode, "current": True, "expires_at": record.expires_at}):
+        reasons.append("prompt_isolation_record_not_currently_bound")
     if record.expires_at is not None and record.expires_at <= now:
         reasons.append("prompt_isolation_expired")
     return not reasons, tuple(reasons)
@@ -1277,18 +1290,20 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
     return not reasons, tuple(reasons)
 
 
-def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
+def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str], expected_observation_hash: str | None = None, expected_fence_state_hash: str | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     if not policy.policy_id or policy.basis not in ("COMPLETE_READABLE_FENCED_STATE", "DEDICATED_PLATFORM_ACCOUNT_STATELESS_BOUNDARY"):
         reasons.append("context_policy_invalid")
     if transition_class == "HIGHEST" and policy.hidden_state_allowed:
         reasons.append("hidden_state_residual_disallowed")
-    clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels)
+    clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels, expected_observation_hash=expected_observation_hash)
     if not clean:
         reasons.extend(clean_reasons)
     fence_ok, fence_reasons = validate_fence(fence, fence.version)
     if not fence_ok:
         reasons.extend(fence_reasons)
+    if expected_fence_state_hash and fence.state_hash != expected_fence_state_hash:
+        reasons.append("admission_fence_expected_state_mismatch")
     return not reasons, tuple(reasons)
 
 
@@ -1311,6 +1326,8 @@ def validate_witness_qualification(record: WitnessProtocolQualificationRecord, *
     reasons: list[str] = []
     if record.provider_id != provider_id or record.mode != mode or record.prompt_isolation_mode != prompt_mode or not record.record_id:
         reasons.append("witness_record_binding")
+    if record.record_hash != digest({"record_id": record.record_id, "provider_id": record.provider_id, "mode": record.mode, "max_response_bytes": record.max_response_bytes, "current": True, "prompt_isolation_mode": record.prompt_isolation_mode, "expires_at": record.expires_at}):
+        reasons.append("witness_record_not_currently_bound")
     if record.expires_at is not None and record.expires_at <= now:
         reasons.append("witness_record_expired")
     if not challenge or not response or len(response.encode()) > record.max_response_bytes:
