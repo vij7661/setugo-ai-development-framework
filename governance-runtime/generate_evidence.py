@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -39,6 +40,13 @@ RESULT_JSONS = (
     "EXP-M-R2E-COMPOUND-RESULTS.json",
 )
 
+EXPECTED_GENERATED_PATHS = frozenset(
+    [str(FREEZE.relative_to(ROOT)).replace("\\", "/"),
+     str(MANIFEST.relative_to(ROOT)).replace("\\", "/")]
+    + [f"experiments/governed-platform/{name}" for name in RESULT_JSONS]
+    + [f"experiments/governed-platform/{stdout_name}" for _, _, stdout_name in COMMANDS]
+)
+
 
 def _git(*args: str) -> str:
     return subprocess.check_output(("git",) + args, cwd=ROOT, text=True).strip()
@@ -59,18 +67,36 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _tracked_status_lines() -> list[str]:
+def _status_lines() -> list[str]:
     raw = subprocess.check_output(
-        ("git", "status", "--porcelain", "--untracked-files=no"),
+        ("git", "status", "--porcelain", "--untracked-files=all"),
         cwd=ROOT, text=True,
     )
-    return raw.splitlines()
+    return [line for line in raw.splitlines() if line]
+
+
+def _path_from_status(line: str) -> str:
+    rel = line[3:].strip().replace("\\", "/")
+    if " -> " in rel:
+        rel = rel.split(" -> ", 1)[1]
+    return rel
+
+
+def _is_transient(path: str) -> bool:
+    return "/__pycache__/" in f"/{path}" or path.endswith(".pyc")
+
+
+def _cleanup_transients() -> None:
+    for cache in ROOT.rglob("__pycache__"):
+        if cache.is_dir():
+            shutil.rmtree(cache, ignore_errors=True)
 
 
 def _assert_clean_source_head() -> tuple[str, str]:
-    dirty = _tracked_status_lines()
+    _cleanup_transients()
+    dirty = [line for line in _status_lines() if not _is_transient(_path_from_status(line))]
     if dirty:
-        raise SystemExit("generate_evidence_requires_clean_source_worktree")
+        raise SystemExit("generate_evidence_requires_clean_source_worktree:" + ",".join(_path_from_status(x) for x in dirty))
     return _git("rev-parse", "HEAD"), _git("rev-parse", "HEAD^{tree}")
 
 
@@ -115,11 +141,7 @@ def _merge_compound_into_self_falsification() -> None:
 
 
 def _allowed_generated(path: str) -> bool:
-    name = Path(path).name
-    return (
-        path.startswith("experiments/governed-platform/EXP-M-")
-        and (name.endswith(".json") or name.endswith(".txt"))
-    )
+    return path in EXPECTED_GENERATED_PATHS
 
 
 def generate() -> dict:
@@ -196,34 +218,50 @@ def generate() -> dict:
     }
     MANIFEST.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    changed = _tracked_status_lines()
+    _cleanup_transients()
+    changed = _status_lines()
     bad = []
     for line in changed:
-        rel = line[3:].strip().replace("\\", "/")
-        if " -> " in rel:
-            rel = rel.split(" -> ", 1)[1]
+        rel = _path_from_status(line)
+        if _is_transient(rel):
+            continue
         if not _allowed_generated(rel):
             bad.append(rel)
     if bad:
         raise SystemExit("non_evidence_worktree_change:" + ",".join(sorted(set(bad))))
+    observed = {_path_from_status(line) for line in changed if not _is_transient(_path_from_status(line))}
+    required_changed = {str(FREEZE.relative_to(ROOT)).replace("\\", "/"), str(MANIFEST.relative_to(ROOT)).replace("\\", "/")}
+    if not required_changed.issubset(observed):
+        raise SystemExit("required_evidence_not_materialized:" + ",".join(sorted(required_changed - observed)))
     return payload
 
 
 def commit_evidence() -> str:
-    paths = []
-    for line in _git("status", "--porcelain", "--untracked-files=no").splitlines():
-        rel = line[3:].strip().replace("\\", "/")
-        if " -> " in rel:
-            rel = rel.split(" -> ", 1)[1]
+    _cleanup_transients()
+    paths: list[str] = []
+    unexpected: list[str] = []
+    for line in _status_lines():
+        rel = _path_from_status(line)
+        if _is_transient(rel):
+            continue
         if _allowed_generated(rel):
             paths.append(rel)
+        else:
+            unexpected.append(rel)
+    if unexpected:
+        raise SystemExit("unexpected_non_evidence_before_commit:" + ",".join(sorted(set(unexpected))))
     if not paths:
         raise SystemExit("no_generated_evidence_to_commit")
-    subprocess.check_call(("git", "add", "--") + tuple(sorted(set(paths))), cwd=ROOT)
-    staged = _git("diff", "--cached", "--name-only").splitlines()
-    if any(not _allowed_generated(path) for path in staged):
-        raise SystemExit("staged_non_evidence_path")
+    unique_paths = tuple(sorted(set(paths)))
+    subprocess.check_call(("git", "add", "--") + unique_paths, cwd=ROOT)
+    staged = tuple(_git("diff", "--cached", "--name-only").splitlines())
+    if set(staged) != set(unique_paths) or any(not _allowed_generated(path) for path in staged):
+        raise SystemExit("staged_evidence_set_mismatch")
     subprocess.check_call(("git", "commit", "-m", "evidence(exp-m): R2E generated evidence [R2E-EVIDENCE]"), cwd=ROOT)
+    _cleanup_transients()
+    leftover = [line for line in _status_lines() if not _is_transient(_path_from_status(line))]
+    if leftover:
+        raise SystemExit("post_evidence_commit_worktree_not_clean:" + ",".join(_path_from_status(x) for x in leftover))
     return _git("rev-parse", "HEAD")
 
 
