@@ -13,41 +13,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-prior-index:
-    if: contains(github.event.head_commit.message, '[R2E-BUILD-PRIOR-INDEX]')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Build and verify prior evidence index
-        shell: bash
-        run: |
-          set -euo pipefail
-          python governance-runtime/build_prior_evidence_index.py
-          python governance-runtime/verify_exp_m_prior_evidence.py
-      - name: Commit prior evidence index
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add experiments/governed-platform/PRIOR-EVIDENCE-INDEX.md
-          if git diff --cached --quiet; then
-            echo "Prior evidence index already current"
-            exit 0
-          fi
-          git commit -m "docs(exp-m): preserve prior evidence index"
-          git push
-
-  source-to-evidence:
+  final-source-evidence-packet:
     if: contains(github.event.head_commit.message, '[R2E-SOURCE-FREEZE]')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,99 +24,82 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Configure evidence committer
+      - name: Configure governed committer
         shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Generate E from exact source S
+      - name: Verify preserved historical evidence
         shell: bash
         run: |
           set -euo pipefail
+          python governance-runtime/verify_exp_m_prior_evidence.py
+      - name: Freeze S and generate E
+        shell: bash
+        run: |
+          set -euo pipefail
+          S="$(git rev-parse HEAD)"
           python governance-runtime/generate_evidence.py --commit
-          git push
-
-  packet-content:
-    if: contains(github.event.head_commit.message, '[R2E-EVIDENCE]')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Build packet content P
+          E="$(git rev-parse HEAD)"
+          test "$S" != "$E"
+          printf '%s\n' "$S" > /tmp/exp_m_S
+          printf '%s\n' "$E" > /tmp/exp_m_E
+          echo "S=$S"
+          echo "E=$E"
+      - name: Build and commit packet P
         shell: bash
         run: |
           set -euo pipefail
-          S="$(python -c "import json; print(json.load(open('experiments/governed-platform/EXP-M-SOURCE-FREEZE.json'))['source_commit'])")"
-          E="$(git rev-parse HEAD)"
+          S="$(cat /tmp/exp_m_S)"
+          E="$(cat /tmp/exp_m_E)"
+          test "$(git rev-parse HEAD)" = "$E"
           python governance-runtime/build_exp_m_r2e_packet.py --stage content --source "$S" --evidence "$E"
           CHANGED="$(git status --porcelain | sed 's/^...//' || true)"
           test "$CHANGED" = "experiments/governed-platform/EXP-M-R2E-PACKET-CONTENT.md"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add experiments/governed-platform/EXP-M-R2E-PACKET-CONTENT.md
           git commit -m "docs(exp-m): freeze R2E packet content [R2E-PACKET]"
-          git push
-
-  verify-packet-and-handoff:
-    if: contains(github.event.head_commit.message, '[R2E-PACKET]')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Verify exact S-E-P and build handoff
+          P="$(git rev-parse HEAD)"
+          printf '%s\n' "$P" > /tmp/exp_m_P
+          echo "P=$P"
+      - name: Verify S-E-P and build exact handoff
         shell: bash
         run: |
           set -euo pipefail
-          P="$(git rev-parse HEAD)"
-          E="$(git rev-parse HEAD^)"
-          S="$(python -c "import json; print(json.load(open('experiments/governed-platform/EXP-M-SOURCE-FREEZE.json'))['source_commit'])")"
+          S="$(cat /tmp/exp_m_S)"
+          E="$(cat /tmp/exp_m_E)"
+          P="$(cat /tmp/exp_m_P)"
           python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
           python governance-runtime/verify_exp_m_prior_evidence.py
           python governance-runtime/build_exp_m_r2e_packet.py --stage handoff --source "$S" --evidence "$E" --packet "$P"
           CHANGED="$(git status --porcelain | sed 's/^...//' || true)"
           test "$CHANGED" = "experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
           git commit -m "docs(exp-m): publish exact R2E review handoff [R2E-HANDOFF]"
-          git push
-
-  final-verification:
-    if: contains(github.event.head_commit.message, '[R2E-HANDOFF]')
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+          Q="$(git rev-parse HEAD)"
+          printf '%s\n' "$Q" > /tmp/exp_m_Q
+          echo "Q=$Q"
       - name: Final bounded verification
         shell: bash
         run: |
           set -euo pipefail
-          Q="$(git rev-parse HEAD)"
-          P="$(git rev-parse HEAD^)"
-          E="$(git rev-parse "$P^")"
-          S="$(python -c "import json; print(json.load(open('experiments/governed-platform/EXP-M-SOURCE-FREEZE.json'))['source_commit'])")"
+          S="$(cat /tmp/exp_m_S)"
+          E="$(cat /tmp/exp_m_E)"
+          P="$(cat /tmp/exp_m_P)"
+          Q="$(cat /tmp/exp_m_Q)"
           python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
           python governance-runtime/verify_exp_m_prior_evidence.py
           test "$(git diff --name-only "$P" "$Q")" = "experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md"
           grep -F -- "- S: $S" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
           grep -F -- "- E: $E" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
           grep -F -- "- P: $P" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
+          test -z "$(git status --porcelain)"
           echo "R2E_S_E_P_FINAL_VERIFICATION=PASS"
           echo "EXP_M=NOT_QUALIFIED"
           echo "AUTHORITY_EFFECT=NONE"
           echo "LIVE_PROVIDER_API_EXECUTION=false"
+      - name: Push governed E-P-Q chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin HEAD:experiment/exp-m-deterministic-r2e
