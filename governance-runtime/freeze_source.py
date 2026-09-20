@@ -13,30 +13,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-SOURCE-FREEZE.json"
 
-SOURCE_PATHS = (
-    "governance-runtime/exp_m_deterministic.py",
-    "governance-runtime/exp_m_expectation_authority.py",
-    "governance-runtime/exp_m_predicate_registry.py",
-    "governance-runtime/exp_m_mutation_catalog.py",
-    "governance-runtime/exp_m_review_fixtures.py",
-    "governance-runtime/exp_m_test_fixtures.py",
-    "governance-runtime/run_exp_m_deterministic.py",
-    "governance-runtime/run_exp_m_mutations.py",
-    "governance-runtime/run_exp_m_tests.py",
-    "governance-runtime/self_falsify_exp_m.py",
-    "governance-runtime/self_adjudicate_r2d.py",
-    "governance-runtime/test_exp_m_deterministic.py",
-    "governance-runtime/test_exp_m_phases.py",
-    "governance-runtime/reviewer_exp_m_r2e_suite.py",
-    "governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
-    "governance-runtime/reviewer_exp_m_r2e_compound_suite.py",
-    "governance-runtime/run_reviewer_compound_attacks.py",
-    "governance-runtime/build_prior_evidence_index.py",
-    "governance-runtime/verify_exp_m_prior_evidence.py",
-    "governance-runtime/verify_exp_m_sep_sequence.py",
-    "governance-runtime/verify_sep_sequence.py",
+EXPLICIT_SOURCE_PATHS = (
+    "governance-runtime/freeze_source.py",
     "governance-runtime/generate_evidence.py",
-    "governance-runtime/build_exp_m_r2e_packet.py",
+    "governance-runtime/verify_sep_sequence.py",
+    "governance-runtime/self_adjudicate_r2d.py",
     ".github/workflows/exp-m-r2e-offline.yml",
     ".github/workflows/exp-m-r2e-sep.yml",
 )
@@ -48,6 +29,15 @@ def _git(*args: str) -> str:
 
 def sha256_path(path: str) -> str:
     return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+
+
+def source_paths() -> tuple[str, ...]:
+    tracked = _git("ls-files", "governance-runtime").splitlines()
+    dynamic = {
+        path for path in tracked
+        if path.endswith(".py") and "exp_m" in Path(path).name
+    }
+    return tuple(sorted(dynamic | set(EXPLICIT_SOURCE_PATHS)))
 
 
 def canonical_json(value) -> bytes:
@@ -69,7 +59,8 @@ def build() -> dict:
         raise SystemExit("source_freeze_requires_clean_worktree")
     source_commit = _git("rev-parse", "HEAD")
     source_tree = _git("rev-parse", "HEAD^{tree}")
-    missing = [path for path in SOURCE_PATHS if not (ROOT / path).is_file()]
+    paths = source_paths()
+    missing = [path for path in paths if not (ROOT / path).is_file()]
     if missing:
         raise SystemExit("source_freeze_missing_files:" + ",".join(missing))
     frozen_items = {"a": b"a"}
@@ -77,7 +68,7 @@ def build() -> dict:
         "schema": "EXP-M-SOURCE-FREEZE/v1",
         "source_commit": source_commit,
         "source_tree": source_tree,
-        "source_files": {path: sha256_path(path) for path in SOURCE_PATHS},
+        "source_files": {path: sha256_path(path) for path in paths},
         "delivery_authority": {
             "requests": {
                 "r": {
