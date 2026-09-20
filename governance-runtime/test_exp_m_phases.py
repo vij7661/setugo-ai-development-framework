@@ -12,6 +12,11 @@ from exp_m_deterministic import (  # noqa: E402
 )
 from run_exp_m_deterministic import run_phases  # noqa: E402
 from run_exp_m_mutations import run as run_mutations  # noqa: E402
+from exp_m_test_fixtures import bundle_from_state  # noqa: E402
+from exp_m_expectation_authority import load_default_authority, load_predicate_context  # noqa: E402
+
+AUTHORITY = load_default_authority()
+AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
 
 
 class ExpMPhaseTests(unittest.TestCase):
@@ -49,7 +54,7 @@ class ExpMPhaseTests(unittest.TestCase):
             "disposition": "PASS", "disposition_promotable": True,
         }
         mod = __import__("exp_m_deterministic")
-        self.assertTrue(mod.evaluate_admissibility(mod.bundle_from_state(state), mod.context_from_state(state), reg).admissible)
+        self.assertTrue(mod.evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, reg, authority=AUTHORITY).admissible)
 
 
 if __name__ == "__main__":
