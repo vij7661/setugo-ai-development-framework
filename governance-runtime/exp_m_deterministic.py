@@ -707,7 +707,7 @@ def admissibility_registry() -> AdmissibilityPredicateRegistry:
     return AdmissibilityPredicateRegistry("3", required_predicate_ids(), mutation_target_ids(), tuple(item["fixture_id"] for item in FIXTURE_CATALOG), tuple((item["fixture_id"], item["target_predicate_id"]) for item in FIXTURE_CATALOG))
 
 
-def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
+def _predicate_validators(context: PredicateContext, authority: Any | None = None) -> dict[str, Any]:
     def egress_valid(state: Mapping[str, Any]) -> bool:
         egress = state.get("egress")
         if not isinstance(egress, Mapping):
@@ -742,7 +742,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         profile, plan, record = state.get("capability_profile"), state.get("qualification_plan"), state.get("capability_record")
         if not isinstance(profile, ProviderCapabilityProfile) or not isinstance(plan, ProviderQualificationExecutionPlan) or not isinstance(record, ProviderCapabilityQualificationRecord):
             return False
-        return validate_capability(profile, plan, record, now=str(state.get("now", "2099-01-01T00:00:00Z")), expected_provider=context.expected_provider, expected_model=context.expected_model, expected_operating_point=context.expected_operating_point, expected_profile_hash=context.expected_profile_hash, required_format="text", required_context_bytes=context.max_context_bytes)[0]
+        return validate_capability(profile, plan, record, now=str(state.get("now", "2099-01-01T00:00:00Z")), expected_provider=context.expected_provider, expected_model=context.expected_model, expected_operating_point=context.expected_operating_point, expected_profile_hash=context.expected_profile_hash, required_format="text", required_context_bytes=context.max_context_bytes, authority=authority)[0]
 
     def context_isolation_valid(state: Mapping[str, Any]) -> bool:
         record = state.get("context_isolation_verdict")
@@ -773,7 +773,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         manifest, materialized, wire, receipt, returned = state.get("manifest"), state.get("materialization"), state.get("wire"), state.get("receipt"), state.get("returned_items")
         if not isinstance(manifest, EvidenceDeliveryManifest) or not isinstance(materialized, MaterializationResult) or not isinstance(wire, WireDeliveryRecord) or not isinstance(receipt, ReviewerReceipt) or not isinstance(returned, Mapping) or any(not isinstance(v, bytes) for v in returned.values()):
             return False
-        return validate_wire_delivery(manifest, materialized, wire, receipt, returned, expected_commit=context.reviewed_commit, expected_semantic_hash=context.expected_semantic_hash or None)[0]
+        return validate_wire_delivery(manifest, materialized, wire, receipt, returned, expected_commit=context.reviewed_commit, expected_semantic_hash=context.expected_semantic_hash or None, authority=authority)[0]
 
     def delivery_valid(state: Mapping[str, Any]) -> bool:
         if isinstance(state.get("delivery"), DeliveryCompletenessResult) and not state["delivery"].complete:
@@ -854,7 +854,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         "delivery_complete": delivery_valid,
         "accessibility_proven": accessibility_proof_valid,
         "witness_record_current": witness_valid,
-        "session_retrieval_coverage": lambda s: isinstance(s.get("retrieval"), RetrievalEvidenceRecord) and validate_retrieval(s["retrieval"], s.get("retrieval_bytes", b""), expected_request=context.request_id, expected_attempt=context.attempt_id, expected_session=context.session_id, expected_source=context.retrieval_source, expected_version=context.retrieval_version, expected_context_id=context.final_context_id, expected_context_hash=context.final_context_hash)[0],
+        "session_retrieval_coverage": lambda s: isinstance(s.get("retrieval"), RetrievalEvidenceRecord) and validate_retrieval(s["retrieval"], expected_request=context.request_id, expected_attempt=context.attempt_id, expected_session=context.session_id, expected_source=context.retrieval_source, expected_version=context.retrieval_version, expected_context_id=context.final_context_id, expected_context_hash=context.final_context_hash, authority=authority)[0],
         "prompt_isolation_current": prompt_valid,
         "semantic_coverage": semantic_coverage_valid,
         "reviewer_provenance": reviewer_valid,
@@ -867,7 +867,7 @@ def evaluate_admissibility(bundle: EvidenceBundle, context: PredicateContext, re
     if not authority_context_valid(authority, context):
         return VerdictAdmissibilityResult(False, "INADMISSIBLE", {}, ("expectation_authority_invalid",))
     registry = registry or admissibility_registry()
-    validators = _predicate_validators(context)
+    validators = _predicate_validators(context, authority)
     state = bundle.evidence
     predicates = {pid: bool(validators[pid](state)) for pid in registry.predicate_ids if pid != "disposition_promotable"}
     if "disposition_promotable" in registry.predicate_ids:
