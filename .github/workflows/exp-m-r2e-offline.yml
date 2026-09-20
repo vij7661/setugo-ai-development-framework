@@ -7,6 +7,8 @@ on:
     paths:
       - 'governance-runtime/**'
       - 'experiments/governed-platform/EXP-M-R5-QUALIFICATION-PROTOCOL.json'
+      - 'experiments/governed-platform/EXP-M-R2E-*'
+      - 'experiments/governed-platform/r2e-authority/**'
       - '.github/workflows/exp-m-r2e-offline.yml'
 
 permissions:
@@ -31,6 +33,8 @@ jobs:
           set -euo pipefail
           cd governance-runtime
           python run_exp_m_tests.py
+          python reviewer_exp_m_r2e_suite.py
+          python reviewer_exp_m_r2e_authority_suite.py
           python run_exp_m_deterministic.py
           python run_exp_m_mutations.py
           python self_falsify_exp_m.py
