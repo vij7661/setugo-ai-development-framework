@@ -1443,7 +1443,7 @@ def validate_witness_qualification(record: WitnessProtocolQualificationRecord, *
     return not reasons, tuple(reasons)
 
 
-def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: MaterializationResult, wire: WireDeliveryRecord, receipt: ReviewerReceipt, returned_items: Mapping[str, bytes], *, expected_commit: str, expected_semantic_hash: str | None) -> tuple[bool, tuple[str, ...]]:
+def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: MaterializationResult, wire: WireDeliveryRecord, receipt: ReviewerReceipt, returned_items: Mapping[str, bytes], *, expected_commit: str, expected_semantic_hash: str | None = None, authority: Any | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     completion = complete_delivery(manifest, receipt, wire)
     if not completion.complete:
@@ -1451,6 +1451,20 @@ def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: Mat
     raw_ok, raw_reasons = manifest.verify(returned_items)
     if not raw_ok:
         reasons.extend(raw_reasons)
+    if authority is None:
+        reasons.append("delivery_authority_missing")
+    else:
+        try:
+            authority_commit = authority.resolve_reviewed_commit()
+            if manifest.reviewed_commit != authority_commit or expected_commit != authority_commit:
+                reasons.append("authority_reviewed_commit_mismatch")
+            expected_delivery = authority.expected_delivery(manifest.request_id)
+            if str(expected_delivery.get("reviewed_commit", "")) != authority_commit:
+                reasons.append("authority_delivery_commit_mismatch")
+            if str(expected_delivery.get("manifest_hash", "")) != manifest.manifest_hash:
+                reasons.append("authority_manifest_hash_mismatch")
+        except ValueError as exc:
+            reasons.append(str(exc))
     if manifest.reviewed_commit != expected_commit:
         reasons.append("reviewed_commit_mismatch")
     if materialized.source_hash != expected_commit:
@@ -1466,8 +1480,7 @@ def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: Mat
         reasons.append("wire_hash_mismatch")
     if wire.semantic_hash != expected_wire_hash:
         reasons.append("semantic_envelope_hash_mismatch")
-    return not reasons, tuple(reasons)
-
+    return not reasons, tuple(dict.fromkeys(reasons))
 
 def admit_review_attempt(current: Mapping[str, Any], expected: AttemptState, *, attempt_id: str, expected_generation: int, ledger: PersistentAdmissionLedger | None = None) -> AdmissionCheckpoint:
     """Final compare-and-set admission; any drift permanently voids the attempt."""
