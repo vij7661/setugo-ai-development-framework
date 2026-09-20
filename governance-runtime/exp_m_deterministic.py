@@ -1294,8 +1294,8 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
     return MaterializationResult(not reasons, clean, representation_hash, source_hash, transform_id, tuple(reasons))
 
 
-def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualificationExecutionPlan, record: ProviderCapabilityQualificationRecord, *, now: str, expected_provider: str, expected_model: str, expected_operating_point: str, expected_profile_hash: str, required_format: str, required_context_bytes: int) -> tuple[bool, tuple[str, ...]]:
-    """Compute capability currentness from bound records; no qualified flag is authoritative."""
+def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualificationExecutionPlan, record: ProviderCapabilityQualificationRecord, *, now: str, expected_provider: str, expected_model: str, expected_operating_point: str, expected_profile_hash: str, required_format: str, required_context_bytes: int, authority: Any | None = None) -> tuple[bool, tuple[str, ...]]:
+    """Compute capability currentness from bound records and frozen authority."""
     reasons: list[str] = []
     if not plan.plan_id or not record.plan_id or plan.plan_id != record.plan_id:
         reasons.append("qualification_plan_identity_mismatch")
@@ -1313,44 +1313,138 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
         reasons.append("unsupported_format")
     if profile.max_context_bytes < required_context_bytes:
         reasons.append("context_limit_exceeded")
+
+    # For non-production deterministic profiles, the plan and record are
+    # compared to an authority-owned qualification ledger when an authority is
+    # supplied by the production admission path.
+    if authority is not None and plan.qualification_profile != "R5_PRODUCTION":
+        try:
+            entry = authority.qualification_entry(plan.plan_id)
+        except ValueError as exc:
+            reasons.append(str(exc))
+        else:
+            expected_plan = entry.get("plan") or {}
+            expected_record = entry.get("record") or {}
+            plan_checks = {
+                "plan_id": plan.plan_id,
+                "provider_id": plan.provider_id,
+                "operating_point": plan.operating_point,
+                "trial_ids": list(plan.trial_ids),
+                "confirmation_ids": list(plan.confirmation_ids),
+                "qualification_profile": plan.qualification_profile,
+                "schedule_seed": plan.schedule_seed,
+                "scheduled_days": list(plan.scheduled_days),
+                "scheduled_time_blocks": list(plan.scheduled_time_blocks),
+                "production_envelope_hash": plan.production_envelope_hash,
+            }
+            if any(expected_plan.get(k) != v for k, v in plan_checks.items()):
+                reasons.append("qualification_authority_plan_mismatch")
+            record_checks = {
+                "plan_id": record.plan_id,
+                "profile_hash": record.profile_hash,
+                "statistical_qualified": record.statistical_qualified,
+                "all_trials_closed": record.all_trials_closed,
+                "hard_failures": record.hard_failures,
+                "operating_point": record.operating_point,
+                "planned_attempt_ids": list(record.planned_attempt_ids),
+                "closed_attempt_ids": list(record.closed_attempt_ids),
+                "provider_id": record.provider_id,
+                "model_id": record.model_id,
+                "protocol_version": record.protocol_version,
+                "independence_status": record.independence_status,
+            }
+            if any(expected_record.get(k) != v for k, v in record_checks.items()):
+                reasons.append("qualification_authority_record_mismatch")
+            expected_attempts = expected_record.get("attempt_records") or []
+            actual_attempts = [
+                {
+                    "attempt_id": a.attempt_id,
+                    "planned_root_id": a.planned_root_id,
+                    "parent_attempt_id": a.parent_attempt_id,
+                    "kind": a.kind,
+                    "request_id": a.request_id,
+                    "session_id": a.session_id,
+                    "wire_hash": a.wire_hash,
+                    "outcome": a.outcome,
+                    "provider_request_id": a.provider_request_id,
+                    "request_hash": a.request_hash,
+                    "utc_day": a.utc_day,
+                    "time_block": a.time_block,
+                } for a in record.attempt_records
+            ]
+            if expected_attempts != actual_attempts:
+                reasons.append("qualification_authority_attempt_mismatch")
+
     attempts = list(record.attempt_records)
     physical_failures = sum(1 for a in attempts if getattr(a, "kind", "FIRST") == "FIRST" and getattr(a, "outcome", "") not in ("OK", "SUCCESS", "PASS"))
     if record.hard_failures != physical_failures:
         reasons.append("hard_failure_count_not_derived")
     if physical_failures != 0:
         reasons.append("qualification_not_statistically_valid")
+
     if plan.qualification_profile == "R5_PRODUCTION":
-        # Frozen R5 production protocol: a fixed, non-optional population with
-        # no replacement/retry and a one-sided 95% lower bound of at least .95.
-        if len(plan.confirmation_ids) < 299 or len(plan.trial_ids) == 0:
-            reasons.append("production_confirmation_plan_too_small")
-        if not attempts:
-            reasons.append("production_attempts_missing")
-        expected_population = set(plan.trial_ids) | set(plan.confirmation_ids)
-        if len(attempts) != len(expected_population) or {getattr(a, "planned_root_id", "") for a in attempts if getattr(a, "kind", "FIRST") == "FIRST"} != expected_population:
-            reasons.append("production_population_mismatch")
-        if any(getattr(a, "kind", "FIRST") != "FIRST" for a in attempts):
-            reasons.append("production_hidden_retry_or_replacement")
-        successes = len(attempts) - physical_failures
-        n = len(attempts)
-        if n:
-            # Exact one-sided 95% Clopper-Pearson lower bound for the
-            # required zero-failure case.  Outside that exact case we fail
-            # closed rather than substitute an approximation.
-            if physical_failures:
-                reasons.append("production_statistical_lower_bound_below_threshold")
-            elif successes != n:
-                reasons.append("production_exact_cp_case_unsupported")
-            else:
-                lower = math.pow(0.05, 1.0 / n)
-                if lower < 0.99:
+        protocol = None
+        if authority is None:
+            reasons.append("r5_protocol_unavailable")
+        else:
+            try:
+                protocol = authority.load_r5_protocol()
+            except ValueError:
+                reasons.append("r5_protocol_unavailable")
+        if protocol is not None:
+            confirmation_min = int(protocol.get("n_min", 0))
+            if len(plan.confirmation_ids) < confirmation_min or len(plan.trial_ids) == 0:
+                reasons.append("production_confirmation_plan_too_small")
+            if not attempts:
+                reasons.append("production_attempts_missing")
+            expected_population_order = tuple(plan.trial_ids) + tuple(plan.confirmation_ids)
+            expected_population = set(expected_population_order)
+            first_attempts = [a for a in attempts if getattr(a, "kind", "FIRST") == "FIRST"]
+            if len(attempts) != len(expected_population) or {getattr(a, "planned_root_id", "") for a in first_attempts} != expected_population:
+                reasons.append("production_population_mismatch")
+            if any(getattr(a, "kind", "FIRST") != "FIRST" for a in attempts):
+                reasons.append("production_hidden_retry_or_replacement")
+            successes = len(attempts) - physical_failures
+            n = len(attempts)
+            if n:
+                confidence = float(protocol.get("confidence_level", 0.0))
+                threshold = float(protocol.get("lower_bound_threshold", 1.0))
+                if physical_failures or successes != n or protocol.get("success_requirement") != "ZERO_FIRST_ATTEMPT_FAILURES":
                     reasons.append("production_statistical_lower_bound_below_threshold")
-        if record.protocol_version != "R5-CP-1":
-            reasons.append("production_protocol_version_mismatch")
-        if len(set(getattr(plan, "scheduled_days", ()))) < 3 or len(set(getattr(plan, "scheduled_time_blocks", ()))) < 4:
-            reasons.append("production_schedule_diversity_insufficient")
+                else:
+                    alpha = 1.0 - confidence
+                    if not (0.0 < alpha < 1.0):
+                        reasons.append("production_statistical_protocol_invalid")
+                    else:
+                        lower = math.pow(alpha, 1.0 / n)
+                        if lower < threshold:
+                            reasons.append("production_statistical_lower_bound_below_threshold")
+            if record.protocol_version != str(protocol.get("protocol_id", "")):
+                reasons.append("production_protocol_version_mismatch")
+            sched = protocol.get("schedule_requirements") or {}
+            days = tuple(plan.scheduled_days)
+            blocks = tuple(plan.scheduled_time_blocks)
+            if len(set(days)) < int(sched.get("min_distinct_days", 0)) or len(set(blocks)) < int(sched.get("min_distinct_time_blocks", 0)):
+                reasons.append("production_schedule_diversity_insufficient")
+            if bool(sched.get("require_exact_plan_coverage")) and attempts:
+                used_days = {getattr(a, "utc_day", "") for a in first_attempts}
+                used_blocks = {getattr(a, "time_block", "") for a in first_attempts}
+                if used_days != set(days) or used_blocks != set(blocks):
+                    reasons.append("production_schedule_attempt_coverage_mismatch")
+            if sched.get("assignment_rule") == "ROUND_ROBIN_DECLARED_ORDER" and days and blocks and attempts:
+                by_root = {getattr(a, "planned_root_id", ""): a for a in first_attempts}
+                for index, root_id in enumerate(expected_population_order):
+                    a = by_root.get(root_id)
+                    if a is None:
+                        continue
+                    if a.utc_day != days[index % len(days)] or a.time_block != blocks[index % len(blocks)]:
+                        reasons.append("production_schedule_distribution_mismatch")
+                        break
+            if protocol.get("retry_policy") == "NO_RETRY_OR_REPLACEMENT" and any(getattr(a, "kind", "FIRST") != "FIRST" for a in attempts):
+                reasons.append("production_retry_policy_violation")
         if getattr(record, "independence_status", "STATISTICAL_INDEPENDENCE_UNPROVEN") != "STATISTICAL_INDEPENDENCE_UNPROVEN":
             reasons.append("production_independence_status_unexpected")
+
     expected_roots = set(plan.trial_ids) | set(plan.confirmation_ids)
     if not record.planned_attempt_ids or not record.closed_attempt_ids or set(record.planned_attempt_ids) != expected_roots or set(record.closed_attempt_ids) != expected_roots:
         reasons.append("qualification_attempt_closure")
@@ -1362,8 +1456,7 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
             reasons.append("qualification_retry_lineage_invalid")
     if profile.expires_at is not None and profile.expires_at <= now:
         reasons.append("profile_expired")
-    return not reasons, tuple(reasons)
-
+    return not reasons, tuple(dict.fromkeys(reasons))
 
 def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str], expected_transition_class: str | None = None, expected_fence_version: str | None = None, expected_observation_hash: str | None = None, expected_fence_state_hash: str | None = None, expected_fence_authority_id: str = "platform-protected-resource", expected_fence_authority_hash: str = "protected-resource-v1", expected_fence_issuer_id: str = "platform-fence-observer", expected_fence_attestation: str = "fence-attestation-v1") -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
