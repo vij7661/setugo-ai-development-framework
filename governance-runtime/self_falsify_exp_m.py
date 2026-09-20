@@ -9,15 +9,31 @@ sys.path.insert(0, str(Path(__file__).parent))
 from exp_m_deterministic import (  # noqa: E402
     EvidenceDeliveryManifest, GovernanceAuthoritySnapshot, RequiredEvidenceContract,
     RequiredInteractionContract, ProviderCapabilityProfile, EvidenceChunk,
-    admissibility_registry, complete_delivery, digest, evaluate_admissibility,
+    admissibility_registry, complete_delivery, digest, evaluate_admissibility as _production_evaluate_admissibility,
     preflight_delivery, validate_attempt_ledger, validate_chunks,
     validate_retry_transparency, validate_witness,
-    bundle_from_state, context_from_state,
     ProviderQualificationExecutionPlan, ProviderCapabilityQualificationRecord,
     validate_capability, PersistentAdmissionLedger, admissibility_registry,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+from exp_m_test_fixtures import bundle_from_state as _fixture_bundle_from_state, context_from_state as _unauthorized_context_from_state
+from exp_m_expectation_authority import load_default_authority, load_predicate_context
+
+AUTHORITY = load_default_authority()
+AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
+
+def context_from_state(_state):
+    # Compatibility name for historical adversarial cases.  Returning the
+    # preregistered context prevents a trivial unauthorized-context rejection
+    # from making the self-falsification suite falsely green.
+    return AUTHORITY_CONTEXT
+
+def bundle_from_state(state):
+    return _fixture_bundle_from_state(state, AUTHORITY_CONTEXT)
+
+def evaluate_admissibility(bundle, context=None, registry=None):
+    return _production_evaluate_admissibility(bundle, AUTHORITY_CONTEXT, registry, authority=AUTHORITY)
 
 
 def run():
