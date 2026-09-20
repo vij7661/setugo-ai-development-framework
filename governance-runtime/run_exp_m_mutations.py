@@ -19,27 +19,24 @@ from exp_m_deterministic import (  # noqa: E402
     validate_context_isolation, materialize_entries, validate_retrieval, validate_witness_qualification,
     admit_review_attempt, validate_wire_delivery, WireDeliveryRecord, validate_egress, validate_prompt_isolation,
     validate_registry_version, validate_retry_transparency,
-    bundle_from_state, context_from_state,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
     RepresentationRecord,
     PhysicalAttemptRecord,
-    PredicateContext,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 from exp_m_review_fixtures import FIXTURE_CATALOG, build_negative_fixture
+from exp_m_test_fixtures import bundle_from_state
+from exp_m_expectation_authority import load_default_authority, load_predicate_context
 
-
-FROZEN_MUTATION_CONTEXT = PredicateContext(
-    "r", "a", "s", "commit", "s", "h", "1", "fake", "deterministic", "adapter", "default", "profile-hash", "1",
-    "LOWER", "1", "fake", "inline", "fake", "inline", "prompt", "file", "v", "ctx", "ctx-h", 1_000_000, "2", ("PASS",)
-)
+AUTHORITY = load_default_authority()
+FROZEN_MUTATION_CONTEXT = load_predicate_context(AUTHORITY)
 
 
 def evaluate(state, registry):
     # Mutation fixtures are evaluated against this independently frozen
     # context; expected identities are never derived from the mutated state.
-    return evaluate_admissibility(bundle_from_state(state), FROZEN_MUTATION_CONTEXT, registry)
+    return evaluate_admissibility(bundle_from_state(state, FROZEN_MUTATION_CONTEXT), FROZEN_MUTATION_CONTEXT, registry, authority=AUTHORITY)
 
 
 def _mutated_evaluate(predicate, state, registry):
