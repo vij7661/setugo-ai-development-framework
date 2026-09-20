@@ -931,8 +931,26 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
     def delivery_valid(state: Mapping[str, Any]) -> bool:
         if isinstance(state.get("delivery"), DeliveryCompletenessResult) and not state["delivery"].complete:
             return False
-        manifest, receipt, returned = state.get("manifest"), state.get("receipt"), state.get("returned_items")
-        return isinstance(manifest, EvidenceDeliveryManifest) and isinstance(receipt, ReviewerReceipt) and receipt.complete and receipt.request_id == manifest.request_id and set(receipt.received_item_ids) == set(manifest.items) and isinstance(returned, Mapping) and receipt.received_bytes == sum(len(v) for v in returned.values())
+        manifest, materialized, wire, receipt, returned = state.get("manifest"), state.get("materialization"), state.get("wire"), state.get("receipt"), state.get("returned_items")
+        if not isinstance(manifest, EvidenceDeliveryManifest) or not isinstance(materialized, MaterializationResult) or not isinstance(wire, WireDeliveryRecord) or not isinstance(receipt, ReviewerReceipt) or not isinstance(returned, Mapping) or any(not isinstance(v, bytes) for v in returned.values()):
+            return False
+        # receipt.complete is only a consistency assertion; byte/wire/commit/semantic
+        # completeness is recomputed by the authoritative delivery validator.
+        return receipt.complete and validate_wire_delivery(
+            manifest, materialized, wire, receipt, returned,
+            expected_commit=context.reviewed_commit,
+            expected_semantic_hash=context.expected_semantic_hash or None,
+        )[0]
+
+    def disposition_valid(state: Mapping[str, Any]) -> bool:
+        results = state.get("__governor_predicate_results__")
+        if not isinstance(results, Mapping) or not results:
+            return False
+        derived = "PASS" if all(bool(v) for v in results.values()) else "CHANGES_REQUIRED"
+        caller = state.get("disposition")
+        if caller is not None and caller != derived:
+            return False
+        return derived in context.promotable_dispositions
 
     def accessibility_proof_valid(state: Mapping[str, Any]) -> bool:
         proof, challenge = state.get("accessibility"), state.get("witness_challenge")
@@ -993,12 +1011,8 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         "prompt_isolation_current": prompt_valid,
         "semantic_coverage": semantic_coverage_valid,
         "reviewer_provenance": reviewer_valid,
-        "disposition_promotable": lambda s: s.get("disposition") in context.promotable_dispositions,
+        "disposition_promotable": disposition_valid,
     }
-
-
-def _validate_disposition(state: Mapping[str, Any], context: PredicateContext, predicate_results: Mapping[str, bool]) -> bool:
-    return state.get("disposition") in context.promotable_dispositions and all(v for k, v in predicate_results.items() if k != "disposition_promotable")
 
 
 def evaluate_admissibility(bundle: EvidenceBundle, context: PredicateContext, registry: AdmissibilityPredicateRegistry | None = None) -> VerdictAdmissibilityResult:
@@ -1006,12 +1020,11 @@ def evaluate_admissibility(bundle: EvidenceBundle, context: PredicateContext, re
     validators = _predicate_validators(context)
     state = bundle.evidence
     predicates = {pid: bool(validators[pid](state)) for pid in registry.predicate_ids if pid != "disposition_promotable"}
-    reasons = tuple(pid for pid, ok in predicates.items() if not ok)
-    # Disposition validation is evaluated against the complete result, not a
-    # caller-provided summary field.
     if "disposition_promotable" in registry.predicate_ids:
-        predicates["disposition_promotable"] = _validate_disposition(state, context, predicates)
-        reasons = tuple(pid for pid, ok in predicates.items() if not ok)
+        disposition_state = dict(state)
+        disposition_state["__governor_predicate_results__"] = dict(predicates)
+        predicates["disposition_promotable"] = bool(validators["disposition_promotable"](disposition_state))
+    reasons = tuple(pid for pid, ok in predicates.items() if not ok)
     return VerdictAdmissibilityResult(not reasons, "REVIEW_CONTEXT_QUALIFIED_AVAILABLE" if not reasons else "INADMISSIBLE", predicates, reasons)
 
 
@@ -1382,7 +1395,7 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
                         continue
                     seen.add(nested)
                     total += len(nested_data)
-                    if raw_member.lower().endswith((".zip", ".jar", ".whl")) or nested_data.startswith(b"PK\\x03\\x04"):
+                    if zipfile.is_zipfile(__import__("io").BytesIO(nested_data)):
                         walk_archive(nested_data, nested, depth + 1)
                     else:
                         clean[nested] = nested_data
