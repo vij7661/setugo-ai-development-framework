@@ -787,6 +787,7 @@ def _predicate_validators(context: PredicateContext, authority: Any | None = Non
             manifest, materialized, wire, receipt, returned,
             expected_commit=context.reviewed_commit,
             expected_semantic_hash=context.expected_semantic_hash or None,
+            authority=authority,
         )[0]
 
     def disposition_valid(state: Mapping[str, Any]) -> bool:
