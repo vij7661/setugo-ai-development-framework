@@ -45,7 +45,6 @@ def evaluate(state, registry):
 def _mutated_evaluate(predicate, state, registry):
     import exp_m_deterministic as production
     original = production._predicate_validators
-    original_disposition = production._validate_disposition
     def mutated_validators(context, _original=original, _predicate=predicate):
         validators = _original(context)
         # R2C requires one exact production guard per isolated mutant.  No
@@ -53,13 +52,11 @@ def _mutated_evaluate(predicate, state, registry):
         validators[_predicate] = lambda _state: True
         return validators
     production._predicate_validators = mutated_validators
-    if predicate == "disposition_promotable": production._validate_disposition = lambda _state, _context, _results: True
     try:
         result = evaluate(state, registry)
         return {"admissible": result.admissible, "reasons": list(result.reasons)}
     finally:
         production._predicate_validators = original
-        production._validate_disposition = original_disposition
 
 
 def isolated_mutant_result(predicate, state, registry):
@@ -173,9 +170,30 @@ def run() -> dict:
     mutations.append({"id": "TM-R2-forged-complete-receipt", "family": "data_state", "target": "receipt_returned_bytes", "expected": "REJECT", "actual": "REJECT" if not forged_ok else "PASS", "reasons": list(forged_reasons), "killed": not forged_ok})
     lineage_ok, lineage_reasons = validate_retry_transparency((PhysicalAttemptRecord("retry", "root", None, "RETRY", "r", "s", "w", "OK"),), planned_root_ids=("root",), expected_request="r", expected_session="s")
     mutations.append({"id": "TM-R2-broken-retry-lineage", "family": "data_state", "target": "retry_lineage", "expected": "REJECT", "actual": "REJECT" if not lineage_ok else "PASS", "reasons": list(lineage_reasons), "killed": not lineage_ok})
-    rejected = sum(1 for m in mutations if m["killed"])
     logic = [m for m in mutations if m.get("family") == "validator_logic"]
-    return {"experiment": "EXP-M", "total_mutations": len(mutations), "rejected_mutations": rejected, "surviving_mutations": len(mutations) - rejected, "all_rejected": rejected == len(mutations), "mutations": mutations,
+    data_state = [m for m in mutations if m.get("family") == "data_state"]
+    validator_logic_total = len(logic)
+    validator_logic_killed_count = sum(1 for m in logic if m.get("killed") is True)
+    data_state_total = len(data_state)
+    data_state_rejected_count = sum(1 for m in data_state if m.get("actual") == "REJECT" and m.get("killed") is True)
+    validator_logic_all_killed = validator_logic_killed_count == validator_logic_total
+    data_state_all_rejected = data_state_rejected_count == data_state_total
+    # Backward-compatible aggregate fields remain diagnostic only.  The
+    # authoritative closure gate is the conjunction of the two family-specific
+    # semantics above; unlike R2D it never adds unlike meanings together.
+    total = validator_logic_total + data_state_total
+    closed = validator_logic_all_killed and data_state_all_rejected
+    return {"experiment": "EXP-M", "total_mutations": total,
+            "rejected_mutations": data_state_rejected_count,
+            "surviving_mutations": (validator_logic_total - validator_logic_killed_count) + (data_state_total - data_state_rejected_count),
+            "all_rejected": closed,
+            "validator_logic_total": validator_logic_total,
+            "validator_logic_killed_count": validator_logic_killed_count,
+            "validator_logic_all_killed": validator_logic_all_killed,
+            "data_state_total": data_state_total,
+            "data_state_rejected_count": data_state_rejected_count,
+            "data_state_all_rejected": data_state_all_rejected,
+            "mutations": mutations,
             "declared_mutation_targets": list(reg.logic_mutation_ids),
             "executed_mutation_targets": sorted({m["target_predicate_id"] for m in logic if m.get("executed")}),
             "killed_mutation_targets": sorted({m["target_predicate_id"] for m in logic if m.get("executed") and m.get("killed")}),
