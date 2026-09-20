@@ -61,10 +61,22 @@ def isolated_mutant_result(predicate, state, registry):
     work.mkdir(parents=True, exist_ok=True)
     stem = predicate.replace("/", "_")
     payload = work / f"{stem}.pkl"; result_path = work / f"{stem}.json"
-    payload.write_bytes(pickle.dumps((predicate, state, registry)))
-    completed = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--isolated-worker", str(payload), str(result_path)], cwd=ROOT, timeout=15)
-    if completed.returncode != 0 or not result_path.exists(): return None
-    return json.loads(result_path.read_text(encoding="utf-8"))
+    try:
+        payload.write_bytes(pickle.dumps((predicate, state, registry)))
+        completed = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--isolated-worker", str(payload), str(result_path)], cwd=ROOT, timeout=15)
+        if completed.returncode != 0 or not result_path.exists():
+            return None
+        return json.loads(result_path.read_text(encoding="utf-8"))
+    finally:
+        for artifact in (payload, result_path):
+            try:
+                artifact.unlink()
+            except OSError:
+                pass
+        try:
+            work.rmdir()
+        except OSError:
+            pass
 
 
 def run() -> dict:
