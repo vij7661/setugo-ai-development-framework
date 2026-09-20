@@ -39,9 +39,9 @@ class ExpMPhaseTests(unittest.TestCase):
         reg = admissibility_registry()
         state = {
             "review_request": {"current": True, "request_id": "r"},
-            "authority_snapshot": GovernanceAuthoritySnapshot("s", "1", "h", True),
-            "evidence_contract": RequiredEvidenceContract("e", "s", ("a",)),
-            "interaction_contract": RequiredInteractionContract("i", "s", (("a",),)),
+            "authority_snapshot": GovernanceAuthoritySnapshot(AUTHORITY_CONTEXT.authority_snapshot_id, AUTHORITY_CONTEXT.authority_version, AUTHORITY_CONTEXT.authority_snapshot_hash, True),
+            "evidence_contract": RequiredEvidenceContract("e", AUTHORITY_CONTEXT.authority_snapshot_id, ("a",)),
+            "interaction_contract": RequiredInteractionContract("i", AUTHORITY_CONTEXT.authority_snapshot_id, (("a",),)),
             "materialization": MaterializationResult(True, {"a": b"a"}, "rep", "src", "raw-v1"),
             "representation": RepresentationRecord("raw-v1", "1", "transform", "registry-exp-m-r1", "src", "rep", "params", "coverage"),
             "egress": {"authorized": True, "version": "1"},
