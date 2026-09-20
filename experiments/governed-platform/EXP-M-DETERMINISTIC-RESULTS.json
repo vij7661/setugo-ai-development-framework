@@ -3,9 +3,9 @@
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
-    "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c",
-    "utc": "2026-09-20T10:02:17.392449+00:00"
+    "source_commit": "3ced9164bf55d7f13470a0b254f8decd9871bdeb",
+    "source_tree": "cb71c2e36b2ec633306c6be35aafff52001c86bf",
+    "utc": "2026-09-20T10:07:11.528248+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -830,7 +830,7 @@
           "kind": "positive",
           "phase_id": "P",
           "production_functions": [
-            "validate_context_state"
+            "validate_context_isolation"
           ],
           "result": true
         },
@@ -855,7 +855,7 @@
         "P-positive-control"
       ],
       "production_functions_invoked": [
-        "validate_context_state"
+        "validate_context_isolation"
       ],
       "status": "PASS"
     },
@@ -868,7 +868,8 @@
       },
       "checks": [
         "risk policy",
-        "admission fence"
+        "admission fence",
+        "context isolation"
       ],
       "executed_cases": [
         {
@@ -878,7 +879,8 @@
           "kind": "positive",
           "phase_id": "Q",
           "production_functions": [
-            "validate_fence"
+            "validate_fence",
+            "validate_context_isolation"
           ],
           "result": true
         },
@@ -903,7 +905,8 @@
         "Q-positive-control"
       ],
       "production_functions_invoked": [
-        "validate_fence"
+        "validate_fence",
+        "validate_context_isolation"
       ],
       "status": "PASS"
     },
@@ -915,7 +918,8 @@
         "positive": true
       },
       "checks": [
-        "witness noninterference",
+        "trusted witness expected-answer binding",
+        "accessibility proof",
         "context eviction rejection"
       ],
       "executed_cases": [
@@ -926,6 +930,7 @@
           "kind": "positive",
           "phase_id": "R",
           "production_functions": [
+            "evaluate_admissibility",
             "validate_witness_qualification"
           ],
           "result": true
@@ -951,6 +956,7 @@
         "R-positive-control"
       ],
       "production_functions_invoked": [
+        "evaluate_admissibility",
         "validate_witness_qualification"
       ],
       "status": "PASS"
