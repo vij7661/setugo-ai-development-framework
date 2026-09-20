@@ -54,7 +54,7 @@ def _mutated_evaluate(predicate, state, registry):
     production._predicate_validators = mutated_validators
     try:
         result = evaluate(state, registry)
-        return {"admissible": result.admissible, "reasons": list(result.reasons)}
+        return {"admissible": result.admissible, "reasons": list(result.reasons), "predicate_results": dict(result.predicate_results)}
     finally:
         production._predicate_validators = original
 
@@ -92,8 +92,20 @@ def run() -> dict:
         normal_result = evaluate(negative_state, reg)
         # Each mutant is executed in a fresh spawned process/module instance.
         mutated_payload = isolated_mutant_result(predicate, negative_state, reg)
-        mutated_result = type("Result", (), {"admissible": bool(mutated_payload and mutated_payload["admissible"]), "reasons": tuple(mutated_payload.get("reasons", ()) if mutated_payload else ("isolated_mutant_failed",))})()
-        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": str(fixture["fixture_id"]), "negative_fixture_target_id": str(fixture["target_predicate_id"]), "fixture_constructor": str(fixture["constructor"]), "expected_rejection_predicate": str(fixture["expected_rejection"]), "executed": True, "fixture_hash": digest(negative_state), "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible, "normal_reasons": list(normal_result.reasons), "mutated_reasons": list(mutated_result.reasons)})
+        mutated_result = type("Result", (), {
+            "admissible": bool(mutated_payload and mutated_payload["admissible"]),
+            "reasons": tuple(mutated_payload.get("reasons", ()) if mutated_payload else ("isolated_mutant_failed",)),
+            "predicate_results": dict(mutated_payload.get("predicate_results", {}) if mutated_payload else {}),
+        })()
+        # A validator-logic mutant is killed when the exact target guard
+        # demonstrably changes from rejecting to accepting its independently
+        # frozen negative fixture.  Overall admission may still reject because
+        # another required predicate intentionally provides redundant defense.
+        target_flipped = (
+            normal_result.predicate_results.get(predicate) is False
+            and mutated_result.predicate_results.get(predicate) is True
+        )
+        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": str(fixture["fixture_id"]), "negative_fixture_target_id": str(fixture["target_predicate_id"]), "fixture_constructor": str(fixture["constructor"]), "expected_rejection_predicate": str(fixture["expected_rejection"]), "executed": True, "fixture_hash": digest(negative_state), "expected": "TARGET_GUARD_FLIPS", "actual": "TARGET_GUARD_FLIPPED" if target_flipped else "TARGET_GUARD_NOT_FLIPPED", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": target_flipped, "normal_reasons": list(normal_result.reasons), "mutated_reasons": list(mutated_result.reasons)})
     corpus = b"abcdefghij"; corpus_hash = digest(corpus)
     chunks = [EvidenceChunk.create("request", corpus_hash, 0, 2, corpus[:5]), EvidenceChunk.create("request", corpus_hash, 1, 2, corpus[5:])]
     data_mutations = [
