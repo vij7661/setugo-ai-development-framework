@@ -132,7 +132,7 @@ def run_phases() -> dict:
     witness = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="response", challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
     phase_results["K"] = {"status": "PASS" if witness[0] else "FAIL", "checks": ["current witness record", "content-bound response", "budget"]}
     phase_results["L"] = {"status": "PASS" if safe_archive_member("evidence/a.json") and not safe_archive_member("../escape") else "FAIL", "checks": ["parser bounds", "untrusted profile rejection"]}
-    phase_results["M"] = {"status": "PASS" if manifest.verify(items)[0] and not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0] else "FAIL", "checks": ["frozen bytes", "attempt binding"]}
+    phase_results["M"] = {"status": "PASS" if manifest.verify(items)[0] and not manifest.verify({"a": b"mutated"})[0] else "FAIL", "checks": ["frozen bytes", "attempt binding"]}
     phase_results["N"] = {"status": "PASS" if not valid_preflight(s, c, i, manifest, ProviderCapabilityProfile("fake", "m", "v", "p", False), items).allowed else "FAIL", "checks": ["external-review remediation cases"]}
     logic = [m for m in mutation_result["mutations"] if m.get("family") == "validator_logic"]
     actual_targets = set(mutation_result.get("executed_mutation_targets", ()))
