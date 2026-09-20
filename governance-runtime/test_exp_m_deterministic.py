@@ -29,7 +29,6 @@ from exp_m_deterministic import (  # noqa: E402
     validate_witness_qualification, AttemptState, admit_review_attempt,
     PromptIsolationQualificationRecord, validate_egress, validate_prompt_isolation,
     validate_registry_version, validate_retry_transparency, validate_capability,
-    bundle_from_state, context_from_state,
     PersistentAdmissionLedger, PhysicalAttemptRecord,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord,
     DeliveryCompletenessResult,
@@ -38,6 +37,12 @@ from exp_m_deterministic import (  # noqa: E402
     FinalContextInteractionEvidence,
     digest,
 )
+
+from exp_m_test_fixtures import bundle_from_state
+from exp_m_expectation_authority import load_default_authority, load_predicate_context
+
+AUTHORITY = load_default_authority()
+AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
 
 
 def fixture():
@@ -149,9 +154,9 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_admissibility_requires_every_predicate(self):
         reg = admissibility_registry(); state = admissibility_fixture()
-        self.assertTrue(evaluate_admissibility(bundle_from_state(state), context_from_state(state), reg).admissible)
+        self.assertTrue(evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, reg, authority=AUTHORITY).admissible)
         state["delivery"] = {"complete": False}
-        result = evaluate_admissibility(bundle_from_state(state), context_from_state(state), reg)
+        result = evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, reg, authority=AUTHORITY)
         self.assertFalse(result.admissible); self.assertIn("delivery_complete", result.reasons)
 
     def test_admissibility_exact_predicate_closure(self):
@@ -250,7 +255,7 @@ class ExpMCoreTests(unittest.TestCase):
     def test_r2_summary_only_bundle_is_rejected(self):
         state = {name: True for name in admissibility_registry().predicate_ids}
         state["disposition"] = "PASS"
-        self.assertFalse(evaluate_admissibility(bundle_from_state(state), context_from_state(state)).admissible)
+        self.assertFalse(evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, authority=AUTHORITY).admissible)
 
     def test_r2_persistent_void_is_terminal_across_reload(self):
         path = Path(f"experiments/governed-platform/.exp-m-test-ledger-{uuid.uuid4().hex}.json")
