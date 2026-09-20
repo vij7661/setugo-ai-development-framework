@@ -1,0 +1,55 @@
+name: EXP-M R2E Offline Falsification
+
+on:
+  push:
+    branches:
+      - experiment/exp-m-deterministic-r2e
+    paths:
+      - 'governance-runtime/**'
+      - 'experiments/governed-platform/EXP-M-R5-QUALIFICATION-PROTOCOL.json'
+      - '.github/workflows/exp-m-r2e-offline.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-falsification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run EXP-M offline unit and phase tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd governance-runtime
+          python run_exp_m_tests.py
+          python run_exp_m_deterministic.py
+          python run_exp_m_mutations.py
+          python self_falsify_exp_m.py
+          python self_adjudicate_r2d.py
+      - name: Assert no live provider execution marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('experiments/governed-platform')
+          for p in root.glob('EXP-M-*-RESULTS.json'):
+              try:
+                  data=json.loads(p.read_text(encoding='utf-8'))
+              except Exception:
+                  continue
+              text=json.dumps(data, sort_keys=True)
+              if '"live_provider_execution": true' in text or '"live_provider_api_execution": true' in text:
+                  raise SystemExit(f'live provider/API execution marker found in {p}')
+          print('offline-only boundary preserved')
+          PY
