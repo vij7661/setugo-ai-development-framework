@@ -1282,7 +1282,8 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
         if not isinstance(value, bytes):
             reasons.append(f"non_bytes:{name}")
             continue
-        if entry.kind == "archive":
+        is_archive_bytes = zipfile.is_zipfile(__import__("io").BytesIO(value)) if isinstance(value, bytes) else False
+        if entry.kind == "archive" or is_archive_bytes:
             walk_archive(value, posixpath.dirname(name), entry.recursion_depth + 1)
             continue
         if len(value) > max_member_bytes:
