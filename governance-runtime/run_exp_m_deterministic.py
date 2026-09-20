@@ -23,12 +23,17 @@ from exp_m_deterministic import (  # noqa: E402
     materialize_entries, MaterializationEntry,
     adjudicate_insufficient_evidence,
     validate_capability, validate_witness_qualification, WitnessProtocolQualificationRecord, RetrievalEvidenceRecord,
-    bundle_from_state, context_from_state, validate_context_isolation,
+    validate_context_isolation,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
     RepresentationRecord,
     PhysicalAttemptRecord,
 )
 from run_exp_m_mutations import run as run_mutations
+from exp_m_test_fixtures import bundle_from_state
+from exp_m_expectation_authority import load_default_authority, load_predicate_context
+
+AUTHORITY = load_default_authority()
+AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
 
 
 PHASES = tuple("ABCDEFGHIJKLMNOPQRST")
@@ -84,7 +89,7 @@ def run_phases() -> dict:
         "fence": {"current": True, "version": "1"}, "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "wire": WireDeliveryRecord("a", "r", "w", "s", "s", ("a",)), "delivery": DeliveryCompletenessResult(True),
         "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, digest(b"a"), 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a", "prompt_isolation": {"current": True}, "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True),
         "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True), "disposition": "PASS", "disposition_promotable": True,
-    }; verdict = evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry)
+    }; verdict = evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, registry, authority=AUTHORITY)
     phase_results["I"] = {"status": "PASS" if verdict.admissible else "FAIL", "checks": ["all admissibility predicates"]}
     receipt, wire = DeterministicFakeProvider().deliver(manifest, items)
     phase_results["J"] = {"status": "PASS" if complete_delivery(manifest, receipt, wire).complete else "FAIL", "checks": ["wire/session/representation bindings"]}
@@ -106,9 +111,9 @@ def run_phases() -> dict:
     q_isolated = validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), structured_evidence, AdmissionFenceRecord("f", "1", True), transition_class=q_policy.transition_class, expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0]
     phase_results["Q"] = {"status": "PASS" if q_policy.transition_class == "LOWER" and validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] and q_isolated else "FAIL", "checks": ["risk policy", "admission fence", "context isolation"]}
     witness_negative = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="x" * 2000, challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
-    witness_verdict = evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry)
+    witness_verdict = evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, registry, authority=AUTHORITY)
     negative_state = dict(state); negative_state["witness_response"] = "x" * 2000
-    witness_negative_verdict = evaluate_admissibility(bundle_from_state(negative_state), context_from_state(negative_state), registry)
+    witness_negative_verdict = evaluate_admissibility(bundle_from_state(negative_state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, registry, authority=AUTHORITY)
     phase_results["R"] = {"status": "PASS" if witness_verdict.predicate_results.get("witness_record_current") and witness_verdict.predicate_results.get("accessibility_proven") and not witness_negative_verdict.admissible else "FAIL", "checks": ["trusted witness expected-answer binding", "accessibility proof", "context eviction rejection"]}
     phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] and validate_retry_transparency(physical, planned_root_ids=("a",), expected_request="request", expected_session="session")[0] else "FAIL", "checks": ["planned attempt closure", "physical retry lineage"]}
     phase_results["T"] = {"status": "PASS" if validate_retry_transparency(physical, planned_root_ids=("a",), expected_request="request", expected_session="session")[0] and closure_ok else "FAIL", "checks": ["retry transparency", "registry closure"]}
@@ -124,7 +129,7 @@ def run_phases() -> dict:
         "F": validate_capability(provider, ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)), ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"), now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="default", expected_profile_hash="profile-hash", required_format="text", required_context_bytes=1)[0],
         "G": run_mutations()["all_rejected"],
         "H": validate_retry_transparency(physical, planned_root_ids=("a",), expected_request="request", expected_session="session")[0],
-        "I": evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry).admissible,
+        "I": evaluate_admissibility(bundle_from_state(state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, registry, authority=AUTHORITY).admissible,
         "J": complete_delivery(manifest, receipt, wire).complete,
         "K": validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="response", challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)[0],
         "L": safe_archive_member("evidence/a.json"),
@@ -167,7 +172,7 @@ def run_phases() -> dict:
             return (not validate_retry_transparency((PhysicalAttemptRecord("retry", "root", None, "RETRY", "request", "session", "w", "OK"),), planned_root_ids=("root",), expected_request="request", expected_session="session")[0], "validate_retry_transparency", "retry_without_failed_parent")
         if phase_id == "I":
             bad_state = dict(state); bad_state["disposition"] = "CHANGES_REQUIRED"
-            return (not evaluate_admissibility(bundle_from_state(bad_state), context_from_state(bad_state), registry).admissible, "evaluate_admissibility", "non_promotable_disposition")
+            return (not evaluate_admissibility(bundle_from_state(bad_state, AUTHORITY_CONTEXT), AUTHORITY_CONTEXT, registry, authority=AUTHORITY).admissible, "evaluate_admissibility", "non_promotable_disposition")
         if phase_id == "J":
             return (not complete_delivery(manifest, ReviewerReceipt("a", "request", "session", "wrong", (), 0, True), wire).complete, "complete_delivery", "receipt_manifest_mismatch")
         if phase_id == "K":
