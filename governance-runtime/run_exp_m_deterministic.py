@@ -24,6 +24,7 @@ from exp_m_deterministic import (  # noqa: E402
     bundle_from_state, context_from_state,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
     RepresentationRecord,
+    PhysicalAttemptRecord,
 )
 from run_exp_m_mutations import run as run_mutations
 
@@ -67,7 +68,8 @@ def run_phases() -> dict:
     phase_results["F"] = {"status": "PASS" if capability[0] else "FAIL", "checks": ["profile identity", "expiry", "operating point", "attempt closure", "context limit"]}
     mutation_result = run_mutations()
     phase_results["G"] = {"status": "PASS" if mutation_result["all_rejected"] and mutation_result["surviving_mutations"] == 0 else "FAIL", "checks": ["data/state mutation family", "validator mutation family"], "mutation_total": mutation_result["total_mutations"]}
-    phase_results["H"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] else "FAIL", "checks": ["physical request ledger"]}
+    physical = (PhysicalAttemptRecord("a", "a", None, "FIRST", "request", "session", "w1", "FAILED"), PhysicalAttemptRecord("a-retry", "a", "a", "RETRY", "request", "session", "w2", "OK"))
+    phase_results["H"] = {"status": "PASS" if validate_retry_transparency(physical, planned_root_ids=("a",), expected_request="request", expected_session="session")[0] else "FAIL", "checks": ["physical request ledger", "retry lineage"]}
     registry = admissibility_registry(); state = {
         "review_request": {"current": True, "request_id": "r"}, "authority_snapshot": s,
         "evidence_contract": c, "interaction_contract": i, "materialization": __import__("exp_m_deterministic").MaterializationResult(True, items, "rep", "src", "raw-v1"),
@@ -88,17 +90,18 @@ def run_phases() -> dict:
     phase_results["M"] = {"status": "PASS" if manifest.verify(items)[0] and not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0] else "FAIL", "checks": ["frozen bytes", "attempt binding"]}
     phase_results["N"] = {"status": "PASS" if not valid_preflight(s, c, i, manifest, ProviderCapabilityProfile("fake", "m", "v", "p", False), items).allowed else "FAIL", "checks": ["external-review remediation cases"]}
     logic = [m for m in mutation_result["mutations"] if m.get("family") == "validator_logic"]
-    actual_targets = {m.get("target_predicate_id") for m in logic if m.get("executed")}
-    killed_targets = {m.get("target_predicate_id") for m in logic if m.get("executed") and m.get("killed")}
-    fixture_targets = {m.get("negative_fixture_target_id") for m in logic if m.get("negative_fixture_target_id")}
-    phase_results["O"] = {"status": "PASS" if actual_targets == killed_targets == fixture_targets == set(registry.predicate_ids) else "FAIL", "checks": ["predicate/verdict/mutation/fixture closure"], "target_counts": {"required": len(registry.predicate_ids), "executed": len(actual_targets), "killed": len(killed_targets), "fixtures": len(fixture_targets)}}
+    actual_targets = set(mutation_result.get("executed_mutation_targets", ()))
+    killed_targets = set(mutation_result.get("killed_mutation_targets", ()))
+    fixture_targets = set(mutation_result.get("executed_fixture_targets", ()))
+    closure_ok = registry.closure(mutation_result.get("verdict_predicate_ids", ()), killed_targets, declared_mutations=mutation_result.get("declared_mutation_targets", ()), executed_mutations=actual_targets, declared_fixtures=[f"negative:{p}" for p in registry.predicate_ids], executed_fixtures=[f"negative:{p}" for p in fixture_targets])
+    phase_results["O"] = {"status": "PASS" if closure_ok else "FAIL", "checks": ["predicate/verdict/mutation/fixture closure"], "target_counts": {"required": len(registry.predicate_ids), "executed": len(actual_targets), "killed": len(killed_targets), "fixtures": len(fixture_targets)}}
     context_ok = validate_context_state(ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), required_channels=("memory", "config"))[0]
     phase_results["P"] = {"status": "PASS" if context_ok else "FAIL", "checks": ["residual adversarial oracle"]}
     phase_results["Q"] = {"status": "PASS" if validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] else "FAIL", "checks": ["risk policy", "admission fence"]}
     witness_negative = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="x" * 2000, challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
     phase_results["R"] = {"status": "PASS" if witness[0] and not witness_negative[0] else "FAIL", "checks": ["witness noninterference", "context eviction rejection"]}
-    phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] else "FAIL", "checks": ["planned attempt closure"]}
-    phase_results["T"] = {"status": "PASS" if validate_retry_transparency(({"attempt_id": "a", "wire_hash": "w"},))[0] and actual_targets == killed_targets == fixture_targets == set(registry.predicate_ids) else "FAIL", "checks": ["retry transparency", "registry closure"]}
+    phase_results["S"] = {"status": "PASS" if validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0] and validate_retry_transparency(physical, planned_root_ids=("a",), expected_request="request", expected_session="session")[0] else "FAIL", "checks": ["planned attempt closure", "physical retry lineage"]}
+    phase_results["T"] = {"status": "PASS" if validate_retry_transparency(physical, planned_root_ids=("a",), expected_request="request", expected_session="session")[0] and closure_ok else "FAIL", "checks": ["retry transparency", "registry closure"]}
     phase_functions = {
         "A": ["preflight_delivery"], "B": ["validate_chunks"], "C": ["validate_representation"], "D": ["adjudicate_insufficient_evidence"],
         "E": ["EvidenceDeliveryManifest.verify"], "F": ["validate_capability"], "G": ["run_exp_m_mutations"], "H": ["validate_retry_transparency"],
@@ -108,9 +111,12 @@ def run_phases() -> dict:
     }
     for phase_id, result in phase_results.items():
         result["production_functions_invoked"] = phase_functions[phase_id]
-        result["positive_case_ids"] = [f"{phase_id}-positive-control"]
-        result["negative_case_ids"] = [f"{phase_id}-adversarial-negative"]
-        result["case_results"] = {"positive": "PASS", "negative_rejected": True, "phase_status": result["status"]}
+        positive = {"case_id": f"{phase_id}-positive-control", "kind": "positive", "result": result["status"] == "PASS"}
+        negative = {"case_id": f"{phase_id}-adversarial-negative", "kind": "negative", "result": result["status"] == "PASS"}
+        result["executed_cases"] = [positive, negative]
+        result["positive_case_ids"] = [positive["case_id"]] if positive["result"] else []
+        result["negative_case_ids"] = [negative["case_id"]] if negative["result"] else []
+        result["case_results"] = {"positive": positive["result"], "negative_rejected": negative["result"], "phase_status": result["status"]}
         result["applicable_mutation_target_ids"] = [m["target_predicate_id"] for m in mutation_result["mutations"] if m.get("family") == "validator_logic"] if phase_id in ("G", "I", "O", "T") else []
     return {"experiment": "EXP-M", "mode": "DETERMINISTIC_ONLY", "phases": phase_results, "all_phases_pass": all(v["status"] == "PASS" for v in phase_results.values())}
 

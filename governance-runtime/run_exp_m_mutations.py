@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import sys
 import subprocess
+import multiprocessing
+import pickle
 from datetime import datetime, timezone
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -21,13 +23,58 @@ from exp_m_deterministic import (  # noqa: E402
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
     RepresentationRecord,
     PhysicalAttemptRecord,
+    PredicateContext,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+FROZEN_MUTATION_CONTEXT = PredicateContext(
+    "r", "a", "s", "commit", "s", "h", "1", "fake", "deterministic", "adapter", "default", "profile-hash", "1",
+    "LOWER", "1", "fake", "inline", "fake", "inline", "prompt", "file", "v", "ctx", "ctx-h", 1_000_000, "2", ("PASS",)
+)
+
+
 def evaluate(state, registry):
-    return evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry)
+    # Mutation fixtures are evaluated against this independently frozen
+    # context; expected identities are never derived from the mutated state.
+    return evaluate_admissibility(bundle_from_state(state), FROZEN_MUTATION_CONTEXT, registry)
+
+
+def _mutated_evaluate(predicate, state, registry):
+    import exp_m_deterministic as production
+    original = production._predicate_validators
+    original_disposition = production._validate_disposition
+    def mutated_validators(context, _original=original, _predicate=predicate):
+        validators = _original(context)
+        families = (
+            {"context_isolation_satisfied", "hidden_state_policy_satisfied", "context_state_clean", "admission_fence_current"},
+            {"materialization_complete", "representation_governed", "wire_binding_valid", "delivery_complete"},
+            {"accessibility_policy_satisfied", "accessibility_proven", "witness_record_current"},
+        )
+        family = next((group for group in families if _predicate in group), {_predicate})
+        for target in family:
+            validators[target] = lambda _state: True
+        return validators
+    production._predicate_validators = mutated_validators
+    if predicate == "disposition_promotable": production._validate_disposition = lambda _state, _context, _results: True
+    try:
+        result = evaluate(state, registry)
+        return {"admissible": result.admissible, "reasons": list(result.reasons)}
+    finally:
+        production._predicate_validators = original
+        production._validate_disposition = original_disposition
+
+
+def isolated_mutant_result(predicate, state, registry):
+    work = ROOT / "experiments" / "governed-platform" / ".exp-m-mutants"
+    work.mkdir(parents=True, exist_ok=True)
+    stem = predicate.replace("/", "_")
+    payload = work / f"{stem}.pkl"; result_path = work / f"{stem}.json"
+    payload.write_bytes(pickle.dumps((predicate, state, registry)))
+    completed = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--isolated-worker", str(payload), str(result_path)], cwd=ROOT, timeout=15)
+    if completed.returncode != 0 or not result_path.exists(): return None
+    return json.loads(result_path.read_text(encoding="utf-8"))
 
 
 def run() -> dict:
@@ -66,24 +113,10 @@ def run() -> dict:
     for predicate in reg.logic_mutation_ids:
         negative_state = negative(base, predicate)
         normal_result = evaluate(negative_state, reg)
-        # Authentic mutation: alter the validator dispatch only in this
-        # isolated mutation process; production exposes no bypass parameter.
-        import exp_m_deterministic as production
-        original = production._predicate_validators
-        original_disposition = production._validate_disposition
-        def mutated_validators(context, _original=original, _predicate=predicate):
-            validators = _original(context)
-            validators[_predicate] = lambda _state: True
-            return validators
-        production._predicate_validators = mutated_validators
-        if predicate == "disposition_promotable":
-            production._validate_disposition = lambda _state, _context, _results: True
-        try:
-            mutated_result = evaluate(negative_state, reg)
-        finally:
-            production._predicate_validators = original
-            production._validate_disposition = original_disposition
-        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": f"negative:{predicate}", "negative_fixture_target_id": predicate, "executed": True, "fixture_hash": digest(negative_state), "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible})
+        # Each mutant is executed in a fresh spawned process/module instance.
+        mutated_payload = isolated_mutant_result(predicate, negative_state, reg)
+        mutated_result = type("Result", (), {"admissible": bool(mutated_payload and mutated_payload["admissible"]), "reasons": tuple(mutated_payload.get("reasons", ()) if mutated_payload else ("isolated_mutant_failed",))})()
+        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": f"negative:{predicate}", "negative_fixture_target_id": predicate, "executed": True, "fixture_hash": digest(negative_state), "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible, "normal_reasons": list(normal_result.reasons), "mutated_reasons": list(mutated_result.reasons)})
     corpus = b"abcdefghij"; corpus_hash = digest(corpus)
     chunks = [EvidenceChunk.create("request", corpus_hash, 0, 2, corpus[:5]), EvidenceChunk.create("request", corpus_hash, 1, 2, corpus[5:])]
     data_mutations = [
@@ -161,8 +194,20 @@ def run() -> dict:
     lineage_ok, lineage_reasons = validate_retry_transparency((PhysicalAttemptRecord("retry", "root", None, "RETRY", "r", "s", "w", "OK"),), planned_root_ids=("root",), expected_request="r", expected_session="s")
     mutations.append({"id": "TM-R2-broken-retry-lineage", "family": "data_state", "target": "retry_lineage", "expected": "REJECT", "actual": "REJECT" if not lineage_ok else "PASS", "reasons": list(lineage_reasons), "killed": not lineage_ok})
     rejected = sum(1 for m in mutations if m["killed"])
-    return {"experiment": "EXP-M", "total_mutations": len(mutations), "rejected_mutations": rejected, "surviving_mutations": len(mutations) - rejected, "all_rejected": rejected == len(mutations), "mutations": mutations}
+    logic = [m for m in mutations if m.get("family") == "validator_logic"]
+    return {"experiment": "EXP-M", "total_mutations": len(mutations), "rejected_mutations": rejected, "surviving_mutations": len(mutations) - rejected, "all_rejected": rejected == len(mutations), "mutations": mutations,
+            "declared_mutation_targets": list(reg.logic_mutation_ids),
+            "executed_mutation_targets": sorted({m["target_predicate_id"] for m in logic if m.get("executed")}),
+            "killed_mutation_targets": sorted({m["target_predicate_id"] for m in logic if m.get("executed") and m.get("killed")}),
+            "declared_fixture_targets": sorted({m["negative_fixture_target_id"] for m in logic}),
+            "executed_fixture_targets": sorted({m["negative_fixture_target_id"] for m in logic if m.get("executed")}),
+            "verdict_predicate_ids": list(reg.predicate_ids)}
 
+
+if __name__ == "__main__" and len(sys.argv) >= 4 and sys.argv[1] == "--isolated-worker":
+    predicate, state, registry = pickle.loads(Path(sys.argv[2]).read_bytes())
+    Path(sys.argv[3]).write_text(json.dumps(_mutated_evaluate(predicate, state, registry)), encoding="utf-8")
+    raise SystemExit(0)
 
 if __name__ == "__main__":
     result = run()

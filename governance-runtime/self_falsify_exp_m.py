@@ -13,6 +13,8 @@ from exp_m_deterministic import (  # noqa: E402
     preflight_delivery, validate_attempt_ledger, validate_chunks,
     validate_retry_transparency, validate_witness,
     bundle_from_state, context_from_state,
+    ProviderQualificationExecutionPlan, ProviderCapabilityQualificationRecord,
+    validate_capability, PersistentAdmissionLedger, admissibility_registry,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +61,26 @@ def run():
     case("duplicate_normalized_member", not __import__("exp_m_deterministic").materialize_entries(typed_dup, source_hash="s").success)
     case("unqualified_transform", not __import__("exp_m_deterministic").materialize_entries({"a": b"a"}, source_hash="s", transform_id="unknown").success)
     case("broken_retry_lineage", not __import__("exp_m_deterministic").validate_retry_transparency(({"attempt_id": "retry", "planned_root_id": "root", "kind": "RETRY", "wire_hash": "w", "request_id": "r", "session_id": "s"},), planned_root_ids=("root",), expected_request="r", expected_session="s")[0])
+    # R2A independent attacks (not delegated to the normal mutation runner).
+    reg = admissibility_registry()
+    case("closure_catalog_omission", not reg.closure(reg.predicate_ids, reg.logic_mutation_ids, declared_mutations=tuple(reg.logic_mutation_ids[:-1]), executed_mutations=tuple(reg.logic_mutation_ids), declared_fixtures=reg.fixture_ids, executed_fixtures=reg.fixture_ids))
+    p = ProviderCapabilityProfile("fake", "m", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
+    plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("trial",), ("confirm",))
+    incomplete = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("confirm",), ("confirm",), "fake", "m")
+    case("missing_trial_root", not validate_capability(p, plan, incomplete, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="m", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0])
+    case("self_derived_context", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "attacker"}, "disposition": "PASS"}), context_from_state({"expected_request_id": "r"})).admissible)
+    case("forged_delivery_result", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "delivery": {"complete": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    case("witness_without_expected_answer", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "witness": {"current": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    case("accessibility_valid_only", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "accessibility": {"valid": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    race_path = ROOT / "experiments" / "governed-platform" / ".r2a-race-ledger.json"
+    race_ledger = PersistentAdmissionLedger(race_path)
+    first_race = race_ledger.compare_and_set("race", 1, "VOID"); second_race = race_ledger.compare_and_set("race", 1, "COMMITTED")
+    case("persistent_race_second_writer", first_race.void and second_race.void)
+    for artifact in (race_path, race_path.with_suffix(race_path.suffix + ".sqlite")):
+        try: artifact.unlink()
+        except OSError: pass
+    case("synthetic_phase_metadata", "positive_case_ids = [" not in (ROOT / "governance-runtime" / "run_exp_m_deterministic.py").read_text(encoding="utf-8"))
+    case("typed_summary_boolean", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "capability": {"validated": True}, "context_isolation": {"satisfied": True}, "disposition": "PASS"}), context_from_state({})).admissible)
     survivors = [c for c in cases if not c["rejected"]]
     return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "surviving_high": len(survivors), "all_rejected": not survivors}
 
