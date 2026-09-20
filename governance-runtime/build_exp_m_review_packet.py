@@ -16,6 +16,7 @@ SOURCES = [
     Path("governance-runtime/test_exp_m_phases.py"),
     Path("governance-runtime/exp_m_review_fixtures.py"),
     Path("governance-runtime/run_exp_m_tests.py"),
+    Path("governance-runtime/self_adjudicate_r2b.py"),
 ]
 
 
@@ -31,6 +32,7 @@ def main() -> int:
     phase = json.loads((ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json").read_text())
     mutation = json.loads((ROOT / "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json").read_text())
     tests = json.loads((ROOT / "experiments/governed-platform/EXP-M-TEST-RESULTS.json").read_text())
+    self_adjudication = json.loads((ROOT / "experiments/governed-platform/EXP-M-R2B-SELF-ADJUDICATION.json").read_text())
     falsify = json.loads((ROOT / "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json").read_text())
     r2_review = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-EXTERNAL-REVIEW-R2.md").read_text(encoding="utf-8")
     r2_adjudication = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-R2-SOLUTION-ADJUDICATION.md").read_text(encoding="utf-8")
@@ -93,6 +95,9 @@ def main() -> int:
         f"tests_total={tests['tests_total']}",
         f"tests_passed={tests['tests_passed']}",
         f"tests_failed={tests['tests_failed']}",
+        f"r2b_self_adjudication={self_adjudication['status']}",
+        f"r2b_unresolved_critical={self_adjudication['unresolved_critical']}",
+        f"r2b_unresolved_high={self_adjudication['unresolved_high']}",
         "r2b_status=AUTOMATABLE_REMEDIATION_COMPLETE",
         "r2b_clean_source_to_evidence_to_packet_sequence=true",
         "",
@@ -109,6 +114,8 @@ def main() -> int:
         "```json", json.dumps(mutation, indent=2, sort_keys=True), "```",
         "## Offline test result",
         "```json", json.dumps(tests, indent=2, sort_keys=True), "```",
+        "## R2B internal self-adjudication",
+        "```json", json.dumps(self_adjudication, indent=2, sort_keys=True), "```",
         "",
         "## Self-falsification results",
         "```json", json.dumps(falsify, indent=2, sort_keys=True), "```",
