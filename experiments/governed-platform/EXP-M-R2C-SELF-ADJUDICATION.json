@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "fixture_catalog_closed": true,
+    "mutation_catalog_closed": true,
+    "phase_cases_independent": true,
+    "predicate_registry_closed": true,
+    "provider_execution_false": true,
+    "self_falsification_clean": true,
+    "tests_bound": true
+  },
+  "execution": {
+    "command": "python governance-runtime/self_adjudicate_r2c.py",
+    "interpreter": "D:\\Python312\\python.exe",
+    "live_provider_execution": false,
+    "source_commit": "5fa8f07ad12e42c1bbf05b101ab69b9c7b351e3b",
+    "source_tree": "59f6cb8e22d54edfb1a8afc94ff24559ce0dcd7e",
+    "utc": "2026-09-20T11:12:18.421220+00:00"
+  },
+  "experiment": "EXP-M",
+  "remediation": "R2C",
+  "status": "SELF_ADJUDICATION_PASS",
+  "unresolved_critical": 0,
+  "unresolved_high": 0
+}

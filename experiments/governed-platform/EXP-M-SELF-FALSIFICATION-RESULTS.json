@@ -120,16 +120,56 @@
     {
       "id": "typed_summary_boolean",
       "rejected": true
+    },
+    {
+      "id": "wrong_fixture_target_mapping",
+      "rejected": true
+    },
+    {
+      "id": "grouped_mutation_false_coverage",
+      "rejected": true
+    },
+    {
+      "id": "transition_class_self_downgrade",
+      "rejected": true
+    },
+    {
+      "id": "fence_version_self_binding",
+      "rejected": true
+    },
+    {
+      "id": "wrong_witness_answer",
+      "rejected": true
+    },
+    {
+      "id": "forged_prompt_authority",
+      "rejected": true
+    },
+    {
+      "id": "forged_reviewer_authority",
+      "rejected": true
+    },
+    {
+      "id": "r5_under_sampling",
+      "rejected": true
+    },
+    {
+      "id": "cas_missing_state_hash",
+      "rejected": true
+    },
+    {
+      "id": "caller_copied_observed_interactions",
+      "rejected": true
     }
   ],
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "3ced9164bf55d7f13470a0b254f8decd9871bdeb",
-    "source_tree": "cb71c2e36b2ec633306c6be35aafff52001c86bf",
-    "utc": "2026-09-20T10:07:36.300583+00:00"
+    "source_commit": "5fa8f07ad12e42c1bbf05b101ab69b9c7b351e3b",
+    "source_tree": "59f6cb8e22d54edfb1a8afc94ff24559ce0dcd7e",
+    "utc": "2026-09-20T11:12:17.983715+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 30
+  "total": 40
 }
