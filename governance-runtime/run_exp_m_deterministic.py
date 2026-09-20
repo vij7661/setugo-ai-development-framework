@@ -40,24 +40,43 @@ PHASES = tuple("ABCDEFGHIJKLMNOPQRST")
 
 
 def phase_fixture():
-    snapshot = GovernanceAuthoritySnapshot("snap", "1", "snapshot-hash", True)
-    contract = RequiredEvidenceContract("ec", "snap", ("required-a", "required-b"))
-    interactions = RequiredInteractionContract("ic", "snap", (("required-a", "required-b"),))
-    items = {"required-a": b"raw-a", "required-b": b"raw-b"}
-    manifest = EvidenceDeliveryManifest.freeze("request", "reviewed-commit", items)
-    provider = ProviderCapabilityProfile("fake", "deterministic", "adapter-1", "profile-hash", True, supported_formats=("text",), max_context_bytes=1_000_000)
+    ctx = AUTHORITY_CONTEXT
+    snapshot = GovernanceAuthoritySnapshot(ctx.authority_snapshot_id, ctx.authority_version, ctx.authority_snapshot_hash, True)
+    contract = RequiredEvidenceContract("ec", ctx.authority_snapshot_id, ("a",))
+    interactions = RequiredInteractionContract("ic", ctx.authority_snapshot_id, (("a",),))
+    items = {"a": b"a"}
+    manifest = EvidenceDeliveryManifest.freeze(ctx.request_id, ctx.reviewed_commit, items)
+    provider = ProviderCapabilityProfile(
+        ctx.expected_provider, ctx.expected_model, ctx.expected_adapter,
+        ctx.expected_profile_hash, True, supported_formats=("text",),
+        max_context_bytes=1_000_000,
+    )
     return snapshot, contract, interactions, items, manifest, provider
 
 
 def valid_preflight(snapshot, contract, interactions, manifest, provider, items):
-    channels = tuple({"channel": c, "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"} for c in ("memory", "config"))
+    ctx = AUTHORITY_CONTEXT
+    channels = tuple({"channel": channel, "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"} for channel in ("memory", "config"))
     members = tuple(sorted(items))
-    return preflight_delivery(snapshot, contract, interactions, manifest, "request", provider, items,
-        plan=ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)),
-        qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
+    return preflight_delivery(
+        snapshot, contract, interactions, manifest, ctx.request_id, provider, items,
+        context=ctx, authority=AUTHORITY,
+        plan=ProviderQualificationExecutionPlan("plan", ctx.expected_provider, ctx.expected_operating_point, ("a1",), ("a1",)),
+        qualification=ProviderCapabilityQualificationRecord(
+            "plan", ctx.expected_profile_hash, True, True, 0, ctx.expected_operating_point,
+            ("a1",), ("a1",), ctx.expected_provider, ctx.expected_model,
+            attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", ctx.request_id, ctx.session_id, "wire-a1", "OK"),),
+        ),
         context_policy=ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"),
         context_evidence=ProviderContextStateEvidence(True, ("memory", "config"), True, "state", channel_observations=channels),
-        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False), observed_interactions=(("required-a", "required-b"),), observed_context=FinalContextInteractionEvidence("request", "session-1", "ctx-h", members, (("required-a", "required-b"),), True, digest({"context_id": "ctx", "source_hash": "reviewed-commit", "members": members, "assembly": "trusted-final-context-v1"})))
+        fence=AdmissionFenceRecord("fence", ctx.expected_fence_version, True),
+        risk_policy=ProviderAccessibilityRiskPolicy(ctx.expected_transition_class, "inline", True, False),
+        observed_interactions=(("a",),),
+        observed_context=FinalContextInteractionEvidence(
+            ctx.request_id, ctx.session_id, ctx.final_context_hash, members, (("a",),), True,
+            digest({"context_id": ctx.final_context_id, "source_hash": ctx.reviewed_commit, "members": members, "assembly": "trusted-final-context-v1"}),
+        ),
+    )
 
 
 def run_phases() -> dict:
@@ -73,8 +92,24 @@ def run_phases() -> dict:
     mixed = adjudicate_insufficient_evidence({"SCIENTIFIC_EVIDENCE_MISSING": True, "EVIDENCE_DELIVERY_INCOMPLETE": True})
     unresolved = adjudicate_insufficient_evidence({})
     phase_results["D"] = {"status": "PASS" if single.disposition == "SCIENTIFIC_EVIDENCE_MISSING" and mixed.disposition == "MIXED_INSUFFICIENCY" and unresolved.disposition == "INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED" else "FAIL", "checks": ["single cause", "mixed causes", "unresolved cause"]}
-    phase_results["E"] = {"status": "PASS" if manifest.verify(items)[0] and manifest.request_id == "request" else "FAIL", "checks": ["same manifest", "same corpus hash"]}
-    capability = validate_capability(provider, ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)), ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"), now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="default", expected_profile_hash="profile-hash", required_format="text", required_context_bytes=1)
+    phase_results["E"] = {"status": "PASS" if manifest.verify(items)[0] and manifest.request_id == AUTHORITY_CONTEXT.request_id else "FAIL", "checks": ["same manifest", "same corpus hash"]}
+    capability = validate_capability(
+        provider,
+        ProviderQualificationExecutionPlan("plan", AUTHORITY_CONTEXT.expected_provider, AUTHORITY_CONTEXT.expected_operating_point, ("a1",), ("a1",)),
+        ProviderCapabilityQualificationRecord(
+            "plan", AUTHORITY_CONTEXT.expected_profile_hash, True, True, 0, AUTHORITY_CONTEXT.expected_operating_point,
+            ("a1",), ("a1",), AUTHORITY_CONTEXT.expected_provider, AUTHORITY_CONTEXT.expected_model,
+            attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", AUTHORITY_CONTEXT.request_id, AUTHORITY_CONTEXT.session_id, "wire-a1", "OK"),),
+        ),
+        now="2025-01-01T00:00:00Z",
+        expected_provider=AUTHORITY_CONTEXT.expected_provider,
+        expected_model=AUTHORITY_CONTEXT.expected_model,
+        expected_operating_point=AUTHORITY_CONTEXT.expected_operating_point,
+        expected_profile_hash=AUTHORITY_CONTEXT.expected_profile_hash,
+        required_format="text", required_context_bytes=1,
+        expected_adapter=AUTHORITY_CONTEXT.expected_adapter,
+        authority=AUTHORITY,
+    )
     phase_results["F"] = {"status": "PASS" if capability[0] else "FAIL", "checks": ["profile identity", "expiry", "operating point", "attempt closure", "context limit"]}
     mutation_result = run_mutations()
     phase_results["G"] = {"status": "PASS" if mutation_result["all_rejected"] and mutation_result["surviving_mutations"] == 0 else "FAIL", "checks": ["data/state mutation family", "validator mutation family"], "mutation_total": mutation_result["total_mutations"]}
