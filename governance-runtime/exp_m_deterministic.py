@@ -10,6 +10,7 @@ from dataclasses import dataclass, field, asdict, is_dataclass
 from hashlib import sha256
 import json
 import sqlite3
+import hmac
 import threading
 import posixpath
 import zipfile
@@ -391,21 +392,56 @@ class PersistentAdmissionLedger:
             conn.execute("PRAGMA journal_mode=DELETE")
             conn.execute("CREATE TABLE IF NOT EXISTS admissions (attempt_id TEXT PRIMARY KEY, generation INTEGER NOT NULL, disposition TEXT NOT NULL)")
             conn.execute("CREATE TABLE IF NOT EXISTS protected_state (id INTEGER PRIMARY KEY CHECK(id=1), generation INTEGER NOT NULL, state_hash TEXT NOT NULL)")
-            conn.execute("CREATE TABLE IF NOT EXISTS verdict_tokens (attempt_id TEXT PRIMARY KEY, token TEXT NOT NULL, generation INTEGER NOT NULL)")
             conn.execute("INSERT OR IGNORE INTO protected_state(id,generation,state_hash) VALUES(1,1,'')")
 
-    def issue_verdict_token(self, attempt_id: str, token_payload: Mapping[str, Any], generation: int) -> str:
-        token = digest({"governor_nonce": uuid.uuid4().hex, "attempt_id": attempt_id, "payload": token_payload, "generation": generation})
+    def seed_protected_state(self, generation: int, state_hash: str) -> None:
+        """Test/bootstrap helper; authority code owns the initial protected state."""
         with sqlite3.connect(self._db, timeout=5, isolation_level="IMMEDIATE") as conn:
             conn.execute("BEGIN IMMEDIATE")
-            conn.execute("INSERT OR REPLACE INTO verdict_tokens(attempt_id,token,generation) VALUES(?,?,?)", (attempt_id, token, generation))
+            conn.execute("UPDATE protected_state SET generation=?, state_hash=? WHERE id=1", (generation, state_hash))
             conn.commit()
-        return token
 
-    def verdict_token_matches(self, attempt_id: str, token: str, generation: int) -> bool:
-        with sqlite3.connect(self._db, timeout=5) as conn:
-            row = conn.execute("SELECT token,generation FROM verdict_tokens WHERE attempt_id=?", (attempt_id,)).fetchone()
-        return row is not None and str(row[0]) == token and int(row[1]) == generation
+    def commit_with_verdict(
+        self,
+        attempt_id: str,
+        generation: int,
+        disposition: str,
+        *,
+        expected_state_hash: str,
+        expected_evidence_token: str,
+        recompute_token_fn: Any | None = None,
+        verdict_payload: Mapping[str, Any] | None = None,
+        next_state_hash: str | None = None,
+    ) -> AdmissionCheckpoint:
+        """Atomically bind terminal CAS to the just-validated evidence verdict."""
+        if disposition not in ("VOID", "COMMITTED"):
+            return AdmissionCheckpoint(attempt_id, generation, "VOID", False, True, ("invalid_terminal_state",))
+        with sqlite3.connect(self._db, timeout=5, isolation_level="IMMEDIATE") as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            protected = conn.execute("SELECT generation,state_hash FROM protected_state WHERE id=1").fetchone()
+            current = conn.execute("SELECT generation, disposition FROM admissions WHERE attempt_id=?", (attempt_id,)).fetchone()
+            if current is not None:
+                conn.commit()
+                return AdmissionCheckpoint(attempt_id, int(current[0]), str(current[1]), False, current[1] == "VOID", ("terminal_state",))
+            if protected is None or int(protected[0]) != generation or str(protected[1]) != expected_state_hash:
+                conn.execute("INSERT INTO admissions(attempt_id,generation,disposition) VALUES(?,?,?)", (attempt_id, generation, "VOID"))
+                conn.commit()
+                return AdmissionCheckpoint(attempt_id, generation, "VOID", False, True, ("protected_state_identity_missing_or_drifted",))
+            if recompute_token_fn is not None:
+                recomputed = str(recompute_token_fn())
+            elif verdict_payload is not None:
+                recomputed = digest(verdict_payload)
+            else:
+                recomputed = ""
+            if not expected_evidence_token or not hmac.compare_digest(recomputed, expected_evidence_token):
+                conn.execute("INSERT INTO admissions(attempt_id,generation,disposition) VALUES(?,?,?)", (attempt_id, generation, "VOID"))
+                conn.commit()
+                return AdmissionCheckpoint(attempt_id, generation, "VOID", False, True, ("evidence_token_mismatch",))
+            conn.execute("INSERT INTO admissions(attempt_id,generation,disposition) VALUES(?,?,?)", (attempt_id, generation, disposition))
+            if disposition == "COMMITTED":
+                conn.execute("UPDATE protected_state SET generation=?, state_hash=? WHERE id=1", (generation + 1, next_state_hash or str(generation + 1)))
+            conn.commit()
+        return AdmissionCheckpoint(attempt_id, generation, disposition, disposition == "COMMITTED", disposition == "VOID", ())
 
     def compare_and_set(self, attempt_id: str, generation: int, disposition: str, *, expected_state_hash: str | None = None, next_state_hash: str | None = None) -> AdmissionCheckpoint:
         if disposition not in ("VOID", "COMMITTED"):
@@ -1442,17 +1478,37 @@ def admit_review_attempt(current: Mapping[str, Any], expected: AttemptState, *, 
     return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, ("persistent_ledger_required",))
 
 
-def admit_review_attempt_with_evidence(bundle: EvidenceBundle, context: PredicateContext, current: Mapping[str, Any], expected: AttemptState, *, attempt_id: str, expected_generation: int, registry: AdmissibilityPredicateRegistry | None = None, ledger: PersistentAdmissionLedger | None = None) -> AdmissionCheckpoint:
-    """Final admission path: revalidate evidence immediately before persistent CAS."""
+def admit_review_attempt_with_evidence(bundle: EvidenceBundle, context: PredicateContext, current: Mapping[str, Any], expected: AttemptState, *, attempt_id: str, expected_generation: int, registry: AdmissibilityPredicateRegistry | None = None, ledger: PersistentAdmissionLedger | None = None, authority: Any | None = None) -> AdmissionCheckpoint:
+    """Final admission path: revalidate evidence then bind that verdict inside CAS."""
     if ledger is None:
         return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, ("persistent_ledger_required",))
-    verdict = evaluate_admissibility(bundle, context, registry)
-    evidence_token = digest({"evidence": bundle.evidence, "context": context, "predicates": verdict.predicate_results, "generation": current.get("generation"), "state_hash": current.get("state_hash")})
-    if not ledger.verdict_token_matches(attempt_id, str(current.get("governor_evidence_token", "")), expected_generation):
-        ledger.compare_and_set(attempt_id, expected.generation, "VOID", expected_state_hash=current.get("state_hash"))
-        return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, ("evidence_verdict_token_mismatch",))
+    verdict = evaluate_admissibility(bundle, context, registry, authority=authority)
     if not verdict.admissible:
-        if ledger:
-            ledger.compare_and_set(attempt_id, expected.generation, "VOID")
-        return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, verdict.reasons)
-    return admit_review_attempt(current, expected, attempt_id=attempt_id, expected_generation=expected_generation, ledger=ledger)
+        checkpoint = ledger.compare_and_set(attempt_id, expected.generation, "VOID", expected_state_hash=current.get("state_hash"))
+        return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, tuple(verdict.reasons) + tuple(checkpoint.reasons))
+    token_payload = {
+        "evidence": bundle.evidence,
+        "context": context,
+        "predicates": verdict.predicate_results,
+        "generation": current.get("generation"),
+        "state_hash": current.get("state_hash"),
+    }
+    expected_evidence_token = digest(token_payload)
+    def recompute_token() -> str:
+        return digest({
+            "evidence": bundle.evidence,
+            "context": context,
+            "predicates": verdict.predicate_results,
+            "generation": current.get("generation"),
+            "state_hash": current.get("state_hash"),
+        })
+    return ledger.commit_with_verdict(
+        attempt_id,
+        expected_generation,
+        "COMMITTED",
+        expected_state_hash=str(current.get("state_hash", "")),
+        expected_evidence_token=expected_evidence_token,
+        recompute_token_fn=recompute_token,
+        next_state_hash=str(current.get("next_state_hash", expected_generation + 1)),
+    )
+
