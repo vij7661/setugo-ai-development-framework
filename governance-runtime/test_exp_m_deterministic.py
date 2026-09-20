@@ -302,7 +302,7 @@ class ExpMCoreTests(unittest.TestCase):
         profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
         plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("trial",), ("confirm",), "R5_PRODUCTION")
         record = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("trial",), ("trial",), "fake", "deterministic", attempt_records=(PhysicalAttemptRecord("trial", "trial", None, "FIRST", "r", "s", "w", "OK"),))
-        ok, reasons = validate_capability(profile, plan, record, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
+        ok, reasons = validate_capability(profile, plan, record, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1, authority=AUTHORITY)
         self.assertFalse(ok); self.assertIn("production_confirmation_plan_too_small", reasons)
 
     def test_r2b_physical_attempt_duplicate_is_rejected(self):
@@ -341,7 +341,7 @@ class ExpMCoreTests(unittest.TestCase):
         profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
         plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("a", "b"), ("c",), "R5_PRODUCTION")
         rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("a", "b", "c"), ("a", "b", "c"), "fake", "deterministic", attempt_records=tuple(PhysicalAttemptRecord(x, x, None, "FIRST", "r", "s", "w", "OK") for x in ("a", "b")))
-        ok, _ = validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
+        ok, _ = validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1, authority=AUTHORITY)
         self.assertFalse(ok)
 
     def test_r2d_exact_r5_298_fails_299_passes_one_failure_fails(self):
