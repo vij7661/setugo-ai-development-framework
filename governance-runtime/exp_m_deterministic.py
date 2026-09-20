@@ -651,6 +651,7 @@ class PredicateContext:
     expected_fence_issuer_id: str = "platform-fence-observer"
     expected_fence_attestation: str = "fence-attestation-v1"
     expected_semantic_algorithm: str = "coverage-v1"
+    expectation_manifest_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -1015,7 +1016,10 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
     }
 
 
-def evaluate_admissibility(bundle: EvidenceBundle, context: PredicateContext, registry: AdmissibilityPredicateRegistry | None = None) -> VerdictAdmissibilityResult:
+def evaluate_admissibility(bundle: EvidenceBundle, context: PredicateContext, registry: AdmissibilityPredicateRegistry | None = None, *, authority: Any | None = None) -> VerdictAdmissibilityResult:
+    from exp_m_expectation_authority import authority_context_valid
+    if not authority_context_valid(authority, context):
+        return VerdictAdmissibilityResult(False, "INADMISSIBLE", {}, ("expectation_authority_invalid",))
     registry = registry or admissibility_registry()
     validators = _predicate_validators(context)
     state = bundle.evidence
