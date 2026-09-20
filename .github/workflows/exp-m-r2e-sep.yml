@@ -72,6 +72,7 @@ jobs:
           python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
           python governance-runtime/verify_exp_m_prior_evidence.py
           python governance-runtime/build_exp_m_r2e_packet.py --stage handoff --source "$S" --evidence "$E" --packet "$P"
+          find governance-runtime -type d -name __pycache__ -prune -exec rm -rf {} +
           CHANGED="$(git status --porcelain | sed 's/^...//' || true)"
           test "$CHANGED" = "experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md"
           git add experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
@@ -93,6 +94,7 @@ jobs:
           grep -F -- "- S: $S" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
           grep -F -- "- E: $E" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
           grep -F -- "- P: $P" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
+          find governance-runtime -type d -name __pycache__ -prune -exec rm -rf {} +
           test -z "$(git status --porcelain)"
           echo "R2E_S_E_P_FINAL_VERIFICATION=PASS"
           echo "EXP_M=NOT_QUALIFIED"
