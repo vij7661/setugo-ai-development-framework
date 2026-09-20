@@ -1214,6 +1214,10 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
             reasons.append(f"archive_recursion:{name}")
         if entry.compressed_size and len(value) > entry.compressed_size * max_ratio:
             reasons.append(f"decompression_ratio:{name}")
+        if entry.kind == "file" and entry.uncompressed_size not in (0, len(value)):
+            reasons.append(f"uncompressed_size_metadata_mismatch:{name}")
+        if entry.kind == "file" and entry.compressed_size not in (0, len(value)):
+            reasons.append(f"compressed_size_metadata_mismatch:{name}")
         if not isinstance(value, bytes):
             reasons.append(f"non_bytes:{name}")
             continue
