@@ -135,6 +135,22 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("source_freeze_commit_mismatch")
     if freeze.get("source_tree") != source_tree:
         reasons.append("source_freeze_tree_mismatch")
+    if freeze.get("authority_effect") != "NONE" or freeze.get("exp_m_state") != "NOT_QUALIFIED" or freeze.get("live_provider_api_execution") is not False:
+        reasons.append("source_freeze_authority_boundary_mismatch")
+
+    delivery_entry = (((freeze.get("delivery_authority") or {}).get("requests") or {}).get("r") or {})
+    expected_delivery_body = {
+        "request_id": "r",
+        "reviewed_commit": source_commit,
+        "items": {"a": {"sha256": hashlib.sha256(b"a").hexdigest(), "size": 1}},
+    }
+    expected_delivery_hash = hashlib.sha256(
+        (json.dumps(expected_delivery_body, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode()
+    ).hexdigest()
+    if delivery_entry.get("reviewed_commit") != source_commit:
+        reasons.append("source_freeze_delivery_commit_mismatch")
+    if delivery_entry.get("manifest_hash") != expected_delivery_hash:
+        reasons.append("source_freeze_delivery_manifest_hash_mismatch")
 
     source_to_evidence = _diff_paths(source_commit, evidence_commit)
     evidence_to_packet = _diff_paths(evidence_commit, packet_commit)
