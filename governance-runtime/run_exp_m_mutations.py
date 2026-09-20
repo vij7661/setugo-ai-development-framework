@@ -71,8 +71,8 @@ def run() -> dict:
     reg = admissibility_registry()
     mutations = []
     base = {
-        "review_request": {"current": True, "request_id": AUTHORITY_CONTEXT.request_id}, "authority_snapshot": GovernanceAuthoritySnapshot(AUTHORITY_CONTEXT.authority_snapshot_id, AUTHORITY_CONTEXT.authority_version, AUTHORITY_CONTEXT.authority_snapshot_hash, True),
-        "evidence_contract": RequiredEvidenceContract("e", AUTHORITY_CONTEXT.authority_snapshot_id, ("a",)), "interaction_contract": RequiredInteractionContract("i", AUTHORITY_CONTEXT.authority_snapshot_id, (("a",),)),
+        "review_request": {"current": True, "request_id": FROZEN_MUTATION_CONTEXT.request_id}, "authority_snapshot": GovernanceAuthoritySnapshot(FROZEN_MUTATION_CONTEXT.authority_snapshot_id, FROZEN_MUTATION_CONTEXT.authority_version, FROZEN_MUTATION_CONTEXT.authority_snapshot_hash, True),
+        "evidence_contract": RequiredEvidenceContract("e", FROZEN_MUTATION_CONTEXT.authority_snapshot_id, ("a",)), "interaction_contract": RequiredInteractionContract("i", FROZEN_MUTATION_CONTEXT.authority_snapshot_id, (("a",),)),
         "materialization": MaterializationResult(True, {"a": b"a"}, "rep", "src", "raw-v1"), "representation": RepresentationRecord("raw-v1", "1", "transform", "registry-exp-m-r1", "src", "rep", "params", "coverage"),
         "egress": {"authorized": True, "version": "1"}, "capability": {"validated": True}, "accessibility_policy": {"satisfied": True, "risk_policy_version": "r1"}, "accessibility": AccessibilityProofRecord("proof", "ch", "fake", "inline", "ctx", True),
         "context_isolation": {"satisfied": True, "transition_class": "LOWER"}, "hidden_state_policy": {"satisfied": True}, "context_state": {"clean": True, "sentinel_passed": True, "state_hash": "state"},
