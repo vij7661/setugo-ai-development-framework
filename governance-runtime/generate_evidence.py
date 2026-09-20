@@ -59,8 +59,16 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _tracked_status_lines() -> list[str]:
+    raw = subprocess.check_output(
+        ("git", "status", "--porcelain", "--untracked-files=no"),
+        cwd=ROOT, text=True,
+    )
+    return raw.splitlines()
+
+
 def _assert_clean_source_head() -> tuple[str, str]:
-    dirty = _git("status", "--porcelain", "--untracked-files=no")
+    dirty = _tracked_status_lines()
     if dirty:
         raise SystemExit("generate_evidence_requires_clean_source_worktree")
     return _git("rev-parse", "HEAD"), _git("rev-parse", "HEAD^{tree}")
@@ -188,7 +196,7 @@ def generate() -> dict:
     }
     MANIFEST.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    changed = _git("status", "--porcelain", "--untracked-files=no").splitlines()
+    changed = _tracked_status_lines()
     bad = []
     for line in changed:
         rel = line[3:].strip().replace("\\", "/")
