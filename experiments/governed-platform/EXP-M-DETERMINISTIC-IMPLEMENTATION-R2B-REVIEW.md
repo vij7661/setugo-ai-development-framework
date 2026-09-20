@@ -1883,9 +1883,9 @@ Do not use live provider APIs.
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=d3604f02f2133d3a36551e436e4b4cfbd382be1a
-tree=a70f324f80630283c13a3788946b256440fe0c16
-parent=eaac12cf521d3684850773a498c67ca1c5226d6b
+commit=74d080ab201de5ec4a36a50c5bc301986f270f75
+tree=991b7c17df50ac51317a01f4cdee1881a358327f
+parent=8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -1893,14 +1893,14 @@ live_provider_execution=false
 ## Fresh evidence execution identity
 {
   "execution_hashes": {
-    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "7ebdf7aee5bdbb11628577df46c753c0e3d8191d2b92f6d7ce94f32b8b2d7c3b",
-    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "0e1bd5d5122e58d781258306372059f494cc9eaf51bde759e8be79e1105b48f0",
+    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "5734ae1a54f85301718fbf7dd8a14389264985100ea375d1771d096c5448a583",
+    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "df42de8d861bd1647883735429596d6d44e00b3a80443a0fbe530353a2e243ff",
     "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "d863a12fa826748a757535c72b17730f44cb951d4135eb05e358867aca7fa089",
-    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "621ab5bfbfe2e53845ee752cd61cd660879a1ec517d369349faa038df0d20765",
+    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "139aaf277e8dda3bd318b821ec6c9f787627de49dfd2805b8f81d742a2bdd06b",
     "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "78b78a7ec4f3bd90850438244fb55f3d4668fe13d13ca9ed142ef4001c6f1ee1"
   },
-  "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
-  "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0"
+  "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
+  "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c"
 }
 
 ## Deterministic exit gates
@@ -1935,7 +1935,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
 ```json
 {
   "governance-runtime/build_exp_m_review_packet.py": "66c3f6d6ffab46abb6de893a170b5c1c41996a3a7ca24ffa1830bbaf72eaaf49",
-  "governance-runtime/exp_m_deterministic.py": "6535bac6f3d4b0543173022ccf43a1a12e51ca347f0176becfa33b51cf9178d0",
+  "governance-runtime/exp_m_deterministic.py": "cd28fe9ca270f1cfde906953d33b36033d14023a86a45687d1541b22e062020f",
   "governance-runtime/exp_m_review_fixtures.py": "dec6aa65be46ca0849cb073db8930d416a71cb7749127027ceb223b2021115d2",
   "governance-runtime/run_exp_m_deterministic.py": "25dd7cd2092db5617b0338c23476b7ad2b7d7ccfb7d87aac12d652a71647eb17",
   "governance-runtime/run_exp_m_mutations.py": "b72713640094cf10e966424ef738812ae21590e28013fc069445bdb51b51c2ec",
@@ -1954,9 +1954,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
-    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
-    "utc": "2026-09-20T09:59:49.097813+00:00"
+    "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
+    "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c",
+    "utc": "2026-09-20T10:02:17.392449+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -3139,9 +3139,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
-    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
-    "utc": "2026-09-20T10:00:03.859478+00:00"
+    "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
+    "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c",
+    "utc": "2026-09-20T10:02:32.389556+00:00"
   },
   "experiment": "EXP-M",
   "killed_mutation_targets": [
@@ -3971,15 +3971,15 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_tests.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
-    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
-    "utc": "2026-09-20T09:59:41.277445+00:00"
+    "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
+    "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c",
+    "utc": "2026-09-20T10:02:09.642545+00:00"
   },
   "suites": [
     {
       "command": "python governance-runtime/test_exp_m_deterministic.py",
       "exit_code": 0,
-      "stdout_stderr": "test_admissibility_exact_predicate_closure (__main__.ExpMCoreTests.test_admissibility_exact_predicate_closure) ... ok\ntest_admissibility_requires_every_predicate (__main__.ExpMCoreTests.test_admissibility_requires_every_predicate) ... ok\ntest_atomic_admission_voids_state_drift (__main__.ExpMCoreTests.test_atomic_admission_voids_state_drift) ... ok\ntest_authority_snapshot_candidate_writable_rejected (__main__.ExpMCoreTests.test_authority_snapshot_candidate_writable_rejected) ... ok\ntest_complete_one_shot_delivery (__main__.ExpMCoreTests.test_complete_one_shot_delivery) ... ok\ntest_dirty_context_and_stale_fence_fail (__main__.ExpMCoreTests.test_dirty_context_and_stale_fence_fail) ... ok\ntest_duplicate_required_item_rejected_by_wire (__main__.ExpMCoreTests.test_duplicate_required_item_rejected_by_wire) ... ok\ntest_expired_profile_is_not_current (__main__.ExpMCoreTests.test_expired_profile_is_not_current) ... ok\ntest_http_success_without_receipt_rejected (__main__.ExpMCoreTests.test_http_success_without_receipt_rejected) ... ok\ntest_insufficient_evidence_multiple_causes (__main__.ExpMCoreTests.test_insufficient_evidence_multiple_causes) ... ok\ntest_insufficient_evidence_unresolved (__main__.ExpMCoreTests.test_insufficient_evidence_unresolved) ... ok\ntest_item_size_mismatch (__main__.ExpMCoreTests.test_item_size_mismatch) ... ok\ntest_manifest_hash_mismatch (__main__.ExpMCoreTests.test_manifest_hash_mismatch) ... ok\ntest_manifest_is_content_addressed (__main__.ExpMCoreTests.test_manifest_is_content_addressed) ... ok\ntest_materialization_rejects_traversal (__main__.ExpMCoreTests.test_materialization_rejects_traversal) ... ok\ntest_missing_planned_attempt_is_not_current (__main__.ExpMCoreTests.test_missing_planned_attempt_is_not_current) ... ok\ntest_optional_contract_does_not_change_required_set (__main__.ExpMCoreTests.test_optional_contract_does_not_change_required_set) ... ok\ntest_provider_unqualified_blocks_preflight (__main__.ExpMCoreTests.test_provider_unqualified_blocks_preflight) ... ok\ntest_r1_egress_prompt_retry_registry_are_evidence_validated (__main__.ExpMCoreTests.test_r1_egress_prompt_retry_registry_are_evidence_validated) ... ok\ntest_r2_admission_race_has_one_terminal_winner (__main__.ExpMCoreTests.test_r2_admission_race_has_one_terminal_winner) ... ok\ntest_r2_empty_or_mismatched_qualification_closure_rejected (__main__.ExpMCoreTests.test_r2_empty_or_mismatched_qualification_closure_rejected) ... ok\ntest_r2_persistent_void_is_terminal_across_reload (__main__.ExpMCoreTests.test_r2_persistent_void_is_terminal_across_reload) ... ok\ntest_r2_production_evaluator_has_no_bypass_parameter (__main__.ExpMCoreTests.test_r2_production_evaluator_has_no_bypass_parameter) ... ok\ntest_r2_retry_lineage_is_explicit (__main__.ExpMCoreTests.test_r2_retry_lineage_is_explicit) ... ok\ntest_r2_summary_only_bundle_is_rejected (__main__.ExpMCoreTests.test_r2_summary_only_bundle_is_rejected) ... ok\ntest_r2_typed_materialization_bounds_and_transform_registry (__main__.ExpMCoreTests.test_r2_typed_materialization_bounds_and_transform_registry) ... ok\ntest_r2b_closure_missing_execution_evidence_fails (__main__.ExpMCoreTests.test_r2b_closure_missing_execution_evidence_fails) ... ok\ntest_r2b_materialization_derives_path_and_rejects_falsified_metadata (__main__.ExpMCoreTests.test_r2b_materialization_derives_path_and_rejects_falsified_metadata) ... ok\ntest_r2b_physical_attempt_duplicate_is_rejected (__main__.ExpMCoreTests.test_r2b_physical_attempt_duplicate_is_rejected) ... ok\ntest_r2b_production_profile_requires_real_plan (__main__.ExpMCoreTests.test_r2b_production_profile_requires_real_plan) ... ok\ntest_r2b_required_optional_manifest_is_exact (__main__.ExpMCoreTests.test_r2b_required_optional_manifest_is_exact) ... ok\ntest_receipt_session_mismatch_rejected (__main__.ExpMCoreTests.test_receipt_session_mismatch_rejected) ... ok\ntest_required_item_missing (__main__.ExpMCoreTests.test_required_item_missing) ... ok\ntest_retrieval_binds_raw_bytes_and_final_context (__main__.ExpMCoreTests.test_retrieval_binds_raw_bytes_and_final_context) ... ok\ntest_reviewer_ack_without_items_rejected (__main__.ExpMCoreTests.test_reviewer_ack_without_items_rejected) ... ok\ntest_snapshot_binding_mismatch_rejected (__main__.ExpMCoreTests.test_snapshot_binding_mismatch_rejected) ... ok\ntest_unknown_capability_blocks_preflight (__main__.ExpMCoreTests.test_unknown_capability_blocks_preflight) ... ok\ntest_unmanifested_item_rejected (__main__.ExpMCoreTests.test_unmanifested_item_rejected) ... ok\ntest_unsupported_format_and_context_limit_fail (__main__.ExpMCoreTests.test_unsupported_format_and_context_limit_fail) ... ok\ntest_upload_id_only_rejected (__main__.ExpMCoreTests.test_upload_id_only_rejected) ... ok\ntest_wire_delivery_rejects_returned_byte_mismatch (__main__.ExpMCoreTests.test_wire_delivery_rejects_returned_byte_mismatch) ... ok\ntest_witness_record_binding_budget_and_semantics (__main__.ExpMCoreTests.test_witness_record_binding_budget_and_semantics) ... ok\ntest_wrong_commit_is_bound (__main__.ExpMCoreTests.test_wrong_commit_is_bound) ... ok\ntest_wrong_operating_point_is_not_current (__main__.ExpMCoreTests.test_wrong_operating_point_is_not_current) ... ok\ntest_wrong_profile_hash_is_not_current (__main__.ExpMCoreTests.test_wrong_profile_hash_is_not_current) ... ok\ntest_wrong_request_rejected (__main__.ExpMCoreTests.test_wrong_request_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 46 tests in 0.076s\n\nOK\n",
+      "stdout_stderr": "test_admissibility_exact_predicate_closure (__main__.ExpMCoreTests.test_admissibility_exact_predicate_closure) ... ok\ntest_admissibility_requires_every_predicate (__main__.ExpMCoreTests.test_admissibility_requires_every_predicate) ... ok\ntest_atomic_admission_voids_state_drift (__main__.ExpMCoreTests.test_atomic_admission_voids_state_drift) ... ok\ntest_authority_snapshot_candidate_writable_rejected (__main__.ExpMCoreTests.test_authority_snapshot_candidate_writable_rejected) ... ok\ntest_complete_one_shot_delivery (__main__.ExpMCoreTests.test_complete_one_shot_delivery) ... ok\ntest_dirty_context_and_stale_fence_fail (__main__.ExpMCoreTests.test_dirty_context_and_stale_fence_fail) ... ok\ntest_duplicate_required_item_rejected_by_wire (__main__.ExpMCoreTests.test_duplicate_required_item_rejected_by_wire) ... ok\ntest_expired_profile_is_not_current (__main__.ExpMCoreTests.test_expired_profile_is_not_current) ... ok\ntest_http_success_without_receipt_rejected (__main__.ExpMCoreTests.test_http_success_without_receipt_rejected) ... ok\ntest_insufficient_evidence_multiple_causes (__main__.ExpMCoreTests.test_insufficient_evidence_multiple_causes) ... ok\ntest_insufficient_evidence_unresolved (__main__.ExpMCoreTests.test_insufficient_evidence_unresolved) ... ok\ntest_item_size_mismatch (__main__.ExpMCoreTests.test_item_size_mismatch) ... ok\ntest_manifest_hash_mismatch (__main__.ExpMCoreTests.test_manifest_hash_mismatch) ... ok\ntest_manifest_is_content_addressed (__main__.ExpMCoreTests.test_manifest_is_content_addressed) ... ok\ntest_materialization_rejects_traversal (__main__.ExpMCoreTests.test_materialization_rejects_traversal) ... ok\ntest_missing_planned_attempt_is_not_current (__main__.ExpMCoreTests.test_missing_planned_attempt_is_not_current) ... ok\ntest_optional_contract_does_not_change_required_set (__main__.ExpMCoreTests.test_optional_contract_does_not_change_required_set) ... ok\ntest_provider_unqualified_blocks_preflight (__main__.ExpMCoreTests.test_provider_unqualified_blocks_preflight) ... ok\ntest_r1_egress_prompt_retry_registry_are_evidence_validated (__main__.ExpMCoreTests.test_r1_egress_prompt_retry_registry_are_evidence_validated) ... ok\ntest_r2_admission_race_has_one_terminal_winner (__main__.ExpMCoreTests.test_r2_admission_race_has_one_terminal_winner) ... ok\ntest_r2_empty_or_mismatched_qualification_closure_rejected (__main__.ExpMCoreTests.test_r2_empty_or_mismatched_qualification_closure_rejected) ... ok\ntest_r2_persistent_void_is_terminal_across_reload (__main__.ExpMCoreTests.test_r2_persistent_void_is_terminal_across_reload) ... ok\ntest_r2_production_evaluator_has_no_bypass_parameter (__main__.ExpMCoreTests.test_r2_production_evaluator_has_no_bypass_parameter) ... ok\ntest_r2_retry_lineage_is_explicit (__main__.ExpMCoreTests.test_r2_retry_lineage_is_explicit) ... ok\ntest_r2_summary_only_bundle_is_rejected (__main__.ExpMCoreTests.test_r2_summary_only_bundle_is_rejected) ... ok\ntest_r2_typed_materialization_bounds_and_transform_registry (__main__.ExpMCoreTests.test_r2_typed_materialization_bounds_and_transform_registry) ... ok\ntest_r2b_closure_missing_execution_evidence_fails (__main__.ExpMCoreTests.test_r2b_closure_missing_execution_evidence_fails) ... ok\ntest_r2b_materialization_derives_path_and_rejects_falsified_metadata (__main__.ExpMCoreTests.test_r2b_materialization_derives_path_and_rejects_falsified_metadata) ... ok\ntest_r2b_physical_attempt_duplicate_is_rejected (__main__.ExpMCoreTests.test_r2b_physical_attempt_duplicate_is_rejected) ... ok\ntest_r2b_production_profile_requires_real_plan (__main__.ExpMCoreTests.test_r2b_production_profile_requires_real_plan) ... ok\ntest_r2b_required_optional_manifest_is_exact (__main__.ExpMCoreTests.test_r2b_required_optional_manifest_is_exact) ... ok\ntest_receipt_session_mismatch_rejected (__main__.ExpMCoreTests.test_receipt_session_mismatch_rejected) ... ok\ntest_required_item_missing (__main__.ExpMCoreTests.test_required_item_missing) ... ok\ntest_retrieval_binds_raw_bytes_and_final_context (__main__.ExpMCoreTests.test_retrieval_binds_raw_bytes_and_final_context) ... ok\ntest_reviewer_ack_without_items_rejected (__main__.ExpMCoreTests.test_reviewer_ack_without_items_rejected) ... ok\ntest_snapshot_binding_mismatch_rejected (__main__.ExpMCoreTests.test_snapshot_binding_mismatch_rejected) ... ok\ntest_unknown_capability_blocks_preflight (__main__.ExpMCoreTests.test_unknown_capability_blocks_preflight) ... ok\ntest_unmanifested_item_rejected (__main__.ExpMCoreTests.test_unmanifested_item_rejected) ... ok\ntest_unsupported_format_and_context_limit_fail (__main__.ExpMCoreTests.test_unsupported_format_and_context_limit_fail) ... ok\ntest_upload_id_only_rejected (__main__.ExpMCoreTests.test_upload_id_only_rejected) ... ok\ntest_wire_delivery_rejects_returned_byte_mismatch (__main__.ExpMCoreTests.test_wire_delivery_rejects_returned_byte_mismatch) ... ok\ntest_witness_record_binding_budget_and_semantics (__main__.ExpMCoreTests.test_witness_record_binding_budget_and_semantics) ... ok\ntest_wrong_commit_is_bound (__main__.ExpMCoreTests.test_wrong_commit_is_bound) ... ok\ntest_wrong_operating_point_is_not_current (__main__.ExpMCoreTests.test_wrong_operating_point_is_not_current) ... ok\ntest_wrong_profile_hash_is_not_current (__main__.ExpMCoreTests.test_wrong_profile_hash_is_not_current) ... ok\ntest_wrong_request_rejected (__main__.ExpMCoreTests.test_wrong_request_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 46 tests in 0.118s\n\nOK\n",
       "suite": "core",
       "tests_failed": 0,
       "tests_passed": 46,
@@ -3988,7 +3988,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
     {
       "command": "python governance-runtime/test_exp_m_phases.py",
       "exit_code": 0,
-      "stdout_stderr": "test_all_deterministic_phases_a_to_t_pass (__main__.ExpMPhaseTests.test_all_deterministic_phases_a_to_t_pass) ... ok\ntest_predicate_registry_exact_closure (__main__.ExpMPhaseTests.test_predicate_registry_exact_closure) ... ok\ntest_structured_admissibility_fixture_is_positive (__main__.ExpMPhaseTests.test_structured_admissibility_fixture_is_positive) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 15.414s\n\nOK\n",
+      "stdout_stderr": "test_all_deterministic_phases_a_to_t_pass (__main__.ExpMPhaseTests.test_all_deterministic_phases_a_to_t_pass) ... ok\ntest_predicate_registry_exact_closure (__main__.ExpMPhaseTests.test_predicate_registry_exact_closure) ... ok\ntest_structured_admissibility_fixture_is_positive (__main__.ExpMPhaseTests.test_structured_admissibility_fixture_is_positive) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 14.983s\n\nOK\n",
       "suite": "phases",
       "tests_failed": 0,
       "tests_passed": 3,
@@ -4015,9 +4015,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
     "command": "python governance-runtime/self_adjudicate_r2b.py",
     "interpreter": "D:\\Python312\\python.exe",
     "live_provider_execution": false,
-    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
-    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
-    "utc": "2026-09-20T10:00:12.148796+00:00"
+    "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
+    "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c",
+    "utc": "2026-09-20T10:02:40.449970+00:00"
   },
   "experiment": "EXP-M",
   "remediation": "R2B",
@@ -4156,9 +4156,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
-    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
-    "utc": "2026-09-20T10:00:11.849780+00:00"
+    "source_commit": "8dcf820f7ef6ac26b4f98d7e9099b7d9918a8cdf",
+    "source_tree": "fd42eb882ae8c1248eab29b20cee45912df67e7c",
+    "utc": "2026-09-20T10:02:40.145487+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
@@ -5391,6 +5391,10 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
             reasons.append(f"archive_recursion:{name}")
         if entry.compressed_size and len(value) > entry.compressed_size * max_ratio:
             reasons.append(f"decompression_ratio:{name}")
+        if entry.kind == "file" and entry.uncompressed_size not in (0, len(value)):
+            reasons.append(f"uncompressed_size_metadata_mismatch:{name}")
+        if entry.kind == "file" and entry.compressed_size not in (0, len(value)):
+            reasons.append(f"compressed_size_metadata_mismatch:{name}")
         if not isinstance(value, bytes):
             reasons.append(f"non_bytes:{name}")
             continue
