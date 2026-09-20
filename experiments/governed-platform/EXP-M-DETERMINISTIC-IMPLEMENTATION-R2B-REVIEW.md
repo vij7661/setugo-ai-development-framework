@@ -1883,9 +1883,9 @@ Do not use live provider APIs.
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=c52d5c1544e844dc53cb4f404629bbbb9a7ed4ed
-tree=1f3c8d28b5e94459fc47b00d7127b283af57b2ef
-parent=99ba906c32f9025423559e8fac390630a407d075
+commit=117acf4f546ef78b0f2a084ec7667f41c9a1ed8e
+tree=b86861f313fc31a7cb678d96cf2fc5382147f704
+parent=b1b1fae4307b8183d3ac4878cb43ea309f51d789
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -1893,14 +1893,14 @@ live_provider_execution=false
 ## Fresh evidence execution identity
 {
   "execution_hashes": {
-    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "d5961215731fdc92f8f54d9b540808ecd32414f01a7bcfe42bbccbfa711235bc",
-    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "1de83a2afbcaa5b048ef93a3c7fd2d389b9be8c81890cccbd61f9af2c4976de6",
-    "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "a9e06ed40a41b9af572016ed65ce40ba8258094264b36f71a480acfea051946b",
-    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "987e66bc1df2b587677362133b7e812e110f261e1faa9ed0535ec086f9019eab",
-    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "3eb0b1190ee46a753c4137e99ff0ecfa5a514940c661a366cfdf1e90b41fe1b4"
+    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "97df17fc6179935ce96a7435ab3d94bef44c17bebefd02d2ab2153bc576b1de8",
+    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "c0ac12128959e2cfbb20b73156fe0e6a33ddac25249cf836a7619f6fcbb0672e",
+    "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "d863a12fa826748a757535c72b17730f44cb951d4135eb05e358867aca7fa089",
+    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "7bec5fab305f32049e321c5030cfd1e4b73831aa97139fb847e2a03911d48933",
+    "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "78b78a7ec4f3bd90850438244fb55f3d4668fe13d13ca9ed142ef4001c6f1ee1"
   },
-  "source_commit": "99ba906c32f9025423559e8fac390630a407d075",
-  "source_tree": "8a1e81674be178273cdbc76bb3296808c3bdaed4"
+  "source_commit": "b1b1fae4307b8183d3ac4878cb43ea309f51d789",
+  "source_tree": "1f73dda9d6712669770dba9d281a4918a7fd1af7"
 }
 
 ## Deterministic exit gates
@@ -1929,12 +1929,12 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
 ```json
 {
   "governance-runtime/build_exp_m_review_packet.py": "f99d6c1675230445120b563de7fa68bc706e439c89ea976e61af2115df64f4b1",
-  "governance-runtime/exp_m_deterministic.py": "856d5b2d5623f79c7323b35fe21e5325eb3b346a99cb46baea782662d7ea2277",
+  "governance-runtime/exp_m_deterministic.py": "d31782b6de5ba2a7590c9e5199cf83abefdad73ed0ac9cd8e98caf6fabba04f2",
   "governance-runtime/exp_m_review_fixtures.py": "dec6aa65be46ca0849cb073db8930d416a71cb7749127027ceb223b2021115d2",
   "governance-runtime/run_exp_m_deterministic.py": "25dd7cd2092db5617b0338c23476b7ad2b7d7ccfb7d87aac12d652a71647eb17",
   "governance-runtime/run_exp_m_mutations.py": "b72713640094cf10e966424ef738812ae21590e28013fc069445bdb51b51c2ec",
   "governance-runtime/self_falsify_exp_m.py": "1c1b61952dbd4b396b5d4ba781c3cd387fbe0f8aa719e117aa41094fae791f06",
-  "governance-runtime/test_exp_m_deterministic.py": "1c054e0be775a52be6eaf8520e9b6a9d9ff3b87c592af4d1ff7198200b4710f2",
+  "governance-runtime/test_exp_m_deterministic.py": "65ab5302eb16bcd2b17481baf6b4a0e9d10a51f6443e785bb329ee0f865ddc1f",
   "governance-runtime/test_exp_m_phases.py": "2b91d45e5d8c7f899ec9a1171495be0e45730367a3e6a8836b0c45fdde3e084d"
 }
 ```
@@ -1946,9 +1946,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "99ba906c32f9025423559e8fac390630a407d075",
-    "source_tree": "8a1e81674be178273cdbc76bb3296808c3bdaed4",
-    "utc": "2026-09-20T09:43:01.475901+00:00"
+    "source_commit": "b1b1fae4307b8183d3ac4878cb43ea309f51d789",
+    "source_tree": "1f73dda9d6712669770dba9d281a4918a7fd1af7",
+    "utc": "2026-09-20T09:48:37.490910+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -3131,9 +3131,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "99ba906c32f9025423559e8fac390630a407d075",
-    "source_tree": "8a1e81674be178273cdbc76bb3296808c3bdaed4",
-    "utc": "2026-09-20T09:43:16.429517+00:00"
+    "source_commit": "b1b1fae4307b8183d3ac4878cb43ea309f51d789",
+    "source_tree": "1f73dda9d6712669770dba9d281a4918a7fd1af7",
+    "utc": "2026-09-20T09:48:45.324818+00:00"
   },
   "experiment": "EXP-M",
   "killed_mutation_targets": [
@@ -3727,8 +3727,6 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "reasons": [
         "context_channel_unobserved",
         "context_state_unbound",
-        "provider_context_not_clean",
-        "provider_context_observation_failed",
         "admission_fence_stale"
       ],
       "target": "dirty_hidden_stale_context"
@@ -4087,9 +4085,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "99ba906c32f9025423559e8fac390630a407d075",
-    "source_tree": "8a1e81674be178273cdbc76bb3296808c3bdaed4",
-    "utc": "2026-09-20T09:43:24.119275+00:00"
+    "source_commit": "b1b1fae4307b8183d3ac4878cb43ea309f51d789",
+    "source_tree": "1f73dda9d6712669770dba9d281a4918a7fd1af7",
+    "utc": "2026-09-20T09:48:53.009746+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
@@ -4308,6 +4306,10 @@ class ProviderContextStateEvidence:
     state_hash: str
     observation_hash: str = ""
 
+    def __post_init__(self) -> None:
+        if not self.observation_hash:
+            object.__setattr__(self, "observation_hash", digest({"channels": tuple(self.observable_channels), "state_hash": self.state_hash, "clean": self.clean, "sentinel_passed": self.sentinel_passed}))
+
 
 @dataclass(frozen=True)
 class AdmissionFenceRecord:
@@ -4316,6 +4318,10 @@ class AdmissionFenceRecord:
     current: bool
     issued_at: str | None = None
     state_hash: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.state_hash:
+            object.__setattr__(self, "state_hash", digest({"fence_id": self.fence_id, "version": self.version, "current": self.current}))
 
 
 @dataclass(frozen=True)
@@ -5218,11 +5224,10 @@ def validate_context_state(state: ProviderContextStateEvidence, *, required_chan
         reasons.append("context_channel_unobserved")
     if not state.state_hash:
         reasons.append("context_state_unbound")
-    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash}):
+    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash, "clean": state.clean, "sentinel_passed": state.sentinel_passed}):
         reasons.append("context_observation_hash_mismatch")
-    if not state.clean or not state.sentinel_passed:
-        reasons.append("provider_context_not_clean")
-        reasons.append("provider_context_observation_failed")
+    if not state.observation_hash:
+        reasons.append("provider_context_observation_unbound")
     return not reasons, tuple(reasons)
 
 
@@ -5232,6 +5237,10 @@ def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[
         reasons.append("admission_fence_version_mismatch")
     if not fence.fence_id or (fence.state_hash and not isinstance(fence.state_hash, str)):
         reasons.append("admission_fence_unbound")
+    if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": fence.current}):
+        reasons.append("admission_fence_state_mismatch")
+    if fence.current is not True:
+        reasons.append("admission_fence_stale")
     return not reasons, tuple(reasons)
 
 
@@ -5383,8 +5392,9 @@ def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence:
     clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels)
     if not clean:
         reasons.extend(clean_reasons)
-    if not fence.current:
-        reasons.append("admission_fence_stale")
+    fence_ok, fence_reasons = validate_fence(fence, fence.version)
+    if not fence_ok:
+        reasons.extend(fence_reasons)
     return not reasons, tuple(reasons)
 
 
@@ -6143,7 +6153,7 @@ from exp_m_deterministic import (  # noqa: E402
     validate_wire_delivery, WitnessProtocolQualificationRecord,
     validate_witness_qualification, AttemptState, admit_review_attempt,
     PromptIsolationQualificationRecord, validate_egress, validate_prompt_isolation,
-    validate_registry_version, validate_retry_transparency,
+    validate_registry_version, validate_retry_transparency, validate_capability,
     bundle_from_state, context_from_state,
     PersistentAdmissionLedger, PhysicalAttemptRecord,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord,
@@ -6322,7 +6332,7 @@ class ExpMCoreTests(unittest.TestCase):
     def test_dirty_context_and_stale_fence_fail(self):
         s, c, i, items, m, p = fixture(); evidence = ProviderContextStateEvidence(False, ("memory",), False, "state")
         result = preflight(s, c, i, m, "request-1", p, items, context_evidence=evidence, fence=AdmissionFenceRecord("fence", "1", False))
-        self.assertFalse(result.allowed); self.assertIn("provider_context_not_clean", result.reasons); self.assertIn("admission_fence_stale", result.reasons)
+        self.assertFalse(result.allowed); self.assertIn("context_channel_unobserved", result.reasons); self.assertIn("admission_fence_stale", result.reasons)
 
     def test_materialization_rejects_traversal(self):
         result = materialize_entries({"../escape": b"x"}, source_hash="src")
@@ -6394,6 +6404,30 @@ class ExpMCoreTests(unittest.TestCase):
     def test_r2_production_evaluator_has_no_bypass_parameter(self):
         import inspect
         self.assertNotIn("disabled_predicates", inspect.signature(evaluate_admissibility).parameters)
+
+    def test_r2b_required_optional_manifest_is_exact(self):
+        s, c, i, items, m, p = fixture(); extra = dict(items); extra["unknown"] = b"x"
+        self.assertFalse(preflight(s, c, i, m, "request-1", p, extra).allowed)
+
+    def test_r2b_materialization_derives_path_and_rejects_falsified_metadata(self):
+        bad = MaterializationEntry("safe/file", "other/file", "file", b"x", None, 999, 999, 99)
+        self.assertFalse(materialize_entries((bad,), source_hash="s").success)
+
+    def test_r2b_production_profile_requires_real_plan(self):
+        profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
+        plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("trial",), ("confirm",), "R5_PRODUCTION")
+        record = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("trial",), ("trial",), "fake", "deterministic", attempt_records=(PhysicalAttemptRecord("trial", "trial", None, "FIRST", "r", "s", "w", "OK"),))
+        ok, reasons = validate_capability(profile, plan, record, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
+        self.assertFalse(ok); self.assertIn("production_confirmation_plan_too_small", reasons)
+
+    def test_r2b_physical_attempt_duplicate_is_rejected(self):
+        records = (PhysicalAttemptRecord("a", "a", None, "FIRST", "r", "s", "w", "FAILED"), PhysicalAttemptRecord("b", "a", "a", "RETRY", "r", "s", "w", "OK"))
+        ok, reasons = validate_retry_transparency(records, planned_root_ids=("a",), expected_request="r", expected_session="s")
+        self.assertFalse(ok); self.assertIn("physical_attempt_or_wire_duplicate", reasons)
+
+    def test_r2b_closure_missing_execution_evidence_fails(self):
+        reg = admissibility_registry()
+        self.assertFalse(reg.closure(reg.predicate_ids, reg.logic_mutation_ids, declared_mutations=reg.logic_mutation_ids, executed_mutations=reg.logic_mutation_ids, killed_mutations=reg.logic_mutation_ids, declared_fixtures=reg.fixture_ids, executed_fixtures=reg.fixture_ids, executed_fixture_targets=()))
 
     def test_r2_empty_or_mismatched_qualification_closure_rejected(self):
         s, c, i, items, m, p = fixture()
