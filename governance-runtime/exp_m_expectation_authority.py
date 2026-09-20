@@ -121,6 +121,19 @@ class AuthorityHandle:
             raise ValueError("reviewed_commit_not_resolved_git_object")
         return commit
 
+    def resolve_reviewed_tree(self) -> str:
+        freeze = self._source_freeze()
+        if freeze is not None:
+            return str(freeze["source_tree"])
+        commit = self.resolve_reviewed_commit()
+        try:
+            return subprocess.check_output(
+                ("git", "rev-parse", f"{commit}^{{tree}}"), cwd=ROOT, text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+            raise ValueError("reviewed_tree_not_resolved_git_object") from exc
+
     def _load_hashed_json(self, path_key: str, hash_key: str) -> Mapping[str, Any]:
         path = str(self.root[path_key])
         raw = _git_bytes(self.root_commit, path)
@@ -249,6 +262,7 @@ def load_predicate_context(authority: AuthorityHandle):
     if signed_reviewed_commit != legacy_anchor:
         raise ValueError("signed_expectation_legacy_commit_mismatch")
     values["reviewed_commit"] = authority.resolve_reviewed_commit()
+    values["reviewed_tree"] = authority.resolve_reviewed_tree()
     manifest_hash = _sha256(manifest_raw)
     context = PredicateContext(**values, expectation_manifest_hash=manifest_hash)
     _AUTHORIZED_CONTEXTS[id(context)] = (weakref.ref(context), authority.root_hash, manifest_hash)
@@ -268,6 +282,7 @@ def authority_context_valid(authority: AuthorityHandle | None, context: Any) -> 
         root_hash == authority.root_hash
         and manifest_hash == getattr(context, "expectation_manifest_hash", None)
         and getattr(context, "reviewed_commit", None) == authority.resolve_reviewed_commit()
+        and getattr(context, "reviewed_tree", None) == authority.resolve_reviewed_tree()
     )
 
 
