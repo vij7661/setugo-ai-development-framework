@@ -1386,20 +1386,30 @@ def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence:
     return not reasons, tuple(reasons)
 
 
-def validate_retrieval(record: RetrievalEvidenceRecord, raw: bytes, *, expected_request: str, expected_attempt: str, expected_session: str, expected_source: str, expected_version: str, expected_context_id: str, expected_context_hash: str) -> tuple[bool, tuple[str, ...]]:
+def validate_retrieval(record: RetrievalEvidenceRecord, *, expected_request: str, expected_attempt: str, expected_session: str, expected_source: str, expected_version: str, expected_context_id: str, expected_context_hash: str, authority: Any | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     if record.request_id != expected_request or record.attempt_id != expected_attempt or record.session_id != expected_session:
         reasons.append("retrieval_identity_mismatch")
     if record.source_id != expected_source or record.source_version != expected_version:
         reasons.append("retrieval_source_mismatch")
-    if record.end - record.start != len(raw) or record.returned_length != len(raw) or record.returned_sha256 != sha256(raw).hexdigest():
+    raw = b""
+    if authority is None:
+        reasons.append("retrieval_authority_missing")
+    else:
+        try:
+            raw = authority.resolve_retrieval_bytes(record.source_id, record.source_version, record.start, record.end)
+        except ValueError as exc:
+            reasons.append(str(exc))
+    if raw:
+        if record.end - record.start != len(raw) or record.returned_length != len(raw) or record.returned_sha256 != sha256(raw).hexdigest():
+            reasons.append("retrieval_bytes_mismatch")
+    elif record.end != record.start:
         reasons.append("retrieval_bytes_mismatch")
     if not record.tool_result_id:
         reasons.append("retrieval_tool_result_missing")
     if record.final_context_id != expected_context_id or record.final_context_hash != expected_context_hash:
         reasons.append("retrieval_final_context_unbound")
-    return not reasons, tuple(reasons)
-
+    return not reasons, tuple(dict.fromkeys(reasons))
 
 def validate_witness_qualification(record: WitnessProtocolQualificationRecord, *, provider_id: str, mode: str, prompt_mode: str, now: str, response: str, challenge: str, final_context_bytes: int, max_final_context_bytes: int, expected_answer_hash: str | None = None, challenge_record: WitnessChallengeEvidence | None = None, expected_authority_id: str | None = None, expected_authority_digest: str | None = None, expected_generation: int | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
