@@ -106,7 +106,15 @@
       "rejected": true
     },
     {
-      "id": "synthetic_phase_metadata",
+      "id": "phase_cases_are_executed",
+      "rejected": true
+    },
+    {
+      "id": "phase_negative_perturbation_fails",
+      "rejected": true
+    },
+    {
+      "id": "phase_case_removal_fails_closure",
       "rejected": true
     },
     {
@@ -117,11 +125,11 @@
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "753cdf265e6552dd96baa35d1a3fe59accbca506",
-    "source_tree": "d0dc0f0bedfcf7b9b059ff89d2c9e7251eb7e044",
-    "utc": "2026-09-20T07:22:45.352152+00:00"
+    "source_commit": "b987ff79e2ae33f78236f656418dd270096977cf",
+    "source_tree": "e38498f182e43c3483e1b26b3fc6513b93347855",
+    "utc": "2026-09-20T09:40:38.059060+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 28
+  "total": 30
 }

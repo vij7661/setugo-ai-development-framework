@@ -3,9 +3,9 @@
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "753cdf265e6552dd96baa35d1a3fe59accbca506",
-    "source_tree": "d0dc0f0bedfcf7b9b059ff89d2c9e7251eb7e044",
-    "utc": "2026-09-20T07:22:37.497511+00:00"
+    "source_commit": "b987ff79e2ae33f78236f656418dd270096977cf",
+    "source_tree": "e38498f182e43c3483e1b26b3fc6513b93347855",
+    "utc": "2026-09-20T09:40:21.529394+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -24,18 +24,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "A-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "A",
+          "production_functions": [
+            "preflight_delivery"
+          ],
           "result": true
         },
         {
-          "case_id": "A-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "A-negative-candidate_writable_snapshot",
+          "expected": "REJECT",
+          "fixture": "candidate_writable_snapshot",
           "kind": "negative",
+          "phase_id": "A",
+          "production_functions": [
+            "preflight_delivery"
+          ],
+          "rejection_reason": "candidate_writable_snapshot",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "A-adversarial-negative"
+        "A-negative-candidate_writable_snapshot"
       ],
       "positive_case_ids": [
         "A-positive-control"
@@ -59,18 +73,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "B-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "B",
+          "production_functions": [
+            "validate_chunks"
+          ],
           "result": true
         },
         {
-          "case_id": "B-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "B-negative-corrupt_chunk",
+          "expected": "REJECT",
+          "fixture": "corrupt_chunk",
           "kind": "negative",
+          "phase_id": "B",
+          "production_functions": [
+            "validate_chunks"
+          ],
+          "rejection_reason": "corrupt_chunk",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "B-adversarial-negative"
+        "B-negative-corrupt_chunk"
       ],
       "positive_case_ids": [
         "B-positive-control"
@@ -93,18 +121,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "C-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "C",
+          "production_functions": [
+            "validate_representation"
+          ],
           "result": true
         },
         {
-          "case_id": "C-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "C-negative-raw_byte_mutation",
+          "expected": "REJECT",
+          "fixture": "raw_byte_mutation",
           "kind": "negative",
+          "phase_id": "C",
+          "production_functions": [
+            "validate_representation"
+          ],
+          "rejection_reason": "raw_byte_mutation",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "C-adversarial-negative"
+        "C-negative-raw_byte_mutation"
       ],
       "positive_case_ids": [
         "C-positive-control"
@@ -128,18 +170,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "D-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "D",
+          "production_functions": [
+            "adjudicate_insufficient_evidence"
+          ],
           "result": true
         },
         {
-          "case_id": "D-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "D-negative-unresolved_cause",
+          "expected": "REJECT",
+          "fixture": "unresolved_cause",
           "kind": "negative",
+          "phase_id": "D",
+          "production_functions": [
+            "adjudicate_insufficient_evidence"
+          ],
+          "rejection_reason": "unresolved_cause",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "D-adversarial-negative"
+        "D-negative-unresolved_cause"
       ],
       "positive_case_ids": [
         "D-positive-control"
@@ -162,18 +218,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "E-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "E",
+          "production_functions": [
+            "EvidenceDeliveryManifest.verify"
+          ],
           "result": true
         },
         {
-          "case_id": "E-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "E-negative-manifest_byte_mutation",
+          "expected": "REJECT",
+          "fixture": "manifest_byte_mutation",
           "kind": "negative",
+          "phase_id": "E",
+          "production_functions": [
+            "EvidenceDeliveryManifest.verify"
+          ],
+          "rejection_reason": "manifest_byte_mutation",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "E-adversarial-negative"
+        "E-negative-manifest_byte_mutation"
       ],
       "positive_case_ids": [
         "E-positive-control"
@@ -199,18 +269,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "F-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "F",
+          "production_functions": [
+            "validate_capability"
+          ],
           "result": true
         },
         {
-          "case_id": "F-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "F-negative-expired_profile",
+          "expected": "REJECT",
+          "fixture": "expired_profile",
           "kind": "negative",
+          "phase_id": "F",
+          "production_functions": [
+            "validate_capability"
+          ],
+          "rejection_reason": "expired_profile",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "F-adversarial-negative"
+        "F-negative-expired_profile"
       ],
       "positive_case_ids": [
         "F-positive-control"
@@ -257,19 +341,33 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "G-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "G",
+          "production_functions": [
+            "run_exp_m_mutations"
+          ],
           "result": true
         },
         {
-          "case_id": "G-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "G-negative-independent_mutation_catalog",
+          "expected": "REJECT",
+          "fixture": "independent_mutation_catalog",
           "kind": "negative",
+          "phase_id": "G",
+          "production_functions": [
+            "run_exp_m_mutations"
+          ],
+          "rejection_reason": "independent_mutation_catalog",
           "result": true
         }
       ],
       "mutation_total": 50,
       "negative_case_ids": [
-        "G-adversarial-negative"
+        "G-negative-independent_mutation_catalog"
       ],
       "positive_case_ids": [
         "G-positive-control"
@@ -292,18 +390,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "H-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "H",
+          "production_functions": [
+            "validate_retry_transparency"
+          ],
           "result": true
         },
         {
-          "case_id": "H-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "H-negative-retry_without_failed_parent",
+          "expected": "REJECT",
+          "fixture": "retry_without_failed_parent",
           "kind": "negative",
+          "phase_id": "H",
+          "production_functions": [
+            "validate_retry_transparency"
+          ],
+          "rejection_reason": "retry_without_failed_parent",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "H-adversarial-negative"
+        "H-negative-retry_without_failed_parent"
       ],
       "positive_case_ids": [
         "H-positive-control"
@@ -349,18 +461,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "I-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "I",
+          "production_functions": [
+            "evaluate_admissibility"
+          ],
           "result": true
         },
         {
-          "case_id": "I-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "I-negative-non_promotable_disposition",
+          "expected": "REJECT",
+          "fixture": "non_promotable_disposition",
           "kind": "negative",
+          "phase_id": "I",
+          "production_functions": [
+            "evaluate_admissibility"
+          ],
+          "rejection_reason": "non_promotable_disposition",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "I-adversarial-negative"
+        "I-negative-non_promotable_disposition"
       ],
       "positive_case_ids": [
         "I-positive-control"
@@ -382,18 +508,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "J-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "J",
+          "production_functions": [
+            "complete_delivery"
+          ],
           "result": true
         },
         {
-          "case_id": "J-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "J-negative-receipt_manifest_mismatch",
+          "expected": "REJECT",
+          "fixture": "receipt_manifest_mismatch",
           "kind": "negative",
+          "phase_id": "J",
+          "production_functions": [
+            "complete_delivery"
+          ],
+          "rejection_reason": "receipt_manifest_mismatch",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "J-adversarial-negative"
+        "J-negative-receipt_manifest_mismatch"
       ],
       "positive_case_ids": [
         "J-positive-control"
@@ -417,18 +557,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "K-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "K",
+          "production_functions": [
+            "validate_witness_qualification"
+          ],
           "result": true
         },
         {
-          "case_id": "K-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "K-negative-response_budget",
+          "expected": "REJECT",
+          "fixture": "response_budget",
           "kind": "negative",
+          "phase_id": "K",
+          "production_functions": [
+            "validate_witness_qualification"
+          ],
+          "rejection_reason": "response_budget",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "K-adversarial-negative"
+        "K-negative-response_budget"
       ],
       "positive_case_ids": [
         "K-positive-control"
@@ -451,18 +605,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "L-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "L",
+          "production_functions": [
+            "safe_archive_member"
+          ],
           "result": true
         },
         {
-          "case_id": "L-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "L-negative-archive_traversal",
+          "expected": "REJECT",
+          "fixture": "archive_traversal",
           "kind": "negative",
+          "phase_id": "L",
+          "production_functions": [
+            "materialize_entries"
+          ],
+          "rejection_reason": "archive_traversal",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "L-adversarial-negative"
+        "L-negative-archive_traversal"
       ],
       "positive_case_ids": [
         "L-positive-control"
@@ -485,18 +653,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "M-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "M",
+          "production_functions": [
+            "EvidenceDeliveryManifest.verify"
+          ],
           "result": true
         },
         {
-          "case_id": "M-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "M-negative-frozen_byte_mutation",
+          "expected": "REJECT",
+          "fixture": "frozen_byte_mutation",
           "kind": "negative",
+          "phase_id": "M",
+          "production_functions": [
+            "EvidenceDeliveryManifest.verify"
+          ],
+          "rejection_reason": "frozen_byte_mutation",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "M-adversarial-negative"
+        "M-negative-frozen_byte_mutation"
       ],
       "positive_case_ids": [
         "M-positive-control"
@@ -518,18 +700,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "N-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "N",
+          "production_functions": [
+            "preflight_delivery"
+          ],
           "result": true
         },
         {
-          "case_id": "N-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "N-negative-unqualified_provider",
+          "expected": "REJECT",
+          "fixture": "unqualified_provider",
           "kind": "negative",
+          "phase_id": "N",
+          "production_functions": [
+            "preflight_delivery"
+          ],
+          "rejection_reason": "unqualified_provider",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "N-adversarial-negative"
+        "N-negative-unqualified_provider"
       ],
       "positive_case_ids": [
         "N-positive-control"
@@ -575,18 +771,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "O-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "O",
+          "production_functions": [
+            "independent_target_closure"
+          ],
           "result": true
         },
         {
-          "case_id": "O-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "O-negative-missing_killed_target",
+          "expected": "REJECT",
+          "fixture": "missing_killed_target",
           "kind": "negative",
+          "phase_id": "O",
+          "production_functions": [
+            "AdmissibilityPredicateRegistry.closure"
+          ],
+          "rejection_reason": "missing_killed_target",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "O-adversarial-negative"
+        "O-negative-missing_killed_target"
       ],
       "positive_case_ids": [
         "O-positive-control"
@@ -614,18 +824,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "P-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "P",
+          "production_functions": [
+            "validate_context_state"
+          ],
           "result": true
         },
         {
-          "case_id": "P-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "P-negative-dirty_context",
+          "expected": "REJECT",
+          "fixture": "dirty_context",
           "kind": "negative",
+          "phase_id": "P",
+          "production_functions": [
+            "validate_context_isolation"
+          ],
+          "rejection_reason": "dirty_context",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "P-adversarial-negative"
+        "P-negative-dirty_context"
       ],
       "positive_case_ids": [
         "P-positive-control"
@@ -648,18 +872,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "Q-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "Q",
+          "production_functions": [
+            "validate_fence"
+          ],
           "result": true
         },
         {
-          "case_id": "Q-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "Q-negative-fence_version_mismatch",
+          "expected": "REJECT",
+          "fixture": "fence_version_mismatch",
           "kind": "negative",
+          "phase_id": "Q",
+          "production_functions": [
+            "validate_fence"
+          ],
+          "rejection_reason": "fence_version_mismatch",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "Q-adversarial-negative"
+        "Q-negative-fence_version_mismatch"
       ],
       "positive_case_ids": [
         "Q-positive-control"
@@ -682,18 +920,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "R-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "R",
+          "production_functions": [
+            "validate_witness_qualification"
+          ],
           "result": true
         },
         {
-          "case_id": "R-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "R-negative-semantic_prompt",
+          "expected": "REJECT",
+          "fixture": "semantic_prompt",
           "kind": "negative",
+          "phase_id": "R",
+          "production_functions": [
+            "validate_witness_qualification"
+          ],
+          "rejection_reason": "semantic_prompt",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "R-adversarial-negative"
+        "R-negative-semantic_prompt"
       ],
       "positive_case_ids": [
         "R-positive-control"
@@ -716,18 +968,32 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "S-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "S",
+          "production_functions": [
+            "validate_attempt_ledger"
+          ],
           "result": true
         },
         {
-          "case_id": "S-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "S-negative-retry_lineage",
+          "expected": "REJECT",
+          "fixture": "retry_lineage",
           "kind": "negative",
+          "phase_id": "S",
+          "production_functions": [
+            "validate_retry_transparency"
+          ],
+          "rejection_reason": "retry_lineage",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "S-adversarial-negative"
+        "S-negative-retry_lineage"
       ],
       "positive_case_ids": [
         "S-positive-control"
@@ -774,18 +1040,33 @@
       ],
       "executed_cases": [
         {
+          "actual": "PASS",
           "case_id": "T-positive-control",
+          "expected": "PASS",
           "kind": "positive",
+          "phase_id": "T",
+          "production_functions": [
+            "validate_retry_transparency",
+            "independent_target_closure"
+          ],
           "result": true
         },
         {
-          "case_id": "T-adversarial-negative",
+          "actual": "REJECT",
+          "case_id": "T-negative-duplicate_physical_dispatch",
+          "expected": "REJECT",
+          "fixture": "duplicate_physical_dispatch",
           "kind": "negative",
+          "phase_id": "T",
+          "production_functions": [
+            "validate_retry_transparency"
+          ],
+          "rejection_reason": "duplicate_physical_dispatch",
           "result": true
         }
       ],
       "negative_case_ids": [
-        "T-adversarial-negative"
+        "T-negative-duplicate_physical_dispatch"
       ],
       "positive_case_ids": [
         "T-positive-control"
