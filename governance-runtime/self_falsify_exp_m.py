@@ -48,8 +48,8 @@ def run():
     ledger_path = ROOT / "experiments" / "governed-platform" / ".self-falsify-ledger.json"
     try:
         if ledger_path.exists(): ledger_path.unlink()
-        ledger = __import__("exp_m_deterministic").PersistentAdmissionLedger(ledger_path); ledger.compare_and_set("void", 1, "VOID")
-        case("void_revival_after_reload", __import__("exp_m_deterministic").PersistentAdmissionLedger(ledger_path).compare_and_set("void", 1, "COMMITTED").void)
+        ledger = __import__("exp_m_deterministic").PersistentAdmissionLedger(ledger_path); ledger.compare_and_set("void", 1, "VOID", expected_state_hash="")
+        case("void_revival_after_reload", __import__("exp_m_deterministic").PersistentAdmissionLedger(ledger_path).compare_and_set("void", 1, "COMMITTED", expected_state_hash="").void)
     finally:
         if ledger_path.exists(): ledger_path.unlink()
     case("retrieval_complete_only", not evaluate_admissibility(bundle_from_state({"retrieval": {"complete": True}, "disposition": "PASS"}), context_from_state({})).admissible)
@@ -74,7 +74,7 @@ def run():
     case("accessibility_valid_only", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "accessibility": {"valid": True}, "disposition": "PASS"}), context_from_state({})).admissible)
     race_path = ROOT / "experiments" / "governed-platform" / ".r2a-race-ledger.json"
     race_ledger = PersistentAdmissionLedger(race_path)
-    first_race = race_ledger.compare_and_set("race", 1, "VOID"); second_race = race_ledger.compare_and_set("race", 1, "COMMITTED")
+    first_race = race_ledger.compare_and_set("race", 1, "VOID", expected_state_hash=""); second_race = race_ledger.compare_and_set("race", 1, "COMMITTED", expected_state_hash="")
     case("persistent_race_second_writer", first_race.void and second_race.void)
     for artifact in (race_path, race_path.with_suffix(race_path.suffix + ".sqlite")):
         try: artifact.unlink()
@@ -93,6 +93,25 @@ def run():
     removed = json.loads(json.dumps(phase_artifact)); removed["phases"]["A"]["executed_cases"] = []
     case("phase_case_removal_fails_closure", not all(len(v.get("executed_cases", ())) >= 2 for v in removed["phases"].values()))
     case("typed_summary_boolean", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "capability": {"validated": True}, "context_isolation": {"satisfied": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    # R2C cross-source and authority attacks, independently authored here.
+    tampered_map = type(reg)(reg.version, reg.predicate_ids, reg.logic_mutation_ids, reg.fixture_ids, tuple((fid, "wrong") for fid, _ in reg.fixture_target_map))
+    case("wrong_fixture_target_mapping", not tampered_map.closure(reg.predicate_ids, reg.logic_mutation_ids, declared_mutations=reg.logic_mutation_ids, executed_mutations=reg.logic_mutation_ids, killed_mutations=reg.logic_mutation_ids, declared_fixtures=reg.fixture_ids, executed_fixtures=reg.fixture_ids, executed_fixture_targets=reg.predicate_ids))
+    case("grouped_mutation_false_coverage", all(len({m.get("target_predicate_id")}) == 1 for m in __import__("run_exp_m_mutations").run()["mutations"] if m.get("family") == "validator_logic"))
+    iso = __import__("exp_m_deterministic").validate_context_isolation(__import__("exp_m_deterministic").ProviderContextIsolationPolicy("p", "COMPLETE_READABLE_FENCED_STATE"), __import__("exp_m_deterministic").ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), __import__("exp_m_deterministic").AdmissionFenceRecord("f", "1", True), transition_class="HIGHEST", expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))
+    case("transition_class_self_downgrade", not iso[0])
+    case("fence_version_self_binding", not __import__("exp_m_deterministic").validate_fence(__import__("exp_m_deterministic").AdmissionFenceRecord("f", "evil", True), "1")[0])
+    wrong_answer = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS", "witness_response": "wrong"})
+    case("wrong_witness_answer", not evaluate_admissibility(wrong_answer, context_from_state({})).admissible)
+    forged_prompt = __import__("exp_m_deterministic").PromptIsolationQualificationRecord("p", "fake", "inline", True, "2099-01-01T00:00:00Z", authority_id="attacker", authority_digest="attacker")
+    case("forged_prompt_authority", not __import__("exp_m_deterministic").validate_prompt_isolation(forged_prompt, provider_id="fake", mode="inline", now="2025-01-01T00:00:00Z", expected_authority_id="platform-prompt-authority", expected_authority_digest="prompt-authority-v1", expected_generation=1)[0])
+    forged_reviewer = __import__("exp_m_deterministic").ReviewerProvenanceRecord("r", "policy", True, "trusted-review-artifact", issuer_id="attacker")
+    case("forged_reviewer_authority", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "reviewer": forged_reviewer, "disposition": "PASS"}), context_from_state({})).admissible)
+    prod_plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("a", "b"), ("c",), qualification_profile="R5_PRODUCTION")
+    prod_rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("a", "b", "c"), ("a", "b", "c"), "fake", "m", attempt_records=())
+    case("r5_under_sampling", not validate_capability(provider, prod_plan, prod_rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="m", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0])
+    missing_hash = PersistentAdmissionLedger(ROOT / "experiments/governed-platform/.r2c-missing-state.json").compare_and_set("a", 1, "COMMITTED")
+    case("cas_missing_state_hash", bool(missing_hash.void))
+    case("caller_copied_observed_interactions", not preflight_delivery(snap, contract, interactions, manifest, "r", provider, items, observed_interactions=(("a",),)).allowed)
     survivors = [c for c in cases if not c["rejected"]]
     return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "surviving_high": len(survivors), "all_rejected": not survivors}
 

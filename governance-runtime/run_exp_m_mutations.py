@@ -27,7 +27,7 @@ from exp_m_deterministic import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-from exp_m_review_fixtures import build_negative_fixture
+from exp_m_review_fixtures import FIXTURE_CATALOG, build_negative_fixture
 
 
 FROZEN_MUTATION_CONTEXT = PredicateContext(
@@ -48,14 +48,9 @@ def _mutated_evaluate(predicate, state, registry):
     original_disposition = production._validate_disposition
     def mutated_validators(context, _original=original, _predicate=predicate):
         validators = _original(context)
-        families = (
-            {"context_isolation_satisfied", "hidden_state_policy_satisfied", "context_state_clean", "admission_fence_current"},
-            {"materialization_complete", "representation_governed", "wire_binding_valid", "delivery_complete"},
-            {"accessibility_policy_satisfied", "accessibility_proven", "witness_record_current"},
-        )
-        family = next((group for group in families if _predicate in group), {_predicate})
-        for target in family:
-            validators[target] = lambda _state: True
+        # R2C requires one exact production guard per isolated mutant.  No
+        # grouped family is counted as coverage for an individual predicate.
+        validators[_predicate] = lambda _state: True
         return validators
     production._predicate_validators = mutated_validators
     if predicate == "disposition_promotable": production._validate_disposition = lambda _state, _context, _results: True
@@ -91,13 +86,17 @@ def run() -> dict:
         "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, digest(b"a"), 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a", "prompt_isolation": {"current": True}, "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True),
         "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True), "disposition": "PASS", "disposition_promotable": True,
     }
+    fixture_by_target = {str(row["target_predicate_id"]): row for row in FIXTURE_CATALOG}
     for predicate in reg.logic_mutation_ids:
+        fixture = fixture_by_target.get(predicate)
+        if fixture is None or str(fixture.get("fixture_id")) != f"negative:{predicate}":
+            raise AssertionError(f"fixture_catalog_mismatch:{predicate}")
         negative_state = build_negative_fixture(base, predicate)
         normal_result = evaluate(negative_state, reg)
         # Each mutant is executed in a fresh spawned process/module instance.
         mutated_payload = isolated_mutant_result(predicate, negative_state, reg)
         mutated_result = type("Result", (), {"admissible": bool(mutated_payload and mutated_payload["admissible"]), "reasons": tuple(mutated_payload.get("reasons", ()) if mutated_payload else ("isolated_mutant_failed",))})()
-        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": f"negative:{predicate}", "negative_fixture_target_id": predicate, "executed": True, "fixture_hash": digest(negative_state), "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible, "normal_reasons": list(normal_result.reasons), "mutated_reasons": list(mutated_result.reasons)})
+        mutations.append({"id": f"TM-O-{predicate}", "family": "validator_logic", "target": predicate, "target_predicate_id": predicate, "negative_fixture_id": str(fixture["fixture_id"]), "negative_fixture_target_id": str(fixture["target_predicate_id"]), "fixture_constructor": str(fixture["constructor"]), "expected_rejection_predicate": str(fixture["expected_rejection"]), "executed": True, "fixture_hash": digest(negative_state), "expected": "REJECT", "actual": "PASS" if mutated_result.admissible else "REJECT", "negative_control": "REJECT" if not normal_result.admissible else "PASS", "killed": mutated_result.admissible, "normal_reasons": list(normal_result.reasons), "mutated_reasons": list(mutated_result.reasons)})
     corpus = b"abcdefghij"; corpus_hash = digest(corpus)
     chunks = [EvidenceChunk.create("request", corpus_hash, 0, 2, corpus[:5]), EvidenceChunk.create("request", corpus_hash, 1, 2, corpus[5:])]
     data_mutations = [
@@ -131,7 +130,7 @@ def run() -> dict:
         else:
             ok, reasons = validate_capability(changed, plan, record, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
         mutations.append({"id": f"TM-R1-{name}", "family": "data_state", "target": name, "expected": "REJECT", "actual": "REJECT" if not ok else "PASS", "reasons": list(reasons), "killed": not ok and expected_reason in reasons})
-    context_ok, context_reasons = validate_context_isolation(ProviderContextIsolationPolicy("p", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(False, ("memory",), False, ""), AdmissionFenceRecord("f", "1", False), transition_class="HIGHEST", required_channels=("memory", "config"))
+    context_ok, context_reasons = validate_context_isolation(ProviderContextIsolationPolicy("p", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(False, ("memory",), False, ""), AdmissionFenceRecord("f", "1", False), transition_class="HIGHEST", expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))
     mutations.append({"id": "TM-R1-context-isolation", "family": "data_state", "target": "dirty_hidden_stale_context", "expected": "REJECT", "actual": "REJECT" if not context_ok else "PASS", "reasons": list(context_reasons), "killed": not context_ok})
     mutations.append({"id": "TM-R1-materialization-traversal", "family": "data_state", "target": "materialization", "expected": "REJECT", "actual": "REJECT" if not materialize_entries({"../escape": b"x"}, source_hash="s").success else "PASS", "killed": not materialize_entries({"../escape": b"x"}, source_hash="s").success})
     wire_items = {"a": b"a"}; wire_manifest = EvidenceDeliveryManifest.freeze("r", "source-commit", wire_items); receipt, wire = DeterministicFakeProvider().deliver(wire_manifest, wire_items)

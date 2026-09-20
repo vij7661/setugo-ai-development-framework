@@ -23,7 +23,7 @@ FIXTURE_CATALOG = (
     {"fixture_id": "negative:interaction_contract_closed", "target_predicate_id": "interaction_contract_closed", "constructor": "open_interaction_contract", "expected_rejection": "interaction_contract_closed"},
     {"fixture_id": "negative:materialization_complete", "target_predicate_id": "materialization_complete", "constructor": "failed_materialization", "expected_rejection": "materialization_complete"},
     {"fixture_id": "negative:representation_governed", "target_predicate_id": "representation_governed", "constructor": "unqualified_representation", "expected_rejection": "representation_governed"},
-    {"fixture_id": "negative:egress_authorized", "target_predicate_id": "egress_revoked", "constructor": "revoked_egress", "expected_rejection": "egress_authorized"},
+    {"fixture_id": "negative:egress_authorized", "target_predicate_id": "egress_authorized", "constructor": "revoked_egress", "expected_rejection": "egress_authorized"},
     {"fixture_id": "negative:capability_current", "target_predicate_id": "capability_current", "constructor": "invalid_capability_summary", "expected_rejection": "capability_current"},
     {"fixture_id": "negative:accessibility_policy_satisfied", "target_predicate_id": "accessibility_policy_satisfied", "constructor": "invalid_accessibility_policy", "expected_rejection": "accessibility_policy_satisfied"},
     {"fixture_id": "negative:context_isolation_satisfied", "target_predicate_id": "context_isolation_satisfied", "constructor": "dirty_isolation", "expected_rejection": "context_isolation_satisfied"},
@@ -45,6 +45,7 @@ FIXTURE_CATALOG = (
 def build_negative_fixture(base: Mapping[str, Any], predicate: str) -> dict[str, Any]:
     """Construct one independent negative fixture from a positive base."""
     state = deepcopy(dict(base))
+    state["__negative_target__"] = predicate
     if predicate == "review_request_current": state["review_request"] = {"current": False, "request_id": "r"}
     elif predicate == "authority_snapshot_current": state["authority_snapshot"] = GovernanceAuthoritySnapshot("s", "1", "h", False)
     elif predicate == "evidence_contract_closed": state["evidence_contract"] = RequiredEvidenceContract("e", "s", (), non_vacuous=False)

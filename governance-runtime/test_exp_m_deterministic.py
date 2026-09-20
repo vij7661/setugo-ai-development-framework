@@ -35,6 +35,7 @@ from exp_m_deterministic import (  # noqa: E402
     DeliveryCompletenessResult,
     RepresentationRecord,
     MaterializationEntry,
+    FinalContextInteractionEvidence,
 )
 
 
@@ -57,6 +58,7 @@ def preflight(*args, **kwargs):
         "fence": AdmissionFenceRecord("fence", "1", True),
         "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False),
         "observed_interactions": (("a", "b"),),
+        "observed_context": FinalContextInteractionEvidence("request-1", "session-1", "ctx-h", ("a", "b"), (("a", "b"),), True),
     }
     for key, value in defaults.items():
         kwargs.setdefault(key, value)
@@ -253,8 +255,8 @@ class ExpMCoreTests(unittest.TestCase):
         path = Path(f"experiments/governed-platform/.exp-m-test-ledger-{uuid.uuid4().hex}.json")
         try:
             if path.exists(): path.unlink()
-            first = PersistentAdmissionLedger(path).compare_and_set("a", 1, "VOID")
-            second = PersistentAdmissionLedger(path).compare_and_set("a", 1, "COMMITTED")
+            first = PersistentAdmissionLedger(path).compare_and_set("a", 1, "VOID", expected_state_hash="")
+            second = PersistentAdmissionLedger(path).compare_and_set("a", 1, "COMMITTED", expected_state_hash="")
             self.assertTrue(first.void); self.assertTrue(second.void); self.assertEqual(second.reasons, ("terminal_state",))
         finally:
             if path.exists(): path.unlink()
@@ -263,12 +265,12 @@ class ExpMCoreTests(unittest.TestCase):
         path = Path(f"experiments/governed-platform/.exp-m-race-ledger-{uuid.uuid4().hex}.json")
         db = path.with_suffix(path.suffix + ".sqlite")
         ledger = PersistentAdmissionLedger(path); results = []
-        def writer(disposition): results.append(ledger.compare_and_set("race", 1, disposition))
+        def writer(disposition): results.append(ledger.compare_and_set("race", 1, disposition, expected_state_hash=""))
         workers = [threading.Thread(target=writer, args=("COMMITTED",)), threading.Thread(target=writer, args=("VOID",))]
         [w.start() for w in workers]; [w.join() for w in workers]
         self.assertEqual(len(results), 2)
         self.assertEqual(sum(not r.reasons for r in results), 1)
-        self.assertTrue(all((not r.reasons) or r.reasons == ("terminal_state",) for r in results))
+        self.assertTrue(all((not r.reasons) or r.reasons in (("terminal_state",), ("protected_state_generation_drift",), ("protected_state_identity_missing_or_drifted",)) for r in results))
 
     def test_r2_retry_lineage_is_explicit(self):
         records = (PhysicalAttemptRecord("a", "a", None, "FIRST", "r", "s", "w1", "FAILED"), PhysicalAttemptRecord("a-retry", "a", "a", "RETRY", "r", "s", "w2", "OK"))
@@ -316,6 +318,23 @@ class ExpMCoreTests(unittest.TestCase):
         symlink = (MaterializationEntry("link", "link", "symlink", b"", "../escape"),)
         self.assertFalse(materialize_entries(symlink, source_hash="s").success)
         self.assertFalse(materialize_entries({"a": b"a"}, source_hash="s", transform_id="unknown").success)
+
+    def test_r2c_fixture_catalog_is_external_and_exact(self):
+        reg = admissibility_registry()
+        from exp_m_review_fixtures import FIXTURE_CATALOG
+        self.assertEqual(set(reg.fixture_ids), {row["fixture_id"] for row in FIXTURE_CATALOG})
+        self.assertEqual(dict(reg.fixture_target_map), {row["fixture_id"]: row["target_predicate_id"] for row in FIXTURE_CATALOG})
+
+    def test_r2c_caller_interactions_cannot_satisfy_context(self):
+        s, c, i, items, m, p = fixture()
+        self.assertFalse(preflight_delivery(s, c, i, m, "request-1", p, items, observed_interactions=(("a", "b"),)).allowed)
+
+    def test_r2c_two_trial_production_profile_rejected(self):
+        profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
+        plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("a", "b"), ("c",), "R5_PRODUCTION")
+        rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("a", "b", "c"), ("a", "b", "c"), "fake", "deterministic", attempt_records=tuple(PhysicalAttemptRecord(x, x, None, "FIRST", "r", "s", "w", "OK") for x in ("a", "b")))
+        ok, _ = validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
+        self.assertFalse(ok)
 
 
 if __name__ == "__main__":

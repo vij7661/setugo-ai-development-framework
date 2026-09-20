@@ -5,9 +5,11 @@ import json, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R2B-REVIEW.md"
+OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R2C-REVIEW.md"
 SOURCES = [
     Path("governance-runtime/exp_m_deterministic.py"),
+    Path("governance-runtime/exp_m_predicate_registry.py"),
+    Path("governance-runtime/exp_m_mutation_catalog.py"),
     Path("governance-runtime/build_exp_m_review_packet.py"),
     Path("governance-runtime/run_exp_m_deterministic.py"),
     Path("governance-runtime/run_exp_m_mutations.py"),
@@ -16,7 +18,7 @@ SOURCES = [
     Path("governance-runtime/test_exp_m_phases.py"),
     Path("governance-runtime/exp_m_review_fixtures.py"),
     Path("governance-runtime/run_exp_m_tests.py"),
-    Path("governance-runtime/self_adjudicate_r2b.py"),
+    Path("governance-runtime/self_adjudicate_r2c.py"),
 ]
 
 
@@ -32,13 +34,13 @@ def main() -> int:
     phase = json.loads((ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json").read_text())
     mutation = json.loads((ROOT / "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json").read_text())
     tests = json.loads((ROOT / "experiments/governed-platform/EXP-M-TEST-RESULTS.json").read_text())
-    self_adjudication = json.loads((ROOT / "experiments/governed-platform/EXP-M-R2B-SELF-ADJUDICATION.json").read_text())
+    self_adjudication = json.loads((ROOT / "experiments/governed-platform/EXP-M-R2C-SELF-ADJUDICATION.json").read_text())
     falsify = json.loads((ROOT / "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json").read_text())
     r2_review = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-EXTERNAL-REVIEW-R2.md").read_text(encoding="utf-8")
     r2_adjudication = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-R2-SOLUTION-ADJUDICATION.md").read_text(encoding="utf-8")
     r2_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-REMEDIATION-R2.md").read_text(encoding="utf-8")
     r2a_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2A-REMEDIATION.md").read_text(encoding="utf-8")
-    r2b_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2B-REMEDIATION.md").read_text(encoding="utf-8")
+    r2b_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2C-REMEDIATION.md").read_text(encoding="utf-8")
     execution_files = [Path("experiments/governed-platform/EXP-M-UNIT-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-PHASE-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-SELF-STDOUT.txt")]
     execution_hashes = {p.as_posix(): sha256((ROOT / p).read_bytes()).hexdigest() for p in execution_files if (ROOT / p).exists()}
     hashes = {p.as_posix(): sha256((ROOT / p).read_bytes()).hexdigest() for p in SOURCES}
@@ -46,13 +48,13 @@ def main() -> int:
     for p in ["standards/review-evidence-delivery-integrity.md", "experiments/governed-platform/exp-m-review-evidence-delivery-integrity.md", "experiments/governed-platform/EXP-M-TEST-MATRIX.md", "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md", "experiments/governed-platform/EXP-M-R5-EXTERNAL-REVIEW.md"]:
         frozen[p] = sha256((ROOT / p).read_bytes()).hexdigest()
     lines = [
-        "# EXP-M Deterministic Implementation R2B Independent Review Packet",
+        "# EXP-M Deterministic Implementation R2C Independent Review Packet",
         "",
         "This packet covers deterministic implementation only. EXP-M remains NOT_QUALIFIED; no live provider/API call occurred.",
         "",
         "## Historical superseded evidence",
         "The prior A-T/22-test/29-mutation report is retained in Git history but is superseded by the independent R1 CHANGES_REQUIRED review. It is not used as closure evidence.",
-        "R2B is the current internal self-adjudication authority. Prior R1/R2/R2A and historical false-green outputs are superseded evidence only.",
+        "R2C is the current internal self-adjudication authority. Prior R1/R2/R2A/R2B and historical false-green outputs are superseded evidence only.",
         "",
         "## R2 authority inputs",
         fence("External R2 review", r2_review), fence("R2 solution adjudication", r2_adjudication), fence("R2 remediation", r2_remediation), fence("R2A remediation", r2a_remediation), fence("R2B remediation", r2b_remediation),
@@ -95,11 +97,11 @@ def main() -> int:
         f"tests_total={tests['tests_total']}",
         f"tests_passed={tests['tests_passed']}",
         f"tests_failed={tests['tests_failed']}",
-        f"r2b_self_adjudication={self_adjudication['status']}",
-        f"r2b_unresolved_critical={self_adjudication['unresolved_critical']}",
-        f"r2b_unresolved_high={self_adjudication['unresolved_high']}",
-        "r2b_status=AUTOMATABLE_REMEDIATION_COMPLETE",
-        "r2b_clean_source_to_evidence_to_packet_sequence=true",
+        f"r2c_self_adjudication={self_adjudication['status']}",
+        f"r2c_unresolved_critical={self_adjudication['unresolved_critical']}",
+        f"r2c_unresolved_high={self_adjudication['unresolved_high']}",
+        "r2c_status=AUTOMATABLE_REMEDIATION_COMPLETE",
+        "r2c_clean_source_to_evidence_to_packet_sequence=true",
         "",
         "## Frozen source-of-truth hashes",
         "```json", json.dumps(frozen, indent=2, sort_keys=True), "```",
@@ -107,14 +109,14 @@ def main() -> int:
         "## Implemented source hashes",
         "```json", json.dumps(hashes, indent=2, sort_keys=True), "```",
         "",
-        "## R2B phase A-T results",
+        "## R2C phase A-T results",
         "```json", json.dumps(phase, indent=2, sort_keys=True), "```",
         "",
         "## Mutation results",
         "```json", json.dumps(mutation, indent=2, sort_keys=True), "```",
         "## Offline test result",
         "```json", json.dumps(tests, indent=2, sort_keys=True), "```",
-        "## R2B internal self-adjudication",
+        "## R2C internal self-adjudication",
         "```json", json.dumps(self_adjudication, indent=2, sort_keys=True), "```",
         "",
         "## Self-falsification results",
