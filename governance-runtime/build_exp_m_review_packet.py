@@ -15,6 +15,7 @@ SOURCES = [
     Path("governance-runtime/test_exp_m_deterministic.py"),
     Path("governance-runtime/test_exp_m_phases.py"),
     Path("governance-runtime/exp_m_review_fixtures.py"),
+    Path("governance-runtime/run_exp_m_tests.py"),
 ]
 
 
@@ -29,6 +30,7 @@ def fence(name: str, body: str, lang: str = "text") -> str:
 def main() -> int:
     phase = json.loads((ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json").read_text())
     mutation = json.loads((ROOT / "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json").read_text())
+    tests = json.loads((ROOT / "experiments/governed-platform/EXP-M-TEST-RESULTS.json").read_text())
     falsify = json.loads((ROOT / "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json").read_text())
     r2_review = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-EXTERNAL-REVIEW-R2.md").read_text(encoding="utf-8")
     r2_adjudication = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-R2-SOLUTION-ADJUDICATION.md").read_text(encoding="utf-8")
@@ -88,6 +90,9 @@ def main() -> int:
         f"all_mutations_rejected={mutation['all_rejected']}",
         f"critical_self_falsification_survivors={falsify['surviving_critical']}",
         f"high_self_falsification_survivors={falsify.get('surviving_high', falsify['surviving_critical'])}",
+        f"tests_total={tests['tests_total']}",
+        f"tests_passed={tests['tests_passed']}",
+        f"tests_failed={tests['tests_failed']}",
         "r2b_status=AUTOMATABLE_REMEDIATION_COMPLETE",
         "r2b_clean_source_to_evidence_to_packet_sequence=true",
         "",
@@ -102,6 +107,8 @@ def main() -> int:
         "",
         "## Mutation results",
         "```json", json.dumps(mutation, indent=2, sort_keys=True), "```",
+        "## Offline test result",
+        "```json", json.dumps(tests, indent=2, sort_keys=True), "```",
         "",
         "## Self-falsification results",
         "```json", json.dumps(falsify, indent=2, sort_keys=True), "```",
