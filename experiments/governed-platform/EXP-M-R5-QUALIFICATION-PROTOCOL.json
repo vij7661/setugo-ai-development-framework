@@ -1,0 +1,22 @@
+{
+  "protocol_id": "R5-CP-1",
+  "protocol_version": "1",
+  "confidence_level": 0.95,
+  "lower_bound_threshold": 0.99,
+  "n_min": 299,
+  "success_requirement": "ZERO_FIRST_ATTEMPT_FAILURES",
+  "retry_policy": "NO_RETRY_OR_REPLACEMENT",
+  "schedule_requirements": {
+    "min_distinct_days": 3,
+    "min_distinct_time_blocks": 4,
+    "require_exact_plan_coverage": true,
+    "require_declared_distribution_counts": true
+  },
+  "distribution_requirements": {
+    "day_counts_field": "scheduled_day_counts",
+    "time_block_counts_field": "scheduled_time_block_counts",
+    "exact_match_required": true
+  },
+  "authority_status": "PREREGISTERED_OFFLINE_ONLY",
+  "live_provider_execution_authorized": false
+}
