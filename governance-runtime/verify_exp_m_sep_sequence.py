@@ -13,6 +13,7 @@ from verify_exp_m_prior_evidence import verify_prior_evidence_index
 ROOT = Path(__file__).resolve().parents[1]
 FREEZE_PATH = "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json"
 EVIDENCE_MANIFEST_PATH = "experiments/governed-platform/EXP-M-R2E-EVIDENCE-MANIFEST.json"
+PACKET_CONTENT_PATH = "experiments/governed-platform/EXP-M-R2E-PACKET-CONTENT.md"
 
 REVIEWER_SUITE_ANCHORS = (
     ("governance-runtime/reviewer_exp_m_r2e_suite.py", "04913502b7ea1dcb11d551b2bec27c5a8d9c4a8a"),
@@ -67,6 +68,7 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
     if not freeze_file.exists():
         return False, ("source_freeze_missing",)
     freeze = json.loads(freeze_file.read_text(encoding="utf-8"))
+    source_commit = str(freeze.get("source_commit", ""))
     source_files = freeze.get("source_files") or {}
     reasons: list[str] = []
     for path, preregister_commit in REVIEWER_SUITE_ANCHORS:
@@ -74,8 +76,12 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
         if not expected:
             reasons.append(f"reviewer_suite_not_in_source_freeze:{path}")
             continue
-        working_bytes = (ROOT / path).read_bytes()
-        actual = hashlib.sha256(working_bytes).hexdigest()
+        try:
+            source_bytes = _git_bytes(source_commit, path)
+        except subprocess.CalledProcessError:
+            reasons.append(f"reviewer_suite_missing_from_source:{path}")
+            continue
+        actual = hashlib.sha256(source_bytes).hexdigest()
         if actual != expected:
             reasons.append("reviewer_suite_hash_drift")
         try:
@@ -85,7 +91,7 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
             continue
         if hashlib.sha256(frozen_bytes).hexdigest() != actual:
             reasons.append("reviewer_suite_preregister_hash_drift")
-        source_text = working_bytes.decode("utf-8", errors="replace")
+        source_text = source_bytes.decode("utf-8", errors="replace")
         if any(token in source_text for token in FORBIDDEN_REVIEWER_SUITE_TOKENS):
             reasons.append("reviewer_suite_forbidden_dependency")
     return not reasons, tuple(dict.fromkeys(reasons))
@@ -140,10 +146,9 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("source_to_evidence_non_evidence_path")
         details["invalid_evidence_paths"] = invalid_evidence
 
-    invalid_packet = [p for p in evidence_to_packet if not _allowed_packet_path(p)]
-    if invalid_packet:
-        reasons.append("evidence_to_packet_non_packet_path")
-        details["invalid_packet_paths"] = invalid_packet
+    if set(evidence_to_packet) != {PACKET_CONTENT_PATH}:
+        reasons.append("evidence_to_packet_exact_path_mismatch")
+        details["invalid_packet_paths"] = evidence_to_packet
 
     for path, expected_sha in (freeze.get("source_files") or {}).items():
         try:
@@ -166,13 +171,34 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("evidence_manifest_source_commit_mismatch")
     if evidence_manifest.get("source_tree") != source_tree:
         reasons.append("evidence_manifest_source_tree_mismatch")
+    if evidence_manifest.get("authority_effect") != "NONE" or evidence_manifest.get("exp_m_state") != "NOT_QUALIFIED" or evidence_manifest.get("live_provider_api_execution") is not False:
+        reasons.append("evidence_manifest_authority_boundary_mismatch")
 
-    for item in evidence_manifest.get("artifacts", ()):
-        path = item.get("path", "")
-        if not path.endswith(".json") or path in (FREEZE_PATH, EVIDENCE_MANIFEST_PATH):
+    artifact_items = list(evidence_manifest.get("artifacts") or ())
+    artifact_paths = [str(item.get("path", "")) for item in artifact_items]
+    if len(artifact_paths) != len(set(artifact_paths)):
+        reasons.append("evidence_manifest_duplicate_artifact_path")
+    expected_evidence_paths = set(artifact_paths) | {EVIDENCE_MANIFEST_PATH}
+    if set(source_to_evidence) != expected_evidence_paths:
+        reasons.append("source_to_evidence_artifact_set_mismatch")
+        details["missing_evidence_paths"] = sorted(expected_evidence_paths - set(source_to_evidence))
+        details["extra_evidence_paths"] = sorted(set(source_to_evidence) - expected_evidence_paths)
+
+    for item in artifact_items:
+        path = str(item.get("path", ""))
+        try:
+            raw = _git_bytes(evidence_commit, path)
+        except subprocess.CalledProcessError:
+            reasons.append(f"evidence_artifact_missing:{path}")
+            continue
+        if hashlib.sha256(raw).hexdigest() != str(item.get("sha256", "")):
+            reasons.append(f"evidence_artifact_hash_mismatch:{path}")
+        if len(raw) != int(item.get("size", -1)):
+            reasons.append(f"evidence_artifact_size_mismatch:{path}")
+        if not path.endswith(".json") or path == FREEZE_PATH:
             continue
         try:
-            data = _json_at(evidence_commit, path)
+            data = json.loads(raw)
         except Exception:
             reasons.append(f"result_json_unreadable:{path}")
             continue
@@ -181,6 +207,8 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
             reasons.append(f"result_source_commit_mismatch:{path}")
         if execution.get("source_tree") != source_tree:
             reasons.append(f"result_source_tree_mismatch:{path}")
+        if data.get("live_provider_api_execution") is True or execution.get("live_provider_execution") is True:
+            reasons.append(f"live_provider_boundary_violated:{path}")
 
     reviewer_ok, reviewer_reasons = verify_reviewer_suite_frozen()
     if not reviewer_ok:
