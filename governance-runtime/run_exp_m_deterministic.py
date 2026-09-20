@@ -45,16 +45,19 @@ def phase_fixture():
 
 
 def valid_preflight(snapshot, contract, interactions, manifest, provider, items):
+    channels = tuple({"channel": c, "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"} for c in ("memory", "config"))
+    members = tuple(sorted(items))
     return preflight_delivery(snapshot, contract, interactions, manifest, "request", provider, items,
         plan=ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)),
         qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
         context_policy=ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"),
-        context_evidence=ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
-        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False), observed_interactions=(("required-a", "required-b"),), observed_context=FinalContextInteractionEvidence("request", "session-1", "ctx-h", ("required-a", "required-b"), (("required-a", "required-b"),), True))
+        context_evidence=ProviderContextStateEvidence(True, ("memory", "config"), True, "state", channel_observations=channels),
+        fence=AdmissionFenceRecord("fence", "1", True), risk_policy=ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False), observed_interactions=(("required-a", "required-b"),), observed_context=FinalContextInteractionEvidence("request", "session-1", "ctx-h", members, (("required-a", "required-b"),), True, digest({"context_id": "ctx", "source_hash": "reviewed-commit", "members": members, "assembly": "trusted-final-context-v1"})))
 
 
 def run_phases() -> dict:
     s, c, i, items, manifest, provider = phase_fixture()
+    structured_evidence = ProviderContextStateEvidence(True, ("memory", "config"), True, "state", channel_observations=tuple({"channel": c, "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"} for c in ("memory", "config")))
     phase_results: dict[str, dict] = {}
     pre = valid_preflight(s, c, i, manifest, provider, items)
     phase_results["A"] = {"status": "PASS" if pre.allowed else "FAIL", "checks": ["required closure", "manifest bytes", "trusted profile"]}
@@ -97,10 +100,10 @@ def run_phases() -> dict:
     fixture_targets = set(mutation_result.get("executed_fixture_targets", ()))
     closure_ok = registry.closure(mutation_result.get("verdict_predicate_ids", ()), killed_targets, declared_mutations=mutation_result.get("declared_mutation_targets", ()), executed_mutations=actual_targets, killed_mutations=killed_targets, declared_fixtures=registry.fixture_ids, executed_fixtures=registry.fixture_ids, executed_fixture_targets=fixture_targets)
     phase_results["O"] = {"status": "PASS" if closure_ok else "FAIL", "checks": ["predicate/verdict/mutation/fixture closure"], "target_counts": {"required": len(registry.predicate_ids), "executed": len(actual_targets), "killed": len(killed_targets), "fixtures": len(fixture_targets)}}
-    context_ok = validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), AdmissionFenceRecord("fence", "1", True), transition_class="LOWER", expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0]
+    context_ok = validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), structured_evidence, AdmissionFenceRecord("fence", "1", True), transition_class="LOWER", expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0]
     phase_results["P"] = {"status": "PASS" if context_ok else "FAIL", "checks": ["residual adversarial oracle"]}
     q_policy = ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False)
-    q_isolated = validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), AdmissionFenceRecord("f", "1", True), transition_class=q_policy.transition_class, expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0]
+    q_isolated = validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), structured_evidence, AdmissionFenceRecord("f", "1", True), transition_class=q_policy.transition_class, expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0]
     phase_results["Q"] = {"status": "PASS" if q_policy.transition_class == "LOWER" and validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] and q_isolated else "FAIL", "checks": ["risk policy", "admission fence", "context isolation"]}
     witness_negative = validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="x" * 2000, challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)
     witness_verdict = evaluate_admissibility(bundle_from_state(state), context_from_state(state), registry)
@@ -128,7 +131,7 @@ def run_phases() -> dict:
         "M": manifest.verify(items)[0],
         "N": valid_preflight(s, c, i, manifest, provider, items).allowed,
         "O": closure_ok,
-        "P": validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), AdmissionFenceRecord("fence", "1", True), transition_class="LOWER", expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0],
+        "P": validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), structured_evidence, AdmissionFenceRecord("fence", "1", True), transition_class="LOWER", expected_transition_class="LOWER", expected_fence_version="1", required_channels=("memory", "config"))[0],
         "Q": q_policy.transition_class == "LOWER" and validate_fence(AdmissionFenceRecord("f", "1", True), "1")[0] and q_isolated,
         "R": witness_verdict.admissible,
         "S": validate_attempt_ledger(("t1", "t2"), ("t1", "t2"), ())[0],

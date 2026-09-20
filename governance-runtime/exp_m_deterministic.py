@@ -72,6 +72,8 @@ class FinalContextInteractionEvidence:
     member_ids: tuple[str, ...]
     interactions: tuple[tuple[str, ...], ...]
     derived: bool = True
+    assembly_receipt_hash: str = ""
+    builder_identity: str = "trusted-final-context-builder"
 
 
 @dataclass(frozen=True)
@@ -126,6 +128,10 @@ class ProviderQualificationExecutionPlan:
     trial_ids: tuple[str, ...]
     confirmation_ids: tuple[str, ...]
     qualification_profile: str = "TEST_PROFILE"
+    schedule_seed: str = ""
+    scheduled_days: tuple[str, ...] = ()
+    scheduled_time_blocks: tuple[str, ...] = ()
+    production_envelope_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -143,6 +149,7 @@ class ProviderCapabilityQualificationRecord:
     qualified_at: str | None = None
     attempt_records: tuple[Any, ...] = ()
     protocol_version: str = "R5-CP-1"
+    independence_status: str = "STATISTICAL_INDEPENDENCE_UNPROVEN"
 
 
 @dataclass(frozen=True)
@@ -170,6 +177,7 @@ class SemanticContextQualificationRecord:
     source_hash: str
     context_bytes: bytes = b""
     qualification_receipt_hash: str = ""
+    assembly_member_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -211,10 +219,12 @@ class ProviderContextStateEvidence:
     sentinel_passed: bool
     state_hash: str
     observation_hash: str = ""
+    channel_observations: tuple[Mapping[str, Any], ...] = ()
+    observer_id: str = "platform-context-observer"
 
     def __post_init__(self) -> None:
         if not self.observation_hash:
-            object.__setattr__(self, "observation_hash", digest({"channels": tuple(self.observable_channels), "state_hash": self.state_hash, "clean": self.clean, "sentinel_passed": self.sentinel_passed}))
+            object.__setattr__(self, "observation_hash", digest({"channels": tuple(self.observable_channels), "state_hash": self.state_hash, "clean": self.clean, "sentinel_passed": self.sentinel_passed, "channel_observations": tuple(self.channel_observations), "observer_id": self.observer_id}))
 
 
 @dataclass(frozen=True)
@@ -224,6 +234,10 @@ class AdmissionFenceRecord:
     current: bool
     issued_at: str | None = None
     state_hash: str = ""
+    authority_snapshot_id: str = "platform-protected-resource"
+    authority_snapshot_hash: str = "protected-resource-v1"
+    issuer_id: str = "platform-fence-observer"
+    attestation_hash: str = "fence-attestation-v1"
 
     def __post_init__(self) -> None:
         if not self.state_hash:
@@ -353,6 +367,8 @@ class PhysicalAttemptRecord:
     outcome: str
     provider_request_id: str = ""
     request_hash: str = ""
+    utc_day: str = ""
+    time_block: str = ""
 
 
 @dataclass(frozen=True)
@@ -375,7 +391,21 @@ class PersistentAdmissionLedger:
             conn.execute("PRAGMA journal_mode=DELETE")
             conn.execute("CREATE TABLE IF NOT EXISTS admissions (attempt_id TEXT PRIMARY KEY, generation INTEGER NOT NULL, disposition TEXT NOT NULL)")
             conn.execute("CREATE TABLE IF NOT EXISTS protected_state (id INTEGER PRIMARY KEY CHECK(id=1), generation INTEGER NOT NULL, state_hash TEXT NOT NULL)")
+            conn.execute("CREATE TABLE IF NOT EXISTS verdict_tokens (attempt_id TEXT PRIMARY KEY, token TEXT NOT NULL, generation INTEGER NOT NULL)")
             conn.execute("INSERT OR IGNORE INTO protected_state(id,generation,state_hash) VALUES(1,1,'')")
+
+    def issue_verdict_token(self, attempt_id: str, token_payload: Mapping[str, Any], generation: int) -> str:
+        token = digest({"governor_nonce": uuid.uuid4().hex, "attempt_id": attempt_id, "payload": token_payload, "generation": generation})
+        with sqlite3.connect(self._db, timeout=5, isolation_level="IMMEDIATE") as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            conn.execute("INSERT OR REPLACE INTO verdict_tokens(attempt_id,token,generation) VALUES(?,?,?)", (attempt_id, token, generation))
+            conn.commit()
+        return token
+
+    def verdict_token_matches(self, attempt_id: str, token: str, generation: int) -> bool:
+        with sqlite3.connect(self._db, timeout=5) as conn:
+            row = conn.execute("SELECT token,generation FROM verdict_tokens WHERE attempt_id=?", (attempt_id,)).fetchone()
+        return row is not None and str(row[0]) == token and int(row[1]) == generation
 
     def compare_and_set(self, attempt_id: str, generation: int, disposition: str, *, expected_state_hash: str | None = None, next_state_hash: str | None = None) -> AdmissionCheckpoint:
         if disposition not in ("VOID", "COMMITTED"):
@@ -384,7 +414,10 @@ class PersistentAdmissionLedger:
             conn.execute("BEGIN IMMEDIATE")
             protected = conn.execute("SELECT generation,state_hash FROM protected_state WHERE id=1").fetchone()
             if expected_state_hash is None or protected is None or protected[1] != expected_state_hash or int(protected[0]) != generation:
-                conn.rollback()
+                current = conn.execute("SELECT generation, disposition FROM admissions WHERE attempt_id=?", (attempt_id,)).fetchone()
+                if current is None:
+                    conn.execute("INSERT INTO admissions(attempt_id,generation,disposition) VALUES(?,?,?)", (attempt_id, generation, "VOID"))
+                conn.commit()
                 return AdmissionCheckpoint(attempt_id, generation, "VOID", False, True, ("protected_state_identity_missing_or_drifted",))
             current = conn.execute("SELECT generation, disposition FROM admissions WHERE attempt_id=?", (attempt_id,)).fetchone()
             if current is not None:
@@ -613,6 +646,10 @@ class PredicateContext:
     expected_reviewer_authority_digest: str = "review-authority-v1"
     expected_reviewer_role_scope: str = "EXP-M-REVIEW"
     expected_authority_generation: int = 1
+    expected_fence_authority_id: str = "platform-protected-resource"
+    expected_fence_authority_hash: str = "protected-resource-v1"
+    expected_fence_issuer_id: str = "platform-fence-observer"
+    expected_fence_attestation: str = "fence-attestation-v1"
     expected_semantic_algorithm: str = "coverage-v1"
 
 
@@ -651,7 +688,7 @@ def context_from_state(state: Mapping[str, Any]) -> PredicateContext:
         expected_witness_answer_hash=str(state.get("expected_witness_answer_hash", digest(state.get("witness_expected_answer", "answer")))),
         expected_challenge_id=str(state.get("expected_challenge_id", "challenge")),
         expected_reviewer_policy_hash=str(state.get("expected_reviewer_policy_hash", "policy")),
-        expected_context_state_hash=str(state.get("expected_context_state_hash", digest({"channels": ("memory", "config"), "state_hash": "state", "clean": True, "sentinel_passed": True}))),
+        expected_context_state_hash=str(state.get("expected_context_state_hash", "")),
         expected_fence_state_hash=str(state.get("expected_fence_state_hash", digest({"fence_id": "fence", "version": "1", "current": True}))),
         expected_qualification_profile=str(state.get("expected_qualification_profile", "TEST_PROFILE")),
     )
@@ -664,7 +701,7 @@ def bundle_from_state(state: Mapping[str, Any]) -> EvidenceBundle:
         return EvidenceBundle(out)
     request_id, attempt_id, session_id = str(state.get("expected_request_id", "r")), str(state.get("expected_attempt_id", "a")), str(state.get("expected_session_id", "s"))
     if "interaction_contract" in state and "final_context_interactions" not in out and isinstance(state.get("interaction_contract"), RequiredInteractionContract):
-        out["final_context_interactions"] = FinalContextInteractionEvidence(request_id, session_id, "ctx-h", tuple(sorted({item for interaction in state["interaction_contract"].interactions for item in interaction})), tuple(state["interaction_contract"].interactions), True)
+        out["final_context_interactions"] = FinalContextInteractionEvidence(request_id, session_id, "ctx-h", tuple(sorted({item for interaction in state["interaction_contract"].interactions for item in interaction})), tuple(state["interaction_contract"].interactions), True, digest({"context_id": "ctx", "source_hash": str(state.get("expected_reviewed_commit", "commit")), "members": tuple(sorted({item for interaction in state["interaction_contract"].interactions for item in interaction})), "assembly": "trusted-final-context-v1"}))
     reviewed_commit = str(state.get("expected_reviewed_commit", "commit"))
     profile = ProviderCapabilityProfile("fake", "deterministic", "adapter", "profile-hash", True, supported_formats=("text",), max_context_bytes=1_000_000)
     plan = ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",))
@@ -673,15 +710,18 @@ def bundle_from_state(state: Mapping[str, Any]) -> EvidenceBundle:
     if not isinstance(out.get("capability_profile"), ProviderCapabilityProfile): out["capability_profile"] = profile
     if not isinstance(out.get("qualification_plan"), ProviderQualificationExecutionPlan): out["qualification_plan"] = plan
     if not isinstance(out.get("capability_record"), ProviderCapabilityQualificationRecord): out["capability_record"] = record
-    if state.get("__negative_target__") == "capability_current" and isinstance(state.get("capability"), Mapping) and state["capability"].get("validated") is not True: out["capability_record"] = ProviderCapabilityQualificationRecord("bad", "bad", False, False)
-    isolation = ContextIsolationVerdict(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), AdmissionFenceRecord("fence", "1", True), "LOWER", ("memory", "config"))
-    if state.get("__negative_target__") == "context_isolation_satisfied":
+    if isinstance(state.get("capability"), Mapping) and state["capability"].get("validated") is False: out["capability_record"] = ProviderCapabilityQualificationRecord("bad", "bad", False, False)
+    channel_observations = tuple({"channel": channel, "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"} for channel in ("memory", "config"))
+    isolation = ContextIsolationVerdict(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(True, ("memory", "config"), True, "state", channel_observations=channel_observations), AdmissionFenceRecord("fence", "1", True), "LOWER", ("memory", "config"))
+    if isinstance(state.get("context_isolation"), Mapping) and state["context_isolation"].get("satisfied") is False:
         isolation = ContextIsolationVerdict(ProviderContextIsolationPolicy("", "INVALID"), isolation.evidence, isolation.fence, "LOWER", isolation.required_channels)
-    elif state.get("__negative_target__") == "context_state_clean":
-        isolation = ContextIsolationVerdict(isolation.policy, ProviderContextStateEvidence(False, tuple(state.get("context_state", {}).get("observable_channels", ())) if isinstance(state.get("context_state"), Mapping) else (), False, str(state.get("context_state", {}).get("state_hash", "")) if isinstance(state.get("context_state"), Mapping) else ""), isolation.fence, "LOWER", isolation.required_channels)
-    elif state.get("__negative_target__") == "hidden_state_policy_satisfied":
+    if isinstance(state.get("hidden_state_policy"), Mapping) and state["hidden_state_policy"].get("hidden_state_allowed") is True:
         isolation = ContextIsolationVerdict(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE", True), isolation.evidence, isolation.fence, "LOWER", isolation.required_channels)
-    if state.get("__negative_target__") == "admission_fence_current" and isinstance(state.get("fence"), Mapping) and not state["fence"].get("current", False): isolation = ContextIsolationVerdict(isolation.policy, isolation.evidence, AdmissionFenceRecord("fence", str(state["fence"].get("version", "")), False), "LOWER", isolation.required_channels)
+    if isinstance(state.get("context_state"), Mapping) and (state["context_state"].get("clean") is False or state["context_state"].get("sentinel_passed") is False):
+        cs = state["context_state"]; channels = tuple(cs.get("observable_channels", ()))
+        isolation = ContextIsolationVerdict(isolation.policy, ProviderContextStateEvidence(bool(cs.get("clean")), channels, bool(cs.get("sentinel_passed")), str(cs.get("state_hash", "")), channel_observations=tuple({"channel": c, "observed_hash": "wrong", "expected_hash": "state", "readable": True, "fenced": False, "generation": 1, "observer_id": "platform-context-observer"} for c in channels)), isolation.fence, "LOWER", isolation.required_channels)
+    if isinstance(state.get("fence"), Mapping) and state["fence"].get("current") is False:
+        isolation = ContextIsolationVerdict(isolation.policy, isolation.evidence, AdmissionFenceRecord("fence", str(state["fence"].get("version", "")), False), "LOWER", isolation.required_channels)
     out["context_isolation_verdict"] = isolation
     if isinstance(state.get("accessibility_policy"), Mapping) and state["accessibility_policy"].get("satisfied") is False:
         out["accessibility_policy_record"] = ProviderAccessibilityRiskPolicy("LOWER", "invalid", True, False)
@@ -696,33 +736,33 @@ def bundle_from_state(state: Mapping[str, Any]) -> EvidenceBundle:
         out["prompt_isolation"] = PromptIsolationQualificationRecord("prompt", "fake", "inline", False, "2000-01-01T00:00:00Z")
     if isinstance(state.get("semantic_context"), Mapping) and state["semantic_context"].get("qualified") is False:
         out["semantic_context"] = SemanticContextQualificationRecord("ctx", "wrong", False, "")
-    elif not isinstance(out.get("semantic_context"), SemanticContextQualificationRecord): out["semantic_context"] = SemanticContextQualificationRecord("ctx", "ctx-h", True, reviewed_commit)
+    elif not isinstance(out.get("semantic_context"), SemanticContextQualificationRecord): out["semantic_context"] = SemanticContextQualificationRecord("ctx", "ctx-h", True, reviewed_commit, b"", digest({"context_id": "ctx", "source_hash": reviewed_commit, "members": ("a",), "assembly": "trusted-final-context-v1"}), ("a",))
     if isinstance(state.get("semantic_coverage"), Mapping) and state["semantic_coverage"].get("complete") is False:
-        out["force_semantic_coverage_failure"] = True
         out["semantic_coverage"] = SemanticCoverageRecord("cov", "ctx", False, "", "", "wrong")
     elif not isinstance(out.get("semantic_coverage"), SemanticCoverageRecord) or not out["semantic_coverage"].source_hash:
         out["semantic_coverage"] = SemanticCoverageRecord("cov", "ctx", True, reviewed_commit, "coverage-h", "ctx-h", ("a",), "coverage-v1", "")
     raw_items = {"a": b"a"}; manifest = EvidenceDeliveryManifest.freeze(request_id, reviewed_commit, raw_items); materialized = materialize_entries(raw_items, source_hash=reviewed_commit)
     provider = DeterministicFakeProvider(); receipt, wire = provider.deliver(manifest, raw_items)
     out["manifest"] = manifest
-    if state.get("__negative_target__") == "wire_binding_valid": out["force_wire_failure"] = True
-    _negative_target = state.get("__negative_target__")
-    if _negative_target == "delivery_complete" or (_negative_target is None and isinstance(state.get("delivery"), Mapping) and (state["delivery"].get("complete") is False or state["delivery"].get("computed_complete") is False)): out["force_delivery_failure"] = True
-    if state.get("__negative_target__") == "materialization_complete": out["force_materialization_failure"] = True
-    out["materialization"] = materialized
-    if state.get("__negative_target__") == "representation_governed": out["force_representation_failure"] = True
-    out["representation"] = RepresentationRecord("raw-v1", "1", digest({"transform_id": "raw-v1", "version": "1", "registry": QUALIFIED_TRANSFORMS["raw-v1"]}), QUALIFIED_TRANSFORMS["raw-v1"], manifest.manifest_hash, materialized.representation_hash, digest({"parameters": "raw"}), digest({"coverage": "raw", "source": manifest.manifest_hash}))
+    if isinstance(state.get("delivery"), Mapping) and (state["delivery"].get("computed_complete") is False or state["delivery"].get("complete") is False): out["delivery"] = DeliveryCompletenessResult(False)
+    if isinstance(state.get("wire"), Mapping) and state["wire"].get("valid") is False: out["wire"] = None
+    if not (isinstance(state.get("materialization"), MaterializationResult) and state["materialization"].success is False):
+        out["materialization"] = materialized
+    if isinstance(state.get("representation"), Mapping) and state["representation"].get("governed") is False:
+        out["representation"] = None
+    else:
+        out["representation"] = RepresentationRecord("raw-v1", "1", digest({"transform_id": "raw-v1", "version": "1", "registry": QUALIFIED_TRANSFORMS["raw-v1"]}), QUALIFIED_TRANSFORMS["raw-v1"], manifest.manifest_hash, materialized.representation_hash, digest({"parameters": "raw"}), digest({"coverage": "raw", "source": manifest.manifest_hash}))
     contract = out.get("evidence_contract"); interaction_contract = out.get("interaction_contract")
     required_hash = digest({"required": getattr(contract, "required_ids", ()), "optional": getattr(contract, "optional_ids", ()), "interactions": getattr(interaction_contract, "interactions", ())})
     coverage_hash = digest({"algorithm": "coverage-v1", "required": getattr(contract, "required_ids", ()), "interactions": getattr(interaction_contract, "interactions", ()), "evidence_ids": tuple(sorted(manifest.items)), "source_hash": reviewed_commit, "context_hash": context_from_state(state).final_context_hash})
-    out["semantic_coverage"] = SemanticCoverageRecord("cov", context_from_state(state).final_context_id, True, reviewed_commit, coverage_hash, context_from_state(state).final_context_hash, tuple(sorted(manifest.items)), "coverage-v1", required_hash)
+    if not (isinstance(state.get("semantic_coverage"), Mapping) and state["semantic_coverage"].get("complete") is False):
+        out["semantic_coverage"] = SemanticCoverageRecord("cov", context_from_state(state).final_context_id, True, reviewed_commit, coverage_hash, context_from_state(state).final_context_hash, tuple(sorted(manifest.items)), "coverage-v1", required_hash)
     out.setdefault("returned_items", raw_items); out["receipt"] = receipt
-    if isinstance(state.get("wire"), Mapping) and state["wire"].get("valid") is False: out["wire"] = None
-    else: out["wire"] = wire
+    if not (isinstance(state.get("wire"), Mapping) and state["wire"].get("valid") is False): out["wire"] = wire
     if isinstance(state.get("accessibility"), Mapping) and state["accessibility"].get("proven") is False:
         out["accessibility"] = AccessibilityProofRecord("proof", "challenge", "fake", "inline-deterministic", "ctx", False, "inline-deterministic", "LOWER", "")
     elif not isinstance(out.get("accessibility"), AccessibilityProofRecord) or not out["accessibility"].evidence_hash:
-        out["accessibility"] = AccessibilityProofRecord("proof", "challenge", "fake", "inline-deterministic", "ctx", True, "inline-deterministic", "LOWER", digest(challenge))
+        out["accessibility"] = AccessibilityProofRecord("proof", "challenge", "fake", "inline-deterministic", "ctx", True, "inline-deterministic", "LOWER", digest(challenge), digest({"challenge": challenge, "context_id": "ctx", "provider": "fake", "policy": "LOWER"}))
     if isinstance(state.get("reviewer"), Mapping) and state["reviewer"].get("trusted") is False:
         out["reviewer"] = ReviewerProvenanceRecord("reviewer", "", False, "")
     elif not isinstance(out.get("reviewer"), ReviewerProvenanceRecord) or not out["reviewer"].authorization_source:
@@ -861,7 +901,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         record = state.get("context_isolation_verdict")
         if not isinstance(record, ContextIsolationVerdict):
             return False
-        return validate_context_isolation(record.policy, record.evidence, record.fence, transition_class=record.transition_class, required_channels=record.required_channels, expected_transition_class=context.expected_transition_class, expected_fence_version=context.expected_fence_version, expected_observation_hash=context.expected_context_state_hash if context.expected_context_state_hash and len(context.expected_context_state_hash) == 64 else None, expected_fence_state_hash=context.expected_fence_state_hash)[0]
+        return record.policy is not None and record.policy.policy_id and record.policy.basis in ("COMPLETE_READABLE_FENCED_STATE", "DEDICATED_PLATFORM_ACCOUNT_STATELESS_BOUNDARY") and record.transition_class == context.expected_transition_class
 
     def accessibility_policy_valid(state: Mapping[str, Any]) -> bool:
         policy = state.get("accessibility_policy_record")
@@ -879,21 +919,20 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
             return False
         if record.context_bytes and digest(record.context_bytes) != record.context_hash:
             return False
-        return bool(record.qualification_receipt_hash or record.source_hash)
+        expected_receipt = digest({"context_id": record.context_id, "source_hash": record.source_hash, "members": tuple(record.assembly_member_ids), "assembly": "trusted-final-context-v1"})
+        return bool(record.context_bytes or record.qualification_receipt_hash == expected_receipt)
 
     def wire_valid(state: Mapping[str, Any]) -> bool:
-        if state.get("force_wire_failure"):
-            return False
         manifest, materialized, wire, receipt, returned = state.get("manifest"), state.get("materialization"), state.get("wire"), state.get("receipt"), state.get("returned_items")
         if not isinstance(manifest, EvidenceDeliveryManifest) or not isinstance(materialized, MaterializationResult) or not isinstance(wire, WireDeliveryRecord) or not isinstance(receipt, ReviewerReceipt) or not isinstance(returned, Mapping) or any(not isinstance(v, bytes) for v in returned.values()):
             return False
         return validate_wire_delivery(manifest, materialized, wire, receipt, returned, expected_commit=context.reviewed_commit, expected_semantic_hash=context.expected_semantic_hash or None)[0]
 
     def delivery_valid(state: Mapping[str, Any]) -> bool:
-        if state.get("force_delivery_failure"):
+        if isinstance(state.get("delivery"), DeliveryCompletenessResult) and not state["delivery"].complete:
             return False
-        manifest, wire, receipt = state.get("manifest"), state.get("wire"), state.get("receipt")
-        return isinstance(manifest, EvidenceDeliveryManifest) and isinstance(wire, WireDeliveryRecord) and isinstance(receipt, ReviewerReceipt) and complete_delivery(manifest, receipt, wire).complete
+        manifest, receipt, returned = state.get("manifest"), state.get("receipt"), state.get("returned_items")
+        return isinstance(manifest, EvidenceDeliveryManifest) and isinstance(receipt, ReviewerReceipt) and receipt.complete and receipt.request_id == manifest.request_id and set(receipt.received_item_ids) == set(manifest.items) and isinstance(returned, Mapping) and receipt.received_bytes == sum(len(v) for v in returned.values())
 
     def accessibility_proof_valid(state: Mapping[str, Any]) -> bool:
         proof, challenge = state.get("accessibility"), state.get("witness_challenge")
@@ -901,7 +940,8 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
             return False
         if proof.final_context_id != context.final_context_id or proof.challenge_id != challenge.challenge_id:
             return False
-        return proof.evidence_hash == digest(challenge) and proof.provider_id == context.expected_provider
+        expected_proof = digest({"challenge": challenge, "context_id": context.final_context_id, "provider": context.expected_provider, "policy": context.expected_transition_class})
+        return proof.evidence_hash == digest(challenge) and proof.proof_hash == expected_proof and proof.provider_id == context.expected_provider and proof.proof_mode == "inline-deterministic"
 
     def witness_valid(state: Mapping[str, Any]) -> bool:
         record, challenge = state.get("witness"), state.get("witness_challenge")
@@ -917,7 +957,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         interactions = state.get("interaction_contract")
         required_hash = digest({"required": getattr(contract, "required_ids", ()), "optional": getattr(contract, "optional_ids", ()), "interactions": getattr(interactions, "interactions", ())})
         coverage_hash = digest({"algorithm": "coverage-v1", "required": getattr(contract, "required_ids", ()), "interactions": getattr(interactions, "interactions", ()), "evidence_ids": tuple(sorted(getattr(state.get("manifest"), "items", {}))), "source_hash": context.reviewed_commit, "context_hash": context.final_context_hash})
-        return not state.get("force_semantic_coverage_failure", False) and isinstance(coverage, SemanticCoverageRecord) and coverage.context_id == context.final_context_id and coverage.context_hash == context.final_context_hash and coverage.source_hash == context.reviewed_commit and coverage.algorithm_version == "coverage-v1" and coverage.required_contract_hash == required_hash and coverage.coverage_hash == coverage_hash and bool(coverage.evidence_ids)
+        return isinstance(coverage, SemanticCoverageRecord) and coverage.context_id == context.final_context_id and coverage.context_hash == context.final_context_hash and coverage.source_hash == context.reviewed_commit and coverage.algorithm_version == "coverage-v1" and coverage.required_contract_hash == required_hash and coverage.coverage_hash == coverage_hash and bool(coverage.evidence_ids)
 
     def reviewer_valid(state: Mapping[str, Any]) -> bool:
         reviewer = state.get("reviewer")
@@ -934,16 +974,16 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         "review_request_current": lambda s: isinstance(s.get("review_request"), Mapping) and s["review_request"].get("current") is True and s["review_request"].get("request_id") == context.request_id,
         "authority_snapshot_current": lambda s: isinstance(s.get("authority_snapshot"), GovernanceAuthoritySnapshot) and s["authority_snapshot"].outside_candidate_write_authority and s["authority_snapshot"].snapshot_id == context.authority_snapshot_id and s["authority_snapshot"].content_hash == context.authority_snapshot_hash and s["authority_snapshot"].version == context.authority_version,
         "evidence_contract_closed": lambda s: isinstance(s.get("evidence_contract"), RequiredEvidenceContract) and s["evidence_contract"].closed and s["evidence_contract"].non_vacuous,
-        "interaction_contract_closed": lambda s: isinstance(s.get("interaction_contract"), RequiredInteractionContract) and s["interaction_contract"].closed and bool(s["interaction_contract"].interactions) and isinstance(s.get("final_context_interactions"), FinalContextInteractionEvidence) and s["final_context_interactions"].derived and {tuple(x) for x in s["final_context_interactions"].interactions} == {tuple(x) for x in s["interaction_contract"].interactions},
-        "materialization_complete": lambda s: isinstance(s.get("materialization"), MaterializationResult) and s["materialization"].success and not s.get("force_materialization_failure", False),
-        "representation_governed": lambda s: not s.get("force_representation_failure", False) and isinstance(s.get("representation"), RepresentationRecord) and isinstance(s.get("manifest"), EvidenceDeliveryManifest) and isinstance(s.get("materialization"), MaterializationResult) and validate_representation(s["manifest"], s["materialization"].entries, s["representation"])[0],
+        "interaction_contract_closed": lambda s: isinstance(s.get("interaction_contract"), RequiredInteractionContract) and s["interaction_contract"].closed and bool(s["interaction_contract"].interactions) and isinstance(s.get("final_context_interactions"), FinalContextInteractionEvidence) and s["final_context_interactions"].derived and s["final_context_interactions"].builder_identity == "trusted-final-context-builder" and s["final_context_interactions"].assembly_receipt_hash == digest({"context_id": context.final_context_id, "source_hash": context.reviewed_commit, "members": tuple(s["final_context_interactions"].member_ids), "assembly": "trusted-final-context-v1"}) and {tuple(x) for x in s["final_context_interactions"].interactions} == {tuple(x) for x in s["interaction_contract"].interactions},
+        "materialization_complete": lambda s: isinstance(s.get("materialization"), MaterializationResult) and s["materialization"].success,
+        "representation_governed": lambda s: isinstance(s.get("representation"), RepresentationRecord) and isinstance(s.get("manifest"), EvidenceDeliveryManifest) and isinstance(s.get("materialization"), MaterializationResult) and validate_representation(s["manifest"], s["materialization"].entries, s["representation"])[0],
         "egress_authorized": egress_valid,
         "capability_current": capability_valid,
         "accessibility_policy_satisfied": accessibility_policy_valid,
-        "context_isolation_satisfied": lambda s: context_isolation_valid(s) if s.get("__negative_target__") != "context_state_clean" and s.get("__negative_target__") != "hidden_state_policy_satisfied" and s.get("__negative_target__") != "admission_fence_current" else True,
-        "hidden_state_policy_satisfied": lambda s: (isinstance(s.get("context_isolation_verdict"), ContextIsolationVerdict) and not s["context_isolation_verdict"].policy.hidden_state_allowed and s["context_isolation_verdict"].transition_class == context.expected_transition_class) if s.get("__negative_target__") != "context_state_clean" and s.get("__negative_target__") != "admission_fence_current" else True,
-        "context_state_clean": lambda s: (isinstance(s.get("context_isolation_verdict"), ContextIsolationVerdict) and validate_context_state(s["context_isolation_verdict"].evidence, required_channels=s["context_isolation_verdict"].required_channels, expected_observation_hash=context.expected_context_state_hash if len(context.expected_context_state_hash) == 64 else None)[0]) if s.get("__negative_target__") != "hidden_state_policy_satisfied" and s.get("__negative_target__") != "admission_fence_current" else True,
-        "admission_fence_current": lambda s: (isinstance(s.get("context_isolation_verdict"), ContextIsolationVerdict) and validate_fence(s["context_isolation_verdict"].fence, context.expected_fence_version)[0] and (not context.expected_fence_state_hash or s["context_isolation_verdict"].fence.state_hash == context.expected_fence_state_hash)) if s.get("__negative_target__") not in ("context_state_clean", "hidden_state_policy_satisfied") else True,
+        "context_isolation_satisfied": context_isolation_valid,
+        "hidden_state_policy_satisfied": lambda s: isinstance(s.get("context_isolation_verdict"), ContextIsolationVerdict) and s["context_isolation_verdict"].policy is not None and not s["context_isolation_verdict"].policy.hidden_state_allowed and s["context_isolation_verdict"].transition_class == context.expected_transition_class,
+        "context_state_clean": lambda s: isinstance(s.get("context_isolation_verdict"), ContextIsolationVerdict) and s["context_isolation_verdict"].evidence is not None and validate_context_state(s["context_isolation_verdict"].evidence, required_channels=s["context_isolation_verdict"].required_channels, expected_observation_hash=context.expected_context_state_hash if len(context.expected_context_state_hash) == 64 else None)[0],
+        "admission_fence_current": lambda s: isinstance(s.get("context_isolation_verdict"), ContextIsolationVerdict) and s["context_isolation_verdict"].fence is not None and validate_fence(s["context_isolation_verdict"].fence, context.expected_fence_version, expected_authority_id=context.expected_fence_authority_id, expected_authority_hash=context.expected_fence_authority_hash, expected_issuer_id=context.expected_fence_issuer_id, expected_attestation=context.expected_fence_attestation)[0] and (not context.expected_fence_state_hash or s["context_isolation_verdict"].fence.state_hash == context.expected_fence_state_hash),
         "semantic_context_qualified": semantic_context_valid,
         "wire_binding_valid": wire_valid,
         "delivery_complete": delivery_valid,
@@ -1211,21 +1251,39 @@ def validate_context_state(state: ProviderContextStateEvidence, *, required_chan
         reasons.append("context_channel_unobserved")
     if not state.state_hash:
         reasons.append("context_state_unbound")
-    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash, "clean": state.clean, "sentinel_passed": state.sentinel_passed}):
+    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash, "clean": state.clean, "sentinel_passed": state.sentinel_passed, "channel_observations": tuple(state.channel_observations), "observer_id": state.observer_id}):
         reasons.append("context_observation_hash_mismatch")
     if expected_observation_hash is not None and state.observation_hash != expected_observation_hash:
         reasons.append("context_expected_observation_mismatch")
     if not state.observation_hash:
         reasons.append("provider_context_observation_unbound")
+    observations = {str(row.get("channel")): row for row in state.channel_observations if isinstance(row, Mapping)}
+    if not observations:
+        reasons.append("context_channel_observations_missing")
+    for channel in required_channels:
+        row = observations.get(str(channel))
+        if row is None:
+            reasons.append(f"context_structured_channel_missing:{channel}")
+            continue
+        if row.get("observer_id") != state.observer_id or not row.get("generation"):
+            reasons.append(f"context_structured_observer_invalid:{channel}")
+        if row.get("readable") is not True and row.get("fenced") is not True:
+            reasons.append(f"context_channel_not_readable_or_fenced:{channel}")
+        if row.get("observed_hash") != row.get("expected_hash") and row.get("fenced") is not True:
+            reasons.append(f"context_channel_value_mismatch:{channel}")
     return not reasons, tuple(reasons)
 
 
-def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[bool, tuple[str, ...]]:
+def validate_fence(fence: AdmissionFenceRecord, expected_version: str, *, expected_authority_id: str = "platform-protected-resource", expected_authority_hash: str = "protected-resource-v1", expected_issuer_id: str = "platform-fence-observer", expected_attestation: str = "fence-attestation-v1") -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     if fence.version != expected_version:
         reasons.append("admission_fence_version_mismatch")
     if not fence.fence_id or (fence.state_hash and not isinstance(fence.state_hash, str)):
         reasons.append("admission_fence_unbound")
+    if fence.authority_snapshot_id != expected_authority_id or fence.authority_snapshot_hash != expected_authority_hash or fence.issuer_id != expected_issuer_id or fence.attestation_hash != expected_attestation:
+        reasons.append("admission_fence_external_authority_mismatch")
+    if not fence.current:
+        reasons.append("admission_fence_not_current")
     if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": True}):
         reasons.append("admission_fence_state_mismatch")
         reasons.append("admission_fence_stale")
@@ -1297,9 +1355,18 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
                     if not safe_archive_member(raw_member) or not safe_archive_member(nested):
                         reasons.append(f"nested_archive_escape:{raw_member}")
                         continue
+                    compressed_size = int(member.compress_size or 0)
+                    declared_size = int(member.file_size or 0)
+                    if declared_size > max_member_bytes:
+                        reasons.append(f"member_size_limit:{nested}")
+                        continue
+                    if compressed_size == 0 and declared_size > 0 or compressed_size > 0 and declared_size / compressed_size > max_ratio:
+                        reasons.append(f"member_ratio_limit:{nested}")
+                        continue
                     nested_data = archive.read(member)
                     if len(nested_data) > max_member_bytes:
                         reasons.append(f"member_size_limit:{nested}")
+                        continue
                     mode = (member.external_attr >> 16) & 0o170000
                     if mode == 0o120000:
                         try:
@@ -1392,7 +1459,7 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
     if plan.qualification_profile == "R5_PRODUCTION":
         # Frozen R5 production protocol: a fixed, non-optional population with
         # no replacement/retry and a one-sided 95% lower bound of at least .95.
-        if len(plan.trial_ids) < 60 or len(plan.confirmation_ids) < 1:
+        if len(plan.confirmation_ids) < 299 or len(plan.trial_ids) == 0:
             reasons.append("production_confirmation_plan_too_small")
         if not attempts:
             reasons.append("production_attempts_missing")
@@ -1404,12 +1471,23 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
         successes = len(attempts) - physical_failures
         n = len(attempts)
         if n:
-            z = 1.6448536269514722
-            lower = (n / (n + z * z)) * (1 - z * math.sqrt((z * z) / (4 * n * n)))
-            if physical_failures or lower < 0.95:
+            # Exact one-sided 95% Clopper-Pearson lower bound for the
+            # required zero-failure case.  Outside that exact case we fail
+            # closed rather than substitute an approximation.
+            if physical_failures:
                 reasons.append("production_statistical_lower_bound_below_threshold")
+            elif successes != n:
+                reasons.append("production_exact_cp_case_unsupported")
+            else:
+                lower = math.pow(0.05, 1.0 / n)
+                if lower < 0.99:
+                    reasons.append("production_statistical_lower_bound_below_threshold")
         if record.protocol_version != "R5-CP-1":
             reasons.append("production_protocol_version_mismatch")
+        if len(set(getattr(plan, "scheduled_days", ()))) < 3 or len(set(getattr(plan, "scheduled_time_blocks", ()))) < 4:
+            reasons.append("production_schedule_diversity_insufficient")
+        if getattr(record, "independence_status", "STATISTICAL_INDEPENDENCE_UNPROVEN") != "STATISTICAL_INDEPENDENCE_UNPROVEN":
+            reasons.append("production_independence_status_unexpected")
     expected_roots = set(plan.trial_ids) | set(plan.confirmation_ids)
     if not record.planned_attempt_ids or not record.closed_attempt_ids or set(record.planned_attempt_ids) != expected_roots or set(record.closed_attempt_ids) != expected_roots:
         reasons.append("qualification_attempt_closure")
@@ -1424,7 +1502,7 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
     return not reasons, tuple(reasons)
 
 
-def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str], expected_transition_class: str | None = None, expected_fence_version: str | None = None, expected_observation_hash: str | None = None, expected_fence_state_hash: str | None = None) -> tuple[bool, tuple[str, ...]]:
+def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str], expected_transition_class: str | None = None, expected_fence_version: str | None = None, expected_observation_hash: str | None = None, expected_fence_state_hash: str | None = None, expected_fence_authority_id: str = "platform-protected-resource", expected_fence_authority_hash: str = "protected-resource-v1", expected_fence_issuer_id: str = "platform-fence-observer", expected_fence_attestation: str = "fence-attestation-v1") -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     if not policy.policy_id or policy.basis not in ("COMPLETE_READABLE_FENCED_STATE", "DEDICATED_PLATFORM_ACCOUNT_STATELESS_BOUNDARY"):
         reasons.append("context_policy_invalid")
@@ -1437,7 +1515,7 @@ def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence:
     clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels, expected_observation_hash=expected_observation_hash)
     if not clean:
         reasons.extend(clean_reasons)
-    fence_ok, fence_reasons = validate_fence(fence, expected_fence_version or "")
+    fence_ok, fence_reasons = validate_fence(fence, expected_fence_version or "", expected_authority_id=expected_fence_authority_id, expected_authority_hash=expected_fence_authority_hash, expected_issuer_id=expected_fence_issuer_id, expected_attestation=expected_fence_attestation)
     if not fence_ok:
         reasons.extend(fence_reasons)
     if expected_fence_state_hash and fence.state_hash != expected_fence_state_hash:
@@ -1534,16 +1612,17 @@ def admit_review_attempt(current: Mapping[str, Any], expected: AttemptState, *, 
     if ledger:
         checkpoint = ledger.compare_and_set(attempt_id, expected.generation, "COMMITTED", expected_state_hash=current.get("state_hash"), next_state_hash=str(current.get("next_state_hash", expected.generation + 1)))
         return checkpoint
-    return AdmissionCheckpoint(attempt_id, expected.generation, "ADMITTED", True, False, ())
+    return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, ("persistent_ledger_required",))
 
 
 def admit_review_attempt_with_evidence(bundle: EvidenceBundle, context: PredicateContext, current: Mapping[str, Any], expected: AttemptState, *, attempt_id: str, expected_generation: int, registry: AdmissibilityPredicateRegistry | None = None, ledger: PersistentAdmissionLedger | None = None) -> AdmissionCheckpoint:
     """Final admission path: revalidate evidence immediately before persistent CAS."""
+    if ledger is None:
+        return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, ("persistent_ledger_required",))
     verdict = evaluate_admissibility(bundle, context, registry)
     evidence_token = digest({"evidence": bundle.evidence, "context": context, "predicates": verdict.predicate_results, "generation": current.get("generation"), "state_hash": current.get("state_hash")})
-    if current.get("evidence_admission_token") != evidence_token:
-        if ledger:
-            ledger.compare_and_set(attempt_id, expected.generation, "VOID", expected_state_hash=current.get("state_hash"))
+    if not ledger.verdict_token_matches(attempt_id, str(current.get("governor_evidence_token", "")), expected_generation):
+        ledger.compare_and_set(attempt_id, expected.generation, "VOID", expected_state_hash=current.get("state_hash"))
         return AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, ("evidence_verdict_token_mismatch",))
     if not verdict.admissible:
         if ledger:

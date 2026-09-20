@@ -112,6 +112,44 @@ def run():
     missing_hash = PersistentAdmissionLedger(ROOT / "experiments/governed-platform/.r2c-missing-state.json").compare_and_set("a", 1, "COMMITTED")
     case("cas_missing_state_hash", bool(missing_hash.void))
     case("caller_copied_observed_interactions", not preflight_delivery(snap, contract, interactions, manifest, "r", provider, items, observed_interactions=(("a",),)).allowed)
+    # R2D independent attacks: these are authored here rather than delegated
+    # to the production mutation/fixture catalogs.
+    dirty_marker = {"review_request": {"current": True, "request_id": "r"}, "context_state": {"clean": False, "sentinel_passed": False, "state_hash": "state", "observable_channels": ("memory", "config")}, "__negative_target__": "context_state_clean", "disposition": "PASS"}
+    case("production_fixture_marker_bypass", not evaluate_admissibility(bundle_from_state(dirty_marker), context_from_state(dirty_marker)).admissible)
+    no_channel = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"})
+    no_channel.evidence["context_isolation_verdict"] = __import__("exp_m_deterministic").ContextIsolationVerdict(no_channel.evidence["context_isolation_verdict"].policy, __import__("exp_m_deterministic").ProviderContextStateEvidence(True, (), True, "state"), no_channel.evidence["context_isolation_verdict"].fence, "LOWER", ("memory", "config"))
+    case("missing_structured_context_channel", not evaluate_admissibility(no_channel, context_from_state({})).admissible)
+    self_fence = __import__("exp_m_deterministic").AdmissionFenceRecord("fence", "1", True)
+    case("self_minted_fence_attestation", not __import__("exp_m_deterministic").validate_fence(self_fence, "1", expected_authority_id="external-resource", expected_authority_hash="external-hash", expected_issuer_id="external-observer", expected_attestation="external-attestation")[0])
+    mismatch_path = ROOT / "experiments/governed-platform/.r2d-mismatch-ledger.json"
+    try:
+        if mismatch_path.exists(): mismatch_path.unlink()
+        if mismatch_path.with_suffix(mismatch_path.suffix + ".sqlite").exists(): mismatch_path.with_suffix(mismatch_path.suffix + ".sqlite").unlink()
+        led = PersistentAdmissionLedger(mismatch_path); first = led.compare_and_set("drift", 1, "VOID", expected_state_hash="wrong"); after = PersistentAdmissionLedger(mismatch_path).compare_and_set("drift", 1, "COMMITTED", expected_state_hash="")
+        case("void_persists_after_restart", first.void and after.disposition == "VOID" and "terminal_state" in after.reasons)
+    finally:
+        for artifact in (mismatch_path, mismatch_path.with_suffix(mismatch_path.suffix + ".sqlite")):
+            try: artifact.unlink()
+            except OSError: pass
+    case("authoritative_admission_requires_ledger", __import__("exp_m_deterministic").admit_review_attempt({"generation": 1}, __import__("exp_m_deterministic").AttemptState("a", 1, "auth", "req", "cap", "eg", "ctx", "fence", "prompt", "wit", "session", "reg"), attempt_id="a", expected_generation=1).void)
+    case("caller_minted_verdict_token_rejected", __import__("exp_m_deterministic").admit_review_attempt_with_evidence(bundle_from_state({}), context_from_state({}), {"generation": 1, "state_hash": "", "evidence_admission_token": "public-digest"}, __import__("exp_m_deterministic").AttemptState("a", 1, "auth", "req", "cap", "eg", "ctx", "fence", "prompt", "wit", "session", "reg"), attempt_id="a", expected_generation=1).void)
+    forged_context = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "disposition": "PASS"})
+    forged_context.evidence["semantic_context"] = __import__("exp_m_deterministic").SemanticContextQualificationRecord("ctx", "ctx-h", True, "commit", b"", "arbitrary-receipt", ())
+    case("empty_context_arbitrary_receipt", not evaluate_admissibility(forged_context, context_from_state({})).admissible)
+    copied = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"})
+    copied.evidence["final_context_interactions"] = __import__("exp_m_deterministic").FinalContextInteractionEvidence("r", "s", "ctx-h", ("a",), (("a",),), True, "copied", "candidate")
+    case("candidate_copied_context_interactions", not evaluate_admissibility(copied, context_from_state({})).admissible)
+    incomplete = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"})
+    incomplete.evidence["semantic_context"] = __import__("exp_m_deterministic").SemanticContextQualificationRecord("ctx", "ctx-h", True, "commit", b"", digest({"context_id": "ctx", "source_hash": "commit", "members": (), "assembly": "trusted-final-context-v1"}), ())
+    case("complete_manifest_incomplete_context", not evaluate_admissibility(incomplete, context_from_state({})).admissible)
+    proof_only = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"}); proof = proof_only.evidence["accessibility"]; proof_only.evidence["accessibility"] = __import__("exp_m_deterministic").AccessibilityProofRecord(proof.proof_id, proof.challenge_id, proof.provider_id, proof.mode, proof.final_context_id, True, proof.proof_mode, proof.policy_version, proof.evidence_hash, "")
+    case("accessibility_challenge_hash_only", not evaluate_admissibility(proof_only, context_from_state({})).admissible)
+    import io, zipfile
+    bomb = io.BytesIO()
+    with zipfile.ZipFile(bomb, "w", compression=zipfile.ZIP_DEFLATED) as z: z.writestr("bomb.txt", b"A" * 200000)
+    case("zip_bomb_rejected_before_extraction", not __import__("exp_m_deterministic").materialize_entries((__import__("exp_m_deterministic").MaterializationEntry("nested.zip", "nested.zip", "archive", bomb.getvalue(), None, len(bomb.getvalue()), len(bomb.getvalue()), 0, "nested.zip"),), source_hash="s", max_member_bytes=1000).success)
+    phase_check = phase_artifact if "phase_artifact" in locals() else None
+    case("phase_cases_record_invocations", bool(phase_check) and all(c.get("production_functions") and c.get("result") is True for v in phase_check["phases"].values() for c in v.get("executed_cases", ())))
     survivors = [c for c in cases if not c["rejected"]]
     return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "surviving_high": len(survivors), "all_rejected": not survivors}
 

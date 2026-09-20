@@ -36,6 +36,7 @@ from exp_m_deterministic import (  # noqa: E402
     RepresentationRecord,
     MaterializationEntry,
     FinalContextInteractionEvidence,
+    digest,
 )
 
 
@@ -54,11 +55,11 @@ def preflight(*args, **kwargs):
         "plan": ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)),
         "qualification": ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
         "context_policy": ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE", False),
-        "context_evidence": ProviderContextStateEvidence(True, ("memory", "config"), True, "state"),
+        "context_evidence": ProviderContextStateEvidence(True, ("memory", "config"), True, "state", channel_observations=({"channel": "memory", "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"}, {"channel": "config", "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"})),
         "fence": AdmissionFenceRecord("fence", "1", True),
         "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False),
         "observed_interactions": (("a", "b"),),
-        "observed_context": FinalContextInteractionEvidence("request-1", "session-1", "ctx-h", ("a", "b"), (("a", "b"),), True),
+        "observed_context": FinalContextInteractionEvidence("request-1", "session-1", "ctx-h", ("a", "b"), (("a", "b"),), True, digest({"context_id": "ctx", "source_hash": "commit-1", "members": ("a", "b"), "assembly": "trusted-final-context-v1"})),
     }
     for key, value in defaults.items():
         kwargs.setdefault(key, value)
@@ -335,6 +336,15 @@ class ExpMCoreTests(unittest.TestCase):
         rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("a", "b", "c"), ("a", "b", "c"), "fake", "deterministic", attempt_records=tuple(PhysicalAttemptRecord(x, x, None, "FIRST", "r", "s", "w", "OK") for x in ("a", "b")))
         ok, _ = validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
         self.assertFalse(ok)
+
+    def test_r2d_exact_r5_298_fails_299_passes_one_failure_fails(self):
+        profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
+        def run(n, failed=False):
+            ids = tuple(f"c{i}" for i in range(n)); all_ids = ("explore",) + ids; plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("explore",), ids, "R5_PRODUCTION", "seed", ("d1", "d2", "d3"), ("b1", "b2", "b3", "b4"), "envelope")
+            attempts = tuple(PhysicalAttemptRecord(x, x, None, "FIRST", "r", "s", "w" + x, "FAILED" if failed and i == 0 else "OK", utc_day=f"d{(i % 3) + 1}", time_block=f"b{(i % 4) + 1}") for i, x in enumerate(all_ids))
+            rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 1 if failed else 0, "op", all_ids, all_ids, "fake", "deterministic", attempt_records=attempts)
+            return validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0]
+        self.assertFalse(run(298)); self.assertTrue(run(299)); self.assertFalse(run(299, True))
 
 
 if __name__ == "__main__":

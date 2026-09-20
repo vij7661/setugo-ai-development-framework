@@ -6,6 +6,7 @@ must expose; the runner only executes these constructors.
 """
 from __future__ import annotations
 from copy import deepcopy
+from hashlib import sha256
 from typing import Any, Mapping
 
 from exp_m_deterministic import (
@@ -14,6 +15,7 @@ from exp_m_deterministic import (
     AccessibilityProofRecord, ProviderContextStateEvidence,
     WitnessProtocolQualificationRecord, SemanticContextQualificationRecord,
     WireDeliveryRecord, ReviewerProvenanceRecord, SemanticCoverageRecord,
+    digest,
 )
 
 FIXTURE_CATALOG = (
@@ -50,16 +52,18 @@ def build_negative_fixture(base: Mapping[str, Any], predicate: str) -> dict[str,
     elif predicate == "authority_snapshot_current": state["authority_snapshot"] = GovernanceAuthoritySnapshot("s", "1", "h", False)
     elif predicate == "evidence_contract_closed": state["evidence_contract"] = RequiredEvidenceContract("e", "s", (), non_vacuous=False)
     elif predicate == "interaction_contract_closed": state["interaction_contract"] = RequiredInteractionContract("i", "s", (), closed=False)
-    elif predicate == "materialization_complete": state["materialization"] = MaterializationResult(False, {}, "", "src", "raw-v1")
+    elif predicate == "materialization_complete": state["materialization"] = MaterializationResult(False, {"a": b"a"}, digest({"a": sha256(b"a").hexdigest()}), "commit", "raw-v1")
     elif predicate == "representation_governed": state["representation"] = {"governed": False, "transform_id": ""}
     elif predicate == "egress_authorized": state["egress"] = {"authorized": False, "version": "1"}
     elif predicate == "capability_current": state["capability"] = {"validated": False}
     elif predicate == "accessibility_policy_satisfied": state["accessibility_policy"] = {"satisfied": False, "risk_policy_version": "r1"}
-    elif predicate in ("context_isolation_satisfied", "hidden_state_policy_satisfied"): state["context_isolation"] = {"satisfied": False, "transition_class": "LOWER"}
+    elif predicate == "context_isolation_satisfied": state["context_isolation"] = {"satisfied": False, "transition_class": "LOWER"}
+    elif predicate == "hidden_state_policy_satisfied": state["hidden_state_policy"] = {"hidden_state_allowed": True}
     elif predicate == "context_state_clean": state["context_state"] = {"clean": False, "sentinel_passed": False, "state_hash": "state"}
     elif predicate == "admission_fence_current": state["fence"] = {"current": False, "version": "1"}
     elif predicate == "semantic_context_qualified": state["semantic_context"] = {"qualified": False, "context_hash": "wrong"}
-    elif predicate in ("wire_binding_valid", "delivery_complete"): state["delivery"] = {"computed_complete": False}
+    elif predicate == "wire_binding_valid": state["wire"] = {"valid": False}
+    elif predicate == "delivery_complete": state["delivery"] = {"computed_complete": False}
     elif predicate == "accessibility_proven": state["accessibility"] = {"proven": False, "challenge_id": "ch"}
     elif predicate == "witness_record_current": state["witness"] = {"validated": False}
     elif predicate == "session_retrieval_coverage": state["retrieval"] = {"validated": False, "final_context_id": "ctx"}
