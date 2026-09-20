@@ -208,66 +208,6 @@
     {
       "id": "phase_cases_record_invocations",
       "rejected": true
-    },
-    {
-      "id": "CA-1",
-      "rejected": true,
-      "rejection_reason": "expectation_authority_invalid",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-2",
-      "rejected": true,
-      "rejection_reason": "evidence_token_mismatch",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-3",
-      "rejected": true,
-      "rejection_reason": "authority_reviewed_commit_mismatch",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-4",
-      "rejected": true,
-      "rejection_reason": "retrieval_and_delivery_binding_rejected",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-5",
-      "rejected": true,
-      "rejection_reason": "archive_and_schedule_attack_rejected",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-6",
-      "rejected": true,
-      "rejection_reason": "qualification_authority_plan_missing",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-7",
-      "rejected": true,
-      "rejection_reason": "indexed_prior_artifact_missing",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-8",
-      "rejected": true,
-      "rejection_reason": "reviewer_suite_hash_drift",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-9",
-      "rejected": true,
-      "rejection_reason": "disposition_promotable",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
-    },
-    {
-      "id": "CA-10",
-      "rejected": true,
-      "rejection_reason": "r5_protocol_unavailable",
-      "source": "reviewer_exp_m_r2e_compound_suite.py"
     }
   ],
   "execution": {
@@ -277,23 +217,7 @@
     "source_tree": "e07fa898c6abbabf667e1e62de45992d75966f18",
     "utc": "2026-09-20T14:36:23.582893+00:00"
   },
-  "reviewer_compound_attacks": {
-    "all_rejected": true,
-    "case_ids": [
-      "CA-1",
-      "CA-2",
-      "CA-3",
-      "CA-4",
-      "CA-5",
-      "CA-6",
-      "CA-7",
-      "CA-8",
-      "CA-9",
-      "CA-10"
-    ],
-    "survivor_count": 0
-  },
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 62
+  "total": 52
 }

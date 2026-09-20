@@ -1,0 +1,45 @@
+{
+  "authority_effect": "NONE",
+  "delivery_authority": {
+    "requests": {
+      "r": {
+        "manifest_hash": "7bf8f210febeadb52bd557e55a3900cdaf0cc4efdb05d81a9c6cbd3edbadd679",
+        "reviewed_commit": "13f7f17e7c1609de37dc3d1c4bc35a762607ecb5"
+      }
+    }
+  },
+  "exp_m_state": "NOT_QUALIFIED",
+  "live_provider_api_execution": false,
+  "schema": "EXP-M-SOURCE-FREEZE/v1",
+  "source_commit": "13f7f17e7c1609de37dc3d1c4bc35a762607ecb5",
+  "source_files": {
+    ".github/workflows/exp-m-r2e-offline.yml": "38010e9297c6b864f1594eee9ad707ce58a2289b6db56e52115b867e22c78bac",
+    ".github/workflows/exp-m-r2e-sep.yml": "73c11286d19bed1d0d73697d668ddf0729edfbfb58eff1b8eb178240544a2edb",
+    "governance-runtime/build_exp_m_r2e_packet.py": "1c8c637b38ecdacfea1f584b4e56fb4a9f1cd016d2febeed437740a8f1947e12",
+    "governance-runtime/build_exp_m_review_packet.py": "c2861f61278d0c529a5719e588e9022f73d35ff31c7c6a20a9b381ed4aa8bc0a",
+    "governance-runtime/build_prior_evidence_index.py": "bc777ea30960991e0247f8ed58aef749bce94b751bc329c042cc2a3a2fb812b0",
+    "governance-runtime/exp_m_deterministic.py": "238d4c38271aec8fb9c67e7a5b9226dd8a213a1f58bc2eab4c59d7e701b52dff",
+    "governance-runtime/exp_m_expectation_authority.py": "01b67779e7af945eb6f6d276952dd0e0099dc758beb1a964a72a7352166dacba",
+    "governance-runtime/exp_m_mutation_catalog.py": "5c9da2dad5f36451075e1847c368eae031e4ff8f08baa3ca938f3eaa57bff08d",
+    "governance-runtime/exp_m_predicate_registry.py": "357dcfc7241e5cb0ff1e3a051be3826f4c95a48af922bb2fdce60dc47321d255",
+    "governance-runtime/exp_m_review_fixtures.py": "91f02d0cd05902cfa2c47e6a3d2bc12522438a46fcf3963cc774c21ae9b6f3a4",
+    "governance-runtime/exp_m_test_fixtures.py": "4d3cabb858481dc7e39c523b7b353740011e87c2c4b81c42a7686d357b488832",
+    "governance-runtime/freeze_source.py": "bb3ed4cb582f0c0a9aace2537407505adbef4b77c610cd9664dab0bbdabdfccf",
+    "governance-runtime/generate_evidence.py": "c9b84bc663b2ae3f3c5b584d5a837a9761d585e8683e27c6682cd0f68b2a469f",
+    "governance-runtime/reviewer_exp_m_r2e_authority_suite.py": "5a390122252a702a54aefa12794883f1ccadb15b07116d9a3759675f55bd86de",
+    "governance-runtime/reviewer_exp_m_r2e_compound_suite.py": "4d4668db91efc73ce5327c49c22cdeb2d9e62e10ae5509eec14dfead454b4329",
+    "governance-runtime/reviewer_exp_m_r2e_suite.py": "f5164eec5e795b9ef927f65b8a0261a8736dab2e10c86a3a6a868cde0055dd96",
+    "governance-runtime/run_exp_m_deterministic.py": "8d8f028cc466c28a587cfbbb9a813b708c2a48a541bd8ca1fa7a6484a4880583",
+    "governance-runtime/run_exp_m_mutations.py": "be705ba0749bc9df7fd4d1a3c26afbb81b060f0c4a8bb1933a3f036a95d257fb",
+    "governance-runtime/run_exp_m_tests.py": "f6d5e35c401ce7393f23de5c5cd0f583c655ea8403575c968f2d664e3a9fb11c",
+    "governance-runtime/run_reviewer_compound_attacks.py": "44489f445f888a89d9cfb8e7f3f6a80f45b8b384c10f6a18d40232c41227aed2",
+    "governance-runtime/self_adjudicate_r2d.py": "e320addbc158cdf2d94959476ca2928d8d9ccdf9a8b1bc070b243f6d38336d20",
+    "governance-runtime/self_falsify_exp_m.py": "4076873139f4da13ff6a0b15998081d487feff601fc77c3228f5754276c02436",
+    "governance-runtime/test_exp_m_deterministic.py": "c484e6e29e304019330c28e761ac971c5b52f2fb427c6ac1495a7b3ab83ba089",
+    "governance-runtime/test_exp_m_phases.py": "7db4f55d3aaac806f908338da7abbdade85c5ce354ce1204e3fceafefccc12fa",
+    "governance-runtime/verify_exp_m_prior_evidence.py": "ef3a4d48e78cba27dcc323424ca04f0b2c02f2389fb58204a3d7f294fb719388",
+    "governance-runtime/verify_exp_m_sep_sequence.py": "b9c1f849c43f377ac075887b1bfe949a0232771e2ac64f309eb6e8bc4e2a9618",
+    "governance-runtime/verify_sep_sequence.py": "24928ca87f9dccac33ae7262e0a95cd8a1096e2f9a8d1512e0205dcf0f65289b"
+  },
+  "source_tree": "e07fa898c6abbabf667e1e62de45992d75966f18"
+}

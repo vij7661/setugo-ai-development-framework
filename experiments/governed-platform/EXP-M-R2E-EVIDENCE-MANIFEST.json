@@ -1,0 +1,128 @@
+{
+  "artifacts": [
+    {
+      "path": "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json",
+      "sha256": "7175dff8b451953859644d1d96ad7b640927c6a97acda942d3c0e4e9893110d7",
+      "size": 3769
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-TEST-RESULTS.json",
+      "sha256": "f33982c6c745084ac0fceac0e89f1168cd5f87a4c1632e1cdb1cca337c981ea0",
+      "size": 8310
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json",
+      "sha256": "3909057c5df66509c554f368d513dec194d0ba864e02feedd6517ca2f409c555",
+      "size": 30495
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json",
+      "sha256": "d4f503195b969e0b5e1fa529d33e7b324843ef8a4913341034619a6b65fe415f",
+      "size": 32290
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json",
+      "sha256": "428cd3c6865b54f21631a5adb1686ea55743b4cd54abc850a2ef54804d260a5b",
+      "size": 6450
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json",
+      "sha256": "0f845fea90981c94cf40dbccfbe7c53e91de7d050108588604a4229fb43047c7",
+      "size": 3256
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt",
+      "sha256": "f33982c6c745084ac0fceac0e89f1168cd5f87a4c1632e1cdb1cca337c981ea0",
+      "size": 8310
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt",
+      "sha256": "483ab1025b4038013532aacb1fc4ab05aebfb594424c138d5c5c20624946717c",
+      "size": 1347
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt",
+      "sha256": "2a9b1d331c6679fd3bb317ec991aae904f681640b680a1e71a6b9604ad3afecb",
+      "size": 1218
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt",
+      "sha256": "e27c72d2b1e1f2833f7bc8f84705ff07d80f07c6189de8e9984aead1a7964aa5",
+      "size": 5075
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt",
+      "sha256": "3909057c5df66509c554f368d513dec194d0ba864e02feedd6517ca2f409c555",
+      "size": 30495
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt",
+      "sha256": "d4f503195b969e0b5e1fa529d33e7b324843ef8a4913341034619a6b65fe415f",
+      "size": 32290
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt",
+      "sha256": "c7cc0e01d499f83d005083886dac5068d994ac3300db7e96967b667c2747ae6f",
+      "size": 4479
+    }
+  ],
+  "authority_effect": "NONE",
+  "commands": [
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_tests.py",
+      "exit_code": 0,
+      "name": "tests",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt",
+      "stdout_sha256": "f33982c6c745084ac0fceac0e89f1168cd5f87a4c1632e1cdb1cca337c981ea0"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_suite.py",
+      "exit_code": 0,
+      "name": "reviewer-core",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt",
+      "stdout_sha256": "483ab1025b4038013532aacb1fc4ab05aebfb594424c138d5c5c20624946717c"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
+      "exit_code": 0,
+      "name": "reviewer-authority",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt",
+      "stdout_sha256": "2a9b1d331c6679fd3bb317ec991aae904f681640b680a1e71a6b9604ad3afecb"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_reviewer_compound_attacks.py",
+      "exit_code": 0,
+      "name": "reviewer-compound",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt",
+      "stdout_sha256": "e27c72d2b1e1f2833f7bc8f84705ff07d80f07c6189de8e9984aead1a7964aa5"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_deterministic.py",
+      "exit_code": 0,
+      "name": "phases",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt",
+      "stdout_sha256": "3909057c5df66509c554f368d513dec194d0ba864e02feedd6517ca2f409c555"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_mutations.py",
+      "exit_code": 0,
+      "name": "mutations",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt",
+      "stdout_sha256": "d4f503195b969e0b5e1fa529d33e7b324843ef8a4913341034619a6b65fe415f"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/self_falsify_exp_m.py",
+      "exit_code": 0,
+      "name": "self-falsification",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt",
+      "stdout_sha256": "c7cc0e01d499f83d005083886dac5068d994ac3300db7e96967b667c2747ae6f"
+    }
+  ],
+  "compound_attack_survivors": 0,
+  "exp_m_state": "NOT_QUALIFIED",
+  "generated_at_utc": "2026-09-20T14:36:23.673950+00:00",
+  "live_provider_api_execution": false,
+  "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v1",
+  "source_commit": "13f7f17e7c1609de37dc3d1c4bc35a762607ecb5",
+  "source_tree": "e07fa898c6abbabf667e1e62de45992d75966f18"
+}

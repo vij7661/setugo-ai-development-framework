@@ -1,0 +1,114 @@
+test_ca10_missing_protocol_with_self_consistent_record (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca10_missing_protocol_with_self_consistent_record) ... ok
+test_ca1_self_consistent_context_plus_forged_complete_receipt (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca1_self_consistent_context_plus_forged_complete_receipt) ... ok
+test_ca2_correctly_keyed_token_for_different_bundle (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca2_correctly_keyed_token_for_different_bundle) ... ok
+test_ca3_fabricated_manifest_plus_matching_caller_commit (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca3_fabricated_manifest_plus_matching_caller_commit) ... ok
+test_ca4_fabricated_retrieval_bytes_plus_forged_receipt (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca4_fabricated_retrieval_bytes_plus_forged_receipt) ... ok
+test_ca5_zip_named_bin_plus_fake_schedule_diversity (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca5_zip_named_bin_plus_fake_schedule_diversity) ... ok
+test_ca6_authority_plan_absent_but_caller_plan_self_consistent (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca6_authority_plan_absent_but_caller_plan_self_consistent) ... ok
+test_ca7_prior_artifact_deleted_but_index_unchanged (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca7_prior_artifact_deleted_but_index_unchanged) ... ok
+test_ca8_reviewer_suite_modified_after_source_freeze (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca8_reviewer_suite_modified_after_source_freeze) ... ok
+test_ca9_caller_pass_with_failed_predicate (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca9_caller_pass_with_failed_predicate) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.311s
+
+OK
+{
+  "all_rejected": true,
+  "authority_effect": "NONE",
+  "case_count": 10,
+  "cases": [
+    {
+      "failure": null,
+      "id": "CA-1",
+      "rejected": true,
+      "rejection_reason": "expectation_authority_invalid",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca1_self_consistent_context_plus_forged_complete_receipt"
+    },
+    {
+      "failure": null,
+      "id": "CA-2",
+      "rejected": true,
+      "rejection_reason": "evidence_token_mismatch",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca2_correctly_keyed_token_for_different_bundle"
+    },
+    {
+      "failure": null,
+      "id": "CA-3",
+      "rejected": true,
+      "rejection_reason": "authority_reviewed_commit_mismatch",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca3_fabricated_manifest_plus_matching_caller_commit"
+    },
+    {
+      "failure": null,
+      "id": "CA-4",
+      "rejected": true,
+      "rejection_reason": "retrieval_and_delivery_binding_rejected",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca4_fabricated_retrieval_bytes_plus_forged_receipt"
+    },
+    {
+      "failure": null,
+      "id": "CA-5",
+      "rejected": true,
+      "rejection_reason": "archive_and_schedule_attack_rejected",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca5_zip_named_bin_plus_fake_schedule_diversity"
+    },
+    {
+      "failure": null,
+      "id": "CA-6",
+      "rejected": true,
+      "rejection_reason": "qualification_authority_plan_missing",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca6_authority_plan_absent_but_caller_plan_self_consistent"
+    },
+    {
+      "failure": null,
+      "id": "CA-7",
+      "rejected": true,
+      "rejection_reason": "indexed_prior_artifact_missing",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca7_prior_artifact_deleted_but_index_unchanged"
+    },
+    {
+      "failure": null,
+      "id": "CA-8",
+      "rejected": true,
+      "rejection_reason": "reviewer_suite_hash_drift",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca8_reviewer_suite_modified_after_source_freeze"
+    },
+    {
+      "failure": null,
+      "id": "CA-9",
+      "rejected": true,
+      "rejection_reason": "disposition_promotable",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca9_caller_pass_with_failed_predicate"
+    },
+    {
+      "failure": null,
+      "id": "CA-10",
+      "rejected": true,
+      "rejection_reason": "r5_protocol_unavailable",
+      "source": "reviewer_exp_m_r2e_compound_suite.py",
+      "test": "test_ca10_missing_protocol_with_self_consistent_record"
+    }
+  ],
+  "execution": {
+    "command": "python governance-runtime/run_reviewer_compound_attacks.py",
+    "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+    "source_commit": "13f7f17e7c1609de37dc3d1c4bc35a762607ecb5",
+    "source_tree": "e07fa898c6abbabf667e1e62de45992d75966f18",
+    "utc": "2026-09-20T14:34:37.392213+00:00"
+  },
+  "exp_m_state": "NOT_QUALIFIED",
+  "live_provider_api_execution": false,
+  "schema": "EXP-M-R2E-COMPOUND/v1",
+  "survivor_count": 0,
+  "survivors": []
+}
