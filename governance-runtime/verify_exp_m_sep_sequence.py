@@ -14,10 +14,17 @@ ROOT = Path(__file__).resolve().parents[1]
 FREEZE_PATH = "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json"
 EVIDENCE_MANIFEST_PATH = "experiments/governed-platform/EXP-M-R2E-EVIDENCE-MANIFEST.json"
 
-REVIEWER_SUITE_PATHS = (
-    "governance-runtime/reviewer_exp_m_r2e_suite.py",
-    "governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
-    "governance-runtime/reviewer_exp_m_r2e_compound_suite.py",
+REVIEWER_SUITE_ANCHORS = (
+    ("governance-runtime/reviewer_exp_m_r2e_suite.py", "04913502b7ea1dcb11d551b2bec27c5a8d9c4a8a"),
+    ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "a7b5e5ac59a3da745a6ac06d828763be59ab9668"),
+    ("governance-runtime/reviewer_exp_m_r2e_compound_suite.py", "4c70788b9fc8c8ec93f5ea90bedc762c827f090a"),
+)
+REVIEWER_SUITE_PATHS = tuple(path for path, _ in REVIEWER_SUITE_ANCHORS)
+FORBIDDEN_REVIEWER_SUITE_TOKENS = (
+    "run_exp_m_mutations",
+    "run_exp_m_deterministic",
+    "_predicate_validators",
+    "self_falsify_exp_m",
 )
 
 
@@ -62,14 +69,25 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
     freeze = json.loads(freeze_file.read_text(encoding="utf-8"))
     source_files = freeze.get("source_files") or {}
     reasons: list[str] = []
-    for path in REVIEWER_SUITE_PATHS:
+    for path, preregister_commit in REVIEWER_SUITE_ANCHORS:
         expected = source_files.get(path)
         if not expected:
             reasons.append(f"reviewer_suite_not_in_source_freeze:{path}")
             continue
-        actual = hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+        working_bytes = (ROOT / path).read_bytes()
+        actual = hashlib.sha256(working_bytes).hexdigest()
         if actual != expected:
             reasons.append("reviewer_suite_hash_drift")
+        try:
+            frozen_bytes = _git_bytes(preregister_commit, path)
+        except subprocess.CalledProcessError:
+            reasons.append(f"reviewer_suite_preregister_object_missing:{path}")
+            continue
+        if hashlib.sha256(frozen_bytes).hexdigest() != actual:
+            reasons.append("reviewer_suite_preregister_hash_drift")
+        source_text = working_bytes.decode("utf-8", errors="replace")
+        if any(token in source_text for token in FORBIDDEN_REVIEWER_SUITE_TOKENS):
+            reasons.append("reviewer_suite_forbidden_dependency")
     return not reasons, tuple(dict.fromkeys(reasons))
 
 
@@ -88,6 +106,19 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
     except subprocess.CalledProcessError:
         return False, ("sep_commit_missing",), details
     details.update(source_tree=source_tree, evidence_tree=evidence_tree, packet_tree=packet_tree)
+
+    try:
+        evidence_parent = _git("rev-parse", f"{evidence_commit}^")
+        packet_parent = _git("rev-parse", f"{packet_commit}^")
+    except subprocess.CalledProcessError:
+        reasons.append("sep_parent_resolution_failed")
+    else:
+        details["evidence_parent"] = evidence_parent
+        details["packet_parent"] = packet_parent
+        if evidence_parent != source_commit:
+            reasons.append("evidence_not_direct_child_of_source")
+        if packet_parent != evidence_commit:
+            reasons.append("packet_not_direct_child_of_evidence")
 
     try:
         freeze = _json_at(evidence_commit, FREEZE_PATH)
@@ -150,6 +181,10 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
             reasons.append(f"result_source_commit_mismatch:{path}")
         if execution.get("source_tree") != source_tree:
             reasons.append(f"result_source_tree_mismatch:{path}")
+
+    reviewer_ok, reviewer_reasons = verify_reviewer_suite_frozen()
+    if not reviewer_ok:
+        reasons.extend(reviewer_reasons)
 
     prior_ok, prior_reasons = verify_prior_evidence_index(
         source_commit=source_commit,
