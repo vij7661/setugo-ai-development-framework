@@ -60,7 +60,7 @@ def _sha256(path: Path) -> str:
 
 
 def _assert_clean_source_head() -> tuple[str, str]:
-    dirty = _git("status", "--porcelain")
+    dirty = _git("status", "--porcelain", "--untracked-files=no")
     if dirty:
         raise SystemExit("generate_evidence_requires_clean_source_worktree")
     return _git("rev-parse", "HEAD"), _git("rev-parse", "HEAD^{tree}")
@@ -188,7 +188,7 @@ def generate() -> dict:
     }
     MANIFEST.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    changed = _git("status", "--porcelain").splitlines()
+    changed = _git("status", "--porcelain", "--untracked-files=no").splitlines()
     bad = []
     for line in changed:
         rel = line[3:].strip().replace("\\", "/")
@@ -203,7 +203,7 @@ def generate() -> dict:
 
 def commit_evidence() -> str:
     paths = []
-    for line in _git("status", "--porcelain").splitlines():
+    for line in _git("status", "--porcelain", "--untracked-files=no").splitlines():
         rel = line[3:].strip().replace("\\", "/")
         if " -> " in rel:
             rel = rel.split(" -> ", 1)[1]
