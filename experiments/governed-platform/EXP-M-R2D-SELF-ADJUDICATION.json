@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "live_provider_execution_false": true,
+    "mutation_catalog_closed": true,
+    "phases_pass": true,
+    "r2d_attacks_present": true,
+    "self_falsification_clean": true,
+    "source_bound": true,
+    "tests_pass": true
+  },
+  "execution": {
+    "command": "python governance-runtime/self_adjudicate_r2d.py",
+    "interpreter": "D:\\Python312\\python.exe",
+    "live_provider_execution": false,
+    "source_commit": "32e632270e1b6ff6d7215108b75a7cec5da20de5",
+    "source_tree": "411d957d0c88cf97c15ff9f07d26294fbb1a0de7",
+    "utc": "2026-09-20T12:01:28.322210+00:00"
+  },
+  "experiment": "EXP-M",
+  "remediation": "R2D",
+  "status": "SELF_ADJUDICATION_PASS",
+  "unresolved_critical": 0,
+  "unresolved_high": 0
+}

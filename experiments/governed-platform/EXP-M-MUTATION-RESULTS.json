@@ -103,9 +103,9 @@
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "5fa8f07ad12e42c1bbf05b101ab69b9c7b351e3b",
-    "source_tree": "59f6cb8e22d54edfb1a8afc94ff24559ce0dcd7e",
-    "utc": "2026-09-20T11:11:54.556903+00:00"
+    "source_commit": "32e632270e1b6ff6d7215108b75a7cec5da20de5",
+    "source_tree": "411d957d0c88cf97c15ff9f07d26294fbb1a0de7",
+    "utc": "2026-09-20T12:01:04.114629+00:00"
   },
   "experiment": "EXP-M",
   "killed_mutation_targets": [
@@ -225,7 +225,7 @@
       "expected_rejection_predicate": "materialization_complete",
       "family": "validator_logic",
       "fixture_constructor": "failed_materialization",
-      "fixture_hash": "d1eea4faf952eb130d93ef5f6e587c3aab7554ace96725f5b986886a29eb5d89",
+      "fixture_hash": "8be6735117befc1296586aa8d02a11c9c689e42d47c33137da37c50fcb49e895",
       "id": "TM-O-materialization_complete",
       "killed": true,
       "mutated_reasons": [],
@@ -351,7 +351,7 @@
       "expected_rejection_predicate": "hidden_state_policy_satisfied",
       "family": "validator_logic",
       "fixture_constructor": "hidden_state",
-      "fixture_hash": "fd2427a87ccb62a1df579aa1d176abe14942435156fa0662b44805331a01f631",
+      "fixture_hash": "4dc8b61b5a6fc74be951d8145850595db0cb627a99eef690a3ee42397e6276ca",
       "id": "TM-O-hidden_state_policy_satisfied",
       "killed": true,
       "mutated_reasons": [],
@@ -435,7 +435,7 @@
       "expected_rejection_predicate": "wire_binding_valid",
       "family": "validator_logic",
       "fixture_constructor": "invalid_wire",
-      "fixture_hash": "6b06ecdef35cfcd76296ec85515b0aa9c0926d96c03e8b19eb2523a0b3c4c58f",
+      "fixture_hash": "67109eed17885b89af90a00cf0bb594431eb1cf396346fbcd180176b9e3c4176",
       "id": "TM-O-wire_binding_valid",
       "killed": true,
       "mutated_reasons": [],
@@ -729,6 +729,10 @@
         "context_transition_class_mismatch",
         "context_channel_unobserved",
         "context_state_unbound",
+        "context_channel_observations_missing",
+        "context_structured_channel_missing:memory",
+        "context_structured_channel_missing:config",
+        "admission_fence_not_current",
         "admission_fence_state_mismatch",
         "admission_fence_stale"
       ],

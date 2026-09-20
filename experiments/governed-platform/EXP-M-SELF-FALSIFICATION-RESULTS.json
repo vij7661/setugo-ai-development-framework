@@ -160,16 +160,64 @@
     {
       "id": "caller_copied_observed_interactions",
       "rejected": true
+    },
+    {
+      "id": "production_fixture_marker_bypass",
+      "rejected": true
+    },
+    {
+      "id": "missing_structured_context_channel",
+      "rejected": true
+    },
+    {
+      "id": "self_minted_fence_attestation",
+      "rejected": true
+    },
+    {
+      "id": "void_persists_after_restart",
+      "rejected": true
+    },
+    {
+      "id": "authoritative_admission_requires_ledger",
+      "rejected": true
+    },
+    {
+      "id": "caller_minted_verdict_token_rejected",
+      "rejected": true
+    },
+    {
+      "id": "empty_context_arbitrary_receipt",
+      "rejected": true
+    },
+    {
+      "id": "candidate_copied_context_interactions",
+      "rejected": true
+    },
+    {
+      "id": "complete_manifest_incomplete_context",
+      "rejected": true
+    },
+    {
+      "id": "accessibility_challenge_hash_only",
+      "rejected": true
+    },
+    {
+      "id": "zip_bomb_rejected_before_extraction",
+      "rejected": true
+    },
+    {
+      "id": "phase_cases_record_invocations",
+      "rejected": true
     }
   ],
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "5fa8f07ad12e42c1bbf05b101ab69b9c7b351e3b",
-    "source_tree": "59f6cb8e22d54edfb1a8afc94ff24559ce0dcd7e",
-    "utc": "2026-09-20T11:12:17.983715+00:00"
+    "source_commit": "32e632270e1b6ff6d7215108b75a7cec5da20de5",
+    "source_tree": "411d957d0c88cf97c15ff9f07d26294fbb1a0de7",
+    "utc": "2026-09-20T12:01:27.853462+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
-  "total": 40
+  "total": 52
 }
