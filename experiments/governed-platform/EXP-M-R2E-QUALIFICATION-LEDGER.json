@@ -1,0 +1,57 @@
+{
+  "plans": {
+    "plan": {
+      "plan": {
+        "confirmation_ids": [
+          "a1"
+        ],
+        "operating_point": "default",
+        "plan_id": "plan",
+        "production_envelope_hash": "",
+        "provider_id": "fake",
+        "qualification_profile": "TEST_PROFILE",
+        "schedule_seed": "",
+        "scheduled_days": [],
+        "scheduled_time_blocks": [],
+        "trial_ids": [
+          "a1"
+        ]
+      },
+      "record": {
+        "all_trials_closed": true,
+        "attempt_records": [
+          {
+            "attempt_id": "a1",
+            "kind": "FIRST",
+            "outcome": "OK",
+            "parent_attempt_id": null,
+            "planned_root_id": "a1",
+            "provider_request_id": "",
+            "request_hash": "",
+            "request_id": "r",
+            "session_id": "s",
+            "time_block": "",
+            "utc_day": "",
+            "wire_hash": "wire-a1"
+          }
+        ],
+        "closed_attempt_ids": [
+          "a1"
+        ],
+        "hard_failures": 0,
+        "independence_status": "STATISTICAL_INDEPENDENCE_UNPROVEN",
+        "model_id": "deterministic",
+        "operating_point": "default",
+        "plan_id": "plan",
+        "planned_attempt_ids": [
+          "a1"
+        ],
+        "profile_hash": "profile-hash",
+        "protocol_version": "R5-CP-1",
+        "provider_id": "fake",
+        "statistical_qualified": true
+      }
+    }
+  },
+  "version": "1"
+}
