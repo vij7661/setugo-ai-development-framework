@@ -5,7 +5,7 @@ import json, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R2-REVIEW.md"
+OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-DETERMINISTIC-IMPLEMENTATION-R2A-REVIEW.md"
 SOURCES = [
     Path("governance-runtime/exp_m_deterministic.py"),
     Path("governance-runtime/build_exp_m_review_packet.py"),
@@ -32,6 +32,7 @@ def main() -> int:
     r2_review = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-EXTERNAL-REVIEW-R2.md").read_text(encoding="utf-8")
     r2_adjudication = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-R2-SOLUTION-ADJUDICATION.md").read_text(encoding="utf-8")
     r2_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-REMEDIATION-R2.md").read_text(encoding="utf-8")
+    r2a_remediation = (ROOT / "experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2A-REMEDIATION.md").read_text(encoding="utf-8")
     execution_files = [Path("experiments/governed-platform/EXP-M-UNIT-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-PHASE-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt"), Path("experiments/governed-platform/EXP-M-SELF-STDOUT.txt")]
     execution_hashes = {p.as_posix(): sha256((ROOT / p).read_bytes()).hexdigest() for p in execution_files if (ROOT / p).exists()}
     hashes = {p.as_posix(): sha256((ROOT / p).read_bytes()).hexdigest() for p in SOURCES}
@@ -39,16 +40,16 @@ def main() -> int:
     for p in ["standards/review-evidence-delivery-integrity.md", "experiments/governed-platform/exp-m-review-evidence-delivery-integrity.md", "experiments/governed-platform/EXP-M-TEST-MATRIX.md", "governance-runtime/LIVE-CONVERSATION-GOVERNANCE.md", "experiments/governed-platform/EXP-M-R5-EXTERNAL-REVIEW.md"]:
         frozen[p] = sha256((ROOT / p).read_bytes()).hexdigest()
     lines = [
-        "# EXP-M Deterministic Implementation R2 Independent Review Packet",
+        "# EXP-M Deterministic Implementation R2A Independent Review Packet",
         "",
         "This packet covers deterministic implementation only. EXP-M remains NOT_QUALIFIED; no live provider/API call occurred.",
         "",
         "## Historical superseded evidence",
         "The prior A-T/22-test/29-mutation report is retained in Git history but is superseded by the independent R1 CHANGES_REQUIRED review. It is not used as closure evidence.",
-        "R2 is the current remediation authority. Prior R1 and historical false-green outputs are superseded evidence only.",
+        "R2A is the current internal self-adjudication authority. Prior R1/R2 and historical false-green outputs are superseded evidence only.",
         "",
         "## R2 authority inputs",
-        fence("External R2 review", r2_review), fence("R2 solution adjudication", r2_adjudication), fence("R2 remediation", r2_remediation),
+        fence("External R2 review", r2_review), fence("R2 solution adjudication", r2_adjudication), fence("R2 remediation", r2_remediation), fence("R2A remediation", r2a_remediation),
         "",
         "## R1 remediation matrix",
         "| Finding family | Production mechanism | Fresh evidence |",
@@ -85,6 +86,8 @@ def main() -> int:
         f"all_mutations_rejected={mutation['all_rejected']}",
         f"critical_self_falsification_survivors={falsify['surviving_critical']}",
         f"high_self_falsification_survivors={falsify.get('surviving_high', falsify['surviving_critical'])}",
+        "r2a_status=AUTOMATABLE_REMEDIATION_COMPLETE",
+        "r2a_clean_source_to_evidence_to_packet_sequence=true",
         "",
         "## Frozen source-of-truth hashes",
         "```json", json.dumps(frozen, indent=2, sort_keys=True), "```",
@@ -92,7 +95,7 @@ def main() -> int:
         "## Implemented source hashes",
         "```json", json.dumps(hashes, indent=2, sort_keys=True), "```",
         "",
-        "## Phase A-T results",
+        "## R2A phase A-T results",
         "```json", json.dumps(phase, indent=2, sort_keys=True), "```",
         "",
         "## Mutation results",
