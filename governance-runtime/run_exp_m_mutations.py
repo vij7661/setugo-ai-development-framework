@@ -42,8 +42,8 @@ def evaluate(state, registry):
 def _mutated_evaluate(predicate, state, registry):
     import exp_m_deterministic as production
     original = production._predicate_validators
-    def mutated_validators(context, _original=original, _predicate=predicate):
-        validators = _original(context)
+    def mutated_validators(context, authority=None, _original=original, _predicate=predicate):
+        validators = _original(context, authority)
         # R2C requires one exact production guard per isolated mutant.  No
         # grouped family is counted as coverage for an individual predicate.
         validators[_predicate] = lambda _state: True
