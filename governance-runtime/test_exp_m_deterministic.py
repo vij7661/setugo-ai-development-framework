@@ -303,24 +303,38 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_r2_persistent_void_is_terminal_across_reload(self):
         path = Path(f"experiments/governed-platform/.exp-m-test-ledger-{uuid.uuid4().hex}.json")
+        db = path.with_suffix(path.suffix + ".sqlite")
         try:
-            if path.exists(): path.unlink()
+            for artifact in (path, db):
+                if artifact.exists():
+                    artifact.unlink()
             first = PersistentAdmissionLedger(path).compare_and_set("a", 1, "VOID", expected_state_hash="")
             second = PersistentAdmissionLedger(path).compare_and_set("a", 1, "COMMITTED", expected_state_hash="")
             self.assertTrue(first.void); self.assertTrue(second.void); self.assertEqual(second.reasons, ("terminal_state",))
         finally:
-            if path.exists(): path.unlink()
+            for artifact in (path, db):
+                try:
+                    artifact.unlink()
+                except OSError:
+                    pass
 
     def test_r2_admission_race_has_one_terminal_winner(self):
         path = Path(f"experiments/governed-platform/.exp-m-race-ledger-{uuid.uuid4().hex}.json")
         db = path.with_suffix(path.suffix + ".sqlite")
-        ledger = PersistentAdmissionLedger(path); results = []
-        def writer(disposition): results.append(ledger.compare_and_set("race", 1, disposition, expected_state_hash=""))
-        workers = [threading.Thread(target=writer, args=("COMMITTED",)), threading.Thread(target=writer, args=("VOID",))]
-        [w.start() for w in workers]; [w.join() for w in workers]
-        self.assertEqual(len(results), 2)
-        self.assertEqual(sum(not r.reasons for r in results), 1)
-        self.assertTrue(all((not r.reasons) or r.reasons in (("terminal_state",), ("protected_state_generation_drift",), ("protected_state_identity_missing_or_drifted",)) for r in results))
+        try:
+            ledger = PersistentAdmissionLedger(path); results = []
+            def writer(disposition): results.append(ledger.compare_and_set("race", 1, disposition, expected_state_hash=""))
+            workers = [threading.Thread(target=writer, args=("COMMITTED",)), threading.Thread(target=writer, args=("VOID",))]
+            [w.start() for w in workers]; [w.join() for w in workers]
+            self.assertEqual(len(results), 2)
+            self.assertEqual(sum(not r.reasons for r in results), 1)
+            self.assertTrue(all((not r.reasons) or r.reasons in (("terminal_state",), ("protected_state_generation_drift",), ("protected_state_identity_missing_or_drifted",)) for r in results))
+        finally:
+            for artifact in (path, db):
+                try:
+                    artifact.unlink()
+                except OSError:
+                    pass
 
     def test_r2_retry_lineage_is_explicit(self):
         records = (PhysicalAttemptRecord("a", "a", None, "FIRST", "r", "s", "w1", "FAILED"), PhysicalAttemptRecord("a-retry", "a", "a", "RETRY", "r", "s", "w2", "OK"))
