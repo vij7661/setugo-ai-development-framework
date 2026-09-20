@@ -192,10 +192,16 @@ def run() -> dict:
     # semantics above; unlike R2D it never adds unlike meanings together.
     total = validator_logic_total + data_state_total
     closed = validator_logic_all_killed and data_state_all_rejected
-    return {"experiment": "EXP-M", "total_mutations": total,
-            "rejected_mutations": data_state_rejected_count,
-            "surviving_mutations": (validator_logic_total - validator_logic_killed_count) + (data_state_total - data_state_rejected_count),
+    survivors = (validator_logic_total - validator_logic_killed_count) + (data_state_total - data_state_rejected_count)
+    closed_cases = validator_logic_killed_count + data_state_rejected_count
+    return {"experiment": "EXP-M",
+            "total_mutations": total,
+            "rejected_mutations": None,
+            "rejected_mutations_aggregate_status": "NOT_APPLICABLE_MIXED_FAMILY_SEMANTICS",
+            "closed_cases": closed_cases,
+            "surviving_mutations": survivors,
             "all_rejected": closed,
+            "all_closed": closed,
             "validator_logic_total": validator_logic_total,
             "validator_logic_killed_count": validator_logic_killed_count,
             "validator_logic_all_killed": validator_logic_all_killed,
