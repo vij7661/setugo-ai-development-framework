@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_AUTHORITY_COMMIT = "d5bcc1ef977c0cae07d3bd53c4b8292b4070b957"
+DEFAULT_AUTHORITY_COMMIT = "e24e18a0f05e9be38e4f549a77914e014c738812"
 ROOT_PATH = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
 _SHA256_DER_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 
