@@ -1883,9 +1883,9 @@ Do not use live provider APIs.
 
 ## Identity
 branch=experiment/exp-m-deterministic-implementation
-commit=d0ee0635941d3fe91a667ea77b2f3635563da866
-tree=f2bbc9687885d88d9a528f1559550c99a3f73a51
-parent=f7c949ab3c209fe91577544194af678a14ae5ba9
+commit=d3604f02f2133d3a36551e436e4b4cfbd382be1a
+tree=a70f324f80630283c13a3788946b256440fe0c16
+parent=eaac12cf521d3684850773a498c67ca1c5226d6b
 frozen_design_commit=0ba6c3c24ec247f5ad993b7e2f996ccd472b5f45
 authority_status=NOT_QUALIFIED
 live_provider_execution=false
@@ -1893,14 +1893,14 @@ live_provider_execution=false
 ## Fresh evidence execution identity
 {
   "execution_hashes": {
-    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "5cabe3f163df3e469ea3033a38288fbda907152b2b5825a4160b2ea9791db8ad",
-    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "8971a520073b847e55fcfbea1e533e9ccfd06bde8f49867cd68d1fe06fb57617",
+    "experiments/governed-platform/EXP-M-DETERMINISTIC-STDOUT.txt": "7ebdf7aee5bdbb11628577df46c753c0e3d8191d2b92f6d7ce94f32b8b2d7c3b",
+    "experiments/governed-platform/EXP-M-MUTATION-STDOUT.txt": "0e1bd5d5122e58d781258306372059f494cc9eaf51bde759e8be79e1105b48f0",
     "experiments/governed-platform/EXP-M-PHASE-STDOUT.txt": "d863a12fa826748a757535c72b17730f44cb951d4135eb05e358867aca7fa089",
-    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "474157fd896743ed64d787981caa14f14126523c2ff656de413d4e99778dc156",
+    "experiments/governed-platform/EXP-M-SELF-STDOUT.txt": "621ab5bfbfe2e53845ee752cd61cd660879a1ec517d369349faa038df0d20765",
     "experiments/governed-platform/EXP-M-UNIT-STDOUT.txt": "78b78a7ec4f3bd90850438244fb55f3d4668fe13d13ca9ed142ef4001c6f1ee1"
   },
-  "source_commit": "f7c949ab3c209fe91577544194af678a14ae5ba9",
-  "source_tree": "7e795cce4e36407db11656089cc8bee57c8cd968"
+  "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
+  "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0"
 }
 
 ## Deterministic exit gates
@@ -1935,7 +1935,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
 ```json
 {
   "governance-runtime/build_exp_m_review_packet.py": "66c3f6d6ffab46abb6de893a170b5c1c41996a3a7ca24ffa1830bbaf72eaaf49",
-  "governance-runtime/exp_m_deterministic.py": "d31782b6de5ba2a7590c9e5199cf83abefdad73ed0ac9cd8e98caf6fabba04f2",
+  "governance-runtime/exp_m_deterministic.py": "6535bac6f3d4b0543173022ccf43a1a12e51ca347f0176becfa33b51cf9178d0",
   "governance-runtime/exp_m_review_fixtures.py": "dec6aa65be46ca0849cb073db8930d416a71cb7749127027ceb223b2021115d2",
   "governance-runtime/run_exp_m_deterministic.py": "25dd7cd2092db5617b0338c23476b7ad2b7d7ccfb7d87aac12d652a71647eb17",
   "governance-runtime/run_exp_m_mutations.py": "b72713640094cf10e966424ef738812ae21590e28013fc069445bdb51b51c2ec",
@@ -1954,9 +1954,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "f7c949ab3c209fe91577544194af678a14ae5ba9",
-    "source_tree": "7e795cce4e36407db11656089cc8bee57c8cd968",
-    "utc": "2026-09-20T09:53:44.190375+00:00"
+    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
+    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
+    "utc": "2026-09-20T09:59:49.097813+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -3139,9 +3139,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_mutations.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "f7c949ab3c209fe91577544194af678a14ae5ba9",
-    "source_tree": "7e795cce4e36407db11656089cc8bee57c8cd968",
-    "utc": "2026-09-20T09:54:01.073306+00:00"
+    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
+    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
+    "utc": "2026-09-20T10:00:03.859478+00:00"
   },
   "experiment": "EXP-M",
   "killed_mutation_targets": [
@@ -3175,7 +3175,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "b78b0daef947c2c6ccd83166da293a037db6203a9749a46fd5aa1a3905728256",
+      "fixture_hash": "9ca1e8cff001821a237cc52e171d0162c3b5c8bf0004acda3518e8c70af98f76",
       "id": "TM-O-review_request_current",
       "killed": true,
       "mutated_reasons": [],
@@ -3194,7 +3194,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "af4a46eab0719deec937451d298567129e84db8ece52eeb241f063c50132427d",
+      "fixture_hash": "513a485bdb62a0a8627774df81fe0b38c7f3fc64376a6ad3b974e9b221b11118",
       "id": "TM-O-authority_snapshot_current",
       "killed": true,
       "mutated_reasons": [],
@@ -3213,7 +3213,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "ca8159cff520b0f8921bf78811026a982f27f73e1a6043f3e5051dcd91b693f6",
+      "fixture_hash": "378f5888c5a46b1502b055501bc89dca318b042b6512035bb898db2dd362c3de",
       "id": "TM-O-evidence_contract_closed",
       "killed": true,
       "mutated_reasons": [],
@@ -3232,7 +3232,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "90fd058cc2bbed179f9a29969fb4665379ca250297fdaf93e835d6e122ddbdac",
+      "fixture_hash": "f1ce371172acb3db5cd7f42bdea9c3093ed70b74e427a238f7b76690621c52ed",
       "id": "TM-O-interaction_contract_closed",
       "killed": true,
       "mutated_reasons": [],
@@ -3251,7 +3251,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "581360a6dd6e4c77235e7d8ed9a49a5e760999a6a889ecdd8629ed5fd54fc24b",
+      "fixture_hash": "f24d4f79a8d894de45aca3602435dba0507a0c72061329b6aee334154557febf",
       "id": "TM-O-materialization_complete",
       "killed": true,
       "mutated_reasons": [],
@@ -3272,7 +3272,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "03e8ca4d0b4287a294199adf061ee3bc24809013df7ccdf85e9dabffda7c1f6c",
+      "fixture_hash": "99580125f2d4d27050ae0195e7569721301f8335314582906071a9a1f21b49a0",
       "id": "TM-O-representation_governed",
       "killed": true,
       "mutated_reasons": [],
@@ -3291,7 +3291,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "d731e94d8d464a6adbcf73038d4eb4f1af444308debb15a880e988c60e6984a3",
+      "fixture_hash": "86fcd5ebd17e9d0146f2ac90cd263f230eb55445a7fb1952bf4c80b40541ab88",
       "id": "TM-O-egress_authorized",
       "killed": true,
       "mutated_reasons": [],
@@ -3310,7 +3310,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "b9e5f7267db5fdc3e3e5d155b5cb53941c7fabdba28face8d970548474424031",
+      "fixture_hash": "d04b64392b17efc4a9d148d7249c99f2ed6fe3140a77decfd76661351ab64c62",
       "id": "TM-O-capability_current",
       "killed": true,
       "mutated_reasons": [],
@@ -3329,7 +3329,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "f8fe591b11141c79cae2c8db15f79f14359b635c6dd2a506da0603634aa23805",
+      "fixture_hash": "026e1e689fe75519f60cd0059f52f8d560424a4695e196b65d055db55f5386c7",
       "id": "TM-O-accessibility_policy_satisfied",
       "killed": true,
       "mutated_reasons": [],
@@ -3348,7 +3348,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "e64e3b2890e6808280b3643131467946a31db0ae6a6f7d8d8672f08aa9c9997d",
+      "fixture_hash": "d1290819388918298625cf7de3ff26a40853824b5fe27ec8241e5b61032dcfc4",
       "id": "TM-O-context_isolation_satisfied",
       "killed": true,
       "mutated_reasons": [],
@@ -3370,7 +3370,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "e64e3b2890e6808280b3643131467946a31db0ae6a6f7d8d8672f08aa9c9997d",
+      "fixture_hash": "d1290819388918298625cf7de3ff26a40853824b5fe27ec8241e5b61032dcfc4",
       "id": "TM-O-hidden_state_policy_satisfied",
       "killed": true,
       "mutated_reasons": [],
@@ -3392,7 +3392,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "7478edfb14dec582e13fab69ee2a35c64734ad88c10e08536acebeaa2acef2bd",
+      "fixture_hash": "72cc41a293e4f3465599c2aac6709f5db470c57135a81b885ecc59c3c4d85641",
       "id": "TM-O-context_state_clean",
       "killed": true,
       "mutated_reasons": [],
@@ -3414,7 +3414,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "787b14af8c46db3ba32fee3f924003a72e2c7a155f7b2d6c7e14676d59025d68",
+      "fixture_hash": "d842535bdf75e7add6922cc00de344a90aed59f95278a18da056385206e12201",
       "id": "TM-O-admission_fence_current",
       "killed": true,
       "mutated_reasons": [],
@@ -3436,7 +3436,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "94e75dd9707daf80e03005fb9454f4ee3bce8226ba440c067ca8b31aa6a4a325",
+      "fixture_hash": "13e6c78cf0f601ae6c16f95b23349cedccde0e1bdf8799b260d82fef697f1102",
       "id": "TM-O-semantic_context_qualified",
       "killed": true,
       "mutated_reasons": [],
@@ -3455,7 +3455,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "d730784479ad72f9abafb585f62af0e33ec0fc398e91bded8ae5fec93dc98949",
+      "fixture_hash": "5bdbf7f33bdbde0102d95fad5bbab163cdc47364e832f4ca22a6f382b6414bc8",
       "id": "TM-O-wire_binding_valid",
       "killed": true,
       "mutated_reasons": [],
@@ -3475,7 +3475,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "d730784479ad72f9abafb585f62af0e33ec0fc398e91bded8ae5fec93dc98949",
+      "fixture_hash": "5bdbf7f33bdbde0102d95fad5bbab163cdc47364e832f4ca22a6f382b6414bc8",
       "id": "TM-O-delivery_complete",
       "killed": true,
       "mutated_reasons": [],
@@ -3495,7 +3495,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "c5d30300c05c45889ab7ed7008dec0ba94d1984ce1c764e32ad6ca5dc25a215b",
+      "fixture_hash": "02e0c0d070c156e24438e62c5e76652f1a5564ca58c96378a8747b1339f3954f",
       "id": "TM-O-accessibility_proven",
       "killed": true,
       "mutated_reasons": [],
@@ -3534,7 +3534,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "534f6d81f5b4deb818839d48b0c85079b16a34c057a54e69391a00e1cf97e69d",
+      "fixture_hash": "b30ac43fb1c72257535e11bccab0f727679294e466afac6b9336ab0012b1a68c",
       "id": "TM-O-session_retrieval_coverage",
       "killed": true,
       "mutated_reasons": [],
@@ -3553,7 +3553,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "c5b6b23b308d4e9e56ca32ed40d309937e82c350fe2e0f3f17f14cf0d50abd1a",
+      "fixture_hash": "f7d973f805a6976dac9e4ba26913006e4c3bf54015438eaec76bbaf9e5210781",
       "id": "TM-O-prompt_isolation_current",
       "killed": true,
       "mutated_reasons": [],
@@ -3572,7 +3572,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "884fd9a35e5d5fb0f4b8740f5380c1aea04a9e238fffb7f25a24225d6c1d9816",
+      "fixture_hash": "0956b02463db6e6ef3e575fc840a36f5b6c812bc7654743b15f2c50f6fa9bcee",
       "id": "TM-O-semantic_coverage",
       "killed": true,
       "mutated_reasons": [],
@@ -3591,7 +3591,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "dd56f679260bb52ec02bac90fd3336c168725101ec9a5daf04a6b107520a0013",
+      "fixture_hash": "a418812eda2fe48924904ac17b7940ede141f3682bbf5594c94c64e8dffb483d",
       "id": "TM-O-reviewer_provenance",
       "killed": true,
       "mutated_reasons": [],
@@ -3610,7 +3610,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "executed": true,
       "expected": "REJECT",
       "family": "validator_logic",
-      "fixture_hash": "5773668013965ae76f44ef627b341fdd9ccf556c9e0780f6e7d325527a2f389a",
+      "fixture_hash": "68954a011c4c2bead01ce32d6e3defdd08f5c44ecbe2ae2eb4e6772c1a392cd1",
       "id": "TM-O-disposition_promotable",
       "killed": true,
       "mutated_reasons": [],
@@ -3735,6 +3735,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
       "reasons": [
         "context_channel_unobserved",
         "context_state_unbound",
+        "admission_fence_state_mismatch",
         "admission_fence_stale"
       ],
       "target": "dirty_hidden_stale_context"
@@ -3970,15 +3971,15 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/run_exp_m_tests.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "f7c949ab3c209fe91577544194af678a14ae5ba9",
-    "source_tree": "7e795cce4e36407db11656089cc8bee57c8cd968",
-    "utc": "2026-09-20T09:53:36.308678+00:00"
+    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
+    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
+    "utc": "2026-09-20T09:59:41.277445+00:00"
   },
   "suites": [
     {
       "command": "python governance-runtime/test_exp_m_deterministic.py",
       "exit_code": 0,
-      "stdout_stderr": "test_admissibility_exact_predicate_closure (__main__.ExpMCoreTests.test_admissibility_exact_predicate_closure) ... ok\ntest_admissibility_requires_every_predicate (__main__.ExpMCoreTests.test_admissibility_requires_every_predicate) ... ok\ntest_atomic_admission_voids_state_drift (__main__.ExpMCoreTests.test_atomic_admission_voids_state_drift) ... ok\ntest_authority_snapshot_candidate_writable_rejected (__main__.ExpMCoreTests.test_authority_snapshot_candidate_writable_rejected) ... ok\ntest_complete_one_shot_delivery (__main__.ExpMCoreTests.test_complete_one_shot_delivery) ... ok\ntest_dirty_context_and_stale_fence_fail (__main__.ExpMCoreTests.test_dirty_context_and_stale_fence_fail) ... ok\ntest_duplicate_required_item_rejected_by_wire (__main__.ExpMCoreTests.test_duplicate_required_item_rejected_by_wire) ... ok\ntest_expired_profile_is_not_current (__main__.ExpMCoreTests.test_expired_profile_is_not_current) ... ok\ntest_http_success_without_receipt_rejected (__main__.ExpMCoreTests.test_http_success_without_receipt_rejected) ... ok\ntest_insufficient_evidence_multiple_causes (__main__.ExpMCoreTests.test_insufficient_evidence_multiple_causes) ... ok\ntest_insufficient_evidence_unresolved (__main__.ExpMCoreTests.test_insufficient_evidence_unresolved) ... ok\ntest_item_size_mismatch (__main__.ExpMCoreTests.test_item_size_mismatch) ... ok\ntest_manifest_hash_mismatch (__main__.ExpMCoreTests.test_manifest_hash_mismatch) ... ok\ntest_manifest_is_content_addressed (__main__.ExpMCoreTests.test_manifest_is_content_addressed) ... ok\ntest_materialization_rejects_traversal (__main__.ExpMCoreTests.test_materialization_rejects_traversal) ... ok\ntest_missing_planned_attempt_is_not_current (__main__.ExpMCoreTests.test_missing_planned_attempt_is_not_current) ... ok\ntest_optional_contract_does_not_change_required_set (__main__.ExpMCoreTests.test_optional_contract_does_not_change_required_set) ... ok\ntest_provider_unqualified_blocks_preflight (__main__.ExpMCoreTests.test_provider_unqualified_blocks_preflight) ... ok\ntest_r1_egress_prompt_retry_registry_are_evidence_validated (__main__.ExpMCoreTests.test_r1_egress_prompt_retry_registry_are_evidence_validated) ... ok\ntest_r2_admission_race_has_one_terminal_winner (__main__.ExpMCoreTests.test_r2_admission_race_has_one_terminal_winner) ... ok\ntest_r2_empty_or_mismatched_qualification_closure_rejected (__main__.ExpMCoreTests.test_r2_empty_or_mismatched_qualification_closure_rejected) ... ok\ntest_r2_persistent_void_is_terminal_across_reload (__main__.ExpMCoreTests.test_r2_persistent_void_is_terminal_across_reload) ... ok\ntest_r2_production_evaluator_has_no_bypass_parameter (__main__.ExpMCoreTests.test_r2_production_evaluator_has_no_bypass_parameter) ... ok\ntest_r2_retry_lineage_is_explicit (__main__.ExpMCoreTests.test_r2_retry_lineage_is_explicit) ... ok\ntest_r2_summary_only_bundle_is_rejected (__main__.ExpMCoreTests.test_r2_summary_only_bundle_is_rejected) ... ok\ntest_r2_typed_materialization_bounds_and_transform_registry (__main__.ExpMCoreTests.test_r2_typed_materialization_bounds_and_transform_registry) ... ok\ntest_r2b_closure_missing_execution_evidence_fails (__main__.ExpMCoreTests.test_r2b_closure_missing_execution_evidence_fails) ... ok\ntest_r2b_materialization_derives_path_and_rejects_falsified_metadata (__main__.ExpMCoreTests.test_r2b_materialization_derives_path_and_rejects_falsified_metadata) ... ok\ntest_r2b_physical_attempt_duplicate_is_rejected (__main__.ExpMCoreTests.test_r2b_physical_attempt_duplicate_is_rejected) ... ok\ntest_r2b_production_profile_requires_real_plan (__main__.ExpMCoreTests.test_r2b_production_profile_requires_real_plan) ... ok\ntest_r2b_required_optional_manifest_is_exact (__main__.ExpMCoreTests.test_r2b_required_optional_manifest_is_exact) ... ok\ntest_receipt_session_mismatch_rejected (__main__.ExpMCoreTests.test_receipt_session_mismatch_rejected) ... ok\ntest_required_item_missing (__main__.ExpMCoreTests.test_required_item_missing) ... ok\ntest_retrieval_binds_raw_bytes_and_final_context (__main__.ExpMCoreTests.test_retrieval_binds_raw_bytes_and_final_context) ... ok\ntest_reviewer_ack_without_items_rejected (__main__.ExpMCoreTests.test_reviewer_ack_without_items_rejected) ... ok\ntest_snapshot_binding_mismatch_rejected (__main__.ExpMCoreTests.test_snapshot_binding_mismatch_rejected) ... ok\ntest_unknown_capability_blocks_preflight (__main__.ExpMCoreTests.test_unknown_capability_blocks_preflight) ... ok\ntest_unmanifested_item_rejected (__main__.ExpMCoreTests.test_unmanifested_item_rejected) ... ok\ntest_unsupported_format_and_context_limit_fail (__main__.ExpMCoreTests.test_unsupported_format_and_context_limit_fail) ... ok\ntest_upload_id_only_rejected (__main__.ExpMCoreTests.test_upload_id_only_rejected) ... ok\ntest_wire_delivery_rejects_returned_byte_mismatch (__main__.ExpMCoreTests.test_wire_delivery_rejects_returned_byte_mismatch) ... ok\ntest_witness_record_binding_budget_and_semantics (__main__.ExpMCoreTests.test_witness_record_binding_budget_and_semantics) ... ok\ntest_wrong_commit_is_bound (__main__.ExpMCoreTests.test_wrong_commit_is_bound) ... ok\ntest_wrong_operating_point_is_not_current (__main__.ExpMCoreTests.test_wrong_operating_point_is_not_current) ... ok\ntest_wrong_profile_hash_is_not_current (__main__.ExpMCoreTests.test_wrong_profile_hash_is_not_current) ... ok\ntest_wrong_request_rejected (__main__.ExpMCoreTests.test_wrong_request_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 46 tests in 0.086s\n\nOK\n",
+      "stdout_stderr": "test_admissibility_exact_predicate_closure (__main__.ExpMCoreTests.test_admissibility_exact_predicate_closure) ... ok\ntest_admissibility_requires_every_predicate (__main__.ExpMCoreTests.test_admissibility_requires_every_predicate) ... ok\ntest_atomic_admission_voids_state_drift (__main__.ExpMCoreTests.test_atomic_admission_voids_state_drift) ... ok\ntest_authority_snapshot_candidate_writable_rejected (__main__.ExpMCoreTests.test_authority_snapshot_candidate_writable_rejected) ... ok\ntest_complete_one_shot_delivery (__main__.ExpMCoreTests.test_complete_one_shot_delivery) ... ok\ntest_dirty_context_and_stale_fence_fail (__main__.ExpMCoreTests.test_dirty_context_and_stale_fence_fail) ... ok\ntest_duplicate_required_item_rejected_by_wire (__main__.ExpMCoreTests.test_duplicate_required_item_rejected_by_wire) ... ok\ntest_expired_profile_is_not_current (__main__.ExpMCoreTests.test_expired_profile_is_not_current) ... ok\ntest_http_success_without_receipt_rejected (__main__.ExpMCoreTests.test_http_success_without_receipt_rejected) ... ok\ntest_insufficient_evidence_multiple_causes (__main__.ExpMCoreTests.test_insufficient_evidence_multiple_causes) ... ok\ntest_insufficient_evidence_unresolved (__main__.ExpMCoreTests.test_insufficient_evidence_unresolved) ... ok\ntest_item_size_mismatch (__main__.ExpMCoreTests.test_item_size_mismatch) ... ok\ntest_manifest_hash_mismatch (__main__.ExpMCoreTests.test_manifest_hash_mismatch) ... ok\ntest_manifest_is_content_addressed (__main__.ExpMCoreTests.test_manifest_is_content_addressed) ... ok\ntest_materialization_rejects_traversal (__main__.ExpMCoreTests.test_materialization_rejects_traversal) ... ok\ntest_missing_planned_attempt_is_not_current (__main__.ExpMCoreTests.test_missing_planned_attempt_is_not_current) ... ok\ntest_optional_contract_does_not_change_required_set (__main__.ExpMCoreTests.test_optional_contract_does_not_change_required_set) ... ok\ntest_provider_unqualified_blocks_preflight (__main__.ExpMCoreTests.test_provider_unqualified_blocks_preflight) ... ok\ntest_r1_egress_prompt_retry_registry_are_evidence_validated (__main__.ExpMCoreTests.test_r1_egress_prompt_retry_registry_are_evidence_validated) ... ok\ntest_r2_admission_race_has_one_terminal_winner (__main__.ExpMCoreTests.test_r2_admission_race_has_one_terminal_winner) ... ok\ntest_r2_empty_or_mismatched_qualification_closure_rejected (__main__.ExpMCoreTests.test_r2_empty_or_mismatched_qualification_closure_rejected) ... ok\ntest_r2_persistent_void_is_terminal_across_reload (__main__.ExpMCoreTests.test_r2_persistent_void_is_terminal_across_reload) ... ok\ntest_r2_production_evaluator_has_no_bypass_parameter (__main__.ExpMCoreTests.test_r2_production_evaluator_has_no_bypass_parameter) ... ok\ntest_r2_retry_lineage_is_explicit (__main__.ExpMCoreTests.test_r2_retry_lineage_is_explicit) ... ok\ntest_r2_summary_only_bundle_is_rejected (__main__.ExpMCoreTests.test_r2_summary_only_bundle_is_rejected) ... ok\ntest_r2_typed_materialization_bounds_and_transform_registry (__main__.ExpMCoreTests.test_r2_typed_materialization_bounds_and_transform_registry) ... ok\ntest_r2b_closure_missing_execution_evidence_fails (__main__.ExpMCoreTests.test_r2b_closure_missing_execution_evidence_fails) ... ok\ntest_r2b_materialization_derives_path_and_rejects_falsified_metadata (__main__.ExpMCoreTests.test_r2b_materialization_derives_path_and_rejects_falsified_metadata) ... ok\ntest_r2b_physical_attempt_duplicate_is_rejected (__main__.ExpMCoreTests.test_r2b_physical_attempt_duplicate_is_rejected) ... ok\ntest_r2b_production_profile_requires_real_plan (__main__.ExpMCoreTests.test_r2b_production_profile_requires_real_plan) ... ok\ntest_r2b_required_optional_manifest_is_exact (__main__.ExpMCoreTests.test_r2b_required_optional_manifest_is_exact) ... ok\ntest_receipt_session_mismatch_rejected (__main__.ExpMCoreTests.test_receipt_session_mismatch_rejected) ... ok\ntest_required_item_missing (__main__.ExpMCoreTests.test_required_item_missing) ... ok\ntest_retrieval_binds_raw_bytes_and_final_context (__main__.ExpMCoreTests.test_retrieval_binds_raw_bytes_and_final_context) ... ok\ntest_reviewer_ack_without_items_rejected (__main__.ExpMCoreTests.test_reviewer_ack_without_items_rejected) ... ok\ntest_snapshot_binding_mismatch_rejected (__main__.ExpMCoreTests.test_snapshot_binding_mismatch_rejected) ... ok\ntest_unknown_capability_blocks_preflight (__main__.ExpMCoreTests.test_unknown_capability_blocks_preflight) ... ok\ntest_unmanifested_item_rejected (__main__.ExpMCoreTests.test_unmanifested_item_rejected) ... ok\ntest_unsupported_format_and_context_limit_fail (__main__.ExpMCoreTests.test_unsupported_format_and_context_limit_fail) ... ok\ntest_upload_id_only_rejected (__main__.ExpMCoreTests.test_upload_id_only_rejected) ... ok\ntest_wire_delivery_rejects_returned_byte_mismatch (__main__.ExpMCoreTests.test_wire_delivery_rejects_returned_byte_mismatch) ... ok\ntest_witness_record_binding_budget_and_semantics (__main__.ExpMCoreTests.test_witness_record_binding_budget_and_semantics) ... ok\ntest_wrong_commit_is_bound (__main__.ExpMCoreTests.test_wrong_commit_is_bound) ... ok\ntest_wrong_operating_point_is_not_current (__main__.ExpMCoreTests.test_wrong_operating_point_is_not_current) ... ok\ntest_wrong_profile_hash_is_not_current (__main__.ExpMCoreTests.test_wrong_profile_hash_is_not_current) ... ok\ntest_wrong_request_rejected (__main__.ExpMCoreTests.test_wrong_request_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 46 tests in 0.076s\n\nOK\n",
       "suite": "core",
       "tests_failed": 0,
       "tests_passed": 46,
@@ -3987,7 +3988,7 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
     {
       "command": "python governance-runtime/test_exp_m_phases.py",
       "exit_code": 0,
-      "stdout_stderr": "test_all_deterministic_phases_a_to_t_pass (__main__.ExpMPhaseTests.test_all_deterministic_phases_a_to_t_pass) ... ok\ntest_predicate_registry_exact_closure (__main__.ExpMPhaseTests.test_predicate_registry_exact_closure) ... ok\ntest_structured_admissibility_fixture_is_positive (__main__.ExpMPhaseTests.test_structured_admissibility_fixture_is_positive) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 15.513s\n\nOK\n",
+      "stdout_stderr": "test_all_deterministic_phases_a_to_t_pass (__main__.ExpMPhaseTests.test_all_deterministic_phases_a_to_t_pass) ... ok\ntest_predicate_registry_exact_closure (__main__.ExpMPhaseTests.test_predicate_registry_exact_closure) ... ok\ntest_structured_admissibility_fixture_is_positive (__main__.ExpMPhaseTests.test_structured_admissibility_fixture_is_positive) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 15.414s\n\nOK\n",
       "suite": "phases",
       "tests_failed": 0,
       "tests_passed": 3,
@@ -4014,9 +4015,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
     "command": "python governance-runtime/self_adjudicate_r2b.py",
     "interpreter": "D:\\Python312\\python.exe",
     "live_provider_execution": false,
-    "source_commit": "f7c949ab3c209fe91577544194af678a14ae5ba9",
-    "source_tree": "7e795cce4e36407db11656089cc8bee57c8cd968",
-    "utc": "2026-09-20T09:54:15.579324+00:00"
+    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
+    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
+    "utc": "2026-09-20T10:00:12.148796+00:00"
   },
   "experiment": "EXP-M",
   "remediation": "R2B",
@@ -4155,9 +4156,9 @@ r2b_clean_source_to_evidence_to_packet_sequence=true
   "execution": {
     "command": "python governance-runtime/self_falsify_exp_m.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "f7c949ab3c209fe91577544194af678a14ae5ba9",
-    "source_tree": "7e795cce4e36407db11656089cc8bee57c8cd968",
-    "utc": "2026-09-20T09:54:09.595341+00:00"
+    "source_commit": "eaac12cf521d3684850773a498c67ca1c5226d6b",
+    "source_tree": "71e3e86f784010e60339dc64feb5b55d3ddb9fc0",
+    "utc": "2026-09-20T10:00:11.849780+00:00"
   },
   "surviving_critical": 0,
   "surviving_high": 0,
@@ -4404,6 +4405,10 @@ class PromptIsolationQualificationRecord:
     issued_at: str | None = None
     record_hash: str = ""
 
+    def __post_init__(self) -> None:
+        if not self.record_hash:
+            object.__setattr__(self, "record_hash", digest({"record_id": self.record_id, "provider_id": self.provider_id, "mode": self.mode, "current": self.current, "expires_at": self.expires_at}))
+
 
 @dataclass(frozen=True)
 class WitnessProtocolQualificationRecord:
@@ -4416,6 +4421,10 @@ class WitnessProtocolQualificationRecord:
     expires_at: str | None = None
     issued_at: str | None = None
     record_hash: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.record_hash:
+            object.__setattr__(self, "record_hash", digest({"record_id": self.record_id, "provider_id": self.provider_id, "mode": self.mode, "max_response_bytes": self.max_response_bytes, "current": self.current, "prompt_isolation_mode": self.prompt_isolation_mode, "expires_at": self.expires_at}))
 
 
 @dataclass(frozen=True)
@@ -4732,6 +4741,7 @@ class PredicateContext:
     expected_challenge_id: str = ""
     expected_reviewer_policy_hash: str = "policy"
     expected_context_state_hash: str = "state"
+    expected_fence_state_hash: str = ""
     expected_qualification_profile: str = "TEST_PROFILE"
 
 
@@ -4770,7 +4780,8 @@ def context_from_state(state: Mapping[str, Any]) -> PredicateContext:
         expected_witness_answer_hash=str(state.get("expected_witness_answer_hash", digest(state.get("witness_expected_answer", "answer")))),
         expected_challenge_id=str(state.get("expected_challenge_id", "challenge")),
         expected_reviewer_policy_hash=str(state.get("expected_reviewer_policy_hash", "policy")),
-        expected_context_state_hash=str(state.get("expected_context_state_hash", "state")),
+        expected_context_state_hash=str(state.get("expected_context_state_hash", digest({"channels": ("memory", "config"), "state_hash": "state", "clean": True, "sentinel_passed": True}))),
+        expected_fence_state_hash=str(state.get("expected_fence_state_hash", digest({"fence_id": "fence", "version": "1", "current": True}))),
         expected_qualification_profile=str(state.get("expected_qualification_profile", "TEST_PROFILE")),
     )
 
@@ -4960,7 +4971,7 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
         record = state.get("context_isolation_verdict")
         if not isinstance(record, ContextIsolationVerdict):
             return False
-        return validate_context_isolation(record.policy, record.evidence, record.fence, transition_class=record.transition_class, required_channels=record.required_channels)[0]
+        return validate_context_isolation(record.policy, record.evidence, record.fence, transition_class=record.transition_class, required_channels=record.required_channels, expected_observation_hash=context.expected_context_state_hash if context.expected_context_state_hash and len(context.expected_context_state_hash) == 64 else None, expected_fence_state_hash=context.expected_fence_state_hash)[0]
 
     def accessibility_policy_valid(state: Mapping[str, Any]) -> bool:
         policy, proof = state.get("accessibility_policy_record"), state.get("accessibility")
@@ -5284,7 +5295,7 @@ def validate_witness(challenge: str, response: str, *, max_response_bytes: int, 
     return not reasons, tuple(reasons)
 
 
-def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
+def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str], expected_observation_hash: str | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     # clean/sentinel_passed are diagnostic cache fields; the observed channel
     # set and a content-bound state hash are authoritative.
@@ -5296,6 +5307,8 @@ def validate_context_state(state: ProviderContextStateEvidence, *, required_chan
         reasons.append("context_state_unbound")
     if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash, "clean": state.clean, "sentinel_passed": state.sentinel_passed}):
         reasons.append("context_observation_hash_mismatch")
+    if expected_observation_hash is not None and state.observation_hash != expected_observation_hash:
+        reasons.append("context_expected_observation_mismatch")
     if not state.observation_hash:
         reasons.append("provider_context_observation_unbound")
     return not reasons, tuple(reasons)
@@ -5307,9 +5320,8 @@ def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[
         reasons.append("admission_fence_version_mismatch")
     if not fence.fence_id or (fence.state_hash and not isinstance(fence.state_hash, str)):
         reasons.append("admission_fence_unbound")
-    if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": fence.current}):
+    if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": True}):
         reasons.append("admission_fence_state_mismatch")
-    if fence.current is not True:
         reasons.append("admission_fence_stale")
     return not reasons, tuple(reasons)
 
@@ -5325,6 +5337,8 @@ def validate_prompt_isolation(record: PromptIsolationQualificationRecord, *, pro
     reasons: list[str] = []
     if record.provider_id != provider_id or record.mode != mode or not record.record_id:
         reasons.append("prompt_isolation_binding")
+    if record.record_hash != digest({"record_id": record.record_id, "provider_id": record.provider_id, "mode": record.mode, "current": True, "expires_at": record.expires_at}):
+        reasons.append("prompt_isolation_record_not_currently_bound")
     if record.expires_at is not None and record.expires_at <= now:
         reasons.append("prompt_isolation_expired")
     return not reasons, tuple(reasons)
@@ -5453,18 +5467,20 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
     return not reasons, tuple(reasons)
 
 
-def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
+def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence: ProviderContextStateEvidence, fence: AdmissionFenceRecord, *, transition_class: str, required_channels: Sequence[str], expected_observation_hash: str | None = None, expected_fence_state_hash: str | None = None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     if not policy.policy_id or policy.basis not in ("COMPLETE_READABLE_FENCED_STATE", "DEDICATED_PLATFORM_ACCOUNT_STATELESS_BOUNDARY"):
         reasons.append("context_policy_invalid")
     if transition_class == "HIGHEST" and policy.hidden_state_allowed:
         reasons.append("hidden_state_residual_disallowed")
-    clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels)
+    clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels, expected_observation_hash=expected_observation_hash)
     if not clean:
         reasons.extend(clean_reasons)
     fence_ok, fence_reasons = validate_fence(fence, fence.version)
     if not fence_ok:
         reasons.extend(fence_reasons)
+    if expected_fence_state_hash and fence.state_hash != expected_fence_state_hash:
+        reasons.append("admission_fence_expected_state_mismatch")
     return not reasons, tuple(reasons)
 
 
@@ -5487,6 +5503,8 @@ def validate_witness_qualification(record: WitnessProtocolQualificationRecord, *
     reasons: list[str] = []
     if record.provider_id != provider_id or record.mode != mode or record.prompt_isolation_mode != prompt_mode or not record.record_id:
         reasons.append("witness_record_binding")
+    if record.record_hash != digest({"record_id": record.record_id, "provider_id": record.provider_id, "mode": record.mode, "max_response_bytes": record.max_response_bytes, "current": True, "prompt_isolation_mode": record.prompt_isolation_mode, "expires_at": record.expires_at}):
+        reasons.append("witness_record_not_currently_bound")
     if record.expires_at is not None and record.expires_at <= now:
         reasons.append("witness_record_expired")
     if not challenge or not response or len(response.encode()) > record.max_response_bytes:
