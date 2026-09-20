@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_AUTHORITY_COMMIT = "b029ac5c801b07e2e94ebd4e8d1b0a0ddad6e0fb"
+DEFAULT_AUTHORITY_COMMIT = "d5bcc1ef977c0cae07d3bd53c4b8292b4070b957"
 ROOT_PATH = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
 _SHA256_DER_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 
@@ -81,6 +81,39 @@ class AuthorityHandle:
             raise ValueError("reviewed_commit_not_resolved_git_object")
         return commit
 
+    def _load_hashed_json(self, path_key: str, hash_key: str) -> Mapping[str, Any]:
+        path = str(self.root[path_key])
+        raw = _git_bytes(self.root_commit, path)
+        if _sha256(raw) != str(self.root[hash_key]):
+            raise ValueError(f"{hash_key}_mismatch")
+        return json.loads(raw)
+
+    def resolve_retrieval_bytes(self, source_id: str, version: str, start: int, end: int) -> bytes:
+        ledger = self._load_hashed_json("retrieval_source_ledger_path", "retrieval_source_ledger_sha256")
+        entry = (ledger.get("sources") or {}).get(f"{source_id}|{version}")
+        if not isinstance(entry, Mapping):
+            raise ValueError("retrieval_source_not_authorized")
+        raw = _git_bytes(self.root_commit, str(entry["path"]))
+        if _sha256(raw) != str(entry["sha256"]) or len(raw) != int(entry["length"]):
+            raise ValueError("retrieval_source_integrity_failure")
+        if start < 0 or end < start or end > len(raw):
+            raise ValueError("retrieval_range_invalid")
+        return raw[start:end]
+
+    def expected_delivery(self, request_id: str) -> Mapping[str, Any]:
+        ledger = self._load_hashed_json("delivery_ledger_path", "delivery_ledger_sha256")
+        entry = (ledger.get("requests") or {}).get(request_id)
+        if not isinstance(entry, Mapping):
+            raise ValueError("delivery_request_not_authorized")
+        return entry
+
+    def qualification_entry(self, plan_id: str) -> Mapping[str, Any]:
+        ledger = self._load_hashed_json("qualification_ledger_path", "qualification_ledger_sha256")
+        entry = (ledger.get("plans") or {}).get(plan_id)
+        if not isinstance(entry, Mapping):
+            raise ValueError("qualification_authority_plan_missing")
+        return entry
+
     def load_r5_protocol(self) -> Mapping[str, Any]:
         if not self.protocol_available:
             raise ValueError("r5_protocol_unavailable")
@@ -123,6 +156,14 @@ def load_authority(root_commit: str) -> AuthorityHandle:
     protocol_raw = _git_bytes(root_commit, str(data["r5_protocol_path"]))
     if _sha256(protocol_raw) != str(data["r5_protocol_sha256"]):
         raise ValueError("r5_protocol_hash_mismatch")
+    for path_key, hash_key in (
+        ("retrieval_source_ledger_path", "retrieval_source_ledger_sha256"),
+        ("delivery_ledger_path", "delivery_ledger_sha256"),
+        ("qualification_ledger_path", "qualification_ledger_sha256"),
+    ):
+        raw = _git_bytes(root_commit, str(data[path_key]))
+        if _sha256(raw) != str(data[hash_key]):
+            raise ValueError(f"{hash_key}_mismatch")
     reviewed = str(data.get("reviewed_commit_anchor", ""))
     if not _git_commit_exists(reviewed):
         raise ValueError("reviewed_commit_not_resolved_git_object")
