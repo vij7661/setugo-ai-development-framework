@@ -206,7 +206,18 @@ def run_phases() -> dict:
         result["negative_case_ids"] = [negative["case_id"]] if negative["result"] else []
         result["case_results"] = {"positive": positive["result"], "negative_rejected": negative["result"], "phase_status": "PASS" if positive["result"] and negative["result"] else "FAIL"}
         result["status"] = result["case_results"]["phase_status"]
-        result["applicable_mutation_target_ids"] = [m["target_predicate_id"] for m in mutation_result["mutations"] if m.get("family") == "validator_logic"] if phase_id in ("G", "I", "O", "T") else []
+        if phase_id == "G":
+            result["applicable_mutation_target_ids"] = [m["target_predicate_id"] for m in mutation_result["mutations"] if m.get("family") == "validator_logic"]
+            result["applicable_mutation_target_source"] = "executed_validator_logic_mutations"
+        elif phase_id == "I":
+            result["applicable_mutation_target_ids"] = list(verdict.predicate_results)
+            result["applicable_mutation_target_source"] = "phase_I_admissibility_predicate_results"
+        elif phase_id in ("O", "T"):
+            result["applicable_mutation_target_ids"] = list(mutation_result.get("killed_mutation_targets", ()))
+            result["applicable_mutation_target_source"] = "closure_killed_targets"
+        else:
+            result["applicable_mutation_target_ids"] = []
+            result["applicable_mutation_target_source"] = "none"
     return {"experiment": "EXP-M", "mode": "DETERMINISTIC_ONLY", "phases": phase_results, "all_phases_pass": all(v["status"] == "PASS" for v in phase_results.values())}
 
 
