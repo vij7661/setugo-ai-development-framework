@@ -193,11 +193,11 @@ def run_phases() -> dict:
             bad = list(ch); bad[0] = EvidenceChunk.create("request", digest(corpus), 0, 2, b"xxxxx")
             return (not validate_chunks(bad, request_id="request", corpus_hash=digest(corpus))[0], "validate_chunks", "corrupt_chunk")
         if phase_id == "C":
-            return (not validate_representation(manifest, {"required-a": b"changed", "required-b": items["required-b"]})[0], "validate_representation", "raw_byte_mutation")
+            return (not validate_representation(manifest, {"a": b"changed"})[0], "validate_representation", "raw_byte_mutation")
         if phase_id == "D":
             return (adjudicate_insufficient_evidence({}).disposition == "INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED", "adjudicate_insufficient_evidence", "unresolved_cause")
         if phase_id == "E":
-            return (not manifest.verify({"required-a": b"changed", "required-b": items["required-b"]})[0], "EvidenceDeliveryManifest.verify", "manifest_byte_mutation")
+            return (not manifest.verify({"a": b"changed"})[0], "EvidenceDeliveryManifest.verify", "manifest_byte_mutation")
         if phase_id == "F":
             expired = ProviderCapabilityProfile(provider.provider_id, provider.model_id, provider.adapter_version, provider.profile_hash, True, "2000-01-01T00:00:00Z", provider.supported_formats, provider.max_context_bytes)
             return (not validate_capability(expired, ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)), ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic", attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", "request", "session", "w", "OK"),)), now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="default", expected_profile_hash="profile-hash", required_format="text", required_context_bytes=1)[0], "validate_capability", "expired_profile")
@@ -215,7 +215,7 @@ def run_phases() -> dict:
         if phase_id == "L":
             return (not materialize_entries((MaterializationEntry("../escape", "../escape", "file", b"x"),), source_hash="src").success, "materialize_entries", "archive_traversal")
         if phase_id == "M":
-            return (not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0], "EvidenceDeliveryManifest.verify", "frozen_byte_mutation")
+            return (not manifest.verify({"a": b"mutated"})[0], "EvidenceDeliveryManifest.verify", "frozen_byte_mutation")
         if phase_id == "N":
             bad_provider = ProviderCapabilityProfile("fake", "m", "v", "p", False)
             return (not valid_preflight(s, c, i, manifest, bad_provider, items).allowed, "preflight_delivery", "unqualified_provider")
