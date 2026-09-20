@@ -46,25 +46,46 @@ AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
 
 
 def fixture():
-    snapshot = GovernanceAuthoritySnapshot("snap-1", "1", "h", True)
-    contract = RequiredEvidenceContract("contract-1", "snap-1", ("a", "b"))
-    interactions = RequiredInteractionContract("interaction-1", "snap-1", (("a", "b"),))
-    items = {"a": b"alpha", "b": b"beta"}
-    manifest = EvidenceDeliveryManifest.freeze("request-1", "commit-1", items)
-    provider = ProviderCapabilityProfile("fake", "deterministic", "adapter-1", "profile-hash", True, supported_formats=("text",))
+    ctx = AUTHORITY_CONTEXT
+    snapshot = GovernanceAuthoritySnapshot(ctx.authority_snapshot_id, ctx.authority_version, ctx.authority_snapshot_hash, True)
+    contract = RequiredEvidenceContract("contract-1", ctx.authority_snapshot_id, ("a",))
+    interactions = RequiredInteractionContract("interaction-1", ctx.authority_snapshot_id, (("a",),))
+    items = {"a": b"a"}
+    manifest = EvidenceDeliveryManifest.freeze(ctx.request_id, ctx.reviewed_commit, items)
+    provider = ProviderCapabilityProfile(
+        ctx.expected_provider, ctx.expected_model, ctx.expected_adapter,
+        ctx.expected_profile_hash, True, supported_formats=("text",),
+        max_context_bytes=1_000_000,
+    )
     return snapshot, contract, interactions, items, manifest, provider
 
 
 def preflight(*args, **kwargs):
+    ctx = AUTHORITY_CONTEXT
     defaults = {
-        "plan": ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)),
-        "qualification": ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic"),
+        "context": ctx,
+        "authority": AUTHORITY,
+        "plan": ProviderQualificationExecutionPlan("plan", ctx.expected_provider, ctx.expected_operating_point, ("a1",), ("a1",)),
+        "qualification": ProviderCapabilityQualificationRecord(
+            "plan", ctx.expected_profile_hash, True, True, 0, ctx.expected_operating_point,
+            ("a1",), ("a1",), ctx.expected_provider, ctx.expected_model,
+            attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", ctx.request_id, ctx.session_id, "wire-a1", "OK"),),
+        ),
         "context_policy": ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE", False),
-        "context_evidence": ProviderContextStateEvidence(True, ("memory", "config"), True, "state", channel_observations=({"channel": "memory", "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"}, {"channel": "config", "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"})),
-        "fence": AdmissionFenceRecord("fence", "1", True),
-        "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline", True, False),
-        "observed_interactions": (("a", "b"),),
-        "observed_context": FinalContextInteractionEvidence("request-1", "session-1", "ctx-h", ("a", "b"), (("a", "b"),), True, digest({"context_id": "ctx", "source_hash": "commit-1", "members": ("a", "b"), "assembly": "trusted-final-context-v1"})),
+        "context_evidence": ProviderContextStateEvidence(
+            True, ("memory", "config"), True, "state",
+            channel_observations=(
+                {"channel": "memory", "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"},
+                {"channel": "config", "observed_hash": "state", "expected_hash": "state", "readable": True, "fenced": True, "generation": 1, "observer_id": "platform-context-observer"},
+            ),
+        ),
+        "fence": AdmissionFenceRecord("fence", ctx.expected_fence_version, True),
+        "risk_policy": __import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy(ctx.expected_transition_class, "inline", True, False),
+        "observed_interactions": (("a",),),
+        "observed_context": FinalContextInteractionEvidence(
+            ctx.request_id, ctx.session_id, ctx.final_context_hash, ("a",), (("a",),), True,
+            digest({"context_id": ctx.final_context_id, "source_hash": ctx.reviewed_commit, "members": ("a",), "assembly": "trusted-final-context-v1"}),
+        ),
     }
     for key, value in defaults.items():
         kwargs.setdefault(key, value)
@@ -91,28 +112,28 @@ def admissibility_fixture():
 class ExpMCoreTests(unittest.TestCase):
     def test_complete_one_shot_delivery(self):
         s, c, i, items, m, p = fixture()
-        self.assertTrue(preflight(s, c, i, m, "request-1", p, items).allowed)
+        self.assertTrue(preflight(s, c, i, m, "r", p, items).allowed)
         receipt, wire = DeterministicFakeProvider().deliver(m, items)
         self.assertTrue(complete_delivery(m, receipt, wire).complete)
 
     def test_required_item_missing(self):
-        s, c, i, items, m, p = fixture(); items.pop("b")
-        result = preflight(s, c, i, m, "request-1", p, items)
+        s, c, i, items, m, p = fixture(); items.pop("a")
+        result = preflight(s, c, i, m, "r", p, items)
         self.assertFalse(result.allowed); self.assertIn("manifest_item_set_mismatch", result.reasons)
 
     def test_optional_contract_does_not_change_required_set(self):
         s, c, i, items, m, p = fixture()
         c = RequiredEvidenceContract(c.contract_id, c.snapshot_id, c.required_ids, ("optional",))
-        self.assertTrue(preflight(s, c, i, m, "request-1", p, items).allowed)
+        self.assertTrue(preflight(s, c, i, m, "r", p, items).allowed)
 
     def test_manifest_hash_mismatch(self):
         s, c, i, items, m, p = fixture(); items["a"] = b"changed"
-        self.assertFalse(preflight(s, c, i, m, "request-1", p, items).allowed)
+        self.assertFalse(preflight(s, c, i, m, "r", p, items).allowed)
 
     def test_item_size_mismatch(self):
         s, c, i, items, m, p = fixture(); bad = dict(m.items); bad["a"] = dict(bad["a"], size=99)
         m = EvidenceDeliveryManifest(m.request_id, m.reviewed_commit, bad, m.manifest_hash)
-        result = preflight(s, c, i, m, "request-1", p, items)
+        result = preflight(s, c, i, m, "r", p, items)
         self.assertFalse(result.allowed); self.assertIn("size_mismatch:a", result.reasons)
 
     def test_duplicate_required_item_rejected_by_wire(self):
@@ -123,10 +144,10 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_unmanifested_item_rejected(self):
         s, c, i, items, m, p = fixture(); items["extra"] = b"x"
-        self.assertFalse(preflight(s, c, i, m, "request-1", p, items).allowed)
+        self.assertFalse(preflight(s, c, i, m, "r", p, items).allowed)
 
     def test_wrong_commit_is_bound(self):
-        s, c, i, items, m, p = fixture(); wrong = EvidenceDeliveryManifest.freeze("request-1", "other", items)
+        s, c, i, items, m, p = fixture(); wrong = EvidenceDeliveryManifest.freeze("r", "other", items)
         self.assertNotEqual(m.reviewed_commit, wrong.reviewed_commit)
 
     def test_wrong_request_rejected(self):
@@ -134,23 +155,32 @@ class ExpMCoreTests(unittest.TestCase):
         self.assertFalse(preflight(s, c, i, m, "other", p, items).allowed)
 
     def test_reviewer_ack_without_items_rejected(self):
-        s, c, i, items, m, p = fixture(); r = ReviewerReceipt("attempt-1", "request-1", "session-1", m.manifest_hash, (), 0, True)
-        w = WireDeliveryRecord("attempt-1", "request-1", "w", "s", "session-1", ())
+        s, c, i, items, m, p = fixture(); r = ReviewerReceipt("attempt-1", "r", "session-1", m.manifest_hash, (), 0, True)
+        w = WireDeliveryRecord("attempt-1", "r", "w", "s", "session-1", ())
         self.assertFalse(complete_delivery(m, r, w).complete)
 
     def test_http_success_without_receipt_rejected(self):
-        s, c, i, items, m, p = fixture(); self.assertFalse(complete_delivery(m, ReviewerReceipt("a", "request-1", "s", "", (), 0, False), WireDeliveryRecord("a", "request-1", "w", "s", "s", ())).complete)
+        s, c, i, items, m, p = fixture(); self.assertFalse(complete_delivery(m, ReviewerReceipt("a", "r", "s", "", (), 0, False), WireDeliveryRecord("a", "r", "w", "s", "s", ())).complete)
 
     def test_upload_id_only_rejected(self):
-        s, c, i, items, m, p = fixture(); self.assertFalse(complete_delivery(m, ReviewerReceipt("a", "request-1", "s", m.manifest_hash, (), 0, True), WireDeliveryRecord("a", "request-1", "w", "s", "s", ())).complete)
+        s, c, i, items, m, p = fixture(); self.assertFalse(complete_delivery(m, ReviewerReceipt("a", "r", "s", m.manifest_hash, (), 0, True), WireDeliveryRecord("a", "r", "w", "s", "s", ())).complete)
 
     def test_provider_unqualified_blocks_preflight(self):
-        s, c, i, items, m, p = fixture(); p = ProviderCapabilityProfile(p.provider_id, p.model_id, p.adapter_version, p.profile_hash, False)
-        self.assertFalse(preflight(s, c, i, m, "request-1", p, items).allowed)
+        s, c, i, items, m, p = fixture()
+        p = ProviderCapabilityProfile(
+            p.provider_id, p.model_id, p.adapter_version, p.profile_hash, False,
+            p.expires_at, p.supported_formats, p.max_context_bytes,
+        )
+        result = preflight(s, c, i, m, "r", p, items)
+        self.assertFalse(result.allowed)
+        self.assertIn("provider_profile_not_qualified", result.reasons)
 
     def test_unknown_capability_blocks_preflight(self):
         s, c, i, items, m, p = fixture(); p = ProviderCapabilityProfile(p.provider_id, p.model_id, p.adapter_version, p.profile_hash, False)
-        self.assertIn("qualification_records_missing", preflight_delivery(s, c, i, m, "request-1", p, items).reasons)
+        self.assertIn(
+            "qualification_records_missing",
+            preflight_delivery(s, c, i, m, "r", p, items, context=AUTHORITY_CONTEXT, authority=AUTHORITY).reasons,
+        )
 
     def test_admissibility_requires_every_predicate(self):
         reg = admissibility_registry(); state = admissibility_fixture()
@@ -167,11 +197,11 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_authority_snapshot_candidate_writable_rejected(self):
         s, c, i, items, m, p = fixture(); s = GovernanceAuthoritySnapshot(s.snapshot_id, s.version, s.content_hash, False)
-        self.assertFalse(preflight(s, c, i, m, "request-1", p, items).allowed)
+        self.assertFalse(preflight(s, c, i, m, "r", p, items).allowed)
 
     def test_snapshot_binding_mismatch_rejected(self):
         s, c, i, items, m, p = fixture(); c = RequiredEvidenceContract(c.contract_id, "other", c.required_ids)
-        self.assertFalse(preflight(s, c, i, m, "request-1", p, items).allowed)
+        self.assertFalse(preflight(s, c, i, m, "r", p, items).allowed)
 
     def test_receipt_session_mismatch_rejected(self):
         s, c, i, items, m, p = fixture(); r, w = DeterministicFakeProvider().deliver(m, items)
@@ -190,31 +220,38 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_expired_profile_is_not_current(self):
         s, c, i, items, m, p = fixture(); p = ProviderCapabilityProfile(p.provider_id, p.model_id, p.adapter_version, p.profile_hash, True, "2000-01-01T00:00:00Z", p.supported_formats, p.max_context_bytes)
-        result = preflight(s, c, i, m, "request-1", p, items, now="2025-01-01T00:00:00Z")
+        result = preflight(s, c, i, m, "r", p, items, now="2025-01-01T00:00:00Z")
         self.assertFalse(result.allowed); self.assertIn("profile_expired", result.reasons)
 
     def test_wrong_profile_hash_is_not_current(self):
         s, c, i, items, m, p = fixture(); p = ProviderCapabilityProfile(p.provider_id, p.model_id, p.adapter_version, "wrong", True, supported_formats=("text",))
-        result = preflight(s, c, i, m, "request-1", p, items)
+        result = preflight(s, c, i, m, "r", p, items)
         self.assertFalse(result.allowed); self.assertIn("profile_hash_mismatch", result.reasons)
 
     def test_wrong_operating_point_is_not_current(self):
-        s, c, i, items, m, p = fixture(); result = preflight(s, c, i, m, "request-1", p, items, expected_operating_point="other")
+        s, c, i, items, m, p = fixture()
+        plan = ProviderQualificationExecutionPlan("plan", "fake", "other", ("a1",), ("a1",))
+        record = ProviderCapabilityQualificationRecord(
+            "plan", "profile-hash", True, True, 0, "other",
+            ("a1",), ("a1",), "fake", "deterministic",
+            attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", "r", "s", "wire-a1", "OK"),),
+        )
+        result = preflight(s, c, i, m, "r", p, items, plan=plan, qualification=record)
         self.assertFalse(result.allowed); self.assertIn("operating_point_mismatch", result.reasons)
 
     def test_missing_planned_attempt_is_not_current(self):
         s, c, i, items, m, p = fixture(); plan = ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1", "a2"))
-        result = preflight(s, c, i, m, "request-1", p, items, plan=plan)
+        result = preflight(s, c, i, m, "r", p, items, plan=plan)
         self.assertFalse(result.allowed); self.assertIn("qualification_attempt_closure", result.reasons)
 
     def test_unsupported_format_and_context_limit_fail(self):
         s, c, i, items, m, p = fixture(); p = ProviderCapabilityProfile(p.provider_id, p.model_id, p.adapter_version, p.profile_hash, True, supported_formats=("json",), max_context_bytes=1)
-        result = preflight(s, c, i, m, "request-1", p, items, required_format="text", required_context_bytes=100)
+        result = preflight(s, c, i, m, "r", p, items, required_format="text", required_context_bytes=100)
         self.assertFalse(result.allowed); self.assertIn("unsupported_format", result.reasons); self.assertIn("context_limit_exceeded", result.reasons)
 
     def test_dirty_context_and_stale_fence_fail(self):
         s, c, i, items, m, p = fixture(); evidence = ProviderContextStateEvidence(False, ("memory",), False, "state")
-        result = preflight(s, c, i, m, "request-1", p, items, context_evidence=evidence, fence=AdmissionFenceRecord("fence", "1", False))
+        result = preflight(s, c, i, m, "r", p, items, context_evidence=evidence, fence=AdmissionFenceRecord("fence", "1", False))
         self.assertFalse(result.allowed); self.assertIn("context_channel_unobserved", result.reasons); self.assertIn("admission_fence_stale", result.reasons)
 
     def test_materialization_rejects_traversal(self):
@@ -229,8 +266,13 @@ class ExpMCoreTests(unittest.TestCase):
         self.assertFalse(validate_retrieval(forged, expected_request="r", expected_attempt="a", expected_session="s", expected_source="file", expected_version="v", expected_context_id="ctx", expected_context_hash="ctx-h", authority=AUTHORITY)[0])
 
     def test_wire_delivery_rejects_returned_byte_mismatch(self):
-        s, c, i, items, m, p = fixture(); provider = DeterministicFakeProvider(); receipt, wire = provider.deliver(m, items); materialized = materialize_entries(items, source_hash="request-1")
-        ok, _ = validate_wire_delivery(m, materialized, wire, receipt, {"a": b"bad", "b": items["b"]}, expected_commit="request-1", expected_semantic_hash=wire.semantic_hash)
+        s, c, i, items, m, p = fixture(); provider = DeterministicFakeProvider(); receipt, wire = provider.deliver(m, items); materialized = materialize_entries(items, source_hash=AUTHORITY_CONTEXT.reviewed_commit)
+        ok, _ = validate_wire_delivery(
+            m, materialized, wire, receipt, {"a": b"bad"},
+            expected_commit=AUTHORITY_CONTEXT.reviewed_commit,
+            expected_semantic_hash=wire.semantic_hash,
+            authority=AUTHORITY,
+        )
         self.assertFalse(ok)
 
     def test_witness_record_binding_budget_and_semantics(self):
@@ -290,9 +332,38 @@ class ExpMCoreTests(unittest.TestCase):
         import inspect
         self.assertNotIn("disabled_predicates", inspect.signature(evaluate_admissibility).parameters)
 
+    def test_r2e_preflight_requires_authority_context(self):
+        s, c, i, items, m, p = fixture()
+        result = preflight_delivery(s, c, i, m, "r", p, items)
+        self.assertFalse(result.allowed)
+        self.assertIn("preflight_expectation_authority_invalid", result.reasons)
+
+    def test_r2e_adapter_drift_is_rejected(self):
+        s, c, i, items, m, p = fixture()
+        p = ProviderCapabilityProfile(
+            p.provider_id, p.model_id, "attacker-adapter", p.profile_hash, True,
+            p.expires_at, p.supported_formats, p.max_context_bytes,
+        )
+        result = preflight(s, c, i, m, "r", p, items)
+        self.assertFalse(result.allowed)
+        self.assertTrue(
+            "preflight_adapter_mismatch" in result.reasons or "adapter_version_mismatch" in result.reasons
+        )
+
+    def test_r2e_false_qualification_summary_is_rejected(self):
+        s, c, i, items, m, p = fixture()
+        record = ProviderCapabilityQualificationRecord(
+            "plan", "profile-hash", False, True, 0, "default",
+            ("a1",), ("a1",), "fake", "deterministic",
+            attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", "r", "s", "wire-a1", "OK"),),
+        )
+        result = preflight(s, c, i, m, "r", p, items, qualification=record)
+        self.assertFalse(result.allowed)
+        self.assertIn("qualification_summary_not_qualified", result.reasons)
+
     def test_r2b_required_optional_manifest_is_exact(self):
         s, c, i, items, m, p = fixture(); extra = dict(items); extra["unknown"] = b"x"
-        self.assertFalse(preflight(s, c, i, m, "request-1", p, extra).allowed)
+        self.assertFalse(preflight(s, c, i, m, "r", p, extra).allowed)
 
     def test_r2b_materialization_derives_path_and_rejects_falsified_metadata(self):
         bad = MaterializationEntry("safe/file", "other/file", "file", b"x", None, 999, 999, 99)
@@ -317,7 +388,7 @@ class ExpMCoreTests(unittest.TestCase):
     def test_r2_empty_or_mismatched_qualification_closure_rejected(self):
         s, c, i, items, m, p = fixture()
         empty = ProviderQualificationExecutionPlan("plan", "fake", "default", (), ())
-        result = preflight(s, c, i, m, "request-1", p, items, plan=empty, qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", (), (), "fake", "deterministic"))
+        result = preflight(s, c, i, m, "r", p, items, plan=empty, qualification=ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", (), (), "fake", "deterministic"))
         self.assertFalse(result.allowed); self.assertIn("qualification_sets_empty", result.reasons)
 
     def test_r2_typed_materialization_bounds_and_transform_registry(self):
@@ -335,7 +406,11 @@ class ExpMCoreTests(unittest.TestCase):
 
     def test_r2c_caller_interactions_cannot_satisfy_context(self):
         s, c, i, items, m, p = fixture()
-        self.assertFalse(preflight_delivery(s, c, i, m, "request-1", p, items, observed_interactions=(("a", "b"),)).allowed)
+        self.assertFalse(preflight_delivery(
+            s, c, i, m, "r", p, items,
+            context=AUTHORITY_CONTEXT, authority=AUTHORITY,
+            observed_interactions=(("a", "b"),),
+        ).allowed)
 
     def test_r2c_two_trial_production_profile_rejected(self):
         profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
