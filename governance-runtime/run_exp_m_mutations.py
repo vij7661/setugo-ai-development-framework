@@ -27,6 +27,7 @@ from exp_m_deterministic import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+from exp_m_review_fixtures import build_negative_fixture
 
 
 FROZEN_MUTATION_CONTEXT = PredicateContext(
@@ -90,28 +91,8 @@ def run() -> dict:
         "witness": WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"), "retrieval": RetrievalEvidenceRecord("r", "a", "s", "file", "v", 0, 1, digest(b"a"), 1, "tool", 1, "ctx", "ctx-h"), "retrieval_bytes": b"a", "prompt_isolation": {"current": True}, "semantic_coverage": SemanticCoverageRecord("cov", "ctx", True),
         "reviewer": ReviewerProvenanceRecord("reviewer", "policy", True), "disposition": "PASS", "disposition_promotable": True,
     }
-    def negative(state, predicate):
-        s = dict(state)
-        mapping = {
-            "review_request_current": ("review_request", {"current": False, "request_id": "r"}),
-            "authority_snapshot_current": ("authority_snapshot", GovernanceAuthoritySnapshot("s", "1", "h", False)),
-            "evidence_contract_closed": ("evidence_contract", RequiredEvidenceContract("e", "s", (), non_vacuous=False)),
-            "interaction_contract_closed": ("interaction_contract", RequiredInteractionContract("i", "s", (), closed=False)),
-            "materialization_complete": ("materialization", MaterializationResult(False, {}, "", "src", "raw-v1")),
-            "representation_governed": ("representation", {"governed": False, "transform_id": ""}),
-            "egress_authorized": ("egress", {"authorized": False, "version": "1"}),
-            "capability_current": ("capability", {"validated": False}), "accessibility_policy_satisfied": ("accessibility_policy", {"satisfied": False, "risk_policy_version": "r1"}),
-            "context_isolation_satisfied": ("context_isolation", {"satisfied": False, "transition_class": "LOWER"}), "hidden_state_policy_satisfied": ("hidden_state_policy", {"satisfied": False}),
-            "context_state_clean": ("context_state", {"clean": False, "sentinel_passed": False, "state_hash": "state"}), "admission_fence_current": ("fence", {"current": False, "version": "1"}),
-            "semantic_context_qualified": ("semantic_context", {"qualified": False, "context_hash": "ctx-h"}), "wire_binding_valid": ("wire", {"valid": False, "request_id": "r"}),
-            "delivery_complete": ("delivery", {"computed_complete": False}), "accessibility_proven": ("accessibility", {"satisfied": True, "proven": False, "challenge_id": "ch"}),
-            "witness_record_current": ("witness", {"validated": False}), "session_retrieval_coverage": ("retrieval", {"validated": False, "final_context_id": "ctx"}),
-            "prompt_isolation_current": ("prompt_isolation", {"current": False}), "semantic_coverage": ("semantic_coverage", {"complete": False}),
-            "reviewer_provenance": ("reviewer", {"trusted": False}), "disposition_promotable": ("disposition", "CHANGES_REQUIRED"),
-        }
-        key, value = mapping[predicate]; s[key] = value; return s
     for predicate in reg.logic_mutation_ids:
-        negative_state = negative(base, predicate)
+        negative_state = build_negative_fixture(base, predicate)
         normal_result = evaluate(negative_state, reg)
         # Each mutant is executed in a fresh spawned process/module instance.
         mutated_payload = isolated_mutant_result(predicate, negative_state, reg)

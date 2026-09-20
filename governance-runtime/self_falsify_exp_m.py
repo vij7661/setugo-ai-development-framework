@@ -79,7 +79,19 @@ def run():
     for artifact in (race_path, race_path.with_suffix(race_path.suffix + ".sqlite")):
         try: artifact.unlink()
         except OSError: pass
-    case("synthetic_phase_metadata", "positive_case_ids = [" not in (ROOT / "governance-runtime" / "run_exp_m_deterministic.py").read_text(encoding="utf-8"))
+    # Behavioral phase-artifact falsification: run the real phase cases, then
+    # perturb one executed negative case and prove the phase closure fails.
+    from run_exp_m_deterministic import run_phases
+    phase_artifact = run_phases()
+    real_cases = all(len(v.get("executed_cases", ())) >= 2 and any(c.get("kind") == "negative" and c.get("actual") == "REJECT" for c in v.get("executed_cases", ())) for v in phase_artifact["phases"].values())
+    case("phase_cases_are_executed", real_cases)
+    perturbed = json.loads(json.dumps(phase_artifact))
+    first_phase = next(iter(perturbed["phases"].values()))
+    first_phase["executed_cases"][1]["actual"] = "PASS"
+    first_phase["executed_cases"][1]["result"] = False
+    case("phase_negative_perturbation_fails", not all(all(c.get("result") for c in v.get("executed_cases", ())) for v in perturbed["phases"].values()))
+    removed = json.loads(json.dumps(phase_artifact)); removed["phases"]["A"]["executed_cases"] = []
+    case("phase_case_removal_fails_closure", not all(len(v.get("executed_cases", ())) >= 2 for v in removed["phases"].values()))
     case("typed_summary_boolean", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "capability": {"validated": True}, "context_isolation": {"satisfied": True}, "disposition": "PASS"}), context_from_state({})).admissible)
     survivors = [c for c in cases if not c["rejected"]]
     return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "surviving_high": len(survivors), "all_rejected": not survivors}

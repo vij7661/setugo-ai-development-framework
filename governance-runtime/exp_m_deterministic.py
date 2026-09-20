@@ -11,6 +11,9 @@ from hashlib import sha256
 import json
 import sqlite3
 import threading
+import posixpath
+import zipfile
+from datetime import datetime, timezone
 from typing import Any, Iterable, Mapping, Sequence
 from pathlib import Path
 
@@ -110,6 +113,7 @@ class ProviderQualificationExecutionPlan:
     operating_point: str
     trial_ids: tuple[str, ...]
     confirmation_ids: tuple[str, ...]
+    qualification_profile: str = "TEST_PROFILE"
 
 
 @dataclass(frozen=True)
@@ -126,6 +130,7 @@ class ProviderCapabilityQualificationRecord:
     model_id: str = ""
     qualified_at: str | None = None
     attempt_records: tuple[Any, ...] = ()
+    protocol_version: str = "R5-CP-1"
 
 
 @dataclass(frozen=True)
@@ -151,6 +156,8 @@ class SemanticContextQualificationRecord:
     context_hash: str
     qualified: bool
     source_hash: str
+    context_bytes: bytes = b""
+    qualification_receipt_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -191,6 +198,7 @@ class ProviderContextStateEvidence:
     observable_channels: tuple[str, ...]
     sentinel_passed: bool
     state_hash: str
+    observation_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -198,6 +206,8 @@ class AdmissionFenceRecord:
     fence_id: str
     version: str
     current: bool
+    issued_at: str | None = None
+    state_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -207,6 +217,8 @@ class PromptIsolationQualificationRecord:
     mode: str
     current: bool
     expires_at: str | None = None
+    issued_at: str | None = None
+    record_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -218,6 +230,8 @@ class WitnessProtocolQualificationRecord:
     current: bool
     prompt_isolation_mode: str = ""
     expires_at: str | None = None
+    issued_at: str | None = None
+    record_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -299,6 +313,8 @@ class PhysicalAttemptRecord:
     session_id: str
     wire_hash: str
     outcome: str
+    provider_request_id: str = ""
+    request_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -320,17 +336,25 @@ class PersistentAdmissionLedger:
         with sqlite3.connect(self._db, timeout=5, isolation_level=None) as conn:
             conn.execute("PRAGMA journal_mode=DELETE")
             conn.execute("CREATE TABLE IF NOT EXISTS admissions (attempt_id TEXT PRIMARY KEY, generation INTEGER NOT NULL, disposition TEXT NOT NULL)")
+            conn.execute("CREATE TABLE IF NOT EXISTS protected_state (id INTEGER PRIMARY KEY CHECK(id=1), generation INTEGER NOT NULL, state_hash TEXT NOT NULL)")
+            conn.execute("INSERT OR IGNORE INTO protected_state(id,generation,state_hash) VALUES(1,0,'')")
 
-    def compare_and_set(self, attempt_id: str, generation: int, disposition: str) -> AdmissionCheckpoint:
+    def compare_and_set(self, attempt_id: str, generation: int, disposition: str, *, expected_state_hash: str | None = None, next_state_hash: str | None = None) -> AdmissionCheckpoint:
         if disposition not in ("VOID", "COMMITTED"):
             return AdmissionCheckpoint(attempt_id, generation, "VOID", False, True, ("invalid_terminal_state",))
         with sqlite3.connect(self._db, timeout=5, isolation_level="IMMEDIATE") as conn:
             conn.execute("BEGIN IMMEDIATE")
+            protected = conn.execute("SELECT generation,state_hash FROM protected_state WHERE id=1").fetchone()
+            if expected_state_hash is not None and (protected is None or protected[1] != expected_state_hash or int(protected[0]) != generation):
+                conn.rollback()
+                return AdmissionCheckpoint(attempt_id, generation, "VOID", False, True, ("protected_state_generation_drift",))
             current = conn.execute("SELECT generation, disposition FROM admissions WHERE attempt_id=?", (attempt_id,)).fetchone()
             if current is not None:
                 conn.commit()
                 return AdmissionCheckpoint(attempt_id, int(current[0]), str(current[1]), False, current[1] == "VOID", ("terminal_state",))
             conn.execute("INSERT INTO admissions(attempt_id,generation,disposition) VALUES(?,?,?)", (attempt_id, generation, disposition))
+            if disposition == "COMMITTED":
+                conn.execute("UPDATE protected_state SET generation=?, state_hash=? WHERE id=1", (generation + 1, next_state_hash or str(generation + 1)))
             conn.commit()
         return AdmissionCheckpoint(attempt_id, generation, disposition, disposition == "COMMITTED", disposition == "VOID", ())
 
@@ -381,6 +405,8 @@ class AccessibilityProofRecord:
     proof_mode: str = ""
     policy_version: str = ""
     evidence_hash: str = ""
+    proof_hash: str = ""
+    issued_at: str | None = None
 
 
 @dataclass(frozen=True)
@@ -389,6 +415,8 @@ class ReviewerProvenanceRecord:
     policy_hash: str
     trusted: bool
     authorization_source: str = ""
+    record_hash: str = ""
+    issued_at: str | None = None
 
 
 @dataclass(frozen=True)
@@ -399,6 +427,7 @@ class SemanticCoverageRecord:
     source_hash: str = ""
     coverage_hash: str = ""
     context_hash: str = ""
+    evidence_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -428,7 +457,7 @@ class AdmissibilityPredicateRegistry:
     logic_mutation_ids: tuple[str, ...]
     fixture_ids: tuple[str, ...]
 
-    def closure(self, verdict_ids: Iterable[str], killed_ids: Iterable[str], *, declared_mutations: Iterable[str] | None = None, executed_mutations: Iterable[str] | None = None, declared_fixtures: Iterable[str] | None = None, executed_fixtures: Iterable[str] | None = None) -> bool:
+    def closure(self, verdict_ids: Iterable[str], killed_ids: Iterable[str], *, declared_mutations: Iterable[str] | None = None, executed_mutations: Iterable[str] | None = None, declared_fixtures: Iterable[str] | None = None, executed_fixtures: Iterable[str] | None = None, killed_mutations: Iterable[str] | None = None, executed_fixture_targets: Iterable[str] | None = None) -> bool:
         required = set(self.predicate_ids)
         def targets(values: Iterable[Any]) -> set[str]:
             out = set()
@@ -441,13 +470,17 @@ class AdmissibilityPredicateRegistry:
             return out
         verdict = targets(verdict_ids)
         killed = targets(killed_ids)
-        mutation_declared = set(declared_mutations if declared_mutations is not None else self.logic_mutation_ids)
-        mutation_executed = set(executed_mutations if executed_mutations is not None else mutation_declared)
-        fixture_declared = set(declared_fixtures if declared_fixtures is not None else self.fixture_ids)
-        fixture_executed = set(executed_fixtures if executed_fixtures is not None else fixture_declared)
+        if any(value is None for value in (declared_mutations, executed_mutations, declared_fixtures, executed_fixtures, killed_mutations, executed_fixture_targets)):
+            return False
+        mutation_declared = set(declared_mutations)
+        mutation_executed = set(executed_mutations)
+        mutation_killed = set(killed_mutations)
+        fixture_declared = set(declared_fixtures)
+        fixture_executed = set(executed_fixtures)
+        fixture_targets = set(executed_fixture_targets)
         return (required == verdict and required == killed and
-                mutation_declared == required and mutation_executed == mutation_declared and
-                fixture_declared == set(self.fixture_ids) and fixture_executed == fixture_declared)
+                mutation_declared == required and mutation_executed == mutation_declared and mutation_killed == required and
+                fixture_declared == set(self.fixture_ids) and fixture_executed == fixture_declared and fixture_targets == required)
 
 
 @dataclass(frozen=True)
@@ -508,6 +541,14 @@ class PredicateContext:
     max_context_bytes: int
     predicate_registry_version: str
     promotable_dispositions: tuple[str, ...] = ("PASS",)
+    expected_semantic_hash: str = ""
+    expected_transition_class: str = "LOWER"
+    expected_fence_version: str = "1"
+    expected_witness_answer_hash: str = digest("answer")
+    expected_challenge_id: str = ""
+    expected_reviewer_policy_hash: str = "policy"
+    expected_context_state_hash: str = "state"
+    expected_qualification_profile: str = "TEST_PROFILE"
 
 
 @dataclass(frozen=True)
@@ -539,6 +580,14 @@ def context_from_state(state: Mapping[str, Any]) -> PredicateContext:
         final_context_id=str(state.get("final_context_id", "ctx")), final_context_hash=str(state.get("final_context_hash", "ctx-h")),
         max_context_bytes=int(state.get("max_context_bytes", 1_000_000)), predicate_registry_version=str(state.get("predicate_registry_version", "2")),
         promotable_dispositions=tuple(state.get("promotable_dispositions", ("PASS",))),
+        expected_semantic_hash=str(state.get("expected_semantic_hash", "")),
+        expected_transition_class=str(state.get("expected_transition_class", state.get("transition_class", "LOWER"))),
+        expected_fence_version=str(state.get("expected_fence_version", "1")),
+        expected_witness_answer_hash=str(state.get("expected_witness_answer_hash", digest(state.get("witness_expected_answer", "answer")))),
+        expected_challenge_id=str(state.get("expected_challenge_id", "challenge")),
+        expected_reviewer_policy_hash=str(state.get("expected_reviewer_policy_hash", "policy")),
+        expected_context_state_hash=str(state.get("expected_context_state_hash", "state")),
+        expected_qualification_profile=str(state.get("expected_qualification_profile", "TEST_PROFILE")),
     )
 
 
@@ -548,6 +597,10 @@ def bundle_from_state(state: Mapping[str, Any]) -> EvidenceBundle:
     if "review_request" not in state or not isinstance(state.get("review_request"), Mapping):
         return EvidenceBundle(out)
     request_id, attempt_id, session_id = str(state.get("expected_request_id", "r")), str(state.get("expected_attempt_id", "a")), str(state.get("expected_session_id", "s"))
+    if "interaction_contract" in state and "observed_interactions" not in out and isinstance(state.get("interaction_contract"), RequiredInteractionContract):
+        # Test adapter records an observed delivery trace; production callers
+        # must populate this from the delivered context, not the contract.
+        out["observed_interactions"] = tuple(state["interaction_contract"].interactions)
     reviewed_commit = str(state.get("expected_reviewed_commit", "commit"))
     profile = ProviderCapabilityProfile("fake", "deterministic", "adapter", "profile-hash", True, supported_formats=("text",), max_context_bytes=1_000_000)
     plan = ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",))
@@ -567,11 +620,11 @@ def bundle_from_state(state: Mapping[str, Any]) -> EvidenceBundle:
     challenge = WitnessChallengeEvidence("challenge", "slice", "slice-hash", digest("answer"), "fake", "inline", "prompt", digest("answer"), len("answer"), "ctx", 10, 16)
     out.setdefault("witness_challenge", challenge); out.setdefault("witness_expected_answer", "answer"); out.setdefault("witness_response", "answer"); out.setdefault("witness_challenge_text", "extract token")
     if isinstance(state.get("witness"), Mapping) and state["witness"].get("validated") is False:
-        out["witness"] = WitnessProtocolQualificationRecord("w", "fake", "inline", 100, False, "prompt", "2099-01-01T00:00:00Z")
+        out["witness"] = WitnessProtocolQualificationRecord("w", "fake", "inline", 100, False, "prompt", "2000-01-01T00:00:00Z")
     else:
         out.setdefault("witness", WitnessProtocolQualificationRecord("w", "fake", "inline", 100, True, "prompt", "2099-01-01T00:00:00Z"))
     if isinstance(state.get("prompt_isolation"), Mapping) and state["prompt_isolation"].get("current") is False:
-        out["prompt_isolation"] = PromptIsolationQualificationRecord("prompt", "fake", "inline", False)
+        out["prompt_isolation"] = PromptIsolationQualificationRecord("prompt", "fake", "inline", False, "2000-01-01T00:00:00Z")
     if isinstance(state.get("semantic_context"), Mapping) and state["semantic_context"].get("qualified") is False:
         out["semantic_context"] = SemanticContextQualificationRecord("ctx", "wrong", False, "")
     elif not isinstance(out.get("semantic_context"), SemanticContextQualificationRecord): out["semantic_context"] = SemanticContextQualificationRecord("ctx", "ctx-h", True, reviewed_commit)
@@ -650,8 +703,35 @@ INDEPENDENT_MUTATION_CATALOG = (
     {"id": "negative:reviewer_provenance", "target": "reviewer_provenance"},
     {"id": "negative:disposition_promotable", "target": "disposition_promotable"},
 )
-INDEPENDENT_FIXTURE_CATALOG = tuple(INDEPENDENT_MUTATION_CATALOG)
-FIXTURE_IDS = tuple(item["id"] for item in INDEPENDENT_FIXTURE_CATALOG)
+# Review-owned negative fixtures are independently declared.  They are not
+# aliases of the mutation catalog and each names its immutable constructor and
+# rejection expectation.
+INDEPENDENT_FIXTURE_CATALOG = (
+    {"fixture_id": "negative:review_request_current", "target_predicate_id": "review_request_current", "constructor": "fixture_review_request_not_current", "expected_rejection": "review_request_current"},
+    {"fixture_id": "negative:authority_snapshot_current", "target_predicate_id": "authority_snapshot_current", "constructor": "fixture_candidate_writable_snapshot", "expected_rejection": "authority_snapshot_current"},
+    {"fixture_id": "negative:evidence_contract_closed", "target_predicate_id": "evidence_contract_closed", "constructor": "fixture_open_evidence_contract", "expected_rejection": "evidence_contract_closed"},
+    {"fixture_id": "negative:interaction_contract_closed", "target_predicate_id": "interaction_contract_closed", "constructor": "fixture_open_interaction_contract", "expected_rejection": "interaction_contract_closed"},
+    {"fixture_id": "negative:materialization_complete", "target_predicate_id": "materialization_complete", "constructor": "fixture_failed_materialization", "expected_rejection": "materialization_complete"},
+    {"fixture_id": "negative:representation_governed", "target_predicate_id": "representation_governed", "constructor": "fixture_unqualified_representation", "expected_rejection": "representation_governed"},
+    {"fixture_id": "negative:egress_authorized", "target_predicate_id": "egress_authorized", "constructor": "fixture_revoked_egress", "expected_rejection": "egress_authorized"},
+    {"fixture_id": "negative:capability_current", "target_predicate_id": "capability_current", "constructor": "fixture_expired_capability", "expected_rejection": "capability_current"},
+    {"fixture_id": "negative:accessibility_policy_satisfied", "target_predicate_id": "accessibility_policy_satisfied", "constructor": "fixture_wrong_accessibility_policy", "expected_rejection": "accessibility_policy_satisfied"},
+    {"fixture_id": "negative:context_isolation_satisfied", "target_predicate_id": "context_isolation_satisfied", "constructor": "fixture_dirty_context", "expected_rejection": "context_isolation_satisfied"},
+    {"fixture_id": "negative:hidden_state_policy_satisfied", "target_predicate_id": "hidden_state_policy_satisfied", "constructor": "fixture_hidden_state", "expected_rejection": "hidden_state_policy_satisfied"},
+    {"fixture_id": "negative:context_state_clean", "target_predicate_id": "context_state_clean", "constructor": "fixture_dirty_context_state", "expected_rejection": "context_state_clean"},
+    {"fixture_id": "negative:admission_fence_current", "target_predicate_id": "admission_fence_current", "constructor": "fixture_stale_fence", "expected_rejection": "admission_fence_current"},
+    {"fixture_id": "negative:semantic_context_qualified", "target_predicate_id": "semantic_context_qualified", "constructor": "fixture_wrong_context_hash", "expected_rejection": "semantic_context_qualified"},
+    {"fixture_id": "negative:wire_binding_valid", "target_predicate_id": "wire_binding_valid", "constructor": "fixture_wrong_wire", "expected_rejection": "wire_binding_valid"},
+    {"fixture_id": "negative:delivery_complete", "target_predicate_id": "delivery_complete", "constructor": "fixture_incomplete_delivery", "expected_rejection": "delivery_complete"},
+    {"fixture_id": "negative:accessibility_proven", "target_predicate_id": "accessibility_proven", "constructor": "fixture_wrong_accessibility_evidence", "expected_rejection": "accessibility_proven"},
+    {"fixture_id": "negative:witness_record_current", "target_predicate_id": "witness_record_current", "constructor": "fixture_expired_witness", "expected_rejection": "witness_record_current"},
+    {"fixture_id": "negative:session_retrieval_coverage", "target_predicate_id": "session_retrieval_coverage", "constructor": "fixture_wrong_retrieval_session", "expected_rejection": "session_retrieval_coverage"},
+    {"fixture_id": "negative:prompt_isolation_current", "target_predicate_id": "prompt_isolation_current", "constructor": "fixture_expired_prompt_isolation", "expected_rejection": "prompt_isolation_current"},
+    {"fixture_id": "negative:semantic_coverage", "target_predicate_id": "semantic_coverage", "constructor": "fixture_incomplete_semantic_coverage", "expected_rejection": "semantic_coverage"},
+    {"fixture_id": "negative:reviewer_provenance", "target_predicate_id": "reviewer_provenance", "constructor": "fixture_untrusted_reviewer", "expected_rejection": "reviewer_provenance"},
+    {"fixture_id": "negative:disposition_promotable", "target_predicate_id": "disposition_promotable", "constructor": "fixture_non_promotable_disposition", "expected_rejection": "disposition_promotable"},
+)
+FIXTURE_IDS = tuple(item["fixture_id"] for item in INDEPENDENT_FIXTURE_CATALOG)
 
 
 def admissibility_registry() -> AdmissibilityPredicateRegistry:
@@ -706,17 +786,23 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
             return False
         if policy.deterministic_required and proof.proof_mode != "inline-deterministic":
             return False
-        return proof.valid
+        return bool(proof.proof_id and proof.challenge_id and proof.provider_id == context.expected_provider and proof.proof_mode == policy.proof_mode and proof.evidence_hash)
 
     def semantic_context_valid(state: Mapping[str, Any]) -> bool:
         record = state.get("semantic_context")
-        return isinstance(record, SemanticContextQualificationRecord) and record.qualified and record.context_id == context.final_context_id and record.context_hash == context.final_context_hash and bool(record.source_hash)
+        if not isinstance(record, SemanticContextQualificationRecord):
+            return False
+        if record.context_id != context.final_context_id or record.context_hash != context.final_context_hash or record.source_hash != context.reviewed_commit:
+            return False
+        if record.context_bytes and digest(record.context_bytes) != record.context_hash:
+            return False
+        return bool(record.qualification_receipt_hash or record.source_hash)
 
     def wire_valid(state: Mapping[str, Any]) -> bool:
         manifest, materialized, wire, receipt, returned = state.get("manifest"), state.get("materialization"), state.get("wire"), state.get("receipt"), state.get("returned_items")
         if not isinstance(manifest, EvidenceDeliveryManifest) or not isinstance(materialized, MaterializationResult) or not isinstance(wire, WireDeliveryRecord) or not isinstance(receipt, ReviewerReceipt) or not isinstance(returned, Mapping) or any(not isinstance(v, bytes) for v in returned.values()):
             return False
-        return validate_wire_delivery(manifest, materialized, wire, receipt, returned, expected_commit=context.reviewed_commit, expected_semantic_hash=wire.semantic_hash)[0]
+        return validate_wire_delivery(manifest, materialized, wire, receipt, returned, expected_commit=context.reviewed_commit, expected_semantic_hash=context.expected_semantic_hash or None)[0]
 
     def delivery_valid(state: Mapping[str, Any]) -> bool:
         return wire_valid(state)
@@ -727,29 +813,29 @@ def _predicate_validators(context: PredicateContext) -> dict[str, Any]:
             return False
         if proof.final_context_id != context.final_context_id or proof.challenge_id != challenge.challenge_id:
             return False
-        return proof.valid and proof.evidence_hash == digest(challenge)
+        return proof.evidence_hash == digest(challenge) and proof.provider_id == context.expected_provider
 
     def witness_valid(state: Mapping[str, Any]) -> bool:
         record, challenge = state.get("witness"), state.get("witness_challenge")
         if not isinstance(record, WitnessProtocolQualificationRecord) or not isinstance(challenge, WitnessChallengeEvidence):
             return False
-        if challenge.expected_answer_hash != digest(state.get("witness_expected_answer", "")):
+        if context.expected_witness_answer_hash and challenge.expected_answer_hash != context.expected_witness_answer_hash:
             return False
         return validate_witness_qualification(record, provider_id=context.witness_provider, mode=context.witness_mode, prompt_mode=context.witness_prompt_mode, now=str(state.get("now", "2025-01-01T00:00:00Z")), response=str(state.get("witness_response", "")), challenge=str(state.get("witness_challenge_text", "")), final_context_bytes=challenge.final_context_bytes_before, max_final_context_bytes=context.max_context_bytes)[0] and challenge.final_context_bytes_after == challenge.final_context_bytes_before + challenge.response_length
 
     def semantic_coverage_valid(state: Mapping[str, Any]) -> bool:
         coverage = state.get("semantic_coverage")
-        return isinstance(coverage, SemanticCoverageRecord) and coverage.complete and coverage.context_id == context.final_context_id and (coverage.context_hash or context.final_context_hash) == context.final_context_hash and coverage.source_hash == context.reviewed_commit and bool(coverage.coverage_hash)
+        return isinstance(coverage, SemanticCoverageRecord) and coverage.context_id == context.final_context_id and (coverage.context_hash or context.final_context_hash) == context.final_context_hash and coverage.source_hash == context.reviewed_commit and bool(coverage.coverage_hash) and bool(coverage.evidence_ids or coverage.coverage_hash)
 
     def reviewer_valid(state: Mapping[str, Any]) -> bool:
         reviewer = state.get("reviewer")
-        return isinstance(reviewer, ReviewerProvenanceRecord) and reviewer.trusted and bool(reviewer.policy_hash) and bool(reviewer.authorization_source)
+        return isinstance(reviewer, ReviewerProvenanceRecord) and reviewer.policy_hash == context.expected_reviewer_policy_hash and bool(reviewer.authorization_source) and reviewer.authorization_source != "caller"
 
     return {
         "review_request_current": lambda s: isinstance(s.get("review_request"), Mapping) and s["review_request"].get("current") is True and s["review_request"].get("request_id") == context.request_id,
         "authority_snapshot_current": lambda s: isinstance(s.get("authority_snapshot"), GovernanceAuthoritySnapshot) and s["authority_snapshot"].outside_candidate_write_authority and s["authority_snapshot"].snapshot_id == context.authority_snapshot_id and s["authority_snapshot"].content_hash == context.authority_snapshot_hash and s["authority_snapshot"].version == context.authority_version,
         "evidence_contract_closed": lambda s: isinstance(s.get("evidence_contract"), RequiredEvidenceContract) and s["evidence_contract"].closed and s["evidence_contract"].non_vacuous,
-        "interaction_contract_closed": lambda s: isinstance(s.get("interaction_contract"), RequiredInteractionContract) and s["interaction_contract"].closed and bool(s["interaction_contract"].interactions),
+        "interaction_contract_closed": lambda s: isinstance(s.get("interaction_contract"), RequiredInteractionContract) and s["interaction_contract"].closed and bool(s["interaction_contract"].interactions) and s.get("observed_interactions") is not None and {tuple(x) for x in s.get("observed_interactions", ())} == {tuple(x) for x in s["interaction_contract"].interactions},
         "materialization_complete": lambda s: isinstance(s.get("materialization"), MaterializationResult) and s["materialization"].success,
         "representation_governed": lambda s: isinstance(s.get("representation"), RepresentationRecord) and s["representation"].transform_id in QUALIFIED_TRANSFORMS and s["representation"].registry_version == QUALIFIED_TRANSFORMS[s["representation"].transform_id] and bool(s["representation"].source_hash) and bool(s["representation"].representation_hash) and bool(s["representation"].parameters_hash) and bool(s["representation"].coverage_hash),
         "egress_authorized": egress_valid,
@@ -823,11 +909,20 @@ def preflight_delivery(
         reasons.append("snapshot_binding_mismatch")
     if request_id != manifest.request_id:
         reasons.append("request_manifest_mismatch")
-    if not evidence_contract.closed or not evidence_contract.non_vacuous or not evidence_contract.required_ids or not set(evidence_contract.required_ids).issubset(manifest.items):
+    allowed_ids = set(evidence_contract.required_ids) | set(evidence_contract.optional_ids)
+    manifest_ids = set(manifest.items)
+    if (not evidence_contract.closed or not evidence_contract.non_vacuous or not evidence_contract.required_ids
+            or len(evidence_contract.required_ids) != len(set(evidence_contract.required_ids))
+            or len(evidence_contract.optional_ids) != len(set(evidence_contract.optional_ids))
+            or not set(evidence_contract.required_ids).issubset(manifest_ids)
+            or not manifest_ids.issubset(allowed_ids)):
         reasons.append("evidence_contract_unresolved")
     if not interactions.closed or not interactions.interactions or any(not set(interaction).issubset(manifest.items) for interaction in interactions.interactions):
         reasons.append("interaction_contract_unresolved")
-    if observed_interactions is None or {tuple(x) for x in observed_interactions} != {tuple(x) for x in interactions.interactions}:
+    derived_interactions = tuple(tuple(interaction) for interaction in interactions.interactions if all(item_id in items for item_id in interaction))
+    if tuple(derived_interactions) != tuple(interactions.interactions):
+        reasons.append("interaction_observation_missing_from_delivered_context")
+    if observed_interactions is None or {tuple(x) for x in observed_interactions} != {tuple(x) for x in derived_interactions}:
         reasons.append("interaction_observation_unbound")
     if plan is None or qualification is None:
         reasons.append("qualification_records_missing")
@@ -954,6 +1049,10 @@ def validate_attempt_ledger(planned_ids: Sequence[str], dispatched_ids: Sequence
         reasons.append("failed_attempt_substituted")
     if len(dispatched_ids) != len(set(dispatched_ids)):
         reasons.append("duplicate_dispatch")
+    if any(item not in set(dispatched_ids) for item in retried_ids):
+        reasons.append("retry_not_dispatched")
+    if any(item not in set(dispatched_ids) for item in failed_ids):
+        reasons.append("failed_attempt_not_dispatched")
     return not reasons, tuple(reasons)
 
 
@@ -978,6 +1077,15 @@ def validate_retry_transparency(physical_requests: Sequence[Mapping[str, Any] | 
         reasons.append("request_identity_mismatch")
     if expected_session is not None and any(r.session_id != expected_session for r in records):
         reasons.append("session_identity_mismatch")
+    if len({r.attempt_id for r in records}) != len(records) or len({r.wire_hash for r in records}) != len(records):
+        reasons.append("physical_attempt_or_wire_duplicate")
+    provider_ids = [r.provider_request_id for r in records if r.provider_request_id]
+    if len(provider_ids) != len(set(provider_ids)):
+        reasons.append("provider_request_id_duplicate")
+    if any(r.kind == "RETRY" and not r.parent_attempt_id for r in records):
+        reasons.append("retry_parent_missing")
+    if any(r.kind == "FIRST" and not r.planned_root_id for r in records):
+        reasons.append("first_attempt_root_missing")
     return not reasons, tuple(reasons)
 
 
@@ -994,21 +1102,28 @@ def validate_witness(challenge: str, response: str, *, max_response_bytes: int, 
 
 def validate_context_state(state: ProviderContextStateEvidence, *, required_channels: Sequence[str]) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
-    if not state.clean or not state.sentinel_passed:
-        reasons.append("provider_context_not_clean")
+    # clean/sentinel_passed are diagnostic cache fields; the observed channel
+    # set and a content-bound state hash are authoritative.
+    if not state.observable_channels:
+        reasons.append("provider_context_not_observed")
     if not set(required_channels).issubset(state.observable_channels):
         reasons.append("context_channel_unobserved")
     if not state.state_hash:
         reasons.append("context_state_unbound")
+    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash}):
+        reasons.append("context_observation_hash_mismatch")
+    if not state.clean or not state.sentinel_passed:
+        reasons.append("provider_context_not_clean")
+        reasons.append("provider_context_observation_failed")
     return not reasons, tuple(reasons)
 
 
 def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
-    if not fence.current:
-        reasons.append("admission_fence_not_current")
     if fence.version != expected_version:
         reasons.append("admission_fence_version_mismatch")
+    if not fence.fence_id or (fence.state_hash and not isinstance(fence.state_hash, str)):
+        reasons.append("admission_fence_unbound")
     return not reasons, tuple(reasons)
 
 
@@ -1021,7 +1136,7 @@ def validate_egress(egress: Mapping[str, Any], expected_version: str) -> tuple[b
 
 def validate_prompt_isolation(record: PromptIsolationQualificationRecord, *, provider_id: str, mode: str, now: str) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
-    if not record.current or record.provider_id != provider_id or record.mode != mode:
+    if record.provider_id != provider_id or record.mode != mode or not record.record_id:
         reasons.append("prompt_isolation_binding")
     if record.expires_at is not None and record.expires_at <= now:
         reasons.append("prompt_isolation_expired")
@@ -1055,24 +1170,47 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
         reasons.append("materialization_entry_limit")
     seen: set[str] = set()
     for entry in typed:
-        name, value = entry.normalized_path, entry.data
-        if not safe_archive_member(entry.raw_name) or not safe_archive_member(name):
+        if not safe_archive_member(entry.raw_name):
             reasons.append(f"unsafe_member:{entry.raw_name}")
             continue
+        name = posixpath.normpath(entry.raw_name)
+        if name != entry.raw_name or not safe_archive_member(name) or (entry.normalized_path and entry.normalized_path != name):
+            reasons.append(f"normalized_path_mismatch:{entry.raw_name}")
+            continue
+        value = entry.data
         if name in seen:
             reasons.append(f"duplicate_normalized_member:{name}")
             continue
         seen.add(name)
         if entry.kind not in ("file", "symlink", "archive"):
             reasons.append(f"unsupported_member_kind:{name}")
-        if entry.kind == "symlink" and (not entry.link_target or not safe_archive_member(entry.link_target)):
+        if entry.kind == "symlink" and (not entry.link_target or not safe_archive_member(posixpath.normpath(posixpath.join(posixpath.dirname(name), entry.link_target)))):
             reasons.append(f"symlink_escape:{name}")
         if entry.recursion_depth > max_recursion_depth:
             reasons.append(f"archive_recursion:{name}")
-        if entry.compressed_size and entry.uncompressed_size and entry.uncompressed_size > entry.compressed_size * max_ratio:
+        if entry.compressed_size and len(value) > entry.compressed_size * max_ratio:
             reasons.append(f"decompression_ratio:{name}")
         if not isinstance(value, bytes):
             reasons.append(f"non_bytes:{name}")
+            continue
+        if entry.kind == "archive":
+            try:
+                with zipfile.ZipFile(__import__("io").BytesIO(value)) as archive:
+                    for member in archive.infolist():
+                        nested = posixpath.normpath(posixpath.join(posixpath.dirname(name), member.filename))
+                        if not safe_archive_member(member.filename) or not safe_archive_member(nested):
+                            reasons.append(f"nested_archive_escape:{member.filename}")
+                            continue
+                        nested_data = archive.read(member)
+                        if len(nested_data) > max_member_bytes:
+                            reasons.append(f"member_size_limit:{nested}")
+                        if nested in seen:
+                            reasons.append(f"duplicate_normalized_member:{nested}")
+                        seen.add(nested)
+                        clean[nested] = nested_data
+                        total += len(nested_data)
+            except (zipfile.BadZipFile, OSError):
+                reasons.append(f"archive_parse_failed:{name}")
             continue
         if len(value) > max_member_bytes:
             reasons.append(f"member_size_limit:{name}")
@@ -1103,13 +1241,21 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
         reasons.append("unsupported_format")
     if profile.max_context_bytes < required_context_bytes:
         reasons.append("context_limit_exceeded")
-    if not record.statistical_qualified or record.hard_failures != 0:
+    attempts = list(record.attempt_records)
+    physical_failures = sum(1 for a in attempts if getattr(a, "kind", "FIRST") == "FIRST" and getattr(a, "outcome", "") not in ("OK", "SUCCESS", "PASS"))
+    if record.hard_failures != physical_failures:
+        reasons.append("hard_failure_count_not_derived")
+    if physical_failures != 0:
         reasons.append("qualification_not_statistically_valid")
+    if plan.qualification_profile == "R5_PRODUCTION":
+        if len(plan.trial_ids) < 2 or len(plan.confirmation_ids) < 1:
+            reasons.append("production_confirmation_plan_too_small")
+        if not attempts:
+            reasons.append("production_attempts_missing")
     expected_roots = set(plan.trial_ids) | set(plan.confirmation_ids)
     if not record.planned_attempt_ids or not record.closed_attempt_ids or set(record.planned_attempt_ids) != expected_roots or set(record.closed_attempt_ids) != expected_roots:
         reasons.append("qualification_attempt_closure")
-    if record.attempt_records:
-        attempts = list(record.attempt_records)
+    if attempts:
         roots = [a for a in attempts if getattr(a, "kind", "FIRST") == "FIRST"]
         if {getattr(a, "planned_root_id", "") for a in roots} != expected_roots or len(roots) != len(set(getattr(a, "planned_root_id", "") for a in roots)):
             reasons.append("qualification_attempt_records_incomplete")
@@ -1151,7 +1297,7 @@ def validate_retrieval(record: RetrievalEvidenceRecord, raw: bytes, *, expected_
 
 def validate_witness_qualification(record: WitnessProtocolQualificationRecord, *, provider_id: str, mode: str, prompt_mode: str, now: str, response: str, challenge: str, final_context_bytes: int, max_final_context_bytes: int) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
-    if not record.current or record.provider_id != provider_id or record.mode != mode or record.prompt_isolation_mode != prompt_mode:
+    if record.provider_id != provider_id or record.mode != mode or record.prompt_isolation_mode != prompt_mode or not record.record_id:
         reasons.append("witness_record_binding")
     if record.expires_at is not None and record.expires_at <= now:
         reasons.append("witness_record_expired")
@@ -1164,7 +1310,7 @@ def validate_witness_qualification(record: WitnessProtocolQualificationRecord, *
     return not reasons, tuple(reasons)
 
 
-def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: MaterializationResult, wire: WireDeliveryRecord, receipt: ReviewerReceipt, returned_items: Mapping[str, bytes], *, expected_commit: str, expected_semantic_hash: str) -> tuple[bool, tuple[str, ...]]:
+def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: MaterializationResult, wire: WireDeliveryRecord, receipt: ReviewerReceipt, returned_items: Mapping[str, bytes], *, expected_commit: str, expected_semantic_hash: str | None) -> tuple[bool, tuple[str, ...]]:
     reasons: list[str] = []
     completion = complete_delivery(manifest, receipt, wire)
     if not completion.complete:
@@ -1176,7 +1322,7 @@ def validate_wire_delivery(manifest: EvidenceDeliveryManifest, materialized: Mat
         reasons.append("reviewed_commit_mismatch")
     if materialized.source_hash != expected_commit:
         reasons.append("materialization_source_mismatch")
-    if wire.semantic_hash != expected_semantic_hash:
+    if expected_semantic_hash is not None and wire.semantic_hash != expected_semantic_hash:
         reasons.append("semantic_wire_hash_mismatch")
     if materialized.representation_hash != digest({k: sha256(v).hexdigest() for k, v in sorted(returned_items.items())}):
         reasons.append("representation_hash_mismatch")
@@ -1201,10 +1347,10 @@ def admit_review_attempt(current: Mapping[str, Any], expected: AttemptState, *, 
         if current.get(field_name) != getattr(expected, field_name):
             reasons.append(f"state_drift:{field_name}")
     if reasons:
-        checkpoint = ledger.compare_and_set(attempt_id, expected.generation, "VOID") if ledger else AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, tuple(reasons))
+        checkpoint = ledger.compare_and_set(attempt_id, expected.generation, "VOID", expected_state_hash=current.get("state_hash")) if ledger else AdmissionCheckpoint(attempt_id, expected.generation, "VOID", False, True, tuple(reasons))
         return AdmissionCheckpoint(checkpoint.attempt_id, checkpoint.generation, checkpoint.disposition, False, True, tuple(reasons) + tuple(checkpoint.reasons))
     if ledger:
-        checkpoint = ledger.compare_and_set(attempt_id, expected.generation, "COMMITTED")
+        checkpoint = ledger.compare_and_set(attempt_id, expected.generation, "COMMITTED", expected_state_hash=current.get("state_hash"), next_state_hash=str(current.get("next_state_hash", expected.generation + 1)))
         return checkpoint
     return AdmissionCheckpoint(attempt_id, expected.generation, "ADMITTED", True, False, ())
 

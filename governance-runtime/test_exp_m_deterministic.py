@@ -152,7 +152,10 @@ class ExpMCoreTests(unittest.TestCase):
         self.assertFalse(result.admissible); self.assertIn("delivery_complete", result.reasons)
 
     def test_admissibility_exact_predicate_closure(self):
-        reg = admissibility_registry(); self.assertTrue(reg.closure(reg.predicate_ids, reg.logic_mutation_ids))
+        reg = admissibility_registry(); self.assertTrue(reg.closure(reg.predicate_ids, reg.logic_mutation_ids,
+            declared_mutations=reg.logic_mutation_ids, executed_mutations=reg.logic_mutation_ids,
+            killed_mutations=reg.logic_mutation_ids, declared_fixtures=reg.fixture_ids,
+            executed_fixtures=reg.fixture_ids, executed_fixture_targets=reg.predicate_ids))
 
     def test_authority_snapshot_candidate_writable_rejected(self):
         s, c, i, items, m, p = fixture(); s = GovernanceAuthoritySnapshot(s.snapshot_id, s.version, s.content_hash, False)

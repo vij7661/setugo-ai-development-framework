@@ -19,9 +19,10 @@ from exp_m_deterministic import (  # noqa: E402
     validate_chunks, validate_representation, validate_retry_transparency, validate_witness,
     ProviderContextStateEvidence, AdmissionFenceRecord, validate_context_state,
     validate_fence, safe_archive_member,
+    materialize_entries, MaterializationEntry,
     adjudicate_insufficient_evidence,
     validate_capability, validate_witness_qualification, WitnessProtocolQualificationRecord, RetrievalEvidenceRecord,
-    bundle_from_state, context_from_state,
+    bundle_from_state, context_from_state, validate_context_isolation,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord, DeliveryCompletenessResult,
     RepresentationRecord,
     PhysicalAttemptRecord,
@@ -93,7 +94,7 @@ def run_phases() -> dict:
     actual_targets = set(mutation_result.get("executed_mutation_targets", ()))
     killed_targets = set(mutation_result.get("killed_mutation_targets", ()))
     fixture_targets = set(mutation_result.get("executed_fixture_targets", ()))
-    closure_ok = registry.closure(mutation_result.get("verdict_predicate_ids", ()), killed_targets, declared_mutations=mutation_result.get("declared_mutation_targets", ()), executed_mutations=actual_targets, declared_fixtures=[f"negative:{p}" for p in registry.predicate_ids], executed_fixtures=[f"negative:{p}" for p in fixture_targets])
+    closure_ok = registry.closure(mutation_result.get("verdict_predicate_ids", ()), killed_targets, declared_mutations=mutation_result.get("declared_mutation_targets", ()), executed_mutations=actual_targets, killed_mutations=killed_targets, declared_fixtures=registry.fixture_ids, executed_fixtures=registry.fixture_ids, executed_fixture_targets=fixture_targets)
     phase_results["O"] = {"status": "PASS" if closure_ok else "FAIL", "checks": ["predicate/verdict/mutation/fixture closure"], "target_counts": {"required": len(registry.predicate_ids), "executed": len(actual_targets), "killed": len(killed_targets), "fixtures": len(fixture_targets)}}
     context_ok = validate_context_state(ProviderContextStateEvidence(True, ("memory", "config"), True, "state"), required_channels=("memory", "config"))[0]
     phase_results["P"] = {"status": "PASS" if context_ok else "FAIL", "checks": ["residual adversarial oracle"]}
@@ -109,14 +110,63 @@ def run_phases() -> dict:
         "M": ["EvidenceDeliveryManifest.verify"], "N": ["preflight_delivery"], "O": ["independent_target_closure"], "P": ["validate_context_state"],
         "Q": ["validate_fence"], "R": ["validate_witness_qualification"], "S": ["validate_attempt_ledger"], "T": ["validate_retry_transparency", "independent_target_closure"],
     }
+    def negative_case(phase_id: str) -> tuple[bool, str, str]:
+        """Execute a real adversarial invocation for each phase."""
+        if phase_id == "A":
+            bad = GovernanceAuthoritySnapshot("snap", "1", "snapshot-hash", False)
+            return (not valid_preflight(bad, c, i, manifest, provider, items).allowed, "preflight_delivery", "candidate_writable_snapshot")
+        if phase_id == "B":
+            bad = list(ch); bad[0] = EvidenceChunk.create("request", digest(corpus), 0, 2, b"xxxxx")
+            return (not validate_chunks(bad, request_id="request", corpus_hash=digest(corpus))[0], "validate_chunks", "corrupt_chunk")
+        if phase_id == "C":
+            return (not validate_representation(manifest, {"required-a": b"changed", "required-b": items["required-b"]})[0], "validate_representation", "raw_byte_mutation")
+        if phase_id == "D":
+            return (adjudicate_insufficient_evidence({}).disposition == "INSUFFICIENT_EVIDENCE_CAUSE_UNRESOLVED", "adjudicate_insufficient_evidence", "unresolved_cause")
+        if phase_id == "E":
+            return (not manifest.verify({"required-a": b"changed", "required-b": items["required-b"]})[0], "EvidenceDeliveryManifest.verify", "manifest_byte_mutation")
+        if phase_id == "F":
+            expired = ProviderCapabilityProfile(provider.provider_id, provider.model_id, provider.adapter_version, provider.profile_hash, True, "2000-01-01T00:00:00Z", provider.supported_formats, provider.max_context_bytes)
+            return (not validate_capability(expired, ProviderQualificationExecutionPlan("plan", "fake", "default", ("a1",), ("a1",)), ProviderCapabilityQualificationRecord("plan", "profile-hash", True, True, 0, "default", ("a1",), ("a1",), "fake", "deterministic", attempt_records=(PhysicalAttemptRecord("a1", "a1", None, "FIRST", "request", "session", "w", "OK"),)), now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="default", expected_profile_hash="profile-hash", required_format="text", required_context_bytes=1)[0], "validate_capability", "expired_profile")
+        if phase_id == "G":
+            return (mutation_result["all_rejected"], "run_exp_m_mutations", "independent_mutation_catalog")
+        if phase_id == "H":
+            return (not validate_retry_transparency((PhysicalAttemptRecord("retry", "root", None, "RETRY", "request", "session", "w", "OK"),), planned_root_ids=("root",), expected_request="request", expected_session="session")[0], "validate_retry_transparency", "retry_without_failed_parent")
+        if phase_id == "I":
+            bad_state = dict(state); bad_state["disposition"] = "CHANGES_REQUIRED"
+            return (not evaluate_admissibility(bundle_from_state(bad_state), context_from_state(bad_state), registry).admissible, "evaluate_admissibility", "non_promotable_disposition")
+        if phase_id == "J":
+            return (not complete_delivery(manifest, ReviewerReceipt("a", "request", "session", "wrong", (), 0, True), wire).complete, "complete_delivery", "receipt_manifest_mismatch")
+        if phase_id == "K":
+            return (not validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="x" * 2000, challenge="extract token", final_context_bytes=10, max_final_context_bytes=1000)[0], "validate_witness_qualification", "response_budget")
+        if phase_id == "L":
+            return (not materialize_entries((MaterializationEntry("../escape", "../escape", "file", b"x"),), source_hash="src").success, "materialize_entries", "archive_traversal")
+        if phase_id == "M":
+            return (not manifest.verify({"required-a": b"mutated", "required-b": items["required-b"]})[0], "EvidenceDeliveryManifest.verify", "frozen_byte_mutation")
+        if phase_id == "N":
+            bad_provider = ProviderCapabilityProfile("fake", "m", "v", "p", False)
+            return (not valid_preflight(s, c, i, manifest, bad_provider, items).allowed, "preflight_delivery", "unqualified_provider")
+        if phase_id == "O":
+            return (not registry.closure(registry.predicate_ids, killed_targets, declared_mutations=mutation_result.get("declared_mutation_targets", ()), executed_mutations=actual_targets, killed_mutations=(), declared_fixtures=registry.fixture_ids, executed_fixtures=registry.fixture_ids, executed_fixture_targets=fixture_targets), "AdmissibilityPredicateRegistry.closure", "missing_killed_target")
+        if phase_id == "P":
+            return (not validate_context_isolation(ProviderContextIsolationPolicy("policy", "COMPLETE_READABLE_FENCED_STATE"), ProviderContextStateEvidence(False, ("memory",), False, ""), AdmissionFenceRecord("fence", "stale", False), transition_class="LOWER", required_channels=("memory", "config"))[0], "validate_context_isolation", "dirty_context")
+        if phase_id == "Q":
+            return (not validate_fence(AdmissionFenceRecord("fence", "wrong", True), "1")[0], "validate_fence", "fence_version_mismatch")
+        if phase_id == "R":
+            return (not validate_witness_qualification(witness_record, provider_id="fake", mode="inline", prompt_mode="prompt", now="2025-01-01T00:00:00Z", response="answer", challenge="judge this", final_context_bytes=10, max_final_context_bytes=1000)[0], "validate_witness_qualification", "semantic_prompt")
+        if phase_id == "S":
+            return (not validate_retry_transparency((PhysicalAttemptRecord("r", "root", "unknown", "RETRY", "request", "session", "w", "OK"),), planned_root_ids=("root",), expected_request="request", expected_session="session")[0], "validate_retry_transparency", "retry_lineage")
+        return (not validate_retry_transparency((PhysicalAttemptRecord("a", "a", None, "FIRST", "request", "session", "w", "FAILED"), PhysicalAttemptRecord("a", "a", "a", "RETRY", "request", "session", "w", "OK")), planned_root_ids=("a",), expected_request="request", expected_session="session")[0], "validate_retry_transparency", "duplicate_physical_dispatch")
+
     for phase_id, result in phase_results.items():
         result["production_functions_invoked"] = phase_functions[phase_id]
-        positive = {"case_id": f"{phase_id}-positive-control", "kind": "positive", "result": result["status"] == "PASS"}
-        negative = {"case_id": f"{phase_id}-adversarial-negative", "kind": "negative", "result": result["status"] == "PASS"}
+        positive = {"case_id": f"{phase_id}-positive-control", "phase_id": phase_id, "kind": "positive", "production_functions": phase_functions[phase_id], "expected": "PASS", "actual": result["status"], "result": result["status"] == "PASS"}
+        rejected, fn, target = negative_case(phase_id)
+        negative = {"case_id": f"{phase_id}-negative-{target}", "phase_id": phase_id, "kind": "negative", "production_functions": [fn], "fixture": target, "expected": "REJECT", "actual": "REJECT" if rejected else "PASS", "rejection_reason": target, "result": rejected}
         result["executed_cases"] = [positive, negative]
         result["positive_case_ids"] = [positive["case_id"]] if positive["result"] else []
         result["negative_case_ids"] = [negative["case_id"]] if negative["result"] else []
-        result["case_results"] = {"positive": positive["result"], "negative_rejected": negative["result"], "phase_status": result["status"]}
+        result["case_results"] = {"positive": positive["result"], "negative_rejected": negative["result"], "phase_status": "PASS" if positive["result"] and negative["result"] else "FAIL"}
+        result["status"] = result["case_results"]["phase_status"]
         result["applicable_mutation_target_ids"] = [m["target_predicate_id"] for m in mutation_result["mutations"] if m.get("family") == "validator_logic"] if phase_id in ("G", "I", "O", "T") else []
     return {"experiment": "EXP-M", "mode": "DETERMINISTIC_ONLY", "phases": phase_results, "all_phases_pass": all(v["status"] == "PASS" for v in phase_results.values())}
 
