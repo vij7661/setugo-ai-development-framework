@@ -992,11 +992,12 @@ def complete_delivery(manifest: EvidenceDeliveryManifest, receipt: ReviewerRecei
         reasons.append("request_binding_mismatch")
     if receipt.attempt_id != wire.attempt_id or receipt.session_id != wire.session_id:
         reasons.append("attempt_session_mismatch")
-    if received != expected:
+    if received != expected or len(receipt.received_item_ids) != len(received):
         reasons.append("required_item_set_incomplete")
     # receipt.complete is a diagnostic consistency bit only; completeness is
     # recomputed from the manifest, returned bytes, receipt and wire identity.
-    if set(wire.item_ids) != expected:
+    wire_ids = set(wire.item_ids)
+    if wire_ids != expected or len(wire.item_ids) != len(wire_ids):
         reasons.append("wire_item_set_incomplete")
     return DeliveryCompletenessResult(not reasons, tuple(reasons), tuple(sorted(received)))
 
