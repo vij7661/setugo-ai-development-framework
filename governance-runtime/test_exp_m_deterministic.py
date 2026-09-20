@@ -350,7 +350,7 @@ class ExpMCoreTests(unittest.TestCase):
             ids = tuple(f"c{i}" for i in range(n)); all_ids = ("explore",) + ids; plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("explore",), ids, "R5_PRODUCTION", "seed", ("d1", "d2", "d3"), ("b1", "b2", "b3", "b4"), "envelope")
             attempts = tuple(PhysicalAttemptRecord(x, x, None, "FIRST", "r", "s", "w" + x, "FAILED" if failed and i == 0 else "OK", utc_day=f"d{(i % 3) + 1}", time_block=f"b{(i % 4) + 1}") for i, x in enumerate(all_ids))
             rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 1 if failed else 0, "op", all_ids, all_ids, "fake", "deterministic", attempt_records=attempts)
-            return validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0]
+            return validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1, authority=AUTHORITY)[0]
         self.assertFalse(run(298)); self.assertTrue(run(299)); self.assertFalse(run(299, True))
 
 
