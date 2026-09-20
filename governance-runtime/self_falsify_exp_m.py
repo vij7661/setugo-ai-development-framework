@@ -62,12 +62,19 @@ def run():
     case("empty_qualification_sets", not preflight_delivery(snap, contract, interactions, manifest, "r", provider, items, plan=__import__("exp_m_deterministic").ProviderQualificationExecutionPlan("p", "fake", "op", (), ()), qualification=__import__("exp_m_deterministic").ProviderCapabilityQualificationRecord("p", "p", True, True, 0, "op", (), (), "fake", "m"), context_policy=__import__("exp_m_deterministic").ProviderContextIsolationPolicy("x", "COMPLETE_READABLE_FENCED_STATE"), context_evidence=__import__("exp_m_deterministic").ProviderContextStateEvidence(True, ("memory", "config"), True, "h"), fence=__import__("exp_m_deterministic").AdmissionFenceRecord("f", "1", True), risk_policy=__import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline")).allowed)
     case("stale_fence", not __import__("exp_m_deterministic").validate_fence(__import__("exp_m_deterministic").AdmissionFenceRecord("f", "wrong", True), "1")[0])
     ledger_path = ROOT / "experiments" / "governed-platform" / ".self-falsify-ledger.json"
+    ledger_db = ledger_path.with_suffix(ledger_path.suffix + ".sqlite")
     try:
-        if ledger_path.exists(): ledger_path.unlink()
+        for artifact in (ledger_path, ledger_db):
+            if artifact.exists():
+                artifact.unlink()
         ledger = __import__("exp_m_deterministic").PersistentAdmissionLedger(ledger_path); ledger.compare_and_set("void", 1, "VOID", expected_state_hash="")
         case("void_revival_after_reload", __import__("exp_m_deterministic").PersistentAdmissionLedger(ledger_path).compare_and_set("void", 1, "COMMITTED", expected_state_hash="").void)
     finally:
-        if ledger_path.exists(): ledger_path.unlink()
+        for artifact in (ledger_path, ledger_db):
+            try:
+                artifact.unlink()
+            except OSError:
+                pass
     case("retrieval_complete_only", not evaluate_admissibility(bundle_from_state({"retrieval": {"complete": True}, "disposition": "PASS"}), context_from_state({})).admissible)
     provider_fake = __import__("exp_m_deterministic").DeterministicFakeProvider(); receipt, wire = provider_fake.deliver(manifest, items)
     forged = __import__("exp_m_deterministic").ReviewerReceipt(receipt.attempt_id, receipt.request_id, receipt.session_id, receipt.manifest_hash, receipt.received_item_ids, receipt.received_bytes, True)
@@ -125,8 +132,20 @@ def run():
     prod_plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("a", "b"), ("c",), qualification_profile="R5_PRODUCTION")
     prod_rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("a", "b", "c"), ("a", "b", "c"), "fake", "m", attempt_records=())
     case("r5_under_sampling", not validate_capability(provider, prod_plan, prod_rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="m", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0])
-    missing_hash = PersistentAdmissionLedger(ROOT / "experiments/governed-platform/.r2c-missing-state.json").compare_and_set("a", 1, "COMMITTED")
-    case("cas_missing_state_hash", bool(missing_hash.void))
+    missing_state_path = ROOT / "experiments/governed-platform/.r2c-missing-state.json"
+    missing_state_db = missing_state_path.with_suffix(missing_state_path.suffix + ".sqlite")
+    try:
+        for artifact in (missing_state_path, missing_state_db):
+            if artifact.exists():
+                artifact.unlink()
+        missing_hash = PersistentAdmissionLedger(missing_state_path).compare_and_set("a", 1, "COMMITTED")
+        case("cas_missing_state_hash", bool(missing_hash.void))
+    finally:
+        for artifact in (missing_state_path, missing_state_db):
+            try:
+                artifact.unlink()
+            except OSError:
+                pass
     case("caller_copied_observed_interactions", not preflight_delivery(snap, contract, interactions, manifest, "r", provider, items, observed_interactions=(("a",),)).allowed)
     # R2D independent attacks: these are authored here rather than delegated
     # to the production mutation/fixture catalogs.
