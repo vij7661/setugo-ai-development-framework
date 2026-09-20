@@ -162,7 +162,12 @@ def generate() -> dict:
         raise SystemExit("self_falsification_survivor")
 
     artifacts = []
-    for path in sorted(EXP.glob("EXP-M-*.json")) + sorted(EXP.glob("EXP-M-R2E-*.txt")):
+    artifact_paths = [FREEZE]
+    artifact_paths.extend(EXP / name for name in RESULT_JSONS)
+    artifact_paths.extend(EXP / stdout_name for _, _, stdout_name in COMMANDS)
+    for path in artifact_paths:
+        if not path.exists():
+            raise SystemExit(f"evidence_artifact_missing:{path.name}")
         artifacts.append({
             "path": str(path.relative_to(ROOT)).replace("\\", "/"),
             "sha256": _sha256(path),
