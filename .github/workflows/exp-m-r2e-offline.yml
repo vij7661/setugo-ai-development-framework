@@ -35,6 +35,8 @@ jobs:
           python run_exp_m_tests.py
           python reviewer_exp_m_r2e_suite.py
           python reviewer_exp_m_r2e_authority_suite.py
+          python run_reviewer_compound_attacks.py
+          python verify_exp_m_prior_evidence.py
           python run_exp_m_deterministic.py
           python run_exp_m_mutations.py
           python self_falsify_exp_m.py
