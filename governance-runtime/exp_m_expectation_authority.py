@@ -75,7 +75,47 @@ class AuthorityHandle:
     root: Mapping[str, Any]
     protocol_available: bool = True
 
+    def _source_freeze(self) -> Mapping[str, Any] | None:
+        """Load and independently verify the C-4 source-freeze artifact when present."""
+        path = ROOT / "experiments" / "governed-platform" / "EXP-M-SOURCE-FREEZE.json"
+        if not path.exists():
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            raise ValueError("source_freeze_unreadable") from exc
+        commit = str(data.get("source_commit", ""))
+        tree = str(data.get("source_tree", ""))
+        if len(commit) != 40 or not _git_commit_exists(commit):
+            raise ValueError("source_freeze_commit_invalid")
+        try:
+            actual_tree = subprocess.check_output(
+                ("git", "rev-parse", f"{commit}^{{tree}}"), cwd=ROOT, text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+            raise ValueError("source_freeze_tree_unavailable") from exc
+        if actual_tree != tree:
+            raise ValueError("source_freeze_tree_mismatch")
+        source_files = data.get("source_files")
+        if not isinstance(source_files, Mapping) or not source_files:
+            raise ValueError("source_freeze_manifest_empty")
+        for source_path, expected_hash in source_files.items():
+            try:
+                raw = _git_bytes(commit, str(source_path))
+            except ValueError as exc:
+                raise ValueError(f"source_freeze_file_missing:{source_path}") from exc
+            if _sha256(raw) != str(expected_hash):
+                raise ValueError(f"source_freeze_file_hash_mismatch:{source_path}")
+            working = ROOT / str(source_path)
+            if working.exists() and _sha256(working.read_bytes()) != str(expected_hash):
+                raise ValueError(f"source_freeze_worktree_hash_mismatch:{source_path}")
+        return data
+
     def resolve_reviewed_commit(self) -> str:
+        freeze = self._source_freeze()
+        if freeze is not None:
+            return str(freeze["source_commit"])
         commit = str(self.root.get("reviewed_commit_anchor", ""))
         if len(commit) != 40 or not _git_commit_exists(commit):
             raise ValueError("reviewed_commit_not_resolved_git_object")
@@ -101,6 +141,14 @@ class AuthorityHandle:
         return raw[start:end]
 
     def expected_delivery(self, request_id: str) -> Mapping[str, Any]:
+        freeze = self._source_freeze()
+        if freeze is not None:
+            entry = ((freeze.get("delivery_authority") or {}).get("requests") or {}).get(request_id)
+            if not isinstance(entry, Mapping):
+                raise ValueError("delivery_request_not_authorized")
+            if str(entry.get("reviewed_commit", "")) != str(freeze["source_commit"]):
+                raise ValueError("delivery_source_freeze_commit_mismatch")
+            return entry
         ledger = self._load_hashed_json("delivery_ledger_path", "delivery_ledger_sha256")
         entry = (ledger.get("requests") or {}).get(request_id)
         if not isinstance(entry, Mapping):
@@ -193,8 +241,14 @@ def load_predicate_context(authority: AuthorityHandle):
     if parsed.get("scope") != "OFFLINE_TEST_ONLY":
         raise ValueError("expectation_scope_invalid")
     values = dict(parsed.get("context") or {})
-    if values.get("reviewed_commit") != authority.resolve_reviewed_commit():
-        raise ValueError("expectation_reviewed_commit_unbound")
+    # The signed manifest freezes every expected value except the final reviewed
+    # source identity. C-4 moves that identity to the independently verified
+    # source-freeze artifact S; before S exists the legacy root anchor remains.
+    signed_reviewed_commit = str(values.get("reviewed_commit", ""))
+    legacy_anchor = str(root.get("reviewed_commit_anchor", ""))
+    if signed_reviewed_commit != legacy_anchor:
+        raise ValueError("signed_expectation_legacy_commit_mismatch")
+    values["reviewed_commit"] = authority.resolve_reviewed_commit()
     manifest_hash = _sha256(manifest_raw)
     context = PredicateContext(**values, expectation_manifest_hash=manifest_hash)
     _AUTHORIZED_CONTEXTS[id(context)] = (weakref.ref(context), authority.root_hash, manifest_hash)
