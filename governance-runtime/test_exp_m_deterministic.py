@@ -28,7 +28,7 @@ from exp_m_deterministic import (  # noqa: E402
     validate_wire_delivery, WitnessProtocolQualificationRecord,
     validate_witness_qualification, AttemptState, admit_review_attempt,
     PromptIsolationQualificationRecord, validate_egress, validate_prompt_isolation,
-    validate_registry_version, validate_retry_transparency,
+    validate_registry_version, validate_retry_transparency, validate_capability,
     bundle_from_state, context_from_state,
     PersistentAdmissionLedger, PhysicalAttemptRecord,
     AccessibilityProofRecord, ReviewerProvenanceRecord, SemanticCoverageRecord,
@@ -207,7 +207,7 @@ class ExpMCoreTests(unittest.TestCase):
     def test_dirty_context_and_stale_fence_fail(self):
         s, c, i, items, m, p = fixture(); evidence = ProviderContextStateEvidence(False, ("memory",), False, "state")
         result = preflight(s, c, i, m, "request-1", p, items, context_evidence=evidence, fence=AdmissionFenceRecord("fence", "1", False))
-        self.assertFalse(result.allowed); self.assertIn("provider_context_not_clean", result.reasons); self.assertIn("admission_fence_stale", result.reasons)
+        self.assertFalse(result.allowed); self.assertIn("context_channel_unobserved", result.reasons); self.assertIn("admission_fence_stale", result.reasons)
 
     def test_materialization_rejects_traversal(self):
         result = materialize_entries({"../escape": b"x"}, source_hash="src")
@@ -279,6 +279,30 @@ class ExpMCoreTests(unittest.TestCase):
     def test_r2_production_evaluator_has_no_bypass_parameter(self):
         import inspect
         self.assertNotIn("disabled_predicates", inspect.signature(evaluate_admissibility).parameters)
+
+    def test_r2b_required_optional_manifest_is_exact(self):
+        s, c, i, items, m, p = fixture(); extra = dict(items); extra["unknown"] = b"x"
+        self.assertFalse(preflight(s, c, i, m, "request-1", p, extra).allowed)
+
+    def test_r2b_materialization_derives_path_and_rejects_falsified_metadata(self):
+        bad = MaterializationEntry("safe/file", "other/file", "file", b"x", None, 999, 999, 99)
+        self.assertFalse(materialize_entries((bad,), source_hash="s").success)
+
+    def test_r2b_production_profile_requires_real_plan(self):
+        profile = ProviderCapabilityProfile("fake", "deterministic", "v", "hash", True, "2099-01-01T00:00:00Z", ("text",), 1000)
+        plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("trial",), ("confirm",), "R5_PRODUCTION")
+        record = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("trial",), ("trial",), "fake", "deterministic", attempt_records=(PhysicalAttemptRecord("trial", "trial", None, "FIRST", "r", "s", "w", "OK"),))
+        ok, reasons = validate_capability(profile, plan, record, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)
+        self.assertFalse(ok); self.assertIn("production_confirmation_plan_too_small", reasons)
+
+    def test_r2b_physical_attempt_duplicate_is_rejected(self):
+        records = (PhysicalAttemptRecord("a", "a", None, "FIRST", "r", "s", "w", "FAILED"), PhysicalAttemptRecord("b", "a", "a", "RETRY", "r", "s", "w", "OK"))
+        ok, reasons = validate_retry_transparency(records, planned_root_ids=("a",), expected_request="r", expected_session="s")
+        self.assertFalse(ok); self.assertIn("physical_attempt_or_wire_duplicate", reasons)
+
+    def test_r2b_closure_missing_execution_evidence_fails(self):
+        reg = admissibility_registry()
+        self.assertFalse(reg.closure(reg.predicate_ids, reg.logic_mutation_ids, declared_mutations=reg.logic_mutation_ids, executed_mutations=reg.logic_mutation_ids, killed_mutations=reg.logic_mutation_ids, declared_fixtures=reg.fixture_ids, executed_fixtures=reg.fixture_ids, executed_fixture_targets=()))
 
     def test_r2_empty_or_mismatched_qualification_closure_rejected(self):
         s, c, i, items, m, p = fixture()

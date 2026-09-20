@@ -200,6 +200,10 @@ class ProviderContextStateEvidence:
     state_hash: str
     observation_hash: str = ""
 
+    def __post_init__(self) -> None:
+        if not self.observation_hash:
+            object.__setattr__(self, "observation_hash", digest({"channels": tuple(self.observable_channels), "state_hash": self.state_hash, "clean": self.clean, "sentinel_passed": self.sentinel_passed}))
+
 
 @dataclass(frozen=True)
 class AdmissionFenceRecord:
@@ -208,6 +212,10 @@ class AdmissionFenceRecord:
     current: bool
     issued_at: str | None = None
     state_hash: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.state_hash:
+            object.__setattr__(self, "state_hash", digest({"fence_id": self.fence_id, "version": self.version, "current": self.current}))
 
 
 @dataclass(frozen=True)
@@ -1110,11 +1118,10 @@ def validate_context_state(state: ProviderContextStateEvidence, *, required_chan
         reasons.append("context_channel_unobserved")
     if not state.state_hash:
         reasons.append("context_state_unbound")
-    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash}):
+    if state.observation_hash and state.observation_hash != digest({"channels": tuple(state.observable_channels), "state_hash": state.state_hash, "clean": state.clean, "sentinel_passed": state.sentinel_passed}):
         reasons.append("context_observation_hash_mismatch")
-    if not state.clean or not state.sentinel_passed:
-        reasons.append("provider_context_not_clean")
-        reasons.append("provider_context_observation_failed")
+    if not state.observation_hash:
+        reasons.append("provider_context_observation_unbound")
     return not reasons, tuple(reasons)
 
 
@@ -1124,6 +1131,10 @@ def validate_fence(fence: AdmissionFenceRecord, expected_version: str) -> tuple[
         reasons.append("admission_fence_version_mismatch")
     if not fence.fence_id or (fence.state_hash and not isinstance(fence.state_hash, str)):
         reasons.append("admission_fence_unbound")
+    if fence.state_hash != digest({"fence_id": fence.fence_id, "version": fence.version, "current": fence.current}):
+        reasons.append("admission_fence_state_mismatch")
+    if fence.current is not True:
+        reasons.append("admission_fence_stale")
     return not reasons, tuple(reasons)
 
 
@@ -1275,8 +1286,9 @@ def validate_context_isolation(policy: ProviderContextIsolationPolicy, evidence:
     clean, clean_reasons = validate_context_state(evidence, required_channels=required_channels)
     if not clean:
         reasons.extend(clean_reasons)
-    if not fence.current:
-        reasons.append("admission_fence_stale")
+    fence_ok, fence_reasons = validate_fence(fence, fence.version)
+    if not fence_ok:
+        reasons.extend(fence_reasons)
     return not reasons, tuple(reasons)
 
 
