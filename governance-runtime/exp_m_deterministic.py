@@ -889,6 +889,8 @@ def preflight_delivery(
     provider: ProviderCapabilityProfile,
     items: Mapping[str, bytes],
     *,
+    context: PredicateContext | None = None,
+    authority: Any | None = None,
     plan: ProviderQualificationExecutionPlan | None = None,
     qualification: ProviderCapabilityQualificationRecord | None = None,
     now: str = "2099-01-01T00:00:00Z",
@@ -907,7 +909,35 @@ def preflight_delivery(
     observed_interactions: Sequence[Sequence[str]] | None = None,
     observed_context: FinalContextInteractionEvidence | None = None,
 ) -> DeliveryPreflightResult:
+    from exp_m_expectation_authority import authority_context_valid
     reasons: list[str] = []
+    context_authorized = context is not None and authority_context_valid(authority, context)
+    if not context_authorized:
+        reasons.append("preflight_expectation_authority_invalid")
+    else:
+        expected_provider = context.expected_provider
+        expected_model = context.expected_model
+        expected_operating_point = context.expected_operating_point
+        expected_profile_hash = context.expected_profile_hash
+        expected_transition_class = context.expected_transition_class
+        expected_fence_version = context.expected_fence_version
+        if request_id != context.request_id:
+            reasons.append("preflight_request_expectation_mismatch")
+        if snapshot.snapshot_id != context.authority_snapshot_id or snapshot.content_hash != context.authority_snapshot_hash or snapshot.version != context.authority_version:
+            reasons.append("preflight_authority_snapshot_mismatch")
+        if provider.adapter_version != context.expected_adapter:
+            reasons.append("preflight_adapter_mismatch")
+        if manifest.reviewed_commit != context.reviewed_commit:
+            reasons.append("preflight_reviewed_commit_mismatch")
+        try:
+            expected_delivery = authority.expected_delivery(context.request_id)
+        except (AttributeError, ValueError):
+            reasons.append("preflight_delivery_authority_missing")
+        else:
+            if str(expected_delivery.get("reviewed_commit", "")) != context.reviewed_commit:
+                reasons.append("preflight_delivery_commit_authority_mismatch")
+            if str(expected_delivery.get("manifest_hash", "")) != manifest.manifest_hash:
+                reasons.append("preflight_manifest_authority_mismatch")
     if not snapshot.outside_candidate_write_authority:
         reasons.append("authority_snapshot_candidate_writable")
     if snapshot.snapshot_id != evidence_contract.snapshot_id or snapshot.snapshot_id != interactions.snapshot_id:
@@ -932,7 +962,8 @@ def preflight_delivery(
     if plan is None or qualification is None:
         reasons.append("qualification_records_missing")
     else:
-        capable, capability_reasons = validate_capability(provider, plan, qualification, now=now, expected_provider=expected_provider, expected_model=expected_model, expected_operating_point=expected_operating_point, expected_profile_hash=expected_profile_hash, required_format=required_format, required_context_bytes=required_context_bytes)
+        derived_required_context_bytes = max(int(required_context_bytes), sum(len(v) for v in items.values()))
+        capable, capability_reasons = validate_capability(provider, plan, qualification, now=now, expected_provider=expected_provider, expected_model=expected_model, expected_operating_point=expected_operating_point, expected_profile_hash=expected_profile_hash, required_format=required_format, required_context_bytes=derived_required_context_bytes, expected_adapter=(context.expected_adapter if context_authorized else None), authority=(authority if context_authorized else None))
         if not capable:
             reasons.extend(capability_reasons)
     if context_policy is None or context_evidence is None or fence is None or risk_policy is None:
