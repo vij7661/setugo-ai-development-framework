@@ -743,7 +743,7 @@ def _predicate_validators(context: PredicateContext, authority: Any | None = Non
         profile, plan, record = state.get("capability_profile"), state.get("qualification_plan"), state.get("capability_record")
         if not isinstance(profile, ProviderCapabilityProfile) or not isinstance(plan, ProviderQualificationExecutionPlan) or not isinstance(record, ProviderCapabilityQualificationRecord):
             return False
-        return validate_capability(profile, plan, record, now=str(state.get("now", "2099-01-01T00:00:00Z")), expected_provider=context.expected_provider, expected_model=context.expected_model, expected_operating_point=context.expected_operating_point, expected_profile_hash=context.expected_profile_hash, required_format="text", required_context_bytes=context.max_context_bytes, authority=authority)[0]
+        return validate_capability(profile, plan, record, now=str(state.get("now", "2099-01-01T00:00:00Z")), expected_provider=context.expected_provider, expected_model=context.expected_model, expected_operating_point=context.expected_operating_point, expected_profile_hash=context.expected_profile_hash, required_format="text", required_context_bytes=context.max_context_bytes, expected_adapter=context.expected_adapter, authority=authority)[0]
 
     def context_isolation_valid(state: Mapping[str, Any]) -> bool:
         record = state.get("context_isolation_verdict")
@@ -1297,7 +1297,7 @@ def materialize_entries(entries: Mapping[str, bytes] | Sequence[MaterializationE
     return MaterializationResult(not reasons, clean, representation_hash, source_hash, transform_id, tuple(reasons))
 
 
-def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualificationExecutionPlan, record: ProviderCapabilityQualificationRecord, *, now: str, expected_provider: str, expected_model: str, expected_operating_point: str, expected_profile_hash: str, required_format: str, required_context_bytes: int, authority: Any | None = None) -> tuple[bool, tuple[str, ...]]:
+def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualificationExecutionPlan, record: ProviderCapabilityQualificationRecord, *, now: str, expected_provider: str, expected_model: str, expected_operating_point: str, expected_profile_hash: str, required_format: str, required_context_bytes: int, expected_adapter: str | None = None, authority: Any | None = None) -> tuple[bool, tuple[str, ...]]:
     """Compute capability currentness from bound records and frozen authority."""
     reasons: list[str] = []
     if not plan.plan_id or not record.plan_id or plan.plan_id != record.plan_id:
@@ -1306,6 +1306,14 @@ def validate_capability(profile: ProviderCapabilityProfile, plan: ProviderQualif
         reasons.append("qualification_sets_empty")
     if profile.provider_id != expected_provider or profile.model_id != expected_model:
         reasons.append("provider_model_mismatch")
+    if expected_adapter is not None and profile.adapter_version != expected_adapter:
+        reasons.append("adapter_version_mismatch")
+    if profile.qualified is not True:
+        reasons.append("provider_profile_not_qualified")
+    if record.statistical_qualified is not True:
+        reasons.append("qualification_summary_not_qualified")
+    if record.all_trials_closed is not True:
+        reasons.append("qualification_summary_not_closed")
     if profile.profile_hash != expected_profile_hash or record.profile_hash != expected_profile_hash:
         reasons.append("profile_hash_mismatch")
     if plan.provider_id != expected_provider or record.provider_id != expected_provider or record.model_id != expected_model:
