@@ -3,9 +3,9 @@
   "execution": {
     "command": "python governance-runtime/run_exp_m_deterministic.py",
     "interpreter": "D:\\Python312\\python.exe",
-    "source_commit": "c0efaf7fdc9c35e05f424643015f299e014605e0",
-    "source_tree": "5f501b8fa485832f9313aa037627da0a7de8b5df",
-    "utc": "2026-09-19T22:06:10.185909+00:00"
+    "source_commit": "753cdf265e6552dd96baa35d1a3fe59accbca506",
+    "source_tree": "d0dc0f0bedfcf7b9b059ff89d2c9e7251eb7e044",
+    "utc": "2026-09-20T07:22:37.497511+00:00"
   },
   "experiment": "EXP-M",
   "mode": "DETERMINISTIC_ONLY",
@@ -15,12 +15,24 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "required closure",
         "manifest bytes",
         "trusted profile"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "A-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "A-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "A-adversarial-negative"
@@ -38,12 +50,24 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "chunk hash",
         "index",
         "request binding"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "B-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "B-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "B-adversarial-negative"
@@ -61,11 +85,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "raw bytes",
         "representation hash"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "C-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "C-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "C-adversarial-negative"
@@ -83,12 +119,24 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "single cause",
         "mixed causes",
         "unresolved cause"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "D-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "D-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "D-adversarial-negative"
@@ -106,11 +154,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "same manifest",
         "same corpus hash"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "E-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "E-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "E-adversarial-negative"
@@ -128,7 +188,7 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "profile identity",
@@ -136,6 +196,18 @@
         "operating point",
         "attempt closure",
         "context limit"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "F-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "F-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "F-adversarial-negative"
@@ -177,11 +249,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "data/state mutation family",
         "validator mutation family"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "G-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "G-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "mutation_total": 50,
       "negative_case_ids": [
@@ -200,10 +284,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
-        "physical request ledger"
+        "physical request ledger",
+        "retry lineage"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "H-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "H-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "H-adversarial-negative"
@@ -245,10 +342,22 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "all admissibility predicates"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "I-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "I-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "I-adversarial-negative"
@@ -266,10 +375,22 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "wire/session/representation bindings"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "J-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "J-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "J-adversarial-negative"
@@ -287,12 +408,24 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "current witness record",
         "content-bound response",
         "budget"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "K-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "K-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "K-adversarial-negative"
@@ -310,11 +443,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "parser bounds",
         "untrusted profile rejection"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "L-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "L-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "L-adversarial-negative"
@@ -332,11 +477,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "frozen bytes",
         "attempt binding"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "M-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "M-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "M-adversarial-negative"
@@ -354,10 +511,22 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "external-review remediation cases"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "N-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "N-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "N-adversarial-negative"
@@ -399,10 +568,22 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "predicate/verdict/mutation/fixture closure"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "O-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "O-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "O-adversarial-negative"
@@ -426,10 +607,22 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "residual adversarial oracle"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "P-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "P-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "P-adversarial-negative"
@@ -447,11 +640,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "risk policy",
         "admission fence"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "Q-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "Q-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "Q-adversarial-negative"
@@ -469,11 +674,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "witness noninterference",
         "context eviction rejection"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "R-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "R-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "R-adversarial-negative"
@@ -491,10 +708,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
-        "planned attempt closure"
+        "planned attempt closure",
+        "physical retry lineage"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "S-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "S-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "S-adversarial-negative"
@@ -536,11 +766,23 @@
       "case_results": {
         "negative_rejected": true,
         "phase_status": "PASS",
-        "positive": "PASS"
+        "positive": true
       },
       "checks": [
         "retry transparency",
         "registry closure"
+      ],
+      "executed_cases": [
+        {
+          "case_id": "T-positive-control",
+          "kind": "positive",
+          "result": true
+        },
+        {
+          "case_id": "T-adversarial-negative",
+          "kind": "negative",
+          "result": true
+        }
       ],
       "negative_case_ids": [
         "T-adversarial-negative"
