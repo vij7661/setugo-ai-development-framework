@@ -138,6 +138,7 @@ def build_content(source: str, evidence: str) -> str:
     prior = _read(EXP / "PRIOR-EVIDENCE-INDEX.md")
     protocol = _read(EXP / "EXP-M-R5-QUALIFICATION-PROTOCOL.json")
     authority_root = _read(EXP / "EXP-M-R2E-AUTHORITY-ROOT.json")
+    static_review_adjudication = _read(EXP / "EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md")
     authority_bundle = _authority_bundle(source)
     manifest_attestation = _manifest_attestation(evidence)
 
@@ -218,6 +219,10 @@ def build_content(source: str, evidence: str) -> str:
         "~~~json",
         json.dumps(manifest_attestation, indent=2, sort_keys=True),
         "~~~",
+        "",
+        "## Static-review clarification adjudication",
+        "",
+        static_review_adjudication.rstrip(),
         "",
         "## Static-review clarifications",
         "",
