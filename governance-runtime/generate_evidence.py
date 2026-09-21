@@ -8,9 +8,11 @@ E. It never performs provider/API execution.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -23,6 +25,7 @@ FREEZE = EXP / "EXP-M-SOURCE-FREEZE.json"
 MANIFEST = EXP / "EXP-M-R2E-EVIDENCE-MANIFEST.json"
 
 COMMANDS = (
+    ("prior-evidence", [sys.executable, "governance-runtime/verify_exp_m_prior_evidence.py"], "EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt"),
     ("tests", [sys.executable, "governance-runtime/run_exp_m_tests.py"], "EXP-M-R2E-TEST-RUN-STDOUT.txt"),
     ("reviewer-core", [sys.executable, "governance-runtime/reviewer_exp_m_r2e_suite.py"], "EXP-M-R2E-REVIEWER-CORE-STDOUT.txt"),
     ("reviewer-authority", [sys.executable, "governance-runtime/reviewer_exp_m_r2e_authority_suite.py"], "EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt"),
@@ -39,6 +42,14 @@ RESULT_JSONS = (
     "EXP-M-SELF-FALSIFICATION-RESULTS.json",
     "EXP-M-R2E-COMPOUND-RESULTS.json",
 )
+
+RESULT_BY_COMMAND = {
+    "tests": "EXP-M-TEST-RESULTS.json",
+    "reviewer-compound": "EXP-M-R2E-COMPOUND-RESULTS.json",
+    "phases": "EXP-M-DETERMINISTIC-RESULTS.json",
+    "mutations": "EXP-M-MUTATION-RESULTS.json",
+    "self-falsification": "EXP-M-SELF-FALSIFICATION-RESULTS.json",
+}
 
 EXPECTED_GENERATED_PATHS = frozenset(
     [str(FREEZE.relative_to(ROOT)).replace("\\", "/"),
@@ -65,6 +76,58 @@ def _run(command: list[str]) -> subprocess.CompletedProcess[str]:
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _audit_python_imports(source_files: dict[str, str]) -> dict:
+    local_modules = {
+        path.stem
+        for path in (ROOT / "governance-runtime").glob("*.py")
+    }
+    imports: set[str] = set()
+    for rel in source_files:
+        if not rel.endswith(".py"):
+            continue
+        source_path = ROOT / rel
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=rel)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imports.update(alias.name.split(".", 1)[0] for alias in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                imports.add(node.module.split(".", 1)[0])
+    stdlib = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
+    third_party = sorted(name for name in imports if name not in stdlib and name not in local_modules)
+    return {
+        "import_roots": sorted(imports),
+        "local_modules": sorted(name for name in imports if name in local_modules),
+        "third_party_imports": third_party,
+        "third_party_dependency_count": len(third_party),
+    }
+
+
+def _reproducibility_environment(source_files: dict[str, str]) -> dict:
+    audit = _audit_python_imports(source_files)
+    if audit["third_party_imports"]:
+        raise SystemExit("unexpected_third_party_dependency:" + ",".join(audit["third_party_imports"]))
+    return {
+        "python_executable": sys.executable,
+        "python_version": sys.version,
+        "platform": platform.platform(),
+        "git_version": subprocess.check_output(("git", "--version"), cwd=ROOT, text=True).strip(),
+        "runner_os": os.environ.get("RUNNER_OS"),
+        "runner_arch": os.environ.get("RUNNER_ARCH"),
+        "github_actions_image_os": os.environ.get("ImageOS"),
+        "github_actions_image_version": os.environ.get("ImageVersion"),
+        "third_party_python_dependencies": [],
+        "dependency_basis": "governed Python source import audit found only Python standard-library and repository-local modules",
+        "network_required_for_test_commands": False,
+        "checkout_sequence": [
+            "git fetch --all --tags --prune",
+            "git checkout --detach <S>",
+            "git rev-parse HEAD",
+            "git rev-parse HEAD^{tree}",
+            "verify clean worktree before evidence generation",
+        ],
+    }
 
 
 def _status_lines() -> list[str]:
@@ -159,13 +222,24 @@ def generate() -> dict:
         completed = _run(list(command))
         stdout_path = EXP / stdout_name
         stdout_path.write_text(completed.stdout, encoding="utf-8")
-        command_records.append({
+        record = {
             "name": name,
             "command": " ".join(command),
             "exit_code": completed.returncode,
             "stdout_path": str(stdout_path.relative_to(ROOT)).replace("\\", "/"),
             "stdout_sha256": _sha256(stdout_path),
-        })
+            "stdout_role": "command_console_capture",
+        }
+        result_name = RESULT_BY_COMMAND.get(name)
+        if result_name:
+            result_path = EXP / result_name
+            if result_path.exists():
+                identical = _sha256(stdout_path) == _sha256(result_path) and stdout_path.stat().st_size == result_path.stat().st_size
+                record["result_path"] = str(result_path.relative_to(ROOT)).replace("\\", "/")
+                record["stdout_identical_to_result"] = identical
+                if identical:
+                    record["stdout_role"] = "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence"
+        command_records.append(record)
         if completed.returncode != 0:
             raise SystemExit(f"evidence_command_failed:{name}\n{completed.stdout}")
 
@@ -204,12 +278,18 @@ def generate() -> dict:
             "size": path.stat().st_size,
         })
 
+    reproducibility = _reproducibility_environment(dict(freeze.get("source_files") or {}))
     payload = {
-        "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v1",
+        "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v2",
         "source_commit": source_commit,
         "source_tree": source_tree,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "commands": command_records,
+        "reproducibility": reproducibility,
+        "manifest_self_attestation": {
+            "included_in_artifacts": False,
+            "reason": "self-hash recursion is intentionally avoided; P independently attests the complete manifest bytes as stored at E",
+        },
         "artifacts": artifacts,
         "compound_attack_survivors": 0,
         "authority_effect": "NONE",
