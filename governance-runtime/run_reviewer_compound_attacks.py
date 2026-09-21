@@ -15,17 +15,25 @@ from reviewer_exp_m_r2e_compound_suite import CompoundAttackSuite  # noqa: E402
 
 OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-R2E-COMPOUND-RESULTS.json"
 
-EXPECTED_REASONS = {
-    "test_ca1_self_consistent_context_plus_forged_complete_receipt": ("CA-1", "expectation_authority_invalid"),
-    "test_ca2_correctly_keyed_token_for_different_bundle": ("CA-2", "evidence_token_mismatch"),
-    "test_ca3_fabricated_manifest_plus_matching_caller_commit": ("CA-3", "authority_reviewed_commit_mismatch"),
-    "test_ca4_fabricated_retrieval_bytes_plus_forged_receipt": ("CA-4", "retrieval_and_delivery_binding_rejected"),
-    "test_ca5_zip_named_bin_plus_fake_schedule_diversity": ("CA-5", "archive_and_schedule_attack_rejected"),
-    "test_ca6_authority_plan_absent_but_caller_plan_self_consistent": ("CA-6", "qualification_authority_plan_missing"),
-    "test_ca7_prior_artifact_deleted_but_index_unchanged": ("CA-7", "indexed_prior_artifact_missing"),
-    "test_ca8_reviewer_suite_modified_after_source_freeze": ("CA-8", "reviewer_suite_hash_drift"),
-    "test_ca9_caller_pass_with_failed_predicate": ("CA-9", "disposition_promotable"),
-    "test_ca10_missing_protocol_with_self_consistent_record": ("CA-10", "r5_protocol_unavailable"),
+CASE_METADATA = {
+    "test_ca1_self_consistent_context_plus_forged_complete_receipt": {"id": "CA-1", "blocking_guard": "expectation_authority_invalid"},
+    "test_ca2_correctly_keyed_token_for_different_bundle": {"id": "CA-2", "blocking_guard": "evidence_token_mismatch"},
+    "test_ca3_fabricated_manifest_plus_matching_caller_commit": {"id": "CA-3", "blocking_guard": "authority_reviewed_commit_mismatch"},
+    "test_ca4_fabricated_retrieval_bytes_plus_forged_receipt": {"id": "CA-4", "blocking_guard": "retrieval_and_delivery_binding_rejected"},
+    "test_ca5_zip_named_bin_plus_fake_schedule_diversity": {"id": "CA-5", "blocking_guard": "archive_and_schedule_attack_rejected"},
+    "test_ca6_authority_plan_absent_but_caller_plan_self_consistent": {"id": "CA-6", "blocking_guard": "qualification_authority_plan_missing"},
+    "test_ca7_prior_artifact_deleted_but_index_unchanged": {"id": "CA-7", "blocking_guard": "indexed_prior_artifact_missing"},
+    "test_ca8_reviewer_suite_modified_after_source_freeze": {"id": "CA-8", "blocking_guard": "reviewer_suite_hash_drift"},
+    "test_ca9_caller_pass_with_failed_predicate": {
+        "id": "CA-9",
+        "blocking_guard": "disposition_promotable",
+        "guard_semantics": "FALSE means failed predicates derive CHANGES_REQUIRED; a caller-supplied PASS cannot override that derived disposition.",
+    },
+    "test_ca10_missing_protocol_with_self_consistent_record": {
+        "id": "CA-10",
+        "blocking_guard": "r5_protocol_unavailable",
+        "fault_injection": "AuthorityHandle.with_missing_r5_protocol_for_test() sets protocol_available=False for this negative test only; the frozen R5 protocol remains present in the authority root.",
+    },
 }
 
 
@@ -65,16 +73,22 @@ def run() -> dict:
     runner = unittest.TextTestRunner(stream=sys.stderr, verbosity=2, resultclass=CaptureResult)
     result: CaptureResult = runner.run(suite)
     cases = []
-    for test_name, (case_id, reason) in EXPECTED_REASONS.items():
+    for test_name, metadata in CASE_METADATA.items():
         outcome = result.case_outcomes.get(test_name, {"rejected": False, "failure": "test_not_executed"})
-        cases.append({
-            "id": case_id,
+        rejected = bool(outcome.get("rejected"))
+        row = {
+            "id": metadata["id"],
             "test": test_name,
-            "rejected": bool(outcome.get("rejected")),
-            "rejection_reason": reason if outcome.get("rejected") else "COMPOUND_ATTACK_SURVIVED",
+            "rejected": rejected,
+            "rejection_reason": metadata["blocking_guard"] if rejected else "COMPOUND_ATTACK_SURVIVED",
+            "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
             "failure": outcome.get("failure"),
             "source": "reviewer_exp_m_r2e_compound_suite.py",
-        })
+        }
+        for key in ("guard_semantics", "fault_injection"):
+            if key in metadata:
+                row[key] = metadata[key]
+        cases.append(row)
     survivors = [case["id"] for case in cases if not case["rejected"]]
     return {
         "schema": "EXP-M-R2E-COMPOUND/v1",
