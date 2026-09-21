@@ -22,6 +22,7 @@ EXPLICIT_SOURCE_PATHS = (
     "governance-runtime/self_adjudicate_r2d.py",
     ".github/workflows/exp-m-r2e-offline.yml",
     ".github/workflows/exp-m-r2e-sep.yml",
+    "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md",
 )
 
 
