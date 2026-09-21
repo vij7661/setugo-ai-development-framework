@@ -225,6 +225,7 @@ def generate() -> dict:
         record = {
             "name": name,
             "command": " ".join(command),
+            "portable_command": "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command),
             "exit_code": completed.returncode,
             "stdout_path": str(stdout_path.relative_to(ROOT)).replace("\\", "/"),
             "stdout_sha256": _sha256(stdout_path),
