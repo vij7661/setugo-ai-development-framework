@@ -99,11 +99,17 @@ def _audit_python_imports(source_files: dict[str, str]) -> dict:
                 imports.add(node.module.split(".", 1)[0])
     stdlib = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
     third_party = sorted(name for name in imports if name not in stdlib and name not in local_modules)
+    network_capable_roots = {
+        "socket", "http", "urllib", "ftplib", "smtplib", "telnetlib",
+        "requests", "aiohttp", "httpx", "websockets",
+    }
+    observed_network_imports = sorted(imports & network_capable_roots)
     return {
         "import_roots": sorted(imports),
         "local_modules": sorted(name for name in imports if name in local_modules),
         "third_party_imports": third_party,
         "third_party_dependency_count": len(third_party),
+        "network_capable_imports": observed_network_imports,
     }
 
 
@@ -111,6 +117,8 @@ def _reproducibility_environment(source_files: dict[str, str]) -> dict:
     audit = _audit_python_imports(source_files)
     if audit["third_party_imports"]:
         raise SystemExit("unexpected_third_party_dependency:" + ",".join(audit["third_party_imports"]))
+    if audit["network_capable_imports"]:
+        raise SystemExit("network_capable_import_in_governed_surface:" + ",".join(audit["network_capable_imports"]))
     action_pins: dict[str, list[str]] = {}
     for rel in sorted(path for path in source_files if path.startswith(".github/workflows/") and path.endswith(".yml")):
         uses = []
@@ -141,6 +149,7 @@ def _reproducibility_environment(source_files: dict[str, str]) -> dict:
         "github_actions_all_pinned_by_commit_sha": True,
         "dependency_basis": "governed Python source import audit found only Python standard-library and repository-local modules",
         "network_required_for_test_commands": False,
+        "network_capable_imports": audit["network_capable_imports"],
         "checkout_sequence": [
             "git fetch --all --tags --prune",
             "git checkout --detach <S>",
