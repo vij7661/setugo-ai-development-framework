@@ -41,7 +41,7 @@ def _sha256_bytes(raw: bytes) -> str:
 
 def _authority_bundle(source: str) -> dict:
     authority_source = _git_text(source, "governance-runtime/exp_m_expectation_authority.py")
-    match = re.search(r\'DEFAULT_AUTHORITY_COMMIT\\s*=\\s*"([0-9a-f]{40})"\', authority_source)
+    match = re.search(r'DEFAULT_AUTHORITY_COMMIT\s*=\s*"([0-9a-f]{40})"', authority_source)
     if not match:
         raise SystemExit("authority_commit_not_resolved_from_source")
     authority_commit = match.group(1)
@@ -174,8 +174,8 @@ def build_content(source: str, evidence: str) -> str:
         f"- S source tree: {_tree(source)}",
         f"- E evidence commit: {evidence}",
         f"- E evidence tree: {_tree(evidence)}",
-        f"- Evidence manifest SHA-256 at E: {manifest_attestation[\'sha256\']}",
-        f"- Evidence manifest Git blob at E: {manifest_attestation[\'git_blob\']}",
+        f"- Evidence manifest SHA-256 at E: {manifest_attestation['sha256']}",
+        f"- Evidence manifest Git blob at E: {manifest_attestation['git_blob']}",
         "- P packet-content commit: established by the first commit containing this file; "
         "the exact P SHA is reported in the post-P handoff document to avoid Git commit-hash self-reference.",
         "",
