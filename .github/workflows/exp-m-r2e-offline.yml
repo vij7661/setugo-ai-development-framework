@@ -32,6 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           cd governance-runtime
+          python freeze_source.py
           python -m compileall -q .
           python run_exp_m_tests.py
           python reviewer_exp_m_r2e_suite.py
