@@ -100,8 +100,27 @@ jobs:
           echo "EXP_M=NOT_QUALIFIED"
           echo "AUTHORITY_EFFECT=NONE"
           echo "LIVE_PROVIDER_API_EXECUTION=false"
+      - name: Build portable static-review bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          S="$(cat /tmp/exp_m_S)"
+          E="$(cat /tmp/exp_m_E)"
+          P="$(cat /tmp/exp_m_P)"
+          Q="$(cat /tmp/exp_m_Q)"
+          python governance-runtime/build_exp_m_portable_review_bundle.py \
+            --source "$S" --evidence "$E" --packet "$P" --handoff "$Q" \
+            --output /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip
+          sha256sum /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip
       - name: Push governed E-P-Q chain
         shell: bash
         run: |
           set -euo pipefail
           git push origin HEAD:experiment/exp-m-deterministic-r2e
+      - name: Upload portable static-review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: EXP-M-R2E-PORTABLE-REVIEW-BUNDLE
+          path: /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip
+          if-no-files-found: error
+          retention-days: 30
