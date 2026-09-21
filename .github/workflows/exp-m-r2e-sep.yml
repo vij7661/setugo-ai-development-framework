@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: exp-m-r2e-sep-\${{ github.ref }}
+  group: exp-m-r2e-sep-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
