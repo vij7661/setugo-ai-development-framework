@@ -189,6 +189,19 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("evidence_manifest_source_tree_mismatch")
     if evidence_manifest.get("authority_effect") != "NONE" or evidence_manifest.get("exp_m_state") != "NOT_QUALIFIED" or evidence_manifest.get("live_provider_api_execution") is not False:
         reasons.append("evidence_manifest_authority_boundary_mismatch")
+    if evidence_manifest.get("schema") != "EXP-M-R2E-EVIDENCE-MANIFEST/v2":
+        reasons.append("evidence_manifest_schema_mismatch")
+    self_attestation = evidence_manifest.get("manifest_self_attestation") or {}
+    if self_attestation.get("included_in_artifacts") is not False:
+        reasons.append("evidence_manifest_self_reference_policy_missing")
+    reproducibility = evidence_manifest.get("reproducibility") or {}
+    if reproducibility.get("third_party_python_dependencies") != []:
+        reasons.append("reproducibility_third_party_dependency_unfrozen")
+    if reproducibility.get("network_required_for_test_commands") is not False:
+        reasons.append("reproducibility_network_boundary_missing")
+    command_names = {str(row.get("name")) for row in evidence_manifest.get("commands") or ()}
+    if "prior-evidence" not in command_names:
+        reasons.append("prior_evidence_verification_command_missing")
 
     artifact_items = list(evidence_manifest.get("artifacts") or ())
     artifact_paths = [str(item.get("path", "")) for item in artifact_items]
@@ -225,6 +238,18 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
             reasons.append(f"result_source_tree_mismatch:{path}")
         if data.get("live_provider_api_execution") is True or execution.get("live_provider_execution") is True:
             reasons.append(f"live_provider_boundary_violated:{path}")
+
+    try:
+        manifest_raw = _git_bytes(evidence_commit, EVIDENCE_MANIFEST_PATH)
+        manifest_sha256 = hashlib.sha256(manifest_raw).hexdigest()
+        packet_content = _git_bytes(packet_commit, PACKET_CONTENT_PATH).decode("utf-8")
+    except Exception:
+        reasons.append("packet_manifest_attestation_unverifiable")
+    else:
+        marker = f"Evidence manifest SHA-256 at E: {manifest_sha256}"
+        if marker not in packet_content:
+            reasons.append("packet_manifest_attestation_missing")
+        details["evidence_manifest_sha256_at_E"] = manifest_sha256
 
     reviewer_ok, reviewer_reasons = verify_reviewer_suite_frozen()
     if not reviewer_ok:
