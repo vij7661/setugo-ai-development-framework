@@ -111,6 +111,22 @@ def _reproducibility_environment(source_files: dict[str, str]) -> dict:
     audit = _audit_python_imports(source_files)
     if audit["third_party_imports"]:
         raise SystemExit("unexpected_third_party_dependency:" + ",".join(audit["third_party_imports"]))
+    action_pins: dict[str, list[str]] = {}
+    for rel in sorted(path for path in source_files if path.startswith(".github/workflows/") and path.endswith(".yml")):
+        uses = []
+        for line in (ROOT / rel).read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if stripped.startswith("uses:"):
+                uses.append(stripped.split(":", 1)[1].strip())
+        action_pins[rel] = uses
+    unpinned = [
+        f"{workflow}:{use}"
+        for workflow, uses in action_pins.items()
+        for use in uses
+        if "@" in use and not re.fullmatch(r"[^@]+@[0-9a-f]{40}", use)
+    ]
+    if unpinned:
+        raise SystemExit("unpinned_github_action:" + ",".join(unpinned))
     return {
         "python_executable": sys.executable,
         "python_version": sys.version,
@@ -121,6 +137,8 @@ def _reproducibility_environment(source_files: dict[str, str]) -> dict:
         "github_actions_image_os": os.environ.get("ImageOS"),
         "github_actions_image_version": os.environ.get("ImageVersion"),
         "third_party_python_dependencies": [],
+        "github_actions_dependencies": action_pins,
+        "github_actions_all_pinned_by_commit_sha": True,
         "dependency_basis": "governed Python source import audit found only Python standard-library and repository-local modules",
         "network_required_for_test_commands": False,
         "checkout_sequence": [
