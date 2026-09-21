@@ -23,6 +23,7 @@ EXPLICIT_SOURCE_PATHS = (
     ".github/workflows/exp-m-r2e-offline.yml",
     ".github/workflows/exp-m-r2e-sep.yml",
     "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md",
+    "experiments/governed-platform/PRIOR-EVIDENCE-INDEX.md",
 )
 
 
