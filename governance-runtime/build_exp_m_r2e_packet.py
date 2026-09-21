@@ -240,7 +240,7 @@ def build_content(source: str, evidence: str) -> str:
         "git fetch --all --tags --prune",
         f"git checkout --detach {source}",
         "git status --porcelain",
-        *[str(row.get("command")) for row in evidence_manifest.get("commands") or []],
+        *[str(row.get("portable_command") or row.get("command")) for row in evidence_manifest.get("commands") or []],
         "~~~",
         "",
         "## Pinned authority input bundle",
