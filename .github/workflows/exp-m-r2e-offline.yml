@@ -10,6 +10,7 @@ on:
       - 'experiments/governed-platform/EXP-M-R2E-*'
       - 'experiments/governed-platform/r2e-authority/**'
       - '.github/workflows/exp-m-r2e-offline.yml'
+      - '.github/workflows/exp-m-r2e-sep.yml'
 
 permissions:
   contents: read
