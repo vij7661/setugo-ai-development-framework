@@ -132,6 +132,7 @@ def build_content(source: str, evidence: str) -> str:
     freeze = _json(EXP / "EXP-M-SOURCE-FREEZE.json")
     evidence_manifest = _json(EXP / "EXP-M-R2E-EVIDENCE-MANIFEST.json")
     compound = _json(EXP / "EXP-M-R2E-COMPOUND-RESULTS.json")
+    clarification_probes = _json(EXP / "EXP-M-R2E-CLARIFICATION-PROBES.json")
     tests = _json(EXP / "EXP-M-TEST-RESULTS.json")
     mutations = _json(EXP / "EXP-M-MUTATION-RESULTS.json")
     self_fals = _json(EXP / "EXP-M-SELF-FALSIFICATION-RESULTS.json")
@@ -218,6 +219,12 @@ def build_content(source: str, evidence: str) -> str:
         "",
         "~~~json",
         json.dumps(manifest_attestation, indent=2, sort_keys=True),
+        "~~~",
+        "",
+        "## Static-review clarification probes",
+        "",
+        "~~~json",
+        json.dumps(clarification_probes, indent=2, sort_keys=True),
         "~~~",
         "",
         "## Static-review clarification adjudication",
