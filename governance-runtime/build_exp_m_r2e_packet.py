@@ -7,7 +7,9 @@ commit to contain its own SHA.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -23,6 +25,88 @@ def _git(*args: str) -> str:
 
 def _git_text(commit: str, path: str) -> str:
     return subprocess.check_output(("git", "show", f"{commit}:{path}"), cwd=ROOT, text=True)
+
+
+def _git_bytes(commit: str, path: str) -> bytes:
+    return subprocess.check_output(("git", "show", f"{commit}:{path}"), cwd=ROOT)
+
+
+def _blob(commit: str, path: str) -> str:
+    return _git("rev-parse", f"{commit}:{path}")
+
+
+def _sha256_bytes(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def _authority_bundle(source: str) -> dict:
+    authority_source = _git_text(source, "governance-runtime/exp_m_expectation_authority.py")
+    match = re.search(r\'DEFAULT_AUTHORITY_COMMIT\\s*=\\s*"([0-9a-f]{40})"\', authority_source)
+    if not match:
+        raise SystemExit("authority_commit_not_resolved_from_source")
+    authority_commit = match.group(1)
+    root_path = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
+    root_raw = _git_bytes(authority_commit, root_path)
+    root = json.loads(root_raw)
+    specs = (
+        ("authority_root", root_path, None),
+        ("test_expectations", str(root["test_expectation_manifest_path"]), "test_expectation_manifest_sha256"),
+        ("test_expectations_signature", str(root["test_expectation_signature_path"]), None),
+        ("r5_protocol", str(root["r5_protocol_path"]), "r5_protocol_sha256"),
+        ("retrieval_ledger", str(root["retrieval_source_ledger_path"]), "retrieval_source_ledger_sha256"),
+        ("delivery_ledger", str(root["delivery_ledger_path"]), "delivery_ledger_sha256"),
+        ("qualification_ledger", str(root["qualification_ledger_path"]), "qualification_ledger_sha256"),
+    )
+    files = []
+    for label, file_path, declared_key in specs:
+        raw = _git_bytes(authority_commit, file_path)
+        actual = _sha256_bytes(raw)
+        declared = root.get(declared_key) if declared_key else None
+        if declared is not None and actual != declared:
+            raise SystemExit(f"authority_input_hash_mismatch:{label}")
+        files.append({
+            "label": label,
+            "path": file_path,
+            "git_blob": _blob(authority_commit, file_path),
+            "sha256": actual,
+            "declared_sha256": declared,
+            "content": raw.decode("utf-8", errors="replace"),
+        })
+    retrieval_ledger = json.loads(next(x["content"] for x in files if x["label"] == "retrieval_ledger"))
+    backing = []
+    for source_id, entry in sorted((retrieval_ledger.get("sources") or {}).items()):
+        raw = _git_bytes(authority_commit, str(entry["path"]))
+        actual = _sha256_bytes(raw)
+        if actual != str(entry["sha256"]) or len(raw) != int(entry["length"]):
+            raise SystemExit(f"authority_retrieval_backing_mismatch:{source_id}")
+        backing.append({
+            "source_id": source_id,
+            "path": str(entry["path"]),
+            "sha256": actual,
+            "size": len(raw),
+            "content_hex": raw.hex(),
+        })
+    return {
+        "authority_commit": authority_commit,
+        "authority_tree": _tree(authority_commit),
+        "root_sha256": _sha256_bytes(root_raw),
+        "files": files,
+        "retrieval_backing_sources": backing,
+        "note": "Authority inputs are pinned by the preregistered authority commit and consumed by source S. They are not generated E evidence.",
+    }
+
+
+def _manifest_attestation(evidence: str) -> dict:
+    path = "experiments/governed-platform/EXP-M-R2E-EVIDENCE-MANIFEST.json"
+    raw = _git_bytes(evidence, path)
+    return {
+        "path": path,
+        "git_blob": _blob(evidence, path),
+        "sha256": _sha256_bytes(raw),
+        "size": len(raw),
+        "attestation_stage": "P",
+        "reason_not_self_listed": "The manifest cannot safely contain its own final cryptographic hash without self-reference. P independently attests the exact manifest bytes stored at E.",
+    }
 
 
 def _tree(commit: str) -> str:
@@ -54,6 +138,15 @@ def build_content(source: str, evidence: str) -> str:
     prior = _read(EXP / "PRIOR-EVIDENCE-INDEX.md")
     protocol = _read(EXP / "EXP-M-R5-QUALIFICATION-PROTOCOL.json")
     authority_root = _read(EXP / "EXP-M-R2E-AUTHORITY-ROOT.json")
+    authority_bundle = _authority_bundle(source)
+    manifest_attestation = _manifest_attestation(evidence)
+
+    ca9 = next((row for row in compound.get("cases") or [] if row.get("id") == "CA-9"), {})
+    ca10 = next((row for row in compound.get("cases") or [] if row.get("id") == "CA-10"), {})
+    if "guard_semantics" not in ca9:
+        raise SystemExit("packet_ca9_semantics_missing")
+    if "fault_injection" not in ca10:
+        raise SystemExit("packet_ca10_fault_injection_missing")
 
     if freeze.get("source_commit") != source or evidence_manifest.get("source_commit") != source:
         raise SystemExit("packet_source_identity_mismatch")
@@ -81,6 +174,8 @@ def build_content(source: str, evidence: str) -> str:
         f"- S source tree: {_tree(source)}",
         f"- E evidence commit: {evidence}",
         f"- E evidence tree: {_tree(evidence)}",
+        f"- Evidence manifest SHA-256 at E: {manifest_attestation[\'sha256\']}",
+        f"- Evidence manifest Git blob at E: {manifest_attestation[\'git_blob\']}",
         "- P packet-content commit: established by the first commit containing this file; "
         "the exact P SHA is reported in the post-P handoff document to avoid Git commit-hash self-reference.",
         "",
@@ -112,8 +207,46 @@ def build_content(source: str, evidence: str) -> str:
         "",
         "## Evidence manifest",
         "",
+        "The evidence manifest intentionally does not list itself as an artifact because that would create self-hash recursion. The immutable P packet independently attests the exact manifest bytes stored at E.",
+        "",
         "~~~json",
         json.dumps(evidence_manifest, indent=2, sort_keys=True),
+        "~~~",
+        "",
+        "## Evidence manifest post-generation attestation",
+        "",
+        "~~~json",
+        json.dumps(manifest_attestation, indent=2, sort_keys=True),
+        "~~~",
+        "",
+        "## Static-review clarifications",
+        "",
+        "- CA-9: disposition_promotable is a blocking predicate identifier, not a positive status. In this attack the underlying predicates fail, the governor derives CHANGES_REQUIRED, and a caller-supplied PASS cannot override it; therefore disposition_promotable evaluates false.",
+        "- CA-10: r5_protocol_unavailable is deliberately fault-injected by AuthorityHandle.with_missing_r5_protocol_for_test() for that negative case only. The frozen R5 protocol remains present and hash-bound in the real authority root.",
+        "- Duplicate JSON/STDOUT hashes are expected when a runner prints the same serialized JSON it writes to its result file. Such STDOUT is retained as command-console capture and is explicitly not independent evidence; the manifest records this relationship.",
+        "- Authority inputs are not generated E artifacts. They are pinned by the preregistered authority commit used by source S and are embedded below with recomputed hashes and Git blob identities for static inspection.",
+        "- Reproducibility evidence records Python, Git, runner image metadata, exact checkout guidance, and an import audit. The governed Python surface has no third-party Python dependencies; test commands are offline.",
+        "- Prior-failure preservation is checked by a dedicated evidence command in E and the full index remains embedded below. Independent historical recomputation still requires the pinned Git objects; that is an inherent limit of static-only review, not an authority grant.",
+        "",
+        "## Reproducibility environment and checkout",
+        "",
+        "~~~json",
+        json.dumps(evidence_manifest.get("reproducibility") or {}, indent=2, sort_keys=True),
+        "~~~",
+        "",
+        "Exact re-execution sequence from a repository clone:",
+        "",
+        "~~~text",
+        "git fetch --all --tags --prune",
+        f"git checkout --detach {source}",
+        "git status --porcelain",
+        *[str(row.get("command")) for row in evidence_manifest.get("commands") or []],
+        "~~~",
+        "",
+        "## Pinned authority input bundle",
+        "",
+        "~~~json",
+        json.dumps(authority_bundle, indent=2, sort_keys=True),
         "~~~",
         "",
         "## Prior failure preservation index",
