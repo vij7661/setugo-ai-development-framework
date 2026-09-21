@@ -15,7 +15,7 @@ concurrency:
 jobs:
   final-source-evidence-packet:
     if: contains(github.event.head_commit.message, '[R2E-SOURCE-FREEZE]')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
-          python-version: '3.12'
+          python-version: '3.12.14'
       - name: Configure governed committer
         shell: bash
         run: |
