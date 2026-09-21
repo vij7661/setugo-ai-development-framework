@@ -45,6 +45,13 @@ jobs:
           python run_exp_m_mutations.py
           python self_falsify_exp_m.py
           python self_adjudicate_r2d.py
+          python build_exp_m_portable_review_bundle.py \
+            --source 13f7f17e7c1609de37dc3d1c4bc35a762607ecb5 \
+            --evidence fbb11970afb74503ce2e572ea1adf9f6dd177a15 \
+            --packet 623187e5fcf5071fd0e4a97a1ee9aa92e1c688ac \
+            --handoff 760d6ab6a1881ce8cc1e3db3fdc018f62dc43d47 \
+            --output /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE-regression.zip
+          test -s /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE-regression.zip
       - name: Assert no live provider execution marker
         shell: bash
         run: |
