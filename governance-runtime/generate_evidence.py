@@ -30,6 +30,7 @@ COMMANDS = (
     ("reviewer-core", [sys.executable, "governance-runtime/reviewer_exp_m_r2e_suite.py"], "EXP-M-R2E-REVIEWER-CORE-STDOUT.txt"),
     ("reviewer-authority", [sys.executable, "governance-runtime/reviewer_exp_m_r2e_authority_suite.py"], "EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt"),
     ("reviewer-compound", [sys.executable, "governance-runtime/run_reviewer_compound_attacks.py"], "EXP-M-R2E-COMPOUND-STDOUT.txt"),
+    ("static-review-probes", [sys.executable, "governance-runtime/run_exp_m_static_review_probes.py"], "EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt"),
     ("phases", [sys.executable, "governance-runtime/run_exp_m_deterministic.py"], "EXP-M-R2E-PHASE-STDOUT.txt"),
     ("mutations", [sys.executable, "governance-runtime/run_exp_m_mutations.py"], "EXP-M-R2E-MUTATION-STDOUT.txt"),
     ("self-falsification", [sys.executable, "governance-runtime/self_falsify_exp_m.py"], "EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt"),
@@ -41,11 +42,13 @@ RESULT_JSONS = (
     "EXP-M-MUTATION-RESULTS.json",
     "EXP-M-SELF-FALSIFICATION-RESULTS.json",
     "EXP-M-R2E-COMPOUND-RESULTS.json",
+    "EXP-M-R2E-CLARIFICATION-PROBES.json",
 )
 
 RESULT_BY_COMMAND = {
     "tests": "EXP-M-TEST-RESULTS.json",
     "reviewer-compound": "EXP-M-R2E-COMPOUND-RESULTS.json",
+    "static-review-probes": "EXP-M-R2E-CLARIFICATION-PROBES.json",
     "phases": "EXP-M-DETERMINISTIC-RESULTS.json",
     "mutations": "EXP-M-MUTATION-RESULTS.json",
     "self-falsification": "EXP-M-SELF-FALSIFICATION-RESULTS.json",
