@@ -80,8 +80,8 @@ def run() -> dict:
             "id": metadata["id"],
             "test": test_name,
             "rejected": rejected,
-            "rejection_reason": metadata["blocking_guard"] if rejected else "COMPOUND_ATTACK_SURVIVED",
-            "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
+            "blocking_guard": metadata["blocking_guard"] if rejected else "COMPOUND_ATTACK_SURVIVED",
+            "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
             "failure": outcome.get("failure"),
             "source": "reviewer_exp_m_r2e_compound_suite.py",
         }
@@ -91,7 +91,7 @@ def run() -> dict:
         cases.append(row)
     survivors = [case["id"] for case in cases if not case["rejected"]]
     return {
-        "schema": "EXP-M-R2E-COMPOUND/v1",
+        "schema": "EXP-M-R2E-COMPOUND/v2",
         "execution": {
             "source_commit": _git("rev-parse", "HEAD"),
             "source_tree": _git("rev-parse", "HEAD^{tree}"),
