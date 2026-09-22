@@ -252,28 +252,48 @@ def generate() -> dict:
     for name, command, stdout_name in COMMANDS:
         completed = _run(list(command))
         stdout_path = EXP / stdout_name
-        stdout_path.write_text(completed.stdout, encoding="utf-8")
+        portable_command = "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command)
+        raw_stdout = completed.stdout
+        raw_stdout_bytes = raw_stdout.encode("utf-8")
+        capture = {
+            "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+            "source_commit": source_commit,
+            "source_tree": source_tree,
+            "captured_at_utc": datetime.now(timezone.utc).isoformat(),
+            "command_name": name,
+            "command": " ".join(command),
+            "portable_command": portable_command,
+            "exit_code": completed.returncode,
+            "raw_stdout_sha256": hashlib.sha256(raw_stdout_bytes).hexdigest(),
+            "raw_stdout_size": len(raw_stdout_bytes),
+            "raw_stdout": raw_stdout,
+        }
+        stdout_path.write_text(json.dumps(capture, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         record = {
             "name": name,
             "command": " ".join(command),
-            "portable_command": "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command),
+            "portable_command": portable_command,
             "exit_code": completed.returncode,
             "stdout_path": str(stdout_path.relative_to(ROOT)).replace("\\", "/"),
             "stdout_sha256": _sha256(stdout_path),
-            "stdout_role": "command_console_capture",
+            "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+            "stdout_payload_sha256": capture["raw_stdout_sha256"],
+            "stdout_payload_size": capture["raw_stdout_size"],
+            "stdout_role": "source-bound command-console capture; not independent corroboration",
         }
         result_name = RESULT_BY_COMMAND.get(name)
         if result_name:
             result_path = EXP / result_name
             if result_path.exists():
-                identical = _sha256(stdout_path) == _sha256(result_path) and stdout_path.stat().st_size == result_path.stat().st_size
+                result_raw = result_path.read_bytes()
+                identical_payload = raw_stdout_bytes == result_raw
                 record["result_path"] = str(result_path.relative_to(ROOT)).replace("\\", "/")
-                record["stdout_identical_to_result"] = identical
-                if identical:
-                    record["stdout_role"] = "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence"
+                record["stdout_payload_identical_to_result"] = identical_payload
+                if identical_payload:
+                    record["stdout_role"] = "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence"
         command_records.append(record)
         if completed.returncode != 0:
-            raise SystemExit(f"evidence_command_failed:{name}\n{completed.stdout}")
+            raise SystemExit(f"evidence_command_failed:{name}\n{raw_stdout}")
 
     _merge_compound_into_self_falsification()
 
@@ -312,7 +332,7 @@ def generate() -> dict:
 
     reproducibility = _reproducibility_environment(dict(freeze.get("source_files") or {}))
     payload = {
-        "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v2",
+        "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v3",
         "source_commit": source_commit,
         "source_tree": source_tree,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
