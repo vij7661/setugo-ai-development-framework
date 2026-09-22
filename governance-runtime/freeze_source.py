@@ -60,7 +60,7 @@ def _authority_policies() -> tuple[dict, dict]:
     root = json.loads(_git_bytes(DEFAULT_AUTHORITY_COMMIT, AUTHORITY_ROOT_PATH))
     current = root.get("current_source_identity_policy") or {}
     delivery = root.get("delivery_binding_policy") or {}
-    if root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2":
+    if root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-3":
         raise SystemExit("source_freeze_authority_root_invalid")
     if current.get("policy_id") != "CURRENT-SOURCE-FREEZE-V1":
         raise SystemExit("source_freeze_current_source_policy_invalid")
