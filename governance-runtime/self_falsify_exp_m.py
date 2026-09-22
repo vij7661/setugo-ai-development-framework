@@ -23,17 +23,20 @@ from exp_m_expectation_authority import load_default_authority, load_predicate_c
 AUTHORITY = load_default_authority()
 AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
 
-def context_from_state(_state):
-    # Compatibility name for historical adversarial cases.  Returning the
-    # preregistered context prevents a trivial unauthorized-context rejection
-    # from making the self-falsification suite falsely green.
-    return AUTHORITY_CONTEXT
+def context_from_state(state):
+    # Adversarial helper only: contexts built from candidate-controlled state
+    # are intentionally unauthorized and must be rejected by production.
+    return _unauthorized_AUTHORITY_CONTEXT
 
 def bundle_from_state(state):
     return _fixture_bundle_from_state(state, AUTHORITY_CONTEXT)
 
-def evaluate_admissibility(bundle, context=None, registry=None):
-    return _production_evaluate_admissibility(bundle, AUTHORITY_CONTEXT, registry, authority=AUTHORITY)
+def evaluate_admissibility(bundle, context, registry=None):
+    # Never discard the caller-supplied context. Evidence attacks that are
+    # intended to run under valid authority pass AUTHORITY_CONTEXT explicitly.
+    if context is None:
+        raise ValueError("self_falsification_explicit_context_required")
+    return _production_evaluate_admissibility(bundle, context, registry, authority=AUTHORITY)
 
 
 def run():
@@ -47,7 +50,7 @@ def run():
     case("manifest_byte_mutation", not preflight_delivery(snap, contract, interactions, manifest, "r", provider, {"a": b"x"}).allowed)
     case("candidate_writable_snapshot", not preflight_delivery(GovernanceAuthoritySnapshot("s", "1", "h", False), contract, interactions, manifest, "r", provider, items).allowed)
     state = {p: True for p in admissibility_registry().predicate_ids}; state["delivery_complete"] = False
-    case("admissibility_summary_only_rejected", not evaluate_admissibility(bundle_from_state(state), context_from_state(state)).admissible)
+    case("admissibility_summary_only_rejected", not evaluate_admissibility(bundle_from_state(state), AUTHORITY_CONTEXT).admissible)
     case("missing_chunk", not validate_chunks([EvidenceChunk.create("r", digest(b"ab"), 0, 2, b"a")], request_id="r", corpus_hash=digest(b"ab"))[0])
     case("retry_hidden", not validate_retry_transparency(({"attempt_id":"a", "wire_hash":"w"},), automatic_retry_hidden=True)[0])
     case("attempt_set_open", not validate_attempt_ledger(("a", "b"), ("a",), ())[0])
@@ -58,7 +61,7 @@ def run():
     import inspect
     case("production_bypass_absent", "disabled_predicates" not in inspect.signature(evaluate_admissibility).parameters)
     summary = {p: True for p in admissibility_registry().predicate_ids}; summary["disposition"] = "PASS"
-    case("all_true_summary_only", not evaluate_admissibility(bundle_from_state(summary), context_from_state(summary)).admissible)
+    case("all_true_summary_only", not evaluate_admissibility(bundle_from_state(summary), AUTHORITY_CONTEXT).admissible)
     case("empty_qualification_sets", not preflight_delivery(snap, contract, interactions, manifest, "r", provider, items, plan=__import__("exp_m_deterministic").ProviderQualificationExecutionPlan("p", "fake", "op", (), ()), qualification=__import__("exp_m_deterministic").ProviderCapabilityQualificationRecord("p", "p", True, True, 0, "op", (), (), "fake", "m"), context_policy=__import__("exp_m_deterministic").ProviderContextIsolationPolicy("x", "COMPLETE_READABLE_FENCED_STATE"), context_evidence=__import__("exp_m_deterministic").ProviderContextStateEvidence(True, ("memory", "config"), True, "h"), fence=__import__("exp_m_deterministic").AdmissionFenceRecord("f", "1", True), risk_policy=__import__("exp_m_deterministic").ProviderAccessibilityRiskPolicy("LOWER", "inline")).allowed)
     case("stale_fence", not __import__("exp_m_deterministic").validate_fence(__import__("exp_m_deterministic").AdmissionFenceRecord("f", "wrong", True), "1")[0])
     ledger_path = ROOT / "experiments" / "governed-platform" / ".self-falsify-ledger.json"
@@ -75,11 +78,11 @@ def run():
                 artifact.unlink()
             except OSError:
                 pass
-    case("retrieval_complete_only", not evaluate_admissibility(bundle_from_state({"retrieval": {"complete": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    case("retrieval_complete_only", not evaluate_admissibility(bundle_from_state({"retrieval": {"complete": True}, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
     provider_fake = __import__("exp_m_deterministic").DeterministicFakeProvider(); receipt, wire = provider_fake.deliver(manifest, items)
     forged = __import__("exp_m_deterministic").ReviewerReceipt(receipt.attempt_id, receipt.request_id, receipt.session_id, receipt.manifest_hash, receipt.received_item_ids, receipt.received_bytes, True)
     case("forged_complete_receipt", not __import__("exp_m_deterministic").validate_wire_delivery(manifest, __import__("exp_m_deterministic").materialize_entries(items, source_hash="commit"), wire, forged, {"a": b"wrong"}, expected_commit="commit", expected_semantic_hash=wire.semantic_hash)[0])
-    case("witness_current_only", not evaluate_admissibility(bundle_from_state({"witness": {"current": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    case("witness_current_only", not evaluate_admissibility(bundle_from_state({"witness": {"current": True}, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
     typed_dup = (__import__("exp_m_deterministic").MaterializationEntry("a", "x", "file", b"a"), __import__("exp_m_deterministic").MaterializationEntry("b", "x", "file", b"b"))
     case("duplicate_normalized_member", not __import__("exp_m_deterministic").materialize_entries(typed_dup, source_hash="s").success)
     case("unqualified_transform", not __import__("exp_m_deterministic").materialize_entries({"a": b"a"}, source_hash="s", transform_id="unknown").success)
@@ -91,10 +94,15 @@ def run():
     plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("trial",), ("confirm",))
     incomplete = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("confirm",), ("confirm",), "fake", "m")
     case("missing_trial_root", not validate_capability(p, plan, incomplete, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="m", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0])
-    case("self_derived_context", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "attacker"}, "disposition": "PASS"}), context_from_state({"expected_request_id": "r"})).admissible)
-    case("forged_delivery_result", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "delivery": {"complete": True}, "disposition": "PASS"}), context_from_state({})).admissible)
-    case("witness_without_expected_answer", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "witness": {"current": True}, "disposition": "PASS"}), context_from_state({})).admissible)
-    case("accessibility_valid_only", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "accessibility": {"valid": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    forged_candidate_context = context_from_state({"expected_request_id": "r"})
+    self_derived_verdict = evaluate_admissibility(
+        bundle_from_state({"review_request": {"current": True, "request_id": "attacker"}, "disposition": "PASS"}),
+        forged_candidate_context,
+    )
+    case("self_derived_context", (not self_derived_verdict.admissible) and "expectation_authority_invalid" in self_derived_verdict.reasons)
+    case("forged_delivery_result", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "delivery": {"complete": True}, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
+    case("witness_without_expected_answer", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "witness": {"current": True}, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
+    case("accessibility_valid_only", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "accessibility": {"valid": True}, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
     race_path = ROOT / "experiments" / "governed-platform" / ".r2a-race-ledger.json"
     race_ledger = PersistentAdmissionLedger(race_path)
     first_race = race_ledger.compare_and_set("race", 1, "VOID", expected_state_hash=""); second_race = race_ledger.compare_and_set("race", 1, "COMMITTED", expected_state_hash="")
@@ -115,7 +123,7 @@ def run():
     case("phase_negative_perturbation_fails", not all(all(c.get("result") for c in v.get("executed_cases", ())) for v in perturbed["phases"].values()))
     removed = json.loads(json.dumps(phase_artifact)); removed["phases"]["A"]["executed_cases"] = []
     case("phase_case_removal_fails_closure", not all(len(v.get("executed_cases", ())) >= 2 for v in removed["phases"].values()))
-    case("typed_summary_boolean", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "capability": {"validated": True}, "context_isolation": {"satisfied": True}, "disposition": "PASS"}), context_from_state({})).admissible)
+    case("typed_summary_boolean", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "capability": {"validated": True}, "context_isolation": {"satisfied": True}, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
     # R2C cross-source and authority attacks, independently authored here.
     tampered_map = type(reg)(reg.version, reg.predicate_ids, reg.logic_mutation_ids, reg.fixture_ids, tuple((fid, "wrong") for fid, _ in reg.fixture_target_map))
     case("wrong_fixture_target_mapping", not tampered_map.closure(reg.predicate_ids, reg.logic_mutation_ids, declared_mutations=reg.logic_mutation_ids, executed_mutations=reg.logic_mutation_ids, killed_mutations=reg.logic_mutation_ids, declared_fixtures=reg.fixture_ids, executed_fixtures=reg.fixture_ids, executed_fixture_targets=reg.predicate_ids))
@@ -124,11 +132,11 @@ def run():
     case("transition_class_self_downgrade", not iso[0])
     case("fence_version_self_binding", not __import__("exp_m_deterministic").validate_fence(__import__("exp_m_deterministic").AdmissionFenceRecord("f", "evil", True), "1")[0])
     wrong_answer = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS", "witness_response": "wrong"})
-    case("wrong_witness_answer", not evaluate_admissibility(wrong_answer, context_from_state({})).admissible)
+    case("wrong_witness_answer", not evaluate_admissibility(wrong_answer, AUTHORITY_CONTEXT).admissible)
     forged_prompt = __import__("exp_m_deterministic").PromptIsolationQualificationRecord("p", "fake", "inline", True, "2099-01-01T00:00:00Z", authority_id="attacker", authority_digest="attacker")
     case("forged_prompt_authority", not __import__("exp_m_deterministic").validate_prompt_isolation(forged_prompt, provider_id="fake", mode="inline", now="2025-01-01T00:00:00Z", expected_authority_id="platform-prompt-authority", expected_authority_digest="prompt-authority-v1", expected_generation=1)[0])
     forged_reviewer = __import__("exp_m_deterministic").ReviewerProvenanceRecord("r", "policy", True, "trusted-review-artifact", issuer_id="attacker")
-    case("forged_reviewer_authority", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "reviewer": forged_reviewer, "disposition": "PASS"}), context_from_state({})).admissible)
+    case("forged_reviewer_authority", not evaluate_admissibility(bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "reviewer": forged_reviewer, "disposition": "PASS"}), AUTHORITY_CONTEXT).admissible)
     prod_plan = ProviderQualificationExecutionPlan("p", "fake", "op", ("a", "b"), ("c",), qualification_profile="R5_PRODUCTION")
     prod_rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 0, "op", ("a", "b", "c"), ("a", "b", "c"), "fake", "m", attempt_records=())
     case("r5_under_sampling", not validate_capability(provider, prod_plan, prod_rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="m", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1)[0])
@@ -150,10 +158,10 @@ def run():
     # R2D independent attacks: these are authored here rather than delegated
     # to the production mutation/fixture catalogs.
     dirty_marker = {"review_request": {"current": True, "request_id": "r"}, "context_state": {"clean": False, "sentinel_passed": False, "state_hash": "state", "observable_channels": ("memory", "config")}, "__negative_target__": "context_state_clean", "disposition": "PASS"}
-    case("production_fixture_marker_bypass", not evaluate_admissibility(bundle_from_state(dirty_marker), context_from_state(dirty_marker)).admissible)
+    case("production_fixture_marker_bypass", not evaluate_admissibility(bundle_from_state(dirty_marker), AUTHORITY_CONTEXT).admissible)
     no_channel = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"})
     no_channel.evidence["context_isolation_verdict"] = __import__("exp_m_deterministic").ContextIsolationVerdict(no_channel.evidence["context_isolation_verdict"].policy, __import__("exp_m_deterministic").ProviderContextStateEvidence(True, (), True, "state"), no_channel.evidence["context_isolation_verdict"].fence, "LOWER", ("memory", "config"))
-    case("missing_structured_context_channel", not evaluate_admissibility(no_channel, context_from_state({})).admissible)
+    case("missing_structured_context_channel", not evaluate_admissibility(no_channel, AUTHORITY_CONTEXT).admissible)
     self_fence = __import__("exp_m_deterministic").AdmissionFenceRecord("fence", "1", True)
     case("self_minted_fence_attestation", not __import__("exp_m_deterministic").validate_fence(self_fence, "1", expected_authority_id="external-resource", expected_authority_hash="external-hash", expected_issuer_id="external-observer", expected_attestation="external-attestation")[0])
     mismatch_path = ROOT / "experiments/governed-platform/.r2d-mismatch-ledger.json"
@@ -167,18 +175,18 @@ def run():
             try: artifact.unlink()
             except OSError: pass
     case("authoritative_admission_requires_ledger", __import__("exp_m_deterministic").admit_review_attempt({"generation": 1}, __import__("exp_m_deterministic").AttemptState("a", 1, "auth", "req", "cap", "eg", "ctx", "fence", "prompt", "wit", "session", "reg"), attempt_id="a", expected_generation=1).void)
-    case("caller_minted_verdict_token_rejected", __import__("exp_m_deterministic").admit_review_attempt_with_evidence(bundle_from_state({}), context_from_state({}), {"generation": 1, "state_hash": "", "evidence_admission_token": "public-digest"}, __import__("exp_m_deterministic").AttemptState("a", 1, "auth", "req", "cap", "eg", "ctx", "fence", "prompt", "wit", "session", "reg"), attempt_id="a", expected_generation=1).void)
+    case("caller_minted_verdict_token_rejected", __import__("exp_m_deterministic").admit_review_attempt_with_evidence(bundle_from_state({}), AUTHORITY_CONTEXT, {"generation": 1, "state_hash": "", "evidence_admission_token": "public-digest"}, __import__("exp_m_deterministic").AttemptState("a", 1, "auth", "req", "cap", "eg", "ctx", "fence", "prompt", "wit", "session", "reg"), attempt_id="a", expected_generation=1).void)
     forged_context = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "semantic_context": {"qualified": True, "context_hash": "ctx-h"}, "disposition": "PASS"})
     forged_context.evidence["semantic_context"] = __import__("exp_m_deterministic").SemanticContextQualificationRecord("ctx", "ctx-h", True, "commit", b"", "arbitrary-receipt", ())
-    case("empty_context_arbitrary_receipt", not evaluate_admissibility(forged_context, context_from_state({})).admissible)
+    case("empty_context_arbitrary_receipt", not evaluate_admissibility(forged_context, AUTHORITY_CONTEXT).admissible)
     copied = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"})
     copied.evidence["final_context_interactions"] = __import__("exp_m_deterministic").FinalContextInteractionEvidence("r", "s", "ctx-h", ("a",), (("a",),), True, "copied", "candidate")
-    case("candidate_copied_context_interactions", not evaluate_admissibility(copied, context_from_state({})).admissible)
+    case("candidate_copied_context_interactions", not evaluate_admissibility(copied, AUTHORITY_CONTEXT).admissible)
     incomplete = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"})
     incomplete.evidence["semantic_context"] = __import__("exp_m_deterministic").SemanticContextQualificationRecord("ctx", "ctx-h", True, "commit", b"", digest({"context_id": "ctx", "source_hash": "commit", "members": (), "assembly": "trusted-final-context-v1"}), ())
-    case("complete_manifest_incomplete_context", not evaluate_admissibility(incomplete, context_from_state({})).admissible)
+    case("complete_manifest_incomplete_context", not evaluate_admissibility(incomplete, AUTHORITY_CONTEXT).admissible)
     proof_only = bundle_from_state({"review_request": {"current": True, "request_id": "r"}, "disposition": "PASS"}); proof = proof_only.evidence["accessibility"]; proof_only.evidence["accessibility"] = __import__("exp_m_deterministic").AccessibilityProofRecord(proof.proof_id, proof.challenge_id, proof.provider_id, proof.mode, proof.final_context_id, True, proof.proof_mode, proof.policy_version, proof.evidence_hash, "")
-    case("accessibility_challenge_hash_only", not evaluate_admissibility(proof_only, context_from_state({})).admissible)
+    case("accessibility_challenge_hash_only", not evaluate_admissibility(proof_only, AUTHORITY_CONTEXT).admissible)
     import io, zipfile
     bomb = io.BytesIO()
     with zipfile.ZipFile(bomb, "w", compression=zipfile.ZIP_DEFLATED) as z: z.writestr("bomb.txt", b"A" * 200000)
