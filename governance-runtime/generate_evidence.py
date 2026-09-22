@@ -176,11 +176,14 @@ def _execute_evidence_command(
     return record
 
 def _audit_python_imports(source_files: dict[str, str]) -> dict:
-    local_modules = {
-        path.stem
+    local_module_paths = {
+        path.stem: str(path.relative_to(ROOT)).replace("\\", "/")
         for path in (ROOT / "governance-runtime").glob("*.py")
     }
+    local_modules = set(local_module_paths)
     imports: set[str] = set()
+    dynamic_import_sites: list[str] = []
+    dynamic_code_sites: list[str] = []
     for rel in source_files:
         if not rel.endswith(".py"):
             continue
@@ -191,8 +194,32 @@ def _audit_python_imports(source_files: dict[str, str]) -> dict:
                 imports.update(alias.name.split(".", 1)[0] for alias in node.names)
             elif isinstance(node, ast.ImportFrom) and node.module:
                 imports.add(node.module.split(".", 1)[0])
+            elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "__import__":
+                if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
+                    imports.add(node.args[0].value.split(".", 1)[0])
+                else:
+                    dynamic_import_sites.append(f"{rel}:{getattr(node, 'lineno', 0)}")
+            elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in {"eval", "exec"}:
+                dynamic_code_sites.append(f"{rel}:{getattr(node, 'lineno', 0)}")
+            elif (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "importlib"
+                and node.func.attr == "import_module"
+            ):
+                if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
+                    imports.add(node.args[0].value.split(".", 1)[0])
+                else:
+                    dynamic_import_sites.append(f"{rel}:{getattr(node, 'lineno', 0)}")
     stdlib = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
     third_party = sorted(name for name in imports if name not in stdlib and name not in local_modules)
+    local_imports = sorted(name for name in imports if name in local_modules)
+    unfrozen_local_imports = sorted(
+        local_module_paths[name]
+        for name in local_imports
+        if local_module_paths[name] not in source_files
+    )
     network_capable_roots = {
         "socket", "http", "urllib", "ftplib", "smtplib", "telnetlib",
         "requests", "aiohttp", "httpx", "websockets",
@@ -200,7 +227,11 @@ def _audit_python_imports(source_files: dict[str, str]) -> dict:
     observed_network_imports = sorted(imports & network_capable_roots)
     return {
         "import_roots": sorted(imports),
-        "local_modules": sorted(name for name in imports if name in local_modules),
+        "local_modules": local_imports,
+        "local_module_paths": {name: local_module_paths[name] for name in local_imports},
+        "unfrozen_local_imports": unfrozen_local_imports,
+        "dynamic_import_sites": sorted(dynamic_import_sites),
+        "dynamic_code_sites": sorted(dynamic_code_sites),
         "third_party_imports": third_party,
         "third_party_dependency_count": len(third_party),
         "network_capable_imports": observed_network_imports,
@@ -211,6 +242,12 @@ def _reproducibility_environment(source_files: dict[str, str]) -> dict:
     audit = _audit_python_imports(source_files)
     if audit["third_party_imports"]:
         raise SystemExit("unexpected_third_party_dependency:" + ",".join(audit["third_party_imports"]))
+    if audit["unfrozen_local_imports"]:
+        raise SystemExit("unfrozen_local_import:" + ",".join(audit["unfrozen_local_imports"]))
+    if audit["dynamic_import_sites"]:
+        raise SystemExit("dynamic_import_not_statically_bound:" + ",".join(audit["dynamic_import_sites"]))
+    if audit["dynamic_code_sites"]:
+        raise SystemExit("dynamic_code_execution_not_allowed:" + ",".join(audit["dynamic_code_sites"]))
     if audit["network_capable_imports"]:
         raise SystemExit("network_capable_import_in_governed_surface:" + ",".join(audit["network_capable_imports"]))
     action_pins: dict[str, list[str]] = {}
@@ -244,6 +281,9 @@ def _reproducibility_environment(source_files: dict[str, str]) -> dict:
         "dependency_basis": "governed Python source import audit found only Python standard-library and repository-local modules",
         "network_required_for_test_commands": False,
         "network_capable_imports": audit["network_capable_imports"],
+        "unfrozen_local_imports": audit["unfrozen_local_imports"],
+        "dynamic_import_sites": audit["dynamic_import_sites"],
+        "dynamic_code_sites": audit["dynamic_code_sites"],
         "checkout_sequence": [
             "git fetch --all --tags --prune",
             "git checkout --detach <S>",
