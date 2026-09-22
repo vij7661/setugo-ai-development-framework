@@ -48,13 +48,16 @@ def _authority_bundle(source: str) -> dict:
     root_path = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
     root_raw = _git_bytes(authority_commit, root_path)
     root = json.loads(root_raw)
+    if root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2":
+        raise SystemExit("authority_root_v2_required")
+    if (root.get("delivery_binding_policy") or {}).get("policy_id") != "SOURCE-FREEZE-DELIVERY-DERIVATION-V1":
+        raise SystemExit("authority_delivery_binding_policy_missing")
     specs = (
         ("authority_root", root_path, None),
         ("test_expectations", str(root["test_expectation_manifest_path"]), "test_expectation_manifest_sha256"),
         ("test_expectations_signature", str(root["test_expectation_signature_path"]), None),
         ("r5_protocol", str(root["r5_protocol_path"]), "r5_protocol_sha256"),
         ("retrieval_ledger", str(root["retrieval_source_ledger_path"]), "retrieval_source_ledger_sha256"),
-        ("delivery_ledger", str(root["delivery_ledger_path"]), "delivery_ledger_sha256"),
         ("qualification_ledger", str(root["qualification_ledger_path"]), "qualification_ledger_sha256"),
     )
     files = []
@@ -140,6 +143,7 @@ def build_content(source: str, evidence: str) -> str:
     protocol = _read(EXP / "EXP-M-R5-QUALIFICATION-PROTOCOL.json")
     authority_root = _read(EXP / "EXP-M-R2E-AUTHORITY-ROOT.json")
     static_review_adjudication = _read(EXP / "EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md")
+    external_review_r2 = _read(EXP / "EXP-M-R2E-EXTERNAL-REVIEW-R2.md")
     authority_bundle = _authority_bundle(source)
     manifest_attestation = _manifest_attestation(evidence)
 
@@ -201,6 +205,18 @@ def build_content(source: str, evidence: str) -> str:
         json.dumps(compound, indent=2, sort_keys=True),
         "~~~",
         "",
+        "## Full mutation results",
+        "",
+        "~~~json",
+        json.dumps(mutations, indent=2, sort_keys=True),
+        "~~~",
+        "",
+        "## Full self-falsification results",
+        "",
+        "~~~json",
+        json.dumps(self_fals, indent=2, sort_keys=True),
+        "~~~",
+        "",
         "## Source freeze",
         "",
         "~~~json",
@@ -227,6 +243,10 @@ def build_content(source: str, evidence: str) -> str:
         json.dumps(clarification_probes, indent=2, sort_keys=True),
         "~~~",
         "",
+        "## Independent external review R2 (CHANGES_REQUIRED)",
+        "",
+        external_review_r2.rstrip(),
+        "",
         "## Static-review clarification adjudication",
         "",
         static_review_adjudication.rstrip(),
@@ -235,8 +255,8 @@ def build_content(source: str, evidence: str) -> str:
         "",
         "- CA-9: disposition_promotable is a blocking predicate identifier, not a positive status. In this attack the underlying predicates fail, the governor derives CHANGES_REQUIRED, and a caller-supplied PASS cannot override it; therefore disposition_promotable evaluates false.",
         "- CA-10: r5_protocol_unavailable is deliberately fault-injected by AuthorityHandle.with_missing_r5_protocol_for_test() for that negative case only. The frozen R5 protocol remains present and hash-bound in the real authority root.",
-        "- Command STDOUT is now stored inside a source-bound capture envelope containing S commit/tree, command identity, exit code, raw-payload hash/size, and capture time. When the raw payload duplicates a result JSON, the manifest records stdout_payload_identical_to_result=true and explicitly labels the capture as non-independent evidence; the envelope itself is independently hash-checked and freshness-bound to S.",
-        "- Authority inputs are not generated E artifacts. They are pinned by the preregistered authority commit used by source S and are embedded below with recomputed hashes and Git blob identities for static inspection.",
+        "- Every result-producing governed command now emits the exact final result JSON on stdout. The v2 command capture separately records stdout/stderr, command-source SHA-256, result SHA-256/size at command exit, and S commit/tree; any stdout/result byte mismatch fails evidence generation. No later result post-processing is permitted.",
+        "- Delivery authority is no longer substituted by the source freeze. Preregistered authority-root v2 freezes the current-S identity rule and delivery derivation policy; EXP-M-SOURCE-FREEZE.json records only non-authoritative derived binding evidence, which the authority loader and S-E-P verifier independently recompute.",
         "- Reproducibility evidence records Python, Git, runner image metadata, exact checkout guidance, and an import audit. The governed Python surface has no third-party Python dependencies; test commands are offline.",
         "- Prior-failure preservation is checked by a dedicated evidence command in E and the full index remains embedded below. Independent historical recomputation still requires the pinned Git objects; that is an inherent limit of static-only review, not an authority grant.",
         "",
@@ -257,7 +277,7 @@ def build_content(source: str, evidence: str) -> str:
         "",
         "## Portable static-review bundle",
         "",
-        "After Q is created and final S-E-P verification succeeds, the governed workflow builds and uploads EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip. The ZIP contains the frozen source files from S, all E evidence artifacts plus the manifest, P packet content, Q handoff, pinned authority inputs/backing source, and each prior-history artifact named by the prior-evidence index. Its internal BUNDLE-MANIFEST.json attests every other archive entry by SHA-256/size and, for repository objects, Git blob/origin commit/origin path; only BUNDLE-MANIFEST.json itself is excluded to avoid recursive self-hashing, and that exclusion is explicit. The ZIP is review convenience only and grants no authority.",
+        "After Q is created and explicit S-E-P-Q verification succeeds, the governed workflow builds and uploads EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip. The ZIP contains frozen source, all E artifacts, full mutation/self-falsification results, P, Q, the S-E-P-Q verification capture, pinned authority inputs, prior-history artifacts, an offline verifier, exact fetch/replay instructions, and a nested Git bundle carrying the referenced commit objects. BUNDLE-MANIFEST.json attests every other archive entry; only the manifest itself is excluded to avoid recursive self-hashing. The ZIP grants no authority.",
         "",
         "## Pinned authority input bundle",
         "",
