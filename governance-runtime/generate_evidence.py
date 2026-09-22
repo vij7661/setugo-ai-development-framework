@@ -26,6 +26,7 @@ FREEZE = EXP / "EXP-M-SOURCE-FREEZE.json"
 MANIFEST = EXP / "EXP-M-R2E-EVIDENCE-MANIFEST.json"
 
 COMMANDS = (
+    ("source-freeze", [sys.executable, "governance-runtime/freeze_source.py"], "EXP-M-R2E-SOURCE-FREEZE-STDOUT.txt"),
     ("prior-evidence", [sys.executable, "governance-runtime/verify_exp_m_prior_evidence.py"], "EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt"),
     ("tests", [sys.executable, "governance-runtime/run_exp_m_tests.py"], "EXP-M-R2E-TEST-RUN-STDOUT.txt"),
     ("reviewer-core", [sys.executable, "governance-runtime/reviewer_exp_m_r2e_suite.py"], "EXP-M-R2E-REVIEWER-CORE-STDOUT.txt"),
@@ -49,6 +50,7 @@ RESULT_JSONS = (
 )
 
 RESULT_BY_COMMAND = {
+    "source-freeze": "EXP-M-SOURCE-FREEZE.json",
     "tests": "EXP-M-TEST-RESULTS.json",
     "reviewer-compound": "EXP-M-R2E-COMPOUND-RESULTS.json",
     "static-review-probes": "EXP-M-R2E-CLARIFICATION-PROBES.json",
@@ -76,7 +78,7 @@ def _run(command: list[str]) -> subprocess.CompletedProcess[str]:
         cwd=ROOT,
         text=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        stderr=subprocess.PIPE,
         env={**os.environ, "PYTHONUNBUFFERED": "1"},
     )
 
@@ -95,48 +97,83 @@ def _execute_evidence_command(
     completed = _run(list(command))
     stdout_path = EXP / stdout_name
     portable_command = "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command)
-    raw_stdout = completed.stdout
+    raw_stdout = completed.stdout or ""
+    raw_stderr = completed.stderr or ""
     raw_stdout_bytes = raw_stdout.encode("utf-8")
+    raw_stderr_bytes = raw_stderr.encode("utf-8")
+
+    command_source_path = None
+    command_source_sha256 = None
+    if len(command) >= 2:
+        candidate = ROOT / command[1]
+        if candidate.is_file():
+            command_source_path = str(candidate.relative_to(ROOT)).replace("\\", "/")
+            command_source_sha256 = _sha256(candidate)
+
+    result_name = RESULT_BY_COMMAND.get(name)
+    result_path = EXP / result_name if result_name else None
+    result_sha256 = None
+    result_size = None
+    identical_payload = None
+    if result_path is not None:
+        if not result_path.exists():
+            raise SystemExit(f"evidence_command_result_missing:{name}:{result_name}")
+        result_raw = result_path.read_bytes()
+        result_sha256 = hashlib.sha256(result_raw).hexdigest()
+        result_size = len(result_raw)
+        identical_payload = raw_stdout_bytes == result_raw
+        if not identical_payload:
+            raise SystemExit(f"evidence_command_result_not_stdout_identical:{name}")
+
     capture = {
-        "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+        "schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
         "source_commit": source_commit,
         "source_tree": source_tree,
         "captured_at_utc": datetime.now(timezone.utc).isoformat(),
         "command_name": name,
         "command": " ".join(command),
         "portable_command": portable_command,
+        "command_source_path": command_source_path,
+        "command_source_sha256": command_source_sha256,
         "exit_code": completed.returncode,
         "raw_stdout_sha256": hashlib.sha256(raw_stdout_bytes).hexdigest(),
         "raw_stdout_size": len(raw_stdout_bytes),
         "raw_stdout": raw_stdout,
+        "raw_stderr_sha256": hashlib.sha256(raw_stderr_bytes).hexdigest(),
+        "raw_stderr_size": len(raw_stderr_bytes),
+        "raw_stderr": raw_stderr,
+        "result_path": str(result_path.relative_to(ROOT)).replace("\\", "/") if result_path else None,
+        "result_sha256_at_command_exit": result_sha256,
+        "result_size_at_command_exit": result_size,
+        "stdout_payload_identical_to_result": identical_payload,
     }
     stdout_path.write_text(json.dumps(capture, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     record = {
         "name": name,
         "command": " ".join(command),
         "portable_command": portable_command,
+        "command_source_path": command_source_path,
+        "command_source_sha256": command_source_sha256,
         "exit_code": completed.returncode,
         "stdout_path": str(stdout_path.relative_to(ROOT)).replace("\\", "/"),
         "stdout_sha256": _sha256(stdout_path),
-        "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+        "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
         "stdout_payload_sha256": capture["raw_stdout_sha256"],
         "stdout_payload_size": capture["raw_stdout_size"],
-        "stdout_role": "source-bound command-console capture; not independent corroboration",
+        "stderr_payload_sha256": capture["raw_stderr_sha256"],
+        "stderr_payload_size": capture["raw_stderr_size"],
+        "stdout_role": "source-bound exact result serialization" if result_path else "source-bound command-console capture",
     }
-    result_name = RESULT_BY_COMMAND.get(name)
-    if result_name:
-        result_path = EXP / result_name
-        if result_path.exists():
-            result_raw = result_path.read_bytes()
-            identical_payload = raw_stdout_bytes == result_raw
-            record["result_path"] = str(result_path.relative_to(ROOT)).replace("\\", "/")
-            record["stdout_payload_identical_to_result"] = identical_payload
-            if identical_payload:
-                record["stdout_role"] = "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence"
+    if result_path is not None:
+        record["result_path"] = str(result_path.relative_to(ROOT)).replace("\\", "/")
+        record["result_sha256_at_command_exit"] = result_sha256
+        record["result_size_at_command_exit"] = result_size
+        record["stdout_payload_identical_to_result"] = True
     if completed.returncode != 0:
-        raise SystemExit(f"evidence_command_failed:{name}\n{raw_stdout}")
+        raise SystemExit(
+            f"evidence_command_failed:{name}\nSTDOUT:\n{raw_stdout}\nSTDERR:\n{raw_stderr}"
+        )
     return record
-
 
 def _audit_python_imports(source_files: dict[str, str]) -> dict:
     local_modules = {
@@ -259,37 +296,6 @@ def _assert_result_identity(path: Path, source_commit: str, source_tree: str) ->
         raise SystemExit(f"stale_result_source_tree:{path.name}")
 
 
-def _merge_compound_into_self_falsification() -> None:
-    self_path = EXP / "EXP-M-SELF-FALSIFICATION-RESULTS.json"
-    compound_path = EXP / "EXP-M-R2E-COMPOUND-RESULTS.json"
-    self_data = json.loads(self_path.read_text(encoding="utf-8"))
-    compound = json.loads(compound_path.read_text(encoding="utf-8"))
-    existing = list(self_data.get("cases") or [])
-    existing_ids = {str(row.get("id")) for row in existing}
-    for row in compound.get("cases") or []:
-        case_id = str(row.get("id"))
-        if case_id in existing_ids:
-            existing = [x for x in existing if str(x.get("id")) != case_id]
-        existing.append({
-            "id": case_id,
-            "rejected": bool(row.get("rejected")),
-            "rejection_reason": str(row.get("rejection_reason", "")),
-            "source": str(row.get("source", "reviewer_exp_m_r2e_compound_suite.py")),
-        })
-    survivors = [row for row in existing if not row.get("rejected")]
-    self_data["cases"] = existing
-    self_data["total"] = len(existing)
-    self_data["surviving_critical"] = len(survivors)
-    self_data["surviving_high"] = len(survivors)
-    self_data["all_rejected"] = not survivors
-    self_data["reviewer_compound_attacks"] = {
-        "case_ids": [row.get("id") for row in compound.get("cases") or []],
-        "survivor_count": compound.get("survivor_count"),
-        "all_rejected": compound.get("all_rejected"),
-    }
-    self_path.write_text(json.dumps(self_data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
-
 def _allowed_generated(path: str) -> bool:
     return path in EXPECTED_GENERATED_PATHS
 
@@ -297,53 +303,17 @@ def _allowed_generated(path: str) -> bool:
 def generate() -> dict:
     source_commit, source_tree = _assert_clean_source_head()
 
-    freeze_run = _run([sys.executable, "governance-runtime/freeze_source.py"])
-    if freeze_run.returncode != 0:
-        raise SystemExit("source_freeze_failed:\n" + freeze_run.stdout)
-    freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
-    if freeze.get("source_commit") != source_commit or freeze.get("source_tree") != source_tree:
-        raise SystemExit("source_freeze_identity_mismatch")
-
     command_records = []
     for name, command, stdout_name in COMMANDS:
-        if name == "self-adjudication":
-            continue
         command_records.append(
             _execute_evidence_command(name, list(command), stdout_name, source_commit, source_tree)
         )
+        if name == "source-freeze":
+            freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
+            if freeze.get("source_commit") != source_commit or freeze.get("source_tree") != source_tree:
+                raise SystemExit("source_freeze_identity_mismatch")
 
-    _merge_compound_into_self_falsification()
-
-    # Self-adjudication is intentionally executed only after CA-1..CA-10 have
-    # been merged into the final self-falsification artifact. This binds the
-    # adjudication to the exact evidence bytes that will enter E.
-    self_adj = next(row for row in COMMANDS if row[0] == "self-adjudication")
-    command_records.append(
-        _execute_evidence_command(
-            self_adj[0], list(self_adj[1]), self_adj[2], source_commit, source_tree
-        )
-    )
-
-
-    # Some result artifacts are deliberately post-processed after command execution
-    # (notably self-falsification, which receives the frozen CA-1..CA-10 compound
-    # rows). Recompute the declared stdout/result relationship against the final E
-    # bytes rather than leaving the pre-transform relationship stale.
-    for record in command_records:
-        result_path_text = record.get("result_path")
-        if not result_path_text:
-            continue
-        result_path = ROOT / str(result_path_text)
-        stdout_path = ROOT / str(record["stdout_path"])
-        capture = json.loads(stdout_path.read_text(encoding="utf-8"))
-        raw_stdout_bytes = str(capture.get("raw_stdout", "")).encode("utf-8")
-        final_result_bytes = result_path.read_bytes()
-        identical_payload = raw_stdout_bytes == final_result_bytes
-        record["stdout_payload_identical_to_result"] = identical_payload
-        if identical_payload:
-            record["stdout_role"] = "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence"
-        else:
-            record["stdout_role"] = "source-bound command-console capture; final result artifact differs because governed post-processing occurred after command execution"
+    freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
 
     for name in RESULT_JSONS:
         path = EXP / name
@@ -360,8 +330,8 @@ def generate() -> dict:
     observed = {str(row.get("id")) for row in self_data.get("cases") or []}
     if not compound_ids.issubset(observed):
         raise SystemExit("compound_attacks_not_embedded_in_self_falsification")
-    if any(not row.get("rejection_reason") for row in self_data.get("cases") or [] if str(row.get("id")) in compound_ids):
-        raise SystemExit("compound_rejection_reason_missing")
+    if any(not row.get("blocking_guard") for row in self_data.get("cases") or [] if str(row.get("id")) in compound_ids):
+        raise SystemExit("compound_blocking_guard_missing")
     if not self_data.get("all_rejected"):
         raise SystemExit("self_falsification_survivor")
 
@@ -380,7 +350,7 @@ def generate() -> dict:
 
     reproducibility = _reproducibility_environment(dict(freeze.get("source_files") or {}))
     payload = {
-        "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v3",
+        "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v4",
         "source_commit": source_commit,
         "source_tree": source_tree,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
