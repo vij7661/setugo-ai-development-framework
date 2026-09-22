@@ -40,8 +40,31 @@ jobs:
           root = Path(".").resolve()
           sys.path.insert(0, str(root / "governance-runtime"))
           from freeze_source import source_paths
-          from generate_evidence import _reproducibility_environment
+          from generate_evidence import _audit_python_imports, _reproducibility_environment
           from build_exp_m_r2e_packet import _authority_bundle
+          from verify_exp_m_sep_sequence import _is_strict_ancestor, PREREGISTERED_AUTHORITY_COMMIT
+
+          # Adversarial closure probes: a local Python dependency that is not in
+          # the source-freeze set must be detected, and non-literal dynamic
+          # imports must fail the static provenance audit.
+          helper = root / "governance-runtime" / "_r2e_unfrozen_probe.py"
+          importer = root / "governance-runtime" / "_r2e_importer_probe.py"
+          try:
+              helper.write_text("VALUE = 1\n", encoding="utf-8")
+              importer.write_text("import _r2e_unfrozen_probe\n", encoding="utf-8")
+              audit = _audit_python_imports({"governance-runtime/_r2e_importer_probe.py": ""})
+              if "governance-runtime/_r2e_unfrozen_probe.py" not in audit.get("unfrozen_local_imports", []):
+                  raise SystemExit("unfrozen_local_import_probe_false_green")
+              importer.write_text('name = "_r2e_unfrozen_probe"\n__import__(name)\n', encoding="utf-8")
+              audit = _audit_python_imports({"governance-runtime/_r2e_importer_probe.py": ""})
+              if not audit.get("dynamic_import_sites"):
+                  raise SystemExit("dynamic_import_probe_false_green")
+          finally:
+              for probe in (helper, importer):
+                  try:
+                      probe.unlink()
+                  except FileNotFoundError:
+                      pass
 
           repro = _reproducibility_environment({path: "" for path in source_paths()})
           if repro.get("third_party_python_dependencies") != []:
@@ -52,6 +75,10 @@ jobs:
               raise SystemExit("reproducibility_preflight_unpinned_action")
 
           head = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root, text=True).strip()
+          if _is_strict_ancestor(head, head):
+              raise SystemExit("strict_ancestor_same_commit_false_green")
+          if not _is_strict_ancestor(PREREGISTERED_AUTHORITY_COMMIT, head):
+              raise SystemExit("authority_root_preregistration_ancestry_missing")
           authority = _authority_bundle(head)
           if not authority.get("files") or not authority.get("authority_commit"):
               raise SystemExit("packet_authority_bundle_preflight_failed")
