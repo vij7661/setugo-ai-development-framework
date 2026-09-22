@@ -1,4 +1,5 @@
 import copy
+import json
 import sys
 import unittest
 import threading
@@ -160,8 +161,9 @@ class ExpMCoreTests(unittest.TestCase):
         self.assertFalse(preflight(s, c, i, m, "other", p, items).allowed)
 
     def test_current_delivery_binding_is_root_policy_derived_and_non_authoritative(self):
-        freeze = AUTHORITY._source_freeze()
-        self.assertIsNotNone(freeze)
+        freeze = json.loads(
+            Path("experiments/governed-platform/EXP-M-SOURCE-FREEZE.json").read_text(encoding="utf-8")
+        )
         binding = freeze["delivery_binding"]
         expected = AUTHORITY.expected_delivery("r")
         self.assertIs(binding["authoritative"], False)
@@ -179,8 +181,10 @@ class ExpMCoreTests(unittest.TestCase):
             AUTHORITY.root_hash,
             bad_root,
             AUTHORITY.protocol_available,
+            AUTHORITY.source_commit,
+            AUTHORITY.source_tree,
         )
-        with self.assertRaisesRegex(ValueError, "source_freeze_delivery_binding_mismatch"):
+        with self.assertRaisesRegex(ValueError, "authority_root_object_mismatch"):
             untrusted.expected_delivery("r")
 
     def test_reviewer_ack_without_items_rejected(self):
