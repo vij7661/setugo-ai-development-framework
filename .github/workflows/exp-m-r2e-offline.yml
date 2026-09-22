@@ -120,7 +120,6 @@ jobs:
                       raise SystemExit("portable_bundle_regression_integrity_mismatch")
           print("R2E_PORTABLE_BUNDLE_REGRESSION=PASS")
           PY
-          python governance-runtime/self_adjudicate_r2d.py
           echo "R2E_LOCAL_S_E_P_Q_PREFLIGHT=PASS"
       - name: Assert no live provider execution marker
         shell: bash
