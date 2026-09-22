@@ -250,7 +250,7 @@ def build(source: str, evidence: str, packet: str, handoff: str, output: Path) -
         )
 
     identity = {
-        "schema": "EXP-M-R2E-PORTABLE-REVIEW-BUNDLE/v1",
+        "schema": "EXP-M-R2E-PORTABLE-REVIEW-BUNDLE/v2",
         "S": source,
         "S_tree": _tree(source),
         "E": evidence,
@@ -269,14 +269,6 @@ def build(source: str, evidence: str, packet: str, handoff: str, output: Path) -
     identity_raw = (json.dumps(identity, indent=2, sort_keys=True) + "\n").encode()
     add("IDENTITY.json", identity_raw, "bundle identity")
 
-    manifest = {
-        **identity,
-        "entries": sorted(entries, key=lambda row: row["bundle_path"]),
-        "entry_count": len(entries),
-    }
-    manifest_raw = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()
-    payloads["BUNDLE-MANIFEST.json"] = manifest_raw
-
     readme = f"""# EXP-M R2E Portable Static Review Bundle
 
 This ZIP is derived from immutable Git objects after the governed S -> E -> P -> Q chain.
@@ -294,14 +286,33 @@ Contents:
 - handoff/: the exact Q review handoff.
 - authority/: the preregistered authority inputs and retrieval backing source.
 - prior-history/: the prior-evidence index plus each pinned historical artifact.
-- IDENTITY.json and BUNDLE-MANIFEST.json: identities, hashes, sizes, Git blobs, and origin commits.
+- IDENTITY.json: bundle identities and authority boundary.
+- README.md: this review guide.
+- BUNDLE-MANIFEST.json: hash/size/origin attestation for every other archive entry. It intentionally does not hash itself.
 
 The bundle is for static/independent review convenience only.
 It grants no EXP-M qualification and no live provider/API authority.
 A reviewer can recompute SHA-256 values for the included bytes without repository access.
 Authenticating that the stated commit/blob identifiers are the repository's true remote objects still requires an external Git/repository trust source.
 """
-    payloads["README.md"] = readme.encode()
+    add("README.md", readme.encode(), "bundle review guide")
+
+    attested_entries = sorted(entries, key=lambda row: row["bundle_path"])
+    manifest = {
+        **identity,
+        "manifest_schema": "EXP-M-R2E-BUNDLE-MANIFEST/v2",
+        "entries": attested_entries,
+        "entry_count": len(attested_entries),
+        "attested_entry_count": len(attested_entries),
+        "archive_entry_count": len(attested_entries) + 1,
+        "self_attestation": {
+            "path": "BUNDLE-MANIFEST.json",
+            "included_in_entries": False,
+            "reason": "A file cannot contain a stable cryptographic hash of its own final bytes without self-reference.",
+        },
+    }
+    manifest_raw = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()
+    payloads["BUNDLE-MANIFEST.json"] = manifest_raw
 
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
@@ -311,11 +322,38 @@ Authenticating that the stated commit/blob identifiers are the repository's true
             info.external_attr = 0o100644 << 16
             archive.writestr(info, payloads[name])
 
+    # Self-verify the review convenience artifact before publishing it.
+    with zipfile.ZipFile(output, "r") as archive:
+        names = archive.namelist()
+        if len(names) != len(set(names)):
+            raise SystemExit("portable_bundle_duplicate_archive_entry")
+        if set(names) != set(payloads):
+            raise SystemExit("portable_bundle_archive_entry_set_mismatch")
+        persisted_manifest = json.loads(archive.read("BUNDLE-MANIFEST.json"))
+        persisted_entries = persisted_manifest.get("entries") or []
+        if persisted_manifest.get("entry_count") != len(persisted_entries):
+            raise SystemExit("portable_bundle_manifest_entry_count_mismatch")
+        if persisted_manifest.get("attested_entry_count") != len(persisted_entries):
+            raise SystemExit("portable_bundle_attested_entry_count_mismatch")
+        if persisted_manifest.get("archive_entry_count") != len(names):
+            raise SystemExit("portable_bundle_archive_entry_count_mismatch")
+        expected_attested_paths = set(names) - {"BUNDLE-MANIFEST.json"}
+        observed_attested_paths = {str(row.get("bundle_path", "")) for row in persisted_entries}
+        if observed_attested_paths != expected_attested_paths:
+            raise SystemExit("portable_bundle_manifest_coverage_mismatch")
+        for row in persisted_entries:
+            name = str(row["bundle_path"])
+            raw = archive.read(name)
+            if len(raw) != int(row["size"]) or _sha256(raw) != str(row["sha256"]):
+                raise SystemExit(f"portable_bundle_manifest_integrity_mismatch:{name}")
+
     return {
         "path": str(output),
         "sha256": _sha256(output.read_bytes()),
         "size": output.stat().st_size,
-        "entry_count": len(payloads),
+        "entry_count": len(attested_entries),
+        "attested_entry_count": len(attested_entries),
+        "archive_entry_count": len(payloads),
         "S": source,
         "E": evidence,
         "P": packet,
