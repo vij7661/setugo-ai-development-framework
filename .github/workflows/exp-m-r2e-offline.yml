@@ -32,18 +32,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cd governance-runtime
-          python freeze_source.py
-          python -m compileall -q .
+          python -m compileall -q governance-runtime
           python - <<'PY'
-          import json, subprocess
+          import subprocess, sys
           from pathlib import Path
+
+          root = Path(".").resolve()
+          sys.path.insert(0, str(root / "governance-runtime"))
+          from freeze_source import source_paths
           from generate_evidence import _reproducibility_environment
           from build_exp_m_r2e_packet import _authority_bundle
 
-          root = Path("..").resolve()
-          freeze = json.loads((root / "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json").read_text(encoding="utf-8"))
-          repro = _reproducibility_environment(dict(freeze.get("source_files") or {}))
+          repro = _reproducibility_environment({path: "" for path in source_paths()})
           if repro.get("third_party_python_dependencies") != []:
               raise SystemExit("reproducibility_preflight_third_party_dependency")
           if repro.get("network_capable_imports") != []:
@@ -57,17 +57,12 @@ jobs:
               raise SystemExit("packet_authority_bundle_preflight_failed")
           print("R2E_REPRODUCIBILITY_AND_PACKET_HELPER_PREFLIGHT=PASS")
           PY
-          python run_exp_m_tests.py
-          python reviewer_exp_m_r2e_suite.py
-          python reviewer_exp_m_r2e_authority_suite.py
-          python run_reviewer_compound_attacks.py
-          python run_exp_m_static_review_probes.py
-          python verify_exp_m_prior_evidence.py
-          python run_exp_m_deterministic.py
-          python run_exp_m_mutations.py
-          python self_falsify_exp_m.py
-          python self_adjudicate_r2d.py
-          python build_exp_m_portable_review_bundle.py \
+          # Exercise the exact final evidence generator before any source freeze is authorized.
+          # This runs the full offline command set and validates fresh artifact/source binding
+          # without committing E or granting authority.
+          python governance-runtime/generate_evidence.py
+          python governance-runtime/self_adjudicate_r2d.py
+          python governance-runtime/build_exp_m_portable_review_bundle.py \
             --source 63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a \
             --evidence ae0fd712b1a8a1a703898bf361ff071d9b7edabb \
             --packet 2e166e75a56c53d3947b5487e5ac274e8c190c06 \
