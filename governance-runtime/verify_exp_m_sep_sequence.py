@@ -15,12 +15,12 @@ FREEZE_PATH = "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json"
 EVIDENCE_MANIFEST_PATH = "experiments/governed-platform/EXP-M-R2E-EVIDENCE-MANIFEST.json"
 PACKET_CONTENT_PATH = "experiments/governed-platform/EXP-M-R2E-PACKET-CONTENT.md"
 HANDOFF_PATH = "experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md"
-PREREGISTERED_AUTHORITY_COMMIT = "251647e5f44d394b761f1c6cdbb02a779901bc43"
+PREREGISTERED_AUTHORITY_COMMIT = "f0792cc01915eb3accd893aba2ed107bed9ec560"
 AUTHORITY_ROOT_PATH = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
 
 REVIEWER_SUITE_ANCHORS = (
     ("governance-runtime/reviewer_exp_m_r2e_suite.py", "04913502b7ea1dcb11d551b2bec27c5a8d9c4a8a"),
-    ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "8292184ae0692ab55dd0329377eea40b02e9e028"),
+    ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "aae96510eb1ac05b45b961b62a5ea2b010ad6b32"),
     ("governance-runtime/reviewer_exp_m_r2e_compound_suite.py", "4c70788b9fc8c8ec93f5ea90bedc762c827f090a"),
 )
 REVIEWER_SUITE_PATHS = tuple(path for path, _ in REVIEWER_SUITE_ANCHORS)
@@ -180,7 +180,7 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
     except Exception:
         reasons.append("preregistered_authority_root_unavailable")
         authority_root = {}
-    if authority_root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2":
+    if authority_root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-3":
         reasons.append("preregistered_authority_root_invalid")
     authority_ref = freeze.get("authority_reference") or {}
     current_policy = authority_root.get("current_source_identity_policy") or {}
