@@ -57,6 +57,8 @@ def verify_prior_evidence_index(
         if row["path"] != entry["path"] or row["commit"] != entry["commit"]:
             reasons.append(f"prior_evidence_identity_mismatch:{evidence_id}")
             continue
+        if row["claim"] != entry["claim"] or row["disposition"] != entry["disposition"]:
+            reasons.append(f"prior_evidence_metadata_mismatch:{evidence_id}")
         try:
             raw = _git_bytes(row["commit"], row["path"])
         except subprocess.CalledProcessError:
