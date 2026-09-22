@@ -10,7 +10,7 @@ test_ca8_reviewer_suite_modified_after_source_freeze (reviewer_exp_m_r2e_compoun
 test_ca9_caller_pass_with_failed_predicate (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca9_caller_pass_with_failed_predicate) ... ok
 
 ----------------------------------------------------------------------
-Ran 10 tests in 1.311s
+Ran 10 tests in 1.489s
 
 OK
 {
@@ -23,6 +23,7 @@ OK
       "id": "CA-1",
       "rejected": true,
       "rejection_reason": "expectation_authority_invalid",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca1_self_consistent_context_plus_forged_complete_receipt"
     },
@@ -31,6 +32,7 @@ OK
       "id": "CA-2",
       "rejected": true,
       "rejection_reason": "evidence_token_mismatch",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca2_correctly_keyed_token_for_different_bundle"
     },
@@ -39,6 +41,7 @@ OK
       "id": "CA-3",
       "rejected": true,
       "rejection_reason": "authority_reviewed_commit_mismatch",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca3_fabricated_manifest_plus_matching_caller_commit"
     },
@@ -47,6 +50,7 @@ OK
       "id": "CA-4",
       "rejected": true,
       "rejection_reason": "retrieval_and_delivery_binding_rejected",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca4_fabricated_retrieval_bytes_plus_forged_receipt"
     },
@@ -55,6 +59,7 @@ OK
       "id": "CA-5",
       "rejected": true,
       "rejection_reason": "archive_and_schedule_attack_rejected",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca5_zip_named_bin_plus_fake_schedule_diversity"
     },
@@ -63,6 +68,7 @@ OK
       "id": "CA-6",
       "rejected": true,
       "rejection_reason": "qualification_authority_plan_missing",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca6_authority_plan_absent_but_caller_plan_self_consistent"
     },
@@ -71,6 +77,7 @@ OK
       "id": "CA-7",
       "rejected": true,
       "rejection_reason": "indexed_prior_artifact_missing",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca7_prior_artifact_deleted_but_index_unchanged"
     },
@@ -79,22 +86,27 @@ OK
       "id": "CA-8",
       "rejected": true,
       "rejection_reason": "reviewer_suite_hash_drift",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca8_reviewer_suite_modified_after_source_freeze"
     },
     {
       "failure": null,
+      "guard_semantics": "FALSE means failed predicates derive CHANGES_REQUIRED; a caller-supplied PASS cannot override that derived disposition.",
       "id": "CA-9",
       "rejected": true,
       "rejection_reason": "disposition_promotable",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca9_caller_pass_with_failed_predicate"
     },
     {
       "failure": null,
+      "fault_injection": "AuthorityHandle.with_missing_r5_protocol_for_test() sets protocol_available=False for this negative test only; the frozen R5 protocol remains present in the authority root.",
       "id": "CA-10",
       "rejected": true,
       "rejection_reason": "r5_protocol_unavailable",
+      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca10_missing_protocol_with_self_consistent_record"
     }
@@ -102,9 +114,9 @@ OK
   "execution": {
     "command": "python governance-runtime/run_reviewer_compound_attacks.py",
     "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "13f7f17e7c1609de37dc3d1c4bc35a762607ecb5",
-    "source_tree": "e07fa898c6abbabf667e1e62de45992d75966f18",
-    "utc": "2026-09-20T14:34:37.392213+00:00"
+    "source_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a",
+    "source_tree": "596c9bec58cd40f8ac27999f26ea62b6a2cc109d",
+    "utc": "2026-09-22T06:33:39.938058+00:00"
   },
   "exp_m_state": "NOT_QUALIFIED",
   "live_provider_api_execution": false,
