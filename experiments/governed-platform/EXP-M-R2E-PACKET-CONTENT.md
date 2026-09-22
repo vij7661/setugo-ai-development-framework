@@ -9,12 +9,12 @@
 
 ## Identity
 
-- S source commit: 63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a
-- S source tree: 596c9bec58cd40f8ac27999f26ea62b6a2cc109d
-- E evidence commit: ae0fd712b1a8a1a703898bf361ff071d9b7edabb
-- E evidence tree: c53218da9954d795ae0799a6fceac3a395ebaed4
-- Evidence manifest SHA-256 at E: 9ba72fde64baf3c5d85abb6f25399e1b0004d42017c37fbdcdbec0a7e8ba3a28
-- Evidence manifest Git blob at E: f440462fd69e47b22fd1655da4d0247cf3080a3c
+- S source commit: 82b39a4cf2ab4c89777c3eb3179391ccb268353e
+- S source tree: 994fa0c838d500b7bc2fe28250851d3cbae45f77
+- E evidence commit: ed0e613708e852d27a0db7de8a99dab7cd99417a
+- E evidence tree: 2b5f824941a6b8c45291794e7e683d8dde59f943
+- Evidence manifest SHA-256 at E: 25bd3627b65c9aab3d6294207ffd40ecf4caaa92175b34f280e51dbd6396469b
+- Evidence manifest Git blob at E: f201d18beb263479aa28db503be79fd153f1b697
 - P packet-content commit: established by the first commit containing this file; the exact P SHA is reported in the post-P handoff document to avoid Git commit-hash self-reference.
 
 ## S -> E changed paths
@@ -22,6 +22,7 @@
 ~~~text
 experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json
 experiments/governed-platform/EXP-M-MUTATION-RESULTS.json
+experiments/governed-platform/EXP-M-R2D-SELF-ADJUDICATION.json
 experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json
 experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json
 experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt
@@ -31,6 +32,7 @@ experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt
 experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt
 experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt
 experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt
+experiments/governed-platform/EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt
 experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt
 experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt
 experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt
@@ -150,9 +152,9 @@ experiments/governed-platform/EXP-M-TEST-RESULTS.json
   "execution": {
     "command": "python governance-runtime/run_reviewer_compound_attacks.py",
     "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a",
-    "source_tree": "596c9bec58cd40f8ac27999f26ea62b6a2cc109d",
-    "utc": "2026-09-22T06:33:39.938058+00:00"
+    "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
+    "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77",
+    "utc": "2026-09-22T07:19:33.507691+00:00"
   },
   "exp_m_state": "NOT_QUALIFIED",
   "live_provider_api_execution": false,
@@ -170,24 +172,24 @@ experiments/governed-platform/EXP-M-TEST-RESULTS.json
   "delivery_authority": {
     "requests": {
       "r": {
-        "manifest_hash": "d78b4d92914062aa249e4e99684cd265e7cd2db9f09d496bd3ce27b02d86fe53",
-        "reviewed_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a"
+        "manifest_hash": "c49ceb0241e3787d1dbca953dca81e5e265dddbd7ce4d544f6848e918f0baefc",
+        "reviewed_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e"
       }
     }
   },
   "exp_m_state": "NOT_QUALIFIED",
   "live_provider_api_execution": false,
   "schema": "EXP-M-SOURCE-FREEZE/v1",
-  "source_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a",
+  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
   "source_files": {
-    ".github/workflows/exp-m-r2e-offline.yml": "61c95474063332e9d49a08686748a4218cff5a3b1885090671960496c48422c9",
+    ".github/workflows/exp-m-r2e-offline.yml": "8de5d830ae12b37cb52059eb13a66e8d361061dd9bddf008fc2335711d2783c4",
     ".github/workflows/exp-m-r2e-sep.yml": "dd27d845df12b789e933bce66a19707ab29dc707d55aadd4634038e0b7dd3845",
-    "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md": "de65f8aff326e3b1e660c1707086c6b0695e08749a16a8e0de6023b3863d8f1b",
-    "experiments/governed-platform/PRIOR-EVIDENCE-INDEX.md": "f6d661614626c9107185fdc12e0cf0af175dee991fe7eda12ed86490742fbee5",
-    "governance-runtime/build_exp_m_portable_review_bundle.py": "5adec7a84edb4db7b902887e2909c1d93e64dedd9f46453c17ed9a617de680f5",
-    "governance-runtime/build_exp_m_r2e_packet.py": "f647cdba79b78e3e4ec8d0cb08a2e6a0f598c449743999e067ef300d3e2743d5",
+    "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md": "408a3485e51521e223aacf30bd1185b67ec68f14b6b352d7f65a866ecbffe73c",
+    "experiments/governed-platform/PRIOR-EVIDENCE-INDEX.md": "eeebb2444c12d24922581851518a308586fc9441f3452ebf698799de78eea4d8",
+    "governance-runtime/build_exp_m_portable_review_bundle.py": "e7ee4131ea0d5e7816642c1a228bd3013e42fe62ccff04585e8040150de07e02",
+    "governance-runtime/build_exp_m_r2e_packet.py": "d78572b38b32a51a3d2ea20cad038c970bae07e2c5f4c162a9839853bc28ab81",
     "governance-runtime/build_exp_m_review_packet.py": "c2861f61278d0c529a5719e588e9022f73d35ff31c7c6a20a9b381ed4aa8bc0a",
-    "governance-runtime/build_prior_evidence_index.py": "bc777ea30960991e0247f8ed58aef749bce94b751bc329c042cc2a3a2fb812b0",
+    "governance-runtime/build_prior_evidence_index.py": "591f611995a724005f74044659dd7f3470286555c8bf792c5a6b4bf2786c00b7",
     "governance-runtime/exp_m_deterministic.py": "238d4c38271aec8fb9c67e7a5b9226dd8a213a1f58bc2eab4c59d7e701b52dff",
     "governance-runtime/exp_m_expectation_authority.py": "01b67779e7af945eb6f6d276952dd0e0099dc758beb1a964a72a7352166dacba",
     "governance-runtime/exp_m_mutation_catalog.py": "5c9da2dad5f36451075e1847c368eae031e4ff8f08baa3ca938f3eaa57bff08d",
@@ -195,7 +197,7 @@ experiments/governed-platform/EXP-M-TEST-RESULTS.json
     "governance-runtime/exp_m_review_fixtures.py": "91f02d0cd05902cfa2c47e6a3d2bc12522438a46fcf3963cc774c21ae9b6f3a4",
     "governance-runtime/exp_m_test_fixtures.py": "4d3cabb858481dc7e39c523b7b353740011e87c2c4b81c42a7686d357b488832",
     "governance-runtime/freeze_source.py": "89eb46914ac2e267117b95c98b1e03dce4f18fa796118ab8d5c6cda1f4dfc344",
-    "governance-runtime/generate_evidence.py": "ce3671befbc2cafaaf7b05d1bfdef0ca7427ba1f6eda342b5a33be8f3aabba5c",
+    "governance-runtime/generate_evidence.py": "097ca8e61f08a70a1b25da28114cc66410db53bf02143cc239c164b0019a5657",
     "governance-runtime/reviewer_exp_m_r2e_authority_suite.py": "5a390122252a702a54aefa12794883f1ccadb15b07116d9a3759675f55bd86de",
     "governance-runtime/reviewer_exp_m_r2e_compound_suite.py": "4d4668db91efc73ce5327c49c22cdeb2d9e62e10ae5509eec14dfead454b4329",
     "governance-runtime/reviewer_exp_m_r2e_suite.py": "f5164eec5e795b9ef927f65b8a0261a8736dab2e10c86a3a6a868cde0055dd96",
@@ -208,11 +210,11 @@ experiments/governed-platform/EXP-M-TEST-RESULTS.json
     "governance-runtime/self_falsify_exp_m.py": "4076873139f4da13ff6a0b15998081d487feff601fc77c3228f5754276c02436",
     "governance-runtime/test_exp_m_deterministic.py": "c484e6e29e304019330c28e761ac971c5b52f2fb427c6ac1495a7b3ab83ba089",
     "governance-runtime/test_exp_m_phases.py": "7db4f55d3aaac806f908338da7abbdade85c5ce354ce1204e3fceafefccc12fa",
-    "governance-runtime/verify_exp_m_prior_evidence.py": "ef3a4d48e78cba27dcc323424ca04f0b2c02f2389fb58204a3d7f294fb719388",
-    "governance-runtime/verify_exp_m_sep_sequence.py": "9c86bb2113eb82b51aa1da6e5fd83b21260827b553ead76191f2c9cb1aeb3485",
+    "governance-runtime/verify_exp_m_prior_evidence.py": "b31ead9529327addb156dad10722f9955a485d126e2bf26e9fd7f02429267420",
+    "governance-runtime/verify_exp_m_sep_sequence.py": "9bd5d8acf799235abd4358d6243562720149d3b0cc8fb9289c463b26af4bc829",
     "governance-runtime/verify_sep_sequence.py": "24928ca87f9dccac33ae7262e0a95cd8a1096e2f9a8d1512e0205dcf0f65289b"
   },
-  "source_tree": "596c9bec58cd40f8ac27999f26ea62b6a2cc109d"
+  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
 }
 ~~~
 
@@ -225,83 +227,93 @@ The evidence manifest intentionally does not list itself as an artifact because 
   "artifacts": [
     {
       "path": "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json",
-      "sha256": "373c94bcb76da5a696d48db4ac5407f38a92ea2a9f8fa7bdc853cc310bfdd17a",
+      "sha256": "872147c3f054aa018de20843d44155ff17e1cde63662366ae51a9c07731a90ce",
       "size": 4303
     },
     {
       "path": "experiments/governed-platform/EXP-M-TEST-RESULTS.json",
-      "sha256": "70f0da81e90edd490e83b42f39c71bee9e886de262b2961a3c563d27d2cf6423",
+      "sha256": "00000bef64cf74047e61e65cbf4d1e6f71a4cf634a123c3e2c79f1d43111cc94",
       "size": 8310
     },
     {
       "path": "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json",
-      "sha256": "a6642be71a7be52feab6e2f6e0979cb486cef9fb2d6498b923d5b55fa080d278",
+      "sha256": "d98af59bc24f2b441f0ef3da6891fab1e6ad5a0e8dcf6b6ae0dd2651a67d7551",
       "size": 30495
     },
     {
       "path": "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json",
-      "sha256": "971153a6059b2051957270ad60ac6027e1218c03ccba21c92aa0efde724115eb",
+      "sha256": "f3134f65f216a9b028f4219cdffb30ae2f5bb171c55ce8f117a3aaf208ee009a",
       "size": 32290
     },
     {
       "path": "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json",
-      "sha256": "7ab2c53cccb080b6cd8d1d2bd8b3391d295986d773b688c2af8a6ad6b7c98e8f",
+      "sha256": "111f48c573d1f255b29f0e63aaaa6eaff7e5a12e444021b729da1cf0f90bb75d",
       "size": 6450
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json",
-      "sha256": "4decf4dabe11f2ea69d849c1d82a6451c8cb21ea0c5ce90f84997c546d10032f",
+      "sha256": "deeb790debd78b0ff2214d8539605c9bb86ef07e08af3f88af9752a51425dc6e",
       "size": 4615
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json",
-      "sha256": "b25ddd5c4da4f0f09556ffbcca645fce8664640cd692286a825a916773be7a5f",
+      "sha256": "cebc270f1e3716bc662f0c58e6495a1d41982aa30702032b8b93fa3c230f51cc",
       "size": 3015
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2D-SELF-ADJUDICATION.json",
+      "sha256": "610de042c4007f801d3ecf4ef59d9dd890499fdfa1bf16398c9404e9c715a16c",
+      "size": 760
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt",
-      "sha256": "4655fb93a5b5b0105ff370eb8b00f0b90913fc448c7f8e7dc630d037883c12c7",
-      "size": 26
+      "sha256": "eb9de12f7e5ca32e75e7801601127dfcb9773bb72dea35b8114436b0d186b1d9",
+      "size": 643
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt",
-      "sha256": "70f0da81e90edd490e83b42f39c71bee9e886de262b2961a3c563d27d2cf6423",
-      "size": 8310
+      "sha256": "bcaa303b064dcdf7849231e503141d2fb19b57cf5147030a3fd642ede42482a9",
+      "size": 9117
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt",
-      "sha256": "6ec2d9fc5c4105ec484f0358d72e64a04635a03395757bb37014a816383eb11b",
-      "size": 1347
+      "sha256": "f3c11c8454dc11bda27804cee01ec383a5e93eb4e3fed48da88f8ee1656c505c",
+      "size": 1972
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt",
-      "sha256": "373634e95ed7ae361ffa5f1c20c0b725de483daea7f10dcd0fc2f9cafa5712f7",
-      "size": 1218
+      "sha256": "378f8949473af426cd5140f6dd0fdebd0b82391aab461fe71186e6b3c02c86a7",
+      "size": 1866
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt",
-      "sha256": "7d33ff8085d210485d046cf0e11a852e0620870ba689813fec1c64afd1972963",
-      "size": 6434
+      "sha256": "cf1298acd2e05787ac2c3d652aa206283ae555c0e12615112bb45d5970e578d7",
+      "size": 7479
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt",
-      "sha256": "b25ddd5c4da4f0f09556ffbcca645fce8664640cd692286a825a916773be7a5f",
-      "size": 3015
+      "sha256": "bee9f663de074cb20fc4ab5a75eb4e2128c7291ee71eddae61c98aada0e63315",
+      "size": 3903
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt",
-      "sha256": "a6642be71a7be52feab6e2f6e0979cb486cef9fb2d6498b923d5b55fa080d278",
-      "size": 30495
+      "sha256": "d849e13185f5ef5e6dcc42aad083843c9886e1c1a2a65d905f76010cc3cbfe63",
+      "size": 34495
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt",
-      "sha256": "971153a6059b2051957270ad60ac6027e1218c03ccba21c92aa0efde724115eb",
-      "size": 32290
+      "sha256": "7ce41fd8bc97412335aeae0678f84584a925471480dad4b4054a799511460146",
+      "size": 36369
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt",
-      "sha256": "728319ba900a411bcf8932860c4f820e01c98c601881f4715c0dd4279ba0691f",
-      "size": 4479
+      "sha256": "8be6e30d3f9bfbb9b40425a9f5114b653b0b474c28239fc0e7ad99bec95f3a25",
+      "size": 5650
+    },
+    {
+      "path": "experiments/governed-platform/EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt",
+      "sha256": "2b88932cbb555b994fa46edb38bf568e11743a462273a9e101252723c295d6f8",
+      "size": 1444
     }
   ],
   "authority_effect": "NONE",
@@ -311,9 +323,12 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "exit_code": 0,
       "name": "prior-evidence",
       "portable_command": "python governance-runtime/verify_exp_m_prior_evidence.py",
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt",
-      "stdout_role": "command_console_capture",
-      "stdout_sha256": "4655fb93a5b5b0105ff370eb8b00f0b90913fc448c7f8e7dc630d037883c12c7"
+      "stdout_payload_sha256": "4655fb93a5b5b0105ff370eb8b00f0b90913fc448c7f8e7dc630d037883c12c7",
+      "stdout_payload_size": 26,
+      "stdout_role": "source-bound command-console capture; not independent corroboration",
+      "stdout_sha256": "eb9de12f7e5ca32e75e7801601127dfcb9773bb72dea35b8114436b0d186b1d9"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_tests.py",
@@ -321,28 +336,37 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "name": "tests",
       "portable_command": "python governance-runtime/run_exp_m_tests.py",
       "result_path": "experiments/governed-platform/EXP-M-TEST-RESULTS.json",
-      "stdout_identical_to_result": true,
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt",
-      "stdout_role": "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "70f0da81e90edd490e83b42f39c71bee9e886de262b2961a3c563d27d2cf6423"
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "00000bef64cf74047e61e65cbf4d1e6f71a4cf634a123c3e2c79f1d43111cc94",
+      "stdout_payload_size": 8310,
+      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
+      "stdout_sha256": "bcaa303b064dcdf7849231e503141d2fb19b57cf5147030a3fd642ede42482a9"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_suite.py",
       "exit_code": 0,
       "name": "reviewer-core",
       "portable_command": "python governance-runtime/reviewer_exp_m_r2e_suite.py",
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt",
-      "stdout_role": "command_console_capture",
-      "stdout_sha256": "6ec2d9fc5c4105ec484f0358d72e64a04635a03395757bb37014a816383eb11b"
+      "stdout_payload_sha256": "fd958ffe271ce00b1946baf60ff73478de012f3ad3587b971a541a904d4b2600",
+      "stdout_payload_size": 1347,
+      "stdout_role": "source-bound command-console capture; not independent corroboration",
+      "stdout_sha256": "f3c11c8454dc11bda27804cee01ec383a5e93eb4e3fed48da88f8ee1656c505c"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
       "exit_code": 0,
       "name": "reviewer-authority",
       "portable_command": "python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt",
-      "stdout_role": "command_console_capture",
-      "stdout_sha256": "373634e95ed7ae361ffa5f1c20c0b725de483daea7f10dcd0fc2f9cafa5712f7"
+      "stdout_payload_sha256": "eb99db7e5996d07a6a8d8554e091321d47250e5da596254365939922a4de12f9",
+      "stdout_payload_size": 1218,
+      "stdout_role": "source-bound command-console capture; not independent corroboration",
+      "stdout_sha256": "378f8949473af426cd5140f6dd0fdebd0b82391aab461fe71186e6b3c02c86a7"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_reviewer_compound_attacks.py",
@@ -350,10 +374,13 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "name": "reviewer-compound",
       "portable_command": "python governance-runtime/run_reviewer_compound_attacks.py",
       "result_path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json",
-      "stdout_identical_to_result": false,
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt",
-      "stdout_role": "command_console_capture",
-      "stdout_sha256": "7d33ff8085d210485d046cf0e11a852e0620870ba689813fec1c64afd1972963"
+      "stdout_payload_identical_to_result": false,
+      "stdout_payload_sha256": "6b8b1759b561a6c530f7deb80381b20bc4cfd1778675c6f50d3a937d30ddfd12",
+      "stdout_payload_size": 6434,
+      "stdout_role": "source-bound command-console capture; final result artifact differs because governed post-processing occurred after command execution",
+      "stdout_sha256": "cf1298acd2e05787ac2c3d652aa206283ae555c0e12615112bb45d5970e578d7"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_static_review_probes.py",
@@ -361,10 +388,13 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "name": "static-review-probes",
       "portable_command": "python governance-runtime/run_exp_m_static_review_probes.py",
       "result_path": "experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json",
-      "stdout_identical_to_result": true,
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt",
-      "stdout_role": "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "b25ddd5c4da4f0f09556ffbcca645fce8664640cd692286a825a916773be7a5f"
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "cebc270f1e3716bc662f0c58e6495a1d41982aa30702032b8b93fa3c230f51cc",
+      "stdout_payload_size": 3015,
+      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
+      "stdout_sha256": "bee9f663de074cb20fc4ab5a75eb4e2128c7291ee71eddae61c98aada0e63315"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_deterministic.py",
@@ -372,10 +402,13 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "name": "phases",
       "portable_command": "python governance-runtime/run_exp_m_deterministic.py",
       "result_path": "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json",
-      "stdout_identical_to_result": true,
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt",
-      "stdout_role": "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "a6642be71a7be52feab6e2f6e0979cb486cef9fb2d6498b923d5b55fa080d278"
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "d98af59bc24f2b441f0ef3da6891fab1e6ad5a0e8dcf6b6ae0dd2651a67d7551",
+      "stdout_payload_size": 30495,
+      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
+      "stdout_sha256": "d849e13185f5ef5e6dcc42aad083843c9886e1c1a2a65d905f76010cc3cbfe63"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_mutations.py",
@@ -383,10 +416,13 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "name": "mutations",
       "portable_command": "python governance-runtime/run_exp_m_mutations.py",
       "result_path": "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json",
-      "stdout_identical_to_result": true,
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt",
-      "stdout_role": "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "971153a6059b2051957270ad60ac6027e1218c03ccba21c92aa0efde724115eb"
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "f3134f65f216a9b028f4219cdffb30ae2f5bb171c55ce8f117a3aaf208ee009a",
+      "stdout_payload_size": 32290,
+      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
+      "stdout_sha256": "7ce41fd8bc97412335aeae0678f84584a925471480dad4b4054a799511460146"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/self_falsify_exp_m.py",
@@ -394,15 +430,32 @@ The evidence manifest intentionally does not list itself as an artifact because 
       "name": "self-falsification",
       "portable_command": "python governance-runtime/self_falsify_exp_m.py",
       "result_path": "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json",
-      "stdout_identical_to_result": true,
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt",
-      "stdout_role": "duplicate_serialization_of_result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "728319ba900a411bcf8932860c4f820e01c98c601881f4715c0dd4279ba0691f"
+      "stdout_payload_identical_to_result": false,
+      "stdout_payload_sha256": "b187fd48ef007cf8f3d5896efc1797abb72b2a940a0e4eb9a77e677cc77e56b8",
+      "stdout_payload_size": 4479,
+      "stdout_role": "source-bound command-console capture; final result artifact differs because governed post-processing occurred after command execution",
+      "stdout_sha256": "8be6e30d3f9bfbb9b40425a9f5114b653b0b474c28239fc0e7ad99bec95f3a25"
+    },
+    {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/self_adjudicate_r2d.py",
+      "exit_code": 0,
+      "name": "self-adjudication",
+      "portable_command": "python governance-runtime/self_adjudicate_r2d.py",
+      "result_path": "experiments/governed-platform/EXP-M-R2D-SELF-ADJUDICATION.json",
+      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt",
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "610de042c4007f801d3ecf4ef59d9dd890499fdfa1bf16398c9404e9c715a16c",
+      "stdout_payload_size": 760,
+      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
+      "stdout_sha256": "2b88932cbb555b994fa46edb38bf568e11743a462273a9e101252723c295d6f8"
     }
   ],
   "compound_attack_survivors": 0,
   "exp_m_state": "NOT_QUALIFIED",
-  "generated_at_utc": "2026-09-22T06:35:41.234919+00:00",
+  "generated_at_utc": "2026-09-22T07:21:11.336479+00:00",
   "live_provider_api_execution": false,
   "manifest_self_attestation": {
     "included_in_artifacts": false,
@@ -439,9 +492,9 @@ The evidence manifest intentionally does not list itself as an artifact because 
     "runner_os": "Linux",
     "third_party_python_dependencies": []
   },
-  "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v2",
-  "source_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a",
-  "source_tree": "596c9bec58cd40f8ac27999f26ea62b6a2cc109d"
+  "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v3",
+  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
+  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
 }
 ~~~
 
@@ -450,11 +503,11 @@ The evidence manifest intentionally does not list itself as an artifact because 
 ~~~json
 {
   "attestation_stage": "P",
-  "git_blob": "f440462fd69e47b22fd1655da4d0247cf3080a3c",
+  "git_blob": "f201d18beb263479aa28db503be79fd153f1b697",
   "path": "experiments/governed-platform/EXP-M-R2E-EVIDENCE-MANIFEST.json",
   "reason_not_self_listed": "The manifest cannot safely contain its own final cryptographic hash without self-reference. P independently attests the exact manifest bytes stored at E.",
-  "sha256": "9ba72fde64baf3c5d85abb6f25399e1b0004d42017c37fbdcdbec0a7e8ba3a28",
-  "size": 10719
+  "sha256": "25bd3627b65c9aab3d6294207ffd40ecf4caaa92175b34f280e51dbd6396469b",
+  "size": 14266
 }
 ~~~
 
@@ -466,9 +519,9 @@ The evidence manifest intentionally does not list itself as an artifact because 
   "execution": {
     "command": "python governance-runtime/run_exp_m_static_review_probes.py",
     "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a",
-    "source_tree": "596c9bec58cd40f8ac27999f26ea62b6a2cc109d",
-    "utc": "2026-09-22T06:33:40.241334+00:00"
+    "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
+    "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77",
+    "utc": "2026-09-22T07:19:33.756971+00:00"
   },
   "exp_m_state": "NOT_QUALIFIED",
   "live_provider_api_execution": false,
@@ -604,9 +657,11 @@ Classification: EVIDENCE-INDEPENDENCE CLARIFICATION
 Some runners serialize the result JSON to a file and print the same serialization to stdout. Those two files are duplicate representations and must not be counted as independent corroboration.
 
 Remediation:
-- Each command record now carries stdout_role.
-- Where hashes and sizes match the corresponding JSON result, the manifest sets stdout_identical_to_result=true and labels STDOUT as duplicate_serialization_of_result_json.
-- The packet explicitly states that such STDOUT is command-console capture, not independent evidence.
+- Every command-console capture is now wrapped in a source-bound envelope carrying the exact S commit/tree, command identity, exit code, capture time, and SHA-256/size of the raw console payload.
+- The evidence manifest records the envelope hash separately from the raw payload hash.
+- When the raw console payload is byte-identical to a corresponding result JSON, the manifest records stdout_payload_identical_to_result=true and labels the capture as non-independent evidence rather than presenting it as corroboration.
+- S-E-P verification independently parses every capture envelope, recomputes both envelope and raw-payload hashes/sizes, verifies the S identity and command identity, and checks the declared relationship to any result artifact.
+- This also prevents a constant/stale console artifact from silently surviving into a fresh E unchanged.
 
 Adjudication: REMEDIATED.
 
@@ -660,7 +715,7 @@ Authority effect remains NONE. EXP-M remains NOT_QUALIFIED.
 
 - CA-9: disposition_promotable is a blocking predicate identifier, not a positive status. In this attack the underlying predicates fail, the governor derives CHANGES_REQUIRED, and a caller-supplied PASS cannot override it; therefore disposition_promotable evaluates false.
 - CA-10: r5_protocol_unavailable is deliberately fault-injected by AuthorityHandle.with_missing_r5_protocol_for_test() for that negative case only. The frozen R5 protocol remains present and hash-bound in the real authority root.
-- Duplicate JSON/STDOUT hashes are expected when a runner prints the same serialized JSON it writes to its result file. Such STDOUT is retained as command-console capture and is explicitly not independent evidence; the manifest records this relationship.
+- Command STDOUT is now stored inside a source-bound capture envelope containing S commit/tree, command identity, exit code, raw-payload hash/size, and capture time. When the raw payload duplicates a result JSON, the manifest records stdout_payload_identical_to_result=true and explicitly labels the capture as non-independent evidence; the envelope itself is independently hash-checked and freshness-bound to S.
 - Authority inputs are not generated E artifacts. They are pinned by the preregistered authority commit used by source S and are embedded below with recomputed hashes and Git blob identities for static inspection.
 - Reproducibility evidence records Python, Git, runner image metadata, exact checkout guidance, and an import audit. The governed Python surface has no third-party Python dependencies; test commands are offline.
 - Prior-failure preservation is checked by a dedicated evidence command in E and the full index remains embedded below. Independent historical recomputation still requires the pinned Git objects; that is an inherent limit of static-only review, not an authority grant.
@@ -705,7 +760,7 @@ Exact re-execution sequence from a repository clone:
 
 ~~~text
 git fetch --all --tags --prune
-git checkout --detach 63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a
+git checkout --detach 82b39a4cf2ab4c89777c3eb3179391ccb268353e
 git status --porcelain
 python governance-runtime/verify_exp_m_prior_evidence.py
 python governance-runtime/run_exp_m_tests.py
@@ -716,11 +771,12 @@ python governance-runtime/run_exp_m_static_review_probes.py
 python governance-runtime/run_exp_m_deterministic.py
 python governance-runtime/run_exp_m_mutations.py
 python governance-runtime/self_falsify_exp_m.py
+python governance-runtime/self_adjudicate_r2d.py
 ~~~
 
 ## Portable static-review bundle
 
-After Q is created and final S-E-P verification succeeds, the governed workflow builds and uploads EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip. The ZIP contains the frozen source files from S, all E evidence artifacts plus the manifest, P packet content, Q handoff, pinned authority inputs/backing source, and each prior-history artifact named by the prior-evidence index. Its internal BUNDLE-MANIFEST.json records SHA-256, size, Git blob, origin commit, and origin path for each included repository object. The ZIP is review convenience only and grants no authority.
+After Q is created and final S-E-P verification succeeds, the governed workflow builds and uploads EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip. The ZIP contains the frozen source files from S, all E evidence artifacts plus the manifest, P packet content, Q handoff, pinned authority inputs/backing source, and each prior-history artifact named by the prior-evidence index. Its internal BUNDLE-MANIFEST.json attests every other archive entry by SHA-256/size and, for repository objects, Git blob/origin commit/origin path; only BUNDLE-MANIFEST.json itself is excluded to avoid recursive self-hashing, and that exclusion is explicit. The ZIP is review convenience only and grants no authority.
 
 ## Pinned authority input bundle
 
@@ -814,6 +870,7 @@ This index preserves superseded and failed EXP-M deterministic evidence. It is h
 | R1-46-MUTATION | experiments/governed-platform/EXP-M-MUTATION-RESULTS.json | 66129025f9b5211a551f191c4367713e78ef14c4 | 51777eace12acd5034b6764c8ab513da536de306ed30f342fd8c382a5ae5967d | 46/46 mutations reported rejected | SUPERSEDED_BY_R1_CHANGES_REQUIRED |
 | R1-REVIEW | experiments/governed-platform/EXP-M-DETERMINISTIC-EXTERNAL-REVIEW-R1.md | 8e23ba2b9359c1f3040b6260e23c91b46309cf2e | 9e03fe8b83c120db9627310c8b3ecbb80fb5bfad54e89be7a0a5a011acce23db | Independent R1 implementation review | CHANGES_REQUIRED |
 | R2-REVIEW | experiments/governed-platform/EXP-M-R2-EXTERNAL-REVIEW.md | f0df30118d37b5bcbbdd5cb61380b7e3c7c429f1 | f128f76d37226c84dc321475b7fe2db65c64b5f35d68143163fafb9e1aee4b58 | Independent R2 review | CHANGES_REQUIRED |
+| R2E-STATIC-REVIEW-R1 | experiments/governed-platform/EXP-M-R2E-EXTERNAL-STATIC-REVIEW-R1.md | 2d01e38a5e7b2bb3e181cc3fdd7b46d7bf261bd6 | bc817b2004ffbb232f46642562011f2a6a4ece930b0a4e8e8f17b571686722fa | Independent R2E static review after first clarified handoff | CLARIFICATIONS_REQUIRED |
 | R2A-REMEDIATION | experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2A-REMEDIATION.md | e40fa99043cfba081b71e430e4e981c410314bf8 | 875f2d25aa20ec65fc36b2d561b11e882b7773c9c2d73ab1896ae33b720da340 | R2A internal remediation/adjudication record | SUPERSEDED_INTERNAL_EVIDENCE |
 | R2B-REMEDIATION | experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2B-REMEDIATION.md | 0bb7bc6bcde7d36c89fd017b6d05d0c99529108b | e8e5e041499186bcb7a03b76b40b9ea56a29240556974b65e3175c1135041b33 | R2B internal remediation/adjudication record | SUPERSEDED_INTERNAL_EVIDENCE |
 | R2C-REMEDIATION | experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2C-REMEDIATION.md | b873291ee6ecb982c2fac213ab819c89f34e7890 | 88f9e95070852e7f87da6cf2ed359a950418d0c541a98bc62220d32b1f9a6af7 | R2C internal remediation/adjudication record | SUPERSEDED_INTERNAL_EVIDENCE |
@@ -880,22 +937,24 @@ Authority effect: NONE.
 
 ## Evidence artifact hashes
 
-- experiments/governed-platform/EXP-M-SOURCE-FREEZE.json — 373c94bcb76da5a696d48db4ac5407f38a92ea2a9f8fa7bdc853cc310bfdd17a
-- experiments/governed-platform/EXP-M-TEST-RESULTS.json — 70f0da81e90edd490e83b42f39c71bee9e886de262b2961a3c563d27d2cf6423
-- experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json — a6642be71a7be52feab6e2f6e0979cb486cef9fb2d6498b923d5b55fa080d278
-- experiments/governed-platform/EXP-M-MUTATION-RESULTS.json — 971153a6059b2051957270ad60ac6027e1218c03ccba21c92aa0efde724115eb
-- experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json — 7ab2c53cccb080b6cd8d1d2bd8b3391d295986d773b688c2af8a6ad6b7c98e8f
-- experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json — 4decf4dabe11f2ea69d849c1d82a6451c8cb21ea0c5ce90f84997c546d10032f
-- experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json — b25ddd5c4da4f0f09556ffbcca645fce8664640cd692286a825a916773be7a5f
-- experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt — 4655fb93a5b5b0105ff370eb8b00f0b90913fc448c7f8e7dc630d037883c12c7
-- experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt — 70f0da81e90edd490e83b42f39c71bee9e886de262b2961a3c563d27d2cf6423
-- experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt — 6ec2d9fc5c4105ec484f0358d72e64a04635a03395757bb37014a816383eb11b
-- experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt — 373634e95ed7ae361ffa5f1c20c0b725de483daea7f10dcd0fc2f9cafa5712f7
-- experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt — 7d33ff8085d210485d046cf0e11a852e0620870ba689813fec1c64afd1972963
-- experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt — b25ddd5c4da4f0f09556ffbcca645fce8664640cd692286a825a916773be7a5f
-- experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt — a6642be71a7be52feab6e2f6e0979cb486cef9fb2d6498b923d5b55fa080d278
-- experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt — 971153a6059b2051957270ad60ac6027e1218c03ccba21c92aa0efde724115eb
-- experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt — 728319ba900a411bcf8932860c4f820e01c98c601881f4715c0dd4279ba0691f
+- experiments/governed-platform/EXP-M-SOURCE-FREEZE.json — 872147c3f054aa018de20843d44155ff17e1cde63662366ae51a9c07731a90ce
+- experiments/governed-platform/EXP-M-TEST-RESULTS.json — 00000bef64cf74047e61e65cbf4d1e6f71a4cf634a123c3e2c79f1d43111cc94
+- experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json — d98af59bc24f2b441f0ef3da6891fab1e6ad5a0e8dcf6b6ae0dd2651a67d7551
+- experiments/governed-platform/EXP-M-MUTATION-RESULTS.json — f3134f65f216a9b028f4219cdffb30ae2f5bb171c55ce8f117a3aaf208ee009a
+- experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json — 111f48c573d1f255b29f0e63aaaa6eaff7e5a12e444021b729da1cf0f90bb75d
+- experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json — deeb790debd78b0ff2214d8539605c9bb86ef07e08af3f88af9752a51425dc6e
+- experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json — cebc270f1e3716bc662f0c58e6495a1d41982aa30702032b8b93fa3c230f51cc
+- experiments/governed-platform/EXP-M-R2D-SELF-ADJUDICATION.json — 610de042c4007f801d3ecf4ef59d9dd890499fdfa1bf16398c9404e9c715a16c
+- experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt — eb9de12f7e5ca32e75e7801601127dfcb9773bb72dea35b8114436b0d186b1d9
+- experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt — bcaa303b064dcdf7849231e503141d2fb19b57cf5147030a3fd642ede42482a9
+- experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt — f3c11c8454dc11bda27804cee01ec383a5e93eb4e3fed48da88f8ee1656c505c
+- experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt — 378f8949473af426cd5140f6dd0fdebd0b82391aab461fe71186e6b3c02c86a7
+- experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt — cf1298acd2e05787ac2c3d652aa206283ae555c0e12615112bb45d5970e578d7
+- experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt — bee9f663de074cb20fc4ab5a75eb4e2128c7291ee71eddae61c98aada0e63315
+- experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt — d849e13185f5ef5e6dcc42aad083843c9886e1c1a2a65d905f76010cc3cbfe63
+- experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt — 7ce41fd8bc97412335aeae0678f84584a925471480dad4b4054a799511460146
+- experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt — 8be6e30d3f9bfbb9b40425a9f5114b653b0b474c28239fc0e7ad99bec95f3a25
+- experiments/governed-platform/EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt — 2b88932cbb555b994fa46edb38bf568e11743a462273a9e101252723c295d6f8
 
 ## External-review scope
 
