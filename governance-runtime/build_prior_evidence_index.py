@@ -63,6 +63,14 @@ ENTRIES = (
         "kind": "text",
     },
     {
+        "id": "R2E-EXTERNAL-REVIEW-R2",
+        "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R2.md",
+        "commit": "acbcfded67bd34530ede467a8d7432fbc04d3825",
+        "claim": "Independent R2E external review identifying seven remaining findings",
+        "disposition": "CHANGES_REQUIRED",
+        "kind": "text",
+    },
+    {
         "id": "R2E-STATIC-REVIEW-R1",
         "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-STATIC-REVIEW-R1.md",
         "commit": "2d01e38a5e7b2bb3e181cc3fdd7b46d7bf261bd6",
