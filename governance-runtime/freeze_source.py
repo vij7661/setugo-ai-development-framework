@@ -30,6 +30,8 @@ EXPLICIT_SOURCE_PATHS = (
     "experiments/governed-platform/EXP-M-R2E-INTERNAL-ADJUDICATION-R3.md",
     "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R3.md",
     "experiments/governed-platform/EXP-M-R2E-INTERNAL-ADJUDICATION-R4.md",
+    "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R5.md",
+    "experiments/governed-platform/EXP-M-R2E-INTERNAL-ADJUDICATION-R6.md",
     "experiments/governed-platform/PRIOR-EVIDENCE-INDEX.md",
 )
 
