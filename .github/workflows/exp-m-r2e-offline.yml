@@ -35,6 +35,28 @@ jobs:
           cd governance-runtime
           python freeze_source.py
           python -m compileall -q .
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          from generate_evidence import _reproducibility_environment
+          from build_exp_m_r2e_packet import _authority_bundle
+
+          root = Path("..").resolve()
+          freeze = json.loads((root / "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json").read_text(encoding="utf-8"))
+          repro = _reproducibility_environment(dict(freeze.get("source_files") or {}))
+          if repro.get("third_party_python_dependencies") != []:
+              raise SystemExit("reproducibility_preflight_third_party_dependency")
+          if repro.get("network_capable_imports") != []:
+              raise SystemExit("reproducibility_preflight_network_import")
+          if repro.get("github_actions_all_pinned_by_commit_sha") is not True:
+              raise SystemExit("reproducibility_preflight_unpinned_action")
+
+          head = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root, text=True).strip()
+          authority = _authority_bundle(head)
+          if not authority.get("files") or not authority.get("authority_commit"):
+              raise SystemExit("packet_authority_bundle_preflight_failed")
+          print("R2E_REPRODUCIBILITY_AND_PACKET_HELPER_PREFLIGHT=PASS")
+          PY
           python run_exp_m_tests.py
           python reviewer_exp_m_r2e_suite.py
           python reviewer_exp_m_r2e_authority_suite.py
