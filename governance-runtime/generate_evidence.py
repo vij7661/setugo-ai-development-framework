@@ -297,6 +297,26 @@ def generate() -> dict:
 
     _merge_compound_into_self_falsification()
 
+    # Some result artifacts are deliberately post-processed after command execution
+    # (notably self-falsification, which receives the frozen CA-1..CA-10 compound
+    # rows). Recompute the declared stdout/result relationship against the final E
+    # bytes rather than leaving the pre-transform relationship stale.
+    for record in command_records:
+        result_path_text = record.get("result_path")
+        if not result_path_text:
+            continue
+        result_path = ROOT / str(result_path_text)
+        stdout_path = ROOT / str(record["stdout_path"])
+        capture = json.loads(stdout_path.read_text(encoding="utf-8"))
+        raw_stdout_bytes = str(capture.get("raw_stdout", "")).encode("utf-8")
+        final_result_bytes = result_path.read_bytes()
+        identical_payload = raw_stdout_bytes == final_result_bytes
+        record["stdout_payload_identical_to_result"] = identical_payload
+        if identical_payload:
+            record["stdout_role"] = "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence"
+        else:
+            record["stdout_role"] = "source-bound command-console capture; final result artifact differs because governed post-processing occurred after command execution"
+
     for name in RESULT_JSONS:
         path = EXP / name
         if not path.exists():
