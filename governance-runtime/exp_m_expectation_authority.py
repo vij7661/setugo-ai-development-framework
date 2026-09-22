@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_AUTHORITY_COMMIT = "251647e5f44d394b761f1c6cdbb02a779901bc43"
+DEFAULT_AUTHORITY_COMMIT = "f0792cc01915eb3accd893aba2ed107bed9ec560"
 ROOT_PATH = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
 _SHA256_DER_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 
@@ -250,7 +250,7 @@ def load_authority(root_commit: str) -> AuthorityHandle:
     raw = _git_bytes(root_commit, ROOT_PATH)
     root_hash = _sha256(raw)
     data = json.loads(raw)
-    if data.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2" or str(data.get("version", "")) != "2":
+    if data.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-3" or str(data.get("version", "")) != "3":
         raise ValueError("authority_root_id_mismatch")
     if data.get("authority_private_key_committed") is not False:
         raise ValueError("authority_private_key_boundary_invalid")
