@@ -70,7 +70,10 @@ def _git(*args: str) -> str:
 
 
 def run() -> dict:
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(MechanismIntegrityCompoundSuite)
+    suite = unittest.TestSuite(
+        MechanismIntegrityCompoundSuite(test_name)
+        for test_name in CASE_METADATA
+    )
     runner = unittest.TextTestRunner(stream=sys.stderr, verbosity=2, resultclass=CaptureResult)
     result: CaptureResult = runner.run(suite)
     cases = []
