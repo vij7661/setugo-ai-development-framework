@@ -1,13 +1,13 @@
 {
-  "captured_at_utc": "2026-09-22T09:10:51.323505+00:00",
+  "captured_at_utc": "2026-09-22T10:20:42.231401+00:00",
   "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_suite.py",
   "command_name": "reviewer-core",
   "command_source_path": "governance-runtime/reviewer_exp_m_r2e_suite.py",
   "command_source_sha256": "f5164eec5e795b9ef927f65b8a0261a8736dab2e10c86a3a6a868cde0055dd96",
   "exit_code": 0,
   "portable_command": "python governance-runtime/reviewer_exp_m_r2e_suite.py",
-  "raw_stderr": "test_c1_production_has_no_context_from_state (__main__.ReviewerR2EAttacks.test_c1_production_has_no_context_from_state) ... ok\ntest_c2_public_caller_minting_api_removed (__main__.ReviewerR2EAttacks.test_c2_public_caller_minting_api_removed) ... ok\ntest_ca1_direct_self_derived_context_is_not_authoritative (__main__.ReviewerR2EAttacks.test_ca1_direct_self_derived_context_is_not_authoritative) ... ok\ntest_ca2_forged_correctly_keyed_verdict_token_rejected (__main__.ReviewerR2EAttacks.test_ca2_forged_correctly_keyed_verdict_token_rejected) ... ok\ntest_ca4_forged_complete_receipt_wrong_bytes_rejected (__main__.ReviewerR2EAttacks.test_ca4_forged_complete_receipt_wrong_bytes_rejected) ... ok\ntest_ca5_archive_content_detection_ignores_extension (__main__.ReviewerR2EAttacks.test_ca5_archive_content_detection_ignores_extension) ... ok\ntest_h5_r5_attempts_must_match_scheduled_days_and_blocks (__main__.ReviewerR2EAttacks.test_h5_r5_attempts_must_match_scheduled_days_and_blocks) ... ok\ntest_h6_missing_r5_protocol_fails_closed (__main__.ReviewerR2EAttacks.test_h6_missing_r5_protocol_fails_closed) ... ok\ntest_h9_caller_pass_cannot_override_failed_predicate (__main__.ReviewerR2EAttacks.test_h9_caller_pass_cannot_override_failed_predicate) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 1.597s\n\nOK\n",
-  "raw_stderr_sha256": "df3364cac4c04084d7927b7a1f13976243557ac312a5cf96a03f9b800f6d2d65",
+  "raw_stderr": "test_c1_production_has_no_context_from_state (__main__.ReviewerR2EAttacks.test_c1_production_has_no_context_from_state) ... ok\ntest_c2_public_caller_minting_api_removed (__main__.ReviewerR2EAttacks.test_c2_public_caller_minting_api_removed) ... ok\ntest_ca1_direct_self_derived_context_is_not_authoritative (__main__.ReviewerR2EAttacks.test_ca1_direct_self_derived_context_is_not_authoritative) ... ok\ntest_ca2_forged_correctly_keyed_verdict_token_rejected (__main__.ReviewerR2EAttacks.test_ca2_forged_correctly_keyed_verdict_token_rejected) ... ok\ntest_ca4_forged_complete_receipt_wrong_bytes_rejected (__main__.ReviewerR2EAttacks.test_ca4_forged_complete_receipt_wrong_bytes_rejected) ... ok\ntest_ca5_archive_content_detection_ignores_extension (__main__.ReviewerR2EAttacks.test_ca5_archive_content_detection_ignores_extension) ... ok\ntest_h5_r5_attempts_must_match_scheduled_days_and_blocks (__main__.ReviewerR2EAttacks.test_h5_r5_attempts_must_match_scheduled_days_and_blocks) ... ok\ntest_h6_missing_r5_protocol_fails_closed (__main__.ReviewerR2EAttacks.test_h6_missing_r5_protocol_fails_closed) ... ok\ntest_h9_caller_pass_cannot_override_failed_predicate (__main__.ReviewerR2EAttacks.test_h9_caller_pass_cannot_override_failed_predicate) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 1.096s\n\nOK\n",
+  "raw_stderr_sha256": "4d13fe3989d8d4f9d73c5ad1f1e95e08fc616443c63bb44ddde9bf2cfe533415",
   "raw_stderr_size": 1347,
   "raw_stdout": "",
   "raw_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -16,7 +16,7 @@
   "result_sha256_at_command_exit": null,
   "result_size_at_command_exit": null,
   "schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
-  "source_commit": "06fc3a9784105ec35c6eb231c261de361e28f5db",
-  "source_tree": "8a812eeb4305e7ed710b8456c79fc1f4308a392c",
+  "source_commit": "30faa9e8e410e27fce9ac8358825a62cd71cc3a0",
+  "source_tree": "8293dd6dcd03844d5889417d5c66e32e507279d3",
   "stdout_payload_identical_to_result": null
 }
