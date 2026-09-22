@@ -39,7 +39,12 @@ from exp_m_deterministic import (  # noqa: E402
 )
 
 from exp_m_test_fixtures import bundle_from_state
-from exp_m_expectation_authority import load_default_authority, load_predicate_context
+from exp_m_expectation_authority import (
+    DEFAULT_AUTHORITY_COMMIT,
+    load_authority,
+    load_default_authority,
+    load_predicate_context,
+)
 
 AUTHORITY = load_default_authority()
 AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
@@ -465,6 +470,37 @@ class ExpMCoreTests(unittest.TestCase):
             rec = ProviderCapabilityQualificationRecord("p", "hash", True, True, 1 if failed else 0, "op", all_ids, all_ids, "fake", "deterministic", attempt_records=attempts)
             return validate_capability(profile, plan, rec, now="2025-01-01T00:00:00Z", expected_provider="fake", expected_model="deterministic", expected_operating_point="op", expected_profile_hash="hash", required_format="text", required_context_bytes=1, authority=AUTHORITY)[0]
         self.assertFalse(run(298)); self.assertTrue(run(299)); self.assertFalse(run(299, True))
+
+    def test_r5_ambient_source_freeze_cannot_redirect_authority(self):
+        freeze_path = Path("experiments/governed-platform/EXP-M-SOURCE-FREEZE.json")
+        original = freeze_path.read_bytes() if freeze_path.exists() else None
+        expected_commit = AUTHORITY.resolve_reviewed_commit()
+        expected_tree = AUTHORITY.resolve_reviewed_tree()
+        expected_delivery = dict(AUTHORITY.expected_delivery(AUTHORITY_CONTEXT.request_id))
+        try:
+            freeze_path.write_text("{this-is-not-valid-json", encoding="utf-8")
+            self.assertEqual(AUTHORITY.resolve_reviewed_commit(), expected_commit)
+            self.assertEqual(AUTHORITY.resolve_reviewed_tree(), expected_tree)
+            self.assertEqual(
+                dict(AUTHORITY.expected_delivery(AUTHORITY_CONTEXT.request_id)),
+                expected_delivery,
+            )
+        finally:
+            if original is None:
+                try:
+                    freeze_path.unlink()
+                except FileNotFoundError:
+                    pass
+            else:
+                freeze_path.write_bytes(original)
+
+    def test_r5_invalid_explicit_source_binding_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, "source_identity_binding_required"):
+            load_authority(
+                DEFAULT_AUTHORITY_COMMIT,
+                source_commit="not-a-git-commit",
+                source_tree="not-a-tree",
+            )
 
 
 if __name__ == "__main__":
