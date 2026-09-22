@@ -24,7 +24,7 @@ from exp_m_deterministic import (
 )
 from exp_m_expectation_authority import DEFAULT_AUTHORITY_COMMIT, load_default_authority, load_predicate_context
 
-EXPECTED_AUTHORITY_ROOT_COMMIT = "251647e5f44d394b761f1c6cdbb02a779901bc43"
+EXPECTED_AUTHORITY_ROOT_COMMIT = "f0792cc01915eb3accd893aba2ed107bed9ec560"
 
 
 class ReviewerR2EAuthorityAnchoring(unittest.TestCase):
