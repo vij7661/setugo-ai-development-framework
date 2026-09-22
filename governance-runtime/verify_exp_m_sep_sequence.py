@@ -7,6 +7,7 @@ import hashlib
 import json
 import subprocess
 from pathlib import Path
+from typing import Mapping
 
 from verify_exp_m_prior_evidence import verify_prior_evidence_index
 
@@ -22,6 +23,7 @@ REVIEWER_SUITE_ANCHORS = (
     ("governance-runtime/reviewer_exp_m_r2e_suite.py", "04913502b7ea1dcb11d551b2bec27c5a8d9c4a8a"),
     ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "aae96510eb1ac05b45b961b62a5ea2b010ad6b32"),
     ("governance-runtime/reviewer_exp_m_r2e_compound_suite.py", "4c70788b9fc8c8ec93f5ea90bedc762c827f090a"),
+    ("governance-runtime/reviewer_exp_m_r2e_mechanism_suite.py", "24415847085e4032a9892aaa8730806bd246225e"),
 )
 REVIEWER_SUITE_PATHS = tuple(path for path, _ in REVIEWER_SUITE_ANCHORS)
 FORBIDDEN_REVIEWER_SUITE_TOKENS = (
@@ -90,16 +92,21 @@ def _allowed_packet_path(path: str) -> bool:
     return path.startswith("experiments/governed-platform/EXP-M-") and path.endswith(".md")
 
 
-def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tuple[bool, tuple[str, ...]]:
-    if simulate_suite_mutation:
-        return False, ("reviewer_suite_hash_drift",)
-    freeze_file = ROOT / FREEZE_PATH
-    if not freeze_file.exists():
-        return False, ("source_freeze_missing",)
-    freeze = json.loads(freeze_file.read_text(encoding="utf-8"))
-    source_commit = str(freeze.get("source_commit", ""))
-    source_files = freeze.get("source_files") or {}
+def verify_reviewer_suite_frozen(
+    *,
+    source_commit: str,
+    source_files: Mapping[str, str],
+) -> tuple[bool, tuple[str, ...]]:
+    """Verify reviewer suites using only explicit content-addressed inputs.
+
+    No governance-relevant state is read from the ambient filesystem. The
+    caller must supply the already-verified source commit and source-freeze map.
+    """
     reasons: list[str] = []
+    if not source_commit:
+        return False, ("reviewer_suite_source_commit_missing",)
+    if not isinstance(source_files, Mapping) or not source_files:
+        return False, ("reviewer_suite_source_files_missing",)
     for path, preregister_commit in REVIEWER_SUITE_ANCHORS:
         if not _is_strict_ancestor(preregister_commit, source_commit):
             reasons.append(f"reviewer_suite_preregister_not_strict_ancestor:{path}")
@@ -445,11 +452,15 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
                 if marker not in handoff_text:
                     reasons.append("handoff_identity_marker_missing")
 
-    reviewer_ok, reviewer_reasons = verify_reviewer_suite_frozen()
+    reviewer_ok, reviewer_reasons = verify_reviewer_suite_frozen(
+        source_commit=source_commit,
+        source_files=source_files,
+    )
     if not reviewer_ok:
         reasons.extend(reviewer_reasons)
 
     prior_ok, prior_reasons = verify_prior_evidence_index(
+        index_commit=source_commit,
         source_commit=source_commit,
         packet_commit=packet_commit,
     )
