@@ -51,6 +51,59 @@ REQUIRED_CALLS = {
     "test_ca10_real_protocol_unavailable_state_reaches_production_validator": {"validate_capability"},
 }
 
+REQUIRED_ASSERTION_CONTRACTS = {
+    "test_ca1_real_forged_context_reaches_production_authority_check": {
+        "assert_calls": {"assertFalse", "assertIn"},
+        "symbols": {"verdict", "admissible", "reasons"},
+        "strings": {"expectation_authority_invalid"},
+    },
+    "test_ca2_real_mismatched_evidence_token_reaches_cas_verifier": {
+        "assert_calls": {"assertTrue", "assertIn"},
+        "symbols": {"cp", "void", "reasons"},
+        "strings": {"evidence_token_mismatch"},
+    },
+    "test_ca3_real_fabricated_delivery_commit_reaches_authority_check": {
+        "assert_calls": {"assertFalse", "assertIn"},
+        "symbols": {"ok", "reasons"},
+        "strings": {"authority_reviewed_commit_mismatch"},
+    },
+    "test_ca4_real_forged_retrieval_and_delivery_bytes_reach_validators": {
+        "assert_calls": {"assertFalse"},
+        "symbols": {"retrieval_ok", "delivery_ok"},
+        "strings": set(),
+    },
+    "test_ca5_real_archive_and_schedule_inputs_reach_production_validators": {
+        "assert_calls": {"assertFalse", "assertTrue"},
+        "symbols": {"mat", "success", "cap_ok", "cap_reasons"},
+        "strings": {"schedule"},
+    },
+    "test_ca6_real_unauthorized_plan_reaches_authority_validator": {
+        "assert_calls": {"assertFalse", "assertIn"},
+        "symbols": {"ok", "reasons"},
+        "strings": {"qualification_authority_plan_missing"},
+    },
+    "test_ca7_real_deleted_indexed_artifact_reaches_unmodified_prior_verifier": {
+        "assert_calls": {"assertFalse", "assertIn"},
+        "symbols": {"ok", "reasons"},
+        "strings": {"indexed_prior_artifact_deleted_after_source_freeze"},
+    },
+    "test_ca8_real_reviewer_suite_mutation_reaches_unmodified_freeze_verifier": {
+        "assert_calls": {"assertFalse", "assertTrue"},
+        "symbols": {"ok", "reasons"},
+        "strings": {"reviewer_suite_hash_drift", "reviewer_suite_preregister_hash_drift"},
+    },
+    "test_ca9_real_caller_pass_reaches_derived_disposition": {
+        "assert_calls": {"assertFalse"},
+        "symbols": {"verdict", "admissible", "predicate_results"},
+        "strings": set(),
+    },
+    "test_ca10_real_protocol_unavailable_state_reaches_production_validator": {
+        "assert_calls": {"assertFalse", "assertIn"},
+        "symbols": {"ok", "reasons"},
+        "strings": {"r5_protocol_unavailable"},
+    },
+}
+
 
 def _git(*args: str) -> str:
     return subprocess.check_output(("git",) + args, cwd=ROOT, text=True).strip()
@@ -74,19 +127,30 @@ def _call_name(node: ast.Call) -> str:
 
 
 def _shortcut_references(source: str) -> list[str]:
-    """Return executable identifier/call references to forbidden shortcut APIs.
+    """Return executable references to forbidden shortcut APIs.
 
-    String literals and documentation text do not count as executable use.
+    Documentation text remains ignored, but strings used by dynamic attribute
+    access (for example getattr(obj, "forbidden_name")) are executable and are
+    therefore inspected.
     """
     tree = ast.parse(source, filename=SUITE_PATH)
     findings: set[str] = set()
+    dynamic_accessors = {"getattr", "setattr", "hasattr", "delattr"}
     for node in ast.walk(tree):
         names: list[str] = []
         if isinstance(node, ast.Call):
-            names.append(_call_name(node))
+            call_name = _call_name(node)
+            names.append(call_name)
             for keyword in node.keywords:
                 if keyword.arg:
                     names.append(keyword.arg)
+            if (
+                call_name in dynamic_accessors
+                and len(node.args) >= 2
+                and isinstance(node.args[1], ast.Constant)
+                and isinstance(node.args[1].value, str)
+            ):
+                names.append(node.args[1].value)
         elif isinstance(node, ast.Name):
             names.append(node.id)
         elif isinstance(node, ast.Attribute):
@@ -140,17 +204,106 @@ def _hardcoded_mutation_outcomes(source: str) -> list[str]:
     return sorted(findings)
 
 
-def _method_calls(source: str) -> dict[str, set[str]]:
+def authoritative_case_contracts(source: str) -> dict[str, dict]:
+    """Analyze whether each CA method both reaches its mechanism and proves rejection."""
     tree = ast.parse(source, filename=SUITE_PATH)
-    found: dict[str, set[str]] = {}
+    found: dict[str, dict] = {}
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_ca"):
-            found[node.name] = {
-                _call_name(call)
-                for call in ast.walk(node)
-                if isinstance(call, ast.Call) and _call_name(call)
-            }
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) or not node.name.startswith("test_ca"):
+            continue
+        calls = {
+            _call_name(call)
+            for call in ast.walk(node)
+            if isinstance(call, ast.Call) and _call_name(call)
+        }
+        assert_calls: set[str] = set()
+        assert_symbols: set[str] = set()
+        assert_strings: set[str] = set()
+        for call in ast.walk(node):
+            if not isinstance(call, ast.Call):
+                continue
+            call_name = _call_name(call)
+            if not call_name.startswith("assert"):
+                continue
+            assert_calls.add(call_name)
+            for argument in list(call.args) + [kw.value for kw in call.keywords]:
+                for child in ast.walk(argument):
+                    if isinstance(child, ast.Name):
+                        assert_symbols.add(child.id)
+                    elif isinstance(child, ast.Attribute):
+                        assert_symbols.add(child.attr)
+                    elif isinstance(child, ast.Constant) and isinstance(child.value, str):
+                        assert_strings.add(child.value)
+        required_calls = REQUIRED_CALLS.get(node.name, set())
+        required_assert = REQUIRED_ASSERTION_CONTRACTS.get(node.name, {})
+        missing_mechanism_calls = sorted(required_calls - calls)
+        missing_assert_calls = sorted(set(required_assert.get("assert_calls", ())) - assert_calls)
+        missing_assert_symbols = sorted(set(required_assert.get("symbols", ())) - assert_symbols)
+        required_strings = set(required_assert.get("strings", ()))
+        if node.name == "test_ca8_real_reviewer_suite_mutation_reaches_unmodified_freeze_verifier":
+            missing_assert_strings = [] if required_strings.intersection(assert_strings) else sorted(required_strings)
+        else:
+            missing_assert_strings = sorted(required_strings - assert_strings)
+        valid = not (
+            missing_mechanism_calls
+            or missing_assert_calls
+            or missing_assert_symbols
+            or missing_assert_strings
+        )
+        found[node.name] = {
+            "valid": valid,
+            "calls": sorted(calls),
+            "assert_calls": sorted(assert_calls),
+            "assert_symbols": sorted(assert_symbols),
+            "assert_strings": sorted(assert_strings),
+            "missing_mechanism_calls": missing_mechanism_calls,
+            "missing_assert_calls": missing_assert_calls,
+            "missing_assert_symbols": missing_assert_symbols,
+            "missing_assert_strings": missing_assert_strings,
+        }
     return found
+
+
+def _method_calls(source: str) -> dict[str, set[str]]:
+    return {
+        name: set(details["calls"])
+        for name, details in authoritative_case_contracts(source).items()
+    }
+
+
+def _self_falsification_context_issues(source: str) -> list[str]:
+    tree = ast.parse(source, filename=SELF_FALSIFY_PATH)
+    issues: list[str] = []
+    functions = {
+        node.name: node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    wrapper = functions.get("evaluate_admissibility")
+    if wrapper is None:
+        issues.append("evaluate_wrapper_missing")
+    else:
+        production_calls = [
+            node for node in ast.walk(wrapper)
+            if isinstance(node, ast.Call) and _call_name(node) == "_production_evaluate_admissibility"
+        ]
+        if len(production_calls) != 1:
+            issues.append("evaluate_wrapper_production_call_count")
+        else:
+            call = production_calls[0]
+            if len(call.args) < 2 or not isinstance(call.args[1], ast.Name) or call.args[1].id != "context":
+                issues.append("evaluate_wrapper_discards_explicit_context")
+    context_helper = functions.get("context_from_state")
+    if context_helper is None:
+        issues.append("context_helper_missing")
+    else:
+        calls = [
+            node for node in ast.walk(context_helper)
+            if isinstance(node, ast.Call) and _call_name(node) == "_unauthorized_context_from_state"
+        ]
+        if len(calls) != 1:
+            issues.append("context_helper_not_adversarial")
+    return issues
 
 
 def run() -> dict:
@@ -211,7 +364,8 @@ def run() -> dict:
     for name in shortcut_refs:
         findings.append(f"authoritative_suite_shortcut_reference:{name}")
 
-    calls = _method_calls(suite_source)
+    contracts = authoritative_case_contracts(suite_source)
+    calls = {name: set(details["calls"]) for name, details in contracts.items()}
     if set(calls) != set(REQUIRED_CALLS):
         findings.append("authoritative_ca_method_set_mismatch")
     missing_calls: dict[str, list[str]] = {}
@@ -220,6 +374,34 @@ def run() -> dict:
         if absent:
             missing_calls[method] = absent
             findings.append(f"authoritative_case_missing_real_mechanism_call:{method}")
+        contract = contracts.get(method)
+        if contract is None or contract.get("valid") is not True:
+            findings.append(f"authoritative_case_rejection_contract_invalid:{method}")
+
+    assertionless_probe = """
+class Probe:
+    def test_ca1_real_forged_context_reaches_production_authority_check(self):
+        evaluate_admissibility(None, None)
+"""
+    assertionless = authoritative_case_contracts(assertionless_probe).get(
+        "test_ca1_real_forged_context_reaches_production_authority_check", {}
+    )
+    assertionless_probe_rejected = assertionless.get("valid") is False
+    if not assertionless_probe_rejected:
+        findings.append("assertionless_ca_probe_false_green")
+
+    dynamic_shortcut_probe = """
+def probe(authority):
+    return getattr(authority, "with_missing_r5_protocol_for_test")()
+"""
+    dynamic_shortcut_probe_rejected = (
+        "with_missing_r5_protocol_for_test" in _shortcut_references(dynamic_shortcut_probe)
+    )
+    if not dynamic_shortcut_probe_rejected:
+        findings.append("dynamic_shortcut_probe_false_green")
+
+    for issue in _self_falsification_context_issues(self_falsify_source):
+        findings.append("self_falsification_context_integrity:" + issue)
 
     if "reviewer_exp_m_r2e_mechanism_suite" not in runner_source:
         findings.append("compound_runner_not_using_mechanism_suite")
@@ -280,6 +462,12 @@ def run() -> dict:
         "case_count": len(calls),
         "required_case_count": len(REQUIRED_CALLS),
         "case_calls": {name: sorted(values) for name, values in sorted(calls.items())},
+        "case_rejection_contracts": contracts,
+        "integrity_regression_probes": {
+            "assertionless_required_call_rejected": assertionless_probe_rejected,
+            "dynamic_getattr_shortcut_rejected": dynamic_shortcut_probe_rejected,
+            "self_falsification_context_issues": _self_falsification_context_issues(self_falsify_source),
+        },
         "positive_controls": {
             "reviewer_suite_frozen": {"ok": reviewer_control_ok, "reasons": list(reviewer_control_reasons)},
             "prior_evidence_index": {"ok": prior_control_ok, "reasons": list(prior_control_reasons)},
