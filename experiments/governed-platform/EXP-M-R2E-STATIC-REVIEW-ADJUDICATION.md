@@ -57,9 +57,11 @@ Classification: EVIDENCE-INDEPENDENCE CLARIFICATION
 Some runners serialize the result JSON to a file and print the same serialization to stdout. Those two files are duplicate representations and must not be counted as independent corroboration.
 
 Remediation:
-- Each command record now carries stdout_role.
-- Where hashes and sizes match the corresponding JSON result, the manifest sets stdout_identical_to_result=true and labels STDOUT as duplicate_serialization_of_result_json.
-- The packet explicitly states that such STDOUT is command-console capture, not independent evidence.
+- Every command-console capture is now wrapped in a source-bound envelope carrying the exact S commit/tree, command identity, exit code, capture time, and SHA-256/size of the raw console payload.
+- The evidence manifest records the envelope hash separately from the raw payload hash.
+- When the raw console payload is byte-identical to a corresponding result JSON, the manifest records stdout_payload_identical_to_result=true and labels the capture as non-independent evidence rather than presenting it as corroboration.
+- S-E-P verification independently parses every capture envelope, recomputes both envelope and raw-payload hashes/sizes, verifies the S identity and command identity, and checks the declared relationship to any result artifact.
+- This also prevents a constant/stale console artifact from silently surviving into a fresh E unchanged.
 
 Adjudication: REMEDIATED.
 
