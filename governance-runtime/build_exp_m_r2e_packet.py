@@ -143,8 +143,10 @@ def build_content(source: str, evidence: str) -> str:
     prior = _read(EXP / "PRIOR-EVIDENCE-INDEX.md")
     static_review_adjudication = _read(EXP / "EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md")
     external_review_r2 = _read(EXP / "EXP-M-R2E-EXTERNAL-REVIEW-R2.md")
+    external_review_r3 = _read(EXP / "EXP-M-R2E-EXTERNAL-REVIEW-R3.md")
     review_r2_adjudication = _read(EXP / "EXP-M-R2E-REVIEW-R2-ADJUDICATION.md")
     internal_adjudication_r3 = _read(EXP / "EXP-M-R2E-INTERNAL-ADJUDICATION-R3.md")
+    internal_adjudication_r4 = _read(EXP / "EXP-M-R2E-INTERNAL-ADJUDICATION-R4.md")
     authority_bundle = _authority_bundle(source)
     pinned_by_label = {row["label"]: row for row in authority_bundle["files"]}
     authority_root = str(pinned_by_label["authority_root"]["content"])
@@ -255,6 +257,14 @@ def build_content(source: str, evidence: str) -> str:
         "~~~json",
         json.dumps(clarification_probes, indent=2, sort_keys=True),
         "~~~",
+        "",
+        "## Independent external review R3 (CHANGES_REQUIRED)",
+        "",
+        external_review_r3.rstrip(),
+        "",
+        "## Internal adjudication R4 — falsification-mechanism integrity",
+        "",
+        internal_adjudication_r4.rstrip(),
         "",
         "## Independent external review R2 (CHANGES_REQUIRED)",
         "",
