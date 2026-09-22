@@ -75,14 +75,24 @@ def _git(*args: str) -> str:
     return subprocess.check_output(("git",) + args, cwd=ROOT, text=True).strip()
 
 
-def _run(command: list[str]) -> subprocess.CompletedProcess[str]:
+def _run(
+    command: list[str],
+    *,
+    source_commit: str,
+    source_tree: str,
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         command,
         cwd=ROOT,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        env={
+            **os.environ,
+            "PYTHONUNBUFFERED": "1",
+            "EXP_M_SOURCE_COMMIT": source_commit,
+            "EXP_M_SOURCE_TREE": source_tree,
+        },
     )
 
 
@@ -97,7 +107,11 @@ def _execute_evidence_command(
     source_commit: str,
     source_tree: str,
 ) -> dict:
-    completed = _run(list(command))
+    completed = _run(
+        list(command),
+        source_commit=source_commit,
+        source_tree=source_tree,
+    )
     stdout_path = EXP / stdout_name
     portable_command = "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command)
     raw_stdout = completed.stdout or ""
