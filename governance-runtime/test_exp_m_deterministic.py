@@ -154,6 +154,30 @@ class ExpMCoreTests(unittest.TestCase):
         s, c, i, items, m, p = fixture()
         self.assertFalse(preflight(s, c, i, m, "other", p, items).allowed)
 
+    def test_current_delivery_binding_is_root_policy_derived_and_non_authoritative(self):
+        freeze = AUTHORITY._source_freeze()
+        self.assertIsNotNone(freeze)
+        binding = freeze["delivery_binding"]
+        expected = AUTHORITY.expected_delivery("r")
+        self.assertIs(binding["authoritative"], False)
+        self.assertEqual(binding["role"], "DERIVED_BINDING_EVIDENCE")
+        self.assertEqual(binding["policy_id"], "SOURCE-FREEZE-DELIVERY-DERIVATION-V1")
+        self.assertEqual(expected["reviewed_commit"], AUTHORITY_CONTEXT.reviewed_commit)
+        self.assertEqual(expected["manifest_hash"], binding["manifest_hash"])
+        self.assertEqual(expected["policy_id"], binding["policy_id"])
+
+    def test_candidate_modified_delivery_policy_cannot_substitute_authority(self):
+        bad_root = copy.deepcopy(dict(AUTHORITY.root))
+        bad_root["delivery_binding_policy"]["items"]["a"]["sha256"] = "0" * 64
+        untrusted = type(AUTHORITY)(
+            AUTHORITY.root_commit,
+            AUTHORITY.root_hash,
+            bad_root,
+            AUTHORITY.protocol_available,
+        )
+        with self.assertRaisesRegex(ValueError, "source_freeze_delivery_binding_mismatch"):
+            untrusted.expected_delivery("r")
+
     def test_reviewer_ack_without_items_rejected(self):
         s, c, i, items, m, p = fixture(); r = ReviewerReceipt("attempt-1", "r", "session-1", m.manifest_hash, (), 0, True)
         w = WireDeliveryRecord("attempt-1", "r", "w", "s", "session-1", ())
