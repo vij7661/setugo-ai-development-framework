@@ -345,6 +345,13 @@ def build_handoff(source: str, evidence: str, packet: str) -> str:
         "the immutable packet-content commit; this avoids the impossible requirement "
         "for a Git commit to contain its own SHA.",
         "",
+        "## Q identity publication",
+        "",
+        "Q cannot contain its own final commit SHA/tree without Git self-reference. After Q exists, "
+        "the governed portable-bundle step independently verifies S->E->P->Q and creates "
+        "FINAL-REVIEW-HANDOFF.md carrying the exact Q commit/tree plus the verification-capture hash. "
+        "Reviewers should treat that post-Q file inside the portable bundle as the exact Q identity carrier.",
+        "",
         "## E -> P changed paths",
         "",
         "~~~text",
