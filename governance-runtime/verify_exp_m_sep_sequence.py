@@ -183,6 +183,10 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         freeze = _json_at(evidence_commit, FREEZE_PATH)
     except Exception:
         return False, ("source_freeze_missing_from_evidence_commit",), details
+    source_files = freeze.get("source_files") or {}
+    if not isinstance(source_files, dict) or not source_files:
+        reasons.append("source_freeze_source_files_missing")
+        source_files = {}
 
     if freeze.get("source_commit") != source_commit:
         reasons.append("source_freeze_commit_mismatch")
