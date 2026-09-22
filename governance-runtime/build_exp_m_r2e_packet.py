@@ -144,6 +144,7 @@ def build_content(source: str, evidence: str) -> str:
     authority_root = _read(EXP / "EXP-M-R2E-AUTHORITY-ROOT.json")
     static_review_adjudication = _read(EXP / "EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md")
     external_review_r2 = _read(EXP / "EXP-M-R2E-EXTERNAL-REVIEW-R2.md")
+    review_r2_adjudication = _read(EXP / "EXP-M-R2E-REVIEW-R2-ADJUDICATION.md")
     authority_bundle = _authority_bundle(source)
     manifest_attestation = _manifest_attestation(evidence)
 
@@ -246,6 +247,10 @@ def build_content(source: str, evidence: str) -> str:
         "## Independent external review R2 (CHANGES_REQUIRED)",
         "",
         external_review_r2.rstrip(),
+        "",
+        "## External review R2 remediation adjudication",
+        "",
+        review_r2_adjudication.rstrip(),
         "",
         "## Static-review clarification adjudication",
         "",
