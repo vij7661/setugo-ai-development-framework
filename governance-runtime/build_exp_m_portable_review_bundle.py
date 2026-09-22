@@ -342,7 +342,7 @@ def build(source: str, evidence: str, packet: str, handoff: str, output: Path) -
         origin_path=AUTHORITY_ROOT_PATH,
     )
     if authority_root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-3":
-        raise SystemExit("portable_bundle_authority_root_v2_required")
+        raise SystemExit("portable_bundle_authority_root_v3_required")
     authority_specs = (
         (str(authority_root["test_expectation_manifest_path"]), authority_root.get("test_expectation_manifest_sha256"), "test expectations"),
         (str(authority_root["test_expectation_signature_path"]), None, "test expectation signature"),
@@ -508,7 +508,7 @@ Contents:
 - packet/: immutable P packet content.
 - handoff/: Q's post-P handoff content.
 - verification/: explicit S-E-P-Q verification output.
-- authority/: preregistered authority-root-v2 inputs and retrieval backing source.
+- authority/: preregistered authority-root-v3 inputs and retrieval backing source.
 - prior-history/: prior-evidence index plus each pinned historical artifact.
 - git/EXP-M-R2E-GIT-OBJECTS.bundle: offline Git objects for S/E/P/Q, authority, and indexed history.
 - FINAL-REVIEW-HANDOFF.md: exact Q commit/tree published after Q exists.
