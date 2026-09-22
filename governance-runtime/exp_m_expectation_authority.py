@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_AUTHORITY_COMMIT = "e24e18a0f05e9be38e4f549a77914e014c738812"
+DEFAULT_AUTHORITY_COMMIT = "251647e5f44d394b761f1c6cdbb02a779901bc43"
 ROOT_PATH = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.json"
 _SHA256_DER_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 
@@ -49,6 +49,36 @@ def _git_commit_exists(commit: str) -> bool:
 
 def _sha256(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
+
+
+def _canonical_json(value: Any) -> bytes:
+    return (json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode()
+
+
+def _delivery_binding_from_policy(policy: Mapping[str, Any], reviewed_commit: str) -> Mapping[str, Any]:
+    request_id = str(policy.get("request_id", ""))
+    items = policy.get("items")
+    if not request_id or not isinstance(items, Mapping) or not items:
+        raise ValueError("delivery_binding_policy_invalid")
+    normalized_items: dict[str, dict[str, Any]] = {}
+    for item_id, meta in sorted(items.items()):
+        if not isinstance(meta, Mapping):
+            raise ValueError("delivery_binding_policy_invalid")
+        sha = str(meta.get("sha256", ""))
+        size = int(meta.get("size", -1))
+        if len(sha) != 64 or size < 0:
+            raise ValueError("delivery_binding_policy_invalid")
+        normalized_items[str(item_id)] = {"sha256": sha, "size": size}
+    body = {"request_id": request_id, "reviewed_commit": reviewed_commit, "items": normalized_items}
+    return {
+        "policy_id": str(policy.get("policy_id", "")),
+        "role": "DERIVED_BINDING_EVIDENCE",
+        "authoritative": False,
+        "request_id": request_id,
+        "reviewed_commit": reviewed_commit,
+        "items": normalized_items,
+        "manifest_hash": _sha256(_canonical_json(body)),
+    }
 
 
 def _verify_rsa_pkcs1_v15_sha256(raw: bytes, signature_b64: bytes, n: int, e: int) -> bool:
@@ -110,6 +140,18 @@ class AuthorityHandle:
             working = ROOT / str(source_path)
             if working.exists() and _sha256(working.read_bytes()) != str(expected_hash):
                 raise ValueError(f"source_freeze_worktree_hash_mismatch:{source_path}")
+        authority_ref = data.get("authority_reference") or {}
+        current_policy = self.root.get("current_source_identity_policy") or {}
+        if (
+            str(authority_ref.get("root_commit", "")) != self.root_commit
+            or str(authority_ref.get("policy_id", "")) != str(current_policy.get("policy_id", ""))
+        ):
+            raise ValueError("source_freeze_authority_reference_mismatch")
+        policy = self.root.get("delivery_binding_policy") or {}
+        derived = _delivery_binding_from_policy(policy, commit)
+        recorded = data.get("delivery_binding")
+        if recorded != derived:
+            raise ValueError("source_freeze_delivery_binding_mismatch")
         return data
 
     def resolve_reviewed_commit(self) -> str:
@@ -154,19 +196,23 @@ class AuthorityHandle:
         return raw[start:end]
 
     def expected_delivery(self, request_id: str) -> Mapping[str, Any]:
-        freeze = self._source_freeze()
-        if freeze is not None:
-            entry = ((freeze.get("delivery_authority") or {}).get("requests") or {}).get(request_id)
-            if not isinstance(entry, Mapping):
-                raise ValueError("delivery_request_not_authorized")
-            if str(entry.get("reviewed_commit", "")) != str(freeze["source_commit"]):
-                raise ValueError("delivery_source_freeze_commit_mismatch")
-            return entry
-        ledger = self._load_hashed_json("delivery_ledger_path", "delivery_ledger_sha256")
-        entry = (ledger.get("requests") or {}).get(request_id)
-        if not isinstance(entry, Mapping):
+        policy = self.root.get("delivery_binding_policy")
+        if not isinstance(policy, Mapping):
+            raise ValueError("delivery_binding_policy_missing")
+        if str(policy.get("request_id", "")) != request_id:
             raise ValueError("delivery_request_not_authorized")
-        return entry
+        freeze = self._source_freeze()
+        if freeze is None:
+            raise ValueError("source_freeze_required_for_current_delivery_binding")
+        derived = _delivery_binding_from_policy(policy, str(freeze["source_commit"]))
+        # The source freeze is evidence of the current-S instantiation only.
+        # Authority comes exclusively from the preregistered root policy above.
+        return {
+            "reviewed_commit": derived["reviewed_commit"],
+            "manifest_hash": derived["manifest_hash"],
+            "request_id": derived["request_id"],
+            "policy_id": derived["policy_id"],
+        }
 
     def qualification_entry(self, plan_id: str) -> Mapping[str, Any]:
         ledger = self._load_hashed_json("qualification_ledger_path", "qualification_ledger_sha256")
@@ -204,7 +250,7 @@ def load_authority(root_commit: str) -> AuthorityHandle:
     raw = _git_bytes(root_commit, ROOT_PATH)
     root_hash = _sha256(raw)
     data = json.loads(raw)
-    if data.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-1":
+    if data.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2" or str(data.get("version", "")) != "2":
         raise ValueError("authority_root_id_mismatch")
     if data.get("authority_private_key_committed") is not False:
         raise ValueError("authority_private_key_boundary_invalid")
@@ -219,7 +265,6 @@ def load_authority(root_commit: str) -> AuthorityHandle:
         raise ValueError("r5_protocol_hash_mismatch")
     for path_key, hash_key in (
         ("retrieval_source_ledger_path", "retrieval_source_ledger_sha256"),
-        ("delivery_ledger_path", "delivery_ledger_sha256"),
         ("qualification_ledger_path", "qualification_ledger_sha256"),
     ):
         raw = _git_bytes(root_commit, str(data[path_key]))
@@ -228,6 +273,17 @@ def load_authority(root_commit: str) -> AuthorityHandle:
     reviewed = str(data.get("reviewed_commit_anchor", ""))
     if not _git_commit_exists(reviewed):
         raise ValueError("reviewed_commit_not_resolved_git_object")
+    if data.get("reviewed_commit_anchor_semantics") != "LEGACY_SIGNED_EXPECTATION_SENTINEL_ONLY":
+        raise ValueError("reviewed_commit_anchor_semantics_invalid")
+    source_policy = data.get("current_source_identity_policy") or {}
+    delivery_policy = data.get("delivery_binding_policy") or {}
+    if source_policy.get("policy_id") != "CURRENT-SOURCE-FREEZE-V1":
+        raise ValueError("current_source_identity_policy_invalid")
+    if delivery_policy.get("policy_id") != "SOURCE-FREEZE-DELIVERY-DERIVATION-V1":
+        raise ValueError("delivery_binding_policy_invalid")
+    # Validate the fixed request/item rule now; the current S identity is supplied
+    # later by the verified source-freeze artifact.
+    _delivery_binding_from_policy(delivery_policy, reviewed)
     return AuthorityHandle(root_commit, root_hash, data)
 
 
