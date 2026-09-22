@@ -88,7 +88,8 @@ jobs:
           E="$(cat /tmp/exp_m_E)"
           P="$(cat /tmp/exp_m_P)"
           Q="$(cat /tmp/exp_m_Q)"
-          python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
+          python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P" --handoff "$Q" \
+            --json-out /tmp/EXP-M-R2E-S-E-P-Q-VERIFICATION.json
           python governance-runtime/verify_exp_m_prior_evidence.py
           test "$(git diff --name-only "$P" "$Q")" = "experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md"
           grep -F -- "- S: $S" experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
@@ -112,6 +113,17 @@ jobs:
             --source "$S" --evidence "$E" --packet "$P" --handoff "$Q" \
             --output /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip
           sha256sum /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip
+          rm -rf /tmp/exp-m-r2e-bundle-check
+          mkdir -p /tmp/exp-m-r2e-bundle-check
+          python - <<'PY'
+          import zipfile
+          from pathlib import Path
+          src=Path("/tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE.zip")
+          dst=Path("/tmp/exp-m-r2e-bundle-check")
+          with zipfile.ZipFile(src, "r") as z:
+              z.extractall(dst)
+          PY
+          python /tmp/exp-m-r2e-bundle-check/VERIFY-BUNDLE.py
       - name: Push governed E-P-Q chain
         shell: bash
         run: |
