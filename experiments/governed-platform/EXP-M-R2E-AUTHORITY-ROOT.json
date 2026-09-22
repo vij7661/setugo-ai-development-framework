@@ -1,5 +1,5 @@
 {
-  "root_id": "EXP-M-R2E-AUTHORITY-ROOT-1",
+  "root_id": "EXP-M-R2E-AUTHORITY-ROOT-2",
   "algorithm": "RSA-PKCS1v15-SHA256",
   "public_exponent": 65537,
   "public_modulus_decimal": "19406969437044342697006292572534246890649549718354567902768001038286874304304682288020677530606005820054444675079471098425907485198331095391772392801025164916645300473325780772218648947160031840197498040865742698933283040385481975892632796869861298660466727128777265850590008210570317565352170761177301191402556845217267656166718395054603786870476147220744764007503464619233599989818010247587677328630583301117929218359939034728678769665015656442490751063943627454538116262981266197813114553648863497431294732647080288693673751776261338545078532466863274953590622425413421850328414913402167268030046439645802938513031",
@@ -15,10 +15,28 @@
   "reviewed_commit_anchor": "2814499a37912ea252b759c530fc07bdcef4950c",
   "retrieval_source_ledger_path": "experiments/governed-platform/EXP-M-R2E-RETRIEVAL-SOURCE-LEDGER.json",
   "retrieval_source_ledger_sha256": "61599e9c5fb9975a58799f7e67a50646f9da8b1d7da0f67d87f85ac5b4c5238c",
-  "delivery_ledger_path": "experiments/governed-platform/EXP-M-R2E-DELIVERY-LEDGER.json",
-  "delivery_ledger_sha256": "1cccb652bf6a77d33ae97e81846031b2cff2a40a383f9530c4a425a93d9dc45a",
   "qualification_ledger_path": "experiments/governed-platform/EXP-M-R2E-QUALIFICATION-LEDGER.json",
   "qualification_ledger_sha256": "73995967363087854175c049ba351fdd2b9ebaaa612789702a1c97241a568c6e",
   "reviewer_authority_suite_path": "governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
-  "reviewer_authority_suite_preregister_commit": "a7b5e5ac59a3da745a6ac06d828763be59ab9668"
+  "reviewer_authority_suite_preregister_commit": "a7b5e5ac59a3da745a6ac06d828763be59ab9668",
+  "version": "2",
+  "reviewed_commit_anchor_semantics": "LEGACY_SIGNED_EXPECTATION_SENTINEL_ONLY",
+  "current_source_identity_policy": {
+    "policy_id": "CURRENT-SOURCE-FREEZE-V1",
+    "source_freeze_path": "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json",
+    "semantics": "The preregistered root authorizes the deterministic derivation rule. The source-freeze artifact supplies immutable S identity and derived binding evidence only; it is not an authority source."
+  },
+  "delivery_binding_policy": {
+    "policy_id": "SOURCE-FREEZE-DELIVERY-DERIVATION-V1",
+    "request_id": "r",
+    "items": {
+      "a": {
+        "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+        "size": 1
+      }
+    },
+    "derivation": "manifest_hash = SHA256(canonical_json({request_id, reviewed_commit: S, items}))",
+    "source_identity": "current_source_identity_policy",
+    "authority_semantics": "Authoritative rule is frozen in this root. EXP-M-SOURCE-FREEZE.json may record only the derived current-S binding and cannot alter request_id, item set, item hashes/sizes, or derivation."
+  }
 }
