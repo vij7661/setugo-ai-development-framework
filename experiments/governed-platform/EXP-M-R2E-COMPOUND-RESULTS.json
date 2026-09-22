@@ -4,94 +4,94 @@
   "case_count": 10,
   "cases": [
     {
+      "blocking_guard": "expectation_authority_invalid",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-1",
       "rejected": true,
-      "rejection_reason": "expectation_authority_invalid",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca1_self_consistent_context_plus_forged_complete_receipt"
     },
     {
+      "blocking_guard": "evidence_token_mismatch",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-2",
       "rejected": true,
-      "rejection_reason": "evidence_token_mismatch",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca2_correctly_keyed_token_for_different_bundle"
     },
     {
+      "blocking_guard": "authority_reviewed_commit_mismatch",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-3",
       "rejected": true,
-      "rejection_reason": "authority_reviewed_commit_mismatch",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca3_fabricated_manifest_plus_matching_caller_commit"
     },
     {
+      "blocking_guard": "retrieval_and_delivery_binding_rejected",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-4",
       "rejected": true,
-      "rejection_reason": "retrieval_and_delivery_binding_rejected",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca4_fabricated_retrieval_bytes_plus_forged_receipt"
     },
     {
+      "blocking_guard": "archive_and_schedule_attack_rejected",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-5",
       "rejected": true,
-      "rejection_reason": "archive_and_schedule_attack_rejected",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca5_zip_named_bin_plus_fake_schedule_diversity"
     },
     {
+      "blocking_guard": "qualification_authority_plan_missing",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-6",
       "rejected": true,
-      "rejection_reason": "qualification_authority_plan_missing",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca6_authority_plan_absent_but_caller_plan_self_consistent"
     },
     {
+      "blocking_guard": "indexed_prior_artifact_missing",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-7",
       "rejected": true,
-      "rejection_reason": "indexed_prior_artifact_missing",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca7_prior_artifact_deleted_but_index_unchanged"
     },
     {
+      "blocking_guard": "reviewer_suite_hash_drift",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "id": "CA-8",
       "rejected": true,
-      "rejection_reason": "reviewer_suite_hash_drift",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca8_reviewer_suite_modified_after_source_freeze"
     },
     {
+      "blocking_guard": "disposition_promotable",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "guard_semantics": "FALSE means failed predicates derive CHANGES_REQUIRED; a caller-supplied PASS cannot override that derived disposition.",
       "id": "CA-9",
       "rejected": true,
-      "rejection_reason": "disposition_promotable",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca9_caller_pass_with_failed_predicate"
     },
     {
+      "blocking_guard": "r5_protocol_unavailable",
+      "blocking_guard_semantics": "guard/control identifier; FALSE or failed guard means the attack is rejected; this field is not a positive disposition",
       "failure": null,
       "fault_injection": "AuthorityHandle.with_missing_r5_protocol_for_test() sets protocol_available=False for this negative test only; the frozen R5 protocol remains present in the authority root.",
       "id": "CA-10",
       "rejected": true,
-      "rejection_reason": "r5_protocol_unavailable",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
       "source": "reviewer_exp_m_r2e_compound_suite.py",
       "test": "test_ca10_missing_protocol_with_self_consistent_record"
     }
@@ -99,13 +99,13 @@
   "execution": {
     "command": "python governance-runtime/run_reviewer_compound_attacks.py",
     "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
-    "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77",
-    "utc": "2026-09-22T07:19:33.507691+00:00"
+    "source_commit": "06fc3a9784105ec35c6eb231c261de361e28f5db",
+    "source_tree": "8a812eeb4305e7ed710b8456c79fc1f4308a392c",
+    "utc": "2026-09-22T09:10:55.170311+00:00"
   },
   "exp_m_state": "NOT_QUALIFIED",
   "live_provider_api_execution": false,
-  "schema": "EXP-M-R2E-COMPOUND/v1",
+  "schema": "EXP-M-R2E-COMPOUND/v2",
   "survivor_count": 0,
   "survivors": []
 }

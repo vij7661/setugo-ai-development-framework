@@ -1,13 +1,22 @@
 {
-  "captured_at_utc": "2026-09-22T07:18:39.583321+00:00",
+  "captured_at_utc": "2026-09-22T09:09:22.708253+00:00",
   "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/verify_exp_m_prior_evidence.py",
   "command_name": "prior-evidence",
+  "command_source_path": "governance-runtime/verify_exp_m_prior_evidence.py",
+  "command_source_sha256": "b31ead9529327addb156dad10722f9955a485d126e2bf26e9fd7f02429267420",
   "exit_code": 0,
   "portable_command": "python governance-runtime/verify_exp_m_prior_evidence.py",
+  "raw_stderr": "",
+  "raw_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "raw_stderr_size": 0,
   "raw_stdout": "PRIOR_EVIDENCE_INDEX_PASS\n",
   "raw_stdout_sha256": "4655fb93a5b5b0105ff370eb8b00f0b90913fc448c7f8e7dc630d037883c12c7",
   "raw_stdout_size": 26,
-  "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
-  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
-  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
+  "result_path": null,
+  "result_sha256_at_command_exit": null,
+  "result_size_at_command_exit": null,
+  "schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
+  "source_commit": "06fc3a9784105ec35c6eb231c261de361e28f5db",
+  "source_tree": "8a812eeb4305e7ed710b8456c79fc1f4308a392c",
+  "stdout_payload_identical_to_result": null
 }

@@ -2,235 +2,314 @@
   "artifacts": [
     {
       "path": "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json",
-      "sha256": "872147c3f054aa018de20843d44155ff17e1cde63662366ae51a9c07731a90ce",
-      "size": 4303
+      "sha256": "fecd65b30aa0a7e214ec4330b4f1c566e9cb73d963455dcc827aaf7744c9ffb5",
+      "size": 5391
     },
     {
       "path": "experiments/governed-platform/EXP-M-TEST-RESULTS.json",
-      "sha256": "00000bef64cf74047e61e65cbf4d1e6f71a4cf634a123c3e2c79f1d43111cc94",
-      "size": 8310
+      "sha256": "07b9f469ce5c81ac3ca746976c5c894849ee67285ceccc14b2a0469ed0c6006c",
+      "size": 8662
     },
     {
       "path": "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json",
-      "sha256": "d98af59bc24f2b441f0ef3da6891fab1e6ad5a0e8dcf6b6ae0dd2651a67d7551",
+      "sha256": "6ff0e0d9dd711b3e3babbe772386aab2f77d2e8b6fe01a3b994055ae177b6c1c",
       "size": 30495
     },
     {
       "path": "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json",
-      "sha256": "f3134f65f216a9b028f4219cdffb30ae2f5bb171c55ce8f117a3aaf208ee009a",
+      "sha256": "207e9d48de04d581ea32ff1d9ef74d18193973c0b7cd44a826568ba886e059e1",
       "size": 32290
     },
     {
       "path": "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json",
-      "sha256": "111f48c573d1f255b29f0e63aaaa6eaff7e5a12e444021b729da1cf0f90bb75d",
-      "size": 6450
+      "sha256": "67cfee563d21f4cfb46be8df23a2f03d8b59bb2c77e779d745c7b0c6adf60b3b",
+      "size": 6430
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json",
-      "sha256": "deeb790debd78b0ff2214d8539605c9bb86ef07e08af3f88af9752a51425dc6e",
-      "size": 4615
+      "sha256": "1084c5435a36d588767b44048c52d1cf6c6f7b81240d7e6810085272ffc3e798",
+      "size": 5145
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json",
-      "sha256": "cebc270f1e3716bc662f0c58e6495a1d41982aa30702032b8b93fa3c230f51cc",
+      "sha256": "003dbdce34e96972995486f9aa8d170c00f80cd62f9a7c17f959d157c0bfc0f9",
       "size": 3015
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2D-SELF-ADJUDICATION.json",
-      "sha256": "610de042c4007f801d3ecf4ef59d9dd890499fdfa1bf16398c9404e9c715a16c",
+      "sha256": "e4399b5edcc04ef0c1d37412d7d8c0bcb0f266adea383618509520004d1f6b8e",
       "size": 760
     },
     {
+      "path": "experiments/governed-platform/EXP-M-R2E-SOURCE-FREEZE-STDOUT.txt",
+      "sha256": "5491f366e314fc836519bed69d71bd3f6dd84c6c45e30024c86bde508f2cb744",
+      "size": 6819
+    },
+    {
       "path": "experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt",
-      "sha256": "eb9de12f7e5ca32e75e7801601127dfcb9773bb72dea35b8114436b0d186b1d9",
-      "size": 643
+      "sha256": "02ba6886f321cc645260ad6418c6fa7d8045b24bc9ba04a8d8a7eca9a35991bc",
+      "size": 1101
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt",
-      "sha256": "bcaa303b064dcdf7849231e503141d2fb19b57cf5147030a3fd642ede42482a9",
-      "size": 9117
+      "sha256": "bdef7910650cd4c7497376808382b84fe3ed523c1f016bc4dcbb40d347fa9bf5",
+      "size": 10030
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt",
-      "sha256": "f3c11c8454dc11bda27804cee01ec383a5e93eb4e3fed48da88f8ee1656c505c",
-      "size": 1972
+      "sha256": "eaa0a91c7bab153468c028eeaa81d8c6b58a0656bde726034fa78b660e6913fa",
+      "size": 2427
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt",
-      "sha256": "378f8949473af426cd5140f6dd0fdebd0b82391aab461fe71186e6b3c02c86a7",
-      "size": 1866
+      "sha256": "6475190f19e8dc3efb804ce21546ebd8776dc8cbdd44a9f2b127557ecc4afba5",
+      "size": 2482
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt",
-      "sha256": "cf1298acd2e05787ac2c3d652aa206283ae555c0e12615112bb45d5970e578d7",
-      "size": 7479
+      "sha256": "291abaa112399fc42182536f87b61e48406c652cf624b70a73b6d09a911e5704",
+      "size": 8593
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt",
-      "sha256": "bee9f663de074cb20fc4ab5a75eb4e2128c7291ee71eddae61c98aada0e63315",
-      "size": 3903
+      "sha256": "52945e923b7e57b5590659a67bf7bc4af8c0a9f6251cf9f3c76459736adf8376",
+      "size": 4489
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt",
-      "sha256": "d849e13185f5ef5e6dcc42aad083843c9886e1c1a2a65d905f76010cc3cbfe63",
-      "size": 34495
+      "sha256": "4b7fd9aaae8abc37c2b3b0b02f89fd6a70710877e1c2ab3f8fb11ce1f29558d2",
+      "size": 35072
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt",
-      "sha256": "7ce41fd8bc97412335aeae0678f84584a925471480dad4b4054a799511460146",
-      "size": 36369
+      "sha256": "f5207ce3355ecb24b90e1c643bdbdfb9a04f10622f7a0ebf9cf1448582b8091a",
+      "size": 36937
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt",
-      "sha256": "8be6e30d3f9bfbb9b40425a9f5114b653b0b474c28239fc0e7ad99bec95f3a25",
-      "size": 5650
+      "sha256": "141ab088dffea96f729bdb4c070aaa79eba575257aa13299eb07efe167dd5960",
+      "size": 8421
     },
     {
       "path": "experiments/governed-platform/EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt",
-      "sha256": "2b88932cbb555b994fa46edb38bf568e11743a462273a9e101252723c295d6f8",
-      "size": 1444
+      "sha256": "366bb56b31f26d18d347ec61550e3a0b7ef06404406fc06a946381d7f8e62228",
+      "size": 2015
     }
   ],
   "authority_effect": "NONE",
   "commands": [
     {
+      "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/freeze_source.py",
+      "command_source_path": "governance-runtime/freeze_source.py",
+      "command_source_sha256": "7309eaa278179e308e0e13c2f00ac6208c520ab22ecce24ee13d221d8f5fc515",
+      "exit_code": 0,
+      "name": "source-freeze",
+      "portable_command": "python governance-runtime/freeze_source.py",
+      "result_path": "experiments/governed-platform/EXP-M-SOURCE-FREEZE.json",
+      "result_sha256_at_command_exit": "fecd65b30aa0a7e214ec4330b4f1c566e9cb73d963455dcc827aaf7744c9ffb5",
+      "result_size_at_command_exit": 5391,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
+      "stdout_path": "experiments/governed-platform/EXP-M-R2E-SOURCE-FREEZE-STDOUT.txt",
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "fecd65b30aa0a7e214ec4330b4f1c566e9cb73d963455dcc827aaf7744c9ffb5",
+      "stdout_payload_size": 5391,
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "5491f366e314fc836519bed69d71bd3f6dd84c6c45e30024c86bde508f2cb744"
+    },
+    {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/verify_exp_m_prior_evidence.py",
+      "command_source_path": "governance-runtime/verify_exp_m_prior_evidence.py",
+      "command_source_sha256": "b31ead9529327addb156dad10722f9955a485d126e2bf26e9fd7f02429267420",
       "exit_code": 0,
       "name": "prior-evidence",
       "portable_command": "python governance-runtime/verify_exp_m_prior_evidence.py",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-PRIOR-EVIDENCE-VERIFY-STDOUT.txt",
       "stdout_payload_sha256": "4655fb93a5b5b0105ff370eb8b00f0b90913fc448c7f8e7dc630d037883c12c7",
       "stdout_payload_size": 26,
-      "stdout_role": "source-bound command-console capture; not independent corroboration",
-      "stdout_sha256": "eb9de12f7e5ca32e75e7801601127dfcb9773bb72dea35b8114436b0d186b1d9"
+      "stdout_role": "source-bound command-console capture",
+      "stdout_sha256": "02ba6886f321cc645260ad6418c6fa7d8045b24bc9ba04a8d8a7eca9a35991bc"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_tests.py",
+      "command_source_path": "governance-runtime/run_exp_m_tests.py",
+      "command_source_sha256": "f6d5e35c401ce7393f23de5c5cd0f583c655ea8403575c968f2d664e3a9fb11c",
       "exit_code": 0,
       "name": "tests",
       "portable_command": "python governance-runtime/run_exp_m_tests.py",
       "result_path": "experiments/governed-platform/EXP-M-TEST-RESULTS.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "07b9f469ce5c81ac3ca746976c5c894849ee67285ceccc14b2a0469ed0c6006c",
+      "result_size_at_command_exit": 8662,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-TEST-RUN-STDOUT.txt",
       "stdout_payload_identical_to_result": true,
-      "stdout_payload_sha256": "00000bef64cf74047e61e65cbf4d1e6f71a4cf634a123c3e2c79f1d43111cc94",
-      "stdout_payload_size": 8310,
-      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "bcaa303b064dcdf7849231e503141d2fb19b57cf5147030a3fd642ede42482a9"
+      "stdout_payload_sha256": "07b9f469ce5c81ac3ca746976c5c894849ee67285ceccc14b2a0469ed0c6006c",
+      "stdout_payload_size": 8662,
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "bdef7910650cd4c7497376808382b84fe3ed523c1f016bc4dcbb40d347fa9bf5"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_suite.py",
+      "command_source_path": "governance-runtime/reviewer_exp_m_r2e_suite.py",
+      "command_source_sha256": "f5164eec5e795b9ef927f65b8a0261a8736dab2e10c86a3a6a868cde0055dd96",
       "exit_code": 0,
       "name": "reviewer-core",
       "portable_command": "python governance-runtime/reviewer_exp_m_r2e_suite.py",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "stderr_payload_sha256": "df3364cac4c04084d7927b7a1f13976243557ac312a5cf96a03f9b800f6d2d65",
+      "stderr_payload_size": 1347,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-CORE-STDOUT.txt",
-      "stdout_payload_sha256": "fd958ffe271ce00b1946baf60ff73478de012f3ad3587b971a541a904d4b2600",
-      "stdout_payload_size": 1347,
-      "stdout_role": "source-bound command-console capture; not independent corroboration",
-      "stdout_sha256": "f3c11c8454dc11bda27804cee01ec383a5e93eb4e3fed48da88f8ee1656c505c"
+      "stdout_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_payload_size": 0,
+      "stdout_role": "source-bound command-console capture",
+      "stdout_sha256": "eaa0a91c7bab153468c028eeaa81d8c6b58a0656bde726034fa78b660e6913fa"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
+      "command_source_path": "governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
+      "command_source_sha256": "ed3dc5b0ab73ac866b9482ec3573f0d68c1970baf1f44f680912d0c2c95c5d45",
       "exit_code": 0,
       "name": "reviewer-authority",
       "portable_command": "python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "stderr_payload_sha256": "fc30f2c69b66e508a2582cf7cc8a81e60a4fa44f687d02105c1219948b9908a3",
+      "stderr_payload_size": 1368,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-REVIEWER-AUTHORITY-STDOUT.txt",
-      "stdout_payload_sha256": "eb99db7e5996d07a6a8d8554e091321d47250e5da596254365939922a4de12f9",
-      "stdout_payload_size": 1218,
-      "stdout_role": "source-bound command-console capture; not independent corroboration",
-      "stdout_sha256": "378f8949473af426cd5140f6dd0fdebd0b82391aab461fe71186e6b3c02c86a7"
+      "stdout_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_payload_size": 0,
+      "stdout_role": "source-bound command-console capture",
+      "stdout_sha256": "6475190f19e8dc3efb804ce21546ebd8776dc8cbdd44a9f2b127557ecc4afba5"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_reviewer_compound_attacks.py",
+      "command_source_path": "governance-runtime/run_reviewer_compound_attacks.py",
+      "command_source_sha256": "23d512cd09ab98b90f8fbda62437e760a1c87f22945af632a47ab26cb4cbcadb",
       "exit_code": 0,
       "name": "reviewer-compound",
       "portable_command": "python governance-runtime/run_reviewer_compound_attacks.py",
       "result_path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-RESULTS.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "1084c5435a36d588767b44048c52d1cf6c6f7b81240d7e6810085272ffc3e798",
+      "result_size_at_command_exit": 5145,
+      "stderr_payload_sha256": "ab3c63494bf8129a9427180bf3f8cc4724c42d60190ece7beff8ec04d1413916",
+      "stderr_payload_size": 1819,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-COMPOUND-STDOUT.txt",
-      "stdout_payload_identical_to_result": false,
-      "stdout_payload_sha256": "6b8b1759b561a6c530f7deb80381b20bc4cfd1778675c6f50d3a937d30ddfd12",
-      "stdout_payload_size": 6434,
-      "stdout_role": "source-bound command-console capture; final result artifact differs because governed post-processing occurred after command execution",
-      "stdout_sha256": "cf1298acd2e05787ac2c3d652aa206283ae555c0e12615112bb45d5970e578d7"
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "1084c5435a36d588767b44048c52d1cf6c6f7b81240d7e6810085272ffc3e798",
+      "stdout_payload_size": 5145,
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "291abaa112399fc42182536f87b61e48406c652cf624b70a73b6d09a911e5704"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_static_review_probes.py",
+      "command_source_path": "governance-runtime/run_exp_m_static_review_probes.py",
+      "command_source_sha256": "c0bcff168444405d1f3fc26e82ae0075770ffbd58477306f5bfea117e4734f77",
       "exit_code": 0,
       "name": "static-review-probes",
       "portable_command": "python governance-runtime/run_exp_m_static_review_probes.py",
       "result_path": "experiments/governed-platform/EXP-M-R2E-CLARIFICATION-PROBES.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "003dbdce34e96972995486f9aa8d170c00f80cd62f9a7c17f959d157c0bfc0f9",
+      "result_size_at_command_exit": 3015,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-PROBES-STDOUT.txt",
       "stdout_payload_identical_to_result": true,
-      "stdout_payload_sha256": "cebc270f1e3716bc662f0c58e6495a1d41982aa30702032b8b93fa3c230f51cc",
+      "stdout_payload_sha256": "003dbdce34e96972995486f9aa8d170c00f80cd62f9a7c17f959d157c0bfc0f9",
       "stdout_payload_size": 3015,
-      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "bee9f663de074cb20fc4ab5a75eb4e2128c7291ee71eddae61c98aada0e63315"
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "52945e923b7e57b5590659a67bf7bc4af8c0a9f6251cf9f3c76459736adf8376"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_deterministic.py",
+      "command_source_path": "governance-runtime/run_exp_m_deterministic.py",
+      "command_source_sha256": "8d8f028cc466c28a587cfbbb9a813b708c2a48a541bd8ca1fa7a6484a4880583",
       "exit_code": 0,
       "name": "phases",
       "portable_command": "python governance-runtime/run_exp_m_deterministic.py",
       "result_path": "experiments/governed-platform/EXP-M-DETERMINISTIC-RESULTS.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "6ff0e0d9dd711b3e3babbe772386aab2f77d2e8b6fe01a3b994055ae177b6c1c",
+      "result_size_at_command_exit": 30495,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-PHASE-STDOUT.txt",
       "stdout_payload_identical_to_result": true,
-      "stdout_payload_sha256": "d98af59bc24f2b441f0ef3da6891fab1e6ad5a0e8dcf6b6ae0dd2651a67d7551",
+      "stdout_payload_sha256": "6ff0e0d9dd711b3e3babbe772386aab2f77d2e8b6fe01a3b994055ae177b6c1c",
       "stdout_payload_size": 30495,
-      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "d849e13185f5ef5e6dcc42aad083843c9886e1c1a2a65d905f76010cc3cbfe63"
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "4b7fd9aaae8abc37c2b3b0b02f89fd6a70710877e1c2ab3f8fb11ce1f29558d2"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_exp_m_mutations.py",
+      "command_source_path": "governance-runtime/run_exp_m_mutations.py",
+      "command_source_sha256": "be705ba0749bc9df7fd4d1a3c26afbb81b060f0c4a8bb1933a3f036a95d257fb",
       "exit_code": 0,
       "name": "mutations",
       "portable_command": "python governance-runtime/run_exp_m_mutations.py",
       "result_path": "experiments/governed-platform/EXP-M-MUTATION-RESULTS.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "207e9d48de04d581ea32ff1d9ef74d18193973c0b7cd44a826568ba886e059e1",
+      "result_size_at_command_exit": 32290,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-MUTATION-STDOUT.txt",
       "stdout_payload_identical_to_result": true,
-      "stdout_payload_sha256": "f3134f65f216a9b028f4219cdffb30ae2f5bb171c55ce8f117a3aaf208ee009a",
+      "stdout_payload_sha256": "207e9d48de04d581ea32ff1d9ef74d18193973c0b7cd44a826568ba886e059e1",
       "stdout_payload_size": 32290,
-      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "7ce41fd8bc97412335aeae0678f84584a925471480dad4b4054a799511460146"
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "f5207ce3355ecb24b90e1c643bdbdfb9a04f10622f7a0ebf9cf1448582b8091a"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/self_falsify_exp_m.py",
+      "command_source_path": "governance-runtime/self_falsify_exp_m.py",
+      "command_source_sha256": "5a4b98f878d0ec4872834e2c8f7a9501f180bfef07b34f10c50485f56d0844da",
       "exit_code": 0,
       "name": "self-falsification",
       "portable_command": "python governance-runtime/self_falsify_exp_m.py",
       "result_path": "experiments/governed-platform/EXP-M-SELF-FALSIFICATION-RESULTS.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "67cfee563d21f4cfb46be8df23a2f03d8b59bb2c77e779d745c7b0c6adf60b3b",
+      "result_size_at_command_exit": 6430,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt",
-      "stdout_payload_identical_to_result": false,
-      "stdout_payload_sha256": "b187fd48ef007cf8f3d5896efc1797abb72b2a940a0e4eb9a77e677cc77e56b8",
-      "stdout_payload_size": 4479,
-      "stdout_role": "source-bound command-console capture; final result artifact differs because governed post-processing occurred after command execution",
-      "stdout_sha256": "8be6e30d3f9bfbb9b40425a9f5114b653b0b474c28239fc0e7ad99bec95f3a25"
+      "stdout_payload_identical_to_result": true,
+      "stdout_payload_sha256": "67cfee563d21f4cfb46be8df23a2f03d8b59bb2c77e779d745c7b0c6adf60b3b",
+      "stdout_payload_size": 6430,
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "141ab088dffea96f729bdb4c070aaa79eba575257aa13299eb07efe167dd5960"
     },
     {
       "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/self_adjudicate_r2d.py",
+      "command_source_path": "governance-runtime/self_adjudicate_r2d.py",
+      "command_source_sha256": "e320addbc158cdf2d94959476ca2928d8d9ccdf9a8b1bc070b243f6d38336d20",
       "exit_code": 0,
       "name": "self-adjudication",
       "portable_command": "python governance-runtime/self_adjudicate_r2d.py",
       "result_path": "experiments/governed-platform/EXP-M-R2D-SELF-ADJUDICATION.json",
-      "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+      "result_sha256_at_command_exit": "e4399b5edcc04ef0c1d37412d7d8c0bcb0f266adea383618509520004d1f6b8e",
+      "result_size_at_command_exit": 760,
+      "stderr_payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_payload_size": 0,
+      "stdout_capture_schema": "EXP-M-R2E-COMMAND-CAPTURE/v2",
       "stdout_path": "experiments/governed-platform/EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt",
       "stdout_payload_identical_to_result": true,
-      "stdout_payload_sha256": "610de042c4007f801d3ecf4ef59d9dd890499fdfa1bf16398c9404e9c715a16c",
+      "stdout_payload_sha256": "e4399b5edcc04ef0c1d37412d7d8c0bcb0f266adea383618509520004d1f6b8e",
       "stdout_payload_size": 760,
-      "stdout_role": "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence",
-      "stdout_sha256": "2b88932cbb555b994fa46edb38bf568e11743a462273a9e101252723c295d6f8"
+      "stdout_role": "source-bound exact result serialization",
+      "stdout_sha256": "366bb56b31f26d18d347ec61550e3a0b7ef06404406fc06a946381d7f8e62228"
     }
   ],
   "compound_attack_survivors": 0,
   "exp_m_state": "NOT_QUALIFIED",
-  "generated_at_utc": "2026-09-22T07:21:11.336479+00:00",
+  "generated_at_utc": "2026-09-22T09:13:41.703294+00:00",
   "live_provider_api_execution": false,
   "manifest_self_attestation": {
     "included_in_artifacts": false,
@@ -245,6 +324,8 @@
       "verify clean worktree before evidence generation"
     ],
     "dependency_basis": "governed Python source import audit found only Python standard-library and repository-local modules",
+    "dynamic_code_sites": [],
+    "dynamic_import_sites": [],
     "git_version": "git version 2.55.0",
     "github_actions_all_pinned_by_commit_sha": true,
     "github_actions_dependencies": {
@@ -265,9 +346,10 @@
     "python_version": "3.12.14 (main, Aug 13 2026, 02:47:42) [GCC 13.3.0]",
     "runner_arch": "X64",
     "runner_os": "Linux",
-    "third_party_python_dependencies": []
+    "third_party_python_dependencies": [],
+    "unfrozen_local_imports": []
   },
-  "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v3",
-  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
-  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
+  "schema": "EXP-M-R2E-EVIDENCE-MANIFEST/v4",
+  "source_commit": "06fc3a9784105ec35c6eb231c261de361e28f5db",
+  "source_tree": "8a812eeb4305e7ed710b8456c79fc1f4308a392c"
 }
