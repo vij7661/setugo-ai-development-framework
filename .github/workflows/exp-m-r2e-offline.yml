@@ -131,7 +131,7 @@ jobs:
           with zipfile.ZipFile(src, "r") as z:
               z.extractall(dst)
           PY
-          python /tmp/exp-m-r2e-bundle-check/VERIFY-BUNDLE.py
+          (cd /tmp/exp-m-r2e-bundle-check && python VERIFY-BUNDLE.py)
           echo "R2E_LOCAL_S_E_P_Q_PREFLIGHT=PASS"
       - name: Assert no live provider execution marker
         shell: bash
