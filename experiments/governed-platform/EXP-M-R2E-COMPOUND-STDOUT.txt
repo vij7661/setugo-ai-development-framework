@@ -1,126 +1,13 @@
-test_ca10_missing_protocol_with_self_consistent_record (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca10_missing_protocol_with_self_consistent_record) ... ok
-test_ca1_self_consistent_context_plus_forged_complete_receipt (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca1_self_consistent_context_plus_forged_complete_receipt) ... ok
-test_ca2_correctly_keyed_token_for_different_bundle (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca2_correctly_keyed_token_for_different_bundle) ... ok
-test_ca3_fabricated_manifest_plus_matching_caller_commit (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca3_fabricated_manifest_plus_matching_caller_commit) ... ok
-test_ca4_fabricated_retrieval_bytes_plus_forged_receipt (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca4_fabricated_retrieval_bytes_plus_forged_receipt) ... ok
-test_ca5_zip_named_bin_plus_fake_schedule_diversity (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca5_zip_named_bin_plus_fake_schedule_diversity) ... ok
-test_ca6_authority_plan_absent_but_caller_plan_self_consistent (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca6_authority_plan_absent_but_caller_plan_self_consistent) ... ok
-test_ca7_prior_artifact_deleted_but_index_unchanged (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca7_prior_artifact_deleted_but_index_unchanged) ... ok
-test_ca8_reviewer_suite_modified_after_source_freeze (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca8_reviewer_suite_modified_after_source_freeze) ... ok
-test_ca9_caller_pass_with_failed_predicate (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca9_caller_pass_with_failed_predicate) ... ok
-
-----------------------------------------------------------------------
-Ran 10 tests in 1.489s
-
-OK
 {
-  "all_rejected": true,
-  "authority_effect": "NONE",
-  "case_count": 10,
-  "cases": [
-    {
-      "failure": null,
-      "id": "CA-1",
-      "rejected": true,
-      "rejection_reason": "expectation_authority_invalid",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca1_self_consistent_context_plus_forged_complete_receipt"
-    },
-    {
-      "failure": null,
-      "id": "CA-2",
-      "rejected": true,
-      "rejection_reason": "evidence_token_mismatch",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca2_correctly_keyed_token_for_different_bundle"
-    },
-    {
-      "failure": null,
-      "id": "CA-3",
-      "rejected": true,
-      "rejection_reason": "authority_reviewed_commit_mismatch",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca3_fabricated_manifest_plus_matching_caller_commit"
-    },
-    {
-      "failure": null,
-      "id": "CA-4",
-      "rejected": true,
-      "rejection_reason": "retrieval_and_delivery_binding_rejected",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca4_fabricated_retrieval_bytes_plus_forged_receipt"
-    },
-    {
-      "failure": null,
-      "id": "CA-5",
-      "rejected": true,
-      "rejection_reason": "archive_and_schedule_attack_rejected",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca5_zip_named_bin_plus_fake_schedule_diversity"
-    },
-    {
-      "failure": null,
-      "id": "CA-6",
-      "rejected": true,
-      "rejection_reason": "qualification_authority_plan_missing",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca6_authority_plan_absent_but_caller_plan_self_consistent"
-    },
-    {
-      "failure": null,
-      "id": "CA-7",
-      "rejected": true,
-      "rejection_reason": "indexed_prior_artifact_missing",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca7_prior_artifact_deleted_but_index_unchanged"
-    },
-    {
-      "failure": null,
-      "id": "CA-8",
-      "rejected": true,
-      "rejection_reason": "reviewer_suite_hash_drift",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca8_reviewer_suite_modified_after_source_freeze"
-    },
-    {
-      "failure": null,
-      "guard_semantics": "FALSE means failed predicates derive CHANGES_REQUIRED; a caller-supplied PASS cannot override that derived disposition.",
-      "id": "CA-9",
-      "rejected": true,
-      "rejection_reason": "disposition_promotable",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca9_caller_pass_with_failed_predicate"
-    },
-    {
-      "failure": null,
-      "fault_injection": "AuthorityHandle.with_missing_r5_protocol_for_test() sets protocol_available=False for this negative test only; the frozen R5 protocol remains present in the authority root.",
-      "id": "CA-10",
-      "rejected": true,
-      "rejection_reason": "r5_protocol_unavailable",
-      "rejection_reason_semantics": "blocking guard/control label; not a positive-status assertion",
-      "source": "reviewer_exp_m_r2e_compound_suite.py",
-      "test": "test_ca10_missing_protocol_with_self_consistent_record"
-    }
-  ],
-  "execution": {
-    "command": "python governance-runtime/run_reviewer_compound_attacks.py",
-    "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a",
-    "source_tree": "596c9bec58cd40f8ac27999f26ea62b6a2cc109d",
-    "utc": "2026-09-22T06:33:39.938058+00:00"
-  },
-  "exp_m_state": "NOT_QUALIFIED",
-  "live_provider_api_execution": false,
-  "schema": "EXP-M-R2E-COMPOUND/v1",
-  "survivor_count": 0,
-  "survivors": []
+  "captured_at_utc": "2026-09-22T07:19:33.518712+00:00",
+  "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/run_reviewer_compound_attacks.py",
+  "command_name": "reviewer-compound",
+  "exit_code": 0,
+  "portable_command": "python governance-runtime/run_reviewer_compound_attacks.py",
+  "raw_stdout": "test_ca10_missing_protocol_with_self_consistent_record (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca10_missing_protocol_with_self_consistent_record) ... ok\ntest_ca1_self_consistent_context_plus_forged_complete_receipt (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca1_self_consistent_context_plus_forged_complete_receipt) ... ok\ntest_ca2_correctly_keyed_token_for_different_bundle (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca2_correctly_keyed_token_for_different_bundle) ... ok\ntest_ca3_fabricated_manifest_plus_matching_caller_commit (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca3_fabricated_manifest_plus_matching_caller_commit) ... ok\ntest_ca4_fabricated_retrieval_bytes_plus_forged_receipt (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca4_fabricated_retrieval_bytes_plus_forged_receipt) ... ok\ntest_ca5_zip_named_bin_plus_fake_schedule_diversity (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca5_zip_named_bin_plus_fake_schedule_diversity) ... ok\ntest_ca6_authority_plan_absent_but_caller_plan_self_consistent (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca6_authority_plan_absent_but_caller_plan_self_consistent) ... ok\ntest_ca7_prior_artifact_deleted_but_index_unchanged (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca7_prior_artifact_deleted_but_index_unchanged) ... ok\ntest_ca8_reviewer_suite_modified_after_source_freeze (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca8_reviewer_suite_modified_after_source_freeze) ... ok\ntest_ca9_caller_pass_with_failed_predicate (reviewer_exp_m_r2e_compound_suite.CompoundAttackSuite.test_ca9_caller_pass_with_failed_predicate) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 1.178s\n\nOK\n{\n  \"all_rejected\": true,\n  \"authority_effect\": \"NONE\",\n  \"case_count\": 10,\n  \"cases\": [\n    {\n      \"failure\": null,\n      \"id\": \"CA-1\",\n      \"rejected\": true,\n      \"rejection_reason\": \"expectation_authority_invalid\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca1_self_consistent_context_plus_forged_complete_receipt\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-2\",\n      \"rejected\": true,\n      \"rejection_reason\": \"evidence_token_mismatch\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca2_correctly_keyed_token_for_different_bundle\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-3\",\n      \"rejected\": true,\n      \"rejection_reason\": \"authority_reviewed_commit_mismatch\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca3_fabricated_manifest_plus_matching_caller_commit\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-4\",\n      \"rejected\": true,\n      \"rejection_reason\": \"retrieval_and_delivery_binding_rejected\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca4_fabricated_retrieval_bytes_plus_forged_receipt\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-5\",\n      \"rejected\": true,\n      \"rejection_reason\": \"archive_and_schedule_attack_rejected\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca5_zip_named_bin_plus_fake_schedule_diversity\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-6\",\n      \"rejected\": true,\n      \"rejection_reason\": \"qualification_authority_plan_missing\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca6_authority_plan_absent_but_caller_plan_self_consistent\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-7\",\n      \"rejected\": true,\n      \"rejection_reason\": \"indexed_prior_artifact_missing\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca7_prior_artifact_deleted_but_index_unchanged\"\n    },\n    {\n      \"failure\": null,\n      \"id\": \"CA-8\",\n      \"rejected\": true,\n      \"rejection_reason\": \"reviewer_suite_hash_drift\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca8_reviewer_suite_modified_after_source_freeze\"\n    },\n    {\n      \"failure\": null,\n      \"guard_semantics\": \"FALSE means failed predicates derive CHANGES_REQUIRED; a caller-supplied PASS cannot override that derived disposition.\",\n      \"id\": \"CA-9\",\n      \"rejected\": true,\n      \"rejection_reason\": \"disposition_promotable\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca9_caller_pass_with_failed_predicate\"\n    },\n    {\n      \"failure\": null,\n      \"fault_injection\": \"AuthorityHandle.with_missing_r5_protocol_for_test() sets protocol_available=False for this negative test only; the frozen R5 protocol remains present in the authority root.\",\n      \"id\": \"CA-10\",\n      \"rejected\": true,\n      \"rejection_reason\": \"r5_protocol_unavailable\",\n      \"rejection_reason_semantics\": \"blocking guard/control label; not a positive-status assertion\",\n      \"source\": \"reviewer_exp_m_r2e_compound_suite.py\",\n      \"test\": \"test_ca10_missing_protocol_with_self_consistent_record\"\n    }\n  ],\n  \"execution\": {\n    \"command\": \"python governance-runtime/run_reviewer_compound_attacks.py\",\n    \"interpreter\": \"/opt/hostedtoolcache/Python/3.12.14/x64/bin/python\",\n    \"source_commit\": \"82b39a4cf2ab4c89777c3eb3179391ccb268353e\",\n    \"source_tree\": \"994fa0c838d500b7bc2fe28250851d3cbae45f77\",\n    \"utc\": \"2026-09-22T07:19:33.507691+00:00\"\n  },\n  \"exp_m_state\": \"NOT_QUALIFIED\",\n  \"live_provider_api_execution\": false,\n  \"schema\": \"EXP-M-R2E-COMPOUND/v1\",\n  \"survivor_count\": 0,\n  \"survivors\": []\n}\n",
+  "raw_stdout_sha256": "6b8b1759b561a6c530f7deb80381b20bc4cfd1778675c6f50d3a937d30ddfd12",
+  "raw_stdout_size": 6434,
+  "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
+  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
 }

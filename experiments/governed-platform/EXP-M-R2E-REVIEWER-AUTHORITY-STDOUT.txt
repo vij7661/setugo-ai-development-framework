@@ -1,12 +1,13 @@
-test_ca3_fabricated_commit_even_if_expected_string_matches_rejected (__main__.ReviewerR2EAuthorityAnchoring.test_ca3_fabricated_commit_even_if_expected_string_matches_rejected) ... ok
-test_ca6_tampered_caller_plan_cannot_override_authority_plan (__main__.ReviewerR2EAuthorityAnchoring.test_ca6_tampered_caller_plan_cannot_override_authority_plan) ... ok
-test_h1_authority_source_bytes_pass (__main__.ReviewerR2EAuthorityAnchoring.test_h1_authority_source_bytes_pass) ... ok
-test_h1_matching_fabricated_retrieval_bytes_do_not_pass (__main__.ReviewerR2EAuthorityAnchoring.test_h1_matching_fabricated_retrieval_bytes_do_not_pass) ... ok
-test_h1_retrieval_validator_has_no_caller_raw_parameter (__main__.ReviewerR2EAuthorityAnchoring.test_h1_retrieval_validator_has_no_caller_raw_parameter) ... ok
-test_h2_self_consistent_unregistered_manifest_rejected (__main__.ReviewerR2EAuthorityAnchoring.test_h2_self_consistent_unregistered_manifest_rejected) ... ok
-test_h3_caller_qualification_absent_from_authority_rejected (__main__.ReviewerR2EAuthorityAnchoring.test_h3_caller_qualification_absent_from_authority_rejected) ... ok
-
-----------------------------------------------------------------------
-Ran 7 tests in 1.033s
-
-OK
+{
+  "captured_at_utc": "2026-09-22T07:19:32.244299+00:00",
+  "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
+  "command_name": "reviewer-authority",
+  "exit_code": 0,
+  "portable_command": "python governance-runtime/reviewer_exp_m_r2e_authority_suite.py",
+  "raw_stdout": "test_ca3_fabricated_commit_even_if_expected_string_matches_rejected (__main__.ReviewerR2EAuthorityAnchoring.test_ca3_fabricated_commit_even_if_expected_string_matches_rejected) ... ok\ntest_ca6_tampered_caller_plan_cannot_override_authority_plan (__main__.ReviewerR2EAuthorityAnchoring.test_ca6_tampered_caller_plan_cannot_override_authority_plan) ... ok\ntest_h1_authority_source_bytes_pass (__main__.ReviewerR2EAuthorityAnchoring.test_h1_authority_source_bytes_pass) ... ok\ntest_h1_matching_fabricated_retrieval_bytes_do_not_pass (__main__.ReviewerR2EAuthorityAnchoring.test_h1_matching_fabricated_retrieval_bytes_do_not_pass) ... ok\ntest_h1_retrieval_validator_has_no_caller_raw_parameter (__main__.ReviewerR2EAuthorityAnchoring.test_h1_retrieval_validator_has_no_caller_raw_parameter) ... ok\ntest_h2_self_consistent_unregistered_manifest_rejected (__main__.ReviewerR2EAuthorityAnchoring.test_h2_self_consistent_unregistered_manifest_rejected) ... ok\ntest_h3_caller_qualification_absent_from_authority_rejected (__main__.ReviewerR2EAuthorityAnchoring.test_h3_caller_qualification_absent_from_authority_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.821s\n\nOK\n",
+  "raw_stdout_sha256": "eb99db7e5996d07a6a8d8554e091321d47250e5da596254365939922a4de12f9",
+  "raw_stdout_size": 1218,
+  "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
+  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
+}

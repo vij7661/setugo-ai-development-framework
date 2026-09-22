@@ -1,0 +1,13 @@
+{
+  "captured_at_utc": "2026-09-22T07:21:11.235578+00:00",
+  "command": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python governance-runtime/self_adjudicate_r2d.py",
+  "command_name": "self-adjudication",
+  "exit_code": 0,
+  "portable_command": "python governance-runtime/self_adjudicate_r2d.py",
+  "raw_stdout": "{\n  \"checks\": {\n    \"live_provider_execution_false\": true,\n    \"mutation_catalog_closed\": true,\n    \"phases_pass\": true,\n    \"r2d_attacks_present\": true,\n    \"self_falsification_clean\": true,\n    \"source_bound\": true,\n    \"tests_pass\": true\n  },\n  \"execution\": {\n    \"command\": \"python governance-runtime/self_adjudicate_r2d.py\",\n    \"interpreter\": \"/opt/hostedtoolcache/Python/3.12.14/x64/bin/python\",\n    \"live_provider_execution\": false,\n    \"source_commit\": \"82b39a4cf2ab4c89777c3eb3179391ccb268353e\",\n    \"source_tree\": \"994fa0c838d500b7bc2fe28250851d3cbae45f77\",\n    \"utc\": \"2026-09-22T07:21:11.227437+00:00\"\n  },\n  \"experiment\": \"EXP-M\",\n  \"remediation\": \"R2D\",\n  \"status\": \"SELF_ADJUDICATION_PASS\",\n  \"unresolved_critical\": 0,\n  \"unresolved_high\": 0\n}\n",
+  "raw_stdout_sha256": "610de042c4007f801d3ecf4ef59d9dd890499fdfa1bf16398c9404e9c715a16c",
+  "raw_stdout_size": 760,
+  "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+  "source_commit": "82b39a4cf2ab4c89777c3eb3179391ccb268353e",
+  "source_tree": "994fa0c838d500b7bc2fe28250851d3cbae45f77"
+}
