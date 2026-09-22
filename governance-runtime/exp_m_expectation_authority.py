@@ -12,6 +12,7 @@ import base64
 import hashlib
 import hmac
 import json
+import os
 import subprocess
 import weakref
 from pathlib import Path
@@ -104,77 +105,33 @@ class AuthorityHandle:
     root_hash: str
     root: Mapping[str, Any]
     protocol_available: bool = True
+    source_commit: str = ""
+    source_tree: str = ""
 
-    def _source_freeze(self) -> Mapping[str, Any] | None:
-        """Load and independently verify the C-4 source-freeze artifact when present."""
-        path = ROOT / "experiments" / "governed-platform" / "EXP-M-SOURCE-FREEZE.json"
-        if not path.exists():
-            return None
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except Exception as exc:
-            raise ValueError("source_freeze_unreadable") from exc
-        commit = str(data.get("source_commit", ""))
-        tree = str(data.get("source_tree", ""))
+    def _require_source_binding(self) -> tuple[str, str]:
+        """Return the explicit content-addressed S identity bound at execution entry."""
+        commit = str(self.source_commit)
+        tree = str(self.source_tree)
         if len(commit) != 40 or not _git_commit_exists(commit):
-            raise ValueError("source_freeze_commit_invalid")
+            raise ValueError("source_identity_binding_required")
         try:
             actual_tree = subprocess.check_output(
                 ("git", "rev-parse", f"{commit}^{{tree}}"), cwd=ROOT, text=True,
                 stderr=subprocess.DEVNULL,
             ).strip()
         except (subprocess.CalledProcessError, FileNotFoundError) as exc:
-            raise ValueError("source_freeze_tree_unavailable") from exc
-        if actual_tree != tree:
-            raise ValueError("source_freeze_tree_mismatch")
-        source_files = data.get("source_files")
-        if not isinstance(source_files, Mapping) or not source_files:
-            raise ValueError("source_freeze_manifest_empty")
-        for source_path, expected_hash in source_files.items():
-            try:
-                raw = _git_bytes(commit, str(source_path))
-            except ValueError as exc:
-                raise ValueError(f"source_freeze_file_missing:{source_path}") from exc
-            if _sha256(raw) != str(expected_hash):
-                raise ValueError(f"source_freeze_file_hash_mismatch:{source_path}")
-            working = ROOT / str(source_path)
-            if working.exists() and _sha256(working.read_bytes()) != str(expected_hash):
-                raise ValueError(f"source_freeze_worktree_hash_mismatch:{source_path}")
-        authority_ref = data.get("authority_reference") or {}
-        current_policy = self.root.get("current_source_identity_policy") or {}
-        if (
-            str(authority_ref.get("root_commit", "")) != self.root_commit
-            or str(authority_ref.get("policy_id", "")) != str(current_policy.get("policy_id", ""))
-        ):
-            raise ValueError("source_freeze_authority_reference_mismatch")
-        policy = self.root.get("delivery_binding_policy") or {}
-        derived = _delivery_binding_from_policy(policy, commit)
-        recorded = data.get("delivery_binding")
-        if recorded != derived:
-            raise ValueError("source_freeze_delivery_binding_mismatch")
-        return data
+            raise ValueError("source_identity_tree_unavailable") from exc
+        if not tree or tree != actual_tree:
+            raise ValueError("source_identity_tree_mismatch")
+        return commit, tree
 
     def resolve_reviewed_commit(self) -> str:
-        freeze = self._source_freeze()
-        if freeze is not None:
-            return str(freeze["source_commit"])
-        commit = str(self.root.get("reviewed_commit_anchor", ""))
-        if len(commit) != 40 or not _git_commit_exists(commit):
-            raise ValueError("reviewed_commit_not_resolved_git_object")
+        commit, _ = self._require_source_binding()
         return commit
 
     def resolve_reviewed_tree(self) -> str:
-        freeze = self._source_freeze()
-        if freeze is not None:
-            return str(freeze["source_tree"])
-        commit = self.resolve_reviewed_commit()
-        try:
-            return subprocess.check_output(
-                ("git", "rev-parse", f"{commit}^{{tree}}"), cwd=ROOT, text=True,
-                stderr=subprocess.DEVNULL,
-            ).strip()
-        except (subprocess.CalledProcessError, FileNotFoundError) as exc:
-            raise ValueError("reviewed_tree_not_resolved_git_object") from exc
+        _, tree = self._require_source_binding()
+        return tree
 
     def _load_hashed_json(self, path_key: str, hash_key: str) -> Mapping[str, Any]:
         path = str(self.root[path_key])
@@ -201,12 +158,11 @@ class AuthorityHandle:
             raise ValueError("delivery_binding_policy_missing")
         if str(policy.get("request_id", "")) != request_id:
             raise ValueError("delivery_request_not_authorized")
-        freeze = self._source_freeze()
-        if freeze is None:
-            raise ValueError("source_freeze_required_for_current_delivery_binding")
-        derived = _delivery_binding_from_policy(policy, str(freeze["source_commit"]))
-        # The source freeze is evidence of the current-S instantiation only.
-        # Authority comes exclusively from the preregistered root policy above.
+        source_commit, _ = self._require_source_binding()
+        derived = _delivery_binding_from_policy(policy, source_commit)
+        # Current-S identity is supplied explicitly by the execution boundary.
+        # The generated source-freeze artifact remains evidence only and is never
+        # consulted by production authority resolution.
         return {
             "reviewed_commit": derived["reviewed_commit"],
             "manifest_hash": derived["manifest_hash"],
@@ -242,7 +198,29 @@ class AuthorityHandle:
         return canonical_wire_hash(manifest.request_id, "a", "s", returned_items)
 
 
-def load_authority(root_commit: str) -> AuthorityHandle:
+def _explicit_source_binding(source_commit: str | None, source_tree: str | None) -> tuple[str, str]:
+    commit = str(source_commit or os.environ.get("EXP_M_SOURCE_COMMIT", "")).strip()
+    if len(commit) != 40 or not _git_commit_exists(commit):
+        raise ValueError("source_identity_binding_required")
+    try:
+        actual_tree = subprocess.check_output(
+            ("git", "rev-parse", f"{commit}^{{tree}}"), cwd=ROOT, text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+        raise ValueError("source_identity_tree_unavailable") from exc
+    supplied_tree = str(source_tree or os.environ.get("EXP_M_SOURCE_TREE", "")).strip()
+    if supplied_tree and supplied_tree != actual_tree:
+        raise ValueError("source_identity_tree_mismatch")
+    return commit, actual_tree
+
+
+def load_authority(
+    root_commit: str,
+    *,
+    source_commit: str | None = None,
+    source_tree: str | None = None,
+) -> AuthorityHandle:
     if root_commit != DEFAULT_AUTHORITY_COMMIT:
         raise ValueError("unpreregistered_authority_root")
     if not _git_commit_exists(root_commit):
@@ -281,14 +259,23 @@ def load_authority(root_commit: str) -> AuthorityHandle:
         raise ValueError("current_source_identity_policy_invalid")
     if delivery_policy.get("policy_id") != "SOURCE-FREEZE-DELIVERY-DERIVATION-V1":
         raise ValueError("delivery_binding_policy_invalid")
-    # Validate the fixed request/item rule now; the current S identity is supplied
-    # later by the verified source-freeze artifact.
+    # Validate the fixed request/item rule now. Current S is an explicit
+    # content-addressed execution input; generated source-freeze evidence cannot
+    # redirect the production authority.
     _delivery_binding_from_policy(delivery_policy, reviewed)
-    return AuthorityHandle(root_commit, root_hash, data)
+    bound_commit, bound_tree = _explicit_source_binding(source_commit, source_tree)
+    return AuthorityHandle(root_commit, root_hash, data, True, bound_commit, bound_tree)
 
 
-def load_default_authority() -> AuthorityHandle:
-    return load_authority(DEFAULT_AUTHORITY_COMMIT)
+def load_default_authority(
+    source_commit: str | None = None,
+    source_tree: str | None = None,
+) -> AuthorityHandle:
+    return load_authority(
+        DEFAULT_AUTHORITY_COMMIT,
+        source_commit=source_commit,
+        source_tree=source_tree,
+    )
 
 
 def load_predicate_context(authority: AuthorityHandle):
