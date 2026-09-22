@@ -107,13 +107,302 @@
     ]
   },
   "case_count": 10,
+  "case_rejection_contracts": {
+    "test_ca10_real_protocol_unavailable_state_reaches_production_validator": {
+      "assert_calls": [
+        "assertFalse",
+        "assertIn"
+      ],
+      "assert_strings": [
+        "r5_protocol_unavailable"
+      ],
+      "assert_symbols": [
+        "ok",
+        "reasons"
+      ],
+      "calls": [
+        "ProviderCapabilityProfile",
+        "ProviderCapabilityQualificationRecord",
+        "ProviderQualificationExecutionPlan",
+        "assertFalse",
+        "assertIn",
+        "type",
+        "validate_capability"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca1_real_forged_context_reaches_production_authority_check": {
+      "assert_calls": [
+        "assertFalse",
+        "assertIn"
+      ],
+      "assert_strings": [
+        "expectation_authority_invalid"
+      ],
+      "assert_symbols": [
+        "admissible",
+        "reasons",
+        "verdict"
+      ],
+      "calls": [
+        "PredicateContext",
+        "assertFalse",
+        "assertIn",
+        "bundle_from_state",
+        "evaluate_admissibility",
+        "getattr"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca2_real_mismatched_evidence_token_reaches_cas_verifier": {
+      "assert_calls": [
+        "assertIn",
+        "assertTrue"
+      ],
+      "assert_strings": [
+        "evidence_token_mismatch"
+      ],
+      "assert_symbols": [
+        "cp",
+        "reasons",
+        "void"
+      ],
+      "calls": [
+        "Path",
+        "PersistentAdmissionLedger",
+        "TemporaryDirectory",
+        "assertIn",
+        "assertTrue",
+        "commit_with_verdict",
+        "digest",
+        "seed_protected_state"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca3_real_fabricated_delivery_commit_reaches_authority_check": {
+      "assert_calls": [
+        "assertFalse",
+        "assertIn"
+      ],
+      "assert_strings": [
+        "authority_reviewed_commit_mismatch"
+      ],
+      "assert_symbols": [
+        "ok",
+        "reasons"
+      ],
+      "calls": [
+        "MaterializationResult",
+        "ReviewerReceipt",
+        "WireDeliveryRecord",
+        "assertFalse",
+        "assertIn",
+        "digest",
+        "freeze",
+        "validate_wire_delivery"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca4_real_forged_retrieval_and_delivery_bytes_reach_validators": {
+      "assert_calls": [
+        "assertFalse"
+      ],
+      "assert_strings": [],
+      "assert_symbols": [
+        "delivery_ok",
+        "retrieval_ok"
+      ],
+      "calls": [
+        "MaterializationResult",
+        "RetrievalEvidenceRecord",
+        "ReviewerReceipt",
+        "WireDeliveryRecord",
+        "assertFalse",
+        "digest",
+        "freeze",
+        "len",
+        "resolve_reviewed_commit",
+        "validate_retrieval",
+        "validate_wire_delivery"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca5_real_archive_and_schedule_inputs_reach_production_validators": {
+      "assert_calls": [
+        "assertFalse",
+        "assertTrue"
+      ],
+      "assert_strings": [
+        "schedule"
+      ],
+      "assert_symbols": [
+        "any",
+        "cap_ok",
+        "cap_reasons",
+        "mat",
+        "reason",
+        "success"
+      ],
+      "calls": [
+        "BytesIO",
+        "MaterializationEntry",
+        "PhysicalAttemptRecord",
+        "ProviderCapabilityProfile",
+        "ProviderCapabilityQualificationRecord",
+        "ProviderQualificationExecutionPlan",
+        "ZipFile",
+        "any",
+        "assertFalse",
+        "assertTrue",
+        "getvalue",
+        "int",
+        "load_r5_protocol",
+        "materialize_entries",
+        "range",
+        "tuple",
+        "validate_capability",
+        "writestr"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca6_real_unauthorized_plan_reaches_authority_validator": {
+      "assert_calls": [
+        "assertFalse",
+        "assertIn"
+      ],
+      "assert_strings": [
+        "qualification_authority_plan_missing"
+      ],
+      "assert_symbols": [
+        "ok",
+        "reasons"
+      ],
+      "calls": [
+        "PhysicalAttemptRecord",
+        "ProviderCapabilityProfile",
+        "ProviderCapabilityQualificationRecord",
+        "ProviderQualificationExecutionPlan",
+        "assertFalse",
+        "assertIn",
+        "validate_capability"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca7_real_deleted_indexed_artifact_reaches_unmodified_prior_verifier": {
+      "assert_calls": [
+        "assertFalse",
+        "assertIn"
+      ],
+      "assert_strings": [
+        "indexed_prior_artifact_deleted_after_source_freeze"
+      ],
+      "assert_symbols": [
+        "ok",
+        "reasons"
+      ],
+      "calls": [
+        "_synthetic_commit",
+        "assertFalse",
+        "assertIn",
+        "verify_prior_evidence_index"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca8_real_reviewer_suite_mutation_reaches_unmodified_freeze_verifier": {
+      "assert_calls": [
+        "assertFalse",
+        "assertTrue"
+      ],
+      "assert_strings": [
+        "reviewer_suite_hash_drift",
+        "reviewer_suite_preregister_hash_drift"
+      ],
+      "assert_symbols": [
+        "ok",
+        "reasons"
+      ],
+      "calls": [
+        "_git_bytes",
+        "_synthetic_commit",
+        "assertFalse",
+        "assertTrue",
+        "dict",
+        "hexdigest",
+        "sha256",
+        "str",
+        "verify_reviewer_suite_frozen"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    },
+    "test_ca9_real_caller_pass_reaches_derived_disposition": {
+      "assert_calls": [
+        "assertFalse"
+      ],
+      "assert_strings": [
+        "disposition_promotable"
+      ],
+      "assert_symbols": [
+        "admissible",
+        "get",
+        "predicate_results",
+        "verdict"
+      ],
+      "calls": [
+        "EvidenceBundle",
+        "assertFalse",
+        "evaluate_admissibility",
+        "get"
+      ],
+      "missing_assert_calls": [],
+      "missing_assert_strings": [],
+      "missing_assert_symbols": [],
+      "missing_mechanism_calls": [],
+      "valid": true
+    }
+  },
   "executable_shortcut_references": [],
   "execution": {
     "command": "python governance-runtime/verify_exp_m_test_integrity.py",
     "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "30faa9e8e410e27fce9ac8358825a62cd71cc3a0",
-    "source_tree": "8293dd6dcd03844d5889417d5c66e32e507279d3",
-    "utc": "2026-09-22T10:20:44.858840+00:00"
+    "source_commit": "3e5c197e67746909f3fa91adb7e2d6923240accf",
+    "source_tree": "a51c44e78e46df20b96421a533ab6cdfbb79bfa8",
+    "utc": "2026-09-22T11:25:14.443424+00:00"
   },
   "exp_m_state": "NOT_QUALIFIED",
   "expected_reviewer_anchors": [
@@ -143,6 +432,11 @@
   ],
   "hardcoded_mutation_outcomes": [],
   "hardcoded_self_falsification_outcomes": [],
+  "integrity_regression_probes": {
+    "assertionless_required_call_rejected": true,
+    "dynamic_getattr_shortcut_rejected": true,
+    "self_falsification_context_issues": []
+  },
   "live_provider_api_execution": false,
   "missing_required_calls": {},
   "observed_reviewer_anchors": [
@@ -167,6 +461,13 @@
     "prior_evidence_index": {
       "ok": true,
       "reasons": []
+    },
+    "reviewer_source_map_tamper_rejected": {
+      "ok": true,
+      "reasons": [
+        "reviewer_suite_source_map_not_commit_derived",
+        "reviewer_suite_hash_drift"
+      ]
     },
     "reviewer_suite_frozen": {
       "ok": true,

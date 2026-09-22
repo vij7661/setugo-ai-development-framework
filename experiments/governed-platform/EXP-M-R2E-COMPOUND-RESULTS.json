@@ -1,5 +1,6 @@
 {
   "all_rejected": true,
+  "authoritative_suite_source_integrity": true,
   "authority_effect": "NONE",
   "case_count": 10,
   "cases": [
@@ -9,8 +10,10 @@
       "failure": null,
       "id": "CA-1",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca1_real_forged_context_reaches_production_authority_check"
+      "test": "test_ca1_real_forged_context_reaches_production_authority_check",
+      "test_passed": true
     },
     {
       "blocking_guard": "evidence_token_mismatch",
@@ -18,8 +21,10 @@
       "failure": null,
       "id": "CA-2",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca2_real_mismatched_evidence_token_reaches_cas_verifier"
+      "test": "test_ca2_real_mismatched_evidence_token_reaches_cas_verifier",
+      "test_passed": true
     },
     {
       "blocking_guard": "authority_reviewed_commit_mismatch",
@@ -27,8 +32,10 @@
       "failure": null,
       "id": "CA-3",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca3_real_fabricated_delivery_commit_reaches_authority_check"
+      "test": "test_ca3_real_fabricated_delivery_commit_reaches_authority_check",
+      "test_passed": true
     },
     {
       "blocking_guard": "retrieval_and_delivery_binding_rejected",
@@ -36,8 +43,10 @@
       "failure": null,
       "id": "CA-4",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca4_real_forged_retrieval_and_delivery_bytes_reach_validators"
+      "test": "test_ca4_real_forged_retrieval_and_delivery_bytes_reach_validators",
+      "test_passed": true
     },
     {
       "blocking_guard": "archive_and_schedule_attack_rejected",
@@ -45,8 +54,10 @@
       "failure": null,
       "id": "CA-5",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca5_real_archive_and_schedule_inputs_reach_production_validators"
+      "test": "test_ca5_real_archive_and_schedule_inputs_reach_production_validators",
+      "test_passed": true
     },
     {
       "blocking_guard": "qualification_authority_plan_missing",
@@ -54,8 +65,10 @@
       "failure": null,
       "id": "CA-6",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca6_real_unauthorized_plan_reaches_authority_validator"
+      "test": "test_ca6_real_unauthorized_plan_reaches_authority_validator",
+      "test_passed": true
     },
     {
       "blocking_guard": "indexed_prior_artifact_deleted_after_source_freeze",
@@ -63,8 +76,10 @@
       "failure": null,
       "id": "CA-7",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca7_real_deleted_indexed_artifact_reaches_unmodified_prior_verifier"
+      "test": "test_ca7_real_deleted_indexed_artifact_reaches_unmodified_prior_verifier",
+      "test_passed": true
     },
     {
       "blocking_guard": "reviewer_suite_hash_drift",
@@ -72,8 +87,10 @@
       "failure": null,
       "id": "CA-8",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca8_real_reviewer_suite_mutation_reaches_unmodified_freeze_verifier"
+      "test": "test_ca8_real_reviewer_suite_mutation_reaches_unmodified_freeze_verifier",
+      "test_passed": true
     },
     {
       "blocking_guard": "disposition_promotable",
@@ -82,8 +99,10 @@
       "guard_semantics": "FALSE means failed predicates derive CHANGES_REQUIRED; a caller-supplied PASS cannot override that derived disposition.",
       "id": "CA-9",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca9_real_caller_pass_reaches_derived_disposition"
+      "test": "test_ca9_real_caller_pass_reaches_derived_disposition",
+      "test_passed": true
     },
     {
       "blocking_guard": "r5_protocol_unavailable",
@@ -92,16 +111,18 @@
       "fault_injection": "A real AuthorityHandle input is instantiated with protocol_available=False and passed through production validate_capability; no test-only rejection shortcut is used.",
       "id": "CA-10",
       "rejected": true,
+      "rejection_contract_verified": true,
       "source": "reviewer_exp_m_r2e_mechanism_suite.py",
-      "test": "test_ca10_real_protocol_unavailable_state_reaches_production_validator"
+      "test": "test_ca10_real_protocol_unavailable_state_reaches_production_validator",
+      "test_passed": true
     }
   ],
   "execution": {
     "command": "python governance-runtime/run_reviewer_compound_attacks.py",
     "interpreter": "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
-    "source_commit": "30faa9e8e410e27fce9ac8358825a62cd71cc3a0",
-    "source_tree": "8293dd6dcd03844d5889417d5c66e32e507279d3",
-    "utc": "2026-09-22T10:20:44.747145+00:00"
+    "source_commit": "3e5c197e67746909f3fa91adb7e2d6923240accf",
+    "source_tree": "a51c44e78e46df20b96421a533ab6cdfbb79bfa8",
+    "utc": "2026-09-22T11:25:14.209543+00:00"
   },
   "exp_m_state": "NOT_QUALIFIED",
   "live_provider_api_execution": false,
