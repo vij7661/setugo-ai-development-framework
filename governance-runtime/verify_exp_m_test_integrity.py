@@ -89,6 +89,42 @@ def _shortcut_references(source: str) -> list[str]:
     return sorted(findings)
 
 
+def _hardcoded_self_falsification_outcomes(source: str) -> list[str]:
+    tree = ast.parse(source, filename=SELF_FALSIFY_PATH)
+    findings: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or _call_name(node) != "case":
+            continue
+        if len(node.args) >= 2 and isinstance(node.args[1], ast.Constant) and isinstance(node.args[1].value, bool):
+            case_id = "unknown"
+            if node.args and isinstance(node.args[0], ast.Constant):
+                case_id = str(node.args[0].value)
+            findings.append(case_id)
+    return sorted(findings)
+
+
+def _hardcoded_mutation_outcomes(source: str) -> list[str]:
+    tree = ast.parse(source, filename=MUTATION_PATH)
+    findings: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Dict):
+            continue
+        pairs = {
+            key.value: value
+            for key, value in zip(node.keys, node.values)
+            if isinstance(key, ast.Constant) and isinstance(key.value, str)
+        }
+        mutation_id = pairs.get("id")
+        label = mutation_id.value if isinstance(mutation_id, ast.Constant) else "unknown"
+        killed = pairs.get("killed")
+        if isinstance(killed, ast.Constant) and isinstance(killed.value, bool):
+            findings.append(f"{label}:killed={killed.value}")
+        actual = pairs.get("actual")
+        if isinstance(actual, ast.Constant) and actual.value in {"REJECT", "PASS"}:
+            findings.append(f"{label}:actual={actual.value}")
+    return sorted(findings)
+
+
 def _method_calls(source: str) -> dict[str, set[str]]:
     tree = ast.parse(source, filename=SUITE_PATH)
     found: dict[str, set[str]] = {}
@@ -139,6 +175,14 @@ def run() -> dict:
         if token in mutation_source:
             findings.append(f"mutation_harness_shortcut_token:{token}")
 
+    hardcoded_self = _hardcoded_self_falsification_outcomes(self_falsify_source)
+    for case_id in hardcoded_self:
+        findings.append(f"self_falsification_hardcoded_outcome:{case_id}")
+
+    hardcoded_mutations = _hardcoded_mutation_outcomes(mutation_source)
+    for mutation_id in hardcoded_mutations:
+        findings.append(f"mutation_harness_hardcoded_outcome:{mutation_id}")
+
     self_requirements = (
         'EXP-M-R2E-COMPOUND-RESULTS.json',
         'compound_execution.get("source_commit")',
@@ -176,6 +220,8 @@ def run() -> dict:
         "required_case_count": len(REQUIRED_CALLS),
         "case_calls": {name: sorted(values) for name, values in sorted(calls.items())},
         "missing_required_calls": missing_calls,
+        "hardcoded_self_falsification_outcomes": hardcoded_self,
+        "hardcoded_mutation_outcomes": hardcoded_mutations,
         "forbidden_shortcut_tokens": list(FORBIDDEN_SHORTCUT_TOKENS),
         "executable_shortcut_references": shortcut_refs,
         "findings": findings,
