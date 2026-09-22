@@ -108,6 +108,18 @@ def verify_reviewer_suite_frozen(
         return False, ("reviewer_suite_source_commit_missing",)
     if not isinstance(source_files, Mapping) or not source_files:
         return False, ("reviewer_suite_source_files_missing",)
+    commit_derived_hashes: dict[str, str] = {}
+    for path, _ in REVIEWER_SUITE_ANCHORS:
+        try:
+            commit_derived_hashes[path] = hashlib.sha256(_git_bytes(source_commit, path)).hexdigest()
+        except subprocess.CalledProcessError:
+            commit_derived_hashes[path] = ""
+    supplied_reviewer_hashes = {
+        path: str(source_files.get(path, ""))
+        for path, _ in REVIEWER_SUITE_ANCHORS
+    }
+    if supplied_reviewer_hashes != commit_derived_hashes:
+        reasons.append("reviewer_suite_source_map_not_commit_derived")
     for path, preregister_commit in REVIEWER_SUITE_ANCHORS:
         if not _is_strict_ancestor(preregister_commit, source_commit):
             reasons.append(f"reviewer_suite_preregister_not_strict_ancestor:{path}")
