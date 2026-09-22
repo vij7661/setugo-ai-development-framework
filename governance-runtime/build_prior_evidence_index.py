@@ -63,6 +63,14 @@ ENTRIES = (
         "kind": "text",
     },
     {
+        "id": "R2E-STATIC-REVIEW-R1",
+        "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-STATIC-REVIEW-R1.md",
+        "commit": "2d01e38a5e7b2bb3e181cc3fdd7b46d7bf261bd6",
+        "claim": "Independent R2E static review after first clarified handoff",
+        "disposition": "CLARIFICATIONS_REQUIRED",
+        "kind": "text",
+    },
+    {
         "id": "R2A-REMEDIATION",
         "path": "experiments/governed-platform/EXP-M-DETERMINISTIC-SELF-ADJUDICATION-R2A-REMEDIATION.md",
         "commit": "e40fa99043cfba081b71e430e4e981c410314bf8",
