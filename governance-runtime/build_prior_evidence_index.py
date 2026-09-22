@@ -71,6 +71,14 @@ ENTRIES = (
         "kind": "text",
     },
     {
+        "id": "R2E-EXTERNAL-REVIEW-R5",
+        "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R5.md",
+        "commit": "d260e2e1d4ccb13846710c1a840b45d276d6ec7c",
+        "claim": "Independent no-Git static review identifying ambient authority, self-falsification context, and CA integrity false-green paths",
+        "disposition": "CHANGES_REQUIRED",
+        "kind": "text",
+    },
+    {
         "id": "R2E-EXTERNAL-REVIEW-R2",
         "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R2.md",
         "commit": "acbcfded67bd34530ede467a8d7432fbc04d3825",
