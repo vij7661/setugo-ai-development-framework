@@ -22,6 +22,7 @@ SUITE_PATH = "governance-runtime/reviewer_exp_m_r2e_mechanism_suite.py"
 RUNNER_PATH = "governance-runtime/run_reviewer_compound_attacks.py"
 SELF_FALSIFY_PATH = "governance-runtime/self_falsify_exp_m.py"
 MUTATION_PATH = "governance-runtime/run_exp_m_mutations.py"
+AUTHORITY_PATH = "governance-runtime/exp_m_expectation_authority.py"
 OUT = ROOT / "experiments/governed-platform/EXP-M-R2E-TEST-INTEGRITY-RESULTS.json"
 
 FORBIDDEN_SHORTCUT_TOKENS = (
@@ -313,6 +314,7 @@ def run() -> dict:
     runner_source = _git_text(source_commit, RUNNER_PATH)
     self_falsify_source = _git_text(source_commit, SELF_FALSIFY_PATH)
     mutation_source = _git_text(source_commit, MUTATION_PATH)
+    authority_source = _git_text(source_commit, AUTHORITY_PATH)
     sep_source = _git_text(source_commit, "governance-runtime/verify_exp_m_sep_sequence.py")
     prior_source = _git_text(source_commit, "governance-runtime/verify_exp_m_prior_evidence.py")
 
@@ -334,6 +336,20 @@ def run() -> dict:
     )
     if not reviewer_control_ok:
         findings.append("reviewer_freeze_positive_control_failed")
+
+    tampered_reviewer_source_files = dict(reviewer_source_files)
+    first_reviewer_path = REVIEWER_SUITE_ANCHORS[0][0]
+    tampered_reviewer_source_files[first_reviewer_path] = "0" * 64
+    tampered_map_ok, tampered_map_reasons = verify_reviewer_suite_frozen(
+        source_commit=source_commit,
+        source_files=tampered_reviewer_source_files,
+    )
+    reviewer_source_map_tamper_rejected = (
+        not tampered_map_ok
+        and "reviewer_suite_source_map_not_commit_derived" in tampered_map_reasons
+    )
+    if not reviewer_source_map_tamper_rejected:
+        findings.append("reviewer_source_map_tamper_probe_false_green")
 
     prior_control_ok, prior_control_reasons = verify_prior_evidence_index(
         index_commit=source_commit,
@@ -359,6 +375,26 @@ def run() -> dict:
                     ambient_refs.append(child.attr)
     if ambient_refs:
         findings.append("reviewer_freeze_ambient_state_reference:" + ",".join(sorted(set(ambient_refs))))
+
+    authority_tree = ast.parse(authority_source, filename=AUTHORITY_PATH)
+    authority_functions = {
+        node.name
+        for node in ast.walk(authority_tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    if "_source_freeze" in authority_functions:
+        findings.append("production_authority_ambient_source_freeze_function_present")
+    ambient_freeze_literals = [
+        node.value
+        for node in ast.walk(authority_tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and "EXP-M-SOURCE-FREEZE.json" in node.value
+    ]
+    if ambient_freeze_literals:
+        findings.append("production_authority_ambient_source_freeze_path_present")
+    if "_explicit_source_binding" not in authority_functions:
+        findings.append("production_authority_explicit_source_binding_missing")
 
     shortcut_refs = _shortcut_references(suite_source)
     for name in shortcut_refs:
@@ -470,6 +506,10 @@ def probe(authority):
         },
         "positive_controls": {
             "reviewer_suite_frozen": {"ok": reviewer_control_ok, "reasons": list(reviewer_control_reasons)},
+            "reviewer_source_map_tamper_rejected": {
+                "ok": reviewer_source_map_tamper_rejected,
+                "reasons": list(tampered_map_reasons),
+            },
             "prior_evidence_index": {"ok": prior_control_ok, "reasons": list(prior_control_reasons)},
         },
         "missing_required_calls": missing_calls,
