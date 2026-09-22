@@ -38,6 +38,7 @@ EXPECTED_EVIDENCE_COMMAND_NAMES = (
     "phases",
     "mutations",
     "self-falsification",
+    "self-adjudication",
 )
 
 
