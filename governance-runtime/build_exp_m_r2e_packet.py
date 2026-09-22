@@ -135,6 +135,7 @@ def build_content(source: str, evidence: str) -> str:
     freeze = _json(EXP / "EXP-M-SOURCE-FREEZE.json")
     evidence_manifest = _json(EXP / "EXP-M-R2E-EVIDENCE-MANIFEST.json")
     compound = _json(EXP / "EXP-M-R2E-COMPOUND-RESULTS.json")
+    test_integrity = _json(EXP / "EXP-M-R2E-TEST-INTEGRITY-RESULTS.json")
     clarification_probes = _json(EXP / "EXP-M-R2E-CLARIFICATION-PROBES.json")
     tests = _json(EXP / "EXP-M-TEST-RESULTS.json")
     mutations = _json(EXP / "EXP-M-MUTATION-RESULTS.json")
@@ -163,6 +164,8 @@ def build_content(source: str, evidence: str) -> str:
         raise SystemExit("packet_source_tree_mismatch")
     if not compound.get("all_rejected") or compound.get("survivor_count") != 0:
         raise SystemExit("packet_compound_survivor")
+    if test_integrity.get("all_passed") is not True:
+        raise SystemExit("packet_test_integrity_failure")
     if not self_fals.get("all_rejected"):
         raise SystemExit("packet_self_falsification_survivor")
 
@@ -201,11 +204,18 @@ def build_content(source: str, evidence: str) -> str:
         f"data/state all rejected={mutations.get('data_state_all_rejected')}, survivors={mutations.get('surviving_mutations')}",
         f"- Self-falsification total: {self_fals.get('total')}, all rejected={self_fals.get('all_rejected')}",
         f"- Reviewer compound attacks CA-1..CA-10: {compound.get('case_count')} executed, survivors={compound.get('survivor_count')}",
+        f"- Falsification-test integrity gate: all_passed={test_integrity.get('all_passed')}, findings={len(test_integrity.get('findings') or [])}",
         "",
         "## Compound attack results",
         "",
         "~~~json",
         json.dumps(compound, indent=2, sort_keys=True),
+        "~~~",
+        "",
+        "## Falsification-test integrity results",
+        "",
+        "~~~json",
+        json.dumps(test_integrity, indent=2, sort_keys=True),
         "~~~",
         "",
         "## Full mutation results",
@@ -265,10 +275,12 @@ def build_content(source: str, evidence: str) -> str:
         "## Static-review clarifications",
         "",
         "- CA-9: disposition_promotable is a blocking predicate identifier, not a positive status. In this attack the underlying predicates fail, the governor derives CHANGES_REQUIRED, and a caller-supplied PASS cannot override it; therefore disposition_promotable evaluates false.",
-        "- CA-10: r5_protocol_unavailable is deliberately fault-injected by AuthorityHandle.with_missing_r5_protocol_for_test() for that negative case only. The frozen R5 protocol remains present and hash-bound in the real authority root.",
+        "- CA-10: the authoritative mechanism suite instantiates a real AuthorityHandle input with protocol_available=false and passes it through production validate_capability; no test-only rejection shortcut is used. The frozen R5 protocol remains present and hash-bound in authority-root-v3.",
         "- Every result-producing governed command now emits the exact final result JSON on stdout. The v2 command capture separately records stdout/stderr, command-source SHA-256, result SHA-256/size at command exit, and S commit/tree; any stdout/result byte mismatch fails evidence generation. No later result post-processing is permitted.",
         "- Delivery authority is no longer substituted by the source freeze. Preregistered authority-root v2 freezes the current-S identity rule and delivery derivation policy; EXP-M-SOURCE-FREEZE.json records only non-authoritative derived binding evidence, which the authority loader and S-E-P verifier independently recompute.",
         "- Reproducibility evidence records Python, Git, runner image metadata, exact checkout guidance, and an import audit. The governed Python surface has no third-party Python dependencies; test commands are offline.",
+        "- CA-7 and CA-8 are now exercised by the preregistered mechanism-integrity suite using synthetic Git commits that delete an indexed artifact or mutate a reviewer suite, then invoke the unmodified production verifier path. Legacy simulate_* cases are retained only as historical source and are not authoritative compound evidence.",
+        "- A dedicated falsification-test integrity gate rejects simulate_/force_/mock_ shortcuts in the authoritative suite, requires each CA case to call its claimed production mechanism, and audits the self-falsification and mutation harness for shortcut patterns.",
         "- Prior-failure preservation is checked by a dedicated evidence command in E and the full index remains embedded below. Independent historical recomputation still requires the pinned Git objects; that is an inherent limit of static-only review, not an authority grant.",
         "",
         "## Reproducibility environment and checkout",
