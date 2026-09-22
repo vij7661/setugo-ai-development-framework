@@ -85,6 +85,59 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _execute_evidence_command(
+    name: str,
+    command: list[str],
+    stdout_name: str,
+    source_commit: str,
+    source_tree: str,
+) -> dict:
+    completed = _run(list(command))
+    stdout_path = EXP / stdout_name
+    portable_command = "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command)
+    raw_stdout = completed.stdout
+    raw_stdout_bytes = raw_stdout.encode("utf-8")
+    capture = {
+        "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+        "source_commit": source_commit,
+        "source_tree": source_tree,
+        "captured_at_utc": datetime.now(timezone.utc).isoformat(),
+        "command_name": name,
+        "command": " ".join(command),
+        "portable_command": portable_command,
+        "exit_code": completed.returncode,
+        "raw_stdout_sha256": hashlib.sha256(raw_stdout_bytes).hexdigest(),
+        "raw_stdout_size": len(raw_stdout_bytes),
+        "raw_stdout": raw_stdout,
+    }
+    stdout_path.write_text(json.dumps(capture, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    record = {
+        "name": name,
+        "command": " ".join(command),
+        "portable_command": portable_command,
+        "exit_code": completed.returncode,
+        "stdout_path": str(stdout_path.relative_to(ROOT)).replace("\\", "/"),
+        "stdout_sha256": _sha256(stdout_path),
+        "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
+        "stdout_payload_sha256": capture["raw_stdout_sha256"],
+        "stdout_payload_size": capture["raw_stdout_size"],
+        "stdout_role": "source-bound command-console capture; not independent corroboration",
+    }
+    result_name = RESULT_BY_COMMAND.get(name)
+    if result_name:
+        result_path = EXP / result_name
+        if result_path.exists():
+            result_raw = result_path.read_bytes()
+            identical_payload = raw_stdout_bytes == result_raw
+            record["result_path"] = str(result_path.relative_to(ROOT)).replace("\\", "/")
+            record["stdout_payload_identical_to_result"] = identical_payload
+            if identical_payload:
+                record["stdout_role"] = "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence"
+    if completed.returncode != 0:
+        raise SystemExit(f"evidence_command_failed:{name}\n{raw_stdout}")
+    return record
+
+
 def _audit_python_imports(source_files: dict[str, str]) -> dict:
     local_modules = {
         path.stem
@@ -253,52 +306,24 @@ def generate() -> dict:
 
     command_records = []
     for name, command, stdout_name in COMMANDS:
-        completed = _run(list(command))
-        stdout_path = EXP / stdout_name
-        portable_command = "python " + " ".join(command[1:]) if command and command[0] == sys.executable else " ".join(command)
-        raw_stdout = completed.stdout
-        raw_stdout_bytes = raw_stdout.encode("utf-8")
-        capture = {
-            "schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
-            "source_commit": source_commit,
-            "source_tree": source_tree,
-            "captured_at_utc": datetime.now(timezone.utc).isoformat(),
-            "command_name": name,
-            "command": " ".join(command),
-            "portable_command": portable_command,
-            "exit_code": completed.returncode,
-            "raw_stdout_sha256": hashlib.sha256(raw_stdout_bytes).hexdigest(),
-            "raw_stdout_size": len(raw_stdout_bytes),
-            "raw_stdout": raw_stdout,
-        }
-        stdout_path.write_text(json.dumps(capture, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        record = {
-            "name": name,
-            "command": " ".join(command),
-            "portable_command": portable_command,
-            "exit_code": completed.returncode,
-            "stdout_path": str(stdout_path.relative_to(ROOT)).replace("\\", "/"),
-            "stdout_sha256": _sha256(stdout_path),
-            "stdout_capture_schema": "EXP-M-R2E-STDOUT-CAPTURE/v1",
-            "stdout_payload_sha256": capture["raw_stdout_sha256"],
-            "stdout_payload_size": capture["raw_stdout_size"],
-            "stdout_role": "source-bound command-console capture; not independent corroboration",
-        }
-        result_name = RESULT_BY_COMMAND.get(name)
-        if result_name:
-            result_path = EXP / result_name
-            if result_path.exists():
-                result_raw = result_path.read_bytes()
-                identical_payload = raw_stdout_bytes == result_raw
-                record["result_path"] = str(result_path.relative_to(ROOT)).replace("\\", "/")
-                record["stdout_payload_identical_to_result"] = identical_payload
-                if identical_payload:
-                    record["stdout_role"] = "source-bound capture envelope whose raw payload duplicates result_json; retained as command-console capture, not independent evidence"
-        command_records.append(record)
-        if completed.returncode != 0:
-            raise SystemExit(f"evidence_command_failed:{name}\n{raw_stdout}")
+        if name == "self-adjudication":
+            continue
+        command_records.append(
+            _execute_evidence_command(name, list(command), stdout_name, source_commit, source_tree)
+        )
 
     _merge_compound_into_self_falsification()
+
+    # Self-adjudication is intentionally executed only after CA-1..CA-10 have
+    # been merged into the final self-falsification artifact. This binds the
+    # adjudication to the exact evidence bytes that will enter E.
+    self_adj = next(row for row in COMMANDS if row[0] == "self-adjudication")
+    command_records.append(
+        _execute_evidence_command(
+            self_adj[0], list(self_adj[1]), self_adj[2], source_commit, source_tree
+        )
+    )
+
 
     # Some result artifacts are deliberately post-processed after command execution
     # (notably self-falsification, which receives the frozen CA-1..CA-10 compound
