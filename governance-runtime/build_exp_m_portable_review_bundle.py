@@ -174,7 +174,11 @@ def main() -> int:
     subprocess.check_call(("git", "bundle", "verify", str(GIT_BUNDLE)), stdout=subprocess.DEVNULL)
     with tempfile.TemporaryDirectory(prefix="exp-m-review-") as tmp:
         repo = Path(tmp) / "repo"
-        subprocess.check_call(("git", "clone", "--quiet", str(GIT_BUNDLE), str(repo)))
+        subprocess.check_call(("git", "init", "--quiet", str(repo)))
+        subprocess.check_call((
+            "git", "-C", str(repo), "fetch", "--quiet", str(GIT_BUNDLE),
+            "+refs/exp-m-review-bundle/*:refs/remotes/bundle/*",
+        ))
         for key in ("S", "E", "P", "Q", "authority_commit"):
             commit = str(manifest[key])
             subprocess.check_call(("git", "-C", str(repo), "cat-file", "-e", f"{commit}^{{commit}}"))
