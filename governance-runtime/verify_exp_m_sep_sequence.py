@@ -67,6 +67,18 @@ def _diff_paths(a: str, b: str) -> list[str]:
     return [x for x in out.splitlines() if x]
 
 
+def _is_strict_ancestor(older: str, newer: str) -> bool:
+    if not older or not newer or older == newer:
+        return False
+    completed = subprocess.run(
+        ("git", "merge-base", "--is-ancestor", older, newer),
+        cwd=ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return completed.returncode == 0
+
+
 def _allowed_evidence_path(path: str) -> bool:
     return (
         path.startswith("experiments/governed-platform/EXP-M-")
@@ -89,6 +101,8 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
     source_files = freeze.get("source_files") or {}
     reasons: list[str] = []
     for path, preregister_commit in REVIEWER_SUITE_ANCHORS:
+        if not _is_strict_ancestor(preregister_commit, source_commit):
+            reasons.append(f"reviewer_suite_preregister_not_strict_ancestor:{path}")
         expected = source_files.get(path)
         if not expected:
             reasons.append(f"reviewer_suite_not_in_source_freeze:{path}")
@@ -115,6 +129,8 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
             literal = f'EXPECTED_AUTHORITY_ROOT_COMMIT = "{PREREGISTERED_AUTHORITY_COMMIT}"'
             if literal not in source_text:
                 reasons.append("reviewer_authority_root_literal_mismatch")
+            if not _is_strict_ancestor(PREREGISTERED_AUTHORITY_COMMIT, preregister_commit):
+                reasons.append("authority_root_not_strict_ancestor_of_reviewer_authority_suite")
     return not reasons, tuple(dict.fromkeys(reasons))
 
 
@@ -140,6 +156,8 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
     except subprocess.CalledProcessError:
         return False, ("sep_commit_missing",), details
     details.update(source_tree=source_tree, evidence_tree=evidence_tree, packet_tree=packet_tree)
+    if not _is_strict_ancestor(PREREGISTERED_AUTHORITY_COMMIT, source_commit):
+        reasons.append("authority_root_not_strict_ancestor_of_source")
     if handoff_commit:
         details.update(handoff_commit=handoff_commit, handoff_tree=handoff_tree)
 
