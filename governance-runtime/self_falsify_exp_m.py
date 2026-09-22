@@ -26,7 +26,7 @@ AUTHORITY_CONTEXT = load_predicate_context(AUTHORITY)
 def context_from_state(state):
     # Adversarial helper only: contexts built from candidate-controlled state
     # are intentionally unauthorized and must be rejected by production.
-    return _unauthorized_AUTHORITY_CONTEXT
+    return _unauthorized_context_from_state(state)
 
 def bundle_from_state(state):
     return _fixture_bundle_from_state(state, AUTHORITY_CONTEXT)
