@@ -22,13 +22,19 @@ from exp_m_deterministic import (
     validate_retrieval,
     validate_wire_delivery,
 )
-from exp_m_expectation_authority import load_default_authority, load_predicate_context
+from exp_m_expectation_authority import DEFAULT_AUTHORITY_COMMIT, load_default_authority, load_predicate_context
+
+EXPECTED_AUTHORITY_ROOT_COMMIT = "251647e5f44d394b761f1c6cdbb02a779901bc43"
 
 
 class ReviewerR2EAuthorityAnchoring(unittest.TestCase):
     def setUp(self):
         self.authority = load_default_authority()
         self.context = load_predicate_context(self.authority)
+
+    def test_root_of_trust_commit_is_preregistered_literal(self):
+        self.assertEqual(DEFAULT_AUTHORITY_COMMIT, EXPECTED_AUTHORITY_ROOT_COMMIT)
+        self.assertEqual(self.authority.root_commit, EXPECTED_AUTHORITY_ROOT_COMMIT)
 
     def test_h1_retrieval_validator_has_no_caller_raw_parameter(self):
         self.assertNotIn("raw", inspect.signature(validate_retrieval).parameters)
