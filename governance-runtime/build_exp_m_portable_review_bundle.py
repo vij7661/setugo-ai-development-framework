@@ -171,10 +171,15 @@ def main() -> int:
 
     if shutil.which("git") is None:
         raise SystemExit("git_required_for_object_verification")
-    subprocess.check_call(("git", "bundle", "verify", str(GIT_BUNDLE)), stdout=subprocess.DEVNULL)
     with tempfile.TemporaryDirectory(prefix="exp-m-review-") as tmp:
         repo = Path(tmp) / "repo"
         subprocess.check_call(("git", "init", "--quiet", str(repo)))
+        # Verify from the temporary repository rather than relying on the
+        # reviewer's current working directory being a Git checkout.
+        subprocess.check_call(
+            ("git", "-C", str(repo), "bundle", "verify", str(GIT_BUNDLE)),
+            stdout=subprocess.DEVNULL,
+        )
         subprocess.check_call((
             "git", "-C", str(repo), "fetch", "--quiet", str(GIT_BUNDLE),
             "+refs/exp-m-review-bundle/*:refs/remotes/bundle/*",
