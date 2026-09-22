@@ -58,6 +58,37 @@ def _call_name(node: ast.Call) -> str:
     return ""
 
 
+def _shortcut_references(source: str) -> list[str]:
+    """Return executable identifier/call references to forbidden shortcut APIs.
+
+    String literals and documentation text do not count as executable use.
+    """
+    tree = ast.parse(source, filename=SUITE_PATH)
+    findings: set[str] = set()
+    for node in ast.walk(tree):
+        names: list[str] = []
+        if isinstance(node, ast.Call):
+            names.append(_call_name(node))
+            for keyword in node.keywords:
+                if keyword.arg:
+                    names.append(keyword.arg)
+        elif isinstance(node, ast.Name):
+            names.append(node.id)
+        elif isinstance(node, ast.Attribute):
+            names.append(node.attr)
+        for name in names:
+            if not name:
+                continue
+            if (
+                name.startswith("simulate_")
+                or name.startswith("force_")
+                or name.startswith("mock_")
+                or name == "with_missing_r5_protocol_for_test"
+            ):
+                findings.add(name)
+    return sorted(findings)
+
+
 def _method_calls(source: str) -> dict[str, set[str]]:
     tree = ast.parse(source, filename=SUITE_PATH)
     found: dict[str, set[str]] = {}
@@ -81,9 +112,9 @@ def run() -> dict:
 
     findings: list[str] = []
 
-    for token in FORBIDDEN_SHORTCUT_TOKENS:
-        if token in suite_source:
-            findings.append(f"authoritative_suite_shortcut_token:{token}")
+    shortcut_refs = _shortcut_references(suite_source)
+    for name in shortcut_refs:
+        findings.append(f"authoritative_suite_shortcut_reference:{name}")
 
     calls = _method_calls(suite_source)
     if set(calls) != set(REQUIRED_CALLS):
@@ -146,6 +177,7 @@ def run() -> dict:
         "case_calls": {name: sorted(values) for name, values in sorted(calls.items())},
         "missing_required_calls": missing_calls,
         "forbidden_shortcut_tokens": list(FORBIDDEN_SHORTCUT_TOKENS),
+        "executable_shortcut_references": shortcut_refs,
         "findings": findings,
         "all_passed": not findings,
         "authority_effect": "NONE",
