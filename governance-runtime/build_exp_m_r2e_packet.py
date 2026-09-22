@@ -140,12 +140,13 @@ def build_content(source: str, evidence: str) -> str:
     mutations = _json(EXP / "EXP-M-MUTATION-RESULTS.json")
     self_fals = _json(EXP / "EXP-M-SELF-FALSIFICATION-RESULTS.json")
     prior = _read(EXP / "PRIOR-EVIDENCE-INDEX.md")
-    protocol = _read(EXP / "EXP-M-R5-QUALIFICATION-PROTOCOL.json")
-    authority_root = _read(EXP / "EXP-M-R2E-AUTHORITY-ROOT.json")
     static_review_adjudication = _read(EXP / "EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md")
     external_review_r2 = _read(EXP / "EXP-M-R2E-EXTERNAL-REVIEW-R2.md")
     review_r2_adjudication = _read(EXP / "EXP-M-R2E-REVIEW-R2-ADJUDICATION.md")
     authority_bundle = _authority_bundle(source)
+    pinned_by_label = {row["label"]: row for row in authority_bundle["files"]}
+    authority_root = str(pinned_by_label["authority_root"]["content"])
+    protocol = str(pinned_by_label["r5_protocol"]["content"])
     manifest_attestation = _manifest_attestation(evidence)
 
     ca9 = next((row for row in compound.get("cases") or [] if row.get("id") == "CA-9"), {})
