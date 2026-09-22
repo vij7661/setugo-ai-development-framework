@@ -10,6 +10,8 @@ import json
 import subprocess
 from pathlib import Path
 
+from exp_m_expectation_authority import DEFAULT_AUTHORITY_COMMIT, ROOT_PATH as AUTHORITY_ROOT_PATH
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "experiments" / "governed-platform" / "EXP-M-SOURCE-FREEZE.json"
 
@@ -23,6 +25,7 @@ EXPLICIT_SOURCE_PATHS = (
     ".github/workflows/exp-m-r2e-offline.yml",
     ".github/workflows/exp-m-r2e-sep.yml",
     "experiments/governed-platform/EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md",
+    "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R2.md",
     "experiments/governed-platform/PRIOR-EVIDENCE-INDEX.md",
 )
 
@@ -48,13 +51,39 @@ def canonical_json(value) -> bytes:
     return (json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode()
 
 
-def delivery_manifest_hash(request_id: str, reviewed_commit: str, items: dict[str, bytes]) -> str:
-    records = {
-        key: {"sha256": hashlib.sha256(value).hexdigest(), "size": len(value)}
-        for key, value in sorted(items.items())
+def _git_bytes(commit: str, path: str) -> bytes:
+    return subprocess.check_output(("git", "show", f"{commit}:{path}"), cwd=ROOT)
+
+
+def _authority_policies() -> tuple[dict, dict]:
+    root = json.loads(_git_bytes(DEFAULT_AUTHORITY_COMMIT, AUTHORITY_ROOT_PATH))
+    current = root.get("current_source_identity_policy") or {}
+    delivery = root.get("delivery_binding_policy") or {}
+    if root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2":
+        raise SystemExit("source_freeze_authority_root_invalid")
+    if current.get("policy_id") != "CURRENT-SOURCE-FREEZE-V1":
+        raise SystemExit("source_freeze_current_source_policy_invalid")
+    if delivery.get("policy_id") != "SOURCE-FREEZE-DELIVERY-DERIVATION-V1":
+        raise SystemExit("source_freeze_delivery_policy_invalid")
+    return current, delivery
+
+
+def delivery_binding(reviewed_commit: str, policy: dict) -> dict:
+    request_id = str(policy["request_id"])
+    items = {
+        str(item_id): {"sha256": str(meta["sha256"]), "size": int(meta["size"])}
+        for item_id, meta in sorted((policy.get("items") or {}).items())
     }
-    body = {"request_id": request_id, "reviewed_commit": reviewed_commit, "items": records}
-    return hashlib.sha256(canonical_json(body)).hexdigest()
+    body = {"request_id": request_id, "reviewed_commit": reviewed_commit, "items": items}
+    return {
+        "policy_id": str(policy["policy_id"]),
+        "role": "DERIVED_BINDING_EVIDENCE",
+        "authoritative": False,
+        "request_id": request_id,
+        "reviewed_commit": reviewed_commit,
+        "items": items,
+        "manifest_hash": hashlib.sha256(canonical_json(body)).hexdigest(),
+    }
 
 
 def build() -> dict:
@@ -77,20 +106,20 @@ def build() -> dict:
     missing = [path for path in paths if not (ROOT / path).is_file()]
     if missing:
         raise SystemExit("source_freeze_missing_files:" + ",".join(missing))
-    frozen_items = {"a": b"a"}
+    current_policy, delivery_policy = _authority_policies()
     return {
-        "schema": "EXP-M-SOURCE-FREEZE/v1",
+        "schema": "EXP-M-SOURCE-FREEZE/v2",
         "source_commit": source_commit,
         "source_tree": source_tree,
         "source_files": {path: sha256_path(path) for path in paths},
-        "delivery_authority": {
-            "requests": {
-                "r": {
-                    "reviewed_commit": source_commit,
-                    "manifest_hash": delivery_manifest_hash("r", source_commit, frozen_items),
-                }
-            }
+        "authority_reference": {
+            "root_commit": DEFAULT_AUTHORITY_COMMIT,
+            "current_source_policy_id": str(current_policy["policy_id"]),
+            "policy_id": str(current_policy["policy_id"]),
+            "delivery_binding_policy_id": str(delivery_policy["policy_id"]),
+            "semantics": "The preregistered root authorizes the derivation rule; this artifact records current-S binding evidence only and grants no authority.",
         },
+        "delivery_binding": delivery_binding(source_commit, delivery_policy),
         "authority_effect": "NONE",
         "exp_m_state": "NOT_QUALIFIED",
         "live_provider_api_execution": False,
@@ -100,7 +129,7 @@ def build() -> dict:
 def main() -> int:
     data = build()
     OUT.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(OUT.relative_to(ROOT))
+    print(json.dumps(data, indent=2, sort_keys=True))
     return 0
 
 
