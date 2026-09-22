@@ -19,11 +19,13 @@ def _git_bytes(commit: str, path: str) -> bytes:
     return subprocess.check_output(("git", "show", f"{commit}:{path}"), cwd=ROOT)
 
 
-def _parse_index() -> dict[str, dict[str, str]]:
-    if not INDEX.exists():
+def _parse_index(index_commit: str) -> dict[str, dict[str, str]]:
+    try:
+        raw = _git_bytes(index_commit, str(INDEX.relative_to(ROOT)).replace("\\", "/"))
+    except subprocess.CalledProcessError:
         return {}
     rows: dict[str, dict[str, str]] = {}
-    for line in INDEX.read_text(encoding="utf-8").splitlines():
+    for line in raw.decode("utf-8").splitlines():
         if not line.startswith("| ") or line.startswith("| ID ") or line.startswith("|---"):
             continue
         cells = [x.strip() for x in line.strip("|").split("|")]
@@ -41,12 +43,16 @@ def _parse_index() -> dict[str, dict[str, str]]:
 
 def verify_prior_evidence_index(
     *,
+    index_commit: str,
     source_commit: str | None = None,
     packet_commit: str | None = None,
-    simulate_deleted_indexed_artifact: bool = False,
 ) -> tuple[bool, tuple[str, ...]]:
+    """Verify the prior-evidence index from an explicit Git object.
+
+    The index itself is never read from ambient working-tree state.
+    """
     reasons: list[str] = []
-    rows = _parse_index()
+    rows = _parse_index(index_commit)
     required = {entry["id"]: entry for entry in ENTRIES}
     if set(rows) != set(required):
         reasons.append("prior_evidence_index_incomplete")
@@ -66,8 +72,6 @@ def verify_prior_evidence_index(
             continue
         if hashlib.sha256(raw).hexdigest() != row["sha256"]:
             reasons.append(f"prior_evidence_hash_mismatch:{evidence_id}")
-    if simulate_deleted_indexed_artifact:
-        reasons.append("indexed_prior_artifact_missing")
     if source_commit and packet_commit:
         deleted = _git("diff", "--diff-filter=D", "--name-only", source_commit, packet_commit).splitlines()
         indexed_paths = {entry["path"] for entry in ENTRIES}
@@ -77,7 +81,8 @@ def verify_prior_evidence_index(
 
 
 def main() -> int:
-    ok, reasons = verify_prior_evidence_index()
+    head = _git("rev-parse", "HEAD")
+    ok, reasons = verify_prior_evidence_index(index_commit=head)
     print("PRIOR_EVIDENCE_INDEX_PASS" if ok else "PRIOR_EVIDENCE_INDEX_FAIL")
     for reason in reasons:
         print(reason)
