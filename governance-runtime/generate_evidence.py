@@ -35,6 +35,7 @@ COMMANDS = (
     ("phases", [sys.executable, "governance-runtime/run_exp_m_deterministic.py"], "EXP-M-R2E-PHASE-STDOUT.txt"),
     ("mutations", [sys.executable, "governance-runtime/run_exp_m_mutations.py"], "EXP-M-R2E-MUTATION-STDOUT.txt"),
     ("self-falsification", [sys.executable, "governance-runtime/self_falsify_exp_m.py"], "EXP-M-R2E-SELF-FALSIFICATION-STDOUT.txt"),
+    ("self-adjudication", [sys.executable, "governance-runtime/self_adjudicate_r2d.py"], "EXP-M-R2E-SELF-ADJUDICATION-STDOUT.txt"),
 )
 
 RESULT_JSONS = (
@@ -44,6 +45,7 @@ RESULT_JSONS = (
     "EXP-M-SELF-FALSIFICATION-RESULTS.json",
     "EXP-M-R2E-COMPOUND-RESULTS.json",
     "EXP-M-R2E-CLARIFICATION-PROBES.json",
+    "EXP-M-R2D-SELF-ADJUDICATION.json",
 )
 
 RESULT_BY_COMMAND = {
@@ -53,6 +55,7 @@ RESULT_BY_COMMAND = {
     "phases": "EXP-M-DETERMINISTIC-RESULTS.json",
     "mutations": "EXP-M-MUTATION-RESULTS.json",
     "self-falsification": "EXP-M-SELF-FALSIFICATION-RESULTS.json",
+    "self-adjudication": "EXP-M-R2D-SELF-ADJUDICATION.json",
 }
 
 EXPECTED_GENERATED_PATHS = frozenset(
