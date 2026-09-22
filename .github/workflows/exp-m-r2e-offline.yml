@@ -87,7 +87,8 @@ jobs:
           Q="$(git rev-parse HEAD)"
           test "$(git rev-parse "$Q^")" = "$P"
 
-          python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
+          python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P" --handoff "$Q" \
+            --json-out /tmp/EXP-M-R2E-S-E-P-Q-VERIFICATION.json
           python governance-runtime/verify_exp_m_prior_evidence.py
           python governance-runtime/build_exp_m_portable_review_bundle.py \
             --source "$S" --evidence "$E" --packet "$P" --handoff "$Q" \
@@ -120,6 +121,17 @@ jobs:
                       raise SystemExit("portable_bundle_regression_integrity_mismatch")
           print("R2E_PORTABLE_BUNDLE_REGRESSION=PASS")
           PY
+          rm -rf /tmp/exp-m-r2e-bundle-check
+          mkdir -p /tmp/exp-m-r2e-bundle-check
+          python - <<'PY'
+          import zipfile
+          from pathlib import Path
+          src=Path("/tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE-regression.zip")
+          dst=Path("/tmp/exp-m-r2e-bundle-check")
+          with zipfile.ZipFile(src, "r") as z:
+              z.extractall(dst)
+          PY
+          python /tmp/exp-m-r2e-bundle-check/VERIFY-BUNDLE.py
           echo "R2E_LOCAL_S_E_P_Q_PREFLIGHT=PASS"
       - name: Assert no live provider execution marker
         shell: bash
