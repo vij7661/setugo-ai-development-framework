@@ -57,16 +57,40 @@ jobs:
               raise SystemExit("packet_authority_bundle_preflight_failed")
           print("R2E_REPRODUCIBILITY_AND_PACKET_HELPER_PREFLIGHT=PASS")
           PY
-          # Exercise the exact final evidence generator before any source freeze is authorized.
-          # This runs the full offline command set and validates fresh artifact/source binding
-          # without committing E or granting authority.
-          python governance-runtime/generate_evidence.py
-          python governance-runtime/self_adjudicate_r2d.py
+          # Exercise the exact local S -> E -> P -> Q construction before any
+          # remote source freeze is authorized. These commits remain local to this
+          # read-only CI job and grant no authority.
+          git config user.name "exp-m-offline-preflight"
+          git config user.email "exp-m-offline-preflight@invalid"
+          S="$(git rev-parse HEAD)"
+          python governance-runtime/generate_evidence.py --commit
+          E="$(git rev-parse HEAD)"
+          test "$S" != "$E"
+          test "$(git rev-parse "$E^")" = "$S"
+
+          python governance-runtime/build_exp_m_r2e_packet.py --stage content --source "$S" --evidence "$E"
+          CHANGED="$(git status --porcelain | sed 's/^...//' || true)"
+          test "$CHANGED" = "experiments/governed-platform/EXP-M-R2E-PACKET-CONTENT.md"
+          git add experiments/governed-platform/EXP-M-R2E-PACKET-CONTENT.md
+          git commit -m "offline-preflight: packet P"
+          P="$(git rev-parse HEAD)"
+          test "$(git rev-parse "$P^")" = "$E"
+
+          python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
+          python governance-runtime/verify_exp_m_prior_evidence.py
+          python governance-runtime/build_exp_m_r2e_packet.py --stage handoff --source "$S" --evidence "$E" --packet "$P"
+          find governance-runtime -type d -name __pycache__ -prune -exec rm -rf {} +
+          CHANGED="$(git status --porcelain | sed 's/^...//' || true)"
+          test "$CHANGED" = "experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md"
+          git add experiments/governed-platform/EXP-M-DETERMINISTIC-IMPLEMENTATION-R2E-REVIEW.md
+          git commit -m "offline-preflight: handoff Q"
+          Q="$(git rev-parse HEAD)"
+          test "$(git rev-parse "$Q^")" = "$P"
+
+          python governance-runtime/verify_sep_sequence.py --source "$S" --evidence "$E" --packet "$P"
+          python governance-runtime/verify_exp_m_prior_evidence.py
           python governance-runtime/build_exp_m_portable_review_bundle.py \
-            --source 63b9f08998db0dce0a3ee2fbd46bf80fa4f6852a \
-            --evidence ae0fd712b1a8a1a703898bf361ff071d9b7edabb \
-            --packet 2e166e75a56c53d3947b5487e5ac274e8c190c06 \
-            --handoff b85a924b437dc482ff45d083d29dfb46e9fc2327 \
+            --source "$S" --evidence "$E" --packet "$P" --handoff "$Q" \
             --output /tmp/EXP-M-R2E-PORTABLE-REVIEW-BUNDLE-regression.zip
           python - <<'PY'
           import hashlib, json, zipfile
@@ -96,6 +120,8 @@ jobs:
                       raise SystemExit("portable_bundle_regression_integrity_mismatch")
           print("R2E_PORTABLE_BUNDLE_REGRESSION=PASS")
           PY
+          python governance-runtime/self_adjudicate_r2d.py
+          echo "R2E_LOCAL_S_E_P_Q_PREFLIGHT=PASS"
       - name: Assert no live provider execution marker
         shell: bash
         run: |
