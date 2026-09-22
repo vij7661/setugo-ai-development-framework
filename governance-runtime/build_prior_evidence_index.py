@@ -63,6 +63,14 @@ ENTRIES = (
         "kind": "text",
     },
     {
+        "id": "R2E-EXTERNAL-REVIEW-R3",
+        "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R3.md",
+        "commit": "0aefbef7e70375822f2ec63a7fa5045d63610014",
+        "claim": "Independent R2E adversarial review identifying ambient reviewer-freeze and simulated CA-7/CA-8 defects",
+        "disposition": "CHANGES_REQUIRED",
+        "kind": "text",
+    },
+    {
         "id": "R2E-EXTERNAL-REVIEW-R2",
         "path": "experiments/governed-platform/EXP-M-R2E-EXTERNAL-REVIEW-R2.md",
         "commit": "acbcfded67bd34530ede467a8d7432fbc04d3825",
