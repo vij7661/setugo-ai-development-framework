@@ -108,6 +108,19 @@ class AuthorityHandle:
     source_commit: str = ""
     source_tree: str = ""
 
+    def _verified_root(self) -> Mapping[str, Any]:
+        """Re-bind the in-memory handle to the preregistered root Git object."""
+        try:
+            raw = _git_bytes(self.root_commit, ROOT_PATH)
+        except ValueError as exc:
+            raise ValueError("authority_root_git_object_unavailable") from exc
+        if _sha256(raw) != self.root_hash:
+            raise ValueError("authority_root_hash_mismatch")
+        parsed = json.loads(raw)
+        if parsed != self.root:
+            raise ValueError("authority_root_object_mismatch")
+        return parsed
+
     def _require_source_binding(self) -> tuple[str, str]:
         """Return the explicit content-addressed S identity bound at execution entry."""
         commit = str(self.source_commit)
@@ -134,9 +147,10 @@ class AuthorityHandle:
         return tree
 
     def _load_hashed_json(self, path_key: str, hash_key: str) -> Mapping[str, Any]:
-        path = str(self.root[path_key])
+        root = self._verified_root()
+        path = str(root[path_key])
         raw = _git_bytes(self.root_commit, path)
-        if _sha256(raw) != str(self.root[hash_key]):
+        if _sha256(raw) != str(root[hash_key]):
             raise ValueError(f"{hash_key}_mismatch")
         return json.loads(raw)
 
@@ -153,7 +167,8 @@ class AuthorityHandle:
         return raw[start:end]
 
     def expected_delivery(self, request_id: str) -> Mapping[str, Any]:
-        policy = self.root.get("delivery_binding_policy")
+        root = self._verified_root()
+        policy = root.get("delivery_binding_policy")
         if not isinstance(policy, Mapping):
             raise ValueError("delivery_binding_policy_missing")
         if str(policy.get("request_id", "")) != request_id:
@@ -180,9 +195,10 @@ class AuthorityHandle:
     def load_r5_protocol(self) -> Mapping[str, Any]:
         if not self.protocol_available:
             raise ValueError("r5_protocol_unavailable")
-        path = str(self.root["r5_protocol_path"])
+        root = self._verified_root()
+        path = str(root["r5_protocol_path"])
         raw = _git_bytes(self.root_commit, path)
-        if _sha256(raw) != str(self.root["r5_protocol_sha256"]):
+        if _sha256(raw) != str(root["r5_protocol_sha256"]):
             raise ValueError("r5_protocol_hash_mismatch")
         data = json.loads(raw)
         if data.get("protocol_id") != "R5-CP-1" or data.get("live_provider_execution_authorized") is not False:
@@ -281,7 +297,7 @@ def load_default_authority(
 def load_predicate_context(authority: AuthorityHandle):
     from exp_m_deterministic import PredicateContext
 
-    root = authority.root
+    root = authority._verified_root()
     manifest_raw = _git_bytes(authority.root_commit, str(root["test_expectation_manifest_path"]))
     signature_raw = _git_bytes(authority.root_commit, str(root["test_expectation_signature_path"]))
     if _sha256(manifest_raw) != str(root["test_expectation_manifest_sha256"]):
@@ -314,6 +330,10 @@ def load_predicate_context(authority: AuthorityHandle):
 
 def authority_context_valid(authority: AuthorityHandle | None, context: Any) -> bool:
     if authority is None:
+        return False
+    try:
+        authority._verified_root()
+    except (ValueError, json.JSONDecodeError):
         return False
     row = _AUTHORIZED_CONTEXTS.get(id(context))
     if row is None:
