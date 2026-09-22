@@ -49,7 +49,7 @@ def _authority_bundle(source: str) -> dict:
     root_raw = _git_bytes(authority_commit, root_path)
     root = json.loads(root_raw)
     if root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-3":
-        raise SystemExit("authority_root_v2_required")
+        raise SystemExit("authority_root_v3_required")
     if (root.get("delivery_binding_policy") or {}).get("policy_id") != "SOURCE-FREEZE-DELIVERY-DERIVATION-V1":
         raise SystemExit("authority_delivery_binding_policy_missing")
     specs = (
