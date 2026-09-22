@@ -341,7 +341,7 @@ def build(source: str, evidence: str, packet: str, handoff: str, output: Path) -
         origin_commit=authority_commit,
         origin_path=AUTHORITY_ROOT_PATH,
     )
-    if authority_root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-2":
+    if authority_root.get("root_id") != "EXP-M-R2E-AUTHORITY-ROOT-3":
         raise SystemExit("portable_bundle_authority_root_v2_required")
     authority_specs = (
         (str(authority_root["test_expectation_manifest_path"]), authority_root.get("test_expectation_manifest_sha256"), "test expectations"),
