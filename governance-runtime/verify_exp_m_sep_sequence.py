@@ -40,6 +40,7 @@ EXPECTED_EVIDENCE_COMMAND_NAMES = (
     "reviewer-core",
     "reviewer-authority",
     "reviewer-compound",
+    "test-integrity",
     "static-review-probes",
     "phases",
     "mutations",
