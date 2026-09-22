@@ -20,7 +20,7 @@ AUTHORITY_ROOT_PATH = "experiments/governed-platform/EXP-M-R2E-AUTHORITY-ROOT.js
 
 REVIEWER_SUITE_ANCHORS = (
     ("governance-runtime/reviewer_exp_m_r2e_suite.py", "04913502b7ea1dcb11d551b2bec27c5a8d9c4a8a"),
-    ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "a7b5e5ac59a3da745a6ac06d828763be59ab9668"),
+    ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "8292184ae0692ab55dd0329377eea40b02e9e028"),
     ("governance-runtime/reviewer_exp_m_r2e_compound_suite.py", "4c70788b9fc8c8ec93f5ea90bedc762c827f090a"),
 )
 REVIEWER_SUITE_PATHS = tuple(path for path, _ in REVIEWER_SUITE_ANCHORS)
@@ -111,6 +111,10 @@ def verify_reviewer_suite_frozen(*, simulate_suite_mutation: bool = False) -> tu
         source_text = source_bytes.decode("utf-8", errors="replace")
         if any(token in source_text for token in FORBIDDEN_REVIEWER_SUITE_TOKENS):
             reasons.append("reviewer_suite_forbidden_dependency")
+        if path.endswith("reviewer_exp_m_r2e_authority_suite.py"):
+            literal = f'EXPECTED_AUTHORITY_ROOT_COMMIT = "{PREREGISTERED_AUTHORITY_COMMIT}"'
+            if literal not in source_text:
+                reasons.append("reviewer_authority_root_literal_mismatch")
     return not reasons, tuple(dict.fromkeys(reasons))
 
 
@@ -313,12 +317,19 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         command_source_path = row.get("command_source_path")
         command_source_sha = row.get("command_source_sha256")
         if command_source_path:
+            if str(command_source_path) not in source_files:
+                reasons.append(f"evidence_command_source_not_frozen:{name}")
             try:
                 actual_source_sha = _sha256_at(source_commit, str(command_source_path))
             except subprocess.CalledProcessError:
                 reasons.append(f"evidence_command_source_missing:{name}")
             else:
-                if actual_source_sha != command_source_sha or capture.get("command_source_sha256") != command_source_sha:
+                frozen_source_sha = source_files.get(str(command_source_path))
+                if (
+                    actual_source_sha != command_source_sha
+                    or capture.get("command_source_sha256") != command_source_sha
+                    or frozen_source_sha != command_source_sha
+                ):
                     reasons.append(f"evidence_command_source_hash_mismatch:{name}")
 
         raw_stdout = str(capture.get("raw_stdout", "")).encode("utf-8")
