@@ -143,6 +143,7 @@ def build_content(source: str, evidence: str) -> str:
     static_review_adjudication = _read(EXP / "EXP-M-R2E-STATIC-REVIEW-ADJUDICATION.md")
     external_review_r2 = _read(EXP / "EXP-M-R2E-EXTERNAL-REVIEW-R2.md")
     review_r2_adjudication = _read(EXP / "EXP-M-R2E-REVIEW-R2-ADJUDICATION.md")
+    internal_adjudication_r3 = _read(EXP / "EXP-M-R2E-INTERNAL-ADJUDICATION-R3.md")
     authority_bundle = _authority_bundle(source)
     pinned_by_label = {row["label"]: row for row in authority_bundle["files"]}
     authority_root = str(pinned_by_label["authority_root"]["content"])
@@ -248,6 +249,10 @@ def build_content(source: str, evidence: str) -> str:
         "## Independent external review R2 (CHANGES_REQUIRED)",
         "",
         external_review_r2.rstrip(),
+        "",
+        "## Internal adversarial adjudication R3",
+        "",
+        internal_adjudication_r3.rstrip(),
         "",
         "## External review R2 remediation adjudication",
         "",
