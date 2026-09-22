@@ -31,6 +31,13 @@ FORBIDDEN_SHORTCUT_TOKENS = (
     "with_missing_r5_protocol_for_test",
 )
 
+EXPECTED_REVIEWER_ANCHORS = (
+    ("governance-runtime/reviewer_exp_m_r2e_suite.py", "04913502b7ea1dcb11d551b2bec27c5a8d9c4a8a"),
+    ("governance-runtime/reviewer_exp_m_r2e_authority_suite.py", "aae96510eb1ac05b45b961b62a5ea2b010ad6b32"),
+    ("governance-runtime/reviewer_exp_m_r2e_compound_suite.py", "4c70788b9fc8c8ec93f5ea90bedc762c827f090a"),
+    ("governance-runtime/reviewer_exp_m_r2e_mechanism_suite.py", "24415847085e4032a9892aaa8730806bd246225e"),
+)
+
 REQUIRED_CALLS = {
     "test_ca1_real_forged_context_reaches_production_authority_check": {"evaluate_admissibility"},
     "test_ca2_real_mismatched_evidence_token_reaches_cas_verifier": {"commit_with_verdict"},
@@ -158,6 +165,9 @@ def run() -> dict:
 
     findings: list[str] = []
 
+    if tuple(REVIEWER_SUITE_ANCHORS) != EXPECTED_REVIEWER_ANCHORS:
+        findings.append("reviewer_suite_anchor_set_mismatch")
+
     # Differential positive controls: the unmodified verifier must accept the
     # genuine frozen source before the synthetic CA-7/CA-8 attacks are allowed
     # to count as rejection evidence.
@@ -265,6 +275,8 @@ def run() -> dict:
             "interpreter": sys.executable,
         },
         "authoritative_suite": SUITE_PATH,
+        "expected_reviewer_anchors": [list(row) for row in EXPECTED_REVIEWER_ANCHORS],
+        "observed_reviewer_anchors": [list(row) for row in REVIEWER_SUITE_ANCHORS],
         "case_count": len(calls),
         "required_case_count": len(REQUIRED_CALLS),
         "case_calls": {name: sorted(values) for name, values in sorted(calls.items())},
