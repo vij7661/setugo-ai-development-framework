@@ -185,8 +185,49 @@ def run():
     case("zip_bomb_rejected_before_extraction", not __import__("exp_m_deterministic").materialize_entries((__import__("exp_m_deterministic").MaterializationEntry("nested.zip", "nested.zip", "archive", bomb.getvalue(), None, len(bomb.getvalue()), len(bomb.getvalue()), 0, "nested.zip"),), source_hash="s", max_member_bytes=1000).success)
     phase_check = phase_artifact if "phase_artifact" in locals() else None
     case("phase_cases_record_invocations", bool(phase_check) and all(c.get("production_functions") and c.get("result") is True for v in phase_check["phases"].values() for c in v.get("executed_cases", ())))
+
+    # Incorporate the preregistered CA-1..CA-10 compound results *inside this
+    # governed command* so the final self-falsification artifact is exactly the
+    # bytes emitted by this process. No later post-processing is permitted.
+    head_commit = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=ROOT, text=True).strip()
+    head_tree = subprocess.check_output(("git", "rev-parse", "HEAD^{tree}"), cwd=ROOT, text=True).strip()
+    compound_path = ROOT / "experiments" / "governed-platform" / "EXP-M-R2E-COMPOUND-RESULTS.json"
+    if not compound_path.is_file():
+        raise SystemExit("compound_results_missing_before_self_falsification")
+    compound = json.loads(compound_path.read_text(encoding="utf-8"))
+    compound_execution = compound.get("execution") or {}
+    if compound_execution.get("source_commit") != head_commit or compound_execution.get("source_tree") != head_tree:
+        raise SystemExit("compound_results_source_identity_mismatch")
+    compound_rows = list(compound.get("cases") or ())
+    expected_compound_ids = {f"CA-{n}" for n in range(1, 11)}
+    observed_compound_ids = {str(row.get("id")) for row in compound_rows}
+    if (
+        observed_compound_ids != expected_compound_ids
+        or compound.get("survivor_count") != 0
+        or compound.get("all_rejected") is not True
+    ):
+        raise SystemExit("compound_results_not_closed")
+    for row in compound_rows:
+        cases.append({
+            "id": str(row["id"]),
+            "rejected": bool(row.get("rejected")),
+            "blocking_guard": str(row.get("blocking_guard", "")),
+            "source": str(row.get("source", "reviewer_exp_m_r2e_compound_suite.py")),
+        })
+
     survivors = [c for c in cases if not c["rejected"]]
-    return {"cases": cases, "total": len(cases), "surviving_critical": len(survivors), "surviving_high": len(survivors), "all_rejected": not survivors}
+    return {
+        "cases": cases,
+        "total": len(cases),
+        "surviving_critical": len(survivors),
+        "surviving_high": len(survivors),
+        "all_rejected": not survivors,
+        "reviewer_compound_attacks": {
+            "case_ids": sorted(observed_compound_ids),
+            "survivor_count": compound.get("survivor_count"),
+            "all_rejected": compound.get("all_rejected"),
+        },
+    }
 
 
 if __name__ == "__main__":
