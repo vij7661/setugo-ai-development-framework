@@ -7,11 +7,15 @@ invoke the real mechanism it claims to falsify.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+from verify_exp_m_prior_evidence import verify_prior_evidence_index
+from verify_exp_m_sep_sequence import REVIEWER_SUITE_ANCHORS, verify_reviewer_suite_frozen
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITE_PATH = "governance-runtime/reviewer_exp_m_r2e_mechanism_suite.py"
@@ -47,6 +51,10 @@ def _git(*args: str) -> str:
 
 def _git_text(commit: str, path: str) -> str:
     return subprocess.check_output(("git", "show", f"{commit}:{path}"), cwd=ROOT, text=True)
+
+
+def _git_bytes(commit: str, path: str) -> bytes:
+    return subprocess.check_output(("git", "show", f"{commit}:{path}"), cwd=ROOT)
 
 
 def _call_name(node: ast.Call) -> str:
@@ -145,8 +153,49 @@ def run() -> dict:
     runner_source = _git_text(source_commit, RUNNER_PATH)
     self_falsify_source = _git_text(source_commit, SELF_FALSIFY_PATH)
     mutation_source = _git_text(source_commit, MUTATION_PATH)
+    sep_source = _git_text(source_commit, "governance-runtime/verify_exp_m_sep_sequence.py")
+    prior_source = _git_text(source_commit, "governance-runtime/verify_exp_m_prior_evidence.py")
 
     findings: list[str] = []
+
+    # Differential positive controls: the unmodified verifier must accept the
+    # genuine frozen source before the synthetic CA-7/CA-8 attacks are allowed
+    # to count as rejection evidence.
+    reviewer_source_files = {
+        path: hashlib.sha256(_git_bytes(source_commit, path)).hexdigest()
+        for path, _ in REVIEWER_SUITE_ANCHORS
+    }
+    reviewer_control_ok, reviewer_control_reasons = verify_reviewer_suite_frozen(
+        source_commit=source_commit,
+        source_files=reviewer_source_files,
+    )
+    if not reviewer_control_ok:
+        findings.append("reviewer_freeze_positive_control_failed")
+
+    prior_control_ok, prior_control_reasons = verify_prior_evidence_index(
+        index_commit=source_commit,
+        source_commit=source_commit,
+        packet_commit=source_commit,
+    )
+    if not prior_control_ok:
+        findings.append("prior_evidence_positive_control_failed")
+
+    if "simulate_suite_mutation" in sep_source:
+        findings.append("reviewer_freeze_simulation_api_still_present")
+    if "simulate_deleted_indexed_artifact" in prior_source:
+        findings.append("prior_evidence_simulation_api_still_present")
+
+    sep_tree = ast.parse(sep_source, filename="governance-runtime/verify_exp_m_sep_sequence.py")
+    ambient_refs: list[str] = []
+    for node in ast.walk(sep_tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "verify_reviewer_suite_frozen":
+            for child in ast.walk(node):
+                if isinstance(child, ast.Name) and child.id == "FREEZE_PATH":
+                    ambient_refs.append("FREEZE_PATH")
+                if isinstance(child, ast.Attribute) and child.attr in {"read_text", "read_bytes"}:
+                    ambient_refs.append(child.attr)
+    if ambient_refs:
+        findings.append("reviewer_freeze_ambient_state_reference:" + ",".join(sorted(set(ambient_refs))))
 
     shortcut_refs = _shortcut_references(suite_source)
     for name in shortcut_refs:
@@ -219,6 +268,10 @@ def run() -> dict:
         "case_count": len(calls),
         "required_case_count": len(REQUIRED_CALLS),
         "case_calls": {name: sorted(values) for name, values in sorted(calls.items())},
+        "positive_controls": {
+            "reviewer_suite_frozen": {"ok": reviewer_control_ok, "reasons": list(reviewer_control_reasons)},
+            "prior_evidence_index": {"ok": prior_control_ok, "reasons": list(prior_control_reasons)},
+        },
         "missing_required_calls": missing_calls,
         "hardcoded_self_falsification_outcomes": hardcoded_self,
         "hardcoded_mutation_outcomes": hardcoded_mutations,
