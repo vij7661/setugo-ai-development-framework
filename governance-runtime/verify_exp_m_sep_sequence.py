@@ -28,6 +28,18 @@ FORBIDDEN_REVIEWER_SUITE_TOKENS = (
     "self_falsify_exp_m",
 )
 
+EXPECTED_EVIDENCE_COMMAND_NAMES = (
+    "prior-evidence",
+    "tests",
+    "reviewer-core",
+    "reviewer-authority",
+    "reviewer-compound",
+    "static-review-probes",
+    "phases",
+    "mutations",
+    "self-falsification",
+)
+
 
 def _git(*args: str) -> str:
     return subprocess.check_output(("git",) + args, cwd=ROOT, text=True).strip()
@@ -189,7 +201,7 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("evidence_manifest_source_tree_mismatch")
     if evidence_manifest.get("authority_effect") != "NONE" or evidence_manifest.get("exp_m_state") != "NOT_QUALIFIED" or evidence_manifest.get("live_provider_api_execution") is not False:
         reasons.append("evidence_manifest_authority_boundary_mismatch")
-    if evidence_manifest.get("schema") != "EXP-M-R2E-EVIDENCE-MANIFEST/v2":
+    if evidence_manifest.get("schema") != "EXP-M-R2E-EVIDENCE-MANIFEST/v3":
         reasons.append("evidence_manifest_schema_mismatch")
     self_attestation = evidence_manifest.get("manifest_self_attestation") or {}
     if self_attestation.get("included_in_artifacts") is not False:
@@ -199,9 +211,12 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("reproducibility_third_party_dependency_unfrozen")
     if reproducibility.get("network_required_for_test_commands") is not False:
         reasons.append("reproducibility_network_boundary_missing")
-    command_names = {str(row.get("name")) for row in evidence_manifest.get("commands") or ()}
-    if "prior-evidence" not in command_names:
-        reasons.append("prior_evidence_verification_command_missing")
+    command_rows = list(evidence_manifest.get("commands") or ())
+    command_names = [str(row.get("name", "")) for row in command_rows]
+    if len(command_names) != len(set(command_names)):
+        reasons.append("evidence_command_name_duplicate")
+    if set(command_names) != set(EXPECTED_EVIDENCE_COMMAND_NAMES):
+        reasons.append("evidence_command_set_mismatch")
 
     artifact_items = list(evidence_manifest.get("artifacts") or ())
     artifact_paths = [str(item.get("path", "")) for item in artifact_items]
@@ -212,6 +227,55 @@ def verify_sep_sequence(source_commit: str, evidence_commit: str, packet_commit:
         reasons.append("source_to_evidence_artifact_set_mismatch")
         details["missing_evidence_paths"] = sorted(expected_evidence_paths - set(source_to_evidence))
         details["extra_evidence_paths"] = sorted(set(source_to_evidence) - expected_evidence_paths)
+
+    stdout_paths: list[str] = []
+    for row in command_rows:
+        name = str(row.get("name", ""))
+        stdout_path = str(row.get("stdout_path", ""))
+        stdout_paths.append(stdout_path)
+        if row.get("exit_code") != 0:
+            reasons.append(f"evidence_command_nonzero_exit:{name}")
+        if stdout_path not in artifact_paths:
+            reasons.append(f"evidence_command_stdout_not_artifact:{name}")
+            continue
+        try:
+            stdout_raw = _git_bytes(evidence_commit, stdout_path)
+            capture = json.loads(stdout_raw)
+        except Exception:
+            reasons.append(f"evidence_stdout_capture_unreadable:{name}")
+            continue
+        if hashlib.sha256(stdout_raw).hexdigest() != str(row.get("stdout_sha256", "")):
+            reasons.append(f"evidence_stdout_capture_hash_mismatch:{name}")
+        if capture.get("schema") != "EXP-M-R2E-STDOUT-CAPTURE/v1":
+            reasons.append(f"evidence_stdout_capture_schema_mismatch:{name}")
+        if capture.get("source_commit") != source_commit or capture.get("source_tree") != source_tree:
+            reasons.append(f"evidence_stdout_capture_source_mismatch:{name}")
+        if capture.get("command_name") != name:
+            reasons.append(f"evidence_stdout_capture_name_mismatch:{name}")
+        if capture.get("command") != row.get("command") or capture.get("portable_command") != row.get("portable_command"):
+            reasons.append(f"evidence_stdout_capture_command_mismatch:{name}")
+        if capture.get("exit_code") != row.get("exit_code"):
+            reasons.append(f"evidence_stdout_capture_exit_mismatch:{name}")
+        raw_stdout = str(capture.get("raw_stdout", "")).encode("utf-8")
+        raw_stdout_hash = hashlib.sha256(raw_stdout).hexdigest()
+        if raw_stdout_hash != str(capture.get("raw_stdout_sha256", "")) or len(raw_stdout) != int(capture.get("raw_stdout_size", -1)):
+            reasons.append(f"evidence_stdout_payload_integrity_mismatch:{name}")
+        if raw_stdout_hash != str(row.get("stdout_payload_sha256", "")) or len(raw_stdout) != int(row.get("stdout_payload_size", -1)):
+            reasons.append(f"evidence_stdout_manifest_payload_mismatch:{name}")
+        result_path = row.get("result_path")
+        if result_path:
+            try:
+                result_raw = _git_bytes(evidence_commit, str(result_path))
+            except subprocess.CalledProcessError:
+                reasons.append(f"evidence_command_result_missing:{name}")
+            else:
+                identical = raw_stdout == result_raw
+                if row.get("stdout_payload_identical_to_result") is not identical:
+                    reasons.append(f"evidence_stdout_result_relationship_mismatch:{name}")
+                if identical and "not independent" not in str(row.get("stdout_role", "")):
+                    reasons.append(f"evidence_stdout_independence_label_missing:{name}")
+    if len(stdout_paths) != len(set(stdout_paths)):
+        reasons.append("evidence_command_stdout_path_duplicate")
 
     for item in artifact_items:
         path = str(item.get("path", ""))
