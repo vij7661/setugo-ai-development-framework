@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/review-presentation-schema.schema.json",
+  "title": "R8 v15-r1 ReviewPresentationSchema RPS-1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-rps-1/v1"
+    },
+    "status": {
+      "const": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "unknown_display_field_default": {
+      "const": "REVIEW_SEMANTIC"
+    },
+    "packet_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/PacketType"
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "unknown_display_field_default",
+    "packet_types"
+  ],
+  "$defs": {
+    "PacketType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "packet_type_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/FieldRule"
+          },
+          "uniqueItems": true
+        },
+        "ordering_semantic": {
+          "const": true
+        },
+        "evidence_association_semantic": {
+          "const": true
+        }
+      },
+      "required": [
+        "packet_type_id",
+        "fields",
+        "ordering_semantic",
+        "evidence_association_semantic"
+      ]
+    },
+    "FieldRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classification": {
+          "enum": [
+            "REVIEW_SEMANTIC",
+            "DISPLAY_NON_SEMANTIC"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "source_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "field_id",
+        "classification",
+        "conditions",
+        "source_rules"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V7-I038",
+    "R8V7-I039",
+    "NORM-028",
+    "NORM-041"
+  ]
+}
