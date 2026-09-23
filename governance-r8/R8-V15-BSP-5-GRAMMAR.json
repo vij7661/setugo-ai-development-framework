@@ -11,7 +11,8 @@
     "GUARD_RECORD_SECTION",
     "CURRENT_STATUS_BLOCK",
     "PREDECESSOR_STATUS_BLOCK",
-    "PRIOR_REVIEW_METADATA_BLOCK"
+    "PRIOR_REVIEW_METADATA_BLOCK",
+    "MARKED_SEMANTIC_TEST_SECTION"
   ],
   "line_classes": [
     "CURRENT_STATUS",
@@ -41,18 +42,30 @@
     "fenced_code": "^\\s*```",
     "semantic_test_fence": "^\\s*```(?:json|yaml|text)?\\s+semantic-test-data\\s*$",
     "case_heading": "^#{2,6}\\s+.*(?:case|cases|vector|vectors|preregistered)",
-    "guard_record_heading": "^#{2,6}\\s+.*(?:guard|GuardRegistry|CaseRegistry)"
+    "guard_record_heading": "^#{2,6}\\s+.*(?:guard|GuardRegistry|CaseRegistry)",
+    "semantic_test_section_begin": "^<!-- BSP:SEMANTIC_TEST_SECTION_BEGIN id=(?<id>[A-Za-z0-9._:-]+) -->$",
+    "semantic_test_section_end": "^<!-- BSP:SEMANTIC_TEST_SECTION_END id=(?<id>[A-Za-z0-9._:-]+) -->$"
   },
   "semantic_test_contexts": {
     "allowed_states": [
       "CASE_SECTION",
       "GUARD_RECORD_SECTION",
-      "FENCED_SEMANTIC_TEST_DATA"
+      "FENCED_SEMANTIC_TEST_DATA",
+      "MARKED_SEMANTIC_TEST_SECTION"
     ],
-    "ordinary_prose_status_token_is_semantic_test_literal": false
+    "ordinary_prose_status_token_is_semantic_test_literal": false,
+    "marked_section_rules": {
+      "exact_standalone_line": true,
+      "outside_fenced_code_only": true,
+      "begin_end_id_must_match": true,
+      "nesting_forbidden": true,
+      "zero_length_forbidden": true,
+      "cross_mechanism_corpus_required_id": "cross-mechanism-adversarial-corpus"
+    }
   },
   "classification_order": [
-    "consume exact current-status begin/end markers and validate block cardinality/version",
+    "consume exact current-status begin/end markers and validate block cardinality/version when outside fenced code",
+    "consume exact semantic-test-section begin/end markers and validate pairing/id/nesting when outside fenced code",
     "track fenced-code and fenced-semantic-test-data entry/exit",
     "track case and guard-record sections",
     "classify lines inside valid CURRENT_STATUS_BLOCK as CURRENT_STATUS",
@@ -79,7 +92,8 @@
       "PRIOR_REVIEW_METADATA"
     ],
     "require_exact_current_status_block_count": 1,
-    "raw_token_search_is_authoritative": false
+    "raw_token_search_is_authoritative": false,
+    "require_all_marked_semantic_test_sections_well_formed": true
   },
   "guard_table_omission_rule": {
     "allowed_only_with_guard_omission_manifest": true,
@@ -91,5 +105,6 @@
     "R8V15-I011",
     "R8V15-I012",
     "R8V15-I013"
-  ]
+  ],
+  "repair_note": "v15-r1: cross-mechanism adversarial corpus is explicitly marked semantic-test data; raw predecessor-status strings inside that section are test literals, not leaked prior outcomes."
 }
