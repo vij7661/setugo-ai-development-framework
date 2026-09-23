@@ -1,0 +1,228 @@
+{
+  "schema": "r8-v14-normalization-trace/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "normalized_spec": {
+    "commit": "a64fab3832d732e2788deac70ebe5a953b15c9ba",
+    "blob": "6fc290475052c80c3c5e429cc3b34e5d8951cd5c"
+  },
+  "rule_count": 43,
+  "missing_rules": [],
+  "rules": [
+    {
+      "rule_id": "NORM-001",
+      "title": "external trust boundary",
+      "trace": "v4 T0 model; v5/v6 MTR/BTW hardening; v7 MTR freshness; v8-v13 no weakening."
+    },
+    {
+      "rule_id": "NORM-002",
+      "title": "authority default",
+      "trace": "v4-v14 claim boundaries."
+    },
+    {
+      "rule_id": "NORM-003",
+      "title": "T0 manifests",
+      "trace": "v5 I001-I004; v6 MTR; v7 atomic T0 successor reservation; v8 authorized reservation ordering."
+    },
+    {
+      "rule_id": "NORM-004",
+      "title": "MTR freshness",
+      "trace": "v7 MTRF-1; v8 MTRF-2 refinements."
+    },
+    {
+      "rule_id": "NORM-005",
+      "title": "BTW",
+      "trace": "v5/v6 BTW rules."
+    },
+    {
+      "rule_id": "NORM-006",
+      "title": "canonical identity",
+      "trace": "v6 LineageGraph; v7 CanonicalSubjectRegistry."
+    },
+    {
+      "rule_id": "NORM-007",
+      "title": "ACTIVE-only quorum",
+      "trace": "v7 ACTIVE-only quorum."
+    },
+    {
+      "rule_id": "NORM-008",
+      "title": "revocation",
+      "trace": "v6/v7 revocation rules."
+    },
+    {
+      "rule_id": "NORM-009",
+      "title": "GGS-3",
+      "trace": "v6 GGS-1; v7 GGS-2; v8/v10/v11 GGS-3 STC/RBP integration."
+    },
+    {
+      "rule_id": "NORM-010",
+      "title": "LAS-3",
+      "trace": "v6 LAS-2; v7 LAS-3; v9 formal version; v10 STC; v11/v12 RBP."
+    },
+    {
+      "rule_id": "NORM-011",
+      "title": "rotation barrier",
+      "trace": "v11 RBP-1; v12 RBP-2; v14 barrier taxonomy."
+    },
+    {
+      "rule_id": "NORM-012",
+      "title": "state transfer",
+      "trace": "v10 STC-1; v11 STC-2/barrier close; v12 semantic-head equality."
+    },
+    {
+      "rule_id": "NORM-013",
+      "title": "AIEP/AIG",
+      "trace": "v7 AIEP-1; v8 attested gateway."
+    },
+    {
+      "rule_id": "NORM-014",
+      "title": "CSM-5",
+      "trace": "v10 CSM-3; v11 CSM-4; v12 CSM-5."
+    },
+    {
+      "rule_id": "NORM-015",
+      "title": "named semantic heads",
+      "trace": "v12/v13/v14 authority-state-root rules."
+    },
+    {
+      "rule_id": "NORM-016",
+      "title": "semantic_state_sequence",
+      "trace": "v12 semantic_state_sequence; v14 explicit root field."
+    },
+    {
+      "rule_id": "NORM-017",
+      "title": "immutable AIM descriptors",
+      "trace": "v12 AIM-3; v13 AIM-4."
+    },
+    {
+      "rule_id": "NORM-018",
+      "title": "AIM candidate/Smax order",
+      "trace": "v13 AIMApplicability-1 superseded by v14 AIMApplicability-2."
+    },
+    {
+      "rule_id": "NORM-019",
+      "title": "ResolverPolicy",
+      "trace": "v12 ResolverPolicy-1, v13/v14 extensions."
+    },
+    {
+      "rule_id": "NORM-020",
+      "title": "ResolverImplementationRegistry",
+      "trace": "v13 RIR-1; v14 RIR-2."
+    },
+    {
+      "rule_id": "NORM-021",
+      "title": "Resolver conformance freshness",
+      "trace": "v13 RCS-1; v14 RCS-2."
+    },
+    {
+      "rule_id": "NORM-022",
+      "title": "Smax before lifecycle",
+      "trace": "v9 CSRULE-2 through v14 CSRULE-5 effective order."
+    },
+    {
+      "rule_id": "NORM-023",
+      "title": "ANY at semantic-entry level",
+      "trace": "v12 resolver-time ANY validation."
+    },
+    {
+      "rule_id": "NORM-024",
+      "title": "revoked dominance",
+      "trace": "v13 CSRULE-5."
+    },
+    {
+      "rule_id": "NORM-025",
+      "title": "semantic-result equivalence",
+      "trace": "v14 SREP-1."
+    },
+    {
+      "rule_id": "NORM-026",
+      "title": "lineage mapping",
+      "trace": "v10/v11 lineage mapping rules."
+    },
+    {
+      "rule_id": "NORM-027",
+      "title": "scope replacement",
+      "trace": "v13 SRTT-2, normalized by v14 SRTT-3."
+    },
+    {
+      "rule_id": "NORM-028",
+      "title": "review materiality",
+      "trace": "v6/v7 ReviewPresentationSchema lineage."
+    },
+    {
+      "rule_id": "NORM-029",
+      "title": "reviewer authenticity",
+      "trace": "v6 Channel H/X and inherited review rules."
+    },
+    {
+      "rule_id": "NORM-030",
+      "title": "AuthorityReadSet",
+      "trace": "v6 AuthorityReadSet; v7 AIM/AIEP."
+    },
+    {
+      "rule_id": "NORM-031",
+      "title": "DecisionPresealContext",
+      "trace": "v8 DPS-2, v12 DPS-v3, v13/v14 RIR binding."
+    },
+    {
+      "rule_id": "NORM-032",
+      "title": "time",
+      "trace": "v6/v7 time/NonceLedger rules."
+    },
+    {
+      "rule_id": "NORM-033",
+      "title": "VerifiedStateSeal / COMMIT_WITH_SEAL",
+      "trace": "v6-v8 seal/commit rules."
+    },
+    {
+      "rule_id": "NORM-034",
+      "title": "intent != completion",
+      "trace": "v7 EESM-1; v8 executor revocation; v9 reconciler independence."
+    },
+    {
+      "rule_id": "NORM-035",
+      "title": "evidence strength",
+      "trace": "v5-v7 QEP rules."
+    },
+    {
+      "rule_id": "NORM-036",
+      "title": "evidence transition",
+      "trace": "inherited EXP-J and R8 evidence transition controls."
+    },
+    {
+      "rule_id": "NORM-037",
+      "title": "stable authority scope",
+      "trace": "v5-v8 tenant migration rules."
+    },
+    {
+      "rule_id": "NORM-038",
+      "title": "recovery",
+      "trace": "v6/v7 recovery rules."
+    },
+    {
+      "rule_id": "NORM-039",
+      "title": "permanent trust loss",
+      "trace": "v6/v7 trust-loss rules."
+    },
+    {
+      "rule_id": "NORM-040",
+      "title": "GuardRegistry",
+      "trace": "v13 GuardRegistry-1; v14 continuation."
+    },
+    {
+      "rule_id": "NORM-041",
+      "title": "authoritative review surface",
+      "trace": "v12 BSP-2; v13 BSP-3; v14 BSP-4."
+    },
+    {
+      "rule_id": "NORM-042",
+      "title": "embedded proof manifests",
+      "trace": "v14."
+    },
+    {
+      "rule_id": "NORM-043",
+      "title": "pre-review normalization gate",
+      "trace": "v14 NCG-1."
+    }
+  ]
+}
