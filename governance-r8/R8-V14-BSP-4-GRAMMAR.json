@@ -1,0 +1,79 @@
+{
+  "schema": "bsp-4-grammar/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "current_candidate_version": 14,
+  "status_tokens": [
+    "CHANGES_REQUIRED",
+    "BOUNDED_PASS",
+    "INSUFFICIENT_EVIDENCE",
+    "REVIEW_REQUIRED",
+    "INDEPENDENT_REVIEW_REQUIRED",
+    "NOT_IMPLEMENTED"
+  ],
+  "parser_states": [
+    "NORMAL",
+    "FENCED_CODE",
+    "CASE_SECTION",
+    "GUARD_RECORD_SECTION",
+    "PREDECESSOR_STATUS_BLOCK",
+    "PRIOR_REVIEW_METADATA_BLOCK"
+  ],
+  "line_classes": [
+    "CURRENT_STATUS",
+    "PRIOR_STATUS",
+    "PRIOR_REVIEW_METADATA",
+    "SEMANTIC_CONTENT",
+    "SEMANTIC_TEST_LITERAL",
+    "LEGACY_GUARD_TABLE",
+    "BLANK_STRUCTURAL"
+  ],
+  "patterns": {
+    "version_token": "\\bR8\\s+v(?<version>\\d+)\\b",
+    "status_token": "\\b(?:CHANGES_REQUIRED|BOUNDED_PASS|INSUFFICIENT_EVIDENCE|REVIEW_REQUIRED|INDEPENDENT_REVIEW_REQUIRED|NOT_IMPLEMENTED)\\b",
+    "review_path": "(?:review-evidence/|review-adjudications/)",
+    "review_heading": "(?i)\\b(?:independent\\s+review|review\\s+adjudication|adjudication)\\b",
+    "status_header": "(?i)^\\s*Status\\s*:",
+    "until_block": "(?i)^\\s*(?:Until independent closure|Until then)\\s*:",
+    "guard_table_header": "^\\|\\s*Guard(?:\\s+ID)?\\s*\\|",
+    "guard_table_row": "^\\|\\s*G\\d{3}\\s*\\|",
+    "fenced_code": "^\\s*```",
+    "case_heading": "^#{2,6}\\s+.*(?:case|cases|vector|vectors|preregistered)",
+    "semantic_test_tag": "SEMANTIC_TEST_LITERAL"
+  },
+  "classification_order": [
+    "track fenced-code entry/exit",
+    "track case/guard semantic-test sections",
+    "classify explicit current-candidate Status block as CURRENT_STATUS",
+    "classify predecessor status/review blocks using version + status/review grammar",
+    "classify status-token lines inside semantic-test contexts as SEMANTIC_TEST_LITERAL",
+    "classify legacy guard tables as LEGACY_GUARD_TABLE",
+    "otherwise SEMANTIC_CONTENT or BLANK_STRUCTURAL"
+  ],
+  "remove_classes": [
+    "PRIOR_STATUS",
+    "PRIOR_REVIEW_METADATA",
+    "LEGACY_GUARD_TABLE"
+  ],
+  "retain_classes": [
+    "CURRENT_STATUS",
+    "SEMANTIC_CONTENT",
+    "SEMANTIC_TEST_LITERAL",
+    "BLANK_STRUCTURAL"
+  ],
+  "residual_rule": {
+    "fail_if": [
+      "PRIOR_STATUS",
+      "PRIOR_REVIEW_METADATA"
+    ],
+    "raw_token_search_is_authoritative": false
+  },
+  "guard_table_omission_rule": {
+    "allowed_only_with_guard_omission_manifest": true,
+    "unique_case_or_invariant_semantics_may_not_be_removed": true
+  },
+  "current_candidate_exception": {
+    "retain_version": 14,
+    "retain_current_status": true
+  }
+}
