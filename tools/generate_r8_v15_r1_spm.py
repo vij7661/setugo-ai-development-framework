@@ -59,19 +59,29 @@ def source_ids_for(path_name: str, pointer: str, source_map: dict[str, Any]) -> 
     return list(cfg["source_design_ids"])
 
 def source_ref_catalog(source_map: dict[str, Any]) -> dict[str, dict[str, str]]:
-    catalog: dict[str, dict[str, str]] = {}
-    seen: dict[tuple[str, str, str], str] = {}
-    counter = 0
-    for group in ("default_source_refs", "process_source_refs"):
-        for r in source_map.get(group, []):
-            key = (r["path"], r["commit"], r["blob"])
-            if key in seen:
-                continue
-            counter += 1
-            rid = f"SRC-{counter:03d}"
-            seen[key] = rid
-            catalog[rid] = r
+    catalog = dict(source_map["named_source_refs"])
+    if not catalog:
+        raise SystemExit("named_source_refs is empty")
     return catalog
+
+def source_ref_ids_for(source_design_ids: list[str], source_map: dict[str, Any]) -> list[str]:
+    routes = source_map["source_ref_routes"]
+    resolved: list[str] = []
+    for sid in source_design_ids:
+        matches = [r for r in routes if sid.startswith(r["match_prefix"])]
+        if not matches:
+            raise SystemExit(f"unresolved source_design_id: {sid}")
+        best_len = max(len(r["match_prefix"]) for r in matches)
+        best = [r for r in matches if len(r["match_prefix"]) == best_len]
+        for route in best:
+            for rid in route["source_ref_ids"]:
+                if rid not in source_map["named_source_refs"]:
+                    raise SystemExit(f"unknown source_ref_id {rid} for {sid}")
+                if rid not in resolved:
+                    resolved.append(rid)
+    if not resolved:
+        raise SystemExit("provenance entry resolved to no source refs")
+    return resolved
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -91,7 +101,6 @@ def main() -> int:
     artifacts = []
     entries = []
     source_catalog = source_ref_catalog(source_map)
-    source_ref_ids = list(source_catalog.keys())
 
     for name in sorted(source_map["artifact_sources"]):
         path = root / name
@@ -108,13 +117,14 @@ def main() -> int:
             "sha256": digest,
         })
         for ptr in leaf_pointers(parsed):
+            source_design_ids = source_ids_for(name, ptr, source_map)
             entries.append({
                 "artifact_id": artifact_id,
                 "artifact_sha256": digest,
                 "json_pointer": ptr,
                 "semantic_purpose": f"Frozen executable-schema element {name}{ptr}",
-                "source_design_ids": source_ids_for(name, ptr, source_map),
-                "source_ref_ids": source_ref_ids,
+                "source_design_ids": source_design_ids,
+                "source_ref_ids": source_ref_ids_for(source_design_ids, source_map),
                 "generator_id": GENERATOR_ID,
                 "generator_runtime_manifest_digest": generator["runtime_manifest"]["runtime_manifest_digest"],
                 "reviewer_status": "REVIEW_REQUIRED",
