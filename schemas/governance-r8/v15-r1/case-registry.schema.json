@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/case-registry.schema.json",
+  "title": "R8 v15-r1 CaseRegistry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "source_versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "blob": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "version",
+          "commit",
+          "blob"
+        ]
+      }
+    },
+    "case_count": {
+      "const": 467
+    },
+    "guard_referenced_case_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "missing_guard_referenced_cases": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "duplicate_conflicts": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 467,
+      "maxItems": 467,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "pattern": "^V\\d+-\\d{3}$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "source_commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_blob": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "case_id",
+          "text",
+          "source_version",
+          "source_commit",
+          "source_blob"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "source_versions",
+    "case_count",
+    "guard_referenced_case_count",
+    "missing_guard_referenced_cases",
+    "duplicate_conflicts",
+    "cases"
+  ],
+  "x-governance-source": [
+    "NORM-040"
+  ]
+}
