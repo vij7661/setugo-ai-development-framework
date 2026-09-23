@@ -1,0 +1,102 @@
+{
+  "schema": "projection-manifest-3/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "bsp_version": "BSP-5",
+  "current_candidate_version": 15,
+  "current_candidate_source_commit": "4aaf775715eac0a7fccb6e0a6849880d485ba9e8",
+  "generation_mode": "NORMALIZED_DIRECT_SURFACE",
+  "source_artifacts": [
+    {
+      "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
+      "git_blob_sha1": "a0a97ade8b4d71e602160dc471327488d90dc6ae",
+      "sha256": "12a91a9f0f5bb2b5d6edb31465aaa8cd367ad3bf7441731f6613c7d2007606b1",
+      "bytes_utf8": 20881
+    },
+    {
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "git_blob_sha1": "63cab7bd5d50bdcf3fc420d6320ba276ea2f7cac",
+      "sha256": "5d0e09f3e92157bf9dfff9f753d4d9d381117db3a7f9e6baaf73bc29cd9fee98",
+      "bytes_utf8": 10701
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+      "git_blob_sha1": "5fa161946720915ec10e0dfd51330a026a40c912",
+      "sha256": "3ddb821e377448b06760f83053e98af738d4764cacf17fb2c616629a6cf81a54",
+      "bytes_utf8": 12361
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md",
+      "git_blob_sha1": "6ded08ed976742af27e5ecb820aa7bff86003560",
+      "sha256": "3417ab8a0449b83068a9d63173a40533fb56d2602a3ba569d2418a3e36710d8b",
+      "bytes_utf8": 11490
+    },
+    {
+      "path": "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+      "git_blob_sha1": "c8bb2bff87ee07296f11e53eb9ddaa411614655d",
+      "sha256": "2684ffd96fef07193f8849b0210fcbdf1934efbecd30723ac7702a7b2e9f7482",
+      "bytes_utf8": 106820
+    },
+    {
+      "path": "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+      "git_blob_sha1": "0bf4f88cf424604cf4c690774c7c65e41a4f7b79",
+      "sha256": "3bc36599028a99aaf2ae70d0cf89c518a5b09868a68a2a2e864716cc3e1e074c",
+      "bytes_utf8": 139952
+    },
+    {
+      "path": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+      "git_blob_sha1": "a8319b369440e0c24f9080ccf37103f7d620e8c1",
+      "sha256": "5dd0d9a2e63548fe86b2eeecb062e61ed77e49ea79ffe324cf14cca441bd3213",
+      "bytes_utf8": 3712
+    },
+    {
+      "path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "git_blob_sha1": "f94451e345954a399c59a5a94943f58a14315579",
+      "sha256": "6ef1cda56e20c61fe4fbb6a64e77ed0da60fd4b2c06180f5e0a2bf719235b5cf",
+      "bytes_utf8": 1361478
+    },
+    {
+      "path": "governance-r8/R8-V15-BSP-5-GRAMMAR.json",
+      "git_blob_sha1": "b295ac778e7ec4cf4080127ea9c7046c8ec57a6f",
+      "sha256": "1da8903ee3ef179668f9d6c35c686f9f737777fe8437e16c610f2ca44af9b571",
+      "bytes_utf8": 3351
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-TRACEABILITY-MANIFEST.json",
+      "git_blob_sha1": "cf8b8ceba2508b5927a92e19a79398df94560b53",
+      "sha256": "21967a7150d06f1055935b0cedc65aec65b1667b6b844a4e9f69b32053e2a963",
+      "bytes_utf8": 7218
+    },
+    {
+      "path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+      "git_blob_sha1": "01f4f9269cd2ef896c275da3800350450efad689",
+      "sha256": "5740a834e6d68a3f6c7742f6b49f3110a0a7a80c00be21bbe554677f5cb5ab3c",
+      "bytes_utf8": 27591
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+      "git_blob_sha1": "d9fb03fad2b591d22a125cff5f5c0ea72ad95bba",
+      "sha256": "407675f61bb2abd7d2ac4a58aa788c766b32541fa56ef1e0fab0fd0c79daf397",
+      "bytes_utf8": 6196
+    }
+  ],
+  "removed_record_count_by_class": {
+    "PRIOR_STATUS": 0,
+    "PRIOR_REVIEW_METADATA": 0,
+    "LEGACY_GUARD_TABLE": 11
+  },
+  "guard_omission_manifest_path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+  "guard_omission_manifest_blob": "01f4f9269cd2ef896c275da3800350450efad689",
+  "current_status_binding": {
+    "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+    "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+    "expected_count": 1
+  },
+  "residual_expectation": {
+    "PRIOR_STATUS": 0,
+    "PRIOR_REVIEW_METADATA": 0,
+    "CURRENT_STATUS_BLOCKS": 1
+  },
+  "digest_basis_rule": "Reconstruct exact review packet with this ProjectionManifest serialized as JSON indent=2 but with authoritative_txt_sha256_excluding_manifest_self_digest omitted; all other bytes unchanged.",
+  "authoritative_txt_sha256_excluding_manifest_self_digest": "f2e8abf4a26e3246d01f9587cc7df71d47d2025a674decbc11a5a7dd0d01dc68"
+}
