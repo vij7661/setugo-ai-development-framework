@@ -77,6 +77,13 @@
         "non_authoritative_only_sources",
         "conflicting_entries"
       ]
+    },
+    "source_ref_catalog": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/SourceRef"
+      }
     }
   },
   "required": [
@@ -87,6 +94,7 @@
     "generator",
     "artifact_count",
     "entry_count",
+    "source_ref_catalog",
     "artifacts",
     "entries",
     "coverage"
@@ -233,13 +241,6 @@
           },
           "uniqueItems": true
         },
-        "source_refs": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/SourceRef"
-          }
-        },
         "generator_id": {
           "type": "string",
           "minLength": 1
@@ -260,6 +261,15 @@
             "REVIEW_REQUIRED",
             "REVIEWED"
           ]
+        },
+        "source_ref_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -268,11 +278,12 @@
         "json_pointer",
         "semantic_purpose",
         "source_design_ids",
-        "source_refs",
+        "source_ref_ids",
         "generator_id",
         "generator_runtime_manifest_digest",
         "reviewer_status"
       ]
     }
-  }
+  },
+  "x-source-ref-binding": "Every source_ref_id in an entry must resolve in top-level source_ref_catalog; SFV-35 enforces referential integrity."
 }
