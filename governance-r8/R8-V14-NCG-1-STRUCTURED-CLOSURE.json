@@ -1,0 +1,268 @@
+{
+  "schema": "r8-v14-ncg-1-structured-closure/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "dependency_nodes": [
+    "T0_MTR_BTW",
+    "CanonicalIdentity",
+    "Revocation",
+    "GGS3",
+    "LAS3",
+    "RotationBarrier_STC",
+    "AIEP_AIG",
+    "CSM5",
+    "AIM4",
+    "ResolverPolicy",
+    "RIR2",
+    "RCS2",
+    "CSRULE_SRTT_SREP",
+    "AuthorityReadSet",
+    "DPS_Time",
+    "VerifiedStateSeal_Commit",
+    "ExternalEffect",
+    "Review_Guard_NCG"
+  ],
+  "dependency_edges": [
+    [
+      "T0_MTR_BTW",
+      "CanonicalIdentity"
+    ],
+    [
+      "T0_MTR_BTW",
+      "GGS3"
+    ],
+    [
+      "T0_MTR_BTW",
+      "LAS3"
+    ],
+    [
+      "CanonicalIdentity",
+      "Revocation"
+    ],
+    [
+      "CanonicalIdentity",
+      "RIR2"
+    ],
+    [
+      "CanonicalIdentity",
+      "Review_Guard_NCG"
+    ],
+    [
+      "LAS3",
+      "Revocation"
+    ],
+    [
+      "LAS3",
+      "RotationBarrier_STC"
+    ],
+    [
+      "LAS3",
+      "CSM5"
+    ],
+    [
+      "LAS3",
+      "AuthorityReadSet"
+    ],
+    [
+      "GGS3",
+      "RotationBarrier_STC"
+    ],
+    [
+      "AIEP_AIG",
+      "AuthorityReadSet"
+    ],
+    [
+      "AIEP_AIG",
+      "RIR2"
+    ],
+    [
+      "CSM5",
+      "AIM4"
+    ],
+    [
+      "CSM5",
+      "ResolverPolicy"
+    ],
+    [
+      "CSM5",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "AIM4",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "ResolverPolicy",
+      "RIR2"
+    ],
+    [
+      "ResolverPolicy",
+      "RCS2"
+    ],
+    [
+      "ResolverPolicy",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "RIR2",
+      "RCS2"
+    ],
+    [
+      "RCS2",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "Revocation",
+      "DPS_Time"
+    ],
+    [
+      "CSRULE_SRTT_SREP",
+      "AuthorityReadSet"
+    ],
+    [
+      "AuthorityReadSet",
+      "DPS_Time"
+    ],
+    [
+      "DPS_Time",
+      "VerifiedStateSeal_Commit"
+    ],
+    [
+      "VerifiedStateSeal_Commit",
+      "ExternalEffect"
+    ],
+    [
+      "CSM5",
+      "Review_Guard_NCG"
+    ],
+    [
+      "ResolverPolicy",
+      "Review_Guard_NCG"
+    ]
+  ],
+  "evaluation_order": [
+    "T0/MTR/current authority-state verification",
+    "Runtime/AIEP verification",
+    "Read current semantic snapshot",
+    "Resolve AIM candidates",
+    "Compute AIM_Smax",
+    "AIM ANY permission check",
+    "AIM lifecycle/successor resolution",
+    "Resolve RIR tuple",
+    "Verify RCS freshness",
+    "Build semantic candidates",
+    "Compute semantic Smax",
+    "Semantic ANY validation",
+    "Revoked-branch dominance",
+    "Successor / lineage / scope-replacement traversal",
+    "SREP comparison",
+    "Capture AuthorityReadSet",
+    "Build DPS",
+    "Obtain time proof",
+    "Build VerifiedStateSeal",
+    "COMMIT_WITH_SEAL",
+    "External-effect execution/reconciliation"
+  ],
+  "ownership": [
+    [
+      "T0 generation",
+      "MTR/T0 successor protocol"
+    ],
+    [
+      "BTW high-water",
+      "MTR + BTW consistency"
+    ],
+    [
+      "Controller/lineage identity",
+      "constitutional identity registries"
+    ],
+    [
+      "Revocation head",
+      "LAS revocation stream"
+    ],
+    [
+      "GGS namespace/auth roots",
+      "GGS-3"
+    ],
+    [
+      "LAS StreamHeadMap",
+      "LAS-3"
+    ],
+    [
+      "LAS idempotency ledger",
+      "LAS-3"
+    ],
+    [
+      "CSM-5 head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "AIM-4 head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "Semantic ANY permission head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "AIMScopePolicy head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "ResolverPolicy head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "RIR head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "GuardRegistry head",
+      "LAS-3 semantic stream / prereg design registry before implementation"
+    ],
+    [
+      "NonceLedger head",
+      "LAS-3"
+    ],
+    [
+      "Effect stream head",
+      "LAS-3"
+    ],
+    [
+      "Review packet projection",
+      "deterministic BSP generator"
+    ],
+    [
+      "NCG normalized spec",
+      "deterministic/manual normalization with traceability"
+    ]
+  ],
+  "verification": {
+    "node_count": 18,
+    "edge_count": 29,
+    "dependency_acyclic": true,
+    "topological_order": [
+      "T0_MTR_BTW",
+      "AIEP_AIG",
+      "CanonicalIdentity",
+      "GGS3",
+      "LAS3",
+      "Revocation",
+      "RotationBarrier_STC",
+      "CSM5",
+      "AIM4",
+      "ResolverPolicy",
+      "RIR2",
+      "Review_Guard_NCG",
+      "RCS2",
+      "CSRULE_SRTT_SREP",
+      "AuthorityReadSet",
+      "DPS_Time",
+      "VerifiedStateSeal_Commit",
+      "ExternalEffect"
+    ],
+    "evaluation_stage_count": 21,
+    "ownership_class_count": 18,
+    "duplicate_ownership_classes": []
+  }
+}
