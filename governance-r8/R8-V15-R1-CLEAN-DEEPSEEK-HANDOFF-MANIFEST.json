@@ -1,0 +1,26 @@
+{
+  "schema": "r8-v15-r1-clean-deepseek-handoff/v1",
+  "status": "REVIEW_ONLY_DESIGN_ONLY_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "frozen_candidate_source_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "reviewer_scope_rule": "Only the two TXT files below are required for the DeepSeek transport. Their content is derived only from the clean blind review surface.",
+  "files": [
+    {
+      "path": "governance-r8/R8-V15-R1-CLEAN-DEEPSEEK-COMPLETE-REVIEW-PACKET.txt",
+      "git_blob_sha1": null,
+      "sha256": "86148e11ecb7c3b02f277c934cc997a0a1fc08a02b4eaca7a85f4d63df8e6f47",
+      "bytes_utf8": 405965
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-CLEAN-DEEPSEEK-SRTT-4-TOTAL-TABLE.txt",
+      "git_blob_sha1": "f94451e345954a399c59a5a94943f58a14315579",
+      "sha256": "6ef1cda56e20c61fe4fbb6a64e77ed0da60fd4b2c06180f5e0a2bf719235b5cf",
+      "bytes_utf8": 1361478
+    }
+  ],
+  "loading_order": [
+    "R8-V15-R1-CLEAN-DEEPSEEK-COMPLETE-REVIEW-PACKET.txt",
+    "R8-V15-R1-CLEAN-DEEPSEEK-SRTT-4-TOTAL-TABLE.txt",
+    "execute the reviewer contract embedded in the complete packet"
+  ]
+}
