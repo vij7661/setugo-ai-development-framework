@@ -180,3 +180,22 @@ The schema freeze may be marked internally ready for independent review only if:
 - semantic candidate commit remains `c721b38cf8b00294797300b526596ce723a47ff8`.
 
 Internal PASS grants no implementation authority. It permits only a fresh independent executable-schema review.
+
+
+## 6. Validator ownership expansion
+
+The initial preregistration listed SFV-01..SFV-13 as the minimum deterministic obligations. The executable validator contract is now frozen at **SFV-01..SFV-34**.
+
+The added obligations do not change semantic design. They make inherited enforcement ownership explicit for:
+- T0 successor 4-of-5 / 3-domain threshold and monotonic generation;
+- BTW rollback/equivocation;
+- GGS/LAS quorum, rollback and atomicity;
+- rotation barrier/STC one-barrier-one-rotation semantics;
+- GCP canonicalization;
+- review materiality and human-review independence;
+- coherent CSM/current semantic-state sequence;
+- external root anti-self-grant.
+
+The machine-readable validator contract at
+`schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json`
+is the complete validator-rule inventory for this freeze candidate.
