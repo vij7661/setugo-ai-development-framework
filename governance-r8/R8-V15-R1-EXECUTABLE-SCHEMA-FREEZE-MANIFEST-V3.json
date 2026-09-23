@@ -1,0 +1,86 @@
+{
+  "schema": "r8-v15-r1-executable-schema-freeze-manifest/v3",
+  "status": "INDEPENDENT_REVIEW_REQUIRED",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "preregistration": {
+    "path": "governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V1.md",
+    "blob": "822f4490dcf1d919a19286c71bf546c1d2a7c34b"
+  },
+  "schema_artifacts": [
+    {
+      "path": "schemas/governance-r8/v15-r1/runtime-contracts.schema.json",
+      "blob": "3f0c6cb3eab9028b95bfa608896d1ee37b576f6a",
+      "sha256": "df56c98a4f75b22a0df579ee3befc4b2c27568d2062aeea30f220cefa5e8bcc1"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/guard-registry.schema.json",
+      "blob": "ea535d3c6c3fe77147d77f88cebe9d6769513165",
+      "sha256": "d8fd8ae9b7fc7ec0f1437561f96fc471ff51bfa019cc3959eab24da7e0461167"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/case-registry.schema.json",
+      "blob": "f034a21d58949549d7a8216ca043910e592128e8",
+      "sha256": "0ce2b6ce663d62f237809537e8ff4cd49d5c0ea9657396da48a0f547a1c7456c"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "blob": "6519fe447ae2561dc162e6977b4f3c1b18925d3e",
+      "sha256": "44263503e6bf947412c71abdc3994f49a6f63f0408a752e76a05034fa66ac1a1"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "blob": "027bfae335186e1467df53a530d629f2e481e58f",
+      "sha256": "52c5043f551b88ed6c16f2b934c8d4d42a80633562dc55e9757e4da642e1415b"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/bsp-5-grammar.schema.json",
+      "blob": "8e1ecaaee4847378debc360df34a5187fbb0e743",
+      "sha256": "96d6acce5760b94af9b39cffbc869aaca3a1365c87ddf99d29b869b5207e59e7"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/ncg-structured-closure.schema.json",
+      "blob": "343c31b2879e633cd217df11d14b7cc8cfc3d2bd",
+      "sha256": "f1a21640eb70dab2b1def48285c28ac5d4d6e309950382a8b8c659c96b63c964"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/guard-omission-source-evidence.schema.json",
+      "blob": "68484106b464cb4ba5c0275166062bce1fd4794d",
+      "sha256": "7c9927944ad1a52356bfe26f0843075c36e9bdc7cca8737056af6ddbceef5030"
+    },
+    {
+      "path": "schemas/governance-r8/v15-r1/guard-omission-manifest.schema.json",
+      "blob": "de77b1757caca583d858ec0c04ca15255589e86c",
+      "sha256": "ba14a266f33617815b96dd043e21c67eabb6cbd35a2a2d60d0f4c862623c0b21"
+    }
+  ],
+  "validator_contract": {
+    "path": "schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json",
+    "blob": "74082dd2370fb61c13ca11cb899c081edad602dc",
+    "sha256": "e55be5e88c6deb870941c151572af5281df70b0b07c4b1398feabba4a90cfaad",
+    "rule_count": 34
+  },
+  "traceability": {
+    "path": "schemas/governance-r8/v15-r1/schema-freeze-traceability.json",
+    "blob": "ba94baf41db81f4facd162b450e615439467edea",
+    "sha256": "7b0c5f0d8c2175d8cb3cdbb3d58c3aa8e5d27f81c98b1873ff83a4bab279ec6f",
+    "norm_count": 43
+  },
+  "internal_verification": {
+    "path": "governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-INTERNAL-VERIFICATION-V3.json",
+    "commit": "15292cab028a78977951af1c7de92ae55e0e937c",
+    "result": "INTERNAL_SCHEMA_FREEZE_RECOMPUTATION_PASS"
+  },
+  "blind_review_exclusions": [
+    "all prior external review findings/dispositions",
+    "all prior adjudications",
+    "all internal schema-freeze PASS reports including this report"
+  ],
+  "freeze_boundary": {
+    "semantic_change_allowed": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "next_action": "fresh independent executable-schema review"
+  }
+}
