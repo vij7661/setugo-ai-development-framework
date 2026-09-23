@@ -88,9 +88,15 @@ Different active implementations under one policy are allowed only when the runn
 
 A resolved semantic result is normalized as:
 
-`{semantic_input_id, semantic_class, authoritative_rule_digest, normalized_effect_digest, scope_effect_digest, lineage_terminal_id}`
+`{semantic_input_id, semantic_class, terminal_semantic_entry_id, terminal_rule_digest, terminal_lineage_id, effective_scope_tuple_digest}`
 
-The GCP-1 digest of this object is `semantic_result_digest`.
+Fields are derived exactly as follows:
+- `terminal_semantic_entry_id` = the final ACTIVE semantic entry selected after successor/mapping traversal;
+- `terminal_rule_digest` = that entry's bound `artifact_or_rule_digest`;
+- `terminal_lineage_id` = that entry's `semantic_lineage_id`;
+- `effective_scope_tuple_digest` = SHA-256(GCP-1(final effective scope tuple after any authorized replacement mapping)).
+
+The GCP-1 digest of this object is `semantic_result_digest`. Resolution-path evidence is preserved separately and does not alter equivalence when every canonical terminal-result field is identical.
 
 ### R8V14-I008 — equivalence
 
@@ -346,7 +352,7 @@ NCG-1 PASS grants no authority; it only permits freezing a fresh blind design-re
 
 ### Equivalence
 - V14-007 two successor paths normalize to identical semantic_result_digest -> one semantic result.
-- V14-008 different authoritative_rule_digest or normalized_effect_digest -> non-equivalent conflict.
+- V14-008 different terminal entry, terminal rule digest, lineage, or effective scope digest -> non-equivalent conflict.
 - V14-009 implementation claims equivalence despite different canonical digest -> reject.
 
 ### SRTT
