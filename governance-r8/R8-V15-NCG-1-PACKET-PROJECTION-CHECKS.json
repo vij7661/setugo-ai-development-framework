@@ -1,0 +1,80 @@
+{
+  "schema": "r8-v15-packet-projection-checks/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "candidate_source_commit": "4aaf775715eac0a7fccb6e0a6849880d485ba9e8",
+  "packet_path": "governance-r8/R8-V15-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt",
+  "packet_blob": "3a8edd43da521432ef41a1868bb9cb98eea952a8",
+  "packet_sha256": "82b4b77d73675f0ab801d7e85cae4209a28ae7b88309501afeba6bb50903ec96",
+  "check_count": 8,
+  "pass_count": 6,
+  "fail_count": 2,
+  "checks": [
+    {
+      "id": "CURRENT_STATUS_BLOCK_CARDINALITY",
+      "status": "FAIL",
+      "evidence": {
+        "begin_count": 2,
+        "end_count": 2
+      }
+    },
+    {
+      "id": "EMBEDDED_MANIFESTS_PARSE",
+      "status": "PASS",
+      "evidence": {
+        "projection": true,
+        "omission": true
+      }
+    },
+    {
+      "id": "PROJECTION_DIGEST_REPRODUCES",
+      "status": "PASS",
+      "evidence": {
+        "expected": "f2e8abf4a26e3246d01f9587cc7df71d47d2025a674decbc11a5a7dd0d01dc68",
+        "actual": "f2e8abf4a26e3246d01f9587cc7df71d47d2025a674decbc11a5a7dd0d01dc68"
+      }
+    },
+    {
+      "id": "NO_EXPLICIT_PREDECESSOR_STATUS_OUTCOMES",
+      "status": "FAIL",
+      "evidence": {
+        "matches": [
+          "R8 v12 = NOT_IMPLEMENTED"
+        ]
+      }
+    },
+    {
+      "id": "NO_PRIOR_REVIEW_PATHS",
+      "status": "PASS",
+      "evidence": {
+        "count": 0
+      }
+    },
+    {
+      "id": "PROJECTION_SOURCE_DIGESTS_MATCH",
+      "status": "PASS",
+      "evidence": {
+        "mismatches": []
+      }
+    },
+    {
+      "id": "GUARD_OMISSION_REVERIFICATION",
+      "status": "PASS",
+      "evidence": {
+        "method": "reparse exact canonical source line ranges; expand inclusive Vn-xxx..Vn-yyy case ranges; compare exact explicit sets",
+        "omitted_table_count": 11,
+        "all_case_sets_equal": true,
+        "all_guard_sets_equal": true,
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "HUMAN_REVIEW_SECTIONS_PRESENT",
+      "status": "PASS",
+      "evidence": {
+        "missing": []
+      }
+    }
+  ],
+  "result": "FAIL"
+}
