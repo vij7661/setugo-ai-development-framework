@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/case-proof-contracts.schema.json",
+  "title": "R8 v15-r1 CaseProofContracts",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-case-proof-contracts/v1"
+    },
+    "status": {
+      "const": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "guard_range": {
+      "const": "G001-G156"
+    },
+    "fault_proof_legend": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "FP0": {
+          "const": "NOT_APPLICABLE_DETERMINISTIC_INPUT: malformed/mismatched deterministic input is itself the proof."
+        },
+        "FP1": {
+          "const": "REQUIRED_SIGNED_STATE: independent signed/anchored registry, attestation, certificate, revocation, time, or witness state."
+        },
+        "FP2": {
+          "const": "REQUIRED_CONCURRENCY_TRACE: independent trace of concurrent attempts plus commit outcomes."
+        },
+        "FP3": {
+          "const": "REQUIRED_STORAGE_FAULT: independently captured rollback/corruption/outage/store mutation evidence."
+        },
+        "FP4": {
+          "const": "REQUIRED_RUNTIME_ATTESTATION: workload/runtime/sandbox identity or violation evidence independent of target guard result."
+        },
+        "FP5": {
+          "const": "REQUIRED_PROVENANCE_DIFF: exact source/artifact/schema/packet/provenance comparison evidence."
+        },
+        "FP6": {
+          "const": "REQUIRED_EXTERNAL_EFFECT: provider attempt/receipt/observation/reconciliation evidence independent of effect success guard."
+        }
+      },
+      "required": [
+        "FP0",
+        "FP1",
+        "FP2",
+        "FP3",
+        "FP4",
+        "FP5",
+        "FP6"
+      ]
+    },
+    "contracts": {
+      "type": "array",
+      "minItems": 156,
+      "maxItems": 156,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "guard_id": {
+            "type": "string",
+            "pattern": "^G(?:0(?:0[1-9]|[1-9][0-9])|1(?:[0-4][0-9]|5[0-6]))$"
+          },
+          "mechanism_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "positive_controls": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/CaseControl"
+            }
+          },
+          "negative_controls": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/NegativeControl"
+            }
+          },
+          "canonical_source": {
+            "type": "object",
+            "minProperties": 1
+          }
+        },
+        "required": [
+          "guard_id",
+          "mechanism_id",
+          "positive_controls",
+          "negative_controls",
+          "canonical_source"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "guard_range",
+    "fault_proof_legend",
+    "contracts"
+  ],
+  "$defs": {
+    "CaseControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^V\\d+-\\d{3}$"
+        },
+        "case_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string",
+          "pattern": "^v\\d+$"
+        },
+        "source_commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_blob": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "case_id",
+        "case_text",
+        "source_version",
+        "source_commit",
+        "source_blob"
+      ]
+    },
+    "NegativeControl": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/CaseControl"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fault_proof_class": {
+              "enum": [
+                "FP0",
+                "FP1",
+                "FP2",
+                "FP3",
+                "FP4",
+                "FP5",
+                "FP6"
+              ]
+            }
+          },
+          "required": [
+            "fault_proof_class"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "x-governance-source": [
+    "R8V7-I044",
+    "R8V7-I045",
+    "R8V8 schema-freeze gate",
+    "R8V9..R8V13 schema-freeze gates",
+    "NORM-040"
+  ]
+}
