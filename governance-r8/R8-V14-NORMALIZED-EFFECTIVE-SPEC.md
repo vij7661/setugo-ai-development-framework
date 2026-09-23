@@ -240,8 +240,10 @@ Trace: v13 CSRULE-5.
 
 ### NORM-025 — semantic-result equivalence
 Effective rule:
-- every resolved semantic result is normalized to the SREP-1 canonical object;
+- every resolved semantic result is normalized to `{semantic_input_id, semantic_class, terminal_semantic_entry_id, terminal_rule_digest, terminal_lineage_id, effective_scope_tuple_digest}`;
+- each field is derived from the final selected entry and final authorized effective scope;
 - equality means identical GCP-1 semantic_result_digest only;
+- resolution-path evidence is preserved separately;
 - implementation-local equivalence is forbidden.
 
 Trace: v14 SREP-1.
