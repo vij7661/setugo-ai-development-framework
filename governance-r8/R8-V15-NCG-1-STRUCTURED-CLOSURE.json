@@ -1,0 +1,313 @@
+{
+  "schema": "r8-v15-ncg-1-structured-closure/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "dependency_nodes": [
+    "T0_MTR_BTW",
+    "CanonicalIdentity",
+    "Revocation",
+    "GGS3",
+    "LAS3",
+    "RotationBarrier_STC",
+    "AIEP_AIG",
+    "CSM5",
+    "AIM4",
+    "ResolverPolicy",
+    "RIR2",
+    "RCS2",
+    "CSRULE_SRTT_SREP",
+    "AuthorityReadSet",
+    "DPS_Time",
+    "VerifiedStateSeal_Commit",
+    "ExternalEffect",
+    "Review_Guard_NCG"
+  ],
+  "dependency_edges": [
+    [
+      "T0_MTR_BTW",
+      "CanonicalIdentity"
+    ],
+    [
+      "T0_MTR_BTW",
+      "GGS3"
+    ],
+    [
+      "T0_MTR_BTW",
+      "LAS3"
+    ],
+    [
+      "CanonicalIdentity",
+      "Revocation"
+    ],
+    [
+      "CanonicalIdentity",
+      "RIR2"
+    ],
+    [
+      "CanonicalIdentity",
+      "Review_Guard_NCG"
+    ],
+    [
+      "LAS3",
+      "Revocation"
+    ],
+    [
+      "LAS3",
+      "RotationBarrier_STC"
+    ],
+    [
+      "LAS3",
+      "CSM5"
+    ],
+    [
+      "LAS3",
+      "AuthorityReadSet"
+    ],
+    [
+      "GGS3",
+      "RotationBarrier_STC"
+    ],
+    [
+      "AIEP_AIG",
+      "AuthorityReadSet"
+    ],
+    [
+      "AIEP_AIG",
+      "RIR2"
+    ],
+    [
+      "CSM5",
+      "AIM4"
+    ],
+    [
+      "CSM5",
+      "ResolverPolicy"
+    ],
+    [
+      "CSM5",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "AIM4",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "ResolverPolicy",
+      "RIR2"
+    ],
+    [
+      "ResolverPolicy",
+      "RCS2"
+    ],
+    [
+      "ResolverPolicy",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "RIR2",
+      "RCS2"
+    ],
+    [
+      "RCS2",
+      "CSRULE_SRTT_SREP"
+    ],
+    [
+      "Revocation",
+      "DPS_Time"
+    ],
+    [
+      "CSRULE_SRTT_SREP",
+      "AuthorityReadSet"
+    ],
+    [
+      "AuthorityReadSet",
+      "DPS_Time"
+    ],
+    [
+      "DPS_Time",
+      "VerifiedStateSeal_Commit"
+    ],
+    [
+      "VerifiedStateSeal_Commit",
+      "ExternalEffect"
+    ],
+    [
+      "CSM5",
+      "Review_Guard_NCG"
+    ],
+    [
+      "ResolverPolicy",
+      "Review_Guard_NCG"
+    ]
+  ],
+  "evaluation_order": [
+    "T0/MTR/current authority-state verification",
+    "Runtime/AIEP verification",
+    "Read current semantic snapshot",
+    "Resolve AIM candidates",
+    "Compute AIM_Smax",
+    "AIM ANY permission check",
+    "AIM lifecycle/successor resolution",
+    "Resolve RIR tuple",
+    "Verify RCS freshness",
+    "Build semantic candidates",
+    "Compute semantic Smax",
+    "Semantic ANY validation",
+    "Revoked-branch dominance / complete blocker set",
+    "Per-blocker successor / lineage / scope-replacement traversal",
+    "SREP comparison",
+    "Capture AuthorityReadSet",
+    "Build DPS",
+    "Obtain time proof",
+    "Build VerifiedStateSeal",
+    "COMMIT_WITH_SEAL",
+    "External-effect execution/reconciliation"
+  ],
+  "ownership": [
+    [
+      "T0 generation",
+      "MTR/T0 successor protocol"
+    ],
+    [
+      "BTW high-water",
+      "MTR + BTW consistency"
+    ],
+    [
+      "Controller/lineage identity",
+      "constitutional identity registries"
+    ],
+    [
+      "Revocation head",
+      "LAS revocation stream"
+    ],
+    [
+      "GGS namespace/auth roots",
+      "GGS-3"
+    ],
+    [
+      "LAS StreamHeadMap",
+      "LAS-3"
+    ],
+    [
+      "LAS idempotency ledger",
+      "LAS-3"
+    ],
+    [
+      "CSM-5 head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "AIM-4 head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "Semantic ANY permission head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "AIMScopePolicy head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "ResolverPolicy head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "RIR head",
+      "LAS-3 semantic stream"
+    ],
+    [
+      "GuardRegistry head",
+      "LAS-3 semantic stream / prereg design registry before implementation"
+    ],
+    [
+      "NonceLedger head",
+      "LAS-3"
+    ],
+    [
+      "Effect stream head",
+      "LAS-3"
+    ],
+    [
+      "Review packet projection",
+      "deterministic BSP generator"
+    ],
+    [
+      "NCG normalized spec",
+      "deterministic/manual normalization with traceability"
+    ]
+  ],
+  "verification": {
+    "node_count": 18,
+    "edge_count": 29,
+    "dependency_acyclic": true,
+    "topological_order": [
+      "T0_MTR_BTW",
+      "AIEP_AIG",
+      "CanonicalIdentity",
+      "GGS3",
+      "LAS3",
+      "Revocation",
+      "RotationBarrier_STC",
+      "CSM5",
+      "AIM4",
+      "ResolverPolicy",
+      "RIR2",
+      "Review_Guard_NCG",
+      "RCS2",
+      "CSRULE_SRTT_SREP",
+      "AuthorityReadSet",
+      "DPS_Time",
+      "VerifiedStateSeal_Commit",
+      "ExternalEffect"
+    ],
+    "evaluation_stage_count": 21,
+    "ownership_class_count": 18,
+    "duplicate_ownership_classes": [],
+    "edge_semantics_declared": true
+  },
+  "edge_semantics": {
+    "kind": "DIRECT_AUTHORITY_RELEVANT_CONSUMPTION_OR_PRECONDITION",
+    "transitive_closure_edges_omitted": true,
+    "source_matrix": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+    "hand_added_untraceable_edges_forbidden": true
+  },
+  "reviewer_suggested_edge_disposition": [
+    {
+      "edge": [
+        "Revocation",
+        "RIR2"
+      ],
+      "status": "NOT_ADDED_WITHOUT_DIRECT_CONSUMPTION",
+      "reason": "RIR2 temporal lifecycle predicate is carried by the current RIR record; add only if global revocation becomes a direct RIR2 input."
+    },
+    {
+      "edge": [
+        "CSM5",
+        "RCS2"
+      ],
+      "status": "TRANSITIVE_NOT_DUPLICATED",
+      "reason": "CSM5 reaches RCS2 through ResolverPolicy/RIR2 direct dependencies."
+    },
+    {
+      "edge": [
+        "Review_Guard_NCG",
+        "CSRULE_SRTT_SREP"
+      ],
+      "status": "REJECTED_AS_RUNTIME_EDGE",
+      "reason": "Guard/review qualification must not become runtime semantic-resolution authority."
+    }
+  ],
+  "v15_closure_assertions": {
+    "srtt_rule_registry": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+    "srtt_total_table": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+    "multi_revoked_cases": [
+      "X15-046",
+      "X15-047",
+      "X15-048",
+      "X15-049"
+    ],
+    "semantic_sequence_rollback_case": "X15-050",
+    "effect_rotation_case": "X15-045"
+  }
+}
