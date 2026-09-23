@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+  "title": "R8 v15-r1 Schema Semantic Provenance Manifest (SPM-1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-spm-1/v1"
+    },
+    "status": {
+      "enum": [
+        "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+        "FINAL_FREEZE_ELIGIBLE"
+      ]
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "semantic_candidate_commit": {
+      "const": "c721b38cf8b00294797300b526596ce723a47ff8"
+    },
+    "generator": {
+      "$ref": "#/$defs/GeneratorBinding"
+    },
+    "artifact_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "entry_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ArtifactBinding"
+      },
+      "uniqueItems": true
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ProvenanceEntry"
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "uncovered_semantic_elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0
+        },
+        "non_authoritative_only_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0
+        },
+        "conflicting_entries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0
+        }
+      },
+      "required": [
+        "uncovered_semantic_elements",
+        "non_authoritative_only_sources",
+        "conflicting_entries"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "semantic_candidate_commit",
+    "generator",
+    "artifact_count",
+    "entry_count",
+    "artifacts",
+    "entries",
+    "coverage"
+  ],
+  "$defs": {
+    "Digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "GeneratorBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generator_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generator_artifact_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generator_artifact_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "runtime_manifest_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workload_attestation_proof_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "qualification_status": {
+          "enum": [
+            "QUALIFIED",
+            "UNATTESTED_RUNTIME",
+            "REVOKED",
+            "DRIFTED",
+            "UNREGISTERED"
+          ]
+        }
+      },
+      "required": [
+        "generator_id",
+        "generator_artifact_path",
+        "generator_artifact_sha256",
+        "runtime_manifest_digest",
+        "workload_attestation_proof_digest",
+        "qualification_status"
+      ]
+    },
+    "ArtifactBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "git_blob_sha1": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "path",
+        "git_blob_sha1",
+        "sha256"
+      ]
+    },
+    "SourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "design_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blob": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "design_id",
+        "path",
+        "commit",
+        "blob"
+      ]
+    },
+    "ProvenanceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "semantic_purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_design_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/SourceRef"
+          }
+        },
+        "generator_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generator_runtime_manifest_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reviewer_status": {
+          "enum": [
+            "NOT_YET_REVIEWED",
+            "REVIEW_REQUIRED",
+            "REVIEWED"
+          ]
+        }
+      },
+      "required": [
+        "artifact_id",
+        "artifact_sha256",
+        "json_pointer",
+        "semantic_purpose",
+        "source_design_ids",
+        "source_refs",
+        "generator_id",
+        "generator_runtime_manifest_digest",
+        "reviewer_status"
+      ]
+    }
+  }
+}
