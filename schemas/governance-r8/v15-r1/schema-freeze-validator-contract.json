@@ -249,6 +249,86 @@
         "NORM-030"
       ],
       "requirement": "Missing required authority field is validation failure, never default/fallback authority."
+    },
+    {
+      "id": "SFV-27",
+      "name": "T0 successor threshold and monotonicity",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-003"
+      ],
+      "requirement": "Successor generation is exactly predecessor+1; predecessor authorization/MTR reservation/BTW consistency all bind the same successor; requires 4-of-5 ACTIVE EBA officers across at least 3 ACTIVE admin domains; a newly created/reactivated domain cannot sign the successor that creates/reactivates it."
+    },
+    {
+      "id": "SFV-28",
+      "name": "BTW rollback/equivocation",
+      "result_if_fail": "AUTHORITY_FROZEN",
+      "source": [
+        "NORM-005"
+      ],
+      "requirement": "Verification uses T0-pinned witness policy; accepted tree size/root cannot roll back; smaller tree or missing consistency proof rejects; same size with different root is BTW_EQUIVOCATION and freezes affected authority paths."
+    },
+    {
+      "id": "SFV-29",
+      "name": "GGS/LAS sequencer safety",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-009",
+        "NORM-010"
+      ],
+      "requirement": "GGS and LAS use 3 replicas/2-of-3 ordinary majority; rollback-resistant term/vote/index/head state; stale replica non-voting; GGS atomically consumes namespace/bootstrap authorization; LAS atomically compare-and-advances non-commutative heads and preserves idempotency state; JOINT rotation requires both old and new majorities."
+    },
+    {
+      "id": "SFV-30",
+      "name": "Rotation barrier and STC",
+      "result_if_fail": "ROTATION_BLOCKED",
+      "source": [
+        "NORM-011",
+        "NORM-012"
+      ],
+      "requirement": "ROTATION_PREPARE commits barrier B and freezes covered writes; STC binds the exact B snapshot/state roots/semantic heads; one barrier serves at most one lawful rotation; same rotation/config/STC retry is idempotent; changed retry is IDEMPOTENCY_CONFLICT; different rotation on reserved B is BARRIER_ALREADY_RESERVED; ABORT permanently closes B; contradictory valid reservations are STC_EQUIVOCATION."
+    },
+    {
+      "id": "SFV-31",
+      "name": "GCP canonicalization",
+      "result_if_fail": "CANONICALIZATION_REJECT",
+      "source": [
+        "NORM-002",
+        "NORM-025",
+        "NORM-030"
+      ],
+      "requirement": "Canonical authority input/output obeys inherited GCP: absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields."
+    },
+    {
+      "id": "SFV-32",
+      "name": "Review materiality and reviewer independence",
+      "result_if_fail": "REVIEW_INVALID",
+      "source": [
+        "NORM-028",
+        "NORM-029"
+      ],
+      "requirement": "Every reviewer-visible semantic field relied on for decision is packet-bound; unknown reviewer influence defaults material; required human review binds exact candidate/snapshot/packet digest and is independent from proposer under canonical identity/domain rules; model/provider review cannot replace a required human constitutional channel."
+    },
+    {
+      "id": "SFV-33",
+      "name": "CSM coherent snapshot and current semantic sequence",
+      "result_if_fail": "SEMANTIC_STATE_INVALID",
+      "source": [
+        "NORM-014",
+        "NORM-015",
+        "NORM-016"
+      ],
+      "requirement": "CSM, AIM, ANY, AIMScopePolicy, ResolverPolicy, RIR, GuardRegistry and inherited revocation/nonce/effect/config heads are read from one current LAS-derived semantic_state_sequence; historical/caller-selected sequence has authority NONE."
+    },
+    {
+      "id": "SFV-34",
+      "name": "External root anti-self-grant boundary",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-001",
+        "NORM-002"
+      ],
+      "requirement": "Ordinary platform software cannot mint, replace, roll back or weaken T0/EBA/MTR/BTW/workload-attestation roots; unavailable lawful trust may block permanently and never creates an emergency weaker root."
     }
   ]
 }
