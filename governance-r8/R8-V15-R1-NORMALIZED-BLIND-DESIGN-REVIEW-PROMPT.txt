@@ -1,0 +1,49 @@
+# Independent Blind Review — R8 Meta-Governance v15-r1 Normalized Candidate
+
+Status: REVIEW_REQUIRED / DESIGN_ONLY / NON_AUTHORITATIVE
+Authority effect: NONE
+
+## Frozen subject
+
+Current normalized candidate source commit:
+- `c721b38cf8b00294797300b526596ce723a47ff8`
+
+Review the normalized current v15-r1 design only. Do not use prior reviewer findings, prior adjudications, the first failed packet-projection attempt, or internal NCG PASS/recomputed-verification outputs.
+
+## Objective
+
+Attempt to falsify whether the normalized R8 v15-r1 design is sufficiently closed at design level to proceed to executable-schema freeze.
+
+Do not treat generated tables, registries, manifests, matrices, or checks as proof merely because they exist.
+
+## Mandatory attack areas
+
+1. normalized effective-spec completeness and no silent weakening;
+2. SRTT-4 fixed REVOKED domain, exact 2304-tuple coverage, RuleRegistry traceability, full independent recomputation, exact/mapped/broader/narrower/disjoint semantics;
+3. inherited mapped-effect rule: destination EXACT_MATCH or MAPPED_MATCH may be valid; BROADER still requires constitutional expansion authorization plus in-domain decision;
+4. CSRULE-6 complete multi-revoked blocker set, no partial discharge, same/different SREP results, path conflict, peer conflict and order independence;
+5. BSP-5 exact current-status binding plus explicit marked semantic-test sections, including the cross-mechanism adversarial corpus;
+6. guard omission source reparse, inclusive range expansion and exact source/manifest set equality;
+7. dependency graph direct-edge semantics, evaluation order and ownership;
+8. cross-mechanism cases: AIM×RIR/RCS, guard semantics×NCG, rotation×external effect, semantic_state_sequence rollback, seal/TOCTOU;
+9. fail-closed liveness: no cached PASS, stale time/conformance, local clock, operator override or weaker emergency dependency;
+10. inherited T0/EBA/MTR/BTW/GGS/LAS/AIEP/AIG/evidence/recovery/effect trust model.
+
+## Required output
+
+A. Overall disposition: BOUNDED_PASS, CHANGES_REQUIRED, or INSUFFICIENT_EVIDENCE.
+B. Critical findings.
+C. High findings.
+D. Medium findings.
+E. Normalized-spec completeness/no-regression assessment.
+F. SRTT-4 assessment.
+G. Multi-revoked composition assessment.
+H. Guard/Case/omission proof assessment.
+I. BSP-5/blindness assessment.
+J. Dependency/evaluation-order assessment.
+K. Cross-mechanism coverage assessment.
+L. Over-governance/liveness assessment.
+M. Minimal required changes before executable-schema freeze.
+N. Final bounded statement.
+
+This review grants no implementation, release, deployment, production, qualification, adjudication, or terminal authority.
