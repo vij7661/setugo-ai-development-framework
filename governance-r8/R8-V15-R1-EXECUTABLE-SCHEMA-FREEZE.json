@@ -1,0 +1,116 @@
+{
+  "schema": "r8-v15-r1-executable-schema-freeze/v1",
+  "freeze_id": "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-001",
+  "status": "FROZEN_FOR_EXECUTABLE_SCHEMA_CONSTRUCTION",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "review_disposition": "BOUNDED_PASS",
+  "evidence_closure_disposition": "EVIDENCE_CLOSURE_PASS",
+  "frozen_semantic_artifacts": [
+    {
+      "path": "governance-r8/R8-V15-R1-BLIND-NORMALIZED-EFFECTIVE-SPEC.md",
+      "blob": "7ca0d0d40cff557fd2eb2a95cc7555616c8d79f6",
+      "role": "normalized_semantic_spec"
+    },
+    {
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2",
+      "role": "load_bearing_detail"
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+      "blob": "5fa161946720915ec10e0dfd51330a026a40c912",
+      "role": "dependency_evaluation_ownership"
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md",
+      "blob": "6ded08ed976742af27e5ecb820aa7bff86003560",
+      "role": "cross_mechanism_falsification_corpus"
+    },
+    {
+      "path": "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+      "blob": "c8bb2bff87ee07296f11e53eb9ddaa411614655d",
+      "role": "guard_registry"
+    },
+    {
+      "path": "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+      "blob": "0bf4f88cf424604cf4c690774c7c65e41a4f7b79",
+      "role": "case_registry"
+    },
+    {
+      "path": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+      "blob": "a8319b369440e0c24f9080ccf37103f7d620e8c1",
+      "role": "scope_replacement_rules"
+    },
+    {
+      "path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "blob": "f94451e345954a399c59a5a94943f58a14315579",
+      "role": "scope_replacement_total_table"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-BLIND-BSP-5-GRAMMAR.json",
+      "blob": "8839c5c830a9868454a87cdad6c537245bc5c87b",
+      "role": "blind_projection_grammar"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-BLIND-NCG-1-TRACEABILITY-MANIFEST.json",
+      "blob": "3b5a79f4089b28ab13d27f28bd40ebeef2e96416",
+      "role": "normalized_traceability"
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+      "blob": "d9fb03fad2b591d22a125cff5f5c0ea72ad95bba",
+      "role": "dependency_graph"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-GUARD-OMISSION-SOURCE-EVIDENCE.json",
+      "blob": "9b43e7234ea6e0d7de4ad0e3184e245cf0c5bd22",
+      "role": "omission_source_evidence"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-GUARD-OMISSION-MANIFEST-2.json",
+      "blob": "441be37f7a0ebcec602c7c2f6e83dfdb35e01a7c",
+      "role": "omission_manifest"
+    }
+  ],
+  "review_evidence": [
+    {
+      "path": "review-evidence/r8-v15-r1-clean-deepseek-independent-review-2026-09-23.md",
+      "blob": "1da41a1ff9a95be8b18c366ddb9c9bbaa691874d",
+      "disposition": "BOUNDED_PASS"
+    },
+    {
+      "path": "review-adjudications/R8-V15-R1-CLEAN-BLIND-REVIEW-ADJUDICATION-2026-09-23.md",
+      "blob": "58d143442ee8385cc6e62b963b0c37bc9d752a07",
+      "disposition": "BOUNDED_PASS_ACCEPTED_WITH_EVIDENCE_CLOSURE_REQUIRED"
+    },
+    {
+      "path": "review-evidence/r8-v15-r1-targeted-evidence-closure-review-2026-09-23.md",
+      "blob": "2320da6f1c240b74fd817c8f1f27b9852afb3208",
+      "disposition": "EVIDENCE_CLOSURE_PASS"
+    },
+    {
+      "path": "review-adjudications/R8-V15-R1-EVIDENCE-CLOSURE-ADJUDICATION-2026-09-23.md",
+      "blob": "94b657e6b3b121d76656af005f6bb0b48a3368d7",
+      "disposition": "EVIDENCE_CLOSURE_PASS_ACCEPTED"
+    }
+  ],
+  "freeze_rules": {
+    "semantic_change_after_freeze": "INVALIDATES_FREEZE_AND_REQUIRES_NEW_DESIGN_REVIEW",
+    "schema_construction_may_add_semantics": false,
+    "schema_construction_may_weaken_semantics": false,
+    "schema_construction_may_make_authority_bearing_fields_optional": false,
+    "schema_construction_must_use_closed_enums_where_semantics_are_closed": true,
+    "schema_construction_must_use_discriminated_unions_for_variant_authority_states": true,
+    "canonical_serialization_required": true,
+    "explicit_schema_version_required": true,
+    "unknown_authority_fields_default": "REJECT",
+    "missing_authority_fields_default": "REJECT",
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false
+  },
+  "next_gate": "EXECUTABLE_SCHEMA_CONSTRUCTION_AND_MECHANICAL_EQUIVALENCE_CHECK"
+}
