@@ -1,0 +1,117 @@
+{
+  "schema": "r8-v14-normalized-blind-review-bundle/v1",
+  "status": "REVIEW_ONLY_DESIGN_ONLY_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "current_candidate": {
+    "source_commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+    "review_request_commit": "c2ba386d64bc43056aeee6a18bce779499299780",
+    "review_request_blob": "d8df4565c99e3d3e7065785241bfa2a064f86486",
+    "normalized_subject_blob": "9bc63d2c2b3b58a7f49cdbf740a69ac36cfa9b59"
+  },
+  "reviewer_basis": "normalized-current-design-only",
+  "required_artifacts": [
+    {
+      "id": "normalized_effective_spec_blind",
+      "path": "review-packets/R8-V14-NORMALIZED-EFFECTIVE-SPEC-BLIND.md",
+      "role": "primary_review_subject",
+      "commit": "3c0e082d0af44972b553c4017e8ea632d58c8a24",
+      "blob": "9bc63d2c2b3b58a7f49cdbf740a69ac36cfa9b59",
+      "required": true
+    },
+    {
+      "id": "normalized_detail_appendix",
+      "path": "governance-r8/R8-V14-NORMALIZED-DETAIL-APPENDIX.md",
+      "role": "semantic_detail",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "9b108075861e8675888c8fe03bc4d20a647e4a19",
+      "required": true
+    },
+    {
+      "id": "dependency_evaluation_ownership_matrices",
+      "path": "governance-r8/R8-V14-NCG-1-MATRICES.md",
+      "role": "dependency_and_order_evidence",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "f854876a9b06bac449b613465a63272dee3d68c5",
+      "required": true
+    },
+    {
+      "id": "cross_mechanism_cases",
+      "path": "governance-r8/R8-V14-NCG-1-CROSS-MECHANISM-CASES.md",
+      "role": "adversarial_interaction_corpus",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "5589830e18b649ab59eb3e4eaa94657bcf144001",
+      "required": true
+    },
+    {
+      "id": "structured_closure_graph",
+      "path": "governance-r8/R8-V14-NCG-1-STRUCTURED-CLOSURE.json",
+      "role": "dependency_graph_and_ownership",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "13b446a02c678f1228f36b2d9569a8766c27cb72",
+      "required": true
+    },
+    {
+      "id": "guard_registry",
+      "path": "governance-r8/R8-V14-GUARD-REGISTRY-1.json",
+      "role": "guard_identity",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "f1f7a0afde877b5912a39ef3cec6430177ad4a59",
+      "required": true
+    },
+    {
+      "id": "case_registry",
+      "path": "governance-r8/R8-V14-CASE-REGISTRY-1.json",
+      "role": "case_identity",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "f14a402c6fd9ec58eba33bc3808a06adf1a35fa8",
+      "required": true
+    },
+    {
+      "id": "srtt_total_table",
+      "path": "governance-r8/R8-V14-SRTT-3-TOTAL-TABLE.json",
+      "role": "scope_replacement_total_table",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "866cc96088ffcd3c424fc745763f5ff3be1b29b7",
+      "required": true
+    },
+    {
+      "id": "bsp4_grammar",
+      "path": "governance-r8/R8-V14-BSP-4-GRAMMAR.json",
+      "role": "blind_projection_grammar",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "92393cc343ea135a4a8ffaca48c9c3896a5432e1",
+      "required": true
+    },
+    {
+      "id": "traceability_manifest",
+      "path": "governance-r8/R8-V14-NCG-1-TRACEABILITY-MANIFEST.json",
+      "role": "source_traceability",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "c2cf0c9d2ba2cc9a0a4941132eef8372e1647bc5",
+      "required": true
+    },
+    {
+      "id": "guard_omission_manifest",
+      "path": "governance-r8/R8-V14-GUARD-OMISSION-MANIFEST-1.json",
+      "role": "legacy_guard_table_omission_trace",
+      "commit": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+      "blob": "2cce56c61cd25d1d44b2cfee75f20ac553fdc76b",
+      "required": true
+    }
+  ],
+  "excluded_internal_outcome_artifacts": [
+    "governance-r8/R8-V14-NCG-1-CLOSURE-REPORT.md",
+    "governance-r8/R8-V14-NCG-1-CLOSURE-CHECKS.json",
+    "governance-r8/R8-V14-NCG-1-RECOMPUTED-VERIFICATION.json"
+  ],
+  "exclusion_reason": "Internal normalization dispositions/results are excluded so the independent reviewer evaluates the normalized design and raw structures without anchoring on the internal PASS.",
+  "historical_external_reviews_included": false,
+  "prior_adjudications_included": false,
+  "prior_dispositions_included": false,
+  "pdf_projection_status": "NOT_USED",
+  "authoritative_reviewer_surfaces": [
+    "TXT",
+    "MD",
+    "JSON"
+  ]
+}
