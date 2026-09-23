@@ -746,11 +746,836 @@
           }
         }
       ]
+    },
+    "T0SuccessorManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "constitution_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854776000
+        },
+        "predecessor_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bootstrap_authorization_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "btw_consistency_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "mtr_reservation_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "signer_canonical_subject_ids": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        },
+        "signer_admin_domain_ids": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        }
+      },
+      "required": [
+        "constitution_id",
+        "generation",
+        "predecessor_manifest_digest",
+        "manifest_digest",
+        "bootstrap_authorization_digest",
+        "btw_consistency_digest",
+        "mtr_reservation_digest",
+        "signer_canonical_subject_ids",
+        "signer_admin_domain_ids"
+      ],
+      "x-validator-invariants": [
+        "successor generation exactly predecessor+1",
+        "4-of-5 active EBA across at least 3 active admin domains",
+        "new/reactivated admin domain cannot sign manifest that creates/reactivates it"
+      ]
+    },
+    "MTRChallenge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "challenge_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "verifier_instance_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "trust_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "purpose_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "expected_min_t0_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "expected_min_btw_tree_size": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "expected_min_eba_revocation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "local_monotonic_issuance_tick": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "challenge_256bit_hex",
+        "verifier_instance_id",
+        "trust_domain_id",
+        "purpose_class",
+        "expected_min_t0_generation",
+        "expected_min_btw_tree_size",
+        "expected_min_eba_revocation_sequence",
+        "local_monotonic_issuance_tick"
+      ]
+    },
+    "MTRResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "challenge_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "verifier_instance_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "trust_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "purpose_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "t0_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "t0_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "btw_tree_size": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "btw_root_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "eba_revocation_high_water": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "t0_domain_lifecycle_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "mtr_response_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "mtr_configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "response_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "challenge_256bit_hex",
+        "verifier_instance_id",
+        "trust_domain_id",
+        "purpose_class",
+        "t0_generation",
+        "t0_manifest_digest",
+        "btw_tree_size",
+        "btw_root_hash",
+        "eba_revocation_high_water",
+        "t0_domain_lifecycle_sequence",
+        "mtr_response_sequence",
+        "mtr_configuration_generation",
+        "response_digest"
+      ],
+      "x-validator-invariants": [
+        "exact challenge/context match",
+        "live challenge accepted once",
+        "max authority-bearing response age 30 verifier-monotonic seconds",
+        "all high-water values meet challenge minima"
+      ]
+    },
+    "BTWVerificationState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tree_size": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "root_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "consistency_proof_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "t0_pinned_witness_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "tree_size",
+        "root_hash",
+        "consistency_proof_digest",
+        "t0_pinned_witness_policy_digest"
+      ],
+      "x-validator-invariants": [
+        "tree size cannot decrease",
+        "same tree size with different root is BTW_EQUIVOCATION"
+      ]
+    },
+    "CanonicalIdentityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "canonical_subject_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "controller_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "admin_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "canonical_subject_id",
+        "controller_id",
+        "admin_domain_id",
+        "lifecycle_state",
+        "effective_sequence"
+      ]
+    },
+    "RevocationEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subject_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "event_type": {
+          "enum": [
+            "REVOKE",
+            "UNREVOKE"
+          ]
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "event_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "subject_id",
+        "event_type",
+        "effective_sequence",
+        "event_digest"
+      ],
+      "x-validator-invariants": [
+        "append-only history",
+        "UNREVOKE does not erase prior revoked interval"
+      ]
+    },
+    "GGSHardState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "highest_seen_term": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "vote_for_current_term": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "highest_committed_genesis_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "last_committed_genesis_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "constitution_namespace_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bootstrap_authorization_state_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "highest_seen_term",
+        "vote_for_current_term",
+        "highest_committed_genesis_index",
+        "last_committed_genesis_digest",
+        "constitution_namespace_root",
+        "bootstrap_authorization_state_root",
+        "configuration_generation"
+      ]
+    },
+    "LASHardState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "highest_seen_term": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "vote_for_current_term": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "highest_committed_log_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "highest_applied_log_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "last_committed_entry_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "stream_head_map_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "idempotency_ledger_root_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "highest_seen_term",
+        "vote_for_current_term",
+        "highest_committed_log_index",
+        "highest_applied_log_index",
+        "last_committed_entry_digest",
+        "configuration_generation",
+        "stream_head_map_digest",
+        "idempotency_ledger_root_digest"
+      ]
+    },
+    "LASAuthorityStateRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_state_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "state_root_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "semantic_state_sequence",
+        "semantic_heads",
+        "state_root_digest"
+      ],
+      "x-validator-invariants": [
+        "semantic_state_sequence is derived from current committed LAS state and never caller-selected"
+      ]
+    },
+    "AIMDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "descriptor_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "decision_scope_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "source_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "aim_scope_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "specificity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "retirement_or_revocation_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "descriptor_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "descriptor_id",
+        "semantic_input_id",
+        "semantic_class",
+        "decision_scope_digest",
+        "source_lineage_id",
+        "aim_scope_policy_id",
+        "resolver_policy_id",
+        "specificity",
+        "activation_sequence",
+        "retirement_or_revocation_sequence",
+        "lifecycle_state",
+        "descriptor_digest"
+      ]
+    },
+    "ScopePermissionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "permission_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "scope_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "activation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "retirement_or_revocation_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "permission_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "permission_id",
+        "scope_digest",
+        "activation_sequence",
+        "retirement_or_revocation_sequence",
+        "lifecycle_state",
+        "permission_digest"
+      ]
+    },
+    "ResolverPolicyContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolver_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "lineage_start_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "candidate_construction_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "specificity_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "lifecycle_error_precedence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "mapping_traversal_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "replacement_evaluation_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "any_validation_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "fallback_prohibition_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "resolver_policy_id",
+        "lineage_start_rule_digest",
+        "candidate_construction_rule_digest",
+        "specificity_rule_digest",
+        "lifecycle_error_precedence_digest",
+        "mapping_traversal_rule_digest",
+        "replacement_evaluation_rule_digest",
+        "any_validation_rule_digest",
+        "fallback_prohibition_rule_digest",
+        "conformance_suite_id",
+        "resolver_policy_digest"
+      ]
+    },
+    "ResolverImplementationRegistryRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rir_record_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "activation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "retirement_or_revocation_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "freshness_profile_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "record_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "rir_record_id",
+        "resolver_policy_digest",
+        "implementation_id",
+        "runtime_identity_digest",
+        "workload_identity_digest",
+        "conformance_suite_digest",
+        "activation_sequence",
+        "retirement_or_revocation_sequence",
+        "lifecycle_state",
+        "freshness_profile_id",
+        "record_digest"
+      ]
+    },
+    "ResolverConformanceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rir_record_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "registry_head_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "freshness_profile_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "EXPIRED",
+            "UNAVAILABLE"
+          ]
+        },
+        "evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "rir_record_id",
+        "resolver_policy_digest",
+        "implementation_id",
+        "runtime_identity_digest",
+        "workload_identity_digest",
+        "conformance_suite_digest",
+        "registry_head_digest",
+        "freshness_profile_id",
+        "status",
+        "evidence_digest"
+      ],
+      "x-validator-invariants": [
+        "only current PASS evidence for the exact authorized tuple can qualify resolver",
+        "cached/stale prior PASS cannot substitute during outage"
+      ]
+    },
+    "SemanticEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "scope_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "specificity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "activation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "retirement_or_revocation_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "successor_link_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        }
+      },
+      "required": [
+        "semantic_entry_id",
+        "semantic_input_id",
+        "semantic_class",
+        "lineage_id",
+        "scope_digest",
+        "specificity",
+        "rule_digest",
+        "activation_sequence",
+        "retirement_or_revocation_sequence",
+        "lifecycle_state",
+        "successor_link_ids"
+      ]
+    },
+    "SemanticLineageMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mapping_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "destination_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "mapping_effective": {
+          "type": "boolean"
+        },
+        "mapping_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "mapping_id",
+        "source_lineage_id",
+        "destination_lineage_id",
+        "mapping_effective",
+        "mapping_digest"
+      ]
+    },
+    "ReviewAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reviewer_canonical_subject_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "reviewer_admin_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "candidate_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "governance_snapshot_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "packet_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "attestation_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "reviewer_canonical_subject_id",
+        "reviewer_admin_domain_id",
+        "candidate_digest",
+        "governance_snapshot_digest",
+        "packet_digest",
+        "attestation_digest"
+      ],
+      "x-validator-invariants": [
+        "reviewer must be independent from proposer under canonical identity/domain rules"
+      ]
+    },
+    "EvidenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "evidence_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "producer_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "input_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "output_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "evidence_class",
+        "producer_identity_digest",
+        "runtime_identity_digest",
+        "input_digest",
+        "output_digest",
+        "effective_sequence",
+        "evidence_digest"
+      ],
+      "x-validator-invariants": [
+        "rewrapping/copying cannot upgrade evidence class",
+        "producer revocation evaluated temporally",
+        "mandatory missing/contradictory evidence blocks promotion"
+      ]
     }
   },
   "x-governance-source": [
+    "NORM-003..NORM-010",
     "NORM-011..NORM-016",
-    "NORM-024..NORM-027",
-    "NORM-030..NORM-039"
+    "NORM-017..NORM-027",
+    "NORM-028..NORM-039"
   ]
 }
