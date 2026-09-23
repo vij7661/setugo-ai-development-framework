@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/ncg-structured-closure.schema.json",
+  "title": "R8 v15-r1 NCG Structured Closure",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "dependency_nodes": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dependency_edges": {
+      "type": "array",
+      "minItems": 29,
+      "maxItems": 29,
+      "uniqueItems": true,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "prefixItems": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "string",
+            "minLength": 1
+          }
+        ],
+        "items": false
+      }
+    },
+    "evaluation_order": {
+      "type": "array",
+      "minItems": 21,
+      "maxItems": 21,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "ownership": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "prefixItems": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "string",
+            "minLength": 1
+          }
+        ],
+        "items": false
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_count": {
+          "const": 18
+        },
+        "edge_count": {
+          "const": 29
+        },
+        "dependency_acyclic": {
+          "const": true
+        },
+        "topological_order": {
+          "type": "array",
+          "minItems": 18,
+          "maxItems": 18,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "evaluation_stage_count": {
+          "const": 21
+        },
+        "ownership_class_count": {
+          "const": 18
+        },
+        "duplicate_ownership_classes": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "edge_semantics_declared": {
+          "const": true
+        }
+      },
+      "required": [
+        "node_count",
+        "edge_count",
+        "dependency_acyclic",
+        "topological_order",
+        "evaluation_stage_count",
+        "ownership_class_count",
+        "duplicate_ownership_classes",
+        "edge_semantics_declared"
+      ]
+    },
+    "edge_semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "DIRECT_AUTHORITY_RELEVANT_CONSUMPTION_OR_PRECONDITION"
+        },
+        "transitive_closure_edges_omitted": {
+          "const": true
+        },
+        "source_matrix": {
+          "const": "governance-r8/R8-V15-NCG-1-MATRICES.md"
+        },
+        "hand_added_untraceable_edges_forbidden": {
+          "const": true
+        }
+      },
+      "required": [
+        "kind",
+        "transitive_closure_edges_omitted",
+        "source_matrix",
+        "hand_added_untraceable_edges_forbidden"
+      ]
+    },
+    "reviewer_suggested_edge_disposition": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "v15_closure_assertions": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "dependency_nodes",
+    "dependency_edges",
+    "evaluation_order",
+    "ownership",
+    "verification",
+    "edge_semantics",
+    "reviewer_suggested_edge_disposition",
+    "v15_closure_assertions"
+  ],
+  "x-governance-source": [
+    "NORM-043"
+  ]
+}
