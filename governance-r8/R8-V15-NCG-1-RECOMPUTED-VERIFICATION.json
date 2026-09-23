@@ -1,0 +1,321 @@
+{
+  "schema": "r8-v15-ncg-1-recomputed-verification/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "candidate_branch": "governance/r8-meta-governance-v15",
+  "candidate_source_commit": "48bef766eb89be8c58968cf9ebd07959d3130b3f",
+  "checked_artifacts": {
+    "rules": {
+      "path": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+      "blob": "a8319b369440e0c24f9080ccf37103f7d620e8c1"
+    },
+    "table": {
+      "path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "blob": "f94451e345954a399c59a5a94943f58a14315579"
+    },
+    "guards": {
+      "path": "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+      "blob": "c8bb2bff87ee07296f11e53eb9ddaa411614655d"
+    },
+    "cases": {
+      "path": "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+      "blob": "0bf4f88cf424604cf4c690774c7c65e41a4f7b79"
+    },
+    "omission": {
+      "path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+      "blob": "01f4f9269cd2ef896c275da3800350450efad689"
+    },
+    "bsp": {
+      "path": "governance-r8/R8-V15-BSP-5-GRAMMAR.json",
+      "blob": "b295ac778e7ec4cf4080127ea9c7046c8ec57a6f"
+    },
+    "closure": {
+      "path": "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+      "blob": "d9fb03fad2b591d22a125cff5f5c0ea72ad95bba"
+    },
+    "cross": {
+      "path": "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md",
+      "blob": "6ded08ed976742af27e5ecb820aa7bff86003560"
+    },
+    "trace": {
+      "path": "governance-r8/R8-V15-NCG-1-TRACEABILITY-MANIFEST.json",
+      "blob": "cf8b8ceba2508b5927a92e19a79398df94560b53"
+    },
+    "spec": {
+      "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
+      "blob": "a0a97ade8b4d71e602160dc471327488d90dc6ae"
+    },
+    "matrices": {
+      "path": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+      "blob": "5fa161946720915ec10e0dfd51330a026a40c912"
+    },
+    "detail": {
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "blob": "63cab7bd5d50bdcf3fc420d6320ba276ea2f7cac"
+    }
+  },
+  "check_count": 22,
+  "pass_count": 22,
+  "fail_count": 0,
+  "checks": [
+    {
+      "id": "SRTT_FIXED_DOMAIN",
+      "status": "PASS",
+      "evidence": {
+        "table": {
+          "source_entry_state": "REVOKED"
+        },
+        "rules": {
+          "source_entry_state": "REVOKED"
+        }
+      }
+    },
+    {
+      "id": "SRTT_ROW_COUNT",
+      "status": "PASS",
+      "evidence": {
+        "declared": 2304,
+        "actual": 2304
+      }
+    },
+    {
+      "id": "SRTT_UNIQUE_TUPLES",
+      "status": "PASS",
+      "evidence": {
+        "unique": 2304,
+        "duplicates": 0
+      }
+    },
+    {
+      "id": "SRTT_RULE_REFS_DECLARED",
+      "status": "PASS",
+      "evidence": {
+        "undefined_rule_ids": [],
+        "declared_rule_count": 11
+      }
+    },
+    {
+      "id": "SRTT_FULL_RECOMPUTATION",
+      "status": "PASS",
+      "evidence": {
+        "mismatch_count": 0,
+        "first_mismatches": []
+      }
+    },
+    {
+      "id": "SRTT_DISTRIBUTION_RECOMPUTED",
+      "status": "PASS",
+      "evidence": {
+        "computed": {
+          "SEMANTIC_SCOPE_REVOKED": 1808,
+          "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED": 288,
+          "MAPPING_NOT_APPLICABLE": 144,
+          "REPLACEMENT_ELIGIBLE": 22,
+          "SEMANTIC_SCOPE_REPLACEMENT_INVALID": 42
+        },
+        "declared": {
+          "SEMANTIC_SCOPE_REVOKED": 1808,
+          "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED": 288,
+          "MAPPING_NOT_APPLICABLE": 144,
+          "REPLACEMENT_ELIGIBLE": 22,
+          "SEMANTIC_SCOPE_REPLACEMENT_INVALID": 42
+        }
+      }
+    },
+    {
+      "id": "SRTT_MAPPED_EXACT_BROADER_POSITIVE_CONTROL",
+      "status": "PASS",
+      "evidence": {
+        "row1888": {
+          "row_id": 1888,
+          "input": {
+            "source_entry_state": "REVOKED",
+            "old_scope_match": "EXACT_MATCH",
+            "destination_scope_match": "EXACT_MATCH",
+            "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+            "scope_relation": "BROADER",
+            "any_permission_valid": true,
+            "mapping_effective": true,
+            "lineage_mapping_valid": true,
+            "scope_expansion_authorized": true,
+            "decision_inside_authorized_expansion_domain": true
+          },
+          "result": "REPLACEMENT_ELIGIBLE",
+          "decisive_rule_id": "SRTT15-R10"
+        }
+      }
+    },
+    {
+      "id": "GUARD_CONTIGUOUS_G001_G156",
+      "status": "PASS",
+      "evidence": {
+        "count": 156,
+        "first": "G001",
+        "last": "G156"
+      }
+    },
+    {
+      "id": "CASE_IDS_UNIQUE",
+      "status": "PASS",
+      "evidence": {
+        "count": 467,
+        "unique": 467
+      }
+    },
+    {
+      "id": "ALL_GUARD_CASES_PRESENT",
+      "status": "PASS",
+      "evidence": {
+        "missing": []
+      }
+    },
+    {
+      "id": "OMISSION_V4_RANGE_EXPANDED",
+      "status": "PASS",
+      "evidence": {
+        "required": [
+          "V4-024",
+          "V4-025",
+          "V4-026",
+          "V4-027",
+          "V4-028",
+          "V4-029",
+          "V4-030"
+        ],
+        "present": [
+          "V4-024",
+          "V4-025",
+          "V4-026",
+          "V4-027",
+          "V4-028",
+          "V4-029",
+          "V4-030"
+        ]
+      }
+    },
+    {
+      "id": "OMISSION_SOURCE_REPARSE_ALL_EQUAL",
+      "status": "PASS",
+      "evidence": {
+        "method": "reparse exact canonical source line ranges; expand inclusive Vn-xxx..Vn-yyy case ranges; compare exact explicit sets",
+        "omitted_table_count": 11,
+        "all_case_sets_equal": true,
+        "all_guard_sets_equal": true,
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "BSP_EXACT_CURRENT_STATUS_BLOCK",
+      "status": "PASS",
+      "evidence": {
+        "binding": {
+          "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+          "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+          "exact_block_count": 1,
+          "version_must_equal_current_candidate_version": true,
+          "nested_blocks_forbidden": true,
+          "unterminated_block_result": "REVIEW_PACKET_INCOMPLETE",
+          "multiple_blocks_result": "REVIEW_PACKET_INCOMPLETE",
+          "mismatched_version_result": "REVIEW_PACKET_INCOMPLETE"
+        },
+        "current_candidate_version": 15
+      }
+    },
+    {
+      "id": "BSP_SEMANTIC_TEST_STATES_EXACT",
+      "status": "PASS",
+      "evidence": {
+        "allowed_states": [
+          "CASE_SECTION",
+          "GUARD_RECORD_SECTION",
+          "FENCED_SEMANTIC_TEST_DATA"
+        ],
+        "ordinary_prose_status_token_is_semantic_test_literal": false
+      }
+    },
+    {
+      "id": "DEPENDENCY_GRAPH_DIRECT_SEMANTICS",
+      "status": "PASS",
+      "evidence": {
+        "kind": "DIRECT_AUTHORITY_RELEVANT_CONSUMPTION_OR_PRECONDITION",
+        "transitive_closure_edges_omitted": true,
+        "source_matrix": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+        "hand_added_untraceable_edges_forbidden": true
+      }
+    },
+    {
+      "id": "DEPENDENCY_GRAPH_ACYCLIC",
+      "status": "PASS",
+      "evidence": {
+        "unknown_edges": [],
+        "topological_order": [
+          "T0_MTR_BTW",
+          "AIEP_AIG",
+          "CanonicalIdentity",
+          "GGS3",
+          "LAS3",
+          "Revocation",
+          "RotationBarrier_STC",
+          "CSM5",
+          "AIM4",
+          "ResolverPolicy",
+          "RIR2",
+          "Review_Guard_NCG",
+          "RCS2",
+          "CSRULE_SRTT_SREP",
+          "AuthorityReadSet",
+          "DPS_Time",
+          "VerifiedStateSeal_Commit",
+          "ExternalEffect"
+        ]
+      }
+    },
+    {
+      "id": "CROSS_MECHANISM_X15_043_053_PRESENT",
+      "status": "PASS",
+      "evidence": {
+        "missing": []
+      }
+    },
+    {
+      "id": "TRACEABILITY_COMPLETE",
+      "status": "PASS",
+      "evidence": {
+        "rule_count": 43,
+        "missing": [],
+        "untraced": []
+      }
+    },
+    {
+      "id": "NORMALIZED_SPEC_SRTT4_EXPLICIT",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    },
+    {
+      "id": "NORMALIZED_SPEC_MULTI_REVOKED_EXPLICIT",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    },
+    {
+      "id": "NORMALIZED_SPEC_FAIL_CLOSED_LIVENESS",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    },
+    {
+      "id": "MATRIX_DIRECT_EDGE_CONTRACT",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    }
+  ],
+  "result": "STRUCTURAL_RECOMPUTATION_PASS",
+  "packet_projection_status": "PENDING",
+  "ncg_gate_status": "READY_FOR_PACKET_PROJECTION_CHECK"
+}
