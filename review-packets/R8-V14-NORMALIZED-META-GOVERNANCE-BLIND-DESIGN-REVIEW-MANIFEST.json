@@ -1,0 +1,75 @@
+{
+  "schema": "r8-v14-normalized-review-projection/v1",
+  "status": "REVIEW_ONLY_DESIGN_ONLY_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "current_candidate": {
+    "version": 14,
+    "design_blob": "77de9d4cc0a8ac94dad96cb51e01facbcfe0b5e0",
+    "normalized_spec_blob": "7524ae40ffa4e0c27fbe175fc104496e61a37cb9"
+  },
+  "authoritative_surface": "MAIN_TXT_PLUS_REQUIRED_SUPPORT_JSON",
+  "projected_body_sha256": "a74faa0b0ba2d8bbd2ad7e4bc09edcd3cd488a0477e870791c3ddbab55875510",
+  "residual_scan": "PASS",
+  "semantic_literal_contexts": [
+    "NCG cross-mechanism adversarial corpus",
+    "BSP-4 grammar"
+  ],
+  "embedded_artifacts": {
+    "reviewer_prompt": {
+      "path": "review-requests/R8-V14-NORMALIZED-META-GOVERNANCE-DESIGN-INDEPENDENT-REVIEW.md",
+      "blob": "86fba7489073d1602396ea3f868d9122dd7d9441"
+    },
+    "normalized_spec": {
+      "path": "governance-r8/R8-V14-NORMALIZED-EFFECTIVE-SPEC.md",
+      "blob": "7524ae40ffa4e0c27fbe175fc104496e61a37cb9"
+    },
+    "detail_appendix": {
+      "path": "governance-r8/R8-V14-NORMALIZED-DETAIL-APPENDIX.md",
+      "blob": "9b108075861e8675888c8fe03bc4d20a647e4a19"
+    },
+    "matrices": {
+      "path": "governance-r8/R8-V14-NCG-1-MATRICES.md",
+      "blob": "f854876a9b06bac449b613465a63272dee3d68c5"
+    },
+    "cross_mechanism_cases": {
+      "path": "governance-r8/R8-V14-NCG-1-CROSS-MECHANISM-CASES.md",
+      "blob": "5589830e18b649ab59eb3e4eaa94657bcf144001"
+    },
+    "bsp_grammar": {
+      "path": "governance-r8/R8-V14-BSP-4-GRAMMAR.json",
+      "blob": "92393cc343ea135a4a8ffaca48c9c3896a5432e1"
+    },
+    "trace_manifest": {
+      "path": "governance-r8/R8-V14-NCG-1-TRACEABILITY-MANIFEST.json",
+      "blob": "c2cf0c9d2ba2cc9a0a4941132eef8372e1647bc5"
+    },
+    "guard_omission_manifest": {
+      "path": "governance-r8/R8-V14-GUARD-OMISSION-MANIFEST-1.json",
+      "blob": "2cce56c61cd25d1d44b2cfee75f20ac553fdc76b"
+    },
+    "ncg_checks": {
+      "path": "governance-r8/R8-V14-NCG-1-CLOSURE-CHECKS.json",
+      "blob": "0a8bb835cbc9cd1595d4d109e81e40eac8b0be02"
+    }
+  },
+  "required_support_artifacts": {
+    "GuardRegistry_1": {
+      "path": "governance-r8/R8-V14-GUARD-REGISTRY-1.json",
+      "blob": "f1f7a0afde877b5912a39ef3cec6430177ad4a59",
+      "records": 148
+    },
+    "CaseRegistry_1": {
+      "path": "governance-r8/R8-V14-CASE-REGISTRY-1.json",
+      "blob": "f14a402c6fd9ec58eba33bc3808a06adf1a35fa8",
+      "cases": 442
+    },
+    "SRTT_3_total_table": {
+      "path": "governance-r8/R8-V14-SRTT-3-TOTAL-TABLE.json",
+      "blob": "cdee79ef09a38e8d2ff336806b109925cea7af26",
+      "rows": 2304
+    }
+  },
+  "pdf_projection_status": "NOT_USED",
+  "packet_git_commit": "61145003d425a3b15024e414f5c560403d307afa",
+  "packet_git_blob": "74e521b6a1073909f7884d66c611d60d98648c56"
+}
