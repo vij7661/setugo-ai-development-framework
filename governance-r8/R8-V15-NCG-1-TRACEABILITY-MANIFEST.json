@@ -3,9 +3,9 @@
   "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
   "normalized_spec": {
-    "branch": "governance/r8-meta-governance-v15",
+    "branch": "governance/r8-meta-governance-v15-r1",
     "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
-    "blob": "a0a97ade8b4d71e602160dc471327488d90dc6ae"
+    "blob": "03b408d2f3c5b1de2ce65136923a079ccda83370"
   },
   "rule_count": 43,
   "missing_rules": [],
@@ -214,7 +214,7 @@
     {
       "rule_id": "NORM-041",
       "title": "authoritative review surface",
-      "trace": "v12 BSP-2; v13 BSP-3; v14 BSP-4; v15 BSP-5 I010-I013 explicit current-status binding."
+      "trace": "v12 BSP-2; v13 BSP-3; v14 BSP-4; v15 BSP-5 I010-I013; v15-r1 explicit marked adversarial-corpus semantic-test section."
     },
     {
       "rule_id": "NORM-042",
@@ -229,7 +229,7 @@
   ],
   "v15_preregistration": {
     "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V15.md",
-    "blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    "blob": "97dc1ef49697ad4e24149b1ccdb362a0096c4b16"
   },
   "v15_companions": [
     "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
@@ -241,5 +241,12 @@
     "governance-r8/R8-V15-NCG-1-MATRICES.md",
     "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
     "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md"
-  ]
+  ],
+  "v15_r1_repair": {
+    "reason": "first packet-projection falsification exposed adversarial corpus status-literal context not explicitly represented in BSP-5",
+    "bsp5_blob": "51277cbce825236e387b83392b927dd5263007b2",
+    "normalized_spec_blob": "03b408d2f3c5b1de2ce65136923a079ccda83370",
+    "preregistration_blob": "97dc1ef49697ad4e24149b1ccdb362a0096c4b16",
+    "preserved_failed_projection_branch": "packaging/r8-v15-review-bundle-2026-09-23"
+  }
 }
