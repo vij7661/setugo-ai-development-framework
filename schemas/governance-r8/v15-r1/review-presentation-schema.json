@@ -1,0 +1,158 @@
+{
+  "schema": "r8-v15-r1-rps-1/v1",
+  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "unknown_display_field_default": "REVIEW_SEMANTIC",
+  "packet_types": [
+    {
+      "packet_type_id": "R8_V15_R1_EXECUTABLE_SCHEMA_BLIND_REVIEW",
+      "ordering_semantic": true,
+      "evidence_association_semantic": true,
+      "fields": [
+        {
+          "field_id": "review_mode",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-028",
+            "NORM-041"
+          ]
+        },
+        {
+          "field_id": "authority_effect",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-002",
+            "NORM-041"
+          ]
+        },
+        {
+          "field_id": "semantic_candidate_commit",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-028",
+            "NORM-041"
+          ]
+        },
+        {
+          "field_id": "executable_schema_candidate_commit",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "R8V7-I038",
+            "schema-freeze preregistration"
+          ]
+        },
+        {
+          "field_id": "review_contract_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-028",
+            "NORM-041"
+          ]
+        },
+        {
+          "field_id": "normalized_semantic_source_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-028",
+            "NORM-041"
+          ]
+        },
+        {
+          "field_id": "schema_artifact_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "R8V7-I038",
+            "schema-freeze preregistration"
+          ]
+        },
+        {
+          "field_id": "validator_contract_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "R8V7-I038",
+            "schema-freeze preregistration"
+          ]
+        },
+        {
+          "field_id": "traceability_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "R8V7-I038",
+            "R8V7-I030"
+          ]
+        },
+        {
+          "field_id": "source_machine_artifact_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-028",
+            "NORM-041"
+          ]
+        },
+        {
+          "field_id": "section_separator",
+          "classification": "DISPLAY_NON_SEMANTIC",
+          "conditions": [
+            "must encode no status, severity, identity, evidence quality, ordering priority, recommendation, or substantive claim",
+            "changing separator glyphs must not change section ordering or evidence association"
+          ],
+          "source_rules": [
+            "R8V7-I039"
+          ]
+        }
+      ]
+    },
+    {
+      "packet_type_id": "R8_V15_R1_TARGETED_EVIDENCE_CLOSURE",
+      "ordering_semantic": true,
+      "evidence_association_semantic": true,
+      "fields": [
+        {
+          "field_id": "closure_contract_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-028",
+            "NORM-042"
+          ]
+        },
+        {
+          "field_id": "guard_omission_manifest_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-042"
+          ]
+        },
+        {
+          "field_id": "guard_omission_source_evidence_text",
+          "classification": "REVIEW_SEMANTIC",
+          "conditions": [],
+          "source_rules": [
+            "NORM-042"
+          ]
+        },
+        {
+          "field_id": "section_separator",
+          "classification": "DISPLAY_NON_SEMANTIC",
+          "conditions": [
+            "must not alter section ordering or evidence association"
+          ],
+          "source_rules": [
+            "R8V7-I039"
+          ]
+        }
+      ]
+    }
+  ]
+}
