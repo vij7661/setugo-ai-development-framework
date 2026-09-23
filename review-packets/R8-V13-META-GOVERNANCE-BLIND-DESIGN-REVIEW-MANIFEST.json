@@ -1,0 +1,95 @@
+{
+  "schema": "r8-v13-bsp3-projection/v1",
+  "bsp_version": "BSP-3",
+  "current_candidate_version": 13,
+  "authoritative_review_surface": "TXT",
+  "current_candidate": {
+    "commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+    "blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+  },
+  "guard_registry": {
+    "commit": "84bb9abe04debbcc441580871a74f641d6e30eb2",
+    "blob": "baeff37ecbc878a20a84970cd2c058bb052845b9",
+    "range": "G001-G140",
+    "record_count": 140
+  },
+  "packet": {
+    "git_commit": "5b42565eae91edcd6105434b9c0a297749f28233",
+    "git_blob": "257212123dfad08cb94c5f03ed3f7a03cc3a21fb"
+  },
+  "residual_prior_outcome_scan": "PASS",
+  "residual_legacy_guard_table_scan": "PASS",
+  "pdf_projection_status": "NOT_USED",
+  "sources": [
+    {
+      "version": "v4",
+      "commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "blob": "8597233a08c77c0ab928868eaec4c13c425a2eac",
+      "removed_prior_outcome_records": 12,
+      "removed_legacy_guard_table_records": 27
+    },
+    {
+      "version": "v5",
+      "commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b",
+      "removed_prior_outcome_records": 20,
+      "removed_legacy_guard_table_records": 19
+    },
+    {
+      "version": "v6",
+      "commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "blob": "4604fc38859087f08f941f5bde023214876528cb",
+      "removed_prior_outcome_records": 14,
+      "removed_legacy_guard_table_records": 26
+    },
+    {
+      "version": "v7",
+      "commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "blob": "4bffae9907735862946e97ff9c608abf960078a8",
+      "removed_prior_outcome_records": 13,
+      "removed_legacy_guard_table_records": 85
+    },
+    {
+      "version": "v8",
+      "commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+      "removed_prior_outcome_records": 12,
+      "removed_legacy_guard_table_records": 12
+    },
+    {
+      "version": "v9",
+      "commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+      "removed_prior_outcome_records": 12,
+      "removed_legacy_guard_table_records": 10
+    },
+    {
+      "version": "v10",
+      "commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+      "removed_prior_outcome_records": 12,
+      "removed_legacy_guard_table_records": 10
+    },
+    {
+      "version": "v11",
+      "commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+      "removed_prior_outcome_records": 10,
+      "removed_legacy_guard_table_records": 12
+    },
+    {
+      "version": "v12",
+      "commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+      "removed_prior_outcome_records": 10,
+      "removed_legacy_guard_table_records": 15
+    },
+    {
+      "version": "v13",
+      "commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+      "removed_prior_outcome_records": 0,
+      "removed_legacy_guard_table_records": 0
+    }
+  ]
+}
