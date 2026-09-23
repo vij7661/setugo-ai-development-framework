@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/gcp-rvm-2.schema.json",
+  "title": "GCP Reference Vector Manifest 2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "gcp-rvm-2/v1"
+    },
+    "status": {
+      "const": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "canonical_vectors": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "$ref": "#/$defs/CanonicalVector"
+      },
+      "uniqueItems": true
+    },
+    "rejection_vectors": {
+      "type": "array",
+      "minItems": 14,
+      "items": {
+        "$ref": "#/$defs/RejectionVector"
+      },
+      "uniqueItems": true
+    },
+    "canonicalization_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "canonical_vectors",
+    "rejection_vectors",
+    "canonicalization_rules"
+  ],
+  "$defs": {
+    "CanonicalVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vector_id": {
+          "type": "string",
+          "pattern": "^GCP-RVM2-P\\d{2}$"
+        },
+        "input_representation": {
+          "type": "string"
+        },
+        "schema_context": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_canonical_utf8": {
+          "type": "string"
+        },
+        "expected_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "vector_id",
+        "input_representation",
+        "schema_context",
+        "expected_canonical_utf8",
+        "expected_sha256",
+        "source_rules"
+      ]
+    },
+    "RejectionVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vector_id": {
+          "type": "string",
+          "pattern": "^GCP-RVM2-R\\d{2}$"
+        },
+        "input_representation": {
+          "type": "string"
+        },
+        "schema_context": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_outcome": {
+          "const": "REJECT"
+        },
+        "expected_rejection_code": {
+          "type": "string",
+          "pattern": "^GCP_REJECT_[A-Z0-9_]+$"
+        },
+        "source_case_id": {
+          "type": "string",
+          "pattern": "^V\\d+-\\d{3}$"
+        },
+        "source_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "vector_id",
+        "input_representation",
+        "schema_context",
+        "expected_outcome",
+        "expected_rejection_code",
+        "source_case_id",
+        "source_rules"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V4-I026..I029",
+    "R8V5-I028..I034",
+    "R8V7 GCP rejection vectors",
+    "R8V8-I034..I035"
+  ],
+  "x-diagnostic-code-boundary": "GCP_REJECT_* labels identify frozen test-vector failure classes only; they do not grant or alter authority."
+}
