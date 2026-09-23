@@ -8,7 +8,7 @@
       "norm": "NORM-001",
       "schemas": [],
       "validators": [
-        "SFV-25"
+        "SFV-34"
       ],
       "note": "External trust boundary is protocol/trust assumption, not minted by schema."
     },
@@ -16,7 +16,9 @@
       "norm": "NORM-002",
       "schemas": [],
       "validators": [
-        "SFV-26"
+        "SFV-26",
+        "SFV-31",
+        "SFV-34"
       ],
       "note": "Authority default NONE is enforcement policy."
     },
@@ -26,7 +28,7 @@
         "runtime-contracts#T0SuccessorManifest"
       ],
       "validators": [
-        "SFV-12"
+        "SFV-27"
       ]
     },
     {
@@ -45,7 +47,7 @@
         "runtime-contracts#BTWVerificationState"
       ],
       "validators": [
-        "SFV-11"
+        "SFV-28"
       ]
     },
     {
@@ -82,7 +84,8 @@
         "runtime-contracts#StateTransferCertificate"
       ],
       "validators": [
-        "SFV-10"
+        "SFV-29",
+        "SFV-30"
       ]
     },
     {
@@ -93,7 +96,8 @@
         "runtime-contracts#StateTransferCertificate"
       ],
       "validators": [
-        "SFV-10"
+        "SFV-29",
+        "SFV-30"
       ]
     },
     {
@@ -102,7 +106,7 @@
         "runtime-contracts#StateTransferCertificate"
       ],
       "validators": [
-        "SFV-10"
+        "SFV-30"
       ]
     },
     {
@@ -111,7 +115,7 @@
         "runtime-contracts#StateTransferCertificate"
       ],
       "validators": [
-        "SFV-10"
+        "SFV-30"
       ]
     },
     {
@@ -129,7 +133,7 @@
         "runtime-contracts#CurrentSemanticModelBundle"
       ],
       "validators": [
-        "SFV-18"
+        "SFV-33"
       ]
     },
     {
@@ -139,7 +143,7 @@
         "runtime-contracts#LASAuthorityStateRoot"
       ],
       "validators": [
-        "SFV-20"
+        "SFV-33"
       ]
     },
     {
@@ -148,7 +152,7 @@
         "runtime-contracts#LASAuthorityStateRoot"
       ],
       "validators": [
-        "SFV-20"
+        "SFV-33"
       ]
     },
     {
@@ -232,7 +236,8 @@
         "runtime-contracts#SemanticResolvedResult"
       ],
       "validators": [
-        "SFV-19"
+        "SFV-19",
+        "SFV-31"
       ]
     },
     {
@@ -265,7 +270,7 @@
         "runtime-contracts#ReviewAttestation"
       ],
       "validators": [
-        "SFV-10"
+        "SFV-32"
       ],
       "note": "Review-visible field materiality is projection/checker obligation."
     },
@@ -275,7 +280,8 @@
         "runtime-contracts#ReviewAttestation"
       ],
       "validators": [
-        "SFV-12"
+        "SFV-12",
+        "SFV-32"
       ]
     },
     {
@@ -285,7 +291,8 @@
       ],
       "validators": [
         "SFV-20",
-        "SFV-26"
+        "SFV-26",
+        "SFV-31"
       ]
     },
     {
@@ -411,5 +418,6 @@
       ]
     }
   ],
-  "expected_norm_count": 43
+  "expected_norm_count": 43,
+  "validator_rule_count": 34
 }
