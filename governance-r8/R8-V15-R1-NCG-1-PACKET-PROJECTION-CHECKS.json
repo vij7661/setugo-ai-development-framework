@@ -1,0 +1,94 @@
+{
+  "schema": "r8-v15-r1-packet-projection-checks/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "candidate_source_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "packet_path": "governance-r8/R8-V15-R1-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt",
+  "packet_blob": "fb6f009ac23090a880859b4222f606e4cae642fe",
+  "packet_sha256": "5c5f819fd16d622d65e52723807b258445022ce07c93acef111e576c2aa92be5",
+  "check_count": 10,
+  "pass_count": 10,
+  "fail_count": 0,
+  "checks": [
+    {
+      "id": "STRUCTURAL_CURRENT_STATUS",
+      "status": "PASS",
+      "evidence": {
+        "begin": 1,
+        "end": 1
+      }
+    },
+    {
+      "id": "STRUCTURAL_SEMANTIC_TEST_SECTION",
+      "status": "PASS",
+      "evidence": {
+        "begin": 1,
+        "end": 1,
+        "malformed": []
+      }
+    },
+    {
+      "id": "NO_PRIOR_STATUS_OUTSIDE_TEST_CONTEXT",
+      "status": "PASS",
+      "evidence": {
+        "matches": []
+      }
+    },
+    {
+      "id": "NO_PRIOR_REVIEW_PATHS_OUTSIDE_TEST_CONTEXT",
+      "status": "PASS",
+      "evidence": {
+        "matches": []
+      }
+    },
+    {
+      "id": "EMBEDDED_MANIFESTS_PARSE",
+      "status": "PASS",
+      "evidence": {
+        "projection": true,
+        "omission": true
+      }
+    },
+    {
+      "id": "PROJECTION_DIGEST_REPRODUCES",
+      "status": "PASS",
+      "evidence": {
+        "expected": "ab176e4fc41854923aafa82e569132d54822036bdb6441543ffaeff74a01d50d",
+        "actual": "ab176e4fc41854923aafa82e569132d54822036bdb6441543ffaeff74a01d50d"
+      }
+    },
+    {
+      "id": "PROJECTION_SOURCE_DIGESTS_MATCH",
+      "status": "PASS",
+      "evidence": {
+        "mismatches": []
+      }
+    },
+    {
+      "id": "OMISSION_REVERIFY",
+      "status": "PASS",
+      "evidence": {
+        "method": "reparse exact canonical source line ranges; expand inclusive Vn-xxx..Vn-yyy case ranges; compare exact explicit sets",
+        "omitted_table_count": 11,
+        "all_case_sets_equal": true,
+        "all_guard_sets_equal": true,
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "REQUIRED_SECTIONS_PRESENT",
+      "status": "PASS",
+      "evidence": {
+        "missing": []
+      }
+    },
+    {
+      "id": "CROSS_CORPUS_MARKED",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    }
+  ],
+  "result": "PASS"
+}
