@@ -1,125 +1,116 @@
 {
-  "schema": "r8-v14-ncg-1-closure-checks/v1",
-  "status": "NCG_1_PASS_NON_AUTHORITATIVE",
+  "schema": "r8-v14-ncg-1-closure-checks/v2",
+  "status": "NCG_1_PASS_RECOMPUTED_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
   "design_branch": "governance/r8-meta-governance-v14",
+  "supersedes_prior_check_blob": "0a8bb835cbc9cd1595d4d109e81e40eac8b0be02",
+  "historical_correction": {
+    "prior_issue": "Previous NCG PASS referenced empty SRTT blob cdee79ef09a38e8d2ff336806b109925cea7af26.",
+    "corrected_srtt_commit": "7c1dec144347f21a55b07909e6fc84f400ff53eb",
+    "corrected_srtt_blob": "866cc96088ffcd3c424fc745763f5ff3be1b29b7",
+    "structured_closure_commit": "e44b46ed126e50ad1a7d947ff373017b22fd7afc",
+    "recomputed_verification_commit": "b6277de2db0cf76905859a08577011db1e75ee3e",
+    "no_external_packet_frozen_from_false_pass": true
+  },
   "artifacts": {
     "governance-r8/R8-V14-NORMALIZED-EFFECTIVE-SPEC.md": {
-      "blob": "7524ae40ffa4e0c27fbe175fc104496e61a37cb9",
-      "chars": 16469
+      "blob": "7524ae40ffa4e0c27fbe175fc104496e61a37cb9"
     },
     "governance-r8/R8-V14-NORMALIZED-DETAIL-APPENDIX.md": {
-      "blob": "9b108075861e8675888c8fe03bc4d20a647e4a19",
-      "chars": 9443
+      "blob": "9b108075861e8675888c8fe03bc4d20a647e4a19"
     },
     "governance-r8/R8-V14-NCG-1-MATRICES.md": {
-      "blob": "f854876a9b06bac449b613465a63272dee3d68c5",
-      "chars": 10146
+      "blob": "f854876a9b06bac449b613465a63272dee3d68c5"
+    },
+    "governance-r8/R8-V14-NCG-1-STRUCTURED-CLOSURE.json": {
+      "blob": "13b446a02c678f1228f36b2d9569a8766c27cb72"
     },
     "governance-r8/R8-V14-NCG-1-CROSS-MECHANISM-CASES.md": {
-      "blob": "5589830e18b649ab59eb3e4eaa94657bcf144001",
-      "chars": 6937
+      "blob": "5589830e18b649ab59eb3e4eaa94657bcf144001"
     },
     "governance-r8/R8-V14-GUARD-REGISTRY-1.json": {
-      "blob": "f1f7a0afde877b5912a39ef3cec6430177ad4a59",
-      "chars": 101632
+      "blob": "f1f7a0afde877b5912a39ef3cec6430177ad4a59"
     },
     "governance-r8/R8-V14-CASE-REGISTRY-1.json": {
-      "blob": "f14a402c6fd9ec58eba33bc3808a06adf1a35fa8",
-      "chars": 132537
+      "blob": "f14a402c6fd9ec58eba33bc3808a06adf1a35fa8"
     },
     "governance-r8/R8-V14-SRTT-3-TOTAL-TABLE.json": {
-      "blob": "cdee79ef09a38e8d2ff336806b109925cea7af26",
-      "chars": 0
+      "blob": "866cc96088ffcd3c424fc745763f5ff3be1b29b7",
+      "row_count": 2304
     },
     "governance-r8/R8-V14-BSP-4-GRAMMAR.json": {
-      "blob": "92393cc343ea135a4a8ffaca48c9c3896a5432e1",
-      "chars": 2600
+      "blob": "92393cc343ea135a4a8ffaca48c9c3896a5432e1"
     },
     "governance-r8/R8-V14-NCG-1-TRACEABILITY-MANIFEST.json": {
-      "blob": "c2cf0c9d2ba2cc9a0a4941132eef8372e1647bc5",
-      "chars": 6074
+      "blob": "c2cf0c9d2ba2cc9a0a4941132eef8372e1647bc5"
     },
     "governance-r8/R8-V14-GUARD-OMISSION-MANIFEST-1.json": {
-      "blob": "2cce56c61cd25d1d44b2cfee75f20ac553fdc76b",
-      "chars": 21077
+      "blob": "2cce56c61cd25d1d44b2cfee75f20ac553fdc76b"
+    },
+    "governance-r8/R8-V14-NCG-1-RECOMPUTED-VERIFICATION.json": {
+      "commit": "b6277de2db0cf76905859a08577011db1e75ee3e"
     }
   },
   "checks": [
     {
       "id": "NCG-NORM-CONTIGUITY",
       "status": "PASS",
-      "detail": "NORM-001..NORM-043 present"
+      "detail": "43/43 NORM rules present and unique"
     },
     {
       "id": "NCG-TRACEABILITY",
       "status": "PASS",
-      "detail": "43/43 normalized rules traced; manifest blob matches normalized spec"
+      "detail": "43/43 normalized rules traced; zero missing/untraced"
     },
     {
       "id": "NCG-CROSS-MECHANISM",
       "status": "PASS",
-      "detail": "X14-001..X14-042 present with deterministic expected outcomes"
+      "detail": "42/42 X14 cases unique with deterministic Expected outcomes"
     },
     {
       "id": "NCG-GUARD-REGISTRY",
       "status": "PASS",
-      "detail": "G001..G148 contiguous; zero duplicates/gaps"
+      "detail": "G001-G148 contiguous; zero gaps/duplicates; positive controls and FP classes present"
     },
     {
       "id": "NCG-CASE-REGISTRY",
       "status": "PASS",
-      "detail": "442 canonical cases; all 442 guard-referenced case IDs present; zero conflicting duplicate definitions"
+      "detail": "442 canonical cases; every guard-referenced case present; zero conflicts"
     },
     {
       "id": "NCG-GUARD-OMISSIONS",
       "status": "PASS",
-      "detail": "11 legacy guard tables omitted; all 206 omitted guard rows represented in current GuardRegistry; all referenced cases present"
+      "detail": "11 omitted legacy tables; zero invalid omissions; all guard/case references preserved"
     },
     {
       "id": "NCG-STATE-OWNERSHIP",
       "status": "PASS",
-      "detail": "18 authority state/registry classes; zero duplicate/empty owners"
+      "detail": "18 classes; zero duplicate ownership-class names"
     },
     {
       "id": "NCG-EVALUATION-ORDER",
       "status": "PASS",
-      "detail": "21 ordered authority-evaluation stages"
+      "detail": "21 normative authority-evaluation stages"
     },
     {
       "id": "NCG-DEPENDENCY-DAG",
       "status": "PASS",
-      "detail": "18-node authority dependency graph acyclic after internal ResolverPolicy/RIR/RCS cycle correction"
+      "detail": "18 nodes, 29 edges, acyclic under machine-checkable structured graph"
     },
     {
       "id": "NCG-SRTT-TOTALITY",
       "status": "PASS",
-      "detail": "2,304 Cartesian rows; zero uncovered; exactly one result per row"
+      "detail": "2304 materialized rows, 2304 unique tuples, exactly one result each"
     },
     {
       "id": "NCG-BSP-GRAMMAR",
       "status": "PASS",
-      "detail": "BSP-4 exact parser classes/patterns frozen; semantic test literals retained"
-    },
-    {
-      "id": "NCG-BLINDNESS-PREFLIGHT",
-      "status": "PASS",
-      "detail": "normalized subject artifacts contain no predecessor outcome/adjudication leakage; grammar literals classified as semantic grammar"
-    },
-    {
-      "id": "NCG-SREP-CANONICALITY",
-      "status": "PASS",
-      "detail": "semantic result equivalence fields fully derived from terminal entry/rule/lineage/effective scope"
-    },
-    {
-      "id": "NCG-RCS-FRESHNESS",
-      "status": "PASS",
-      "detail": "conformance result generation sequence/time and exact invalidation/freshness predicates defined"
+      "detail": "BSP-4 exact grammar frozen for candidate version 14"
     },
     {
       "id": "NCG-UNRESOLVED-CONTRADICTIONS",
       "status": "PASS",
-      "detail": "zero unresolved material contradictions after normalization corrections"
+      "detail": "zero unresolved material contradictions after corrected recomputation"
     }
   ],
   "unresolved_material_contradiction_count": 0,
