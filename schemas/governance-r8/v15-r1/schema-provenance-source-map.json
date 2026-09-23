@@ -3,20 +3,6 @@
   "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
   "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
-  "default_source_refs": [
-    {
-      "design_id": "R8-V15-R1-NORMALIZED-EFFECTIVE-SPEC",
-      "path": "governance-r8/R8-V15-R1-BLIND-NORMALIZED-EFFECTIVE-SPEC.md",
-      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
-      "blob": "7ca0d0d40cff557fd2eb2a95cc7555616c8d79f6"
-    },
-    {
-      "design_id": "R8-V15-NORMALIZED-DETAIL-APPENDIX",
-      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
-      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
-      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2"
-    }
-  ],
   "artifact_sources": {
     "runtime-contracts.schema.json": {
       "source_design_ids": [
@@ -256,48 +242,222 @@
       ]
     }
   },
-  "process_source_refs": [
-    {
-      "design_id": "R8V7-I030..I031",
+  "named_source_refs": {
+    "SRC-NORM": {
+      "design_id": "R8-V15-R1-NORMALIZED-EFFECTIVE-SPEC",
+      "path": "governance-r8/R8-V15-R1-BLIND-NORMALIZED-EFFECTIVE-SPEC.md",
+      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "blob": "7ca0d0d40cff557fd2eb2a95cc7555616c8d79f6"
+    },
+    "SRC-DETAIL": {
+      "design_id": "R8-V15-NORMALIZED-DETAIL-APPENDIX",
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2"
+    },
+    "SRC-V15": {
+      "design_id": "R8-V15-PREREGISTRATION",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V15.md",
+      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "blob": "97dc1ef49697ad4e24149b1ccdb362a0096c4b16"
+    },
+    "SRC-FREEZE-V2": {
+      "design_id": "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+      "path": "governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2.md",
+      "commit": "dd333757f1c4d838d9130a8d25923c50479d0fd5",
+      "blob": "70eb8c3640ad243e2a6655edf29adb90076a1281"
+    },
+    "SRC-V4": {
+      "design_id": "R8-V4",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V4.md",
+      "commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    "SRC-V5": {
+      "design_id": "R8-V5",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V5.md",
+      "commit": "e7769afad0fd4bf47e31c5b20ac59c1e7474004b",
+      "blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    "SRC-V6": {
+      "design_id": "R8-V6",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V6.md",
+      "commit": "4da8d4452060142581892968d6eb55e8b5c621fe",
+      "blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    "SRC-V7": {
+      "design_id": "R8-V7",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V7.md",
       "commit": "8ac039d3287193c73844c9213712235deecb17e2",
       "blob": "4bffae9907735862946e97ff9c608abf960078a8"
     },
-    {
-      "design_id": "R8V8-I020..I022 / I034..I035",
+    "SRC-V8": {
+      "design_id": "R8-V8",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V8.md",
       "commit": "2641c01ab56bd0d90c400b76e1f4c1a554491b53",
       "blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
     },
-    {
-      "design_id": "R8 v9 schema-freeze gate",
+    "SRC-V9": {
+      "design_id": "R8-V9",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V9.md",
       "commit": "31cf0832b9b7b2a1f3e0a755f261d664e7c4e31c",
       "blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
     },
-    {
-      "design_id": "R8 v10 schema-freeze gate",
+    "SRC-V10": {
+      "design_id": "R8-V10",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V10.md",
       "commit": "2d4b3f46ed912026f96c4b03863bbf64f6d27447",
       "blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
     },
-    {
-      "design_id": "R8 v11 schema-freeze gate",
+    "SRC-V11": {
+      "design_id": "R8-V11",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V11.md",
       "commit": "a20271dd5ce3a1c68e01dc34a48b36f45ff15621",
       "blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
     },
-    {
-      "design_id": "R8 v12 schema-freeze gate",
+    "SRC-V12": {
+      "design_id": "R8-V12",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V12.md",
       "commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
       "blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
     },
-    {
-      "design_id": "R8 v13 schema-freeze gate",
+    "SRC-V13": {
+      "design_id": "R8-V13",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md",
       "commit": "0e19f73644dd842b49d9cb5421676dac0e84d07d",
       "blob": "841556341da618fa6ed0b7c4be2797d522be4696"
     }
-  ]
+  },
+  "source_ref_routes": [
+    {
+      "match_prefix": "NORM-",
+      "source_ref_ids": [
+        "SRC-NORM"
+      ]
+    },
+    {
+      "match_prefix": "R8 v15 normalized detail appendix",
+      "source_ref_ids": [
+        "SRC-DETAIL"
+      ]
+    },
+    {
+      "match_prefix": "R8V15-",
+      "source_ref_ids": [
+        "SRC-V15",
+        "SRC-NORM"
+      ]
+    },
+    {
+      "match_prefix": "R8V4-",
+      "source_ref_ids": [
+        "SRC-V4"
+      ]
+    },
+    {
+      "match_prefix": "R8V5-",
+      "source_ref_ids": [
+        "SRC-V5"
+      ]
+    },
+    {
+      "match_prefix": "R8V6-",
+      "source_ref_ids": [
+        "SRC-V6"
+      ]
+    },
+    {
+      "match_prefix": "R8V7-",
+      "source_ref_ids": [
+        "SRC-V7"
+      ]
+    },
+    {
+      "match_prefix": "R8V8-",
+      "source_ref_ids": [
+        "SRC-V8"
+      ]
+    },
+    {
+      "match_prefix": "R8 v7",
+      "source_ref_ids": [
+        "SRC-V7"
+      ]
+    },
+    {
+      "match_prefix": "R8 v8",
+      "source_ref_ids": [
+        "SRC-V8"
+      ]
+    },
+    {
+      "match_prefix": "R8 v9",
+      "source_ref_ids": [
+        "SRC-V9"
+      ]
+    },
+    {
+      "match_prefix": "R8 v10",
+      "source_ref_ids": [
+        "SRC-V10"
+      ]
+    },
+    {
+      "match_prefix": "R8 v11",
+      "source_ref_ids": [
+        "SRC-V11"
+      ]
+    },
+    {
+      "match_prefix": "R8 v12",
+      "source_ref_ids": [
+        "SRC-V12"
+      ]
+    },
+    {
+      "match_prefix": "R8 v13",
+      "source_ref_ids": [
+        "SRC-V13"
+      ]
+    },
+    {
+      "match_prefix": "R8 inherited schema-freeze gates",
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ]
+    },
+    {
+      "match_prefix": "GuardRegistry-1",
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ]
+    },
+    {
+      "match_prefix": "CaseRegistry normalized closure",
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ]
+    },
+    {
+      "match_prefix": "schema-freeze preregistration",
+      "source_ref_ids": [
+        "SRC-FREEZE-V2"
+      ]
+    },
+    {
+      "match_prefix": "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+      "source_ref_ids": [
+        "SRC-FREEZE-V2"
+      ]
+    }
+  ],
+  "provenance_routing_rule": "For each source_design_id, select the longest matching source_ref_routes.match_prefix. Every source_design_id must resolve to at least one named_source_ref; unresolved source IDs fail SFV-35."
 }
