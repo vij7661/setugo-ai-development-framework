@@ -556,13 +556,25 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "system_id": {
+          "enum": [
+            "LAS-3",
+            "GGS-3"
+          ]
+        },
         "rotation_id": {
           "$ref": "#/$defs/CanonicalId"
+        },
+        "transition_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "old_configuration_generation": {
+          "$ref": "#/$defs/Sequence"
         },
         "old_configuration_digest": {
           "$ref": "#/$defs/Digest"
         },
-        "new_configuration_digest": {
+        "proposed_new_configuration_digest": {
           "$ref": "#/$defs/Digest"
         },
         "barrier_snapshot_index": {
@@ -571,22 +583,34 @@
         "committed_log_prefix_digest": {
           "$ref": "#/$defs/Digest"
         },
-        "highest_term": {
+        "highest_seen_term": {
           "$ref": "#/$defs/Sequence"
         },
         "highest_committed_index": {
           "$ref": "#/$defs/Sequence"
         },
         "highest_applied_index": {
-          "$ref": "#/$defs/Sequence"
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
         },
         "last_committed_entry_digest": {
           "$ref": "#/$defs/Digest"
         },
-        "state_root_stream_head_map_digest": {
+        "state_root_digest": {
           "$ref": "#/$defs/Digest"
         },
-        "idempotency_ledger_root_digest": {
+        "stream_head_map_root_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "idempotency_dedup_ledger_root_digest": {
           "$ref": "#/$defs/Digest"
         },
         "prior_certificate_chain_digest": {
@@ -614,17 +638,21 @@
         }
       },
       "required": [
+        "system_id",
         "rotation_id",
+        "transition_id",
+        "old_configuration_generation",
         "old_configuration_digest",
-        "new_configuration_digest",
+        "proposed_new_configuration_digest",
         "barrier_snapshot_index",
         "committed_log_prefix_digest",
-        "highest_term",
+        "highest_seen_term",
         "highest_committed_index",
         "highest_applied_index",
         "last_committed_entry_digest",
-        "state_root_stream_head_map_digest",
-        "idempotency_ledger_root_digest",
+        "state_root_digest",
+        "stream_head_map_root_digest",
+        "idempotency_dedup_ledger_root_digest",
         "prior_certificate_chain_digest",
         "ggs_namespace_root_digest",
         "ggs_authorization_root_digest",
@@ -1100,8 +1128,26 @@
         "semantic_state_sequence": {
           "$ref": "#/$defs/Sequence"
         },
+        "committed_log_prefix_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "stream_head_map_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "idempotency_ledger_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "authority_state_machine_root": {
+          "$ref": "#/$defs/Digest"
+        },
         "semantic_heads": {
           "$ref": "#/$defs/SemanticHeads"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "prior_certificate_chain_digest": {
+          "$ref": "#/$defs/Digest"
         },
         "state_root_digest": {
           "$ref": "#/$defs/Digest"
@@ -1109,11 +1155,19 @@
       },
       "required": [
         "semantic_state_sequence",
+        "committed_log_prefix_digest",
+        "stream_head_map_root",
+        "idempotency_ledger_root",
+        "authority_state_machine_root",
         "semantic_heads",
+        "configuration_generation",
+        "prior_certificate_chain_digest",
         "state_root_digest"
       ],
       "x-validator-invariants": [
-        "semantic_state_sequence is derived from current committed LAS state and never caller-selected"
+        "semantic_state_sequence is current LAS committed index fixing all named heads",
+        "state_root_digest equals GCP-1 digest of exact frozen members",
+        "historical/caller-selected sequence has authority NONE"
       ]
     },
     "AIMDescriptor": {
@@ -1129,8 +1183,8 @@
         "semantic_class": {
           "$ref": "#/$defs/CanonicalId"
         },
-        "decision_scope_digest": {
-          "$ref": "#/$defs/Digest"
+        "applicability_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
         },
         "source_lineage_id": {
           "$ref": "#/$defs/CanonicalId"
@@ -1141,9 +1195,10 @@
         "resolver_policy_id": {
           "$ref": "#/$defs/CanonicalId"
         },
-        "specificity": {
+        "specificity_score": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9
         },
         "activation_sequence": {
           "$ref": "#/$defs/Sequence"
@@ -1160,9 +1215,20 @@
           "enum": [
             "ACTIVE",
             "SUSPENDED",
-            "RETIRED",
-            "REVOKED"
+            "REVOKED",
+            "SUPERSEDED",
+            "RETIRED"
           ]
+        },
+        "predecessor_descriptor_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "constitutional_binding_digest": {
+          "$ref": "#/$defs/Digest"
         },
         "descriptor_digest": {
           "$ref": "#/$defs/Digest"
@@ -1172,57 +1238,22 @@
         "descriptor_id",
         "semantic_input_id",
         "semantic_class",
-        "decision_scope_digest",
+        "applicability_scope_tuple",
         "source_lineage_id",
         "aim_scope_policy_id",
         "resolver_policy_id",
-        "specificity",
+        "specificity_score",
         "activation_sequence",
         "retirement_or_revocation_sequence",
         "lifecycle_state",
+        "predecessor_descriptor_id",
+        "constitutional_binding_digest",
         "descriptor_digest"
-      ]
-    },
-    "ScopePermissionRecord": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "permission_id": {
-          "$ref": "#/$defs/CanonicalId"
-        },
-        "scope_digest": {
-          "$ref": "#/$defs/Digest"
-        },
-        "activation_sequence": {
-          "$ref": "#/$defs/Sequence"
-        },
-        "retirement_or_revocation_sequence": {
-          "type": [
-            "integer",
-            "null"
-          ],
-          "minimum": 0,
-          "maximum": 9223372036854776000
-        },
-        "lifecycle_state": {
-          "enum": [
-            "ACTIVE",
-            "SUSPENDED",
-            "RETIRED",
-            "REVOKED"
-          ]
-        },
-        "permission_digest": {
-          "$ref": "#/$defs/Digest"
-        }
-      },
-      "required": [
-        "permission_id",
-        "scope_digest",
-        "activation_sequence",
-        "retirement_or_revocation_sequence",
-        "lifecycle_state",
-        "permission_digest"
+      ],
+      "x-validator-invariants": [
+        "specificity_score equals exact non-ANY component count",
+        "ANY components validated at AIM_Smax against current AIMScopePolicy",
+        "source-lineage/policy/class/scope change requires linked successor under constitutional path"
       ]
     },
     "ResolverPolicyContract": {
@@ -1406,61 +1437,116 @@
         "semantic_input_id": {
           "$ref": "#/$defs/CanonicalId"
         },
-        "semantic_class": {
+        "semantic_lineage_id": {
           "$ref": "#/$defs/CanonicalId"
         },
-        "lineage_id": {
+        "semantic_version": {
           "$ref": "#/$defs/CanonicalId"
         },
-        "scope_digest": {
-          "$ref": "#/$defs/Digest"
+        "scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
         },
-        "specificity": {
+        "specificity_score": {
           "type": "integer",
-          "minimum": 0
-        },
-        "rule_digest": {
-          "$ref": "#/$defs/Digest"
-        },
-        "activation_sequence": {
-          "$ref": "#/$defs/Sequence"
-        },
-        "retirement_or_revocation_sequence": {
-          "type": [
-            "integer",
-            "null"
-          ],
           "minimum": 0,
-          "maximum": 9223372036854776000
+          "maximum": 9
         },
         "lifecycle_state": {
           "enum": [
             "ACTIVE",
             "SUSPENDED",
+            "REVOKED",
+            "SUPERSEDED",
             "RETIRED",
-            "REVOKED"
+            "SCOPE_PERMISSION_REEVALUATION_REQUIRED"
           ]
         },
-        "successor_link_ids": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "$ref": "#/$defs/CanonicalId"
-          }
+        "predecessor_entry_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "successor_of_entry_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "scope_replacement_mapping_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "lineage_mapping_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "any_scope_permission_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "artifact_or_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_authority_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "constitutional_binding_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "semantic_entry_key": {
+          "$ref": "#/$defs/Digest"
         }
       },
       "required": [
         "semantic_entry_id",
         "semantic_input_id",
-        "semantic_class",
-        "lineage_id",
-        "scope_digest",
-        "specificity",
-        "rule_digest",
-        "activation_sequence",
-        "retirement_or_revocation_sequence",
+        "semantic_lineage_id",
+        "semantic_version",
+        "scope_tuple",
+        "specificity_score",
         "lifecycle_state",
-        "successor_link_ids"
+        "predecessor_entry_id",
+        "successor_of_entry_id",
+        "scope_replacement_mapping_id",
+        "lineage_mapping_id",
+        "any_scope_permission_id",
+        "semantic_class",
+        "artifact_or_rule_digest",
+        "schema_version",
+        "source_authority_digest",
+        "effective_sequence",
+        "constitutional_binding_digest",
+        "semantic_entry_key"
+      ],
+      "x-validator-invariants": [
+        "specificity_score equals exact non-ANY component count",
+        "semantic_entry_key equals canonical digest of semantic_input_id+semantic_lineage_id+semantic_version+scope_tuple",
+        "ANY use requires current matching ANYScopePermission"
       ]
     },
     "SemanticLineageMapping": {
@@ -1470,14 +1556,43 @@
         "mapping_id": {
           "$ref": "#/$defs/CanonicalId"
         },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
         "source_lineage_id": {
           "$ref": "#/$defs/CanonicalId"
         },
         "destination_lineage_id": {
           "$ref": "#/$defs/CanonicalId"
         },
-        "mapping_effective": {
-          "type": "boolean"
+        "source_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "destination_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "destination_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "transition_semantics_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "constitutional_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
         },
         "mapping_digest": {
           "$ref": "#/$defs/Digest"
@@ -1485,9 +1600,17 @@
       },
       "required": [
         "mapping_id",
+        "semantic_input_id",
         "source_lineage_id",
         "destination_lineage_id",
-        "mapping_effective",
+        "source_entry_id",
+        "destination_entry_id",
+        "source_scope_tuple",
+        "destination_scope_tuple",
+        "transition_semantics_digest",
+        "constitutional_evidence_digest",
+        "effective_sequence",
+        "lifecycle_state",
         "mapping_digest"
       ]
     },
@@ -1630,7 +1753,10 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "csm_id": {
+        "csm_version": {
+          "const": "CSM-5"
+        },
+        "constitution_id": {
           "$ref": "#/$defs/CanonicalId"
         },
         "semantic_entries": {
@@ -1645,10 +1771,16 @@
             "$ref": "#/$defs/SemanticLineageMapping"
           }
         },
-        "semantic_any_permissions": {
+        "scope_replacement_mappings": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/ScopePermissionRecord"
+            "$ref": "#/$defs/ScopeReplacementMapping"
+          }
+        },
+        "any_scope_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ANYScopePermission"
           }
         },
         "aim_descriptors": {
@@ -1657,11 +1789,8 @@
             "$ref": "#/$defs/AIMDescriptor"
           }
         },
-        "aim_scope_permissions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/ScopePermissionRecord"
-          }
+        "aim_scope_policy": {
+          "$ref": "#/$defs/AIMScopePolicy"
         },
         "resolver_policy": {
           "$ref": "#/$defs/ResolverPolicyContract"
@@ -1680,12 +1809,14 @@
         }
       },
       "required": [
-        "csm_id",
+        "csm_version",
+        "constitution_id",
         "semantic_entries",
         "lineage_mappings",
-        "semantic_any_permissions",
+        "scope_replacement_mappings",
+        "any_scope_permissions",
         "aim_descriptors",
-        "aim_scope_permissions",
+        "aim_scope_policy",
         "resolver_policy",
         "resolver_implementation_registry_head",
         "guard_registry_head",
@@ -1693,8 +1824,288 @@
         "bundle_digest"
       ],
       "x-validator-invariants": [
+        "arrays use frozen canonical ordering",
         "updates are LAS-governed authority events",
         "all resolution-time records come from one coherent current semantic snapshot"
+      ]
+    },
+    "StableScopeValue": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!ANY$).+"
+    },
+    "ScopeComponent": {
+      "oneOf": [
+        {
+          "const": "ANY"
+        },
+        {
+          "$ref": "#/$defs/StableScopeValue"
+        }
+      ]
+    },
+    "CanonicalScopeTuple": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trust_domain_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "constitution_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "root_namespace": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "tenant_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "organization_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "experiment_or_release_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "object_class": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "action_class": {
+          "$ref": "#/$defs/ScopeComponent"
+        }
+      },
+      "required": [
+        "trust_domain_id",
+        "constitution_id",
+        "root_namespace",
+        "tenant_id",
+        "organization_id",
+        "project_id",
+        "experiment_or_release_id",
+        "object_class",
+        "action_class"
+      ],
+      "x-canonical-order": [
+        "trust_domain_id",
+        "constitution_id",
+        "root_namespace",
+        "tenant_id",
+        "organization_id",
+        "project_id",
+        "experiment_or_release_id",
+        "object_class",
+        "action_class"
+      ]
+    },
+    "ScopeComponentName": {
+      "enum": [
+        "trust_domain_id",
+        "constitution_id",
+        "root_namespace",
+        "tenant_id",
+        "organization_id",
+        "project_id",
+        "experiment_or_release_id",
+        "object_class",
+        "action_class"
+      ]
+    },
+    "ANYScopePermission": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "permission_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "allowed_any_tuple_components": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/ScopeComponentName"
+          }
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "constitutional_authority_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "permission_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "permission_id",
+        "semantic_class",
+        "allowed_any_tuple_components",
+        "effective_sequence",
+        "lifecycle_state",
+        "constitutional_authority_evidence_digest",
+        "permission_digest"
+      ],
+      "x-validator-invariants": [
+        "only ACTIVE permission at decision sequence is valid",
+        "every ANY position used by a SemanticEntry must be explicitly listed",
+        "project/org/experiment policy cannot create or broaden constitutional permission"
+      ]
+    },
+    "AIMScopePolicyClassRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "allowed_any_tuple_components": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/ScopeComponentName"
+          }
+        }
+      },
+      "required": [
+        "semantic_class",
+        "allowed_any_tuple_components"
+      ]
+    },
+    "AIMScopePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aim_scope_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "class_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/AIMScopePolicyClassRule"
+          }
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "constitutional_authority_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "policy_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "aim_scope_policy_id",
+        "class_rules",
+        "effective_sequence",
+        "lifecycle_state",
+        "constitutional_authority_evidence_digest",
+        "policy_digest"
+      ],
+      "x-validator-invariants": [
+        "class_rules semantic_class values unique",
+        "project/org/experiment policy cannot broaden AIMScopePolicy"
+      ]
+    },
+    "ScopeReplacementMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mapping_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "revoked_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "destination_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "old_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "new_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "old_specificity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "new_specificity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "old_scope_effect": {
+          "enum": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "decision_scope_match_rule_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "constitutional_amendment_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "mapping_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "mapping_id",
+        "semantic_input_id",
+        "semantic_lineage_id",
+        "revoked_entry_id",
+        "destination_entry_id",
+        "old_scope_tuple",
+        "new_scope_tuple",
+        "old_specificity",
+        "new_specificity",
+        "old_scope_effect",
+        "decision_scope_match_rule_id",
+        "effective_sequence",
+        "constitutional_amendment_evidence_digest",
+        "lifecycle_state",
+        "mapping_digest"
       ]
     }
   },
