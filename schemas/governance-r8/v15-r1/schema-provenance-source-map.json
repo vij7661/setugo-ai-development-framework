@@ -457,6 +457,24 @@
       "source_ref_ids": [
         "SRC-FREEZE-V2"
       ]
+    },
+    {
+      "match_prefix": "R8V7 GCP rejection vectors",
+      "source_ref_ids": [
+        "SRC-V7"
+      ]
+    },
+    {
+      "match_prefix": "R8 v7-v13 schema-freeze gates",
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ]
     }
   ],
   "provenance_routing_rule": "For each source_design_id, select the longest matching source_ref_routes.match_prefix. Every source_design_id must resolve to at least one named_source_ref; unresolved source IDs fail SFV-35."
