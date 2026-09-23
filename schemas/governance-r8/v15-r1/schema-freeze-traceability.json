@@ -1,6 +1,6 @@
 {
-  "schema": "r8-v15-r1-schema-freeze-traceability/v1",
-  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "schema": "r8-v15-r1-schema-freeze-traceability/v2",
+  "status": "SCHEMA_FREEZE_CANDIDATE_V2_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
   "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
   "mappings": [
@@ -278,10 +278,13 @@
     {
       "norm": "NORM-028",
       "schemas": [
-        "runtime-contracts#ReviewAttestation"
+        "runtime-contracts#ReviewAttestation",
+        "review-presentation-schema"
       ],
       "validators": [
-        "SFV-32"
+        "SFV-32",
+        "SFV-41",
+        "SFV-42"
       ],
       "note": "Review-visible field materiality is projection/checker obligation."
     },
@@ -392,20 +395,26 @@
       "norm": "NORM-040",
       "schemas": [
         "guard-registry",
-        "case-registry"
+        "case-registry",
+        "case-proof-contracts"
       ],
       "validators": [
         "SFV-05",
-        "SFV-06"
+        "SFV-06",
+        "SFV-39",
+        "SFV-40"
       ]
     },
     {
       "norm": "NORM-041",
       "schemas": [
-        "bsp-5-grammar"
+        "bsp-5-grammar",
+        "review-presentation-schema"
       ],
       "validators": [
-        "SFV-08"
+        "SFV-08",
+        "SFV-41",
+        "SFV-42"
       ]
     },
     {
@@ -430,5 +439,126 @@
     }
   ],
   "expected_norm_count": 43,
-  "validator_rule_count": 34
+  "validator_rule_count": 45,
+  "freeze_process_mappings": [
+    {
+      "rule_id": "SFG-001",
+      "source": [
+        "R8V7-I030"
+      ],
+      "artifacts": [
+        "schema-provenance-manifest.schema.json",
+        "schema-provenance-manifest-candidate.json",
+        "schema-provenance-source-map.json"
+      ],
+      "validators": [
+        "SFV-35",
+        "SFV-44"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-002",
+      "source": [
+        "R8V7-I031"
+      ],
+      "artifacts": [
+        "schema-provenance-manifest.schema.json",
+        "schema-provenance-source-map.json"
+      ],
+      "validators": [
+        "SFV-35",
+        "SFV-43"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-003",
+      "source": [
+        "R8V8-I020",
+        "R8V8-I021",
+        "R8V8-I022"
+      ],
+      "artifacts": [
+        "schema-provenance-generator.schema.json",
+        "schema-provenance-generator-binding.json",
+        "tools/generate_r8_v15_r1_spm.py"
+      ],
+      "validators": [
+        "SFV-36",
+        "SFV-44"
+      ],
+      "status": "BLOCKED_UNATTESTED_RUNTIME"
+    },
+    {
+      "rule_id": "SFG-004",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V5-I028..I034",
+        "R8V7 GCP rejection vectors",
+        "R8V8-I034",
+        "R8V8-I035"
+      ],
+      "artifacts": [
+        "gcp-rvm-2.schema.json",
+        "gcp-rvm-2.json"
+      ],
+      "validators": [
+        "SFV-31",
+        "SFV-37",
+        "SFV-38"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-005",
+      "source": [
+        "R8V7-I038",
+        "R8V7-I039"
+      ],
+      "artifacts": [
+        "review-presentation-schema.schema.json",
+        "review-presentation-schema.json"
+      ],
+      "validators": [
+        "SFV-41",
+        "SFV-42"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-006",
+      "source": [
+        "R8V7-I044",
+        "R8V7-I045",
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "artifacts": [
+        "case-proof-contracts.schema.json",
+        "case-proof-contracts.json"
+      ],
+      "validators": [
+        "SFV-39",
+        "SFV-40"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-007",
+      "source": [
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "artifacts": [],
+      "validators": [
+        "SFV-45"
+      ],
+      "status": "BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW"
+    }
+  ],
+  "freeze_process_rule_count": 7,
+  "final_freeze_blockers": [
+    "SFV-36",
+    "SFV-45"
+  ],
+  "note": "NORM-001..043 semantic mappings remain frozen. SFG-001..007 are inherited schema-freeze-process requirements restored in V2; they do not change semantic authority."
 }
