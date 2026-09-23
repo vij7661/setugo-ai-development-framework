@@ -1,0 +1,134 @@
+{
+  "schema": "r8-v15-r1-executable-schema-freeze-internal-verification/v1",
+  "status": "INTERNAL_SCHEMA_FREEZE_VERIFICATION_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "schema_branch": "freeze/r8-v15-r1-executable-schema-v1",
+  "check_count": 25,
+  "pass_count": 25,
+  "fail_count": 0,
+  "checks": [
+    {
+      "id": "SCHEMA_PARSE_runtime-contracts.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_guard-registry.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_case-registry.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_srtt-4-rule-registry.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_srtt-4-total-table.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_bsp-5-grammar.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_ncg-structured-closure.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_guard-omission-source-evidence.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "SCHEMA_PARSE_guard-omission-manifest.schema.json",
+      "status": "PASS"
+    },
+    {
+      "id": "RUNTIME_OBJECTS_CLOSED",
+      "status": "PASS"
+    },
+    {
+      "id": "TRACE_NORM_001_043",
+      "status": "PASS"
+    },
+    {
+      "id": "VALIDATOR_IDS_UNIQUE",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-05",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-06",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-01",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-02",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-03",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-04",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-07",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-08",
+      "status": "PASS"
+    },
+    {
+      "id": "SFV-09",
+      "status": "PASS"
+    },
+    {
+      "id": "RUNTIME_REQUIRED_DEFS",
+      "status": "PASS"
+    },
+    {
+      "id": "EFFECT_SUCCESS_SCHEMA",
+      "status": "PASS"
+    },
+    {
+      "id": "TIME_THRESHOLD_SCHEMA",
+      "status": "PASS"
+    },
+    {
+      "id": "MTR_CHALLENGE_256",
+      "status": "PASS"
+    }
+  ],
+  "evidence_summary": {
+    "json_schema_dialect": "2020-12",
+    "runtime_object_definitions_closed": 36,
+    "normalized_rules_traced": 43,
+    "validator_rules": 26,
+    "guard_records": 156,
+    "case_records": 467,
+    "srtt_rows": 2304,
+    "srtt_duplicate_tuples": 0,
+    "srtt_undefined_decisive_rules": 0,
+    "srtt_recomputed_mismatches": 0,
+    "omission_source_records": 11,
+    "omission_reparse_failures": 0,
+    "dependency_nodes": 18,
+    "dependency_edges": 29,
+    "dependency_graph_acyclic": true,
+    "required_runtime_definitions_checked": 29,
+    "required_runtime_definitions_missing": 0
+  },
+  "result": "INTERNAL_SCHEMA_FREEZE_RECOMPUTATION_PASS",
+  "next_gate": "READY_FOR_INDEPENDENT_EXECUTABLE_SCHEMA_REVIEW",
+  "note": "Internal PASS grants no implementation, runtime qualification, release, deployment or production authority."
+}
