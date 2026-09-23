@@ -1,0 +1,128 @@
+{
+  "schema": "r8-v14-ncg-1-recomputed-verification/v1",
+  "status": "NCG_1_PASS_RECOMPUTED_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "historical_correction": {
+    "prior_closure_issue": "The earlier NCG-1 closure checks/report claimed SRTT-3 totality while the frozen SRTT artifact at blob cdee79ef09a38e8d2ff336806b109925cea7af26 was empty.",
+    "corrective_commit": "7c1dec144347f21a55b07909e6fc84f400ff53eb",
+    "corrected_srtt_blob": "866cc96088ffcd3c424fc745763f5ff3be1b29b7",
+    "structured_closure_commit": "e44b46ed126e50ad1a7d947ff373017b22fd7afc",
+    "rule": "The earlier internal NCG PASS is superseded by this recomputed verification. No external review packet was frozen from the false-PASS state."
+  },
+  "artifacts": {
+    "R8-V14-NORMALIZED-EFFECTIVE-SPEC.md": {
+      "blob": "7524ae40ffa4e0c27fbe175fc104496e61a37cb9",
+      "chars": 16469
+    },
+    "R8-V14-NORMALIZED-DETAIL-APPENDIX.md": {
+      "blob": "9b108075861e8675888c8fe03bc4d20a647e4a19",
+      "chars": 9443
+    },
+    "R8-V14-NCG-1-MATRICES.md": {
+      "blob": "f854876a9b06bac449b613465a63272dee3d68c5",
+      "chars": 10146
+    },
+    "R8-V14-NCG-1-STRUCTURED-CLOSURE.json": {
+      "blob": "13b446a02c678f1228f36b2d9569a8766c27cb72",
+      "chars": 4730
+    },
+    "R8-V14-NCG-1-CROSS-MECHANISM-CASES.md": {
+      "blob": "5589830e18b649ab59eb3e4eaa94657bcf144001",
+      "chars": 6937
+    },
+    "R8-V14-GUARD-REGISTRY-1.json": {
+      "blob": "f1f7a0afde877b5912a39ef3cec6430177ad4a59",
+      "chars": 101632
+    },
+    "R8-V14-CASE-REGISTRY-1.json": {
+      "blob": "f14a402c6fd9ec58eba33bc3808a06adf1a35fa8",
+      "chars": 132537
+    },
+    "R8-V14-SRTT-3-TOTAL-TABLE.json": {
+      "blob": "866cc96088ffcd3c424fc745763f5ff3be1b29b7",
+      "chars": 1365657
+    },
+    "R8-V14-BSP-4-GRAMMAR.json": {
+      "blob": "92393cc343ea135a4a8ffaca48c9c3896a5432e1",
+      "chars": 2600
+    },
+    "R8-V14-NCG-1-TRACEABILITY-MANIFEST.json": {
+      "blob": "c2cf0c9d2ba2cc9a0a4941132eef8372e1647bc5",
+      "chars": 6074
+    },
+    "R8-V14-GUARD-OMISSION-MANIFEST-1.json": {
+      "blob": "2cce56c61cd25d1d44b2cfee75f20ac553fdc76b",
+      "chars": 21077
+    }
+  },
+  "recomputed_checks": [
+    {
+      "id": "NCG-NORM-CONTIGUITY",
+      "status": "PASS",
+      "detail": "NORM-001..NORM-043 present, 43 unique"
+    },
+    {
+      "id": "NCG-TRACEABILITY",
+      "status": "PASS",
+      "detail": "43/43 normalized rules traced to normalized spec blob 7524ae40ffa4e0c27fbe175fc104496e61a37cb9"
+    },
+    {
+      "id": "NCG-CROSS-MECHANISM",
+      "status": "PASS",
+      "detail": "X14-001..X14-042 unique; all 42 contain deterministic Expected outcomes"
+    },
+    {
+      "id": "NCG-GUARD-REGISTRY",
+      "status": "PASS",
+      "detail": "G001..G148 contiguous; zero gaps/duplicates; all guards have positive controls and negative FP classes"
+    },
+    {
+      "id": "NCG-CASE-REGISTRY",
+      "status": "PASS",
+      "detail": "442 cases; all guard-referenced cases present; zero duplicate conflicts"
+    },
+    {
+      "id": "NCG-GUARD-OMISSIONS",
+      "status": "PASS",
+      "detail": "11 legacy tables; zero invalid omissions; every omitted guard/case reference present"
+    },
+    {
+      "id": "NCG-STATE-OWNERSHIP",
+      "status": "PASS",
+      "detail": "18 ownership classes; zero duplicate ownership-class names"
+    },
+    {
+      "id": "NCG-EVALUATION-ORDER",
+      "status": "PASS",
+      "detail": "21 ordered authority stages"
+    },
+    {
+      "id": "NCG-DEPENDENCY-DAG",
+      "status": "PASS",
+      "detail": "18 nodes / 29 edges; independently topologically sorted; acyclic"
+    },
+    {
+      "id": "NCG-SRTT-TOTALITY",
+      "status": "PASS",
+      "detail": "2,304 materialized rows; 2,304 unique input tuples; exactly one output per tuple"
+    },
+    {
+      "id": "NCG-SRTT-DISTRIBUTION",
+      "status": "PASS",
+      "detail": "1808 revoked; 288 permission blockers; 144 not-applicable; 22 eligible; 42 replacement-invalid"
+    },
+    {
+      "id": "NCG-BSP-GRAMMAR",
+      "status": "PASS",
+      "detail": "BSP-4 grammar JSON parses; current_candidate_version=14; explicit remove/retain classes frozen"
+    },
+    {
+      "id": "NCG-UNRESOLVED-CONTRADICTIONS",
+      "status": "PASS",
+      "detail": "zero unresolved material contradictions in normalized effective rule set after corrected artifact materialization"
+    }
+  ],
+  "unresolved_material_contradiction_count": 0,
+  "external_review_packet_freeze_permitted": true,
+  "executable_schema_freeze_permitted": false
+}
