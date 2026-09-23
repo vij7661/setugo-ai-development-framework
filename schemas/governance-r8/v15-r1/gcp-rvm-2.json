@@ -1,0 +1,231 @@
+{
+  "schema": "gcp-rvm-2/v1",
+  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "canonical_vectors": [
+    {
+      "vector_id": "GCP-RVM2-P01",
+      "input_representation": "{\"b\":1,\"a\":2}",
+      "schema_context": "object",
+      "expected_canonical_utf8": "{\"a\":2,\"b\":1}",
+      "expected_sha256": "d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772",
+      "source_rules": [
+        "R8V4-I029.1",
+        "R8V5-I034"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-P02",
+      "input_representation": "{\"n\":0}",
+      "schema_context": "object",
+      "expected_canonical_utf8": "{\"n\":0}",
+      "expected_sha256": "f3013f933b9fb80ab6d995e7ad9da36f683837ba1d81e950c943d40111eac2f0",
+      "source_rules": [
+        "R8V4-I029.2",
+        "R8V5-I034"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-P03",
+      "input_representation": "{\"s\":[\"b\",\"a\"]}",
+      "schema_context": "ordered_array:s",
+      "expected_canonical_utf8": "{\"s\":[\"b\",\"a\"]}",
+      "expected_sha256": "654314a25a80232c19ef4b396eb0fcce3db308a937ede43a06092d75211ec903",
+      "source_rules": [
+        "R8V4-I029.5",
+        "R8V5-I034"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-P04",
+      "input_representation": "{\"text\":\"é\"}",
+      "schema_context": "NFC_string",
+      "expected_canonical_utf8": "{\"text\":\"é\"}",
+      "expected_sha256": "42d3cbf59fdccced04e5dff14433fb52d34d58e385e9770ffd896ff517d63b92",
+      "source_rules": [
+        "R8V4-I028",
+        "R8V5-I034"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-P05",
+      "input_representation": "{\"min\":-9223372036854775808,\"max\":9223372036854775807}",
+      "schema_context": "signed_int64_boundaries",
+      "expected_canonical_utf8": "{\"min\":-9223372036854775808,\"max\":9223372036854775807}",
+      "expected_sha256": "906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab",
+      "source_rules": [
+        "R8V4-I026",
+        "R8V5-I034"
+      ]
+    }
+  ],
+  "rejection_vectors": [
+    {
+      "vector_id": "GCP-RVM2-R01",
+      "input_representation": "01",
+      "schema_context": "integer_lexical",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_LEADING_ZERO_INTEGER",
+      "source_case_id": "V4-025",
+      "source_rules": [
+        "R8V4-I027"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R02",
+      "input_representation": "-0",
+      "schema_context": "integer_lexical",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_NEGATIVE_ZERO",
+      "source_case_id": "V4-026",
+      "source_rules": [
+        "R8V4-I027"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R03",
+      "input_representation": "{\"a\":1,\"a\":2}",
+      "schema_context": "object_parse",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_DUPLICATE_KEY",
+      "source_case_id": "V4-027",
+      "source_rules": [
+        "R8V4-I029.4"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R04",
+      "input_representation": "{\"text\":\"e\\u0301\"}",
+      "schema_context": "authority_string",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_NON_NFC_STRING",
+      "source_case_id": "V4-028",
+      "source_rules": [
+        "R8V4-I028"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R05",
+      "input_representation": "9223372036854775808",
+      "schema_context": "integer_range",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_OUT_OF_INT64",
+      "source_case_id": "V4-024",
+      "source_rules": [
+        "R8V4-I026"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R06",
+      "input_representation": "+1",
+      "schema_context": "integer_lexical",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_LEADING_PLUS",
+      "source_case_id": "V4-025",
+      "source_rules": [
+        "R8V4-I027"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R07",
+      "input_representation": "1e0",
+      "schema_context": "integer_lexical",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_EXPONENT_FORM",
+      "source_case_id": "V4-025",
+      "source_rules": [
+        "R8V4-I027"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R08",
+      "input_representation": "1.0",
+      "schema_context": "integer_lexical",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_DECIMAL_FORM",
+      "source_case_id": "V4-025",
+      "source_rules": [
+        "R8V4-I027"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R09",
+      "input_representation": "{\"é\":1,\"e\\u0301\":2}",
+      "schema_context": "object_key_NFC_collision",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_NFC_KEY_COLLISION",
+      "source_case_id": "V6-029",
+      "source_rules": [
+        "R8V7 GCP rejection vectors"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R10",
+      "input_representation": "{\"text\":\"\\ufdd0\"}",
+      "schema_context": "authority_string",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_UNICODE_NONCHARACTER_FDD0",
+      "source_case_id": "V6-030",
+      "source_rules": [
+        "R8V7 GCP rejection vectors"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R11",
+      "input_representation": "{\"text\":\"\\ufffe\"}",
+      "schema_context": "authority_string",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_UNICODE_NONCHARACTER_FFFE",
+      "source_case_id": "V6-030",
+      "source_rules": [
+        "R8V7 GCP rejection vectors"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R12",
+      "input_representation": "{\"text\":\"\\uffff\"}",
+      "schema_context": "authority_string",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_UNICODE_NONCHARACTER_FFFF",
+      "source_case_id": "V6-030",
+      "source_rules": [
+        "R8V7 GCP rejection vectors"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R13",
+      "input_representation": "{\"extensions\":{\"sys:x\":1}}",
+      "schema_context": "extension_map",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_RESERVED_SYS_EXTENSION",
+      "source_case_id": "V5-027",
+      "source_rules": [
+        "R8V7 GCP rejection vectors"
+      ]
+    },
+    {
+      "vector_id": "GCP-RVM2-R14",
+      "input_representation": "{\"standard\":1,\"extensions\":{\"standard\":2}}",
+      "schema_context": "extension_map",
+      "expected_outcome": "REJECT",
+      "expected_rejection_code": "GCP_REJECT_EXTENSION_SHADOWS_STANDARD_FIELD",
+      "source_case_id": "V5-027",
+      "source_rules": [
+        "R8V7 GCP rejection vectors"
+      ]
+    }
+  ],
+  "canonicalization_rules": [
+    "NFC required for authority-bearing keys/strings",
+    "absent != null",
+    "schema defaults materialized before canonical signing/digest only",
+    "no insignificant whitespace in canonical output",
+    "object key ordering follows frozen GCP-1 behavior",
+    "duplicate keys and post-NFC key collisions reject",
+    "ordered arrays preserve order",
+    "schema-defined sets sort by element SHA-256 then canonical bytes and reject duplicates",
+    "governance integers are signed int64 with frozen lexical form",
+    "extension maps only where schema-declared, cannot shadow standard fields, cannot use reserved sys: namespace",
+    "unpaired surrogates and Unicode noncharacters reject"
+  ]
+}
