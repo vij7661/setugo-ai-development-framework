@@ -414,11 +414,14 @@ Effective rule:
 - BSP-5 identifies the current candidate status only through exactly one explicit current-status block marked with the current candidate version;
 - zero, multiple, nested, mismatched, or unterminated current-status blocks make the packet incomplete;
 - predecessor review outcomes/adjudication metadata are removed by deterministic version-aware grammar;
-- semantic test literals are retained only inside exact parser states CASE_SECTION, GUARD_RECORD_SECTION, or FENCED_SEMANTIC_TEST_DATA;
+- semantic test literals are retained only inside exact parser states CASE_SECTION, GUARD_RECORD_SECTION, FENCED_SEMANTIC_TEST_DATA, or MARKED_SEMANTIC_TEST_SECTION;
+- a MARKED_SEMANTIC_TEST_SECTION uses exact paired standalone begin/end markers with one stable ID, cannot nest, and is structural only outside fenced code;
+- the cross-mechanism adversarial corpus must be enclosed by the stable marked semantic-test-section ID cross-mechanism-adversarial-corpus;
+- a predecessor-status string inside that marked corpus is retained as attack-vector data, not interpreted as leaked prior disposition;
 - a raw status token in ordinary prose is not enough to classify semantic-test data;
-- residual validation reruns the same parser and requires zero prior-status/review metadata plus exactly one valid current-status block.
+- residual validation reruns the same parser and requires zero prior-status/review metadata, exactly one valid current-status block, and only well-formed marked semantic-test sections.
 
-Trace: v12 BSP-2; v13 BSP-3; v14 BSP-4; v15 BSP-5 I010-I013.
+Trace: v12 BSP-2; v13 BSP-3; v14 BSP-4; v15 BSP-5 I010-I013; v15-r1 corpus-binding repair.
 
 ### NORM-042 — embedded proof manifests
 Effective rule:
