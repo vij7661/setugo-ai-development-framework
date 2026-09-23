@@ -276,55 +276,55 @@
     "SRC-V5": {
       "design_id": "R8-V5",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V5.md",
-      "commit": "e7769afad0fd4bf47e31c5b20ac59c1e7474004b",
+      "commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
       "blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
     },
     "SRC-V6": {
       "design_id": "R8-V6",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V6.md",
-      "commit": "4da8d4452060142581892968d6eb55e8b5c621fe",
+      "commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
       "blob": "4604fc38859087f08f941f5bde023214876528cb"
     },
     "SRC-V7": {
       "design_id": "R8-V7",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V7.md",
-      "commit": "8ac039d3287193c73844c9213712235deecb17e2",
+      "commit": "fad366add685a978c55837e420e3bcb0939d41aa",
       "blob": "4bffae9907735862946e97ff9c608abf960078a8"
     },
     "SRC-V8": {
       "design_id": "R8-V8",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V8.md",
-      "commit": "2641c01ab56bd0d90c400b76e1f4c1a554491b53",
+      "commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
       "blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
     },
     "SRC-V9": {
       "design_id": "R8-V9",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V9.md",
-      "commit": "31cf0832b9b7b2a1f3e0a755f261d664e7c4e31c",
+      "commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
       "blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
     },
     "SRC-V10": {
       "design_id": "R8-V10",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V10.md",
-      "commit": "2d4b3f46ed912026f96c4b03863bbf64f6d27447",
+      "commit": "2e85384f759318a17c2ec14b1781dc689a864618",
       "blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
     },
     "SRC-V11": {
       "design_id": "R8-V11",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V11.md",
-      "commit": "a20271dd5ce3a1c68e01dc34a48b36f45ff15621",
+      "commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
       "blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
     },
     "SRC-V12": {
       "design_id": "R8-V12",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V12.md",
-      "commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
       "blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
     },
     "SRC-V13": {
       "design_id": "R8-V13",
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md",
-      "commit": "0e19f73644dd842b49d9cb5421676dac0e84d07d",
+      "commit": "84bb9abe04debbcc441580871a74f641d6e30eb2",
       "blob": "841556341da618fa6ed0b7c4be2797d522be4696"
     }
   },
@@ -477,5 +477,6 @@
       ]
     }
   ],
-  "provenance_routing_rule": "For each source_design_id, select the longest matching source_ref_routes.match_prefix. Every source_design_id must resolve to at least one named_source_ref; unresolved source IDs fail SFV-35."
+  "provenance_routing_rule": "For each source_design_id, select the longest matching source_ref_routes.match_prefix. Every source_design_id must resolve to at least one named_source_ref; unresolved source IDs fail SFV-35.",
+  "source_ref_validation": "Historical design refs use currently resolvable exact branch-head commits whose fetched design blob matches the bound blob; stale non-resolving labels from older evidence artifacts are not used."
 }
