@@ -1,0 +1,135 @@
+{
+  "schema": "r8-v15-srtt-4-rule-registry/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "domain_fixed": {
+    "source_entry_state": "REVOKED"
+  },
+  "outside_table_rule": {
+    "rule_id": "SRTT15-R00",
+    "predicate": "source_entry_state != REVOKED",
+    "result": "NOT_A_REPLACEMENT_BRANCH",
+    "source_trace": [
+      "R8V13-I011.1",
+      "R8V15-I001"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "SRTT15-R01",
+      "precedence": 1,
+      "predicate": "mapping_effective == false",
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "source_trace": [
+        "R8V13-I011.2",
+        "R8V15-I003.1"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R02",
+      "precedence": 2,
+      "predicate": "lineage_mapping_valid == false",
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "source_trace": [
+        "R8V13-I011.3",
+        "R8V15-I003.2"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R03",
+      "precedence": 3,
+      "predicate": "any_permission_valid == false",
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "source_trace": [
+        "R8V13-I011.4",
+        "R8V15-I003.3"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R04",
+      "precedence": 4,
+      "predicate": "old_scope_match == NO_MATCH",
+      "result": "MAPPING_NOT_APPLICABLE",
+      "source_trace": [
+        "R8V13-I011.5",
+        "R8V15-I003.4"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R05",
+      "precedence": 5,
+      "predicate": "old_scope_effect == BLOCK_OLD_SCOPE",
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "source_trace": [
+        "R8V13-I011.6",
+        "R8V15-I003.5"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R06",
+      "precedence": 6,
+      "predicate": "destination_scope_match == NO_MATCH",
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "source_trace": [
+        "R8V13-I011.7",
+        "R8V15-I003.6"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R07",
+      "precedence": 7,
+      "predicate": "old_scope_effect == REPLACE_OLD_SCOPE_FOR_EXACT_MATCH && destination_scope_match == EXACT_MATCH && scope_relation == SAME",
+      "result": "REPLACEMENT_ELIGIBLE",
+      "source_trace": [
+        "R8V13-I012",
+        "R8V15-I004"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R08",
+      "precedence": 8,
+      "predicate": "old_scope_effect == REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "source_trace": [
+        "R8V13-I012",
+        "R8V15-I004"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R09",
+      "precedence": 9,
+      "predicate": "old_scope_effect == REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH && destination_scope_match in {EXACT_MATCH,MAPPED_MATCH} && scope_relation in {SAME,NARROWER}",
+      "result": "REPLACEMENT_ELIGIBLE",
+      "source_trace": [
+        "R8V13-I013",
+        "R8V15-I005"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R10",
+      "precedence": 10,
+      "predicate": "old_scope_effect == REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH && destination_scope_match in {EXACT_MATCH,MAPPED_MATCH} && scope_relation == BROADER && scope_expansion_authorized == true && decision_inside_authorized_expansion_domain == true",
+      "result": "REPLACEMENT_ELIGIBLE",
+      "source_trace": [
+        "R8V13-I013",
+        "R8V13-I014",
+        "R8V13-I015",
+        "R8V15-I005",
+        "R8V15-I006"
+      ]
+    },
+    {
+      "rule_id": "SRTT15-R11",
+      "precedence": 11,
+      "predicate": "old_scope_effect == REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "source_trace": [
+        "R8V13-I013",
+        "R8V13-I014",
+        "R8V13-I015",
+        "R8V15-I005",
+        "R8V15-I006"
+      ]
+    }
+  ]
+}
