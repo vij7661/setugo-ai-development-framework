@@ -130,7 +130,10 @@
     {
       "norm": "NORM-014",
       "schemas": [
-        "runtime-contracts#CurrentSemanticModelBundle"
+        "runtime-contracts#CurrentSemanticModelBundle",
+        "runtime-contracts#CanonicalScopeTuple",
+        "runtime-contracts#ANYScopePermission",
+        "runtime-contracts#AIMScopePolicy"
       ],
       "validators": [
         "SFV-33"
@@ -158,7 +161,8 @@
     {
       "norm": "NORM-017",
       "schemas": [
-        "runtime-contracts#AIMDescriptor"
+        "runtime-contracts#AIMDescriptor",
+        "runtime-contracts#CanonicalScopeTuple"
       ],
       "validators": [
         "SFV-15"
@@ -168,7 +172,8 @@
       "norm": "NORM-018",
       "schemas": [
         "runtime-contracts#AIMDescriptor",
-        "runtime-contracts#ScopePermissionRecord"
+        "runtime-contracts#AIMScopePolicy",
+        "runtime-contracts#CanonicalScopeTuple"
       ],
       "validators": [
         "SFV-15"
@@ -213,8 +218,9 @@
     {
       "norm": "NORM-023",
       "schemas": [
-        "runtime-contracts#ScopePermissionRecord",
-        "runtime-contracts#SemanticEntry"
+        "runtime-contracts#ANYScopePermission",
+        "runtime-contracts#SemanticEntry",
+        "runtime-contracts#CanonicalScopeTuple"
       ],
       "validators": [
         "SFV-18"
@@ -224,6 +230,8 @@
       "norm": "NORM-024",
       "schemas": [
         "runtime-contracts#SemanticEntry",
+        "runtime-contracts#ScopeReplacementMapping",
+        "runtime-contracts#SemanticLineageMapping",
         "runtime-contracts#SemanticResolvedResult"
       ],
       "validators": [
@@ -243,7 +251,8 @@
     {
       "norm": "NORM-026",
       "schemas": [
-        "runtime-contracts#SemanticLineageMapping"
+        "runtime-contracts#SemanticLineageMapping",
+        "runtime-contracts#CanonicalScopeTuple"
       ],
       "validators": [
         "SFV-19"
@@ -252,8 +261,10 @@
     {
       "norm": "NORM-027",
       "schemas": [
+        "runtime-contracts#ScopeReplacementMapping",
         "runtime-contracts#ScopeReplacementInput",
         "runtime-contracts#ScopeReplacementDecision",
+        "runtime-contracts#CanonicalScopeTuple",
         "srtt-4-rule-registry",
         "srtt-4-total-table"
       ],
