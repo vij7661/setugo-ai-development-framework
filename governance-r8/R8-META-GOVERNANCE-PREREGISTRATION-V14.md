@@ -165,12 +165,23 @@ Resolver conformance evidence is invalid immediately when any bound value change
 
 ### R8V14-I014 — freshness profile
 
+Each conformance result record binds:
+- execution semantic_state_sequence;
+- exact RIR record/policy/implementation/runtime/suite digests;
+- result manifest digest;
+- qualified generation-time proof digest when wall-age freshness is used.
+
 Each RIR record binds one conformance freshness profile:
 - `VALID_UNTIL_BOUND_CHANGE`; or
 - `MAX_SEQUENCE_AGE(n)`; or
 - `MAX_WALL_AGE(seconds)` using qualified time.
 
-A result is usable only if its profile remains satisfied at semantic_state_sequence.
+Evaluation is exact:
+- `VALID_UNTIL_BOUND_CHANGE`: valid only while every bound digest and RIR temporal/lifecycle predicate remains unchanged;
+- `MAX_SEQUENCE_AGE(n)`: additionally require `semantic_state_sequence - execution_semantic_state_sequence <= n`;
+- `MAX_WALL_AGE(seconds)`: additionally require qualified current time minus qualified generation time <= seconds, with both proofs valid under the current qualified time policy.
+
+A result is usable only if every applicable condition remains satisfied.
 
 ### R8V14-I015 — requalification
 
