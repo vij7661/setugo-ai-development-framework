@@ -142,7 +142,7 @@
       "source": [
         "NORM-018"
       ],
-      "requirement": "Compute Smax over full effective matching set; invalid permission at Smax blocks lower fallback."
+      "requirement": "AIM candidate scope uses the exact nine-component canonical scope tuple; specificity is exact non-ANY component count; compute AIM_Smax over the full effective matching set before permission/lifecycle filtering; at AIM_Smax every ANY component must be explicitly allowed for that semantic_class by the current ACTIVE AIMScopePolicy; invalid/missing/narrowed/revoked policy blocks lower fallback."
     },
     {
       "id": "SFV-16",
@@ -170,7 +170,7 @@
         "NORM-022",
         "NORM-023"
       ],
-      "requirement": "Compute semantic Smax before lifecycle; validate current ANY at Smax; no lower fallback."
+      "requirement": "Semantic candidates use the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY count; compute semantic Smax before lifecycle filtering; every ANY component must be allowed by the current ACTIVE ANYScopePermission for the semantic_class; permission drift/absence/conflict blocks with no lower fallback."
     },
     {
       "id": "SFV-19",
@@ -180,7 +180,7 @@
         "NORM-024",
         "NORM-025"
       ],
-      "requirement": "Every revoked blocker uniquely discharges before selection; partial discharge never grants authority; final SREP comparison is set-based and order-independent."
+      "requirement": "Every revoked Smax blocker uniquely discharges only through an explicitly linked ACTIVE successor or constitutional lineage/scope mapping; mapping source/destination entries and scope tuples must match; partial discharge never grants authority; final SREP comparison is set-based and order-independent."
     },
     {
       "id": "SFV-20",
@@ -318,7 +318,7 @@
         "NORM-015",
         "NORM-016"
       ],
-      "requirement": "CSM, AIM, ANY, AIMScopePolicy, ResolverPolicy, RIR, GuardRegistry and inherited revocation/nonce/effect/config heads are read from one current LAS-derived semantic_state_sequence; historical/caller-selected sequence has authority NONE."
+      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, AIMScopePolicy, ResolverPolicy and supporting heads/rules; canonical arrays preserve frozen ordering; all named heads are read from one current LAS-derived semantic_state_sequence; historical/caller-selected sequence has authority NONE."
     },
     {
       "id": "SFV-34",
