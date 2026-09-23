@@ -1,0 +1,39 @@
+{
+  "schema": "r8-v15-r1-executable-schema-review-handoff/v1",
+  "status": "REVIEW_ONLY_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "executable_schema_candidate_commit": "e09d322b6becf79a68773e571d0f5d3b9f2aa89e",
+  "review_branch": "review/r8-v15-r1-executable-schema-v1-2026-09-23",
+  "files": [
+    {
+      "path": "governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-DEEPSEEK-REVIEW-PACKET.txt",
+      "blob": "0ae55f58c8b0cc06fd18d62ad4a5bbcd993661f8",
+      "sha256": "8e5904cf71d04d386d36a1c78c87d44f101a420b02aeb6d2fe7ee5729fd45c2f",
+      "bytes_utf8": 179688
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-SOURCE-MACHINE-ARTIFACTS.txt",
+      "blob": "6955a9c85124cf78498cd437d0158bb4495abb14",
+      "sha256": "4b9ac7120f7241e2b9c5470d892c7aaecfc915d4561f6dcf8ec88ba279c03bc7",
+      "bytes_utf8": 347888
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-SRTT-4-TOTAL-TABLE.txt",
+      "blob": "f94451e345954a399c59a5a94943f58a14315579",
+      "sha256": "6ef1cda56e20c61fe4fbb6a64e77ed0da60fd4b2c06180f5e0a2bf719235b5cf",
+      "bytes_utf8": 1361478
+    }
+  ],
+  "loading_order": [
+    "R8-V15-R1-EXECUTABLE-SCHEMA-DEEPSEEK-REVIEW-PACKET.txt",
+    "R8-V15-R1-EXECUTABLE-SCHEMA-SOURCE-MACHINE-ARTIFACTS.txt",
+    "R8-V15-R1-EXECUTABLE-SCHEMA-SRTT-4-TOTAL-TABLE.txt"
+  ],
+  "reviewer_instruction": "Read all three TXT files completely. Execute the blind review contract embedded in the first packet. Use only the supplied handoff surface.",
+  "excluded": [
+    "prior external reviewer findings/dispositions",
+    "review adjudications",
+    "internal NCG/schema-freeze PASS reports"
+  ]
+}
