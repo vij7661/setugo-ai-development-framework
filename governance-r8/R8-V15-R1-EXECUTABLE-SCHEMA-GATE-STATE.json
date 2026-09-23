@@ -1,0 +1,44 @@
+{
+  "schema": "r8-v15-r1-executable-schema-gate-state/v1",
+  "status": "SCHEMA_ARTIFACT_FREEZE_BLOCKED_PENDING_SPG_QUALIFICATION",
+  "authority_effect": "NONE",
+  "semantic_freeze_id": "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-001",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "design_review": "BOUNDED_PASS",
+  "evidence_closure": "EVIDENCE_CLOSURE_PASS",
+  "blocking_rules": [
+    {
+      "source": "R8V7-I030",
+      "requirement": "Every machine-readable schema element generated for schema freeze must have an SPM-1 entry."
+    },
+    {
+      "source": "R8V7-I031",
+      "requirement": "Schema freeze rejects any schema element without SPM-1 provenance or with unauthorized semantic source."
+    },
+    {
+      "source": "R8V8-I020",
+      "requirement": "Any generator that emits schema artifacts or SPM-1 provenance entries must be enrolled as SchemaProvenanceGenerator."
+    },
+    {
+      "source": "R8V8-I021",
+      "requirement": "Each schema artifact/SPM-1 entry must bind exact input design identities, generator executable/runtime identity, workload attestation, generation event, output digest, provenance-map digest, and signature."
+    }
+  ],
+  "current_evidence": {
+    "qualified_schema_provenance_generator": false,
+    "spm1_entries_for_new_schema_elements": false,
+    "schema_artifacts_frozen": false
+  },
+  "permitted_now": [
+    "construct and test a non-authoritative SPG-1 candidate",
+    "preregister SPG-1 qualification tests",
+    "prepare schema inventory without emitting authority-bearing frozen schemas"
+  ],
+  "prohibited_now": [
+    "claim executable schema freeze complete",
+    "treat manually authored schema output as frozen authority",
+    "implement runtime behavior from unfrozen schema artifacts",
+    "release/deploy/production/terminal authority"
+  ],
+  "next_gate": "SPG_1_CONSTRUCTION_AND_QUALIFICATION"
+}
