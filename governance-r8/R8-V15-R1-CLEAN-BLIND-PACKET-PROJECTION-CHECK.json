@@ -1,0 +1,89 @@
+{
+  "schema": "r8-v15-r1-clean-blind-packet-projection-check/v1",
+  "status": "INTERNAL_PACKAGING_VERIFICATION_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "candidate_source_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "packet_path": "governance-r8/R8-V15-R1-CLEAN-BLIND-DESIGN-REVIEW-PACKET.txt",
+  "packet_blob": "2a31154467a4ada0b1b7f1c63abd27a67575396c",
+  "packet_sha256": "0354071d4375d3190a39aaff0f11b8e6f724f3c4ae0ddb007938dd1c05ebcdae",
+  "check_count": 9,
+  "pass_count": 9,
+  "fail_count": 0,
+  "checks": [
+    {
+      "id": "STRUCTURAL_CURRENT_STATUS",
+      "status": "PASS",
+      "evidence": {
+        "begin": 1,
+        "end": 1
+      }
+    },
+    {
+      "id": "STRUCTURAL_SEMANTIC_TEST_SECTION",
+      "status": "PASS",
+      "evidence": {
+        "begin": 1,
+        "end": 1,
+        "malformed": []
+      }
+    },
+    {
+      "id": "NO_PRIOR_STATUS_OUTSIDE_TEST_CONTEXT",
+      "status": "PASS",
+      "evidence": {
+        "matches": []
+      }
+    },
+    {
+      "id": "NO_PRIOR_REVIEW_PATHS_OUTSIDE_TEST_CONTEXT",
+      "status": "PASS",
+      "evidence": {
+        "matches": []
+      }
+    },
+    {
+      "id": "EMBEDDED_MANIFESTS_PARSE",
+      "status": "PASS",
+      "evidence": {
+        "projection": true,
+        "omission": true
+      }
+    },
+    {
+      "id": "PROJECTION_DIGEST_REPRODUCES",
+      "status": "PASS",
+      "evidence": {
+        "expected": "b9e5db5c585cbdaf85a830e910affcf14b0bbd20afe3e8084793a061dbd13b72",
+        "actual": "b9e5db5c585cbdaf85a830e910affcf14b0bbd20afe3e8084793a061dbd13b72"
+      }
+    },
+    {
+      "id": "PROJECTION_SOURCE_DIGESTS_MATCH",
+      "status": "PASS",
+      "evidence": {
+        "mismatches": []
+      }
+    },
+    {
+      "id": "OMISSION_SET_EVIDENCE",
+      "status": "PASS",
+      "evidence": {
+        "reverification": {
+          "method": "reparse exact canonical source line ranges; expand inclusive Vn-xxx..Vn-yyy case ranges; compare exact explicit sets",
+          "omitted_table_count": 11,
+          "all_case_sets_equal": true,
+          "all_guard_sets_equal": true,
+          "evidence_class": "SOURCE_REPARSE_SET_EQUALITY"
+        }
+      }
+    },
+    {
+      "id": "NO_PROCESS_HISTORY_LEAK",
+      "status": "PASS",
+      "evidence": {
+        "leaks": []
+      }
+    }
+  ],
+  "result": "PASS"
+}
