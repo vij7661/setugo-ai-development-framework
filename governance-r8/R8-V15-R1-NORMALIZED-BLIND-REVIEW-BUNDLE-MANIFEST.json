@@ -1,0 +1,156 @@
+{
+  "schema": "r8-v15-r1-normalized-blind-review-bundle/v1",
+  "status": "REVIEW_ONLY_DESIGN_ONLY_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "repository": "vij7661/setugo-ai-development-framework",
+  "candidate_source_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "packaging_branch": "packaging/r8-v15-r1-review-bundle-2026-09-23",
+  "authoritative_review_surface": "governance-r8/R8-V15-R1-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt",
+  "files": [
+    {
+      "id": "review_prompt",
+      "path": "governance-r8/R8-V15-R1-NORMALIZED-BLIND-DESIGN-REVIEW-PROMPT.txt",
+      "role": "review_instructions",
+      "git_blob_sha1": "bf3724eccba427bcb1e1b174ddb145cc4a8311e3",
+      "sha256": "95ea0382f67c7b78e94506ad5b2f5a6ae858d4fb15717ab82fedddaaa201fc5a",
+      "bytes_utf8": 2676,
+      "required": true
+    },
+    {
+      "id": "review_packet",
+      "path": "governance-r8/R8-V15-R1-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt",
+      "role": "authoritative_human_review_surface",
+      "git_blob_sha1": "fb6f009ac23090a880859b4222f606e4cae642fe",
+      "sha256": "5c5f819fd16d622d65e52723807b258445022ce07c93acef111e576c2aa92be5",
+      "bytes_utf8": 97093,
+      "required": true
+    },
+    {
+      "id": "normalized_spec",
+      "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
+      "role": "normalized_effective_semantics",
+      "git_blob_sha1": "03b408d2f3c5b1de2ce65136923a079ccda83370",
+      "sha256": "1d9e84371c0c0b118d6f62dc26d4f9d070de90a35f588e77143bf7f766f48a81",
+      "bytes_utf8": 21422,
+      "required": true
+    },
+    {
+      "id": "detail_appendix",
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "role": "load_bearing_inherited_detail",
+      "git_blob_sha1": "5d8628e7379be17b896a0058276bddbee8981dc2",
+      "sha256": "8a2ad01d84045df4f1376291e558774ab1db182bc77dd61d50986570439d896e",
+      "bytes_utf8": 10889,
+      "required": true
+    },
+    {
+      "id": "matrices",
+      "path": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+      "role": "dependency_evaluation_ownership",
+      "git_blob_sha1": "5fa161946720915ec10e0dfd51330a026a40c912",
+      "sha256": "3ddb821e377448b06760f83053e98af738d4764cacf17fb2c616629a6cf81a54",
+      "bytes_utf8": 12361,
+      "required": true
+    },
+    {
+      "id": "cross_cases",
+      "path": "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md",
+      "role": "adversarial_corpus",
+      "git_blob_sha1": "6ded08ed976742af27e5ecb820aa7bff86003560",
+      "sha256": "3417ab8a0449b83068a9d63173a40533fb56d2602a3ba569d2418a3e36710d8b",
+      "bytes_utf8": 11490,
+      "required": true
+    },
+    {
+      "id": "guard_registry",
+      "path": "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+      "role": "guard_identity",
+      "git_blob_sha1": "c8bb2bff87ee07296f11e53eb9ddaa411614655d",
+      "sha256": "2684ffd96fef07193f8849b0210fcbdf1934efbecd30723ac7702a7b2e9f7482",
+      "bytes_utf8": 106820,
+      "required": true
+    },
+    {
+      "id": "case_registry",
+      "path": "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+      "role": "case_identity",
+      "git_blob_sha1": "0bf4f88cf424604cf4c690774c7c65e41a4f7b79",
+      "sha256": "3bc36599028a99aaf2ae70d0cf89c518a5b09868a68a2a2e864716cc3e1e074c",
+      "bytes_utf8": 139952,
+      "required": true
+    },
+    {
+      "id": "srtt_rules",
+      "path": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+      "role": "scope_replacement_rule_registry",
+      "git_blob_sha1": "a8319b369440e0c24f9080ccf37103f7d620e8c1",
+      "sha256": "5dd0d9a2e63548fe86b2eeecb062e61ed77e49ea79ffe324cf14cca441bd3213",
+      "bytes_utf8": 3712,
+      "required": true
+    },
+    {
+      "id": "srtt_table",
+      "path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "role": "scope_replacement_total_table",
+      "git_blob_sha1": "f94451e345954a399c59a5a94943f58a14315579",
+      "sha256": "6ef1cda56e20c61fe4fbb6a64e77ed0da60fd4b2c06180f5e0a2bf719235b5cf",
+      "bytes_utf8": 1361478,
+      "required": true
+    },
+    {
+      "id": "bsp5",
+      "path": "governance-r8/R8-V15-BSP-5-GRAMMAR.json",
+      "role": "blind_projection_grammar",
+      "git_blob_sha1": "51277cbce825236e387b83392b927dd5263007b2",
+      "sha256": "94ee62004caf736a28df5e74dd24ff93beff4fab287df450f330548510466ca7",
+      "bytes_utf8": 4352,
+      "required": true
+    },
+    {
+      "id": "traceability",
+      "path": "governance-r8/R8-V15-NCG-1-TRACEABILITY-MANIFEST.json",
+      "role": "normalized_rule_traceability",
+      "git_blob_sha1": "cdbc368790aeaa52c62920d0fa475006d3df8fd0",
+      "sha256": "6a7788d225106dcc4bf77ea45a8a17c03cda152eca637a5071e8068968145f52",
+      "bytes_utf8": 7712,
+      "required": true
+    },
+    {
+      "id": "guard_omission",
+      "path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+      "role": "legacy_guard_omission_proof",
+      "git_blob_sha1": "01f4f9269cd2ef896c275da3800350450efad689",
+      "sha256": "5740a834e6d68a3f6c7742f6b49f3110a0a7a80c00be21bbe554677f5cb5ab3c",
+      "bytes_utf8": 27591,
+      "required": true
+    },
+    {
+      "id": "structured_closure",
+      "path": "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+      "role": "dependency_graph_structure",
+      "git_blob_sha1": "d9fb03fad2b591d22a125cff5f5c0ea72ad95bba",
+      "sha256": "407675f61bb2abd7d2ac4a58aa788c766b32541fa56ef1e0fab0fd0c79daf397",
+      "bytes_utf8": 6196,
+      "required": true
+    },
+    {
+      "id": "projection_manifest",
+      "path": "governance-r8/R8-V15-R1-PROJECTION-MANIFEST-3.json",
+      "role": "review_projection_reproducibility",
+      "git_blob_sha1": "d4949af998940720194bb29885ebb9ebdcba0721",
+      "sha256": "898bfa815dac27a8fa3189b30edf4c1656b2f2118518c41b58de4a127905b73b",
+      "bytes_utf8": 4814,
+      "required": true
+    }
+  ],
+  "excluded_internal_outcome_artifacts": [
+    "governance-r8/R8-V15-R1-NCG-1-RECOMPUTED-VERIFICATION.json",
+    "governance-r8/R8-V15-R1-NCG-1-PACKET-PROJECTION-CHECKS.json",
+    "governance-r8/R8-V15-R1-NCG-1-CLOSURE-REPORT.md",
+    "governance-r8/R8-V15-NCG-1-RECOMPUTED-VERIFICATION.json"
+  ],
+  "excluded_historical_review_material": true,
+  "prior_adjudications_included": false,
+  "first_failed_projection_attempt_included": false,
+  "reviewer_instruction": "Use the authoritative blind packet plus all required machine companions. Do not consult excluded internal results or prior review/adjudication material."
+}
