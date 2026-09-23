@@ -144,31 +144,52 @@
       ]
     },
     "NegativeControl": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/CaseControl"
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^V\\d+-\\d{3}$"
         },
-        {
-          "type": "object",
-          "properties": {
-            "fault_proof_class": {
-              "enum": [
-                "FP0",
-                "FP1",
-                "FP2",
-                "FP3",
-                "FP4",
-                "FP5",
-                "FP6"
-              ]
-            }
-          },
-          "required": [
-            "fault_proof_class"
+        "case_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string",
+          "pattern": "^v\\d+$"
+        },
+        "source_commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_blob": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "fault_proof_class": {
+          "enum": [
+            "FP0",
+            "FP1",
+            "FP2",
+            "FP3",
+            "FP4",
+            "FP5",
+            "FP6"
           ]
         }
-      ],
-      "unevaluatedProperties": false
+      },
+      "required": [
+        "case_id",
+        "case_text",
+        "source_version",
+        "source_commit",
+        "source_blob",
+        "fault_proof_class"
+      ]
     }
   },
   "x-governance-source": [
