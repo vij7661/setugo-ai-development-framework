@@ -1,0 +1,47 @@
+name: Package R8 v14 normalized blind review bundle
+
+on:
+  push:
+    branches:
+      - packaging/r8-v14-review-bundle-2026-09-23
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packaging snapshot
+        uses: actions/checkout@v4
+
+      - name: Assemble exact governed reviewer bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bundle
+          cp review-packets/R8-V14-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt bundle/
+          cp review-packets/R8-V14-NORMALIZED-BLIND-REVIEW-BUNDLE-MANIFEST.json bundle/
+          cp review-packets/R8-V14-NORMALIZED-EFFECTIVE-SPEC-BLIND.md bundle/
+          cp review-requests/R8-V14-NORMALIZED-META-GOVERNANCE-INDEPENDENT-REVIEW.md bundle/
+          cp governance-r8/R8-V14-NORMALIZED-DETAIL-APPENDIX.md bundle/
+          cp governance-r8/R8-V14-NCG-1-MATRICES.md bundle/
+          cp governance-r8/R8-V14-NCG-1-CROSS-MECHANISM-CASES.md bundle/
+          cp governance-r8/R8-V14-NCG-1-STRUCTURED-CLOSURE.json bundle/
+          cp governance-r8/R8-V14-GUARD-REGISTRY-1.json bundle/
+          cp governance-r8/R8-V14-CASE-REGISTRY-1.json bundle/
+          cp governance-r8/R8-V14-SRTT-3-TOTAL-TABLE.json bundle/
+          cp governance-r8/R8-V14-BSP-4-GRAMMAR.json bundle/
+          cp governance-r8/R8-V14-NCG-1-TRACEABILITY-MANIFEST.json bundle/
+          cp governance-r8/R8-V14-GUARD-OMISSION-MANIFEST-1.json bundle/
+          (cd bundle && sha256sum * | sort > SHA256SUMS.txt)
+          printf '%s\n'             'PACKAGING NOTE — NON-AUTHORITATIVE'             'Source frozen review commit: b61e3324fb0239883aa6ec87aa02fb4dda09e878'             'This ZIP only packages the frozen v14 normalized blind-review artifacts.'             'Internal NCG PASS reports/check outputs and prior reviews/adjudications are intentionally excluded.'             'Use R8-V14-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt and the reviewer request as the review entry point.'             > bundle/PACKAGING-NOTE.txt
+
+      - name: Upload reviewer bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: R8-V14-NORMALIZED-BLIND-REVIEW-BUNDLE
+          path: bundle/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
