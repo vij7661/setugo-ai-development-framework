@@ -58,16 +58,20 @@ def source_ids_for(path_name: str, pointer: str, source_map: dict[str, Any]) -> 
         return best[1]
     return list(cfg["source_design_ids"])
 
-def source_refs_for(source_map: dict[str, Any]) -> list[dict[str, str]]:
-    refs = []
-    seen = set()
+def source_ref_catalog(source_map: dict[str, Any]) -> dict[str, dict[str, str]]:
+    catalog: dict[str, dict[str, str]] = {}
+    seen: dict[tuple[str, str, str], str] = {}
+    counter = 0
     for group in ("default_source_refs", "process_source_refs"):
         for r in source_map.get(group, []):
             key = (r["path"], r["commit"], r["blob"])
-            if key not in seen:
-                seen.add(key)
-                refs.append(r)
-    return refs
+            if key in seen:
+                continue
+            counter += 1
+            rid = f"SRC-{counter:03d}"
+            seen[key] = rid
+            catalog[rid] = r
+    return catalog
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -86,7 +90,8 @@ def main() -> int:
 
     artifacts = []
     entries = []
-    refs = source_refs_for(source_map)
+    source_catalog = source_ref_catalog(source_map)
+    source_ref_ids = list(source_catalog.keys())
 
     for name in sorted(source_map["artifact_sources"]):
         path = root / name
@@ -109,7 +114,7 @@ def main() -> int:
                 "json_pointer": ptr,
                 "semantic_purpose": f"Frozen executable-schema element {name}{ptr}",
                 "source_design_ids": source_ids_for(name, ptr, source_map),
-                "source_refs": refs,
+                "source_ref_ids": source_ref_ids,
                 "generator_id": GENERATOR_ID,
                 "generator_runtime_manifest_digest": generator["runtime_manifest"]["runtime_manifest_digest"],
                 "reviewer_status": "REVIEW_REQUIRED",
@@ -128,6 +133,7 @@ def main() -> int:
             "workload_attestation_proof_digest": generator["workload_attestation_proof_digest"],
             "qualification_status": generator["qualification_status"],
         },
+        "source_ref_catalog": source_catalog,
         "artifact_count": len(artifacts),
         "entry_count": len(entries),
         "artifacts": artifacts,
