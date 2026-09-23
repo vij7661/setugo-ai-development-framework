@@ -294,7 +294,8 @@ Trace: v7-v9 EESM / reconciler rules.
 
 ### Blind review
 - BSP-5 requires exactly one explicit version-15 current-status block;
-- semantic-test literals are limited to exact parser states;
+- semantic-test literals are limited to exact parser states, including explicitly paired MARKED_SEMANTIC_TEST_SECTION blocks;
+- the cross-mechanism adversarial corpus is enclosed in the stable marked section id `cross-mechanism-adversarial-corpus`;
 - omission proof expands inclusive source ranges and requires exact source/manifest set equality.
 
 ### Liveness
