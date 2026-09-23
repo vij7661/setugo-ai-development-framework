@@ -1,0 +1,112 @@
+{
+  "schema": "projection-manifest-3/v2",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "bsp_version": "BSP-5",
+  "current_candidate_version": 15,
+  "current_candidate_source_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "generation_mode": "NORMALIZED_DIRECT_SURFACE",
+  "source_artifacts": [
+    {
+      "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
+      "git_blob_sha1": "03b408d2f3c5b1de2ce65136923a079ccda83370",
+      "sha256": "1d9e84371c0c0b118d6f62dc26d4f9d070de90a35f588e77143bf7f766f48a81",
+      "bytes_utf8": 21422
+    },
+    {
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "git_blob_sha1": "5d8628e7379be17b896a0058276bddbee8981dc2",
+      "sha256": "8a2ad01d84045df4f1376291e558774ab1db182bc77dd61d50986570439d896e",
+      "bytes_utf8": 10889
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+      "git_blob_sha1": "5fa161946720915ec10e0dfd51330a026a40c912",
+      "sha256": "3ddb821e377448b06760f83053e98af738d4764cacf17fb2c616629a6cf81a54",
+      "bytes_utf8": 12361
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md",
+      "git_blob_sha1": "6ded08ed976742af27e5ecb820aa7bff86003560",
+      "sha256": "3417ab8a0449b83068a9d63173a40533fb56d2602a3ba569d2418a3e36710d8b",
+      "bytes_utf8": 11490
+    },
+    {
+      "path": "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+      "git_blob_sha1": "c8bb2bff87ee07296f11e53eb9ddaa411614655d",
+      "sha256": "2684ffd96fef07193f8849b0210fcbdf1934efbecd30723ac7702a7b2e9f7482",
+      "bytes_utf8": 106820
+    },
+    {
+      "path": "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+      "git_blob_sha1": "0bf4f88cf424604cf4c690774c7c65e41a4f7b79",
+      "sha256": "3bc36599028a99aaf2ae70d0cf89c518a5b09868a68a2a2e864716cc3e1e074c",
+      "bytes_utf8": 139952
+    },
+    {
+      "path": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+      "git_blob_sha1": "a8319b369440e0c24f9080ccf37103f7d620e8c1",
+      "sha256": "5dd0d9a2e63548fe86b2eeecb062e61ed77e49ea79ffe324cf14cca441bd3213",
+      "bytes_utf8": 3712
+    },
+    {
+      "path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "git_blob_sha1": "f94451e345954a399c59a5a94943f58a14315579",
+      "sha256": "6ef1cda56e20c61fe4fbb6a64e77ed0da60fd4b2c06180f5e0a2bf719235b5cf",
+      "bytes_utf8": 1361478
+    },
+    {
+      "path": "governance-r8/R8-V15-BSP-5-GRAMMAR.json",
+      "git_blob_sha1": "51277cbce825236e387b83392b927dd5263007b2",
+      "sha256": "94ee62004caf736a28df5e74dd24ff93beff4fab287df450f330548510466ca7",
+      "bytes_utf8": 4352
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-TRACEABILITY-MANIFEST.json",
+      "git_blob_sha1": "cdbc368790aeaa52c62920d0fa475006d3df8fd0",
+      "sha256": "6a7788d225106dcc4bf77ea45a8a17c03cda152eca637a5071e8068968145f52",
+      "bytes_utf8": 7712
+    },
+    {
+      "path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+      "git_blob_sha1": "01f4f9269cd2ef896c275da3800350450efad689",
+      "sha256": "5740a834e6d68a3f6c7742f6b49f3110a0a7a80c00be21bbe554677f5cb5ab3c",
+      "bytes_utf8": 27591
+    },
+    {
+      "path": "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+      "git_blob_sha1": "d9fb03fad2b591d22a125cff5f5c0ea72ad95bba",
+      "sha256": "407675f61bb2abd7d2ac4a58aa788c766b32541fa56ef1e0fab0fd0c79daf397",
+      "bytes_utf8": 6196
+    }
+  ],
+  "removed_record_count_by_class": {
+    "PRIOR_STATUS": 0,
+    "PRIOR_REVIEW_METADATA": 0,
+    "LEGACY_GUARD_TABLE": 11
+  },
+  "guard_omission_manifest_path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+  "guard_omission_manifest_blob": "01f4f9269cd2ef896c275da3800350450efad689",
+  "current_status_binding": {
+    "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+    "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+    "expected_structural_count": 1,
+    "markers_structural_only_as_standalone_lines_outside_fenced_code": true
+  },
+  "semantic_test_sections": [
+    {
+      "id": "cross-mechanism-adversarial-corpus",
+      "begin_marker": "<!-- BSP:SEMANTIC_TEST_SECTION_BEGIN id=cross-mechanism-adversarial-corpus -->",
+      "end_marker": "<!-- BSP:SEMANTIC_TEST_SECTION_END id=cross-mechanism-adversarial-corpus -->",
+      "expected_structural_count": 1
+    }
+  ],
+  "residual_expectation": {
+    "PRIOR_STATUS": 0,
+    "PRIOR_REVIEW_METADATA": 0,
+    "CURRENT_STATUS_BLOCKS": 1,
+    "MALFORMED_SEMANTIC_TEST_SECTIONS": 0
+  },
+  "digest_basis_rule": "Reconstruct exact review packet with this ProjectionManifest serialized as JSON indent=2 but with authoritative_txt_sha256_excluding_manifest_self_digest omitted; all other bytes unchanged.",
+  "authoritative_txt_sha256_excluding_manifest_self_digest": "ab176e4fc41854923aafa82e569132d54822036bdb6441543ffaeff74a01d50d"
+}
