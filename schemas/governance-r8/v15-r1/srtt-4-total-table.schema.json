@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+  "title": "R8 v15-r1 SRTT-4 Total Table",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-srtt-4-total-table/v1"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "generator_contract": {
+      "const": "R8V15-I001..I007"
+    },
+    "rule_registry_path": {
+      "const": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json"
+    },
+    "domain_fixed": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "const": "REVOKED"
+        }
+      },
+      "required": [
+        "source_entry_state"
+      ]
+    },
+    "enum_order": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "old_scope_match": {
+          "const": [
+            "NO_MATCH",
+            "EXACT_MATCH"
+          ]
+        },
+        "destination_scope_match": {
+          "const": [
+            "NO_MATCH",
+            "EXACT_MATCH",
+            "MAPPED_MATCH"
+          ]
+        },
+        "old_scope_effect": {
+          "const": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "scope_relation": {
+          "const": [
+            "SAME",
+            "NARROWER",
+            "BROADER",
+            "DISJOINT"
+          ]
+        },
+        "any_permission_valid": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "mapping_effective": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "lineage_mapping_valid": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "scope_expansion_authorized": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "decision_inside_authorized_expansion_domain": {
+          "const": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "old_scope_match",
+        "destination_scope_match",
+        "old_scope_effect",
+        "scope_relation",
+        "any_permission_valid",
+        "mapping_effective",
+        "lineage_mapping_valid",
+        "scope_expansion_authorized",
+        "decision_inside_authorized_expansion_domain"
+      ]
+    },
+    "row_count": {
+      "const": 2304
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "SEMANTIC_SCOPE_REVOKED": {
+          "const": 1808
+        },
+        "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED": {
+          "const": 288
+        },
+        "MAPPING_NOT_APPLICABLE": {
+          "const": 144
+        },
+        "REPLACEMENT_ELIGIBLE": {
+          "const": 22
+        },
+        "SEMANTIC_SCOPE_REPLACEMENT_INVALID": {
+          "const": 42
+        }
+      },
+      "required": [
+        "SEMANTIC_SCOPE_REVOKED",
+        "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+        "MAPPING_NOT_APPLICABLE",
+        "REPLACEMENT_ELIGIBLE",
+        "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expected_row_count": {
+          "const": 2304
+        },
+        "generated_row_count": {
+          "const": 2304
+        },
+        "every_row_has_declared_rule": {
+          "const": true
+        },
+        "generation_conflicts": {
+          "const": 0
+        }
+      },
+      "required": [
+        "expected_row_count",
+        "generated_row_count",
+        "every_row_has_declared_rule",
+        "generation_conflicts"
+      ]
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 2304,
+      "maxItems": 2304,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2304
+          },
+          "input": {
+            "$ref": "runtime-contracts.schema.json#/$defs/ScopeReplacementInput"
+          },
+          "result": {
+            "enum": [
+              "SEMANTIC_SCOPE_REVOKED",
+              "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+              "MAPPING_NOT_APPLICABLE",
+              "REPLACEMENT_ELIGIBLE",
+              "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+            ]
+          },
+          "decisive_rule_id": {
+            "type": "string",
+            "pattern": "^SRTT15-R(?:0[1-9]|1[01])$"
+          }
+        },
+        "required": [
+          "row_id",
+          "input",
+          "result",
+          "decisive_rule_id"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "generator_contract",
+    "rule_registry_path",
+    "domain_fixed",
+    "enum_order",
+    "row_count",
+    "distribution",
+    "verification",
+    "rows"
+  ],
+  "x-governance-source": [
+    "NORM-027"
+  ]
+}
