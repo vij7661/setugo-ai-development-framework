@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/guard-registry.schema.json",
+  "title": "R8 v15-r1 GuardRegistry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "registry_range": {
+      "const": "G001-G156"
+    },
+    "seed_catalog": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ]
+    },
+    "v13_design": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "v14_design": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "v15_design": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "minItems": 156,
+      "maxItems": 156,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "guard_id": {
+            "type": "string",
+            "pattern": "^G(?:0(?:0[1-9]|[1-9][0-9])|1(?:[0-4][0-9]|5[0-6]))$"
+          },
+          "mechanism_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "positive_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            },
+            "uniqueItems": true
+          },
+          "negative_cases": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "case_id": {
+                  "type": "string",
+                  "pattern": "^V\\d+-\\d{3}$"
+                },
+                "fault_proof_class": {
+                  "type": "string",
+                  "pattern": "^FP[0-6]$"
+                }
+              },
+              "required": [
+                "case_id",
+                "fault_proof_class"
+              ]
+            }
+          },
+          "canonical_source": {
+            "type": "object",
+            "minProperties": 1
+          },
+          "activation_sequence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lifecycle_state": {
+            "const": "ACTIVE"
+          }
+        },
+        "required": [
+          "guard_id",
+          "mechanism_id",
+          "positive_case_ids",
+          "negative_cases",
+          "canonical_source",
+          "activation_sequence",
+          "lifecycle_state"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "registry_range",
+    "records"
+  ],
+  "x-governance-source": [
+    "NORM-040"
+  ]
+}
