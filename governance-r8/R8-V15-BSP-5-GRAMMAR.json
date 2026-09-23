@@ -1,0 +1,95 @@
+{
+  "schema": "bsp-5-grammar/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "current_candidate_version": 15,
+  "parser_states": [
+    "NORMAL",
+    "FENCED_CODE",
+    "FENCED_SEMANTIC_TEST_DATA",
+    "CASE_SECTION",
+    "GUARD_RECORD_SECTION",
+    "CURRENT_STATUS_BLOCK",
+    "PREDECESSOR_STATUS_BLOCK",
+    "PRIOR_REVIEW_METADATA_BLOCK"
+  ],
+  "line_classes": [
+    "CURRENT_STATUS",
+    "PRIOR_STATUS",
+    "PRIOR_REVIEW_METADATA",
+    "SEMANTIC_CONTENT",
+    "SEMANTIC_TEST_LITERAL",
+    "LEGACY_GUARD_TABLE",
+    "BLANK_STRUCTURAL"
+  ],
+  "current_status_binding": {
+    "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+    "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+    "exact_block_count": 1,
+    "version_must_equal_current_candidate_version": true,
+    "nested_blocks_forbidden": true,
+    "unterminated_block_result": "REVIEW_PACKET_INCOMPLETE",
+    "multiple_blocks_result": "REVIEW_PACKET_INCOMPLETE",
+    "mismatched_version_result": "REVIEW_PACKET_INCOMPLETE"
+  },
+  "patterns": {
+    "version_token": "\\bR8\\s+v(?<version>\\d+)\\b",
+    "status_token": "\\b(?:CHANGES_REQUIRED|BOUNDED_PASS|INSUFFICIENT_EVIDENCE|REVIEW_REQUIRED|INDEPENDENT_REVIEW_REQUIRED|NOT_IMPLEMENTED)\\b",
+    "review_path": "(?:review-evidence/|review-adjudications/)",
+    "review_heading": "(?i)\\b(?:independent\\s+review|review\\s+adjudication|adjudication)\\b",
+    "status_header": "(?i)^\\s*Status\\s*:",
+    "fenced_code": "^\\s*```",
+    "semantic_test_fence": "^\\s*```(?:json|yaml|text)?\\s+semantic-test-data\\s*$",
+    "case_heading": "^#{2,6}\\s+.*(?:case|cases|vector|vectors|preregistered)",
+    "guard_record_heading": "^#{2,6}\\s+.*(?:guard|GuardRegistry|CaseRegistry)"
+  },
+  "semantic_test_contexts": {
+    "allowed_states": [
+      "CASE_SECTION",
+      "GUARD_RECORD_SECTION",
+      "FENCED_SEMANTIC_TEST_DATA"
+    ],
+    "ordinary_prose_status_token_is_semantic_test_literal": false
+  },
+  "classification_order": [
+    "consume exact current-status begin/end markers and validate block cardinality/version",
+    "track fenced-code and fenced-semantic-test-data entry/exit",
+    "track case and guard-record sections",
+    "classify lines inside valid CURRENT_STATUS_BLOCK as CURRENT_STATUS",
+    "classify predecessor status/review blocks using explicit version + status/review grammar",
+    "classify status-token lines inside allowed semantic-test states as SEMANTIC_TEST_LITERAL",
+    "classify legacy guard tables as LEGACY_GUARD_TABLE",
+    "otherwise SEMANTIC_CONTENT or BLANK_STRUCTURAL"
+  ],
+  "remove_classes": [
+    "PRIOR_STATUS",
+    "PRIOR_REVIEW_METADATA",
+    "LEGACY_GUARD_TABLE"
+  ],
+  "retain_classes": [
+    "CURRENT_STATUS",
+    "SEMANTIC_CONTENT",
+    "SEMANTIC_TEST_LITERAL",
+    "BLANK_STRUCTURAL"
+  ],
+  "residual_rule": {
+    "rerun_same_parser": true,
+    "fail_if": [
+      "PRIOR_STATUS",
+      "PRIOR_REVIEW_METADATA"
+    ],
+    "require_exact_current_status_block_count": 1,
+    "raw_token_search_is_authoritative": false
+  },
+  "guard_table_omission_rule": {
+    "allowed_only_with_guard_omission_manifest": true,
+    "source_case_set_equality_required": true,
+    "unique_case_or_invariant_semantics_may_not_be_removed": true
+  },
+  "governing_rules": [
+    "R8V15-I010",
+    "R8V15-I011",
+    "R8V15-I012",
+    "R8V15-I013"
+  ]
+}
