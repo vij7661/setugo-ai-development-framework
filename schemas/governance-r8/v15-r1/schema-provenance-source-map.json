@@ -1,0 +1,303 @@
+{
+  "schema": "r8-v15-r1-schema-provenance-source-map/v1",
+  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "default_source_refs": [
+    {
+      "design_id": "R8-V15-R1-NORMALIZED-EFFECTIVE-SPEC",
+      "path": "governance-r8/R8-V15-R1-BLIND-NORMALIZED-EFFECTIVE-SPEC.md",
+      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "blob": "7ca0d0d40cff557fd2eb2a95cc7555616c8d79f6"
+    },
+    {
+      "design_id": "R8-V15-NORMALIZED-DETAIL-APPENDIX",
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2"
+    }
+  ],
+  "artifact_sources": {
+    "runtime-contracts.schema.json": {
+      "source_design_ids": [
+        "NORM-001..NORM-039",
+        "R8 v15 normalized detail appendix"
+      ],
+      "pointer_prefix_sources": {
+        "/$defs/T0SuccessorManifest": [
+          "NORM-003"
+        ],
+        "/$defs/MTRChallenge": [
+          "NORM-004"
+        ],
+        "/$defs/MTRResponse": [
+          "NORM-004"
+        ],
+        "/$defs/BTWVerificationState": [
+          "NORM-005"
+        ],
+        "/$defs/CanonicalIdentityRef": [
+          "NORM-006",
+          "NORM-007"
+        ],
+        "/$defs/RevocationEvent": [
+          "NORM-008"
+        ],
+        "/$defs/GGSHardState": [
+          "NORM-009"
+        ],
+        "/$defs/StateTransferCertificate": [
+          "NORM-009",
+          "NORM-010",
+          "NORM-011",
+          "NORM-012"
+        ],
+        "/$defs/LASHardState": [
+          "NORM-010"
+        ],
+        "/$defs/LASAuthorityStateRoot": [
+          "NORM-010",
+          "NORM-015",
+          "NORM-016"
+        ],
+        "/$defs/AIEPRuntimeProfile": [
+          "NORM-013"
+        ],
+        "/$defs/CurrentSemanticModelBundle": [
+          "NORM-014"
+        ],
+        "/$defs/CanonicalScopeTuple": [
+          "NORM-014",
+          "NORM-017",
+          "NORM-018",
+          "NORM-023",
+          "NORM-026",
+          "NORM-027"
+        ],
+        "/$defs/ANYScopePermission": [
+          "NORM-014",
+          "NORM-023"
+        ],
+        "/$defs/AIMScopePolicy": [
+          "NORM-014",
+          "NORM-018"
+        ],
+        "/$defs/SemanticHeads": [
+          "NORM-015"
+        ],
+        "/$defs/AIMDescriptor": [
+          "NORM-017",
+          "NORM-018"
+        ],
+        "/$defs/ResolverPolicyContract": [
+          "NORM-019"
+        ],
+        "/$defs/ResolverImplementationRegistryRecord": [
+          "NORM-020"
+        ],
+        "/$defs/ResolverConformanceEvidence": [
+          "NORM-021"
+        ],
+        "/$defs/SemanticEntry": [
+          "NORM-022",
+          "NORM-023",
+          "NORM-024"
+        ],
+        "/$defs/ScopeReplacementMapping": [
+          "NORM-024",
+          "NORM-027"
+        ],
+        "/$defs/SemanticLineageMapping": [
+          "NORM-024",
+          "NORM-026"
+        ],
+        "/$defs/SemanticResolvedResult": [
+          "NORM-024",
+          "NORM-025"
+        ],
+        "/$defs/ScopeReplacementInput": [
+          "NORM-027"
+        ],
+        "/$defs/ScopeReplacementDecision": [
+          "NORM-027"
+        ],
+        "/$defs/ReviewAttestation": [
+          "NORM-028",
+          "NORM-029"
+        ],
+        "/$defs/AuthorityReadSet": [
+          "NORM-030"
+        ],
+        "/$defs/DecisionPresealContext": [
+          "NORM-031"
+        ],
+        "/$defs/QualifiedTimeProof": [
+          "NORM-032"
+        ],
+        "/$defs/VerifiedStateSeal": [
+          "NORM-033"
+        ],
+        "/$defs/EffectIntent": [
+          "NORM-034"
+        ],
+        "/$defs/EffectStateRecord": [
+          "NORM-034"
+        ],
+        "/$defs/EvidenceRecord": [
+          "NORM-035",
+          "NORM-036"
+        ],
+        "/$defs/MigrationBinding": [
+          "NORM-037"
+        ],
+        "/$defs/RecoveryContext": [
+          "NORM-038",
+          "NORM-039"
+        ]
+      }
+    },
+    "guard-registry.schema.json": {
+      "source_design_ids": [
+        "NORM-040",
+        "GuardRegistry-1"
+      ]
+    },
+    "case-registry.schema.json": {
+      "source_design_ids": [
+        "NORM-040",
+        "CaseRegistry normalized closure"
+      ]
+    },
+    "srtt-4-rule-registry.schema.json": {
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ]
+    },
+    "srtt-4-total-table.schema.json": {
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ]
+    },
+    "bsp-5-grammar.schema.json": {
+      "source_design_ids": [
+        "NORM-041",
+        "R8V15-I010..I013"
+      ]
+    },
+    "ncg-structured-closure.schema.json": {
+      "source_design_ids": [
+        "NORM-043",
+        "R8V15-I022..I023"
+      ]
+    },
+    "guard-omission-source-evidence.schema.json": {
+      "source_design_ids": [
+        "NORM-042",
+        "R8V15-I008..I009"
+      ]
+    },
+    "guard-omission-manifest.schema.json": {
+      "source_design_ids": [
+        "NORM-042",
+        "R8V15-I008..I009"
+      ]
+    },
+    "case-proof-contracts.schema.json": {
+      "source_design_ids": [
+        "R8V7-I044",
+        "R8V7-I045",
+        "R8 v7-v13 schema-freeze gates",
+        "NORM-040"
+      ]
+    },
+    "gcp-rvm-2.schema.json": {
+      "source_design_ids": [
+        "R8V4-I026..I029",
+        "R8V5-I028..I034",
+        "R8V7 GCP rejection vectors",
+        "R8V8-I034..I035"
+      ]
+    },
+    "review-presentation-schema.schema.json": {
+      "source_design_ids": [
+        "R8V7-I038",
+        "R8V7-I039",
+        "NORM-028",
+        "NORM-041"
+      ]
+    },
+    "schema-provenance-manifest.schema.json": {
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ]
+    },
+    "schema-provenance-generator.schema.json": {
+      "source_design_ids": [
+        "R8V8-I020..I022",
+        "R8V5-I026..I027"
+      ]
+    },
+    "schema-freeze-validator-contract.json": {
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ]
+    },
+    "schema-freeze-traceability.json": {
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ]
+    }
+  },
+  "process_source_refs": [
+    {
+      "design_id": "R8V7-I030..I031",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V7.md",
+      "commit": "8ac039d3287193c73844c9213712235deecb17e2",
+      "blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "design_id": "R8V8-I020..I022 / I034..I035",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V8.md",
+      "commit": "2641c01ab56bd0d90c400b76e1f4c1a554491b53",
+      "blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "design_id": "R8 v9 schema-freeze gate",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V9.md",
+      "commit": "31cf0832b9b7b2a1f3e0a755f261d664e7c4e31c",
+      "blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "design_id": "R8 v10 schema-freeze gate",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V10.md",
+      "commit": "2d4b3f46ed912026f96c4b03863bbf64f6d27447",
+      "blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "design_id": "R8 v11 schema-freeze gate",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V11.md",
+      "commit": "a20271dd5ce3a1c68e01dc34a48b36f45ff15621",
+      "blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "design_id": "R8 v12 schema-freeze gate",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V12.md",
+      "commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "design_id": "R8 v13 schema-freeze gate",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md",
+      "commit": "0e19f73644dd842b49d9cb5421676dac0e84d07d",
+      "blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    }
+  ]
+}
