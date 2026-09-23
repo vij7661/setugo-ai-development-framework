@@ -1,0 +1,254 @@
+{
+  "schema": "r8-v15-r1-schema-freeze-validator-contract/v1",
+  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "rules": [
+    {
+      "id": "SFV-01",
+      "name": "SRTT domain cardinality",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Fixed source_entry_state=REVOKED and exactly 2304 variable tuples."
+    },
+    {
+      "id": "SFV-02",
+      "name": "SRTT tuple uniqueness",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Exactly one row per declared variable tuple; no duplicate input tuple."
+    },
+    {
+      "id": "SFV-03",
+      "name": "SRTT decisive rule membership",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Every row decisive_rule_id resolves to exactly one frozen SRTT-4 RuleRegistry rule."
+    },
+    {
+      "id": "SFV-04",
+      "name": "SRTT full semantic recomputation",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Recompute every row under frozen SRTT-4 precedence and require exact result/rule match."
+    },
+    {
+      "id": "SFV-05",
+      "name": "Guard identity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-040"
+      ],
+      "requirement": "Unique contiguous G001..G156; one ACTIVE record each."
+    },
+    {
+      "id": "SFV-06",
+      "name": "Case identity and guard references",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-040"
+      ],
+      "requirement": "Unique case IDs; every positive/negative guard case exists; zero declared conflicts."
+    },
+    {
+      "id": "SFV-07",
+      "name": "Guard omission evidence recomputation",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-042"
+      ],
+      "requirement": "For 11 embedded source excerpts recompute SHA-256 under declared basis, expand ranges, and require exact guard/case set equality."
+    },
+    {
+      "id": "SFV-08",
+      "name": "BSP structural authority",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-041"
+      ],
+      "requirement": "Exactly one version-15 current-status block; semantic-test sections paired, non-nested, non-empty and ID-consistent; markers only standalone outside fences."
+    },
+    {
+      "id": "SFV-09",
+      "name": "Dependency graph closure",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-043"
+      ],
+      "requirement": "All endpoints declared, no duplicate edge, acyclic, direct-edge semantics only."
+    },
+    {
+      "id": "SFV-10",
+      "name": "Evaluation order monotonicity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-018",
+        "NORM-022",
+        "NORM-024",
+        "NORM-033",
+        "NORM-043"
+      ],
+      "requirement": "No later stage consumes unqualified state or converts earlier blocker to authority without governed successor/recovery event."
+    },
+    {
+      "id": "SFV-11",
+      "name": "MTR authority freshness",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-004"
+      ],
+      "requirement": "Live challenge exact-context match; single acceptance; <=30s verifier-monotonic age; no stale-token fallback."
+    },
+    {
+      "id": "SFV-12",
+      "name": "Canonical identity/quorum",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-006",
+        "NORM-007"
+      ],
+      "requirement": "Alias-collapsed canonical subjects; only ACTIVE identities count; domain diversity cannot be manufactured by alias."
+    },
+    {
+      "id": "SFV-13",
+      "name": "Revocation temporal validity",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-008"
+      ],
+      "requirement": "Current committed revocation state; UNREVOKE cannot validate prior revoked interval."
+    },
+    {
+      "id": "SFV-14",
+      "name": "AIEP authority profile",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-013"
+      ],
+      "requirement": "Authority evaluator must be attested broker-only profile; UNATTESTED_RUNTIME cannot exercise authority roles."
+    },
+    {
+      "id": "SFV-15",
+      "name": "AIM Smax before permission/lifecycle filtering",
+      "result_if_fail": "AIM_SCOPE_PERMISSION_REEVALUATION_REQUIRED_OR_BLOCKER",
+      "source": [
+        "NORM-018"
+      ],
+      "requirement": "Compute Smax over full effective matching set; invalid permission at Smax blocks lower fallback."
+    },
+    {
+      "id": "SFV-16",
+      "name": "RIR exact temporal tuple",
+      "result_if_fail": "RESOLVER_IMPLEMENTATION_UNBOUND",
+      "source": [
+        "NORM-020"
+      ],
+      "requirement": "Exactly one temporally eligible ACTIVE RIR tuple matching policy, implementation, runtime, workload and suite."
+    },
+    {
+      "id": "SFV-17",
+      "name": "RCS freshness",
+      "result_if_fail": "RESOLVER_UNQUALIFIED",
+      "source": [
+        "NORM-021"
+      ],
+      "requirement": "Only current PASS for exact bound tuple; stale/failed/expired/unavailable evidence cannot qualify or fall back."
+    },
+    {
+      "id": "SFV-18",
+      "name": "Semantic Smax and ANY",
+      "result_if_fail": "SEMANTIC_BLOCKER",
+      "source": [
+        "NORM-022",
+        "NORM-023"
+      ],
+      "requirement": "Compute semantic Smax before lifecycle; validate current ANY at Smax; no lower fallback."
+    },
+    {
+      "id": "SFV-19",
+      "name": "Multi-revoked composition",
+      "result_if_fail": "SEMANTIC_BLOCKER",
+      "source": [
+        "NORM-024",
+        "NORM-025"
+      ],
+      "requirement": "Every revoked blocker uniquely discharges before selection; partial discharge never grants authority; final SREP comparison is set-based and order-independent."
+    },
+    {
+      "id": "SFV-20",
+      "name": "Authority read-set sealing",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-030",
+        "NORM-031",
+        "NORM-033"
+      ],
+      "requirement": "Every mutable authority input is registered, captured, bound into DPS and final seal; state change before commit => STATE_CHANGED and no effect intent."
+    },
+    {
+      "id": "SFV-21",
+      "name": "Qualified time proof",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-032"
+      ],
+      "requirement": "Single-use 256-bit nonce, same DPS digest, source validity at sequence, at least 2 distinct qualified sources of reference population 3; no local-clock/cached/weaker fallback."
+    },
+    {
+      "id": "SFV-22",
+      "name": "Effect success boundary",
+      "result_if_fail": "NOT_SUCCESS",
+      "source": [
+        "NORM-034"
+      ],
+      "requirement": "Only SUCCEEDED_RECONCILED is success; ambiguous/unverified provider outcomes are never success; retries reuse idempotency key."
+    },
+    {
+      "id": "SFV-23",
+      "name": "Evidence strength",
+      "result_if_fail": "PROMOTION_BLOCKED",
+      "source": [
+        "NORM-035",
+        "NORM-036"
+      ],
+      "requirement": "Strong evidence requires qualified producer/runtime and exact derivation; rewrapping cannot upgrade class; missing/contradictory mandatory evidence blocks."
+    },
+    {
+      "id": "SFV-24",
+      "name": "Migration authority boundary",
+      "result_if_fail": "MIGRATION_BLOCKED",
+      "source": [
+        "NORM-037"
+      ],
+      "requirement": "Stable constitution+tenant+object identity; complete object map; fresh destination policy; widening requires fresh destination authorization; cross-constitution import carries no authority."
+    },
+    {
+      "id": "SFV-25",
+      "name": "Recovery anti-replay",
+      "result_if_fail": "RECOVERY_BLOCKED",
+      "source": [
+        "NORM-038",
+        "NORM-039"
+      ],
+      "requirement": "Predeclared trigger, current context, single-use nonce, lawful quorum/current trust; unavailable lawful path never creates weaker emergency root."
+    },
+    {
+      "id": "SFV-26",
+      "name": "No optional authority bypass",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-002",
+        "NORM-030"
+      ],
+      "requirement": "Missing required authority field is validation failure, never default/fallback authority."
+    }
+  ]
+}
