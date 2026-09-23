@@ -1,0 +1,415 @@
+{
+  "schema": "r8-v15-r1-schema-freeze-traceability/v1",
+  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "mappings": [
+    {
+      "norm": "NORM-001",
+      "schemas": [],
+      "validators": [
+        "SFV-25"
+      ],
+      "note": "External trust boundary is protocol/trust assumption, not minted by schema."
+    },
+    {
+      "norm": "NORM-002",
+      "schemas": [],
+      "validators": [
+        "SFV-26"
+      ],
+      "note": "Authority default NONE is enforcement policy."
+    },
+    {
+      "norm": "NORM-003",
+      "schemas": [
+        "runtime-contracts#T0SuccessorManifest"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-004",
+      "schemas": [
+        "runtime-contracts#MTRChallenge",
+        "runtime-contracts#MTRResponse"
+      ],
+      "validators": [
+        "SFV-11"
+      ]
+    },
+    {
+      "norm": "NORM-005",
+      "schemas": [
+        "runtime-contracts#BTWVerificationState"
+      ],
+      "validators": [
+        "SFV-11"
+      ]
+    },
+    {
+      "norm": "NORM-006",
+      "schemas": [
+        "runtime-contracts#CanonicalIdentityRef"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-007",
+      "schemas": [
+        "runtime-contracts#CanonicalIdentityRef"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-008",
+      "schemas": [
+        "runtime-contracts#RevocationEvent"
+      ],
+      "validators": [
+        "SFV-13"
+      ]
+    },
+    {
+      "norm": "NORM-009",
+      "schemas": [
+        "runtime-contracts#GGSHardState",
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-10"
+      ]
+    },
+    {
+      "norm": "NORM-010",
+      "schemas": [
+        "runtime-contracts#LASHardState",
+        "runtime-contracts#LASAuthorityStateRoot",
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-10"
+      ]
+    },
+    {
+      "norm": "NORM-011",
+      "schemas": [
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-10"
+      ]
+    },
+    {
+      "norm": "NORM-012",
+      "schemas": [
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-10"
+      ]
+    },
+    {
+      "norm": "NORM-013",
+      "schemas": [
+        "runtime-contracts#AIEPRuntimeProfile"
+      ],
+      "validators": [
+        "SFV-14"
+      ]
+    },
+    {
+      "norm": "NORM-014",
+      "schemas": [
+        "runtime-contracts#CurrentSemanticModelBundle"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-015",
+      "schemas": [
+        "runtime-contracts#SemanticHeads",
+        "runtime-contracts#LASAuthorityStateRoot"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-016",
+      "schemas": [
+        "runtime-contracts#LASAuthorityStateRoot"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-017",
+      "schemas": [
+        "runtime-contracts#AIMDescriptor"
+      ],
+      "validators": [
+        "SFV-15"
+      ]
+    },
+    {
+      "norm": "NORM-018",
+      "schemas": [
+        "runtime-contracts#AIMDescriptor",
+        "runtime-contracts#ScopePermissionRecord"
+      ],
+      "validators": [
+        "SFV-15"
+      ]
+    },
+    {
+      "norm": "NORM-019",
+      "schemas": [
+        "runtime-contracts#ResolverPolicyContract"
+      ],
+      "validators": [
+        "SFV-16"
+      ]
+    },
+    {
+      "norm": "NORM-020",
+      "schemas": [
+        "runtime-contracts#ResolverImplementationRegistryRecord"
+      ],
+      "validators": [
+        "SFV-16"
+      ]
+    },
+    {
+      "norm": "NORM-021",
+      "schemas": [
+        "runtime-contracts#ResolverConformanceEvidence"
+      ],
+      "validators": [
+        "SFV-17"
+      ]
+    },
+    {
+      "norm": "NORM-022",
+      "schemas": [
+        "runtime-contracts#SemanticEntry"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-023",
+      "schemas": [
+        "runtime-contracts#ScopePermissionRecord",
+        "runtime-contracts#SemanticEntry"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-024",
+      "schemas": [
+        "runtime-contracts#SemanticEntry",
+        "runtime-contracts#SemanticResolvedResult"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-025",
+      "schemas": [
+        "runtime-contracts#SemanticResolvedResult"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-026",
+      "schemas": [
+        "runtime-contracts#SemanticLineageMapping"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-027",
+      "schemas": [
+        "runtime-contracts#ScopeReplacementInput",
+        "runtime-contracts#ScopeReplacementDecision",
+        "srtt-4-rule-registry",
+        "srtt-4-total-table"
+      ],
+      "validators": [
+        "SFV-01",
+        "SFV-02",
+        "SFV-03",
+        "SFV-04"
+      ]
+    },
+    {
+      "norm": "NORM-028",
+      "schemas": [
+        "runtime-contracts#ReviewAttestation"
+      ],
+      "validators": [
+        "SFV-10"
+      ],
+      "note": "Review-visible field materiality is projection/checker obligation."
+    },
+    {
+      "norm": "NORM-029",
+      "schemas": [
+        "runtime-contracts#ReviewAttestation"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-030",
+      "schemas": [
+        "runtime-contracts#AuthorityReadSet"
+      ],
+      "validators": [
+        "SFV-20",
+        "SFV-26"
+      ]
+    },
+    {
+      "norm": "NORM-031",
+      "schemas": [
+        "runtime-contracts#DecisionPresealContext"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-032",
+      "schemas": [
+        "runtime-contracts#QualifiedTimeProof"
+      ],
+      "validators": [
+        "SFV-21"
+      ]
+    },
+    {
+      "norm": "NORM-033",
+      "schemas": [
+        "runtime-contracts#VerifiedStateSeal"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-034",
+      "schemas": [
+        "runtime-contracts#EffectIntent",
+        "runtime-contracts#EffectStateRecord"
+      ],
+      "validators": [
+        "SFV-22"
+      ]
+    },
+    {
+      "norm": "NORM-035",
+      "schemas": [
+        "runtime-contracts#EvidenceRecord"
+      ],
+      "validators": [
+        "SFV-23"
+      ]
+    },
+    {
+      "norm": "NORM-036",
+      "schemas": [
+        "runtime-contracts#EvidenceRecord"
+      ],
+      "validators": [
+        "SFV-23"
+      ]
+    },
+    {
+      "norm": "NORM-037",
+      "schemas": [
+        "runtime-contracts#MigrationBinding"
+      ],
+      "validators": [
+        "SFV-24"
+      ]
+    },
+    {
+      "norm": "NORM-038",
+      "schemas": [
+        "runtime-contracts#RecoveryContext"
+      ],
+      "validators": [
+        "SFV-25"
+      ]
+    },
+    {
+      "norm": "NORM-039",
+      "schemas": [
+        "runtime-contracts#RecoveryContext"
+      ],
+      "validators": [
+        "SFV-25"
+      ]
+    },
+    {
+      "norm": "NORM-040",
+      "schemas": [
+        "guard-registry",
+        "case-registry"
+      ],
+      "validators": [
+        "SFV-05",
+        "SFV-06"
+      ]
+    },
+    {
+      "norm": "NORM-041",
+      "schemas": [
+        "bsp-5-grammar"
+      ],
+      "validators": [
+        "SFV-08"
+      ]
+    },
+    {
+      "norm": "NORM-042",
+      "schemas": [
+        "guard-omission-source-evidence",
+        "guard-omission-manifest"
+      ],
+      "validators": [
+        "SFV-07"
+      ]
+    },
+    {
+      "norm": "NORM-043",
+      "schemas": [
+        "ncg-structured-closure"
+      ],
+      "validators": [
+        "SFV-09",
+        "SFV-10"
+      ]
+    }
+  ],
+  "expected_norm_count": 43
+}
