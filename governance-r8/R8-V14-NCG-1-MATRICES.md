@@ -17,9 +17,9 @@ Authority effect: **NONE**
 | AIEP/AIG | runtime/workload identity, broker policy | authority input reads | direct undeclared read, unqualified runtime | broker-only mutable input access |
 | CSM-5 | LAS semantic streams | semantic resolution | mixed/stale semantic heads | one current semantic snapshot |
 | AIM-4 | CSM-5, AIMScopePolicy, decision scope | ResolverPolicy/CSRULE | permission drift, revoked descriptor, conflict | Smax before ANY/lifecycle filtering |
-| ResolverPolicy | CSM-5, RIR, RCS | CSRULE | implementation/policy/runtime mismatch | policy + implementation identity |
-| RIR-2 | ResolverPolicy, runtime/workload identity, RCS | resolver execution | temporal ineligibility, conflict | exact active tuple at sequence |
-| RCS-2 | RIR record, suite/vector/harness identity | resolver qualification | stale/failed/mismatched evidence | conformance necessary, not sufficient |
+| ResolverPolicy | CSM-5 | RIR selection / CSRULE | ungoverned policy change | machine-readable resolver algorithm contract |
+| RIR-2 | ResolverPolicy, runtime/workload identity | RCS verification / resolver execution | temporal ineligibility, tuple conflict | select exact active implementation tuple at sequence |
+| RCS-2 | selected RIR record, suite/vector/harness identity | resolver qualification | stale/failed/mismatched evidence | conformance verifies selected authorized tuple |
 | CSRULE | AIM-selected lineage, CSM, ANY permission, mappings, SREP | semantic result | Smax blocker, revoked unresolved, peer conflict | no lower fallback |
 | SRTT-3 | revoked source, mappings, current ANY permission | replacement discharge | invalid relation, unauthorized broader scope | total deterministic replacement table |
 | SREP-1 | resolved rule/effect/scope/lineage | successor/peer comparison | different result digest | canonical equivalence only |
