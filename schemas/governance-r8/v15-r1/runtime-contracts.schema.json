@@ -1570,6 +1570,132 @@
         "producer revocation evaluated temporally",
         "mandatory missing/contradictory evidence blocks promotion"
       ]
+    },
+    "AIEPRuntimeProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "runtime_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "attestation_state": {
+          "enum": [
+            "ATTESTED",
+            "UNATTESTED_RUNTIME"
+          ]
+        },
+        "read_only_root_filesystem": {
+          "const": true
+        },
+        "arbitrary_mutable_environment_allowed": {
+          "const": false
+        },
+        "direct_db_cloud_provider_credentials_allowed": {
+          "const": false
+        },
+        "general_external_network_dns_allowed": {
+          "const": false
+        },
+        "approved_channel_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        },
+        "dynamic_code_loading_outside_runtime_manifest_allowed": {
+          "const": false
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "runtime_manifest_digest",
+        "attestation_state",
+        "read_only_root_filesystem",
+        "arbitrary_mutable_environment_allowed",
+        "direct_db_cloud_provider_credentials_allowed",
+        "general_external_network_dns_allowed",
+        "approved_channel_ids",
+        "dynamic_code_loading_outside_runtime_manifest_allowed",
+        "profile_digest"
+      ],
+      "x-validator-invariants": [
+        "UNATTESTED_RUNTIME has authority effect NONE and cannot act as root/terminal authority evaluator or strong evidence producer"
+      ]
+    },
+    "CurrentSemanticModelBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "csm_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SemanticEntry"
+          }
+        },
+        "lineage_mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SemanticLineageMapping"
+          }
+        },
+        "semantic_any_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScopePermissionRecord"
+          }
+        },
+        "aim_descriptors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AIMDescriptor"
+          }
+        },
+        "aim_scope_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScopePermissionRecord"
+          }
+        },
+        "resolver_policy": {
+          "$ref": "#/$defs/ResolverPolicyContract"
+        },
+        "resolver_implementation_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "guard_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "supporting_rules_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bundle_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "csm_id",
+        "semantic_entries",
+        "lineage_mappings",
+        "semantic_any_permissions",
+        "aim_descriptors",
+        "aim_scope_permissions",
+        "resolver_policy",
+        "resolver_implementation_registry_head",
+        "guard_registry_head",
+        "supporting_rules_digest",
+        "bundle_digest"
+      ],
+      "x-validator-invariants": [
+        "updates are LAS-governed authority events",
+        "all resolution-time records come from one coherent current semantic snapshot"
+      ]
     }
   },
   "x-governance-source": [
