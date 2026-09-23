@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-generator.schema.json",
+  "title": "R8 v15-r1 SchemaProvenanceGenerator Qualification Binding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-spg-1-binding/v1"
+    },
+    "status": {
+      "enum": [
+        "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+        "QUALIFIED_GENERATOR_BINDING"
+      ]
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "generator_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generator_artifact_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generator_artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runtime_manifest": {
+      "$ref": "#/$defs/RuntimeManifest"
+    },
+    "workload_attestation_policy_digest": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "workload_attestation_proof_digest": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "allowed_input_design_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "allowed_output_schema_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "signing_credential_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "revocation_state": {
+      "enum": [
+        "ACTIVE",
+        "SUSPENDED",
+        "REVOKED",
+        "RETIRED",
+        "UNKNOWN"
+      ]
+    },
+    "qualification_status": {
+      "enum": [
+        "QUALIFIED",
+        "UNATTESTED_RUNTIME",
+        "REVOKED",
+        "DRIFTED",
+        "UNREGISTERED"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "generator_id",
+    "generator_artifact_path",
+    "generator_artifact_sha256",
+    "runtime_manifest",
+    "workload_attestation_policy_digest",
+    "workload_attestation_proof_digest",
+    "allowed_input_design_artifacts",
+    "allowed_output_schema_classes",
+    "signing_credential_id",
+    "revocation_state",
+    "qualification_status"
+  ],
+  "$defs": {
+    "RuntimeManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "application_artifact_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "interpreter_compiler_runtime_version_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "crypto_library_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_parser_bundle_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "os_container_image_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "las_anchor_client_library_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtime_manifest_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "application_artifact_digest",
+        "interpreter_compiler_runtime_version_digest",
+        "crypto_library_digest",
+        "schema_parser_bundle_digest",
+        "os_container_image_digest",
+        "las_anchor_client_library_digest",
+        "runtime_manifest_digest"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V5-I026",
+    "R8V5-I027",
+    "R8V7-I030",
+    "R8V7-I031",
+    "R8V8-I020",
+    "R8V8-I021",
+    "R8V8-I022"
+  ]
+}
