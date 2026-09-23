@@ -1,0 +1,104 @@
+# Independent Blind Review — R8 Meta-Governance v15-r1 Normalized Candidate
+
+Review contract mode: REVIEW_REQUIRED / DESIGN_ONLY / NON_AUTHORITATIVE
+Authority effect: NONE
+
+## Frozen subject
+
+Current normalized candidate source commit:
+- `c721b38cf8b00294797300b526596ce723a47ff8`
+
+Use only the review materials supplied in this handoff. Do not consult repository history or any review material outside the handoff.
+
+## Objective
+
+Attempt to falsify whether the normalized R8 v15-r1 design is sufficiently closed at design level to proceed to executable-schema freeze.
+
+Do not treat generated tables, registries, manifests, matrices, or structural check fields as proof merely because they exist. Recompute or falsify their semantics where possible.
+
+## Mandatory attack areas
+
+1. **Normalized effective-spec completeness**
+   - missing surviving inherited rule;
+   - silent weakening;
+   - contradiction between normalized prose and machine companion;
+   - stale or incomplete traceability;
+   - hidden co-effective rule or duplicate owner.
+
+2. **SRTT-4 fixed domain and RuleRegistry**
+   - verify `source_entry_state=REVOKED` is explicitly fixed;
+   - verify the variable Cartesian domain is exactly 2304 tuples;
+   - verify every row references exactly one declared decisive rule;
+   - independently recompute row semantics rather than trusting the distribution;
+   - challenge exact, mapped, narrower, broader, disjoint, ANY, mapping-effective and lineage predicates;
+   - test the inherited rule that mapped effect may terminate at `EXACT_MATCH` or `MAPPED_MATCH`;
+   - BROADER must still require constitutional expansion authorization plus an in-domain decision.
+
+3. **Multiple revoked Smax branches**
+   - complete blocker set;
+   - zero-path, multi-path, partial-discharge and peer-conflict behavior;
+   - same SREP digest across different blockers;
+   - different SREP digests;
+   - traversal-order independence.
+
+4. **BSP-5 / blind projection**
+   - exactly one explicit version-15 current-status block;
+   - deterministic predecessor review/outcome classification;
+   - exact semantic-test parser states;
+   - exact marked cross-mechanism semantic-test section;
+   - malformed/nested/mismatched markers;
+   - no raw-token heuristic.
+
+5. **Guard omission**
+   - reparse omitted source tables;
+   - expand inclusive ranges such as `V4-024..V4-030`;
+   - require exact source/manifest case-set equality;
+   - GuardRegistry/CaseRegistry presence is not enough if unique semantics are lost.
+
+6. **Dependency/evaluation order**
+   - graph uses direct authority-relevant edges rather than transitive closure;
+   - no hidden direct dependency;
+   - no cycle;
+   - no stage consumes state before qualification;
+   - no suggested edge may become authority without a direct matrix basis.
+
+7. **Cross-mechanism closure**
+   - AIM blocker × RIR/RCS;
+   - guard semantics × NCG;
+   - rotation barrier × external effect;
+   - `semantic_state_sequence` rollback/replay;
+   - state seal / TOCTOU.
+
+8. **Fail-closed liveness**
+   - time/conformance/revocation freshness outage;
+   - cached PASS or stale evidence reuse;
+   - emergency weaker dependency;
+   - retry only after same-or-stronger qualified dependency and full re-evaluation.
+
+9. **Inherited trust model**
+   - T0/EBA/MTR/BTW;
+   - canonical identity and independence;
+   - GGS/LAS rollback/concurrency;
+   - AIEP/AIG;
+   - evidence/recovery/effects;
+   - no self-grant or weaker emergency root.
+
+## Required output
+
+Return:
+A. Overall disposition: BOUNDED_PASS, CHANGES_REQUIRED, or INSUFFICIENT_EVIDENCE.
+B. Critical findings.
+C. High findings.
+D. Medium findings.
+E. Normalized-spec completeness/no-regression assessment.
+F. SRTT-4 assessment.
+G. Multi-revoked composition assessment.
+H. Guard/Case/omission proof assessment.
+I. BSP-5/blindness assessment.
+J. Dependency/evaluation-order assessment.
+K. Cross-mechanism coverage assessment.
+L. Over-governance/liveness assessment.
+M. Minimal required changes before executable-schema freeze.
+N. Final bounded statement.
+
+This review grants no implementation, release, deployment, production, qualification, adjudication, or terminal authority.
