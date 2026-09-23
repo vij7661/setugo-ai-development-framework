@@ -1,0 +1,32 @@
+{
+  "schema": "r8-v14-normalized-review-bundle/v1",
+  "status": "REVIEW_ONLY_DESIGN_ONLY_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "normalized_candidate_head": "a020a0c72c109e52efc9341d7e06e3f75615f68f",
+  "review_request_commit": "8ec9bdf93040c0d163e3f8657ec4d4b398971b9f",
+  "packet": {
+    "commit": "829617a3fee0a751e91bd0b3c887b47e1f5ddd84",
+    "blob": "3354dc693af3301e0318ec3056416645b3c6bdbf",
+    "path": "review-packets/R8-V14-NORMALIZED-BLIND-DESIGN-REVIEW-PACKET.txt",
+    "authoritative_surface": "UTF-8 TXT",
+    "residual_prior_review_outcome_scan": "PASS"
+  },
+  "subject_artifacts": {
+    "normalized_spec": "7524ae40ffa4e0c27fbe175fc104496e61a37cb9",
+    "detail_appendix": "9b108075861e8675888c8fe03bc4d20a647e4a19",
+    "matrices": "f854876a9b06bac449b613465a63272dee3d68c5",
+    "structured_closure": "13b446a02c678f1228f36b2d9569a8766c27cb72",
+    "cross_mechanism_cases": "5589830e18b649ab59eb3e4eaa94657bcf144001",
+    "guard_registry": "f1f7a0afde877b5912a39ef3cec6430177ad4a59",
+    "case_registry": "f14a402c6fd9ec58eba33bc3808a06adf1a35fa8",
+    "srtt_total_table": "866cc96088ffcd3c424fc745763f5ff3be1b29b7",
+    "bsp4_grammar": "92393cc343ea135a4a8ffaca48c9c3896a5432e1",
+    "traceability_manifest": "c2cf0c9d2ba2cc9a0a4941132eef8372e1647bc5",
+    "guard_omission_manifest": "2cce56c61cd25d1d44b2cfee75f20ac553fdc76b"
+  },
+  "ncg_boundary": {
+    "normalization_gate_recomputed_pass": true,
+    "external_review_packet_freeze_permitted": true,
+    "executable_schema_freeze_permitted": false
+  }
+}
