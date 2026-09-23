@@ -1,0 +1,40 @@
+{
+  "schema": "r8-v15-r1-spg-1-binding/v1",
+  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "generator_id": "R8V15R1-SPG-V2",
+  "generator_artifact_path": "tools/generate_r8_v15_r1_spm.py",
+  "generator_artifact_sha256": "fdd9097b84795583a1876060d1898d1a28d086a42fb2306cfab239188487434a",
+  "runtime_manifest": {
+    "application_artifact_digest": "fdd9097b84795583a1876060d1898d1a28d086a42fb2306cfab239188487434a",
+    "interpreter_compiler_runtime_version_digest": null,
+    "crypto_library_digest": null,
+    "schema_parser_bundle_digest": null,
+    "os_container_image_digest": null,
+    "las_anchor_client_library_digest": null,
+    "runtime_manifest_digest": null
+  },
+  "workload_attestation_policy_digest": null,
+  "workload_attestation_proof_digest": null,
+  "allowed_input_design_artifacts": [
+    "governance-r8/R8-V15-R1-BLIND-NORMALIZED-EFFECTIVE-SPEC.md",
+    "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+    "governance-r8/R8-V15-NCG-1-MATRICES.md",
+    "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+    "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+    "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+    "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+    "governance-r8/R8-V15-R1-BLIND-BSP-5-GRAMMAR.json",
+    "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+    "governance-r8/R8-V15-R1-GUARD-OMISSION-SOURCE-EVIDENCE.json",
+    "governance-r8/R8-V15-R1-GUARD-OMISSION-MANIFEST-2.json",
+    "schemas/governance-r8/v15-r1/schema-provenance-source-map.json"
+  ],
+  "allowed_output_schema_classes": [
+    "JSON_SCHEMA_2020_12",
+    "SPM_1_PROVENANCE_MANIFEST"
+  ],
+  "signing_credential_id": null,
+  "revocation_state": "UNKNOWN",
+  "qualification_status": "UNATTESTED_RUNTIME"
+}
