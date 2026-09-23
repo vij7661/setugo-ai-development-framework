@@ -1,0 +1,317 @@
+{
+  "schema": "r8-v15-r1-ncg-1-recomputed-verification/v1",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "candidate_branch": "governance/r8-meta-governance-v15-r1",
+  "candidate_source_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "checked_artifacts": {
+    "rules": {
+      "path": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json",
+      "blob": "a8319b369440e0c24f9080ccf37103f7d620e8c1"
+    },
+    "table": {
+      "path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "blob": "f94451e345954a399c59a5a94943f58a14315579"
+    },
+    "guards": {
+      "path": "governance-r8/R8-V15-GUARD-REGISTRY-1.json",
+      "blob": "c8bb2bff87ee07296f11e53eb9ddaa411614655d"
+    },
+    "cases": {
+      "path": "governance-r8/R8-V15-CASE-REGISTRY-1.json",
+      "blob": "0bf4f88cf424604cf4c690774c7c65e41a4f7b79"
+    },
+    "omission": {
+      "path": "governance-r8/R8-V15-GUARD-OMISSION-MANIFEST-1.json",
+      "blob": "01f4f9269cd2ef896c275da3800350450efad689"
+    },
+    "bsp": {
+      "path": "governance-r8/R8-V15-BSP-5-GRAMMAR.json",
+      "blob": "51277cbce825236e387b83392b927dd5263007b2"
+    },
+    "closure": {
+      "path": "governance-r8/R8-V15-NCG-1-STRUCTURED-CLOSURE.json",
+      "blob": "d9fb03fad2b591d22a125cff5f5c0ea72ad95bba"
+    },
+    "cross": {
+      "path": "governance-r8/R8-V15-NCG-1-CROSS-MECHANISM-CASES.md",
+      "blob": "6ded08ed976742af27e5ecb820aa7bff86003560"
+    },
+    "trace": {
+      "path": "governance-r8/R8-V15-NCG-1-TRACEABILITY-MANIFEST.json",
+      "blob": "cdbc368790aeaa52c62920d0fa475006d3df8fd0"
+    },
+    "spec": {
+      "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
+      "blob": "03b408d2f3c5b1de2ce65136923a079ccda83370"
+    },
+    "matrices": {
+      "path": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+      "blob": "5fa161946720915ec10e0dfd51330a026a40c912"
+    },
+    "detail": {
+      "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
+      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2"
+    }
+  },
+  "check_count": 21,
+  "pass_count": 21,
+  "fail_count": 0,
+  "checks": [
+    {
+      "id": "SRTT_DOMAIN",
+      "status": "PASS",
+      "evidence": {
+        "table": {
+          "source_entry_state": "REVOKED"
+        },
+        "rules": {
+          "source_entry_state": "REVOKED"
+        }
+      }
+    },
+    {
+      "id": "SRTT_ROWS",
+      "status": "PASS",
+      "evidence": {
+        "rows": 2304,
+        "declared": 2304
+      }
+    },
+    {
+      "id": "SRTT_UNIQUE",
+      "status": "PASS",
+      "evidence": {
+        "unique": 2304,
+        "duplicate": 0
+      }
+    },
+    {
+      "id": "SRTT_RULE_REFS",
+      "status": "PASS",
+      "evidence": {
+        "undefined": []
+      }
+    },
+    {
+      "id": "SRTT_RECOMPUTE",
+      "status": "PASS",
+      "evidence": {
+        "mismatches": [],
+        "count": 0
+      }
+    },
+    {
+      "id": "SRTT_DIST",
+      "status": "PASS",
+      "evidence": {
+        "computed": {
+          "SEMANTIC_SCOPE_REVOKED": 1808,
+          "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED": 288,
+          "MAPPING_NOT_APPLICABLE": 144,
+          "REPLACEMENT_ELIGIBLE": 22,
+          "SEMANTIC_SCOPE_REPLACEMENT_INVALID": 42
+        },
+        "declared": {
+          "SEMANTIC_SCOPE_REVOKED": 1808,
+          "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED": 288,
+          "MAPPING_NOT_APPLICABLE": 144,
+          "REPLACEMENT_ELIGIBLE": 22,
+          "SEMANTIC_SCOPE_REPLACEMENT_INVALID": 42
+        }
+      }
+    },
+    {
+      "id": "SRTT_MAPPED_EXACT_CONTROL",
+      "status": "PASS",
+      "evidence": {
+        "row": {
+          "row_id": 1888,
+          "input": {
+            "source_entry_state": "REVOKED",
+            "old_scope_match": "EXACT_MATCH",
+            "destination_scope_match": "EXACT_MATCH",
+            "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+            "scope_relation": "BROADER",
+            "any_permission_valid": true,
+            "mapping_effective": true,
+            "lineage_mapping_valid": true,
+            "scope_expansion_authorized": true,
+            "decision_inside_authorized_expansion_domain": true
+          },
+          "result": "REPLACEMENT_ELIGIBLE",
+          "decisive_rule_id": "SRTT15-R10"
+        }
+      }
+    },
+    {
+      "id": "GUARDS_CONTIGUOUS",
+      "status": "PASS",
+      "evidence": {
+        "count": 156,
+        "first": "G001",
+        "last": "G156"
+      }
+    },
+    {
+      "id": "GUARD_CASES_PRESENT",
+      "status": "PASS",
+      "evidence": {
+        "missing": []
+      }
+    },
+    {
+      "id": "OMISSION_REPARSE",
+      "status": "PASS",
+      "evidence": {
+        "method": "reparse exact canonical source line ranges; expand inclusive Vn-xxx..Vn-yyy case ranges; compare exact explicit sets",
+        "omitted_table_count": 11,
+        "all_case_sets_equal": true,
+        "all_guard_sets_equal": true,
+        "result": "PASS"
+      }
+    },
+    {
+      "id": "BSP_CURRENT_STATUS_BINDING",
+      "status": "PASS",
+      "evidence": {
+        "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+        "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+        "exact_block_count": 1,
+        "version_must_equal_current_candidate_version": true,
+        "nested_blocks_forbidden": true,
+        "unterminated_block_result": "REVIEW_PACKET_INCOMPLETE",
+        "multiple_blocks_result": "REVIEW_PACKET_INCOMPLETE",
+        "mismatched_version_result": "REVIEW_PACKET_INCOMPLETE"
+      }
+    },
+    {
+      "id": "BSP_MARKED_CORPUS_STATE",
+      "status": "PASS",
+      "evidence": {
+        "allowed": [
+          "CASE_SECTION",
+          "GUARD_RECORD_SECTION",
+          "FENCED_SEMANTIC_TEST_DATA",
+          "MARKED_SEMANTIC_TEST_SECTION"
+        ],
+        "marked": {
+          "exact_standalone_line": true,
+          "outside_fenced_code_only": true,
+          "begin_end_id_must_match": true,
+          "nesting_forbidden": true,
+          "zero_length_forbidden": true,
+          "cross_mechanism_corpus_required_id": "cross-mechanism-adversarial-corpus"
+        }
+      }
+    },
+    {
+      "id": "BSP_MARKERS_OUTSIDE_FENCES_ONLY",
+      "status": "PASS",
+      "evidence": {
+        "semantic": {
+          "exact_standalone_line": true,
+          "outside_fenced_code_only": true,
+          "begin_end_id_must_match": true,
+          "nesting_forbidden": true,
+          "zero_length_forbidden": true,
+          "cross_mechanism_corpus_required_id": "cross-mechanism-adversarial-corpus"
+        },
+        "current": {
+          "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+          "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+          "exact_block_count": 1,
+          "version_must_equal_current_candidate_version": true,
+          "nested_blocks_forbidden": true,
+          "unterminated_block_result": "REVIEW_PACKET_INCOMPLETE",
+          "multiple_blocks_result": "REVIEW_PACKET_INCOMPLETE",
+          "mismatched_version_result": "REVIEW_PACKET_INCOMPLETE"
+        }
+      }
+    },
+    {
+      "id": "GRAPH_ACYCLIC",
+      "status": "PASS",
+      "evidence": {
+        "unknown": [],
+        "topological_order": [
+          "T0_MTR_BTW",
+          "AIEP_AIG",
+          "CanonicalIdentity",
+          "GGS3",
+          "LAS3",
+          "Revocation",
+          "RotationBarrier_STC",
+          "CSM5",
+          "AIM4",
+          "ResolverPolicy",
+          "RIR2",
+          "Review_Guard_NCG",
+          "RCS2",
+          "CSRULE_SRTT_SREP",
+          "AuthorityReadSet",
+          "DPS_Time",
+          "VerifiedStateSeal_Commit",
+          "ExternalEffect"
+        ]
+      }
+    },
+    {
+      "id": "GRAPH_DIRECT_EDGE_SEMANTICS",
+      "status": "PASS",
+      "evidence": {
+        "kind": "DIRECT_AUTHORITY_RELEVANT_CONSUMPTION_OR_PRECONDITION",
+        "transitive_closure_edges_omitted": true,
+        "source_matrix": "governance-r8/R8-V15-NCG-1-MATRICES.md",
+        "hand_added_untraceable_edges_forbidden": true
+      }
+    },
+    {
+      "id": "CROSS_CASES_PRESENT",
+      "status": "PASS",
+      "evidence": {
+        "missing": []
+      }
+    },
+    {
+      "id": "TRACE_COMPLETE",
+      "status": "PASS",
+      "evidence": {
+        "rule_count": 43,
+        "missing": [],
+        "untraced": []
+      }
+    },
+    {
+      "id": "SPEC_MARKED_CORPUS_RULE",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    },
+    {
+      "id": "SPEC_MULTI_REVOKED",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    },
+    {
+      "id": "SPEC_FAIL_CLOSED",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    },
+    {
+      "id": "MATRIX_EDGE_CONTRACT",
+      "status": "PASS",
+      "evidence": {
+        "matched": true
+      }
+    }
+  ],
+  "result": "STRUCTURAL_RECOMPUTATION_PASS",
+  "packet_projection_status": "PENDING",
+  "ncg_gate_status": "READY_FOR_PACKET_PROJECTION_CHECK"
+}
