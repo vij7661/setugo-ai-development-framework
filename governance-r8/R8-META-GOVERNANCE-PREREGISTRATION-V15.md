@@ -183,7 +183,20 @@ A status token by itself is never sufficient.
 `SEMANTIC_TEST_LITERAL` is allowed only while the parser is in one of:
 - `CASE_SECTION`;
 - `GUARD_RECORD_SECTION`;
-- `FENCED_SEMANTIC_TEST_DATA`.
+- `FENCED_SEMANTIC_TEST_DATA`;
+- `MARKED_SEMANTIC_TEST_SECTION`.
+
+A marked semantic-test section uses exact paired structural markers:
+
+`<!-- BSP:SEMANTIC_TEST_SECTION_BEGIN id=<stable-id> -->`
+
+and
+
+`<!-- BSP:SEMANTIC_TEST_SECTION_END id=<same-stable-id> -->`.
+
+Markers are structural only when they occur as exact standalone lines outside fenced code. The IDs must match, nesting is forbidden, and zero-length/malformed sections are invalid.
+
+The cross-mechanism adversarial corpus in the blind review packet must be enclosed in one marked semantic-test section. This preserves vectors such as a predecessor-status string used as attack data without treating that string as a leaked prior disposition.
 
 A normal prose paragraph mentioning a status token is not automatically a semantic-test literal.
 
@@ -196,7 +209,8 @@ After projection:
 - require zero `PRIOR_STATUS`;
 - require zero `PRIOR_REVIEW_METADATA`;
 - require exactly one valid current-status block;
-- require semantic-test records expected by CaseRegistry/GuardRegistry projection to remain present.
+- require every marked semantic-test section to be paired, non-nested and ID-consistent;
+- require semantic-test records expected by CaseRegistry/GuardRegistry/cross-mechanism projection to remain present.
 
 Raw token search remains non-authoritative.
 
@@ -401,3 +415,8 @@ Before a fresh v15 independent review, NCG must regenerate:
 - dependency/evaluation/ownership structures;
 - blind review packet and reproducibility manifests.
 
+
+
+## Internal normalization repair note — v15-r1
+
+The first v15 packet-projection check correctly exposed that the cross-mechanism corpus contains attack-vector literals such as `R8 v12 = NOT_IMPLEMENTED`. The initial BSP-5 grammar did not give the whole corpus an explicit semantic-test parser state. The failed projection check remains preserved on the first packaging branch. This repair adds exact marked semantic-test-section boundaries; it does not weaken prior-status removal.
