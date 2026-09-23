@@ -1,0 +1,137 @@
+# Independent Blind Review — R8 v15-r1 Executable Schema Freeze V1
+
+Review mode: **SCHEMA_FREEZE_REVIEW / NON_AUTHORITATIVE**
+Authority effect: **NONE**
+
+## Frozen subjects
+
+Semantic design candidate:
+- `c721b38cf8b00294797300b526596ce723a47ff8`
+
+Executable-schema candidate:
+- `e09d322b6becf79a68773e571d0f5d3b9f2aa89e`
+
+Use only the supplied review handoff. Do not consult repository history, prior reviewer findings, adjudications, or internal schema-verification PASS outputs.
+
+## Objective
+
+Attempt to falsify whether the executable schema/validator layer encodes the already-frozen R8 v15-r1 semantics without adding, omitting, weakening, over-broadening, or silently reinterpreting authority.
+
+A schema that merely parses is not sufficient. A validator annotation that has no deterministic owner is not sufficient. A structurally strict schema that encodes the wrong semantics must fail review.
+
+## Mandatory attack areas
+
+1. **JSON Schema correctness**
+   - Draft 2020-12 correctness;
+   - resolvable local `$ref` relationships;
+   - `oneOf`/nullable/conditional behavior;
+   - patterns and integer bounds;
+   - no schema construct whose actual validator semantics differ from the intended rule.
+
+2. **No semantic drift**
+   - compare every machine schema against the normalized spec/detail appendix;
+   - detect invented authority, missing inherited field, renamed concept that changes meaning, weakened threshold, or altered precedence;
+   - field-name choices may encode semantics but may not create new ones.
+
+3. **Closed authority objects**
+   - authority-bearing objects must reject undeclared fields;
+   - required fields must not become optional/defaulted authority;
+   - null may be accepted only where the frozen design makes absence meaningful;
+   - extension behavior must remain under inherited GCP rules.
+
+4. **Trust/root/sequencer contracts**
+   - T0 successor generation and 4-of-5 / 3-domain threshold;
+   - MTR challenge/response freshness and anti-replay;
+   - BTW rollback/equivocation;
+   - canonical identity / ACTIVE-only quorum;
+   - revocation intervals;
+   - GGS/LAS rollback, atomicity and quorum;
+   - STC/barrier one-barrier-one-rotation semantics.
+
+5. **AIEP / CSM / AIM / permission schemas**
+   - broker-only runtime profile;
+   - exact nine-component canonical scope tuple:
+     `trust_domain_id, constitution_id, root_namespace, tenant_id, organization_id, project_id, experiment_or_release_id, object_class, action_class`;
+   - literal `ANY` versus exact stable values;
+   - ANYScopePermission is per semantic class and exact allowed tuple component;
+   - AIMScopePolicy is per semantic class and exact allowed tuple component;
+   - SemanticEntry specificity is derived, not caller-authoritative;
+   - AIMDescriptor applicability scope/specificity and predecessor linkage;
+   - CSM-5 includes one coherent semantic bundle.
+
+6. **Resolver / semantic resolution**
+   - ResolverPolicy contract completeness;
+   - exact RIR tuple and temporal eligibility;
+   - RCS freshness;
+   - Smax before permission/lifecycle filtering;
+   - no lower fallback;
+   - multi-revoked composition;
+   - SREP canonical result equivalence.
+
+7. **SRTT-4**
+   - fixed `source_entry_state=REVOKED`;
+   - exact 2304 Cartesian tuples;
+   - row uniqueness;
+   - decisive-rule membership;
+   - exact precedence;
+   - mapped effect may terminate at EXACT_MATCH or MAPPED_MATCH;
+   - BROADER requires both expansion predicates;
+   - independently recompute rows from RuleRegistry rather than trusting declared distribution.
+
+8. **AuthorityReadSet / DPS / time / seal**
+   - every mutable authority input sealed;
+   - semantic/runtime/RIR/revocation/time bindings complete;
+   - 256-bit nonce;
+   - reference 2-of-3 qualified time threshold;
+   - state change before commit cannot create EffectIntent.
+
+9. **Effects / evidence / migration / recovery**
+   - only SUCCEEDED_RECONCILED is effect success;
+   - uncertain/unverified outcomes stay non-success;
+   - evidence class cannot be upgraded by rewrapping;
+   - migration widening requires fresh destination authority;
+   - cross-constitution import carries no authority;
+   - recovery cannot create weaker emergency trust.
+
+10. **Guard / Case / omission / BSP / NCG schemas**
+    - G001..G156 shape/identity;
+    - 467 case records and guard references;
+    - reproducible 11-range omission evidence;
+    - BSP-5 grammar freeze;
+    - direct-edge NCG graph, acyclicity and evaluation order.
+
+11. **Validator ownership**
+    - all non-JSON-Schema semantics have one deterministic SFV owner;
+    - SFV-01..SFV-34 are complete and non-conflicting;
+    - no semantic invariant exists only in an `x-validator-invariants` annotation without equivalent validator-contract ownership;
+    - no validator rule grants authority merely from schema success.
+
+12. **Over-constraint / liveness**
+    - schema must not reject a case the frozen design explicitly permits;
+    - nullable/conditional fields must not make lawful recovery/effects/rotation impossible;
+    - fail-closed rules must not be replaced by weaker fallback for liveness.
+
+13. **Canonicalization**
+    - schema layer must not silently redefine GCP-1;
+    - nine-component scope ordering, set ordering, absent != null, NFC/collision rules, signed-int64 and extension rules remain externally enforceable through the validator contract.
+
+## Required output
+
+Return:
+
+A. Overall disposition: **BOUNDED_PASS**, **CHANGES_REQUIRED**, or **INSUFFICIENT_EVIDENCE**  
+B. Critical findings  
+C. High findings  
+D. Medium findings  
+E. Schema-to-semantic no-drift assessment  
+F. JSON Schema / reference-resolution assessment  
+G. Trust, root, sequencer and rotation schema assessment  
+H. CSM/AIM/ANY/AIMScopePolicy/resolver schema assessment  
+I. SRTT-4 and semantic-resolution assessment  
+J. AuthorityReadSet/time/seal/effect/evidence/migration/recovery assessment  
+K. Guard/Case/omission/BSP/NCG assessment  
+L. SFV validator ownership/completeness assessment  
+M. Minimal required changes before executable-schema freeze  
+N. Final bounded statement
+
+A BOUNDED_PASS permits only executable-schema freeze. It does not grant implementation, runtime qualification, release, deployment, production, or terminal authority.
