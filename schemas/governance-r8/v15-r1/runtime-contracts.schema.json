@@ -1,0 +1,756 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/runtime-contracts.schema.json",
+  "title": "R8 v15-r1 Runtime Authority Contracts",
+  "description": "Structural contracts derived only from the frozen normalized R8 v15-r1 design. Cross-field authority semantics remain owned by the SchemaFreezeValidator.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "$ref": "#/$defs/DecisionPresealContext"
+    }
+  },
+  "required": [
+    "contract"
+  ],
+  "$defs": {
+    "CanonicalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854776000
+    },
+    "SemanticHeads": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "csm_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "aim_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_any_permission_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "aim_scope_policy_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_policy_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_implementation_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "guard_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "revocation_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "nonce_ledger_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_stream_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_head": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "csm_head",
+        "aim_head",
+        "semantic_any_permission_head",
+        "aim_scope_policy_head",
+        "resolver_policy_head",
+        "resolver_implementation_registry_head",
+        "guard_registry_head",
+        "revocation_head",
+        "nonce_ledger_head",
+        "effect_stream_head",
+        "configuration_head"
+      ]
+    },
+    "ScopeReplacementInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "const": "REVOKED"
+        },
+        "old_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH"
+          ]
+        },
+        "destination_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH",
+            "MAPPED_MATCH"
+          ]
+        },
+        "old_scope_effect": {
+          "enum": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "scope_relation": {
+          "enum": [
+            "SAME",
+            "NARROWER",
+            "BROADER",
+            "DISJOINT"
+          ]
+        },
+        "any_permission_valid": {
+          "type": "boolean"
+        },
+        "mapping_effective": {
+          "type": "boolean"
+        },
+        "lineage_mapping_valid": {
+          "type": "boolean"
+        },
+        "scope_expansion_authorized": {
+          "type": "boolean"
+        },
+        "decision_inside_authorized_expansion_domain": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_entry_state",
+        "old_scope_match",
+        "destination_scope_match",
+        "old_scope_effect",
+        "scope_relation",
+        "any_permission_valid",
+        "mapping_effective",
+        "lineage_mapping_valid",
+        "scope_expansion_authorized",
+        "decision_inside_authorized_expansion_domain"
+      ]
+    },
+    "ScopeReplacementDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "$ref": "#/$defs/ScopeReplacementInput"
+        },
+        "result": {
+          "enum": [
+            "NOT_A_REPLACEMENT_BRANCH",
+            "SEMANTIC_SCOPE_REVOKED",
+            "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+            "MAPPING_NOT_APPLICABLE",
+            "REPLACEMENT_ELIGIBLE",
+            "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+          ]
+        },
+        "decisive_rule_id": {
+          "type": "string",
+          "pattern": "^SRTT15-R(?:00|0[1-9]|1[01])$"
+        }
+      },
+      "required": [
+        "input",
+        "result",
+        "decisive_rule_id"
+      ]
+    },
+    "SemanticResolvedResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "terminal_semantic_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "terminal_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "terminal_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "effective_scope_tuple_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_result_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "semantic_input_id",
+        "semantic_class",
+        "terminal_semantic_entry_id",
+        "terminal_rule_digest",
+        "terminal_lineage_id",
+        "effective_scope_tuple_digest",
+        "semantic_result_digest"
+      ]
+    },
+    "AuthorityReadSetEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "head_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "value_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "input_id",
+        "source_id",
+        "head_digest",
+        "value_digest"
+      ]
+    },
+    "AuthorityReadSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/AuthorityReadSetEntry"
+          }
+        },
+        "authority_read_set_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "entries",
+        "authority_read_set_digest"
+      ]
+    },
+    "ResolverIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "resolver_policy_digest",
+        "implementation_id",
+        "runtime_identity_digest",
+        "workload_identity_digest",
+        "conformance_suite_digest",
+        "conformance_evidence_digest"
+      ]
+    },
+    "DecisionPresealContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "action_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "decision_scope_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "governance_snapshot_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "authority_read_set_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_state_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "rir_record_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "rir_head_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_identity": {
+          "$ref": "#/$defs/ResolverIdentity"
+        },
+        "revocation_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "runtime_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_class": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "action_id",
+        "decision_scope_digest",
+        "governance_snapshot_digest",
+        "authority_read_set_digest",
+        "semantic_state_sequence",
+        "semantic_heads",
+        "rir_record_id",
+        "rir_head_digest",
+        "resolver_identity",
+        "revocation_state_digest",
+        "runtime_state_digest",
+        "workload_state_digest",
+        "effect_class",
+        "decision_preseal_digest"
+      ]
+    },
+    "TimeSourceAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "time_source_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_status_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "attestation_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "time_source_id",
+        "source_status_digest",
+        "attestation_digest"
+      ]
+    },
+    "QualifiedTimeProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nonce_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "source_attestations": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/TimeSourceAttestation"
+          }
+        },
+        "time_proof_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "nonce_256bit_hex",
+        "decision_preseal_digest",
+        "effective_sequence",
+        "source_attestations",
+        "time_proof_digest"
+      ]
+    },
+    "VerifiedStateSeal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "time_proof_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "authority_read_set_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_state_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "revocation_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "seal_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "decision_preseal_digest",
+        "time_proof_digest",
+        "authority_read_set_digest",
+        "semantic_state_sequence",
+        "semantic_heads",
+        "revocation_head",
+        "seal_digest"
+      ]
+    },
+    "EffectIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "effect_intent_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "idempotency_key": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "verified_state_seal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "payload_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "state": {
+          "const": "INTENT_COMMITTED"
+        }
+      },
+      "required": [
+        "effect_intent_id",
+        "idempotency_key",
+        "verified_state_seal_digest",
+        "decision_preseal_digest",
+        "effect_class",
+        "payload_digest",
+        "state"
+      ]
+    },
+    "EffectStateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "effect_intent_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "idempotency_key": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "state": {
+          "enum": [
+            "INTENT_COMMITTED",
+            "DISPATCHING",
+            "ACKNOWLEDGED_UNVERIFIED",
+            "SUCCEEDED_RECONCILED",
+            "FAILED_FINAL",
+            "UNCERTAIN",
+            "COMPENSATION_REQUIRED",
+            "COMPENSATED"
+          ]
+        },
+        "executor_identity_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reconciliation_evidence_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "state_record_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "effect_intent_id",
+        "idempotency_key",
+        "state",
+        "executor_identity_digest",
+        "reconciliation_evidence_digest",
+        "state_record_digest"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "SUCCEEDED_RECONCILED"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reconciliation_evidence_digest": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "StateTransferCertificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rotation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "old_configuration_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "new_configuration_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "barrier_snapshot_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "committed_log_prefix_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "highest_term": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "highest_committed_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "highest_applied_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "last_committed_entry_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "state_root_stream_head_map_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "idempotency_ledger_root_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "prior_certificate_chain_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "ggs_namespace_root_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "ggs_authorization_root_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "stc_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "rotation_id",
+        "old_configuration_digest",
+        "new_configuration_digest",
+        "barrier_snapshot_index",
+        "committed_log_prefix_digest",
+        "highest_term",
+        "highest_committed_index",
+        "highest_applied_index",
+        "last_committed_entry_digest",
+        "state_root_stream_head_map_digest",
+        "idempotency_ledger_root_digest",
+        "prior_certificate_chain_digest",
+        "ggs_namespace_root_digest",
+        "ggs_authorization_root_digest",
+        "semantic_heads",
+        "stc_digest"
+      ]
+    },
+    "RecoveryContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trigger_schema_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "recovery_nonce_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "trigger_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "recovery_quorum_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "current_trust_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "recovery_context_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "trigger_schema_id",
+        "recovery_nonce_256bit_hex",
+        "trigger_evidence_digest",
+        "recovery_quorum_digest",
+        "current_trust_state_digest",
+        "effective_sequence",
+        "recovery_context_digest"
+      ]
+    },
+    "MigrationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "constitution_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "tenant_uuid": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "object_uuid": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_namespace_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "destination_namespace_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "complete_object_map_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "policy_scope_comparison_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "destination_policy_freshness_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "widening_requested": {
+          "type": "boolean"
+        },
+        "fresh_destination_authorization_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "migration_binding_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "constitution_id",
+        "tenant_uuid",
+        "object_uuid",
+        "source_namespace_digest",
+        "destination_namespace_digest",
+        "complete_object_map_digest",
+        "policy_scope_comparison_digest",
+        "destination_policy_freshness_digest",
+        "widening_requested",
+        "fresh_destination_authorization_digest",
+        "migration_binding_digest"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "widening_requested": {
+                "const": true
+              }
+            },
+            "required": [
+              "widening_requested"
+            ]
+          },
+          "then": {
+            "properties": {
+              "fresh_destination_authorization_digest": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "x-governance-source": [
+    "NORM-011..NORM-016",
+    "NORM-024..NORM-027",
+    "NORM-030..NORM-039"
+  ]
+}
