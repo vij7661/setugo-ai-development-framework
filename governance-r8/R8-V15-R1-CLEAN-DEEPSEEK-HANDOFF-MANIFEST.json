@@ -7,7 +7,7 @@
   "files": [
     {
       "path": "governance-r8/R8-V15-R1-CLEAN-DEEPSEEK-COMPLETE-REVIEW-PACKET.txt",
-      "git_blob_sha1": null,
+      "git_blob_sha1": "db0e391cb94a906e9304126a410d4341cee84914",
       "sha256": "86148e11ecb7c3b02f277c934cc997a0a1fc08a02b4eaca7a85f4d63df8e6f47",
       "bytes_utf8": 405965
     },
@@ -22,5 +22,12 @@
     "R8-V15-R1-CLEAN-DEEPSEEK-COMPLETE-REVIEW-PACKET.txt",
     "R8-V15-R1-CLEAN-DEEPSEEK-SRTT-4-TOTAL-TABLE.txt",
     "execute the reviewer contract embedded in the complete packet"
-  ]
+  ],
+  "verification": {
+    "complete_sha256_verified": true,
+    "complete_bytes_verified": true,
+    "table_sha256_verified": true,
+    "table_bytes_verified": true,
+    "process_history_leak_scan_count": 0
+  }
 }
