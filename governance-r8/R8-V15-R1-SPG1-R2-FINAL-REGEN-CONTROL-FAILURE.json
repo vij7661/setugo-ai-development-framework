@@ -1,0 +1,32 @@
+{
+  "schema": "r8-v15-r1-spg1-r2-final-regeneration-control-failure/v1",
+  "status": "FAILED_CLOSED_AFTER_ATTESTED_REGENERATION_BEFORE_MATERIALIZATION",
+  "authority_effect": "NONE",
+  "input_commit": "94cf195e6e429fa69c6fa62184241ec47f712f1c",
+  "source_run_id": 36031024579,
+  "source_run_head": "fa973e9da5bd145b6741dde73461d64a19d9bfcc",
+  "successful_steps": [
+    "fixed_point_and_qualification_preconditions",
+    "final_spm_regeneration",
+    "final_provenance_validation",
+    "deterministic_subject_build",
+    "sigstore_attestation",
+    "same_run_diagnostics",
+    "final_regeneration_evidence_upload"
+  ],
+  "failure_step": "Fail closed and commit only verified SPM",
+  "failure_reason": "Stale same-run materialization block retained predecessor TARGET_BASE 77f0894d7165374928ffafa525c63fc3a06d8cc1 and predecessor VERIFIED_SPM_SHA256. The current fixed-point candidate is 94cf195e6e429fa69c6fa62184241ec47f712f1c. Independent post-run verification had not yet occurred, so same-run materialization was not permitted.",
+  "repair": "Restore final-regeneration workflow to generation/attestation/evidence-upload only. Perform independent post-run verification in a separate run before any SPM materialization.",
+  "candidate_bytes_changed": false,
+  "generated_output_transfer_allowed": false,
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
