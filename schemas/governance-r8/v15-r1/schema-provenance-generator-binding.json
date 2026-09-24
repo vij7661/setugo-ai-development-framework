@@ -1,21 +1,21 @@
 {
   "schema": "r8-v15-r1-spg-1-binding/v1",
-  "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+  "status": "QUALIFIED_GENERATOR_BINDING",
   "authority_effect": "NONE",
   "generator_id": "R8V15R1-SPG-V2",
   "generator_artifact_path": "tools/generate_r8_v15_r1_spm.py",
   "generator_artifact_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
   "runtime_manifest": {
     "application_artifact_digest": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
-    "interpreter_compiler_runtime_version_digest": null,
-    "crypto_library_digest": null,
-    "schema_parser_bundle_digest": null,
-    "os_container_image_digest": null,
+    "interpreter_compiler_runtime_version_digest": "8159fbce4d3aaee45b6d7954014d3f5f7d4f9cfb19ece0aa6bec29915c84ffe8",
+    "crypto_library_digest": "b9be6c065c8023ffa1b1b23ba27cef2bce4eec2e2e5e92248308f485d235f5e5",
+    "schema_parser_bundle_digest": "dff9321c2fc5f656f0bd43f091a740b598bbda1c6da5430bcadb173e1d8d7424",
+    "os_container_image_digest": "adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d",
     "las_anchor_client_library_digest": null,
-    "runtime_manifest_digest": null
+    "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a"
   },
-  "workload_attestation_policy_digest": null,
-  "workload_attestation_proof_digest": null,
+  "workload_attestation_policy_digest": "330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b",
+  "workload_attestation_proof_digest": "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c",
   "allowed_input_design_artifacts": [
     "governance-r8/R8-V15-R1-BLIND-NORMALIZED-EFFECTIVE-SPEC.md",
     "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
@@ -34,7 +34,7 @@
     "JSON_SCHEMA_2020_12",
     "SPM_1_PROVENANCE_MANIFEST"
   ],
-  "signing_credential_id": null,
-  "revocation_state": "UNKNOWN",
-  "qualification_status": "UNATTESTED_RUNTIME"
+  "signing_credential_id": "sigstore-fulcio-leaf-sha256:5107e1873c2d18ea3b5ae24fe50eb26ee2b5ec486737266dd957555952fc8fa2",
+  "revocation_state": "ACTIVE",
+  "qualification_status": "QUALIFIED"
 }
