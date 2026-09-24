@@ -1,0 +1,90 @@
+{
+  "schema": "r8-v15-r1-sfv45-r3-repair-traceability/v1",
+  "status": "R3_REPAIR_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "predecessor_review_candidate": "5cde19b285989da95c7e68b489663ba2e503ef02",
+  "predecessor_fixed_point_rebind": "94cf195e6e429fa69c6fa62184241ec47f712f1c",
+  "accepted_semantic_successor": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "accepted_semantic_review": "SEMANTIC_SUCCESSOR_BOUNDED_PASS",
+  "repaired_findings": {
+    "critical": [
+      {
+        "id": "R3-C1",
+        "disposition": "REPAIRED",
+        "issue": "LASAuthorityStateRoot nested/extra representation did not preserve exact flat frozen root member set",
+        "repair": "Flat exact root members with deterministic GCP-1 recomputation invariant and no nested semantic aggregate/configuration_head in root preimage"
+      },
+      {
+        "id": "R3-C2",
+        "disposition": "REPAIRED_AFTER_SEMANTIC_SUCCESSOR",
+        "issue": "GCP P05 historical byte/hash contradiction",
+        "repair": "Accepted semantic successor preserves lexicographic key ordering and corrects only P05 canonical bytes/hash; executable GCP vector rebound"
+      }
+    ],
+    "high": [
+      {
+        "id": "R3-H1",
+        "disposition": "REPAIRED",
+        "issue": "STC lacked exact ROTATION_PREPARE/barrier certificate binding",
+        "repair": "barrier_certificate_digest required with exact ROTATION_PREPARE/STC_COMMIT invariants"
+      },
+      {
+        "id": "R3-H2",
+        "disposition": "REPAIRED",
+        "issue": "RCS-1 suite identity was not fully machine-readable",
+        "repair": "ResolverConformanceSuite1 added and ResolverConformanceEvidence binds exact suite object/digest and vector results"
+      },
+      {
+        "id": "R3-H3",
+        "disposition": "REPAIRED",
+        "issue": "CSM-5 embedded resolver_policy instead of canonical resolver_policy_ref",
+        "repair": "CurrentSemanticModelBundle now binds resolver_policy_ref"
+      },
+      {
+        "id": "R3-H4",
+        "disposition": "REPAIRED",
+        "issue": "GGSGenesisStateRoot exact formula not executable",
+        "repair": "GGSGenesisStateRoot added with exact base preimage and conditional semantic-state extension under R8V12-I023"
+      }
+    ],
+    "medium": [
+      {
+        "id": "R3-M1",
+        "disposition": "REPAIRED",
+        "issue": "DecisionPresealContext effect_class canonical absent/null behavior ambiguous",
+        "repair": "effect_class optional non-null CanonicalId; governed presence iff effect-bearing, otherwise absent"
+      },
+      {
+        "id": "R3-M2",
+        "disposition": "REPAIRED",
+        "issue": "STC semantic_heads conditionality for GGS ambiguous",
+        "repair": "semantic_heads no longer unconditionally required; exact LAS/GGS conditional invariants added"
+      },
+      {
+        "id": "R3-M3",
+        "disposition": "REPAIRED",
+        "issue": "T0SuccessorManifest bootstrap_authorization_digest lacked successor-contract trace",
+        "repair": "field removed from T0 successor schema"
+      }
+    ]
+  },
+  "rejected_reviewer_findings": [
+    "S1-CRIT-01 as stated: old DPS-2 list superseded by v12/v13 normalized binding; no mechanical re-addition",
+    "S1-HIGH-02 effect-state enum: current normalized eight-state model is authoritative",
+    "S2-HIGH-01 as stated: internal RuleRegistry trace strings are not SPG source_design_ids; no provenance conflation",
+    "S2-MED-01 BSP legacy-table residual claim: R8V15-I013 does not require LEGACY_GUARD_TABLE in residual fail_if"
+  ],
+  "requalification_required": true,
+  "fresh_spg_required": true,
+  "fresh_independent_review_required": true,
+  "grants": {
+    "executable_schema_freeze": false,
+    "implementation": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
