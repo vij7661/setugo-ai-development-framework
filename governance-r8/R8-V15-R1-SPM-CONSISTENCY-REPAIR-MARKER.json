@@ -1,0 +1,14 @@
+{
+  "schema": "r8-v15-r1-spm-consistency-repair-marker/v1",
+  "status": "EXECUTE_NARROW_NON_SEMANTIC_REPAIR",
+  "authority_effect": "NONE",
+  "finding_id": "SPG-PQF-001",
+  "target_branch": "repair/r8-v15-r1-spm-consistency-v1",
+  "target_base_sha": "8c71169f9d6eb474ec89e950e452eb2130860ede",
+  "permitted_change": [
+    "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
+  ],
+  "exact_delta_constraint": "The recomputed manifest must equal the predecessor JSON after adding only SRC-V6 to source_ref_catalog.",
+  "semantic_change_allowed": false,
+  "qualification_change_allowed": false
+}
