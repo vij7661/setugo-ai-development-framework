@@ -18,8 +18,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  INPUT_COMMIT: 94cf195e6e429fa69c6fa62184241ec47f712f1c
-  SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+  INPUT_COMMIT: 78318ecf004c27e26400a2c72d570d7f9591e0c8
+  SEMANTIC_CANDIDATE_COMMIT: d6317eb85753b0e41168413151ddcebbdcba1c6d
   EXPECTED_GENERATOR_SHA256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6
   EXPECTED_RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
   CONTAINER_REPO_DIGEST: python@sha256:adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d
@@ -68,13 +68,14 @@ jobs:
           assert 'PENDING_EXACT_FINAL_REGENERATION' in m['SFG-002']['status']
           assert 'PENDING_EXACT_FINAL_REGENERATION' in m['SFG-003']['status']
           assert m['SFG-007']['status']=='BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW'
-          assert 'SRC-SPG-V2R1-EXTENSION' in sm['named_source_refs']
-          assert 'SRC-SPG-V2R1-VERIFY' in sm['named_source_refs']
-          assert any(r['match_prefix']=='SPG-QUALIFICATION-V2-R1-2026-09-24' for r in sm['source_ref_routes'])
+          assert 'SRC-SPG-R3-EXTENSION' in sm['named_source_refs']
+          assert 'SRC-SPG-R3-VERIFY' in sm['named_source_refs']
+          assert any(r['match_prefix']=='SPG-QUALIFICATION-R3-2026-09-24' for r in sm['source_ref_routes'])
           assert b['qualification_status']=='QUALIFIED' and b['revocation_state']=='ACTIVE'
           assert b['generator_artifact_sha256']==os.environ['EXPECTED_GENERATOR_SHA256']
           assert b['runtime_manifest']['runtime_manifest_digest']==os.environ['EXPECTED_RUNTIME_MANIFEST_DIGEST']
-          assert ext['approval']['target_repaired_successor_commit']=='cd3a47c9f8d6830764f6f98c5f3a28d8c988f8cb'
+          assert ext['approval']['target_repaired_successor_commit']=='a647258228557cb5d0038399e5bc6f1d6b5627da'
+          assert ext['approval']['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
           assert ext['lifecycle']['revocation_state']=='ACTIVE'
           assert pv['status']=='POST_RUN_REPAIRED_SUCCESSOR_GENERATION_VERIFICATION_PASS'
           assert pv['sfv_35']=='EVIDENCE_COMPLETE_FOR_INPUT_COMMIT'
