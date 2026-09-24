@@ -215,15 +215,19 @@ def main() -> int:
     (out / "runtime-manifest-evidence.json").write_bytes(pretty(runtime_evidence))
 
     recomputed = out / "spm-candidate-recomputed.json"
+    # The frozen generator serializes the schema path it is given into SPM-1.
+    # Run from the repository root with repository-relative inputs so the
+    # recomputed bytes are comparable to the frozen candidate. Absolute
+    # container mount paths are execution details, not schema provenance.
     cmd = [
         sys.executable,
-        str(generator),
-        "--schema-root", str(candidate / "schemas/governance-r8/v15-r1"),
-        "--source-map", str(source_map_path),
-        "--generator-binding", str(binding_path),
-        "--output", str(recomputed),
+        GENERATOR_REL,
+        "--schema-root", "schemas/governance-r8/v15-r1",
+        "--source-map", SOURCE_MAP_REL,
+        "--generator-binding", BINDING_REL,
+        "--output", str(recomputed.resolve()),
     ]
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=candidate)
     require(recomputed.read_bytes() == existing_spm.read_bytes(), "SPM candidate deterministic recomputation mismatch")
 
     shutil.copyfile(generator, out / "generator.py")
