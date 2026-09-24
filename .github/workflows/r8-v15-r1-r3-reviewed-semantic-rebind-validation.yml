@@ -1,0 +1,54 @@
+name: R8 v15-r1 R3 Reviewed Semantic Rebind Validation
+
+on:
+  push:
+    branches:
+      - repair/r8-v15-r1-sfv45-r3-reviewed-semantic-rebind-2026-09-25
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parse governance JSON and verify semantic review binding
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          paths=[
+            "schemas/governance-r8/v15-r1/runtime-contracts.schema.json",
+            "schemas/governance-r8/v15-r1/gcp-rvm-2.json",
+            "schemas/governance-r8/v15-r1/schema-provenance-source-map.json",
+            "schemas/governance-r8/v15-r1/schema-freeze-traceability.json",
+            "schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json",
+            "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION.json",
+            "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-INDEPENDENT-REVIEW.json",
+            "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-ACCEPTANCE.json",
+          ]
+          for p in paths:
+              json.loads(Path(p).read_text(encoding="utf-8"))
+          sm=json.loads(Path(paths[2]).read_text())
+          tr=json.loads(Path(paths[3]).read_text())
+          rev=json.loads(Path(paths[5].replace("CORRECTION","SUCCESSOR-INDEPENDENT-REVIEW")).read_text())
+          assert sm["semantic_candidate_commit"]=="1fa49fa4adfa6aa47fae68c0f1938083eeb1497f"
+          assert tr["semantic_candidate_commit"]=="1fa49fa4adfa6aa47fae68c0f1938083eeb1497f"
+          assert rev["semantic_successor_candidate_commit"]=="1fa49fa4adfa6aa47fae68c0f1938083eeb1497f"
+          assert rev["reviewer_disposition"]=="SEMANTIC_SUCCESSOR_BOUNDED_PASS"
+          assert not Path("schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json").exists()
+          PY
+      - name: Run focused R2/R3 regressions
+        run: |
+          python -m unittest discover -s governance-runtime -p 'test_r8_v15_r1_sfv45_r*.py' -v
+      - name: Run full governance-runtime suite
+        working-directory: governance-runtime
+        run: |
+          python -m unittest discover -p 'test_*.py' -v
