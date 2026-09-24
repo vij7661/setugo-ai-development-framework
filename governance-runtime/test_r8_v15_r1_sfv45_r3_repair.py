@@ -14,7 +14,7 @@ SPM = SCHEMA_ROOT / "schema-provenance-manifest-candidate.json"
 INT64_MAX = 9223372036854775807
 P05_BYTES = '{"max":9223372036854775807,"min":-9223372036854775808}'
 P05_SHA = "161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb"
-SEMANTIC_SUCCESSOR = "d6317eb85753b0e41168413151ddcebbdcba1c6d"
+SEMANTIC_SUCCESSOR = "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f"
 
 
 def load(path):
@@ -31,7 +31,7 @@ def test_p05_uses_semantic_successor_canonical_bytes():
     assert p05["expected_canonical_utf8"] == P05_BYTES
     assert p05["expected_sha256"] == P05_SHA
     assert hashlib.sha256(P05_BYTES.encode("utf-8")).hexdigest() == P05_SHA
-    assert "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR" in p05["source_rules"]
+    assert "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION" in p05["source_rules"]
 
 
 def test_runtime_schema_preserves_exact_int64_maxima():
@@ -136,7 +136,7 @@ def test_semantic_successor_and_qualification_reset_are_bound():
     sm = load(SOURCE_MAP)
     assert trace["semantic_candidate_commit"] == SEMANTIC_SUCCESSOR
     assert sm["semantic_candidate_commit"] == SEMANTIC_SUCCESSOR
-    assert sm["named_source_refs"]["SRC-GCP-P05-SUCCESSOR"]["commit"] == SEMANTIC_SUCCESSOR
+    assert sm["named_source_refs"]["SRC-GCP-P05-CORRECTION"]["commit"] == SEMANTIC_SUCCESSOR
     assert "SRC-SPG-V2R1-EXTENSION" not in sm["named_source_refs"]
     assert "SRC-SPG-V2R1-VERIFY" not in sm["named_source_refs"]
     assert {"SFV-35", "SFV-36", "SFV-44", "SFV-45"}.issubset(set(trace["final_freeze_blockers"]))
@@ -151,4 +151,4 @@ def test_validator_contract_covers_repaired_rules():
     assert "GGSGenesisStateRoot" in by["SFV-29"]["requirement"]
     assert "ROTATION_PREPARE certificate digest" in by["SFV-30"]["requirement"]
     assert "flat v14 member set" in by["SFV-33"]["requirement"]
-    assert "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR" in by["SFV-37"]["source"]
+    assert "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION" in by["SFV-37"]["source"]
