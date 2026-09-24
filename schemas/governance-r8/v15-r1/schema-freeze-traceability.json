@@ -1,6 +1,6 @@
 {
   "schema": "r8-v15-r1-schema-freeze-traceability/v2",
-  "status": "SCHEMA_FREEZE_CANDIDATE_V3_NON_AUTHORITATIVE",
+  "status": "QUALIFIED_EVIDENCE_REBIND_PRECOMMIT_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
   "semantic_candidate_commit": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
   "mappings": [
@@ -459,7 +459,7 @@
         "SFV-35",
         "SFV-44"
       ],
-      "status": "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR"
+      "status": "QUALIFIED_SPM_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
     },
     {
       "rule_id": "SFG-002",
@@ -474,7 +474,7 @@
         "SFV-35",
         "SFV-43"
       ],
-      "status": "SOURCE_REBIND_COMPLETE_PENDING_SPM_REGENERATION"
+      "status": "QUALIFIED_SOURCE_AUTHORITY_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
     },
     {
       "rule_id": "SFG-003",
@@ -492,7 +492,7 @@
         "SFV-36",
         "SFV-44"
       ],
-      "status": "REQUALIFICATION_REQUIRED_AFTER_SCHEMA_REPAIR"
+      "status": "QUALIFIED_GENERATOR_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
     },
     {
       "rule_id": "SFG-004",
@@ -557,15 +557,12 @@
       "validators": [
         "SFV-45"
       ],
-      "status": "BLOCKED_PENDING_REPAIRED_EXACT_CANDIDATE_REVIEW"
+      "status": "BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW"
     }
   ],
   "freeze_process_rule_count": 7,
   "final_freeze_blockers": [
-    "SFV-35",
-    "SFV-36",
-    "SFV-44",
     "SFV-45"
   ],
-  "note": "R3 adjudicated executable repairs are structurally validated. Narrow semantic successor d6317eb85753b0e41168413151ddcebbdcba1c6d is independently validated by run 36041664344. Exact repair candidate validation run 36043984412 passed focused R2/R3 regressions, JSON parsing, and the complete 107-test governance-runtime unittest suite when run from its required working directory. The earlier run 36043903518 is preserved as failed harness evidence because two dashboard tests were launched from the wrong working directory; it did not identify a candidate defect. Functional repair blockers are closed for prequalification purposes. Fresh exact-byte SPG generation and independent post-run verification remain required for SFV-35/SFV-36/SFV-44; SFV-45 requires fresh independent review of the exact materialized candidate."
+  "note": "R3 fixed-point precommit. Semantic successor d6317eb85753b0e41168413151ddcebbdcba1c6d remains the exact GCP-P05 semantic basis. Executable repair input a647258228557cb5d0038399e5bc6f1d6b5627da passed exact-SHA validation run 36044340937. Fresh attested SPG generation run 36044572590 and independent post-run verification run 36044964724 establish SFV-35/SFV-36/SFV-44 evidence for that input. This rebind changes provenance/traceability bytes, so those three gates are only conditionally evidence-complete pending exact final regeneration and independent post-run verification over this fixed-point rebind. If final regeneration/verification fails or bytes drift, SFV-35/SFV-36/SFV-44 reopen. SFV-45 remains the sole final executable-schema-freeze blocker after successful exact-byte final verification."
 }
