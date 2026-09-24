@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-control-failure/v1",
+  "status": "PRESERVED_REGRESSION_SELECTION_CONTROL_DEFECT",
+  "authority_effect": "NONE",
+  "trigger_commit": "9b83533c6b396f2d9f0e75578e015ccd7832d9ef",
+  "workflow_run_id": 36060442863,
+  "workflow_job_id": 107837819948,
+  "exact_checkout_sha": "9b83533c6b396f2d9f0e75578e015ccd7832d9ef",
+  "slice1_acceptance": {
+    "tests_run": 16,
+    "passed": 16,
+    "result": "PASS"
+  },
+  "failing_control": {
+    "file": "governance-runtime/test_r8_v15_r1_sfv45_r2_qualification_reset.py",
+    "test": "test_candidate_is_in_a_lawful_pre_materialization_state",
+    "assertion": "schema-provenance-manifest-candidate.json must not exist",
+    "current_governed_state": "EXECUTABLE_SCHEMA_FROZEN with materialized final SPM",
+    "classification": "HISTORICAL_PRE_MATERIALIZATION_REGRESSION_NOT_APPLICABLE_POST_FREEZE"
+  },
+  "narrow_fix": "Do not edit or reinterpret the historical lifecycle test. Replace it in the Slice 1 workflow with a new post-freeze regression suite that verifies exact final SPM/freeze identities and schema immutability.",
+  "claim_boundary": {
+    "construction_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
