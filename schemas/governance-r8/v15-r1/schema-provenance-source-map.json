@@ -239,7 +239,20 @@
         "NORM-001..NORM-043",
         "R8V7-I030..I031",
         "R8 inherited schema-freeze gates"
-      ]
+      ],
+      "pointer_prefix_sources": {
+        "/freeze_process_mappings/2/status": [
+          "SPG-QUALIFICATION-2026-09-24"
+        ],
+        "/final_freeze_blockers": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "SPG-QUALIFICATION-2026-09-24"
+        ],
+        "/note": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "SPG-QUALIFICATION-2026-09-24"
+        ]
+      }
     }
   },
   "named_source_refs": {
@@ -326,6 +339,18 @@
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md",
       "commit": "84bb9abe04debbcc441580871a74f641d6e30eb2",
       "blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    "SRC-SPG-ENROLLMENT": {
+      "design_id": "R8-V15-R1-SPG1-ENROLLMENT",
+      "path": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json",
+      "commit": "fc115e4854957b3b962987bf1c29a1d4fb4f27b3",
+      "blob": "c958466cafef1b41dc2c8fb73d28a586284d6f5c"
+    },
+    "SRC-SPG-STAGEB-VERIFY": {
+      "design_id": "R8-V15-R1-SPG1-STAGE-B-POST-RUN-VERIFICATION",
+      "path": "governance-r8/R8-V15-R1-SPG-STAGE-B-POST-RUN-VERIFICATION.json",
+      "commit": "aa7451e14c507fa71c96878e2228971e8c291663",
+      "blob": "d4d6929ecf7b14f49097ee8751f79378abd206da"
     }
   },
   "source_ref_routes": [
@@ -474,6 +499,13 @@
         "SRC-V11",
         "SRC-V12",
         "SRC-V13"
+      ]
+    },
+    {
+      "match_prefix": "SPG-QUALIFICATION-2026-09-24",
+      "source_ref_ids": [
+        "SRC-SPG-ENROLLMENT",
+        "SRC-SPG-STAGEB-VERIFY"
       ]
     }
   ],
