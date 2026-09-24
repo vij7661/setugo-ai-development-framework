@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-construction-failure/v1",
+  "status": "PRESERVED_MECHANISM_DEFECT",
+  "authority_effect": "NONE",
+  "predecessor_failure": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-002.json",
+  "repair_commit": "a1d30e3d0e11c6bf0ee4975415cb4071da88b3a5",
+  "trigger_commit": "aa86f34820dffac61127a10aa40aec40d3381cd3",
+  "workflow_run_id": 36060223157,
+  "workflow_job_id": 107837117215,
+  "exact_checkout_sha": "aa86f34820dffac61127a10aa40aec40d3381cd3",
+  "observed_outcome": {
+    "tests_run": 16,
+    "passed": 11,
+    "failures": 1,
+    "errors": 4,
+    "primary_error_code": "SPM_ENTRY_ARTIFACT_UNKNOWN",
+    "observed_entry_field": "artifact_id",
+    "incorrect_implementation_field": "artifact_path"
+  },
+  "root_cause": "The implementation incorrectly assumed each SPM entry carried artifact_path. The frozen SPM entries carry artifact_id and artifact_sha256; artifact paths live in the artifact inventory.",
+  "narrow_fix": "Validate entry artifact_id against the SPM artifact inventory's artifact_id->sha256 mapping, and preserve all existing source-ref/generator/runtime checks. Do not modify the frozen harness.",
+  "claim_boundary": {
+    "construction_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
