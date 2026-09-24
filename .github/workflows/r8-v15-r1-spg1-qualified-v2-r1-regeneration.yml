@@ -18,8 +18,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  INPUT_COMMIT: a647258228557cb5d0038399e5bc6f1d6b5627da
-  SEMANTIC_CANDIDATE_COMMIT: d6317eb85753b0e41168413151ddcebbdcba1c6d
+  INPUT_COMMIT: 721f35118860bb419c520a4c1a218791c7b1c419
+  SEMANTIC_CANDIDATE_COMMIT: 1fa49fa4adfa6aa47fae68c0f1938083eeb1497f
+  SEMANTIC_ACCEPTANCE_COMMIT: c1d983ebd6eca0a78a41c946709bf246cf876f68
   EXPECTED_GENERATOR_SHA256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6
   EXPECTED_RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
   EXPECTED_POLICY_SHA256: 330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b
@@ -88,10 +89,16 @@ jobs:
           assert b['qualification_status']=='QUALIFIED'
           assert b['revocation_state']=='ACTIVE'
 
+          sm=json.loads((c/os.environ['SOURCE_MAP_REL']).read_text())
+          assert sm['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
+          assert sm['named_source_refs']['SRC-GCP-P05-CORRECTION']['commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
+          assert sm['named_source_refs']['SRC-GCP-P05-REVIEW']['commit']==os.environ['SEMANTIC_ACCEPTANCE_COMMIT']
+          assert sm['named_source_refs']['SRC-GCP-P05-ACCEPTANCE']['commit']==os.environ['SEMANTIC_ACCEPTANCE_COMMIT']
           t=json.loads((c/os.environ['TRACE_REL']).read_text())
+          assert t['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
           assert t['final_freeze_blockers']==['SFV-35','SFV-36','SFV-44','SFV-45']
           sfg3=next(x for x in t['freeze_process_mappings'] if x['rule_id']=='SFG-003')
-          assert sfg3['status']=='REQUALIFICATION_REQUIRED_AFTER_SCHEMA_REPAIR'
+          assert sfg3['status']=='REQUALIFICATION_REQUIRED_AFTER_REVIEWED_SEMANTIC_REBIND'
           PY
 
       - name: Generate SPM in exact enrolled runtime
