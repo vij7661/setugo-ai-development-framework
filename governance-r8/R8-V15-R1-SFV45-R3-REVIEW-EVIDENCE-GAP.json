@@ -1,0 +1,29 @@
+{
+  "schema": "r8-v15-r1-sfv45-reviewed-semantic-review-evidence-gap/v1",
+  "status": "INDEPENDENT_REVIEW_INSUFFICIENT_EVIDENCE_PACKET_SCOPE",
+  "authority_effect": "NONE",
+  "exact_candidate_commit": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "fixed_point_input_commit": "d61f9278f1daceac6de536a8894d266726733345",
+  "reviewed_semantic_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "semantic_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+  "reviewer_disposition": "INSUFFICIENT_EVIDENCE",
+  "finding_class": "REVIEW_TRANSPORT_EVIDENCE_GAP",
+  "candidate_defect_established": false,
+  "deficiencies": [
+    "exact executable candidate schema bytes were summarized rather than supplied completely",
+    "full provenance source map and SPM were not supplied for independent source-ref verification",
+    "raw SPG/fixed-point attestation artifacts and verifier outputs were not supplied",
+    "reviewer could not independently recompute P05 SHA-256 or exact candidate digest bindings from packet alone"
+  ],
+  "required_next_action": "Rebuild fresh blind SFV-45 packet from exact candidate bytes plus raw qualification artifacts; do not modify candidate solely because of this evidence-gap review.",
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
