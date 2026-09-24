@@ -7,9 +7,9 @@
   "predecessor_verified_stage_a_run_id": 35977138947,
   "approval": {
     "source": "explicit_user_approval_in_governed_conversation",
-    "approved_at": "2026-09-24T10:41:30Z",
-    "approved_text": "Approved — extend the existing enrollment of `R8V15R1-SPG-V2` to repaired executable-schema successor `bfe078a741855b423e9899d4debd440d21147876`, under the already approved GitHub Actions/Sigstore attestation policy. Require a fresh attested generator execution and independent post-run verification for this successor. This approval grants no implementation, runtime qualification, release, deployment, production, policy, or terminal authority.",
-    "target_repaired_successor_commit": "bfe078a741855b423e9899d4debd440d21147876",
+    "approved_at": "2026-09-24T16:48:42Z",
+    "approved_text": "Approved — extend the existing enrollment of `R8V15R1-SPG-V2` to clean qualification-reset successor `cd3a47c9f8d6830764f6f98c5f3a28d8c988f8cb`, under the already approved GitHub Actions/Sigstore attestation policy. Require a fresh attested generator execution, fresh SPM generation, and independent post-run verification bound to this exact successor. Do not reuse generated output or successor-specific qualification evidence from `d40d3dd890352005573a4010ab3477b6e49d0239`, `fd969231dd61d76ae52c05f48f7eec826e508846`, or rejected candidate `3709ebaff7d2f41dc685f2ffce5fe9690fec3824`. Preserve only the already qualified `R8V15R1-SPG-V2` generator identity/runtime enrollment. This approval grants no implementation, runtime qualification, release, deployment, production, policy, or terminal authority",
+    "target_repaired_successor_commit": "cd3a47c9f8d6830764f6f98c5f3a28d8c988f8cb",
     "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
     "require_fresh_attested_generator_execution": true,
     "require_independent_post_run_verification": true,
@@ -40,6 +40,13 @@
     "runtime_qualification_authorized": false,
     "release_authorized": false,
     "deployment_authorized": false,
-    "production_authorized": false
-  }
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  },
+  "non_transfer_from_commits": [
+    "d40d3dd890352005573a4010ab3477b6e49d0239",
+    "fd969231dd61d76ae52c05f48f7eec826e508846",
+    "3709ebaff7d2f41dc685f2ffce5fe9690fec3824"
+  ]
 }
