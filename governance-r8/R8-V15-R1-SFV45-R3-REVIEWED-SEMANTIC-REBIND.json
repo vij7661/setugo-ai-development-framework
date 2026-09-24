@@ -1,0 +1,38 @@
+{
+  "schema": "r8-v15-r1-sfv45-r3-reviewed-semantic-rebind/v1",
+  "status": "REVIEWED_SEMANTIC_REBIND_COMPLETE_PREQUALIFICATION",
+  "authority_effect": "NONE",
+  "executable_repair_base_commit": "3d23db4a026a9bb062800a77ad6dde23717ee006",
+  "reviewed_semantic_candidate": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "semantic_review_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+  "semantic_review_disposition": "SEMANTIC_SUCCESSOR_BOUNDED_PASS",
+  "stale_semantic_identity_not_transferable": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
+  "stale_materialized_candidate_not_transferable": "e964bdf20578067bec8cd1289fae59b1a6a937fa",
+  "stale_qualification_runs_not_transferable": [
+    36044572590,
+    36044964724,
+    36045455007,
+    36045696654,
+    36045991961
+  ],
+  "runtime_schema_changed_by_rebind": false,
+  "repaired_runtime_semantics_changed_by_rebind": false,
+  "qualification_requirements": [
+    "fresh exact-byte SPG generation",
+    "fresh independent post-run verification",
+    "fresh fixed-point rebind regeneration",
+    "fresh final independent post-run verification",
+    "materialize only independently verified SPM",
+    "fresh SFV-45 review of exact materialized candidate"
+  ],
+  "grants": {
+    "executable_schema_freeze": false,
+    "implementation": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
