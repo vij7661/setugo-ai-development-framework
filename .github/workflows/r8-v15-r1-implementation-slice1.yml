@@ -1,0 +1,41 @@
+name: R8 v15-r1 Implementation Slice 1
+
+on:
+  push:
+    branches:
+      - implementation/r8-v15-r1-slice1-frozen-schema-runtime-2026-09-24
+    paths:
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-MARKER.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r8-v15-r1-implementation-slice1
+  cancel-in-progress: false
+
+jobs:
+  frozen-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact implementation branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run frozen Slice 1 acceptance harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1.py
+
+      - name: Run existing R8 v15-r1 repair/freeze regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v \
+            governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py \
+            governance-runtime/test_r8_v15_r1_sfv45_r2_qualification_reset.py \
+            governance-runtime/test_r8_v15_r1_sfv45_r3_repair.py
