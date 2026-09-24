@@ -1,0 +1,87 @@
+{
+  "schema": "r8-v15-r1-spg1-v2-r1-final-verification-evidence/v1",
+  "status": "FINAL_FIXED_POINT_VERIFICATION_EVIDENCE_COMPLETE",
+  "authority_effect": "EXECUTABLE_SCHEMA_PROVENANCE_EVIDENCE_ONLY",
+  "fixed_point_input_commit": "77f0894d7165374928ffafa525c63fc3a06d8cc1",
+  "materialized_schema_commit": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "final_generation": {
+    "run_id": 35990169768,
+    "run_head": "f84cad68761448bd152174e450799b6985d2ed6e",
+    "artifact_id": 10803947174,
+    "artifact_zip_sha256": "0a7d20182101c5d2b8581d79ff023af0f9103e955696504ae49d8fc3ddd4e834",
+    "attestation_id": 49820802,
+    "subject_sha256": "09022ed062da838a01181ba5b1dd9df5cb690ea1bc73e74a75bbfad747467827",
+    "attestation_bundle_sha256": "df33ff5fc7d50930adea3a099ee4a34172c5c9d5024442b77221706ad9cd8772",
+    "final_spm_sha256": "3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f"
+  },
+  "independent_github_verification": {
+    "run_id": 35990596329,
+    "run_head": "852065bc5fc105ffb27ded4675b2baeb5f3af443",
+    "artifact_id": 10804395294,
+    "artifact_zip_sha256": "4f1434733520a0f91cea2f2b3ece3bf67ee04a485038bc2319db19f2b469d35d",
+    "status": "POST_RUN_FINAL_FIXED_POINT_VERIFICATION_PASS",
+    "github_attestation_verification_pass": true,
+    "oidc_identity_exact_match": true,
+    "verified_timestamp_present": true,
+    "artifact_expanded_bytes_match": true,
+    "qualified_provenance_validation_pass": true,
+    "fixed_point_traceability_condition_satisfied": true
+  },
+  "out_of_band_verification": {
+    "status": "POST_RUN_FINAL_FIXED_POINT_VERIFICATION_PASS",
+    "check_count": 51,
+    "pass_count": 51,
+    "fail_count": 0,
+    "verified_classes": [
+      "Fulcio root/intermediate/leaf certificate chain and validity at Rekor integrated time",
+      "GitHub OIDC workflow/repository/ref/runner/repository-id/invocation identity",
+      "DSSE signature and in-toto/SLSA subject binding",
+      "Rekor Signed Entry Timestamp over canonical log-entry object",
+      "Rekor RFC6962 inclusion proof and signed checkpoint",
+      "deterministic subject tar expanded-byte equality",
+      "final SPM digest/coverage/source-ref/runtime binding",
+      "all 16 SPM-covered Git blob identities against exact fixed-point candidate"
+    ],
+    "trust_material_cross_check": {
+      "source": "official sigstore/root-signing current targets + metadata/targets.json",
+      "targets_metadata_version": 14,
+      "fulcio_root_target_sha256": "f989aa23def87c549404eadba767768d2a3c8d6d30a8b793f9f518a8eafd2cf5",
+      "fulcio_intermediate_target_sha256": "f8cbecf186db7714624a5f4e99da31a917cbef70a94dd6921f5c3ca969dfe30a",
+      "rekor_public_key_target_sha256": "dce5ef715502ec9f3cdfd11f8cc384b31a6141023d3e7595e9908a81cb6241bd",
+      "limitation": "Target bytes were cross-checked against current official TUF targets metadata; the entire TUF root-rotation chain was not independently replayed."
+    }
+  },
+  "materialization": {
+    "successful_run_id": 35992535885,
+    "target_commit": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+    "exact_schema_root_change": [
+      "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
+    ],
+    "final_spm_sha256": "3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f",
+    "preserved_failed_runs": [
+      {
+        "run_id": 35992220224,
+        "classification": "PRE_TRIGGER_CHECKSUM_DEFECT_NO_CANDIDATE_MUTATION"
+      },
+      {
+        "run_id": 35992388678,
+        "classification": "MATERIALIZATION_HARNESS_UNTRACKED_FILE_PROOF_DEFECT_NO_PUSH"
+      }
+    ]
+  },
+  "sfv_35": "EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+  "sfv_36": "EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+  "sfv_44": "EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+  "sfv_45": "SOLE_REMAINING_EXECUTABLE_SCHEMA_FREEZE_BLOCKER",
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
