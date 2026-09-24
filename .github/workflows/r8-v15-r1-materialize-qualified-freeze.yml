@@ -1,0 +1,95 @@
+name: R8 v15-r1 Materialize Qualified Schema Candidate
+
+on:
+  push:
+    branches:
+      - enrollment/r8-v15-r1-spg1-qualified-v1
+    paths:
+      - governance-r8/R8-V15-R1-MATERIALIZE-QUALIFIED-FREEZE-MARKER.json
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: r8-v15-r1-materialize-qualified-freeze
+  cancel-in-progress: false
+
+env:
+  TARGET_BRANCH: freeze/r8-v15-r1-executable-schema-qualified-v1
+  BASE_COMMIT: df486ac41ad415b933a43b380c4338a121c5328f
+  STAGE_B_RUN_ID: "35980845814"
+  STAGE_B_ARTIFACT_NAME: r8-v15-r1-spg1-stage-b-35980845814-1
+  EXPECTED_SPM_SHA256: e0160487455d33c97031ee706d930ab1757d5e0b399d1d897e96325b7dccda5c
+  EXPECTED_BINDING_SHA256: a7f493f8deb252a8fdfbc9af809253f9bed278c90b344557869e816b4ce9a2ef
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact clean freeze branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fail closed if target branch has drifted
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BASE_COMMIT"
+          test -z "$(git status --porcelain)"
+
+      - name: Download exact qualified Stage-B artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p stage-b-download
+          gh run download "$STAGE_B_RUN_ID" --repo "${{ github.repository }}" --name "$STAGE_B_ARTIFACT_NAME" --dir stage-b-download
+          test "$(sha256sum stage-b-download/stage-b/spm-qualified.json | awk '{print $1}')" = "$EXPECTED_SPM_SHA256"
+          test "$(sha256sum stage-b-download/stage-b/qualified-binding.json | awk '{print $1}')" = "$EXPECTED_BINDING_SHA256"
+
+      - name: Materialize exact qualified bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp stage-b-download/stage-b/spm-qualified.json schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+          cp stage-b-download/stage-b/qualified-binding.json schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json
+          test "$(sha256sum schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json | awk '{print $1}')" = "$EXPECTED_SPM_SHA256"
+          test "$(sha256sum schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json | awk '{print $1}')" = "$EXPECTED_BINDING_SHA256"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          b=json.loads(Path('schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json').read_text())
+          s=json.loads(Path('schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json').read_text())
+          assert b['status']=='QUALIFIED_GENERATOR_BINDING'
+          assert b['qualification_status']=='QUALIFIED'
+          assert b['revocation_state']=='ACTIVE'
+          assert b['generator_id']=='R8V15R1-SPG-V2'
+          assert s['status']=='FINAL_FREEZE_ELIGIBLE'
+          assert s['generator']['qualification_status']=='QUALIFIED'
+          assert s['semantic_candidate_commit']=='c721b38cf8b00294797300b526596ce723a47ff8'
+          PY
+
+      - name: Prove only qualification-dependent schema files changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "$BASE_COMMIT" -- schemas/governance-r8/v15-r1 | sort)"
+          expected="$(printf '%s\n'             schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json             schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json | sort)"
+          test "$changed" = "$expected"
+          git diff --exit-code "$BASE_COMMIT" -- . ':(exclude)schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json' ':(exclude)schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json'
+
+      - name: Commit exact qualified schema candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+          git commit -m "Materialize exact qualified SPG binding and SPM"
+          git push origin "HEAD:$TARGET_BRANCH"
