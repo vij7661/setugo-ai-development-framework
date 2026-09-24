@@ -1,0 +1,29 @@
+{
+  "schema": "r8-v15-r1-r3-reviewed-semantic-final-spm-materialization-evidence/v1",
+  "status": "VERIFIED_SPM_MATERIALIZATION_PASS",
+  "authority_effect": "EXECUTABLE_SCHEMA_PROVENANCE_EVIDENCE_ONLY",
+  "fixed_point_input_commit": "d61f9278f1daceac6de536a8894d266726733345",
+  "exact_review_candidate_commit": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "materialization_run_id": 36051866720,
+  "materialization_trigger_commit": "51f79c86951fc3aa5ec885a90621188b6ac98044",
+  "source_final_regeneration_run_id": 36051390674,
+  "source_final_verifier_run_id": 36051607632,
+  "semantic_candidate_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "semantic_review_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+  "final_spm_sha256": "84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797",
+  "candidate_commit_change": [
+    "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
+  ],
+  "other_candidate_bytes_changed": false,
+  "sfv_45": "SOLE_REMAINING_EXECUTABLE_SCHEMA_FREEZE_BLOCKER",
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
