@@ -17,6 +17,6 @@
     "policy": false,
     "terminal_authority": false
   },
-  "retrigger_nonce": 1,
-  "retrigger_reason": "Simplified workflow; exact packet construction moved to versioned Python builder after workflow-parse failure."
+  "retrigger_nonce": 2,
+  "retrigger_reason": "UTF-8 byte-literal bug corrected in raw packet builder."
 }
