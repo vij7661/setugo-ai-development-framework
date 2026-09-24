@@ -1,0 +1,81 @@
+name: R8 v15-r1 SPM Consistency Repair
+
+on:
+  push:
+    branches:
+      - attestation/r8-v15-r1-spg1-github-actions-v1
+    paths:
+      - governance-r8/R8-V15-R1-SPM-CONSISTENCY-REPAIR-MARKER.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: r8-v15-r1-spm-consistency-repair
+  cancel-in-progress: false
+
+env:
+  TARGET_BRANCH: repair/r8-v15-r1-spm-consistency-v1
+  TARGET_BASE_SHA: 8c71169f9d6eb474ec89e950e452eb2130860ede
+  EXPECTED_GENERATOR_SHA256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6
+  MANIFEST_REL: schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+
+jobs:
+  narrow-repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact repair branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          path: candidate
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Verify exact pre-repair state
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C candidate rev-parse HEAD)" = "$TARGET_BASE_SHA"
+          test "$(sha256sum candidate/tools/generate_r8_v15_r1_spm.py | awk '{print $1}')" = "$EXPECTED_GENERATOR_SHA256"
+          test "$(git -C candidate hash-object schemas/governance-r8/v15-r1/schema-provenance-source-map.json)" = "93973c578f38662d165cc418db54092abd41da3d"
+
+      - name: Regenerate and require only the known SRC-V6 catalog delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd candidate
+            python tools/generate_r8_v15_r1_spm.py \
+              --schema-root schemas/governance-r8/v15-r1 \
+              --source-map schemas/governance-r8/v15-r1/schema-provenance-source-map.json \
+              --generator-binding schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json \
+              --output /tmp/spm-recomputed.json
+          )
+          python3 - <<'PY'
+          import copy
+          import json
+          from pathlib import Path
+          current_path = Path('candidate/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json')
+          recomputed_path = Path('/tmp/spm-recomputed.json')
+          current = json.loads(current_path.read_text(encoding='utf-8'))
+          recomputed = json.loads(recomputed_path.read_text(encoding='utf-8'))
+          assert 'SRC-V6' not in current['source_ref_catalog'], 'precondition changed: SRC-V6 already present'
+          assert 'SRC-V6' in recomputed['source_ref_catalog'], 'generator did not emit SRC-V6'
+          repaired = copy.deepcopy(current)
+          repaired['source_ref_catalog']['SRC-V6'] = recomputed['source_ref_catalog']['SRC-V6']
+          assert repaired == recomputed, 'delta is broader than the single known SRC-V6 catalog omission'
+          current_path.write_bytes(recomputed_path.read_bytes())
+          PY
+          test "$(git -C candidate diff --name-only)" = "$MANIFEST_REL"
+
+      - name: Commit deterministic non-semantic provenance repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C candidate config user.name "github-actions[bot]"
+          git -C candidate config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C candidate add "$MANIFEST_REL"
+          git -C candidate commit -m "Repair stale SPM SRC-V6 provenance catalog entry"
+          git -C candidate push origin "HEAD:refs/heads/$TARGET_BRANCH"
