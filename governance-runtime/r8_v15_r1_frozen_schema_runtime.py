@@ -110,25 +110,31 @@ def validate_spm_document(spm: Dict[str, Any]) -> None:
     if not known_refs:
         raise FrozenSchemaError("SPM_SOURCE_REF_INVALID", "empty source_ref_catalog")
 
-    artifact_hashes = {a.get("path"): a.get("sha256") for a in artifacts}
-    if len(artifact_hashes) != len(artifacts) or None in artifact_hashes:
-        raise FrozenSchemaError("SPM_ARTIFACT_SET_INVALID", "duplicate/missing artifact path")
+    artifact_hashes_by_path = {a.get("path"): a.get("sha256") for a in artifacts}
+    artifact_hashes_by_id = {a.get("artifact_id"): a.get("sha256") for a in artifacts}
+    if (
+        len(artifact_hashes_by_path) != len(artifacts)
+        or len(artifact_hashes_by_id) != len(artifacts)
+        or None in artifact_hashes_by_path
+        or None in artifact_hashes_by_id
+    ):
+        raise FrozenSchemaError("SPM_ARTIFACT_SET_INVALID", "duplicate/missing artifact path or artifact_id")
 
     for entry in entries:
-        path = entry.get("artifact_path")
-        if path not in artifact_hashes:
-            raise FrozenSchemaError("SPM_ENTRY_ARTIFACT_UNKNOWN", repr(path))
-        if entry.get("artifact_sha256") != artifact_hashes[path]:
-            raise FrozenSchemaError("SPM_ENTRY_ARTIFACT_DIGEST_MISMATCH", repr(path))
+        artifact_id = entry.get("artifact_id")
+        if artifact_id not in artifact_hashes_by_id:
+            raise FrozenSchemaError("SPM_ENTRY_ARTIFACT_UNKNOWN", repr(artifact_id))
+        if entry.get("artifact_sha256") != artifact_hashes_by_id[artifact_id]:
+            raise FrozenSchemaError("SPM_ENTRY_ARTIFACT_DIGEST_MISMATCH", repr(artifact_id))
         refs = entry.get("source_ref_ids")
         if not isinstance(refs, list) or not refs:
-            raise FrozenSchemaError("SPM_SOURCE_REF_INVALID", f"empty refs for {path}")
+            raise FrozenSchemaError("SPM_SOURCE_REF_INVALID", f"empty refs for {artifact_id}")
         if not set(refs).issubset(known_refs):
-            raise FrozenSchemaError("SPM_SOURCE_REF_INVALID", f"unknown refs for {path}")
+            raise FrozenSchemaError("SPM_SOURCE_REF_INVALID", f"unknown refs for {artifact_id}")
         if entry.get("generator_id") != GENERATOR_ID:
-            raise FrozenSchemaError("GENERATOR_BINDING_MISMATCH", f"entry generator mismatch for {path}")
+            raise FrozenSchemaError("GENERATOR_BINDING_MISMATCH", f"entry generator mismatch for {artifact_id}")
         if entry.get("generator_runtime_manifest_digest") != GENERATOR_RUNTIME_MANIFEST_DIGEST:
-            raise FrozenSchemaError("GENERATOR_BINDING_MISMATCH", f"entry runtime mismatch for {path}")
+            raise FrozenSchemaError("GENERATOR_BINDING_MISMATCH", f"entry runtime mismatch for {artifact_id}")
 
 
 class FrozenSchemaRuntime:
