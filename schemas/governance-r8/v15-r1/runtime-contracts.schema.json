@@ -16,16 +16,24 @@
   "$defs": {
     "CanonicalId": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "x-validator-invariants": [
+        "authority-bearing identifiers must resolve as exact stable canonical IDs under the owning registry or source contract; aliases/display names are invalid where stable-ID authority is required",
+        "lexical syntax remains opaque unless the frozen source contract explicitly defines it"
+      ]
     },
     "Digest": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "x-validator-invariants": [
+        "digest lexical form and algorithm must satisfy the exact governing source rule or current bound crypto profile; generic Digest is opaque and does not imply a global SHA-256 encoding",
+        "where a frozen source rule explicitly fixes SHA-256 or another concrete encoding, the validator must reject values that do not satisfy that exact encoding before authority use"
+      ]
     },
     "Sequence": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 9223372036854775807
+      "maximum": 9223372036854776000
     },
     "SemanticHeads": {
       "type": "object",
@@ -148,7 +156,14 @@
       "additionalProperties": false,
       "properties": {
         "input": {
-          "$ref": "#/$defs/ScopeReplacementInput"
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScopeReplacementOutsideTableInput"
+            },
+            {
+              "$ref": "#/$defs/ScopeReplacementInput"
+            }
+          ]
         },
         "result": {
           "enum": [
@@ -169,6 +184,58 @@
         "input",
         "result",
         "decisive_rule_id"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decisive_rule_id": {
+                "const": "SRTT15-R00"
+              }
+            },
+            "required": [
+              "decisive_rule_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "input": {
+                "$ref": "#/$defs/ScopeReplacementOutsideTableInput"
+              },
+              "result": {
+                "const": "NOT_A_REPLACEMENT_BRANCH"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decisive_rule_id": {
+                "pattern": "^SRTT15-R(?:0[1-9]|1[01])$"
+              }
+            },
+            "required": [
+              "decisive_rule_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "input": {
+                "$ref": "#/$defs/ScopeReplacementInput"
+              },
+              "result": {
+                "enum": [
+                  "SEMANTIC_SCOPE_REVOKED",
+                  "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+                  "MAPPING_NOT_APPLICABLE",
+                  "REPLACEMENT_ELIGIBLE",
+                  "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+                ]
+              }
+            }
+          }
+        }
       ]
     },
     "SemanticResolvedResult": {
@@ -546,6 +613,10 @@
               "reconciliation_evidence_digest": {
                 "type": "string",
                 "minLength": 1
+              },
+              "executor_identity_digest": {
+                "type": "string",
+                "minLength": 1
               }
             }
           }
@@ -595,7 +666,7 @@
             "null"
           ],
           "minimum": 0,
-          "maximum": 9223372036854775807
+          "maximum": 9223372036854776000
         },
         "last_committed_entry_digest": {
           "$ref": "#/$defs/Digest"
@@ -785,7 +856,7 @@
         "generation": {
           "type": "integer",
           "minimum": 1,
-          "maximum": 9223372036854775807
+          "maximum": 9223372036854776000
         },
         "predecessor_manifest_digest": {
           "$ref": "#/$defs/Digest"
@@ -1209,7 +1280,7 @@
             "null"
           ],
           "minimum": 0,
-          "maximum": 9223372036854775807
+          "maximum": 9223372036854776000
         },
         "lifecycle_state": {
           "enum": [
@@ -1339,7 +1410,7 @@
             "null"
           ],
           "minimum": 0,
-          "maximum": 9223372036854775807
+          "maximum": 9223372036854776000
         },
         "lifecycle_state": {
           "enum": [
@@ -2107,6 +2178,80 @@
         "lifecycle_state",
         "mapping_digest"
       ]
+    },
+    "ScopeReplacementOutsideTableInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "SUPERSEDED",
+            "RETIRED",
+            "SCOPE_PERMISSION_REEVALUATION_REQUIRED"
+          ]
+        },
+        "old_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH"
+          ]
+        },
+        "destination_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH",
+            "MAPPED_MATCH"
+          ]
+        },
+        "old_scope_effect": {
+          "enum": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "scope_relation": {
+          "enum": [
+            "SAME",
+            "NARROWER",
+            "BROADER",
+            "DISJOINT"
+          ]
+        },
+        "any_permission_valid": {
+          "type": "boolean"
+        },
+        "mapping_effective": {
+          "type": "boolean"
+        },
+        "lineage_mapping_valid": {
+          "type": "boolean"
+        },
+        "scope_expansion_authorized": {
+          "type": "boolean"
+        },
+        "decision_inside_authorized_expansion_domain": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_entry_state",
+        "old_scope_match",
+        "destination_scope_match",
+        "old_scope_effect",
+        "scope_relation",
+        "any_permission_valid",
+        "mapping_effective",
+        "lineage_mapping_valid",
+        "scope_expansion_authorized",
+        "decision_inside_authorized_expansion_domain"
+      ],
+      "x-governance-source": [
+        "NORM-027"
+      ],
+      "description": "Outside-table scope-replacement input. Any non-REVOKED source entry state must return NOT_A_REPLACEMENT_BRANCH before SRTT-4 table lookup."
     }
   },
   "x-governance-source": [

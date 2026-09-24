@@ -121,7 +121,7 @@
       "schema_context": "integer_lexical",
       "expected_outcome": "REJECT",
       "expected_rejection_code": "GCP_REJECT_LEADING_PLUS",
-      "source_case_id": "V4-025",
+      "source_case_id": null,
       "source_rules": [
         "R8V4-I027"
       ]
@@ -132,7 +132,7 @@
       "schema_context": "integer_lexical",
       "expected_outcome": "REJECT",
       "expected_rejection_code": "GCP_REJECT_EXPONENT_FORM",
-      "source_case_id": "V4-025",
+      "source_case_id": null,
       "source_rules": [
         "R8V4-I027"
       ]
@@ -143,7 +143,7 @@
       "schema_context": "integer_lexical",
       "expected_outcome": "REJECT",
       "expected_rejection_code": "GCP_REJECT_DECIMAL_FORM",
-      "source_case_id": "V4-025",
+      "source_case_id": null,
       "source_rules": [
         "R8V4-I027"
       ]
@@ -198,7 +198,7 @@
       "schema_context": "extension_map",
       "expected_outcome": "REJECT",
       "expected_rejection_code": "GCP_REJECT_RESERVED_SYS_EXTENSION",
-      "source_case_id": "V5-027",
+      "source_case_id": null,
       "source_rules": [
         "R8V7 GCP rejection vectors"
       ]
@@ -209,7 +209,7 @@
       "schema_context": "extension_map",
       "expected_outcome": "REJECT",
       "expected_rejection_code": "GCP_REJECT_EXTENSION_SHADOWS_STANDARD_FIELD",
-      "source_case_id": "V5-027",
+      "source_case_id": "V5-026",
       "source_rules": [
         "R8V7 GCP rejection vectors"
       ]

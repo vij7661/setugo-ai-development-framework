@@ -113,8 +113,16 @@
           "pattern": "^GCP_REJECT_[A-Z0-9_]+$"
         },
         "source_case_id": {
-          "type": "string",
-          "pattern": "^V\\d+-\\d{3}$"
+          "description": "Exact preregistered source case when one exists. Null when the frozen rejection vector originates directly from an authoritative source rule without an exact case literal.",
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "source_rules": {
           "type": "array",

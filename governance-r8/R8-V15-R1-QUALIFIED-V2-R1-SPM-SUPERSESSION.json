@@ -1,0 +1,15 @@
+{
+  "schema": "r8-v15-r1-spm-supersession-after-schema-review-repair/v1",
+  "status": "PREDECESSOR_SPM_INVALIDATED_BY_SCHEMA_BYTE_CHANGE",
+  "authority_effect": "NONE",
+  "predecessor_candidate_commit": "dab6c2e2692d7e2061b77af83b43888b84d705ae",
+  "predecessor_spm_path": "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json",
+  "predecessor_spm_git_blob": "115ca22688a7ade2892b639498c16a1ebf8f2631",
+  "predecessor_spm_status": "FINAL_FREEZE_ELIGIBLE_FOR_PREDECESSOR_BYTES_ONLY",
+  "reason": "Schema/validator/source-map bytes are changed by independently reviewed narrow repairs. Exact-byte provenance and qualified-generation evidence do not transfer.",
+  "required_next_state": "SPM_REGENERATION_AND_REQUALIFICATION_REQUIRED",
+  "sfv_35": "OPEN",
+  "sfv_36": "OPEN_FOR_REPAIRED_BYTES",
+  "sfv_44": "OPEN",
+  "sfv_45": "OPEN_AFTER_REQUALIFICATION"
+}

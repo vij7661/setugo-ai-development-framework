@@ -217,5 +217,11 @@
   ],
   "x-governance-source": [
     "NORM-027"
+  ],
+  "x-validator-invariants": [
+    "row_id values are exactly the unique contiguous set 1..2304",
+    "every declared variable Cartesian tuple appears exactly once",
+    "every decisive_rule_id resolves to exactly one current SRTT-4 RuleRegistry rule",
+    "every row result and decisive_rule_id must equal deterministic SRTT-4 recomputation"
   ]
 }

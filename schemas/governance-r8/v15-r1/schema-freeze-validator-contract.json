@@ -20,7 +20,7 @@
       "source": [
         "NORM-027"
       ],
-      "requirement": "Exactly one row per declared variable tuple; no duplicate input tuple."
+      "requirement": "Exactly one row per declared variable tuple; no duplicate input tuple; row_id values are exactly the unique contiguous set 1..2304."
     },
     {
       "id": "SFV-03",
@@ -29,7 +29,7 @@
       "source": [
         "NORM-027"
       ],
-      "requirement": "Every row decisive_rule_id resolves to exactly one frozen SRTT-4 RuleRegistry rule."
+      "requirement": "RuleRegistry contains exactly SRTT15-R01..R11 once each with unique contiguous precedence 1..11; outside-table rule is exactly SRTT15-R00; every table-row decisive_rule_id resolves to exactly one frozen rule."
     },
     {
       "id": "SFV-04",
@@ -115,7 +115,7 @@
         "NORM-006",
         "NORM-007"
       ],
-      "requirement": "Alias-collapsed canonical subjects; only ACTIVE identities count; domain diversity cannot be manufactured by alias."
+      "requirement": "Alias-collapsed canonical subjects; only ACTIVE identities count; domain diversity cannot be manufactured by alias. Authority-bearing identifiers must resolve as exact stable canonical IDs under the owning registry/source contract; display aliases cannot substitute."
     },
     {
       "id": "SFV-13",
@@ -142,7 +142,7 @@
       "source": [
         "NORM-018"
       ],
-      "requirement": "AIM candidate scope uses the exact nine-component canonical scope tuple; specificity is exact non-ANY component count; compute AIM_Smax over the full effective matching set before permission/lifecycle filtering; at AIM_Smax every ANY component must be explicitly allowed for that semantic_class by the current ACTIVE AIMScopePolicy; invalid/missing/narrowed/revoked policy blocks lower fallback."
+      "requirement": "AIM candidate scope uses the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY component count; compute AIM_Smax over the full effective matching set before permission/lifecycle filtering; at AIM_Smax every ANY component must be explicitly allowed for that semantic_class by the current ACTIVE AIMScopePolicy; AIMScopePolicy semantic_class keys are unique; project/org/experiment policy cannot broaden AIM permission; source-lineage/policy/class/scope changes require a constitutionally linked successor; invalid/missing/narrowed/revoked policy blocks lower fallback."
     },
     {
       "id": "SFV-16",
@@ -170,7 +170,7 @@
         "NORM-022",
         "NORM-023"
       ],
-      "requirement": "Semantic candidates use the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY count; compute semantic Smax before lifecycle filtering; every ANY component must be allowed by the current ACTIVE ANYScopePermission for the semantic_class; permission drift/absence/conflict blocks with no lower fallback."
+      "requirement": "Semantic candidates use the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY count; semantic_entry_key equals the canonical digest of semantic_input_id+semantic_lineage_id+semantic_version+scope_tuple; compute semantic Smax before lifecycle filtering; every ANY component must be allowed by the current ACTIVE ANYScopePermission for the semantic_class; permission drift/absence/conflict blocks with no lower fallback."
     },
     {
       "id": "SFV-19",
@@ -209,7 +209,7 @@
       "source": [
         "NORM-034"
       ],
-      "requirement": "Only SUCCEEDED_RECONCILED is success; ambiguous/unverified provider outcomes are never success; retries reuse idempotency key."
+      "requirement": "Only SUCCEEDED_RECONCILED is success; that state requires non-null qualified executor identity evidence plus non-null provider-specific reconciliation evidence; ambiguous/unverified provider outcomes are never success; retries reuse the frozen idempotency key."
     },
     {
       "id": "SFV-23",
@@ -297,7 +297,7 @@
         "NORM-025",
         "NORM-030"
       ],
-      "requirement": "Canonical authority input/output obeys inherited GCP: absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields."
+      "requirement": "Canonical authority input/output obeys inherited GCP: absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields. Every digest-bearing field is validated against its exact governing source or bound crypto profile; when a source explicitly fixes SHA-256 or another concrete encoding, malformed values reject before authority use. Generic opaque digest references must not be silently reinterpreted as a different algorithm."
     },
     {
       "id": "SFV-32",
@@ -318,7 +318,7 @@
         "NORM-015",
         "NORM-016"
       ],
-      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, AIMScopePolicy, ResolverPolicy and supporting heads/rules; canonical arrays preserve frozen ordering; all named heads are read from one current LAS-derived semantic_state_sequence; historical/caller-selected sequence has authority NONE."
+      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, AIMScopePolicy, ResolverPolicy and supporting heads/rules; canonical arrays use the frozen canonical ordering; updates are LAS-governed authority events; all named heads are read from one current LAS-derived semantic_state_sequence; LASAuthorityStateRoot state_root_digest equals the GCP-1 digest of the exact frozen root members; historical/caller-selected sequence has authority NONE."
     },
     {
       "id": "SFV-34",

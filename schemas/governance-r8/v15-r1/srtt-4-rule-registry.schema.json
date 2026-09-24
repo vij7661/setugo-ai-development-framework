@@ -116,5 +116,10 @@
   ],
   "x-governance-source": [
     "NORM-027"
+  ],
+  "x-validator-invariants": [
+    "rules contain exactly one each of SRTT15-R01..SRTT15-R11",
+    "precedence values are exactly the unique contiguous set 1..11",
+    "outside_table_rule is exactly SRTT15-R00 and is not part of table precedence"
   ]
 }
