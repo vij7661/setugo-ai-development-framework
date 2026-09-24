@@ -95,10 +95,22 @@
       "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md",
       "commit": "84bb9abe04debbcc441580871a74f641d6e30eb2",
       "blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    "SRC-SPG-ENROLLMENT": {
+      "design_id": "R8-V15-R1-SPG1-ENROLLMENT",
+      "path": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json",
+      "commit": "fc115e4854957b3b962987bf1c29a1d4fb4f27b3",
+      "blob": "c958466cafef1b41dc2c8fb73d28a586284d6f5c"
+    },
+    "SRC-SPG-STAGEB-VERIFY": {
+      "design_id": "R8-V15-R1-SPG1-STAGE-B-POST-RUN-VERIFICATION",
+      "path": "governance-r8/R8-V15-R1-SPG-STAGE-B-POST-RUN-VERIFICATION.json",
+      "commit": "aa7451e14c507fa71c96878e2228971e8c291663",
+      "blob": "d4d6929ecf7b14f49097ee8751f79378abd206da"
     }
   },
   "artifact_count": 16,
-  "entry_count": 2643,
+  "entry_count": 2642,
   "artifacts": [
     {
       "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/bsp-5-grammar.schema.json",
@@ -163,8 +175,8 @@
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
       "path": "schemas/governance-r8/v15-r1/schema-freeze-traceability.json",
-      "git_blob_sha1": "be6ef47e9d9f8c7954bf25ffa9e4ff429c942f1f",
-      "sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b"
+      "git_blob_sha1": "58b4ba59c035ed50dadb43ee307bd3addf8c3ea5",
+      "sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe"
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
@@ -29807,7 +29819,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/schema",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/schema",
       "source_design_ids": [
@@ -29831,7 +29843,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/status",
       "source_design_ids": [
@@ -29855,7 +29867,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/authority_effect",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/authority_effect",
       "source_design_ids": [
@@ -29879,7 +29891,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/semantic_candidate_commit",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/semantic_candidate_commit",
       "source_design_ids": [
@@ -29903,7 +29915,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/0/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/0/norm",
       "source_design_ids": [
@@ -29927,7 +29939,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/0/schemas",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/0/schemas",
       "source_design_ids": [
@@ -29951,7 +29963,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/0/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/0/validators/0",
       "source_design_ids": [
@@ -29975,7 +29987,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/0/note",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/0/note",
       "source_design_ids": [
@@ -29999,7 +30011,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/1/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/1/norm",
       "source_design_ids": [
@@ -30023,7 +30035,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/1/schemas",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/1/schemas",
       "source_design_ids": [
@@ -30047,7 +30059,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/1/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/1/validators/0",
       "source_design_ids": [
@@ -30071,7 +30083,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/1/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/1/validators/1",
       "source_design_ids": [
@@ -30095,7 +30107,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/1/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/1/validators/2",
       "source_design_ids": [
@@ -30119,7 +30131,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/1/note",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/1/note",
       "source_design_ids": [
@@ -30143,7 +30155,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/2/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/2/norm",
       "source_design_ids": [
@@ -30167,7 +30179,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/2/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/2/schemas/0",
       "source_design_ids": [
@@ -30191,7 +30203,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/2/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/2/validators/0",
       "source_design_ids": [
@@ -30215,7 +30227,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/3/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/3/norm",
       "source_design_ids": [
@@ -30239,7 +30251,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/3/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/3/schemas/0",
       "source_design_ids": [
@@ -30263,7 +30275,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/3/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/3/schemas/1",
       "source_design_ids": [
@@ -30287,7 +30299,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/3/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/3/validators/0",
       "source_design_ids": [
@@ -30311,7 +30323,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/4/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/4/norm",
       "source_design_ids": [
@@ -30335,7 +30347,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/4/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/4/schemas/0",
       "source_design_ids": [
@@ -30359,7 +30371,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/4/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/4/validators/0",
       "source_design_ids": [
@@ -30383,7 +30395,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/5/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/5/norm",
       "source_design_ids": [
@@ -30407,7 +30419,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/5/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/5/schemas/0",
       "source_design_ids": [
@@ -30431,7 +30443,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/5/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/5/validators/0",
       "source_design_ids": [
@@ -30455,7 +30467,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/6/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/6/norm",
       "source_design_ids": [
@@ -30479,7 +30491,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/6/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/6/schemas/0",
       "source_design_ids": [
@@ -30503,7 +30515,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/6/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/6/validators/0",
       "source_design_ids": [
@@ -30527,7 +30539,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/7/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/7/norm",
       "source_design_ids": [
@@ -30551,7 +30563,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/7/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/7/schemas/0",
       "source_design_ids": [
@@ -30575,7 +30587,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/7/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/7/validators/0",
       "source_design_ids": [
@@ -30599,7 +30611,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/8/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/8/norm",
       "source_design_ids": [
@@ -30623,7 +30635,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/8/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/8/schemas/0",
       "source_design_ids": [
@@ -30647,7 +30659,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/8/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/8/schemas/1",
       "source_design_ids": [
@@ -30671,7 +30683,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/8/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/8/validators/0",
       "source_design_ids": [
@@ -30695,7 +30707,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/8/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/8/validators/1",
       "source_design_ids": [
@@ -30719,7 +30731,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/9/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/9/norm",
       "source_design_ids": [
@@ -30743,7 +30755,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/9/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/9/schemas/0",
       "source_design_ids": [
@@ -30767,7 +30779,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/9/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/9/schemas/1",
       "source_design_ids": [
@@ -30791,7 +30803,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/9/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/9/schemas/2",
       "source_design_ids": [
@@ -30815,7 +30827,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/9/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/9/validators/0",
       "source_design_ids": [
@@ -30839,7 +30851,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/9/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/9/validators/1",
       "source_design_ids": [
@@ -30863,7 +30875,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/10/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/10/norm",
       "source_design_ids": [
@@ -30887,7 +30899,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/10/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/10/schemas/0",
       "source_design_ids": [
@@ -30911,7 +30923,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/10/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/10/validators/0",
       "source_design_ids": [
@@ -30935,7 +30947,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/11/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/11/norm",
       "source_design_ids": [
@@ -30959,7 +30971,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/11/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/11/schemas/0",
       "source_design_ids": [
@@ -30983,7 +30995,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/11/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/11/validators/0",
       "source_design_ids": [
@@ -31007,7 +31019,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/12/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/12/norm",
       "source_design_ids": [
@@ -31031,7 +31043,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/12/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/12/schemas/0",
       "source_design_ids": [
@@ -31055,7 +31067,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/12/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/12/validators/0",
       "source_design_ids": [
@@ -31079,7 +31091,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/13/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/13/norm",
       "source_design_ids": [
@@ -31103,7 +31115,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/13/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/13/schemas/0",
       "source_design_ids": [
@@ -31127,7 +31139,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/13/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/13/schemas/1",
       "source_design_ids": [
@@ -31151,7 +31163,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/13/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/13/schemas/2",
       "source_design_ids": [
@@ -31175,7 +31187,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/13/schemas/3",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/13/schemas/3",
       "source_design_ids": [
@@ -31199,7 +31211,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/13/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/13/validators/0",
       "source_design_ids": [
@@ -31223,7 +31235,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/14/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/14/norm",
       "source_design_ids": [
@@ -31247,7 +31259,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/14/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/14/schemas/0",
       "source_design_ids": [
@@ -31271,7 +31283,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/14/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/14/schemas/1",
       "source_design_ids": [
@@ -31295,7 +31307,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/14/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/14/validators/0",
       "source_design_ids": [
@@ -31319,7 +31331,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/15/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/15/norm",
       "source_design_ids": [
@@ -31343,7 +31355,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/15/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/15/schemas/0",
       "source_design_ids": [
@@ -31367,7 +31379,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/15/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/15/validators/0",
       "source_design_ids": [
@@ -31391,7 +31403,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/16/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/16/norm",
       "source_design_ids": [
@@ -31415,7 +31427,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/16/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/16/schemas/0",
       "source_design_ids": [
@@ -31439,7 +31451,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/16/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/16/schemas/1",
       "source_design_ids": [
@@ -31463,7 +31475,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/16/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/16/validators/0",
       "source_design_ids": [
@@ -31487,7 +31499,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/17/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/17/norm",
       "source_design_ids": [
@@ -31511,7 +31523,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/17/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/17/schemas/0",
       "source_design_ids": [
@@ -31535,7 +31547,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/17/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/17/schemas/1",
       "source_design_ids": [
@@ -31559,7 +31571,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/17/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/17/schemas/2",
       "source_design_ids": [
@@ -31583,7 +31595,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/17/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/17/validators/0",
       "source_design_ids": [
@@ -31607,7 +31619,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/18/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/18/norm",
       "source_design_ids": [
@@ -31631,7 +31643,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/18/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/18/schemas/0",
       "source_design_ids": [
@@ -31655,7 +31667,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/18/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/18/validators/0",
       "source_design_ids": [
@@ -31679,7 +31691,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/19/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/19/norm",
       "source_design_ids": [
@@ -31703,7 +31715,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/19/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/19/schemas/0",
       "source_design_ids": [
@@ -31727,7 +31739,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/19/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/19/validators/0",
       "source_design_ids": [
@@ -31751,7 +31763,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/20/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/20/norm",
       "source_design_ids": [
@@ -31775,7 +31787,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/20/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/20/schemas/0",
       "source_design_ids": [
@@ -31799,7 +31811,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/20/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/20/validators/0",
       "source_design_ids": [
@@ -31823,7 +31835,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/21/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/21/norm",
       "source_design_ids": [
@@ -31847,7 +31859,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/21/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/21/schemas/0",
       "source_design_ids": [
@@ -31871,7 +31883,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/21/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/21/validators/0",
       "source_design_ids": [
@@ -31895,7 +31907,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/22/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/22/norm",
       "source_design_ids": [
@@ -31919,7 +31931,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/22/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/22/schemas/0",
       "source_design_ids": [
@@ -31943,7 +31955,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/22/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/22/schemas/1",
       "source_design_ids": [
@@ -31967,7 +31979,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/22/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/22/schemas/2",
       "source_design_ids": [
@@ -31991,7 +32003,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/22/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/22/validators/0",
       "source_design_ids": [
@@ -32015,7 +32027,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/23/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/23/norm",
       "source_design_ids": [
@@ -32039,7 +32051,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/23/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/23/schemas/0",
       "source_design_ids": [
@@ -32063,7 +32075,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/23/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/23/schemas/1",
       "source_design_ids": [
@@ -32087,7 +32099,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/23/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/23/schemas/2",
       "source_design_ids": [
@@ -32111,7 +32123,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/23/schemas/3",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/23/schemas/3",
       "source_design_ids": [
@@ -32135,7 +32147,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/23/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/23/validators/0",
       "source_design_ids": [
@@ -32159,7 +32171,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/24/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/24/norm",
       "source_design_ids": [
@@ -32183,7 +32195,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/24/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/24/schemas/0",
       "source_design_ids": [
@@ -32207,7 +32219,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/24/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/24/validators/0",
       "source_design_ids": [
@@ -32231,7 +32243,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/24/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/24/validators/1",
       "source_design_ids": [
@@ -32255,7 +32267,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/25/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/25/norm",
       "source_design_ids": [
@@ -32279,7 +32291,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/25/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/25/schemas/0",
       "source_design_ids": [
@@ -32303,7 +32315,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/25/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/25/schemas/1",
       "source_design_ids": [
@@ -32327,7 +32339,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/25/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/25/validators/0",
       "source_design_ids": [
@@ -32351,7 +32363,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/norm",
       "source_design_ids": [
@@ -32375,7 +32387,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/schemas/0",
       "source_design_ids": [
@@ -32399,7 +32411,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/schemas/1",
       "source_design_ids": [
@@ -32423,7 +32435,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/schemas/2",
       "source_design_ids": [
@@ -32447,7 +32459,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/schemas/3",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/schemas/3",
       "source_design_ids": [
@@ -32471,7 +32483,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/schemas/4",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/schemas/4",
       "source_design_ids": [
@@ -32495,7 +32507,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/schemas/5",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/schemas/5",
       "source_design_ids": [
@@ -32519,7 +32531,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/validators/0",
       "source_design_ids": [
@@ -32543,7 +32555,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/validators/1",
       "source_design_ids": [
@@ -32567,7 +32579,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/validators/2",
       "source_design_ids": [
@@ -32591,7 +32603,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/26/validators/3",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/26/validators/3",
       "source_design_ids": [
@@ -32615,7 +32627,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/norm",
       "source_design_ids": [
@@ -32639,7 +32651,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/schemas/0",
       "source_design_ids": [
@@ -32663,7 +32675,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/schemas/1",
       "source_design_ids": [
@@ -32687,7 +32699,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/validators/0",
       "source_design_ids": [
@@ -32711,7 +32723,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/validators/1",
       "source_design_ids": [
@@ -32735,7 +32747,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/validators/2",
       "source_design_ids": [
@@ -32759,7 +32771,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/27/note",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/27/note",
       "source_design_ids": [
@@ -32783,7 +32795,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/28/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/28/norm",
       "source_design_ids": [
@@ -32807,7 +32819,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/28/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/28/schemas/0",
       "source_design_ids": [
@@ -32831,7 +32843,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/28/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/28/validators/0",
       "source_design_ids": [
@@ -32855,7 +32867,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/28/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/28/validators/1",
       "source_design_ids": [
@@ -32879,7 +32891,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/29/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/29/norm",
       "source_design_ids": [
@@ -32903,7 +32915,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/29/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/29/schemas/0",
       "source_design_ids": [
@@ -32927,7 +32939,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/29/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/29/validators/0",
       "source_design_ids": [
@@ -32951,7 +32963,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/29/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/29/validators/1",
       "source_design_ids": [
@@ -32975,7 +32987,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/29/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/29/validators/2",
       "source_design_ids": [
@@ -32999,7 +33011,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/30/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/30/norm",
       "source_design_ids": [
@@ -33023,7 +33035,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/30/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/30/schemas/0",
       "source_design_ids": [
@@ -33047,7 +33059,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/30/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/30/validators/0",
       "source_design_ids": [
@@ -33071,7 +33083,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/31/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/31/norm",
       "source_design_ids": [
@@ -33095,7 +33107,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/31/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/31/schemas/0",
       "source_design_ids": [
@@ -33119,7 +33131,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/31/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/31/validators/0",
       "source_design_ids": [
@@ -33143,7 +33155,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/32/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/32/norm",
       "source_design_ids": [
@@ -33167,7 +33179,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/32/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/32/schemas/0",
       "source_design_ids": [
@@ -33191,7 +33203,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/32/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/32/validators/0",
       "source_design_ids": [
@@ -33215,7 +33227,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/33/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/33/norm",
       "source_design_ids": [
@@ -33239,7 +33251,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/33/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/33/schemas/0",
       "source_design_ids": [
@@ -33263,7 +33275,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/33/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/33/schemas/1",
       "source_design_ids": [
@@ -33287,7 +33299,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/33/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/33/validators/0",
       "source_design_ids": [
@@ -33311,7 +33323,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/34/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/34/norm",
       "source_design_ids": [
@@ -33335,7 +33347,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/34/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/34/schemas/0",
       "source_design_ids": [
@@ -33359,7 +33371,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/34/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/34/validators/0",
       "source_design_ids": [
@@ -33383,7 +33395,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/35/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/35/norm",
       "source_design_ids": [
@@ -33407,7 +33419,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/35/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/35/schemas/0",
       "source_design_ids": [
@@ -33431,7 +33443,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/35/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/35/validators/0",
       "source_design_ids": [
@@ -33455,7 +33467,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/36/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/36/norm",
       "source_design_ids": [
@@ -33479,7 +33491,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/36/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/36/schemas/0",
       "source_design_ids": [
@@ -33503,7 +33515,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/36/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/36/validators/0",
       "source_design_ids": [
@@ -33527,7 +33539,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/37/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/37/norm",
       "source_design_ids": [
@@ -33551,7 +33563,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/37/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/37/schemas/0",
       "source_design_ids": [
@@ -33575,7 +33587,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/37/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/37/validators/0",
       "source_design_ids": [
@@ -33599,7 +33611,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/38/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/38/norm",
       "source_design_ids": [
@@ -33623,7 +33635,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/38/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/38/schemas/0",
       "source_design_ids": [
@@ -33647,7 +33659,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/38/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/38/validators/0",
       "source_design_ids": [
@@ -33671,7 +33683,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/norm",
       "source_design_ids": [
@@ -33695,7 +33707,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/schemas/0",
       "source_design_ids": [
@@ -33719,7 +33731,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/schemas/1",
       "source_design_ids": [
@@ -33743,7 +33755,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/schemas/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/schemas/2",
       "source_design_ids": [
@@ -33767,7 +33779,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/0",
       "source_design_ids": [
@@ -33791,7 +33803,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/1",
       "source_design_ids": [
@@ -33815,7 +33827,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/2",
       "source_design_ids": [
@@ -33839,7 +33851,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/39/validators/3",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/3",
       "source_design_ids": [
@@ -33863,7 +33875,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/40/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/norm",
       "source_design_ids": [
@@ -33887,7 +33899,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/40/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/schemas/0",
       "source_design_ids": [
@@ -33911,7 +33923,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/40/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/schemas/1",
       "source_design_ids": [
@@ -33935,7 +33947,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/40/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/validators/0",
       "source_design_ids": [
@@ -33959,7 +33971,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/40/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/validators/1",
       "source_design_ids": [
@@ -33983,7 +33995,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/40/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/validators/2",
       "source_design_ids": [
@@ -34007,7 +34019,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/41/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/norm",
       "source_design_ids": [
@@ -34031,7 +34043,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/41/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/schemas/0",
       "source_design_ids": [
@@ -34055,7 +34067,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/41/schemas/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/schemas/1",
       "source_design_ids": [
@@ -34079,7 +34091,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/41/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/validators/0",
       "source_design_ids": [
@@ -34103,7 +34115,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/42/norm",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/norm",
       "source_design_ids": [
@@ -34127,7 +34139,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/42/schemas/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/schemas/0",
       "source_design_ids": [
@@ -34151,7 +34163,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/42/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/validators/0",
       "source_design_ids": [
@@ -34175,7 +34187,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/mappings/42/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/validators/1",
       "source_design_ids": [
@@ -34199,7 +34211,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/expected_norm_count",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/expected_norm_count",
       "source_design_ids": [
@@ -34223,7 +34235,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/validator_rule_count",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/validator_rule_count",
       "source_design_ids": [
@@ -34247,7 +34259,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/rule_id",
       "source_design_ids": [
@@ -34271,7 +34283,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/source/0",
       "source_design_ids": [
@@ -34295,7 +34307,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/artifacts/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/artifacts/0",
       "source_design_ids": [
@@ -34319,7 +34331,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/artifacts/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/artifacts/1",
       "source_design_ids": [
@@ -34343,7 +34355,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/artifacts/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/artifacts/2",
       "source_design_ids": [
@@ -34367,7 +34379,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/validators/0",
       "source_design_ids": [
@@ -34391,7 +34403,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/validators/1",
       "source_design_ids": [
@@ -34415,7 +34427,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/0/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/status",
       "source_design_ids": [
@@ -34439,7 +34451,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/rule_id",
       "source_design_ids": [
@@ -34463,7 +34475,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/source/0",
       "source_design_ids": [
@@ -34487,7 +34499,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/artifacts/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/artifacts/0",
       "source_design_ids": [
@@ -34511,7 +34523,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/artifacts/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/artifacts/1",
       "source_design_ids": [
@@ -34535,7 +34547,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/validators/0",
       "source_design_ids": [
@@ -34559,7 +34571,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/validators/1",
       "source_design_ids": [
@@ -34583,7 +34595,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/1/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/status",
       "source_design_ids": [
@@ -34607,7 +34619,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/rule_id",
       "source_design_ids": [
@@ -34631,7 +34643,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/source/0",
       "source_design_ids": [
@@ -34655,7 +34667,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/source/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/source/1",
       "source_design_ids": [
@@ -34679,7 +34691,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/source/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/source/2",
       "source_design_ids": [
@@ -34703,7 +34715,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/artifacts/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/artifacts/0",
       "source_design_ids": [
@@ -34727,7 +34739,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/artifacts/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/artifacts/1",
       "source_design_ids": [
@@ -34751,7 +34763,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/artifacts/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/artifacts/2",
       "source_design_ids": [
@@ -34775,7 +34787,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/validators/0",
       "source_design_ids": [
@@ -34799,7 +34811,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/validators/1",
       "source_design_ids": [
@@ -34823,23 +34835,15 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/2/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/status",
       "source_design_ids": [
-        "NORM-001..NORM-043",
-        "R8V7-I030..I031",
-        "R8 inherited schema-freeze gates"
+        "SPG-QUALIFICATION-2026-09-24"
       ],
       "source_ref_ids": [
-        "SRC-NORM",
-        "SRC-V7",
-        "SRC-V8",
-        "SRC-V9",
-        "SRC-V10",
-        "SRC-V11",
-        "SRC-V12",
-        "SRC-V13"
+        "SRC-SPG-ENROLLMENT",
+        "SRC-SPG-STAGEB-VERIFY"
       ],
       "generator_id": "R8V15R1-SPG-V2",
       "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
@@ -34847,7 +34851,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/rule_id",
       "source_design_ids": [
@@ -34871,7 +34875,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/0",
       "source_design_ids": [
@@ -34895,7 +34899,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/source/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/1",
       "source_design_ids": [
@@ -34919,7 +34923,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/source/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/2",
       "source_design_ids": [
@@ -34943,7 +34947,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/source/3",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/3",
       "source_design_ids": [
@@ -34967,7 +34971,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/source/4",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/4",
       "source_design_ids": [
@@ -34991,7 +34995,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/artifacts/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/artifacts/0",
       "source_design_ids": [
@@ -35015,7 +35019,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/artifacts/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/artifacts/1",
       "source_design_ids": [
@@ -35039,7 +35043,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/validators/0",
       "source_design_ids": [
@@ -35063,7 +35067,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/validators/1",
       "source_design_ids": [
@@ -35087,7 +35091,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/validators/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/validators/2",
       "source_design_ids": [
@@ -35111,7 +35115,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/3/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/status",
       "source_design_ids": [
@@ -35135,7 +35139,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/rule_id",
       "source_design_ids": [
@@ -35159,7 +35163,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/source/0",
       "source_design_ids": [
@@ -35183,7 +35187,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/source/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/source/1",
       "source_design_ids": [
@@ -35207,7 +35211,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/artifacts/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/artifacts/0",
       "source_design_ids": [
@@ -35231,7 +35235,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/artifacts/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/artifacts/1",
       "source_design_ids": [
@@ -35255,7 +35259,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/validators/0",
       "source_design_ids": [
@@ -35279,7 +35283,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/validators/1",
       "source_design_ids": [
@@ -35303,7 +35307,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/4/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/status",
       "source_design_ids": [
@@ -35327,7 +35331,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/rule_id",
       "source_design_ids": [
@@ -35351,7 +35355,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/source/0",
       "source_design_ids": [
@@ -35375,7 +35379,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/source/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/source/1",
       "source_design_ids": [
@@ -35399,7 +35403,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/source/2",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/source/2",
       "source_design_ids": [
@@ -35423,7 +35427,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/artifacts/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/artifacts/0",
       "source_design_ids": [
@@ -35447,7 +35451,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/artifacts/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/artifacts/1",
       "source_design_ids": [
@@ -35471,7 +35475,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/validators/0",
       "source_design_ids": [
@@ -35495,7 +35499,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/validators/1",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/validators/1",
       "source_design_ids": [
@@ -35519,7 +35523,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/5/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/status",
       "source_design_ids": [
@@ -35543,7 +35547,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/6/rule_id",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/rule_id",
       "source_design_ids": [
@@ -35567,7 +35571,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/6/source/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/source/0",
       "source_design_ids": [
@@ -35591,7 +35595,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/6/artifacts",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/artifacts",
       "source_design_ids": [
@@ -35615,7 +35619,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/6/validators/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/validators/0",
       "source_design_ids": [
@@ -35639,7 +35643,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_mappings/6/status",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/status",
       "source_design_ids": [
@@ -35663,7 +35667,7 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/freeze_process_rule_count",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_rule_count",
       "source_design_ids": [
@@ -35687,23 +35691,17 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/final_freeze_blockers/0",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/final_freeze_blockers/0",
       "source_design_ids": [
-        "NORM-001..NORM-043",
-        "R8V7-I030..I031",
-        "R8 inherited schema-freeze gates"
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-2026-09-24"
       ],
       "source_ref_ids": [
-        "SRC-NORM",
-        "SRC-V7",
-        "SRC-V8",
-        "SRC-V9",
-        "SRC-V10",
-        "SRC-V11",
-        "SRC-V12",
-        "SRC-V13"
+        "SRC-FREEZE-V2",
+        "SRC-SPG-ENROLLMENT",
+        "SRC-SPG-STAGEB-VERIFY"
       ],
       "generator_id": "R8V15R1-SPG-V2",
       "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
@@ -35711,47 +35709,17 @@
     },
     {
       "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
-      "json_pointer": "/final_freeze_blockers/1",
-      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/final_freeze_blockers/1",
-      "source_design_ids": [
-        "NORM-001..NORM-043",
-        "R8V7-I030..I031",
-        "R8 inherited schema-freeze gates"
-      ],
-      "source_ref_ids": [
-        "SRC-NORM",
-        "SRC-V7",
-        "SRC-V8",
-        "SRC-V9",
-        "SRC-V10",
-        "SRC-V11",
-        "SRC-V12",
-        "SRC-V13"
-      ],
-      "generator_id": "R8V15R1-SPG-V2",
-      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
-      "reviewer_status": "REVIEW_REQUIRED"
-    },
-    {
-      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
-      "artifact_sha256": "f5f0c372f131b5adb8fcf7140c23c0e055494b084f018c80f063ea26da03e62b",
+      "artifact_sha256": "317e7bc0000d8419e0f70c39b6909ea3178cb3e8ce769c790811216bd9de7cbe",
       "json_pointer": "/note",
       "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/note",
       "source_design_ids": [
-        "NORM-001..NORM-043",
-        "R8V7-I030..I031",
-        "R8 inherited schema-freeze gates"
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-2026-09-24"
       ],
       "source_ref_ids": [
-        "SRC-NORM",
-        "SRC-V7",
-        "SRC-V8",
-        "SRC-V9",
-        "SRC-V10",
-        "SRC-V11",
-        "SRC-V12",
-        "SRC-V13"
+        "SRC-FREEZE-V2",
+        "SRC-SPG-ENROLLMENT",
+        "SRC-SPG-STAGEB-VERIFY"
       ],
       "generator_id": "R8V15R1-SPG-V2",
       "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
