@@ -1,0 +1,54 @@
+{
+  "schema": "r8-v15-r1-gcp-p05-semantic-correction/v1",
+  "status": "SEMANTIC_SUCCESSOR_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "predecessor_semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "correction_id": "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+  "preserved_rule": {
+    "source": "R8V3-I023",
+    "rule": "Object keys are sorted lexicographically by their NFC Unicode scalar sequence."
+  },
+  "superseded_historical_vector": {
+    "source": "R8V5-I034",
+    "vector": "int64 boundary object",
+    "canonical_utf8": "{\"min\":-9223372036854775808,\"max\":9223372036854775807}",
+    "sha256": "906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab",
+    "disposition": "SUPERSEDED_FOR_P05_ONLY_DUE_TO_CONTRADICTION_WITH_FOUNDATIONAL_GCP_ORDERING"
+  },
+  "corrected_vector": {
+    "canonical_utf8": "{\"max\":9223372036854775807,\"min\":-9223372036854775808}",
+    "sha256": "161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb"
+  },
+  "scope": {
+    "gcp_object_key_order_changed": false,
+    "signed_int64_range_changed": false,
+    "integer_lexical_rules_changed": false,
+    "string_rules_changed": false,
+    "null_absence_rules_changed": false,
+    "array_set_rules_changed": false,
+    "extension_map_rules_changed": false,
+    "other_semantics_changed": false
+  },
+  "approval_basis": {
+    "kind": "STANDING_USER_DELEGATION_FOR_NARROW_SCOPE_PRESERVING_GOVERNANCE_APPROVALS",
+    "user_instruction_at": "2026-09-24T18:25:11Z",
+    "instruction": "auto approve these no manual intervention needed for this kind of approvals"
+  },
+  "validation_requirements": [
+    "corrected SHA-256 must recompute over exact corrected UTF-8 bytes",
+    "historical R8V3 and R8V5 source files remain byte-unchanged",
+    "semantic successor diff must be limited to explicit correction artifacts/current normalized projection",
+    "fresh independent semantic review required before treating successor as frozen semantics",
+    "downstream executable GCP vector/provenance/SPG/review evidence must be regenerated after semantic successor acceptance"
+  ],
+  "grants": {
+    "executable_schema_freeze": false,
+    "implementation": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
