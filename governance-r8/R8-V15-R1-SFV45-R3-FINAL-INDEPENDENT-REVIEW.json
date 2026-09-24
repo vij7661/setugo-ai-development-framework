@@ -1,0 +1,62 @@
+{
+  "schema": "r8-v15-r1-sfv45-final-independent-review/v1",
+  "status": "SFV45_QUALIFYING_INDEPENDENT_REVIEW_PASS",
+  "authority_effect": "EXECUTABLE_SCHEMA_REVIEW_EVIDENCE_ONLY",
+  "exact_candidate_commit": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "fixed_point_input_commit": "d61f9278f1daceac6de536a8894d266726733345",
+  "reviewed_semantic_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "semantic_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+  "final_spm_sha256": "84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797",
+  "source_map_sha256": "6d35964bfaa0cccfdd09bb46128a5efe3197d146e90144d1ac61ebe08c0aeec5",
+  "traceability_sha256": "cbe0a8cd1c955145bab3f00973fee465af1901a9d24dfd6748790d11a0b602ac",
+  "reviewer_transport": {
+    "mode": "manual fresh blind independent external review",
+    "provider_label": "DeepSeek",
+    "supplied_by_user_at": "2026-09-24T20:49:49Z",
+    "raw_review_path": "governance-r8/R8-V15-R1-SFV45-R3-FINAL-INDEPENDENT-REVIEW.txt",
+    "raw_review_sha256": "417b8c2afaf4b2e4fe98c532dc683c47cfde53bf005a0332754aa76a48b4c708",
+    "prior_insufficient_evidence_review_preserved_at": "governance-r8/R8-V15-R1-SFV45-R3-REVIEW-EVIDENCE-GAP.json"
+  },
+  "review_packet": {
+    "builder_run_id": 36056714725,
+    "builder_run_conclusion": "success",
+    "artifact_id": 10832429476,
+    "artifact_zip_sha256": "e1cc62ca16f77b10c34f7ac704539b6e5cc373e9f71426b68c489bec83a928b1",
+    "full_raw_packet_sha256": "04bb5d66e8c43db612df199c7cda7bc01faff7d46b5494005b9de98b18331433",
+    "part_sha256": {
+      "exact_candidate_bytes": "83a4b2d1141f5dca8aea6b042b4dd3fe4cd44e21f7c106c4a4e2a26dcdcbc0ac",
+      "semantic_source_contracts": "6d075e37e2782d047b0fdc0cefa3ca1caab9ce64d2cd9dfd5af7f499d061b7dd",
+      "provenance_and_full_spm": "294f334f40fe11b80ff8aeacad2ef974381f24b48cb2d3efb9e4f3711f6427a4",
+      "raw_qualification_evidence": "d3e643a85f2eb34924a2f85c8f30422209ddf89ca0a31ab76291efd7da1c622e",
+      "packet_manifest": "8982d7f75459c3f9e8ba28c0cb7b5f527183a26bd9fce1c16eea1c7362631292"
+    }
+  },
+  "qualification_lineage": {
+    "generation_run_id": 36050313120,
+    "independent_post_run_verification_run_id": 36050575731,
+    "final_regeneration_run_id": 36051390674,
+    "final_independent_verification_run_id": 36051607632,
+    "materialization_run_id": 36051866720,
+    "final_attestation_id": 49974077
+  },
+  "reviewer_disposition": "PASS",
+  "sfv_45": "PASS",
+  "adjudication": "ACCEPTED",
+  "rationale": [
+    "review is bound to the exact materialized candidate SHA",
+    "review packet contains exact changed candidate bytes, full SPM/source map, semantic source contracts, and raw qualification/attestation/verifier evidence",
+    "review reconciles exact SPM/source-map/traceability hashes and qualified generator/runtime/workload bindings",
+    "review finds no contradiction in source routing or entry-level provenance",
+    "review confirms final fixed-point verification and one-file SPM materialization boundary"
+  ],
+  "claim_boundary": {
+    "executable_schema_freeze_authorized_by_this_record": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
