@@ -14,7 +14,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     env:
-      TARGET: 721f35118860bb419c520a4c1a218791c7b1c419
+      TARGET: d61f9278f1daceac6de536a8894d266726733345
       SEMANTIC_SUCCESSOR: 1fa49fa4adfa6aa47fae68c0f1938083eeb1497f
     steps:
       - name: Checkout exact reviewed-semantic R3 successor
@@ -96,7 +96,7 @@ jobs:
             "schema":"r8-v15-r1-sfv45-r3-reviewed-semantic-rebind-validation/v1",
             "status":"FOCUSED_VALIDATION_PASS",
             "authority_effect":"NONE",
-            "successor_commit":"721f35118860bb419c520a4c1a218791c7b1c419",
+            "successor_commit":"d61f9278f1daceac6de536a8894d266726733345",
             "semantic_successor":"1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
             "semantic_review_acceptance_commit":"c1d983ebd6eca0a78a41c946709bf246cf876f68",
             "r2_repair_regression":"PASS",
