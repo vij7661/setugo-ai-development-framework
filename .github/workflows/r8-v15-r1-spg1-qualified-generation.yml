@@ -1,0 +1,228 @@
+name: R8 v15-r1 SPG-1 Qualified Generation
+
+on:
+  push:
+    branches:
+      - enrollment/r8-v15-r1-spg1-qualified-v1
+    paths:
+      - governance-r8/R8-V15-R1-SPG1-QUALIFICATION-EXECUTION-MARKER.json
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  actions: read
+
+concurrency:
+  group: r8-v15-r1-spg1-qualified-generation
+  cancel-in-progress: false
+
+env:
+  BASE_CANDIDATE_COMMIT: df486ac41ad415b933a43b380c4338a121c5328f
+  SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+  EXPECTED_GENERATOR_SHA256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6
+  EXPECTED_RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
+  EXPECTED_POLICY_SHA256: 330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b
+  EXPECTED_STAGE_A_PROOF_SHA256: 9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c
+  CONTAINER_REPO_DIGEST: python@sha256:adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d
+  ENROLLMENT_REL: governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json
+  BINDING_REL: schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json
+  STAGE_A_VERIFICATION_REL: governance-r8/R8-V15-R1-SPG-STAGE-A-POST-RUN-VERIFICATION.json
+  GENERATOR_REL: tools/generate_r8_v15_r1_spm.py
+  SPM_REL: schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+  SOURCE_MAP_REL: schemas/governance-r8/v15-r1/schema-provenance-source-map.json
+
+jobs:
+  qualified-generation:
+    name: Regenerate SPM under enrolled qualified SPG-1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout enrollment candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: qualified
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout repaired pre-enrollment schema candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.BASE_CANDIDATE_COMMIT }}
+          path: base
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Fail closed on enrollment or schema drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.repository }}" = "vij7661/setugo-ai-development-framework"
+          test "${{ github.repository_id }}" = "1354031068"
+          test "${{ github.ref }}" = "refs/heads/enrollment/r8-v15-r1-spg1-qualified-v1"
+          test "$(git -C base rev-parse HEAD)" = "$BASE_CANDIDATE_COMMIT"
+          test "$(sha256sum "qualified/$GENERATOR_REL" | awk '{print $1}')" = "$EXPECTED_GENERATOR_SHA256"
+          test "$(sha256sum "base/$GENERATOR_REL" | awk '{print $1}')" = "$EXPECTED_GENERATOR_SHA256"
+          python3 - <<'PY'
+          import json, pathlib, sys
+          q = pathlib.Path('qualified')
+          b = pathlib.Path('base')
+          rel = pathlib.Path('schemas/governance-r8/v15-r1')
+          allowed = {'schema-provenance-generator-binding.json'}
+          bp = {p.relative_to(b/rel).as_posix(): p for p in (b/rel).rglob('*') if p.is_file()}
+          qp = {p.relative_to(q/rel).as_posix(): p for p in (q/rel).rglob('*') if p.is_file()}
+          if set(bp) != set(qp):
+              raise SystemExit('schema file set drift')
+          for name in sorted(bp):
+              if name in allowed:
+                  continue
+              if bp[name].read_bytes() != qp[name].read_bytes():
+                  raise SystemExit(f'unauthorized schema byte drift: {name}')
+          binding = json.loads((q/'schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json').read_text())
+          assert binding['status'] == 'QUALIFIED_GENERATOR_BINDING'
+          assert binding['generator_id'] == 'R8V15R1-SPG-V2'
+          assert binding['generator_artifact_sha256'] == '388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6'
+          assert binding['runtime_manifest']['runtime_manifest_digest'] == '5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+          assert binding['workload_attestation_policy_digest'] == '330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b'
+          assert binding['workload_attestation_proof_digest'] == '9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c'
+          assert binding['qualification_status'] == 'QUALIFIED'
+          assert binding['revocation_state'] == 'ACTIVE'
+          enr = json.loads((q/'governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json').read_text())
+          assert enr['status'] == 'ACTIVE_ENROLLED_FOR_EXACT_QUALIFIED_WORKLOAD'
+          assert enr['generator_id'] == 'R8V15R1-SPG-V2'
+          assert enr['verified_stage_a_evidence']['run_id'] == 35977138947
+          assert enr['lifecycle']['revocation_state'] == 'ACTIVE'
+          ver = json.loads((q/'governance-r8/R8-V15-R1-SPG-STAGE-A-POST-RUN-VERIFICATION.json').read_text())
+          assert ver['status'] == 'POST_RUN_CRYPTO_VERIFICATION_PASS_ENROLLMENT_PENDING'
+          assert ver['subject']['attestation_bundle_sha256'] == '9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c'
+          assert ver['runtime']['runtime_manifest_digest'] == '5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+          PY
+
+      - name: Regenerate qualified SPM in exact enrolled runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p stage-b
+          docker pull "$CONTAINER_REPO_DIGEST"
+          RESOLVED="$(docker image inspect "$CONTAINER_REPO_DIGEST" --format '{{index .RepoDigests 0}}')"
+          test "$RESOLVED" = "$CONTAINER_REPO_DIGEST"
+          docker run --rm \
+            -v "$PWD/qualified:/qualified:ro" \
+            -v "$PWD/stage-b:/stage-b" \
+            "$CONTAINER_REPO_DIGEST" \
+            python /qualified/tools/generate_r8_v15_r1_spm.py \
+              --schema-root /qualified/schemas/governance-r8/v15-r1 \
+              --source-map /qualified/schemas/governance-r8/v15-r1/schema-provenance-source-map.json \
+              --generator-binding /qualified/schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json \
+              --output /stage-b/spm-qualified.json
+          sha256sum stage-b/spm-qualified.json > stage-b/spm-qualified.sha256
+
+      - name: Prove semantic equivalence to repaired candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, hashlib
+          base = json.loads(pathlib.Path('base/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json').read_text())
+          new = json.loads(pathlib.Path('stage-b/spm-qualified.json').read_text())
+          assert new['status'] == 'FINAL_FREEZE_ELIGIBLE'
+          assert new['semantic_candidate_commit'] == base['semantic_candidate_commit'] == 'c721b38cf8b00294797300b526596ce723a47ff8'
+          for k in ['source_ref_catalog','artifact_count','entry_count','artifacts','coverage']:
+              assert new[k] == base[k], k
+          assert len(new['entries']) == len(base['entries'])
+          for old, cur in zip(base['entries'], new['entries']):
+              c = dict(cur)
+              assert c['generator_runtime_manifest_digest'] == '5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+              c['generator_runtime_manifest_digest'] = old['generator_runtime_manifest_digest']
+              assert c == old
+          assert new['generator']['generator_id'] == base['generator']['generator_id'] == 'R8V15R1-SPG-V2'
+          assert new['generator']['generator_artifact_sha256'] == base['generator']['generator_artifact_sha256']
+          assert new['generator']['runtime_manifest_digest'] == '5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+          assert new['generator']['workload_attestation_proof_digest'] == '9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c'
+          assert new['generator']['qualification_status'] == 'QUALIFIED'
+          PY
+
+      - name: Build deterministic qualified-generation subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "qualified/$BINDING_REL" stage-b/qualified-binding.json
+          cp "qualified/$ENROLLMENT_REL" stage-b/enrollment-record.json
+          cp "qualified/$STAGE_A_VERIFICATION_REL" stage-b/stage-a-post-run-verification.json
+          cp "qualified/$GENERATOR_REL" stage-b/generator.py
+          cp "qualified/.github/workflows/r8-v15-r1-spg1-qualified-generation.yml" stage-b/stage-b-workflow.yml
+          python3 - <<'PY'
+          import json, hashlib, pathlib
+          d=pathlib.Path('stage-b')
+          def h(p): return hashlib.sha256((d/p).read_bytes()).hexdigest()
+          out={
+            'schema':'r8-v15-r1-spg1-qualified-generation-subject/v1',
+            'status':'QUALIFIED_GENERATION_PENDING_INDEPENDENT_POST_RUN_VERIFICATION',
+            'authority_effect':'NONE',
+            'base_schema_candidate_commit':'df486ac41ad415b933a43b380c4338a121c5328f',
+            'enrollment_commit':'${{ github.sha }}',
+            'semantic_candidate_commit':'c721b38cf8b00294797300b526596ce723a47ff8',
+            'generator_id':'R8V15R1-SPG-V2',
+            'runtime_manifest_digest':'5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a',
+            'stage_a_attestation_bundle_sha256':'9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c',
+            'files':[{ 'name':p.name, 'sha256':h(p.name), 'bytes':p.stat().st_size } for p in sorted(d.iterdir()) if p.is_file()]
+          }
+          (d/'qualified-generation-subject-manifest.json').write_text(json.dumps(out,indent=2)+'\n')
+          PY
+          tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner \
+            -cf spg1-stage-b-qualified-subject.tar -C stage-b .
+          sha256sum spg1-stage-b-qualified-subject.tar > spg1-stage-b-qualified-subject.sha256
+
+      - name: Attest qualified generation
+        id: attest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: spg1-stage-b-qualified-subject.tar
+
+      - name: Same-run diagnostic verification without closing SFV-36
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ATTESTATION_BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+          ATTESTATION_ID: ${{ steps.attest.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+        run: |
+          set -euo pipefail
+          cp "$ATTESTATION_BUNDLE" stage-b-attestation-bundle.jsonl
+          SUBJECT_SHA256="$(sha256sum spg1-stage-b-qualified-subject.tar | awk '{print $1}')"
+          PROOF_SHA256="$(sha256sum stage-b-attestation-bundle.jsonl | awk '{print $1}')"
+          SPM_SHA256="$(sha256sum stage-b/spm-qualified.json | awk '{print $1}')"
+          python3 - "$SUBJECT_SHA256" "$PROOF_SHA256" "$SPM_SHA256" "$ATTESTATION_ID" "$ATTESTATION_URL" <<'PY' > stage-b-attestation-output.json
+          import json, sys
+          subject, proof, spm, aid, url = sys.argv[1:]
+          print(json.dumps({
+            'schema':'r8-v15-r1-spg1-stage-b-attestation-output/v1',
+            'status':'SIGNED_QUALIFIED_GENERATION_PENDING_INDEPENDENT_POST_RUN_VERIFICATION',
+            'authority_effect':'NONE',
+            'subject_sha256':subject,
+            'attestation_bundle_sha256':proof,
+            'qualified_spm_sha256':spm,
+            'attestation_id':aid,
+            'attestation_url':url,
+            'sfv_36':'PENDING_INDEPENDENT_POST_RUN_VERIFICATION'
+          },indent=2))
+          PY
+          gh attestation verify spg1-stage-b-qualified-subject.tar \
+            --repo "${{ github.repository }}" \
+            --bundle stage-b-attestation-bundle.jsonl \
+            --format json > stage-b-same-run-verification.json
+
+      - name: Upload qualified-generation evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-spg1-stage-b-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            spg1-stage-b-qualified-subject.tar
+            spg1-stage-b-qualified-subject.sha256
+            stage-b-attestation-bundle.jsonl
+            stage-b-attestation-output.json
+            stage-b-same-run-verification.json
+            stage-b/**
+          if-no-files-found: error
+          retention-days: 90
