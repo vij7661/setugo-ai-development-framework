@@ -1,0 +1,107 @@
+name: R8 v15-r1 SFV45 R3 Successor Validation
+
+on:
+  push:
+    branches:
+      - validation/r8-v15-r1-sfv45-r3-successor-1-2026-09-24
+    paths:
+      - ".github/workflows/r8-v15-r1-sfv45-r3-successor-validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      TARGET: 624fe118e8baa1f7ff49ff0dd984c2aa80060683
+      SEMANTIC_SUCCESSOR: d6317eb85753b0e41168413151ddcebbdcba1c6d
+    steps:
+      - name: Checkout exact R3 successor
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET }}
+          fetch-depth: 0
+
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET"
+
+      - name: Run R2 repair regression
+        run: python governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py
+
+      - name: Run qualification-reset invariant regression
+        run: python governance-runtime/test_r8_v15_r1_sfv45_r2_qualification_reset.py
+
+      - name: Run R3 focused regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import importlib.util, pathlib, traceback
+          path=pathlib.Path("governance-runtime/test_r8_v15_r1_sfv45_r3_repair.py")
+          spec=importlib.util.spec_from_file_location("r3", path)
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          failures=[]
+          for name in sorted(n for n in dir(mod) if n.startswith("test_")):
+              fn=getattr(mod,name)
+              if callable(fn):
+                  try:
+                      fn()
+                      print("PASS", name)
+                  except Exception:
+                      failures.append(name)
+                      traceback.print_exc()
+          if failures:
+              raise SystemExit("R3 focused failures: "+", ".join(failures))
+          PY
+
+      - name: Validate all R8 v15-r1 JSON artifacts parse
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib
+          root=pathlib.Path("schemas/governance-r8/v15-r1")
+          files=list(root.glob("*.json"))
+          assert files
+          for p in files:
+              json.loads(p.read_text(encoding="utf-8"))
+          print("parsed", len(files), "JSON artifacts")
+          PY
+
+      - name: Emit bounded validation evidence
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          e={
+            "schema":"r8-v15-r1-sfv45-r3-successor-validation/v1",
+            "status":"FOCUSED_VALIDATION_PASS",
+            "authority_effect":"NONE",
+            "successor_commit":"624fe118e8baa1f7ff49ff0dd984c2aa80060683",
+            "semantic_successor":"d6317eb85753b0e41168413151ddcebbdcba1c6d",
+            "r2_repair_regression":"PASS",
+            "qualification_reset_invariants":"PASS",
+            "r3_focused_regression":"PASS",
+            "json_parse_validation":"PASS",
+            "implementation_authorized":False,
+            "runtime_qualification_authorized":False,
+            "release_authorized":False,
+            "deployment_authorized":False,
+            "production_authorized":False,
+            "policy_authorized":False,
+            "terminal_authority":False
+          }
+          open("r3-successor-validation.json","w",encoding="utf-8").write(json.dumps(e,indent=2)+"\n")
+          PY
+
+      - name: Upload validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r8-v15-r1-sfv45-r3-successor-validation
+          path: r3-successor-validation.json
+          if-no-files-found: error
