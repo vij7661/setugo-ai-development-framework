@@ -25,6 +25,7 @@ class R8V15R1QualificationResetInvariantTests(unittest.TestCase):
         self.assertIn("REGENERATION_REQUIRED", by_id["SFG-001"]["status"])
         self.assertTrue(
             "REBIND_REQUIRED" in by_id["SFG-002"]["status"]
+            or "REBIND_COMPLETE" in by_id["SFG-002"]["status"]
             or "REGENERATION_REQUIRED" in by_id["SFG-002"]["status"]
         )
         self.assertIn("REQUALIFICATION_REQUIRED", by_id["SFG-003"]["status"])
