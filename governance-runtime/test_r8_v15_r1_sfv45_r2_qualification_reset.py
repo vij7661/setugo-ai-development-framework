@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TRACE = ROOT / "schemas/governance-r8/v15-r1/schema-freeze-traceability.json"
 SOURCE_MAP = ROOT / "schemas/governance-r8/v15-r1/schema-provenance-source-map.json"
+SPM_CANDIDATE = ROOT / "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
 
 
 class R8V15R1SFV45R2QualificationResetTests(unittest.TestCase):
@@ -65,6 +66,13 @@ class R8V15R1SFV45R2QualificationResetTests(unittest.TestCase):
                 "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
                 "SPG-QUALIFICATION-2026-09-24",
             ],
+        )
+
+
+    def test_predecessor_materialized_spm_is_absent_before_fresh_generation(self):
+        self.assertFalse(
+            SPM_CANDIDATE.exists(),
+            "predecessor-bound materialized SPM must not transfer into a fresh successor qualification run",
         )
 
 
