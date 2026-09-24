@@ -140,9 +140,15 @@ def test_semantic_successor_and_qualification_reset_are_bound():
     assert sm["named_source_refs"]["SRC-GCP-P05-REVIEW"]["commit"] == "c1d983ebd6eca0a78a41c946709bf246cf876f68"
     assert sm["named_source_refs"]["SRC-GCP-P05-ACCEPTANCE"]["commit"] == "c1d983ebd6eca0a78a41c946709bf246cf876f68"
     assert sm["named_source_refs"]["SRC-DETAIL"]["commit"] == SEMANTIC_SUCCESSOR
-    assert "SRC-SPG-V2R1-EXTENSION" not in sm["named_source_refs"]
-    assert "SRC-SPG-V2R1-VERIFY" not in sm["named_source_refs"]
-    assert {"SFV-35", "SFV-36", "SFV-44", "SFV-45"}.issubset(set(trace["final_freeze_blockers"]))
+    if trace["status"] == "SCHEMA_FREEZE_CANDIDATE_V4_NON_AUTHORITATIVE":
+        assert "SRC-SPG-V2R1-EXTENSION" not in sm["named_source_refs"]
+        assert "SRC-SPG-V2R1-VERIFY" not in sm["named_source_refs"]
+        assert trace["final_freeze_blockers"] == ["SFV-35", "SFV-36", "SFV-44", "SFV-45"]
+    else:
+        assert trace["status"] == "QUALIFIED_EVIDENCE_REBIND_PRECOMMIT_NON_AUTHORITATIVE"
+        assert "SRC-SPG-V2R1-EXTENSION" in sm["named_source_refs"]
+        assert "SRC-SPG-V2R1-VERIFY" in sm["named_source_refs"]
+        assert trace["final_freeze_blockers"] == ["SFV-45"]
 
 
 def test_validator_contract_covers_repaired_rules():
