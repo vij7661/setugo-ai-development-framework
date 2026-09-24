@@ -2,7 +2,7 @@
   "schema": "r8-v15-r1-schema-provenance-source-map/v1",
   "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
-  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "semantic_candidate_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
   "artifact_sources": {
     "runtime-contracts.schema.json": {
       "source_design_ids": [
@@ -11,7 +11,8 @@
       ],
       "pointer_prefix_sources": {
         "/$defs/T0SuccessorManifest": [
-          "NORM-003"
+          "NORM-003",
+          "R8V5-I002"
         ],
         "/$defs/MTRChallenge": [
           "NORM-004"
@@ -36,7 +37,11 @@
           "NORM-009",
           "NORM-010",
           "NORM-011",
-          "NORM-012"
+          "NORM-012",
+          "R8V11-I026",
+          "R8V11-I027",
+          "R8V12-I023",
+          "R8V12-I025"
         ],
         "/$defs/LASHardState": [
           "NORM-010"
@@ -44,13 +49,15 @@
         "/$defs/LASAuthorityStateRoot": [
           "NORM-010",
           "NORM-015",
-          "NORM-016"
+          "NORM-016",
+          "R8V14-I016"
         ],
         "/$defs/AIEPRuntimeProfile": [
           "NORM-013"
         ],
         "/$defs/CurrentSemanticModelBundle": [
-          "NORM-014"
+          "NORM-014",
+          "R8V12-I001"
         ],
         "/$defs/CanonicalScopeTuple": [
           "NORM-014",
@@ -69,7 +76,10 @@
           "NORM-018"
         ],
         "/$defs/SemanticHeads": [
-          "NORM-015"
+          "NORM-015",
+          "R8V12-I002",
+          "R8V13-I026",
+          "R8V14-I016"
         ],
         "/$defs/AIMDescriptor": [
           "NORM-017",
@@ -82,7 +92,10 @@
           "NORM-020"
         ],
         "/$defs/ResolverConformanceEvidence": [
-          "NORM-021"
+          "NORM-021",
+          "R8V13-I005",
+          "R8V13-I006",
+          "R8V13-I007"
         ],
         "/$defs/SemanticEntry": [
           "NORM-022",
@@ -115,7 +128,9 @@
           "NORM-030"
         ],
         "/$defs/DecisionPresealContext": [
-          "NORM-031"
+          "NORM-031",
+          "R8V12-I029",
+          "R8V13-I008"
         ],
         "/$defs/QualifiedTimeProof": [
           "NORM-032"
@@ -151,6 +166,18 @@
         ],
         "/$defs/ScopeReplacementOutsideTableInput": [
           "NORM-027"
+        ],
+        "/$defs/GGSGenesisStateRoot": [
+          "NORM-009",
+          "NORM-012",
+          "R8V11-I023",
+          "R8V12-I023",
+          "R8V12-I025"
+        ],
+        "/$defs/ResolverConformanceSuite1": [
+          "NORM-021",
+          "R8V13-I005",
+          "R8V13-I006"
         ]
       }
     },
@@ -215,7 +242,8 @@
         "R8V4-I026..I029",
         "R8V5-I028..I034",
         "R8V7 GCP rejection vectors",
-        "R8V8-I034..I035"
+        "R8V8-I034..I035",
+        "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
       ]
     },
     "review-presentation-schema.schema.json": {
@@ -288,14 +316,14 @@
     "SRC-NORM": {
       "design_id": "R8-V15-NORMALIZED-EFFECTIVE-SPEC",
       "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
-      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
       "blob": "03b408d2f3c5b1de2ce65136923a079ccda83370"
     },
     "SRC-DETAIL": {
       "design_id": "R8-V15-NORMALIZED-DETAIL-APPENDIX",
       "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
-      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
-      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2"
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+      "blob": "8f1f42f0bdb8d2aa8ac99a050d3b82c5610ed0db"
     },
     "SRC-V15": {
       "design_id": "R8-V15-PREREGISTRATION",
@@ -392,6 +420,18 @@
       "path": "governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json",
       "commit": "ffcf2c773d42b7127c1b584a2f4a89a32fb22f44",
       "blob": "82ef8932ffb0974bc45701fcdb9ba16cfa779fa6"
+    },
+    "SRC-V14": {
+      "design_id": "R8-V14",
+      "path": "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V14.md",
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+      "blob": "77de9d4cc0a8ac94dad96cb51e01facbcfe0b5e0"
+    },
+    "SRC-GCP-P05-CORRECTION": {
+      "design_id": "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+      "path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION.json",
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+      "blob": "5dc774ec902a7a1d53dfe2ef6cf1103d0c17c7ee"
     }
   },
   "source_ref_routes": [
@@ -554,6 +594,36 @@
       "source_ref_ids": [
         "SRC-SPG-V2R1-EXTENSION",
         "SRC-SPG-V2R1-VERIFY"
+      ]
+    },
+    {
+      "match_prefix": "R8V11-",
+      "source_ref_ids": [
+        "SRC-V11"
+      ]
+    },
+    {
+      "match_prefix": "R8V12-",
+      "source_ref_ids": [
+        "SRC-V12"
+      ]
+    },
+    {
+      "match_prefix": "R8V13-",
+      "source_ref_ids": [
+        "SRC-V13"
+      ]
+    },
+    {
+      "match_prefix": "R8V14-",
+      "source_ref_ids": [
+        "SRC-V14"
+      ]
+    },
+    {
+      "match_prefix": "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+      "source_ref_ids": [
+        "SRC-GCP-P05-CORRECTION"
       ]
     }
   ],
