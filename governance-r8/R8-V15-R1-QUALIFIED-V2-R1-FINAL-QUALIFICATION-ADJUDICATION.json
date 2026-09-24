@@ -1,0 +1,52 @@
+{
+  "schema": "r8-v15-r1-executable-schema-qualified-v2-r1-final-qualification-adjudication/v1",
+  "status": "QUALIFIED_SCHEMA_CANDIDATE_READY_FOR_FRESH_SFV_45_REVIEW",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "repaired_fixed_point_commit": "77f0894d7165374928ffafa525c63fc3a06d8cc1",
+  "materialized_schema_commit": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+  "qualification_evidence_commit": "5ccbfcd801a8b230b693c4a6977f102d50641b55",
+  "predecessor_review": {
+    "reviewed_candidate": "dab6c2e2692d7e2061b77af83b43888b84d705ae",
+    "disposition": "CHANGES_REQUIRED",
+    "history_preserved": true,
+    "review_not_transferred": true
+  },
+  "repaired_findings": {
+    "C1": "REVIEW_PACKET_LARGE_FILE_MATERIALIZATION_DEFECT_REPAIRED; candidate SPM itself was not empty",
+    "C2": "SUSTAINED_AND_REPAIRED",
+    "C3": "SUSTAINED_AND_REPAIRED",
+    "H1": "SUSTAINED_AND_REPAIRED",
+    "H2": "PARTIALLY_SUSTAINED_AND_REPAIRED_WITHOUT_GLOBAL_SHA256_INVENTION",
+    "M1": "SUSTAINED_AND_REPAIRED",
+    "M2": "SUSTAINED_AND_REPAIRED",
+    "M3": "PARTIALLY_SUSTAINED_AND_REPAIRED"
+  },
+  "internal_repair_verification": "27/27 PASS",
+  "qualification": {
+    "generator_id": "R8V15R1-SPG-V2",
+    "enrollment_extension_target": "bfe078a741855b423e9899d4debd440d21147876",
+    "final_fixed_point_candidate": "77f0894d7165374928ffafa525c63fc3a06d8cc1",
+    "final_spm_sha256": "3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f",
+    "independent_github_verifier_run": 35990596329,
+    "out_of_band_verification": "51/51 PASS",
+    "materialization_run": 35992535885
+  },
+  "gate_adjudication": {
+    "SFV_35": "CLOSED_EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+    "SFV_36": "CLOSED_EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+    "SFV_44": "CLOSED_EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+    "SFV_45": "OPEN_REQUIRES_FRESH_BLIND_INDEPENDENT_EXECUTABLE_SCHEMA_REVIEW"
+  },
+  "next_action": "Build a fresh blind SFV-45 review packet for the exact final candidate. Large artifacts MUST be read by exact Git blob, not the ordinary contents endpoint. The new review must not see predecessor review findings/adjudications.",
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
