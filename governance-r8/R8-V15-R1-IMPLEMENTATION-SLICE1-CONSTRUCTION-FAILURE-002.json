@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-construction-failure/v1",
+  "status": "PRESERVED_MECHANISM_DEFECT",
+  "authority_effect": "NONE",
+  "predecessor_failure": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-001.json",
+  "mechanism_commit": "8068a75e98549c0fcd8cee74dbc5e4fcdd3f3205",
+  "trigger_commit": "b5cbaecf123f889fe3df3b94d18aff46c1ed833d",
+  "workflow_run_id": 36060026022,
+  "workflow_job_id": 107836472061,
+  "exact_checkout_sha": "b5cbaecf123f889fe3df3b94d18aff46c1ed833d",
+  "observed_outcome": {
+    "tests_run": 16,
+    "passed": 11,
+    "failures": 1,
+    "errors": 4,
+    "primary_error_code": "GCP_VECTOR_DIGEST_MISMATCH",
+    "pinned_digest": "c6c07133e6d1254afaf703e04fd4b5509298b9c7b71fc30572870207907d5b1e",
+    "exact_repository_file_digest": "0466789e013d6f4e0080262effc674a57277588353c1dba19431be5be4f25ab9"
+  },
+  "root_cause": "The implementation pinned SHA-256 over extracted gcp-rvm-2.json text without the repository file's final newline, rather than the exact Git blob working-tree bytes.",
+  "narrow_fix": "Change only FROZEN_GCP_JSON_SHA256 to the exact repository-file byte digest 0466789e013d6f4e0080262effc674a57277588353c1dba19431be5be4f25ab9. Do not weaken the digest check or alter the frozen harness.",
+  "claim_boundary": {
+    "construction_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
