@@ -18,17 +18,17 @@ class R8V15R1SFV45R2QualificationResetTests(unittest.TestCase):
     def test_repaired_candidate_reopens_exact_byte_qualification_gates(self):
         self.assertEqual(
             self.trace["status"],
-            "SCHEMA_FREEZE_CANDIDATE_V2_NON_AUTHORITATIVE",
+            "SCHEMA_FREEZE_CANDIDATE_R3_NON_AUTHORITATIVE",
         )
         self.assertEqual(
             self.trace["final_freeze_blockers"],
-            ["SFV-35", "SFV-36", "SFV-44", "SFV-45"],
+            ["SFV-17", "SFV-20", "SFV-26", "SFV-27", "SFV-29", "SFV-30", "SFV-31", "SFV-33", "SFV-35", "SFV-36", "SFV-37", "SFV-44", "SFV-45"],
         )
         by_id = {x["rule_id"]: x for x in self.trace["freeze_process_mappings"]}
-        self.assertEqual(by_id["SFG-001"]["status"], "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR")
-        self.assertEqual(by_id["SFG-002"]["status"], "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR")
-        self.assertEqual(by_id["SFG-003"]["status"], "REQUALIFICATION_REQUIRED_AFTER_SCHEMA_REPAIR")
-        self.assertEqual(by_id["SFG-007"]["status"], "BLOCKED_PENDING_REPAIRED_EXACT_CANDIDATE_REVIEW")
+        self.assertEqual(by_id["SFG-001"]["status"], "SPM_REGENERATION_REQUIRED_AFTER_R3_SCHEMA_AND_SEMANTIC_REPAIR")
+        self.assertEqual(by_id["SFG-002"]["status"], "SOURCE_REBIND_REVALIDATION_REQUIRED_AFTER_SEMANTIC_SUCCESSOR")
+        self.assertEqual(by_id["SFG-003"]["status"], "REQUALIFICATION_REQUIRED_AFTER_R3_SCHEMA_AND_SEMANTIC_REPAIR")
+        self.assertEqual(by_id["SFG-007"]["status"], "BLOCKED_PENDING_FRESH_EXACT_R3_QUALIFIED_CANDIDATE_REVIEW")
 
     def test_predecessor_v2r1_output_evidence_does_not_transfer(self):
         refs = self.source_map["named_source_refs"]
