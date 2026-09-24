@@ -8,7 +8,7 @@ on:
       - governance-r8/R8-V15-R1-SPG1-V2-R1-FINAL-REGEN-MARKER.json
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
   attestations: write
   actions: read
@@ -209,31 +209,3 @@ jobs:
             final-r1/**
           if-no-files-found: error
           retention-days: 90
-
-      - name: Materialize independently verified SPM bytes
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: freeze/r8-v15-r1-executable-schema-qualified-v2-r1
-          path: final-freeze
-          fetch-depth: 0
-          persist-credentials: true
-
-      - name: Fail closed and commit only verified SPM
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERIFIED_SPM_SHA256="3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f"
-          TARGET_BASE="77f0894d7165374928ffafa525c63fc3a06d8cc1"
-          test "$(sha256sum final-r1/spm-final-v2-r1.json | awk '{print $1}')" = "$VERIFIED_SPM_SHA256"
-          test "$(git -C final-freeze rev-parse HEAD)" = "$TARGET_BASE"
-          test ! -e final-freeze/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
-          cp final-r1/spm-final-v2-r1.json final-freeze/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
-          test "$(sha256sum final-freeze/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json | awk '{print $1}')" = "$VERIFIED_SPM_SHA256"
-          changed="$(git -C final-freeze status --porcelain --untracked-files=all)"
-          test "$changed" = "?? schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
-          git -C final-freeze diff --exit-code "$TARGET_BASE" -- .
-          git -C final-freeze config user.name "github-actions[bot]"
-          git -C final-freeze config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git -C final-freeze add schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
-          git -C final-freeze commit -m "Materialize independently verified final qualified v2-r1 SPM"
-          git -C final-freeze push origin HEAD:freeze/r8-v15-r1-executable-schema-qualified-v2-r1
