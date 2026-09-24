@@ -1,0 +1,34 @@
+{
+  "schema": "r8-v15-r1-gcp-p05-semantic-successor-independent-review/v1",
+  "status": "SEMANTIC_SUCCESSOR_BOUNDED_PASS",
+  "authority_effect": "SEMANTIC_REVIEW_EVIDENCE_ONLY",
+  "predecessor_semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "semantic_successor_candidate_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "contradiction_assessment": {
+    "contradiction_confirmed": true,
+    "foundational_rule": "R8V3-I023 lexicographic ordering by NFC Unicode scalar sequence",
+    "historical_conflicting_source": "R8V5-I034 P05",
+    "corrected_canonical_utf8": "{\"max\":9223372036854775807,\"min\":-9223372036854775808}",
+    "corrected_sha256": "161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb"
+  },
+  "scope_preservation": {
+    "only_required_p05_semantic_point_changed": true,
+    "foundational_ordering_rule_unchanged": true,
+    "historical_v3_v5_sources_unchanged": true,
+    "unrelated_gcp_semantics_changed": false,
+    "unrelated_authority_semantics_changed": false
+  },
+  "findings": [],
+  "reviewer_disposition": "SEMANTIC_SUCCESSOR_BOUNDED_PASS",
+  "received_at": "2026-09-24T18:58:58Z",
+  "grants": {
+    "executable_schema_freeze": false,
+    "implementation": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
