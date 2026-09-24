@@ -1,0 +1,40 @@
+{
+  "schema": "r8-v15-r1-implementation-authorization/v1",
+  "status": "IMPLEMENTATION_AUTHORIZED_BOUNDED_LOCAL_CONSTRUCTION",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_ONLY",
+  "executable_schema_freeze_commit": "6f0506b6cd2a12eeeb30d79f85224d4b87b6c368",
+  "exact_frozen_candidate_commit": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "reviewed_semantic_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "authorization_basis": {
+    "user_instruction_at": "2026-09-24T21:00:03Z",
+    "user_instruction": "ok continue",
+    "interpreted_scope": "Proceed from completed executable-schema freeze into the next governed implementation phase previously identified to the user."
+  },
+  "permitted_scope": [
+    "create preregistered local implementation contracts",
+    "freeze local acceptance harnesses before mechanism code",
+    "implement repository-local deterministic reference mechanisms against exact frozen schema",
+    "run local/CI construction tests",
+    "preserve failures and repairs as evidence"
+  ],
+  "prohibited_scope": [
+    "runtime qualification",
+    "release",
+    "deployment",
+    "production use",
+    "remote side effects",
+    "policy authority",
+    "terminal authority",
+    "silent modification of frozen candidate bytes"
+  ],
+  "mutation_rule": "Frozen executable-schema candidate f93ca26975ecb64f0da13779889c75b36140cdfc is immutable. Any schema-byte change invalidates this authorization and requires a new freeze lineage.",
+  "grants": {
+    "implementation_construction": true,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
