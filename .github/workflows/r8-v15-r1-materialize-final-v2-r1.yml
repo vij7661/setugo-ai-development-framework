@@ -157,6 +157,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf verifier-download final-download
           changed="$(git status --porcelain --untracked-files=all)"
           expected="?? schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
           test "$changed" = "$expected"
