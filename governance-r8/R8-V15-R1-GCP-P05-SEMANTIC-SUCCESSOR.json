@@ -1,0 +1,49 @@
+{
+  "schema": "r8-v15-r1-gcp-p05-semantic-successor/v1",
+  "status": "SEMANTIC_SUCCESSOR_CANDIDATE_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "predecessor_semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "scope": "GCP_P05_CANONICAL_KEY_ORDER_ONLY",
+  "governing_rule": {
+    "source": "R8V3-I023",
+    "rule": "Object keys are sorted lexicographically by their NFC Unicode scalar sequence."
+  },
+  "contradicted_historical_vector": {
+    "source": "R8V5-I034",
+    "vector": "GCP-RVM2-P05",
+    "old_expected_canonical_utf8": "{\"min\":-9223372036854775808,\"max\":9223372036854775807}",
+    "old_expected_sha256": "906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab"
+  },
+  "adjudication": {
+    "preserve_governing_key_order_rule": true,
+    "supersede_only_historical_p05_bytes_and_hash": true,
+    "new_expected_canonical_utf8": "{\"max\":9223372036854775807,\"min\":-9223372036854775808}",
+    "new_expected_sha256": "161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb",
+    "reason": "For keys max and min, lexicographic NFC Unicode-scalar ordering places max before min. The prior R8V5-I034 P05 bytes/hash contradicted the already frozen GCP-1 ordering rule."
+  },
+  "invariant_preservation": [
+    "No other GCP-1 canonicalization rule changes.",
+    "Signed-int64 range remains -9223372036854775808 through 9223372036854775807.",
+    "R8V3-I023 key-order semantics remain unchanged.",
+    "Historical R8V5-I034 source bytes remain immutable and are not rewritten.",
+    "This successor grants no authority."
+  ],
+  "downstream_requalification_required": [
+    "GCP-RVM2-P05 executable vector and expected SHA-256",
+    "any dependent vector manifest or schema digest",
+    "schema provenance source-map binding to this semantic successor",
+    "SPM generation and exact-byte attestation",
+    "independent executable-schema review"
+  ],
+  "approval_class": "PREAUTHORIZED_NARROW_NON_AUTHORITY_BEARING_GOVERNANCE_REPAIR",
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
