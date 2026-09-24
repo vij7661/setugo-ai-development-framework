@@ -272,11 +272,30 @@
         ],
         "/final_freeze_blockers": [
           "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+          "SPG-QUALIFICATION-V2-R1-2026-09-24"
         ],
         "/note": [
           "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+        ],
+        "/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+        ],
+        "/freeze_process_mappings/0/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+        ],
+        "/freeze_process_mappings/1/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+        ],
+        "/freeze_process_mappings/2/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "SPG-QUALIFICATION-V2-R1-2026-09-24"
         ]
       }
     }
@@ -395,6 +414,18 @@
       "path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-ACCEPTANCE.json",
       "commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
       "blob": "c96693a8df1ea0e286f05225baa2b9c18be97f77"
+    },
+    "SRC-SPG-V2R1-EXTENSION": {
+      "design_id": "R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1",
+      "path": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json",
+      "commit": "95a13d8b2a175ff76de6dd147db5072134b09884",
+      "blob": "fb37d456ff9eb400cefead70a1514f3f08b9e28c"
+    },
+    "SRC-SPG-V2R1-VERIFY": {
+      "design_id": "R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION",
+      "path": "governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json",
+      "commit": "95a13d8b2a175ff76de6dd147db5072134b09884",
+      "blob": "77cf31a299e5dc2de29c339efca4c464fae36df2"
     }
   },
   "source_ref_routes": [
@@ -558,6 +589,13 @@
         "SRC-GCP-P05-CORRECTION",
         "SRC-GCP-P05-REVIEW",
         "SRC-GCP-P05-ACCEPTANCE"
+      ]
+    },
+    {
+      "match_prefix": "SPG-QUALIFICATION-V2-R1-2026-09-24",
+      "source_ref_ids": [
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
       ]
     }
   ],
