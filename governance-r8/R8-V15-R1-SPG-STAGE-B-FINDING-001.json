@@ -1,0 +1,25 @@
+{
+  "schema": "r8-v15-r1-spg1-stage-b-finding/v1",
+  "finding_id": "SPG-QGF-001",
+  "status": "REPAIRED_PENDING_RERUN",
+  "authority_effect": "NONE",
+  "classification": "QUALIFICATION_WORKFLOW_INVOCATION_PATH_DEFECT",
+  "semantic_change": false,
+  "failed_run": {
+    "run_id": 35980647544,
+    "head_sha": "6396ed563c72f78e34722d331945d7ab0e6b5c75",
+    "failed_step": "Prove semantic equivalence to repaired candidate",
+    "assertion": "artifacts",
+    "generator_execution": "PASS"
+  },
+  "root_cause": "Stage B invoked the unchanged generator with absolute --schema-root /qualified/schemas/governance-r8/v15-r1. The generator intentionally records the supplied artifact path string, so artifact path fields differed from the frozen candidate generated with relative schema-root schemas/governance-r8/v15-r1.",
+  "required_repair": "Run the exact unchanged generator with cwd=/qualified and the same relative schema-root/source-map/generator-binding argument basis used by the frozen candidate and Stage-A deterministic recomputation.",
+  "forbidden_changes": [
+    "no generator code change",
+    "no frozen semantic design change",
+    "no runtime schema change",
+    "no weakening of semantic-equivalence checks",
+    "no manual editing of generated qualified SPM"
+  ],
+  "sfv_36": "REMAINS_BLOCKED_UNTIL_SUCCESSFUL_RERUN_AND_INDEPENDENT_POST_RUN_VERIFICATION"
+}
