@@ -1,0 +1,104 @@
+name: R8 v15-r1 GCP P05 Semantic Successor Validation
+
+on:
+  push:
+    branches:
+      - validation/r8-v15-r1-gcp-p05-semantic-successor-2026-09-24
+    paths:
+      - ".github/workflows/r8-v15-r1-gcp-p05-semantic-successor-validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      REPO: vij7661/setugo-ai-development-framework
+      PREDECESSOR: c721b38cf8b00294797300b526596ce723a47ff8
+      TARGET: d6317eb85753b0e41168413151ddcebbdcba1c6d
+      OLD_SHA: 906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab
+      NEW_SHA: 161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb
+    steps:
+      - name: Checkout exact semantic successor
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET }}
+          fetch-depth: 0
+
+      - name: Verify exact predecessor diff and immutable history
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET"
+          test "$(git rev-parse "$PREDECESSOR:governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V5.md")" = "$(git rev-parse "$TARGET:governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V5.md")"
+          git diff --name-only "$PREDECESSOR" "$TARGET" | sort > changed.txt
+          cat > expected.txt <<'EOF'
+          governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR.json
+          governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR.md
+          governance-runtime/test_r8_v15_r1_gcp_p05_semantic_successor.py
+          EOF
+          sort -o expected.txt expected.txt
+          diff -u expected.txt changed.txt
+
+      - name: Independently validate semantic correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+          p=pathlib.Path("governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR.json")
+          d=json.loads(p.read_text(encoding="utf-8"))
+          old='{"min":-9223372036854775808,"max":9223372036854775807}'
+          new='{"max":9223372036854775807,"min":-9223372036854775808}'
+          old_sha=hashlib.sha256(old.encode()).hexdigest()
+          new_sha=hashlib.sha256(new.encode()).hexdigest()
+          assert old_sha=="906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab"
+          assert new_sha=="161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb"
+          assert sorted(["min","max"])==["max","min"]
+          assert d["predecessor_semantic_candidate_commit"]=="c721b38cf8b00294797300b526596ce723a47ff8"
+          assert d["scope"]=="GCP_P05_CANONICAL_KEY_ORDER_ONLY"
+          assert d["adjudication"]["new_expected_canonical_utf8"]==new
+          assert d["adjudication"]["new_expected_sha256"]==new_sha
+          assert d["adjudication"]["preserve_governing_key_order_rule"] is True
+          assert d["adjudication"]["supersede_only_historical_p05_bytes_and_hash"] is True
+          assert d["authority_effect"]=="NONE"
+          assert all(v is False for v in d["claim_boundary"].values())
+          v5=pathlib.Path("governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V5.md").read_text(encoding="utf-8")
+          assert old in v5
+          assert old_sha in v5
+          PY
+
+      - name: Emit bounded validation evidence
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          e={
+            "schema":"r8-v15-r1-gcp-p05-semantic-successor-validation/v1",
+            "status":"PASS",
+            "authority_effect":"NONE",
+            "predecessor":"c721b38cf8b00294797300b526596ce723a47ff8",
+            "semantic_successor":"d6317eb85753b0e41168413151ddcebbdcba1c6d",
+            "scope":"GCP_P05_CANONICAL_KEY_ORDER_ONLY",
+            "old_expected_sha256":"906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab",
+            "new_expected_sha256":"161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb",
+            "historical_v5_blob_unchanged":True,
+            "only_narrow_amendment_artifacts_added":True,
+            "implementation_authorized":False,
+            "runtime_qualification_authorized":False,
+            "release_authorized":False,
+            "deployment_authorized":False,
+            "production_authorized":False,
+            "policy_authorized":False,
+            "terminal_authority":False
+          }
+          open("semantic-successor-validation.json","w",encoding="utf-8").write(json.dumps(e,indent=2)+"\n")
+          PY
+
+      - name: Upload validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r8-v15-r1-gcp-p05-semantic-successor-validation
+          path: semantic-successor-validation.json
+          if-no-files-found: error
