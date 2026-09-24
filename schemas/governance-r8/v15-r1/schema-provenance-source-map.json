@@ -2,7 +2,7 @@
   "schema": "r8-v15-r1-schema-provenance-source-map/v1",
   "status": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
-  "semantic_candidate_commit": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
+  "semantic_candidate_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
   "artifact_sources": {
     "runtime-contracts.schema.json": {
       "source_design_ids": [
@@ -223,7 +223,7 @@
         "R8V5-I028..I034",
         "R8V7 GCP rejection vectors",
         "R8V8-I034..I035",
-        "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+        "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
       ]
     },
     "review-presentation-schema.schema.json": {
@@ -262,21 +262,21 @@
       ],
       "pointer_prefix_sources": {
         "/semantic_candidate_commit": [
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
         ],
         "/freeze_process_mappings/3/source": [
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
         ],
         "/freeze_process_mappings/3/status": [
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
         ],
         "/final_freeze_blockers": [
           "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
         ],
         "/note": [
           "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
         ]
       }
     }
@@ -285,14 +285,14 @@
     "SRC-NORM": {
       "design_id": "R8-V15-NORMALIZED-EFFECTIVE-SPEC",
       "path": "governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md",
-      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
       "blob": "03b408d2f3c5b1de2ce65136923a079ccda83370"
     },
     "SRC-DETAIL": {
       "design_id": "R8-V15-NORMALIZED-DETAIL-APPENDIX",
       "path": "governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md",
-      "commit": "c721b38cf8b00294797300b526596ce723a47ff8",
-      "blob": "5d8628e7379be17b896a0058276bddbee8981dc2"
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+      "blob": "8f1f42f0bdb8d2aa8ac99a050d3b82c5610ed0db"
     },
     "SRC-V15": {
       "design_id": "R8-V15-PREREGISTRATION",
@@ -378,11 +378,11 @@
       "commit": "aa7451e14c507fa71c96878e2228971e8c291663",
       "blob": "d4d6929ecf7b14f49097ee8751f79378abd206da"
     },
-    "SRC-GCP-P05-SUCCESSOR": {
-      "design_id": "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
-      "path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR.json",
-      "commit": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
-      "blob": "0a5fde8964f053baf0823886bf2aae8e5f2117ed"
+    "SRC-GCP-P05-CORRECTION": {
+      "design_id": "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
+      "path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION.json",
+      "commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+      "blob": "5dc774ec902a7a1d53dfe2ef6cf1103d0c17c7ee"
     }
   },
   "source_ref_routes": [
@@ -541,9 +541,9 @@
       ]
     },
     {
-      "match_prefix": "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+      "match_prefix": "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION",
       "source_ref_ids": [
-        "SRC-GCP-P05-SUCCESSOR"
+        "SRC-GCP-P05-CORRECTION"
       ]
     }
   ],
