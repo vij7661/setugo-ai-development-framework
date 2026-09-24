@@ -14,7 +14,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     env:
-      TARGET: 624fe118e8baa1f7ff49ff0dd984c2aa80060683
+      TARGET: 3d23db4a026a9bb062800a77ad6dde23717ee006
       SEMANTIC_SUCCESSOR: d6317eb85753b0e41168413151ddcebbdcba1c6d
     steps:
       - name: Checkout exact R3 successor
@@ -89,7 +89,7 @@ jobs:
             "schema":"r8-v15-r1-sfv45-r3-successor-validation/v1",
             "status":"FOCUSED_VALIDATION_PASS",
             "authority_effect":"NONE",
-            "successor_commit":"624fe118e8baa1f7ff49ff0dd984c2aa80060683",
+            "successor_commit":"3d23db4a026a9bb062800a77ad6dde23717ee006",
             "semantic_successor":"d6317eb85753b0e41168413151ddcebbdcba1c6d",
             "r2_repair_regression":"PASS",
             "qualification_reset_invariants":"PASS",
