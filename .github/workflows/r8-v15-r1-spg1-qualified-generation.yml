@@ -110,11 +110,12 @@ jobs:
           docker run --rm \
             -v "$PWD/qualified:/qualified:ro" \
             -v "$PWD/stage-b:/stage-b" \
+            -w /qualified \
             "$CONTAINER_REPO_DIGEST" \
-            python /qualified/tools/generate_r8_v15_r1_spm.py \
-              --schema-root /qualified/schemas/governance-r8/v15-r1 \
-              --source-map /qualified/schemas/governance-r8/v15-r1/schema-provenance-source-map.json \
-              --generator-binding /qualified/schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json \
+            python tools/generate_r8_v15_r1_spm.py \
+              --schema-root schemas/governance-r8/v15-r1 \
+              --source-map schemas/governance-r8/v15-r1/schema-provenance-source-map.json \
+              --generator-binding schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json \
               --output /stage-b/spm-qualified.json
           sha256sum stage-b/spm-qualified.json > stage-b/spm-qualified.sha256
 
