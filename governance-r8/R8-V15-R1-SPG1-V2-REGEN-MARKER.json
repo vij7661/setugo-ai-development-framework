@@ -6,6 +6,8 @@
   "target_branch": "freeze/r8-v15-r1-executable-schema-qualified-v2",
   "generator_id": "R8V15R1-SPG-V2",
   "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
-  "note": "Regenerate SPM after process-state traceability/source-map update. Same enrolled generator/runtime; new signed generation event required. No semantic or implementation authority.",
-  "trigger_sequence": 1
+  "note": "Rerun after narrow shallow-checkout comparison repair. Exact candidate bytes, generator, binding, and allowed-delta set are unchanged. No semantic or implementation authority.",
+  "trigger_sequence": 2,
+  "prior_failed_run": 35983358027,
+  "repair_finding": "governance-r8/R8-V15-R1-SPG-STAGE-C-FINDING-001.json"
 }
