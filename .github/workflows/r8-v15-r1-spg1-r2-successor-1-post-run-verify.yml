@@ -1,0 +1,232 @@
+name: R8 v15-r1 SPG-1 R2 Successor-1 Independent Post-Run Verification
+
+on:
+  push:
+    branches:
+      - enrollment/r8-v15-r1-spg1-r2-successor-1
+    paths:
+      - governance-r8/R8-V15-R1-SPG1-R2-S1-POST-RUN-VERIFY-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+  attestations: read
+
+concurrency:
+  group: r8-v15-r1-spg1-r2-successor-1-post-run-verify
+  cancel-in-progress: false
+
+env:
+  GENERATION_RUN_ID: "36023881055"
+  GENERATION_RUN_HEAD: c89812efa5ba505bbd2c5273699f90582be855ea
+  GENERATION_ARTIFACT_ID: "10818336755"
+  GENERATION_ARTIFACT_NAME: r8-v15-r1-spg1-r2-s1-36023881055-1
+  GENERATION_ARTIFACT_ZIP_SHA256: a42c46b9837a3c6fa22f15951fd4ac39d7c207246b10cbe475b413c5560450c4
+  SUBJECT_SHA256: 64cd69110e978a613b39efb0aaccc38823eedcabf41dec5eac44f9f2fe525315
+  BUNDLE_SHA256: 8a50421328d27f54c84c53e6dfa33ca4381724ab26794935c7c642e9e6c6f4ef
+  QUALIFIED_SPM_SHA256: cdaf34d1f256890c5bcad1f3924d673ae0877ad876d3be3403b2b925b404fa4f
+  REJECTED_SPM_SHA256: 3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f
+  ATTESTATION_ID: "49907502"
+  INPUT_COMMIT: fd969231dd61d76ae52c05f48f7eec826e508846
+  REJECTED_COMMIT: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+  SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+  EXPECTED_RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
+
+jobs:
+  verify:
+    name: Independently verify fresh R2 successor generation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout verifier control commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: control
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout exact repaired successor
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.INPUT_COMMIT }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify generation run and artifact identity before download
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "${{ github.repository }}" = "vij7661/setugo-ai-development-framework"
+          test "${{ github.repository_id }}" = "1354031068"
+          test "${{ github.ref }}" = "refs/heads/enrollment/r8-v15-r1-spg1-r2-successor-1"
+          test "$(git -C candidate rev-parse HEAD)" = "$INPUT_COMMIT"
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo='vij7661/setugo-ai-development-framework'
+          run=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["GENERATION_RUN_ID"]}']))
+          assert run['status']=='completed' and run['conclusion']=='success'
+          assert run['head_sha']==os.environ['GENERATION_RUN_HEAD']
+          assert run['event']=='push'
+          assert run['path']=='.github/workflows/r8-v15-r1-spg1-r2-successor-1-generation.yml'
+          arts=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["GENERATION_RUN_ID"]}/artifacts']))['artifacts']
+          matches=[a for a in arts if str(a['id'])==os.environ['GENERATION_ARTIFACT_ID']]
+          assert len(matches)==1
+          a=matches[0]
+          assert a['name']==os.environ['GENERATION_ARTIFACT_NAME']
+          assert a['digest']=='sha256:'+os.environ['GENERATION_ARTIFACT_ZIP_SHA256']
+          assert not a['expired']
+          PY
+
+      - name: Download exact fresh-generation artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p verify-input
+          gh run download "$GENERATION_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$GENERATION_ARTIFACT_NAME" \
+            --dir verify-input
+          test -f verify-input/spg1-r2-s1-subject.tar
+          test -f verify-input/stage-r2-s1-attestation-bundle.jsonl
+          test -f verify-input/stage-r2-s1/spm-qualified-r2-s1.json
+          test -f verify-input/stage-r2-s1-output.json
+          test "$(sha256sum verify-input/spg1-r2-s1-subject.tar | awk '{print $1}')" = "$SUBJECT_SHA256"
+          test "$(sha256sum verify-input/stage-r2-s1-attestation-bundle.jsonl | awk '{print $1}')" = "$BUNDLE_SHA256"
+          test "$(sha256sum verify-input/stage-r2-s1/spm-qualified-r2-s1.json | awk '{print $1}')" = "$QUALIFIED_SPM_SHA256"
+          test "$QUALIFIED_SPM_SHA256" != "$REJECTED_SPM_SHA256"
+
+      - name: Verify GitHub Sigstore attestation outside signing run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh attestation verify verify-input/spg1-r2-s1-subject.tar \
+            --repo "${{ github.repository }}" \
+            --bundle verify-input/stage-r2-s1-attestation-bundle.jsonl \
+            --format json > independent-gh-attestation-verification.json
+
+      - name: Verify OIDC identity, exact bytes, fresh SPM and successor binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, tarfile, tempfile
+
+          root=pathlib.Path('verify-input')
+          vr=json.loads(pathlib.Path('independent-gh-attestation-verification.json').read_text())
+          assert isinstance(vr,list) and len(vr)==1
+          res=vr[0]['verificationResult']
+          cert=res['signature']['certificate']
+
+          expected_identity='https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-r2-successor-1-generation.yml@refs/heads/enrollment/r8-v15-r1-spg1-r2-successor-1'
+          assert cert['subjectAlternativeName']==expected_identity
+          assert cert['issuer']=='https://token.actions.githubusercontent.com'
+          assert cert['githubWorkflowSHA']==os.environ['GENERATION_RUN_HEAD']
+          assert cert['githubWorkflowRepository']=='vij7661/setugo-ai-development-framework'
+          assert cert['githubWorkflowRef']=='refs/heads/enrollment/r8-v15-r1-spg1-r2-successor-1'
+          assert cert['runnerEnvironment']=='github-hosted'
+          assert cert['sourceRepositoryIdentifier']=='1354031068'
+          assert cert['runInvocationURI']==f'https://github.com/vij7661/setugo-ai-development-framework/actions/runs/{os.environ["GENERATION_RUN_ID"]}/attempts/1'
+          assert res['statement']['subject']==[{
+            'name':'spg1-r2-s1-subject.tar',
+            'digest':{'sha256':os.environ['SUBJECT_SHA256']}
+          }]
+          assert res['verifiedTimestamps']
+
+          with tempfile.TemporaryDirectory() as td:
+              td=pathlib.Path(td)
+              with tarfile.open(root/'spg1-r2-s1-subject.tar','r') as tf:
+                  tf.extractall(td)
+              for p in td.rglob('*'):
+                  if p.is_file():
+                      q=root/'stage-r2-s1'/p.relative_to(td)
+                      assert q.is_file() and p.read_bytes()==q.read_bytes(), f'expanded mismatch {p}'
+
+          outrec=json.loads((root/'stage-r2-s1-output.json').read_text())
+          assert outrec['status']=='FRESH_SIGNED_GENERATION_PENDING_INDEPENDENT_POST_RUN_VERIFICATION'
+          assert outrec['input_commit']==os.environ['INPUT_COMMIT']
+          assert outrec['rejected_candidate_commit']==os.environ['REJECTED_COMMIT']
+          assert outrec['subject_sha256']==os.environ['SUBJECT_SHA256']
+          assert outrec['attestation_bundle_sha256']==os.environ['BUNDLE_SHA256']
+          assert outrec['qualified_spm_sha256']==os.environ['QUALIFIED_SPM_SHA256']
+          assert outrec['rejected_candidate_spm_sha256']==os.environ['REJECTED_SPM_SHA256']
+          assert str(outrec['attestation_id'])==os.environ['ATTESTATION_ID']
+
+          spm=json.loads((root/'stage-r2-s1/spm-qualified-r2-s1.json').read_text())
+          sm=json.loads(pathlib.Path('candidate/schemas/governance-r8/v15-r1/schema-provenance-source-map.json').read_text())
+          assert spm['status']=='FINAL_FREEZE_ELIGIBLE'
+          assert spm['authority_effect']=='NONE'
+          assert spm['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
+          assert spm['generator']['generator_id']=='R8V15R1-SPG-V2'
+          assert spm['generator']['runtime_manifest_digest']==os.environ['EXPECTED_RUNTIME_MANIFEST_DIGEST']
+          assert spm['generator']['qualification_status']=='QUALIFIED'
+          assert spm['source_ref_catalog']==sm['named_source_refs']
+          assert spm['coverage']=={
+              'uncovered_semantic_elements':[],
+              'non_authoritative_only_sources':[],
+              'conflicting_entries':[]
+          }
+          amap={a['path'].split('/')[-1]:a for a in spm['artifacts']}
+          assert set(amap)==set(sm['artifact_sources'])
+          sroot=pathlib.Path('candidate/schemas/governance-r8/v15-r1')
+          for name,a in amap.items():
+              raw=(sroot/name).read_bytes()
+              assert a['sha256']==hashlib.sha256(raw).hexdigest(), name
+          assert hashlib.sha256((root/'stage-r2-s1/spm-qualified-r2-s1.json').read_bytes()).hexdigest()==os.environ['QUALIFIED_SPM_SHA256']
+          assert os.environ['QUALIFIED_SPM_SHA256'] != os.environ['REJECTED_SPM_SHA256']
+
+          old=hashlib.sha256(pathlib.Path('candidate/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json').read_bytes()).hexdigest()
+          assert old==os.environ['REJECTED_SPM_SHA256']
+
+          result={
+            'schema':'r8-v15-r1-spg1-r2-successor-1-independent-post-run-verification/v1',
+            'status':'POST_RUN_FRESH_SUCCESSOR_GENERATION_VERIFICATION_PASS',
+            'authority_effect':'PROVENANCE_EVIDENCE_ONLY',
+            'input_commit':os.environ['INPUT_COMMIT'],
+            'rejected_candidate_commit':os.environ['REJECTED_COMMIT'],
+            'generation_run_id':int(os.environ['GENERATION_RUN_ID']),
+            'generation_run_head':os.environ['GENERATION_RUN_HEAD'],
+            'generation_artifact_id':int(os.environ['GENERATION_ARTIFACT_ID']),
+            'generation_artifact_zip_sha256':os.environ['GENERATION_ARTIFACT_ZIP_SHA256'],
+            'attestation_id':int(os.environ['ATTESTATION_ID']),
+            'subject_sha256':os.environ['SUBJECT_SHA256'],
+            'attestation_bundle_sha256':os.environ['BUNDLE_SHA256'],
+            'qualified_spm_sha256':os.environ['QUALIFIED_SPM_SHA256'],
+            'rejected_candidate_spm_sha256':os.environ['REJECTED_SPM_SHA256'],
+            'fresh_spm_distinct_from_rejected_candidate':True,
+            'github_attestation_verification_pass':True,
+            'oidc_identity_exact_match':True,
+            'verified_timestamp_present':True,
+            'artifact_expanded_bytes_match':True,
+            'qualified_provenance_validation_pass':True,
+            'sfv_35':'EVIDENCE_COMPLETE_FOR_INPUT_COMMIT',
+            'sfv_36':'EVIDENCE_COMPLETE_FOR_INPUT_COMMIT',
+            'sfv_44':'EVIDENCE_COMPLETE_FOR_INPUT_COMMIT',
+            'sfv_45':'STILL_REQUIRED',
+            'implementation_authorized':False,
+            'runtime_qualification_authorized':False,
+            'release_authorized':False,
+            'deployment_authorized':False,
+            'production_authorized':False,
+            'policy_authorized':False,
+            'terminal_authority':False
+          }
+          pathlib.Path('r2-s1-independent-post-run-verification.json').write_text(json.dumps(result,indent=2)+'\n')
+          PY
+
+      - name: Upload independent post-run verification evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-spg1-r2-s1-post-run-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            independent-gh-attestation-verification.json
+            r2-s1-independent-post-run-verification.json
+          if-no-files-found: error
+          retention-days: 90
