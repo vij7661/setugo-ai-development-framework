@@ -1,0 +1,54 @@
+{
+  "schema": "r8-v15-r1-sfv45-r3-adjudicated-repair/v1",
+  "status": "R3_REPAIR_SCOPE_FROZEN_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "reviewed_candidate": "5cde19b285989da95c7e68b489663ba2e503ef02",
+  "predecessor_semantic_candidate": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "semantic_successor": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
+  "semantic_successor_validation": {
+    "workflow_run_id": 36041664344,
+    "conclusion": "success",
+    "artifact_id": 10826029045,
+    "artifact_digest": "sha256:6da8e9b1336a5d503a8ad81a34b0f44974211322905f99487818af56ab18722e"
+  },
+  "accepted_findings": {
+    "critical": [
+      "LASAuthorityStateRoot must preserve the exact frozen flat v14 GCP-1 root member set.",
+      "GCP-RVM2-P05 historical v5 byte/hash pair contradicted frozen lexicographic key ordering and required narrow semantic successor."
+    ],
+    "high": [
+      "StateTransferCertificate must bind exact ROTATION_PREPARE certificate.",
+      "ResolverConformanceSuite-1 exact identity must be machine-readable and bound by conformance evidence.",
+      "CurrentSemanticModelBundle must use canonical resolver_policy_ref rather than embed the full policy object.",
+      "GGSGenesisStateRoot exact frozen formula must be executable and bound into GGS state transfer."
+    ],
+    "medium": [
+      "DecisionPresealContext effect_class requires an explicit canonical no-effect representation.",
+      "GGS semantic-head binding in StateTransferCertificate must encode the governed conditionality.",
+      "T0SuccessorManifest must not invent bootstrap_authorization_digest; lawful authorization remains bound through the successor reservation path."
+    ]
+  },
+  "rejected_findings": [
+    "Do not mechanically re-add the full obsolete R8V8-I018 DPS-2 field list; later v12/v13 normalized bindings govern the current representation.",
+    "Do not reintroduce historical specialized effect states absent from the current normalized effect-state enum.",
+    "Do not add R8V13- source routing merely because internal SRTT RuleRegistry source_trace strings use that spelling; SPG source routing operates over source_design_ids assigned to schema elements.",
+    "Do not add LEGACY_GUARD_TABLE to BSP residual fail_if; R8V15-I013 does not require it."
+  ],
+  "qualification_reset": {
+    "predecessor_spm_transfer_allowed": false,
+    "predecessor_successor_specific_spg_evidence_transfer_allowed": false,
+    "fresh_spg_generation_required": true,
+    "fresh_independent_post_run_verification_required": true,
+    "fresh_sfv45_review_required": true
+  },
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
