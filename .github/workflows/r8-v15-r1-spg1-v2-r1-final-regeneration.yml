@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  INPUT_COMMIT: 77f0894d7165374928ffafa525c63fc3a06d8cc1
+  INPUT_COMMIT: 94cf195e6e429fa69c6fa62184241ec47f712f1c
   SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
   EXPECTED_GENERATOR_SHA256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6
   EXPECTED_RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
@@ -74,7 +74,7 @@ jobs:
           assert b['qualification_status']=='QUALIFIED' and b['revocation_state']=='ACTIVE'
           assert b['generator_artifact_sha256']==os.environ['EXPECTED_GENERATOR_SHA256']
           assert b['runtime_manifest']['runtime_manifest_digest']==os.environ['EXPECTED_RUNTIME_MANIFEST_DIGEST']
-          assert ext['approval']['target_repaired_successor_commit']=='bfe078a741855b423e9899d4debd440d21147876'
+          assert ext['approval']['target_repaired_successor_commit']=='cd3a47c9f8d6830764f6f98c5f3a28d8c988f8cb'
           assert ext['lifecycle']['revocation_state']=='ACTIVE'
           assert pv['status']=='POST_RUN_REPAIRED_SUCCESSOR_GENERATION_VERIFICATION_PASS'
           assert pv['sfv_35']=='EVIDENCE_COMPLETE_FOR_INPUT_COMMIT'
