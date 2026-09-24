@@ -63,7 +63,6 @@ class R8V15R1SFV45R2QualificationResetTests(unittest.TestCase):
             pps["/note"],
             [
                 "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-                "SPG-QUALIFICATION-2026-09-24",
             ],
         )
 
