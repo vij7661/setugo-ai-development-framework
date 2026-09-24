@@ -1,6 +1,6 @@
 {
   "schema": "r8-v15-r1-schema-freeze-traceability/v2",
-  "status": "SCHEMA_FREEZE_CANDIDATE_V2_NON_AUTHORITATIVE",
+  "status": "QUALIFIED_EVIDENCE_REBIND_PRECOMMIT_NON_AUTHORITATIVE",
   "authority_effect": "NONE",
   "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
   "mappings": [
@@ -456,7 +456,7 @@
         "SFV-35",
         "SFV-44"
       ],
-      "status": "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR"
+      "status": "QUALIFIED_SPM_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
     },
     {
       "rule_id": "SFG-002",
@@ -471,7 +471,7 @@
         "SFV-35",
         "SFV-43"
       ],
-      "status": "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR"
+      "status": "QUALIFIED_SOURCE_AUTHORITY_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
     },
     {
       "rule_id": "SFG-003",
@@ -489,7 +489,7 @@
         "SFV-36",
         "SFV-44"
       ],
-      "status": "REQUALIFICATION_REQUIRED_AFTER_SCHEMA_REPAIR"
+      "status": "QUALIFIED_GENERATOR_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
     },
     {
       "rule_id": "SFG-004",
@@ -553,15 +553,12 @@
       "validators": [
         "SFV-45"
       ],
-      "status": "BLOCKED_PENDING_REPAIRED_EXACT_CANDIDATE_REVIEW"
+      "status": "BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW"
     }
   ],
   "freeze_process_rule_count": 7,
   "final_freeze_blockers": [
-    "SFV-35",
-    "SFV-36",
-    "SFV-44",
     "SFV-45"
   ],
-  "note": "NORM-001..043 semantic mappings remain frozen. This R2 repair successor preserves the adjudicated executable-schema repairs without changing the frozen semantic candidate. Prior successor SPM/generated-output/post-run/review evidence is predecessor-bound and does not transfer to these repaired schema bytes. The enrolled R8V15R1-SPG-V2 generator identity/runtime remains separately qualified, but SFV-35/SFV-36/SFV-44 require fresh exact-byte attested generation and independent post-run verification for this successor; SFV-45 then requires fresh independent review of the exact qualified candidate."
+  "note": "NORM-001..043 semantic mappings remain frozen. This non-authoritative fixed-point precommit is derived from the explicit R8V15R1-SPG-V2 enrollment extension for cd3a47c9f8d6830764f6f98c5f3a28d8c988f8cb and independently verified fresh successor generation run 36030060420 / post-run verification run 36030384630. SFV-35/SFV-36/SFV-44 are treated as conditionally evidence-complete only for purposes of exact final regeneration over these rebind bytes. A separate post-run verification must prove the final regenerated artifact, source map, traceability, and SPM bytes match exactly. If final regeneration/verification fails or bytes drift, SFV-35/SFV-36/SFV-44 reopen. Only after successful exact-byte final verification does SFV-45 become the sole remaining executable-schema-freeze blocker."
 }
