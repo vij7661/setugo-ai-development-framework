@@ -157,8 +157,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          changed="$(git diff --name-only "$BASE_COMMIT" | sort)"
-          expected="schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
+          changed="$(git status --porcelain --untracked-files=all)"
+          expected="?? schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
           test "$changed" = "$expected"
           git diff --exit-code "$BASE_COMMIT" -- . ':(exclude)schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json'
 
