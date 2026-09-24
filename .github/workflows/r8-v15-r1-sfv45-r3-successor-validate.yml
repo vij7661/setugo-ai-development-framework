@@ -77,7 +77,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest discover -s governance-runtime -p 'test_*.py' -v
+          cd governance-runtime
+          python -m unittest discover -s . -p 'test_*.py' -v
 
       - name: Emit bounded validation evidence
         shell: bash
