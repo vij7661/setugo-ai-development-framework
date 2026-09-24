@@ -1,0 +1,20 @@
+{
+  "schema": "r8-v15-r1-sfv45-r3-raw-review-packet-marker/v1",
+  "status": "AUTHORIZED_TO_BUILD_REVIEW_TRANSPORT_ONLY",
+  "authority_effect": "NONE",
+  "exact_candidate_commit": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "fixed_point_commit": "d61f9278f1daceac6de536a8894d266726733345",
+  "reviewed_semantic_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "semantic_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+  "purpose": "Build exact raw-evidence transport after independent reviewer returned INSUFFICIENT_EVIDENCE because the previous packet supplied summaries rather than inspectable bytes.",
+  "grants": {
+    "executable_schema_freeze": false,
+    "implementation": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
