@@ -1,0 +1,12 @@
+{
+  "schema": "r8-v15-r1-qualified-freeze-materialization-marker/v1",
+  "status": "EXECUTE_MATERIALIZATION",
+  "authority_effect": "NONE",
+  "source_base_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
+  "target_branch": "freeze/r8-v15-r1-executable-schema-qualified-v1",
+  "stage_b_run_id": 35980845814,
+  "expected_qualified_spm_sha256": "e0160487455d33c97031ee706d930ab1757d5e0b399d1d897e96325b7dccda5c",
+  "expected_qualified_binding_sha256": "a7f493f8deb252a8fdfbc9af809253f9bed278c90b344557869e816b4ce9a2ef",
+  "note": "Materialize only exact qualified binding and exact qualified SPM bytes into the clean successor freeze branch. Grants no final freeze or implementation authority.",
+  "trigger_sequence": 1
+}
