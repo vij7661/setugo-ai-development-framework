@@ -16,5 +16,7 @@
     "production": false,
     "policy": false,
     "terminal_authority": false
-  }
+  },
+  "retrigger_nonce": 1,
+  "retrigger_reason": "Simplified workflow; exact packet construction moved to versioned Python builder after workflow-parse failure."
 }
