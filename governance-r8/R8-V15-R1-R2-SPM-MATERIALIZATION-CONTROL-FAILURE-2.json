@@ -1,0 +1,31 @@
+{
+  "schema": "r8-v15-r1-r2-spm-materialization-control-failure/v2",
+  "status": "FAILED_CLOSED_BEFORE_COMMIT",
+  "authority_effect": "NONE",
+  "run_id": 36032107732,
+  "trigger_commit": "bbda74fae5fe7f341640a9e63251c6bdb6f49971",
+  "base_commit": "94cf195e6e429fa69c6fa62184241ec47f712f1c",
+  "target_branch": "freeze/r8-v15-r1-executable-schema-qualified-r2",
+  "final_spm_sha256": "f8828bf43e5105c045d248289d5057acd9f2110f5ee2c11ceaab494e9ee88296",
+  "successful_steps": [
+    "target_branch_drift_check",
+    "source_run_and_independent_verifier_check",
+    "exact_final_regeneration_artifact_download",
+    "verified_spm_copy_and_content_validation"
+  ],
+  "failure_step": "Prove no other schema or repository bytes changed",
+  "failure_reason": "The corrected git status proof saw temporary verifier-download/final-download artifact directories created inside the checked-out worktree in addition to the intended untracked SPM file.",
+  "repair": "Remove temporary downloaded evidence directories from the worktree after verified SPM copy and before repository cleanliness proof. Then require exactly the single untracked SPM path.",
+  "commit_created": false,
+  "target_branch_moved": false,
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
