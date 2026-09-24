@@ -1,0 +1,199 @@
+name: R8 v15-r1 SPG-1 Stage C Post-Run Verification
+
+on:
+  push:
+    branches:
+      - enrollment/r8-v15-r1-spg1-qualified-v1
+    paths:
+      - governance-r8/R8-V15-R1-SPG1-STAGE-C-POST-RUN-VERIFY-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+  attestations: read
+
+concurrency:
+  group: r8-v15-r1-spg1-stage-c-post-run-verify
+  cancel-in-progress: false
+
+env:
+  STAGE_C_RUN_ID: 35983482278
+  STAGE_C_RUN_HEAD: 1129e319873b2196c93abf7bb00abad62714e27a
+  STAGE_C_ARTIFACT_ID: 10800459052
+  STAGE_C_ARTIFACT_NAME: r8-v15-r1-spg1-stage-c-35983482278-1
+  STAGE_C_ARTIFACT_ZIP_SHA256: 31a2b24d60d3543b0a41b4dbbdaab576c75e16196399d4df35c942c9500cd068
+  STAGE_C_SUBJECT_SHA256: 572e851003648b065962aa3fc86db19ac19c08f7ec269b7c1fc941d602b330eb
+  STAGE_C_BUNDLE_SHA256: b4de28f8c142f9ed00601e33ff749378d87fc19f9780722b1b6f7f75b6a7dc68
+  QUALIFIED_V2_SPM_SHA256: f2ede7ea55c1354f33425625a2f222ee89936bc42a538a96cc2063392a33eefb
+  STAGE_C_ATTESTATION_ID: 49804825
+  INPUT_COMMIT: 8bd1934f65531607b1bdb4449c0c72b8f04d3ea9
+  SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+  RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
+
+jobs:
+  verify:
+    name: Independently verify signed Stage-C qualified-v2 generation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout verifier control commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: control
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout exact qualified-v2 input
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.INPUT_COMMIT }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify Stage-C run and artifact identity before download
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo='vij7661/setugo-ai-development-framework'
+          run=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["STAGE_C_RUN_ID"]}']))
+          assert run['status']=='completed' and run['conclusion']=='success'
+          assert run['head_sha']==os.environ['STAGE_C_RUN_HEAD']
+          arts=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["STAGE_C_RUN_ID"]}/artifacts']))['artifacts']
+          matches=[a for a in arts if str(a['id'])==os.environ['STAGE_C_ARTIFACT_ID']]
+          assert len(matches)==1
+          a=matches[0]
+          assert a['name']==os.environ['STAGE_C_ARTIFACT_NAME']
+          assert a['digest']=='sha256:'+os.environ['STAGE_C_ARTIFACT_ZIP_SHA256']
+          assert not a['expired']
+          PY
+
+      - name: Download exact Stage-C artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p verify-input
+          gh run download "$STAGE_C_RUN_ID" --repo "${{ github.repository }}" --name "$STAGE_C_ARTIFACT_NAME" --dir verify-input
+          test -f verify-input/spg1-stage-c-qualified-v2-subject.tar
+          test -f verify-input/stage-c-attestation-bundle.jsonl
+          test -f verify-input/stage-c/spm-qualified-v2.json
+          test "$(sha256sum verify-input/spg1-stage-c-qualified-v2-subject.tar | awk '{print $1}')" = "$STAGE_C_SUBJECT_SHA256"
+          test "$(sha256sum verify-input/stage-c-attestation-bundle.jsonl | awk '{print $1}')" = "$STAGE_C_BUNDLE_SHA256"
+          test "$(sha256sum verify-input/stage-c/spm-qualified-v2.json | awk '{print $1}')" = "$QUALIFIED_V2_SPM_SHA256"
+
+      - name: Verify GitHub Sigstore attestation outside signing run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh attestation verify verify-input/spg1-stage-c-qualified-v2-subject.tar             --repo "${{ github.repository }}"             --bundle verify-input/stage-c-attestation-bundle.jsonl             --format json > stage-c-post-run-gh-attestation-verification.json
+
+      - name: Verify identity, exact bytes, and qualified-v2 provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, tarfile, tempfile
+          root=pathlib.Path('verify-input')
+          vr=json.loads(pathlib.Path('stage-c-post-run-gh-attestation-verification.json').read_text())
+          assert isinstance(vr,list) and len(vr)==1
+          res=vr[0]['verificationResult']
+          cert=res['signature']['certificate']
+          expected_identity='https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-qualified-v2-regeneration.yml@refs/heads/enrollment/r8-v15-r1-spg1-qualified-v1'
+          assert cert['subjectAlternativeName']==expected_identity
+          assert cert['issuer']=='https://token.actions.githubusercontent.com'
+          assert cert['githubWorkflowSHA']==os.environ['STAGE_C_RUN_HEAD']
+          assert cert['githubWorkflowRepository']=='vij7661/setugo-ai-development-framework'
+          assert cert['githubWorkflowRef']=='refs/heads/enrollment/r8-v15-r1-spg1-qualified-v1'
+          assert cert['runnerEnvironment']=='github-hosted'
+          assert cert['sourceRepositoryIdentifier']=='1354031068'
+          assert cert['runInvocationURI']=='https://github.com/vij7661/setugo-ai-development-framework/actions/runs/35983482278/attempts/1'
+          stmt=res['statement']
+          assert stmt['subject']==[{'name':'spg1-stage-c-qualified-v2-subject.tar','digest':{'sha256':os.environ['STAGE_C_SUBJECT_SHA256']}}]
+          assert res['verifiedTimestamps']
+
+          with tempfile.TemporaryDirectory() as td:
+              td=pathlib.Path(td)
+              with tarfile.open(root/'spg1-stage-c-qualified-v2-subject.tar','r') as tf:
+                  tf.extractall(td)
+              for p in td.rglob('*'):
+                  if p.is_file():
+                      q=root/'stage-c'/p.relative_to(td)
+                      assert q.is_file() and p.read_bytes()==q.read_bytes(), f'expanded mismatch {p}'
+
+          candidate=pathlib.Path('candidate/schemas/governance-r8/v15-r1')
+          spm=json.loads((root/'stage-c/spm-qualified-v2.json').read_text())
+          sm=json.loads((candidate/'schema-provenance-source-map.json').read_text())
+          binding=json.loads((candidate/'schema-provenance-generator-binding.json').read_text())
+          trace=json.loads((candidate/'schema-freeze-traceability.json').read_text())
+
+          assert spm['status']=='FINAL_FREEZE_ELIGIBLE'
+          assert spm['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
+          assert spm['generator']['generator_id']=='R8V15R1-SPG-V2'
+          assert spm['generator']['runtime_manifest_digest']==os.environ['RUNTIME_MANIFEST_DIGEST']
+          assert spm['generator']['qualification_status']=='QUALIFIED'
+          assert spm['source_ref_catalog']==sm['named_source_refs']
+          assert spm['coverage']=={'uncovered_semantic_elements':[],'non_authoritative_only_sources':[],'conflicting_entries':[]}
+          assert binding['status']=='QUALIFIED_GENERATOR_BINDING'
+          assert binding['qualification_status']=='QUALIFIED'
+          assert binding['revocation_state']=='ACTIVE'
+          assert binding['runtime_manifest']['runtime_manifest_digest']==os.environ['RUNTIME_MANIFEST_DIGEST']
+          sfg3=next(x for x in trace['freeze_process_mappings'] if x['rule_id']=='SFG-003')
+          assert sfg3['status']=='QUALIFIED_GENERATOR_EVIDENCE_COMPLETE'
+          assert trace['final_freeze_blockers']==['SFV-45']
+
+          amap={a['path'].split('/')[-1]:a for a in spm['artifacts']}
+          assert set(amap)==set(sm['artifact_sources'])
+          for name in amap:
+              raw=(candidate/name).read_bytes()
+              assert amap[name]['sha256']==hashlib.sha256(raw).hexdigest()
+
+          refs=set(sm['named_source_refs'])
+          for e in spm['entries']:
+              assert e['generator_runtime_manifest_digest']==os.environ['RUNTIME_MANIFEST_DIGEST']
+              assert e['reviewer_status']=='REVIEW_REQUIRED'
+              assert e['source_ref_ids'] and set(e['source_ref_ids'])<=refs
+
+          out={
+            'schema':'r8-v15-r1-spg1-stage-c-post-run-verification/v1',
+            'status':'POST_RUN_QUALIFIED_V2_GENERATION_VERIFICATION_PASS',
+            'authority_effect':'QUALIFIED_V2_PROVENANCE_VERIFICATION_ONLY',
+            'stage_c_run_id':int(os.environ['STAGE_C_RUN_ID']),
+            'stage_c_run_head':os.environ['STAGE_C_RUN_HEAD'],
+            'stage_c_artifact_id':int(os.environ['STAGE_C_ARTIFACT_ID']),
+            'stage_c_artifact_zip_sha256':os.environ['STAGE_C_ARTIFACT_ZIP_SHA256'],
+            'attestation_id':int(os.environ['STAGE_C_ATTESTATION_ID']),
+            'subject_sha256':os.environ['STAGE_C_SUBJECT_SHA256'],
+            'attestation_bundle_sha256':os.environ['STAGE_C_BUNDLE_SHA256'],
+            'qualified_v2_spm_sha256':os.environ['QUALIFIED_V2_SPM_SHA256'],
+            'github_attestation_verification_pass':True,
+            'oidc_identity_exact_match':True,
+            'verified_timestamp_present':True,
+            'artifact_expanded_bytes_match':True,
+            'qualified_v2_provenance_validation_pass':True,
+            'sfv_36':'EVIDENCE_COMPLETE',
+            'sfv_45':'STILL_REQUIRED',
+            'implementation_authorized':False,
+            'runtime_qualification_authorized':False,
+            'release_authorized':False
+          }
+          pathlib.Path('stage-c-post-run-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+          PY
+
+      - name: Upload independent Stage-C post-run verification evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-spg1-stage-c-post-run-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            stage-c-post-run-gh-attestation-verification.json
+            stage-c-post-run-verification.json
+          if-no-files-found: error
+          retention-days: 90
