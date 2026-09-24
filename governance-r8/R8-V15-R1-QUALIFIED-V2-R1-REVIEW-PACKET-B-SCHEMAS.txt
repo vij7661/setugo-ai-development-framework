@@ -1,0 +1,4644 @@
+R8 v15-r1 QUALIFIED V2-r1 EXECUTABLE-SCHEMA BLIND REVIEW
+PACKET B — EXECUTABLE SCHEMA CORE + VALIDATOR / TRACEABILITY
+Exact review candidate commit: 411af83806b702a496f5d66d1cfa8afcf10cc86b
+Frozen semantic candidate: c721b38cf8b00294797300b526596ce723a47ff8
+Authority effect: NONE
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/runtime-contracts.schema.json =====
+GIT_BLOB_SHA1: 7b3e4c8d437dc2c1cd88e9315291f6c6fc0c1fd0
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/runtime-contracts.schema.json",
+  "title": "R8 v15-r1 Runtime Authority Contracts",
+  "description": "Structural contracts derived only from the frozen normalized R8 v15-r1 design. Cross-field authority semantics remain owned by the SchemaFreezeValidator.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "$ref": "#/$defs/DecisionPresealContext"
+    }
+  },
+  "required": [
+    "contract"
+  ],
+  "$defs": {
+    "CanonicalId": {
+      "type": "string",
+      "minLength": 1,
+      "x-validator-invariants": [
+        "authority-bearing identifiers must resolve as exact stable canonical IDs under the owning registry or source contract; aliases/display names are invalid where stable-ID authority is required",
+        "lexical syntax remains opaque unless the frozen source contract explicitly defines it"
+      ]
+    },
+    "Digest": {
+      "type": "string",
+      "minLength": 1,
+      "x-validator-invariants": [
+        "digest lexical form and algorithm must satisfy the exact governing source rule or current bound crypto profile; generic Digest is opaque and does not imply a global SHA-256 encoding",
+        "where a frozen source rule explicitly fixes SHA-256 or another concrete encoding, the validator must reject values that do not satisfy that exact encoding before authority use"
+      ]
+    },
+    "Sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854776000
+    },
+    "SemanticHeads": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "csm_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "aim_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_any_permission_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "aim_scope_policy_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_policy_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_implementation_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "guard_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "revocation_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "nonce_ledger_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_stream_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_head": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "csm_head",
+        "aim_head",
+        "semantic_any_permission_head",
+        "aim_scope_policy_head",
+        "resolver_policy_head",
+        "resolver_implementation_registry_head",
+        "guard_registry_head",
+        "revocation_head",
+        "nonce_ledger_head",
+        "effect_stream_head",
+        "configuration_head"
+      ]
+    },
+    "ScopeReplacementInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "const": "REVOKED"
+        },
+        "old_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH"
+          ]
+        },
+        "destination_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH",
+            "MAPPED_MATCH"
+          ]
+        },
+        "old_scope_effect": {
+          "enum": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "scope_relation": {
+          "enum": [
+            "SAME",
+            "NARROWER",
+            "BROADER",
+            "DISJOINT"
+          ]
+        },
+        "any_permission_valid": {
+          "type": "boolean"
+        },
+        "mapping_effective": {
+          "type": "boolean"
+        },
+        "lineage_mapping_valid": {
+          "type": "boolean"
+        },
+        "scope_expansion_authorized": {
+          "type": "boolean"
+        },
+        "decision_inside_authorized_expansion_domain": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_entry_state",
+        "old_scope_match",
+        "destination_scope_match",
+        "old_scope_effect",
+        "scope_relation",
+        "any_permission_valid",
+        "mapping_effective",
+        "lineage_mapping_valid",
+        "scope_expansion_authorized",
+        "decision_inside_authorized_expansion_domain"
+      ]
+    },
+    "ScopeReplacementDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ScopeReplacementOutsideTableInput"
+            },
+            {
+              "$ref": "#/$defs/ScopeReplacementInput"
+            }
+          ]
+        },
+        "result": {
+          "enum": [
+            "NOT_A_REPLACEMENT_BRANCH",
+            "SEMANTIC_SCOPE_REVOKED",
+            "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+            "MAPPING_NOT_APPLICABLE",
+            "REPLACEMENT_ELIGIBLE",
+            "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+          ]
+        },
+        "decisive_rule_id": {
+          "type": "string",
+          "pattern": "^SRTT15-R(?:00|0[1-9]|1[01])$"
+        }
+      },
+      "required": [
+        "input",
+        "result",
+        "decisive_rule_id"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decisive_rule_id": {
+                "const": "SRTT15-R00"
+              }
+            },
+            "required": [
+              "decisive_rule_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "input": {
+                "$ref": "#/$defs/ScopeReplacementOutsideTableInput"
+              },
+              "result": {
+                "const": "NOT_A_REPLACEMENT_BRANCH"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decisive_rule_id": {
+                "pattern": "^SRTT15-R(?:0[1-9]|1[01])$"
+              }
+            },
+            "required": [
+              "decisive_rule_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "input": {
+                "$ref": "#/$defs/ScopeReplacementInput"
+              },
+              "result": {
+                "enum": [
+                  "SEMANTIC_SCOPE_REVOKED",
+                  "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+                  "MAPPING_NOT_APPLICABLE",
+                  "REPLACEMENT_ELIGIBLE",
+                  "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "SemanticResolvedResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "terminal_semantic_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "terminal_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "terminal_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "effective_scope_tuple_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_result_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "semantic_input_id",
+        "semantic_class",
+        "terminal_semantic_entry_id",
+        "terminal_rule_digest",
+        "terminal_lineage_id",
+        "effective_scope_tuple_digest",
+        "semantic_result_digest"
+      ]
+    },
+    "AuthorityReadSetEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "head_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "value_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "input_id",
+        "source_id",
+        "head_digest",
+        "value_digest"
+      ]
+    },
+    "AuthorityReadSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/AuthorityReadSetEntry"
+          }
+        },
+        "authority_read_set_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "entries",
+        "authority_read_set_digest"
+      ]
+    },
+    "ResolverIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "resolver_policy_digest",
+        "implementation_id",
+        "runtime_identity_digest",
+        "workload_identity_digest",
+        "conformance_suite_digest",
+        "conformance_evidence_digest"
+      ]
+    },
+    "DecisionPresealContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "action_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "decision_scope_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "governance_snapshot_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "authority_read_set_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_state_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "rir_record_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "rir_head_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_identity": {
+          "$ref": "#/$defs/ResolverIdentity"
+        },
+        "revocation_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "runtime_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_class": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "action_id",
+        "decision_scope_digest",
+        "governance_snapshot_digest",
+        "authority_read_set_digest",
+        "semantic_state_sequence",
+        "semantic_heads",
+        "rir_record_id",
+        "rir_head_digest",
+        "resolver_identity",
+        "revocation_state_digest",
+        "runtime_state_digest",
+        "workload_state_digest",
+        "effect_class",
+        "decision_preseal_digest"
+      ]
+    },
+    "TimeSourceAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "time_source_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_status_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "attestation_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "time_source_id",
+        "source_status_digest",
+        "attestation_digest"
+      ]
+    },
+    "QualifiedTimeProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nonce_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "source_attestations": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/TimeSourceAttestation"
+          }
+        },
+        "time_proof_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "nonce_256bit_hex",
+        "decision_preseal_digest",
+        "effective_sequence",
+        "source_attestations",
+        "time_proof_digest"
+      ]
+    },
+    "VerifiedStateSeal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "time_proof_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "authority_read_set_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_state_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "revocation_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "seal_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "decision_preseal_digest",
+        "time_proof_digest",
+        "authority_read_set_digest",
+        "semantic_state_sequence",
+        "semantic_heads",
+        "revocation_head",
+        "seal_digest"
+      ]
+    },
+    "EffectIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "effect_intent_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "idempotency_key": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "verified_state_seal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "decision_preseal_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "payload_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "state": {
+          "const": "INTENT_COMMITTED"
+        }
+      },
+      "required": [
+        "effect_intent_id",
+        "idempotency_key",
+        "verified_state_seal_digest",
+        "decision_preseal_digest",
+        "effect_class",
+        "payload_digest",
+        "state"
+      ]
+    },
+    "EffectStateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "effect_intent_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "idempotency_key": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "state": {
+          "enum": [
+            "INTENT_COMMITTED",
+            "DISPATCHING",
+            "ACKNOWLEDGED_UNVERIFIED",
+            "SUCCEEDED_RECONCILED",
+            "FAILED_FINAL",
+            "UNCERTAIN",
+            "COMPENSATION_REQUIRED",
+            "COMPENSATED"
+          ]
+        },
+        "executor_identity_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reconciliation_evidence_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "state_record_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "effect_intent_id",
+        "idempotency_key",
+        "state",
+        "executor_identity_digest",
+        "reconciliation_evidence_digest",
+        "state_record_digest"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "SUCCEEDED_RECONCILED"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reconciliation_evidence_digest": {
+                "type": "string",
+                "minLength": 1
+              },
+              "executor_identity_digest": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "StateTransferCertificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "system_id": {
+          "enum": [
+            "LAS-3",
+            "GGS-3"
+          ]
+        },
+        "rotation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "transition_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "old_configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "old_configuration_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "proposed_new_configuration_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "barrier_snapshot_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "committed_log_prefix_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "highest_seen_term": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "highest_committed_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "highest_applied_index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "last_committed_entry_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "state_root_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "stream_head_map_root_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "idempotency_dedup_ledger_root_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "prior_certificate_chain_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "ggs_namespace_root_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "ggs_authorization_root_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "stc_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "system_id",
+        "rotation_id",
+        "transition_id",
+        "old_configuration_generation",
+        "old_configuration_digest",
+        "proposed_new_configuration_digest",
+        "barrier_snapshot_index",
+        "committed_log_prefix_digest",
+        "highest_seen_term",
+        "highest_committed_index",
+        "highest_applied_index",
+        "last_committed_entry_digest",
+        "state_root_digest",
+        "stream_head_map_root_digest",
+        "idempotency_dedup_ledger_root_digest",
+        "prior_certificate_chain_digest",
+        "ggs_namespace_root_digest",
+        "ggs_authorization_root_digest",
+        "semantic_heads",
+        "stc_digest"
+      ]
+    },
+    "RecoveryContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trigger_schema_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "recovery_nonce_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "trigger_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "recovery_quorum_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "current_trust_state_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "recovery_context_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "trigger_schema_id",
+        "recovery_nonce_256bit_hex",
+        "trigger_evidence_digest",
+        "recovery_quorum_digest",
+        "current_trust_state_digest",
+        "effective_sequence",
+        "recovery_context_digest"
+      ]
+    },
+    "MigrationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "constitution_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "tenant_uuid": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "object_uuid": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_namespace_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "destination_namespace_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "complete_object_map_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "policy_scope_comparison_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "destination_policy_freshness_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "widening_requested": {
+          "type": "boolean"
+        },
+        "fresh_destination_authorization_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "migration_binding_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "constitution_id",
+        "tenant_uuid",
+        "object_uuid",
+        "source_namespace_digest",
+        "destination_namespace_digest",
+        "complete_object_map_digest",
+        "policy_scope_comparison_digest",
+        "destination_policy_freshness_digest",
+        "widening_requested",
+        "fresh_destination_authorization_digest",
+        "migration_binding_digest"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "widening_requested": {
+                "const": true
+              }
+            },
+            "required": [
+              "widening_requested"
+            ]
+          },
+          "then": {
+            "properties": {
+              "fresh_destination_authorization_digest": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "T0SuccessorManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "constitution_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854776000
+        },
+        "predecessor_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bootstrap_authorization_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "btw_consistency_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "mtr_reservation_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "signer_canonical_subject_ids": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        },
+        "signer_admin_domain_ids": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        }
+      },
+      "required": [
+        "constitution_id",
+        "generation",
+        "predecessor_manifest_digest",
+        "manifest_digest",
+        "bootstrap_authorization_digest",
+        "btw_consistency_digest",
+        "mtr_reservation_digest",
+        "signer_canonical_subject_ids",
+        "signer_admin_domain_ids"
+      ],
+      "x-validator-invariants": [
+        "successor generation exactly predecessor+1",
+        "4-of-5 active EBA across at least 3 active admin domains",
+        "new/reactivated admin domain cannot sign manifest that creates/reactivates it"
+      ]
+    },
+    "MTRChallenge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "challenge_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "verifier_instance_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "trust_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "purpose_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "expected_min_t0_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "expected_min_btw_tree_size": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "expected_min_eba_revocation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "local_monotonic_issuance_tick": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "challenge_256bit_hex",
+        "verifier_instance_id",
+        "trust_domain_id",
+        "purpose_class",
+        "expected_min_t0_generation",
+        "expected_min_btw_tree_size",
+        "expected_min_eba_revocation_sequence",
+        "local_monotonic_issuance_tick"
+      ]
+    },
+    "MTRResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "challenge_256bit_hex": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        },
+        "verifier_instance_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "trust_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "purpose_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "t0_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "t0_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "btw_tree_size": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "btw_root_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "eba_revocation_high_water": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "t0_domain_lifecycle_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "mtr_response_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "mtr_configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "response_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "challenge_256bit_hex",
+        "verifier_instance_id",
+        "trust_domain_id",
+        "purpose_class",
+        "t0_generation",
+        "t0_manifest_digest",
+        "btw_tree_size",
+        "btw_root_hash",
+        "eba_revocation_high_water",
+        "t0_domain_lifecycle_sequence",
+        "mtr_response_sequence",
+        "mtr_configuration_generation",
+        "response_digest"
+      ],
+      "x-validator-invariants": [
+        "exact challenge/context match",
+        "live challenge accepted once",
+        "max authority-bearing response age 30 verifier-monotonic seconds",
+        "all high-water values meet challenge minima"
+      ]
+    },
+    "BTWVerificationState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tree_size": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "root_hash": {
+          "$ref": "#/$defs/Digest"
+        },
+        "consistency_proof_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "t0_pinned_witness_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "tree_size",
+        "root_hash",
+        "consistency_proof_digest",
+        "t0_pinned_witness_policy_digest"
+      ],
+      "x-validator-invariants": [
+        "tree size cannot decrease",
+        "same tree size with different root is BTW_EQUIVOCATION"
+      ]
+    },
+    "CanonicalIdentityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "canonical_subject_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "controller_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "admin_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "canonical_subject_id",
+        "controller_id",
+        "admin_domain_id",
+        "lifecycle_state",
+        "effective_sequence"
+      ]
+    },
+    "RevocationEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subject_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "event_type": {
+          "enum": [
+            "REVOKE",
+            "UNREVOKE"
+          ]
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "event_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "subject_id",
+        "event_type",
+        "effective_sequence",
+        "event_digest"
+      ],
+      "x-validator-invariants": [
+        "append-only history",
+        "UNREVOKE does not erase prior revoked interval"
+      ]
+    },
+    "GGSHardState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "highest_seen_term": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "vote_for_current_term": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "highest_committed_genesis_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "last_committed_genesis_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "constitution_namespace_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bootstrap_authorization_state_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        }
+      },
+      "required": [
+        "highest_seen_term",
+        "vote_for_current_term",
+        "highest_committed_genesis_index",
+        "last_committed_genesis_digest",
+        "constitution_namespace_root",
+        "bootstrap_authorization_state_root",
+        "configuration_generation"
+      ]
+    },
+    "LASHardState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "highest_seen_term": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "vote_for_current_term": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "highest_committed_log_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "highest_applied_log_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "last_committed_entry_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "stream_head_map_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "idempotency_ledger_root_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "highest_seen_term",
+        "vote_for_current_term",
+        "highest_committed_log_index",
+        "highest_applied_log_index",
+        "last_committed_entry_digest",
+        "configuration_generation",
+        "stream_head_map_digest",
+        "idempotency_ledger_root_digest"
+      ]
+    },
+    "LASAuthorityStateRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_state_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "committed_log_prefix_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "stream_head_map_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "idempotency_ledger_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "authority_state_machine_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "semantic_heads": {
+          "$ref": "#/$defs/SemanticHeads"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "prior_certificate_chain_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "state_root_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "semantic_state_sequence",
+        "committed_log_prefix_digest",
+        "stream_head_map_root",
+        "idempotency_ledger_root",
+        "authority_state_machine_root",
+        "semantic_heads",
+        "configuration_generation",
+        "prior_certificate_chain_digest",
+        "state_root_digest"
+      ],
+      "x-validator-invariants": [
+        "semantic_state_sequence is current LAS committed index fixing all named heads",
+        "state_root_digest equals GCP-1 digest of exact frozen members",
+        "historical/caller-selected sequence has authority NONE"
+      ]
+    },
+    "AIMDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "descriptor_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "applicability_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "source_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "aim_scope_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "specificity_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "activation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "retirement_or_revocation_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "REVOKED",
+            "SUPERSEDED",
+            "RETIRED"
+          ]
+        },
+        "predecessor_descriptor_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "constitutional_binding_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "descriptor_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "descriptor_id",
+        "semantic_input_id",
+        "semantic_class",
+        "applicability_scope_tuple",
+        "source_lineage_id",
+        "aim_scope_policy_id",
+        "resolver_policy_id",
+        "specificity_score",
+        "activation_sequence",
+        "retirement_or_revocation_sequence",
+        "lifecycle_state",
+        "predecessor_descriptor_id",
+        "constitutional_binding_digest",
+        "descriptor_digest"
+      ],
+      "x-validator-invariants": [
+        "specificity_score equals exact non-ANY component count",
+        "ANY components validated at AIM_Smax against current AIMScopePolicy",
+        "source-lineage/policy/class/scope change requires linked successor under constitutional path"
+      ]
+    },
+    "ResolverPolicyContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolver_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "lineage_start_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "candidate_construction_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "specificity_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "lifecycle_error_precedence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "mapping_traversal_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "replacement_evaluation_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "any_validation_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "fallback_prohibition_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "resolver_policy_id",
+        "lineage_start_rule_digest",
+        "candidate_construction_rule_digest",
+        "specificity_rule_digest",
+        "lifecycle_error_precedence_digest",
+        "mapping_traversal_rule_digest",
+        "replacement_evaluation_rule_digest",
+        "any_validation_rule_digest",
+        "fallback_prohibition_rule_digest",
+        "conformance_suite_id",
+        "resolver_policy_digest"
+      ]
+    },
+    "ResolverImplementationRegistryRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rir_record_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "activation_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "retirement_or_revocation_sequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 9223372036854776000
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "freshness_profile_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "record_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "rir_record_id",
+        "resolver_policy_digest",
+        "implementation_id",
+        "runtime_identity_digest",
+        "workload_identity_digest",
+        "conformance_suite_digest",
+        "activation_sequence",
+        "retirement_or_revocation_sequence",
+        "lifecycle_state",
+        "freshness_profile_id",
+        "record_digest"
+      ]
+    },
+    "ResolverConformanceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rir_record_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "resolver_policy_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conformance_suite_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "registry_head_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "freshness_profile_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "EXPIRED",
+            "UNAVAILABLE"
+          ]
+        },
+        "evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "rir_record_id",
+        "resolver_policy_digest",
+        "implementation_id",
+        "runtime_identity_digest",
+        "workload_identity_digest",
+        "conformance_suite_digest",
+        "registry_head_digest",
+        "freshness_profile_id",
+        "status",
+        "evidence_digest"
+      ],
+      "x-validator-invariants": [
+        "only current PASS evidence for the exact authorized tuple can qualify resolver",
+        "cached/stale prior PASS cannot substitute during outage"
+      ]
+    },
+    "SemanticEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_version": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "specificity_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "REVOKED",
+            "SUPERSEDED",
+            "RETIRED",
+            "SCOPE_PERMISSION_REEVALUATION_REQUIRED"
+          ]
+        },
+        "predecessor_entry_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "successor_of_entry_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "scope_replacement_mapping_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "lineage_mapping_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "any_scope_permission_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "artifact_or_rule_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_authority_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "constitutional_binding_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "semantic_entry_key": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "semantic_entry_id",
+        "semantic_input_id",
+        "semantic_lineage_id",
+        "semantic_version",
+        "scope_tuple",
+        "specificity_score",
+        "lifecycle_state",
+        "predecessor_entry_id",
+        "successor_of_entry_id",
+        "scope_replacement_mapping_id",
+        "lineage_mapping_id",
+        "any_scope_permission_id",
+        "semantic_class",
+        "artifact_or_rule_digest",
+        "schema_version",
+        "source_authority_digest",
+        "effective_sequence",
+        "constitutional_binding_digest",
+        "semantic_entry_key"
+      ],
+      "x-validator-invariants": [
+        "specificity_score equals exact non-ANY component count",
+        "semantic_entry_key equals canonical digest of semantic_input_id+semantic_lineage_id+semantic_version+scope_tuple",
+        "ANY use requires current matching ANYScopePermission"
+      ]
+    },
+    "SemanticLineageMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mapping_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "destination_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "destination_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "source_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "destination_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "transition_semantics_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "constitutional_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "mapping_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "mapping_id",
+        "semantic_input_id",
+        "source_lineage_id",
+        "destination_lineage_id",
+        "source_entry_id",
+        "destination_entry_id",
+        "source_scope_tuple",
+        "destination_scope_tuple",
+        "transition_semantics_digest",
+        "constitutional_evidence_digest",
+        "effective_sequence",
+        "lifecycle_state",
+        "mapping_digest"
+      ]
+    },
+    "ReviewAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reviewer_canonical_subject_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "reviewer_admin_domain_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "candidate_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "governance_snapshot_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "packet_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "attestation_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "reviewer_canonical_subject_id",
+        "reviewer_admin_domain_id",
+        "candidate_digest",
+        "governance_snapshot_digest",
+        "packet_digest",
+        "attestation_digest"
+      ],
+      "x-validator-invariants": [
+        "reviewer must be independent from proposer under canonical identity/domain rules"
+      ]
+    },
+    "EvidenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "evidence_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "producer_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "input_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "output_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "evidence_class",
+        "producer_identity_digest",
+        "runtime_identity_digest",
+        "input_digest",
+        "output_digest",
+        "effective_sequence",
+        "evidence_digest"
+      ],
+      "x-validator-invariants": [
+        "rewrapping/copying cannot upgrade evidence class",
+        "producer revocation evaluated temporally",
+        "mandatory missing/contradictory evidence blocks promotion"
+      ]
+    },
+    "AIEPRuntimeProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "runtime_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "attestation_state": {
+          "enum": [
+            "ATTESTED",
+            "UNATTESTED_RUNTIME"
+          ]
+        },
+        "read_only_root_filesystem": {
+          "const": true
+        },
+        "arbitrary_mutable_environment_allowed": {
+          "const": false
+        },
+        "direct_db_cloud_provider_credentials_allowed": {
+          "const": false
+        },
+        "general_external_network_dns_allowed": {
+          "const": false
+        },
+        "approved_channel_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/CanonicalId"
+          }
+        },
+        "dynamic_code_loading_outside_runtime_manifest_allowed": {
+          "const": false
+        },
+        "profile_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "runtime_manifest_digest",
+        "attestation_state",
+        "read_only_root_filesystem",
+        "arbitrary_mutable_environment_allowed",
+        "direct_db_cloud_provider_credentials_allowed",
+        "general_external_network_dns_allowed",
+        "approved_channel_ids",
+        "dynamic_code_loading_outside_runtime_manifest_allowed",
+        "profile_digest"
+      ],
+      "x-validator-invariants": [
+        "UNATTESTED_RUNTIME has authority effect NONE and cannot act as root/terminal authority evaluator or strong evidence producer"
+      ]
+    },
+    "CurrentSemanticModelBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "csm_version": {
+          "const": "CSM-5"
+        },
+        "constitution_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SemanticEntry"
+          }
+        },
+        "lineage_mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SemanticLineageMapping"
+          }
+        },
+        "scope_replacement_mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScopeReplacementMapping"
+          }
+        },
+        "any_scope_permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ANYScopePermission"
+          }
+        },
+        "aim_descriptors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AIMDescriptor"
+          }
+        },
+        "aim_scope_policy": {
+          "$ref": "#/$defs/AIMScopePolicy"
+        },
+        "resolver_policy": {
+          "$ref": "#/$defs/ResolverPolicyContract"
+        },
+        "resolver_implementation_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "guard_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "supporting_rules_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bundle_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "csm_version",
+        "constitution_id",
+        "semantic_entries",
+        "lineage_mappings",
+        "scope_replacement_mappings",
+        "any_scope_permissions",
+        "aim_descriptors",
+        "aim_scope_policy",
+        "resolver_policy",
+        "resolver_implementation_registry_head",
+        "guard_registry_head",
+        "supporting_rules_digest",
+        "bundle_digest"
+      ],
+      "x-validator-invariants": [
+        "arrays use frozen canonical ordering",
+        "updates are LAS-governed authority events",
+        "all resolution-time records come from one coherent current semantic snapshot"
+      ]
+    },
+    "StableScopeValue": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!ANY$).+"
+    },
+    "ScopeComponent": {
+      "oneOf": [
+        {
+          "const": "ANY"
+        },
+        {
+          "$ref": "#/$defs/StableScopeValue"
+        }
+      ]
+    },
+    "CanonicalScopeTuple": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trust_domain_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "constitution_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "root_namespace": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "tenant_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "organization_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "experiment_or_release_id": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "object_class": {
+          "$ref": "#/$defs/ScopeComponent"
+        },
+        "action_class": {
+          "$ref": "#/$defs/ScopeComponent"
+        }
+      },
+      "required": [
+        "trust_domain_id",
+        "constitution_id",
+        "root_namespace",
+        "tenant_id",
+        "organization_id",
+        "project_id",
+        "experiment_or_release_id",
+        "object_class",
+        "action_class"
+      ],
+      "x-canonical-order": [
+        "trust_domain_id",
+        "constitution_id",
+        "root_namespace",
+        "tenant_id",
+        "organization_id",
+        "project_id",
+        "experiment_or_release_id",
+        "object_class",
+        "action_class"
+      ]
+    },
+    "ScopeComponentName": {
+      "enum": [
+        "trust_domain_id",
+        "constitution_id",
+        "root_namespace",
+        "tenant_id",
+        "organization_id",
+        "project_id",
+        "experiment_or_release_id",
+        "object_class",
+        "action_class"
+      ]
+    },
+    "ANYScopePermission": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "permission_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "allowed_any_tuple_components": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/ScopeComponentName"
+          }
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "constitutional_authority_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "permission_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "permission_id",
+        "semantic_class",
+        "allowed_any_tuple_components",
+        "effective_sequence",
+        "lifecycle_state",
+        "constitutional_authority_evidence_digest",
+        "permission_digest"
+      ],
+      "x-validator-invariants": [
+        "only ACTIVE permission at decision sequence is valid",
+        "every ANY position used by a SemanticEntry must be explicitly listed",
+        "project/org/experiment policy cannot create or broaden constitutional permission"
+      ]
+    },
+    "AIMScopePolicyClassRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semantic_class": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "allowed_any_tuple_components": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/ScopeComponentName"
+          }
+        }
+      },
+      "required": [
+        "semantic_class",
+        "allowed_any_tuple_components"
+      ]
+    },
+    "AIMScopePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aim_scope_policy_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "class_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/AIMScopePolicyClassRule"
+          }
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "constitutional_authority_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "policy_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "aim_scope_policy_id",
+        "class_rules",
+        "effective_sequence",
+        "lifecycle_state",
+        "constitutional_authority_evidence_digest",
+        "policy_digest"
+      ],
+      "x-validator-invariants": [
+        "class_rules semantic_class values unique",
+        "project/org/experiment policy cannot broaden AIMScopePolicy"
+      ]
+    },
+    "ScopeReplacementMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mapping_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_input_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "semantic_lineage_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "revoked_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "destination_entry_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "old_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "new_scope_tuple": {
+          "$ref": "#/$defs/CanonicalScopeTuple"
+        },
+        "old_specificity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "new_specificity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "old_scope_effect": {
+          "enum": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "decision_scope_match_rule_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "effective_sequence": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "constitutional_amendment_evidence_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "lifecycle_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "RETIRED",
+            "REVOKED"
+          ]
+        },
+        "mapping_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "mapping_id",
+        "semantic_input_id",
+        "semantic_lineage_id",
+        "revoked_entry_id",
+        "destination_entry_id",
+        "old_scope_tuple",
+        "new_scope_tuple",
+        "old_specificity",
+        "new_specificity",
+        "old_scope_effect",
+        "decision_scope_match_rule_id",
+        "effective_sequence",
+        "constitutional_amendment_evidence_digest",
+        "lifecycle_state",
+        "mapping_digest"
+      ]
+    },
+    "ScopeReplacementOutsideTableInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "SUPERSEDED",
+            "RETIRED",
+            "SCOPE_PERMISSION_REEVALUATION_REQUIRED"
+          ]
+        },
+        "old_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH"
+          ]
+        },
+        "destination_scope_match": {
+          "enum": [
+            "NO_MATCH",
+            "EXACT_MATCH",
+            "MAPPED_MATCH"
+          ]
+        },
+        "old_scope_effect": {
+          "enum": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "scope_relation": {
+          "enum": [
+            "SAME",
+            "NARROWER",
+            "BROADER",
+            "DISJOINT"
+          ]
+        },
+        "any_permission_valid": {
+          "type": "boolean"
+        },
+        "mapping_effective": {
+          "type": "boolean"
+        },
+        "lineage_mapping_valid": {
+          "type": "boolean"
+        },
+        "scope_expansion_authorized": {
+          "type": "boolean"
+        },
+        "decision_inside_authorized_expansion_domain": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_entry_state",
+        "old_scope_match",
+        "destination_scope_match",
+        "old_scope_effect",
+        "scope_relation",
+        "any_permission_valid",
+        "mapping_effective",
+        "lineage_mapping_valid",
+        "scope_expansion_authorized",
+        "decision_inside_authorized_expansion_domain"
+      ],
+      "x-governance-source": [
+        "NORM-027"
+      ],
+      "description": "Outside-table scope-replacement input. Any non-REVOKED source entry state must return NOT_A_REPLACEMENT_BRANCH before SRTT-4 table lookup."
+    }
+  },
+  "x-governance-source": [
+    "NORM-003..NORM-010",
+    "NORM-011..NORM-016",
+    "NORM-017..NORM-027",
+    "NORM-028..NORM-039"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/runtime-contracts.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/guard-registry.schema.json =====
+GIT_BLOB_SHA1: ea535d3c6c3fe77147d77f88cebe9d6769513165
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/guard-registry.schema.json",
+  "title": "R8 v15-r1 GuardRegistry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "registry_range": {
+      "const": "G001-G156"
+    },
+    "seed_catalog": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ]
+    },
+    "v13_design": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "v14_design": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "v15_design": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "minItems": 156,
+      "maxItems": 156,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "guard_id": {
+            "type": "string",
+            "pattern": "^G(?:0(?:0[1-9]|[1-9][0-9])|1(?:[0-4][0-9]|5[0-6]))$"
+          },
+          "mechanism_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "positive_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            },
+            "uniqueItems": true
+          },
+          "negative_cases": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "case_id": {
+                  "type": "string",
+                  "pattern": "^V\\d+-\\d{3}$"
+                },
+                "fault_proof_class": {
+                  "type": "string",
+                  "pattern": "^FP[0-6]$"
+                }
+              },
+              "required": [
+                "case_id",
+                "fault_proof_class"
+              ]
+            }
+          },
+          "canonical_source": {
+            "type": "object",
+            "minProperties": 1
+          },
+          "activation_sequence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lifecycle_state": {
+            "const": "ACTIVE"
+          }
+        },
+        "required": [
+          "guard_id",
+          "mechanism_id",
+          "positive_case_ids",
+          "negative_cases",
+          "canonical_source",
+          "activation_sequence",
+          "lifecycle_state"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "registry_range",
+    "records"
+  ],
+  "x-governance-source": [
+    "NORM-040"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/guard-registry.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/case-registry.schema.json =====
+GIT_BLOB_SHA1: f034a21d58949549d7a8216ca043910e592128e8
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/case-registry.schema.json",
+  "title": "R8 v15-r1 CaseRegistry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "source_versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "blob": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "version",
+          "commit",
+          "blob"
+        ]
+      }
+    },
+    "case_count": {
+      "const": 467
+    },
+    "guard_referenced_case_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "missing_guard_referenced_cases": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "duplicate_conflicts": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 467,
+      "maxItems": 467,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "pattern": "^V\\d+-\\d{3}$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "source_commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_blob": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "case_id",
+          "text",
+          "source_version",
+          "source_commit",
+          "source_blob"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "source_versions",
+    "case_count",
+    "guard_referenced_case_count",
+    "missing_guard_referenced_cases",
+    "duplicate_conflicts",
+    "cases"
+  ],
+  "x-governance-source": [
+    "NORM-040"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/case-registry.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json =====
+GIT_BLOB_SHA1: cb091d25520083fcba309e3e11836b43c6934ee8
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+  "title": "R8 v15-r1 SRTT-4 RuleRegistry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-srtt-4-rule-registry/v1"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "domain_fixed": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "const": "REVOKED"
+        }
+      },
+      "required": [
+        "source_entry_state"
+      ]
+    },
+    "outside_table_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rule_id": {
+          "const": "SRTT15-R00"
+        },
+        "predicate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result": {
+          "const": "NOT_A_REPLACEMENT_BRANCH"
+        },
+        "source_trace": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "rule_id",
+        "predicate",
+        "result",
+        "source_trace"
+      ]
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "pattern": "^SRTT15-R(?:0[1-9]|1[01])$"
+          },
+          "precedence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 11
+          },
+          "predicate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "result": {
+            "enum": [
+              "SEMANTIC_SCOPE_REVOKED",
+              "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+              "MAPPING_NOT_APPLICABLE",
+              "REPLACEMENT_ELIGIBLE",
+              "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+            ]
+          },
+          "source_trace": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "rule_id",
+          "precedence",
+          "predicate",
+          "result",
+          "source_trace"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "domain_fixed",
+    "outside_table_rule",
+    "rules"
+  ],
+  "x-governance-source": [
+    "NORM-027"
+  ],
+  "x-validator-invariants": [
+    "rules contain exactly one each of SRTT15-R01..SRTT15-R11",
+    "precedence values are exactly the unique contiguous set 1..11",
+    "outside_table_rule is exactly SRTT15-R00 and is not part of table precedence"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json =====
+GIT_BLOB_SHA1: 3a2d8d8b05033ad33af90bd9dd2e76686acf19af
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+  "title": "R8 v15-r1 SRTT-4 Total Table",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-srtt-4-total-table/v1"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "generator_contract": {
+      "const": "R8V15-I001..I007"
+    },
+    "rule_registry_path": {
+      "const": "governance-r8/R8-V15-SRTT-4-RULE-REGISTRY.json"
+    },
+    "domain_fixed": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_entry_state": {
+          "const": "REVOKED"
+        }
+      },
+      "required": [
+        "source_entry_state"
+      ]
+    },
+    "enum_order": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "old_scope_match": {
+          "const": [
+            "NO_MATCH",
+            "EXACT_MATCH"
+          ]
+        },
+        "destination_scope_match": {
+          "const": [
+            "NO_MATCH",
+            "EXACT_MATCH",
+            "MAPPED_MATCH"
+          ]
+        },
+        "old_scope_effect": {
+          "const": [
+            "BLOCK_OLD_SCOPE",
+            "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+            "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH"
+          ]
+        },
+        "scope_relation": {
+          "const": [
+            "SAME",
+            "NARROWER",
+            "BROADER",
+            "DISJOINT"
+          ]
+        },
+        "any_permission_valid": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "mapping_effective": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "lineage_mapping_valid": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "scope_expansion_authorized": {
+          "const": [
+            false,
+            true
+          ]
+        },
+        "decision_inside_authorized_expansion_domain": {
+          "const": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "old_scope_match",
+        "destination_scope_match",
+        "old_scope_effect",
+        "scope_relation",
+        "any_permission_valid",
+        "mapping_effective",
+        "lineage_mapping_valid",
+        "scope_expansion_authorized",
+        "decision_inside_authorized_expansion_domain"
+      ]
+    },
+    "row_count": {
+      "const": 2304
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "SEMANTIC_SCOPE_REVOKED": {
+          "const": 1808
+        },
+        "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED": {
+          "const": 288
+        },
+        "MAPPING_NOT_APPLICABLE": {
+          "const": 144
+        },
+        "REPLACEMENT_ELIGIBLE": {
+          "const": 22
+        },
+        "SEMANTIC_SCOPE_REPLACEMENT_INVALID": {
+          "const": 42
+        }
+      },
+      "required": [
+        "SEMANTIC_SCOPE_REVOKED",
+        "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+        "MAPPING_NOT_APPLICABLE",
+        "REPLACEMENT_ELIGIBLE",
+        "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expected_row_count": {
+          "const": 2304
+        },
+        "generated_row_count": {
+          "const": 2304
+        },
+        "every_row_has_declared_rule": {
+          "const": true
+        },
+        "generation_conflicts": {
+          "const": 0
+        }
+      },
+      "required": [
+        "expected_row_count",
+        "generated_row_count",
+        "every_row_has_declared_rule",
+        "generation_conflicts"
+      ]
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 2304,
+      "maxItems": 2304,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "row_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2304
+          },
+          "input": {
+            "$ref": "runtime-contracts.schema.json#/$defs/ScopeReplacementInput"
+          },
+          "result": {
+            "enum": [
+              "SEMANTIC_SCOPE_REVOKED",
+              "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+              "MAPPING_NOT_APPLICABLE",
+              "REPLACEMENT_ELIGIBLE",
+              "SEMANTIC_SCOPE_REPLACEMENT_INVALID"
+            ]
+          },
+          "decisive_rule_id": {
+            "type": "string",
+            "pattern": "^SRTT15-R(?:0[1-9]|1[01])$"
+          }
+        },
+        "required": [
+          "row_id",
+          "input",
+          "result",
+          "decisive_rule_id"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "generator_contract",
+    "rule_registry_path",
+    "domain_fixed",
+    "enum_order",
+    "row_count",
+    "distribution",
+    "verification",
+    "rows"
+  ],
+  "x-governance-source": [
+    "NORM-027"
+  ],
+  "x-validator-invariants": [
+    "row_id values are exactly the unique contiguous set 1..2304",
+    "every declared variable Cartesian tuple appears exactly once",
+    "every decisive_rule_id resolves to exactly one current SRTT-4 RuleRegistry rule",
+    "every row result and decisive_rule_id must equal deterministic SRTT-4 recomputation"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/bsp-5-grammar.schema.json =====
+GIT_BLOB_SHA1: 8e1ecaaee4847378debc360df34a5187fbb0e743
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/bsp-5-grammar.schema.json",
+  "title": "R8 v15-r1 BSP-5 Grammar Freeze",
+  "description": "The version-specific BSP-5 grammar is frozen exactly. Any grammar change requires a successor schema/design review.",
+  "const": {
+    "schema": "bsp-5-grammar/v1",
+    "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+    "authority_effect": "NONE",
+    "current_candidate_version": 15,
+    "parser_states": [
+      "NORMAL",
+      "FENCED_CODE",
+      "FENCED_SEMANTIC_TEST_DATA",
+      "CASE_SECTION",
+      "GUARD_RECORD_SECTION",
+      "CURRENT_STATUS_BLOCK",
+      "PREDECESSOR_STATUS_BLOCK",
+      "PRIOR_REVIEW_METADATA_BLOCK",
+      "MARKED_SEMANTIC_TEST_SECTION"
+    ],
+    "line_classes": [
+      "CURRENT_STATUS",
+      "PRIOR_STATUS",
+      "PRIOR_REVIEW_METADATA",
+      "SEMANTIC_CONTENT",
+      "SEMANTIC_TEST_LITERAL",
+      "LEGACY_GUARD_TABLE",
+      "BLANK_STRUCTURAL"
+    ],
+    "current_status_binding": {
+      "begin_marker": "<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->",
+      "end_marker": "<!-- BSP:CURRENT_STATUS_END -->",
+      "exact_block_count": 1,
+      "version_must_equal_current_candidate_version": true,
+      "nested_blocks_forbidden": true,
+      "unterminated_block_result": "REVIEW_PACKET_INCOMPLETE",
+      "multiple_blocks_result": "REVIEW_PACKET_INCOMPLETE",
+      "mismatched_version_result": "REVIEW_PACKET_INCOMPLETE"
+    },
+    "patterns": {
+      "version_token": "\\bR8\\s+v(?<version>\\d+)\\b",
+      "status_token": "\\b(?:CHANGES_REQUIRED|BOUNDED_PASS|INSUFFICIENT_EVIDENCE|REVIEW_REQUIRED|INDEPENDENT_REVIEW_REQUIRED|NOT_IMPLEMENTED)\\b",
+      "review_path": "(?:review-evidence/|review-adjudications/)",
+      "review_heading": "(?i)\\b(?:independent\\s+review|review\\s+adjudication|adjudication)\\b",
+      "status_header": "(?i)^\\s*Status\\s*:",
+      "fenced_code": "^\\s*```",
+      "semantic_test_fence": "^\\s*```(?:json|yaml|text)?\\s+semantic-test-data\\s*$",
+      "case_heading": "^#{2,6}\\s+.*(?:case|cases|vector|vectors|preregistered)",
+      "guard_record_heading": "^#{2,6}\\s+.*(?:guard|GuardRegistry|CaseRegistry)",
+      "semantic_test_section_begin": "^<!-- BSP:SEMANTIC_TEST_SECTION_BEGIN id=(?<id>[A-Za-z0-9._:-]+) -->$",
+      "semantic_test_section_end": "^<!-- BSP:SEMANTIC_TEST_SECTION_END id=(?<id>[A-Za-z0-9._:-]+) -->$"
+    },
+    "semantic_test_contexts": {
+      "allowed_states": [
+        "CASE_SECTION",
+        "GUARD_RECORD_SECTION",
+        "FENCED_SEMANTIC_TEST_DATA",
+        "MARKED_SEMANTIC_TEST_SECTION"
+      ],
+      "ordinary_prose_status_token_is_semantic_test_literal": false,
+      "marked_section_rules": {
+        "exact_standalone_line": true,
+        "outside_fenced_code_only": true,
+        "begin_end_id_must_match": true,
+        "nesting_forbidden": true,
+        "zero_length_forbidden": true,
+        "cross_mechanism_corpus_required_id": "cross-mechanism-adversarial-corpus"
+      }
+    },
+    "classification_order": [
+      "consume exact current-status begin/end markers and validate block cardinality/version when outside fenced code",
+      "consume exact semantic-test-section begin/end markers and validate pairing/id/nesting when outside fenced code",
+      "track fenced-code and fenced-semantic-test-data entry/exit",
+      "track case and guard-record sections",
+      "classify lines inside valid CURRENT_STATUS_BLOCK as CURRENT_STATUS",
+      "classify predecessor status/review blocks using explicit version + status/review grammar",
+      "classify status-token lines inside allowed semantic-test states as SEMANTIC_TEST_LITERAL",
+      "classify legacy guard tables as LEGACY_GUARD_TABLE",
+      "otherwise SEMANTIC_CONTENT or BLANK_STRUCTURAL"
+    ],
+    "remove_classes": [
+      "PRIOR_STATUS",
+      "PRIOR_REVIEW_METADATA",
+      "LEGACY_GUARD_TABLE"
+    ],
+    "retain_classes": [
+      "CURRENT_STATUS",
+      "SEMANTIC_CONTENT",
+      "SEMANTIC_TEST_LITERAL",
+      "BLANK_STRUCTURAL"
+    ],
+    "residual_rule": {
+      "rerun_same_parser": true,
+      "fail_if": [
+        "PRIOR_STATUS",
+        "PRIOR_REVIEW_METADATA"
+      ],
+      "require_exact_current_status_block_count": 1,
+      "raw_token_search_is_authoritative": false,
+      "require_all_marked_semantic_test_sections_well_formed": true
+    },
+    "guard_table_omission_rule": {
+      "allowed_only_with_guard_omission_manifest": true,
+      "source_case_set_equality_required": true,
+      "unique_case_or_invariant_semantics_may_not_be_removed": true
+    },
+    "governing_rules": [
+      "R8V15-I010",
+      "R8V15-I011",
+      "R8V15-I012",
+      "R8V15-I013"
+    ],
+    "review_projection": "BLIND_PROCESS_HISTORY_STRIPPED_SEMANTICS_PRESERVED"
+  },
+  "x-governance-source": [
+    "NORM-041"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/bsp-5-grammar.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/ncg-structured-closure.schema.json =====
+GIT_BLOB_SHA1: 343c31b2879e633cd217df11d14b7cc8cfc3d2bd
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/ncg-structured-closure.schema.json",
+  "title": "R8 v15-r1 NCG Structured Closure",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "dependency_nodes": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dependency_edges": {
+      "type": "array",
+      "minItems": 29,
+      "maxItems": 29,
+      "uniqueItems": true,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "prefixItems": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "string",
+            "minLength": 1
+          }
+        ],
+        "items": false
+      }
+    },
+    "evaluation_order": {
+      "type": "array",
+      "minItems": 21,
+      "maxItems": 21,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "ownership": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "prefixItems": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "string",
+            "minLength": 1
+          }
+        ],
+        "items": false
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_count": {
+          "const": 18
+        },
+        "edge_count": {
+          "const": 29
+        },
+        "dependency_acyclic": {
+          "const": true
+        },
+        "topological_order": {
+          "type": "array",
+          "minItems": 18,
+          "maxItems": 18,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "evaluation_stage_count": {
+          "const": 21
+        },
+        "ownership_class_count": {
+          "const": 18
+        },
+        "duplicate_ownership_classes": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "edge_semantics_declared": {
+          "const": true
+        }
+      },
+      "required": [
+        "node_count",
+        "edge_count",
+        "dependency_acyclic",
+        "topological_order",
+        "evaluation_stage_count",
+        "ownership_class_count",
+        "duplicate_ownership_classes",
+        "edge_semantics_declared"
+      ]
+    },
+    "edge_semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "DIRECT_AUTHORITY_RELEVANT_CONSUMPTION_OR_PRECONDITION"
+        },
+        "transitive_closure_edges_omitted": {
+          "const": true
+        },
+        "source_matrix": {
+          "const": "governance-r8/R8-V15-NCG-1-MATRICES.md"
+        },
+        "hand_added_untraceable_edges_forbidden": {
+          "const": true
+        }
+      },
+      "required": [
+        "kind",
+        "transitive_closure_edges_omitted",
+        "source_matrix",
+        "hand_added_untraceable_edges_forbidden"
+      ]
+    },
+    "reviewer_suggested_edge_disposition": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "v15_closure_assertions": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "dependency_nodes",
+    "dependency_edges",
+    "evaluation_order",
+    "ownership",
+    "verification",
+    "edge_semantics",
+    "reviewer_suggested_edge_disposition",
+    "v15_closure_assertions"
+  ],
+  "x-governance-source": [
+    "NORM-043"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/ncg-structured-closure.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/guard-omission-source-evidence.schema.json =====
+GIT_BLOB_SHA1: 68484106b464cb4ba5c0275166062bce1fd4794d
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/guard-omission-source-evidence.schema.json",
+  "title": "R8 v15-r1 Guard Omission Source Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-guard-omission-source-evidence/v1"
+    },
+    "status": {
+      "const": "REVIEW_EVIDENCE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "semantic_candidate_commit": {
+      "const": "c721b38cf8b00294797300b526596ce723a47ff8"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1
+    },
+    "digest_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "SHA-256"
+        },
+        "text_encoding": {
+          "const": "UTF-8"
+        },
+        "line_separator": {
+          "const": "LF"
+        },
+        "trailing_line_separator_added": {
+          "const": false
+        },
+        "digest_field": {
+          "const": "raw_section_sha256"
+        },
+        "verification_instruction": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "algorithm",
+        "text_encoding",
+        "line_separator",
+        "trailing_line_separator_added",
+        "digest_field",
+        "verification_instruction"
+      ]
+    },
+    "record_count": {
+      "const": 11
+    },
+    "all_guard_sets_equal": {
+      "const": true
+    },
+    "all_case_sets_equal": {
+      "const": true
+    },
+    "records": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_blob": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "digest_basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "raw_section_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "raw_section_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "parsed_guard_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^G\\d{3}$"
+            }
+          },
+          "parsed_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            }
+          },
+          "manifest_guard_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^G\\d{3}$"
+            }
+          },
+          "manifest_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            }
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "guard_set_equal": {
+                "const": true
+              },
+              "case_set_equal": {
+                "const": true
+              },
+              "missing_guard_ids": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "extra_guard_ids": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "missing_case_ids": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "extra_case_ids": {
+                "type": "array",
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "guard_set_equal",
+              "case_set_equal",
+              "missing_guard_ids",
+              "extra_guard_ids",
+              "missing_case_ids",
+              "extra_case_ids"
+            ]
+          },
+          "excerpt": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "source_version",
+          "source_path",
+          "source_commit",
+          "source_blob",
+          "line_start",
+          "line_end",
+          "digest_basis",
+          "raw_section_sha256",
+          "raw_section_bytes",
+          "parsed_guard_ids",
+          "parsed_case_ids",
+          "manifest_guard_ids",
+          "manifest_case_ids",
+          "verification",
+          "excerpt"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "semantic_candidate_commit",
+    "purpose",
+    "digest_contract",
+    "record_count",
+    "all_guard_sets_equal",
+    "all_case_sets_equal",
+    "records"
+  ],
+  "x-governance-source": [
+    "NORM-042",
+    "H-1 evidence closure"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/guard-omission-source-evidence.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/guard-omission-manifest.schema.json =====
+GIT_BLOB_SHA1: de77b1757caca583d858ec0c04ca15255589e86c
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/guard-omission-manifest.schema.json",
+  "title": "R8 v15-r1 Guard Omission Manifest v3",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "guard-omission-manifest-1/v3"
+    },
+    "status": {
+      "const": "REVIEW_EVIDENCE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "current_guard_registry": {
+      "type": "object"
+    },
+    "current_case_registry": {
+      "type": "object"
+    },
+    "omitted_table_count": {
+      "const": 11
+    },
+    "invalid_omission_count": {
+      "const": 0
+    },
+    "validation_contract": {
+      "type": "object"
+    },
+    "omitted_tables": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_blob": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "raw_section_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "raw_section_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "guard_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^G\\d{3}$"
+            }
+          },
+          "referenced_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            }
+          },
+          "parsed_source_guard_set_equals_manifest_set": {
+            "const": true
+          },
+          "parsed_source_case_set_equals_manifest_set": {
+            "const": true
+          },
+          "all_guard_ids_in_current_registry": {
+            "const": true
+          },
+          "all_referenced_case_ids_in_current_case_registry": {
+            "const": true
+          },
+          "missing_guard_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "extra_guard_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "missing_case_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "extra_case_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "evidence_record_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "source_version",
+          "source_path",
+          "source_commit",
+          "source_blob",
+          "line_start",
+          "line_end",
+          "raw_section_sha256",
+          "raw_section_bytes",
+          "guard_ids",
+          "referenced_case_ids",
+          "parsed_source_guard_set_equals_manifest_set",
+          "parsed_source_case_set_equals_manifest_set",
+          "all_guard_ids_in_current_registry",
+          "all_referenced_case_ids_in_current_case_registry",
+          "missing_guard_ids",
+          "extra_guard_ids",
+          "missing_case_ids",
+          "extra_case_ids",
+          "evidence_record_index"
+        ]
+      }
+    },
+    "reverification": {
+      "type": "object"
+    },
+    "legacy_note": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "current_guard_registry",
+    "current_case_registry",
+    "omitted_table_count",
+    "invalid_omission_count",
+    "validation_contract",
+    "omitted_tables",
+    "reverification",
+    "legacy_note"
+  ],
+  "x-governance-source": [
+    "NORM-042",
+    "H-1 evidence closure"
+  ]
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/guard-omission-manifest.schema.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json =====
+GIT_BLOB_SHA1: defb6bc75e6cb7aa5d93828fe54d5d58040edcf7
+
+{
+  "schema": "r8-v15-r1-schema-freeze-validator-contract/v2",
+  "status": "SCHEMA_FREEZE_CANDIDATE_V2_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "rules": [
+    {
+      "id": "SFV-01",
+      "name": "SRTT domain cardinality",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Fixed source_entry_state=REVOKED and exactly 2304 variable tuples."
+    },
+    {
+      "id": "SFV-02",
+      "name": "SRTT tuple uniqueness",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Exactly one row per declared variable tuple; no duplicate input tuple; row_id values are exactly the unique contiguous set 1..2304."
+    },
+    {
+      "id": "SFV-03",
+      "name": "SRTT decisive rule membership",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "RuleRegistry contains exactly SRTT15-R01..R11 once each with unique contiguous precedence 1..11; outside-table rule is exactly SRTT15-R00; every table-row decisive_rule_id resolves to exactly one frozen rule."
+    },
+    {
+      "id": "SFV-04",
+      "name": "SRTT full semantic recomputation",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Recompute every row under frozen SRTT-4 precedence and require exact result/rule match."
+    },
+    {
+      "id": "SFV-05",
+      "name": "Guard identity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-040"
+      ],
+      "requirement": "Unique contiguous G001..G156; one ACTIVE record each."
+    },
+    {
+      "id": "SFV-06",
+      "name": "Case identity and guard references",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-040"
+      ],
+      "requirement": "Unique case IDs; every positive/negative guard case exists; zero declared conflicts."
+    },
+    {
+      "id": "SFV-07",
+      "name": "Guard omission evidence recomputation",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-042"
+      ],
+      "requirement": "For 11 embedded source excerpts recompute SHA-256 under declared basis, expand ranges, and require exact guard/case set equality."
+    },
+    {
+      "id": "SFV-08",
+      "name": "BSP structural authority",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-041"
+      ],
+      "requirement": "Exactly one version-15 current-status block; semantic-test sections paired, non-nested, non-empty and ID-consistent; markers only standalone outside fences."
+    },
+    {
+      "id": "SFV-09",
+      "name": "Dependency graph closure",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-043"
+      ],
+      "requirement": "All endpoints declared, no duplicate edge, acyclic, direct-edge semantics only."
+    },
+    {
+      "id": "SFV-10",
+      "name": "Evaluation order monotonicity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-018",
+        "NORM-022",
+        "NORM-024",
+        "NORM-033",
+        "NORM-043"
+      ],
+      "requirement": "No later stage consumes unqualified state or converts earlier blocker to authority without governed successor/recovery event."
+    },
+    {
+      "id": "SFV-11",
+      "name": "MTR authority freshness",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-004"
+      ],
+      "requirement": "Live challenge exact-context match; single acceptance; <=30s verifier-monotonic age; no stale-token fallback."
+    },
+    {
+      "id": "SFV-12",
+      "name": "Canonical identity/quorum",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-006",
+        "NORM-007"
+      ],
+      "requirement": "Alias-collapsed canonical subjects; only ACTIVE identities count; domain diversity cannot be manufactured by alias. Authority-bearing identifiers must resolve as exact stable canonical IDs under the owning registry/source contract; display aliases cannot substitute."
+    },
+    {
+      "id": "SFV-13",
+      "name": "Revocation temporal validity",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-008"
+      ],
+      "requirement": "Current committed revocation state; UNREVOKE cannot validate prior revoked interval."
+    },
+    {
+      "id": "SFV-14",
+      "name": "AIEP authority profile",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-013"
+      ],
+      "requirement": "Authority evaluator must be attested broker-only profile; UNATTESTED_RUNTIME cannot exercise authority roles."
+    },
+    {
+      "id": "SFV-15",
+      "name": "AIM Smax before permission/lifecycle filtering",
+      "result_if_fail": "AIM_SCOPE_PERMISSION_REEVALUATION_REQUIRED_OR_BLOCKER",
+      "source": [
+        "NORM-018"
+      ],
+      "requirement": "AIM candidate scope uses the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY component count; compute AIM_Smax over the full effective matching set before permission/lifecycle filtering; at AIM_Smax every ANY component must be explicitly allowed for that semantic_class by the current ACTIVE AIMScopePolicy; AIMScopePolicy semantic_class keys are unique; project/org/experiment policy cannot broaden AIM permission; source-lineage/policy/class/scope changes require a constitutionally linked successor; invalid/missing/narrowed/revoked policy blocks lower fallback."
+    },
+    {
+      "id": "SFV-16",
+      "name": "RIR exact temporal tuple",
+      "result_if_fail": "RESOLVER_IMPLEMENTATION_UNBOUND",
+      "source": [
+        "NORM-020"
+      ],
+      "requirement": "Exactly one temporally eligible ACTIVE RIR tuple matching policy, implementation, runtime, workload and suite."
+    },
+    {
+      "id": "SFV-17",
+      "name": "RCS freshness",
+      "result_if_fail": "RESOLVER_UNQUALIFIED",
+      "source": [
+        "NORM-021"
+      ],
+      "requirement": "Only current PASS for exact bound tuple; stale/failed/expired/unavailable evidence cannot qualify or fall back."
+    },
+    {
+      "id": "SFV-18",
+      "name": "Semantic Smax and ANY",
+      "result_if_fail": "SEMANTIC_BLOCKER",
+      "source": [
+        "NORM-022",
+        "NORM-023"
+      ],
+      "requirement": "Semantic candidates use the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY count; semantic_entry_key equals the canonical digest of semantic_input_id+semantic_lineage_id+semantic_version+scope_tuple; compute semantic Smax before lifecycle filtering; every ANY component must be allowed by the current ACTIVE ANYScopePermission for the semantic_class; permission drift/absence/conflict blocks with no lower fallback."
+    },
+    {
+      "id": "SFV-19",
+      "name": "Multi-revoked composition",
+      "result_if_fail": "SEMANTIC_BLOCKER",
+      "source": [
+        "NORM-024",
+        "NORM-025"
+      ],
+      "requirement": "Every revoked Smax blocker uniquely discharges only through an explicitly linked ACTIVE successor or constitutional lineage/scope mapping; mapping source/destination entries and scope tuples must match; partial discharge never grants authority; final SREP comparison is set-based and order-independent."
+    },
+    {
+      "id": "SFV-20",
+      "name": "Authority read-set sealing",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-030",
+        "NORM-031",
+        "NORM-033"
+      ],
+      "requirement": "Every mutable authority input is registered, captured, bound into DPS and final seal; state change before commit => STATE_CHANGED and no effect intent."
+    },
+    {
+      "id": "SFV-21",
+      "name": "Qualified time proof",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-032"
+      ],
+      "requirement": "Single-use 256-bit nonce, same DPS digest, source validity at sequence, at least 2 distinct qualified sources of reference population 3; no local-clock/cached/weaker fallback."
+    },
+    {
+      "id": "SFV-22",
+      "name": "Effect success boundary",
+      "result_if_fail": "NOT_SUCCESS",
+      "source": [
+        "NORM-034"
+      ],
+      "requirement": "Only SUCCEEDED_RECONCILED is success; that state requires non-null qualified executor identity evidence plus non-null provider-specific reconciliation evidence; ambiguous/unverified provider outcomes are never success; retries reuse the frozen idempotency key."
+    },
+    {
+      "id": "SFV-23",
+      "name": "Evidence strength",
+      "result_if_fail": "PROMOTION_BLOCKED",
+      "source": [
+        "NORM-035",
+        "NORM-036"
+      ],
+      "requirement": "Strong evidence requires qualified producer/runtime and exact derivation; rewrapping cannot upgrade class; missing/contradictory mandatory evidence blocks."
+    },
+    {
+      "id": "SFV-24",
+      "name": "Migration authority boundary",
+      "result_if_fail": "MIGRATION_BLOCKED",
+      "source": [
+        "NORM-037"
+      ],
+      "requirement": "Stable constitution+tenant+object identity; complete object map; fresh destination policy; widening requires fresh destination authorization; cross-constitution import carries no authority."
+    },
+    {
+      "id": "SFV-25",
+      "name": "Recovery anti-replay",
+      "result_if_fail": "RECOVERY_BLOCKED",
+      "source": [
+        "NORM-038",
+        "NORM-039"
+      ],
+      "requirement": "Predeclared trigger, current context, single-use nonce, lawful quorum/current trust; unavailable lawful path never creates weaker emergency root."
+    },
+    {
+      "id": "SFV-26",
+      "name": "No optional authority bypass",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-002",
+        "NORM-030"
+      ],
+      "requirement": "Missing required authority field is validation failure, never default/fallback authority."
+    },
+    {
+      "id": "SFV-27",
+      "name": "T0 successor threshold and monotonicity",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-003"
+      ],
+      "requirement": "Successor generation is exactly predecessor+1; predecessor authorization/MTR reservation/BTW consistency all bind the same successor; requires 4-of-5 ACTIVE EBA officers across at least 3 ACTIVE admin domains; a newly created/reactivated domain cannot sign the successor that creates/reactivates it."
+    },
+    {
+      "id": "SFV-28",
+      "name": "BTW rollback/equivocation",
+      "result_if_fail": "AUTHORITY_FROZEN",
+      "source": [
+        "NORM-005"
+      ],
+      "requirement": "Verification uses T0-pinned witness policy; accepted tree size/root cannot roll back; smaller tree or missing consistency proof rejects; same size with different root is BTW_EQUIVOCATION and freezes affected authority paths."
+    },
+    {
+      "id": "SFV-29",
+      "name": "GGS/LAS sequencer safety",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-009",
+        "NORM-010"
+      ],
+      "requirement": "GGS and LAS use 3 replicas/2-of-3 ordinary majority; rollback-resistant term/vote/index/head state; stale replica non-voting; GGS atomically consumes namespace/bootstrap authorization; LAS atomically compare-and-advances non-commutative heads and preserves idempotency state; JOINT rotation requires both old and new majorities."
+    },
+    {
+      "id": "SFV-30",
+      "name": "Rotation barrier and STC",
+      "result_if_fail": "ROTATION_BLOCKED",
+      "source": [
+        "NORM-011",
+        "NORM-012"
+      ],
+      "requirement": "ROTATION_PREPARE commits barrier B and freezes covered writes; STC binds the exact B snapshot/state roots/semantic heads; one barrier serves at most one lawful rotation; same rotation/config/STC retry is idempotent; changed retry is IDEMPOTENCY_CONFLICT; different rotation on reserved B is BARRIER_ALREADY_RESERVED; ABORT permanently closes B; contradictory valid reservations are STC_EQUIVOCATION."
+    },
+    {
+      "id": "SFV-31",
+      "name": "GCP canonicalization",
+      "result_if_fail": "CANONICALIZATION_REJECT",
+      "source": [
+        "NORM-002",
+        "NORM-025",
+        "NORM-030"
+      ],
+      "requirement": "Canonical authority input/output obeys inherited GCP: absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields. Every digest-bearing field is validated against its exact governing source or bound crypto profile; when a source explicitly fixes SHA-256 or another concrete encoding, malformed values reject before authority use. Generic opaque digest references must not be silently reinterpreted as a different algorithm."
+    },
+    {
+      "id": "SFV-32",
+      "name": "Review materiality and reviewer independence",
+      "result_if_fail": "REVIEW_INVALID",
+      "source": [
+        "NORM-028",
+        "NORM-029"
+      ],
+      "requirement": "Every reviewer-visible semantic field relied on for decision is packet-bound; unknown reviewer influence defaults material; required human review binds exact candidate/snapshot/packet digest and is independent from proposer under canonical identity/domain rules; model/provider review cannot replace a required human constitutional channel."
+    },
+    {
+      "id": "SFV-33",
+      "name": "CSM coherent snapshot and current semantic sequence",
+      "result_if_fail": "SEMANTIC_STATE_INVALID",
+      "source": [
+        "NORM-014",
+        "NORM-015",
+        "NORM-016"
+      ],
+      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, AIMScopePolicy, ResolverPolicy and supporting heads/rules; canonical arrays use the frozen canonical ordering; updates are LAS-governed authority events; all named heads are read from one current LAS-derived semantic_state_sequence; LASAuthorityStateRoot state_root_digest equals the GCP-1 digest of the exact frozen root members; historical/caller-selected sequence has authority NONE."
+    },
+    {
+      "id": "SFV-34",
+      "name": "External root anti-self-grant boundary",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-001",
+        "NORM-002"
+      ],
+      "requirement": "Ordinary platform software cannot mint, replace, roll back or weaken T0/EBA/MTR/BTW/workload-attestation roots; unavailable lawful trust may block permanently and never creates an emergency weaker root."
+    },
+    {
+      "id": "SFV-35",
+      "name": "SPM-1 semantic-element provenance",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I030",
+        "R8V7-I031"
+      ],
+      "requirement": "Every semantic schema element has provenance; every source_ref_id resolves; no conflicting or non-authoritative-only provenance; artifact digest in each entry equals the bound schema artifact."
+    },
+    {
+      "id": "SFV-36",
+      "name": "Qualified SPG-1 generator binding",
+      "result_if_fail": "SCHEMA_FREEZE_BLOCKED",
+      "source": [
+        "R8V8-I020",
+        "R8V8-I021",
+        "R8V8-I022"
+      ],
+      "requirement": "Final freeze requires QUALIFIED SchemaProvenanceGenerator identity with exact generator artifact digest, non-null RuntimeManifest digest, workload-attestation policy/proof, active/non-revoked binding, and allowed input/output classes. UNATTESTED/DRIFTED/REVOKED/UNREGISTERED output is not final-freeze eligible."
+    },
+    {
+      "id": "SFV-37",
+      "name": "GCP-RVM-2 positive vectors",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V5-I034",
+        "R8V8-I034..I035"
+      ],
+      "requirement": "Recompute SHA-256 over every frozen expected canonical UTF-8 byte string and require exact digest match."
+    },
+    {
+      "id": "SFV-38",
+      "name": "GCP-RVM-2 rejection vectors",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V7 GCP rejection vectors",
+        "R8V8-I034..I035"
+      ],
+      "requirement": "Every frozen rejection vector must fail under its referenced GCP rule; no canonical output or authority may be produced for a rejection vector."
+    },
+    {
+      "id": "SFV-39",
+      "name": "CaseProofContract closure G001-G156",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I044",
+        "R8V7-I045",
+        "R8 v7-v13 schema-freeze gates",
+        "NORM-040"
+      ],
+      "requirement": "Exactly one CaseProofContract per G001..G156; mechanism, positive cases, negative cases and FP class must exactly match current GuardRegistry and CaseRegistry; no missing or extra case."
+    },
+    {
+      "id": "SFV-40",
+      "name": "Fault-proof class legend integrity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I044"
+      ],
+      "requirement": "FP0..FP6 meanings are frozen exactly; required negative control evidence cannot be downgraded or substituted by target-guard outcome."
+    },
+    {
+      "id": "SFV-41",
+      "name": "RPS-1 field classification coverage",
+      "result_if_fail": "REVIEW_PACKET_INCOMPLETE",
+      "source": [
+        "R8V7-I038",
+        "NORM-028",
+        "NORM-041"
+      ],
+      "requirement": "Every displayed review-packet field is classified REVIEW_SEMANTIC or DISPLAY_NON_SEMANTIC; unknown displayed fields default REVIEW_SEMANTIC."
+    },
+    {
+      "id": "SFV-42",
+      "name": "RPS-1 non-semantic safety",
+      "result_if_fail": "REVIEW_PACKET_INCOMPLETE",
+      "source": [
+        "R8V7-I039"
+      ],
+      "requirement": "DISPLAY_NON_SEMANTIC fields cannot encode status, severity, identity, evidence quality, ordering priority, recommendation or substantive claim and cannot alter packet ordering or evidence association."
+    },
+    {
+      "id": "SFV-43",
+      "name": "Freeze-process authoritative source boundary",
+      "result_if_fail": "UNAUTHORIZED_SEMANTIC_SOURCE",
+      "source": [
+        "R8V7-I031",
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
+      ],
+      "requirement": "No schema element/freeze rule may be sourced only from PR #39/#40 or any NON_AUTHORITATIVE artifact; every manual/generated element has governed source lineage."
+    },
+    {
+      "id": "SFV-44",
+      "name": "Exact schema artifact digest binding",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I030",
+        "R8V8-I021"
+      ],
+      "requirement": "Freeze manifest, SPM-1, generator output record and independent-review packet must bind the identical schema artifact SHA-256 bytes; byte drift invalidates prior review/provenance."
+    },
+    {
+      "id": "SFV-45",
+      "name": "Independent executable-schema review",
+      "result_if_fail": "SCHEMA_FREEZE_BLOCKED",
+      "source": [
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "requirement": "The exact qualified schema candidate must receive a fresh qualifying blind independent review before status can become EXECUTABLE_SCHEMA_FROZEN. Review of a predecessor/different digest does not transfer."
+    }
+  ],
+  "rule_count": 45,
+  "freeze_readiness_rule": "Final freeze requires SFV-01..SFV-45 PASS; SCHEMA_FREEZE_BLOCKED is not a PASS and grants no implementation authority."
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json =====
+
+
+===== BEGIN FILE: schemas/governance-r8/v15-r1/schema-freeze-traceability.json =====
+GIT_BLOB_SHA1: 6c372b492fd0aa5c61e016fe088a3c6c91c7fd49
+
+{
+  "schema": "r8-v15-r1-schema-freeze-traceability/v2",
+  "status": "QUALIFIED_EVIDENCE_REBIND_PRECOMMIT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "mappings": [
+    {
+      "norm": "NORM-001",
+      "schemas": [],
+      "validators": [
+        "SFV-34"
+      ],
+      "note": "External trust boundary is protocol/trust assumption, not minted by schema."
+    },
+    {
+      "norm": "NORM-002",
+      "schemas": [],
+      "validators": [
+        "SFV-26",
+        "SFV-31",
+        "SFV-34"
+      ],
+      "note": "Authority default NONE is enforcement policy."
+    },
+    {
+      "norm": "NORM-003",
+      "schemas": [
+        "runtime-contracts#T0SuccessorManifest"
+      ],
+      "validators": [
+        "SFV-27"
+      ]
+    },
+    {
+      "norm": "NORM-004",
+      "schemas": [
+        "runtime-contracts#MTRChallenge",
+        "runtime-contracts#MTRResponse"
+      ],
+      "validators": [
+        "SFV-11"
+      ]
+    },
+    {
+      "norm": "NORM-005",
+      "schemas": [
+        "runtime-contracts#BTWVerificationState"
+      ],
+      "validators": [
+        "SFV-28"
+      ]
+    },
+    {
+      "norm": "NORM-006",
+      "schemas": [
+        "runtime-contracts#CanonicalIdentityRef"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-007",
+      "schemas": [
+        "runtime-contracts#CanonicalIdentityRef"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-008",
+      "schemas": [
+        "runtime-contracts#RevocationEvent"
+      ],
+      "validators": [
+        "SFV-13"
+      ]
+    },
+    {
+      "norm": "NORM-009",
+      "schemas": [
+        "runtime-contracts#GGSHardState",
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-29",
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-010",
+      "schemas": [
+        "runtime-contracts#LASHardState",
+        "runtime-contracts#LASAuthorityStateRoot",
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-29",
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-011",
+      "schemas": [
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-012",
+      "schemas": [
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-013",
+      "schemas": [
+        "runtime-contracts#AIEPRuntimeProfile"
+      ],
+      "validators": [
+        "SFV-14"
+      ]
+    },
+    {
+      "norm": "NORM-014",
+      "schemas": [
+        "runtime-contracts#CurrentSemanticModelBundle",
+        "runtime-contracts#CanonicalScopeTuple",
+        "runtime-contracts#ANYScopePermission",
+        "runtime-contracts#AIMScopePolicy"
+      ],
+      "validators": [
+        "SFV-33"
+      ]
+    },
+    {
+      "norm": "NORM-015",
+      "schemas": [
+        "runtime-contracts#SemanticHeads",
+        "runtime-contracts#LASAuthorityStateRoot"
+      ],
+      "validators": [
+        "SFV-33"
+      ]
+    },
+    {
+      "norm": "NORM-016",
+      "schemas": [
+        "runtime-contracts#LASAuthorityStateRoot"
+      ],
+      "validators": [
+        "SFV-33"
+      ]
+    },
+    {
+      "norm": "NORM-017",
+      "schemas": [
+        "runtime-contracts#AIMDescriptor",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-15"
+      ]
+    },
+    {
+      "norm": "NORM-018",
+      "schemas": [
+        "runtime-contracts#AIMDescriptor",
+        "runtime-contracts#AIMScopePolicy",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-15"
+      ]
+    },
+    {
+      "norm": "NORM-019",
+      "schemas": [
+        "runtime-contracts#ResolverPolicyContract"
+      ],
+      "validators": [
+        "SFV-16"
+      ]
+    },
+    {
+      "norm": "NORM-020",
+      "schemas": [
+        "runtime-contracts#ResolverImplementationRegistryRecord"
+      ],
+      "validators": [
+        "SFV-16"
+      ]
+    },
+    {
+      "norm": "NORM-021",
+      "schemas": [
+        "runtime-contracts#ResolverConformanceEvidence"
+      ],
+      "validators": [
+        "SFV-17"
+      ]
+    },
+    {
+      "norm": "NORM-022",
+      "schemas": [
+        "runtime-contracts#SemanticEntry"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-023",
+      "schemas": [
+        "runtime-contracts#ANYScopePermission",
+        "runtime-contracts#SemanticEntry",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-024",
+      "schemas": [
+        "runtime-contracts#SemanticEntry",
+        "runtime-contracts#ScopeReplacementMapping",
+        "runtime-contracts#SemanticLineageMapping",
+        "runtime-contracts#SemanticResolvedResult"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-025",
+      "schemas": [
+        "runtime-contracts#SemanticResolvedResult"
+      ],
+      "validators": [
+        "SFV-19",
+        "SFV-31"
+      ]
+    },
+    {
+      "norm": "NORM-026",
+      "schemas": [
+        "runtime-contracts#SemanticLineageMapping",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-027",
+      "schemas": [
+        "runtime-contracts#ScopeReplacementMapping",
+        "runtime-contracts#ScopeReplacementInput",
+        "runtime-contracts#ScopeReplacementDecision",
+        "runtime-contracts#CanonicalScopeTuple",
+        "srtt-4-rule-registry",
+        "srtt-4-total-table"
+      ],
+      "validators": [
+        "SFV-01",
+        "SFV-02",
+        "SFV-03",
+        "SFV-04"
+      ]
+    },
+    {
+      "norm": "NORM-028",
+      "schemas": [
+        "runtime-contracts#ReviewAttestation",
+        "review-presentation-schema"
+      ],
+      "validators": [
+        "SFV-32",
+        "SFV-41",
+        "SFV-42"
+      ],
+      "note": "Review-visible field materiality is projection/checker obligation."
+    },
+    {
+      "norm": "NORM-029",
+      "schemas": [
+        "runtime-contracts#ReviewAttestation"
+      ],
+      "validators": [
+        "SFV-12",
+        "SFV-32"
+      ]
+    },
+    {
+      "norm": "NORM-030",
+      "schemas": [
+        "runtime-contracts#AuthorityReadSet"
+      ],
+      "validators": [
+        "SFV-20",
+        "SFV-26",
+        "SFV-31"
+      ]
+    },
+    {
+      "norm": "NORM-031",
+      "schemas": [
+        "runtime-contracts#DecisionPresealContext"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-032",
+      "schemas": [
+        "runtime-contracts#QualifiedTimeProof"
+      ],
+      "validators": [
+        "SFV-21"
+      ]
+    },
+    {
+      "norm": "NORM-033",
+      "schemas": [
+        "runtime-contracts#VerifiedStateSeal"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-034",
+      "schemas": [
+        "runtime-contracts#EffectIntent",
+        "runtime-contracts#EffectStateRecord"
+      ],
+      "validators": [
+        "SFV-22"
+      ]
+    },
+    {
+      "norm": "NORM-035",
+      "schemas": [
+        "runtime-contracts#EvidenceRecord"
+      ],
+      "validators": [
+        "SFV-23"
+      ]
+    },
+    {
+      "norm": "NORM-036",
+      "schemas": [
+        "runtime-contracts#EvidenceRecord"
+      ],
+      "validators": [
+        "SFV-23"
+      ]
+    },
+    {
+      "norm": "NORM-037",
+      "schemas": [
+        "runtime-contracts#MigrationBinding"
+      ],
+      "validators": [
+        "SFV-24"
+      ]
+    },
+    {
+      "norm": "NORM-038",
+      "schemas": [
+        "runtime-contracts#RecoveryContext"
+      ],
+      "validators": [
+        "SFV-25"
+      ]
+    },
+    {
+      "norm": "NORM-039",
+      "schemas": [
+        "runtime-contracts#RecoveryContext"
+      ],
+      "validators": [
+        "SFV-25"
+      ]
+    },
+    {
+      "norm": "NORM-040",
+      "schemas": [
+        "guard-registry",
+        "case-registry",
+        "case-proof-contracts"
+      ],
+      "validators": [
+        "SFV-05",
+        "SFV-06",
+        "SFV-39",
+        "SFV-40"
+      ]
+    },
+    {
+      "norm": "NORM-041",
+      "schemas": [
+        "bsp-5-grammar",
+        "review-presentation-schema"
+      ],
+      "validators": [
+        "SFV-08",
+        "SFV-41",
+        "SFV-42"
+      ]
+    },
+    {
+      "norm": "NORM-042",
+      "schemas": [
+        "guard-omission-source-evidence",
+        "guard-omission-manifest"
+      ],
+      "validators": [
+        "SFV-07"
+      ]
+    },
+    {
+      "norm": "NORM-043",
+      "schemas": [
+        "ncg-structured-closure"
+      ],
+      "validators": [
+        "SFV-09",
+        "SFV-10"
+      ]
+    }
+  ],
+  "expected_norm_count": 43,
+  "validator_rule_count": 45,
+  "freeze_process_mappings": [
+    {
+      "rule_id": "SFG-001",
+      "source": [
+        "R8V7-I030"
+      ],
+      "artifacts": [
+        "schema-provenance-manifest.schema.json",
+        "schema-provenance-manifest-candidate.json",
+        "schema-provenance-source-map.json"
+      ],
+      "validators": [
+        "SFV-35",
+        "SFV-44"
+      ],
+      "status": "QUALIFIED_SPM_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
+    },
+    {
+      "rule_id": "SFG-002",
+      "source": [
+        "R8V7-I031"
+      ],
+      "artifacts": [
+        "schema-provenance-manifest.schema.json",
+        "schema-provenance-source-map.json"
+      ],
+      "validators": [
+        "SFV-35",
+        "SFV-43"
+      ],
+      "status": "QUALIFIED_SOURCE_AUTHORITY_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
+    },
+    {
+      "rule_id": "SFG-003",
+      "source": [
+        "R8V8-I020",
+        "R8V8-I021",
+        "R8V8-I022"
+      ],
+      "artifacts": [
+        "schema-provenance-generator.schema.json",
+        "schema-provenance-generator-binding.json",
+        "tools/generate_r8_v15_r1_spm.py"
+      ],
+      "validators": [
+        "SFV-36",
+        "SFV-44"
+      ],
+      "status": "QUALIFIED_GENERATOR_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
+    },
+    {
+      "rule_id": "SFG-004",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V5-I028..I034",
+        "R8V7 GCP rejection vectors",
+        "R8V8-I034",
+        "R8V8-I035"
+      ],
+      "artifacts": [
+        "gcp-rvm-2.schema.json",
+        "gcp-rvm-2.json"
+      ],
+      "validators": [
+        "SFV-31",
+        "SFV-37",
+        "SFV-38"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-005",
+      "source": [
+        "R8V7-I038",
+        "R8V7-I039"
+      ],
+      "artifacts": [
+        "review-presentation-schema.schema.json",
+        "review-presentation-schema.json"
+      ],
+      "validators": [
+        "SFV-41",
+        "SFV-42"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-006",
+      "source": [
+        "R8V7-I044",
+        "R8V7-I045",
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "artifacts": [
+        "case-proof-contracts.schema.json",
+        "case-proof-contracts.json"
+      ],
+      "validators": [
+        "SFV-39",
+        "SFV-40"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-007",
+      "source": [
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "artifacts": [],
+      "validators": [
+        "SFV-45"
+      ],
+      "status": "BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW"
+    }
+  ],
+  "freeze_process_rule_count": 7,
+  "final_freeze_blockers": [
+    "SFV-45"
+  ],
+  "note": "NORM-001..043 semantic mappings remain frozen. This traceability state is a non-authoritative fixed-point precommit derived from the explicit SPG-1 enrollment extension and independently verified fresh successor generation for bfe078a741855b423e9899d4debd440d21147876. The effective claim that SFV-35/SFV-36/SFV-44 are closed is conditional on a fresh qualified regeneration over these exact rebind bytes followed by a separate post-run verification proving exact artifact/provenance binding. If that final regeneration or verification fails or the bytes drift, SFV-35/SFV-36/SFV-44 remain/open again. Only after successful exact-byte verification does SFV-45 become the sole remaining executable-schema-freeze blocker."
+}
+
+===== END FILE: schemas/governance-r8/v15-r1/schema-freeze-traceability.json =====
