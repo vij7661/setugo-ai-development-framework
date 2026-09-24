@@ -1,0 +1,31 @@
+{
+  "schema": "r8-v15-r1-r2-spm-materialization-control-failure/v1",
+  "status": "FAILED_CLOSED_BEFORE_COMMIT",
+  "authority_effect": "NONE",
+  "run_id": 36031944320,
+  "trigger_commit": "0a28f915df4a8f952b9d567bd256d3c18c122351",
+  "base_commit": "94cf195e6e429fa69c6fa62184241ec47f712f1c",
+  "target_branch": "freeze/r8-v15-r1-executable-schema-qualified-r2",
+  "final_spm_sha256": "f8828bf43e5105c045d248289d5057acd9f2110f5ee2c11ceaab494e9ee88296",
+  "successful_steps": [
+    "target_branch_drift_check",
+    "source_run_and_independent_verifier_check",
+    "exact_final_regeneration_artifact_download",
+    "verified_spm_copy_and_content_validation"
+  ],
+  "failure_step": "Prove no other schema or repository bytes changed",
+  "failure_reason": "The proof used git diff --name-only against BASE_COMMIT, which does not report an untracked newly materialized SPM file. The expected SPM was present but invisible to that command.",
+  "repair": "Use git status --porcelain --untracked-files=all and require exactly one untracked path: schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json. Keep the tracked-tree diff check excluding that path.",
+  "commit_created": false,
+  "target_branch_moved": false,
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
