@@ -51,13 +51,12 @@ class R8V15R1SFV45R2QualificationResetTests(unittest.TestCase):
         pps = self.source_map["artifact_sources"]["schema-freeze-traceability.json"]["pointer_prefix_sources"]
         self.assertEqual(
             pps["/freeze_process_mappings/2/status"],
-            ["SPG-QUALIFICATION-2026-09-24"],
+            ["R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"],
         )
         self.assertEqual(
             pps["/final_freeze_blockers"],
             [
                 "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-                "SPG-QUALIFICATION-2026-09-24",
             ],
         )
         self.assertEqual(
