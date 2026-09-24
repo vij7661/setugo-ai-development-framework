@@ -228,7 +228,48 @@ def main() -> int:
         "--output", str(recomputed.resolve()),
     ]
     subprocess.run(cmd, check=True, cwd=candidate)
-    require(recomputed.read_bytes() == existing_spm.read_bytes(), "SPM candidate deterministic recomputation mismatch")
+    recomputed_bytes = recomputed.read_bytes()
+    existing_bytes = existing_spm.read_bytes()
+    if recomputed_bytes != existing_bytes:
+        print(
+            "SPM candidate deterministic recomputation mismatch: "
+            f"recomputed_sha256={sha256_bytes(recomputed_bytes)} "
+            f"existing_sha256={sha256_bytes(existing_bytes)} "
+            f"recomputed_bytes={len(recomputed_bytes)} "
+            f"existing_bytes={len(existing_bytes)}",
+            file=sys.stderr,
+        )
+        try:
+            left = json.loads(existing_bytes.decode("utf-8"))
+            right = json.loads(recomputed_bytes.decode("utf-8"))
+            def first_diff(a: Any, b: Any, path: str = "$") -> tuple[str, Any, Any] | None:
+                if type(a) is not type(b):
+                    return path + "::<type>", type(a).__name__, type(b).__name__
+                if isinstance(a, dict):
+                    ak, bk = list(a.keys()), list(b.keys())
+                    if ak != bk:
+                        return path + "::<keys>", ak[:20], bk[:20]
+                    for key in ak:
+                        diff = first_diff(a[key], b[key], f"{path}/{key}")
+                        if diff:
+                            return diff
+                    return None
+                if isinstance(a, list):
+                    if len(a) != len(b):
+                        return path + "::<length>", len(a), len(b)
+                    for index, (av, bv) in enumerate(zip(a, b)):
+                        diff = first_diff(av, bv, f"{path}/{index}")
+                        if diff:
+                            return diff
+                    return None
+                if a != b:
+                    return path, a, b
+                return None
+            diff = first_diff(left, right)
+            print(f"SPM first JSON difference: {diff!r}", file=sys.stderr)
+        except Exception as exc:
+            print(f"SPM diagnostic parse failed: {exc!r}", file=sys.stderr)
+        raise SystemExit("SPM candidate deterministic recomputation mismatch")
 
     shutil.copyfile(generator, out / "generator.py")
     shutil.copyfile(binding_path, out / "generator-binding-candidate.json")
