@@ -1,0 +1,135 @@
+A. Review Target and Scope
+- Review: fresh blind exact-candidate SFV-45 review.
+- Exact review candidate commit: `f93ca26975ecb64f0da13779889c75b36140cdfc`.
+- Fixed-point input commit: `d61f9278f1daceac6de536a8894d266726733345`.
+- Materialized candidate artifact reviewed: `schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json`.
+- Candidate SPM SHA-256: `84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797`.
+- Candidate source-map SHA-256: `6d35964bfaa0cccfdd09bb46128a5efe3197d146e90144d1ac61ebe08c0aeec5`.
+- Materialization evidence pins: materialization run `36051866720`; final regeneration run `36051390674`; final verifier run `36051607632`.
+- SFV-45 is the remaining validator under traceability rule `SFG-007`; final trace lists only `SFV-45` as blocker and states exact final regeneration plus separate final post-run verification must prove the rebind bytes.
+
+B. Candidate Identity and Hash Reconciliation
+- The reviewed SPM hash `84c484…b6797` is identical in:
+  - exact candidate SPM,
+  - final `spm-final-v2-r1.json`,
+  - final `spm-final-v2-r1.sha256`,
+  - final regeneration output,
+  - final post-run verification.
+- The reviewed source-map hash `6d35964…0aeec5` is identical in:
+  - exact candidate source map,
+  - final `schema-provenance-source-map.json`,
+  - final subject manifest.
+- Materialization evidence states candidate commit change was only:
+  - `schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json`
+  - and `other_candidate_bytes_changed: false`.
+- Final subject manifest includes:
+  - `spm-final-v2-r1.json` SHA-256 `84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797`
+  - `schema-provenance-source-map.json` SHA-256 `6d35964bfaa0cccfdd09bb46128a5efe3197d146e90144d1ac61ebe08c0aeec5`
+  - `schema-freeze-traceability.json` SHA-256 `cbe0a8cd1c955145bab3f00973fee465af1901a9d24dfd6748790d11a0b602ac`
+- No supplied evidence contradicts the exact-candidate hash pins.
+
+C. SPM Structural and Claim Boundary
+- SPM schema: `r8-v15-r1-spm-1/v1`.
+- SPM status: `FINAL_FREEZE_ELIGIBLE`.
+- SPM authority effect: `NONE`.
+- Semantic candidate commit: `1fa49fa4adfa6aa47fae68c0f1938083eeb1497f`, matching source map, traceability, and accepted semantic successor evidence.
+- Coverage object is empty across all three required fields:
+  - `uncovered_semantic_elements: []`
+  - `non_authoritative_only_sources: []`
+  - `conflicting_entries: []`
+- Declared counts:
+  - `artifact_count: 16`
+  - `entry_count: 3058`
+- Generator block in SPM:
+  - `generator_id: R8V15R1-SPG-V2`
+  - `generator_artifact_sha256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6`
+  - `runtime_manifest_digest: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a`
+  - `workload_attestation_proof_digest: 9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c`
+  - `qualification_status: QUALIFIED`
+
+D. Artifact Inventory and Digest Coverage
+- SPM declares 16 artifacts. The artifact paths correspond exactly to the 16 keys in the source map’s `artifact_sources`.
+- Artifact inventory includes all expected schema, registry, traceability, validator-contract, and provenance artifacts.
+- Critical artifact digest pins checked:
+  - `schema-freeze-traceability.json`: `cbe0a8cd1c955145bab3f00973fee465af1901a9d24dfd6748790d11a0b602ac`
+  - `runtime-contracts.schema.json`: `666b55325ff1ea498f5c2842b9c4db557f28f815b78f9d8413672e7a4fdf3f0c`
+  - `gcp-rvm-2.schema.json`: `640b1a253fa8b27b39bbc08367b8cbffc2ebd238dd97b56bd20388f1bf42f164`
+  - `case-proof-contracts.schema.json`: `a17a1292c28150f3815b5e4a6bee4aabf80e6b00a1e8893140d23de33e23d650`
+  - `schema-provenance-manifest.schema.json`: `d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5`
+- The source map artifact keys and the SPM artifact list are set-equal. No artifact path in SPM lacks a source-map routing entry, and no source-map artifact key is absent from SPM.
+- Where raw artifact bytes are not present in the supplied packet, digest verification was limited to cross-file equality and source-map/SPM consistency; no contradiction was found in the supplied pins.
+
+E. Source Reference Catalog and Routing
+- SPM `source_ref_catalog` matches the source map `named_source_refs` for all supplied named refs, including:
+  - `SRC-NORM`, `SRC-DETAIL`, `SRC-V15`, `SRC-FREEZE-V2`
+  - `SRC-V4` through `SRC-V13`
+  - `SRC-SPG-ENROLLMENT`, `SRC-SPG-STAGEB-VERIFY`
+  - `SRC-GCP-P05-CORRECTION`, `SRC-GCP-P05-REVIEW`, `SRC-GCP-P05-ACCEPTANCE`
+  - `SRC-SPG-V2R1-EXTENSION`, `SRC-SPG-V2R1-VERIFY`
+- Source-map routing rules are present for all required longest-prefix matches, including:
+  - `NORM-` → `SRC-NORM`
+  - `R8V15-` → `SRC-V15`, `SRC-NORM`
+  - `R8V7-` → `SRC-V7`
+  - `R8 v7-v13 schema-freeze gates` → `SRC-V7` through `SRC-V13`
+  - `R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION` → `SRC-GCP-P05-CORRECTION`, `SRC-GCP-P05-REVIEW`, `SRC-GCP-P05-ACCEPTANCE`
+  - `SPG-QUALIFICATION-V2-R1-2026-09-24` → `SRC-SPG-V2R1-EXTENSION`, `SRC-SPG-V2R1-VERIFY`
+- Critical SPM entries checked for route consistency:
+  - `gcp-rvm-2.schema.json` entries resolve to `SRC-V4`, `SRC-V5`, `SRC-V7`, `SRC-V8`, `SRC-GCP-P05-CORRECTION`, `SRC-GCP-P05-REVIEW`, `SRC-GCP-P05-ACCEPTANCE`.
+  - `schema-freeze-traceability.json` `/status` resolves to `SRC-FREEZE-V2`, GCP-P05 refs, and V2R1 refs.
+  - `case-proof-contracts.schema.json` resolves to `SRC-V7` through `SRC-V13` and `SRC-NORM`.
+  - `runtime-contracts.schema.json` resolves primarily to `SRC-NORM` and `SRC-DETAIL`.
+- No unresolved source ID was observed in the supplied SPM/source-map data.
+
+F. Entry-Level Provenance Consistency
+- SPM entries consistently carry:
+  - `generator_id: R8V15R1-SPG-V2`
+  - `generator_runtime_manifest_digest: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a`
+  - `reviewer_status: REVIEW_REQUIRED`
+- Each entry’s `artifact_sha256` matches the corresponding artifact record in the SPM artifact list for the artifact family.
+- Each entry’s `source_ref_ids` is a subset of the SPM `source_ref_catalog`.
+- JSON pointers and semantic purposes are structurally consistent with the artifact family and source design IDs.
+- No entry was found with an empty `source_ref_ids`, an unknown source ref, or a generator/runtime digest mismatch in the supplied SPM content.
+
+G. Qualification, Runtime, Attestation, and Fixed-Point Checks
+- Qualified binding:
+  - `generator_artifact_sha256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6`
+  - `runtime_manifest_digest: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a`
+  - `workload_attestation_policy_digest: 330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b`
+  - `workload_attestation_proof_digest: 9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c`
+  - `qualification_status: QUALIFIED`
+  - `revocation_state: ACTIVE`
+- Final regeneration evidence:
+  - run `36051390674`
+  - head `39baa35fe4750c1ab8d5d332c9be6b9a231da892`
+  - artifact `10831151305`
+  - artifact zip SHA-256 `d1b5df7c294a9e208ee72ecfe2ee5cb9ef3b34b0a5f3f44e610c516546c6dd44`
+  - attestation `49974077`
+  - subject SHA-256 `18ff05a076f36366f4d0ca99520338b42cc8b1e0c5480cf8b3e229565f70241e`
+  - bundle SHA-256 `3e721439d9e391b8e878c1edad986b2b38d15a4eca868eaf97337b1a8142a281`
+- Final post-run verification:
+  - status `POST_RUN_FINAL_FIXED_POINT_VERIFICATION_PASS`
+  - `sfv_35: EVIDENCE_COMPLETE_EXACT_REBIND_BYTES`
+  - `sfv_36: EVIDENCE_COMPLETE_EXACT_REBIND_BYTES`
+  - `sfv_44: EVIDENCE_COMPLETE_EXACT_REBIND_BYTES`
+  - `sfv_45: SOLE_REMAINING_EXECUTABLE_SCHEMA_FREEZE_BLOCKER`
+- Materialization evidence:
+  - exact review candidate `f93ca26975ecb64f0da13779889c75b36140cdfc`
+  - final SPM SHA-256 `84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797`
+  - only candidate SPM changed
+  - other candidate bytes unchanged
+- Traceability:
+  - final blocker list is exactly `["SFV-45"]`
+  - `SFG-007` status is `BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW`
+  - this review supplies that exact qualified candidate review for `f93ca26975ecb64f0da13779889c75b36140cdfc`.
+
+H. SFV-45 Disposition
+- SFV-45: **PASS** for exact review candidate `f93ca26975ecb64f0da13779889c75b36140cdfc`.
+- Basis:
+  - exact candidate SPM hash matches final materialized SPM hash,
+  - exact candidate source map hash matches final source map,
+  - source reference catalog and routing are internally consistent,
+  - artifact inventory and source-map artifact key set are equal,
+  - generator qualification, runtime manifest, policy digest, and workload proof digest match qualified binding,
+  - final regeneration and final post-run verification prove the exact rebind bytes,
+  - materialization evidence confirms only the candidate SPM changed and no other candidate bytes changed.
+- Claim boundary: this review is executable-schema provenance evidence only and does not authorize implementation, runtime qualification, release, deployment, production, policy, or terminal authority.
