@@ -398,6 +398,7 @@
           "$ref": "#/$defs/Digest"
         },
         "effect_class": {
+          "description": "Canonical sentinel rule: null exactly for decisions with no external effect; otherwise a non-empty governed effect class. Omission is invalid.",
           "type": [
             "string",
             "null"
@@ -424,6 +425,10 @@
         "workload_state_digest",
         "effect_class",
         "decision_preseal_digest"
+      ],
+      "x-validator-invariants": [
+        "effect_class is null if and only if the decision has no external effect; null is the canonical explicit sentinel and omission is invalid",
+        "when an external effect is involved effect_class is a non-empty governed class and is included in decision_preseal_digest"
       ]
     },
     "TimeSourceAttestation": {
@@ -647,6 +652,59 @@
         }
       ]
     },
+    "GGSGenesisStateRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "barrier_index": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "committed_log_prefix_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "constitution_namespace_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "bootstrap_authorization_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "idempotency_ledger_root": {
+          "$ref": "#/$defs/Digest"
+        },
+        "configuration_generation": {
+          "$ref": "#/$defs/Sequence"
+        },
+        "prior_certificate_chain_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "state_root_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "barrier_index",
+        "committed_log_prefix_digest",
+        "constitution_namespace_root",
+        "bootstrap_authorization_root",
+        "idempotency_ledger_root",
+        "configuration_generation",
+        "prior_certificate_chain_digest",
+        "state_root_digest"
+      ],
+      "x-gcp1-preimage-members": [
+        "barrier_index",
+        "committed_log_prefix_digest",
+        "constitution_namespace_root",
+        "bootstrap_authorization_root",
+        "idempotency_ledger_root",
+        "configuration_generation",
+        "prior_certificate_chain_digest"
+      ],
+      "x-validator-invariants": [
+        "state_root_digest equals SHA-256(GCP-1({barrier_index, committed_log_prefix_digest, constitution_namespace_root, bootstrap_authorization_root, idempotency_ledger_root, configuration_generation, prior_certificate_chain_digest}))",
+        "barrier_index is the exact GGS rotation barrier B certified by the associated ROTATION_PREPARE certificate"
+      ]
+    },
     "StateTransferCertificate": {
       "type": "object",
       "additionalProperties": false,
@@ -662,6 +720,9 @@
         },
         "transition_id": {
           "$ref": "#/$defs/CanonicalId"
+        },
+        "rotation_prepare_certificate_digest": {
+          "$ref": "#/$defs/Digest"
         },
         "old_configuration_generation": {
           "$ref": "#/$defs/Sequence"
@@ -699,11 +760,14 @@
           "$ref": "#/$defs/Digest"
         },
         "stream_head_map_root_digest": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "minLength": 1
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "idempotency_dedup_ledger_root_digest": {
           "$ref": "#/$defs/Digest"
@@ -712,21 +776,47 @@
           "$ref": "#/$defs/Digest"
         },
         "ggs_namespace_root_digest": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "minLength": 1
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "ggs_authorization_root_digest": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "minLength": 1
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "semantic_state_binding_required": {
+          "type": "boolean"
         },
         "semantic_heads": {
-          "$ref": "#/$defs/SemanticHeads"
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SemanticHeads"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ggs_genesis_state_root": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/GGSGenesisStateRoot"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "stc_digest": {
           "$ref": "#/$defs/Digest"
@@ -736,6 +826,7 @@
         "system_id",
         "rotation_id",
         "transition_id",
+        "rotation_prepare_certificate_digest",
         "old_configuration_generation",
         "old_configuration_digest",
         "proposed_new_configuration_digest",
@@ -751,8 +842,105 @@
         "prior_certificate_chain_digest",
         "ggs_namespace_root_digest",
         "ggs_authorization_root_digest",
+        "semantic_state_binding_required",
         "semantic_heads",
+        "ggs_genesis_state_root",
         "stc_digest"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "semantic_state_binding_required": {
+                "const": true
+              }
+            },
+            "required": [
+              "semantic_state_binding_required"
+            ]
+          },
+          "then": {
+            "properties": {
+              "semantic_heads": {
+                "$ref": "#/$defs/SemanticHeads"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "semantic_heads": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "system_id": {
+                "const": "LAS-3"
+              }
+            },
+            "required": [
+              "system_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "semantic_state_binding_required": {
+                "const": true
+              },
+              "stream_head_map_root_digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "ggs_namespace_root_digest": {
+                "type": "null"
+              },
+              "ggs_authorization_root_digest": {
+                "type": "null"
+              },
+              "ggs_genesis_state_root": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "system_id": {
+                "const": "GGS-3"
+              }
+            },
+            "required": [
+              "system_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "stream_head_map_root_digest": {
+                "type": "null"
+              },
+              "ggs_namespace_root_digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "ggs_authorization_root_digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "ggs_genesis_state_root": {
+                "$ref": "#/$defs/GGSGenesisStateRoot"
+              }
+            }
+          }
+        }
+      ],
+      "x-validator-invariants": [
+        "rotation_prepare_certificate_digest identifies the exact committed ROTATION_PREPARE certificate for rotation_id and barrier_snapshot_index; a different certificate or barrier rejects",
+        "semantic_state_binding_required is derived from the governed operation and cannot be caller-selected to omit required state",
+        "for GGS-3, semantic_state_binding_required is true exactly when GGS consumes or initializes semantic state; when true semantic_heads bind the exact named semantic heads at barrier B, otherwise semantic_heads is null",
+        "for GGS-3, ggs_genesis_state_root fields equal the corresponding barrier snapshot members and ggs_genesis_state_root.state_root_digest equals state_root_digest",
+        "for LAS-3, semantic_heads bind the exact named semantic heads at barrier B and state_root_digest binds the exact LASAuthorityStateRoot at B",
+        "STC_COMMIT, ENTER_JOINT and ACTIVATE must bind the same rotation_prepare_certificate_digest and stc_digest"
       ]
     },
     "RecoveryContext": {
@@ -1005,9 +1193,6 @@
         "manifest_digest": {
           "$ref": "#/$defs/Digest"
         },
-        "bootstrap_authorization_digest": {
-          "$ref": "#/$defs/Digest"
-        },
         "btw_consistency_digest": {
           "$ref": "#/$defs/Digest"
         },
@@ -1037,7 +1222,6 @@
         "generation",
         "predecessor_manifest_digest",
         "manifest_digest",
-        "bootstrap_authorization_digest",
         "btw_consistency_digest",
         "mtr_reservation_digest",
         "signer_canonical_subject_ids",
@@ -1046,7 +1230,8 @@
       "x-validator-invariants": [
         "successor generation exactly predecessor+1",
         "4-of-5 active EBA across at least 3 active admin domains",
-        "new/reactivated admin domain cannot sign manifest that creates/reactivates it"
+        "new/reactivated admin domain cannot sign manifest that creates/reactivates it",
+        "mtr_reservation_digest resolves to the exact authorized successor reservation certificate whose request binds predecessor manifest, next generation, successor manifest digest, predecessor-policy authorization proofs and live MTR freshness; authorization proof is not a T0SuccessorManifest member"
       ]
     },
     "MTRChallenge": {
@@ -1392,8 +1577,35 @@
         "authority_state_machine_root": {
           "$ref": "#/$defs/Digest"
         },
-        "semantic_heads": {
-          "$ref": "#/$defs/SemanticHeads"
+        "revocation_stream_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "nonce_ledger_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "effect_stream_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "csm5_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "aim4_descriptor_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "any_scope_permission_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "aim_scope_policy_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_policy_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "resolver_implementation_registry_head": {
+          "$ref": "#/$defs/Digest"
+        },
+        "guard_registry_head": {
+          "$ref": "#/$defs/Digest"
         },
         "configuration_generation": {
           "$ref": "#/$defs/Sequence"
@@ -1411,15 +1623,43 @@
         "stream_head_map_root",
         "idempotency_ledger_root",
         "authority_state_machine_root",
-        "semantic_heads",
+        "revocation_stream_head",
+        "nonce_ledger_head",
+        "effect_stream_head",
+        "csm5_registry_head",
+        "aim4_descriptor_head",
+        "any_scope_permission_head",
+        "aim_scope_policy_head",
+        "resolver_policy_head",
+        "resolver_implementation_registry_head",
+        "guard_registry_head",
         "configuration_generation",
         "prior_certificate_chain_digest",
         "state_root_digest"
       ],
+      "x-gcp1-preimage-members": [
+        "semantic_state_sequence",
+        "committed_log_prefix_digest",
+        "stream_head_map_root",
+        "idempotency_ledger_root",
+        "authority_state_machine_root",
+        "revocation_stream_head",
+        "nonce_ledger_head",
+        "effect_stream_head",
+        "csm5_registry_head",
+        "aim4_descriptor_head",
+        "any_scope_permission_head",
+        "aim_scope_policy_head",
+        "resolver_policy_head",
+        "resolver_implementation_registry_head",
+        "guard_registry_head",
+        "configuration_generation",
+        "prior_certificate_chain_digest"
+      ],
       "x-validator-invariants": [
-        "semantic_state_sequence is current LAS committed index fixing all named heads",
-        "state_root_digest equals GCP-1 digest of exact frozen members",
-        "historical/caller-selected sequence has authority NONE"
+        "semantic_state_sequence is the current LAS committed index fixing all named authority-semantic registry heads",
+        "state_root_digest equals SHA-256(GCP-1 of exactly x-gcp1-preimage-members and no additional member)",
+        "historical or caller-selected semantic_state_sequence has authority NONE"
       ]
     },
     "AIMDescriptor": {
@@ -1667,6 +1907,67 @@
         "record_digest"
       ]
     },
+    "ResolverConformanceSuite1": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "suite_id": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "suite_version": {
+          "$ref": "#/$defs/CanonicalId"
+        },
+        "vector_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "vector_generator_implementation_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "generator_runtime_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "input_corpus_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "expected_result_manifest_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "execution_harness_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "required_resolver_runtime_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "required_resolver_workload_identity_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "result_schema_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "suite_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "suite_id",
+        "suite_version",
+        "vector_manifest_digest",
+        "vector_generator_implementation_digest",
+        "generator_runtime_manifest_digest",
+        "input_corpus_digest",
+        "expected_result_manifest_digest",
+        "execution_harness_digest",
+        "required_resolver_runtime_identity_digest",
+        "required_resolver_workload_identity_digest",
+        "result_schema_digest",
+        "suite_digest"
+      ],
+      "x-validator-invariants": [
+        "suite_digest binds the exact canonical RCS-1 identity tuple required by R8V13-I005",
+        "reference vectors are generated only by the exact bound vector generator and execution harness identity",
+        "a suite from another generator, harness, runtime or workload identity is insufficient"
+      ]
+    },
     "ResolverConformanceVectorResult": {
       "type": "object",
       "additionalProperties": false,
@@ -1721,18 +2022,25 @@
         "conformance_suite_digest": {
           "$ref": "#/$defs/Digest"
         },
+        "rcs_suite": {
+          "$ref": "#/$defs/ResolverConformanceSuite1"
+        },
         "rcs_suite_digest": {
           "$ref": "#/$defs/Digest"
         },
         "rcs_vector_digests": {
           "type": "array",
           "minItems": 1,
-          "items": {"$ref": "#/$defs/Digest"}
+          "items": {
+            "$ref": "#/$defs/Digest"
+          }
         },
         "raw_per_vector_results": {
           "type": "array",
           "minItems": 1,
-          "items": {"$ref": "#/$defs/ResolverConformanceVectorResult"}
+          "items": {
+            "$ref": "#/$defs/ResolverConformanceVectorResult"
+          }
         },
         "deterministic_aggregate_result": {
           "$ref": "#/$defs/ResolverConformanceAggregateResult"
@@ -1765,6 +2073,7 @@
         "runtime_identity_digest",
         "workload_identity_digest",
         "conformance_suite_digest",
+        "rcs_suite",
         "rcs_suite_digest",
         "rcs_vector_digests",
         "raw_per_vector_results",
@@ -1775,6 +2084,9 @@
         "evidence_digest"
       ],
       "x-validator-invariants": [
+        "rcs_suite.suite_digest equals rcs_suite_digest and conformance_suite_digest",
+        "rcs_suite required resolver runtime/workload identities equal runtime_identity_digest and workload_identity_digest",
+        "rcs_vector_digests and raw_per_vector_results bind the exact vector manifest represented by rcs_suite.vector_manifest_digest",
         "only current PASS evidence for the exact authorized tuple can qualify resolver",
         "cached/stale prior PASS cannot substitute during outage"
       ]
@@ -2183,8 +2495,8 @@
         "aim_scope_policy": {
           "$ref": "#/$defs/AIMScopePolicy"
         },
-        "resolver_policy": {
-          "$ref": "#/$defs/ResolverPolicyContract"
+        "resolver_policy_ref": {
+          "$ref": "#/$defs/CanonicalId"
         },
         "resolver_implementation_registry_head": {
           "$ref": "#/$defs/Digest"
@@ -2208,7 +2520,7 @@
         "any_scope_permissions",
         "aim_descriptors",
         "aim_scope_policy",
-        "resolver_policy",
+        "resolver_policy_ref",
         "resolver_implementation_registry_head",
         "guard_registry_head",
         "supporting_rules_digest",
@@ -2216,6 +2528,7 @@
       ],
       "x-validator-invariants": [
         "arrays use frozen canonical ordering",
+        "resolver_policy_ref is the canonical CSM-5 reference to the separately bound ResolverPolicy contract; the full ResolverPolicy object is not embedded in the CSM-5 canonical bundle",
         "updates are LAS-governed authority events",
         "all resolution-time records come from one coherent current semantic snapshot"
       ]
