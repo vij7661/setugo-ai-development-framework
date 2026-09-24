@@ -1,0 +1,144 @@
+name: R8 v15-r1 Materialize Verified Qualified V2 SPM
+
+on:
+  push:
+    branches:
+      - enrollment/r8-v15-r1-spg1-qualified-v1
+    paths:
+      - governance-r8/R8-V15-R1-MATERIALIZE-QUALIFIED-V2-MARKER.json
+
+permissions:
+  contents: write
+  actions: read
+  attestations: read
+
+concurrency:
+  group: r8-v15-r1-materialize-qualified-v2
+  cancel-in-progress: false
+
+env:
+  TARGET_BRANCH: freeze/r8-v15-r1-executable-schema-qualified-v2
+  BASE_COMMIT: 8bd1934f65531607b1bdb4449c0c72b8f04d3ea9
+  STAGE_C_RUN_ID: "35983482278"
+  STAGE_C_RUN_HEAD: 1129e319873b2196c93abf7bb00abad62714e27a
+  STAGE_C_ARTIFACT_ID: "10800459052"
+  STAGE_C_ARTIFACT_NAME: r8-v15-r1-spg1-stage-c-35983482278-1
+  STAGE_C_ARTIFACT_ZIP_SHA256: 31a2b24d60d3543b0a41b4dbbdaab576c75e16196399d4df35c942c9500cd068
+  STAGE_C_SUBJECT_SHA256: 572e851003648b065962aa3fc86db19ac19c08f7ec269b7c1fc941d602b330eb
+  STAGE_C_BUNDLE_SHA256: b4de28f8c142f9ed00601e33ff749378d87fc19f9780722b1b6f7f75b6a7dc68
+  EXPECTED_SPM_SHA256: f2ede7ea55c1354f33425625a2f222ee89936bc42a538a96cc2063392a33eefb
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact qualified-v2 freeze branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fail closed if target branch has drifted
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BASE_COMMIT"
+          test -z "$(git status --porcelain)"
+          python3 - <<'PY'
+          import json, pathlib
+          root=pathlib.Path('schemas/governance-r8/v15-r1')
+          b=json.loads((root/'schema-provenance-generator-binding.json').read_text())
+          t=json.loads((root/'schema-freeze-traceability.json').read_text())
+          assert b['status']=='QUALIFIED_GENERATOR_BINDING'
+          assert b['qualification_status']=='QUALIFIED'
+          assert b['revocation_state']=='ACTIVE'
+          assert t['final_freeze_blockers']==['SFV-45']
+          PY
+
+      - name: Verify Stage-C run and artifact identity
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo='vij7661/setugo-ai-development-framework'
+          run=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["STAGE_C_RUN_ID"]}']))
+          assert run['status']=='completed' and run['conclusion']=='success'
+          assert run['head_sha']==os.environ['STAGE_C_RUN_HEAD']
+          arts=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["STAGE_C_RUN_ID"]}/artifacts']))['artifacts']
+          matches=[a for a in arts if str(a['id'])==os.environ['STAGE_C_ARTIFACT_ID']]
+          assert len(matches)==1
+          a=matches[0]
+          assert a['name']==os.environ['STAGE_C_ARTIFACT_NAME']
+          assert a['digest']=='sha256:'+os.environ['STAGE_C_ARTIFACT_ZIP_SHA256']
+          assert not a['expired']
+          PY
+
+      - name: Download and reverify exact Stage-C signed artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p stage-c-download
+          gh run download "$STAGE_C_RUN_ID" --repo "${{ github.repository }}" --name "$STAGE_C_ARTIFACT_NAME" --dir stage-c-download
+          test "$(sha256sum stage-c-download/spg1-stage-c-qualified-v2-subject.tar | awk '{print $1}')" = "$STAGE_C_SUBJECT_SHA256"
+          test "$(sha256sum stage-c-download/stage-c-attestation-bundle.jsonl | awk '{print $1}')" = "$STAGE_C_BUNDLE_SHA256"
+          test "$(sha256sum stage-c-download/stage-c/spm-qualified-v2.json | awk '{print $1}')" = "$EXPECTED_SPM_SHA256"
+          gh attestation verify stage-c-download/spg1-stage-c-qualified-v2-subject.tar             --repo "${{ github.repository }}"             --bundle stage-c-download/stage-c-attestation-bundle.jsonl             --format json > stage-c-materialization-verification.json
+          python3 - <<'PY'
+          import json, os, pathlib
+          vr=json.loads(pathlib.Path('stage-c-materialization-verification.json').read_text())
+          assert isinstance(vr,list) and len(vr)==1
+          res=vr[0]['verificationResult']
+          cert=res['signature']['certificate']
+          assert cert['subjectAlternativeName']=='https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-qualified-v2-regeneration.yml@refs/heads/enrollment/r8-v15-r1-spg1-qualified-v1'
+          assert cert['issuer']=='https://token.actions.githubusercontent.com'
+          assert cert['githubWorkflowSHA']==os.environ['STAGE_C_RUN_HEAD']
+          assert cert['runnerEnvironment']=='github-hosted'
+          assert res['verifiedTimestamps']
+          PY
+
+      - name: Materialize exact independently verified qualified-v2 SPM
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp stage-c-download/stage-c/spm-qualified-v2.json schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+          test "$(sha256sum schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json | awk '{print $1}')" = "$EXPECTED_SPM_SHA256"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('schemas/governance-r8/v15-r1')
+          s=json.loads((root/'schema-provenance-manifest-candidate.json').read_text())
+          sm=json.loads((root/'schema-provenance-source-map.json').read_text())
+          assert s['status']=='FINAL_FREEZE_ELIGIBLE'
+          assert s['generator']['qualification_status']=='QUALIFIED'
+          assert s['generator']['runtime_manifest_digest']=='5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+          assert s['semantic_candidate_commit']=='c721b38cf8b00294797300b526596ce723a47ff8'
+          assert s['source_ref_catalog']==sm['named_source_refs']
+          assert s['coverage']=={'uncovered_semantic_elements':[],'non_authoritative_only_sources':[],'conflicting_entries':[]}
+          PY
+
+      - name: Prove only the verified SPM changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "$BASE_COMMIT" -- | sort)"
+          expected="schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
+          test "$changed" = "$expected"
+          git diff --exit-code "$BASE_COMMIT" -- . ':(exclude)schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json'
+
+      - name: Commit exact verified qualified-v2 SPM
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+          git commit -m "Materialize verified qualified-v2 SPM"
+          git push origin "HEAD:$TARGET_BRANCH"
