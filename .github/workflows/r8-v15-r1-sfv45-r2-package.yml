@@ -1,0 +1,67 @@
+name: Package R8 v15-r1 SFV-45 R2 Review ZIP
+
+on:
+  push:
+    branches:
+      - packaging/r8-v15-r1-sfv45-r2-zip
+    paths:
+      - review-packets/r8-v15-r1-qualified-v2-r1-r2/PACKAGE-ZIP-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact R2 handoff
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 0eb07e92abb2b38898a39385922d430630946448
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify expected packet inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR="review-packets/r8-v15-r1-qualified-v2-r1-r2"
+          test -d "$DIR"
+          COUNT="$(find "$DIR" -maxdepth 1 -type f | wc -l | tr -d ' ')"
+          test "$COUNT" = "40"
+          test -f "$DIR/00-REVIEW-PROMPT.txt"
+          test -f "$DIR/HANDOFF-MANIFEST.json"
+          test -f "$DIR/D10-SRTT.txt"
+          test -f "$DIR/E16-SPM.txt"
+          test -f "$DIR/F-QUALIFICATION-LINEAGE.txt"
+
+      - name: Build deterministic ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, zipfile
+          src=pathlib.Path("review-packets/r8-v15-r1-qualified-v2-r1-r2")
+          out=pathlib.Path("R8-V15-R1-SFV45-R2-Claude-Review-Packet.zip")
+          files=sorted(p for p in src.iterdir() if p.is_file())
+          assert len(files)==40
+          with zipfile.ZipFile(out,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for p in files:
+                  zi=zipfile.ZipInfo(p.name, date_time=(1980,1,1,0,0,0))
+                  zi.compress_type=zipfile.ZIP_DEFLATED
+                  zi.external_attr=(0o100644 & 0xFFFF) << 16
+                  z.writestr(zi,p.read_bytes())
+          PY
+          sha256sum R8-V15-R1-SFV45-R2-Claude-Review-Packet.zip > R8-V15-R1-SFV45-R2-Claude-Review-Packet.zip.sha256
+
+      - name: Upload ZIP
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: R8-V15-R1-SFV45-R2-Claude-Review-Packet
+          path: |
+            R8-V15-R1-SFV45-R2-Claude-Review-Packet.zip
+            R8-V15-R1-SFV45-R2-Claude-Review-Packet.zip.sha256
+          if-no-files-found: error
+          retention-days: 90
