@@ -1,0 +1,63 @@
+{
+  "schema": "r8-v15-r1-executable-schema-freeze/v1",
+  "status": "EXECUTABLE_SCHEMA_FROZEN",
+  "authority_effect": "EXECUTABLE_SCHEMA_FREEZE_ONLY",
+  "exact_frozen_candidate_commit": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "fixed_point_input_commit": "d61f9278f1daceac6de536a8894d266726733345",
+  "reviewed_semantic_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "semantic_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+  "final_spm_sha256": "84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797",
+  "source_map_sha256": "6d35964bfaa0cccfdd09bb46128a5efe3197d146e90144d1ac61ebe08c0aeec5",
+  "traceability_sha256": "cbe0a8cd1c955145bab3f00973fee465af1901a9d24dfd6748790d11a0b602ac",
+  "validator_contract": {
+    "rule_count": 45,
+    "readiness_rule": "Final freeze requires SFV-01..SFV-45 PASS; SCHEMA_FREEZE_BLOCKED is not a PASS and grants no implementation authority."
+  },
+  "gate_evidence": {
+    "sfv_01_through_44": "PASS_BY_EXISTING_EXACT_CANDIDATE_VALIDATION_AND_QUALIFIED_EVIDENCE",
+    "sfv_35": "EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+    "sfv_36": "EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+    "sfv_44": "EVIDENCE_COMPLETE_EXACT_REBIND_BYTES",
+    "sfv_45": "PASS",
+    "final_freeze_blockers": []
+  },
+  "qualification_lineage": {
+    "fresh_generation_run_id": 36050313120,
+    "independent_post_run_verification_run_id": 36050575731,
+    "final_regeneration_run_id": 36051390674,
+    "final_independent_verification_run_id": 36051607632,
+    "materialization_run_id": 36051866720,
+    "final_attestation_id": 49974077,
+    "final_regeneration_artifact_id": 10831151305,
+    "final_regeneration_artifact_zip_sha256": "d1b5df7c294a9e208ee72ecfe2ee5cb9ef3b34b0a5f3f44e610c516546c6dd44"
+  },
+  "independent_review": {
+    "evidence_path": "governance-r8/R8-V15-R1-SFV45-R3-FINAL-INDEPENDENT-REVIEW.json",
+    "raw_review_path": "governance-r8/R8-V15-R1-SFV45-R3-FINAL-INDEPENDENT-REVIEW.txt",
+    "review_disposition": "PASS",
+    "review_packet_builder_run_id": 36056714725,
+    "review_packet_artifact_id": 10832429476,
+    "review_packet_artifact_zip_sha256": "e1cc62ca16f77b10c34f7ac704539b6e5cc373e9f71426b68c489bec83a928b1",
+    "full_raw_review_packet_sha256": "04bb5d66e8c43db612df199c7cda7bc01faff7d46b5494005b9de98b18331433"
+  },
+  "prior_failure_history_preserved": [
+    "R8-V15-R1-SFV45-R3-REVIEW-EVIDENCE-GAP.json",
+    "reviewed-semantic preacceptance qualification lineage marked non-transferable",
+    "all earlier R2/R3 control failures remain preserved in lineage"
+  ],
+  "freeze_semantics": [
+    "the exact frozen executable-schema candidate is f93ca26975ecb64f0da13779889c75b36140cdfc",
+    "post-freeze evidence records are not part of the frozen candidate and do not alter its bytes",
+    "any candidate-byte change invalidates this freeze and requires fresh applicable validation/provenance/review",
+    "implementation authority is not granted by executable-schema freeze"
+  ],
+  "claim_boundary": {
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
