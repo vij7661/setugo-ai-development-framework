@@ -1,0 +1,46 @@
+name: R8 v15-r1 Slice 1 Review Packet
+
+on:
+  push:
+    branches:
+      - implementation/r8-v15-r1-slice1-frozen-schema-runtime-2026-09-24
+    paths:
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-REVIEW-PACKET-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-review-packet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout packet-builder branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build exact Slice 1 review packet
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 tools/build_r8_v15_r1_slice1_review_packet.py
+
+      - name: Upload review packet
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-slice1-review-packet
+          path: |
+            review-packet-slice1/00_INSTRUCTIONS.txt
+            review-packet-slice1/01_EXACT_IMPLEMENTATION_CANDIDATE.txt
+            review-packet-slice1/02_FULL_FROZEN_SCHEMA_INPUTS.txt
+            review-packet-slice1/03_CONSTRUCTION_AND_FREEZE_EVIDENCE.txt
+            review-packet-slice1/04_SHA256_MANIFEST.txt
+            review-packet-slice1/R8_V15_R1_SLICE1_FULL_REVIEW_PACKET.txt
+            review-packet-slice1/R8_V15_R1_SLICE1_FULL_REVIEW_PACKET.sha256
+          if-no-files-found: error
+          retention-days: 30
