@@ -16,13 +16,21 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  TARGET_BRANCH: freeze/r8-v15-r1-executable-schema-qualified-v2-r1
-  BASE_COMMIT: 77f0894d7165374928ffafa525c63fc3a06d8cc1
-  SOURCE_RUN_ID: "35990169768"
-  SOURCE_ARTIFACT_NAME: r8-v15-r1-spg1-v2-r1-final-35990169768-1
-  EXPECTED_SPM_SHA256: 3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f
-  EXPECTED_TRACE_SHA256: 9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df
-  EXPECTED_SOURCE_MAP_SHA256: 6b2f8102f3a789a52b3a935a11d02253a6ac0da97be6c37bc2219b2c07683247
+  TARGET_BRANCH: freeze/r8-v15-r1-executable-schema-qualified-r2
+  BASE_COMMIT: 94cf195e6e429fa69c6fa62184241ec47f712f1c
+  SOURCE_RUN_ID: "36031267047"
+  SOURCE_ARTIFACT_NAME: r8-v15-r1-spg1-v2-r1-final-36031267047-1
+  EXPECTED_SPM_SHA256: f8828bf43e5105c045d248289d5057acd9f2110f5ee2c11ceaab494e9ee88296
+  EXPECTED_TRACE_SHA256: a7113cda70735bc4147a9fe5560bffc02dc99e5117081b51940d4d1e436db1e4
+  EXPECTED_SOURCE_MAP_SHA256: a9d9cbf3e37dca528b7574190a2f8d9a7051503efdde5888beea944891707e23
+  SOURCE_RUN_HEAD: f8c0121d36cdf004df10792d1ebbb343c93c45f0
+  SOURCE_ARTIFACT_ID: "10822031182"
+  SOURCE_ARTIFACT_ZIP_SHA256: 1786e11a8c79f48106837a1a1db2719e1b60bdff93c76fe0e60d0a54d1f80ec9
+  FINAL_VERIFY_RUN_ID: "36031511612"
+  FINAL_VERIFY_RUN_HEAD: 150b39f5ae9bc3f30e1e6a1764b3e4bba5e78d54
+  FINAL_VERIFY_ARTIFACT_ID: "10822820777"
+  FINAL_VERIFY_ARTIFACT_NAME: r8-v15-r1-spg1-v2-r1-final-post-run-36031511612-1
+  FINAL_VERIFY_ARTIFACT_ZIP_SHA256: 28fd744fd95b22b0ee84efa32f0a34b171b61b1692a86375c018465a408af3f1
 
 jobs:
   materialize:
@@ -45,6 +53,69 @@ jobs:
           test ! -e schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
           test "$(sha256sum schemas/governance-r8/v15-r1/schema-freeze-traceability.json | awk '{print $1}')" = "$EXPECTED_TRACE_SHA256"
           test "$(sha256sum schemas/governance-r8/v15-r1/schema-provenance-source-map.json | awk '{print $1}')" = "$EXPECTED_SOURCE_MAP_SHA256"
+
+      - name: Verify exact source run and independent final verifier
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo='vij7661/setugo-ai-development-framework'
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api',path]))
+          src=api(f'repos/{repo}/actions/runs/{os.environ["SOURCE_RUN_ID"]}')
+          assert src['status']=='completed' and src['conclusion']=='success'
+          assert src['head_sha']==os.environ['SOURCE_RUN_HEAD']
+          assert src['head_branch']=='enrollment/r8-v15-r1-spg1-qualified-v2-r1'
+          sa=api(f'repos/{repo}/actions/runs/{os.environ["SOURCE_RUN_ID"]}/artifacts')['artifacts']
+          sa=[x for x in sa if str(x['id'])==os.environ['SOURCE_ARTIFACT_ID']]
+          assert len(sa)==1
+          assert sa[0]['name']==os.environ['SOURCE_ARTIFACT_NAME']
+          assert sa[0]['digest']=='sha256:'+os.environ['SOURCE_ARTIFACT_ZIP_SHA256']
+          assert not sa[0]['expired']
+
+          vr=api(f'repos/{repo}/actions/runs/{os.environ["FINAL_VERIFY_RUN_ID"]}')
+          assert vr['status']=='completed' and vr['conclusion']=='success'
+          assert vr['head_sha']==os.environ['FINAL_VERIFY_RUN_HEAD']
+          assert vr['head_branch']=='enrollment/r8-v15-r1-spg1-qualified-v2-r1'
+          va=api(f'repos/{repo}/actions/runs/{os.environ["FINAL_VERIFY_RUN_ID"]}/artifacts')['artifacts']
+          va=[x for x in va if str(x['id'])==os.environ['FINAL_VERIFY_ARTIFACT_ID']]
+          assert len(va)==1
+          assert va[0]['name']==os.environ['FINAL_VERIFY_ARTIFACT_NAME']
+          assert va[0]['digest']=='sha256:'+os.environ['FINAL_VERIFY_ARTIFACT_ZIP_SHA256']
+          assert not va[0]['expired']
+          PY
+
+          mkdir -p verifier-download
+          gh run download "$FINAL_VERIFY_RUN_ID" --repo "${{ github.repository }}" --name "$FINAL_VERIFY_ARTIFACT_NAME" --dir verifier-download
+          test -f verifier-download/final-post-run-verification.json
+          python3 - <<'PY'
+          import json, os, pathlib
+          v=json.loads(pathlib.Path('verifier-download/final-post-run-verification.json').read_text())
+          assert v['status']=='POST_RUN_FINAL_FIXED_POINT_VERIFICATION_PASS'
+          assert v['input_commit']==os.environ['BASE_COMMIT']
+          assert str(v['source_run_id'])==os.environ['SOURCE_RUN_ID']
+          assert v['source_run_head']==os.environ['SOURCE_RUN_HEAD']
+          assert str(v['source_artifact_id'])==os.environ['SOURCE_ARTIFACT_ID']
+          assert v['source_artifact_zip_sha256']==os.environ['SOURCE_ARTIFACT_ZIP_SHA256']
+          assert v['final_spm_sha256']==os.environ['EXPECTED_SPM_SHA256']
+          assert v['github_attestation_verification_pass'] is True
+          assert v['oidc_identity_exact_match'] is True
+          assert v['verified_timestamp_present'] is True
+          assert v['artifact_expanded_bytes_match'] is True
+          assert v['qualified_provenance_validation_pass'] is True
+          assert v['fixed_point_traceability_condition_satisfied'] is True
+          assert v['sfv_35']=='EVIDENCE_COMPLETE_EXACT_REBIND_BYTES'
+          assert v['sfv_36']=='EVIDENCE_COMPLETE_EXACT_REBIND_BYTES'
+          assert v['sfv_44']=='EVIDENCE_COMPLETE_EXACT_REBIND_BYTES'
+          assert v['sfv_45']=='SOLE_REMAINING_EXECUTABLE_SCHEMA_FREEZE_BLOCKER'
+          assert not any(v.get(k,False) for k in [
+              'implementation_authorized','runtime_qualification_authorized',
+              'release_authorized','deployment_authorized','production_authorized'
+          ])
+          PY
 
       - name: Download exact final regeneration artifact
         shell: bash
