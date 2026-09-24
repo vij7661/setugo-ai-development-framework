@@ -1,6 +1,6 @@
 {
   "schema": "r8-v15-r1-implementation-slice1-marker/v1",
-  "status": "MECHANISM_REPAIRED_2_PENDING_FROZEN_ACCEPTANCE",
+  "status": "MECHANISM_GREEN_PENDING_POST_FREEZE_REGRESSION",
   "authority_effect": "NONE",
   "preregistration_commit": "ce4d6a46d0907922520ef56c3ca62f7c8784a319",
   "harness_commit": "9952aa72f8f124514430aef4d0a0b0218318a4e1",
@@ -14,10 +14,13 @@
     "terminal_authority": false
   },
   "mechanism_commit": "8068a75e98549c0fcd8cee74dbc5e4fcdd3f3205",
-  "retrigger_nonce": 3,
+  "retrigger_nonce": 4,
   "preserved_red_run_id": 36059530854,
   "repair_commit": "a1d30e3d0e11c6bf0ee4975415cb4071da88b3a5",
   "preserved_failure_002_run_id": 36060026022,
   "repair_commit_2": "ece49e902f1555e8b6f362ef87b82141495d5fc3",
-  "preserved_failure_003_run_id": 36060223157
+  "preserved_failure_003_run_id": 36060223157,
+  "control_failure_004_run_id": 36060442863,
+  "post_freeze_regression_commit": "240511afc41329a6ac25da7d069e8fc3ea3aae20",
+  "workflow_repair_commit": "1b4699ec27aa3a2a9383a52a91636e8c0bb1b280"
 }
