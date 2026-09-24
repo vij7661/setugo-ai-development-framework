@@ -27,7 +27,7 @@ import json.encoder
 import json.scanner
 
 EXPECTED_GENERATOR_SHA256 = "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6"
-EXPECTED_CANDIDATE_COMMIT = "8c71169f9d6eb474ec89e950e452eb2130860ede"
+EXPECTED_CANDIDATE_COMMIT = "df486ac41ad415b933a43b380c4338a121c5328f"
 EXPECTED_SEMANTIC_COMMIT = "c721b38cf8b00294797300b526596ce723a47ff8"
 GENERATOR_REL = "tools/generate_r8_v15_r1_spm.py"
 BINDING_REL = "schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json"
