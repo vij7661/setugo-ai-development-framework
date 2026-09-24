@@ -488,7 +488,7 @@
         "SFV-36",
         "SFV-44"
       ],
-      "status": "BLOCKED_UNATTESTED_RUNTIME"
+      "status": "QUALIFIED_GENERATOR_EVIDENCE_COMPLETE"
     },
     {
       "rule_id": "SFG-004",
@@ -557,8 +557,7 @@
   ],
   "freeze_process_rule_count": 7,
   "final_freeze_blockers": [
-    "SFV-36",
     "SFV-45"
   ],
-  "note": "NORM-001..043 semantic mappings remain frozen. SFG-001..007 are inherited schema-freeze-process requirements restored in V2; they do not change semantic authority."
+  "note": "NORM-001..043 semantic mappings remain frozen. SFG-001..007 are inherited schema-freeze-process requirements restored in V2; they do not change semantic authority. SFG-003/SFV-36 is now evidence-complete under the explicitly enrolled ACTIVE R8V15R1-SPG-V2 binding and independently verified qualified generation; SFG-007/SFV-45 remains the final executable-schema-freeze blocker."
 }
