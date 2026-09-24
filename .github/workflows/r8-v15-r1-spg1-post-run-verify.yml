@@ -1,0 +1,178 @@
+name: R8 v15-r1 SPG-1 Post-Run Verification
+
+on:
+  push:
+    branches:
+      - enrollment/r8-v15-r1-spg1-qualified-v1
+    paths:
+      - governance-r8/R8-V15-R1-SPG1-POST-RUN-VERIFY-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+  attestations: read
+
+concurrency:
+  group: r8-v15-r1-spg1-post-run-verify
+  cancel-in-progress: false
+
+env:
+  STAGE_B_RUN_ID: 35980845814
+  STAGE_B_RUN_HEAD: 20be7100a25ebd80e466b1828fa1ef5a5d2e2a2d
+  STAGE_B_ARTIFACT_ID: 10800590491
+  STAGE_B_ARTIFACT_NAME: r8-v15-r1-spg1-stage-b-35980845814-1
+  STAGE_B_ARTIFACT_ZIP_SHA256: 82c18b6a00c9af428852d548264c36d2edc5e63157524bcbcb221034347e8a8c
+  STAGE_B_SUBJECT_SHA256: b30ed1c036bf61bff1d8bfb6aeab4b255b951b9b7d1d35aca4757bc8a625f01f
+  STAGE_B_BUNDLE_SHA256: fdfd0dba3f4f7cf81ca53f2a4cba1c7ade49ed15c933fac0c47bda8f0fbe5334
+  QUALIFIED_SPM_SHA256: e0160487455d33c97031ee706d930ab1757d5e0b399d1d897e96325b7dccda5c
+  STAGE_B_ATTESTATION_ID: 49798503
+  BASE_CANDIDATE_COMMIT: df486ac41ad415b933a43b380c4338a121c5328f
+  SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+
+jobs:
+  verify:
+    name: Independently verify signed qualified generation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout verifier control commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: control
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout repaired base candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.BASE_CANDIDATE_COMMIT }}
+          path: base
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify Stage-B run and artifact identity before download
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          repo='vij7661/setugo-ai-development-framework'
+          run=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["STAGE_B_RUN_ID"]}']))
+          assert run['status']=='completed' and run['conclusion']=='success'
+          assert run['head_sha']==os.environ['STAGE_B_RUN_HEAD']
+          arts=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["STAGE_B_RUN_ID"]}/artifacts']))['artifacts']
+          matches=[a for a in arts if str(a['id'])==os.environ['STAGE_B_ARTIFACT_ID']]
+          assert len(matches)==1
+          a=matches[0]
+          assert a['name']==os.environ['STAGE_B_ARTIFACT_NAME']
+          assert a['digest']=='sha256:'+os.environ['STAGE_B_ARTIFACT_ZIP_SHA256']
+          assert not a['expired']
+          PY
+
+      - name: Download exact Stage-B artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p verify-input
+          gh run download "$STAGE_B_RUN_ID" --repo "${{ github.repository }}" --name "$STAGE_B_ARTIFACT_NAME" --dir verify-input
+          test -f verify-input/spg1-stage-b-qualified-subject.tar
+          test -f verify-input/stage-b-attestation-bundle.jsonl
+          test -f verify-input/stage-b/spm-qualified.json
+          test "$(sha256sum verify-input/spg1-stage-b-qualified-subject.tar | awk '{print $1}')" = "$STAGE_B_SUBJECT_SHA256"
+          test "$(sha256sum verify-input/stage-b-attestation-bundle.jsonl | awk '{print $1}')" = "$STAGE_B_BUNDLE_SHA256"
+          test "$(sha256sum verify-input/stage-b/spm-qualified.json | awk '{print $1}')" = "$QUALIFIED_SPM_SHA256"
+
+      - name: Verify GitHub Sigstore attestation outside signing run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh attestation verify verify-input/spg1-stage-b-qualified-subject.tar \
+            --repo "${{ github.repository }}" \
+            --bundle verify-input/stage-b-attestation-bundle.jsonl \
+            --format json > post-run-gh-attestation-verification.json
+
+      - name: Verify identity, exact bytes, and semantic equivalence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, tarfile, tempfile
+          root=pathlib.Path('verify-input')
+          vr=json.loads(pathlib.Path('post-run-gh-attestation-verification.json').read_text())
+          assert isinstance(vr,list) and len(vr)==1
+          res=vr[0]['verificationResult']
+          cert=res['signature']['certificate']
+          expected_identity='https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-qualified-generation.yml@refs/heads/enrollment/r8-v15-r1-spg1-qualified-v1'
+          assert cert['subjectAlternativeName']==expected_identity
+          assert cert['issuer']=='https://token.actions.githubusercontent.com'
+          assert cert['githubWorkflowSHA']==os.environ['STAGE_B_RUN_HEAD']
+          assert cert['githubWorkflowRepository']=='vij7661/setugo-ai-development-framework'
+          assert cert['githubWorkflowRef']=='refs/heads/enrollment/r8-v15-r1-spg1-qualified-v1'
+          assert cert['runnerEnvironment']=='github-hosted'
+          assert cert['sourceRepositoryIdentifier']=='1354031068'
+          assert cert['runInvocationURI']=='https://github.com/vij7661/setugo-ai-development-framework/actions/runs/35980845814/attempts/1'
+          stmt=res['statement']
+          assert stmt['subject']==[{'name':'spg1-stage-b-qualified-subject.tar','digest':{'sha256':os.environ['STAGE_B_SUBJECT_SHA256']}}]
+          assert res['verifiedTimestamps']
+          with tempfile.TemporaryDirectory() as td:
+              td=pathlib.Path(td)
+              with tarfile.open(root/'spg1-stage-b-qualified-subject.tar','r') as tf: tf.extractall(td)
+              for p in td.rglob('*'):
+                  if p.is_file():
+                      q=root/'stage-b'/p.relative_to(td)
+                      assert q.is_file() and p.read_bytes()==q.read_bytes(), f'expanded mismatch {p}'
+          spm=json.loads((root/'stage-b/spm-qualified.json').read_text())
+          assert spm['status']=='FINAL_FREEZE_ELIGIBLE'
+          assert spm['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
+          assert spm['generator']['generator_id']=='R8V15R1-SPG-V2'
+          assert spm['generator']['runtime_manifest_digest']=='5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+          assert spm['generator']['workload_attestation_proof_digest']=='9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c'
+          assert spm['generator']['qualification_status']=='QUALIFIED'
+          base=json.loads(pathlib.Path('base/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json').read_text())
+          for k in ['source_ref_catalog','artifact_count','entry_count','artifacts','coverage']:
+              assert spm[k]==base[k], k
+          assert len(spm['entries'])==len(base['entries'])
+          for old,cur in zip(base['entries'],spm['entries']):
+              x=dict(cur)
+              assert x['generator_runtime_manifest_digest']=='5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a'
+              x['generator_runtime_manifest_digest']=old['generator_runtime_manifest_digest']
+              assert x==old
+          out={
+            'schema':'r8-v15-r1-spg1-stage-b-post-run-verification/v1',
+            'status':'POST_RUN_QUALIFIED_GENERATION_VERIFICATION_PASS',
+            'authority_effect':'CLOSES_SFV_36_ONLY_WHEN_ADJUDICATED_WITH_ENROLLMENT_RECORD',
+            'stage_b_run_id':35980845814,
+            'stage_b_run_head':os.environ['STAGE_B_RUN_HEAD'],
+            'stage_b_artifact_id':10800590491,
+            'stage_b_artifact_zip_sha256':os.environ['STAGE_B_ARTIFACT_ZIP_SHA256'],
+            'attestation_id':49798503,
+            'subject_sha256':os.environ['STAGE_B_SUBJECT_SHA256'],
+            'attestation_bundle_sha256':os.environ['STAGE_B_BUNDLE_SHA256'],
+            'qualified_spm_sha256':os.environ['QUALIFIED_SPM_SHA256'],
+            'github_attestation_verification_pass':True,
+            'oidc_identity_exact_match':True,
+            'verified_timestamp_present':True,
+            'artifact_expanded_bytes_match':True,
+            'qualified_spm_semantic_equivalence_pass':True,
+            'implementation_authorized':False,
+            'sfv_45':'STILL_REQUIRED'
+          }
+          pathlib.Path('stage-b-post-run-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+          PY
+
+      - name: Upload independent post-run verification evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-spg1-post-run-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            post-run-gh-attestation-verification.json
+            stage-b-post-run-verification.json
+          if-no-files-found: error
+          retention-days: 90
