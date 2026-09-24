@@ -1,0 +1,57 @@
+{
+  "schema": "r8-v15-r1-spg1-enrollment-record/v1",
+  "status": "ACTIVE_ENROLLED_FOR_EXACT_QUALIFIED_WORKLOAD",
+  "authority_effect": "SPG1_GENERATOR_QUALIFICATION_ONLY",
+  "generator_id": "R8V15R1-SPG-V2",
+  "approval": {
+    "source": "explicit_user_approval_in_governed_conversation",
+    "approved_at": "2026-09-24T09:12:53Z",
+    "approved_text": "Approved — enroll `R8V15R1-SPG-V2` as the SchemaProvenanceGenerator for this frozen schema candidate and activate it as ACTIVE/non-revoked, bound only to the verified GitHub/Sigstore evidence from run `35977138947`.",
+    "scope": "Enroll this generator only for the exact repaired R8 v15-r1 executable-schema candidate and the exact verified GitHub/Sigstore workload evidence from run 35977138947.",
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false
+  },
+  "frozen_binding": {
+    "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+    "repaired_schema_candidate_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
+    "generator_artifact_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6"
+  },
+  "verified_stage_a_evidence": {
+    "run_id": 35977138947,
+    "run_attempt": 1,
+    "control_commit": "42ef32a77ab4b40140de4b6d9d6baae085077502",
+    "artifact_id": 10798283605,
+    "artifact_zip_sha256": "043c4da4755b6df8ace512999082bf50ea02a965f8ef1d596ff4b2c1e19acb99",
+    "attestation_id": 49789783,
+    "subject_sha256": "8ecb27ed373d4ca4be52fedfafc8d2bdc48b6dd38ad2ce155d9469f0c23c0063",
+    "attestation_bundle_sha256": "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c",
+    "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+    "workload_attestation_policy_digest": "330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b",
+    "sigstore_leaf_certificate_sha256": "5107e1873c2d18ea3b5ae24fe50eb26ee2b5ec486737266dd957555952fc8fa2",
+    "oidc_issuer": "https://token.actions.githubusercontent.com",
+    "workflow_identity": "https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-attestation.yml@refs/heads/attestation/r8-v15-r1-spg1-github-actions-v1",
+    "verification_record": "governance-r8/R8-V15-R1-SPG-STAGE-A-POST-RUN-VERIFICATION.json",
+    "verification_status": "POST_RUN_CRYPTO_VERIFICATION_PASS_ENROLLMENT_PENDING"
+  },
+  "lifecycle": {
+    "revocation_state": "ACTIVE",
+    "qualification_status": "QUALIFIED",
+    "effective_scope": "Only outputs from exact generator bytes over allowed inputs for the repaired schema candidate, executed under the verified runtime/workload binding.",
+    "no_future_non_revocation_claim": true,
+    "invalidation_triggers": [
+      "generator artifact digest drift",
+      "runtime manifest digest drift",
+      "workload attestation policy/proof mismatch",
+      "signing credential or verified workflow identity mismatch",
+      "input design artifact drift outside a governed successor",
+      "explicit suspension, revocation, retirement, or supersession"
+    ]
+  },
+  "allowed_output_schema_classes": [
+    "JSON_SCHEMA_2020_12",
+    "SPM_1_PROVENANCE_MANIFEST"
+  ],
+  "next_gate": "Qualified generator execution must regenerate SPM-1 under this exact enrollment and then undergo independent post-run verification before SFV-36 may close."
+}
