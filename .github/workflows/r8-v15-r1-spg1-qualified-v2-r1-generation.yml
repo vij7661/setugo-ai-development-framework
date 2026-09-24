@@ -1,0 +1,214 @@
+name: R8 v15-r1 SPG-1 Qualified V2-r1 Generation
+
+on:
+  push:
+    branches:
+      - attestation/r8-v15-r1-spg1-qualified-v2-r1
+    paths:
+      - governance-r8/R8-V15-R1-SPG1-V2-R1-EXECUTION-MARKER.json
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  actions: read
+
+concurrency:
+  group: r8-v15-r1-spg1-qualified-v2-r1-generation
+  cancel-in-progress: false
+
+env:
+  INPUT_COMMIT: bfe078a741855b423e9899d4debd440d21147876
+  SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+  EXPECTED_GENERATOR_SHA256: 388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6
+  EXPECTED_RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
+  EXPECTED_POLICY_SHA256: 330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b
+  EXPECTED_STAGE_A_PROOF_SHA256: 9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c
+  CONTAINER_REPO_DIGEST: python@sha256:adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout execution control
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: control
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout exact repaired candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.INPUT_COMMIT }}
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Fail closed on approval, exact candidate, generator and binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.repository }}" = "vij7661/setugo-ai-development-framework"
+          test "${{ github.repository_id }}" = "1354031068"
+          test "${{ github.ref }}" = "refs/heads/attestation/r8-v15-r1-spg1-qualified-v2-r1"
+          test "$(git -C candidate rev-parse HEAD)" = "$INPUT_COMMIT"
+          test "$(sha256sum candidate/tools/generate_r8_v15_r1_spm.py | awk '{print $1}')" = "$EXPECTED_GENERATOR_SHA256"
+          python3 - <<'PY'
+          import json, os, pathlib
+          c=pathlib.Path("candidate")
+          ctl=pathlib.Path("control")
+          b=json.loads((c/"schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json").read_text())
+          assert b["status"]=="QUALIFIED_GENERATOR_BINDING"
+          assert b["generator_id"]=="R8V15R1-SPG-V2"
+          assert b["generator_artifact_sha256"]==os.environ["EXPECTED_GENERATOR_SHA256"]
+          assert b["runtime_manifest"]["runtime_manifest_digest"]==os.environ["EXPECTED_RUNTIME_MANIFEST_DIGEST"]
+          assert b["workload_attestation_policy_digest"]==os.environ["EXPECTED_POLICY_SHA256"]
+          assert b["workload_attestation_proof_digest"]==os.environ["EXPECTED_STAGE_A_PROOF_SHA256"]
+          assert b["qualification_status"]=="QUALIFIED"
+          assert b["revocation_state"]=="ACTIVE"
+          e=json.loads((ctl/"governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json").read_text())
+          assert e["status"]=="APPROVED_FOR_EXACT_REPAIRED_SUCCESSOR"
+          assert e["frozen_binding"]["repaired_schema_candidate_commit"]==os.environ["INPUT_COMMIT"]
+          assert e["frozen_binding"]["semantic_candidate_commit"]==os.environ["SEMANTIC_CANDIDATE_COMMIT"]
+          assert e["requirements"]["fresh_attested_generation"] is True
+          assert e["requirements"]["independent_post_run_verification"] is True
+          assert not (c/"schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json").exists()
+          PY
+
+      - name: Generate SPM in exact qualified runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p stage-r1
+          docker pull "$CONTAINER_REPO_DIGEST"
+          test "$(docker image inspect "$CONTAINER_REPO_DIGEST" --format '{{index .RepoDigests 0}}')" = "$CONTAINER_REPO_DIGEST"
+          docker run --rm \
+            -v "$PWD/candidate:/candidate:ro" \
+            -v "$PWD/stage-r1:/stage-r1" \
+            -w /candidate \
+            "$CONTAINER_REPO_DIGEST" \
+            python tools/generate_r8_v15_r1_spm.py \
+              --schema-root schemas/governance-r8/v15-r1 \
+              --source-map schemas/governance-r8/v15-r1/schema-provenance-source-map.json \
+              --generator-binding schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json \
+              --output /stage-r1/spm-qualified-v2-r1.json
+          sha256sum stage-r1/spm-qualified-v2-r1.json > stage-r1/spm-qualified-v2-r1.sha256
+
+      - name: Validate exact repaired provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib
+          root=pathlib.Path("candidate/schemas/governance-r8/v15-r1")
+          s=json.loads(pathlib.Path("stage-r1/spm-qualified-v2-r1.json").read_text())
+          sm=json.loads((root/"schema-provenance-source-map.json").read_text())
+          assert s["status"]=="FINAL_FREEZE_ELIGIBLE"
+          assert s["semantic_candidate_commit"]==os.environ["SEMANTIC_CANDIDATE_COMMIT"]
+          assert s["generator"]["generator_id"]=="R8V15R1-SPG-V2"
+          assert s["generator"]["generator_artifact_sha256"]==os.environ["EXPECTED_GENERATOR_SHA256"]
+          assert s["generator"]["runtime_manifest_digest"]==os.environ["EXPECTED_RUNTIME_MANIFEST_DIGEST"]
+          assert s["generator"]["workload_attestation_proof_digest"]==os.environ["EXPECTED_STAGE_A_PROOF_SHA256"]
+          assert s["generator"]["qualification_status"]=="QUALIFIED"
+          assert s["source_ref_catalog"]==sm["named_source_refs"]
+          assert s["coverage"]=={"uncovered_semantic_elements":[],"non_authoritative_only_sources":[],"conflicting_entries":[]}
+          amap={a["path"].split("/")[-1]:a for a in s["artifacts"]}
+          assert set(amap)==set(sm["artifact_sources"])
+          for name,a in amap.items():
+              assert a["sha256"]==hashlib.sha256((root/name).read_bytes()).hexdigest(), name
+          refs=set(sm["named_source_refs"])
+          for e in s["entries"]:
+              assert e["generator_runtime_manifest_digest"]==os.environ["EXPECTED_RUNTIME_MANIFEST_DIGEST"]
+              assert e["reviewer_status"]=="REVIEW_REQUIRED"
+              assert e["source_ref_ids"] and set(e["source_ref_ids"])<=refs
+          PY
+
+      - name: Build deterministic signed subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp candidate/schemas/governance-r8/v15-r1/schema-provenance-generator-binding.json stage-r1/qualified-binding.json
+          cp candidate/schemas/governance-r8/v15-r1/schema-provenance-source-map.json stage-r1/schema-provenance-source-map.json
+          cp candidate/tools/generate_r8_v15_r1_spm.py stage-r1/generator.py
+          cp control/governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json stage-r1/enrollment-extension.json
+          cp control/.github/workflows/r8-v15-r1-spg1-qualified-v2-r1-generation.yml stage-r1/generation-workflow.yml
+          python3 - <<'PY'
+          import hashlib,json,pathlib,os
+          d=pathlib.Path("stage-r1")
+          files=[]
+          for p in sorted(d.iterdir()):
+              if p.is_file():
+                  files.append({"name":p.name,"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"bytes":p.stat().st_size})
+          out={
+            "schema":"r8-v15-r1-spg1-qualified-v2-r1-generation-subject/v1",
+            "status":"SIGNED_GENERATION_PENDING_INDEPENDENT_POST_RUN_VERIFICATION",
+            "authority_effect":"NONE",
+            "input_commit":os.environ["INPUT_COMMIT"],
+            "control_commit":"${{ github.sha }}",
+            "semantic_candidate_commit":os.environ["SEMANTIC_CANDIDATE_COMMIT"],
+            "generator_id":"R8V15R1-SPG-V2",
+            "runtime_manifest_digest":os.environ["EXPECTED_RUNTIME_MANIFEST_DIGEST"],
+            "files":files
+          }
+          (d/"subject-manifest.json").write_text(json.dumps(out,indent=2)+"\n")
+          PY
+          tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner \
+            -cf spg1-qualified-v2-r1-subject.tar -C stage-r1 .
+          sha256sum spg1-qualified-v2-r1-subject.tar > spg1-qualified-v2-r1-subject.sha256
+
+      - name: Attest fresh generation
+        id: attest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: spg1-qualified-v2-r1-subject.tar
+
+      - name: Record signed output without self-qualification
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ATTESTATION_BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+          ATTESTATION_ID: ${{ steps.attest.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+        run: |
+          set -euo pipefail
+          cp "$ATTESTATION_BUNDLE" stage-r1-attestation-bundle.jsonl
+          gh attestation verify spg1-qualified-v2-r1-subject.tar \
+            --repo "${{ github.repository }}" \
+            --bundle stage-r1-attestation-bundle.jsonl \
+            --format json > stage-r1-same-run-verification.json
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib
+          out={
+            "schema":"r8-v15-r1-spg1-qualified-v2-r1-output/v1",
+            "status":"SIGNED_REPAIRED_SUCCESSOR_PENDING_INDEPENDENT_POST_RUN_VERIFICATION",
+            "authority_effect":"NONE",
+            "input_commit":os.environ["INPUT_COMMIT"],
+            "control_commit":"${{ github.sha }}",
+            "subject_sha256":hashlib.sha256(pathlib.Path("spg1-qualified-v2-r1-subject.tar").read_bytes()).hexdigest(),
+            "attestation_bundle_sha256":hashlib.sha256(pathlib.Path("stage-r1-attestation-bundle.jsonl").read_bytes()).hexdigest(),
+            "qualified_spm_sha256":hashlib.sha256(pathlib.Path("stage-r1/spm-qualified-v2-r1.json").read_bytes()).hexdigest(),
+            "attestation_id":os.environ["ATTESTATION_ID"],
+            "attestation_url":os.environ["ATTESTATION_URL"],
+            "sfv_35":"PENDING_INDEPENDENT_POST_RUN_VERIFICATION",
+            "sfv_36":"PENDING_INDEPENDENT_POST_RUN_VERIFICATION",
+            "sfv_44":"PENDING_INDEPENDENT_POST_RUN_VERIFICATION",
+            "sfv_45":"STILL_REQUIRED"
+          }
+          pathlib.Path("stage-r1-output.json").write_text(json.dumps(out,indent=2)+"\n")
+          PY
+
+      - name: Upload evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-spg1-qualified-v2-r1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            spg1-qualified-v2-r1-subject.tar
+            spg1-qualified-v2-r1-subject.sha256
+            stage-r1-attestation-bundle.jsonl
+            stage-r1-output.json
+            stage-r1-same-run-verification.json
+            stage-r1/**
+          if-no-files-found: error
+          retention-days: 90
