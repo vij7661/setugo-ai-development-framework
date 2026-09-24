@@ -31,11 +31,10 @@ jobs:
           set -euo pipefail
           python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1.py
 
-      - name: Run existing R8 v15-r1 repair/freeze regressions
+      - name: Run applicable post-freeze R8 regressions
         shell: bash
         run: |
           set -euo pipefail
           python3 -m unittest -v \
             governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py \
-            governance-runtime/test_r8_v15_r1_sfv45_r2_qualification_reset.py \
-            governance-runtime/test_r8_v15_r1_sfv45_r3_repair.py
+            governance-runtime/test_r8_v15_r1_post_freeze_regression.py
