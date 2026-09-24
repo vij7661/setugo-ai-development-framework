@@ -49,5 +49,6 @@ jobs:
           python -m unittest discover -s governance-runtime -p 'test_r8_v15_r1_sfv45_r*.py' -v
 
       - name: Run full governance-runtime unit suite
+        working-directory: governance-runtime
         run: |
-          python -m unittest discover -s governance-runtime -p 'test_*.py' -v
+          python -m unittest discover -p 'test_*.py' -v
