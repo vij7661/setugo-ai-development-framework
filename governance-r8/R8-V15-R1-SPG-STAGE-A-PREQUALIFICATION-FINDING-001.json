@@ -1,7 +1,7 @@
 {
   "schema": "r8-v15-r1-spg-stage-a-prequalification-finding/v1",
   "finding_id": "SPG-PQF-001",
-  "status": "OPEN_REPAIR_IN_PROGRESS",
+  "status": "REPAIRED_PENDING_STAGE_A_RERUN",
   "authority_effect": "NONE",
   "classification": "PRE_EXISTING_SCHEMA_FREEZE_PROVENANCE_PACKAGE_INCONSISTENCY",
   "semantic_change": false,
@@ -47,5 +47,14 @@
     "do not mark SPG QUALIFIED",
     "do not mark revocation_state ACTIVE",
     "do not close SFV-36 or SFV-45 from this repair"
-  ]
+  ],
+  "repair": {
+    "workflow_run_id": 35976329735,
+    "repair_branch": "repair/r8-v15-r1-spm-consistency-v1",
+    "repair_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
+    "successor_freeze_branch": "freeze/r8-v15-r1-executable-schema-v2-r1",
+    "changed_file": "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json",
+    "exact_delta": "SRC-V6 added to source_ref_catalog only",
+    "semantic_change": false
+  }
 }
