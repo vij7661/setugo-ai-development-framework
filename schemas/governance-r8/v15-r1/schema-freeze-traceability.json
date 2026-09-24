@@ -474,7 +474,7 @@
         "SFV-35",
         "SFV-43"
       ],
-      "status": "SOURCE_REBIND_COMPLETE_PENDING_SPM_REGENERATION"
+      "status": "SOURCE_REBIND_COMPLETE_SPM_REGENERATION_REQUIRED"
     },
     {
       "rule_id": "SFG-003",
@@ -567,5 +567,5 @@
     "SFV-44",
     "SFV-45"
   ],
-  "note": "R3 adjudicated executable repairs remain structurally unchanged. Semantic basis is rebound to independently reviewed successor 1fa49fa4adfa6aa47fae68c0f1938083eeb1497f, accepted by evidence at c1d983ebd6eca0a78a41c946709bf246cf876f68. Earlier R3 qualification/materialization bound to d6317eb85753b0e41168413151ddcebbdcba1c6d occurred before this independent semantic review and does not transfer. Fresh exact-byte SPG generation, independent post-run verification, fixed-point regeneration/verification, and fresh SFV-45 review are required."
+  "note": "R3 adjudicated executable repairs remain structurally unchanged. Semantic basis is rebound to independently reviewed successor 1fa49fa4adfa6aa47fae68c0f1938083eeb1497f, accepted by evidence at c1d983ebd6eca0a78a41c946709bf246cf876f68. Earlier R3 qualification/materialization bound to d6317eb85753b0e41168413151ddcebbdcba1c6d occurred before this independent semantic review and does not transfer. Fresh exact-byte SPM regeneration, SPG generation, independent post-run verification, fixed-point regeneration/verification, and fresh SFV-45 review are required."
 }
