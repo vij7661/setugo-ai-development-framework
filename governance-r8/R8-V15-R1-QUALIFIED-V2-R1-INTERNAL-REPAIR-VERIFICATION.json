@@ -1,0 +1,29 @@
+{
+  "schema": "r8-v15-r1-qualified-v2-r1-internal-repair-verification/v1",
+  "status": "INTERNAL_REPAIR_VERIFICATION_PASS_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "predecessor_candidate_commit": "dab6c2e2692d7e2061b77af83b43888b84d705ae",
+  "repaired_candidate_commit_checked": "39cd1a533f2f98281163d069fef0dcd6cd339eb5",
+  "frozen_semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "check_count": 27,
+  "pass_count": 27,
+  "fail_count": 0,
+  "verified_repairs": {
+    "c2_scope_replacement_r00_split": true,
+    "c3_effect_success_executor_identity": true,
+    "h1_gcp_source_case_trace": true,
+    "h2_source_specific_digest_and_stable_id_validator_closure": true,
+    "m1_srtt_precedence_uniqueness_contiguity": true,
+    "m2_srtt_row_id_uniqueness_contiguity": true,
+    "m3_load_bearing_validator_contract_coverage": true,
+    "source_map_new_definition_norm027": true,
+    "stale_spm_removed": true
+  },
+  "reopened_gates": [
+    "SFV-35",
+    "SFV-36",
+    "SFV-44",
+    "SFV-45"
+  ],
+  "note": "This is deterministic internal repair verification only. It does not qualify the repaired candidate, regenerate SPM-1, close SFV-36, close SFV-45, freeze executable schemas, or authorize implementation/runtime/release/deployment."
+}
