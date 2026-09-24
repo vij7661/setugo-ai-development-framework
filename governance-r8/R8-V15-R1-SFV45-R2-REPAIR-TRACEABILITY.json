@@ -1,0 +1,20 @@
+{
+  "repair_scope": "R8 v15-r1 SFV-45 R2 successor structural schema repair",
+  "rejected_candidate": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+  "frozen_semantic_candidate": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "repairs": {
+    "C1": "All signed-int64 schema ceilings use 9223372036854775807 with focused boundary assertions.",
+    "H1": "MTRResponse includes challenge identity, nonce echo, signature and attestation proof bindings.",
+    "H2": "RevocationEvent includes attestation serial, reason class, EBA proof, BTW proof and MTR high-water update.",
+    "H3": "ResolverImplementationRegistryRecord includes exact implementation/runtime/workload policy tuple and predecessor/constitutional evidence.",
+    "H4": "ResolverConformanceEvidence includes RIR/policy/implementation/runtime/RCS bindings, raw vector results and deterministic aggregate.",
+    "H5": "AuthorityReadSetEntry includes schema/semantic entry digest.",
+    "H6": "RecoveryContext includes exact recovery context members and trigger evidence digests.",
+    "H7": "MigrationBinding carries a strict MigrationRequalificationProof with namespaces, object closure, policy/scope comparisons and qualification results.",
+    "H8": "ResolverPolicyContract retains policy version, algorithm, successor traversal, forensic replay and vector-set bindings.",
+    "M1": "ReviewAttestation binds per-dimension results and result digests.",
+    "M2": "EvidenceRecord binds exact input objects/digests, execution proof, output derivation and event ID.",
+    "M3": "EffectIntent binds provider/action and candidate/action/tenant scopes."
+  },
+  "authority_preservation": "No runtime implementation, authority policy, frozen semantic candidate, rejected candidate history, or qualification result was changed."
+}
