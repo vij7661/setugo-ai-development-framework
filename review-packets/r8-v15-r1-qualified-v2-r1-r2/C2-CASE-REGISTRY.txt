@@ -1,0 +1,3340 @@
+R8 v15-r1 SFV-45 R2
+SOURCE MACHINE PACK C2
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+
+===== BEGIN FILE governance-r8/R8-V15-CASE-REGISTRY-1.json =====
+GIT_BLOB_SHA1: 0bf4f88cf424604cf4c690774c7c65e41a4f7b79
+
+{
+  "schema": "case-registry-1/v2",
+  "status": "INTERNAL_NORMALIZATION_ARTIFACT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "source_versions": [
+    {
+      "version": "v4",
+      "commit": "d779eb495b5830674e0258d4d27b768f77e10471"
+    },
+    {
+      "version": "v5",
+      "commit": "53d695dff34d14365770d1dbdad8c6620e31a503"
+    },
+    {
+      "version": "v6",
+      "commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20"
+    },
+    {
+      "version": "v7",
+      "commit": "fad366add685a978c55837e420e3bcb0939d41aa"
+    },
+    {
+      "version": "v8",
+      "commit": "58e95ca8cc8beb2125413d794ec08d4333a55521"
+    },
+    {
+      "version": "v9",
+      "commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb"
+    },
+    {
+      "version": "v10",
+      "commit": "2e85384f759318a17c2ec14b1781dc689a864618"
+    },
+    {
+      "version": "v11",
+      "commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117"
+    },
+    {
+      "version": "v12",
+      "commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430"
+    },
+    {
+      "version": "v13",
+      "commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e"
+    },
+    {
+      "version": "v14",
+      "commit": "50d9e001c9e46f03c730442e4150b3b9530b802b"
+    },
+    {
+      "version": "v15",
+      "commit": "DESIGN_V15_BRANCH",
+      "blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    }
+  ],
+  "case_count": 467,
+  "guard_referenced_case_count": 467,
+  "missing_guard_referenced_cases": [],
+  "duplicate_conflicts": [],
+  "cases": [
+    {
+      "case_id": "V4-001",
+      "text": "valid EBA-attested distinct controller accepted.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-002",
+      "text": "self-issued controller_id with no EBA attestation -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-003",
+      "text": "revoked/expired EBA controller attestation -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-004",
+      "text": "valid BootstrapAuthorization + unused singleton CAS -> genesis succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-005",
+      "text": "attacker-created root keys absent from BootstrapAuthorization -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-006",
+      "text": "concurrent use of same BootstrapAuthorization -> exactly one genesis commits.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-007",
+      "text": "valid 2-of-3 root quorum across distinct EBA admin domains -> succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-008",
+      "text": "two root credentials mapping to same EBA controller -> count as one -> insufficient quorum.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-009",
+      "text": "root quorum controllers share prohibited admin domain arrangement -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-010",
+      "text": "valid recovery quorum + mandatory trigger proof -> recovery eligible.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-011",
+      "text": "shared-controller recovery quorum -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-012",
+      "text": "recovery trigger missing mandatory independent proof -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-013",
+      "text": "valid 2-of-3 anchor quorum + BTW inclusion/consistency proof -> authoritative anchor.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-014",
+      "text": "two anchor labels controlled by same EBA controller/domain -> invalid configuration.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-015",
+      "text": "anchor quorum without witness inclusion -> non-authoritative.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-016",
+      "text": "conflicting anchor quorum certificates -> ANCHOR_EQUIVOCATION.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-017",
+      "text": "valid CAS_APPEND exact current predecessor -> one commit.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-018",
+      "text": "two concurrent non-commutative successors -> at most one commit; loser HEAD_CONFLICT.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-019",
+      "text": "two commit certificates for same predecessor -> LEDGER_EQUIVOCATION.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-020",
+      "text": "valid constitutionally approved semantic-artifact digest update -> succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-021",
+      "text": "parser/predicate/evidence semantic artifact digest changes through ordinary registry update -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-022",
+      "text": "migration/recovery changes CSR-bound semantic digest without amendment -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-023",
+      "text": "frozen valid reference vector canonicalizes to exact expected bytes.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-024",
+      "text": "integer > int64 -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-025",
+      "text": "leading-zero integer -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-026",
+      "text": "negative zero -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-027",
+      "text": "duplicate key -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-028",
+      "text": "non-NFC string -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-029",
+      "text": "reordered object keys -> exact same canonical bytes.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-030",
+      "text": "ordered array must not be sorted as set.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-031",
+      "text": "valid new version/supersession preserves old primitive lineage.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-032",
+      "text": "delete primitive -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-033",
+      "text": "alias supplied to authority API instead of primitive_id -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-034",
+      "text": "valid Channel H + independent Channel X on exact candidate -> review contract satisfiable.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-035",
+      "text": "provider-only review with no Channel H -> insufficient for constitutional amendment.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-036",
+      "text": "Channel H controller equals amendment proposer controller -> reject independence.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-037",
+      "text": "reviewer packet includes other channel substantive findings -> isolation violation.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-038",
+      "text": "valid distinct-controller terminal issuer configuration/beneficiary path -> allowed for downstream evaluation.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-039",
+      "text": "same controller configures and benefits from root-sensitive issuer -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-040",
+      "text": "ordinary policy attempts waive SoD -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-041",
+      "text": "current anchored monotonic revocation head validates unrevoked authority.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-042",
+      "text": "revoked authority use -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-043",
+      "text": "stale/rollback/unavailable revocation head -> REVOCATION_UNAVAILABLE.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-044",
+      "text": "2-of-3 context-bound time attestations for same nonce/context -> valid.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-045",
+      "text": "replay time attestation under new context -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-046",
+      "text": "shared-controller time sources -> insufficient quorum.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-047",
+      "text": "non-overlapping time windows -> TIME_AUTHORITY_UNAVAILABLE.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-048",
+      "text": "change only to explicitly non-material schema field -> non-material positive.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-049",
+      "text": "authority-relevant field changed -> material.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-050",
+      "text": "unknown/unclassified changed field or stale extractor digest -> MATERIALITY_UNRESOLVED.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-051",
+      "text": "active QualifiedEvidenceProducer mints allowed strong evidence from valid inputs -> accepted class.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-052",
+      "text": "weak evidence copied into new object without producer execution -> remains weak/reject strong class.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-053",
+      "text": "producer executable/credential mismatch -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-054",
+      "text": "transition to class not allowed by producer record -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-055",
+      "text": "stable-ID tenant-local authority resolution succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-056",
+      "text": "alias used in authority field -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-057",
+      "text": "cross-tenant stable ID mismatch/replay -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-058",
+      "text": "valid enrolled producer + CAS + immediate anchor -> authoritative checkpoint.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-059",
+      "text": "valid-looking but unanchored checkpoint -> pending/non-authoritative.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-060",
+      "text": "stale predecessor or concurrent checkpoint successor -> conflict/fork.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-061",
+      "text": "expected anchored state root equals recomputed store root -> valid.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-062",
+      "text": "direct DB mutation changes recomputed root -> STATE_INTEGRITY_FAILURE.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-063",
+      "text": "unauthorized event lacking commit certificate appears in store -> ignored/failure evidence.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-064",
+      "text": "valid next registry head -> accepted.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-065",
+      "text": "lower sequence/old head replay -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-066",
+      "text": "conflicting commit certificates -> LEDGER_EQUIVOCATION/freeze.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-067",
+      "text": "valid recovery transition with proper authority and trigger -> succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-068",
+      "text": "admin/UI/incident flag alone tries blocked-state transition -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-069",
+      "text": "recovery tries weaken constitutional semantic artifact -> amendment required/reject ordinary recovery.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-070",
+      "text": "valid migration binds old anchored history, new repository, exact objects -> succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-071",
+      "text": "repository ref rewrite not matching anchored object mapping -> divergence.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-072",
+      "text": "migration omits discarded/conflicting history -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-073",
+      "text": "valid transition rule + qualified producer/provenance -> succeeds.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-074",
+      "text": "metadata-only relabel weak->strong -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-075",
+      "text": "missing/unanchored transition rule -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-076",
+      "text": "valid independently configured PLATFORM_POLICY exact-condition issuer -> allowed downstream evaluation.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-077",
+      "text": "same-controller configuration/benefit -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-078",
+      "text": "composed project policy presented as terminal issuer -> reject.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-079",
+      "text": "root quorum unavailable but valid recovery quorum -> use recovery path.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-080",
+      "text": "both root and recovery quorum unavailable -> CONSTITUTIONAL_UNRECOVERABLE; new constitution cannot inherit authority.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-081",
+      "text": "valid case reaches target guard with paired positive control and proof -> eligible PASS.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-082",
+      "text": "earlier unrelated guard blocks adversarial case -> CASE_INVALID, not PASS.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-083",
+      "text": "missing independent fault proof -> INSUFFICIENT_EVIDENCE.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V4-084",
+      "text": "constant-reject implementation -> fails positive cases.",
+      "source_version": "v4",
+      "source_commit": "d779eb495b5830674e0258d4d27b768f77e10471",
+      "source_blob": "8597233a08c77c0ab928868eaec4c13c425a2eac"
+    },
+    {
+      "case_id": "V5-001",
+      "text": "valid T0 successor chain increments generation and is accepted.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-002",
+      "text": "deployment substitutes unpinned EBA key set -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-003",
+      "text": "lower T0 generation replay -> T0_ROLLBACK.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-004",
+      "text": "alternate digest at same T0 generation -> T0_EQUIVOCATION.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-005",
+      "text": "valid inclusion + consistency proof from trusted STH -> accepted.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-006",
+      "text": "stale smaller STH -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-007",
+      "text": "same tree size different root -> BTW_EQUIVOCATION.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-008",
+      "text": "receipt under unpinned BTW key -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-009",
+      "text": "unexpired authorization + exact authorized genesis + BTW proof -> commit.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-010",
+      "text": "valid authorization with different genesis digest -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-011",
+      "text": "expired authorization -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-012",
+      "text": "missing BTW inclusion/consistency proof -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-013",
+      "text": "valid majority CAS_APPEND -> one CommitCertificate.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-014",
+      "text": "concurrent same-predecessor writers -> only one majority commit.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-015",
+      "text": "forged/single-replica CommitCertificate -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-016",
+      "text": "two majority certificates same predecessor/different event -> LAS_EQUIVOCATION.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-017",
+      "text": "retry same idempotency key/event -> same result.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-018",
+      "text": "same idempotency key/different event -> IDEMPOTENCY_CONFLICT.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-019",
+      "text": "all runtime semantic dependencies match CSM -> authority evaluation may proceed.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-020",
+      "text": "stream schema/merge function changes without constitutional amendment -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-021",
+      "text": "unknown authority runtime dependency -> SEMANTIC_DEPENDENCY_UNBOUND.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-022",
+      "text": "RuntimeManifest exact approved digests -> proceed.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-023",
+      "text": "crypto/parser/runtime drift -> authority effect NONE.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-024",
+      "text": "reference-vector bytes/digests match frozen values.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-025",
+      "text": "alternate control-character escaping -> reject/noncanonical.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-026",
+      "text": "extension map shadows standard field -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-027",
+      "text": "null inserted after digest/default phase -> reject mismatch.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-028",
+      "text": "valid attested anchor rotation + continuity/witness proof -> succeeds.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-029",
+      "text": "stale witness STH beyond policy -> WITNESS_UNAVAILABLE/reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-030",
+      "text": "revoked anchor controller signs new event -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-031",
+      "text": "fresh unique nonce + valid rotated time-source status -> accepted proof.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-032",
+      "text": "completed nonce replay -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-033",
+      "text": "old source attestation after rotation effective sequence -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-034",
+      "text": "valid parent-authorized key rotation -> new key effective.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-035",
+      "text": "old key used after effective sequence -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-036",
+      "text": "compromised parent attempts new child/scope expansion -> frozen/reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-037",
+      "text": "evidence minted before compromise effective sequence follows frozen historic-validity policy.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-038",
+      "text": "evidence minted after compromise effective sequence -> non-promotable.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-039",
+      "text": "unknown mint sequence under compromised producer -> PRODUCER_VALIDITY_UNCERTAIN.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-040",
+      "text": "only CSM-bound non-material fields changed -> non-material positive.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-041",
+      "text": "unlisted changed field -> MATERIALITY_UNRESOLVED.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-042",
+      "text": "extractor digest not current/approved -> MATERIALITY_UNRESOLVED.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-043",
+      "text": "valid in-constitution migration revalidates all scoped authority.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-044",
+      "text": "bare UUID replay across tenant/constitution -> reject.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-045",
+      "text": "imported old-constitution authority record attempts inheritance -> reject; evidence only under import class.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-046",
+      "text": "valid recovery under frozen trigger/quorum semantics -> eligible.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-047",
+      "text": "recovery tries alter its own trigger/quorum schema -> CONSTITUTIONAL_AMENDMENT_REQUIRED.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-048",
+      "text": "witness/EBA required proof unavailable -> recovery remains blocked.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-049",
+      "text": "VerifiedStateSeal unchanged at consequential commit -> action may proceed to next gate.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-050",
+      "text": "store head changes after verification but before commit -> STATE_CHANGED.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-051",
+      "text": "derived authority field omitted from state-root spec -> semantic/spec validation failure.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-052",
+      "text": "valid attested Channel H + valid attested Channel X -> review contract satisfiable.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-053",
+      "text": "unqualified provider claimed \"independent\" with no service attestation -> reject Channel X.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V5-054",
+      "text": "Channel X controller/domain overlaps prohibited lineage -> reject independence.",
+      "source_version": "v5",
+      "source_commit": "53d695dff34d14365770d1dbdad8c6620e31a503",
+      "source_blob": "bb3049b9dd4ba5c1691f518b9903900dea65711b"
+    },
+    {
+      "case_id": "V6-001",
+      "text": "valid higher T0 generation + matching MTR high-water -> accepted.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-002",
+      "text": "local disk rollback presents lower T0 generation -> rejected by MTR.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-003",
+      "text": "same generation conflicting manifest -> T0_EQUIVOCATION.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-004",
+      "text": "previously activated independent admin domains satisfy quorum diversity.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-005",
+      "text": "new domain attempts to sign the T0 successor that creates it -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-006",
+      "text": "exact-scope active attestation used in permitted role -> valid.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-007",
+      "text": "root-sensitive wildcard attestation -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-008",
+      "text": "attestation revoked at/before current EBA high-water -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-009",
+      "text": "single canonical acyclic lineage -> valid.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-010",
+      "text": "delegation cycle -> reject independence.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-011",
+      "text": "ambiguous conflicting roots -> reject independence.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-012",
+      "text": "BTW inclusion + MTR UNUSED registration -> bootstrap eligible.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-013",
+      "text": "BTW receipt without MTR singleton record -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-014",
+      "text": "one valid GGS genesis command -> one certificate.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-015",
+      "text": "two valid authorizations race for same constitution_id -> exactly one commit.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-016",
+      "text": "retry same idempotency/genesis -> same certificate; changed digest -> conflict.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-017",
+      "text": "current monotonic LASHardState permits valid vote/commit.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-018",
+      "text": "rolled-back term/index disk image attempts vote -> reject/non-voting.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-019",
+      "text": "old majority certificate below high-water -> stale reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-020",
+      "text": "valid exact-head append atomically advances StreamHeadMap.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-021",
+      "text": "concurrent same-predecessor append -> one commit, loser HEAD_CONFLICT.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-022",
+      "text": "observation of conflicting majority certificates -> LAS_EQUIVOCATION/freeze.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-023",
+      "text": "all authority reads through AIM gateway -> evaluation permitted.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-024",
+      "text": "direct undeclared env/config read -> SEMANTIC_DEPENDENCY_UNBOUND.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-025",
+      "text": "unregistered derived/display input consumed by authority -> SEMANTIC_DEPENDENCY_UNBOUND.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-026",
+      "text": "canonical CSM-2 produces exact frozen digest.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-027",
+      "text": "duplicate/unregistered semantic_input_id -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-028",
+      "text": "distinct NFC canonical keys parse without collision.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-029",
+      "text": "keys colliding after canonical interpretation -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-030",
+      "text": "Unicode noncharacter in authority key/string -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-031",
+      "text": "valid workload attestation matches approved RuntimeManifest -> root-sensitive execution eligible.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-032",
+      "text": "executable/image digest mismatch -> authority effect NONE.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-033",
+      "text": "missing qualified workload attestation where required -> authority effect NONE.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-034",
+      "text": "current revocation head equals/exceeds MTR high-water -> use may continue.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-035",
+      "text": "lower revocation head rollback -> REVOCATION_UNAVAILABLE/reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-036",
+      "text": "UNREVOKE cannot retroactively validate revoked interval.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-037",
+      "text": "fresh LAS NonceLedger ISSUED nonce + active time source -> valid time challenge.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-038",
+      "text": "consumed nonce replay -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-039",
+      "text": "old/suspended time source at attestation sequence -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-040",
+      "text": "qualified producer with matching workload/executable proof mints permitted strong evidence.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-041",
+      "text": "executable mismatch -> reject strong class.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-042",
+      "text": "weak bytes copied to new object without producer execution -> remains weak.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-043",
+      "text": "unchanged frozen review-packet presentation -> prior review binding preserved.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-044",
+      "text": "reviewer-visible decision input changes -> old review binding invalid.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-045",
+      "text": "no-widening migration + complete RequalificationProof -> may commit.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-046",
+      "text": "migration widens issuer/policy/authority scope without fresh approval -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-047",
+      "text": "cross-constitution authority import -> historical/external evidence only.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-048",
+      "text": "signed EBA-attested independent Channel H review -> valid Channel H.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-049",
+      "text": "pasted/unsigned human review -> cannot satisfy Channel H.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-050",
+      "text": "proposer-controlled Channel H controller -> reject independence.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-051",
+      "text": "all authority-consumed mutable/derived inputs present in AuthorityReadSet -> seal valid.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-052",
+      "text": "authority predicate consumes value absent from read set -> UNSEALED_AUTHORITY_INPUT.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-053",
+      "text": "derived value rule/source not sealed -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-054",
+      "text": "COMMIT_WITH_SEAL sees all expected heads unchanged -> effect intent may commit.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-055",
+      "text": "one sealed head changes before commit -> STATE_CHANGED, no effect intent.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-056",
+      "text": "projection DB changes without LAS head change -> projection ignored / integrity failure, no authority effect.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-057",
+      "text": "fresh committed RecoveryContext + bound approvals/trigger proof -> eligible.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-058",
+      "text": "replay old recovery approvals under new context/state -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-059",
+      "text": "lawful T0/recovery path permanently unavailable -> TRUST_DOMAIN_UNRECOVERABLE.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-060",
+      "text": "local operator attempts emergency replacement root -> reject.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-061",
+      "text": "schema-freeze input traces only to authoritative R8 semantics -> RG-1 pass.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-062",
+      "text": "schema rule sourced only from PR #39/#40 proposal -> UNAUTHORIZED_SEMANTIC_SOURCE.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-063",
+      "text": "guard with valid positive control + required fault proof may qualify.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-064",
+      "text": "missing guard positive control -> guard unqualified.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V6-065",
+      "text": "missing REQUIRED fault proof -> INSUFFICIENT_EVIDENCE.",
+      "source_version": "v6",
+      "source_commit": "e0e6995a61dab629ff49efc19f6d6128936b9c20",
+      "source_blob": "4604fc38859087f08f941f5bde023214876528cb"
+    },
+    {
+      "case_id": "V7-001",
+      "text": "live challenge + exact fresh MTR response + unconsumed nonce -> accepted.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-002",
+      "text": "old response replayed under a new challenge -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-003",
+      "text": "response for wrong verifier/trust-domain/purpose -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-004",
+      "text": "MTR unavailable or response exceeds 30-second window -> MTR_UNAVAILABLE.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-005",
+      "text": "one valid next-generation reservation -> reservation certificate.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-006",
+      "text": "two different successor digests race for one next generation -> exactly one reservation; loser T0_EQUIVOCATION.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-007",
+      "text": "activation digest differs from reserved digest -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-008",
+      "text": "current GGSHardState + namespace root >= MTR high-water -> voting/commit eligible.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-009",
+      "text": "rolled-back GGS disk image -> replica non-voting.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-010",
+      "text": "presented namespace checkpoint below MTR high-water -> stale reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-011",
+      "text": "valid old+new joint quorums with transferred hard state -> activation succeeds.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-012",
+      "text": "old-config-only certificate after activation_index -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-013",
+      "text": "new replica missing required hard-state continuity -> non-voting/reject rotation.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-014",
+      "text": "distinct ACTIVE canonical subjects/domains satisfy quorum.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-015",
+      "text": "SUSPENDED/RETIRED domain signature -> non-voting.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-016",
+      "text": "two aliases resolve to same canonical_subject_id -> count once; insufficient diversity if threshold depends on both.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-017",
+      "text": "authority evaluator obtains all mutable inputs through broker profile -> eligible.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-018",
+      "text": "direct undeclared network/database/config access attempt -> AIEP_VIOLATION.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-019",
+      "text": "authority component outside qualified AIEP profile -> authority effect NONE.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-020",
+      "text": "exactly one ACTIVE entry resolves AIM input -> valid.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-021",
+      "text": "zero active entries -> SEMANTIC_DEPENDENCY_UNBOUND.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-022",
+      "text": "multiple active entries -> SEMANTIC_ENTRY_CONFLICT.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-023",
+      "text": "current LAS revocation head in seal -> lower-risk authority use may proceed.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-024",
+      "text": "stale projected/local revocation head -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-025",
+      "text": "ATTESTED_RUNTIME + matching workload proof -> role eligible.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-026",
+      "text": "UNATTESTED_RUNTIME attempts root/terminal/strong-evidence role -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-027",
+      "text": "every schema element has authoritative SPM-1 lineage -> RG-1 eligible.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-028",
+      "text": "schema element has no provenance -> UNAUTHORIZED_SEMANTIC_SOURCE.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-029",
+      "text": "schema rule sourced only from PR #39/#40 -> UNAUTHORIZED_SEMANTIC_SOURCE.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-030",
+      "text": "committed intent -> qualified executor -> reconciled provider receipt -> SUCCEEDED_RECONCILED.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-031",
+      "text": "provider response says success but reconciliation cannot confirm -> UNCERTAIN, not success.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-032",
+      "text": "retry uses different idempotency key -> reject executor attempt.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-033",
+      "text": "duplicate/altered provider effect observed -> reconciliation failure/COMPENSATION_REQUIRED where supported.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-034",
+      "text": "complete migration object map + requalification -> eligible.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-035",
+      "text": "later authority reference to omitted source object -> MIGRATION_OBJECT_UNBOUND.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-036",
+      "text": "only RPS DISPLAY_NON_SEMANTIC field changes under frozen constraints -> old semantic packet binding unaffected.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-037",
+      "text": "reviewer-visible semantic/unknown field changes -> old review binding invalid.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-038",
+      "text": "lawful recovery quorum commits TrustLossAssessment -> TRUST_DOMAIN_UNRECOVERABLE recorded.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-039",
+      "text": "no lawful recovery quorum -> remain TRUST_PATH_UNAVAILABLE; no authoritative final declaration.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-040",
+      "text": "operator/model/admin self-declares unrecoverable and substitutes root -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-041",
+      "text": "time proof binds exact decision_preseal_digest + single-use nonce -> accepted into seal.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V7-042",
+      "text": "time proof binds caller label or stale/different read-set digest -> reject.",
+      "source_version": "v7",
+      "source_commit": "fad366add685a978c55837e420e3bcb0939d41aa",
+      "source_blob": "4bffae9907735862946e97ff9c608abf960078a8"
+    },
+    {
+      "case_id": "V8-001",
+      "text": "valid authorized successor reservation -> one certificate.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-002",
+      "text": "unauthorized caller with valid-looking digest attempts reservation -> T0_RESERVATION_UNAUTHORIZED; slot unchanged.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-003",
+      "text": "two separately authorized different digests race for same next generation -> exactly one reservation; other T0_EQUIVOCATION.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-004",
+      "text": "activation digest differs from authorized/reserved digest -> reject.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-005",
+      "text": "fresh challenge + response_seq above persisted high-water -> accepted and atomically consumes challenge/advances high-water.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-006",
+      "text": "verifier local rollback presents lower persisted response high-water -> rollback-resistant store prevents authority use.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-007",
+      "text": "response_seq equal to accepted seq with conflicting tuple -> reject/equivocation.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-008",
+      "text": "consumed challenge ledger rolled-back in ordinary DB -> cannot regain authority.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-009",
+      "text": "joint old/new GGS quorums + transferred namespace/auth roots -> activation succeeds.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-010",
+      "text": "new GGS replica missing committed namespace/auth-root high-water -> non-voting.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-011",
+      "text": "old-config-only genesis certificate after activation -> reject.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-012",
+      "text": "attested registered gateway + bound broker channel produces valid read-set item.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-013",
+      "text": "counterfeit/unattested gateway response -> AIG_UNTRUSTED.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-014",
+      "text": "revoked gateway/broker session used for new authority read -> reject.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-015",
+      "text": "time proof binds full DPS-2 including MTR/LAS/revocation/runtime/effect ID -> valid for final seal.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-016",
+      "text": "any DPS-2 field changes after nonce issuance -> old time proof reject.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-017",
+      "text": "MTR response sequence/digest differs from preseal -> reject.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-018",
+      "text": "enrolled attested SPG emits schema+SPM from exact authoritative inputs -> provenance valid.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-019",
+      "text": "generator executable/workload mismatch -> reject provenance.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-020",
+      "text": "SPM source commit/blob altered without regeneration event -> provenance mismatch.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-021",
+      "text": "exactly one highest-specificity ACTIVE semantic entry -> resolve.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-022",
+      "text": "two ACTIVE entries tie at highest specificity -> SEMANTIC_ENTRY_CONFLICT.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-023",
+      "text": "no matching ACTIVE entry -> SEMANTIC_DEPENDENCY_UNBOUND.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-024",
+      "text": "active attested executor dispatches and reconciles original effect -> SUCCEEDED_RECONCILED.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-025",
+      "text": "executor revoked before dispatch -> no dispatch.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-026",
+      "text": "executor revoked while effect is in-flight -> EXECUTOR_REVOKED_UNCERTAIN until independent reconciliation.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-027",
+      "text": "compensation result uncertain/fails -> explicit compensation-failure state; no fabricated success.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-028",
+      "text": "destination policy head unchanged at commit -> migration may commit.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-029",
+      "text": "destination policy changes after RequalificationProof -> MIGRATION_DESTINATION_STATE_CHANGED.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-030",
+      "text": "omitted migrated object later referenced -> MIGRATION_OBJECT_UNBOUND.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-031",
+      "text": "blind packet includes canonical v4+v5+v6+v7+v8 design/case semantics and full guard map -> review-complete input.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V8-032",
+      "text": "canonical inherited case text omitted -> REVIEW_PACKET_INCOMPLETE; design review cannot close.",
+      "source_version": "v8",
+      "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+      "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+    },
+    {
+      "case_id": "V9-001",
+      "text": "higher-specificity ACTIVE rule + lower-general ACTIVE rule -> resolve higher-specificity ACTIVE rule.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-002",
+      "text": "higher-specificity REVOKED rule + lower-specificity ACTIVE general rule -> SEMANTIC_SCOPE_REVOKED; no fallback.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-003",
+      "text": "higher-specificity REVOKED rule + lower-specificity ACTIVE ANY rule -> SEMANTIC_SCOPE_REVOKED; no fallback.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-004",
+      "text": "two ACTIVE rules tied at Smax -> SEMANTIC_ENTRY_CONFLICT; no lower fallback.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-005",
+      "text": "semantic class explicitly permits ANY at project scope and valid entry registers.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-006",
+      "text": "semantic class does not permit ANY at requested tuple component -> SEMANTIC_SCOPE_INVALID.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-007",
+      "text": "entry attempts ANY to bypass revoked exact-scope lineage -> registration/resolution cannot bypass revoked scope.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-008",
+      "text": "new LAS replica transfers matching idempotency root and becomes voting.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-009",
+      "text": "new LAS replica lacks/mismatches idempotency ledger -> non-voting.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-010",
+      "text": "after rotation, consumed idempotency key + different event digest -> IDEMPOTENCY_CONFLICT.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-011",
+      "text": "one valid ENTER_JOINT from current GGS config -> commits.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-012",
+      "text": "two different GGS new-config proposals race from same old config -> exactly one commits; loser CONFIG_HEAD_CONFLICT.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-013",
+      "text": "same GGS transition_id retried with different config digest -> IDEMPOTENCY_CONFLICT.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-014",
+      "text": "one valid ENTER_JOINT from current LAS-3 config -> commits.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-015",
+      "text": "two different LAS-3 new-config proposals race from same old config -> exactly one commits; loser CONFIG_HEAD_CONFLICT.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-016",
+      "text": "same LAS transition_id retried with different config digest -> IDEMPOTENCY_CONFLICT.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-017",
+      "text": "pre-effective SPG output outside retrospective invalidation -> remains historically valid under SGHVP-1.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-018",
+      "text": "post-effective SPG output -> SCHEMA_GENERATOR_INVALID_AT_GENERATION.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-019",
+      "text": "unknown generation sequence under compromised generator -> SCHEMA_GENERATOR_VALIDITY_UNCERTAIN.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-020",
+      "text": "retrospective invalidation covering frozen schema artifact -> artifact becomes non-promotable pending regeneration/requalification.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-021",
+      "text": "independently qualified reconciler with distinct canonical subject and required domain separation verifies provider state -> reconciliation evidence eligible.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-022",
+      "text": "reconciler alias resolves to same canonical subject as revoked executor -> independence reject.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-023",
+      "text": "reconciler asserts success without qualified external provider observation -> no SUCCEEDED_RECONCILED state.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-024",
+      "text": "Runtime/CSM LAS artifact set exactly matches LAS-3 semantic digest set -> eligible.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V9-025",
+      "text": "component labelled LAS-3 but idempotency/rotation artifact digest corresponds to older semantics -> semantic/version mismatch; authority effect NONE.",
+      "source_version": "v9",
+      "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+      "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+    },
+    {
+      "case_id": "V10-001",
+      "text": "two valid entries share semantic_input_id but differ by lineage/scope/version -> both register with distinct semantic_entry_key.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-002",
+      "text": "two entries have identical semantic_entry_key -> duplicate reject.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-003",
+      "text": "stored specificity differs from scope-derived specificity -> SEMANTIC_SCOPE_INVALID.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-004",
+      "text": "revoked exact-scope entry + constitutionally valid ACTIVE successor referencing it -> successor re-establishes scope and resolves.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-005",
+      "text": "revoked exact-scope entry + ACTIVE same-scope entry with no successor/mapping reference -> SEMANTIC_SUCCESSOR_REQUIRED at registration.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-006",
+      "text": "replacement scope changes specificity without valid ScopeReplacementMapping -> cannot unblock revoked scope.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-007",
+      "text": "valid constitutional SemanticLineageMapping from revoked lineage to new lineage -> mapped successor eligible per mapping.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-008",
+      "text": "lower/general entry in different lineage with no mapping -> no fallback; blocked/unbound.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-009",
+      "text": "constitutionally permitted ANY position registers and resolves according to specificity.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-010",
+      "text": "project/org policy attempts broaden ANYScopePermission -> reject.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-011",
+      "text": "ANY entry's bound permission is revoked/narrowed -> SCOPE_PERMISSION_REEVALUATION_REQUIRED; cannot silently remain authority.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-012",
+      "text": "old LAS quorum signs STC, new quorum accepts exact same snapshot, ENTER_JOINT/ACTIVATE reference exact certificates -> rotation eligible.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-013",
+      "text": "joining LAS replica has mismatched StreamHeadMap/idempotency/log state -> non-voting; ENTER_JOINT reject.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-014",
+      "text": "ACTIVATE references different STC or JOINT certificate -> CONFIG_TRANSITION_MISMATCH.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-015",
+      "text": "old GGS quorum signs STC including namespace/authorization roots, new quorum accepts exact state -> rotation eligible.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-016",
+      "text": "joining GGS replica has mismatched namespace/authorization/idempotency root -> non-voting; ENTER_JOINT reject.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-017",
+      "text": "ACTIVATE references state-transfer certificate not accepted by new quorum -> reject.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-018",
+      "text": "one valid CTS-2 ENTER_JOINT from PRE_JOINT -> commits and enters JOINT.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-019",
+      "text": "two different ENTER_JOINT proposals race from same predecessor -> exactly one commits; loser CONFIG_HEAD_CONFLICT.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-020",
+      "text": "same transition ID with different proposed config/STC -> IDEMPOTENCY_CONFLICT.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-021",
+      "text": "during JOINT, command signed only by old or only by new quorum -> reject; both required.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-022",
+      "text": "blind packet redacts only prior adjudication-reference metadata while semantic digests/sections remain complete -> packet valid.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V10-023",
+      "text": "semantic rule/case/guard removed under guise of blind redaction -> packet invalid/incomplete.",
+      "source_version": "v10",
+      "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+      "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+    },
+    {
+      "case_id": "V11-001",
+      "text": "two otherwise identical entries differing only by action_class remain distinct and resolve by exact action scope.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-002",
+      "text": "entry omits/aliases trust_domain_id or constitution_id -> invalid scope.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-003",
+      "text": "stored/derived scope specificity mismatch -> reject.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-004",
+      "text": "revoked source Smax entry references one active constitutional SemanticLineageMapping to exact destination successor -> mapped successor resolves.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-005",
+      "text": "revoked source + unrelated lower/general destination-lineage entry without mapping -> no fallback; SEMANTIC_SCOPE_REVOKED.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-006",
+      "text": "two effective lineage mappings for same source entry -> SEMANTIC_LINEAGE_CONFLICT.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-007",
+      "text": "single acyclic version-increasing successor chain -> resolves current ACTIVE successor.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-008",
+      "text": "cycle in successor/mapping graph -> reject mapping/SEMANTIC_SUCCESSOR_CONFLICT.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-009",
+      "text": "two effective successors from one entry at one decision sequence -> SEMANTIC_SUCCESSOR_CONFLICT.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-010",
+      "text": "permission narrowing causes affected Smax entry -> SCOPE_PERMISSION_REEVALUATION_REQUIRED and blocks lower-general fallback.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-011",
+      "text": "project/org actor attempts revalidate disallowed ANY -> reject.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-012",
+      "text": "constitutionally authorized revalidated successor under current permission -> resolver may use successor.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-013",
+      "text": "AIM-2 input resolves only through CSRULE-3/CSM-4 and all traversed mappings enter AuthorityReadSet.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-014",
+      "text": "authority code attempts bypass with direct \"one active entry\" lookup -> AIEP/AIM violation; authority effect NONE.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-015",
+      "text": "ROTATION_PREPARE commits at B, no post-B authority writes, STC-2 matches root at B, ENTER_JOINT succeeds.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-016",
+      "text": "authority commit attempted after ROTATION_PREPARE before ENTER_JOINT -> ROTATION_FROZEN; state root unchanged.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-017",
+      "text": "STC snapshot/root does not equal barrier state B -> reject rotation.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-018",
+      "text": "exactly one STC_COMMIT for rotation/barrier -> valid.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-019",
+      "text": "two different STC digests race for one rotation/barrier -> one commit; conflict/equivocation for loser.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-020",
+      "text": "new-config acceptance root differs from STC -> new replica non-voting; ENTER_JOINT reject.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-021",
+      "text": "JOINT command has old+new quorum and exact STC/JOIN certificates -> eligible.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-022",
+      "text": "JOINT authority/config command has only old or only new quorum -> reject.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-023",
+      "text": "ACTIVATE references wrong rotation/STC/JOIN/new-config -> CONFIG_TRANSITION_MISMATCH.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-024",
+      "text": "BSP-1 removes only permitted prior-adjudication metadata; residual scan PASS; semantic guard/case counts preserved.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-025",
+      "text": "projected packet retains prior adjudication hash/reference line -> packet construction fails; review packet not frozen.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-026",
+      "text": "entries differing only by trust_domain/constitution/object_class/action_class do not collide and cannot cross-authorize.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V11-027",
+      "text": "a resolver request with mismatched one of those dimensions cannot match the other scope.",
+      "source_version": "v11",
+      "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+      "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+    },
+    {
+      "case_id": "V12-001",
+      "text": "current LAS semantic-state sequence and matching heads -> resolution eligible.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-002",
+      "text": "caller/historical semantic sequence before later revocation -> authority API rejects historical sequence; forensic path authority NONE.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-003",
+      "text": "current CSM/AIM/ANY/resolver heads do not all correspond to one LAS snapshot -> reject mixed semantic state.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-004",
+      "text": "valid constitutionally authorized successor AIM descriptor becomes current at effective sequence.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-005",
+      "text": "ordinary policy attempts source-lineage redirect -> CONSTITUTIONAL_AMENDMENT_REQUIRED.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-006",
+      "text": "in-place mutation of committed AIM descriptor -> integrity failure/reject.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-007",
+      "text": "resolver implementation/runtime identity matches active ResolverPolicy and conformance-vector digest -> eligible.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-008",
+      "text": "implementation digest differs from active policy binding -> authority effect NONE.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-009",
+      "text": "ResolverPolicy changed without constitutional amendment -> reject.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-010",
+      "text": "current ANY permission permits all candidate ANY positions -> candidate may continue through lifecycle evaluation.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-011",
+      "text": "permission narrowed/revoked but no lifecycle marker exists -> resolver independently returns SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-012",
+      "text": "project/org policy attempts ANY permission revalidation/broadening -> reject.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-013",
+      "text": "LASAuthorityStateRoot includes matching CSM/AIM/ANY/resolver heads -> root valid.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-014",
+      "text": "any named semantic head omitted or mismatched -> state-root/rotation verification reject.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-015",
+      "text": "projection/database mutation changes semantic data without LAS head -> STATE_INTEGRITY_FAILURE.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-016",
+      "text": "semantic registry remains unchanged during ROTATION_PREPARED -> rotation can continue.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-017",
+      "text": "CSM/AIM/ANY/resolver update attempted during freeze -> ROTATION_FROZEN.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-018",
+      "text": "STC semantic heads differ from barrier B -> rotation reject.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-019",
+      "text": "one rotation reserves fresh B and retries same identity idempotently.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-020",
+      "text": "two different rotation IDs race for B -> exactly one reserves; loser BARRIER_ALREADY_RESERVED.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-021",
+      "text": "after ROTATION_ABORT, new rotation attempts reuse B -> reject; new barrier required.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-022",
+      "text": "valid mapped replacement satisfies exact truth table and current ANY permission -> eligible.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-023",
+      "text": "mapping enum/text exists but truth-table conditions do not match decision scope -> cannot unblock source scope.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-024",
+      "text": "replacement uses unauthorized ANY position -> blocked.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-025",
+      "text": "current semantic sequence/heads bound into preseal, time proof, and final seal -> eligible.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-026",
+      "text": "semantic head changes after time nonce issuance -> old time proof invalid.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-027",
+      "text": "semantic head changes after seal but before COMMIT_WITH_SEAL -> STATE_CHANGED, no effect intent.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-028",
+      "text": "clean BSP-2 packet contains current v12 status and neutral predecessor-authority statement but no prior disposition outcomes -> pass.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-029",
+      "text": "prior `CHANGES_REQUIRED`/`BOUNDED_PASS`/etc. attached to predecessor remains -> REVIEW_PACKET_NOT_BLIND.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-030",
+      "text": "redaction removes a semantic invariant/guard/case -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-031",
+      "text": "GCC-1 compiles every ACTIVE guard sequentially with positive/negative/FP references -> catalog valid.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-032",
+      "text": "missing or duplicate guard/case reference -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-033",
+      "text": "negative case lacks FP class -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-034",
+      "text": "valid ANY_SCOPE_PERMISSION_AMENDMENT constitutional path -> permission successor eligible.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-035",
+      "text": "project/org actor attempts same transition -> reject.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-036",
+      "text": "TXT authoritative + PDF marked NON_AUTHORITATIVE_CONVENIENCE/validated -> review surface valid.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V12-037",
+      "text": "PDF differs/corrupts while manifest claims authoritative equivalence -> PDF projection FAIL; TXT remains authoritative.",
+      "source_version": "v12",
+      "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+      "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+    },
+    {
+      "case_id": "V13-001",
+      "text": "exact ACTIVE RIR record matches policy/implementation/runtime/workload/conformance tuple -> resolver eligible.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-002",
+      "text": "implementation passes vectors but is absent from RIR -> RESOLVER_IMPLEMENTATION_UNBOUND.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-003",
+      "text": "RIR record policy digest differs from current ResolverPolicy -> reject.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-004",
+      "text": "exact bound suite/generator/harness/runtime executes all vectors with expected result manifest -> conformance eligible.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-005",
+      "text": "vectors generated/executed by different implementation or runtime -> reject qualification evidence.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-006",
+      "text": "missing/failed vector -> resolver record unqualified.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-007",
+      "text": "exact old scope + SAME exact replacement + valid permissions/effective mapping -> REPLACEMENT_ELIGIBLE.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-008",
+      "text": "exact-replacement effect with NARROWER/BROADER destination -> SEMANTIC_SCOPE_REPLACEMENT_INVALID.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-009",
+      "text": "mapped replacement with DISJOINT destination -> invalid.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-010",
+      "text": "broader mapped replacement + valid expansion amendment + decision inside authorized domain -> eligible.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-011",
+      "text": "broader replacement without expansion amendment -> invalid.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-012",
+      "text": "broader replacement with valid amendment but decision outside authorized domain -> blocked/invalid.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-013",
+      "text": "REVOKED Smax entry + valid unique successor + unrelated equivalent ACTIVE peer -> unique semantic result may continue.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-014",
+      "text": "REVOKED Smax entry + unrelated ACTIVE peer but no valid discharge path -> SEMANTIC_SCOPE_REVOKED.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-015",
+      "text": "REVOKED branch has two non-equivalent valid successor paths -> SEMANTIC_SUCCESSOR_CONFLICT.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-016",
+      "text": "two ACTIVE AIM descriptors match at different specificity -> highest-specificity descriptor resolves.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-017",
+      "text": "two non-equivalent ACTIVE AIM descriptors tie at AIM_Smax -> AIM_DESCRIPTOR_CONFLICT.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-018",
+      "text": "revoked AIM descriptor at AIM_Smax + lower ACTIVE descriptor -> no fallback; AIM_DESCRIPTOR_REVOKED.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-019",
+      "text": "state root explicitly binds semantic_state_sequence and all named semantic/registry heads -> valid.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-020",
+      "text": "RIR/GuardRegistry/sequence omitted or mismatched -> root verification reject.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-021",
+      "text": "predecessor outcome lines are removed while current v13 status is retained.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-022",
+      "text": "predecessor outcome remains after classification -> REVIEW_PACKET_NOT_BLIND.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-023",
+      "text": "semantic test vector containing outcome token is incorrectly removed -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-024",
+      "text": "same rotation/config/STC retry -> idempotent same result.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-025",
+      "text": "same rotation ID with different config/STC -> IDEMPOTENCY_CONFLICT.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-026",
+      "text": "contradictory valid reservation certificates for same barrier -> STC_EQUIVOCATION/freeze.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-027",
+      "text": "exactly one ACTIVE GuardRegistry record exists for every contiguous G001-G140 -> registry valid.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-028",
+      "text": "duplicate conflicting ACTIVE record for G044 -> GUARD_REGISTRY_CONFLICT.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V13-029",
+      "text": "blind packet exposes a legacy conflicting table as co-authoritative -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v13",
+      "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+      "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+    },
+    {
+      "case_id": "V14-001",
+      "text": "high-specificity AIM descriptor with valid ANY + lower ACTIVE descriptor -> high-specificity resolves.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-002",
+      "text": "high-specificity AIM descriptor has narrowed/revoked ANY + lower ACTIVE descriptor -> AIM_SCOPE_PERMISSION_REEVALUATION_REQUIRED; no fallback.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-003",
+      "text": "high-specificity AIM descriptor has invalid ANY but lifecycle marker absent -> same blocker; no fallback.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-004",
+      "text": "ACTIVE RIR record with activation <= sequence and no prior retirement/revocation -> eligible.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-005",
+      "text": "activation_sequence > semantic_state_sequence -> ineligible.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-006",
+      "text": "retirement/revocation_sequence <= semantic_state_sequence -> ineligible.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-007",
+      "text": "two successor paths normalize to identical semantic_result_digest -> one semantic result.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-008",
+      "text": "different terminal entry, terminal rule digest, lineage, or effective scope digest -> non-equivalent conflict.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-009",
+      "text": "implementation claims equivalence despite different canonical digest -> reject.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-010",
+      "text": "generator enumerates complete Cartesian domain exactly once -> table complete.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-011",
+      "text": "missing tuple -> SRTT_INCOMPLETE.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-012",
+      "text": "duplicate tuple with conflicting output -> SRTT_CONFLICT.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-013",
+      "text": "evidence remains within bound freshness profile and all tuple digests unchanged -> valid.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-014",
+      "text": "runtime/policy/suite changes after evidence -> evidence invalid.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-015",
+      "text": "evidence exceeds configured age/sequence limit -> fresh execution required.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-016",
+      "text": "predecessor status removed, current status retained, semantic test literal retained -> BSP pass.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-017",
+      "text": "predecessor review metadata survives -> REVIEW_PACKET_NOT_BLIND.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-018",
+      "text": "semantic test literal is removed by classifier -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-019",
+      "text": "embedded projection+omission manifests prove all removed content and current guard coverage -> packet complete.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-020",
+      "text": "omission manifest cannot prove guard IDs/case semantics preserved -> packet incomplete.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-021",
+      "text": "sidecar-only manifest missing from authoritative TXT -> packet incomplete.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-022",
+      "text": "normalized spec/matrices/cross-cases show zero unresolved contradictions -> NCG-1 PASS.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-023",
+      "text": "one evaluation-order contradiction remains -> NCG-1 FAIL.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V14-024",
+      "text": "authority state has no unique owner/head -> NCG-1 FAIL.",
+      "source_version": "v14",
+      "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+      "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+    },
+    {
+      "case_id": "V15-001",
+      "text": "generated table declares fixed REVOKED source domain plus 2304 variable tuples -> domain complete.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-002",
+      "text": "table contains REVOKED rows but no fixed-domain declaration -> SRTT_DOMAIN_UNDECLARED.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-003",
+      "text": "generator attempts ACTIVE/SUSPENDED source row inside replacement table -> SRTT_DOMAIN_VIOLATION.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-004",
+      "text": "every row decisive_rule_id resolves to exactly one frozen RuleRegistry record and recomputation matches -> valid.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-005",
+      "text": "row references undeclared decisive rule -> SRTT_RULE_REGISTRY_INVALID.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-006",
+      "text": "two same-precedence rules match one tuple with different outputs -> SRTT_CONFLICT.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-007",
+      "text": "source V4-024..V4-030 expands to all seven explicit IDs and all are preserved -> omission proof valid.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-008",
+      "text": "range expansion omits V4-025..V4-029 while endpoints remain -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-009",
+      "text": "manifest contains case not referenced by omitted source table -> set-equality proof fails.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-010",
+      "text": "exactly one version-15 marked current status block survives while predecessor review status is removed -> BSP pass.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-011",
+      "text": "two current-status blocks or version mismatch -> REVIEW_PACKET_INCOMPLETE.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-012",
+      "text": "ordinary prose with status token is misclassified as semantic-test literal -> BSP fail.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-013",
+      "text": "two revoked blockers each uniquely discharge to same SREP digest -> one semantic result; both path evidences retained.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-014",
+      "text": "one revoked blocker discharges and second has zero valid path -> SEMANTIC_SCOPE_REVOKED; no partial authority.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-015",
+      "text": "two blockers uniquely discharge to different SREP digests -> SEMANTIC_ENTRY_CONFLICT.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-016",
+      "text": "one blocker has two non-equivalent valid discharge paths -> SEMANTIC_SUCCESSOR_CONFLICT.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-017",
+      "text": "earlier AIM permission blocker plus later stale RCS evidence -> AIM blocker remains authoritative; later defect cannot create eligibility.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-018",
+      "text": "replayed/lower semantic_state_sequence with superficially matching heads -> reject as rollback/replay.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-019",
+      "text": "rotation barrier plus committed ambiguous EffectIntent -> no duplicate dispatch and no fabricated success.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-020",
+      "text": "matrix-derived direct dependency graph is complete and acyclic -> NCG graph pass.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-021",
+      "text": "runtime dependency exists in matrix but generated graph omits edge -> NCG fail.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-022",
+      "text": "hand-added untraceable edge changes graph semantics -> NCG fail.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-023",
+      "text": "qualified dependency unavailable -> authority blocked; retry after same qualified dependency restores and full re-evaluation succeeds.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-024",
+      "text": "cached prior PASS/time/conformance token used during outage -> reject.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    },
+    {
+      "case_id": "V15-025",
+      "text": "emergency weaker dependency used for liveness -> reject.",
+      "source_version": "v15",
+      "source_commit": "DESIGN_V15_BRANCH",
+      "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+    }
+  ]
+}
+
+===== END FILE governance-r8/R8-V15-CASE-REGISTRY-1.json =====

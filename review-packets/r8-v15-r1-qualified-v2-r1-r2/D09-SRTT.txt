@@ -1,0 +1,4037 @@
+R8 v15-r1 SFV-45 R2
+SRTT TOTAL TABLE RAW SEGMENT D9/10
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+SOURCE_FILE: governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json
+SOURCE_GIT_BLOB_SHA1: f94451e345954a399c59a5a94943f58a14315579
+SEGMENT_ORDER: 9/10
+SEGMENT_CONTENT_STARTS_NEXT_LINE
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1899,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1900,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1901,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1902,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1903,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1904,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1905,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1906,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1907,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1908,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1909,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1910,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1911,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1912,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1913,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1914,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1915,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1916,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1917,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R11"
+    },
+    {
+      "row_id": 1918,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R11"
+    },
+    {
+      "row_id": 1919,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R11"
+    },
+    {
+      "row_id": 1920,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "EXACT_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R11"
+    },
+    {
+      "row_id": 1921,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1922,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1923,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1924,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1925,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1926,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1927,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1928,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1929,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1930,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1931,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1932,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1933,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1934,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1935,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1936,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1937,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1938,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1939,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1940,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1941,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1942,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1943,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1944,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1945,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1946,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1947,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1948,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1949,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1950,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1951,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1952,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1953,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1954,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1955,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1956,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1957,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1958,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1959,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1960,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1961,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1962,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1963,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1964,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1965,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1966,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1967,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1968,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1969,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1970,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1971,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1972,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1973,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1974,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1975,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1976,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1977,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1978,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1979,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1980,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1981,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1982,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1983,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1984,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 1985,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1986,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1987,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1988,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1989,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1990,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1991,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1992,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 1993,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1994,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1995,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1996,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 1997,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1998,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 1999,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2000,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2001,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2002,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2003,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2004,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2005,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2006,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2007,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2008,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2009,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2010,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2011,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2012,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2013,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2014,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2015,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2016,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2017,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2018,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2019,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2020,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2021,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2022,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2023,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2024,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2025,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2026,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2027,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2028,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2029,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2030,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2031,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2032,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2033,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2034,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2035,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2036,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2037,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2038,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2039,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2040,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2041,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2042,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2043,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2044,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2045,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2046,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2047,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2048,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "BLOCK_OLD_SCOPE",
+        "scope_relation": "DISJOINT",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R05"
+    },
+    {
+      "row_id": 2049,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2050,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2051,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2052,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2053,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2054,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2055,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2056,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2057,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2058,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2059,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2060,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2061,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2062,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2063,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2064,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2065,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2066,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2067,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2068,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2069,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2070,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2071,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2072,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2073,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2074,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2075,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2076,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2077,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2078,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2079,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2080,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "SAME",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2081,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2082,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2083,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2084,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2085,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2086,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2087,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2088,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2089,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2090,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2091,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2092,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2093,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2094,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2095,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2096,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2097,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2098,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2099,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2100,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2101,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2102,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2103,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2104,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2105,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2106,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2107,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2108,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2109,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2110,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2111,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2112,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "NARROWER",
+        "any_permission_valid": true,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REPLACEMENT_INVALID",
+      "decisive_rule_id": "SRTT15-R08"
+    },
+    {
+      "row_id": 2113,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2114,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2115,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2116,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2117,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2118,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2119,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2120,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2121,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2122,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2123,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2124,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R02"
+    },
+    {
+      "row_id": 2125,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2126,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2127,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2128,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": false,
+        "mapping_effective": true,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED",
+      "decisive_rule_id": "SRTT15-R03"
+    },
+    {
+      "row_id": 2129,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2130,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2131,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2132,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": false,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2133,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": false
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2134,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": false,
+        "decision_inside_authorized_expansion_domain": true
+      },
+      "result": "SEMANTIC_SCOPE_REVOKED",
+      "decisive_rule_id": "SRTT15-R01"
+    },
+    {
+      "row_id": 2135,
+      "input": {
+        "source_entry_state": "REVOKED",
+        "old_scope_match": "EXACT_MATCH",
+        "destination_scope_match": "MAPPED_MATCH",
+        "old_scope_effect": "REPLACE_OLD_SCOPE_FOR_EXACT_MATCH",
+        "scope_relation": "BROADER",
+        "any_permission_valid": true,
+        "mapping_effective": false,
+        "lineage_mapping_valid": true,
+        "scope_expansion_authorized": true,
+        "decision_inside_authorized_expansion_domain": false

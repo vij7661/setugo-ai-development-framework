@@ -1,0 +1,2262 @@
+R8 v15-r1 SFV-45 R2
+SOURCE DESIGN PACK A1/3
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+Frozen semantic candidate: c721b38cf8b00294797300b526596ce723a47ff8
+Authority effect: NONE
+
+
+===== BEGIN SOURCE SRC-NORM: governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md =====
+COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+GIT_BLOB_SHA1: 03b408d2f3c5b1de2ce65136923a079ccda83370
+
+# R8 v15 — Normalized Effective Meta-Governance Specification
+
+Status: **INTERNAL_NORMALIZATION_ARTIFACT — NON_AUTHORITATIVE — NCG-1 INPUT**
+Authority effect: **NONE**
+
+Purpose:
+- present the currently intended effective R8 semantics once;
+- eliminate co-effective historical overlays from the review surface;
+- preserve traceability to immutable source designs;
+- expose cross-mechanism dependencies before another independent review.
+
+This document does not replace the canonical v4-v14 source files. If this normalized view conflicts with a canonical source before NCG-1 closes, NCG-1 must fail and the conflict must be adjudicated before external review.
+
+## 1. Trust and authority model
+
+### NORM-001 — external trust boundary
+Effective rule:
+- T0/EBA/MTR/BTW/workload-attestation roots are explicit bounded trust assumptions.
+- ordinary platform software cannot mint, replace, roll back, or weaken those roots.
+- loss of lawful trust can block the platform permanently; no emergency weaker root is created.
+
+Trace: v4 T0 model; v5/v6 MTR/BTW hardening; v7 MTR freshness; v8-v13 no weakening.
+
+### NORM-002 — authority default
+Effective rule:
+- authority effect defaults to NONE;
+- no candidate, review, test, packet, CI result, or model statement grants authority by itself;
+- authority-bearing actions require the current effective governance state and exact qualifying evidence.
+
+Trace: v4-v14 claim boundaries.
+
+## 2. T0 / MTR / BTW
+
+### NORM-003 — T0 manifests
+Effective rule:
+- T0 manifests are externally provisioned, generation-numbered, digest-bound, and successor-controlled.
+- successor activation requires predecessor-authorized transition, atomic next-generation reservation, BTW consistency, and MTR activation.
+
+Trace: v5 I001-I004; v6 MTR; v7 atomic T0 successor reservation; v8 authorized reservation ordering.
+
+### NORM-004 — MTR freshness
+Effective rule:
+- authority-bearing use requires live challenge-bound MTR freshness;
+- no stale cached-token fallback is allowed for authority;
+- verifier/trust-domain/purpose/challenge binding and monotonic response state are required.
+
+Trace: v7 MTRF-1; v8 MTRF-2 refinements.
+
+### NORM-005 — BTW
+Effective rule:
+- BTW verification uses T0-pinned witness keys/policy and anti-rollback consistency;
+- conflicting trusted roots/equivocation freeze affected authority paths.
+
+Trace: v5/v6 BTW rules.
+
+## 3. Identity, domain independence and revocation
+
+### NORM-006 — canonical identity
+Effective rule:
+- authority identity resolves through canonical subject/controller/admin-domain records;
+- aliases resolving to the same canonical subject count once for independence;
+- domain diversity cannot be manufactured by aliasing.
+
+Trace: v6 LineageGraph; v7 CanonicalSubjectRegistry.
+
+### NORM-007 — ACTIVE-only quorum
+Effective rule:
+- only ACTIVE domains/credentials/controllers count toward required quorum/diversity at the relevant effective sequence;
+- suspended/retired/revoked identities are non-voting.
+
+Trace: v7 ACTIVE-only quorum.
+
+### NORM-008 — revocation
+Effective rule:
+- revocation is append-only and sequence-bound;
+- new authority use checks current committed revocation state;
+- root/terminal-sensitive use additionally checks monotonic high-water protection;
+- UNREVOKE does not retroactively validate the revoked interval.
+
+Trace: v6/v7 revocation rules.
+
+## 4. Genesis and configuration sequencers
+
+### NORM-009 — GGS-3
+Effective rule:
+- one rollback-resistant genesis sequencer owns constitution namespace and bootstrap authorization consumption;
+- committed namespace/authorization roots are monotonic and protected against rollback;
+- configuration rotation uses the same barrier/state-transfer discipline as authority sequencers.
+
+Trace: v6 GGS-1; v7 GGS-2; v8/v10/v11 GGS-3 STC/RBP integration.
+
+### NORM-010 — LAS-3
+Effective rule:
+- LAS-3 is the sole authority-bearing sequencer;
+- non-commutative authority state transitions use atomic StreamHeadMap compare-and-advance;
+- rollback-resistant hard state preserves term/index/vote/head/idempotency state;
+- configuration changes use joint consensus and exact activation index.
+
+Trace: v6 LAS-2; v7 LAS-3; v9 formal version; v10 STC; v11/v12 RBP.
+
+## 5. Rotation barrier and state transfer
+
+### NORM-011 — rotation barrier
+Effective rule:
+- ROTATION_PREPARE commits barrier index B;
+- authority-bearing writes covered by the rotating state are frozen after B;
+- one barrier can serve at most one lawful rotation;
+- abort permanently closes B; retry requires a new barrier.
+
+Trace: v11 RBP-1; v12 RBP-2; v14 barrier taxonomy.
+
+### NORM-012 — state transfer
+Effective rule:
+- STC binds the exact committed state at the barrier;
+- old quorum certifies the snapshot; new quorum attests installation of the same snapshot;
+- ENTER_JOINT and ACTIVATE bind that same STC and transition certificate;
+- mismatch makes a joining replica non-voting and blocks rotation.
+
+Trace: v10 STC-1; v11 STC-2/barrier close; v12 semantic-head equality.
+
+## 6. Authority input execution environment
+
+### NORM-013 — AIEP/AIG
+Effective rule:
+- authority evaluators run only under a qualified broker-only execution profile;
+- direct ungoverned mutable env/config/db/network/file reads are prohibited;
+- mutable/configurable authority inputs pass through AuthorityInputGateway;
+- unqualified runtime profile has authority effect NONE.
+
+Trace: v7 AIEP-1; v8 attested gateway.
+
+## 7. Current semantic state
+
+### NORM-014 — CSM-5
+Effective rule:
+- CSM-5 is the current authority-semantic bundle;
+- it includes semantic entries, mappings, ANY permissions, AIM descriptors, ResolverPolicy reference, and CSM-bound supporting registries/rules;
+- updates are LAS-governed authority events.
+
+Trace: v10 CSM-3; v11 CSM-4; v12 CSM-5.
+
+### NORM-015 — named semantic heads
+Effective rule:
+LASAuthorityStateRoot exposes named committed heads for:
+- CSM;
+- AIM;
+- semantic ANY permission;
+- AIM scope policy;
+- ResolverPolicy;
+- ResolverImplementationRegistry;
+- GuardRegistry;
+plus the inherited revocation/nonce/effect/configuration state.
+
+Trace: v12/v13/v14 authority-state-root rules.
+
+### NORM-016 — semantic_state_sequence
+Effective rule:
+- semantic_state_sequence is the current LAS-3 committed sequence fixing the semantic heads used for the authority decision;
+- it is derived internally and never caller-selected for authority-bearing resolution;
+- historical replay is separate and authority NONE.
+
+Trace: v12 semantic_state_sequence; v14 explicit root field.
+
+## 8. AIM-4 applicability
+
+### NORM-017 — immutable AIM descriptors
+Effective rule:
+- AIM descriptors are append-only/versioned;
+- source lineage, semantic class, scope policy, resolver policy and other authority-relevant changes require a successor descriptor under the required constitutional path.
+
+Trace: v12 AIM-3; v13 AIM-4.
+
+### NORM-018 — AIM candidate/Smax order
+Effective rule:
+1. select effective descriptors matching semantic_input_id/class and exact decision-scope components;
+2. do **not** discard candidates because current AIM ANY permission is invalid;
+3. derive specificity;
+4. compute AIM_Smax over the full effective matching candidate set;
+5. evaluate AIMScopePolicy validity at AIM_Smax;
+6. invalid/narrowed/revoked permission -> AIM_SCOPE_PERMISSION_REEVALUATION_REQUIRED;
+7. then apply lifecycle precedence;
+8. no lower-specificity fallback after an AIM_Smax blocker.
+
+Trace: v13 AIMApplicability-1 superseded by v14 AIMApplicability-2.
+
+## 9. Resolver authorization and qualification
+
+### NORM-019 — ResolverPolicy
+Effective rule:
+- ResolverPolicy is a machine-readable CSM-bound algorithm contract defining lineage start, candidate construction, specificity, lifecycle/error precedence, mapping traversal, replacement evaluation, ANY validation, fallback prohibition and conformance-suite identity.
+
+Trace: v12 ResolverPolicy-1, v13/v14 extensions.
+
+### NORM-020 — ResolverImplementationRegistry
+Effective rule:
+- exact active ResolverPolicy → implementation/runtime/workload/conformance tuple must match exactly one temporally eligible ACTIVE RIR record;
+- conformance alone is not authorization.
+
+Temporal eligibility:
+`activation_sequence <= semantic_state_sequence`
+and
+`retirement_or_revocation_sequence == null || > semantic_state_sequence`.
+
+Trace: v13 RIR-1; v14 RIR-2.
+
+### NORM-021 — Resolver conformance freshness
+Effective rule:
+- exact implementation/runtime executes the exact bound conformance suite;
+- evidence is invalidated by any bound policy/implementation/runtime/suite/registry change;
+- evidence also obeys the record's explicit freshness profile;
+- missing/failed/expired/unavailable evidence leaves the resolver unqualified;
+- prior PASS evidence, cached conformance, or emergency weaker evidence cannot substitute during an outage;
+- retry is allowed only after the same qualified dependency or a constitutionally authorized equal-or-stronger successor is available, followed by full current-state re-evaluation.
+
+Trace: v13 RCS-1; v14 RCS-2; v15 I024-I025.
+
+## 10. Semantic resolution
+
+### NORM-022 — Smax before lifecycle
+Effective rule:
+- within the active AIM-selected semantic lineage, CSRULE computes matching candidates and Smax before lifecycle filtering;
+- lower-specificity fallback is prohibited after any Smax blocker.
+
+Trace: v9 CSRULE-2 through v14 CSRULE-5 effective order.
+
+### NORM-023 — ANY at semantic-entry level
+Effective rule:
+- current semantic ANY permission is checked at Smax from the same current CSM snapshot;
+- invalid/missing/narrowed/revoked permission blocks with SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED even if lifecycle bookkeeping did not mark entries.
+
+Trace: v12 resolver-time ANY validation.
+
+### NORM-024 — revoked dominance
+Effective rule:
+- construct the complete set B of all applicable REVOKED entries at Smax;
+- while B is unresolved, ordinary ACTIVE selection is suspended;
+- for each blocker independently enumerate only explicitly linked successor/replacement chains;
+- zero valid paths for any blocker -> SEMANTIC_SCOPE_REVOKED;
+- more than one non-equivalent canonical result for one blocker -> SEMANTIC_SUCCESSOR_CONFLICT;
+- exactly one canonical result per blocker uniquely discharges that blocker, even if multiple equivalent paths reach it;
+- no partial discharge enters authority selection;
+- only after every blocker is uniquely discharged are all discharge results compared together with genuine ACTIVE Smax peers using SREP;
+- one unique final digest -> one semantic result;
+- more than one unique final digest -> SEMANTIC_ENTRY_CONFLICT;
+- evaluation work order may vary, but authority semantics are set-based and order-independent; all path evidence is preserved.
+
+Trace: v13 CSRULE-5; made machine-explicit by v15 CSRULE-6 I014-I017.
+
+### NORM-025 — semantic-result equivalence
+Effective rule:
+- every resolved semantic result is normalized to `{semantic_input_id, semantic_class, terminal_semantic_entry_id, terminal_rule_digest, terminal_lineage_id, effective_scope_tuple_digest}`;
+- each field is derived from the final selected entry and final authorized effective scope;
+- equality means identical GCP-1 semantic_result_digest only;
+- resolution-path evidence is preserved separately;
+- implementation-local equivalence is forbidden.
+
+Trace: v14 SREP-1.
+
+## 11. Scope and lineage transitions
+
+### NORM-026 — lineage mapping
+Effective rule:
+- cross-lineage transition requires an explicit constitutional SemanticLineageMapping;
+- no implicit lineage fallback.
+
+Trace: v10/v11 lineage mapping rules.
+
+### NORM-027 — scope replacement
+Effective rule:
+- replacement evaluation uses SRTT-4 with machine-readable fixed domain source_entry_state=REVOKED plus exactly 2304 variable Cartesian tuples;
+- non-REVOKED source state is outside the table domain and returns NOT_A_REPLACEMENT_BRANCH before table lookup;
+- every row references exactly one declared SRTT-4 RuleRegistry decisive_rule_id;
+- blocker precedence is: ineffective mapping -> invalid lineage -> invalid ANY -> old scope no-match -> BLOCK_OLD_SCOPE -> destination no-match -> effect-specific rows;
+- exact effect is eligible only for destination EXACT_MATCH with relation SAME;
+- mapped effect is eligible for SAME or NARROWER with destination EXACT_MATCH or MAPPED_MATCH;
+- mapped BROADER is eligible for destination EXACT_MATCH or MAPPED_MATCH only with SEMANTIC_SCOPE_EXPANSION_AMENDMENT and an in-domain AuthorizedExpansionDomain decision;
+- mapped effect is not derived from destination match type; an exact-matching destination is valid under mapped effect when the frozen mapped-effect predicates are satisfied;
+- DISJOINT or unauthorized BROADER mapping is invalid;
+- invalid ANY, ineffective mapping, invalid lineage mapping, or unauthorized expansion cannot unblock revoked scope;
+- arithmetic row completeness or result distribution is never evidence of semantic correctness without RuleRegistry recomputation.
+
+Trace: v13 SRTT-2; v14 SRTT-3 generation; clarified and rule-bound by v15 SRTT-4 I001-I007.
+
+## 12. Review-visible materiality and independent review
+
+### NORM-028 — review materiality
+Effective rule:
+- every reviewer-visible semantic field relied on for a decision is bound into the review packet;
+- unknown reviewer influence defaults to semantic/material.
+
+Trace: v6/v7 ReviewPresentationSchema lineage.
+
+### NORM-029 — reviewer authenticity
+Effective rule:
+- required human review is signed/attested and independent under canonical identity rules;
+- model/provider review is bounded by provider qualification/isolation assumptions and cannot silently replace required human review.
+
+Trace: v6 Channel H/X and inherited review rules.
+
+## 13. Decision read set, time, seal and commit
+
+### NORM-030 — AuthorityReadSet
+Effective rule:
+- every mutable authority input consumed by a predicate is registered and captured with exact source/head/value digest;
+- unregistered or unsealed input blocks authority.
+
+Trace: v6 AuthorityReadSet; v7 AIM/AIEP.
+
+### NORM-031 — DecisionPresealContext
+Effective rule:
+preseal binds:
+- candidate/action/scope;
+- governance snapshot;
+- AuthorityReadSet;
+- semantic_state_sequence;
+- CSM/AIM/ANY/ResolverPolicy heads;
+- RIR record/head;
+- resolver implementation/runtime/conformance identity;
+- revocation/runtime/workload state;
+- effect class where relevant.
+
+Trace: v8 DPS-2, v12 DPS-v3, v13/v14 RIR binding.
+
+### NORM-032 — time
+Effective rule:
+- time proof uses a single-use nonce bound to the decision preseal context;
+- source status must be valid at sequence;
+- replay/stale proof is rejected;
+- qualified time unavailability blocks the affected authority operation;
+- local clock, cached proof, operator override, or weaker emergency time source cannot substitute;
+- retry requires restored same-or-stronger qualified time and full current-state re-evaluation.
+
+Trace: v6/v7 time/NonceLedger rules; v15 I024-I025.
+
+### NORM-033 — VerifiedStateSeal / COMMIT_WITH_SEAL
+Effective rule:
+- final seal binds the full authority read set and semantic/runtime/time/revocation state;
+- consequential commit atomically rechecks current authority heads;
+- any state change -> STATE_CHANGED and no effect intent.
+
+Trace: v6-v8 seal/commit rules.
+
+## 14. External effects
+
+### NORM-034 — intent != completion
+Effective rule:
+- COMMIT_WITH_SEAL may commit an EffectIntent only;
+- external effect success requires qualified idempotent executor plus provider-specific reconciliation;
+- ambiguous result remains UNCERTAIN, never fabricated success.
+
+Trace: v7 EESM-1; v8 executor revocation; v9 reconciler independence.
+
+## 15. Evidence producers and transitions
+
+### NORM-035 — evidence strength
+Effective rule:
+- strong evidence requires qualified producer/execution identity;
+- byte copying or rewrapping does not upgrade evidence class;
+- producer revocation/compromise has explicit temporal validity and reevaluation semantics.
+
+Trace: v5-v7 QEP rules.
+
+### NORM-036 — evidence transition
+Effective rule:
+- evidence-class transitions are closed and governed;
+- missing/contradictory mandatory evidence blocks promotion.
+
+Trace: inherited EXP-J and R8 evidence transition controls.
+
+## 16. Tenant/migration
+
+### NORM-037 — stable authority scope
+Effective rule:
+- authority-bearing object identity is constitution/tenant scoped;
+- migration requires exact object map, scope comparison, destination-policy freshness and requalification;
+- cross-constitution import carries historical/external evidence only, not authority.
+
+Trace: v5-v8 tenant migration rules.
+
+## 17. Recovery/trust loss
+
+### NORM-038 — recovery
+Effective rule:
+- recovery uses predeclared triggers, exact recovery context, single-use nonce, lawful quorum and current trust state;
+- old approvals/context cannot be replayed.
+
+Trace: v6/v7 recovery rules.
+
+### NORM-039 — permanent trust loss
+Effective rule:
+- unavailable lawful trust path blocks authority;
+- TRUST_DOMAIN_UNRECOVERABLE may be authoritatively recorded only if a still-lawful recovery quorum can do so;
+- otherwise the domain remains blocked indefinitely;
+- a new constitution inherits no authority.
+
+Trace: v6/v7 trust-loss rules.
+
+## 18. Guard authority
+
+### NORM-040 — GuardRegistry
+Effective rule:
+- GuardRegistry is the sole guard-ID/mechanism/positive/negative/FP identity authority;
+- legacy manual consolidated guard tables are display/history artifacts and may not override current registry;
+- exactly one ACTIVE record per required guard ID.
+
+Trace: v13 GuardRegistry-1; v14 continuation.
+
+## 19. Blind review projection
+
+### NORM-041 — authoritative review surface
+Effective rule:
+- canonical blind TXT is authoritative;
+- PDF is optional convenience only;
+- BSP-5 identifies the current candidate status only through exactly one explicit current-status block marked with the current candidate version;
+- zero, multiple, nested, mismatched, or unterminated current-status blocks make the packet incomplete;
+- predecessor review outcomes/adjudication metadata are removed by deterministic version-aware grammar;
+- semantic test literals are retained only inside exact parser states CASE_SECTION, GUARD_RECORD_SECTION, FENCED_SEMANTIC_TEST_DATA, or MARKED_SEMANTIC_TEST_SECTION;
+- a MARKED_SEMANTIC_TEST_SECTION uses exact paired standalone begin/end markers with one stable ID, cannot nest, and is structural only outside fenced code;
+- the cross-mechanism adversarial corpus must be enclosed by the stable marked semantic-test-section ID cross-mechanism-adversarial-corpus;
+- a predecessor-status string inside that marked corpus is retained as attack-vector data, not interpreted as leaked prior disposition;
+- a raw status token in ordinary prose is not enough to classify semantic-test data;
+- residual validation reruns the same parser and requires zero prior-status/review metadata, exactly one valid current-status block, and only well-formed marked semantic-test sections.
+
+Trace: v12 BSP-2; v13 BSP-3; v14 BSP-4; v15 BSP-5 I010-I013; v15-r1 corpus-binding repair.
+
+### NORM-042 — embedded proof manifests
+Effective rule:
+- ProjectionManifest and GuardOmissionManifest are embedded in the authoritative review TXT;
+- every compact legacy case range is deterministically expanded before omission proof;
+- final manifest referenced_case_ids contain explicit IDs only;
+- parsed source case-reference set must equal the manifest set, not merely be a subset;
+- every guard ID must remain in GuardRegistry and every referenced case ID must remain in CaseRegistry;
+- unique case/invariant semantics must remain in the normalized review surface or carry an exact trace proving preservation;
+- any set mismatch or missing semantic preservation proof -> REVIEW_PACKET_INCOMPLETE.
+
+Trace: v14 manifests; v15 I008-I009.
+
+## 20. NCG-1 closure rule
+
+### NORM-043 — pre-review normalization gate
+Effective rule:
+No fresh independent design-review packet may be frozen until:
+- normalized effective spec is complete;
+- dependency/evaluation/ownership matrices are complete;
+- dependency graph declares direct-edge semantics and is regenerated from the matrix rather than hand-edited;
+- every authority-relevant direct dependency is represented and the graph is acyclic;
+- cross-mechanism adversarial corpus has no unresolved false-green path, including multi-revoked composition, semantic-sequence rollback, rotation/effect interaction, guard-semantics preservation, and blocker-order cases;
+- GuardRegistry is contiguous and unique;
+- review projection is reproducible;
+- SRTT table/rule-registry recomputation closes with no undefined or conflicting decisive-rule IDs;
+- guard-omission parsed-source set equality closes;
+- unresolved material contradiction count = 0.
+
+NCG-1 PASS grants no authority. It only permits a fresh blind design review.
+Reviewer-suggested dependency edges are investigation inputs only; they are not automatically inserted without a direct matrix dependency.
+
+Trace: v14 NCG-1; v15 I018-I023.
+
+
+## R8 v15 closure note
+
+This normalized specification intentionally preserves the inherited v13 mapped-replacement rule that a mapped-effect branch may terminate at an EXACT_MATCH destination. R8 v15 closes the v14 review-surface ambiguity by making that rule explicit and machine-traceable; it does not narrow previously authorized replacement semantics.
+
+Transient qualified-dependency outages remain fail-closed by design. No liveness workaround may weaken authority.
+
+===== END SOURCE SRC-NORM: governance-r8/R8-V15-NORMALIZED-EFFECTIVE-SPEC.md =====
+
+
+===== BEGIN SOURCE SRC-DETAIL: governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md =====
+COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+GIT_BLOB_SHA1: 5d8628e7379be17b896a0058276bddbee8981dc2
+
+# R8 v15 — Normalized Load-Bearing Detail Appendix
+
+Status: **INTERNAL_NORMALIZATION_ARTIFACT — NON_AUTHORITATIVE — NCG-1 INPUT**
+Authority effect: **NONE**
+
+Purpose:
+Carry forward load-bearing inherited constants and exact behavioral constraints that would otherwise be lost in a high-level normalized view.
+
+If this appendix conflicts with a canonical source design, NCG-1 must fail until adjudicated.
+
+## 1. Constitutional trust / EBA
+
+- Reference EBA population: 5 offline trust officers.
+- Ordinary root/bootstrap threshold: 3-of-5 where inherited rule requires EBA threshold.
+- T0 successor manifest: 4-of-5 active EBA officers across at least 3 active admin domains.
+- Newly created/reactivated admin domain cannot sign the T0 successor that creates/reactivates it.
+- Only ACTIVE admin domains count toward quorum/diversity.
+- Admin-domain aliases cannot manufacture diversity.
+- Root-sensitive wildcards in ControllerAttestation constitution/tenant/role-instance scope are prohibited.
+
+Trace: v4 T0 External Trust Axiom; v5 T0 successor; v7 admin-domain lifecycle.
+
+## 2. MTR / freshness
+
+Authority-bearing MTR challenge:
+- random 256-bit challenge;
+- verifier_instance_id;
+- trust_domain_id;
+- purpose_class;
+- expected minimum T0 generation;
+- expected minimum BTW tree size;
+- expected minimum EBA revocation sequence;
+- local monotonic issuance tick.
+
+MTR response binds:
+- exact challenge/verifier/domain/purpose;
+- current T0 generation + manifest digest;
+- current BTW tree size + root hash;
+- current EBA revocation high-water;
+- current T0-domain lifecycle sequence;
+- monotonic MTR response sequence;
+- MTR configuration generation.
+
+Freshness:
+- live challenge required for authority-bearing use;
+- accepted once;
+- reference maximum response age: 30 seconds verifier-monotonic time;
+- no stale-token authority fallback;
+- MTR outage -> MTR_UNAVAILABLE.
+
+Trace: v7 MTRF-1; v8 response/high-water refinements.
+
+## 3. BTW
+
+- BTW verification keys/policy/initial trusted STH are T0-pinned.
+- verifier preserves highest accepted tree_size/root_hash.
+- smaller tree or missing required consistency proof -> reject.
+- same tree size with different root -> BTW_EQUIVOCATION.
+- authority bootstrap/anchor operations freeze on equivocation pending lawful recovery.
+
+Trace: v5/v6 BTW rules.
+
+## 4. GGS-3
+
+- 3 replicas.
+- 2-of-3 majority.
+- replicas use distinct qualified admin domains.
+- rollback-resistant hard state includes:
+  - highest seen term;
+  - vote state;
+  - highest committed genesis index;
+  - last committed genesis digest;
+  - constitution namespace root;
+  - bootstrap authorization state root;
+  - configuration generation.
+- stale/rolled-back replica is non-voting.
+- constitution namespace and bootstrap authorization consumption occur atomically.
+- one constitution_id can acquire only one committed genesis head.
+
+Trace: v6 GGS-1; v7 GGS-2; v8-v11 GGS-3 rotation.
+
+## 5. LAS-3
+
+- 3 replicas.
+- 2-of-3 ordinary majority.
+- rollback-resistant hard state includes:
+  - highest_seen_term;
+  - vote_for_current_term;
+  - highest_committed_log_index;
+  - highest_applied_log_index;
+  - last_committed_entry_digest;
+  - configuration generation.
+- StreamHeadMap and idempotency ledger are replicated authority state.
+- non-commutative authority append atomically validates predecessor and advances head.
+- authority-bearing streams have no commutative bypass under current reference design.
+- during JOINT rotation, every governed authority/configuration commit requires both old majority and new majority.
+- after activation index, old-config-only certificates are invalid.
+
+Trace: v6 LAS-2; v7/v9 LAS-3; v10-v12 STC/RBP.
+
+## 6. Rotation barrier / STC
+
+ROTATION_PREPARE:
+- commits barrier B;
+- freezes covered authority writes.
+
+STC contains at minimum:
+- old/new configuration identity;
+- barrier/snapshot index;
+- committed log prefix digest;
+- highest term/committed/applied index;
+- last committed entry digest;
+- state-root/StreamHeadMap root;
+- idempotency ledger root;
+- prior certificate-chain digest;
+- GGS namespace/authorization roots where applicable;
+- named semantic heads covered by the rotating authority state.
+
+One barrier -> one rotation:
+- same rotation/config/STC retry = idempotent;
+- same rotation ID + changed config/STC = IDEMPOTENCY_CONFLICT;
+- different rotation ID on reserved barrier = BARRIER_ALREADY_RESERVED;
+- contradictory valid reservation certificates = STC_EQUIVOCATION;
+- ABORT permanently closes B.
+
+Trace: v10 STC-1; v11 STC-2/RBP; v12-v14 barrier semantics.
+
+## 7. GCP canonicalization
+
+Effective canonicalization constraints include:
+- no insignificant whitespace in canonical output;
+- absent != null;
+- defaults are applied before canonical signing/digest and no post-digest defaults;
+- object keys must already be NFC;
+- duplicate keys after canonical interpretation reject;
+- key collisions after NFC normalization reject;
+- unpaired surrogates reject;
+- Unicode noncharacters reject in authority-bearing strings/keys;
+- ordered arrays preserve order;
+- set-typed arrays sort canonically and reject duplicates;
+- signed integers use frozen signed-int64 lexical/range rules;
+- extension maps are schema-declared, included in digest, cannot shadow standard fields, and cannot use reserved `sys:` namespace.
+
+Trace: v5/v6 GCP-1 closure.
+
+## 8. Workload/runtime identity and AIEP
+
+Root-sensitive/terminal authority components require qualified workload/runtime identity when the constitutional mode requires it.
+
+AIEP reference constraints:
+- read-only root filesystem;
+- no arbitrary mutable environment;
+- no direct DB/cloud/provider credentials;
+- no general external network/DNS route;
+- only approved broker/attestation/sequencer channels;
+- dynamic code/plugin loading not in RuntimeManifest prohibited.
+
+UNATTESTED_RUNTIME:
+- explicit state;
+- can perform only permitted non-authority/read-only work;
+- cannot act as root/terminal authority evaluator, strong evidence producer, or other roles requiring runtime identity.
+
+Trace: v6/v7/v8 runtime/AIEP rules.
+
+## 9. Revocation
+
+- revocation history is append-only.
+- UNREVOKE is a new event; prior revoked interval remains revoked.
+- root/terminal-sensitive revocation high-water protected by MTR.
+- every authority-bearing decision uses current LAS revocation head.
+- producer/executor/reviewer validity is evaluated at effective sequence.
+- post-effective evidence/action by revoked identity is invalid.
+- retrospective invalidation requires an explicit governed event.
+
+Trace: v5-v8 revocation rules.
+
+## 10. Time
+
+Reference authority time:
+- multiple independent qualified time authorities;
+- inherited reference threshold: 2-of-3;
+- single-use random 256-bit challenge/nonce;
+- nonce state is LAS-governed;
+- source status evaluated at the relevant sequence;
+- replay of consumed nonce rejects.
+
+Time proof binds the DecisionPresealContext digest, not a caller-controlled label.
+
+Trace: v3-v8 time rules.
+
+## 11. Review independence
+
+Constitutional human review:
+- signed by active attested human/controller identity;
+- binds exact candidate/snapshot/packet digest;
+- independent from proposer under canonical identity/domain rules.
+
+Provider/model review:
+- provider/service/runtime qualification is bounded;
+- provider-internal undisclosed memory is outside proof;
+- model/provider review alone cannot replace a required human constitutional channel.
+
+Trace: v6 Channel H/X.
+
+## 12. Evidence
+
+Strong evidence:
+- requires qualified producer and matching execution/runtime proof;
+- exact input/output derivation binding;
+- weak evidence cannot become strong by byte copying/repackaging.
+
+Evidence promotion:
+- missing or contradictory mandatory evidence blocks;
+- history/retractions are preserved;
+- derived claims are individually re-evaluated after source invalidation.
+
+Trace: EXP-J; v5-v7 QEP/evidence transitions.
+
+## 13. Tenant/migration
+
+Stable authority identity:
+`constitution_id + tenant_uuid + object_uuid`.
+
+Migration:
+- exact source/destination namespaces;
+- complete object map;
+- policy/scope comparisons;
+- destination-policy freshness;
+- explicit widening flags;
+- fresh destination authorization for widening;
+- omitted later-referenced source object -> MIGRATION_OBJECT_UNBOUND.
+
+Cross-constitution import:
+- no inherited terminal/promotion/root authority;
+- imported artifacts are historical/external evidence until requalified.
+
+Trace: v5-v8 tenant migration.
+
+## 14. Recovery / trust loss
+
+Recovery requires:
+- predeclared trigger schema;
+- current RecoveryContext;
+- random single-use recovery nonce;
+- exact trigger/evidence binding;
+- lawful recovery quorum;
+- current trust state.
+
+Replay of approvals/evidence under another state/context rejects.
+
+Trust loss:
+- unavailable lawful root/recovery path -> TRUST_PATH_UNAVAILABLE;
+- authoritative TRUST_DOMAIN_UNRECOVERABLE declaration only if a still-lawful recovery quorum can commit it;
+- no lawful quorum -> remain blocked indefinitely;
+- new constitution inherits no authority.
+
+Trace: v6/v7 recovery/trust loss.
+
+## 15. Effect state
+
+External effect states include:
+- INTENT_COMMITTED;
+- DISPATCHING;
+- ACKNOWLEDGED_UNVERIFIED;
+- SUCCEEDED_RECONCILED;
+- FAILED_FINAL;
+- UNCERTAIN;
+- COMPENSATION_REQUIRED;
+- COMPENSATED.
+
+Only SUCCEEDED_RECONCILED is success evidence.
+
+Retries reuse one effect idempotency key.
+
+Provider success response alone is insufficient without qualified reconciliation.
+
+Trace: v7-v9 EESM / reconciler rules.
+
+
+## R8 v15 closure-specific details
+
+### SRTT-4
+- fixed table domain: source_entry_state = REVOKED;
+- 2304 variable tuples;
+- dedicated RuleRegistry IDs SRTT15-R01..R11;
+- mapped effect may terminate at EXACT_MATCH or MAPPED_MATCH under the inherited v13 rule;
+- BROADER eligibility still requires constitutional expansion authorization plus an in-domain decision.
+
+### Multi-revoked composition
+- every applicable revoked Smax blocker must uniquely discharge before any result enters final selection;
+- a partial discharge never grants authority;
+- same-digest discharge results may collapse for final selection only, while path evidence remains distinct;
+- different final digests conflict.
+
+### Blind review
+- BSP-5 requires exactly one explicit version-15 current-status block;
+- semantic-test literals are limited to exact parser states, including explicitly paired MARKED_SEMANTIC_TEST_SECTION blocks;
+- the cross-mechanism adversarial corpus is enclosed in the stable marked section id `cross-mechanism-adversarial-corpus`;
+- omission proof expands inclusive source ranges and requires exact source/manifest set equality.
+
+### Liveness
+- temporary qualified dependency outage remains fail-closed;
+- no cached PASS, stale time/conformance evidence, local clock, operator override, or weaker emergency root substitutes;
+- retry requires restored same-or-stronger qualified dependency and full re-evaluation.
+
+Trace: R8 v15 I001-I025.
+
+===== END SOURCE SRC-DETAIL: governance-r8/R8-V15-NORMALIZED-DETAIL-APPENDIX.md =====
+
+
+===== BEGIN SOURCE SRC-V15: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V15.md =====
+COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
+GIT_BLOB_SHA1: 97dc1ef49697ad4e24149b1ccdb362a0096c4b16
+
+# R8 Meta-Governance Redesign v15 — Narrow Review-Closure Successor
+
+Status: **PREREGISTERED_DESIGN_V15 — NOT_IMPLEMENTED — INTERNAL_NORMALIZATION_REQUIRED**
+Authority effect: **NONE**
+
+Effective lineage:
+- R8 v4 through v14 remain immutable historical design layers.
+- R8 v15 is a narrow successor to the adjudicated v14 normalized-review findings.
+- R8 v15 does not reopen unrelated trust-root, resolver, sealing, rotation, or external-effect semantics.
+- Where this document is more specific than v14 normalization, this document governs the v15 normalized candidate.
+
+Adjudication basis:
+- `review-adjudications/R8-V14-NORMALIZED-DEEPSEEK-REVIEW-ADJUDICATION-2026-09-23.md`
+
+## 1. Objective
+
+R8 v15 closes the remaining normalized-review surface defects without weakening inherited safety semantics.
+
+Core constraints:
+1. do not mutate v14;
+2. do not delete valid SRTT rows merely because a reviewer inferred a stronger label relationship than the inherited rule defines;
+3. make every generated authority-relevant table independently traceable to declared machine-readable rules;
+4. make review projection deterministic rather than heuristic;
+5. make multi-revoked composition and cross-mechanism closure explicit;
+6. preserve fail-closed behavior when qualified dependencies are unavailable.
+
+## 2. SRTT-4 — explicit fixed domain and rule registry
+
+### R8V15-I001 — fixed replacement domain
+
+SRTT-4 is total only over replacement evaluation.
+
+Machine-readable domain:
+- `domain_fixed.source_entry_state = REVOKED`;
+- variable dimensions are exactly:
+  - `old_scope_match = {NO_MATCH, EXACT_MATCH}`;
+  - `destination_scope_match = {NO_MATCH, EXACT_MATCH, MAPPED_MATCH}`;
+  - `old_scope_effect = {BLOCK_OLD_SCOPE, REPLACE_OLD_SCOPE_FOR_EXACT_MATCH, REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH}`;
+  - `scope_relation = {SAME, NARROWER, BROADER, DISJOINT}`;
+  - `any_permission_valid = {false,true}`;
+  - `mapping_effective = {false,true}`;
+  - `lineage_mapping_valid = {false,true}`;
+  - `scope_expansion_authorized = {false,true}`;
+  - `decision_inside_authorized_expansion_domain = {false,true}`.
+
+Total row count is therefore exactly 2304.
+
+A non-REVOKED source is outside SRTT-4's table domain and is classified before table lookup as `NOT_A_REPLACEMENT_BRANCH`.
+
+### R8V15-I002 — dedicated SRTT rule registry
+
+A frozen machine-readable `SRTT-4-RuleRegistry` defines every decisive rule used by the table.
+
+Each rule record contains:
+- `rule_id`;
+- `precedence`;
+- `predicate`;
+- `result`;
+- `source_trace`.
+
+Every table row references exactly one declared `rule_id`.
+
+Undefined, duplicate, or semantically conflicting decisive-rule IDs cause `SRTT_RULE_REGISTRY_INVALID`.
+
+### R8V15-I003 — exact precedence
+
+For an in-domain REVOKED source tuple, SRTT-4 evaluates in this exact order:
+
+1. `mapping_effective = false` -> `SEMANTIC_SCOPE_REVOKED`;
+2. `lineage_mapping_valid = false` -> `SEMANTIC_SCOPE_REVOKED`;
+3. `any_permission_valid = false` -> `SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED`;
+4. `old_scope_match = NO_MATCH` -> `MAPPING_NOT_APPLICABLE`;
+5. `old_scope_effect = BLOCK_OLD_SCOPE` -> `SEMANTIC_SCOPE_REVOKED`;
+6. `destination_scope_match = NO_MATCH` -> `SEMANTIC_SCOPE_REVOKED`;
+7. exact-effect rule;
+8. mapped-effect SAME/NARROWER rule;
+9. mapped-effect BROADER rule;
+10. mapped-effect invalid remainder.
+
+No later rule may override an earlier blocker.
+
+### R8V15-I004 — exact replacement semantics
+
+For `REPLACE_OLD_SCOPE_FOR_EXACT_MATCH`:
+- destination must be `EXACT_MATCH`;
+- relation must be `SAME`;
+- when both hold -> `REPLACEMENT_ELIGIBLE`;
+- otherwise -> `SEMANTIC_SCOPE_REPLACEMENT_INVALID`.
+
+No NARROWER, BROADER, MAPPED_MATCH, or DISJOINT result is eligible under exact effect.
+
+### R8V15-I005 — mapped replacement semantics preserved exactly
+
+For `REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH`:
+
+- relation `SAME` with destination `EXACT_MATCH` or `MAPPED_MATCH` -> `REPLACEMENT_ELIGIBLE`;
+- relation `NARROWER` with destination `EXACT_MATCH` or `MAPPED_MATCH` -> `REPLACEMENT_ELIGIBLE`;
+- relation `BROADER` with destination `EXACT_MATCH` or `MAPPED_MATCH` -> eligible only when:
+  - `scope_expansion_authorized = true`; and
+  - `decision_inside_authorized_expansion_domain = true`;
+- otherwise -> `SEMANTIC_SCOPE_REPLACEMENT_INVALID`.
+
+The `old_scope_effect` value is not derived from `destination_scope_match`.
+
+A mapped-replacement branch may terminate at an exact-matching destination. Such a tuple is not malformed merely because the destination is `EXACT_MATCH`.
+
+This preserves canonical v13 I013 and rejects the false assumption that "mapped effect" implies destination must be `MAPPED_MATCH`.
+
+### R8V15-I006 — broader expansion remains constitutional only
+
+BROADER eligibility requires the inherited `SEMANTIC_SCOPE_EXPANSION_AMENDMENT` and a CSM-bound `AuthorizedExpansionDomain`.
+
+Ordinary policy, resolver-local logic, table-generation metadata, or a destination match cannot manufacture expansion authorization.
+
+### R8V15-I007 — table generation and verification
+
+The SRTT-4 table generator:
+- consumes only the frozen fixed domain, enum order, and SRTT-4 RuleRegistry;
+- enumerates all 2304 variable tuples exactly once;
+- applies the lowest-precedence-number matching rule;
+- emits exactly one result and one decisive_rule_id per row;
+- rejects generation when zero or multiple same-precedence rules match;
+- emits a deterministic distribution summary;
+- is verified independently by re-evaluating every row from RuleRegistry predicates.
+
+The distribution is diagnostic only and is never evidence of correctness by itself.
+
+## 3. Guard-omission range closure
+
+### R8V15-I008 — deterministic case-range expansion
+
+When a legacy guard table uses compact case syntax such as `V4-024..V4-030`, the omission generator must expand every inclusive identifier before registry comparison.
+
+For G008, the required expanded set is:
+`V4-024,V4-025,V4-026,V4-027,V4-028,V4-029,V4-030`.
+
+The final omission manifest stores only explicit case IDs; shorthand ranges are not permitted in `referenced_case_ids`.
+
+### R8V15-I009 — omission proof is set equality
+
+For every omitted legacy table:
+- parse every guard record;
+- expand every case reference;
+- compute the exact set of referenced case IDs;
+- require equality between parsed source set and manifest set;
+- require every manifest case in current CaseRegistry;
+- require every guard ID in current GuardRegistry;
+- preserve unique case/invariant semantics.
+
+A subset check is insufficient.
+
+Mismatch -> `REVIEW_PACKET_INCOMPLETE`.
+
+## 4. BSP-5 — deterministic current-status and semantic-test contexts
+
+### R8V15-I010 — explicit current-status markers
+
+The generated normalized review source uses exact structural markers:
+
+`<!-- BSP:CURRENT_STATUS_BEGIN version=15 -->`
+
+and
+
+`<!-- BSP:CURRENT_STATUS_END -->`.
+
+Exactly one such block must exist.
+
+The block version must equal `current_candidate_version`.
+
+Zero, multiple, mismatched, nested, or unterminated current-status blocks -> `REVIEW_PACKET_INCOMPLETE`.
+
+### R8V15-I011 — predecessor status classification
+
+Outside the marked current-status block, predecessor status/review classification uses:
+- explicit predecessor version tokens;
+- predecessor-status/review section state;
+- exact status/review metadata grammar.
+
+A status token by itself is never sufficient.
+
+### R8V15-I012 — exact semantic-test parser states
+
+`SEMANTIC_TEST_LITERAL` is allowed only while the parser is in one of:
+- `CASE_SECTION`;
+- `GUARD_RECORD_SECTION`;
+- `FENCED_SEMANTIC_TEST_DATA`;
+- `MARKED_SEMANTIC_TEST_SECTION`.
+
+A marked semantic-test section uses exact paired structural markers:
+
+`<!-- BSP:SEMANTIC_TEST_SECTION_BEGIN id=<stable-id> -->`
+
+and
+
+`<!-- BSP:SEMANTIC_TEST_SECTION_END id=<same-stable-id> -->`.
+
+Markers are structural only when they occur as exact standalone lines outside fenced code. The IDs must match, nesting is forbidden, and zero-length/malformed sections are invalid.
+
+The cross-mechanism adversarial corpus in the blind review packet must be enclosed in one marked semantic-test section. This preserves vectors such as a predecessor-status string used as attack data without treating that string as a leaked prior disposition.
+
+A normal prose paragraph mentioning a status token is not automatically a semantic-test literal.
+
+Parser state transitions are deterministic and part of BSP-5.
+
+### R8V15-I013 — projection residual proof
+
+After projection:
+- re-run BSP-5 from the initial parser state;
+- require zero `PRIOR_STATUS`;
+- require zero `PRIOR_REVIEW_METADATA`;
+- require exactly one valid current-status block;
+- require every marked semantic-test section to be paired, non-nested and ID-consistent;
+- require semantic-test records expected by CaseRegistry/GuardRegistry/cross-mechanism projection to remain present.
+
+Raw token search remains non-authoritative.
+
+## 5. CSRULE-6 — explicit multiple-revoked composition
+
+### R8V15-I014 — complete revoked blocker set
+
+After semantic Smax and current ANY validation, construct the complete set `B` of applicable REVOKED Smax blockers.
+
+No ACTIVE peer is selectable while `B` is non-empty and unresolved.
+
+### R8V15-I015 — per-blocker discharge
+
+For each blocker `b in B`, independently enumerate only explicitly linked successor/replacement paths.
+
+Each path must terminate in:
+- an eligible ACTIVE successor; or
+- an SRTT-4 `REPLACEMENT_ELIGIBLE` result.
+
+Normalize each successful path to canonical SREP digest.
+
+For one blocker:
+- zero valid paths -> `SEMANTIC_SCOPE_REVOKED`;
+- more than one non-equivalent digest -> `SEMANTIC_SUCCESSOR_CONFLICT`;
+- one unique digest, even if reached by multiple equivalent paths -> blocker uniquely discharged.
+
+### R8V15-I016 — no partial-discharge authority
+
+No discharge result enters final peer selection until every blocker in `B` is uniquely discharged.
+
+If one blocker is discharged and another is unresolved/invalid, the entire resolution remains blocked.
+
+Implementations may evaluate blockers in any deterministic work order, but final authority semantics are set-based and order-independent.
+
+### R8V15-I017 — final composition
+
+After every blocker is uniquely discharged:
+1. collect one canonical result digest per blocker;
+2. add canonical result digests from genuine directly ACTIVE Smax peers;
+3. compare the complete set using SREP;
+4. one unique digest -> one semantic result;
+5. more than one unique digest -> `SEMANTIC_ENTRY_CONFLICT`.
+
+Equivalent duplicate digests collapse only for result selection; all path/blocker evidence remains preserved.
+
+## 6. Cross-mechanism closure additions
+
+### R8V15-I018 — blocker ordering remains stage-ordered
+
+AIM permission and lifecycle stages occur before RIR/RCS stages.
+
+If an earlier stage blocks, later stages cannot convert that blocker into eligibility.
+
+Diagnostic systems may report additional later defects only if doing so does not execute an authority-bearing path that the earlier blocker prohibited.
+
+### R8V15-I019 — semantic sequence rollback/replay
+
+`semantic_state_sequence` is internally derived from current LAS committed state.
+
+A lower or replayed sequence is invalid even when presented semantic heads superficially match expected digests.
+
+No caller-supplied sequence may authorize historical-state reuse.
+
+### R8V15-I020 — rotation and external-effect interaction
+
+A rotation barrier does not rewrite committed EffectIntent semantics.
+
+During a barrier:
+- new covered authority writes obey the frozen barrier policy;
+- already committed external-effect reconciliation may continue only using the exact committed intent and current qualified executor/reconciler rules;
+- no barrier state may fabricate external success or duplicate logical effect dispatch;
+- any authority state required by reconciliation that becomes unavailable fails closed.
+
+### R8V15-I021 — guard semantics and NCG closure
+
+NCG closure requires not only GuardRegistry contiguity but also proof that every guard-referenced case semantic record required by the normalized review surface is preserved or explicitly traceable.
+
+Registry presence without preserved semantics is insufficient.
+
+## 7. Dependency graph semantics
+
+### R8V15-I022 — direct-edge definition
+
+The NCG dependency graph is a directed acyclic graph of **direct authority-relevant consumption/precondition dependencies**, not a transitive-closure graph.
+
+An edge `A -> B` exists only when B directly consumes A's authority state/output or cannot be evaluated without A's current qualified state.
+
+Transitive edges need not be duplicated.
+
+### R8V15-I023 — generated graph, not hand-added reviewer edges
+
+The structured graph is generated from the normalized dependency matrix.
+
+Every matrix row declares direct inputs and direct consumers.
+
+The graph generator:
+- emits edges from those declarations;
+- proves all nodes referenced by authority evaluation exist;
+- proves acyclicity;
+- reports orphan nodes and undeclared direct dependencies;
+- rejects manual extra edges not traceable to matrix declarations.
+
+Reviewer-suggested edges are evidence to investigate, not authority to mutate the graph.
+
+## 8. Fail-closed transient dependency policy
+
+### R8V15-I024 — temporary unavailability does not weaken authority
+
+Temporary unavailability, expiry, or failure of qualified:
+- time proof;
+- resolver conformance evidence/harness;
+- revocation freshness;
+- MTR/BTW freshness;
+- required reviewer/evidence dependency;
+
+leaves the affected authority operation blocked.
+
+No stale cache, emergency weaker root, previous PASS token, locally inferred time, or operator override may substitute.
+
+### R8V15-I025 — liveness recovery
+
+A blocked operation may be retried only after:
+- the same qualified dependency is restored; or
+- a constitutionally authorized successor dependency of equal-or-stronger assurance is active.
+
+The operation is fully re-evaluated against current authority state.
+
+This is intentional safety-over-liveness behavior.
+
+## 9. Additional Guard Catalog v15
+
+| Guard | Mechanism | Positive | Negatives with fault-proof class |
+|---|---|---|---|
+| G149 | SRTT-4 explicit fixed domain | V15-001 | V15-002 FP5; V15-003 FP5 |
+| G150 | SRTT-4 RuleRegistry / decisive-rule traceability | V15-004 | V15-005 FP5; V15-006 FP5 |
+| G151 | Guard-omission inclusive range expansion | V15-007 | V15-008 FP5; V15-009 FP5 |
+| G152 | BSP-5 explicit current-status binding | V15-010 | V15-011 FP5; V15-012 FP5 |
+| G153 | CSRULE-6 multi-revoked composition | V15-013 | V15-014 FP5; V15-015 FP5; V15-016 FP5 |
+| G154 | Cross-mechanism rollback/barrier closure | V15-017 | V15-018 FP3; V15-019 FP5 |
+| G155 | NCG direct dependency graph generation | V15-020 | V15-021 FP5; V15-022 FP5 |
+| G156 | Fail-closed transient dependency policy | V15-023 | V15-024 FP5; V15-025 FP5 |
+
+## 10. R8 v15 preregistered cases
+
+### SRTT fixed domain
+- V15-001 generated table declares fixed REVOKED source domain plus 2304 variable tuples -> domain complete.
+- V15-002 table contains REVOKED rows but no fixed-domain declaration -> `SRTT_DOMAIN_UNDECLARED`.
+- V15-003 generator attempts ACTIVE/SUSPENDED source row inside replacement table -> `SRTT_DOMAIN_VIOLATION`.
+
+### SRTT rule traceability
+- V15-004 every row's decisive_rule_id resolves to exactly one frozen RuleRegistry record and recomputation matches -> valid.
+- V15-005 row references undeclared decisive rule -> `SRTT_RULE_REGISTRY_INVALID`.
+- V15-006 two same-precedence rules match one tuple with different outputs -> `SRTT_CONFLICT`.
+
+### Guard omission
+- V15-007 source `V4-024..V4-030` expands to all seven explicit IDs and all are preserved -> omission proof valid.
+- V15-008 expansion omits V4-025..V4-029 while endpoints remain -> `REVIEW_PACKET_INCOMPLETE`.
+- V15-009 manifest contains case not referenced by omitted source table -> set-equality proof fails.
+
+### BSP
+- V15-010 exactly one version-15 marked current status block survives while predecessor review status is removed -> BSP pass.
+- V15-011 two current-status blocks or version mismatch -> `REVIEW_PACKET_INCOMPLETE`.
+- V15-012 ordinary prose with status token is misclassified as semantic-test literal -> BSP fail.
+
+### Multi-revoked composition
+- V15-013 two revoked blockers each uniquely discharge to same SREP digest -> one semantic result, both path evidences retained.
+- V15-014 one revoked blocker discharges, second has zero valid path -> `SEMANTIC_SCOPE_REVOKED`; no partial authority.
+- V15-015 two blockers uniquely discharge to different SREP digests -> `SEMANTIC_ENTRY_CONFLICT`.
+- V15-016 one blocker has two non-equivalent valid discharge paths -> `SEMANTIC_SUCCESSOR_CONFLICT`.
+
+### Cross mechanism
+- V15-017 earlier AIM permission blocker plus later stale RCS evidence -> AIM blocker remains authoritative; later defect cannot create eligibility.
+- V15-018 replayed/lower semantic_state_sequence with superficially matching heads -> reject as rollback/replay.
+- V15-019 rotation barrier plus committed ambiguous EffectIntent -> no duplicate dispatch and no fabricated success.
+
+### Dependency graph
+- V15-020 matrix-derived direct dependency graph is complete and acyclic -> NCG graph pass.
+- V15-021 runtime dependency exists in matrix but generated graph omits edge -> NCG fail.
+- V15-022 hand-added untraceable edge changes graph semantics -> NCG fail.
+
+### Transient dependency
+- V15-023 qualified dependency unavailable -> authority blocked; retry after same qualified dependency restores and full re-evaluation succeeds.
+- V15-024 cached prior PASS/time/conformance token used during outage -> reject.
+- V15-025 emergency weaker dependency used for liveness -> reject.
+
+## 11. Current state
+
+- R8 v1-v14 = historical / v14 external normalized review disposition CHANGES_REQUIRED.
+- R8 v15 = NOT_IMPLEMENTED / INTERNAL_NORMALIZATION_REQUIRED.
+- executable-schema freeze = BLOCKED.
+- implementation start = BLOCKED.
+- PR #39/#40 = NON_AUTHORITATIVE.
+- authority effect = NONE.
+
+Before a fresh v15 independent review, NCG must regenerate:
+- normalized effective specification;
+- SRTT-4 RuleRegistry and total table;
+- GuardRegistry/CaseRegistry extension through G156/V15-025;
+- repaired GuardOmissionManifest;
+- BSP-5 grammar;
+- cross-mechanism corpus;
+- dependency/evaluation/ownership structures;
+- blind review packet and reproducibility manifests.
+
+
+
+## Internal normalization repair note — v15-r1
+
+The first v15 packet-projection check correctly exposed that the cross-mechanism corpus contains attack-vector literals such as `R8 v12 = NOT_IMPLEMENTED`. The initial BSP-5 grammar did not give the whole corpus an explicit semantic-test parser state. The failed projection check remains preserved on the first packaging branch. This repair adds exact marked semantic-test-section boundaries; it does not weaken prior-status removal.
+
+===== END SOURCE SRC-V15: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V15.md =====
+
+
+===== BEGIN SOURCE SRC-FREEZE-V2: governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2.md =====
+COMMIT: dd333757f1c4d838d9130a8d25923c50479d0fd5
+GIT_BLOB_SHA1: 70eb8c3640ad243e2a6655edf29adb90076a1281
+
+# R8 v15-r1 — Executable Schema Freeze Preregistration V2
+
+Status: **SCHEMA_FREEZE_CANDIDATE_V2 — NON_AUTHORITATIVE**
+Authority effect: **NONE**
+
+Frozen semantic candidate:
+- `c721b38cf8b00294797300b526596ce723a47ff8`
+
+Accepted design-review state:
+- normalized design review: `BOUNDED_PASS`;
+- targeted H-1/M-1 evidence closure: `EVIDENCE_CLOSURE_PASS`.
+
+V2 supersedes schema-freeze candidate V1 before external review because V1 failed to carry forward inherited schema-freeze-process obligations. Semantic design is unchanged.
+
+## 1. Non-negotiable freeze boundary
+
+Schema construction may encode the frozen semantics but may not:
+- add, remove, weaken, reinterpret or broaden authority;
+- invent a weaker liveness fallback;
+- turn missing authority evidence into a default;
+- make an authority-bearing field optional unless frozen design explicitly makes absence/null meaningful;
+- treat schema validity as authorization.
+
+Unknown source details remain opaque IDs/digests/references rather than invented semantics.
+
+## 2. Required schema/contract inventory
+
+V2 must freeze:
+
+1. runtime authority contracts:
+   - T0/MTR/BTW;
+   - canonical identity/revocation;
+   - GGS/LAS hard state and LASAuthorityStateRoot;
+   - rotation/STC;
+   - AIEP/AIG boundary;
+   - CSM-5 / SemanticEntry / AIM / ANYScopePermission / AIMScopePolicy;
+   - ResolverPolicy / RIR / RCS;
+   - SRTT / SREP;
+   - AuthorityReadSet / DecisionPresealContext / time / VerifiedStateSeal;
+   - EffectIntent/effect states;
+   - evidence/migration/recovery.
+2. GuardRegistry / CaseRegistry schemas.
+3. SRTT-4 RuleRegistry and total-table schemas.
+4. BSP-5 grammar schema.
+5. NCG structured-closure schema.
+6. guard-omission evidence/manifest schemas.
+7. GCP-RVM-2 schema + frozen vector manifest.
+8. RPS-1 schema + frozen review-presentation classification.
+9. CaseProofContract schema + generated G001..G156 contracts and FP0..FP6 requirements.
+10. SPM-1 provenance schema + per-schema-element provenance manifest.
+11. SchemaProvenanceGenerator contract/runtime-manifest binding.
+12. deterministic SchemaFreezeValidator contract.
+13. schema-freeze traceability for NORM-001..043 plus inherited freeze-process rules.
+
+## 3. Inherited freeze-process rules restored
+
+### SFG-001 — SPM-1 mandatory provenance
+Every machine-readable schema element entering final freeze has an SPM-1 record containing:
+- schema artifact ID/digest;
+- JSON pointer / field / rule ID;
+- semantic purpose;
+- authoritative source design IDs;
+- source commit/blob;
+- transformation/generator identity;
+- generator RuntimeManifest digest;
+- reviewer status where required.
+
+Source: R8V7-I030.
+
+### SFG-002 — RG-1 provenance enforcement
+Freeze fails with `UNAUTHORIZED_SEMANTIC_SOURCE` when:
+- any schema element has no SPM-1 entry;
+- its only source is PR #39/#40 or another NON_AUTHORITATIVE artifact;
+- a manual/generated rule has no governed incorporation source.
+
+Source: R8V7-I031.
+
+### SFG-003 — qualified SchemaProvenanceGenerator
+Any generator emitting schema artifacts or SPM entries must be enrolled as SchemaProvenanceGenerator and bind:
+- generator identity;
+- executable/artifact digest;
+- RuntimeManifest;
+- WorkloadAttestation policy/proof;
+- allowed input design artifacts;
+- allowed output schema classes;
+- signing credential;
+- revocation state.
+
+Drift/revocation/unregistered generator -> output not final-freeze eligible.
+
+Source: R8V8-I020..I022.
+
+### SFG-004 — GCP-RVM-2
+Freeze includes canonical-output vectors and rejection vectors with frozen source trace and independently reproducible positive digests.
+
+Source: R8V4-I026..I029; R8V5-I028..I034; R8V7 GCP rejection vectors; R8V8-I034/I035.
+
+### SFG-005 — RPS-1
+Every review packet type classifies displayed fields as:
+- `REVIEW_SEMANTIC`; or
+- `DISPLAY_NON_SEMANTIC`.
+
+Unknown display fields default REVIEW_SEMANTIC.
+DISPLAY_NON_SEMANTIC may not encode status, severity, identity, evidence quality, ordering priority, recommendation or substantive claim, and may not alter ordering/evidence association.
+
+Source: R8V7-I038/I039.
+
+### SFG-006 — CaseProofContracts
+Every current GuardRegistry guard G001..G156 has:
+- at least one positive control;
+- all registered negative controls;
+- exact FP0..FP6 class for each negative;
+- preserved case source lineage.
+
+Source: R8V7-I044/I045 and schema-freeze gates v7-v13, extended by current GuardRegistry.
+
+### SFG-007 — independent schema review
+Final executable-schema freeze requires a fresh blind independent review bound to the exact schema candidate.
+
+Source: inherited schema-freeze gates v7-v13.
+
+## 4. Generator qualification boundary
+
+A manually constructed candidate may be used only to prepare/falsify schema semantics.
+
+It is **not final-freeze eligible** until SFG-003 is satisfied by a qualified generator execution whose exact output matches the candidate artifacts or regenerates a semantically identical successor that receives review.
+
+No ChatGPT/model statement, Git commit, CI green check or reviewer pass substitutes for qualified SchemaProvenanceGenerator identity.
+
+## 5. Deterministic validator obligations
+
+V1 SFV-01..SFV-34 remain in force.
+
+V2 adds:
+
+- **SFV-35** SPM coverage: every semantic schema element has exactly one or explicitly equivalent non-conflicting provenance record.
+- **SFV-36** SPG qualification: final freeze requires qualified generator RuntimeManifest/workload attestation and exact generator artifact digest.
+- **SFV-37** GCP positive vectors: recompute every positive canonical-byte SHA-256 and require exact match.
+- **SFV-38** GCP rejection vectors: every frozen rejection input must reject under the named source rule; no canonical output may be accepted.
+- **SFV-39** CaseProofContract closure: exactly G001..G156, every registered positive/negative case present, no extras/missing, FP classes match GuardRegistry.
+- **SFV-40** fault-proof legend: FP0..FP6 meanings exactly preserved.
+- **SFV-41** RPS coverage: every review packet displayed field classified; unknown defaults REVIEW_SEMANTIC.
+- **SFV-42** RPS non-semantic safety: DISPLAY_NON_SEMANTIC cannot influence decision semantics, ordering or evidence association.
+- **SFV-43** process-source authority: no freeze rule/schema element is sourced only from non-authoritative PR #39/#40 or ungoverned artifacts.
+- **SFV-44** exact schema artifact digest binding: SPM/freeze manifest/review packet must bind the same artifact bytes.
+- **SFV-45** independent schema review: exact frozen schema candidate must have a qualifying review disposition before final freeze.
+
+## 6. Freeze-state taxonomy
+
+- `SCHEMA_CANDIDATE_INTERNAL`: schemas exist but not all freeze gates close.
+- `SCHEMA_CANDIDATE_REVIEWABLE`: semantic/mechanical checks close and SPG qualification is satisfied; ready for independent schema review.
+- `EXECUTABLE_SCHEMA_FROZEN`: exact schema candidate passed qualified generation, provenance, validator recomputation and independent schema review.
+- `IMPLEMENTATION_AUTHORIZED`: **not granted by this phase**.
+
+## 7. Current V2 start state
+
+At V2 start:
+- semantic design change: **NO**;
+- V1 external review: **NOT USED**;
+- SPM-1: **PENDING**;
+- qualified SPG-1 generation: **PENDING**;
+- GCP-RVM-2: **being added**;
+- RPS-1: **being added**;
+- CaseProofContracts G001..G156: **being added**;
+- executable-schema final freeze: **BLOCKED**;
+- authority effect: **NONE**.
+
+===== END SOURCE SRC-FREEZE-V2: governance-r8/R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2.md =====
+
+
+===== BEGIN SOURCE SRC-V4: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V4.md =====
+COMMIT: d779eb495b5830674e0258d4d27b768f77e10471
+GIT_BLOB_SHA1: 8597233a08c77c0ab928868eaec4c13c425a2eac
+
+# R8 Meta-Governance Redesign v4 — Successor Preregistration
+
+Status: **PREREGISTERED_DESIGN_V4 — NOT_IMPLEMENTED — INDEPENDENT_REVIEW_REQUIRED**
+Authority effect: **NONE**
+
+Predecessors:
+- R8 v1 — CHANGES_REQUIRED
+- R8 v2 — CHANGES_REQUIRED
+- R8 v3 commit `aa4a5e6a320002731926e0c9ccbbb62c2bfbb0ca` — CHANGES_REQUIRED
+
+R8 v3 adjudication:
+- `13715113287c3732be3cc4bdc60716fbb95396aa`
+
+## 1. Objective
+
+R8 v4 closes the remaining design-level trust-root and concurrency gaps by explicitly separating:
+
+- **T0 external trust assumptions** that the platform cannot self-prove;
+- **L0 constitutional authority** cryptographically bound to those assumptions;
+- **L1+ deterministic governed mechanisms** that may be qualified by falsification.
+
+The design does not claim to mathematically prove real-world non-collusion. It claims only that software cannot replace the frozen T0 attestations, threshold assumptions, and externally witnessed state with self-issued labels.
+
+## 2. T0 External Trust Axiom
+
+### R8V4-I001 — T0 is outside ordinary platform authority
+
+The platform begins from a preregistered **External Bootstrap Authority (EBA-1)** whose verification key set and policy digest are provisioned out of band before any constitution exists.
+
+EBA-1 is not created, amended, or replaced by project/org policy, the Meta-Governor, a reviewer, a model, or an ordinary platform registry.
+
+The platform's design-level trust claim explicitly assumes that EBA-1's threshold key custody and real-world controller attestations are valid within their stated scope.
+
+### R8V4-I002 — No infinite trust claim
+
+The platform does not claim to prove the real-world identity behind EBA-1 itself.
+
+EBA-1 is the explicit trust axiom at which cryptographic verification terminates.
+
+Any claim stronger than "verified against the configured EBA-1 trust root" is out of scope unless separately qualified.
+
+### R8V4-I003 — EBA-1 threshold
+
+The reference EBA-1 has five offline trust officers from at least three separately administered domains.
+
+An EBA certificate requires signatures from at least **3-of-5 trust officers**, with at least **three distinct `admin_domain_id` values** represented.
+
+The exact EBA public-key set and EBA policy digest are deployment bootstrap inputs, not self-generated platform state.
+
+## 3. External controller attestation
+
+### R8V4-I004 — ControllerAttestation
+
+Every controller counted for root, recovery, anchor, time, constitutional reviewer, or root-sensitive issuer independence must present an EBA-1-signed `ControllerAttestation` containing:
+
+- `attestation_serial`;
+- `controller_id`;
+- `admin_domain_id`;
+- `controller_public_key`;
+- `credential_class`;
+- `allowed_role_classes`;
+- `not_before`;
+- `not_after`;
+- `revocation_endpoint_or_log_id`;
+- `EBA_policy_digest`;
+- EBA threshold signature/certificate proof.
+
+Self-issued controller IDs or principal labels have zero authority.
+
+### R8V4-I005 — Independence predicate
+
+Two principals do **not** count as independent when any of these are equal or share the same EBA-attested controlling lineage:
+
+- `controller_id`;
+- `admin_domain_id` where the applicable quorum requires domain diversity;
+- root delegation ancestor;
+- root-sensitive credential/key identity;
+- persistent execution identity where execution separation is required.
+
+A surface-name difference never establishes independence.
+
+### R8V4-I006 — Attestation freshness/revocation
+
+An expired, revoked, unverifiable, or EBA-policy-mismatched ControllerAttestation cannot satisfy an authority or independence requirement.
+
+Use of controller attestations is bound to the current EBA trust-root version and its revocation state.
+
+## 4. Pre-genesis BootstrapAuthorization
+
+### R8V4-I007 — BootstrapAuthorization
+
+Before genesis, EBA-1 issues one `BootstrapAuthorization` containing:
+
+- unique `bootstrap_authorization_id`;
+- unique `constitution_id`;
+- 256-bit `bootstrap_nonce`;
+- exact three root controller attestation serials;
+- exact three recovery controller attestation serials;
+- exact anchor-controller attestation serials;
+- exact time-controller attestation serials;
+- allowed initial Meta-Governor/schema digest set;
+- exact initial Constitutional Surface Registry digest;
+- exact GCP-1 profile digest;
+- exact first-registry schema digest set;
+- expiration;
+- EBA threshold proof.
+
+Genesis keys not covered by this authorization cannot bootstrap the constitution.
+
+### R8V4-I008 — Root/recovery separation at T0
+
+No ControllerAttestation serial or controller_id may appear in both root and recovery sets of one BootstrapAuthorization.
+
+No root or recovery controller may be an anchor-controller quorum majority.
+
+### R8V4-I009 — Singleton pre-genesis registration
+
+Each BootstrapAuthorization is registered once in an external **Bootstrap Transparency Witness (BTW-1)** before platform genesis.
+
+BTW-1 provides:
+- first-seen receipt;
+- unique serial index;
+- append-only inclusion proof;
+- signed tree head;
+- consistency proof against prior signed tree head.
+
+A `bootstrap_authorization_id` already recorded by BTW-1 cannot bootstrap again.
+
+### R8V4-I010 — Atomic genesis
+
+Genesis uses one linearizable operation:
+
+`CAS_GENESIS(bootstrap_authorization_id, expected=UNUSED, genesis_digest)`
+
+Success produces a `GenesisCommitCertificate`.
+
+Concurrent attempts using the same authorization cannot both commit.
+
+## 5. Root and recovery quorums
+
+### R8V4-I011 — Root constitutional quorum
+
+Ordinary constitutional amendment requires:
+- 2-of-3 active root principals;
+- two distinct EBA-attested controller_id values;
+- two distinct admin_domain_id values;
+- valid current ControllerAttestations;
+- signatures over identical canonical amendment bytes.
+
+### R8V4-I012 — Recovery quorum
+
+Root replacement/recovery requires:
+- 2-of-3 active recovery principals;
+- two distinct EBA-attested controller_id values;
+- two distinct admin_domain_id values;
+- mandatory typed trigger evidence;
+- no root/recovery controller overlap.
+
+### R8V4-I013 — Collusion claim boundary
+
+The platform claim assumes fewer than the required independent T0-attested controllers collude.
+
+If the threshold number of externally attested independent controllers collude, the software cannot prove their intent and may accept a maliciously authorized event.
+
+This is an explicit bounded trust assumption, not a false claim of perfect non-collusion proof.
+
+## 6. Anchor independence and witness model
+
+### R8V4-I014 — Three anchor replicas
+
+CAL-2 uses three append-only replicas:
+
+- `ANCHOR-A`
+- `ANCHOR-B`
+- `ANCHOR-C`
+
+Each replica controller must have a current EBA ControllerAttestation from a distinct admin_domain_id.
+
+### R8V4-I015 — Anchor quorum certificate
+
+An authority-bearing anchor event commits only with a `2-of-3 AnchorQuorumCertificate` over:
+
+- constitution_id;
+- anchor_seq;
+- prev_anchor_digest;
+- canonical_event_digest.
+
+A replica must not sign two different successors for the same predecessor.
+
+### R8V4-I016 — External transparency witness
+
+Every committed AnchorQuorumCertificate must also receive inclusion in BTW-1 or a constitutionally approved independent transparency witness.
+
+Authority-bearing clients require both:
+1. valid 2-of-3 AnchorQuorumCertificate; and
+2. witness inclusion proof consistent with a previously trusted signed tree head.
+
+### R8V4-I017 — Anchor equivocation
+
+Conflicting quorum certificates, conflicting witness inclusion, or a replica signing two successors for one predecessor produces `ANCHOR_EQUIVOCATION` and freezes affected authority.
+
+### R8V4-I018 — Anchor collusion bound
+
+History-integrity claims assume that an attacker does not control:
+- a valid event-approval authority; **and**
+- an anchor signing quorum; **and**
+- the configured transparency witness consistency path.
+
+This assumption is explicit in the claim boundary.
+
+## 7. Atomic successor protocol
+
+### R8V4-I019 — CAS_APPEND
+
+Every non-commutative constitutional, registry, checkpoint, revocation, and authority-bearing ledger transition uses:
+
+`CAS_APPEND(stream_id, expected_seq, expected_head_digest, event_digest)`
+
+A commit certificate binds all four values.
+
+### R8V4-I020 — Single predecessor consumption
+
+For a non-commutative stream, at most one event may obtain a valid commit certificate for one `expected_seq + expected_head_digest`.
+
+A losing concurrent writer receives `HEAD_CONFLICT` and must re-evaluate against the new head.
+
+### R8V4-I021 — Committed fork detection
+
+If two valid commit certificates are ever observed for one non-commutative predecessor, the stream enters `LEDGER_EQUIVOCATION` and no branch is selected automatically.
+
+### R8V4-I022 — Commutative exception
+
+Concurrent merge is permitted only when:
+- the stream schema explicitly marks the event class commutative;
+- a constitutionally frozen merge function exists;
+- all permutations produce identical canonical merged bytes.
+
+Otherwise the operation is non-commutative.
+
+## 8. Constitutional semantic surface — no subjective reinterpretation
+
+### R8V4-I023 — Machine-readable constitutional semantics
+
+Authority semantics are defined only by constitutionally bound machine-readable artifacts and exact digests:
+- Meta-Governor executable digest;
+- validation predicate bundle digest;
+- GCP-1 profile digest;
+- parser/schema bundle digest;
+- Semantic Primitive Registry head/digest;
+- policy composition/conflict ontology digest;
+- identity/independence rule digest;
+- materiality classifier schema/rules digest;
+- issuer/revocation rule digest;
+- time rule digest;
+- checkpoint/history rule digest;
+- evidence transition rule digest;
+- recovery rule digest;
+- tenant namespace rule digest.
+
+Human prose cannot change enforcement semantics.
+
+### R8V4-I024 — Semantic artifact change
+
+Any digest change to an artifact listed in R8V4-I023 is automatically `CONSTITUTIONAL_AMENDMENT_REQUIRED`.
+
+No Meta-Governor discretion is needed to decide whether the change is a "reinterpretation."
+
+### R8V4-I025 — Same digest / different behavior
+
+If runtime behavior differs while the constitutionally bound executable/parser/predicate digests are unchanged, this is an implementation-integrity failure, not a lawful semantic reinterpretation.
+
+## 9. Exact GCP-1 numeric/lexical closure
+
+### R8V4-I026 — Integer range
+
+Governance integers are signed 64-bit:
+
+`-9223372036854775808 .. 9223372036854775807`
+
+Values outside the range are rejected.
+
+### R8V4-I027 — Integer lexical form
+
+Valid JSON integer lexical form:
+- zero is exactly `0`;
+- non-zero positive integers contain digits only and no leading zero;
+- negative integers are `-` followed by a non-zero digit and remaining digits;
+- `+1`, `01`, `-0`, exponent form, decimal point, NaN, Infinity are rejected.
+
+### R8V4-I028 — String/escape closure
+
+Input strings must be valid Unicode NFC.
+
+Canonical output:
+- emits `"`, `\`, and U+0000..U+001F using the single frozen JSON escape mapping;
+- does not escape printable non-control Unicode solely for ASCII conversion;
+- rejects unpaired surrogates.
+
+### R8V4-I029 — Frozen reference vectors
+
+The design freezes these canonical-output expectations:
+
+1. Input object keys `{"b":1,"a":2}`
+   -> canonical bytes exactly `{"a":2,"b":1}`
+
+2. Input `{"n":0}`
+   -> exactly `{"n":0}`
+
+3. Input containing integer `01`
+   -> parse rejection before canonicalization.
+
+4. Input with duplicate key `{"a":1,"a":2}`
+   -> rejection.
+
+5. Input `{"s":["b","a"]}` where schema marks `s` as an ordered array
+   -> exactly `{"s":["b","a"]}`.
+
+6. The same logical values in a schema-defined set are sorted by canonical element digest then bytes; duplicate canonical elements reject.
+
+Exact SHA-256 reference digests for frozen schema/vector files must be generated and committed before implementation code begins.
+
+## 10. Semantic Primitive Registry lifecycle
+
+### R8V4-I030 — SPR append-only lifecycle
+
+SPR primitives have immutable `primitive_id` and append-only versions.
+
+Allowed lifecycle:
+- ACTIVE;
+- SUPERSEDED;
+- RETIRED.
+
+Deletion is forbidden.
+
+### R8V4-I031 — Primitive semantic change
+
+Changing:
+- meaning;
+- unit/base-unit mapping;
+- conversion rule;
+- scope semantics;
+- alias-to-ID resolution
+
+creates a new primitive version and is constitutional when authority-relevant.
+
+Old evidence remains bound to the old primitive version.
+
+### R8V4-I032 — Alias prohibition in authority inputs
+
+Authority APIs accept primitive IDs only.
+
+Human aliases are UI/display metadata and are rejected as authority-bearing request identifiers.
+
+## 11. Non-overridable separation of duties
+
+### R8V4-I033 — Root-sensitive issuer SoD
+
+For these operations, configurator/controller and beneficiary/controller **MUST** be EBA-attested distinct controllers and this requirement is non-overridable:
+
+- terminal issuer enrollment;
+- PLATFORM_POLICY issuer enrollment/configuration;
+- root-sensitive issuer scope expansion;
+- revocation undo for terminal/root-sensitive issuer;
+- issuer reactivation after compromise.
+
+Ordinary project policy cannot waive this rule.
+
+## 12. Revocation monotonicity and exact-use binding
+
+### R8V4-I034 — Every revocation update is immediately committed
+
+Every Authority Revocation Registry event uses CAS_APPEND and receives an AnchorQuorumCertificate + witness inclusion before it is considered current.
+
+### R8V4-I035 — Monotonic revocation head
+
+A verifier persists `last_seen_revocation_seq + digest` per constitution/tenant.
+
+A presented revocation head older than the last seen head is rollback and fails closed.
+
+### R8V4-I036 — Use-context binding
+
+Every authority use constructs:
+
+`decision_context_digest = SHA-256(GCP-1({tenant_id, project_id, task_id/effect_id, action, artifact_digest, governance_snapshot_digest, authority_record_digest, nonce}))`
+
+Revocation and time checks are bound to this exact decision context.
+
+### R8V4-I037 — Revocation freshness bound
+
+For terminal/root-sensitive use:
+- current revocation head must be obtained from quorum-validated registry state;
+- its anchor/witness proof must verify;
+- its sequence must be >= the authority-record issue revocation sequence and >= verifier last-seen sequence.
+
+Unavailable/verifiably stale state -> `REVOCATION_UNAVAILABLE`.
+
+## 13. Time attestation exact-context binding
+
+### R8V4-I038 — Context-bound TimeAttestation
+
+A TimeAttestation signs:
+- time_source_id;
+- controller_attestation_serial;
+- decision_context_digest;
+- challenge_nonce;
+- attested_unix_seconds;
+- uncertainty_ms;
+- time_sequence;
+- expiration;
+- signature.
+
+### R8V4-I039 — Time anti-replay
+
+A time proof is valid only for the exact decision_context_digest and challenge_nonce for which it was issued.
+
+Reusing an old attestation for a different decision context or nonce is rejected.
+
+### R8V4-I040 — Time-source independence
+
+A 2-of-3 time quorum requires distinct active EBA ControllerAttestations and distinct admin_domain_id values.
+
+### R8V4-I041 — Time failure
+
+If a valid context-bound 2-of-3 time quorum cannot be established within the constitutional skew bound, expiry-sensitive action is `TIME_AUTHORITY_UNAVAILABLE`.
+
+## 14. Qualified Evidence Producer path
+
+### R8V4-I042 — QualifiedEvidenceProducer Registry
+
+Any producer allowed to mint a strong evidence class has an anchored registry record containing:
+- producer_id;
+- EBA/controller/service attestation class;
+- exact executable/artifact digest where software;
+- allowed source inputs;
+- allowed output evidence classes;
+- tenant scope;
+- network/execution boundary class;
+- signing key/credential identity;
+- revocation status;
+- qualification evidence digest.
+
+### R8V4-I043 — Strong evidence minting
+
+A strong evidence object is valid only when:
+- produced by an active QualifiedEvidenceProducer permitted for that class;
+- signed by the producer credential;
+- producer executable/identity matches the registry record;
+- exact input evidence digests are bound;
+- candidate/snapshot/tenant bindings match;
+- output class is allowed.
+
+### R8V4-I044 — Weak-to-strong no-laundering
+
+Weak evidence cannot become strong evidence by:
+- relabeling;
+- copying content into a new object;
+- new metadata;
+- a Meta-Governor-only declaration.
+
+A stronger object must result from a newly executed qualified producer path whose prerequisites permit those weak inputs.
+
+### R8V4-I045 — External manual review
+
+User-pasted or manually relayed external LLM review remains external evidence unless a separately qualified producer/attested human-signature path exists.
+
+It may expose defects but cannot impersonate platform-authenticated review.
+
+## 15. Out-of-band mutation detection
+
+### R8V4-I046 — Authoritative state root
+
+Each authority-bearing store exposes a deterministic `state_root_digest` computed from:
+- committed event-chain head;
+- current indexed objects derived from that chain;
+- schema/version identity.
+
+The expected state root/head is anchored.
+
+### R8V4-I047 — Verify-before-authority
+
+Before an authority-bearing decision consumes a store, the verifier checks:
+- committed head certificate;
+- anchored head;
+- recomputed state root;
+- current schema digest.
+
+Mismatch -> `STATE_INTEGRITY_FAILURE`; no authority transition.
+
+### R8V4-I048 — Periodic integrity auditor
+
+A separately enrolled Integrity Auditor periodically recomputes state roots and verifies:
+- registry heads;
+- checkpoint store;
+- issuer/revocation store;
+- evidence-transition store;
+- tenant store;
+- policy/invariant store.
+
+Auditor findings are anchored evidence.
+
+The auditor cannot itself repair or grant authority.
+
+### R8V4-I049 — Unauthorized database mutation
+
+A direct DB edit with no valid event commit certificate cannot alter authoritative derived state.
+
+If storage reflects such a mutation, the state-root mismatch triggers recovery.
+
+## 16. Constitutional review independence compensation
+
+### R8V4-I050 — Constitutional review requires two channels
+
+A constitutional amendment requiring independent review must collect two review channels:
+
+- **Channel H:** one EBA-attested human/controller review from an admin_domain_id not controlling the amendment proposer; and
+- **Channel X:** either another independently attested human/controller from a third admin domain or an independently administered external review provider execution.
+
+### R8V4-I051 — Provider-internal-memory boundedness
+
+An external model/provider review alone cannot establish constitutional review independence when provider-internal memory is unverifiable.
+
+Provider review may satisfy Channel X only when Channel H is also present.
+
+Ordinary lower-risk review policy may define different requirements, but cannot weaken constitutional Channel H.
+
+### R8V4-I052 — Reviewer artifact isolation
+
+Each channel receives an independently generated packet from the same exact candidate/snapshot and no other channel's substantive findings.
+
+## 17. Materiality non-material field masks
+
+### R8V4-I053 — No prose "non-material" category
+
+An object class may classify mutations as non-material only through explicit schema field masks.
+
+Example:
+- `display_label` may be non-material;
+- `authority_scope`, `controller_id`, `predicate_digest`, `policy_rule`, `evidence_class` may not.
+
+Unknown field or unclassified changed field -> materiality unresolved/fail closed.
+
+### R8V4-I054 — Dependency extractor version binding
+
+The exact dependency extractor executable/rule digest is constitutional/registry-bound.
+
+Stale or unknown extractor identity cannot classify a change as non-material.
+
+## 18. Checkpoint anchoring exactness
+
+### R8V4-I055 — Authoritative checkpoint means anchored checkpoint
+
+Every lifecycle-advancing checkpoint must be CAS-committed and receive an AnchorQuorumCertificate + witness inclusion **before** it becomes authoritative.
+
+There is no delayed authoritative checkpoint anchoring window.
+
+Unanchored checkpoint = pending/advisory only.
+
+## 19. Mandatory recovery trigger schemas
+
+### R8V4-I056 — RecoveryTriggerSchema Registry
+
+Recovery trigger schemas are constitutional semantic artifacts.
+
+Every trigger type defines mandatory evidence classes and minimum independent proof.
+
+The constitution may strengthen but ordinary policy may not omit a mandatory trigger-evidence field.
+
+### R8V4-I057 — Reference trigger minima
+
+At minimum:
+
+- `ROOT_KEY_LOSS`: attested controller declaration + failed challenge for the registered credential + no active replacement credential.
+- `ROOT_KEY_COMPROMISE`: incident evidence + controller declaration or independent security authority evidence + immediate key suspension event.
+- `REGISTRY_CORRUPTION`: state-root mismatch + anchored last-good head proof.
+- `ANCHOR_DIVERGENCE`: conflicting quorum certificates or witness consistency failure.
+- `STORE_UNAVAILABLE`: independent health evidence from at least two monitoring domains.
+- `CREDENTIAL_COMPROMISE`: credential revocation/suspension evidence + incident record.
+
+## 20. Stable-ID-only authority resolution
+
+### R8V4-I058 — Alias rejection
+
+Authority-bearing APIs accept only stable IDs:
+- tenant_id;
+- principal_id;
+- primitive_id;
+- registry object ID;
+- candidate/artifact digest.
+
+Human aliases/names are rejected in authority fields, including migration and recovery requests.
+
+## 21. Guard Catalog and complete positive-control mapping
+
+The following guard IDs are frozen for design qualification.
+
+| Guard ID | Load-bearing mechanism | Positive control | Negative/adversarial cases |
+|---|---|---|---|
+| G001 | EBA ControllerAttestation verification | V4-001 | V4-002,V4-003 |
+| G002 | BootstrapAuthorization + singleton CAS | V4-004 | V4-005,V4-006 |
+| G003 | Root quorum independence | V4-007 | V4-008,V4-009 |
+| G004 | Recovery quorum + trigger proof | V4-010 | V4-011,V4-012 |
+| G005 | Anchor quorum + witness | V4-013 | V4-014,V4-015,V4-016 |
+| G006 | Atomic CAS_APPEND | V4-017 | V4-018,V4-019 |
+| G007 | Constitutional semantic digest gate | V4-020 | V4-021,V4-022 |
+| G008 | GCP-1 canonicalization/parser | V4-023 | V4-024..V4-030 |
+| G009 | SPR lifecycle/stable primitive IDs | V4-031 | V4-032,V4-033 |
+| G010 | Reviewer independence + two-channel constitutional review | V4-034 | V4-035,V4-036,V4-037 |
+| G011 | Issuer separation of duties | V4-038 | V4-039,V4-040 |
+| G012 | Revocation monotonic use-time validation | V4-041 | V4-042,V4-043 |
+| G013 | Context-bound time quorum | V4-044 | V4-045,V4-046,V4-047 |
+| G014 | Materiality field-mask classifier | V4-048 | V4-049,V4-050 |
+| G015 | QualifiedEvidenceProducer strong evidence | V4-051 | V4-052,V4-053,V4-054 |
+| G016 | Stable tenant/authority IDs only | V4-055 | V4-056,V4-057 |
+| G017 | Checkpoint producer + immediate anchor | V4-058 | V4-059,V4-060 |
+| G018 | State-root out-of-band mutation detection | V4-061 | V4-062,V4-063 |
+| G019 | Registry/head rollback-fork guard | V4-064 | V4-065,V4-066 |
+| G020 | Recovery blocked-state bypass guard | V4-067 | V4-068,V4-069 |
+| G021 | Repository/history migration anchor | V4-070 | V4-071,V4-072 |
+| G022 | Evidence transition closed table | V4-073 | V4-074,V4-075 |
+| G023 | PLATFORM_POLICY exact-condition issuer | V4-076 | V4-077,V4-078 |
+| G024 | Constitutional unrecoverable boundary | V4-079 | V4-080 |
+| G025 | Mechanism-proof adjudicator | V4-081 | V4-082,V4-083,V4-084 |
+
+Every guard has exactly identified positive coverage and adversarial coverage before implementation begins.
+
+## 22. CaseProofContract v2
+
+Every executable case must freeze:
+
+- case_id;
+- target_guard_id;
+- prerequisite guard IDs that must already pass;
+- exact precondition state digest;
+- exact positive/negative mutation;
+- independent fault proof artifact definition;
+- guard-entry marker;
+- guard-decision marker;
+- prohibited earlier-guard decisions;
+- paired positive case;
+- raw evidence refs;
+- expected final result.
+
+A negative case rejected by a prohibited earlier guard is `CASE_INVALID`, not PASS.
+
+A case lacking required independent fault proof is `INSUFFICIENT_EVIDENCE`.
+
+## 23. Independent fault proof rules
+
+Independent fault proof must come from a source different from the target guard decision.
+
+Examples:
+- revocation outage: direct quorum-read failure evidence from the revocation replicas;
+- time skew: signed TimeAttestations showing non-overlapping intervals;
+- anchor divergence: two valid conflicting quorum certificates or witness consistency failure;
+- store mutation: raw storage snapshot + anchored expected state root;
+- checkpoint replay: presented checkpoint sequence/digest + current anchored head;
+- concurrent CAS race: both attempted predecessor tuples plus exactly one commit certificate.
+
+## 24. R8 v4 preregistered falsification matrix
+
+### External trust/controller attestation
+- V4-001 valid EBA-attested distinct controller accepted.
+- V4-002 self-issued controller_id with no EBA attestation -> reject.
+- V4-003 revoked/expired EBA controller attestation -> reject.
+
+### Bootstrap
+- V4-004 valid BootstrapAuthorization + unused singleton CAS -> genesis succeeds.
+- V4-005 attacker-created root keys absent from BootstrapAuthorization -> reject.
+- V4-006 concurrent use of same BootstrapAuthorization -> exactly one genesis commits.
+
+### Root/recovery independence
+- V4-007 valid 2-of-3 root quorum across distinct EBA admin domains -> succeeds.
+- V4-008 two root credentials mapping to same EBA controller -> count as one -> insufficient quorum.
+- V4-009 root quorum controllers share prohibited admin domain arrangement -> reject.
+- V4-010 valid recovery quorum + mandatory trigger proof -> recovery eligible.
+- V4-011 shared-controller recovery quorum -> reject.
+- V4-012 recovery trigger missing mandatory independent proof -> reject.
+
+### Anchor/witness
+- V4-013 valid 2-of-3 anchor quorum + BTW inclusion/consistency proof -> authoritative anchor.
+- V4-014 two anchor labels controlled by same EBA controller/domain -> invalid configuration.
+- V4-015 anchor quorum without witness inclusion -> non-authoritative.
+- V4-016 conflicting anchor quorum certificates -> ANCHOR_EQUIVOCATION.
+
+### Atomic transitions
+- V4-017 valid CAS_APPEND exact current predecessor -> one commit.
+- V4-018 two concurrent non-commutative successors -> at most one commit; loser HEAD_CONFLICT.
+- V4-019 two commit certificates for same predecessor -> LEDGER_EQUIVOCATION.
+
+### Constitutional semantic surfaces
+- V4-020 valid constitutionally approved semantic-artifact digest update -> succeeds.
+- V4-021 parser/predicate/evidence semantic artifact digest changes through ordinary registry update -> reject.
+- V4-022 migration/recovery changes CSR-bound semantic digest without amendment -> reject.
+
+### GCP-1
+- V4-023 frozen valid reference vector canonicalizes to exact expected bytes.
+- V4-024 integer > int64 -> reject.
+- V4-025 leading-zero integer -> reject.
+- V4-026 negative zero -> reject.
+- V4-027 duplicate key -> reject.
+- V4-028 non-NFC string -> reject.
+- V4-029 reordered object keys -> exact same canonical bytes.
+- V4-030 ordered array must not be sorted as set.
+
+### SPR
+- V4-031 valid new version/supersession preserves old primitive lineage.
+- V4-032 delete primitive -> reject.
+- V4-033 alias supplied to authority API instead of primitive_id -> reject.
+
+### Constitutional review independence
+- V4-034 valid Channel H + independent Channel X on exact candidate -> review contract satisfiable.
+- V4-035 provider-only review with no Channel H -> insufficient for constitutional amendment.
+- V4-036 Channel H controller equals amendment proposer controller -> reject independence.
+- V4-037 reviewer packet includes other channel substantive findings -> isolation violation.
+
+### Issuer SoD
+- V4-038 valid distinct-controller terminal issuer configuration/beneficiary path -> allowed for downstream evaluation.
+- V4-039 same controller configures and benefits from root-sensitive issuer -> reject.
+- V4-040 ordinary policy attempts waive SoD -> reject.
+
+### Revocation
+- V4-041 current anchored monotonic revocation head validates unrevoked authority.
+- V4-042 revoked authority use -> reject.
+- V4-043 stale/rollback/unavailable revocation head -> REVOCATION_UNAVAILABLE.
+
+### Time
+- V4-044 2-of-3 context-bound time attestations for same nonce/context -> valid.
+- V4-045 replay time attestation under new context -> reject.
+- V4-046 shared-controller time sources -> insufficient quorum.
+- V4-047 non-overlapping time windows -> TIME_AUTHORITY_UNAVAILABLE.
+
+### Materiality
+- V4-048 change only to explicitly non-material schema field -> non-material positive.
+- V4-049 authority-relevant field changed -> material.
+- V4-050 unknown/unclassified changed field or stale extractor digest -> MATERIALITY_UNRESOLVED.
+
+### Strong evidence
+- V4-051 active QualifiedEvidenceProducer mints allowed strong evidence from valid inputs -> accepted class.
+- V4-052 weak evidence copied into new object without producer execution -> remains weak/reject strong class.
+- V4-053 producer executable/credential mismatch -> reject.
+- V4-054 transition to class not allowed by producer record -> reject.
+
+### Stable IDs / tenants
+- V4-055 stable-ID tenant-local authority resolution succeeds.
+- V4-056 alias used in authority field -> reject.
+- V4-057 cross-tenant stable ID mismatch/replay -> reject.
+
+### Checkpoints
+- V4-058 valid enrolled producer + CAS + immediate anchor -> authoritative checkpoint.
+- V4-059 valid-looking but unanchored checkpoint -> pending/non-authoritative.
+- V4-060 stale predecessor or concurrent checkpoint successor -> conflict/fork.
+
+### Out-of-band mutation
+- V4-061 expected anchored state root equals recomputed store root -> valid.
+- V4-062 direct DB mutation changes recomputed root -> STATE_INTEGRITY_FAILURE.
+- V4-063 unauthorized event lacking commit certificate appears in store -> ignored/failure evidence.
+
+### Registry fork/rollback
+- V4-064 valid next registry head -> accepted.
+- V4-065 lower sequence/old head replay -> reject.
+- V4-066 conflicting commit certificates -> LEDGER_EQUIVOCATION/freeze.
+
+### Recovery/bypass
+- V4-067 valid recovery transition with proper authority and trigger -> succeeds.
+- V4-068 admin/UI/incident flag alone tries blocked-state transition -> reject.
+- V4-069 recovery tries weaken constitutional semantic artifact -> amendment required/reject ordinary recovery.
+
+### Repository/history migration
+- V4-070 valid migration binds old anchored history, new repository, exact objects -> succeeds.
+- V4-071 repository ref rewrite not matching anchored object mapping -> divergence.
+- V4-072 migration omits discarded/conflicting history -> reject.
+
+### Evidence transition
+- V4-073 valid transition rule + qualified producer/provenance -> succeeds.
+- V4-074 metadata-only relabel weak->strong -> reject.
+- V4-075 missing/unanchored transition rule -> reject.
+
+### PLATFORM_POLICY
+- V4-076 valid independently configured PLATFORM_POLICY exact-condition issuer -> allowed downstream evaluation.
+- V4-077 same-controller configuration/benefit -> reject.
+- V4-078 composed project policy presented as terminal issuer -> reject.
+
+### Unrecoverable boundary
+- V4-079 root quorum unavailable but valid recovery quorum -> use recovery path.
+- V4-080 both root and recovery quorum unavailable -> CONSTITUTIONAL_UNRECOVERABLE; new constitution cannot inherit authority.
+
+### Mechanism proof
+- V4-081 valid case reaches target guard with paired positive control and proof -> eligible PASS.
+- V4-082 earlier unrelated guard blocks adversarial case -> CASE_INVALID, not PASS.
+- V4-083 missing independent fault proof -> INSUFFICIENT_EVIDENCE.
+- V4-084 constant-reject implementation -> fails positive cases.
+
+## 25. Blocked and bounded states
+
+The design deliberately permits safe non-operation:
+- `CONSTITUTIONAL_UNRECOVERABLE`;
+- `ANCHOR_EQUIVOCATION`;
+- `LEDGER_EQUIVOCATION`;
+- `REVOCATION_UNAVAILABLE`;
+- `TIME_AUTHORITY_UNAVAILABLE`;
+- `REVIEWER_UNAVAILABLE`;
+- unresolved `POLICY_CONFLICT`;
+- `STATE_INTEGRITY_FAILURE`.
+
+No UI, operator, model, incident declaration, support flag, or ordinary policy may convert these states into authority.
+
+## 26. Construction order
+
+1. Freeze R8 v4.
+2. Fresh blind independent design review.
+3. Adjudicate review without mutating v4.
+4. If design closes, freeze machine-readable schemas for:
+   - EBA ControllerAttestation;
+   - BootstrapAuthorization;
+   - genesis;
+   - CommitCertificate/CAS stream;
+   - CAL-2/witness proof;
+   - GCP-1 schema/reference vectors;
+   - SPR;
+   - CSR semantic-artifact manifest;
+   - reviewer identity/isolation;
+   - issuer/revocation;
+   - context-bound TimeAttestation;
+   - QualifiedEvidenceProducer;
+   - state-root integrity proof;
+   - recovery trigger evidence;
+   - checkpoint;
+   - tenant/stable IDs.
+5. Freeze schema digests and exact canonicalization reference digests.
+6. Freeze all V4 CaseProofContracts and positive-control map.
+7. Only then begin implementation.
+8. Preserve first RED evidence.
+9. Execute falsification/mutation/self-falsification with mechanism proof.
+10. Freeze exact implementation candidate.
+11. Fresh independent implementation review.
+12. Reconcile PR #39/#40 against qualified semantics; no automatic promotion.
+
+## 27. Claim boundary
+
+A future R8 v4 design pass would establish only that this architecture is sufficiently closed to begin implementation under the explicit T0 trust assumptions.
+
+It would **not** prove:
+- real-world honesty or non-collusion beyond the attested threshold assumption;
+- EBA-1 organizational security;
+- hardware custody;
+- provider-internal model isolation;
+- production cloud/IAM correctness;
+- global consensus beyond the specified ledgers;
+- legal/compliance sufficiency.
+
+Until independent R8 v4 design closure:
+- R8 v1 = CHANGES_REQUIRED;
+- R8 v2 = CHANGES_REQUIRED;
+- R8 v3 = CHANGES_REQUIRED;
+- R8 v4 = NOT_IMPLEMENTED / INDEPENDENT_REVIEW_REQUIRED;
+- PR #39 = NON_AUTHORITATIVE;
+- PR #40 = NON_AUTHORITATIVE;
+- holistic governance = CHANGES_REQUIRED;
+- authority effect = NONE.
+
+===== END SOURCE SRC-V4: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V4.md =====

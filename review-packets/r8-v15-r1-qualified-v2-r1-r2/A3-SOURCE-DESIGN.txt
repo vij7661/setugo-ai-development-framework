@@ -1,0 +1,2202 @@
+R8 v15-r1 SFV-45 R2
+SOURCE DESIGN PACK A3/3
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+Frozen semantic candidate: c721b38cf8b00294797300b526596ce723a47ff8
+Authority effect: NONE
+
+
+===== BEGIN SOURCE SRC-V10: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V10.md =====
+COMMIT: 2e85384f759318a17c2ec14b1781dc689a864618
+GIT_BLOB_SHA1: 28690714f3468c6b584d783d2d1f1f62623de1ef
+
+# R8 Meta-Governance Redesign v10 — Successor Preregistration
+
+Status: **PREREGISTERED_DESIGN_V10 — NOT_IMPLEMENTED — INDEPENDENT_REVIEW_REQUIRED**
+Authority effect: **NONE**
+
+Effective design lineage:
+- R8 v4: `d779eb495b5830674e0258d4d27b768f77e10471`
+- R8 v5: `53d695dff34d14365770d1dbdad8c6620e31a503`
+- R8 v6: `e0e6995a61dab629ff49efc19f6d6128936b9c20`
+- R8 v7: `fad366add685a978c55837e420e3bcb0939d41aa`
+- R8 v8: `58e95ca8cc8beb2125413d794ec08d4333a55521`
+- R8 v9: `0948ed0e83d9de128ca9c12df5784286f15af9eb`
+- This v10 document supersedes prior generations only where stronger or more specific.
+
+R8 v9 review adjudication:
+- `c209a1fdae549ecbb4713d45f8a7bc34967efa2c`
+
+## 1. Objective
+
+R8 v10 closes the remaining design blockers before executable-schema freeze.
+
+Core rule:
+
+> The semantic registry structure must be capable of representing the resolver's lineage/scope semantics, and sequencer configuration changes must cryptographically bind the exact transferred state into both JOINT entry and activation.
+
+R8 v10 does not grant schema-freeze, implementation, qualification, merge, release, deploy, production, policy, or terminal authority.
+
+## 2. CSM-3 — Scoped Semantic Registry Envelope
+
+### R8V10-I001 — CSM-3 supersedes CSM-2 entry uniqueness
+
+The v6 rule "duplicate semantic_input_id is rejected" is superseded.
+
+CSM-3 contains multiple semantic entries for one semantic_input_id when they differ by lineage, scope, or version.
+
+CSM-3 canonical envelope:
+
+`{csm_version:"CSM-3", constitution_id, semantic_entries[]}`
+
+### R8V10-I002 — SemanticEntry schema
+
+Every SemanticEntry contains:
+- `semantic_entry_id`;
+- `semantic_input_id`;
+- `semantic_lineage_id`;
+- `semantic_version`;
+- canonical `scope_tuple`;
+- `specificity_score`;
+- lifecycle state;
+- predecessor_entry_id or null;
+- successor_of_entry_id or null;
+- scope_replacement_mapping_id or null;
+- any_scope_permission_id or null;
+- semantic_class;
+- artifact_or_rule_digest;
+- schema/version;
+- source authority;
+- constitutional binding when applicable.
+
+### R8V10-I003 — Canonical scope tuple
+
+The canonical scope tuple is ordered exactly:
+
+`{root_namespace, tenant_id, organization_id, project_id, experiment_or_release_id}`
+
+Each component is either:
+- exact stable ID; or
+- literal `ANY`, only where the active ANYScopePermission permits it.
+
+No human alias may appear in scope_tuple.
+
+### R8V10-I004 — SemanticEntryKey
+
+`semantic_entry_key = SHA-256(GCP-1({semantic_input_id, semantic_lineage_id, semantic_version, scope_tuple}))`
+
+Duplicate semantic_entry_key is rejected.
+
+Duplicate semantic_input_id alone is permitted.
+
+### R8V10-I005 — Canonical sorting
+
+`semantic_entries[]` is sorted by:
+1. semantic_input_id bytes;
+2. semantic_lineage_id bytes;
+3. descending specificity_score;
+4. semantic_version;
+5. semantic_entry_key bytes.
+
+The sorting rule is part of the CSM-3 constitutional semantic artifact.
+
+### R8V10-I006 — Specificity score is derived
+
+specificity_score is derived from scope_tuple as the count of exact non-ANY components.
+
+Stored specificity_score must equal the derived value or registration is rejected.
+
+A caller cannot choose specificity.
+
+## 3. CSM-3 lifecycle and CSRULE-2 integration
+
+### R8V10-I007 — Resolver reads CSM-3 directly
+
+CSRULE-2 candidate construction, lifecycle evaluation, predecessor/successor validation, ANYScopePermission lookup, and cross-lineage mapping all operate directly over CSM-3 SemanticEntry records.
+
+No secondary registry may reinterpret semantic scope or lineage.
+
+### R8V10-I008 — Same-scope revoked replacement registration
+
+If a REVOKED entry exists for one semantic_input_id + lineage + exact scope, a new ACTIVE entry at that same lineage/scope is registrable only when:
+- `successor_of_entry_id` references the revoked entry; or
+- a valid constitutional ScopeReplacementMapping explicitly maps from that revoked entry.
+
+Otherwise registration returns `SEMANTIC_SUCCESSOR_REQUIRED`.
+
+### R8V10-I009 — ScopeReplacementMapping
+
+A ScopeReplacementMapping is a constitutional semantic object containing:
+- mapping_id;
+- semantic_input_id;
+- semantic_lineage_id;
+- revoked_entry_id;
+- old_scope_tuple;
+- new_scope_tuple;
+- old_specificity;
+- new_specificity;
+- justification/transition class ID;
+- constitutional amendment evidence digest;
+- effective sequence.
+
+The mapping itself is CSM-bound.
+
+### R8V10-I010 — Replacement-scope specificity
+
+A replacement scope may differ in specificity only when ScopeReplacementMapping explicitly states the new specificity and constitutional amendment authorizes that change.
+
+When such mapping exists:
+- the revoked entry and mapped successor form one replacement chain;
+- CSRULE-2 evaluates the successor using its new scope for future matching;
+- lower-general entries cannot unblock the old revoked scope by themselves;
+- the old scope remains blocked unless the mapping explicitly declares that the new scope replaces it for that decision scope.
+
+Absent this mapping, successor re-establishment requires exact scope and equal specificity.
+
+### R8V10-I011 — Revoked-scope resolution
+
+For a decision scope:
+1. gather all CSM-3 matching entries in the same semantic_input_id + semantic_lineage_id;
+2. compute Smax before lifecycle filtering;
+3. if an Smax REVOKED entry exists, resolve only through a valid successor chain or ScopeReplacementMapping;
+4. if no valid successor applies, return `SEMANTIC_SCOPE_REVOKED`;
+5. never fall back to lower specificity.
+
+### R8V10-I012 — Cross-lineage mapping
+
+Cross-lineage transition is allowed only through a constitutional `SemanticLineageMapping` object binding:
+- old_lineage_id;
+- new_lineage_id;
+- source entry/scope;
+- destination entry/scope;
+- exact transition semantics;
+- constitutional evidence.
+
+No implicit cross-lineage fallback exists.
+
+## 4. ANYScopePermission registration enforcement
+
+### R8V10-I013 — Permission checked at registration
+
+Before a SemanticEntry using ANY is admitted:
+- resolve active ANYScopePermission for its semantic_class;
+- verify every ANY tuple position is allowed;
+- bind `any_scope_permission_id` to the entry.
+
+Policy below constitutional level cannot create or broaden ANY permission.
+
+### R8V10-I014 — Permission drift
+
+If ANYScopePermission is revoked or narrowed:
+- affected entries do not silently remain valid;
+- their lifecycle enters `SCOPE_PERMISSION_REEVALUATION_REQUIRED`;
+- new authority decisions cannot use them until revalidated or superseded.
+
+## 5. State Transfer Certificate — STC-1
+
+### R8V10-I015 — STC-1 common structure
+
+Both LAS-3 and GGS-3 configuration rotations require a `StateTransferCertificate`.
+
+STC-1 binds:
+- system_id = LAS-3 or GGS-3;
+- old_config_generation;
+- old_config_digest;
+- proposed_new_config_digest;
+- transfer_snapshot_index;
+- committed_log_prefix_digest;
+- highest_seen_term;
+- highest_committed_index;
+- highest_applied_index where applicable;
+- last_committed_entry_digest;
+- state_root_digest;
+- StreamHeadMap root where applicable;
+- idempotency/dedup ledger root;
+- prior certificate-chain digest;
+- authorization/namespace roots for GGS where applicable;
+- transition_id;
+- STC digest.
+
+### R8V10-I016 — Old-config certification
+
+Before ENTER_JOINT, the old configuration must commit/sign the STC-1 snapshot with its current lawful quorum.
+
+The snapshot index must be at least the current committed index and exactly match the state used to seed the new replicas.
+
+### R8V10-I017 — New-config acceptance
+
+Every proposed new replica must:
+- install the exact STC-1 state;
+- attest matching roots/digests;
+- satisfy workload/controller requirements.
+
+The new configuration produces a `StateTransferAcceptanceCertificate` signed by the new quorum over the same STC digest.
+
+### R8V10-I018 — JOINT binding
+
+`ENTER_JOINT(old,new)` must reference:
+- exact STC-1 digest;
+- old-config STC quorum certificate;
+- new-config acceptance certificate;
+- expected configuration-stream head.
+
+If any transferred state root/digest differs, ENTER_JOINT is rejected.
+
+### R8V10-I019 — JOINT quorum semantics
+
+Configuration-transition quorum is:
+
+- PRE_JOINT: lawful old configuration quorum only.
+- JOINT_ENTERED before ACTIVATE: both old quorum and new quorum are required for every configuration-transition command and authority commit governed by the rotating sequencer.
+- POST_ACTIVATE from exact activation index: lawful new configuration quorum only.
+
+"Current valid configuration" is defined solely by this state machine.
+
+### R8V10-I020 — ACTIVATE binding
+
+`ACTIVATE(new)` must reference:
+- exact committed ENTER_JOINT certificate;
+- exact STC digest;
+- exact new_config_digest;
+- exact activation index/sequence.
+
+Any mismatch returns `CONFIG_TRANSITION_MISMATCH`.
+
+### R8V10-I021 — State-transfer mismatch
+
+A proposed/joining replica is non-voting and rotation is blocked if any of these mismatch STC:
+- term;
+- log/commit/applied index;
+- last committed entry digest;
+- StreamHeadMap/state root;
+- idempotency ledger;
+- prior certificate-chain digest;
+- GGS namespace/authorization root;
+- configuration generation.
+
+## 6. CTS-2 — Atomic configuration transition stream
+
+### R8V10-I022 — CTS-2 supersedes ambiguous CTS-1 wording
+
+CTS-2 preserves v9 single-predecessor CAS semantics and additionally requires STC-1 bindings.
+
+A configuration stream event contains:
+- transition state = PRE_JOINT | JOINT | ACTIVE;
+- old/new config digests;
+- STC digest;
+- ENTER_JOINT certificate digest;
+- activation index when active;
+- stream seq/head;
+- idempotency key.
+
+### R8V10-I023 — Racing JOINT proposals
+
+Two distinct ENTER_JOINT proposals for one PRE_JOINT predecessor:
+- exactly one may commit;
+- loser receives `CONFIG_HEAD_CONFLICT`;
+- losing STC cannot be activated.
+
+### R8V10-I024 — ACTIVATE exactness
+
+ACTIVATE for:
+- a different new config;
+- a different STC;
+- a different JOINT certificate;
+- a stale config-stream predecessor
+
+is rejected.
+
+## 7. Blind review packet hygiene
+
+### R8V10-I025 — Semantic projection rule
+
+The blind reviewer packet may omit/redact administrative lines whose only content is a prior review/adjudication commit/hash reference.
+
+It must not remove or alter:
+- any invariant;
+- any case;
+- any guard;
+- any claim boundary;
+- any status affecting authority;
+- any candidate/source commit or blob needed to bind the reviewed subject.
+
+The packet header states that administrative prior-review references were redacted for blindness.
+
+Canonical repository files remain unchanged and separately verifiable by exact commit/blob.
+
+## 8. Additional Guard Catalog v10
+
+| Guard | Mechanism | Positive | Negatives with fault-proof class |
+|---|---|---|---|
+| G100 | CSM-3 multi-entry scoped semantic envelope | V10-001 | V10-002 FP0; V10-003 FP5 |
+| G101 | CSRULE-2 valid successor/replacement mapping | V10-004 | V10-005 FP5; V10-006 FP5 |
+| G102 | Cross-lineage transition control | V10-007 | V10-008 FP5 |
+| G103 | ANYScopePermission constitutional boundary | V10-009 | V10-010 FP5; V10-011 FP5 |
+| G104 | LAS-3 STC-1 continuity | V10-012 | V10-013 FP3; V10-014 FP5 |
+| G105 | GGS-3 STC-1 continuity | V10-015 | V10-016 FP3; V10-017 FP5 |
+| G106 | CTS-2 JOINT/ACTIVATE exact binding | V10-018 | V10-019 FP2; V10-020 FP2; V10-021 FP5 |
+| G107 | Blind packet semantic projection integrity | V10-022 | V10-023 FP5 |
+
+## 9. R8 v10 preregistered cases
+
+### CSM-3
+- V10-001 two valid entries share semantic_input_id but differ by lineage/scope/version -> both register with distinct semantic_entry_key.
+- V10-002 two entries have identical semantic_entry_key -> duplicate reject.
+- V10-003 stored specificity differs from scope-derived specificity -> SEMANTIC_SCOPE_INVALID.
+
+### Revoked scope successor
+- V10-004 revoked exact-scope entry + constitutionally valid ACTIVE successor referencing it -> successor re-establishes scope and resolves.
+- V10-005 revoked exact-scope entry + ACTIVE same-scope entry with no successor/mapping reference -> SEMANTIC_SUCCESSOR_REQUIRED at registration.
+- V10-006 replacement scope changes specificity without valid ScopeReplacementMapping -> cannot unblock revoked scope.
+
+### Cross-lineage
+- V10-007 valid constitutional SemanticLineageMapping from revoked lineage to new lineage -> mapped successor eligible per mapping.
+- V10-008 lower/general entry in different lineage with no mapping -> no fallback; blocked/unbound.
+
+### ANY permission
+- V10-009 constitutionally permitted ANY position registers and resolves according to specificity.
+- V10-010 project/org policy attempts broaden ANYScopePermission -> reject.
+- V10-011 ANY entry's bound permission is revoked/narrowed -> SCOPE_PERMISSION_REEVALUATION_REQUIRED; cannot silently remain authority.
+
+### LAS state transfer
+- V10-012 old LAS quorum signs STC, new quorum accepts exact same snapshot, ENTER_JOINT/ACTIVATE reference exact certificates -> rotation eligible.
+- V10-013 joining LAS replica has mismatched StreamHeadMap/idempotency/log state -> non-voting; ENTER_JOINT reject.
+- V10-014 ACTIVATE references different STC or JOINT certificate -> CONFIG_TRANSITION_MISMATCH.
+
+### GGS state transfer
+- V10-015 old GGS quorum signs STC including namespace/authorization roots, new quorum accepts exact state -> rotation eligible.
+- V10-016 joining GGS replica has mismatched namespace/authorization/idempotency root -> non-voting; ENTER_JOINT reject.
+- V10-017 ACTIVATE references state-transfer certificate not accepted by new quorum -> reject.
+
+### Configuration transition races
+- V10-018 one valid CTS-2 ENTER_JOINT from PRE_JOINT -> commits and enters JOINT.
+- V10-019 two different ENTER_JOINT proposals race from same predecessor -> exactly one commits; loser CONFIG_HEAD_CONFLICT.
+- V10-020 same transition ID with different proposed config/STC -> IDEMPOTENCY_CONFLICT.
+- V10-021 during JOINT, command signed only by old or only by new quorum -> reject; both required.
+
+### Packet hygiene
+- V10-022 blind packet redacts only prior adjudication-reference metadata while semantic digests/sections remain complete -> packet valid.
+- V10-023 semantic rule/case/guard removed under guise of blind redaction -> packet invalid/incomplete.
+
+## 10. Schema-freeze gate
+
+Even a future v10 `BOUNDED_PASS` authorizes only executable-schema-freeze preparation.
+
+Before implementation:
+- CSM-3/SemanticEntry/ScopeReplacementMapping/SemanticLineageMapping schemas frozen;
+- CSRULE-2 resolver contract frozen against CSM-3;
+- STC-1 and CTS-2 schemas frozen for LAS-3 and GGS-3;
+- all G001-G107 CaseProofContracts frozen with positive controls and FP classes;
+- blind schema packet independently reviewed if required by effective governance.
+
+## 11. Claim boundary
+
+A future R8 v10 bounded design pass establishes only sufficient design closure to proceed to executable-schema freeze under inherited explicit trust assumptions.
+
+It does not prove:
+- implementation correctness;
+- trust-root/operator honesty beyond explicit thresholds;
+- hardware/workload-attestation correctness;
+- provider correctness;
+- cloud/IAM security;
+- legal/compliance sufficiency.
+
+Until independent closure:
+- R8 v1-v9 = CHANGES_REQUIRED;
+- R8 v10 = NOT_IMPLEMENTED / INDEPENDENT_REVIEW_REQUIRED;
+- executable-schema freeze = BLOCKED;
+- PR #39 = NON_AUTHORITATIVE;
+- PR #40 = NON_AUTHORITATIVE;
+- holistic governance = CHANGES_REQUIRED;
+- authority effect = NONE.
+
+===== END SOURCE SRC-V10: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V10.md =====
+
+
+===== BEGIN SOURCE SRC-V11: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V11.md =====
+COMMIT: 3d6a0820d851bc629fc4c7ccfee4a081b70ce117
+GIT_BLOB_SHA1: 21e5134fa972d9e62f770beb69e2f3ea5c4f96e6
+
+# R8 Meta-Governance Redesign v11 — Successor Preregistration
+
+Status: **PREREGISTERED_DESIGN_V11 — NOT_IMPLEMENTED — INDEPENDENT_REVIEW_REQUIRED**
+Authority effect: **NONE**
+
+Effective design lineage:
+- R8 v4: `d779eb495b5830674e0258d4d27b768f77e10471`
+- R8 v5: `53d695dff34d14365770d1dbdad8c6620e31a503`
+- R8 v6: `e0e6995a61dab629ff49efc19f6d6128936b9c20`
+- R8 v7: `fad366add685a978c55837e420e3bcb0939d41aa`
+- R8 v8: `58e95ca8cc8beb2125413d794ec08d4333a55521`
+- R8 v9: `0948ed0e83d9de128ca9c12df5784286f15af9eb`
+- R8 v10: `2e85384f759318a17c2ec14b1781dc689a864618`
+- This v11 document supersedes prior generations only where stronger or more specific.
+
+## 1. Objective
+
+R8 v11 closes the remaining design blockers before executable-schema freeze.
+
+Core rule:
+
+> Semantic resolution must traverse only explicit constitutional lineage/scope transitions over one canonical semantic registry; scope-permission drift must block at maximum specificity; rotation state transfer must be certified from a sequencer barrier that prevents post-snapshot authority writes; and blind-review projection must deterministically reject residual prior-review metadata.
+
+R8 v11 does not grant schema-freeze, implementation, qualification, merge, release, deploy, production, policy, or terminal authority.
+
+## 2. CSM-4 — Unified Scoped Semantic Registry
+
+### R8V11-I001 — CSM-4 supersedes CSM-3 resolver envelope
+
+CSM-4 is the sole authority-semantic registry consumed by AIM resolution and CSRULE-3.
+
+Canonical envelope:
+
+`{csm_version:"CSM-4", constitution_id, semantic_entries[], lineage_mappings[], scope_replacement_mappings[], any_scope_permissions[], resolver_policy_digest}`
+
+All arrays are part of the CSM-4 canonical digest.
+
+No secondary semantic registry may reinterpret lineage, scope, lifecycle, or permission state.
+
+### R8V11-I002 — Full canonical scope tuple
+
+Every SemanticEntry scope is ordered exactly:
+
+`{trust_domain_id, constitution_id, root_namespace, tenant_id, organization_id, project_id, experiment_or_release_id, object_class, action_class}`
+
+Each component is:
+- an exact stable ID/value; or
+- literal `ANY` only when the active constitutional ANYScopePermission for that semantic class permits that exact tuple component.
+
+No dimension is implicitly absorbed by another field.
+
+### R8V11-I003 — Scope specificity
+
+`specificity_score` is the count of exact non-ANY components in the nine-component canonical scope tuple.
+
+Stored score must equal the derived score.
+
+### R8V11-I004 — SemanticEntry structure
+
+Each SemanticEntry contains:
+- semantic_entry_id;
+- semantic_input_id;
+- semantic_lineage_id;
+- semantic_version;
+- canonical scope_tuple;
+- derived specificity_score;
+- lifecycle_state;
+- predecessor_entry_id or null;
+- successor_of_entry_id or null;
+- scope_replacement_mapping_id or null;
+- lineage_mapping_id or null;
+- any_scope_permission_id or null;
+- semantic_class;
+- artifact_or_rule_digest;
+- schema/version;
+- source authority;
+- effective_sequence;
+- constitutional binding where applicable.
+
+### R8V11-I005 — SemanticEntry key
+
+`semantic_entry_key = SHA-256(GCP-1({semantic_input_id, semantic_lineage_id, semantic_version, scope_tuple}))`
+
+Duplicate semantic_entry_key is rejected.
+
+Duplicate semantic_input_id alone is valid.
+
+### R8V11-I006 — Canonical CSM-4 ordering
+
+Arrays sort deterministically:
+
+SemanticEntry:
+1. semantic_input_id
+2. semantic_lineage_id
+3. descending specificity_score
+4. effective_sequence
+5. semantic_version
+6. semantic_entry_key
+
+SemanticLineageMapping:
+1. semantic_input_id
+2. source_lineage_id
+3. source_entry_id
+4. effective_sequence
+5. mapping_id
+
+ScopeReplacementMapping:
+1. semantic_input_id
+2. semantic_lineage_id
+3. revoked_entry_id
+4. effective_sequence
+5. mapping_id
+
+ANYScopePermission:
+1. semantic_class
+2. effective_sequence
+3. permission_id
+
+## 3. AIM-2 — Resolution entrypoint
+
+### R8V11-I007 — AIM binds starting semantic lineage
+
+Every authority_input_id in AIM-2 binds:
+- semantic_input_id;
+- source_semantic_lineage_id;
+- decision-scope construction rule ID;
+- expected semantic class;
+- resolver_policy_digest.
+
+### R8V11-I008 — AIM resolution is CSRULE-3 over CSM-4
+
+All inherited wording that describes AIM resolution as “one active CSM entry” is superseded.
+
+Authority resolution is exactly:
+
+`CSRULE-3(AIM-2 descriptor, CSM-4 head, decision_scope, decision_sequence)`
+
+No other resolution path exists.
+
+Zero result, ambiguity, blocked lifecycle, invalid mapping, or unbound input fails closed.
+
+## 4. CSRULE-3 — Deterministic lineage-aware resolver
+
+### R8V11-I009 — Resolver starts from source lineage
+
+For the AIM source_semantic_lineage_id:
+1. gather all CSM-4 SemanticEntries for the bound semantic_input_id whose scope matches decision_scope;
+2. compute Smax across that source lineage before lifecycle filtering;
+3. evaluate every Smax entry under the lifecycle rules below.
+
+Lower specificity is never considered after an Smax blocking state.
+
+### R8V11-I010 — Blocking lifecycle states at Smax
+
+At Smax:
+- REVOKED -> successor/mapping resolution is required;
+- SCOPE_PERMISSION_REEVALUATION_REQUIRED -> return `SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED`;
+- more than one ACTIVE eligible entry -> `SEMANTIC_ENTRY_CONFLICT`;
+- exactly one ACTIVE and no blocking peer -> eligible;
+- only SUPERSEDED/RETIRED with no valid successor path -> `SEMANTIC_DEPENDENCY_UNBOUND`.
+
+`SCOPE_PERMISSION_REEVALUATION_REQUIRED` is blocker-equivalent for fallback purposes: no lower-specificity entry may be selected.
+
+### R8V11-I011 — Functional successor graph
+
+For one SemanticEntry at one decision_sequence:
+- at most one effective successor edge may exist;
+- successor semantic_version must be strictly greater;
+- successor effective_sequence must be greater than predecessor effective_sequence;
+- graph must be acyclic;
+- a successor already superseded/revoked is traversed according to the same rules;
+- multiple effective successors -> `SEMANTIC_SUCCESSOR_CONFLICT`.
+
+There is no heuristic version winner.
+
+### R8V11-I012 — Successor traversal
+
+When an Smax source entry is REVOKED/SUPERSEDED and a successor is required:
+1. resolve its explicit same-lineage successor edge, ScopeReplacementMapping, or SemanticLineageMapping;
+2. validate mapping is ACTIVE/effective at decision_sequence;
+3. validate target entry;
+4. traverse until one current eligible ACTIVE target is reached or a blocking/error state occurs.
+
+Traversal records every entry/mapping digest in the authority read set.
+
+### R8V11-I013 — SemanticLineageMapping integrated into resolution
+
+A SemanticLineageMapping is a constitutional CSM-4 object containing:
+- mapping_id;
+- semantic_input_id;
+- source_lineage_id;
+- source_entry_id;
+- source_scope_tuple;
+- destination_lineage_id;
+- destination_entry_id;
+- destination_scope_tuple;
+- effective_sequence;
+- mapping_semantics_digest;
+- constitutional evidence digest;
+- lifecycle state.
+
+When a source successor edge references lineage_mapping_id, CSRULE-3 directly adds the exact mapped destination entry as the next successor candidate.
+
+CSRULE-3 does **not** gather arbitrary general entries from the destination lineage.
+
+### R8V11-I014 — Cross-lineage no-fallback
+
+A destination-lineage entry is eligible only when referenced by a valid active SemanticLineageMapping from the exact source chain.
+
+An unrelated lower/general entry in another lineage can never unblock a source-lineage revoked scope.
+
+### R8V11-I015 — Mapping conflict
+
+For one source_entry_id at one decision_sequence:
+- zero effective lineage mappings -> no cross-lineage transition;
+- exactly one -> use it;
+- more than one -> `SEMANTIC_LINEAGE_CONFLICT`.
+
+### R8V11-I016 — ScopeReplacementMapping traversal
+
+ScopeReplacementMapping contains:
+- mapping_id;
+- semantic_input_id;
+- semantic_lineage_id;
+- revoked_entry_id;
+- destination_entry_id;
+- old_scope_tuple;
+- new_scope_tuple;
+- old_specificity;
+- new_specificity;
+- replacement_effect_on_old_scope;
+- effective_sequence;
+- constitutional amendment evidence digest;
+- lifecycle state.
+
+The destination_entry_id is exact. CSRULE-3 does not search lower-general entries to satisfy a replacement.
+
+### R8V11-I017 — Replacement-scope behavior
+
+A changed-scope successor unblocks the old scope only when `replacement_effect_on_old_scope = REPLACES_FOR_MATCHING_DECISIONS` and the constitutional mapping explicitly defines which old decision scopes are covered.
+
+Otherwise the old revoked scope remains `SEMANTIC_SCOPE_REVOKED`.
+
+## 5. ANYScopePermission lifecycle and revalidation
+
+### R8V11-I018 — ANY permission effective sequence
+
+ANYScopePermission has:
+- permission_id;
+- semantic_class;
+- allowed ANY tuple components;
+- effective_sequence;
+- lifecycle state;
+- constitutional authority evidence.
+
+Only ACTIVE permission at decision_sequence is valid.
+
+### R8V11-I019 — Narrowing/revocation transition
+
+When permission P is narrowed/revoked at sequence N:
+- every ACTIVE SemanticEntry bound to P whose ANY usage is no longer permitted receives a LAS-committed lifecycle event to `SCOPE_PERMISSION_REEVALUATION_REQUIRED` effective at N;
+- this transition is mandatory and derived by Meta-Governor from CSM-4 state;
+- until all required lifecycle events are committed, the CSM head is `SEMANTIC_TRANSITION_INCOMPLETE` and cannot authorize affected inputs.
+
+### R8V11-I020 — Revalidation authority
+
+Revalidation requires the constitutional authority class governing ANYScopePermission.
+
+A revalidation event:
+- references the affected entry;
+- references the current active permission;
+- proves its scope now complies;
+- creates a new SemanticEntry version or valid successor;
+- has effective_sequence > reevaluation sequence.
+
+Project/org policy cannot revalidate a constitutionally disallowed ANY.
+
+### R8V11-I021 — Reevaluation resolver behavior
+
+At decision_sequence >= reevaluation effective sequence:
+- an affected Smax entry blocks lower-specificity fallback;
+- it is not ACTIVE;
+- resolution returns `SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED` unless a valid revalidated successor applies.
+
+## 6. Sequencer state-root definitions
+
+### R8V11-I022 — LAS-3 AuthorityStateRoot
+
+At LAS global log index B:
+
+`LASAuthorityStateRoot(B) = SHA-256(GCP-1({B, committed_log_prefix_digest_B, StreamHeadMap_root_B, idempotency_ledger_root_B, authority_state_machine_root_B, revocation_stream_head_B, nonce_ledger_head_B, effect_stream_head_B, configuration_generation, prior_certificate_chain_digest_B}))`
+
+### R8V11-I023 — GGS-3 GenesisStateRoot
+
+At GGS global log index B:
+
+`GGSGenesisStateRoot(B) = SHA-256(GCP-1({B, committed_log_prefix_digest_B, constitution_namespace_root_B, bootstrap_authorization_root_B, idempotency_ledger_root_B, configuration_generation, prior_certificate_chain_digest_B}))`
+
+These exact formulas are CSM-bound semantic artifacts.
+
+## 7. Rotation Barrier Protocol — RBP-1
+
+### R8V11-I024 — ROTATION_PREPARE is linearized
+
+Before STC creation, current old configuration commits:
+
+`ROTATION_PREPARE(rotation_id, old_config_digest, proposed_new_config_digest)`
+
+in the same global sequencer log that orders authority-bearing commits.
+
+The commit certificate binds barrier index `B`.
+
+### R8V11-I025 — Rotation freeze
+
+Immediately after ROTATION_PREPARE commits at B:
+- all ordinary authority-bearing state/effect/registry/checkpoint commits governed by that sequencer are rejected with `ROTATION_FROZEN`;
+- only rotation-control events and read-only verification are permitted;
+- no authority state root may advance beyond B before ENTER_JOINT or ROTATION_ABORT.
+
+This closes the post-snapshot/pre-JOINT commit race.
+
+### R8V11-I026 — Barrier state
+
+STC-2 must certify:
+- rotation_id;
+- exact ROTATION_PREPARE certificate;
+- barrier index B;
+- LASAuthorityStateRoot(B) or GGSGenesisStateRoot(B);
+- all state fields inherited from STC-1;
+- old/new config digests.
+
+A snapshot at any other authority index is rejected.
+
+## 8. STC-2 — Unique committed transfer certificate
+
+### R8V11-I027 — STC_COMMIT
+
+STC-2 itself is committed as one non-commutative configuration-stream event:
+
+`STC_COMMIT(rotation_id, barrier_certificate_digest, stc_digest)`
+
+For one rotation_id/barrier:
+- exactly one stc_digest may commit;
+- retry same digest returns existing result;
+- different digest -> `STC_EQUIVOCATION` and rotation freeze remains.
+
+### R8V11-I028 — Old-config certification
+
+The old quorum signs the exact STC-2 digest after ROTATION_PREPARE.
+
+Since ordinary authority commits are frozen, STC authority state equals the current authority state at ENTER_JOINT.
+
+### R8V11-I029 — New-config acceptance
+
+New replicas install:
+- barrier snapshot B;
+- required rotation-control log through STC_COMMIT;
+- exact idempotency/certificate/configuration state.
+
+New quorum signs `StateTransferAcceptanceCertificate(stc_digest)`.
+
+Mismatch -> non-voting.
+
+### R8V11-I030 — ENTER_JOINT exactness
+
+ENTER_JOINT must reference:
+- rotation_id;
+- ROTATION_PREPARE certificate;
+- exact STC_COMMIT certificate;
+- old-quorum STC certificate;
+- new-quorum acceptance certificate;
+- expected configuration-stream head.
+
+Any mismatch/staleness -> `CONFIG_TRANSITION_MISMATCH`.
+
+After ENTER_JOINT commits, authority commits may resume only under JOINT old+new quorum semantics.
+
+### R8V11-I031 — ROTATION_ABORT
+
+Before ENTER_JOINT, old configuration may commit ROTATION_ABORT under old quorum.
+
+Because authority writes were frozen from B:
+- abort returns to PRE_JOINT;
+- no catch-up ambiguity exists;
+- the abandoned STC/rotation_id cannot later be activated.
+
+## 9. CTS-3 quorum state machine
+
+### R8V11-I032 — Configuration states
+
+- PRE_JOINT: old quorum; normal commits allowed unless ROTATION_PREPARED.
+- ROTATION_PREPARED: old quorum for rotation-control only; ordinary authority commits frozen.
+- JOINT: both old and new quorums for authority and config-transition commands.
+- ACTIVE_NEW: new quorum only after exact ACTIVATE index.
+
+### R8V11-I033 — ACTIVATE
+
+ACTIVATE references exact:
+- rotation_id;
+- ROTATION_PREPARE certificate;
+- STC_COMMIT certificate;
+- ENTER_JOINT certificate;
+- new_config_digest;
+- activation index.
+
+Mismatch -> `CONFIG_TRANSITION_MISMATCH`.
+
+## 10. Blind Semantic Projection — BSP-1
+
+### R8V11-I034 — Exact redaction grammar
+
+Blind review packets are generated from canonical design files using BSP-1.
+
+BSP-1 may remove only:
+1. a line matching case-insensitive administrative header patterns:
+   - `^R8 v[0-9]+ .*adjudication:$`
+   - `^R8 v[0-9]+ .*review adjudication:$`
+   - `^Review adjudication:$`
+   - `^Independent review evidence:$`
+2. the immediately following metadata line if it contains only a path/commit/blob/hash reference associated with that header.
+
+No other line may be removed.
+
+### R8V11-I035 — Residual metadata scan
+
+Packet generation fails if the projected packet contains:
+- a line matching `(?i)R8 v[0-9]+ .*adjudication:`;
+- a line matching `(?i)review adjudication:`;
+- known prior-review-evidence path prefixes;
+- any 40-hex commit on a line whose surrounding administrative label denotes prior adjudication/review evidence.
+
+Generic semantic use of the word "adjudication" is not removed.
+
+### R8V11-I036 — Projection manifest
+
+The blind packet contains a projection manifest with:
+- each canonical source commit/blob;
+- projection algorithm version BSP-1;
+- count and SHA-256 digest of removed administrative lines;
+- digest of each projected semantic source;
+- confirmation residual metadata scan = PASS.
+
+It never includes the removed text itself.
+
+## 11. Additional Guard Catalog v11
+
+| Guard | Mechanism | Positive | Negatives with fault-proof class |
+|---|---|---|---|
+| G108 | CSM-4 full scope and canonical mapping objects | V11-001 | V11-002 FP5; V11-003 FP5 |
+| G109 | CSRULE-3 cross-lineage mapped traversal | V11-004 | V11-005 FP5; V11-006 FP5 |
+| G110 | Successor graph determinism | V11-007 | V11-008 FP5; V11-009 FP5 |
+| G111 | ANY reevaluation blocks Smax fallback | V11-010 | V11-011 FP5; V11-012 FP5 |
+| G112 | AIM-2/CSRULE-3 single resolution path | V11-013 | V11-014 FP4 |
+| G113 | RBP-1 post-snapshot write freeze | V11-015 | V11-016 FP2; V11-017 FP3 |
+| G114 | STC-2 unique linearized transfer certificate | V11-018 | V11-019 FP2; V11-020 FP5 |
+| G115 | CTS-3 exact JOINT/ACTIVATE binding | V11-021 | V11-022 FP2; V11-023 FP5 |
+| G116 | BSP-1 residual prior-review metadata rejection | V11-024 | V11-025 FP5 |
+| G117 | Full-scope collision isolation | V11-026 | V11-027 FP5 |
+
+## 12. R8 v11 preregistered cases
+
+### CSM-4/full scope
+- V11-001 two otherwise identical entries differing only by action_class remain distinct and resolve by exact action scope.
+- V11-002 entry omits/aliases trust_domain_id or constitution_id -> invalid scope.
+- V11-003 stored/derived scope specificity mismatch -> reject.
+
+### Cross-lineage
+- V11-004 revoked source Smax entry references one active constitutional SemanticLineageMapping to exact destination successor -> mapped successor resolves.
+- V11-005 revoked source + unrelated lower/general destination-lineage entry without mapping -> no fallback; SEMANTIC_SCOPE_REVOKED.
+- V11-006 two effective lineage mappings for same source entry -> SEMANTIC_LINEAGE_CONFLICT.
+
+### Successor graph
+- V11-007 single acyclic version-increasing successor chain -> resolves current ACTIVE successor.
+- V11-008 cycle in successor/mapping graph -> reject mapping/SEMANTIC_SUCCESSOR_CONFLICT.
+- V11-009 two effective successors from one entry at one decision sequence -> SEMANTIC_SUCCESSOR_CONFLICT.
+
+### ANY drift
+- V11-010 permission narrowing causes affected Smax entry -> SCOPE_PERMISSION_REEVALUATION_REQUIRED and blocks lower-general fallback.
+- V11-011 project/org actor attempts revalidate disallowed ANY -> reject.
+- V11-012 constitutionally authorized revalidated successor under current permission -> resolver may use successor.
+
+### AIM closure
+- V11-013 AIM-2 input resolves only through CSRULE-3/CSM-4 and all traversed mappings enter AuthorityReadSet.
+- V11-014 authority code attempts bypass with direct "one active entry" lookup -> AIEP/AIM violation; authority effect NONE.
+
+### Rotation barrier/STC
+- V11-015 ROTATION_PREPARE commits at B, no post-B authority writes, STC-2 matches root at B, ENTER_JOINT succeeds.
+- V11-016 authority commit attempted after ROTATION_PREPARE before ENTER_JOINT -> ROTATION_FROZEN; state root unchanged.
+- V11-017 STC snapshot/root does not equal barrier state B -> reject rotation.
+- V11-018 exactly one STC_COMMIT for rotation/barrier -> valid.
+- V11-019 two different STC digests race for one rotation/barrier -> one commit; conflict/equivocation for loser.
+- V11-020 new-config acceptance root differs from STC -> new replica non-voting; ENTER_JOINT reject.
+
+### CTS-3
+- V11-021 JOINT command has old+new quorum and exact STC/JOIN certificates -> eligible.
+- V11-022 JOINT authority/config command has only old or only new quorum -> reject.
+- V11-023 ACTIVATE references wrong rotation/STC/JOIN/new-config -> CONFIG_TRANSITION_MISMATCH.
+
+### Blind packet
+- V11-024 BSP-1 removes only permitted prior-adjudication metadata; residual scan PASS; semantic guard/case counts preserved.
+- V11-025 projected packet retains prior adjudication hash/reference line -> packet construction fails; review packet not frozen.
+
+### Scope collision
+- V11-026 entries differing only by trust_domain/constitution/object_class/action_class do not collide and cannot cross-authorize.
+- V11-027 a resolver request with mismatched one of those dimensions cannot match the other scope.
+
+## 13. Schema-freeze gate
+
+Even a future v11 `BOUNDED_PASS` authorizes only executable-schema-freeze preparation.
+
+Before implementation:
+- CSM-4/AIM-2/CSRULE-3 schemas and resolver algorithm frozen;
+- full nine-component scope tuple frozen;
+- lineage/scope mapping schemas frozen;
+- ANY permission lifecycle/revalidation schemas frozen;
+- LAS/GGS state-root formulas frozen;
+- RBP-1/STC-2/CTS-3 schemas frozen;
+- all G001-G117 CaseProofContracts frozen with positive controls and FP classes;
+- BSP-1 projection manifest independently reviewed if required.
+
+## 14. Claim boundary
+
+A future R8 v11 bounded design pass establishes only sufficient design closure to proceed to executable-schema freeze under inherited explicit trust assumptions.
+
+It does not prove:
+- implementation correctness;
+- trust-root/operator honesty beyond explicit thresholds;
+- hardware/workload-attestation correctness;
+- provider correctness;
+- cloud/IAM security;
+- legal/compliance sufficiency.
+
+Until independent closure:
+- R8 v1-v10 = CHANGES_REQUIRED;
+- R8 v11 = NOT_IMPLEMENTED / INDEPENDENT_REVIEW_REQUIRED;
+- executable-schema freeze = BLOCKED;
+- PR #39 = NON_AUTHORITATIVE;
+- PR #40 = NON_AUTHORITATIVE;
+- holistic governance = CHANGES_REQUIRED;
+- authority effect = NONE.
+
+===== END SOURCE SRC-V11: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V11.md =====
+
+
+===== BEGIN SOURCE SRC-V12: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V12.md =====
+COMMIT: 39dd1c1873a0c3b2276eab581a081f2c0afc99a1
+GIT_BLOB_SHA1: f8c8e979271c242e8a87c254cbe6c9d46385dd84
+
+# R8 Meta-Governance Redesign v12 — Successor Preregistration
+
+Status: **PREREGISTERED_DESIGN_V12 — NOT_IMPLEMENTED — INDEPENDENT_REVIEW_REQUIRED**
+Authority effect: **NONE**
+
+Effective design lineage:
+- R8 v4: `d779eb495b5830674e0258d4d27b768f77e10471`
+- R8 v5: `53d695dff34d14365770d1dbdad8c6620e31a503`
+- R8 v6: `e0e6995a61dab629ff49efc19f6d6128936b9c20`
+- R8 v7: `fad366add685a978c55837e420e3bcb0939d41aa`
+- R8 v8: `58e95ca8cc8beb2125413d794ec08d4333a55521`
+- R8 v9: `0948ed0e83d9de128ca9c12df5784286f15af9eb`
+- R8 v10: `2e85384f759318a17c2ec14b1781dc689a864618`
+- R8 v11: `3d6a0820d851bc629fc4c7ccfee4a081b70ce117`
+- This v12 document supersedes prior generations only where stronger or more specific.
+
+## 1. Objective
+
+R8 v12 closes the remaining design blockers before executable-schema freeze.
+
+Core rule:
+
+> Authority-bearing semantic resolution uses one current LAS-3 semantic-state sequence, over append-only constitutional semantic descriptors, with resolver-time permission validation and a sealed resolver implementation/policy identity. Semantic registry heads are explicit members of authority state and rotation barriers. Blind review input contains no predecessor review outcome metadata.
+
+R8 v12 does not grant schema-freeze, implementation, qualification, merge, release, deploy, production, policy, or terminal authority.
+
+## 2. CSM-5 — Authoritative Semantic State Bundle
+
+### R8V12-I001 — CSM-5 supersedes semantic-state ambiguity
+
+CSM-5 is the sole authority-semantic registry bundle consumed by authority resolution.
+
+Canonical bundle:
+`{csm_version:"CSM-5", constitution_id, semantic_entries[], lineage_mappings[], scope_replacement_mappings[], any_scope_permissions[], aim_descriptors[], resolver_policy_ref}`
+
+All arrays and references are part of the CSM-5 canonical digest.
+
+### R8V12-I002 — Named semantic heads
+
+The LAS-3 authority state exposes named committed heads:
+- `csm5_registry_head`;
+- `aim3_descriptor_head`;
+- `any_scope_permission_head`;
+- `resolver_policy_head`.
+
+These are not implicit aliases of a generic state-machine root.
+
+### R8V12-I003 — semantic_state_sequence
+
+For authority-bearing evaluation:
+
+`semantic_state_sequence = current committed LAS-3 log index that fixes the named semantic heads used by the decision`.
+
+It is derived by the authority evaluator from the current LAS-3 state.
+
+It is never caller-supplied.
+
+Historical semantic sequences may be used only through a separate forensic/replay interface whose authority effect is always NONE.
+
+### R8V12-I004 — one current semantic snapshot
+
+One authority resolution binds:
+- semantic_state_sequence;
+- CSM-5 head;
+- AIM-3 head;
+- ANY permission head;
+- ResolverPolicy head/digest.
+
+All are read from the same committed LAS-3 authority-state snapshot.
+
+Mixed-head semantic resolution is invalid.
+
+## 3. AIM-3 — Append-only Authority Input Descriptor Registry
+
+### R8V12-I005 — AIM-3 descriptors are immutable records
+
+Each AIM descriptor contains:
+- `aim_descriptor_id`;
+- `semantic_input_id`;
+- `source_semantic_lineage_id`;
+- `decision_scope_rule_id`;
+- `expected_semantic_class`;
+- `resolver_policy_digest`;
+- `semantic_version`;
+- `effective_sequence`;
+- lifecycle state;
+- predecessor_descriptor_id or null;
+- constitutional source/evidence digest.
+
+A committed descriptor is never mutated in place.
+
+### R8V12-I006 — descriptor change creates successor
+
+Changing any authority-relevant AIM field creates a new descriptor version and requires the constitutional authority defined for that semantic class.
+
+Ordinary project/org/experiment policy cannot redirect source lineage or resolver policy.
+
+### R8V12-I007 — descriptor resolution
+
+At semantic_state_sequence, exactly one ACTIVE applicable AIM descriptor may resolve for an authority input.
+
+Zero -> `AIM_DESCRIPTOR_UNBOUND`.
+
+More than one -> `AIM_DESCRIPTOR_CONFLICT`.
+
+A historical/superseded descriptor cannot be selected for current authority.
+
+## 4. ResolverPolicy-1 — frozen algorithm + implementation identity
+
+### R8V12-I008 — ResolverPolicy object
+
+`ResolverPolicy-1` is a CSM-5-bound machine-readable constitutional artifact containing:
+- policy_version;
+- resolver algorithm version;
+- starting-lineage rule;
+- candidate construction rule;
+- specificity rule;
+- lifecycle/error precedence;
+- successor traversal rule;
+- lineage-mapping traversal order;
+- scope-replacement truth-table reference;
+- ANY permission revalidation rule;
+- fallback prohibition rule;
+- forensic replay rule;
+- conformance_vector_set_digest.
+
+### R8V12-I009 — implementation/runtime binding
+
+Authority-bearing semantic resolution additionally requires:
+- `resolver_implementation_digest`;
+- `resolver_runtime_manifest_digest`;
+- valid workload/runtime attestation where required by inherited policy;
+- exact `ResolverPolicy-1` digest.
+
+A resolver implementation not bound to the active policy has authority effect NONE.
+
+### R8V12-I010 — conformance vectors
+
+ResolverPolicy-1 names a deterministic conformance-vector set.
+
+Before qualification, the exact implementation must pass the vector set.
+
+A policy digest without matching implementation/vector evidence is insufficient.
+
+## 5. CSRULE-4 — current-state semantic resolver
+
+### R8V12-I011 — current-state entry point
+
+CSRULE-4 inputs are:
+- active AIM-3 descriptor;
+- current CSM-5 snapshot;
+- derived semantic_state_sequence;
+- decision scope;
+- ResolverPolicy-1 identity.
+
+There is no authority-bearing API parameter for decision_sequence.
+
+### R8V12-I012 — starting lineage
+
+CSRULE-4 begins only from `source_semantic_lineage_id` in the active AIM-3 descriptor.
+
+Any change to that lineage requires an authorized AIM-3 successor descriptor.
+
+### R8V12-I013 — Smax before lifecycle filtering
+
+Within the current source lineage:
+1. gather all matching entries from current CSM-5;
+2. compute Smax before lifecycle filtering;
+3. evaluate every Smax entry under ResolverPolicy-1 lifecycle precedence.
+
+Lower specificity is never considered after an Smax blocking state.
+
+### R8V12-I014 — blocker precedence
+
+At Smax, blocker precedence is:
+1. invalid/missing current ANY permission -> `SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED`;
+2. REVOKED -> valid successor/mapping required, else `SEMANTIC_SCOPE_REVOKED`;
+3. multiple ACTIVE eligible entries -> `SEMANTIC_ENTRY_CONFLICT`;
+4. exactly one ACTIVE eligible entry -> candidate;
+5. only SUPERSEDED/RETIRED -> successor traversal or `SEMANTIC_DEPENDENCY_UNBOUND`.
+
+This precedence is frozen in ResolverPolicy-1.
+
+## 6. Resolver-time ANY permission enforcement
+
+### R8V12-I015 — resolver validates ANY independently
+
+For every matching candidate that contains ANY in scope:
+- CSRULE-4 resolves the current active ANYScopePermission from the same CSM-5 semantic snapshot at semantic_state_sequence;
+- verifies that every ANY tuple component is permitted for the semantic class;
+- verifies the permission is ACTIVE at semantic_state_sequence.
+
+The resolver does not depend on a prior Meta-Governor lifecycle-marking event for correctness.
+
+### R8V12-I016 — drift blocker
+
+If current permission is absent, narrowed, revoked, conflicting, or does not permit every ANY position:
+- candidate is blocker-equivalent;
+- result is `SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED`;
+- no lower-specificity fallback is permitted.
+
+A lifecycle event marking affected entries may still be generated as durable evidence, but it is not the authority source.
+
+### R8V12-I017 — ANY amendment authority
+
+The exact constitutional authority class is:
+`ANY_SCOPE_PERMISSION_AMENDMENT`.
+
+It uses the constitutional amendment quorum/review path.
+
+Project/org/experiment policy cannot satisfy or broaden it.
+
+## 7. ScopeReplacementTruthTable-1
+
+### R8V12-I018 — machine-readable replacement rule
+
+Every ScopeReplacementMapping binds:
+- mapping_id;
+- source_entry_id;
+- destination_entry_id;
+- old_scope_tuple;
+- new_scope_tuple;
+- old_scope_effect;
+- decision_scope_match_rule;
+- effective_sequence;
+- constitutional evidence digest.
+
+### R8V12-I019 — old_scope_effect values
+
+Allowed exact values:
+- `BLOCK_OLD_SCOPE`;
+- `REPLACE_OLD_SCOPE_FOR_EXACT_MATCH`;
+- `REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH`.
+
+No free-text replacement semantics are authority-bearing.
+
+### R8V12-I020 — deterministic match
+
+`decision_scope_match_rule` is a CSM-bound executable rule identifier.
+
+The replacement mapping is eligible only when:
+- the source revoked scope matches according to the frozen old-scope rule;
+- the destination scope matches according to the frozen new-scope rule;
+- every ANY position is permitted by current ANY permission;
+- effective_sequence <= semantic_state_sequence.
+
+Otherwise the mapping cannot unblock the revoked source scope.
+
+## 8. LASAuthorityStateRoot v12
+
+### R8V12-I021 — explicit semantic membership
+
+`LASAuthorityStateRoot(i) = SHA-256(GCP-1({committed_log_prefix_digest_i, StreamHeadMap_root_i, idempotency_ledger_root_i, authority_state_machine_root_i, revocation_stream_head_i, nonce_ledger_head_i, effect_stream_head_i, csm5_registry_head_i, aim3_descriptor_head_i, any_scope_permission_head_i, resolver_policy_head_i, configuration_generation, prior_certificate_chain_digest_i}))`
+
+Every named semantic head is mandatory.
+
+### R8V12-I022 — semantic streams are LAS-governed
+
+Updates to:
+- CSM-5 semantic entries/mappings;
+- AIM-3 descriptors;
+- ANYScopePermission;
+- ResolverPolicy;
+
+are LAS-3-governed authority-bearing events.
+
+Projection/database state cannot change those heads independently.
+
+### R8V12-I023 — GGS semantic binding
+
+Where GGS-3 genesis/rotation certification consumes or initializes semantic state, the exact initial/current semantic bundle digest and relevant heads are named members of the GGS certified state root.
+
+## 9. RBP-2 — semantic registry freeze
+
+### R8V12-I024 — rotation freeze scope
+
+After `ROTATION_PREPARE` at barrier B and until valid ENTER_JOINT or ROTATION_ABORT:
+- ordinary authority writes are frozen;
+- CSM-5 writes are frozen;
+- AIM-3 writes are frozen;
+- ANY permission writes are frozen;
+- ResolverPolicy writes are frozen;
+- revocation/time/effect/checkpoint writes covered by inherited RBP rules remain frozen as applicable.
+
+Attempt -> `ROTATION_FROZEN`.
+
+### R8V12-I025 — STC semantic equality
+
+STC/barrier state must bind the exact named semantic heads at B.
+
+Mismatch between STC semantic heads and the barrier state -> rotation reject.
+
+## 10. One barrier → one lawful rotation
+
+### R8V12-I026 — BarrierRotationRegistry
+
+For each sequencer barrier index B:
+
+`B -> UNUSED | RESERVED(rotation_id, proposed_config_digest) | JOINT | ACTIVATED | ABORTED`
+
+The mapping is a LAS/GGS configuration-stream state.
+
+### R8V12-I027 — unique reservation
+
+Exactly one rotation_id may reserve B.
+
+Same rotation_id + same proposed config -> idempotent replay.
+
+Different rotation_id or config for the same B -> `STC_EQUIVOCATION` / `BARRIER_ALREADY_RESERVED`.
+
+### R8V12-I028 — abort closes barrier
+
+`ROTATION_ABORT` changes B to ABORTED permanently.
+
+A later retry/new rotation requires a fresh ROTATION_PREPARE and a new barrier index.
+
+An aborted barrier cannot be recycled.
+
+## 11. DecisionPresealContext v3 / seal binding
+
+### R8V12-I029 — semantic preseal fields
+
+`DecisionPresealContext-v3` includes:
+- candidate/action/tenant/project/effect scope;
+- governance_snapshot_digest;
+- AuthorityReadSet digest;
+- semantic_state_sequence;
+- CSM-5 head;
+- AIM-3 head;
+- ANY permission head;
+- ResolverPolicy digest;
+- resolver implementation/runtime identity digest;
+- revocation head;
+- runtime/workload attestation digest.
+
+### R8V12-I030 — VerifiedStateSeal binding
+
+VerifiedStateSeal includes the same semantic fields plus accepted time/nonce proof.
+
+Consequential commit compares the current LAS named semantic heads and semantic_state_sequence to the seal.
+
+Any change -> `STATE_CHANGED`; no effect intent commits.
+
+## 12. Blind Semantic Projection — BSP-2
+
+### R8V12-I031 — authoritative review surface is TXT
+
+The canonical blind reviewer packet is UTF-8 TXT.
+
+TXT is the authoritative reviewer input.
+
+A PDF, if supplied, is `NON_AUTHORITATIVE_CONVENIENCE` unless the projection manifest says `pdf_projection_status=PASS`.
+
+PDF can never override TXT.
+
+### R8V12-I032 — prior-outcome redaction
+
+BSP-2 removes prior-version review/disposition metadata, including prior-version lines or predecessor status blocks carrying:
+- `CHANGES_REQUIRED`;
+- `BOUNDED_PASS`;
+- `INSUFFICIENT_EVIDENCE`;
+- `REVIEW_REQUIRED`;
+- `INDEPENDENT_REVIEW_REQUIRED`;
+- `NOT_IMPLEMENTED` when attached to a predecessor version;
+- prior review/adjudication evidence/hash/path metadata.
+
+It does not remove:
+- current candidate status;
+- semantic invariants;
+- guard/case definitions;
+- claim boundaries;
+- source candidate commits/blobs;
+- authority semantics.
+
+### R8V12-I033 — neutral predecessor authority statement
+
+Instead of prior review outcomes, the blind packet may state only:
+
+`Inherited predecessor artifacts confer no independent authority on the current candidate.`
+
+This statement carries no prior reviewer disposition.
+
+### R8V12-I034 — projection manifest
+
+The blind packet manifest records:
+- BSP-2 version;
+- each canonical source commit/blob;
+- projected TXT digest;
+- removed-line count;
+- SHA-256 digest of canonical ordered removed-line records;
+- residual-scan result;
+- current candidate ID;
+- `pdf_projection_status = PASS | FAIL | NOT_USED`;
+- PDF digest if present.
+
+### R8V12-I035 — residual outcome scan
+
+Packet generation fails if prior-version disposition/outcome metadata remains.
+
+The scan is version-aware so the current v12 status is retained.
+
+## 13. Deterministic Guard Catalog Compilation — GCC-1
+
+### R8V12-I036 — canonical guard source records
+
+Every guard definition is a machine-readable record:
+- guard_id;
+- mechanism_id;
+- positive_case_ids[];
+- negative_cases[{case_id,fault_proof_class}];
+- source_design_commit/blob;
+- lifecycle state.
+
+### R8V12-I037 — generated consolidated catalog
+
+The blind packet contains one GCC-1 generated consolidated catalog from G001 through the highest ACTIVE guard.
+
+Compilation fails on:
+- missing guard ID in the expected sequence;
+- duplicate guard ID;
+- missing positive control;
+- missing referenced case;
+- negative case without FP class;
+- duplicate conflicting case definition.
+
+No manually maintained consolidated table is authoritative.
+
+## 14. Additional Guard Catalog v12
+
+| Guard | Mechanism | Positive | Negatives with fault-proof class |
+|---|---|---|---|
+| G118 | current semantic_state_sequence binding | V12-001 | V12-002 FP1; V12-003 FP5 |
+| G119 | AIM-3 append-only descriptor authority | V12-004 | V12-005 FP5; V12-006 FP5 |
+| G120 | ResolverPolicy/implementation binding | V12-007 | V12-008 FP4; V12-009 FP5 |
+| G121 | resolver-time ANY revalidation | V12-010 | V12-011 FP1; V12-012 FP5 |
+| G122 | explicit semantic heads in LAS authority root | V12-013 | V12-014 FP5; V12-015 FP3 |
+| G123 | RBP-2 semantic registry freeze | V12-016 | V12-017 FP2; V12-018 FP5 |
+| G124 | one barrier one rotation | V12-019 | V12-020 FP2; V12-021 FP2 |
+| G125 | ScopeReplacementTruthTable | V12-022 | V12-023 FP5; V12-024 FP5 |
+| G126 | DecisionPresealContext-v3 semantic binding | V12-025 | V12-026 FP1; V12-027 FP2 |
+| G127 | BSP-2 prior-outcome blindness | V12-028 | V12-029 FP5; V12-030 FP5 |
+| G128 | GCC-1 consolidated guard compilation | V12-031 | V12-032 FP5; V12-033 FP5 |
+| G129 | ANY_SCOPE_PERMISSION_AMENDMENT authority | V12-034 | V12-035 FP5 |
+| G130 | PDF non-authoritative projection boundary | V12-036 | V12-037 FP5 |
+
+## 15. R8 v12 preregistered cases
+
+### Semantic state sequence
+- V12-001 current LAS semantic-state sequence and matching heads -> resolution eligible.
+- V12-002 caller/historical semantic sequence before later revocation -> authority API rejects historical sequence; forensic path authority NONE.
+- V12-003 current CSM/AIM/ANY/resolver heads do not all correspond to one LAS snapshot -> reject mixed semantic state.
+
+### AIM-3
+- V12-004 valid constitutionally authorized successor AIM descriptor becomes current at effective sequence.
+- V12-005 ordinary policy attempts source-lineage redirect -> CONSTITUTIONAL_AMENDMENT_REQUIRED.
+- V12-006 in-place mutation of committed AIM descriptor -> integrity failure/reject.
+
+### Resolver policy
+- V12-007 resolver implementation/runtime identity matches active ResolverPolicy and conformance-vector digest -> eligible.
+- V12-008 implementation digest differs from active policy binding -> authority effect NONE.
+- V12-009 ResolverPolicy changed without constitutional amendment -> reject.
+
+### ANY revalidation
+- V12-010 current ANY permission permits all candidate ANY positions -> candidate may continue through lifecycle evaluation.
+- V12-011 permission narrowed/revoked but no lifecycle marker exists -> resolver independently returns SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED.
+- V12-012 project/org policy attempts ANY permission revalidation/broadening -> reject.
+
+### State roots/freeze
+- V12-013 LASAuthorityStateRoot includes matching CSM/AIM/ANY/resolver heads -> root valid.
+- V12-014 any named semantic head omitted or mismatched -> state-root/rotation verification reject.
+- V12-015 projection/database mutation changes semantic data without LAS head -> STATE_INTEGRITY_FAILURE.
+- V12-016 semantic registry remains unchanged during ROTATION_PREPARED -> rotation can continue.
+- V12-017 CSM/AIM/ANY/resolver update attempted during freeze -> ROTATION_FROZEN.
+- V12-018 STC semantic heads differ from barrier B -> rotation reject.
+
+### Barrier uniqueness
+- V12-019 one rotation reserves fresh B and retries same identity idempotently.
+- V12-020 two different rotation IDs race for B -> exactly one reserves; loser BARRIER_ALREADY_RESERVED.
+- V12-021 after ROTATION_ABORT, new rotation attempts reuse B -> reject; new barrier required.
+
+### Scope replacement
+- V12-022 valid mapped replacement satisfies exact truth table and current ANY permission -> eligible.
+- V12-023 mapping enum/text exists but truth-table conditions do not match decision scope -> cannot unblock source scope.
+- V12-024 replacement uses unauthorized ANY position -> blocked.
+
+### Preseal/seal
+- V12-025 current semantic sequence/heads bound into preseal, time proof, and final seal -> eligible.
+- V12-026 semantic head changes after time nonce issuance -> old time proof invalid.
+- V12-027 semantic head changes after seal but before COMMIT_WITH_SEAL -> STATE_CHANGED, no effect intent.
+
+### Blindness
+- V12-028 clean BSP-2 packet contains current v12 status and neutral predecessor-authority statement but no prior disposition outcomes -> pass.
+- V12-029 prior `CHANGES_REQUIRED`/`BOUNDED_PASS`/etc. attached to predecessor remains -> REVIEW_PACKET_NOT_BLIND.
+- V12-030 redaction removes a semantic invariant/guard/case -> REVIEW_PACKET_INCOMPLETE.
+
+### Guard compilation
+- V12-031 GCC-1 compiles every ACTIVE guard sequentially with positive/negative/FP references -> catalog valid.
+- V12-032 missing or duplicate guard/case reference -> REVIEW_PACKET_INCOMPLETE.
+- V12-033 negative case lacks FP class -> REVIEW_PACKET_INCOMPLETE.
+
+### Authority class / PDF
+- V12-034 valid ANY_SCOPE_PERMISSION_AMENDMENT constitutional path -> permission successor eligible.
+- V12-035 project/org actor attempts same transition -> reject.
+- V12-036 TXT authoritative + PDF marked NON_AUTHORITATIVE_CONVENIENCE/validated -> review surface valid.
+- V12-037 PDF differs/corrupts while manifest claims authoritative equivalence -> PDF projection FAIL; TXT remains authoritative.
+
+## 16. Schema-freeze gate
+
+Even a future v12 `BOUNDED_PASS` authorizes only executable-schema-freeze preparation.
+
+Before implementation:
+- CSM-5, AIM-3, ResolverPolicy-1, ScopeReplacementTruthTable, LASAuthorityStateRoot v12, RBP-2, DecisionPresealContext-v3, BSP-2, GCC-1 schemas/contracts must be frozen;
+- GCC-1 consolidated G001-G130 catalog must be generated and validated;
+- all G001-G130 CaseProofContracts must be frozen;
+- fresh blind review must close without unresolved material findings.
+
+## 17. Claim boundary
+
+A future R8 v12 bounded design pass establishes only sufficient design closure to proceed to executable-schema freeze under inherited explicit trust assumptions.
+
+It does not prove:
+- implementation correctness;
+- trust-root/operator honesty beyond explicit thresholds;
+- hardware/workload-attestation vendor correctness;
+- provider correctness;
+- cloud/IAM security;
+- legal/compliance sufficiency.
+
+Until independent closure:
+- R8 v12 = NOT_IMPLEMENTED / INDEPENDENT_REVIEW_REQUIRED;
+- executable-schema freeze = BLOCKED;
+- PR #39 = NON_AUTHORITATIVE;
+- PR #40 = NON_AUTHORITATIVE;
+- authority effect = NONE.
+
+===== END SOURCE SRC-V12: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V12.md =====
+
+
+===== BEGIN SOURCE SRC-V13: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md =====
+COMMIT: 84bb9abe04debbcc441580871a74f641d6e30eb2
+GIT_BLOB_SHA1: 841556341da618fa6ed0b7c4be2797d522be4696
+
+# R8 Meta-Governance Redesign v13 — Successor Preregistration
+
+Status: **PREREGISTERED_DESIGN_V13 — NOT_IMPLEMENTED — INDEPENDENT_REVIEW_REQUIRED**
+Authority effect: **NONE**
+
+Effective design lineage:
+- R8 v4: `d779eb495b5830674e0258d4d27b768f77e10471`
+- R8 v5: `53d695dff34d14365770d1dbdad8c6620e31a503`
+- R8 v6: `e0e6995a61dab629ff49efc19f6d6128936b9c20`
+- R8 v7: `fad366add685a978c55837e420e3bcb0939d41aa`
+- R8 v8: `58e95ca8cc8beb2125413d794ec08d4333a55521`
+- R8 v9: `0948ed0e83d9de128ca9c12df5784286f15af9eb`
+- R8 v10: `2e85384f759318a17c2ec14b1781dc689a864618`
+- R8 v11: `3d6a0820d851bc629fc4c7ccfee4a081b70ce117`
+- R8 v12: `8250f35acb371ce85e818c5ecdf9a11250fa1430`
+- This v13 document supersedes prior generations only where stronger or more specific.
+
+## 1. Objective
+
+R8 v13 closes the remaining design blockers before executable-schema freeze.
+
+Core rule:
+
+> A resolver is authoritative only when the active ResolverPolicy explicitly authorizes its exact implementation/runtime identity; scope replacement is evaluated by a frozen total truth table; revoked Smax branches dominate unrelated ACTIVE peers; AIM descriptor applicability is deterministic; and guard identity has one authoritative registry rather than multiple inherited manual tables.
+
+R8 v13 grants no implementation, schema-freeze, qualification, merge, release, deploy, production, policy, or terminal authority.
+
+## 2. ResolverImplementationRegistry-1 — RIR-1
+
+### R8V13-I001 — RIR-1 is CSM-bound
+
+CSM-5 binds one append-only `ResolverImplementationRegistry-1` head.
+
+Each record contains:
+- `resolver_implementation_record_id`;
+- `resolver_policy_digest`;
+- `resolver_implementation_digest`;
+- `resolver_runtime_manifest_digest`;
+- `workload_attestation_policy_digest`;
+- `conformance_suite_digest`;
+- `activation_sequence`;
+- `retirement_or_revocation_sequence` or null;
+- lifecycle state = ACTIVE | SUSPENDED | REVOKED | RETIRED;
+- predecessor_record_id or null;
+- constitutional source/evidence digest.
+
+### R8V13-I002 — exact policy-to-implementation authorization
+
+For authority-bearing resolution, the exact tuple:
+
+`{resolver_policy_digest, resolver_implementation_digest, resolver_runtime_manifest_digest, workload_attestation_policy_digest, conformance_suite_digest}`
+
+must match exactly one ACTIVE RIR-1 record at `semantic_state_sequence`.
+
+Zero matches -> `RESOLVER_IMPLEMENTATION_UNBOUND`.
+
+More than one applicable ACTIVE record for the exact implementation/runtime tuple -> `RESOLVER_IMPLEMENTATION_CONFLICT`.
+
+### R8V13-I003 — conformance is necessary, not sufficient
+
+Passing conformance vectors does not authorize an implementation by itself.
+
+An implementation must both:
+1. be ACTIVE in RIR-1 for the exact ResolverPolicy; and
+2. produce valid conformance/runtime evidence required by that registry record.
+
+### R8V13-I004 — RIR lifecycle
+
+RIR-1 records are append-only.
+
+Changing policy binding, implementation digest, runtime manifest, workload policy, or conformance suite creates a successor record through the constitutional semantic-amendment path.
+
+Ordinary project/org/experiment policy cannot enroll or reactivate a resolver implementation.
+
+## 3. ResolverConformanceSuite-1 — RCS-1
+
+### R8V13-I005 — frozen conformance suite identity
+
+Each RIR-1 record binds one `ResolverConformanceSuite-1` containing:
+- suite_id/version;
+- vector_manifest_digest;
+- vector_generator_implementation_digest;
+- generator_runtime_manifest_digest;
+- input corpus digest;
+- expected_result_manifest_digest;
+- execution harness digest;
+- required resolver runtime/workload identity;
+- result-schema digest.
+
+### R8V13-I006 — vector generation
+
+Reference vectors are generated only by the exact bound generator/harness identity.
+
+Generated vector artifacts carry:
+- suite digest;
+- generator/harness digests;
+- input corpus digest;
+- output manifest digest.
+
+A vector set from another generator/harness is insufficient.
+
+### R8V13-I007 — execution evidence
+
+Resolver qualification evidence binds:
+- RIR-1 record ID/digest;
+- ResolverPolicy digest;
+- exact implementation/runtime digests;
+- exact RCS-1 suite/vector digests;
+- raw per-vector results;
+- deterministic aggregate result.
+
+Any failed/missing vector means the resolver record is not qualified for authority-bearing execution.
+
+## 4. DPS/Seal verification of resolver registry
+
+### R8V13-I008 — preseal resolver fields
+
+DecisionPresealContext includes:
+- RIR-1 registry head;
+- active RIR-1 record ID/digest;
+- ResolverPolicy digest;
+- implementation digest;
+- runtime manifest digest;
+- workload attestation proof digest;
+- conformance suite/result digest.
+
+### R8V13-I009 — final seal verification
+
+VerifiedStateSeal binds the same fields.
+
+Before consequential commit, the current LAS semantic snapshot must still:
+- contain the same RIR-1 registry head;
+- show the same record ACTIVE;
+- bind the same policy/implementation/runtime tuple.
+
+Any change -> `STATE_CHANGED`.
+
+## 5. ScopeReplacementTruthTable-2 — SRTT-2
+
+### R8V13-I010 — complete machine-readable inputs
+
+SRTT-2 evaluates these canonical inputs:
+
+- `source_entry_state` = REVOKED only for replacement evaluation;
+- `old_scope_match` = NO_MATCH | EXACT_MATCH;
+- `destination_scope_match` = NO_MATCH | EXACT_MATCH | MAPPED_MATCH;
+- `old_scope_effect` = BLOCK_OLD_SCOPE | REPLACE_OLD_SCOPE_FOR_EXACT_MATCH | REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH;
+- `scope_relation` = SAME | NARROWER | BROADER | DISJOINT;
+- `any_permission_valid` = true | false;
+- `mapping_effective` = true | false;
+- `lineage_mapping_valid` = true | false;
+- `scope_expansion_authorized` = true | false;
+- `decision_inside_authorized_expansion_domain` = true | false.
+
+All values are derived from the current CSM-5 snapshot and decision scope.
+
+### R8V13-I011 — total evaluation order
+
+SRTT-2 evaluates in this exact order:
+
+1. if source_entry_state != REVOKED -> `NOT_A_REPLACEMENT_BRANCH`;
+2. if mapping_effective = false -> `SEMANTIC_SCOPE_REVOKED`;
+3. if lineage_mapping_valid = false -> `SEMANTIC_SCOPE_REVOKED`;
+4. if any_permission_valid = false -> `SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED`;
+5. if old_scope_match = NO_MATCH -> `MAPPING_NOT_APPLICABLE`;
+6. if old_scope_effect = BLOCK_OLD_SCOPE -> `SEMANTIC_SCOPE_REVOKED`;
+7. if destination_scope_match = NO_MATCH -> `SEMANTIC_SCOPE_REVOKED`;
+8. apply the replacement-specific rows below.
+
+### R8V13-I012 — exact replacement rows
+
+For `REPLACE_OLD_SCOPE_FOR_EXACT_MATCH`:
+- destination_scope_match must be EXACT_MATCH;
+- scope_relation must be SAME;
+- otherwise -> `SEMANTIC_SCOPE_REPLACEMENT_INVALID`;
+- when satisfied -> `REPLACEMENT_ELIGIBLE`.
+
+No broader, narrower, mapped, or disjoint destination is allowed under this effect.
+
+### R8V13-I013 — mapped replacement rows
+
+For `REPLACE_OLD_SCOPE_FOR_MAPPED_MATCH`:
+
+- SAME + (EXACT_MATCH or MAPPED_MATCH) -> `REPLACEMENT_ELIGIBLE`;
+- NARROWER + (EXACT_MATCH or MAPPED_MATCH) -> `REPLACEMENT_ELIGIBLE`;
+- DISJOINT -> `SEMANTIC_SCOPE_REPLACEMENT_INVALID`;
+- BROADER -> eligible **only** when:
+  - `scope_expansion_authorized = true`; and
+  - `decision_inside_authorized_expansion_domain = true`;
+  otherwise -> `SEMANTIC_SCOPE_REPLACEMENT_INVALID`.
+
+### R8V13-I014 — expansion authorization
+
+A BROADER replacement requires constitutional authority class:
+`SEMANTIC_SCOPE_EXPANSION_AMENDMENT`.
+
+It binds a CSM-5 `AuthorizedExpansionDomain` object containing:
+- source_entry_id;
+- destination_entry_id;
+- old/new scope tuples;
+- exact decision-domain predicate/rule digest;
+- effective sequence;
+- constitutional evidence digest.
+
+Ordinary policy cannot create or broaden this domain.
+
+### R8V13-I015 — no accidental broad unblocking
+
+A decision outside the AuthorizedExpansionDomain cannot be unblocked by a BROADER replacement, even if the destination entry itself matches it.
+
+Result remains `SEMANTIC_SCOPE_REVOKED` or `SEMANTIC_SCOPE_REPLACEMENT_INVALID` according to the frozen row.
+
+### R8V13-I016 — truth-table authority
+
+The complete SRTT-2 table, ordering, enum values, and reference-vector manifest are CSM-5/ResolverPolicy-bound constitutional semantics.
+
+No resolver-local interpretation may add rows or change precedence.
+
+## 6. SRTT-2 reference vectors
+
+The following design vectors are frozen:
+
+1. REVOKED + exact old match + EXACT effect + same exact destination + permission valid + effective mapping -> ELIGIBLE.
+2. REVOKED + exact old match + EXACT effect + narrower destination -> INVALID.
+3. REVOKED + exact old match + EXACT effect + broader destination -> INVALID.
+4. REVOKED + exact old match + MAPPED effect + narrower mapped destination -> ELIGIBLE.
+5. REVOKED + exact old match + MAPPED effect + broader destination + no expansion authorization -> INVALID.
+6. Same as 5 with valid expansion authorization but decision outside authorized domain -> INVALID/BLOCKED.
+7. Same as 5 with valid authorization and decision inside domain -> ELIGIBLE.
+8. Any branch with invalid current ANY permission -> PERMISSION_REEVALUATION_REQUIRED.
+9. Mapping not yet effective -> SCOPE_REVOKED.
+10. Cross-lineage mapping invalid -> SCOPE_REVOKED.
+11. Destination no-match -> SCOPE_REVOKED.
+12. BLOCK_OLD_SCOPE -> SCOPE_REVOKED.
+
+Executable schema freeze must encode these and all Cartesian branches implied by I011-I015.
+
+## 7. CSRULE-5 — revoked branch dominance
+
+### R8V13-I017 — Smax lifecycle partition
+
+After current ANY validation, CSRULE-5 partitions all Smax entries into:
+- REVOKED blockers;
+- ACTIVE entries;
+- SUPERSEDED/RETIRED entries.
+
+### R8V13-I018 — revoked dominance
+
+If one or more applicable REVOKED entries exist at Smax:
+- ordinary ACTIVE selection is suspended;
+- every applicable REVOKED branch must be discharged by one unique valid successor/replacement chain under SRTT-2;
+- an unrelated ACTIVE peer at Smax cannot bypass the revoked branch.
+
+### R8V13-I019 — successor discharge
+
+A revoked blocker is discharged only by:
+- an explicitly linked ACTIVE successor; or
+- an explicitly linked mapping/replacement path whose SRTT-2 result is REPLACEMENT_ELIGIBLE.
+
+If a blocker has:
+- zero valid discharge paths -> `SEMANTIC_SCOPE_REVOKED`;
+- more than one non-equivalent valid discharge path -> `SEMANTIC_SUCCESSOR_CONFLICT`.
+
+### R8V13-I020 — coexistence with ACTIVE peers
+
+After every REVOKED blocker is uniquely discharged:
+- the resolved successor/replacement candidates and any directly ACTIVE Smax peers are compared;
+- if exactly one semantic result remains -> continue;
+- if multiple non-equivalent ACTIVE semantic results remain -> `SEMANTIC_ENTRY_CONFLICT`.
+
+Thus REVOKED dominates traversal, but successful discharge does not silently erase a genuine peer conflict.
+
+## 8. AIMApplicability-1
+
+### R8V13-I021 — descriptor applicability fields
+
+AIM-4 supersedes AIM-3 applicability ambiguity.
+
+Each descriptor additionally contains:
+- `applicability_scope_tuple`;
+- `aim_scope_policy_id`;
+- `specificity_score`.
+
+The scope tuple uses the same nine-dimensional canonical scope order inherited for semantic decisions.
+
+### R8V13-I022 — AIM scope policy
+
+`AIMScopePolicy-1` is CSM-5-bound and defines, per semantic class, which AIM descriptor tuple components may use ANY.
+
+Project/org/experiment policy cannot broaden it.
+
+### R8V13-I023 — deterministic applicability
+
+For a requested `semantic_input_id` and current decision scope:
+
+1. select descriptors with matching semantic_input_id and expected semantic class;
+2. retain descriptors effective at semantic_state_sequence;
+3. retain descriptors whose exact scope components match and whose ANY components are permitted by current AIMScopePolicy;
+4. derive specificity as exact-component count;
+5. determine `AIM_Smax` before lifecycle filtering;
+6. apply blocker precedence at AIM_Smax.
+
+### R8V13-I024 — AIM lifecycle precedence
+
+At AIM_Smax:
+- REVOKED descriptor -> valid linked successor required, else `AIM_DESCRIPTOR_REVOKED`;
+- multiple ACTIVE applicable descriptors -> `AIM_DESCRIPTOR_CONFLICT`;
+- exactly one ACTIVE -> resolve;
+- only SUPERSEDED/RETIRED -> successor traversal or `AIM_DESCRIPTOR_UNBOUND`.
+
+Lower-specificity fallback is prohibited after an AIM_Smax blocker.
+
+### R8V13-I025 — AIM descriptor successor
+
+An AIM successor must explicitly reference its predecessor.
+
+A source-lineage, policy, class, or scope change cannot silently supersede another descriptor without the required constitutional amendment path.
+
+## 9. LASAuthorityStateRoot v13
+
+### R8V13-I026 — explicit sequence and registry heads
+
+`LASAuthorityStateRoot(i) = SHA-256(GCP-1({semantic_state_sequence_i:i, committed_log_prefix_digest_i, StreamHeadMap_root_i, idempotency_ledger_root_i, authority_state_machine_root_i, revocation_stream_head_i, nonce_ledger_head_i, effect_stream_head_i, csm5_registry_head_i, aim4_descriptor_head_i, any_scope_permission_head_i, aim_scope_policy_head_i, resolver_policy_head_i, resolver_implementation_registry_head_i, guard_registry_head_i, configuration_generation, prior_certificate_chain_digest_i}))`
+
+The semantic sequence and all named authority-semantic registry heads are explicit fields.
+
+## 10. BSP-3 version-aware residual scan
+
+### R8V13-I027 — current candidate version input
+
+BSP-3 packet generation has explicit:
+`current_candidate_version = 13`.
+
+### R8V13-I028 — review-outcome classifier
+
+A line is prior-review outcome metadata only when all are true:
+- it identifies a predecessor version < current_candidate_version, or belongs to a predecessor-status/review-adjudication block;
+- it contains a review/disposition status token;
+- it is not inside a quoted/code/test vector whose semantic purpose is to test that token.
+
+Those lines are removed.
+
+### R8V13-I029 — current status retention
+
+The current v13 candidate status is retained.
+
+Semantic guard/case text mentioning strings such as CHANGES_REQUIRED or NOT_IMPLEMENTED as test data is retained and marked semantic by projection context.
+
+### R8V13-I030 — residual scan result
+
+Residual scan fails only on classified prior-review outcome metadata, not on raw token occurrence alone.
+
+The manifest records:
+- classifier version;
+- current candidate version;
+- removed records;
+- residual classified-record count.
+
+## 11. BarrierRotation error taxonomy v13
+
+### R8V13-I031 — exact reservation outcomes
+
+For barrier B:
+
+- same `rotation_id` + same proposed_config_digest + same STC identity -> idempotent existing result;
+- same `rotation_id` + different proposed_config_digest or different STC identity -> `IDEMPOTENCY_CONFLICT`;
+- different `rotation_id` while B is RESERVED/JOINT/ACTIVATED -> `BARRIER_ALREADY_RESERVED`;
+- observation of two independently valid contradictory reservation certificates for B -> `STC_EQUIVOCATION`.
+
+ABORTED barrier remains permanently closed.
+
+## 12. GuardRegistry-1 — single authoritative guard identity
+
+### R8V13-I032 — CSM-bound registry
+
+One append-only `GuardRegistry-1` is CSM-5-bound.
+
+Each record contains:
+- guard_id;
+- mechanism_id;
+- positive_case_ids[];
+- negative_cases[{case_id,fault_proof_class}];
+- canonical source case-definition refs;
+- activation sequence;
+- lifecycle state;
+- predecessor_guard_record_id or null.
+
+### R8V13-I033 — one ACTIVE guard record per ID
+
+At the current semantic_state_sequence, exactly one ACTIVE GuardRegistry record may exist per guard_id.
+
+Zero for a required contiguous guard -> `GUARD_REGISTRY_INCOMPLETE`.
+
+More than one non-equivalent ACTIVE record -> `GUARD_REGISTRY_CONFLICT`.
+
+### R8V13-I034 — legacy tables are not guard authority
+
+Legacy manually consolidated guard tables in inherited prose are superseded as **display/index artifacts** for guard identity.
+
+They do not override GuardRegistry-1.
+
+Canonical case/invariant prose remains semantic source material.
+
+Blind review projection may omit legacy manual consolidated tables only when:
+- every omitted guard ID is present in GuardRegistry-1;
+- canonical case/invariant sections remain included;
+- the projection manifest lists the omitted table section digest/source;
+- omission does not remove unique case semantics.
+
+### R8V13-I035 — G001-G130 seed identity
+
+The corrected v12 GCC catalog:
+- commit `39dd1c1873a0c3b2276eab581a081f2c0afc99a1`;
+- blob `cef6d45ecfda5dc780a339f1795c140082f62583`
+
+is the reviewed seed for GuardRegistry-1 G001-G130.
+
+Before v13 blind review, it must be converted to unique GuardRegistry records and extended with v13 guards.
+
+## 13. Additional Guard Catalog v13
+
+| Guard | Mechanism | Positive | Negatives with fault-proof class |
+|---|---|---|---|
+| G131 | RIR-1 policy-to-implementation binding | V13-001 | V13-002 FP4; V13-003 FP5 |
+| G132 | RCS-1 conformance identity | V13-004 | V13-005 FP4; V13-006 FP5 |
+| G133 | SRTT-2 exact replacement total table | V13-007 | V13-008 FP5; V13-009 FP5 |
+| G134 | SRTT-2 broader-scope expansion boundary | V13-010 | V13-011 FP5; V13-012 FP5 |
+| G135 | CSRULE-5 revoked Smax dominance | V13-013 | V13-014 FP5; V13-015 FP5 |
+| G136 | AIMApplicability-1 deterministic descriptor resolution | V13-016 | V13-017 FP5; V13-018 FP5 |
+| G137 | LASAuthorityStateRoot semantic sequence/registry binding | V13-019 | V13-020 FP5 |
+| G138 | BSP-3 version-aware outcome classifier | V13-021 | V13-022 FP5; V13-023 FP5 |
+| G139 | BarrierRotation v13 error taxonomy | V13-024 | V13-025 FP2; V13-026 FP1 |
+| G140 | GuardRegistry-1 single authority | V13-027 | V13-028 FP5; V13-029 FP5 |
+
+## 14. R8 v13 preregistered cases
+
+### Resolver implementation
+- V13-001 exact ACTIVE RIR record matches policy/implementation/runtime/workload/conformance tuple -> resolver eligible.
+- V13-002 implementation passes vectors but is absent from RIR -> RESOLVER_IMPLEMENTATION_UNBOUND.
+- V13-003 RIR record policy digest differs from current ResolverPolicy -> reject.
+
+### Conformance
+- V13-004 exact bound suite/generator/harness/runtime executes all vectors with expected result manifest -> conformance eligible.
+- V13-005 vectors generated/executed by different implementation or runtime -> reject qualification evidence.
+- V13-006 missing/failed vector -> resolver record unqualified.
+
+### SRTT-2
+- V13-007 exact old scope + SAME exact replacement + valid permissions/effective mapping -> REPLACEMENT_ELIGIBLE.
+- V13-008 exact-replacement effect with NARROWER/BROADER destination -> SEMANTIC_SCOPE_REPLACEMENT_INVALID.
+- V13-009 mapped replacement with DISJOINT destination -> invalid.
+- V13-010 broader mapped replacement + valid expansion amendment + decision inside authorized domain -> eligible.
+- V13-011 broader replacement without expansion amendment -> invalid.
+- V13-012 broader replacement with valid amendment but decision outside authorized domain -> blocked/invalid.
+
+### Revoked dominance
+- V13-013 REVOKED Smax entry + valid unique successor + unrelated equivalent ACTIVE peer -> unique semantic result may continue.
+- V13-014 REVOKED Smax entry + unrelated ACTIVE peer but no valid discharge path -> SEMANTIC_SCOPE_REVOKED.
+- V13-015 REVOKED branch has two non-equivalent valid successor paths -> SEMANTIC_SUCCESSOR_CONFLICT.
+
+### AIM applicability
+- V13-016 two ACTIVE AIM descriptors match at different specificity -> highest-specificity descriptor resolves.
+- V13-017 two non-equivalent ACTIVE AIM descriptors tie at AIM_Smax -> AIM_DESCRIPTOR_CONFLICT.
+- V13-018 revoked AIM descriptor at AIM_Smax + lower ACTIVE descriptor -> no fallback; AIM_DESCRIPTOR_REVOKED.
+
+### State root
+- V13-019 state root explicitly binds semantic_state_sequence and all named semantic/registry heads -> valid.
+- V13-020 RIR/GuardRegistry/sequence omitted or mismatched -> root verification reject.
+
+### BSP
+- V13-021 predecessor outcome lines are removed while current v13 status is retained.
+- V13-022 predecessor outcome remains after classification -> REVIEW_PACKET_NOT_BLIND.
+- V13-023 semantic test vector containing outcome token is incorrectly removed -> REVIEW_PACKET_INCOMPLETE.
+
+### Barrier taxonomy
+- V13-024 same rotation/config/STC retry -> idempotent same result.
+- V13-025 same rotation ID with different config/STC -> IDEMPOTENCY_CONFLICT.
+- V13-026 contradictory valid reservation certificates for same barrier -> STC_EQUIVOCATION/freeze.
+
+### Guard registry
+- V13-027 exactly one ACTIVE GuardRegistry record exists for every contiguous G001-G140 -> registry valid.
+- V13-028 duplicate conflicting ACTIVE record for G044 -> GUARD_REGISTRY_CONFLICT.
+- V13-029 blind packet exposes a legacy conflicting table as co-authoritative -> REVIEW_PACKET_INCOMPLETE.
+
+## 15. Schema-freeze gate
+
+Even a future v13 `BOUNDED_PASS` authorizes only executable-schema-freeze preparation.
+
+Before implementation:
+- RIR-1/RCS-1 schemas and exact registry lifecycle frozen;
+- SRTT-2 complete Cartesian truth-table artifact + reference vectors frozen;
+- CSRULE-5 and AIMApplicability-1 schemas/contracts frozen;
+- LASAuthorityStateRoot v13 frozen;
+- BSP-3 classifier/manifest contract frozen;
+- BarrierRotation taxonomy frozen;
+- GuardRegistry-1 G001-G140 generated and validated;
+- all G001-G140 CaseProofContracts frozen;
+- fresh blind review closes without unresolved material design findings.
+
+## 16. Claim boundary
+
+A future R8 v13 bounded design pass establishes only sufficient design closure to proceed to executable-schema freeze under inherited explicit trust assumptions.
+
+It does not prove implementation correctness, trust-root/operator honesty beyond explicit thresholds, hardware/workload-attestation correctness, provider correctness, cloud/IAM security, or legal/compliance sufficiency.
+
+Until independent closure:
+- R8 v13 = NOT_IMPLEMENTED / INDEPENDENT_REVIEW_REQUIRED;
+- executable-schema freeze = BLOCKED;
+- PR #39 = NON_AUTHORITATIVE;
+- PR #40 = NON_AUTHORITATIVE;
+- authority effect = NONE.
+
+===== END SOURCE SRC-V13: governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V13.md =====
+
+
+===== BEGIN SOURCE SRC-SPG-ENROLLMENT: governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json =====
+COMMIT: fc115e4854957b3b962987bf1c29a1d4fb4f27b3
+GIT_BLOB_SHA1: c958466cafef1b41dc2c8fb73d28a586284d6f5c
+
+{
+  "schema": "r8-v15-r1-spg1-enrollment-record/v1",
+  "status": "ACTIVE_ENROLLED_FOR_EXACT_QUALIFIED_WORKLOAD",
+  "authority_effect": "SPG1_GENERATOR_QUALIFICATION_ONLY",
+  "generator_id": "R8V15R1-SPG-V2",
+  "approval": {
+    "source": "explicit_user_approval_in_governed_conversation",
+    "approved_at": "2026-09-24T09:12:53Z",
+    "approved_text": "Approved — enroll `R8V15R1-SPG-V2` as the SchemaProvenanceGenerator for this frozen schema candidate and activate it as ACTIVE/non-revoked, bound only to the verified GitHub/Sigstore evidence from run `35977138947`.",
+    "scope": "Enroll this generator only for the exact repaired R8 v15-r1 executable-schema candidate and the exact verified GitHub/Sigstore workload evidence from run 35977138947.",
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false
+  },
+  "frozen_binding": {
+    "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+    "repaired_schema_candidate_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
+    "generator_artifact_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6"
+  },
+  "verified_stage_a_evidence": {
+    "run_id": 35977138947,
+    "run_attempt": 1,
+    "control_commit": "42ef32a77ab4b40140de4b6d9d6baae085077502",
+    "artifact_id": 10798283605,
+    "artifact_zip_sha256": "043c4da4755b6df8ace512999082bf50ea02a965f8ef1d596ff4b2c1e19acb99",
+    "attestation_id": 49789783,
+    "subject_sha256": "8ecb27ed373d4ca4be52fedfafc8d2bdc48b6dd38ad2ce155d9469f0c23c0063",
+    "attestation_bundle_sha256": "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c",
+    "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+    "workload_attestation_policy_digest": "330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b",
+    "sigstore_leaf_certificate_sha256": "5107e1873c2d18ea3b5ae24fe50eb26ee2b5ec486737266dd957555952fc8fa2",
+    "oidc_issuer": "https://token.actions.githubusercontent.com",
+    "workflow_identity": "https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-attestation.yml@refs/heads/attestation/r8-v15-r1-spg1-github-actions-v1",
+    "verification_record": "governance-r8/R8-V15-R1-SPG-STAGE-A-POST-RUN-VERIFICATION.json",
+    "verification_status": "POST_RUN_CRYPTO_VERIFICATION_PASS_ENROLLMENT_PENDING"
+  },
+  "lifecycle": {
+    "revocation_state": "ACTIVE",
+    "qualification_status": "QUALIFIED",
+    "effective_scope": "Only outputs from exact generator bytes over allowed inputs for the repaired schema candidate, executed under the verified runtime/workload binding.",
+    "no_future_non_revocation_claim": true,
+    "invalidation_triggers": [
+      "generator artifact digest drift",
+      "runtime manifest digest drift",
+      "workload attestation policy/proof mismatch",
+      "signing credential or verified workflow identity mismatch",
+      "input design artifact drift outside a governed successor",
+      "explicit suspension, revocation, retirement, or supersession"
+    ]
+  },
+  "allowed_output_schema_classes": [
+    "JSON_SCHEMA_2020_12",
+    "SPM_1_PROVENANCE_MANIFEST"
+  ],
+  "next_gate": "Qualified generator execution must regenerate SPM-1 under this exact enrollment and then undergo independent post-run verification before SFV-36 may close."
+}
+
+===== END SOURCE SRC-SPG-ENROLLMENT: governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json =====
+
+
+===== BEGIN SOURCE SRC-SPG-STAGEB-VERIFY: governance-r8/R8-V15-R1-SPG-STAGE-B-POST-RUN-VERIFICATION.json =====
+COMMIT: aa7451e14c507fa71c96878e2228971e8c291663
+GIT_BLOB_SHA1: d4d6929ecf7b14f49097ee8751f79378abd206da
+
+{
+  "schema": "r8-v15-r1-spg1-stage-b-post-run-verification/v1",
+  "status": "POST_RUN_QUALIFIED_GENERATION_VERIFICATION_PASS",
+  "authority_effect": "CLOSES_SFV_36_ONLY_WHEN_ADJUDICATED_WITH_ENROLLMENT_RECORD",
+  "stage_b_run_id": 35980845814,
+  "stage_b_run_head": "20be7100a25ebd80e466b1828fa1ef5a5d2e2a2d",
+  "stage_b_artifact_id": 10800590491,
+  "stage_b_artifact_zip_sha256": "82c18b6a00c9af428852d548264c36d2edc5e63157524bcbcb221034347e8a8c",
+  "attestation_id": 49798503,
+  "subject_sha256": "b30ed1c036bf61bff1d8bfb6aeab4b255b951b9b7d1d35aca4757bc8a625f01f",
+  "attestation_bundle_sha256": "fdfd0dba3f4f7cf81ca53f2a4cba1c7ade49ed15c933fac0c47bda8f0fbe5334",
+  "qualified_spm_sha256": "e0160487455d33c97031ee706d930ab1757d5e0b399d1d897e96325b7dccda5c",
+  "github_attestation_verification_pass": true,
+  "oidc_identity_exact_match": true,
+  "verified_timestamp_present": true,
+  "artifact_expanded_bytes_match": true,
+  "qualified_spm_semantic_equivalence_pass": true,
+  "implementation_authorized": false,
+  "sfv_45": "STILL_REQUIRED"
+}
+
+===== END SOURCE SRC-SPG-STAGEB-VERIFY: governance-r8/R8-V15-R1-SPG-STAGE-B-POST-RUN-VERIFICATION.json =====
+
+
+===== BEGIN SOURCE SRC-SPG-V2R1-EXTENSION: governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json =====
+COMMIT: 0403ec67927a548c4d9f57610005820797c506a7
+GIT_BLOB_SHA1: 717033a1d6869519952e579d5197e22cad0ffa90
+
+{
+  "schema": "r8-v15-r1-spg1-enrollment-extension-v2-r1/v1",
+  "status": "ACTIVE_ENROLLMENT_EXTENSION_FOR_EXACT_REPAIRED_SUCCESSOR",
+  "authority_effect": "SPG1_GENERATOR_QUALIFICATION_ONLY",
+  "generator_id": "R8V15R1-SPG-V2",
+  "predecessor_enrollment_record": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json",
+  "predecessor_verified_stage_a_run_id": 35977138947,
+  "approval": {
+    "source": "explicit_user_approval_in_governed_conversation",
+    "approved_at": "2026-09-24T10:41:30Z",
+    "approved_text": "Approved — extend the existing enrollment of `R8V15R1-SPG-V2` to repaired executable-schema successor `bfe078a741855b423e9899d4debd440d21147876`, under the already approved GitHub Actions/Sigstore attestation policy. Require a fresh attested generator execution and independent post-run verification for this successor. This approval grants no implementation, runtime qualification, release, deployment, production, policy, or terminal authority.",
+    "target_repaired_successor_commit": "bfe078a741855b423e9899d4debd440d21147876",
+    "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+    "require_fresh_attested_generator_execution": true,
+    "require_independent_post_run_verification": true,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  },
+  "inherited_qualified_workload_binding": {
+    "generator_artifact_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
+    "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+    "workload_attestation_policy_digest": "330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b",
+    "predecessor_workload_attestation_proof_digest": "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c",
+    "container_repo_digest": "python@sha256:adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d"
+  },
+  "lifecycle": {
+    "revocation_state": "ACTIVE",
+    "qualification_status": "QUALIFIED_FOR_GENERATOR_IDENTITY_AND_RUNTIME_ONLY",
+    "successor_output_status": "PENDING_FRESH_ATTESTED_GENERATION_AND_POST_RUN_VERIFICATION",
+    "no_predecessor_output_transfer": true
+  },
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false
+  }
+}
+
+===== END SOURCE SRC-SPG-V2R1-EXTENSION: governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json =====
+
+
+===== BEGIN SOURCE SRC-SPG-V2R1-VERIFY: governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json =====
+COMMIT: 0403ec67927a548c4d9f57610005820797c506a7
+GIT_BLOB_SHA1: b8311fe6453678915f3e4861bebc17881194153c
+
+{
+  "schema": "r8-v15-r1-spg1-v2-r1-post-run-verification/v1",
+  "status": "POST_RUN_REPAIRED_SUCCESSOR_GENERATION_VERIFICATION_PASS",
+  "authority_effect": "PROVENANCE_EVIDENCE_ONLY",
+  "input_commit": "bfe078a741855b423e9899d4debd440d21147876",
+  "source_run_id": 35989106973,
+  "source_run_head": "19679b826e894a1edc5a84d1b3e03b672177b6e9",
+  "source_artifact_id": 10803950135,
+  "source_artifact_zip_sha256": "856aa99b8416c2a86ff3a0739571901febb742b895305c9406d816e13c7a847c",
+  "attestation_id": 49818436,
+  "subject_sha256": "2fbb1b000cae9ad8ed2aabb37f2ee32bf68d2791e652c3ad6f3279e147b745a4",
+  "attestation_bundle_sha256": "927986d75fb612a7aaa7c43a9c814a117a45ba96a9deaf22435147d622710836",
+  "qualified_spm_sha256": "1681a2882f531008af168ce8ac84a5011a3525ec215ae62ed1c7452075e2c572",
+  "github_attestation_verification_pass": true,
+  "oidc_identity_exact_match": true,
+  "verified_timestamp_present": true,
+  "artifact_expanded_bytes_match": true,
+  "qualified_provenance_validation_pass": true,
+  "sfv_35": "EVIDENCE_COMPLETE_FOR_INPUT_COMMIT",
+  "sfv_36": "EVIDENCE_COMPLETE_FOR_INPUT_COMMIT",
+  "sfv_44": "EVIDENCE_COMPLETE_FOR_INPUT_COMMIT",
+  "sfv_45": "STILL_REQUIRED",
+  "requires_traceability_rebind_and_final_regeneration": true,
+  "implementation_authorized": false,
+  "runtime_qualification_authorized": false,
+  "release_authorized": false,
+  "deployment_authorized": false
+}
+
+===== END SOURCE SRC-SPG-V2R1-VERIFY: governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json =====

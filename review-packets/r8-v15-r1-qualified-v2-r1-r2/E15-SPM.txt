@@ -1,0 +1,3143 @@
+R8 v15-r1 SFV-45 R2
+SPM-1 RAW SEGMENT E15/16
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+SOURCE_FILE: schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+SOURCE_GIT_BLOB_SHA1: 21e20af9b15f3de7727e78021a7f83928dbebb33
+SOURCE_SHA256: 3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f
+SEGMENT_ORDER: 15/16
+SEGMENT_CONTENT_STARTS_NEXT_LINE
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/properties/coverage/required/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/properties/coverage/required/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/properties/source_ref_catalog/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/properties/source_ref_catalog/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/properties/source_ref_catalog/minProperties",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/properties/source_ref_catalog/minProperties",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/properties/source_ref_catalog/additionalProperties/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/properties/source_ref_catalog/additionalProperties/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/3",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/3",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/4",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/4",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/5",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/5",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/6",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/6",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/7",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/7",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/8",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/8",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/9",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/9",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/required/10",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/required/10",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/Digest/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/Digest/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/Digest/pattern",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/Digest/pattern",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/additionalProperties",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/generator_id/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/generator_id/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/generator_id/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/generator_id/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/generator_artifact_path/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/generator_artifact_path/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/generator_artifact_path/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/generator_artifact_path/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/generator_artifact_sha256/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/generator_artifact_sha256/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/runtime_manifest_digest/oneOf/0/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/runtime_manifest_digest/oneOf/0/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/runtime_manifest_digest/oneOf/1/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/runtime_manifest_digest/oneOf/1/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/workload_attestation_proof_digest/oneOf/0/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/workload_attestation_proof_digest/oneOf/0/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/workload_attestation_proof_digest/oneOf/1/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/workload_attestation_proof_digest/oneOf/1/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/qualification_status/enum/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/qualification_status/enum/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/qualification_status/enum/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/qualification_status/enum/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/qualification_status/enum/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/qualification_status/enum/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/qualification_status/enum/3",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/qualification_status/enum/3",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/properties/qualification_status/enum/4",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/properties/qualification_status/enum/4",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/required/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/required/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/required/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/required/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/required/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/required/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/required/3",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/required/3",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/required/4",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/required/4",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/GeneratorBinding/required/5",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/GeneratorBinding/required/5",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/additionalProperties",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/artifact_id/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/artifact_id/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/artifact_id/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/artifact_id/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/path/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/path/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/path/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/path/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/git_blob_sha1/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/git_blob_sha1/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/git_blob_sha1/pattern",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/git_blob_sha1/pattern",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/properties/sha256/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/properties/sha256/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/required/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/required/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/required/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/required/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/required/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/required/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ArtifactBinding/required/3",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ArtifactBinding/required/3",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/additionalProperties",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/design_id/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/design_id/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/design_id/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/design_id/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/path/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/path/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/path/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/path/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/commit/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/commit/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/commit/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/commit/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/blob/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/blob/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/properties/blob/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/properties/blob/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/required/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/required/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/required/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/required/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/required/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/required/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/SourceRef/required/3",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/SourceRef/required/3",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/additionalProperties",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/artifact_id/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/artifact_id/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/artifact_id/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/artifact_id/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/artifact_sha256/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/artifact_sha256/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/json_pointer/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/json_pointer/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/json_pointer/pattern",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/json_pointer/pattern",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/semantic_purpose/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/semantic_purpose/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/semantic_purpose/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/semantic_purpose/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_design_ids/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_design_ids/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_design_ids/minItems",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_design_ids/minItems",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_design_ids/items/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_design_ids/items/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_design_ids/items/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_design_ids/items/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_design_ids/uniqueItems",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_design_ids/uniqueItems",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/generator_id/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/generator_id/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/generator_id/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/generator_id/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/generator_runtime_manifest_digest/oneOf/0/$ref",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/generator_runtime_manifest_digest/oneOf/0/$ref",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/generator_runtime_manifest_digest/oneOf/1/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/generator_runtime_manifest_digest/oneOf/1/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/reviewer_status/enum/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/reviewer_status/enum/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/reviewer_status/enum/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/reviewer_status/enum/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/reviewer_status/enum/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/reviewer_status/enum/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_ref_ids/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_ref_ids/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_ref_ids/minItems",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_ref_ids/minItems",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_ref_ids/items/type",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_ref_ids/items/type",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_ref_ids/items/minLength",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_ref_ids/items/minLength",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/properties/source_ref_ids/uniqueItems",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/properties/source_ref_ids/uniqueItems",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/0",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/0",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/1",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/1",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/2",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/2",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/3",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/3",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/4",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/4",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/5",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/5",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/6",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/6",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/7",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/7",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/$defs/ProvenanceEntry/required/8",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/$defs/ProvenanceEntry/required/8",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+      "artifact_sha256": "d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5",
+      "json_pointer": "/x-source-ref-binding",
+      "semantic_purpose": "Frozen executable-schema element schema-provenance-manifest.schema.json/x-source-ref-binding",
+      "source_design_ids": [
+        "R8V7-I030",
+        "R8V7-I031",
+        "R8V8-I020..I022"
+      ],
+      "source_ref_ids": [
+        "SRC-V7",
+        "SRC-V8"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/$schema",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/$schema",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/$id",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/$id",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/title",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/title",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/additionalProperties",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/schema/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/schema/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/status/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/status/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/status/minLength",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/status/minLength",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/authority_effect/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/authority_effect/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/domain_fixed/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/domain_fixed/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/domain_fixed/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/domain_fixed/additionalProperties",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/domain_fixed/properties/source_entry_state/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/domain_fixed/properties/source_entry_state/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/domain_fixed/required/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/domain_fixed/required/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/additionalProperties",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/rule_id/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/rule_id/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/predicate/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/predicate/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/predicate/minLength",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/predicate/minLength",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/result/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/result/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/source_trace/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/source_trace/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/source_trace/minItems",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/source_trace/minItems",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/source_trace/items/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/source_trace/items/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/properties/source_trace/items/minLength",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/properties/source_trace/items/minLength",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/required/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/required/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/required/1",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/required/1",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/required/2",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/required/2",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/outside_table_rule/required/3",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/outside_table_rule/required/3",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/minItems",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/minItems",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/maxItems",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/maxItems",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/additionalProperties",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/rule_id/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/rule_id/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/rule_id/pattern",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/rule_id/pattern",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/precedence/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/precedence/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/precedence/minimum",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/precedence/minimum",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/precedence/maximum",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/precedence/maximum",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/predicate/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/predicate/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/predicate/minLength",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/predicate/minLength",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/result/enum/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/result/enum/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/result/enum/1",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/result/enum/1",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/result/enum/2",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/result/enum/2",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/result/enum/3",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/result/enum/3",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/result/enum/4",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/result/enum/4",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/source_trace/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/source_trace/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/source_trace/minItems",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/source_trace/minItems",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/source_trace/items/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/source_trace/items/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/properties/source_trace/items/minLength",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/properties/source_trace/items/minLength",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/required/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/required/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/required/1",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/required/1",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/required/2",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/required/2",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/required/3",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/required/3",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/properties/rules/items/required/4",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/properties/rules/items/required/4",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/required/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/required/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/required/1",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/required/1",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/required/2",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/required/2",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/required/3",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/required/3",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/required/4",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/required/4",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/required/5",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/required/5",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/x-governance-source/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/x-governance-source/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/x-validator-invariants/0",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/x-validator-invariants/0",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/x-validator-invariants/1",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/x-validator-invariants/1",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json",
+      "artifact_sha256": "a9457e63d9813ad2442f57b62a1f946dfe8fd4dd6e4ff30bd4c79b3cfde24da5",
+      "json_pointer": "/x-validator-invariants/2",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-rule-registry.schema.json/x-validator-invariants/2",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/$schema",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/$schema",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/$id",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/$id",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/title",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/title",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/additionalProperties",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/schema/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/schema/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/status/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/status/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/status/minLength",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/status/minLength",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/authority_effect/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/authority_effect/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/generator_contract/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/generator_contract/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/rule_registry_path/const",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/rule_registry_path/const",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/domain_fixed/type",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/domain_fixed/type",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/domain_fixed/additionalProperties",
+      "semantic_purpose": "Frozen executable-schema element srtt-4-total-table.schema.json/properties/domain_fixed/additionalProperties",
+      "source_design_ids": [
+        "NORM-027",
+        "R8V15-I001..I007"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V15"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "https://setugo.example/schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json",
+      "artifact_sha256": "a6df7203591a491524d7454021680aab05c88cab7766f54bcb50b1254f257938",
+      "json_pointer": "/properties/domain_fixed/properties/source_entry_state/const",

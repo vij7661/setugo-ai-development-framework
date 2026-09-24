@@ -1,0 +1,2645 @@
+R8 v15-r1 SFV-45 R2
+SOURCE MACHINE PACK C3-2/2
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+SOURCE_FILE: schemas/governance-r8/v15-r1/case-proof-contracts.json
+SOURCE_GIT_BLOB_SHA1: 330a4b8a1b8c7ceb5a4cf3418ca900adeea931df
+SEGMENT_ORDER: 2/2
+SEGMENT_CONTENT_STARTS_NEXT_LINE
+          "case_text": "valid authorized successor reservation -> one certificate.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-002",
+          "case_text": "unauthorized caller with valid-looking digest attempts reservation -> T0_RESERVATION_UNAUTHORIZED; slot unchanged.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V8-003",
+          "case_text": "two separately authorized different digests race for same next generation -> exactly one reservation; other T0_EQUIVOCATION.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V8-004",
+          "case_text": "activation digest differs from authorized/reserved digest -> reject.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G083",
+      "mechanism_id": "MTR response high-water/challenge rollback",
+      "positive_controls": [
+        {
+          "case_id": "V8-005",
+          "case_text": "fresh challenge + response_seq above persisted high-water -> accepted and atomically consumes challenge/advances high-water.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-006",
+          "case_text": "verifier local rollback presents lower persisted response high-water -> rollback-resistant store prevents authority use.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP3"
+        },
+        {
+          "case_id": "V8-007",
+          "case_text": "response_seq equal to accepted seq with conflicting tuple -> reject/equivocation.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V8-008",
+          "case_text": "consumed challenge ledger rolled-back in ordinary DB -> cannot regain authority.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP3"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G084",
+      "mechanism_id": "GGS-3 configuration rotation",
+      "positive_controls": [
+        {
+          "case_id": "V8-009",
+          "case_text": "joint old/new GGS quorums + transferred namespace/auth roots -> activation succeeds.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-010",
+          "case_text": "new GGS replica missing committed namespace/auth-root high-water -> non-voting.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP3"
+        },
+        {
+          "case_id": "V8-011",
+          "case_text": "old-config-only genesis certificate after activation -> reject.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP1"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G085",
+      "mechanism_id": "Attested AuthorityInputGateway",
+      "positive_controls": [
+        {
+          "case_id": "V8-012",
+          "case_text": "attested registered gateway + bound broker channel produces valid read-set item.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-013",
+          "case_text": "counterfeit/unattested gateway response -> AIG_UNTRUSTED.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP4"
+        },
+        {
+          "case_id": "V8-014",
+          "case_text": "revoked gateway/broker session used for new authority read -> reject.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP1"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G086",
+      "mechanism_id": "Complete decision-preseal context",
+      "positive_controls": [
+        {
+          "case_id": "V8-015",
+          "case_text": "time proof binds full DPS-2 including MTR/LAS/revocation/runtime/effect ID -> valid for final seal.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-016",
+          "case_text": "any DPS-2 field changes after nonce issuance -> old time proof reject.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V8-017",
+          "case_text": "MTR response sequence/digest differs from preseal -> reject.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP1"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G087",
+      "mechanism_id": "Attested SPM generator",
+      "positive_controls": [
+        {
+          "case_id": "V8-018",
+          "case_text": "enrolled attested SPG emits schema+SPM from exact authoritative inputs -> provenance valid.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-019",
+          "case_text": "generator executable/workload mismatch -> reject provenance.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP4"
+        },
+        {
+          "case_id": "V8-020",
+          "case_text": "SPM source commit/blob altered without regeneration event -> provenance mismatch.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G088",
+      "mechanism_id": "CSM applicable-scope resolution",
+      "positive_controls": [
+        {
+          "case_id": "V8-021",
+          "case_text": "exactly one highest-specificity ACTIVE semantic entry -> resolve.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-022",
+          "case_text": "two ACTIVE entries tie at highest specificity -> SEMANTIC_ENTRY_CONFLICT.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V8-023",
+          "case_text": "no matching ACTIVE entry -> SEMANTIC_DEPENDENCY_UNBOUND.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G089",
+      "mechanism_id": "Effect executor revocation/reconciliation",
+      "positive_controls": [
+        {
+          "case_id": "V8-024",
+          "case_text": "active attested executor dispatches and reconciles original effect -> SUCCEEDED_RECONCILED.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-025",
+          "case_text": "executor revoked before dispatch -> no dispatch.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V8-026",
+          "case_text": "executor revoked while effect is in-flight -> EXECUTOR_REVOKED_UNCERTAIN until independent reconciliation.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP6"
+        },
+        {
+          "case_id": "V8-027",
+          "case_text": "compensation result uncertain/fails -> explicit compensation-failure state; no fabricated success.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP6"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G090",
+      "mechanism_id": "Migration destination-policy freshness",
+      "positive_controls": [
+        {
+          "case_id": "V8-028",
+          "case_text": "destination policy head unchanged at commit -> migration may commit.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-029",
+          "case_text": "destination policy changes after RequalificationProof -> MIGRATION_DESTINATION_STATE_CHANGED.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V8-030",
+          "case_text": "omitted migrated object later referenced -> MIGRATION_OBJECT_UNBOUND.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G091",
+      "mechanism_id": "Inherited-v4 packet completeness",
+      "positive_controls": [
+        {
+          "case_id": "V8-031",
+          "case_text": "blind packet includes canonical v4+v5+v6+v7+v8 design/case semantics and full guard map -> review-complete input.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V8-032",
+          "case_text": "canonical inherited case text omitted -> REVIEW_PACKET_INCOMPLETE; design review cannot close.",
+          "source_version": "v8",
+          "source_commit": "58e95ca8cc8beb2125413d794ec08d4333a55521",
+          "source_blob": "9990ae39ac4508a031860075c1178a94386c8aaa",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G092",
+      "mechanism_id": "CSRULE-2 revoked-specific anti-fallback",
+      "positive_controls": [
+        {
+          "case_id": "V9-001",
+          "case_text": "higher-specificity ACTIVE rule + lower-general ACTIVE rule -> resolve higher-specificity ACTIVE rule.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-002",
+          "case_text": "higher-specificity REVOKED rule + lower-specificity ACTIVE general rule -> SEMANTIC_SCOPE_REVOKED; no fallback.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V9-003",
+          "case_text": "higher-specificity REVOKED rule + lower-specificity ACTIVE ANY rule -> SEMANTIC_SCOPE_REVOKED; no fallback.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V9-004",
+          "case_text": "two ACTIVE rules tied at Smax -> SEMANTIC_ENTRY_CONFLICT; no lower fallback.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G093",
+      "mechanism_id": "ANYScopePermission registration",
+      "positive_controls": [
+        {
+          "case_id": "V9-005",
+          "case_text": "semantic class explicitly permits ANY at project scope and valid entry registers.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-006",
+          "case_text": "semantic class does not permit ANY at requested tuple component -> SEMANTIC_SCOPE_INVALID.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V9-007",
+          "case_text": "entry attempts ANY to bypass revoked exact-scope lineage -> registration/resolution cannot bypass revoked scope.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G094",
+      "mechanism_id": "LAS-3 idempotency-ledger rotation continuity",
+      "positive_controls": [
+        {
+          "case_id": "V9-008",
+          "case_text": "new LAS replica transfers matching idempotency root and becomes voting.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-009",
+          "case_text": "new LAS replica lacks/mismatches idempotency ledger -> non-voting.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP3"
+        },
+        {
+          "case_id": "V9-010",
+          "case_text": "after rotation, consumed idempotency key + different event digest -> IDEMPOTENCY_CONFLICT.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP2"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G095",
+      "mechanism_id": "GGS-3 CTS-1 JOINT race",
+      "positive_controls": [
+        {
+          "case_id": "V9-011",
+          "case_text": "one valid ENTER_JOINT from current GGS config -> commits.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-012",
+          "case_text": "two different GGS new-config proposals race from same old config -> exactly one commits; loser CONFIG_HEAD_CONFLICT.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V9-013",
+          "case_text": "same GGS transition_id retried with different config digest -> IDEMPOTENCY_CONFLICT.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP2"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G096",
+      "mechanism_id": "LAS-3 CTS-1 JOINT race",
+      "positive_controls": [
+        {
+          "case_id": "V9-014",
+          "case_text": "one valid ENTER_JOINT from current LAS-3 config -> commits.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-015",
+          "case_text": "two different LAS-3 new-config proposals race from same old config -> exactly one commits; loser CONFIG_HEAD_CONFLICT.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V9-016",
+          "case_text": "same LAS transition_id retried with different config digest -> IDEMPOTENCY_CONFLICT.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP2"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G097",
+      "mechanism_id": "SGHVP-1 generator historical validity",
+      "positive_controls": [
+        {
+          "case_id": "V9-017",
+          "case_text": "pre-effective SPG output outside retrospective invalidation -> remains historically valid under SGHVP-1.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-018",
+          "case_text": "post-effective SPG output -> SCHEMA_GENERATOR_INVALID_AT_GENERATION.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V9-019",
+          "case_text": "unknown generation sequence under compromised generator -> SCHEMA_GENERATOR_VALIDITY_UNCERTAIN.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V9-020",
+          "case_text": "retrospective invalidation covering frozen schema artifact -> artifact becomes non-promotable pending regeneration/requalification.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G098",
+      "mechanism_id": "Effect reconciler independence",
+      "positive_controls": [
+        {
+          "case_id": "V9-021",
+          "case_text": "independently qualified reconciler with distinct canonical subject and required domain separation verifies provider state -> reconciliation evidence eligible.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-022",
+          "case_text": "reconciler alias resolves to same canonical subject as revoked executor -> independence reject.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V9-023",
+          "case_text": "reconciler asserts success without qualified external provider observation -> no SUCCEEDED_RECONCILED state.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP6"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G099",
+      "mechanism_id": "LAS-3 semantic-version identity",
+      "positive_controls": [
+        {
+          "case_id": "V9-024",
+          "case_text": "Runtime/CSM LAS artifact set exactly matches LAS-3 semantic digest set -> eligible.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V9-025",
+          "case_text": "component labelled LAS-3 but idempotency/rotation artifact digest corresponds to older semantics -> semantic/version mismatch; authority effect NONE.",
+          "source_version": "v9",
+          "source_commit": "0948ed0e83d9de128ca9c12df5784286f15af9eb",
+          "source_blob": "6e1a8d226579a9adad0cdec4e0fb7b70ce5e7891",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G100",
+      "mechanism_id": "CSM-3 multi-entry scoped semantic envelope",
+      "positive_controls": [
+        {
+          "case_id": "V10-001",
+          "case_text": "two valid entries share semantic_input_id but differ by lineage/scope/version -> both register with distinct semantic_entry_key.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-002",
+          "case_text": "two entries have identical semantic_entry_key -> duplicate reject.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP0"
+        },
+        {
+          "case_id": "V10-003",
+          "case_text": "stored specificity differs from scope-derived specificity -> SEMANTIC_SCOPE_INVALID.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G101",
+      "mechanism_id": "CSRULE-2 valid successor/replacement mapping",
+      "positive_controls": [
+        {
+          "case_id": "V10-004",
+          "case_text": "revoked exact-scope entry + constitutionally valid ACTIVE successor referencing it -> successor re-establishes scope and resolves.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-005",
+          "case_text": "revoked exact-scope entry + ACTIVE same-scope entry with no successor/mapping reference -> SEMANTIC_SUCCESSOR_REQUIRED at registration.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V10-006",
+          "case_text": "replacement scope changes specificity without valid ScopeReplacementMapping -> cannot unblock revoked scope.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G102",
+      "mechanism_id": "Cross-lineage transition control",
+      "positive_controls": [
+        {
+          "case_id": "V10-007",
+          "case_text": "valid constitutional SemanticLineageMapping from revoked lineage to new lineage -> mapped successor eligible per mapping.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-008",
+          "case_text": "lower/general entry in different lineage with no mapping -> no fallback; blocked/unbound.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G103",
+      "mechanism_id": "ANYScopePermission constitutional boundary",
+      "positive_controls": [
+        {
+          "case_id": "V10-009",
+          "case_text": "constitutionally permitted ANY position registers and resolves according to specificity.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-010",
+          "case_text": "project/org policy attempts broaden ANYScopePermission -> reject.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V10-011",
+          "case_text": "ANY entry's bound permission is revoked/narrowed -> SCOPE_PERMISSION_REEVALUATION_REQUIRED; cannot silently remain authority.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G104",
+      "mechanism_id": "LAS-3 STC-1 continuity",
+      "positive_controls": [
+        {
+          "case_id": "V10-012",
+          "case_text": "old LAS quorum signs STC, new quorum accepts exact same snapshot, ENTER_JOINT/ACTIVATE reference exact certificates -> rotation eligible.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-013",
+          "case_text": "joining LAS replica has mismatched StreamHeadMap/idempotency/log state -> non-voting; ENTER_JOINT reject.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP3"
+        },
+        {
+          "case_id": "V10-014",
+          "case_text": "ACTIVATE references different STC or JOINT certificate -> CONFIG_TRANSITION_MISMATCH.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G105",
+      "mechanism_id": "GGS-3 STC-1 continuity",
+      "positive_controls": [
+        {
+          "case_id": "V10-015",
+          "case_text": "old GGS quorum signs STC including namespace/authorization roots, new quorum accepts exact state -> rotation eligible.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-016",
+          "case_text": "joining GGS replica has mismatched namespace/authorization/idempotency root -> non-voting; ENTER_JOINT reject.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP3"
+        },
+        {
+          "case_id": "V10-017",
+          "case_text": "ACTIVATE references state-transfer certificate not accepted by new quorum -> reject.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G106",
+      "mechanism_id": "CTS-2 JOINT/ACTIVATE exact binding",
+      "positive_controls": [
+        {
+          "case_id": "V10-018",
+          "case_text": "one valid CTS-2 ENTER_JOINT from PRE_JOINT -> commits and enters JOINT.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-019",
+          "case_text": "two different ENTER_JOINT proposals race from same predecessor -> exactly one commits; loser CONFIG_HEAD_CONFLICT.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V10-020",
+          "case_text": "same transition ID with different proposed config/STC -> IDEMPOTENCY_CONFLICT.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V10-021",
+          "case_text": "during JOINT, command signed only by old or only by new quorum -> reject; both required.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G107",
+      "mechanism_id": "Blind packet semantic projection integrity",
+      "positive_controls": [
+        {
+          "case_id": "V10-022",
+          "case_text": "blind packet redacts only prior adjudication-reference metadata while semantic digests/sections remain complete -> packet valid.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V10-023",
+          "case_text": "semantic rule/case/guard removed under guise of blind redaction -> packet invalid/incomplete.",
+          "source_version": "v10",
+          "source_commit": "2e85384f759318a17c2ec14b1781dc689a864618",
+          "source_blob": "28690714f3468c6b584d783d2d1f1f62623de1ef",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G108",
+      "mechanism_id": "CSM-4 full scope and canonical mapping objects",
+      "positive_controls": [
+        {
+          "case_id": "V11-001",
+          "case_text": "two otherwise identical entries differing only by action_class remain distinct and resolve by exact action scope.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-002",
+          "case_text": "entry omits/aliases trust_domain_id or constitution_id -> invalid scope.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V11-003",
+          "case_text": "stored/derived scope specificity mismatch -> reject.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G109",
+      "mechanism_id": "CSRULE-3 cross-lineage mapped traversal",
+      "positive_controls": [
+        {
+          "case_id": "V11-004",
+          "case_text": "revoked source Smax entry references one active constitutional SemanticLineageMapping to exact destination successor -> mapped successor resolves.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-005",
+          "case_text": "revoked source + unrelated lower/general destination-lineage entry without mapping -> no fallback; SEMANTIC_SCOPE_REVOKED.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V11-006",
+          "case_text": "two effective lineage mappings for same source entry -> SEMANTIC_LINEAGE_CONFLICT.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G110",
+      "mechanism_id": "Successor graph determinism",
+      "positive_controls": [
+        {
+          "case_id": "V11-007",
+          "case_text": "single acyclic version-increasing successor chain -> resolves current ACTIVE successor.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-008",
+          "case_text": "cycle in successor/mapping graph -> reject mapping/SEMANTIC_SUCCESSOR_CONFLICT.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V11-009",
+          "case_text": "two effective successors from one entry at one decision sequence -> SEMANTIC_SUCCESSOR_CONFLICT.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G111",
+      "mechanism_id": "ANY reevaluation blocks Smax fallback",
+      "positive_controls": [
+        {
+          "case_id": "V11-010",
+          "case_text": "permission narrowing causes affected Smax entry -> SCOPE_PERMISSION_REEVALUATION_REQUIRED and blocks lower-general fallback.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-011",
+          "case_text": "project/org actor attempts revalidate disallowed ANY -> reject.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V11-012",
+          "case_text": "constitutionally authorized revalidated successor under current permission -> resolver may use successor.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G112",
+      "mechanism_id": "AIM-2/CSRULE-3 single resolution path",
+      "positive_controls": [
+        {
+          "case_id": "V11-013",
+          "case_text": "AIM-2 input resolves only through CSRULE-3/CSM-4 and all traversed mappings enter AuthorityReadSet.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-014",
+          "case_text": "authority code attempts bypass with direct \"one active entry\" lookup -> AIEP/AIM violation; authority effect NONE.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP4"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G113",
+      "mechanism_id": "RBP-1 post-snapshot write freeze",
+      "positive_controls": [
+        {
+          "case_id": "V11-015",
+          "case_text": "ROTATION_PREPARE commits at B, no post-B authority writes, STC-2 matches root at B, ENTER_JOINT succeeds.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-016",
+          "case_text": "authority commit attempted after ROTATION_PREPARE before ENTER_JOINT -> ROTATION_FROZEN; state root unchanged.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V11-017",
+          "case_text": "STC snapshot/root does not equal barrier state B -> reject rotation.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP3"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G114",
+      "mechanism_id": "STC-2 unique linearized transfer certificate",
+      "positive_controls": [
+        {
+          "case_id": "V11-018",
+          "case_text": "exactly one STC_COMMIT for rotation/barrier -> valid.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-019",
+          "case_text": "two different STC digests race for one rotation/barrier -> one commit; conflict/equivocation for loser.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V11-020",
+          "case_text": "new-config acceptance root differs from STC -> new replica non-voting; ENTER_JOINT reject.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G115",
+      "mechanism_id": "CTS-3 exact JOINT/ACTIVATE binding",
+      "positive_controls": [
+        {
+          "case_id": "V11-021",
+          "case_text": "JOINT command has old+new quorum and exact STC/JOIN certificates -> eligible.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-022",
+          "case_text": "JOINT authority/config command has only old or only new quorum -> reject.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V11-023",
+          "case_text": "ACTIVATE references wrong rotation/STC/JOIN/new-config -> CONFIG_TRANSITION_MISMATCH.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G116",
+      "mechanism_id": "BSP-1 residual prior-review metadata rejection",
+      "positive_controls": [
+        {
+          "case_id": "V11-024",
+          "case_text": "BSP-1 removes only permitted prior-adjudication metadata; residual scan PASS; semantic guard/case counts preserved.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-025",
+          "case_text": "projected packet retains prior adjudication hash/reference line -> packet construction fails; review packet not frozen.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G117",
+      "mechanism_id": "Full-scope collision isolation",
+      "positive_controls": [
+        {
+          "case_id": "V11-026",
+          "case_text": "entries differing only by trust_domain/constitution/object_class/action_class do not collide and cannot cross-authorize.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V11-027",
+          "case_text": "a resolver request with mismatched one of those dimensions cannot match the other scope.",
+          "source_version": "v11",
+          "source_commit": "3d6a0820d851bc629fc4c7ccfee4a081b70ce117",
+          "source_blob": "21e5134fa972d9e62f770beb69e2f3ea5c4f96e6",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G118",
+      "mechanism_id": "current semantic_state_sequence binding",
+      "positive_controls": [
+        {
+          "case_id": "V12-001",
+          "case_text": "current LAS semantic-state sequence and matching heads -> resolution eligible.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-002",
+          "case_text": "caller/historical semantic sequence before later revocation -> authority API rejects historical sequence; forensic path authority NONE.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V12-003",
+          "case_text": "current CSM/AIM/ANY/resolver heads do not all correspond to one LAS snapshot -> reject mixed semantic state.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G119",
+      "mechanism_id": "AIM-3 append-only descriptor authority",
+      "positive_controls": [
+        {
+          "case_id": "V12-004",
+          "case_text": "valid constitutionally authorized successor AIM descriptor becomes current at effective sequence.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-005",
+          "case_text": "ordinary policy attempts source-lineage redirect -> CONSTITUTIONAL_AMENDMENT_REQUIRED.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V12-006",
+          "case_text": "in-place mutation of committed AIM descriptor -> integrity failure/reject.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G120",
+      "mechanism_id": "ResolverPolicy/implementation binding",
+      "positive_controls": [
+        {
+          "case_id": "V12-007",
+          "case_text": "resolver implementation/runtime identity matches active ResolverPolicy and conformance-vector digest -> eligible.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-008",
+          "case_text": "implementation digest differs from active policy binding -> authority effect NONE.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP4"
+        },
+        {
+          "case_id": "V12-009",
+          "case_text": "ResolverPolicy changed without constitutional amendment -> reject.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G121",
+      "mechanism_id": "resolver-time ANY revalidation",
+      "positive_controls": [
+        {
+          "case_id": "V12-010",
+          "case_text": "current ANY permission permits all candidate ANY positions -> candidate may continue through lifecycle evaluation.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-011",
+          "case_text": "permission narrowed/revoked but no lifecycle marker exists -> resolver independently returns SEMANTIC_SCOPE_PERMISSION_REEVALUATION_REQUIRED.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V12-012",
+          "case_text": "project/org policy attempts ANY permission revalidation/broadening -> reject.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G122",
+      "mechanism_id": "explicit semantic heads in LAS authority root",
+      "positive_controls": [
+        {
+          "case_id": "V12-013",
+          "case_text": "LASAuthorityStateRoot includes matching CSM/AIM/ANY/resolver heads -> root valid.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-014",
+          "case_text": "any named semantic head omitted or mismatched -> state-root/rotation verification reject.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V12-015",
+          "case_text": "projection/database mutation changes semantic data without LAS head -> STATE_INTEGRITY_FAILURE.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP3"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G123",
+      "mechanism_id": "RBP-2 semantic registry freeze",
+      "positive_controls": [
+        {
+          "case_id": "V12-016",
+          "case_text": "semantic registry remains unchanged during ROTATION_PREPARED -> rotation can continue.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-017",
+          "case_text": "CSM/AIM/ANY/resolver update attempted during freeze -> ROTATION_FROZEN.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V12-018",
+          "case_text": "STC semantic heads differ from barrier B -> rotation reject.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G124",
+      "mechanism_id": "one barrier one rotation",
+      "positive_controls": [
+        {
+          "case_id": "V12-019",
+          "case_text": "one rotation reserves fresh B and retries same identity idempotently.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-020",
+          "case_text": "two different rotation IDs race for B -> exactly one reserves; loser BARRIER_ALREADY_RESERVED.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V12-021",
+          "case_text": "after ROTATION_ABORT, new rotation attempts reuse B -> reject; new barrier required.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP2"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G125",
+      "mechanism_id": "ScopeReplacementTruthTable",
+      "positive_controls": [
+        {
+          "case_id": "V12-022",
+          "case_text": "valid mapped replacement satisfies exact truth table and current ANY permission -> eligible.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-023",
+          "case_text": "mapping enum/text exists but truth-table conditions do not match decision scope -> cannot unblock source scope.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V12-024",
+          "case_text": "replacement uses unauthorized ANY position -> blocked.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G126",
+      "mechanism_id": "DecisionPresealContext-v3 semantic binding",
+      "positive_controls": [
+        {
+          "case_id": "V12-025",
+          "case_text": "current semantic sequence/heads bound into preseal, time proof, and final seal -> eligible.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-026",
+          "case_text": "semantic head changes after time nonce issuance -> old time proof invalid.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V12-027",
+          "case_text": "semantic head changes after seal but before COMMIT_WITH_SEAL -> STATE_CHANGED, no effect intent.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP2"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G127",
+      "mechanism_id": "BSP-2 prior-outcome blindness",
+      "positive_controls": [
+        {
+          "case_id": "V12-028",
+          "case_text": "clean BSP-2 packet contains current v12 status and neutral predecessor-authority statement but no prior disposition outcomes -> pass.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-029",
+          "case_text": "prior `CHANGES_REQUIRED`/`BOUNDED_PASS`/etc. attached to predecessor remains -> REVIEW_PACKET_NOT_BLIND.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V12-030",
+          "case_text": "redaction removes a semantic invariant/guard/case -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G128",
+      "mechanism_id": "GCC-1 consolidated guard compilation",
+      "positive_controls": [
+        {
+          "case_id": "V12-031",
+          "case_text": "GCC-1 compiles every ACTIVE guard sequentially with positive/negative/FP references -> catalog valid.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-032",
+          "case_text": "missing or duplicate guard/case reference -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V12-033",
+          "case_text": "negative case lacks FP class -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G129",
+      "mechanism_id": "ANY_SCOPE_PERMISSION_AMENDMENT authority",
+      "positive_controls": [
+        {
+          "case_id": "V12-034",
+          "case_text": "valid ANY_SCOPE_PERMISSION_AMENDMENT constitutional path -> permission successor eligible.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-035",
+          "case_text": "project/org actor attempts same transition -> reject.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G130",
+      "mechanism_id": "PDF non-authoritative projection boundary",
+      "positive_controls": [
+        {
+          "case_id": "V12-036",
+          "case_text": "TXT authoritative + PDF marked NON_AUTHORITATIVE_CONVENIENCE/validated -> review surface valid.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V12-037",
+          "case_text": "PDF differs/corrupts while manifest claims authoritative equivalence -> PDF projection FAIL; TXT remains authoritative.",
+          "source_version": "v12",
+          "source_commit": "8250f35acb371ce85e818c5ecdf9a11250fa1430",
+          "source_blob": "f8c8e979271c242e8a87c254cbe6c9d46385dd84",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v4-v12 canonical case lineage",
+        "corrected_catalog_commit": "39dd1c1873a0c3b2276eab581a081f2c0afc99a1",
+        "corrected_catalog_blob": "cef6d45ecfda5dc780a339f1795c140082f62583"
+      }
+    },
+    {
+      "guard_id": "G131",
+      "mechanism_id": "RIR-1 policy-to-implementation binding",
+      "positive_controls": [
+        {
+          "case_id": "V13-001",
+          "case_text": "exact ACTIVE RIR record matches policy/implementation/runtime/workload/conformance tuple -> resolver eligible.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-002",
+          "case_text": "implementation passes vectors but is absent from RIR -> RESOLVER_IMPLEMENTATION_UNBOUND.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP4"
+        },
+        {
+          "case_id": "V13-003",
+          "case_text": "RIR record policy digest differs from current ResolverPolicy -> reject.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G132",
+      "mechanism_id": "RCS-1 conformance identity",
+      "positive_controls": [
+        {
+          "case_id": "V13-004",
+          "case_text": "exact bound suite/generator/harness/runtime executes all vectors with expected result manifest -> conformance eligible.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-005",
+          "case_text": "vectors generated/executed by different implementation or runtime -> reject qualification evidence.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP4"
+        },
+        {
+          "case_id": "V13-006",
+          "case_text": "missing/failed vector -> resolver record unqualified.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G133",
+      "mechanism_id": "SRTT-2 exact replacement total table",
+      "positive_controls": [
+        {
+          "case_id": "V13-007",
+          "case_text": "exact old scope + SAME exact replacement + valid permissions/effective mapping -> REPLACEMENT_ELIGIBLE.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-008",
+          "case_text": "exact-replacement effect with NARROWER/BROADER destination -> SEMANTIC_SCOPE_REPLACEMENT_INVALID.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V13-009",
+          "case_text": "mapped replacement with DISJOINT destination -> invalid.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G134",
+      "mechanism_id": "SRTT-2 broader-scope expansion boundary",
+      "positive_controls": [
+        {
+          "case_id": "V13-010",
+          "case_text": "broader mapped replacement + valid expansion amendment + decision inside authorized domain -> eligible.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-011",
+          "case_text": "broader replacement without expansion amendment -> invalid.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V13-012",
+          "case_text": "broader replacement with valid amendment but decision outside authorized domain -> blocked/invalid.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G135",
+      "mechanism_id": "CSRULE-5 revoked Smax dominance",
+      "positive_controls": [
+        {
+          "case_id": "V13-013",
+          "case_text": "REVOKED Smax entry + valid unique successor + unrelated equivalent ACTIVE peer -> unique semantic result may continue.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-014",
+          "case_text": "REVOKED Smax entry + unrelated ACTIVE peer but no valid discharge path -> SEMANTIC_SCOPE_REVOKED.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V13-015",
+          "case_text": "REVOKED branch has two non-equivalent valid successor paths -> SEMANTIC_SUCCESSOR_CONFLICT.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G136",
+      "mechanism_id": "AIMApplicability-1 deterministic descriptor resolution",
+      "positive_controls": [
+        {
+          "case_id": "V13-016",
+          "case_text": "two ACTIVE AIM descriptors match at different specificity -> highest-specificity descriptor resolves.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-017",
+          "case_text": "two non-equivalent ACTIVE AIM descriptors tie at AIM_Smax -> AIM_DESCRIPTOR_CONFLICT.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V13-018",
+          "case_text": "revoked AIM descriptor at AIM_Smax + lower ACTIVE descriptor -> no fallback; AIM_DESCRIPTOR_REVOKED.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G137",
+      "mechanism_id": "LASAuthorityStateRoot semantic sequence/registry binding",
+      "positive_controls": [
+        {
+          "case_id": "V13-019",
+          "case_text": "state root explicitly binds semantic_state_sequence and all named semantic/registry heads -> valid.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-020",
+          "case_text": "RIR/GuardRegistry/sequence omitted or mismatched -> root verification reject.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G138",
+      "mechanism_id": "BSP-3 version-aware outcome classifier",
+      "positive_controls": [
+        {
+          "case_id": "V13-021",
+          "case_text": "predecessor outcome lines are removed while current v13 status is retained.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-022",
+          "case_text": "predecessor outcome remains after classification -> REVIEW_PACKET_NOT_BLIND.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V13-023",
+          "case_text": "semantic test vector containing outcome token is incorrectly removed -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G139",
+      "mechanism_id": "BarrierRotation v13 error taxonomy",
+      "positive_controls": [
+        {
+          "case_id": "V13-024",
+          "case_text": "same rotation/config/STC retry -> idempotent same result.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-025",
+          "case_text": "same rotation ID with different config/STC -> IDEMPOTENCY_CONFLICT.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP2"
+        },
+        {
+          "case_id": "V13-026",
+          "case_text": "contradictory valid reservation certificates for same barrier -> STC_EQUIVOCATION/freeze.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP1"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G140",
+      "mechanism_id": "GuardRegistry-1 single authority",
+      "positive_controls": [
+        {
+          "case_id": "V13-027",
+          "case_text": "exactly one ACTIVE GuardRegistry record exists for every contiguous G001-G140 -> registry valid.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V13-028",
+          "case_text": "duplicate conflicting ACTIVE record for G044 -> GUARD_REGISTRY_CONFLICT.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V13-029",
+          "case_text": "blind packet exposes a legacy conflicting table as co-authoritative -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v13",
+          "source_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+          "source_blob": "841556341da618fa6ed0b7c4be2797d522be4696",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "57a3be6ad7c38ad773017c77e74dc72339d51e6e",
+        "design_blob": "841556341da618fa6ed0b7c4be2797d522be4696"
+      }
+    },
+    {
+      "guard_id": "G141",
+      "mechanism_id": "AIMApplicability-2 Smax-before-permission",
+      "positive_controls": [
+        {
+          "case_id": "V14-001",
+          "case_text": "high-specificity AIM descriptor with valid ANY + lower ACTIVE descriptor -> high-specificity resolves.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-002",
+          "case_text": "high-specificity AIM descriptor has narrowed/revoked ANY + lower ACTIVE descriptor -> AIM_SCOPE_PERMISSION_REEVALUATION_REQUIRED; no fallback.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V14-003",
+          "case_text": "high-specificity AIM descriptor has invalid ANY but lifecycle marker absent -> same blocker; no fallback.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G142",
+      "mechanism_id": "RIR-2 effective sequence",
+      "positive_controls": [
+        {
+          "case_id": "V14-004",
+          "case_text": "ACTIVE RIR record with activation <= sequence and no prior retirement/revocation -> eligible.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-005",
+          "case_text": "activation_sequence > semantic_state_sequence -> ineligible.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP1"
+        },
+        {
+          "case_id": "V14-006",
+          "case_text": "retirement/revocation_sequence <= semantic_state_sequence -> ineligible.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP1"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G143",
+      "mechanism_id": "SREP-1 canonical equivalence",
+      "positive_controls": [
+        {
+          "case_id": "V14-007",
+          "case_text": "two successor paths normalize to identical semantic_result_digest -> one semantic result.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-008",
+          "case_text": "different terminal entry, terminal rule digest, lineage, or effective scope digest -> non-equivalent conflict.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V14-009",
+          "case_text": "implementation claims equivalence despite different canonical digest -> reject.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G144",
+      "mechanism_id": "SRTT-3 total deterministic table",
+      "positive_controls": [
+        {
+          "case_id": "V14-010",
+          "case_text": "generator enumerates complete Cartesian domain exactly once -> table complete.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-011",
+          "case_text": "missing tuple -> SRTT_INCOMPLETE.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V14-012",
+          "case_text": "duplicate tuple with conflicting output -> SRTT_CONFLICT.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G145",
+      "mechanism_id": "RCS-2 freshness",
+      "positive_controls": [
+        {
+          "case_id": "V14-013",
+          "case_text": "evidence remains within bound freshness profile and all tuple digests unchanged -> valid.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-014",
+          "case_text": "runtime/policy/suite changes after evidence -> evidence invalid.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP4"
+        },
+        {
+          "case_id": "V14-015",
+          "case_text": "evidence exceeds configured age/sequence limit -> fresh execution required.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP4"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G146",
+      "mechanism_id": "BSP-4 deterministic grammar",
+      "positive_controls": [
+        {
+          "case_id": "V14-016",
+          "case_text": "predecessor status removed, current status retained, semantic test literal retained -> BSP pass.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-017",
+          "case_text": "predecessor review metadata survives -> REVIEW_PACKET_NOT_BLIND.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V14-018",
+          "case_text": "semantic test literal is removed by classifier -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G147",
+      "mechanism_id": "embedded projection/omission manifests",
+      "positive_controls": [
+        {
+          "case_id": "V14-019",
+          "case_text": "embedded projection+omission manifests prove all removed content and current guard coverage -> packet complete.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-020",
+          "case_text": "omission manifest cannot prove guard IDs/case semantics preserved -> packet incomplete.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V14-021",
+          "case_text": "sidecar-only manifest missing from authoritative TXT -> packet incomplete.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G148",
+      "mechanism_id": "NCG-1 normalized closure",
+      "positive_controls": [
+        {
+          "case_id": "V14-022",
+          "case_text": "normalized spec/matrices/cross-cases show zero unresolved contradictions -> NCG-1 PASS.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V14-023",
+          "case_text": "one evaluation-order contradiction remains -> NCG-1 FAIL.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V14-024",
+          "case_text": "authority state has no unique owner/head -> NCG-1 FAIL.",
+          "source_version": "v14",
+          "source_commit": "50d9e001c9e46f03c730442e4150b3b9530b802b",
+          "source_blob": "5871f8111ea17a1166fb6a88ac370b8175f0f354",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_commit": "373e8618ed5c201a37620853b5200872ba1e4736"
+      }
+    },
+    {
+      "guard_id": "G149",
+      "mechanism_id": "SRTT-4 explicit fixed domain",
+      "positive_controls": [
+        {
+          "case_id": "V15-001",
+          "case_text": "generated table declares fixed REVOKED source domain plus 2304 variable tuples -> domain complete.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-002",
+          "case_text": "table contains REVOKED rows but no fixed-domain declaration -> SRTT_DOMAIN_UNDECLARED.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-003",
+          "case_text": "generator attempts ACTIVE/SUSPENDED source row inside replacement table -> SRTT_DOMAIN_VIOLATION.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G150",
+      "mechanism_id": "SRTT-4 RuleRegistry / decisive-rule traceability",
+      "positive_controls": [
+        {
+          "case_id": "V15-004",
+          "case_text": "every row decisive_rule_id resolves to exactly one frozen RuleRegistry record and recomputation matches -> valid.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-005",
+          "case_text": "row references undeclared decisive rule -> SRTT_RULE_REGISTRY_INVALID.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-006",
+          "case_text": "two same-precedence rules match one tuple with different outputs -> SRTT_CONFLICT.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G151",
+      "mechanism_id": "Guard-omission inclusive range expansion",
+      "positive_controls": [
+        {
+          "case_id": "V15-007",
+          "case_text": "source V4-024..V4-030 expands to all seven explicit IDs and all are preserved -> omission proof valid.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-008",
+          "case_text": "range expansion omits V4-025..V4-029 while endpoints remain -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-009",
+          "case_text": "manifest contains case not referenced by omitted source table -> set-equality proof fails.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G152",
+      "mechanism_id": "BSP-5 explicit current-status binding",
+      "positive_controls": [
+        {
+          "case_id": "V15-010",
+          "case_text": "exactly one version-15 marked current status block survives while predecessor review status is removed -> BSP pass.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-011",
+          "case_text": "two current-status blocks or version mismatch -> REVIEW_PACKET_INCOMPLETE.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-012",
+          "case_text": "ordinary prose with status token is misclassified as semantic-test literal -> BSP fail.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G153",
+      "mechanism_id": "CSRULE-6 multi-revoked composition",
+      "positive_controls": [
+        {
+          "case_id": "V15-013",
+          "case_text": "two revoked blockers each uniquely discharge to same SREP digest -> one semantic result; both path evidences retained.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-014",
+          "case_text": "one revoked blocker discharges and second has zero valid path -> SEMANTIC_SCOPE_REVOKED; no partial authority.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-015",
+          "case_text": "two blockers uniquely discharge to different SREP digests -> SEMANTIC_ENTRY_CONFLICT.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-016",
+          "case_text": "one blocker has two non-equivalent valid discharge paths -> SEMANTIC_SUCCESSOR_CONFLICT.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G154",
+      "mechanism_id": "Cross-mechanism rollback/barrier closure",
+      "positive_controls": [
+        {
+          "case_id": "V15-017",
+          "case_text": "earlier AIM permission blocker plus later stale RCS evidence -> AIM blocker remains authoritative; later defect cannot create eligibility.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-018",
+          "case_text": "replayed/lower semantic_state_sequence with superficially matching heads -> reject as rollback/replay.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP3"
+        },
+        {
+          "case_id": "V15-019",
+          "case_text": "rotation barrier plus committed ambiguous EffectIntent -> no duplicate dispatch and no fabricated success.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G155",
+      "mechanism_id": "NCG direct dependency graph generation",
+      "positive_controls": [
+        {
+          "case_id": "V15-020",
+          "case_text": "matrix-derived direct dependency graph is complete and acyclic -> NCG graph pass.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-021",
+          "case_text": "runtime dependency exists in matrix but generated graph omits edge -> NCG fail.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-022",
+          "case_text": "hand-added untraceable edge changes graph semantics -> NCG fail.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    },
+    {
+      "guard_id": "G156",
+      "mechanism_id": "Fail-closed transient dependency policy",
+      "positive_controls": [
+        {
+          "case_id": "V15-023",
+          "case_text": "qualified dependency unavailable -> authority blocked; retry after same qualified dependency restores and full re-evaluation succeeds.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+        }
+      ],
+      "negative_controls": [
+        {
+          "case_id": "V15-024",
+          "case_text": "cached prior PASS/time/conformance token used during outage -> reject.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        },
+        {
+          "case_id": "V15-025",
+          "case_text": "emergency weaker dependency used for liveness -> reject.",
+          "source_version": "v15",
+          "source_commit": "DESIGN_V15_BRANCH",
+          "source_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53",
+          "fault_proof_class": "FP5"
+        }
+      ],
+      "canonical_source": {
+        "design_family": "R8-v15 narrow normalized-review closure",
+        "design_blob": "c99f78b691d475f77be7456ddf49551e0e9ced53"
+      }
+    }
+  ]
+}

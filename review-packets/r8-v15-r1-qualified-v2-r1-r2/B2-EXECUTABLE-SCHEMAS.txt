@@ -1,0 +1,2225 @@
+R8 v15-r1 SFV-45 R2
+EXECUTABLE SCHEMA PACK B2/2
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+
+
+===== BEGIN SCHEMA guard-omission-manifest.schema.json =====
+GIT_BLOB_SHA1: de77b1757caca583d858ec0c04ca15255589e86c
+SHA256: ba14a266f33617815b96dd043e21c67eabb6cbd35a2a2d60d0f4c862623c0b21
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/guard-omission-manifest.schema.json",
+  "title": "R8 v15-r1 Guard Omission Manifest v3",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "guard-omission-manifest-1/v3"
+    },
+    "status": {
+      "const": "REVIEW_EVIDENCE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "current_guard_registry": {
+      "type": "object"
+    },
+    "current_case_registry": {
+      "type": "object"
+    },
+    "omitted_table_count": {
+      "const": 11
+    },
+    "invalid_omission_count": {
+      "const": 0
+    },
+    "validation_contract": {
+      "type": "object"
+    },
+    "omitted_tables": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_version": {
+            "type": "string",
+            "pattern": "^v\\d+$"
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_commit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_blob": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "raw_section_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "raw_section_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "guard_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^G\\d{3}$"
+            }
+          },
+          "referenced_case_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            }
+          },
+          "parsed_source_guard_set_equals_manifest_set": {
+            "const": true
+          },
+          "parsed_source_case_set_equals_manifest_set": {
+            "const": true
+          },
+          "all_guard_ids_in_current_registry": {
+            "const": true
+          },
+          "all_referenced_case_ids_in_current_case_registry": {
+            "const": true
+          },
+          "missing_guard_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "extra_guard_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "missing_case_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "extra_case_ids": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "evidence_record_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          }
+        },
+        "required": [
+          "source_version",
+          "source_path",
+          "source_commit",
+          "source_blob",
+          "line_start",
+          "line_end",
+          "raw_section_sha256",
+          "raw_section_bytes",
+          "guard_ids",
+          "referenced_case_ids",
+          "parsed_source_guard_set_equals_manifest_set",
+          "parsed_source_case_set_equals_manifest_set",
+          "all_guard_ids_in_current_registry",
+          "all_referenced_case_ids_in_current_case_registry",
+          "missing_guard_ids",
+          "extra_guard_ids",
+          "missing_case_ids",
+          "extra_case_ids",
+          "evidence_record_index"
+        ]
+      }
+    },
+    "reverification": {
+      "type": "object"
+    },
+    "legacy_note": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "current_guard_registry",
+    "current_case_registry",
+    "omitted_table_count",
+    "invalid_omission_count",
+    "validation_contract",
+    "omitted_tables",
+    "reverification",
+    "legacy_note"
+  ],
+  "x-governance-source": [
+    "NORM-042",
+    "H-1 evidence closure"
+  ]
+}
+
+===== END SCHEMA guard-omission-manifest.schema.json =====
+
+
+===== BEGIN SCHEMA case-proof-contracts.schema.json =====
+GIT_BLOB_SHA1: 1daf8589990b9f28c6e68fd1e48065825f583a50
+SHA256: a17a1292c28150f3815b5e4a6bee4aabf80e6b00a1e8893140d23de33e23d650
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/case-proof-contracts.schema.json",
+  "title": "R8 v15-r1 CaseProofContracts",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-case-proof-contracts/v1"
+    },
+    "status": {
+      "const": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "guard_range": {
+      "const": "G001-G156"
+    },
+    "fault_proof_legend": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "FP0": {
+          "const": "NOT_APPLICABLE_DETERMINISTIC_INPUT: malformed/mismatched deterministic input is itself the proof."
+        },
+        "FP1": {
+          "const": "REQUIRED_SIGNED_STATE: independent signed/anchored registry, attestation, certificate, revocation, time, or witness state."
+        },
+        "FP2": {
+          "const": "REQUIRED_CONCURRENCY_TRACE: independent trace of concurrent attempts plus commit outcomes."
+        },
+        "FP3": {
+          "const": "REQUIRED_STORAGE_FAULT: independently captured rollback/corruption/outage/store mutation evidence."
+        },
+        "FP4": {
+          "const": "REQUIRED_RUNTIME_ATTESTATION: workload/runtime/sandbox identity or violation evidence independent of target guard result."
+        },
+        "FP5": {
+          "const": "REQUIRED_PROVENANCE_DIFF: exact source/artifact/schema/packet/provenance comparison evidence."
+        },
+        "FP6": {
+          "const": "REQUIRED_EXTERNAL_EFFECT: provider attempt/receipt/observation/reconciliation evidence independent of effect success guard."
+        }
+      },
+      "required": [
+        "FP0",
+        "FP1",
+        "FP2",
+        "FP3",
+        "FP4",
+        "FP5",
+        "FP6"
+      ]
+    },
+    "contracts": {
+      "type": "array",
+      "minItems": 156,
+      "maxItems": 156,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "guard_id": {
+            "type": "string",
+            "pattern": "^G(?:0(?:0[1-9]|[1-9][0-9])|1(?:[0-4][0-9]|5[0-6]))$"
+          },
+          "mechanism_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "positive_controls": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/CaseControl"
+            }
+          },
+          "negative_controls": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/NegativeControl"
+            }
+          },
+          "canonical_source": {
+            "type": "object",
+            "minProperties": 1
+          }
+        },
+        "required": [
+          "guard_id",
+          "mechanism_id",
+          "positive_controls",
+          "negative_controls",
+          "canonical_source"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "guard_range",
+    "fault_proof_legend",
+    "contracts"
+  ],
+  "$defs": {
+    "CaseControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^V\\d+-\\d{3}$"
+        },
+        "case_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string",
+          "pattern": "^v\\d+$"
+        },
+        "source_commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_blob": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "case_id",
+        "case_text",
+        "source_version",
+        "source_commit",
+        "source_blob"
+      ]
+    },
+    "NegativeControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^V\\d+-\\d{3}$"
+        },
+        "case_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string",
+          "pattern": "^v\\d+$"
+        },
+        "source_commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_blob": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "fault_proof_class": {
+          "enum": [
+            "FP0",
+            "FP1",
+            "FP2",
+            "FP3",
+            "FP4",
+            "FP5",
+            "FP6"
+          ]
+        }
+      },
+      "required": [
+        "case_id",
+        "case_text",
+        "source_version",
+        "source_commit",
+        "source_blob",
+        "fault_proof_class"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V7-I044",
+    "R8V7-I045",
+    "R8V8 schema-freeze gate",
+    "R8V9..R8V13 schema-freeze gates",
+    "NORM-040"
+  ]
+}
+
+===== END SCHEMA case-proof-contracts.schema.json =====
+
+
+===== BEGIN SCHEMA gcp-rvm-2.schema.json =====
+GIT_BLOB_SHA1: 0952ae5d3f872b5e08788dd4db2371ef4c629ea5
+SHA256: 640b1a253fa8b27b39bbc08367b8cbffc2ebd238dd97b56bd20388f1bf42f164
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/gcp-rvm-2.schema.json",
+  "title": "GCP Reference Vector Manifest 2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "gcp-rvm-2/v1"
+    },
+    "status": {
+      "const": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "canonical_vectors": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "$ref": "#/$defs/CanonicalVector"
+      },
+      "uniqueItems": true
+    },
+    "rejection_vectors": {
+      "type": "array",
+      "minItems": 14,
+      "items": {
+        "$ref": "#/$defs/RejectionVector"
+      },
+      "uniqueItems": true
+    },
+    "canonicalization_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "canonical_vectors",
+    "rejection_vectors",
+    "canonicalization_rules"
+  ],
+  "$defs": {
+    "CanonicalVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vector_id": {
+          "type": "string",
+          "pattern": "^GCP-RVM2-P\\d{2}$"
+        },
+        "input_representation": {
+          "type": "string"
+        },
+        "schema_context": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_canonical_utf8": {
+          "type": "string"
+        },
+        "expected_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "vector_id",
+        "input_representation",
+        "schema_context",
+        "expected_canonical_utf8",
+        "expected_sha256",
+        "source_rules"
+      ]
+    },
+    "RejectionVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vector_id": {
+          "type": "string",
+          "pattern": "^GCP-RVM2-R\\d{2}$"
+        },
+        "input_representation": {
+          "type": "string"
+        },
+        "schema_context": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_outcome": {
+          "const": "REJECT"
+        },
+        "expected_rejection_code": {
+          "type": "string",
+          "pattern": "^GCP_REJECT_[A-Z0-9_]+$"
+        },
+        "source_case_id": {
+          "description": "Exact preregistered source case when one exists. Null when the frozen rejection vector originates directly from an authoritative source rule without an exact case literal.",
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^V\\d+-\\d{3}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "vector_id",
+        "input_representation",
+        "schema_context",
+        "expected_outcome",
+        "expected_rejection_code",
+        "source_case_id",
+        "source_rules"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V4-I026..I029",
+    "R8V5-I028..I034",
+    "R8V7 GCP rejection vectors",
+    "R8V8-I034..I035"
+  ],
+  "x-diagnostic-code-boundary": "GCP_REJECT_* labels identify frozen test-vector failure classes only; they do not grant or alter authority."
+}
+
+===== END SCHEMA gcp-rvm-2.schema.json =====
+
+
+===== BEGIN SCHEMA review-presentation-schema.schema.json =====
+GIT_BLOB_SHA1: 58ee2c9bc692d93793be09f15fb61e22dfcdfe0c
+SHA256: a5bc927c5fee4c787f1cd1bc13842aecbf4313dc92ccdc9a9f996c105d21ffa8
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/review-presentation-schema.schema.json",
+  "title": "R8 v15-r1 ReviewPresentationSchema RPS-1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-rps-1/v1"
+    },
+    "status": {
+      "const": "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE"
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "unknown_display_field_default": {
+      "const": "REVIEW_SEMANTIC"
+    },
+    "packet_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/PacketType"
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "unknown_display_field_default",
+    "packet_types"
+  ],
+  "$defs": {
+    "PacketType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "packet_type_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/FieldRule"
+          },
+          "uniqueItems": true
+        },
+        "ordering_semantic": {
+          "const": true
+        },
+        "evidence_association_semantic": {
+          "const": true
+        }
+      },
+      "required": [
+        "packet_type_id",
+        "fields",
+        "ordering_semantic",
+        "evidence_association_semantic"
+      ]
+    },
+    "FieldRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classification": {
+          "enum": [
+            "REVIEW_SEMANTIC",
+            "DISPLAY_NON_SEMANTIC"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "source_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "field_id",
+        "classification",
+        "conditions",
+        "source_rules"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V7-I038",
+    "R8V7-I039",
+    "NORM-028",
+    "NORM-041"
+  ]
+}
+
+===== END SCHEMA review-presentation-schema.schema.json =====
+
+
+===== BEGIN SCHEMA schema-freeze-traceability.json =====
+GIT_BLOB_SHA1: 6c372b492fd0aa5c61e016fe088a3c6c91c7fd49
+SHA256: 9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df
+
+{
+  "schema": "r8-v15-r1-schema-freeze-traceability/v2",
+  "status": "QUALIFIED_EVIDENCE_REBIND_PRECOMMIT_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "mappings": [
+    {
+      "norm": "NORM-001",
+      "schemas": [],
+      "validators": [
+        "SFV-34"
+      ],
+      "note": "External trust boundary is protocol/trust assumption, not minted by schema."
+    },
+    {
+      "norm": "NORM-002",
+      "schemas": [],
+      "validators": [
+        "SFV-26",
+        "SFV-31",
+        "SFV-34"
+      ],
+      "note": "Authority default NONE is enforcement policy."
+    },
+    {
+      "norm": "NORM-003",
+      "schemas": [
+        "runtime-contracts#T0SuccessorManifest"
+      ],
+      "validators": [
+        "SFV-27"
+      ]
+    },
+    {
+      "norm": "NORM-004",
+      "schemas": [
+        "runtime-contracts#MTRChallenge",
+        "runtime-contracts#MTRResponse"
+      ],
+      "validators": [
+        "SFV-11"
+      ]
+    },
+    {
+      "norm": "NORM-005",
+      "schemas": [
+        "runtime-contracts#BTWVerificationState"
+      ],
+      "validators": [
+        "SFV-28"
+      ]
+    },
+    {
+      "norm": "NORM-006",
+      "schemas": [
+        "runtime-contracts#CanonicalIdentityRef"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-007",
+      "schemas": [
+        "runtime-contracts#CanonicalIdentityRef"
+      ],
+      "validators": [
+        "SFV-12"
+      ]
+    },
+    {
+      "norm": "NORM-008",
+      "schemas": [
+        "runtime-contracts#RevocationEvent"
+      ],
+      "validators": [
+        "SFV-13"
+      ]
+    },
+    {
+      "norm": "NORM-009",
+      "schemas": [
+        "runtime-contracts#GGSHardState",
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-29",
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-010",
+      "schemas": [
+        "runtime-contracts#LASHardState",
+        "runtime-contracts#LASAuthorityStateRoot",
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-29",
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-011",
+      "schemas": [
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-012",
+      "schemas": [
+        "runtime-contracts#StateTransferCertificate"
+      ],
+      "validators": [
+        "SFV-30"
+      ]
+    },
+    {
+      "norm": "NORM-013",
+      "schemas": [
+        "runtime-contracts#AIEPRuntimeProfile"
+      ],
+      "validators": [
+        "SFV-14"
+      ]
+    },
+    {
+      "norm": "NORM-014",
+      "schemas": [
+        "runtime-contracts#CurrentSemanticModelBundle",
+        "runtime-contracts#CanonicalScopeTuple",
+        "runtime-contracts#ANYScopePermission",
+        "runtime-contracts#AIMScopePolicy"
+      ],
+      "validators": [
+        "SFV-33"
+      ]
+    },
+    {
+      "norm": "NORM-015",
+      "schemas": [
+        "runtime-contracts#SemanticHeads",
+        "runtime-contracts#LASAuthorityStateRoot"
+      ],
+      "validators": [
+        "SFV-33"
+      ]
+    },
+    {
+      "norm": "NORM-016",
+      "schemas": [
+        "runtime-contracts#LASAuthorityStateRoot"
+      ],
+      "validators": [
+        "SFV-33"
+      ]
+    },
+    {
+      "norm": "NORM-017",
+      "schemas": [
+        "runtime-contracts#AIMDescriptor",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-15"
+      ]
+    },
+    {
+      "norm": "NORM-018",
+      "schemas": [
+        "runtime-contracts#AIMDescriptor",
+        "runtime-contracts#AIMScopePolicy",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-15"
+      ]
+    },
+    {
+      "norm": "NORM-019",
+      "schemas": [
+        "runtime-contracts#ResolverPolicyContract"
+      ],
+      "validators": [
+        "SFV-16"
+      ]
+    },
+    {
+      "norm": "NORM-020",
+      "schemas": [
+        "runtime-contracts#ResolverImplementationRegistryRecord"
+      ],
+      "validators": [
+        "SFV-16"
+      ]
+    },
+    {
+      "norm": "NORM-021",
+      "schemas": [
+        "runtime-contracts#ResolverConformanceEvidence"
+      ],
+      "validators": [
+        "SFV-17"
+      ]
+    },
+    {
+      "norm": "NORM-022",
+      "schemas": [
+        "runtime-contracts#SemanticEntry"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-023",
+      "schemas": [
+        "runtime-contracts#ANYScopePermission",
+        "runtime-contracts#SemanticEntry",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-18"
+      ]
+    },
+    {
+      "norm": "NORM-024",
+      "schemas": [
+        "runtime-contracts#SemanticEntry",
+        "runtime-contracts#ScopeReplacementMapping",
+        "runtime-contracts#SemanticLineageMapping",
+        "runtime-contracts#SemanticResolvedResult"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-025",
+      "schemas": [
+        "runtime-contracts#SemanticResolvedResult"
+      ],
+      "validators": [
+        "SFV-19",
+        "SFV-31"
+      ]
+    },
+    {
+      "norm": "NORM-026",
+      "schemas": [
+        "runtime-contracts#SemanticLineageMapping",
+        "runtime-contracts#CanonicalScopeTuple"
+      ],
+      "validators": [
+        "SFV-19"
+      ]
+    },
+    {
+      "norm": "NORM-027",
+      "schemas": [
+        "runtime-contracts#ScopeReplacementMapping",
+        "runtime-contracts#ScopeReplacementInput",
+        "runtime-contracts#ScopeReplacementDecision",
+        "runtime-contracts#CanonicalScopeTuple",
+        "srtt-4-rule-registry",
+        "srtt-4-total-table"
+      ],
+      "validators": [
+        "SFV-01",
+        "SFV-02",
+        "SFV-03",
+        "SFV-04"
+      ]
+    },
+    {
+      "norm": "NORM-028",
+      "schemas": [
+        "runtime-contracts#ReviewAttestation",
+        "review-presentation-schema"
+      ],
+      "validators": [
+        "SFV-32",
+        "SFV-41",
+        "SFV-42"
+      ],
+      "note": "Review-visible field materiality is projection/checker obligation."
+    },
+    {
+      "norm": "NORM-029",
+      "schemas": [
+        "runtime-contracts#ReviewAttestation"
+      ],
+      "validators": [
+        "SFV-12",
+        "SFV-32"
+      ]
+    },
+    {
+      "norm": "NORM-030",
+      "schemas": [
+        "runtime-contracts#AuthorityReadSet"
+      ],
+      "validators": [
+        "SFV-20",
+        "SFV-26",
+        "SFV-31"
+      ]
+    },
+    {
+      "norm": "NORM-031",
+      "schemas": [
+        "runtime-contracts#DecisionPresealContext"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-032",
+      "schemas": [
+        "runtime-contracts#QualifiedTimeProof"
+      ],
+      "validators": [
+        "SFV-21"
+      ]
+    },
+    {
+      "norm": "NORM-033",
+      "schemas": [
+        "runtime-contracts#VerifiedStateSeal"
+      ],
+      "validators": [
+        "SFV-20"
+      ]
+    },
+    {
+      "norm": "NORM-034",
+      "schemas": [
+        "runtime-contracts#EffectIntent",
+        "runtime-contracts#EffectStateRecord"
+      ],
+      "validators": [
+        "SFV-22"
+      ]
+    },
+    {
+      "norm": "NORM-035",
+      "schemas": [
+        "runtime-contracts#EvidenceRecord"
+      ],
+      "validators": [
+        "SFV-23"
+      ]
+    },
+    {
+      "norm": "NORM-036",
+      "schemas": [
+        "runtime-contracts#EvidenceRecord"
+      ],
+      "validators": [
+        "SFV-23"
+      ]
+    },
+    {
+      "norm": "NORM-037",
+      "schemas": [
+        "runtime-contracts#MigrationBinding"
+      ],
+      "validators": [
+        "SFV-24"
+      ]
+    },
+    {
+      "norm": "NORM-038",
+      "schemas": [
+        "runtime-contracts#RecoveryContext"
+      ],
+      "validators": [
+        "SFV-25"
+      ]
+    },
+    {
+      "norm": "NORM-039",
+      "schemas": [
+        "runtime-contracts#RecoveryContext"
+      ],
+      "validators": [
+        "SFV-25"
+      ]
+    },
+    {
+      "norm": "NORM-040",
+      "schemas": [
+        "guard-registry",
+        "case-registry",
+        "case-proof-contracts"
+      ],
+      "validators": [
+        "SFV-05",
+        "SFV-06",
+        "SFV-39",
+        "SFV-40"
+      ]
+    },
+    {
+      "norm": "NORM-041",
+      "schemas": [
+        "bsp-5-grammar",
+        "review-presentation-schema"
+      ],
+      "validators": [
+        "SFV-08",
+        "SFV-41",
+        "SFV-42"
+      ]
+    },
+    {
+      "norm": "NORM-042",
+      "schemas": [
+        "guard-omission-source-evidence",
+        "guard-omission-manifest"
+      ],
+      "validators": [
+        "SFV-07"
+      ]
+    },
+    {
+      "norm": "NORM-043",
+      "schemas": [
+        "ncg-structured-closure"
+      ],
+      "validators": [
+        "SFV-09",
+        "SFV-10"
+      ]
+    }
+  ],
+  "expected_norm_count": 43,
+  "validator_rule_count": 45,
+  "freeze_process_mappings": [
+    {
+      "rule_id": "SFG-001",
+      "source": [
+        "R8V7-I030"
+      ],
+      "artifacts": [
+        "schema-provenance-manifest.schema.json",
+        "schema-provenance-manifest-candidate.json",
+        "schema-provenance-source-map.json"
+      ],
+      "validators": [
+        "SFV-35",
+        "SFV-44"
+      ],
+      "status": "QUALIFIED_SPM_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
+    },
+    {
+      "rule_id": "SFG-002",
+      "source": [
+        "R8V7-I031"
+      ],
+      "artifacts": [
+        "schema-provenance-manifest.schema.json",
+        "schema-provenance-source-map.json"
+      ],
+      "validators": [
+        "SFV-35",
+        "SFV-43"
+      ],
+      "status": "QUALIFIED_SOURCE_AUTHORITY_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
+    },
+    {
+      "rule_id": "SFG-003",
+      "source": [
+        "R8V8-I020",
+        "R8V8-I021",
+        "R8V8-I022"
+      ],
+      "artifacts": [
+        "schema-provenance-generator.schema.json",
+        "schema-provenance-generator-binding.json",
+        "tools/generate_r8_v15_r1_spm.py"
+      ],
+      "validators": [
+        "SFV-36",
+        "SFV-44"
+      ],
+      "status": "QUALIFIED_GENERATOR_EVIDENCE_PRECOMMITTED_PENDING_EXACT_FINAL_REGENERATION"
+    },
+    {
+      "rule_id": "SFG-004",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V5-I028..I034",
+        "R8V7 GCP rejection vectors",
+        "R8V8-I034",
+        "R8V8-I035"
+      ],
+      "artifacts": [
+        "gcp-rvm-2.schema.json",
+        "gcp-rvm-2.json"
+      ],
+      "validators": [
+        "SFV-31",
+        "SFV-37",
+        "SFV-38"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-005",
+      "source": [
+        "R8V7-I038",
+        "R8V7-I039"
+      ],
+      "artifacts": [
+        "review-presentation-schema.schema.json",
+        "review-presentation-schema.json"
+      ],
+      "validators": [
+        "SFV-41",
+        "SFV-42"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-006",
+      "source": [
+        "R8V7-I044",
+        "R8V7-I045",
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "artifacts": [
+        "case-proof-contracts.schema.json",
+        "case-proof-contracts.json"
+      ],
+      "validators": [
+        "SFV-39",
+        "SFV-40"
+      ],
+      "status": "CANDIDATE_COMPLETE"
+    },
+    {
+      "rule_id": "SFG-007",
+      "source": [
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "artifacts": [],
+      "validators": [
+        "SFV-45"
+      ],
+      "status": "BLOCKED_PENDING_EXACT_QUALIFIED_CANDIDATE_REVIEW"
+    }
+  ],
+  "freeze_process_rule_count": 7,
+  "final_freeze_blockers": [
+    "SFV-45"
+  ],
+  "note": "NORM-001..043 semantic mappings remain frozen. This traceability state is a non-authoritative fixed-point precommit derived from the explicit SPG-1 enrollment extension and independently verified fresh successor generation for bfe078a741855b423e9899d4debd440d21147876. The effective claim that SFV-35/SFV-36/SFV-44 are closed is conditional on a fresh qualified regeneration over these exact rebind bytes followed by a separate post-run verification proving exact artifact/provenance binding. If that final regeneration or verification fails or the bytes drift, SFV-35/SFV-36/SFV-44 remain/open again. Only after successful exact-byte verification does SFV-45 become the sole remaining executable-schema-freeze blocker."
+}
+
+===== END SCHEMA schema-freeze-traceability.json =====
+
+
+===== BEGIN SCHEMA schema-freeze-validator-contract.json =====
+GIT_BLOB_SHA1: defb6bc75e6cb7aa5d93828fe54d5d58040edcf7
+SHA256: 95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0
+
+{
+  "schema": "r8-v15-r1-schema-freeze-validator-contract/v2",
+  "status": "SCHEMA_FREEZE_CANDIDATE_V2_NON_AUTHORITATIVE",
+  "authority_effect": "NONE",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "rules": [
+    {
+      "id": "SFV-01",
+      "name": "SRTT domain cardinality",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Fixed source_entry_state=REVOKED and exactly 2304 variable tuples."
+    },
+    {
+      "id": "SFV-02",
+      "name": "SRTT tuple uniqueness",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Exactly one row per declared variable tuple; no duplicate input tuple; row_id values are exactly the unique contiguous set 1..2304."
+    },
+    {
+      "id": "SFV-03",
+      "name": "SRTT decisive rule membership",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "RuleRegistry contains exactly SRTT15-R01..R11 once each with unique contiguous precedence 1..11; outside-table rule is exactly SRTT15-R00; every table-row decisive_rule_id resolves to exactly one frozen rule."
+    },
+    {
+      "id": "SFV-04",
+      "name": "SRTT full semantic recomputation",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-027"
+      ],
+      "requirement": "Recompute every row under frozen SRTT-4 precedence and require exact result/rule match."
+    },
+    {
+      "id": "SFV-05",
+      "name": "Guard identity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-040"
+      ],
+      "requirement": "Unique contiguous G001..G156; one ACTIVE record each."
+    },
+    {
+      "id": "SFV-06",
+      "name": "Case identity and guard references",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-040"
+      ],
+      "requirement": "Unique case IDs; every positive/negative guard case exists; zero declared conflicts."
+    },
+    {
+      "id": "SFV-07",
+      "name": "Guard omission evidence recomputation",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-042"
+      ],
+      "requirement": "For 11 embedded source excerpts recompute SHA-256 under declared basis, expand ranges, and require exact guard/case set equality."
+    },
+    {
+      "id": "SFV-08",
+      "name": "BSP structural authority",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-041"
+      ],
+      "requirement": "Exactly one version-15 current-status block; semantic-test sections paired, non-nested, non-empty and ID-consistent; markers only standalone outside fences."
+    },
+    {
+      "id": "SFV-09",
+      "name": "Dependency graph closure",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-043"
+      ],
+      "requirement": "All endpoints declared, no duplicate edge, acyclic, direct-edge semantics only."
+    },
+    {
+      "id": "SFV-10",
+      "name": "Evaluation order monotonicity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-018",
+        "NORM-022",
+        "NORM-024",
+        "NORM-033",
+        "NORM-043"
+      ],
+      "requirement": "No later stage consumes unqualified state or converts earlier blocker to authority without governed successor/recovery event."
+    },
+    {
+      "id": "SFV-11",
+      "name": "MTR authority freshness",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-004"
+      ],
+      "requirement": "Live challenge exact-context match; single acceptance; <=30s verifier-monotonic age; no stale-token fallback."
+    },
+    {
+      "id": "SFV-12",
+      "name": "Canonical identity/quorum",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-006",
+        "NORM-007"
+      ],
+      "requirement": "Alias-collapsed canonical subjects; only ACTIVE identities count; domain diversity cannot be manufactured by alias. Authority-bearing identifiers must resolve as exact stable canonical IDs under the owning registry/source contract; display aliases cannot substitute."
+    },
+    {
+      "id": "SFV-13",
+      "name": "Revocation temporal validity",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-008"
+      ],
+      "requirement": "Current committed revocation state; UNREVOKE cannot validate prior revoked interval."
+    },
+    {
+      "id": "SFV-14",
+      "name": "AIEP authority profile",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-013"
+      ],
+      "requirement": "Authority evaluator must be attested broker-only profile; UNATTESTED_RUNTIME cannot exercise authority roles."
+    },
+    {
+      "id": "SFV-15",
+      "name": "AIM Smax before permission/lifecycle filtering",
+      "result_if_fail": "AIM_SCOPE_PERMISSION_REEVALUATION_REQUIRED_OR_BLOCKER",
+      "source": [
+        "NORM-018"
+      ],
+      "requirement": "AIM candidate scope uses the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY component count; compute AIM_Smax over the full effective matching set before permission/lifecycle filtering; at AIM_Smax every ANY component must be explicitly allowed for that semantic_class by the current ACTIVE AIMScopePolicy; AIMScopePolicy semantic_class keys are unique; project/org/experiment policy cannot broaden AIM permission; source-lineage/policy/class/scope changes require a constitutionally linked successor; invalid/missing/narrowed/revoked policy blocks lower fallback."
+    },
+    {
+      "id": "SFV-16",
+      "name": "RIR exact temporal tuple",
+      "result_if_fail": "RESOLVER_IMPLEMENTATION_UNBOUND",
+      "source": [
+        "NORM-020"
+      ],
+      "requirement": "Exactly one temporally eligible ACTIVE RIR tuple matching policy, implementation, runtime, workload and suite."
+    },
+    {
+      "id": "SFV-17",
+      "name": "RCS freshness",
+      "result_if_fail": "RESOLVER_UNQUALIFIED",
+      "source": [
+        "NORM-021"
+      ],
+      "requirement": "Only current PASS for exact bound tuple; stale/failed/expired/unavailable evidence cannot qualify or fall back."
+    },
+    {
+      "id": "SFV-18",
+      "name": "Semantic Smax and ANY",
+      "result_if_fail": "SEMANTIC_BLOCKER",
+      "source": [
+        "NORM-022",
+        "NORM-023"
+      ],
+      "requirement": "Semantic candidates use the exact nine-component canonical scope tuple; stored specificity equals exact non-ANY count; semantic_entry_key equals the canonical digest of semantic_input_id+semantic_lineage_id+semantic_version+scope_tuple; compute semantic Smax before lifecycle filtering; every ANY component must be allowed by the current ACTIVE ANYScopePermission for the semantic_class; permission drift/absence/conflict blocks with no lower fallback."
+    },
+    {
+      "id": "SFV-19",
+      "name": "Multi-revoked composition",
+      "result_if_fail": "SEMANTIC_BLOCKER",
+      "source": [
+        "NORM-024",
+        "NORM-025"
+      ],
+      "requirement": "Every revoked Smax blocker uniquely discharges only through an explicitly linked ACTIVE successor or constitutional lineage/scope mapping; mapping source/destination entries and scope tuples must match; partial discharge never grants authority; final SREP comparison is set-based and order-independent."
+    },
+    {
+      "id": "SFV-20",
+      "name": "Authority read-set sealing",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-030",
+        "NORM-031",
+        "NORM-033"
+      ],
+      "requirement": "Every mutable authority input is registered, captured, bound into DPS and final seal; state change before commit => STATE_CHANGED and no effect intent."
+    },
+    {
+      "id": "SFV-21",
+      "name": "Qualified time proof",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-032"
+      ],
+      "requirement": "Single-use 256-bit nonce, same DPS digest, source validity at sequence, at least 2 distinct qualified sources of reference population 3; no local-clock/cached/weaker fallback."
+    },
+    {
+      "id": "SFV-22",
+      "name": "Effect success boundary",
+      "result_if_fail": "NOT_SUCCESS",
+      "source": [
+        "NORM-034"
+      ],
+      "requirement": "Only SUCCEEDED_RECONCILED is success; that state requires non-null qualified executor identity evidence plus non-null provider-specific reconciliation evidence; ambiguous/unverified provider outcomes are never success; retries reuse the frozen idempotency key."
+    },
+    {
+      "id": "SFV-23",
+      "name": "Evidence strength",
+      "result_if_fail": "PROMOTION_BLOCKED",
+      "source": [
+        "NORM-035",
+        "NORM-036"
+      ],
+      "requirement": "Strong evidence requires qualified producer/runtime and exact derivation; rewrapping cannot upgrade class; missing/contradictory mandatory evidence blocks."
+    },
+    {
+      "id": "SFV-24",
+      "name": "Migration authority boundary",
+      "result_if_fail": "MIGRATION_BLOCKED",
+      "source": [
+        "NORM-037"
+      ],
+      "requirement": "Stable constitution+tenant+object identity; complete object map; fresh destination policy; widening requires fresh destination authorization; cross-constitution import carries no authority."
+    },
+    {
+      "id": "SFV-25",
+      "name": "Recovery anti-replay",
+      "result_if_fail": "RECOVERY_BLOCKED",
+      "source": [
+        "NORM-038",
+        "NORM-039"
+      ],
+      "requirement": "Predeclared trigger, current context, single-use nonce, lawful quorum/current trust; unavailable lawful path never creates weaker emergency root."
+    },
+    {
+      "id": "SFV-26",
+      "name": "No optional authority bypass",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "NORM-002",
+        "NORM-030"
+      ],
+      "requirement": "Missing required authority field is validation failure, never default/fallback authority."
+    },
+    {
+      "id": "SFV-27",
+      "name": "T0 successor threshold and monotonicity",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-003"
+      ],
+      "requirement": "Successor generation is exactly predecessor+1; predecessor authorization/MTR reservation/BTW consistency all bind the same successor; requires 4-of-5 ACTIVE EBA officers across at least 3 ACTIVE admin domains; a newly created/reactivated domain cannot sign the successor that creates/reactivates it."
+    },
+    {
+      "id": "SFV-28",
+      "name": "BTW rollback/equivocation",
+      "result_if_fail": "AUTHORITY_FROZEN",
+      "source": [
+        "NORM-005"
+      ],
+      "requirement": "Verification uses T0-pinned witness policy; accepted tree size/root cannot roll back; smaller tree or missing consistency proof rejects; same size with different root is BTW_EQUIVOCATION and freezes affected authority paths."
+    },
+    {
+      "id": "SFV-29",
+      "name": "GGS/LAS sequencer safety",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-009",
+        "NORM-010"
+      ],
+      "requirement": "GGS and LAS use 3 replicas/2-of-3 ordinary majority; rollback-resistant term/vote/index/head state; stale replica non-voting; GGS atomically consumes namespace/bootstrap authorization; LAS atomically compare-and-advances non-commutative heads and preserves idempotency state; JOINT rotation requires both old and new majorities."
+    },
+    {
+      "id": "SFV-30",
+      "name": "Rotation barrier and STC",
+      "result_if_fail": "ROTATION_BLOCKED",
+      "source": [
+        "NORM-011",
+        "NORM-012"
+      ],
+      "requirement": "ROTATION_PREPARE commits barrier B and freezes covered writes; STC binds the exact B snapshot/state roots/semantic heads; one barrier serves at most one lawful rotation; same rotation/config/STC retry is idempotent; changed retry is IDEMPOTENCY_CONFLICT; different rotation on reserved B is BARRIER_ALREADY_RESERVED; ABORT permanently closes B; contradictory valid reservations are STC_EQUIVOCATION."
+    },
+    {
+      "id": "SFV-31",
+      "name": "GCP canonicalization",
+      "result_if_fail": "CANONICALIZATION_REJECT",
+      "source": [
+        "NORM-002",
+        "NORM-025",
+        "NORM-030"
+      ],
+      "requirement": "Canonical authority input/output obeys inherited GCP: absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields. Every digest-bearing field is validated against its exact governing source or bound crypto profile; when a source explicitly fixes SHA-256 or another concrete encoding, malformed values reject before authority use. Generic opaque digest references must not be silently reinterpreted as a different algorithm."
+    },
+    {
+      "id": "SFV-32",
+      "name": "Review materiality and reviewer independence",
+      "result_if_fail": "REVIEW_INVALID",
+      "source": [
+        "NORM-028",
+        "NORM-029"
+      ],
+      "requirement": "Every reviewer-visible semantic field relied on for decision is packet-bound; unknown reviewer influence defaults material; required human review binds exact candidate/snapshot/packet digest and is independent from proposer under canonical identity/domain rules; model/provider review cannot replace a required human constitutional channel."
+    },
+    {
+      "id": "SFV-33",
+      "name": "CSM coherent snapshot and current semantic sequence",
+      "result_if_fail": "SEMANTIC_STATE_INVALID",
+      "source": [
+        "NORM-014",
+        "NORM-015",
+        "NORM-016"
+      ],
+      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, AIMScopePolicy, ResolverPolicy and supporting heads/rules; canonical arrays use the frozen canonical ordering; updates are LAS-governed authority events; all named heads are read from one current LAS-derived semantic_state_sequence; LASAuthorityStateRoot state_root_digest equals the GCP-1 digest of the exact frozen root members; historical/caller-selected sequence has authority NONE."
+    },
+    {
+      "id": "SFV-34",
+      "name": "External root anti-self-grant boundary",
+      "result_if_fail": "AUTHORITY_NONE",
+      "source": [
+        "NORM-001",
+        "NORM-002"
+      ],
+      "requirement": "Ordinary platform software cannot mint, replace, roll back or weaken T0/EBA/MTR/BTW/workload-attestation roots; unavailable lawful trust may block permanently and never creates an emergency weaker root."
+    },
+    {
+      "id": "SFV-35",
+      "name": "SPM-1 semantic-element provenance",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I030",
+        "R8V7-I031"
+      ],
+      "requirement": "Every semantic schema element has provenance; every source_ref_id resolves; no conflicting or non-authoritative-only provenance; artifact digest in each entry equals the bound schema artifact."
+    },
+    {
+      "id": "SFV-36",
+      "name": "Qualified SPG-1 generator binding",
+      "result_if_fail": "SCHEMA_FREEZE_BLOCKED",
+      "source": [
+        "R8V8-I020",
+        "R8V8-I021",
+        "R8V8-I022"
+      ],
+      "requirement": "Final freeze requires QUALIFIED SchemaProvenanceGenerator identity with exact generator artifact digest, non-null RuntimeManifest digest, workload-attestation policy/proof, active/non-revoked binding, and allowed input/output classes. UNATTESTED/DRIFTED/REVOKED/UNREGISTERED output is not final-freeze eligible."
+    },
+    {
+      "id": "SFV-37",
+      "name": "GCP-RVM-2 positive vectors",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V5-I034",
+        "R8V8-I034..I035"
+      ],
+      "requirement": "Recompute SHA-256 over every frozen expected canonical UTF-8 byte string and require exact digest match."
+    },
+    {
+      "id": "SFV-38",
+      "name": "GCP-RVM-2 rejection vectors",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V4-I026..I029",
+        "R8V7 GCP rejection vectors",
+        "R8V8-I034..I035"
+      ],
+      "requirement": "Every frozen rejection vector must fail under its referenced GCP rule; no canonical output or authority may be produced for a rejection vector."
+    },
+    {
+      "id": "SFV-39",
+      "name": "CaseProofContract closure G001-G156",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I044",
+        "R8V7-I045",
+        "R8 v7-v13 schema-freeze gates",
+        "NORM-040"
+      ],
+      "requirement": "Exactly one CaseProofContract per G001..G156; mechanism, positive cases, negative cases and FP class must exactly match current GuardRegistry and CaseRegistry; no missing or extra case."
+    },
+    {
+      "id": "SFV-40",
+      "name": "Fault-proof class legend integrity",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I044"
+      ],
+      "requirement": "FP0..FP6 meanings are frozen exactly; required negative control evidence cannot be downgraded or substituted by target-guard outcome."
+    },
+    {
+      "id": "SFV-41",
+      "name": "RPS-1 field classification coverage",
+      "result_if_fail": "REVIEW_PACKET_INCOMPLETE",
+      "source": [
+        "R8V7-I038",
+        "NORM-028",
+        "NORM-041"
+      ],
+      "requirement": "Every displayed review-packet field is classified REVIEW_SEMANTIC or DISPLAY_NON_SEMANTIC; unknown displayed fields default REVIEW_SEMANTIC."
+    },
+    {
+      "id": "SFV-42",
+      "name": "RPS-1 non-semantic safety",
+      "result_if_fail": "REVIEW_PACKET_INCOMPLETE",
+      "source": [
+        "R8V7-I039"
+      ],
+      "requirement": "DISPLAY_NON_SEMANTIC fields cannot encode status, severity, identity, evidence quality, ordering priority, recommendation or substantive claim and cannot alter packet ordering or evidence association."
+    },
+    {
+      "id": "SFV-43",
+      "name": "Freeze-process authoritative source boundary",
+      "result_if_fail": "UNAUTHORIZED_SEMANTIC_SOURCE",
+      "source": [
+        "R8V7-I031",
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
+      ],
+      "requirement": "No schema element/freeze rule may be sourced only from PR #39/#40 or any NON_AUTHORITATIVE artifact; every manual/generated element has governed source lineage."
+    },
+    {
+      "id": "SFV-44",
+      "name": "Exact schema artifact digest binding",
+      "result_if_fail": "SCHEMA_FREEZE_FAIL",
+      "source": [
+        "R8V7-I030",
+        "R8V8-I021"
+      ],
+      "requirement": "Freeze manifest, SPM-1, generator output record and independent-review packet must bind the identical schema artifact SHA-256 bytes; byte drift invalidates prior review/provenance."
+    },
+    {
+      "id": "SFV-45",
+      "name": "Independent executable-schema review",
+      "result_if_fail": "SCHEMA_FREEZE_BLOCKED",
+      "source": [
+        "R8 v7-v13 schema-freeze gates"
+      ],
+      "requirement": "The exact qualified schema candidate must receive a fresh qualifying blind independent review before status can become EXECUTABLE_SCHEMA_FROZEN. Review of a predecessor/different digest does not transfer."
+    }
+  ],
+  "rule_count": 45,
+  "freeze_readiness_rule": "Final freeze requires SFV-01..SFV-45 PASS; SCHEMA_FREEZE_BLOCKED is not a PASS and grants no implementation authority."
+}
+
+===== END SCHEMA schema-freeze-validator-contract.json =====
+
+
+===== BEGIN SCHEMA schema-provenance-generator.schema.json =====
+GIT_BLOB_SHA1: 00bb2f6645b971f241098235db4fa888ad345aa7
+SHA256: b609c2d5f95157c4a55dcd5ca43f4a92db7941908bb87fa8bc8c4add501d2def
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-generator.schema.json",
+  "title": "R8 v15-r1 SchemaProvenanceGenerator Qualification Binding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-spg-1-binding/v1"
+    },
+    "status": {
+      "enum": [
+        "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+        "QUALIFIED_GENERATOR_BINDING"
+      ]
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "generator_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generator_artifact_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generator_artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runtime_manifest": {
+      "$ref": "#/$defs/RuntimeManifest"
+    },
+    "workload_attestation_policy_digest": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "workload_attestation_proof_digest": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "allowed_input_design_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "allowed_output_schema_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "signing_credential_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "revocation_state": {
+      "enum": [
+        "ACTIVE",
+        "SUSPENDED",
+        "REVOKED",
+        "RETIRED",
+        "UNKNOWN"
+      ]
+    },
+    "qualification_status": {
+      "enum": [
+        "QUALIFIED",
+        "UNATTESTED_RUNTIME",
+        "REVOKED",
+        "DRIFTED",
+        "UNREGISTERED"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "generator_id",
+    "generator_artifact_path",
+    "generator_artifact_sha256",
+    "runtime_manifest",
+    "workload_attestation_policy_digest",
+    "workload_attestation_proof_digest",
+    "allowed_input_design_artifacts",
+    "allowed_output_schema_classes",
+    "signing_credential_id",
+    "revocation_state",
+    "qualification_status"
+  ],
+  "$defs": {
+    "RuntimeManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "application_artifact_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "interpreter_compiler_runtime_version_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "crypto_library_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_parser_bundle_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "os_container_image_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "las_anchor_client_library_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtime_manifest_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "application_artifact_digest",
+        "interpreter_compiler_runtime_version_digest",
+        "crypto_library_digest",
+        "schema_parser_bundle_digest",
+        "os_container_image_digest",
+        "las_anchor_client_library_digest",
+        "runtime_manifest_digest"
+      ]
+    }
+  },
+  "x-governance-source": [
+    "R8V5-I026",
+    "R8V5-I027",
+    "R8V7-I030",
+    "R8V7-I031",
+    "R8V8-I020",
+    "R8V8-I021",
+    "R8V8-I022"
+  ]
+}
+
+===== END SCHEMA schema-provenance-generator.schema.json =====
+
+
+===== BEGIN SCHEMA schema-provenance-manifest.schema.json =====
+GIT_BLOB_SHA1: 397ce65bd3f1fbac3105a85c45af6689ff79154e
+SHA256: d60f2ca208c8dcd912050a4d571191c0a9aef8615d567c986636f4c599ce8bd5
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://setugo.example/schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json",
+  "title": "R8 v15-r1 Schema Semantic Provenance Manifest (SPM-1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "r8-v15-r1-spm-1/v1"
+    },
+    "status": {
+      "enum": [
+        "SCHEMA_FREEZE_CANDIDATE_NON_AUTHORITATIVE",
+        "FINAL_FREEZE_ELIGIBLE"
+      ]
+    },
+    "authority_effect": {
+      "const": "NONE"
+    },
+    "semantic_candidate_commit": {
+      "const": "c721b38cf8b00294797300b526596ce723a47ff8"
+    },
+    "generator": {
+      "$ref": "#/$defs/GeneratorBinding"
+    },
+    "artifact_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "entry_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ArtifactBinding"
+      },
+      "uniqueItems": true
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ProvenanceEntry"
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "uncovered_semantic_elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0
+        },
+        "non_authoritative_only_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0
+        },
+        "conflicting_entries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0
+        }
+      },
+      "required": [
+        "uncovered_semantic_elements",
+        "non_authoritative_only_sources",
+        "conflicting_entries"
+      ]
+    },
+    "source_ref_catalog": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/SourceRef"
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "authority_effect",
+    "semantic_candidate_commit",
+    "generator",
+    "artifact_count",
+    "entry_count",
+    "source_ref_catalog",
+    "artifacts",
+    "entries",
+    "coverage"
+  ],
+  "$defs": {
+    "Digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "GeneratorBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generator_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generator_artifact_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generator_artifact_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "runtime_manifest_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "workload_attestation_proof_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "qualification_status": {
+          "enum": [
+            "QUALIFIED",
+            "UNATTESTED_RUNTIME",
+            "REVOKED",
+            "DRIFTED",
+            "UNREGISTERED"
+          ]
+        }
+      },
+      "required": [
+        "generator_id",
+        "generator_artifact_path",
+        "generator_artifact_sha256",
+        "runtime_manifest_digest",
+        "workload_attestation_proof_digest",
+        "qualification_status"
+      ]
+    },
+    "ArtifactBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "git_blob_sha1": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "path",
+        "git_blob_sha1",
+        "sha256"
+      ]
+    },
+    "SourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "design_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blob": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "design_id",
+        "path",
+        "commit",
+        "blob"
+      ]
+    },
+    "ProvenanceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "semantic_purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_design_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "generator_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generator_runtime_manifest_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reviewer_status": {
+          "enum": [
+            "NOT_YET_REVIEWED",
+            "REVIEW_REQUIRED",
+            "REVIEWED"
+          ]
+        },
+        "source_ref_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "artifact_id",
+        "artifact_sha256",
+        "json_pointer",
+        "semantic_purpose",
+        "source_design_ids",
+        "source_ref_ids",
+        "generator_id",
+        "generator_runtime_manifest_digest",
+        "reviewer_status"
+      ]
+    }
+  },
+  "x-source-ref-binding": "Every source_ref_id in an entry must resolve in top-level source_ref_catalog; SFV-35 enforces referential integrity."
+}
+
+===== END SCHEMA schema-provenance-manifest.schema.json =====

@@ -1,0 +1,214 @@
+{
+  "schema": "r8-v15-r1-sfv45-r2-segmented-handoff/v1",
+  "status": "READY_FOR_FRESH_BLIND_INDEPENDENT_REVIEW",
+  "authority_effect": "NONE",
+  "exact_review_candidate_commit": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+  "frozen_semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "transport_design": "All reviewer files are <= approximately 140 KB except small metadata packs. Large source artifacts are losslessly split by source line boundaries.",
+  "expected_files": [
+    {
+      "name": "00-REVIEW-PROMPT.txt",
+      "git_blob_sha1": "ab53b372f1fe074a5e353112449ac67980868ee6"
+    },
+    {
+      "name": "A1-SOURCE-DESIGN.txt",
+      "git_blob_sha1": "9f50db23d390ea86ded91032026f2d063df51a25"
+    },
+    {
+      "name": "A2-SOURCE-DESIGN.txt",
+      "git_blob_sha1": "4253ac6fb7f34c08c01bd464c842bda3131fadda"
+    },
+    {
+      "name": "A3-SOURCE-DESIGN.txt",
+      "git_blob_sha1": "a53a1a72fa92dd71fb5c77003ce04c0c9137eecc"
+    },
+    {
+      "name": "B1-EXECUTABLE-SCHEMAS.txt",
+      "git_blob_sha1": "8ef8a6c3eebef538f19985cec4933780ec91fc24"
+    },
+    {
+      "name": "B2-EXECUTABLE-SCHEMAS.txt",
+      "git_blob_sha1": "21276b8d1ded734e7ec6a422897fe7e1ba26b8e7"
+    },
+    {
+      "name": "C1-GUARD-REGISTRY.txt",
+      "git_blob_sha1": "6b55f3d242d2959f7560b6f32ef216eccc81f398"
+    },
+    {
+      "name": "C2-CASE-REGISTRY.txt",
+      "git_blob_sha1": "7e30ebebeea6022ae4888859f87036b1fcdb93dc"
+    },
+    {
+      "name": "C3-1-CASE-PROOF-CONTRACTS.txt",
+      "git_blob_sha1": "e8d82a6f6ed3912b3b2ce2d300ec6eb7fb59c314"
+    },
+    {
+      "name": "C3-2-CASE-PROOF-CONTRACTS.txt",
+      "git_blob_sha1": "7ff0d07df9c89623dbc91041af938ec5ba8bb593"
+    },
+    {
+      "name": "C4-SOURCE-MACHINE-REMAINDER.txt",
+      "git_blob_sha1": "159611a8d4baf9c56429b9d9e08f3b858d064bf2"
+    },
+    {
+      "name": "D01-SRTT.txt",
+      "git_blob_sha1": "d50ce624b92ab0bd43be4e45a32b169b6ea776f3"
+    },
+    {
+      "name": "D02-SRTT.txt",
+      "git_blob_sha1": "7bbfebf954c0f8990a539eb8d645650febc9775c"
+    },
+    {
+      "name": "D03-SRTT.txt",
+      "git_blob_sha1": "10599ea70b6f0713efd7e36fc0aead75c6e9c5d6"
+    },
+    {
+      "name": "D04-SRTT.txt",
+      "git_blob_sha1": "413965453c1f909111c746ad6ac0b80ae88745dd"
+    },
+    {
+      "name": "D05-SRTT.txt",
+      "git_blob_sha1": "87d042c0ef94dbb5bbb85cea61edc876e8a89d75"
+    },
+    {
+      "name": "D06-SRTT.txt",
+      "git_blob_sha1": "f52d82ea225b3f53440947152f7fffbdcff6010f"
+    },
+    {
+      "name": "D07-SRTT.txt",
+      "git_blob_sha1": "45027b827f081b93bd966112010b5b18aaaf42cf"
+    },
+    {
+      "name": "D08-SRTT.txt",
+      "git_blob_sha1": "bf0d0eb8d7cb62af2e4c2e80167afe2ae119d6e1"
+    },
+    {
+      "name": "D09-SRTT.txt",
+      "git_blob_sha1": "604e40bad37ff70562d73046b7d7db4426e6d77e"
+    },
+    {
+      "name": "D10-SRTT.txt",
+      "git_blob_sha1": "d925b126d2e78535e365a6597861b1ce21ea45d0"
+    },
+    {
+      "name": "E01-SPM.txt",
+      "git_blob_sha1": "e4304aab4d9452a4dff93c4da9d87dd90e20cad2"
+    },
+    {
+      "name": "E02-SPM.txt",
+      "git_blob_sha1": "7066e74a8b7cfd039e254329a5e52bbde4fe5d84"
+    },
+    {
+      "name": "E03-SPM.txt",
+      "git_blob_sha1": "16630d1ee3fa0afb4749c3e099bb79a5d646dfa4"
+    },
+    {
+      "name": "E04-SPM.txt",
+      "git_blob_sha1": "a1cce21fa646e48bea696744dd8d707641917e73"
+    },
+    {
+      "name": "E05-SPM.txt",
+      "git_blob_sha1": "c282026eb0a4ef79b2007b28a9e07f803ddf7276"
+    },
+    {
+      "name": "E06-SPM.txt",
+      "git_blob_sha1": "53c2925c947c4a13cba3216978288531ecfd7e6d"
+    },
+    {
+      "name": "E07-SPM.txt",
+      "git_blob_sha1": "aef07ecfe78dc51145f5e54034c81ea81031a538"
+    },
+    {
+      "name": "E08-SPM.txt",
+      "git_blob_sha1": "a438977e8e6806942c893cc3d56d3869645b193e"
+    },
+    {
+      "name": "E09-SPM.txt",
+      "git_blob_sha1": "e025ecd814813d559aa44c305df3435e30ca20ca"
+    },
+    {
+      "name": "E10-SPM.txt",
+      "git_blob_sha1": "36705d6fad3e2429f406a4875c7c622b3f4066aa"
+    },
+    {
+      "name": "E11-SPM.txt",
+      "git_blob_sha1": "9c3b84927fd712bd3a7fbec8b068cb30d7f00076"
+    },
+    {
+      "name": "E12-SPM.txt",
+      "git_blob_sha1": "212577c82707a07116822fbeae4eac14dc10fdfd"
+    },
+    {
+      "name": "E13-SPM.txt",
+      "git_blob_sha1": "d80448ad96ec6fcf7d48ae80e20bc6a2d8e20c40"
+    },
+    {
+      "name": "E14-SPM.txt",
+      "git_blob_sha1": "9d70ad7ecb19fbbe8ce534f367046325ea33d7a6"
+    },
+    {
+      "name": "E15-SPM.txt",
+      "git_blob_sha1": "03aaffb9acb98371d8efba5b629e53cfddb6ae4c"
+    },
+    {
+      "name": "E16-SPM.txt",
+      "git_blob_sha1": "a1a78edc0915eb2f61571d299ecae9a9a9cc9456"
+    },
+    {
+      "name": "F-QUALIFICATION-LINEAGE.txt",
+      "git_blob_sha1": "03493c1616c269f31fb630d41cf15c334d6ceae2"
+    }
+  ],
+  "segmented_sources": {
+    "srtt_total_table": {
+      "source_path": "governance-r8/R8-V15-SRTT-4-TOTAL-TABLE.json",
+      "source_git_blob_sha1": "f94451e345954a399c59a5a94943f58a14315579",
+      "segment_files": [
+        "D01-SRTT.txt",
+        "D02-SRTT.txt",
+        "D03-SRTT.txt",
+        "D04-SRTT.txt",
+        "D05-SRTT.txt",
+        "D06-SRTT.txt",
+        "D07-SRTT.txt",
+        "D08-SRTT.txt",
+        "D09-SRTT.txt",
+        "D10-SRTT.txt"
+      ]
+    },
+    "spm_manifest": {
+      "source_path": "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json",
+      "source_git_blob_sha1": "21e20af9b15f3de7727e78021a7f83928dbebb33",
+      "source_sha256": "3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f",
+      "segment_files": [
+        "E01-SPM.txt",
+        "E02-SPM.txt",
+        "E03-SPM.txt",
+        "E04-SPM.txt",
+        "E05-SPM.txt",
+        "E06-SPM.txt",
+        "E07-SPM.txt",
+        "E08-SPM.txt",
+        "E09-SPM.txt",
+        "E10-SPM.txt",
+        "E11-SPM.txt",
+        "E12-SPM.txt",
+        "E13-SPM.txt",
+        "E14-SPM.txt",
+        "E15-SPM.txt",
+        "E16-SPM.txt"
+      ]
+    }
+  },
+  "completeness_rule": "Reviewer must confirm every expected file and every numbered segment is present before issuing BOUNDED_PASS or CHANGES_REQUIRED; missing segment => INSUFFICIENT_EVIDENCE.",
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}

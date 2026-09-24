@@ -1,0 +1,23 @@
+R8 v15-r1 SFV-45 R2 — DEEPSEEK UPLOAD INSTRUCTIONS
+
+Use ONE DeepSeek conversation.
+
+1. Upload 00-REVIEW-PROMPT.txt first.
+2. Tell DeepSeek: "Do not review yet. I will upload the evidence in batches. For each batch, only confirm the filenames received."
+3. Upload the evidence files in the batches below.
+4. After the final batch, send exactly:
+   "All R2 packet files are uploaded. Verify that every expected filename/segment in the manifest is present. If complete, begin the blind SFV-45 review using 00-REVIEW-PROMPT.txt. If anything is missing, list only the missing filenames."
+
+Recommended batches:
+Batch 1: A1, A2, A3, B1
+Batch 2: B2, C1, C2, C3-1
+Batch 3: C3-2, C4, F-QUALIFICATION-LINEAGE, HANDOFF-MANIFEST
+Batch 4: D01-D04
+Batch 5: D05-D08
+Batch 6: D09-D10, E01-E02
+Batch 7: E03-E06
+Batch 8: E07-E10
+Batch 9: E11-E14
+Batch 10: E15-E16
+
+Do not upload the previous R1 review, any prior adjudication, or the prior oversized E/F packet. This is a fresh blind review.

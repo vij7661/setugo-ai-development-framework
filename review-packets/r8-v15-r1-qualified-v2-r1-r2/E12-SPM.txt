@@ -1,0 +1,3825 @@
+R8 v15-r1 SFV-45 R2
+SPM-1 RAW SEGMENT E12/16
+Exact review candidate: 3709ebaff7d2f41dc685f2ffce5fe9690fec3824
+SOURCE_FILE: schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
+SOURCE_GIT_BLOB_SHA1: 21e20af9b15f3de7727e78021a7f83928dbebb33
+SOURCE_SHA256: 3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f
+SEGMENT_ORDER: 12/16
+SEGMENT_CONTENT_STARTS_NEXT_LINE
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/norm",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/norm",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/schemas/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/schemas/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/schemas/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/schemas/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/schemas/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/schemas/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/validators/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/39/validators/3",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/39/validators/3",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/40/norm",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/norm",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/40/schemas/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/schemas/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/40/schemas/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/schemas/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/40/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/40/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/40/validators/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/40/validators/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/41/norm",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/norm",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/41/schemas/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/schemas/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/41/schemas/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/schemas/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/41/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/41/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/42/norm",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/norm",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/42/schemas/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/schemas/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/42/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/mappings/42/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/mappings/42/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/expected_norm_count",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/expected_norm_count",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/validator_rule_count",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/validator_rule_count",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/artifacts/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/artifacts/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/artifacts/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/artifacts/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/artifacts/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/artifacts/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/0/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/0/status",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-V2-R1-2026-09-24"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/artifacts/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/artifacts/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/artifacts/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/artifacts/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/1/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/1/status",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-V2-R1-2026-09-24"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/source/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/source/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/source/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/source/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/artifacts/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/artifacts/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/artifacts/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/artifacts/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/artifacts/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/artifacts/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/2/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/2/status",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-V2-R1-2026-09-24"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/source/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/source/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/source/3",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/3",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/source/4",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/source/4",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/artifacts/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/artifacts/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/artifacts/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/artifacts/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/validators/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/validators/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/3/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/3/status",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/source/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/source/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/artifacts/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/artifacts/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/artifacts/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/artifacts/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/4/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/4/status",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/source/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/source/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/source/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/source/2",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/artifacts/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/artifacts/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/artifacts/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/artifacts/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/validators/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/validators/1",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/5/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/5/status",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/6/rule_id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/rule_id",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/6/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/source/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/6/artifacts",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/artifacts",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/6/validators/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/validators/0",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_mappings/6/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_mappings/6/status",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-V2-R1-2026-09-24"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/freeze_process_rule_count",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/freeze_process_rule_count",
+      "source_design_ids": [
+        "NORM-001..NORM-043",
+        "R8V7-I030..I031",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/final_freeze_blockers/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/final_freeze_blockers/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-V2-R1-2026-09-24"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-traceability/v2",
+      "artifact_sha256": "9d09ec2d01e6f5f029084cf012b129f502418d22c6028ff0d104b6f4376c46df",
+      "json_pointer": "/note",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-traceability.json/note",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "SPG-QUALIFICATION-V2-R1-2026-09-24"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-SPG-V2R1-EXTENSION",
+        "SRC-SPG-V2R1-VERIFY"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/schema",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/schema",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/status",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/status",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/authority_effect",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/authority_effect",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/semantic_candidate_commit",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/semantic_candidate_commit",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/0/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/0/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/0/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/0/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/0/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/0/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/0/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/0/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/0/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/0/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/1/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/1/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/1/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/1/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/1/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/1/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/1/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/1/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/1/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/1/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/2/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/2/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/2/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/2/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/2/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/2/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/2/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/2/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/2/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/2/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/3/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/3/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/3/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/3/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/3/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/3/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/3/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/3/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/3/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/3/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/4/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/4/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/4/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/4/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/4/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/4/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/4/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/4/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/4/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/4/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/5/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/5/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/5/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/5/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/5/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/5/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/5/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/5/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/5/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/5/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/6/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/6/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/6/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/6/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/6/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/6/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/6/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/6/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/6/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/6/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/7/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/7/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/7/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/7/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/7/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/7/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/7/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/7/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/7/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/7/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/8/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/8/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/8/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/8/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/8/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/8/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/8/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/8/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/8/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/8/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/source/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/source/1",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/source/2",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/source/2",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/source/3",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/source/3",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/source/4",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/source/4",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/9/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/9/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/10/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/10/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/10/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/10/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/10/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/10/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/10/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/10/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/10/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/10/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/11/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/11/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/11/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/11/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/11/result_if_fail",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/11/result_if_fail",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/11/source/0",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/11/source/0",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/11/source/1",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/11/source/1",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/11/requirement",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/11/requirement",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/12/id",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/12/id",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/12/name",
+      "semantic_purpose": "Frozen executable-schema element schema-freeze-validator-contract.json/rules/12/name",
+      "source_design_ids": [
+        "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+        "NORM-001..NORM-043",
+        "R8 inherited schema-freeze gates"
+      ],
+      "source_ref_ids": [
+        "SRC-FREEZE-V2",
+        "SRC-NORM",
+        "SRC-V7",
+        "SRC-V8",
+        "SRC-V9",
+        "SRC-V10",
+        "SRC-V11",
+        "SRC-V12",
+        "SRC-V13"
+      ],
+      "generator_id": "R8V15R1-SPG-V2",
+      "generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+      "reviewer_status": "REVIEW_REQUIRED"
+    },
+    {
+      "artifact_id": "r8-v15-r1-schema-freeze-validator-contract/v2",
+      "artifact_sha256": "95b883c04e213d4844150e47d218489d68f77f079754195bd21bdd88fbd874d0",
+      "json_pointer": "/rules/12/result_if_fail",
