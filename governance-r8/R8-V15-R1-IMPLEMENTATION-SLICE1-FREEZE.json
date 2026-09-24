@@ -1,0 +1,43 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-freeze/v1",
+  "status": "IMPLEMENTATION_SLICE1_FROZEN_CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CANDIDATE_FREEZE_ONLY",
+  "exact_implementation_candidate": "e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+  "construction_green_evidence_commit": "1d5518604c486b6b47f2b0532c1ed063ee01cb0d",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "executable_schema_freeze_record_commit": "6f0506b6cd2a12eeeb30d79f85224d4b87b6c368",
+  "preregistration_commit": "ce4d6a46d0907922520ef56c3ca62f7c8784a319",
+  "frozen_harness_commit": "9952aa72f8f124514430aef4d0a0b0218318a4e1",
+  "green_run_id": 36060770372,
+  "green_job_id": 107838888005,
+  "acceptance": {
+    "slice1_cases": "I1-01..I1-16",
+    "slice1_passed": 16,
+    "slice1_total": 16,
+    "post_freeze_regressions_passed": 12,
+    "post_freeze_regressions_total": 12
+  },
+  "freeze_rules": [
+    "implementation candidate bytes are exactly e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+    "evidence commits after the candidate do not change the reviewed implementation candidate",
+    "any implementation-code or frozen-harness change requires a successor candidate and fresh applicable review",
+    "frozen executable-schema bytes remain immutable",
+    "independent implementation review is required before bounded implementation adjudication"
+  ],
+  "preserved_failure_history": [
+    "R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-001.json",
+    "R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-002.json",
+    "R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-003.json",
+    "R8-V15-R1-IMPLEMENTATION-SLICE1-CONTROL-FAILURE-004.json"
+  ],
+  "next_gate": "FRESH_BLIND_INDEPENDENT_IMPLEMENTATION_REVIEW",
+  "claim_boundary": {
+    "implementation_adjudicated": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
