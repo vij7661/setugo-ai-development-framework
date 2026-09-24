@@ -4,12 +4,13 @@
   "authority_effect": "NONE",
   "reviewed_candidate": "5cde19b285989da95c7e68b489663ba2e503ef02",
   "predecessor_semantic_candidate": "c721b38cf8b00294797300b526596ce723a47ff8",
-  "semantic_successor": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
+  "semantic_successor": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
   "semantic_successor_validation": {
-    "workflow_run_id": 36041664344,
-    "conclusion": "success",
-    "artifact_id": 10826029045,
-    "artifact_digest": "sha256:6da8e9b1336a5d503a8ad81a34b0f44974211322905f99487818af56ab18722e"
+    "independent_review_disposition": "SEMANTIC_SUCCESSOR_BOUNDED_PASS",
+    "independent_review_evidence_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+    "independent_review_evidence_path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-INDEPENDENT-REVIEW.json",
+    "semantic_acceptance_commit": "c1d983ebd6eca0a78a41c946709bf246cf876f68",
+    "semantic_acceptance_path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-ACCEPTANCE.json"
   },
   "accepted_findings": {
     "critical": [
@@ -37,8 +38,12 @@
   "qualification_reset": {
     "predecessor_spm_transfer_allowed": false,
     "predecessor_successor_specific_spg_evidence_transfer_allowed": false,
+    "invalidated_preacceptance_semantic_identity": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
+    "invalidated_materialized_candidate": "e964bdf20578067bec8cd1289fae59b1a6a937fa",
     "fresh_spg_generation_required": true,
     "fresh_independent_post_run_verification_required": true,
+    "fresh_fixed_point_regeneration_required": true,
+    "fresh_final_independent_verification_required": true,
     "fresh_sfv45_review_required": true
   },
   "claim_boundary": {
