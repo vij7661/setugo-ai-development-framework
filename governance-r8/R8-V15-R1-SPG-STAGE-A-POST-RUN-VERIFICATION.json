@@ -1,0 +1,100 @@
+{
+  "schema": "r8-v15-r1-spg1-stage-a-post-run-verification/v1",
+  "status": "POST_RUN_CRYPTO_VERIFICATION_PASS_ENROLLMENT_PENDING",
+  "authority_effect": "NONE",
+  "verification_scope": "Independent post-run verification outside GitHub Actions Run 35977138947; does not enroll, activate, qualify, freeze, implement, release, or deploy.",
+  "run": {
+    "run_id": 35977138947,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "control_commit": "42ef32a77ab4b40140de4b6d9d6baae085077502",
+    "artifact_id": 10798283605,
+    "artifact_zip_sha256": "043c4da4755b6df8ace512999082bf50ea02a965f8ef1d596ff4b2c1e19acb99"
+  },
+  "subject": {
+    "name": "spg1-stage-a-subject.tar",
+    "sha256": "8ecb27ed373d4ca4be52fedfafc8d2bdc48b6dd38ad2ce155d9469f0c23c0063",
+    "attestation_id": "49789783",
+    "attestation_bundle_sha256": "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c"
+  },
+  "frozen_inputs": {
+    "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+    "schema_candidate_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
+    "schema_candidate_branch": "freeze/r8-v15-r1-executable-schema-v2-r1",
+    "generator_id": "R8V15R1-SPG-V2",
+    "generator_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
+    "spm_candidate_sha256": "50a2c6598dce000795fe7a49d637c326b1a27a55f04775dab20b3db7647500ff",
+    "deterministic_spm_match": true
+  },
+  "runtime": {
+    "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+    "container_repo_digest": "python@sha256:adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d",
+    "container_image_id": "sha256:444ec9cb9b03c3be7c8b18d4a5e82e7cc908e2c0032c0a6e759338a48250b4de",
+    "runner_environment": "github-hosted",
+    "runner_image": "ubuntu-24.04 / ubuntu24 20260907.300.1"
+  },
+  "github_oidc_identity": {
+    "issuer": "https://token.actions.githubusercontent.com",
+    "workflow_identity": "https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-attestation.yml@refs/heads/attestation/r8-v15-r1-spg1-github-actions-v1",
+    "repository": "vij7661/setugo-ai-development-framework",
+    "repository_id": "1354031068",
+    "ref": "refs/heads/attestation/r8-v15-r1-spg1-github-actions-v1",
+    "source_commit": "42ef32a77ab4b40140de4b6d9d6baae085077502",
+    "trigger": "push",
+    "runner_environment": "github-hosted",
+    "invocation_uri": "https://github.com/vij7661/setugo-ai-development-framework/actions/runs/35977138947/attempts/1",
+    "repository_visibility": "public"
+  },
+  "sigstore": {
+    "leaf_certificate_sha256": "5107e1873c2d18ea3b5ae24fe50eb26ee2b5ec486737266dd957555952fc8fa2",
+    "integrated_time": "2026-09-24T08:45:56Z",
+    "fulcio_leaf_valid_at_integrated_time": true,
+    "fulcio_certificate_chain_verified": true,
+    "dsse_signature_verified": true,
+    "rekor_key_id_matches_trusted_key": true,
+    "rekor_signed_entry_timestamp_verified": true,
+    "rekor_inclusion_proof_verified": true,
+    "rekor_checkpoint_signature_verified": true,
+    "checkpoint_root_matches_inclusion_root": true,
+    "trust_material_cross_check": {
+      "current_tuf_targets_metadata_version": 14,
+      "fulcio_root_target_sha256": "f989aa23def87c549404eadba767768d2a3c8d6d30a8b793f9f518a8eafd2cf5",
+      "fulcio_intermediate_target_sha256": "f8cbecf186db7714624a5f4e99da31a917cbef70a94dd6921f5c3ca969dfe30a",
+      "rekor_public_key_target_sha256": "dce5ef715502ec9f3cdfd11f8cc384b31a6141023d3e7595e9908a81cb6241bd",
+      "note": "Target bytes fetched from sigstore/root-signing matched the hashes published by the current official Sigstore TUF targets metadata. This verifier did not reimplement the entire TUF root-rotation client."
+    }
+  },
+  "exact_repo_byte_binding": {
+    "policy_git_blob": "6e16b472e509b8c3e4ed766949c861a2cf0a4f11",
+    "policy_sha256": "330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b",
+    "workflow_git_blob": "fe5c1c85edc5a29540fe410fe138a8aab4007a58",
+    "workflow_sha256": "5256d61e44350ec338b4c5e76984d590a2775b1d19a6545eaa43dd5d00b8ae11",
+    "spm_git_blob": "a035e409cdca45e83fe45d5762c9bc0fa89d0e97",
+    "generator_binding_git_blob": "fe3536430ea711bf1b3c43e58edb58fac691b7f3",
+    "generator_git_blob": "a79adeb6c6283459430b90bd4985a8fbc697de18"
+  },
+  "verification_results": {
+    "uploaded_artifact_digest_match": true,
+    "subject_digest_match": true,
+    "bundle_digest_match": true,
+    "signed_subject_internal_manifest_match": true,
+    "signed_subject_tar_bytes_match_uploaded_evidence": true,
+    "runtime_manifest_digest_recomputed_match": true,
+    "policy_bytes_match_control_commit": true,
+    "workflow_bytes_match_control_commit": true,
+    "spm_bytes_match_schema_candidate_commit": true,
+    "generator_binding_bytes_match_schema_candidate_commit": true,
+    "generator_bytes_match_schema_candidate_commit": true
+  },
+  "remaining_gate": {
+    "sfv_36": "BLOCKED_PENDING_OUT_OF_BAND_GENERATOR_ENROLLMENT_AND_ACTIVE_NON_REVOKED_LIFECYCLE_APPROVAL",
+    "reason": "R8V8-I020 requires SchemaProvenanceGenerator enrollment and a registry record binding revocation status. Cryptographic workload evidence cannot self-create that governance enrollment.",
+    "qualification_status": "UNATTESTED_RUNTIME",
+    "revocation_state": "UNKNOWN",
+    "sfv_45": "BLOCKED_BEHIND_SFV_36",
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false
+  }
+}
