@@ -81,7 +81,8 @@
       "norm": "NORM-009",
       "schemas": [
         "runtime-contracts#GGSHardState",
-        "runtime-contracts#StateTransferCertificate"
+        "runtime-contracts#StateTransferCertificate",
+        "runtime-contracts#GGSGenesisStateRoot"
       ],
       "validators": [
         "SFV-29",
@@ -112,7 +113,8 @@
     {
       "norm": "NORM-012",
       "schemas": [
-        "runtime-contracts#StateTransferCertificate"
+        "runtime-contracts#StateTransferCertificate",
+        "runtime-contracts#GGSGenesisStateRoot"
       ],
       "validators": [
         "SFV-30"
@@ -200,7 +202,8 @@
     {
       "norm": "NORM-021",
       "schemas": [
-        "runtime-contracts#ResolverConformanceEvidence"
+        "runtime-contracts#ResolverConformanceEvidence",
+        "runtime-contracts#ResolverConformanceSuite1"
       ],
       "validators": [
         "SFV-17"
