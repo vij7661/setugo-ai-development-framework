@@ -1,0 +1,64 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-construction-result/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "executable_schema_freeze_record_commit": "6f0506b6cd2a12eeeb30d79f85224d4b87b6c368",
+  "preregistration_commit": "ce4d6a46d0907922520ef56c3ca62f7c8784a319",
+  "frozen_harness_commit": "9952aa72f8f124514430aef4d0a0b0218318a4e1",
+  "final_mechanism_commit": "ece49e902f1555e8b6f362ef87b82141495d5fc3",
+  "post_freeze_regression_commit": "240511afc41329a6ac25da7d069e8fc3ea3aae20",
+  "workflow_control_commit": "1b4699ec27aa3a2a9383a52a91636e8c0bb1b280",
+  "green_run": {
+    "run_id": 36060770372,
+    "job_id": 107838888005,
+    "exact_checkout_sha": "e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+    "conclusion": "success",
+    "frozen_acceptance": {
+      "tests": 16,
+      "passed": 16
+    },
+    "post_freeze_regressions": {
+      "tests": 12,
+      "passed": 12
+    }
+  },
+  "preserved_failures": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36059530854,
+      "classification": "CONSTRUCTION_MECHANISM_ABSENCE"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-002.json",
+      "run_id": 36060026022,
+      "classification": "EXACT_BYTE_DIGEST_DEFECT"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-CONSTRUCTION-FAILURE-003.json",
+      "run_id": 36060223157,
+      "classification": "SPM_ENTRY_BINDING_DEFECT"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-CONTROL-FAILURE-004.json",
+      "run_id": 36060442863,
+      "classification": "OBSOLETE_PRE_FREEZE_REGRESSION_SELECTION"
+    }
+  ],
+  "immutability": {
+    "frozen_schema_bytes_modified": false,
+    "proof_test": "test_implementation_branch_does_not_modify_frozen_schema_bytes",
+    "frozen_harness_modified_after_freeze": false
+  },
+  "claim_boundary": {
+    "implementation_bounded_slice_constructed": true,
+    "implementation_adjudicated": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
