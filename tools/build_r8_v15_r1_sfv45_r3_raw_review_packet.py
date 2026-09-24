@@ -143,7 +143,7 @@ policy, or terminal authority.
         "governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json",
     ]
     with (OUT / "01_EXACT_CANDIDATE_BYTES.txt").open("wb") as fp:
-        fp.write(b"R8 v15-r1 SFV-45 — PART 1: EXACT CANDIDATE BYTES\n")
+        fp.write("R8 v15-r1 SFV-45 — PART 1: EXACT CANDIDATE BYTES\n".encode())
         fp.write(f"CANDIDATE_SHA={CANDIDATE}\nFIXED_POINT_SHA={FIXED}\n".encode())
         fp.write(b"\n===== CANDIDATE COMMIT =====\n")
         fp.write(out(["git", "show", "--no-patch", "--format=fuller", CANDIDATE]))
@@ -166,12 +166,12 @@ policy, or terminal authority.
         (SEMANTIC, "governance-r8/R8-META-GOVERNANCE-PREREGISTRATION-V14.md"),
     ]
     with (OUT / "02_SEMANTIC_SOURCE_CONTRACTS.txt").open("wb") as fp:
-        fp.write(b"R8 v15-r1 SFV-45 — PART 2: EXACT SEMANTIC/SOURCE CONTRACTS\n")
+        fp.write("R8 v15-r1 SFV-45 — PART 2: EXACT SEMANTIC/SOURCE CONTRACTS\n".encode())
         for ref, path in source_specs:
             append_blob(fp, ref, path, "EXACT SOURCE")
 
     with (OUT / "03_PROVENANCE_AND_FULL_SPM.txt").open("wb") as fp:
-        fp.write(b"R8 v15-r1 SFV-45 — PART 3: FULL PROVENANCE SOURCE MAP + FINAL MATERIALIZED SPM\n")
+        fp.write("R8 v15-r1 SFV-45 — PART 3: FULL PROVENANCE SOURCE MAP + FINAL MATERIALIZED SPM\n".encode())
         for path in [
             "schemas/governance-r8/v15-r1/schema-provenance-source-map.json",
             "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json",
@@ -240,7 +240,7 @@ policy, or terminal authority.
     }
 
     with (OUT / "04_RAW_QUALIFICATION_EVIDENCE.txt").open("wb") as fp:
-        fp.write(b"R8 v15-r1 SFV-45 — PART 4: RAW QUALIFICATION / ATTESTATION / VERIFIER EVIDENCE\n")
+        fp.write("R8 v15-r1 SFV-45 — PART 4: RAW QUALIFICATION / ATTESTATION / VERIFIER EVIDENCE\n".encode())
         fp.write(b"\n===== RUN + ARTIFACT METADATA =====\n")
         fp.write((OUT / "run-and-artifact-metadata.json").read_bytes())
 
