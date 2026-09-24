@@ -1,0 +1,51 @@
+{
+  "schema": "r8-v15-r1-spg-stage-a-prequalification-finding/v1",
+  "finding_id": "SPG-PQF-001",
+  "status": "OPEN_REPAIR_IN_PROGRESS",
+  "authority_effect": "NONE",
+  "classification": "PRE_EXISTING_SCHEMA_FREEZE_PROVENANCE_PACKAGE_INCONSISTENCY",
+  "semantic_change": false,
+  "frozen_semantic_candidate": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "affected_schema_candidate": "8c71169f9d6eb474ec89e950e452eb2130860ede",
+  "evidence": {
+    "source_map_blob": "93973c578f38662d165cc418db54092abd41da3d",
+    "source_map_contains": "SRC-V6",
+    "source_map_commit_before_last_spm_regeneration": "e88d4eb88c1ee204e4febdf7ff932754e8edc9cf",
+    "last_spm_regeneration_commit": "ca1b47f7f3c9ce53eece7e50d569bc101135d251",
+    "generator_blob_at_last_regeneration_and_current": "a79adeb6c6283459430b90bd4985a8fbc697de18",
+    "current_generator_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
+    "attempt_3": {
+      "workflow_run_id": 35975911149,
+      "existing_spm_sha256": "89502805e6170439bf655cc84f8cb239408f85a12f1efe71517b3b957aba2199",
+      "recomputed_spm_sha256": "50a2c6598dce000795fe7a49d637c326b1a27a55f04775dab20b3db7647500ff",
+      "existing_bytes": 1957975,
+      "recomputed_bytes": 1958215,
+      "first_json_difference": "$/source_ref_catalog::<keys>: existing omits SRC-V6; recomputed includes SRC-V6"
+    }
+  },
+  "preserved_failed_runs": [
+    {
+      "run_id": 35975197608,
+      "conclusion": "failure",
+      "reason": "deterministic SPM recomputation mismatch; initial absolute-path diagnostic path"
+    },
+    {
+      "run_id": 35975584999,
+      "conclusion": "failure",
+      "reason": "deterministic SPM recomputation mismatch persisted after relative-path repair"
+    },
+    {
+      "run_id": 35975911149,
+      "conclusion": "failure",
+      "reason": "diagnostic confirmed pre-existing SRC-V6 catalog omission"
+    }
+  ],
+  "required_narrow_repair": "Regenerate only schema-provenance-manifest-candidate.json from the exact current generator/source map/binding, and require parsed equality after adding solely the missing SRC-V6 source_ref_catalog record to the predecessor.",
+  "forbidden_effects": [
+    "do not modify frozen semantic design",
+    "do not modify runtime schemas",
+    "do not mark SPG QUALIFIED",
+    "do not mark revocation_state ACTIVE",
+    "do not close SFV-36 or SFV-45 from this repair"
+  ]
+}
