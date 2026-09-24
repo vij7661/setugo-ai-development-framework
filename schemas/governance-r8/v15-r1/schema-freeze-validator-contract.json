@@ -160,7 +160,7 @@
       "source": [
         "NORM-021"
       ],
-      "requirement": "Only current PASS for exact bound tuple; stale/failed/expired/unavailable evidence cannot qualify or fall back."
+      "requirement": "Resolver qualification requires current PASS evidence for the exact RIR-bound ResolverConformanceSuite-1 identity: suite id/version, vector manifest, vector generator implementation/runtime, input corpus, expected-result manifest, execution harness, required resolver runtime/workload identities and result schema. rcs_suite_digest must equal the bound RIR conformance_suite_digest; every required vector must have one raw result and stale/failed/expired/unavailable evidence cannot qualify or fall back."
     },
     {
       "id": "SFV-18",
@@ -191,7 +191,7 @@
         "NORM-031",
         "NORM-033"
       ],
-      "requirement": "Every mutable authority input is registered, captured, bound into DPS and final seal; state change before commit => STATE_CHANGED and no effect intent."
+      "requirement": "Every mutable authority input is registered, captured, bound into DPS and final seal; state change before commit => STATE_CHANGED and no effect intent. DecisionPresealContext effect_class is present iff the governed decision is effect-bearing; non-effect decisions omit it rather than encode null."
     },
     {
       "id": "SFV-21",
@@ -248,7 +248,7 @@
         "NORM-002",
         "NORM-030"
       ],
-      "requirement": "Missing required authority field is validation failure, never default/fallback authority."
+      "requirement": "Missing required authority field is validation failure, never default/fallback authority. Conditionally applicable fields must follow their frozen presence predicate exactly; irrelevance is represented by governed omission, not caller-selected null/default authority."
     },
     {
       "id": "SFV-27",
@@ -257,7 +257,7 @@
       "source": [
         "NORM-003"
       ],
-      "requirement": "Successor generation is exactly predecessor+1; predecessor authorization/MTR reservation/BTW consistency all bind the same successor; requires 4-of-5 ACTIVE EBA officers across at least 3 ACTIVE admin domains; a newly created/reactivated domain cannot sign the successor that creates/reactivates it."
+      "requirement": "Successor generation is exactly predecessor+1; predecessor authorization/MTR reservation/BTW consistency all bind the same successor; requires 4-of-5 ACTIVE EBA officers across at least 3 ACTIVE admin domains; a newly created/reactivated domain cannot sign the successor that creates/reactivates it. T0SuccessorManifest may not introduce unrelated bootstrap-only fields absent from the frozen successor contract."
     },
     {
       "id": "SFV-28",
@@ -276,7 +276,7 @@
         "NORM-009",
         "NORM-010"
       ],
-      "requirement": "GGS and LAS use 3 replicas/2-of-3 ordinary majority; rollback-resistant term/vote/index/head state; stale replica non-voting; GGS atomically consumes namespace/bootstrap authorization; LAS atomically compare-and-advances non-commutative heads and preserves idempotency state; JOINT rotation requires both old and new majorities."
+      "requirement": "GGS and LAS use 3 replicas/2-of-3 ordinary majority; rollback-resistant term/vote/index/head state; stale replica non-voting; GGS atomically consumes namespace/bootstrap authorization; LAS atomically compare-and-advances non-commutative heads and preserves idempotency state; JOINT rotation requires both old and new majorities. LASAuthorityStateRoot and GGSGenesisStateRoot must recompute from their exact frozen GCP-1 member sets, including conditional GGS semantic-state members only when the governed GGS transition consumes or initializes semantic state."
     },
     {
       "id": "SFV-30",
@@ -286,7 +286,7 @@
         "NORM-011",
         "NORM-012"
       ],
-      "requirement": "ROTATION_PREPARE commits barrier B and freezes covered writes; STC binds the exact B snapshot/state roots/semantic heads; one barrier serves at most one lawful rotation; same rotation/config/STC retry is idempotent; changed retry is IDEMPOTENCY_CONFLICT; different rotation on reserved B is BARRIER_ALREADY_RESERVED; ABORT permanently closes B; contradictory valid reservations are STC_EQUIVOCATION."
+      "requirement": "ROTATION_PREPARE commits barrier B and freezes covered writes; STC binds the exact ROTATION_PREPARE/barrier certificate digest, exact B snapshot, and the correct embedded LASAuthorityStateRoot(B) or GGSGenesisStateRoot(B). LAS semantic_heads are required; GGS semantic_heads are required iff the governed GGS transition consumes or initializes semantic state. One barrier serves at most one lawful rotation; same rotation/config/STC retry is idempotent; changed retry is IDEMPOTENCY_CONFLICT; different rotation on reserved B is BARRIER_ALREADY_RESERVED; ABORT permanently closes B; contradictory valid reservations are STC_EQUIVOCATION."
     },
     {
       "id": "SFV-31",
@@ -295,9 +295,10 @@
       "source": [
         "NORM-002",
         "NORM-025",
-        "NORM-030"
+        "NORM-030",
+        "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
       ],
-      "requirement": "Canonical authority input/output obeys inherited GCP: absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields. Every digest-bearing field is validated against its exact governing source or bound crypto profile; when a source explicitly fixes SHA-256 or another concrete encoding, malformed values reject before authority use. Generic opaque digest references must not be silently reinterpreted as a different algorithm."
+      "requirement": "Canonical authority input/output obeys inherited GCP: object keys are sorted lexicographically by NFC Unicode scalar sequence; absent != null; defaults applied only before digest; NFC keys; duplicate or post-NFC-colliding keys reject; unpaired surrogates/noncharacters reject; ordered arrays preserve order; set arrays canonical-sort and reject duplicates; signed-int64 rules; schema-declared extensions included in digest and cannot shadow standard/sys: fields. The corrected P05 int64-boundary canonical bytes are exactly {\"max\":9223372036854775807,\"min\":-9223372036854775808} with SHA-256 161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb."
     },
     {
       "id": "SFV-32",
@@ -318,7 +319,7 @@
         "NORM-015",
         "NORM-016"
       ],
-      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, AIMScopePolicy, ResolverPolicy and supporting heads/rules; canonical arrays use the frozen canonical ordering; updates are LAS-governed authority events; all named heads are read from one current LAS-derived semantic_state_sequence; LASAuthorityStateRoot state_root_digest equals the GCP-1 digest of the exact frozen root members; historical/caller-selected sequence has authority NONE."
+      "requirement": "CSM-5 contains the canonical semantic entries, lineage mappings, scope replacement mappings, ANY permissions, AIM descriptors, resolver_policy_ref and CSM-bound supporting registries/rules; canonical arrays use frozen ordering; updates are LAS-governed authority events; all named semantic heads are read from one current LAS-derived semantic_state_sequence. LASAuthorityStateRoot state_root_digest equals the GCP-1 digest of the exact flat frozen root members with no nested aggregate or extra configuration-head member; historical/caller-selected sequence has authority NONE."
     },
     {
       "id": "SFV-34",
@@ -358,9 +359,10 @@
       "source": [
         "R8V4-I026..I029",
         "R8V5-I034",
-        "R8V8-I034..I035"
+        "R8V8-I034..I035",
+        "R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION"
       ],
-      "requirement": "Recompute SHA-256 over every frozen expected canonical UTF-8 byte string and require exact digest match."
+      "requirement": "Recompute SHA-256 over every frozen expected canonical UTF-8 byte string and require exact digest match. P05 uses corrected lexicographic max,min order and SHA-256 161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb."
     },
     {
       "id": "SFV-38",
