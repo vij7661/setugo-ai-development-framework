@@ -69,9 +69,16 @@ jobs:
           assert 'SRC-SPG-ENROLLMENT' in sm['named_source_refs']
           assert 'SRC-SPG-STAGEB-VERIFY' in sm['named_source_refs']
           PY
-          changed="$(git -C candidate diff --name-only "$PREDECESSOR_QUALIFIED_COMMIT" "$INPUT_COMMIT" -- schemas/governance-r8/v15-r1 | sort)"
-          expected="$(printf '%s\n' schemas/governance-r8/v15-r1/schema-freeze-traceability.json schemas/governance-r8/v15-r1/schema-provenance-source-map.json | sort)"
-          test "$changed" = "$expected"
+          python3 - <<'PY'
+          from pathlib import Path
+          a=Path('predecessor/schemas/governance-r8/v15-r1')
+          b=Path('candidate/schemas/governance-r8/v15-r1')
+          ap={p.relative_to(a).as_posix():p for p in a.rglob('*') if p.is_file()}
+          bp={p.relative_to(b).as_posix():p for p in b.rglob('*') if p.is_file()}
+          assert set(ap)==set(bp), 'schema file set drift'
+          changed={name for name in ap if ap[name].read_bytes()!=bp[name].read_bytes()}
+          assert changed=={'schema-freeze-traceability.json','schema-provenance-source-map.json'}, changed
+          PY
 
       - name: Regenerate SPM in exact enrolled runtime
         shell: bash
