@@ -459,7 +459,7 @@
         "SFV-35",
         "SFV-44"
       ],
-      "status": "SPM_REGENERATION_REQUIRED_AFTER_R3_REPAIR"
+      "status": "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR"
     },
     {
       "rule_id": "SFG-002",
@@ -474,7 +474,7 @@
         "SFV-35",
         "SFV-43"
       ],
-      "status": "SOURCE_REBIND_REQUIRED_AFTER_R3_REPAIR"
+      "status": "SOURCE_REBIND_COMPLETE_PENDING_SPM_REGENERATION"
     },
     {
       "rule_id": "SFG-003",
@@ -492,7 +492,7 @@
         "SFV-36",
         "SFV-44"
       ],
-      "status": "REQUALIFICATION_REQUIRED_AFTER_R3_REPAIR"
+      "status": "REQUALIFICATION_REQUIRED_AFTER_SCHEMA_REPAIR"
     },
     {
       "rule_id": "SFG-004",
@@ -513,7 +513,7 @@
         "SFV-37",
         "SFV-38"
       ],
-      "status": "P05_SEMANTIC_SUCCESSOR_REPAIR_PENDING_VALIDATION"
+      "status": "P05_SEMANTIC_SUCCESSOR_VALIDATED"
     },
     {
       "rule_id": "SFG-005",
@@ -562,18 +562,10 @@
   ],
   "freeze_process_rule_count": 7,
   "final_freeze_blockers": [
-    "SFV-17",
-    "SFV-20",
-    "SFV-27",
-    "SFV-29",
-    "SFV-30",
-    "SFV-31",
-    "SFV-33",
     "SFV-35",
     "SFV-36",
-    "SFV-37",
     "SFV-44",
     "SFV-45"
   ],
-  "note": "R3 repair successor. Frozen semantic predecessor c721b38cf8b00294797300b526596ce723a47ff8 is superseded narrowly by semantic successor d6317eb85753b0e41168413151ddcebbdcba1c6d for GCP P05 only. Deterministic validation run 36041664344 PASS confirms the amendment preserves R8V3-I023 lexicographic NFC key ordering, corrects only the contradictory R8V5-I034 P05 bytes/hash, and leaves historical v5 bytes unchanged. R3 executable repairs are pending validation. Any schema/vector byte change reopens SFV-35/SFV-36/SFV-44; SFV-45 requires fresh independent review of the exact requalified candidate."
+  "note": "R3 adjudicated executable repairs are structurally validated. Narrow semantic successor d6317eb85753b0e41168413151ddcebbdcba1c6d is independently validated by run 36041664344. Exact repair candidate validation run 36043984412 passed focused R2/R3 regressions, JSON parsing, and the complete 107-test governance-runtime unittest suite when run from its required working directory. The earlier run 36043903518 is preserved as failed harness evidence because two dashboard tests were launched from the wrong working directory; it did not identify a candidate defect. Functional repair blockers are closed for prequalification purposes. Fresh exact-byte SPG generation and independent post-run verification remain required for SFV-35/SFV-36/SFV-44; SFV-45 requires fresh independent review of the exact materialized candidate."
 }
