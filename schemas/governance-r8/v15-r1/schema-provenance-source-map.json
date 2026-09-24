@@ -282,32 +282,25 @@
       ],
       "pointer_prefix_sources": {
         "/freeze_process_mappings/2/status": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ],
         "/final_freeze_blockers": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ],
         "/note": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ],
         "/status": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ],
         "/freeze_process_mappings/0/status": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ],
         "/freeze_process_mappings/1/status": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ],
         "/freeze_process_mappings/6/status": [
-          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "SPG-QUALIFICATION-V2-R1-2026-09-24"
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2"
         ]
       }
     }
@@ -408,18 +401,6 @@
       "path": "governance-r8/R8-V15-R1-SPG-STAGE-B-POST-RUN-VERIFICATION.json",
       "commit": "aa7451e14c507fa71c96878e2228971e8c291663",
       "blob": "d4d6929ecf7b14f49097ee8751f79378abd206da"
-    },
-    "SRC-SPG-V2R1-EXTENSION": {
-      "design_id": "R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1",
-      "path": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json",
-      "commit": "ffcf2c773d42b7127c1b584a2f4a89a32fb22f44",
-      "blob": "b9150c3a1cc9bb6fa2ece2ae7cbcbbf4b796a78a"
-    },
-    "SRC-SPG-V2R1-VERIFY": {
-      "design_id": "R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION",
-      "path": "governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json",
-      "commit": "ffcf2c773d42b7127c1b584a2f4a89a32fb22f44",
-      "blob": "82ef8932ffb0974bc45701fcdb9ba16cfa779fa6"
     },
     "SRC-V14": {
       "design_id": "R8-V14",
@@ -587,13 +568,6 @@
       "source_ref_ids": [
         "SRC-SPG-ENROLLMENT",
         "SRC-SPG-STAGEB-VERIFY"
-      ]
-    },
-    {
-      "match_prefix": "SPG-QUALIFICATION-V2-R1-2026-09-24",
-      "source_ref_ids": [
-        "SRC-SPG-V2R1-EXTENSION",
-        "SRC-SPG-V2R1-VERIFY"
       ]
     },
     {
