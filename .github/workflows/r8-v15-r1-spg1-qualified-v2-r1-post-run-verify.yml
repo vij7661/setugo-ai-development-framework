@@ -17,22 +17,22 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SOURCE_RUN_ID: "35990169768"
-  SOURCE_RUN_HEAD: "f84cad68761448bd152174e450799b6985d2ed6e"
-  SOURCE_ARTIFACT_ID: "10803947174"
-  SOURCE_ARTIFACT_NAME: r8-v15-r1-spg1-v2-r1-final-35990169768-1
-  SOURCE_ARTIFACT_ZIP_SHA256: 0a7d20182101c5d2b8581d79ff023af0f9103e955696504ae49d8fc3ddd4e834
-  SOURCE_SUBJECT_SHA256: 09022ed062da838a01181ba5b1dd9df5cb690ea1bc73e74a75bbfad747467827
-  SOURCE_BUNDLE_SHA256: df33ff5fc7d50930adea3a099ee4a34172c5c9d5024442b77221706ad9cd8772
-  FINAL_SPM_SHA256: 3fbd3a7ce5b09a1de9b46af95702a7cf382a9e2792cf9fdb8bdc1fdbfd19683f
-  SOURCE_ATTESTATION_ID: "49820802"
-  INPUT_COMMIT: 77f0894d7165374928ffafa525c63fc3a06d8cc1
+  SOURCE_RUN_ID: "36030060420"
+  SOURCE_RUN_HEAD: "caadee8b93c914b9048d9187c5ead65693a5c919"
+  SOURCE_ARTIFACT_ID: "10821245675"
+  SOURCE_ARTIFACT_NAME: r8-v15-r1-spg1-v2-r1-36030060420-1
+  SOURCE_ARTIFACT_ZIP_SHA256: 8efafd47bd1c6017544346d09e9e45bcaa49853247b6f4e51a0fec6f43a0ad21
+  SOURCE_SUBJECT_SHA256: 42f9da1f32989d68c5c00ef84a31b015e8a1986834d00d77448335903bcb92f4
+  SOURCE_BUNDLE_SHA256: 67847481d71d8c943c6211c08cb4a3eaaa4db1e75c3f798b28518fe6abb51bd3
+  QUALIFIED_SPM_SHA256: 4358f80a80a975cb777d4e5af304ea54e7150cc8cfe26060b9326c70692faf49
+  SOURCE_ATTESTATION_ID: "49923031"
+  INPUT_COMMIT: cd3a47c9f8d6830764f6f98c5f3a28d8c988f8cb
   SEMANTIC_CANDIDATE_COMMIT: c721b38cf8b00294797300b526596ce723a47ff8
   RUNTIME_MANIFEST_DIGEST: 5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a
 
 jobs:
   verify:
-    name: Independently verify final fixed-point regeneration
+    name: Independently verify repaired successor generation
     runs-on: ubuntu-24.04
     timeout-minutes: 15
 
@@ -44,7 +44,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
-      - name: Checkout exact fixed-point candidate
+      - name: Checkout exact repaired successor
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ env.INPUT_COMMIT }}
@@ -66,15 +66,15 @@ jobs:
           assert run['head_sha']==os.environ['SOURCE_RUN_HEAD']
           assert run['head_branch']=='enrollment/r8-v15-r1-spg1-qualified-v2-r1'
           arts=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{os.environ["SOURCE_RUN_ID"]}/artifacts']))['artifacts']
-          a=[x for x in arts if str(x['id'])==os.environ['SOURCE_ARTIFACT_ID']]
-          assert len(a)==1
-          a=a[0]
+          matches=[a for a in arts if str(a['id'])==os.environ['SOURCE_ARTIFACT_ID']]
+          assert len(matches)==1
+          a=matches[0]
           assert a['name']==os.environ['SOURCE_ARTIFACT_NAME']
           assert a['digest']=='sha256:'+os.environ['SOURCE_ARTIFACT_ZIP_SHA256']
           assert not a['expired']
           PY
 
-      - name: Download exact final regeneration artifact
+      - name: Download exact source artifact
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -82,12 +82,12 @@ jobs:
           set -euo pipefail
           mkdir -p verify-input
           gh run download "$SOURCE_RUN_ID" --repo "${{ github.repository }}" --name "$SOURCE_ARTIFACT_NAME" --dir verify-input
-          test -f verify-input/spg1-v2-r1-final-subject.tar
-          test -f verify-input/final-r1-attestation-bundle.jsonl
-          test -f verify-input/final-r1/spm-final-v2-r1.json
-          test "$(sha256sum verify-input/spg1-v2-r1-final-subject.tar | awk '{print $1}')" = "$SOURCE_SUBJECT_SHA256"
-          test "$(sha256sum verify-input/final-r1-attestation-bundle.jsonl | awk '{print $1}')" = "$SOURCE_BUNDLE_SHA256"
-          test "$(sha256sum verify-input/final-r1/spm-final-v2-r1.json | awk '{print $1}')" = "$FINAL_SPM_SHA256"
+          test -f verify-input/spg1-v2-r1-subject.tar
+          test -f verify-input/stage-r1-attestation-bundle.jsonl
+          test -f verify-input/stage-r1/spm-qualified-v2-r1.json
+          test "$(sha256sum verify-input/spg1-v2-r1-subject.tar | awk '{print $1}')" = "$SOURCE_SUBJECT_SHA256"
+          test "$(sha256sum verify-input/stage-r1-attestation-bundle.jsonl | awk '{print $1}')" = "$SOURCE_BUNDLE_SHA256"
+          test "$(sha256sum verify-input/stage-r1/spm-qualified-v2-r1.json | awk '{print $1}')" = "$QUALIFIED_SPM_SHA256"
 
       - name: Verify GitHub Sigstore attestation outside signing run
         shell: bash
@@ -95,20 +95,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh attestation verify verify-input/spg1-v2-r1-final-subject.tar             --repo "${{ github.repository }}"             --bundle verify-input/final-r1-attestation-bundle.jsonl             --format json > final-post-run-gh-attestation-verification.json
+          gh attestation verify verify-input/spg1-v2-r1-subject.tar             --repo "${{ github.repository }}"             --bundle verify-input/stage-r1-attestation-bundle.jsonl             --format json > post-run-gh-attestation-verification.json
 
-      - name: Verify exact fixed-point bytes and closure condition
+      - name: Verify identity, exact bytes, and provenance
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import hashlib,json,os,pathlib,tarfile,tempfile
+          import hashlib, json, os, pathlib, tarfile, tempfile
           root=pathlib.Path('verify-input')
-          vr=json.loads(pathlib.Path('final-post-run-gh-attestation-verification.json').read_text())
+          vr=json.loads(pathlib.Path('post-run-gh-attestation-verification.json').read_text())
           assert isinstance(vr,list) and len(vr)==1
           res=vr[0]['verificationResult']
           cert=res['signature']['certificate']
-          expected_identity='https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-v2-r1-final-regeneration.yml@refs/heads/enrollment/r8-v15-r1-spg1-qualified-v2-r1'
+          expected_identity='https://github.com/vij7661/setugo-ai-development-framework/.github/workflows/r8-v15-r1-spg1-qualified-v2-r1-regeneration.yml@refs/heads/enrollment/r8-v15-r1-spg1-qualified-v2-r1'
           assert cert['subjectAlternativeName']==expected_identity
           assert cert['issuer']=='https://token.actions.githubusercontent.com'
           assert cert['githubWorkflowSHA']==os.environ['SOURCE_RUN_HEAD']
@@ -117,23 +117,24 @@ jobs:
           assert cert['runnerEnvironment']=='github-hosted'
           assert cert['sourceRepositoryIdentifier']=='1354031068'
           assert cert['runInvocationURI']==f'https://github.com/vij7661/setugo-ai-development-framework/actions/runs/{os.environ["SOURCE_RUN_ID"]}/attempts/1'
-          assert res['statement']['subject']==[{'name':'spg1-v2-r1-final-subject.tar','digest':{'sha256':os.environ['SOURCE_SUBJECT_SHA256']}}]
+          assert res['statement']['subject']==[{'name':'spg1-v2-r1-subject.tar','digest':{'sha256':os.environ['SOURCE_SUBJECT_SHA256']}}]
           assert res['verifiedTimestamps']
 
           with tempfile.TemporaryDirectory() as td:
               td=pathlib.Path(td)
-              with tarfile.open(root/'spg1-v2-r1-final-subject.tar','r') as tf:
+              with tarfile.open(root/'spg1-v2-r1-subject.tar','r') as tf:
                   tf.extractall(td)
               for p in td.rglob('*'):
                   if p.is_file():
-                      q=root/'final-r1'/p.relative_to(td)
+                      q=root/'stage-r1'/p.relative_to(td)
                       assert q.is_file() and p.read_bytes()==q.read_bytes(), f'expanded mismatch {p}'
 
-          c=pathlib.Path('candidate/schemas/governance-r8/v15-r1')
-          spm=json.loads((root/'final-r1/spm-final-v2-r1.json').read_text())
-          sm=json.loads((c/'schema-provenance-source-map.json').read_text())
-          tr=json.loads((c/'schema-freeze-traceability.json').read_text())
-          b=json.loads((c/'schema-provenance-generator-binding.json').read_text())
+          candidate=pathlib.Path('candidate/schemas/governance-r8/v15-r1')
+          spm=json.loads((root/'stage-r1/spm-qualified-v2-r1.json').read_text())
+          sm=json.loads((candidate/'schema-provenance-source-map.json').read_text())
+          binding=json.loads((candidate/'schema-provenance-generator-binding.json').read_text())
+          trace=json.loads((candidate/'schema-freeze-traceability.json').read_text())
+          ext=json.loads((root/'stage-r1/enrollment-extension.json').read_text())
 
           assert spm['status']=='FINAL_FREEZE_ELIGIBLE'
           assert spm['semantic_candidate_commit']==os.environ['SEMANTIC_CANDIDATE_COMMIT']
@@ -142,16 +143,21 @@ jobs:
           assert spm['generator']['qualification_status']=='QUALIFIED'
           assert spm['source_ref_catalog']==sm['named_source_refs']
           assert spm['coverage']=={'uncovered_semantic_elements':[],'non_authoritative_only_sources':[],'conflicting_entries':[]}
-          assert b['qualification_status']=='QUALIFIED' and b['revocation_state']=='ACTIVE'
-          assert tr['status']=='QUALIFIED_EVIDENCE_REBIND_PRECOMMIT_NON_AUTHORITATIVE'
-          assert tr['final_freeze_blockers']==['SFV-45']
+          assert binding['status']=='QUALIFIED_GENERATOR_BINDING'
+          assert binding['qualification_status']=='QUALIFIED'
+          assert binding['revocation_state']=='ACTIVE'
+          assert binding['runtime_manifest']['runtime_manifest_digest']==os.environ['RUNTIME_MANIFEST_DIGEST']
+          assert ext['approval']['target_repaired_successor_commit']==os.environ['INPUT_COMMIT']
+          assert ext['approval']['require_fresh_attested_generator_execution'] is True
+          assert ext['approval']['require_independent_post_run_verification'] is True
+          assert trace['final_freeze_blockers']==['SFV-35','SFV-36','SFV-44','SFV-45']
 
           amap={a['path'].split('/')[-1]:a for a in spm['artifacts']}
           assert set(amap)==set(sm['artifact_sources'])
           for name,a in amap.items():
-              raw=(c/name).read_bytes()
+              raw=(candidate/name).read_bytes()
               assert a['sha256']==hashlib.sha256(raw).hexdigest(), name
-          assert amap['schema-freeze-traceability.json']['sha256']==hashlib.sha256((c/'schema-freeze-traceability.json').read_bytes()).hexdigest()
+
           refs=set(sm['named_source_refs'])
           for e in spm['entries']:
               assert e['generator_runtime_manifest_digest']==os.environ['RUNTIME_MANIFEST_DIGEST']
@@ -159,9 +165,9 @@ jobs:
               assert e['source_ref_ids'] and set(e['source_ref_ids'])<=refs
 
           out={
-            'schema':'r8-v15-r1-spg1-v2-r1-final-post-run-verification/v1',
-            'status':'POST_RUN_FINAL_FIXED_POINT_VERIFICATION_PASS',
-            'authority_effect':'EXECUTABLE_SCHEMA_PROVENANCE_EVIDENCE_ONLY',
+            'schema':'r8-v15-r1-spg1-v2-r1-post-run-verification/v1',
+            'status':'POST_RUN_REPAIRED_SUCCESSOR_GENERATION_VERIFICATION_PASS',
+            'authority_effect':'PROVENANCE_EVIDENCE_ONLY',
             'input_commit':os.environ['INPUT_COMMIT'],
             'source_run_id':int(os.environ['SOURCE_RUN_ID']),
             'source_run_head':os.environ['SOURCE_RUN_HEAD'],
@@ -170,32 +176,31 @@ jobs:
             'attestation_id':int(os.environ['SOURCE_ATTESTATION_ID']),
             'subject_sha256':os.environ['SOURCE_SUBJECT_SHA256'],
             'attestation_bundle_sha256':os.environ['SOURCE_BUNDLE_SHA256'],
-            'final_spm_sha256':os.environ['FINAL_SPM_SHA256'],
+            'qualified_spm_sha256':os.environ['QUALIFIED_SPM_SHA256'],
             'github_attestation_verification_pass':True,
             'oidc_identity_exact_match':True,
             'verified_timestamp_present':True,
             'artifact_expanded_bytes_match':True,
             'qualified_provenance_validation_pass':True,
-            'fixed_point_traceability_condition_satisfied':True,
-            'sfv_35':'EVIDENCE_COMPLETE_EXACT_REBIND_BYTES',
-            'sfv_36':'EVIDENCE_COMPLETE_EXACT_REBIND_BYTES',
-            'sfv_44':'EVIDENCE_COMPLETE_EXACT_REBIND_BYTES',
-            'sfv_45':'SOLE_REMAINING_EXECUTABLE_SCHEMA_FREEZE_BLOCKER',
+            'sfv_35':'EVIDENCE_COMPLETE_FOR_INPUT_COMMIT',
+            'sfv_36':'EVIDENCE_COMPLETE_FOR_INPUT_COMMIT',
+            'sfv_44':'EVIDENCE_COMPLETE_FOR_INPUT_COMMIT',
+            'sfv_45':'STILL_REQUIRED',
+            'requires_traceability_rebind_and_final_regeneration':True,
             'implementation_authorized':False,
             'runtime_qualification_authorized':False,
             'release_authorized':False,
-            'deployment_authorized':False,
-            'production_authorized':False
+            'deployment_authorized':False
           }
-          pathlib.Path('final-post-run-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+          pathlib.Path('post-run-verification.json').write_text(json.dumps(out,indent=2)+'\n')
           PY
 
-      - name: Upload final independent verification evidence
+      - name: Upload independent verification evidence
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: r8-v15-r1-spg1-v2-r1-final-post-run-${{ github.run_id }}-${{ github.run_attempt }}
+          name: r8-v15-r1-spg1-v2-r1-post-run-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            final-post-run-gh-attestation-verification.json
-            final-post-run-verification.json
+            post-run-gh-attestation-verification.json
+            post-run-verification.json
           if-no-files-found: error
           retention-days: 90
