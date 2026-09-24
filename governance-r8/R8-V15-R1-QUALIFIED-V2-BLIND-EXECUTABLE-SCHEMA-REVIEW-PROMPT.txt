@@ -1,0 +1,68 @@
+R8 v15-r1 QUALIFIED EXECUTABLE-SCHEMA BLIND REVIEW
+Exact qualified candidate commit: dab6c2e2692d7e2061b77af83b43888b84d705ae
+Frozen semantic candidate: c721b38cf8b00294797300b526596ce723a47ff8
+Review branch: review/r8-v15-r1-executable-schema-qualified-v2-2026-09-24
+Authority effect of this packet: NONE
+
+INDEPENDENT REVIEWER INSTRUCTIONS
+
+You are performing a fresh blind independent executable-schema review for SFV-45.
+
+You are NOT being asked to review implementation, deployment, runtime correctness, production readiness, or business policy. A favorable review can close only the executable-schema-freeze review gate for the exact candidate above.
+
+Blindness and evidence rules:
+1. Do not rely on prior reviewer findings, adjudications, internal PASS reports, model recollection, repository history, or claimed conclusions outside these attached packet files.
+2. Treat the packet contents as evidence to inspect, not as conclusions to accept.
+3. Do not infer missing evidence. If a load-bearing requirement cannot be established from the supplied packet, classify it as insufficient evidence or a finding.
+4. Do not weaken, reinterpret, or substitute the frozen semantic design.
+5. Review exact candidate bytes/structures represented in the attached packet set. A predecessor or differently digested candidate does not transfer.
+6. A green schema validator, a QUALIFIED label, or a provenance record is not by itself proof that semantics are correctly encoded.
+7. Look specifically for false-green paths: optional authority-bearing fields, default/fallback authority, schema underconstraint, ambiguous unions, missing cross-field constraints, incomplete registries/cases, provenance gaps, stale source binding, total-table defects, review-presentation influence, and any route where malformed/missing evidence could still validate.
+
+Required review scope:
+- frozen semantic design vs runtime-contract schema encoding;
+- SFV-01 through SFV-44 requirements;
+- GuardRegistry/CaseRegistry schema and source consistency;
+- SRTT-4 domain completeness, uniqueness, rule membership, and declared result semantics;
+- BSP-5 and NCG structural closure;
+- GCP-RVM-2 positive/rejection-vector representation;
+- RPS-1 review-presentation classifications and non-semantic safety;
+- CaseProofContracts G001..G156 and FP0..FP6 closure;
+- SPM-1 provenance completeness/source authority;
+- SchemaProvenanceGenerator binding constraints as encoded in the exact qualified candidate;
+- exact traceability coverage and any missing inherited freeze-process obligation;
+- any semantic weakening introduced by JSON-Schema expressiveness gaps or unsupported cross-object invariants.
+
+Do NOT fail the candidate merely because some runtime invariants require deterministic code in addition to JSON Schema, provided the schema/validator contract explicitly preserves the invariant and does not falsely claim schema-only enforcement. Do fail it if the executable-schema package leaves a required invariant unenforceable, ambiguous, optional, or falsely satisfiable.
+
+Required output:
+
+A. Overall disposition: exactly one of
+- BOUNDED_PASS
+- CHANGES_REQUIRED
+- INSUFFICIENT_EVIDENCE
+
+B. Candidate identity reviewed
+- exact qualified candidate commit
+- exact semantic candidate commit
+- packet files actually examined
+
+C. Critical findings
+For each: ID, severity, affected artifact/rule, concrete false-green/failure path, why current package is insufficient, narrow required fix.
+
+D. High findings
+Same fields.
+
+E. Medium/Low findings
+Same fields.
+
+F. SFV coverage assessment
+Explicitly state whether SFV-01..SFV-44 are sufficiently represented for executable-schema freeze. List any rule IDs not established and why.
+
+G. Semantic-preservation assessment
+State whether the executable schemas preserve the frozen semantic design without adding, weakening, or broadening authority.
+
+H. Final gate statement
+State whether this exact candidate is acceptable for SFV-45 executable-schema-freeze review only. Explicitly state that even BOUNDED_PASS grants NO implementation, runtime qualification, release, deployment, production, policy, or terminal authority.
+
+Do not include implementation recommendations beyond narrow fixes needed to make the executable-schema package reviewable/passable.
