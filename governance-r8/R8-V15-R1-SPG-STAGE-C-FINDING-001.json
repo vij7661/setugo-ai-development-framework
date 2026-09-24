@@ -1,0 +1,22 @@
+{
+  "schema": "r8-v15-r1-spg1-stage-c-finding/v1",
+  "finding_id": "SPG-QV2F-001",
+  "status": "REPAIRED_PENDING_RERUN",
+  "authority_effect": "NONE",
+  "classification": "QUALIFICATION_CONTROL_SHALLOW_CHECKOUT_COMPARISON_DEFECT",
+  "semantic_change": false,
+  "failed_run": {
+    "run_id": 35983358027,
+    "failed_step": "Fail closed on input, generator, binding, or unintended drift",
+    "error": "fatal: bad object e6a4f9e9ee5fb466ee89cf9113999df425af2cf5"
+  },
+  "root_cause": "The candidate and predecessor were intentionally checked out into separate depth-1 worktrees. The control then attempted git diff in the candidate worktree against a predecessor object that was not present there.",
+  "required_repair": "Compare the two checked-out schema trees directly by relative path and bytes, allowing only schema-freeze-traceability.json and schema-provenance-source-map.json to differ.",
+  "forbidden_changes": [
+    "no candidate byte change",
+    "no generator change",
+    "no qualification binding change",
+    "no semantic change",
+    "no weakening of allowed-delta set"
+  ]
+}
