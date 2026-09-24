@@ -1,0 +1,26 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "ce4d6a46d0907922520ef56c3ca62f7c8784a319",
+  "frozen_harness_commit": "9952aa72f8f124514430aef4d0a0b0218318a4e1",
+  "trigger_commit": "2ac71d73372f8e9a47b375b7d6e4b452b3a8e757",
+  "workflow_run_id": 36059530854,
+  "workflow_job_id": 107834817705,
+  "exact_checkout_sha": "2ac71d73372f8e9a47b375b7d6e4b452b3a8e757",
+  "observed_outcome": {
+    "tests_run": 16,
+    "failures": 16,
+    "root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_frozen_schema_runtime'",
+    "classification": "CONSTRUCTION_MECHANISM_ABSENCE"
+  },
+  "interpretation": "Expected preregistered RED result before mechanism implementation. No acceptance criterion was weakened and no candidate implementation existed.",
+  "claim_boundary": {
+    "implementation_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
