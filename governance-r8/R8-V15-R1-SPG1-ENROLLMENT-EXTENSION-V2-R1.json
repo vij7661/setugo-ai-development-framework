@@ -1,0 +1,45 @@
+{
+  "schema": "r8-v15-r1-spg1-enrollment-extension-v2-r1/v1",
+  "status": "ACTIVE_ENROLLMENT_EXTENSION_FOR_EXACT_REPAIRED_SUCCESSOR",
+  "authority_effect": "SPG1_GENERATOR_QUALIFICATION_ONLY",
+  "generator_id": "R8V15R1-SPG-V2",
+  "predecessor_enrollment_record": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-RECORD.json",
+  "predecessor_verified_stage_a_run_id": 35977138947,
+  "approval": {
+    "source": "explicit_user_approval_in_governed_conversation",
+    "approved_at": "2026-09-24T10:41:30Z",
+    "approved_text": "Approved — extend the existing enrollment of `R8V15R1-SPG-V2` to repaired executable-schema successor `bfe078a741855b423e9899d4debd440d21147876`, under the already approved GitHub Actions/Sigstore attestation policy. Require a fresh attested generator execution and independent post-run verification for this successor. This approval grants no implementation, runtime qualification, release, deployment, production, policy, or terminal authority.",
+    "target_repaired_successor_commit": "bfe078a741855b423e9899d4debd440d21147876",
+    "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+    "require_fresh_attested_generator_execution": true,
+    "require_independent_post_run_verification": true,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  },
+  "inherited_qualified_workload_binding": {
+    "generator_artifact_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
+    "runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd51dd0147a",
+    "workload_attestation_policy_digest": "330e72f8ec23218c5cba5f7a80e10b8c6fe02cef727e45f2463e0ccfb1793a2b",
+    "predecessor_workload_attestation_proof_digest": "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e9074f5a25b31478c51c",
+    "container_repo_digest": "python@sha256:adafcc17694d715c905b4c7bebd96907a1fd5cf183395f0ebc4d3428bd22d92d"
+  },
+  "lifecycle": {
+    "revocation_state": "ACTIVE",
+    "qualification_status": "QUALIFIED_FOR_GENERATOR_IDENTITY_AND_RUNTIME_ONLY",
+    "successor_output_status": "PENDING_FRESH_ATTESTED_GENERATION_AND_POST_RUN_VERIFICATION",
+    "no_predecessor_output_transfer": true
+  },
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false
+  }
+}
