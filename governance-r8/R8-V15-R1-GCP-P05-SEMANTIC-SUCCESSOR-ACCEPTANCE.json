@@ -1,0 +1,24 @@
+{
+  "schema": "r8-v15-r1-gcp-p05-semantic-successor-acceptance/v1",
+  "status": "FROZEN_SEMANTIC_SUCCESSOR_BASIS",
+  "authority_effect": "SEMANTIC_BASIS_ONLY",
+  "semantic_candidate_commit": "1fa49fa4adfa6aa47fae68c0f1938083eeb1497f",
+  "predecessor_semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "independent_review_disposition": "SEMANTIC_SUCCESSOR_BOUNDED_PASS",
+  "independent_review_evidence_path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-INDEPENDENT-REVIEW.json",
+  "acceptance_basis": {
+    "kind": "STANDING_USER_DELEGATION_FOR_NARROW_SCOPE_PRESERVING_GOVERNANCE_APPROVALS",
+    "user_instruction_at": "2026-09-24T18:25:11Z"
+  },
+  "scope": "R8V5-I034 P05 canonical byte/hash correction only; foundational R8V3-I023 key ordering preserved",
+  "grants": {
+    "executable_schema_freeze": false,
+    "implementation": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
