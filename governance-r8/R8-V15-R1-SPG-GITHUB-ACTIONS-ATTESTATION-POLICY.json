@@ -13,10 +13,11 @@
     "visibility": "public"
   },
   "frozen_inputs": {
-    "schema_candidate_commit": "8c71169f9d6eb474ec89e950e452eb2130860ede",
+    "schema_candidate_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
     "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
     "generator_path": "tools/generate_r8_v15_r1_spm.py",
-    "generator_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6"
+    "generator_sha256": "388fb8a61f31cbf99b001a2313d554c8a4aac36e61188eb95230b93c6b0077e6",
+    "schema_candidate_branch": "freeze/r8-v15-r1-executable-schema-v2-r1"
   },
   "control_plane": {
     "branch": "attestation/r8-v15-r1-spg1-github-actions-v1",
@@ -75,5 +76,12 @@
     "The workflow may not set revocation_state ACTIVE by assertion.",
     "Qualification requires verified signed attestation evidence and a separate evidence-bound binding update.",
     "SFV-45 remains blocked until SFV-36 is closed on exact qualified bytes."
-  ]
+  ],
+  "repair_lineage": {
+    "finding_id": "SPG-PQF-001",
+    "predecessor_candidate_commit": "8c71169f9d6eb474ec89e950e452eb2130860ede",
+    "repair_commit": "df486ac41ad415b933a43b380c4338a121c5328f",
+    "repair_scope": "schema-provenance-manifest-candidate.json only; exact SRC-V6 catalog omission repair",
+    "semantic_change": false
+  }
 }
