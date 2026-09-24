@@ -229,9 +229,9 @@ jobs:
           test ! -e final-freeze/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
           cp final-r1/spm-final-v2-r1.json final-freeze/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
           test "$(sha256sum final-freeze/schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json | awk '{print $1}')" = "$VERIFIED_SPM_SHA256"
-          changed="$(git -C final-freeze diff --name-only "$TARGET_BASE" | sort)"
-          test "$changed" = "schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
-          git -C final-freeze diff --exit-code "$TARGET_BASE" -- . ':(exclude)schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json'
+          changed="$(git -C final-freeze status --porcelain --untracked-files=all)"
+          test "$changed" = "?? schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json"
+          git -C final-freeze diff --exit-code "$TARGET_BASE" -- .
           git -C final-freeze config user.name "github-actions[bot]"
           git -C final-freeze config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git -C final-freeze add schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json
