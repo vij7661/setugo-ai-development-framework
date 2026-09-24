@@ -1,0 +1,21 @@
+{
+  "schema": "r8-v15-r1-spg1-r2-successor-1-generation-marker/v1",
+  "status": "TRIGGER_FRESH_ATTESTED_GENERATION",
+  "authority_effect": "NONE",
+  "input_commit": "fd969231dd61d76ae52c05f48f7eec826e508846",
+  "rejected_candidate_commit": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+  "semantic_candidate_commit": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "generator_id": "R8V15R1-SPG-V2",
+  "require_fresh_spm_generation": true,
+  "require_independent_post_run_verification": true,
+  "claim_boundary": {
+    "executable_schema_frozen": false,
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
