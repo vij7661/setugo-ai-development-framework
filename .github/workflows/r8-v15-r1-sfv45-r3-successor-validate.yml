@@ -73,6 +73,12 @@ jobs:
           print("parsed", len(files), "JSON artifacts")
           PY
 
+      - name: Run full governance-runtime unittest suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s governance-runtime -p 'test_*.py' -v
+
       - name: Emit bounded validation evidence
         shell: bash
         run: |
@@ -88,6 +94,7 @@ jobs:
             "qualification_reset_invariants":"PASS",
             "r3_focused_regression":"PASS",
             "json_parse_validation":"PASS",
+            "full_governance_runtime_unittest_suite":"PASS",
             "implementation_authorized":False,
             "runtime_qualification_authorized":False,
             "release_authorized":False,
