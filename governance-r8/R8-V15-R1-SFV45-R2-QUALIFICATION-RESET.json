@@ -1,0 +1,36 @@
+{
+  "schema": "r8-v15-r1-sfv45-r2-qualification-reset/v1",
+  "status": "QUALIFICATION_STATE_RESET_REQUIRED_BEFORE_FRESH_ATTESTED_GENERATION",
+  "authority_effect": "NONE",
+  "predecessor_repair_commit": "fd969231dd61d76ae52c05f48f7eec826e508846",
+  "rejected_review_candidate": "3709ebaff7d2f41dc685f2ffce5fe9690fec3824",
+  "frozen_semantic_candidate": "c721b38cf8b00294797300b526596ce723a47ff8",
+  "reason": "The predecessor repair changed executable-schema bytes but retained predecessor-bound qualified traceability/source-map state. Fresh successor output qualification had not been rerun, so SFV-35/SFV-36/SFV-44 had to be reopened before any new SPG execution.",
+  "required_reset": {
+    "traceability_status": "SCHEMA_FREEZE_CANDIDATE_V2_NON_AUTHORITATIVE",
+    "final_freeze_blockers": [
+      "SFV-35",
+      "SFV-36",
+      "SFV-44",
+      "SFV-45"
+    ],
+    "sfg_001": "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR",
+    "sfg_002": "SPM_REGENERATION_REQUIRED_AFTER_SCHEMA_REPAIR",
+    "sfg_003": "REQUALIFICATION_REQUIRED_AFTER_SCHEMA_REPAIR",
+    "sfg_007": "BLOCKED_PENDING_REPAIRED_EXACT_CANDIDATE_REVIEW",
+    "predecessor_v2r1_source_refs_removed": true,
+    "generator_identity_runtime_enrollment_preserved": true,
+    "predecessor_generated_output_transfer_allowed": false
+  },
+  "approval_boundary": {
+    "prior_user_approval_target": "fd969231dd61d76ae52c05f48f7eec826e508846",
+    "note": "This reset changes exact candidate bytes. Fresh SPG enrollment-extension approval must bind the resulting successor commit before attested generation.",
+    "implementation_authorized": false,
+    "runtime_qualification_authorized": false,
+    "release_authorized": false,
+    "deployment_authorized": false,
+    "production_authorized": false,
+    "policy_authorized": false,
+    "terminal_authority": false
+  }
+}
