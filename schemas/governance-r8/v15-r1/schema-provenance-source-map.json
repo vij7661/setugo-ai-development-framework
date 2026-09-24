@@ -268,15 +268,43 @@
           "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
         ],
         "/freeze_process_mappings/3/status": [
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
         ],
         "/final_freeze_blockers": [
           "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
         ],
         "/note": [
           "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
-          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
+        ],
+        "/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
+        ],
+        "/freeze_process_mappings/0/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
+        ],
+        "/freeze_process_mappings/1/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
+        ],
+        "/freeze_process_mappings/2/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
+        ],
+        "/freeze_process_mappings/6/status": [
+          "R8-V15-R1-EXECUTABLE-SCHEMA-FREEZE-PREREGISTRATION-V2",
+          "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
+          "SPG-QUALIFICATION-R3-2026-09-24"
         ]
       }
     }
@@ -383,6 +411,18 @@
       "path": "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR.json",
       "commit": "d6317eb85753b0e41168413151ddcebbdcba1c6d",
       "blob": "0a5fde8964f053baf0823886bf2aae8e5f2117ed"
+    },
+    "SRC-SPG-R3-EXTENSION": {
+      "design_id": "R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-R3",
+      "path": "governance-r8/R8-V15-R1-SPG1-ENROLLMENT-EXTENSION-V2-R1.json",
+      "commit": "da5741e9f047ace6561f42b46f331fc565ebfec0",
+      "blob": "0ce8a4c57583f0b0d75b673136478598eff110d0"
+    },
+    "SRC-SPG-R3-VERIFY": {
+      "design_id": "R8-V15-R1-SPG1-R3-POST-RUN-VERIFICATION",
+      "path": "governance-r8/R8-V15-R1-SPG1-V2-R1-POST-RUN-VERIFICATION.json",
+      "commit": "da5741e9f047ace6561f42b46f331fc565ebfec0",
+      "blob": "f54ad7b7fd58aa025c39e40161b5f6131d58e52b"
     }
   },
   "source_ref_routes": [
@@ -544,6 +584,13 @@
       "match_prefix": "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR",
       "source_ref_ids": [
         "SRC-GCP-P05-SUCCESSOR"
+      ]
+    },
+    {
+      "match_prefix": "SPG-QUALIFICATION-R3-2026-09-24",
+      "source_ref_ids": [
+        "SRC-SPG-R3-EXTENSION",
+        "SRC-SPG-R3-VERIFY"
       ]
     }
   ],
