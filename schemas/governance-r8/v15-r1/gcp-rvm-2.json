@@ -51,11 +51,12 @@
       "vector_id": "GCP-RVM2-P05",
       "input_representation": "{\"min\":-9223372036854775808,\"max\":9223372036854775807}",
       "schema_context": "signed_int64_boundaries",
-      "expected_canonical_utf8": "{\"min\":-9223372036854775808,\"max\":9223372036854775807}",
-      "expected_sha256": "906c504c6a5ceabaf14e06e427a9ed6d202a1a014d3c32616b00da5040590cab",
+      "expected_canonical_utf8": "{\"max\":9223372036854775807,\"min\":-9223372036854775808}",
+      "expected_sha256": "161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb",
       "source_rules": [
         "R8V4-I026",
-        "R8V5-I034"
+        "R8V5-I034",
+        "R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR"
       ]
     }
   ],
