@@ -132,6 +132,7 @@ Effective canonicalization constraints include:
 - absent != null;
 - defaults are applied before canonical signing/digest and no post-digest defaults;
 - object keys must already be NFC;
+- object keys are sorted lexicographically by their NFC Unicode scalar sequence;
 - duplicate keys after canonical interpretation reject;
 - key collisions after NFC normalization reject;
 - unpaired surrogates reject;
@@ -141,7 +142,14 @@ Effective canonicalization constraints include:
 - signed integers use frozen signed-int64 lexical/range rules;
 - extension maps are schema-declared, included in digest, cannot shadow standard fields, and cannot use reserved `sys:` namespace.
 
-Trace: v5/v6 GCP-1 closure.
+R8 v15-r1 semantic correction:
+- the foundational GCP-1 object-key ordering rule from R8V3-I023 remains unchanged;
+- the R8V5-I034 int64-boundary P05 byte/hash pair is superseded only because its `min,max` member order contradicts that frozen ordering rule;
+- corrected canonical bytes are exactly `{"max":9223372036854775807,"min":-9223372036854775808}`;
+- corrected SHA-256 is exactly `161a1dcda7bae00f28f0ba32675f218fd4977065d2aa0439cf451c6d066dbbfb`;
+- no other GCP canonicalization, numeric, string, array/set, null/absence, extension-map, or authority semantics change.
+
+Trace: v3 R8V3-I023; v5/v6 GCP-1 closure; R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION.
 
 ## 8. Workload/runtime identity and AIEP
 
