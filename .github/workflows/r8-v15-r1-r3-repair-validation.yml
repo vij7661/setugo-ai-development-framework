@@ -1,0 +1,53 @@
+name: R8 v15-r1 R3 Repair Validation
+
+on:
+  push:
+    branches:
+      - repair/r8-v15-r1-sfv45-r3-successor-1-2026-09-25
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-r3-repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact repair branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parse repaired governance JSON
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          paths = [
+              "schemas/governance-r8/v15-r1/runtime-contracts.schema.json",
+              "schemas/governance-r8/v15-r1/gcp-rvm-2.json",
+              "schemas/governance-r8/v15-r1/schema-provenance-source-map.json",
+              "schemas/governance-r8/v15-r1/schema-freeze-traceability.json",
+              "schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json",
+              "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-CORRECTION.json",
+              "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-INDEPENDENT-REVIEW.json",
+              "governance-r8/R8-V15-R1-GCP-P05-SEMANTIC-SUCCESSOR-ACCEPTANCE.json",
+              "governance-r8/R8-V15-R1-SFV45-R3-REPAIR-TRACEABILITY.json",
+          ]
+          for p in paths:
+              json.loads(Path(p).read_text(encoding="utf-8"))
+              print("JSON_OK", p)
+          spm = Path("schemas/governance-r8/v15-r1/schema-provenance-manifest-candidate.json")
+          assert not spm.exists(), "predecessor SPM must be absent before fresh R3 qualification"
+          PY
+
+      - name: Run focused R2/R3 successor regression tests
+        run: |
+          python -m unittest discover -s governance-runtime -p 'test_r8_v15_r1_sfv45_r*.py' -v
+
+      - name: Run full governance-runtime unit suite
+        run: |
+          python -m unittest discover -s governance-runtime -p 'test_*.py' -v
