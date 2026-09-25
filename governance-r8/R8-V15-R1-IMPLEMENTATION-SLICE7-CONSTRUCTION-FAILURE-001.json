@@ -1,0 +1,32 @@
+{
+  "schema": "r8-v15-r1-implementation-slice7-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "e441f4884bd9cfd966d2f123a5a73219118c587d",
+  "frozen_harness_commit": "d83b1ca3c52dbe46d486fc7c31d3de0bcc4d2421",
+  "workflow_commit": "9feabb1c85ace96037410958042644a6ddb256a0",
+  "workflow_run_id": 36119069699,
+  "workflow_job_id": 108019974711,
+  "exact_checkout_sha": "9feabb1c85ace96037410958042644a6ddb256a0",
+  "observed": {
+    "slice7_tests_run": 16,
+    "slice7_passed": 1,
+    "slice7_failed": 15,
+    "passing_case": "I7-16 dependency immutability/workflow coverage",
+    "failure_root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_effect_intent_validator'"
+  },
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "preserved_not_reclassified": true,
+  "claim_boundary": {
+    "slice7_construction_green": false,
+    "effect_intent_committed": false,
+    "commit_with_seal_authorized": false,
+    "dispatch_authorized": false,
+    "external_effect_succeeded": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
