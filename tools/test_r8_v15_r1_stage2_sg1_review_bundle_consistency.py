@@ -59,6 +59,79 @@ class SG1ReviewBundleConsistencyTests(unittest.TestCase):
             manifest.write_text(json.dumps(value), encoding="utf-8")
         self.assert_mutation_rejected(mutate)
 
+    def test_wrong_proposal_blob_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["proposal"]["blob_sha1"]="0"*40
+            manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_wrong_candidate_commit_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["candidate"]["commit"]="0"*40
+            manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_wrong_candidate_tree_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["candidate"]["tree"]="0"*40
+            manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_wrong_candidate_parent_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["candidate"]["parent"]="0"*40
+            manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_wrong_evidence_blob_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); key=next(iter(value["evidence"])); value["evidence"][key]="0"*40
+            manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_binding_machinery_map_drift_rejected(self):
+        def mutate(_, binding, __):
+            value=json.loads(binding.read_text(encoding="utf-8")); key=next(iter(value["exact_required_machinery"])); value["exact_required_machinery"][key]="0"*40
+            binding.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_binding_evidence_map_drift_rejected(self):
+        def mutate(_, binding, __):
+            value=json.loads(binding.read_text(encoding="utf-8")); key=next(iter(value["exact_required_evidence"])); value["exact_required_evidence"][key]="0"*40
+            binding.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_review_path_drift_rejected(self):
+        def mutate(manifest, binding, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["reviews"]["expected_fresh_review_002"]["path"]="wrong.txt"; manifest.write_text(json.dumps(value), encoding="utf-8")
+            value=json.loads(binding.read_text(encoding="utf-8")); value["expected_review"]["path"]="wrong.txt"; binding.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_extra_authority_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["governance"]["broader_stage2_authorized"]=True; manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_runtime_authority_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["governance"]["runtime_release_deployment_production_policy_constitutional_root_terminal_authority"]=True; manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_six_slice_restored_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["governance"]["six_slice_cadence_restored"]=True; manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_review001_manifest_blob_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["reviews"]["historical_review_001"]["blob_sha1"]="0"*40; manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
+    def test_old_gate_outside_history_rejected(self):
+        def mutate(_, __, packet):
+            packet.write_text(packet.read_text(encoding="utf-8") + "\n056bce33da38a2178ca2827d581b5a81c8bf4416\n", encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
     def test_wrong_machinery_blob_rejected(self):
         def mutate(manifest, _, __):
             value = json.loads(manifest.read_text(encoding="utf-8"))
@@ -81,12 +154,16 @@ class SG1ReviewBundleConsistencyTests(unittest.TestCase):
             manifest.write_text(json.dumps(value), encoding="utf-8")
         self.assert_mutation_rejected(mutate)
 
+    def test_review001_actually_missing_rejected(self):
+        def mutate(manifest, _, __):
+            value=json.loads(manifest.read_text(encoding="utf-8")); value["reviews"]["historical_review_001"]["path"]="governance-r8/MISSING-REVIEW-001.txt"; manifest.write_text(json.dumps(value), encoding="utf-8")
+        self.assert_mutation_rejected(mutate)
+
     def test_activation_artifact_is_rejected(self):
         def mutate(manifest, _, __):
-            value = json.loads(manifest.read_text(encoding="utf-8"))
-            value["governance"]["activation_artifact_exists"] = True
-            manifest.write_text(json.dumps(value), encoding="utf-8")
+            (ROOT / "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").write_text("{}", encoding="utf-8")
         self.assert_mutation_rejected(mutate)
+        (ROOT / "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

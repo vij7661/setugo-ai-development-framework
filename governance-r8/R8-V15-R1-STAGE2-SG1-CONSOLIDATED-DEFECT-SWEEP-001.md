@@ -19,7 +19,7 @@ historical evidence and is not rewritten.
   generated stage2-sg1-review/R8-V15-R1-STAGE2-SG1-EARLY-REVIEW-PACKET.txt.
 - Mechanism: packet required-output text, section H. FINAL_GATE.
 - Failure path: the builder hardcodes obsolete activation-gate blob
-  056bce33da38a2178ca2827d581b5a81c8bf4416 while the repaired gate and binding
+  previous activation-gate blob while the repaired gate and binding
   use 1078bc673665b3e23d99d2d1699a7ccab90bbf6d. A reviewer or future approver
   can bind approval to the wrong gate.
 - Evidence: generated packet line 140; current workflow blob and binding both

@@ -10,7 +10,7 @@
   },
   "activation_gate": {
     "path": ".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml",
-    "blob_sha1": "1078bc673665b3e23d99d2d1699a7ccab90bbf6d",
+    "blob_sha1": "a56dfef239e10597535625c5380aa4c9781915ad",
     "role": "VALIDATION_ROOT_ONLY_THEN_CALL_EXACT_SG1_CORE",
     "contains_semantic_test_logic": false,
     "self_hash_boundary": "Gate cannot embed its own exact blob without circularity; exact gate blob must be independently reviewed and explicitly approved by the user in the activation record."

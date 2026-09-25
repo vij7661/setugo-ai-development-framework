@@ -14,6 +14,7 @@ TARGET=OUT/"R8-V15-R1-STAGE2-SG1-CONSOLIDATED-REVIEW-002-PACKET.txt"
 BUNDLE_FILES=[
 ("governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-PROPOSAL.json","SG-1 PROPOSAL CONTRACT"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-ACTIVATION-MANIFEST.json","SG-1 CANONICAL REVIEW ACTIVATION MANIFEST"),
+("governance-r8/R8-V15-R1-STAGE2-SG1-CONSOLIDATED-DEFECT-SWEEP-001.md","CONSOLIDATED A1-A25 DEFECT SWEEP"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json","SG-1 ACTIVATION GATE BINDING"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-001.txt","HISTORICAL INDEPENDENT EARLY REVIEW 001 — CHANGES_REQUIRED"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-PROPOSAL-PREFLIGHT-GREEN-001.json","SG-1 STATIC PREFLIGHT GREEN"),
@@ -23,6 +24,9 @@ BUNDLE_FILES=[
 (".github/workflows/r8-v15-r1-stage2-sg1-core.yml","NON-TRIGGERED SG-1 REUSABLE CORE"),
 (".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml","POST-FREEZE SG-1 ACTIVATION GATE"),
 ("tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py","EXACT STAGE1 REGRESSION VERIFIER"),
+("tools/verify_r8_v15_r1_stage2_sg1_review_bundle_consistency.py","SG-1 CONSISTENCY VERIFIER"),
+("tools/test_r8_v15_r1_stage2_sg1_review_bundle_consistency.py","SG-1 CONSISTENCY NEGATIVE TESTS"),
+("tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py","SG-1 PARSER ADVERSARIAL VALIDATION"),
 ("governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-CLOSURE.json","CLOSED STAGE1 BOUNDED CANDIDATE"),
 ("governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-INDEPENDENT-REVIEW-005.txt","STAGE1 REVIEW 005"),
 ("governance-r8/R8-V15-R1-REVIEW-CADENCE-RECOVERY-ELIGIBLE-2-OF-2.json","CADENCE RECOVERY ELIGIBILITY — NOT RESTORED"),
@@ -138,6 +142,9 @@ It does NOT establish semantic selection/promotion, currentness, qualification, 
 Even a future SG-1 execution PASS must receive a fresh independent post-execution review before SG-1 can close or any later Stage2 gate can execute.
 
 REVIEW FOCUS
+DO NOT STOP AFTER THE FIRST FINDING.
+Continue through every review dimension.
+Enumerate ALL Critical, High, Medium and Low findings before giving the final disposition.
 Adversarially inspect whether:
 - the 32-edge/2-target scope is complete for this SG-1 objective;
 - exact runtime target resolution and object identity can false-green;
@@ -152,6 +159,13 @@ Adversarially inspect whether:
 - activation binding is exact and complete;
 - post-execution independent review is mandatory before any later Stage2 gate;
 - any omitted direct edge or semantic target creates a High/Critical gap.
+
+CONSOLIDATED REMEDIATION SUMMARY
+Review 001 found CHANGES_REQUIRED because the activation parser rejected the mandated NONE. spelling.
+The exhaustive A1-A25 sweep found one blocking stale-gate identity defect, two medium recurrence/testability risks, and three low deferred findings.
+Repairs centralized identities in a canonical manifest, added a fail-closed cross-artifact verifier, added stale-identity negative tests, and repaired H. FINAL_GATE generation.
+The final verifier result is PASS; the complete consistency negative-test suite and parser adversarial suite are embedded below with their source and results.
+Semantic machinery remains unchanged. No activation artifact exists and no SG-1 semantic execution occurred.
 
 REQUIRED OUTPUT — RETURN ONLY A-H
 

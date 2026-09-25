@@ -17,7 +17,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Build exact SG-1 early-review packet
-        run: python3 tools/build_r8_v15_r1_stage2_sg1_review_packet.py
+        run: |
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+          python3 tools/test_r8_v15_r1_stage2_sg1_review_bundle_consistency.py
+          python3 tools/build_r8_v15_r1_stage2_sg1_review_packet.py
+      - name: Verify generated packet and exact cross-artifact bindings
+        run: python3 tools/verify_r8_v15_r1_stage2_sg1_review_bundle_consistency.py
       - name: Upload one-file packet
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:

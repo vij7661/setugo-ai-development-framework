@@ -31,6 +31,11 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
     binding = json.loads(binding_path.read_text(encoding="utf-8"))
     packet = packet_path.read_text(encoding="utf-8")
 
+    if manifest.get("schema") != "r8-v15-r1-stage2-sg1-review-activation-manifest/v1":
+        fail("manifest schema mismatch")
+    if manifest.get("status") != "PROPOSAL_REVIEW_EVIDENCE_ONLY_NOT_ACTIVE" or manifest.get("authority_effect") != "NONE":
+        fail("manifest status/authority mismatch")
+
     p = manifest["proposal"]
     if p != {
         "id": "R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001",
@@ -41,13 +46,23 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("proposal manifest mismatch")
     if git_blob(p["path"]) != p["blob_sha1"]:
         fail("proposal blob mismatch")
+    proposal_doc = json.loads(subprocess.check_output(["git", "show", f"HEAD:{p['path']}"], text=True))
     candidate = manifest["candidate"]
+    if candidate != {
+        "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+        "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+        "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    }:
+        fail("frozen candidate identity mismatch")
     candidate_tree = subprocess.check_output(["git", "rev-parse", f"{candidate['commit']}^{{tree}}"], text=True).strip()
     candidate_parent = subprocess.check_output(["git", "show", "-s", "--format=%P", candidate["commit"]], text=True).strip().split()[0]
     if candidate_tree != candidate["tree"]:
         fail("candidate tree mismatch")
     if candidate_parent != candidate["parent"]:
         fail("candidate parent mismatch")
+    stage1_binding = proposal_doc.get("stage1_binding", {})
+    if (stage1_binding.get("exact_candidate"), stage1_binding.get("exact_tree"), stage1_binding.get("exact_parent")) != (candidate["commit"], candidate["tree"], candidate["parent"]):
+        fail("manifest candidate disagrees with proposal stage1 binding")
     if git_blob(manifest["activation_gate"]["path"]) != manifest["activation_gate"]["blob_sha1"]:
         fail("activation gate blob mismatch")
     if git_blob(manifest["activation_binding"]["path"]) != manifest["activation_binding"]["blob_sha1"]:
@@ -59,6 +74,10 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("binding proposal commit mismatch")
     if binding["proposal_contract"]["blob_sha1"] != p["blob_sha1"]:
         fail("binding proposal blob mismatch")
+    if binding.get("schema") != "r8-v15-r1-stage2-sg1-activation-gate-binding/v1" or binding.get("status") != manifest["status"] or binding.get("authority_effect") != manifest["authority_effect"]:
+        fail("binding schema/status/authority mismatch")
+    if binding["activation_gate"]["path"] != manifest["activation_gate"]["path"]:
+        fail("binding activation gate path mismatch")
     if binding["activation_gate"]["blob_sha1"] != manifest["activation_gate"]["blob_sha1"]:
         fail("binding activation gate mismatch")
     expected_review = manifest["reviews"]["expected_fresh_review_002"]["path"]
@@ -70,6 +89,20 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("binding required finding counts mismatch")
     if binding["expected_review"]["required_final_gate"] != "YES":
         fail("binding final gate requirement mismatch")
+    if binding["expected_review"] != {
+        "path": manifest["reviews"]["expected_fresh_review_002"]["path"],
+        "required_disposition": manifest["reviews"]["expected_fresh_review_002"]["required_disposition"],
+        "required_critical_findings": manifest["reviews"]["expected_fresh_review_002"]["required_critical_findings"],
+        "required_high_findings": manifest["reviews"]["expected_fresh_review_002"]["required_high_findings"],
+        "required_exact_proposal_id": p["id"],
+        "required_exact_proposal_commit": p["commit"],
+        "required_final_gate": manifest["reviews"]["expected_fresh_review_002"]["required_final_gate"],
+    }:
+        fail("binding expected review drift")
+    if binding["exact_required_machinery"] != manifest["machinery"]:
+        fail("binding machinery map drift")
+    if binding["exact_required_evidence"] != manifest["evidence"]:
+        fail("binding evidence map drift")
 
     for group in ("machinery", "evidence", "dependency_targets"):
         for path, expected in manifest[group].items():
@@ -78,7 +111,7 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
 
     historical = manifest["reviews"]["historical_review_001"]
     historical_path = Path(historical["path"])
-    if not historical_path.exists() or raw_sha1(historical_path) != "6d21b0fa1165c4879bff238ab65b8daedb2366f0":
+    if not historical_path.exists() or git_blob(historical["path"]) != historical["blob_sha1"] or raw_sha1(historical_path) != "6d21b0fa1165c4879bff238ab65b8daedb2366f0":
         fail("Review 001 missing or altered")
     if historical["disposition"] != "CHANGES_REQUIRED" or "CHANGES_REQUIRED" not in historical_path.read_text(encoding="utf-8", errors="strict"):
         fail("Review 001 disposition mismatch")
@@ -86,6 +119,14 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("Review 002 must remain an external fresh review")
     if Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").exists():
         fail("activation artifact unexpectedly present")
+
+    preflight = json.loads(Path(manifest["preflight"]["path"]).read_text(encoding="utf-8"))
+    if git_blob(manifest["preflight"]["path"]) != manifest["evidence"][manifest["preflight"]["path"]]:
+        fail("preflight blob mismatch")
+    if (str(preflight.get("run_id")), str(preflight.get("job_id"))) != (manifest["preflight"]["run"], manifest["preflight"]["job"]):
+        fail("preflight run/job mismatch")
+    if preflight.get("exact_stage1_candidate") != candidate["commit"] or preflight.get("exact_stage1_tree") != candidate["tree"] or preflight.get("semantic_execution_performed") is not False:
+        fail("preflight scope mismatch")
 
     if manifest["governance"]["authority_boundary"] != "LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY":
         fail("authority boundary mismatch")
@@ -95,6 +136,11 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("semantic execution flag mismatch")
     if manifest["governance"]["activation_artifact_exists"] is not False:
         fail("activation artifact unexpectedly present")
+    if manifest["governance"].get("broader_stage2_authorized") is not False or manifest["governance"].get("runtime_release_deployment_production_policy_constitutional_root_terminal_authority") is not False:
+        fail("authority grant boundary mismatch")
+    gate_text = subprocess.check_output(["git", "show", f"HEAD:{manifest['activation_gate']['path']}"], text=True)
+    if f'EXPECTED_REVIEW_PATH="{expected_review}"' not in gate_text:
+        fail("activation gate expected review path mismatch")
 
     header = packet.split("===== BEGIN", 1)[0]
     if OLD_GATE in header:
@@ -114,8 +160,15 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
     if h_match not in packet:
         fail("current H. FINAL_GATE activation gate identity absent")
     historical_marker = "===== BEGIN HISTORICAL INDEPENDENT EARLY REVIEW 001"
-    if OLD_GATE in packet and historical_marker not in packet:
-        fail("old gate identity has no historical provenance")
+    if OLD_GATE in packet:
+        if historical_marker not in packet:
+            fail("old gate identity has no historical provenance")
+        hstart=packet.index(historical_marker)
+        hend=packet.find("===== END HISTORICAL INDEPENDENT EARLY REVIEW 001", hstart)
+        if hend < 0:
+            fail("historical Review 001 delimiter missing")
+        if OLD_GATE in packet[:hstart] or OLD_GATE in packet[hend:]:
+            fail("old gate identity appears outside historical Review 001")
     if packet.count("R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001") < 2:
         fail("proposal identity missing from packet")
     if "Broader Stage2 semantic authority granted: NO" not in packet:
