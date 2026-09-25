@@ -1,0 +1,43 @@
+{
+  "schema": "r8-v15-r1-implementation-review-cadence-restoration/v1",
+  "status": "ADAPTIVE_SIX_SLICE_CADENCE_RESTORED",
+  "authority_effect": "IMPLEMENTATION_WORKFLOW_GOVERNANCE_ONLY",
+  "proposal_id": "R8V15R1-REVIEW-CADENCE-ADAPTIVE-001",
+  "original_user_approved_proposal_commit": "80c3aad923e405dde76e5042248edf0fa8f919a1",
+  "original_activation_anchor": "b29619c9307c2a30562a2253f88d052a00bfea6a",
+  "fallback_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "clean_review_state_2of2_commit": "2351cda7b0f6eb9ae8f70fd53fc2a2717c8f66ee",
+  "restoration_basis": {
+    "triggering_recovery_rule": "Two consecutive fresh independent BOUNDED_PASS reviews with zero Critical/High findings after remediation.",
+    "clean_reviews_observed": 2,
+    "critical_high_in_clean_review_1": 0,
+    "critical_high_in_clean_review_2": 0,
+    "separate_new_user_approval_required": false,
+    "reason": "The user already explicitly approved the adaptive cadence and its fallback/recovery conditions at proposal commit 80c3aad923e405dde76e5042248edf0fa8f919a1. This commit executes the pre-approved recovery condition; it does not create a new cadence policy."
+  },
+  "restored_rule": {
+    "default_low_risk_batch_size": 6,
+    "max_unreviewed_low_risk_slices": 6,
+    "mandatory_early_review_triggers": "unchanged from R8V15R1-REVIEW-CADENCE-ADAPTIVE-001",
+    "no_unreviewed_slice_may_grant_authority": true,
+    "no_batch_integration_before_review": true,
+    "no_cross_slice_dependency_authority_before_review": true
+  },
+  "reset_conditions": {
+    "on_critical_or_high_finding": "RESET_TO_3_SLICE_MAXIMUM",
+    "on_changes_required": "RESET_TO_3_SLICE_MAXIMUM"
+  },
+  "grants": {
+    "low_risk_bounded_construction_batching": true,
+    "max_unreviewed_low_risk_slices": 6,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
