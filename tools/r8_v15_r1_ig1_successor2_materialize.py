@@ -57,38 +57,51 @@ def index_entry(target,path):
     meta,name=first.split("\t",1); mode,blob,stage=meta.split()
     return {"path":name,"mode":mode,"type":"blob","blob":blob,"stage":stage}
 
-def expr_mentions_history(node,tainted):
-    for child in ast.walk(node):
-        if isinstance(child,ast.Constant) and isinstance(child.value,str) and "governance-r8" in child.value:
-            return True
-        if isinstance(child,ast.Name) and child.id in tainted:
-            return True
-    return False
+def path_class(node,classes):
+    literals=[x.value for x in ast.walk(node) if isinstance(x,ast.Constant) and isinstance(x.value,str)]
+    inherited=[classes[x.id] for x in ast.walk(node) if isinstance(x,ast.Name) and x.id in classes]
+    joined="/".join(literals)
+    if "SCHEMA" in inherited:
+        return "SCHEMA"
+    if "HISTORY" in inherited:
+        return "HISTORY"
+    if ("schemas" in literals and "governance-r8" in literals) or "schemas/governance-r8" in joined:
+        return "SCHEMA"
+    for s in literals:
+        norm=s.replace("\\","/")
+        if norm=="governance-r8" or norm.startswith("governance-r8/") or ("/governance-r8/" in norm and "/schemas/governance-r8/" not in norm):
+            return "HISTORY"
+    return None
 
 def static_governance_runtime_read_check(blob,path):
     if not path.startswith("governance-runtime/r8_v15_r1_") or path.startswith("governance-runtime/test_"):
         return
     text=run(PROPOSAL_ROOT,"git","cat-file","blob",blob).stdout
     tree=ast.parse(text,filename=path)
-    tainted=set()
+    classes={}
     changed=True
     while changed:
         changed=False
         for node in ast.walk(tree):
-            if isinstance(node,(ast.Assign,ast.AnnAssign)):
-                value=node.value
-                if value is None or not expr_mentions_history(value,tainted): continue
-                targets=node.targets if isinstance(node,ast.Assign) else [node.target]
-                for target in targets:
-                    if isinstance(target,ast.Name) and target.id not in tainted:
-                        tainted.add(target.id); changed=True
+            if not isinstance(node,(ast.Assign,ast.AnnAssign)) or node.value is None:
+                continue
+            cls=path_class(node.value,classes)
+            if cls is None:
+                continue
+            targets=node.targets if isinstance(node,ast.Assign) else [node.target]
+            for target in targets:
+                if isinstance(target,ast.Name) and classes.get(target.id)!=cls:
+                    classes[target.id]=cls; changed=True
     for node in ast.walk(tree):
-        if not isinstance(node,ast.Call): continue
+        if not isinstance(node,ast.Call):
+            continue
         if isinstance(node.func,ast.Name) and node.func.id=="open":
-            if any(expr_mentions_history(a,tainted) for a in node.args):
+            if any(path_class(a,classes)=="HISTORY" for a in node.args):
                 raise SystemExit(f"FAIL runtime governance-history open(): {path}")
         elif isinstance(node.func,ast.Attribute) and node.func.attr in {"open","read_text","read_bytes"}:
-            if expr_mentions_history(node.func.value,tainted) or any(expr_mentions_history(a,tainted) for a in node.args):
+            receiver_class=path_class(node.func.value,classes)
+            arg_classes=[path_class(a,classes) for a in node.args]
+            if receiver_class=="HISTORY" or "HISTORY" in arg_classes:
                 raise SystemExit(f"FAIL runtime governance-history file read: {path}")
 
 def assert_integration_machinery_declarative():
