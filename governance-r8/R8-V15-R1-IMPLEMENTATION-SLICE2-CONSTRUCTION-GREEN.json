@@ -1,0 +1,73 @@
+{
+  "schema": "r8-v15-r1-implementation-slice2-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "slice1_closure_head": "194963c846fa62143aa03208d3617ca3f39dd173",
+  "preregistration_commit": "e67300d9fdcaecec5fe0e687d642dd2fbe71e65e",
+  "frozen_harness_commit": "269d50db22f7942154737bae7368d964f94dfb9b",
+  "mechanism_commit": "26c8e55bc2938e9b2d3fcda273d333cc3b41e50f",
+  "marker_candidate_commit": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "final_green_run": {
+    "run_id": 36109723091,
+    "job_id": 107990188335,
+    "exact_checkout_sha": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+    "conclusion": "success",
+    "slice2_i2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36109636650,
+    "job_id": 107989919947,
+    "exact_checkout_sha": "e2732b4efeaa51097ac5744aedf7a4c661b07d76",
+    "conclusion": "success",
+    "slice2_i2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "preserved_failure_history": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE2-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36109493832,
+      "classification": "EXPECTED_MECHANISM_ABSENCE"
+    }
+  ],
+  "verified_properties": [
+    "LAS preimage member constant equals frozen schema x-gcp1-preimage-members",
+    "GGS preimage member constant equals frozen schema x-gcp1-preimage-members",
+    "known LAS and GGS canonical preimages and SHA-256 roots are deterministic",
+    "missing/extra/self-included members fail closed",
+    "Sequence fields enforce non-boolean signed-int64 non-negative closure",
+    "generic component Digest values remain opaque non-empty strings rather than being globally reinterpreted as SHA-256",
+    "root verification rejects malformed/mismatched SHA-256",
+    "success metadata grants no currentness, certification, runtime qualification or downstream authority",
+    "frozen schema bytes remain unchanged",
+    "closed Slice 1 module bytes remain unchanged"
+  ],
+  "open_runtime_qualification_findings": [
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "claim_boundary": {
+    "implementation_slice2_construction_green": true,
+    "independent_review_closed": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
