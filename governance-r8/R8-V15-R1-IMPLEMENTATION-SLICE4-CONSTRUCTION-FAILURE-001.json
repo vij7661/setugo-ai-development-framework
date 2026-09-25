@@ -1,0 +1,28 @@
+{
+  "schema": "r8-v15-r1-implementation-slice4-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "046a249933796faf6740e95d1ccf69d22397231b",
+  "frozen_harness_commit": "2044202d99f6af6ef8d9661c1f7781df7337fdee",
+  "workflow_commit": "b50562de7f55fd14ee94b56894a749808ebd4824",
+  "workflow_run_id": 36113171369,
+  "workflow_job_id": 108001051795,
+  "exact_checkout_sha": "b50562de7f55fd14ee94b56894a749808ebd4824",
+  "observed": {
+    "slice4_tests_run": 16,
+    "slice4_passed": 1,
+    "slice4_failed": 15,
+    "passing_case": "I4-16 dependency immutability/workflow coverage",
+    "failure_root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_preseal_validator'"
+  },
+  "interpretation": "Expected preregistered RED before Slice 4 mechanism implementation. No digest formula or authority rule was weakened.",
+  "preserved_not_reclassified": true,
+  "claim_boundary": {
+    "slice4_construction_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
