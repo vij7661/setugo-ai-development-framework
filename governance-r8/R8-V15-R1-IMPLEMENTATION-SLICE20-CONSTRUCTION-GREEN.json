@@ -1,0 +1,36 @@
+{
+  "schema": "r8-v15-r1-implementation-slice20-construction-green/v1",
+  "status": "SLICE20_EXACT_CANDIDATE_GREEN_PENDING_SIX_SLICE_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "053a5c0e70aee45e0e73653d68de3575a83d455c",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "prior_closed_batch_anchor": "613ad12b29704f44f036e1a275403f58011ae203",
+  "active_review_cadence_anchor": "b29619c9307c2a30562a2253f88d052a00bfea6a",
+  "preserved_red_run_id": 36139491463,
+  "preserved_red_job_id": 108085526771,
+  "mechanism_green_run_id": 36139742203,
+  "mechanism_green_job_id": 108086361775,
+  "exact_candidate_run_id": 36139870458,
+  "exact_candidate_job_id": 108086775591,
+  "exact_checkout_sha": "053a5c0e70aee45e0e73653d68de3575a83d455c",
+  "acceptance": {
+    "slice_acceptance": "16/16 PASS",
+    "inherited_closed_baseline": "140/140 PASS",
+    "total": "156/156 PASS"
+  },
+  "early_review_trigger_crossed": false,
+  "grants": {
+    "implementation_construction": true,
+    "semantic_selection": false,
+    "scope_authority": false,
+    "constitutional_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
