@@ -1,0 +1,17 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor1-control-failure/v1",
+  "status": "PRESERVED_WORKFLOW_ORDERING_CONTROL_FAILURE",
+  "authority_effect": "NONE",
+  "workflow_control_commit": "5db7011c7e8f854c35213109032fd1934995e82a",
+  "workflow_run_id": 36104942867,
+  "workflow_job_id": 107975281144,
+  "exact_checkout_sha": "5db7011c7e8f854c35213109032fd1934995e82a",
+  "observed": {
+    "original_i1_tests": "16/16 PASS",
+    "successor_harness": "IMPORT_ERROR",
+    "error": "ModuleNotFoundError: No module named governance-runtime/test_r8_v15_r1_implementation_slice1_successor1"
+  },
+  "classification": "CONTROL_SEQUENCE_EXPOSURE",
+  "explanation": "The workflow began covering the successor branch/path before the successor repair harness file was committed. No mechanism code changed and no authority was granted.",
+  "preserved_not_reclassified": true
+}
