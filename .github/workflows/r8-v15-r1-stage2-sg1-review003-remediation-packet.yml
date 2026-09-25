@@ -1,0 +1,39 @@
+name: R8 v15-r1 Stage2 SG-1 Review 003 Parser Remediation Packet
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-stage2-sg1-parser-remediation-2026-09-26
+    paths:
+      - governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW003-PACKET-MARKER.json
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate repaired parser against exact preserved Review 002
+        run: |
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py \
+            --review governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt
+
+      - name: Build focused Review 003 remediation packet
+        run: python3 tools/build_r8_v15_r1_stage2_sg1_review003_parser_remediation_packet.py
+
+      - name: Verify exact Review 003 remediation bundle
+        run: python3 tools/verify_r8_v15_r1_stage2_sg1_review003_remediation_bundle.py
+
+      - name: Upload one-file Review 003 packet
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-stage2-sg1-review003-parser-remediation
+          path: stage2-sg1-review/R8-V15-R1-STAGE2-SG1-REVIEW-003-PARSER-REMEDIATION-PACKET.txt
+          if-no-files-found: error
+          retention-days: 30
