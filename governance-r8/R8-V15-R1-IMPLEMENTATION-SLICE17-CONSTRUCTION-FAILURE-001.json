@@ -1,0 +1,19 @@
+{
+  "schema": "r8-v15-r1-implementation-slice17-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "6af0f9170b6f9d5a891a1b0d75ee9bae4e17f4e4",
+  "frozen_harness_commit": "685f61ec21b49d5ce08de01d1fee93bd76042964",
+  "workflow_commit": "e29cff4cee758698f7395f42c3ad5629bf0d65b7",
+  "workflow_run_id": 36135490554,
+  "workflow_job_id": 108072441996,
+  "exact_checkout_sha": "e29cff4cee758698f7395f42c3ad5629bf0d65b7",
+  "observed": {
+    "slice17_tests_run": 16,
+    "slice17_passed": 1,
+    "slice17_failed": 15,
+    "passing_case": "I17-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_semantic_entry_validator"
+  },
+  "preserved_not_reclassified": true
+}
