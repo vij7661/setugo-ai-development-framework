@@ -1,0 +1,19 @@
+{
+  "schema": "r8-v15-r1-implementation-slice8-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "c4a8436e76b162bd3044b1d75af0bbc49de4978c",
+  "frozen_harness_commit": "9fd96beee997169644c88414bcfcc1f5d9c5f171",
+  "workflow_commit": "ce0829c10de724d5ee50a0cea0e8663a5799181a",
+  "workflow_run_id": 36121507503,
+  "workflow_job_id": 108027844694,
+  "exact_checkout_sha": "ce0829c10de724d5ee50a0cea0e8663a5799181a",
+  "observed": {
+    "slice8_tests_run": 16,
+    "dependency_workflow_case_passed": true,
+    "root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_effect_state_validator'"
+  },
+  "preserved_not_reclassified": true,
+  "batch_loop": 1,
+  "next_action": "Implement only preregistered Slice 8 local EffectStateRecord validator."
+}
