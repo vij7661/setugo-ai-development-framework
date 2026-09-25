@@ -1,0 +1,24 @@
+name: R8 v15-r1 IG-1 Successor3 Exact Candidate Verification
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-integration-gate1-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IG1-SUCCESSOR3-EXACT-CANDIDATE-VERIFY-MARKER.json
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact integrated candidate and rerun strict oracle
+        run: |
+          TARGET="$RUNNER_TEMP/ig1-s3-exact-candidate"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$TARGET"
