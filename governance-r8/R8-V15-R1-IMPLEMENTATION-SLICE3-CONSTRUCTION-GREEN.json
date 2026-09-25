@@ -1,0 +1,87 @@
+{
+  "schema": "r8-v15-r1-implementation-slice3-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice2_candidate": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "closed_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "slice2_closure_head": "5e274ebffad1ffe84ffd569027e07a0a77915f1b",
+  "preregistration_commit": "14eea5d4458e5b54b71619d85a9ebf71141f6a07",
+  "frozen_harness_commit": "090370c616980986415bcb4dac934ad28b5048d1",
+  "mechanism_commit": "6e640e7f56aaababa736fabdbba44284cef197ee",
+  "marker_candidate_commit": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+  "final_green_run": {
+    "run_id": 36111540428,
+    "job_id": 107995892189,
+    "exact_checkout_sha": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+    "conclusion": "success",
+    "slice3_i3": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36111445191,
+    "job_id": 107995591270,
+    "exact_checkout_sha": "6e640e7f56aaababa736fabdbba44284cef197ee",
+    "conclusion": "success",
+    "slice3_i3": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "preserved_failure_history": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE3-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36111326318,
+      "classification": "EXPECTED_MECHANISM_ABSENCE"
+    }
+  ],
+  "verified_properties": [
+    "StateTransferCertificate exact required field parity with frozen schema",
+    "SemanticHeads exact required field parity with frozen schema",
+    "LAS/GGS conditional null/non-null local rules",
+    "GGS nested GenesisStateRoot deterministic verification and exact mapped-field equality",
+    "Sequence and nullable highest_applied_index closure",
+    "opaque generic CanonicalId/Digest handling with inherited GCP string validation",
+    "SHA-256 lexical validation only for LAS/GGS state_root_digest",
+    "stc_digest remains opaque because no frozen local digest formula is invented",
+    "validation result grants no currentness/certification/runtime/downstream authority",
+    "direct GGS verify positive/mismatch/malformed and verify-result metadata regressions covered",
+    "Slice 3 workflow directly triggers on governed module/harness/preregistration/marker/workflow/dependency changes",
+    "frozen schema and closed Slice 1/Slice 2 module bytes unchanged"
+  ],
+  "open_runtime_qualification_findings": [
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "claim_boundary": {
+    "implementation_slice3_construction_green": true,
+    "independent_review_closed": false,
+    "rotation_prepare_certificate_verified": false,
+    "barrier_currentness_verified": false,
+    "quorum_verified": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
