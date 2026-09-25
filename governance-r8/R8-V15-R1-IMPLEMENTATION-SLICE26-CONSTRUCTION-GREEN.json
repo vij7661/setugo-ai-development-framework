@@ -1,0 +1,37 @@
+{
+  "schema": "r8-v15-r1-implementation-slice26-construction-green/v1",
+  "status": "SLICE26_EXACT_CANDIDATE_GREEN_PENDING_FALLBACK_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "83e0366251e22d9768554e44340e2b81dbf5424a",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "post_remediation_governance_anchor": "4a401bdf33786b980364784a0c8a19e20acef2df",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "preserved_red_run_id": 36146228177,
+  "preserved_red_job_id": 108107967344,
+  "mechanism_green_run_id": 36146439277,
+  "mechanism_green_job_id": 108108666916,
+  "exact_candidate_run_id": 36146516928,
+  "exact_candidate_job_id": 108108929336,
+  "acceptance": {
+    "slice_acceptance": "16/16 PASS",
+    "inherited_closed_baseline": "140/140 PASS",
+    "total": "156/156 PASS"
+  },
+  "early_review_trigger_crossed": false,
+  "clean_review_counter_before_batch": 1,
+  "grants": {
+    "implementation_construction": true,
+    "currentness": false,
+    "semantic_selection": false,
+    "scope_authority": false,
+    "constitutional_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
