@@ -1,0 +1,16 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor2-control-failure/v1",
+  "status": "PRESERVED_WORKFLOW_ORDERING_CONTROL_FAILURE",
+  "authority_effect": "NONE",
+  "workflow_control_commit": "1d01d9010046d5e67717c2a587c4ac598a91b1d4",
+  "workflow_run_id": 36107096938,
+  "workflow_job_id": 107982021321,
+  "exact_checkout_sha": "1d01d9010046d5e67717c2a587c4ac598a91b1d4",
+  "observed": {
+    "original_i1": "16/16 PASS",
+    "successor2_harness": "IMPORT_ERROR",
+    "error": "ModuleNotFoundError: No module named governance-runtime/test_r8_v15_r1_implementation_slice1_successor2"
+  },
+  "classification": "CONTROL_SEQUENCE_EXPOSURE",
+  "preserved_not_reclassified": true
+}
