@@ -1,0 +1,20 @@
+{
+  "schema": "r8-v15-r1-implementation-slice32-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "restored_cadence_anchor": "dfdeceb297b0eefe54d3a47edc3ae16a6f624ded",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "preregistration_commit": "6077a0e6890a23df810bce0307cd1af580c85065",
+  "frozen_harness_commit": "28c7402c9cb4de21e478e34436ed2406a373884f",
+  "workflow_commit": "bfa5ce1445775e6c0d6b47fd5c9cecca1963e0bc",
+  "workflow_run_id": 36148054709,
+  "workflow_job_id": 108114059044,
+  "exact_checkout_sha": "bfa5ce1445775e6c0d6b47fd5c9cecca1963e0bc",
+  "observed": {
+    "slice_tests_run": 16,
+    "failure_summary": "failures=15",
+    "mechanism_absence": "ModuleNotFoundError: r8_v15_r1_bsp5_grammar_freeze_validator",
+    "passing_case": "I32-16"
+  },
+  "preserved_not_reclassified": true
+}
