@@ -1,0 +1,57 @@
+A. OVERALL_DISPOSITION
+INSUFFICIENT_EVIDENCE
+
+B. EXACT_IDENTITY
+Implementation candidate: e106bdd44973f3b16b5479c7689cbe07cb0f5421
+Frozen executable-schema candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+Frozen schema freeze evidence head: 6f0506b6cd2a12eeeb30d79f85224d4b87b6c368
+Implementation evidence-only head: 6b74cb4a19a90cf2e2680ac403251854cf792fce
+Authoritative green construction run: 36060770372
+Job: 107838888005
+
+C. CRITICAL_FINDINGS
+1. The supplied packet does not include several frozen schema artifacts that the implementation and SPM depend on. Missing from the “full exact frozen schema input directory” include at least:
+   - schemas/governance-r8/v15-r1/schema-provenance-source-map.json
+   - schemas/governance-r8/v15-r1/schema-provenance-manifest.schema.json
+   - schemas/governance-r8/v15-r1/srtt-4-rule-registry.schema.json
+   - schemas/governance-r8/v15-r1/srtt-4-total-table.schema.json
+   The loader requires and/or hashes these paths, and the SPM declares their SHA-256 values. Without their exact bytes, I1-03/I1-04/I1-13 and the full SPM artifact-set verification cannot be independently reproduced from the packet.
+2. The workflow invokes `governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py`, but that file is not supplied in the packet. The green construction run therefore depends on an uninspectable regression file for part of its evidence.
+
+D. HIGH_FINDINGS
+1. Candidate commit identity is not verified against repository state. `FrozenSchemaRuntime.load()` checks only the caller-supplied `candidate_sha` argument against a hardcoded constant. It does not verify that `repo_root` is at `f93ca26975ecb64f0da13779889c75b36140cdfc`, nor does it hash the repository tree. A caller can pass the correct candidate string while pointing at a different tree that happens to contain the exact frozen schema files. Schema bytes remain hash-pinned, but commit-level candidate identity pinning is weaker than the prereg language suggests.
+2. TOCTOU in exact-byte checks. The loader hashes files with `_sha256_file()`, then later reopens and parses them with `_load_json()` or `path.read_bytes()`/`read_text()` without holding a file descriptor or hashing the parsed bytes. A concurrent mutation between hash verification and parse could violate the “exact bytes before use” guarantee.
+3. Source-map/SPM cross-validation is incomplete. `Runtime.load()` compares only `Path(a["path"]).name` for SPM artifacts against `source_map["artifact_sources"]` keys. It does not verify full relative paths, source-ref binding per entry, or that source-map artifact references match SPM entry `source_ref_ids`. The hardcoded source-map SHA mitigates this for the frozen input, but the validator logic itself is weaker than stated.
+
+E. MEDIUM_LOW_FINDINGS
+1. `validate_spm_document()` does not enforce the frozen `entry_count` of 3058 independently; it only compares `len(entries)` to the SPM-declared `entry_count`. It relies on the outer SPM SHA check for exactness.
+2. The frozen harness does not explicitly test unpaired-surrogate rejection. `test_i1_12` covers the supplied GCP rejection vectors, which include Unicode noncharacters, but no explicit `\ud800`/lone-surrogate vector is present. The implementation code appears to handle it, but the path is not demonstrated by the frozen acceptance harness.
+3. The workflow path filter triggers only on `governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-MARKER.json`. Changes to the implementation module or acceptance harness alone would not trigger this workflow.
+4. The marker status remains `MECHANISM_GREEN_PENDING_POST_FREEZE_REGRESSION` even though the packet identifies a post-freeze green construction run. This is a stale evidence label.
+5. `Runtime.load()` calls `recompute_positive_vectors()` but does not validate GCP rejection vectors during load. Rejection behavior is exercised only by the acceptance harness canonicalizer tests, not by the loader path.
+
+F. I1_ACCEPTANCE_ASSESSMENT
+- I1-01: Implemented and tested for supplied constant, but actual repository commit identity is not verified. Partial.
+- I1-02: Implemented and tested; candidate mismatch fails closed.
+- I1-03: Implemented and tested for SPM digest/missing SPM. However missing packet artifacts prevent full independent reproduction of the frozen artifact set.
+- I1-04: Implemented and tested for one covered artifact tamper. Full artifact-set verification cannot be independently confirmed from the packet.
+- I1-05: Implemented and tested for SPM coverage mutation.
+- I1-06: Implemented and tested for generator binding mutation.
+- I1-07: Implemented and tested for deterministic NFC-aware key ordering.
+- I1-08: Implemented and tested for signed int64 bounds.
+- I1-09: Implemented and tested for P05 exact bytes/hash.
+- I1-10: Implemented and tested against supplied GCP positive vectors.
+- I1-11: Implemented and tested for supported positive vectors.
+- I1-12: Implemented and tested for duplicate key, NFC collision, and supplied noncharacter rejection vectors. Unpaired-surrogate path is not explicitly tested.
+- I1-13: Implemented and tested for missing required core artifacts.
+- I1-14: Implemented and tested for read-only/network-free behavior on the tested path.
+- I1-15: Implemented and tested for non-authoritative result metadata.
+- I1-16: Implemented and tested for recovery after prior failed load/canonicalization.
+
+No clear false-green is demonstrated for the tested paths, but several acceptance paths are not fully evidenced by the supplied packet, especially full frozen artifact-set verification and unpaired-surrogate rejection.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+This Slice 1 implementation establishes only a bounded, repository-local construction reference for loading and integrity-checking the frozen schema bundle and for limited GCP canonicalization behavior. It does not establish runtime qualification, release, deployment, production, policy, terminal authority, live trust dependencies, cryptographic identity, external effects, or governance authority decisions. On the supplied evidence, construction cannot be adjudicated BOUNDED_PASS because the packet omits required frozen schema artifacts and an invoked regression file, and because commit-level candidate identity is not actually verified against repository state.
+
+H. FINAL_GATE
+This exact implementation candidate may not close the Slice 1 independent-review gate on the supplied evidence. The gate remains open pending a complete exact frozen schema input set, the missing regression file, and either verification or explicit qualification of the candidate-commit identity and TOCTOU limitations.
