@@ -1,0 +1,29 @@
+{
+  "schema": "r8-v15-r1-ig1-successor1-proposal-preflight-green/v1",
+  "status": "PROPOSAL_PREFLIGHT_PASS_NO_MATERIALIZATION",
+  "authority_effect": "NONE",
+  "run_id": 36161185432,
+  "job_id": 108157862287,
+  "head_sha": "367b8b570200ef1993a0d1df0cc06c742a3a19c0",
+  "checks": [
+    "proposal machinery Python syntax valid",
+    "integration machinery declarative AST constraints pass",
+    "exact 39-candidate source commit binding pass",
+    "exact selected path+mode+type+blob checks pass",
+    "zero path collisions before materialization",
+    "S20-S22 repaired-successor ancestry and explicit identical-entry exception sets pass",
+    "runtime implementation governance-history file-IO check pass",
+    "frozen schema tree unchanged from exact frozen candidate",
+    "activation artifact absent"
+  ],
+  "selected_entries_total": 120,
+  "changed_paths_inventoried": 904,
+  "collisions_total": 0,
+  "materialization_executed": false,
+  "integration_executed": false,
+  "semantic_execution": false,
+  "prior_failures_preserved": [
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PROPOSAL-PREFLIGHT-FAILURE-001.json",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PROPOSAL-PREFLIGHT-FAILURE-002.json"
+  ]
+}
