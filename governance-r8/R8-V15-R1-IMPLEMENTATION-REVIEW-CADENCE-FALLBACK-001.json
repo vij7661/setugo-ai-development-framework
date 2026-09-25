@@ -1,0 +1,53 @@
+{
+  "schema": "r8-v15-r1-implementation-review-cadence-fallback/v1",
+  "status": "ACTIVE_FALLBACK_TO_THREE_SLICE_MAXIMUM",
+  "authority_effect": "IMPLEMENTATION_WORKFLOW_GOVERNANCE_ONLY",
+  "prior_adaptive_cadence_anchor": "b29619c9307c2a30562a2253f88d052a00bfea6a",
+  "triggering_review": {
+    "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICES20-25-INDEPENDENT-REVIEW-001.txt",
+    "overall_disposition": "CHANGES_REQUIRED",
+    "critical_findings": 0,
+    "high_findings": 1,
+    "affected_slices": [
+      20,
+      21,
+      22
+    ],
+    "finding": "Frozen StableScopeValue pattern ^(?!ANY$).+ was not fully enforced; leading ECMA line terminators could false-green."
+  },
+  "activation_basis": {
+    "proposal_id": "R8V15R1-REVIEW-CADENCE-ADAPTIVE-001",
+    "automatic_fallback_clause": "on_critical_or_high_finding / on_changes_required => RESET_TO_3_SLICE_MAXIMUM",
+    "additional_user_approval_required": false
+  },
+  "active_rule": {
+    "max_unreviewed_low_risk_slices": 3,
+    "no_unreviewed_slice_may_grant_authority": true,
+    "mandatory_early_review_triggers_remain_active": true,
+    "no_batch_integration_before_review": true,
+    "no_cross_slice_dependency_authority_before_review": true
+  },
+  "recovery_to_six": {
+    "status": "NOT_YET_ELIGIBLE",
+    "requirement": "Two consecutive fresh independent BOUNDED_PASS reviews with zero Critical/High findings after remediation."
+  },
+  "construction_state": {
+    "slice23_review_gate": "YES_ON_EXACT_CANDIDATE_SUBJECT_TO_BATCH_FALLBACK",
+    "slice24_review_gate": "OPEN_INSUFFICIENT_EVIDENCE",
+    "slice25_review_gate": "OPEN_INSUFFICIENT_EVIDENCE",
+    "slice20_repair_required": true,
+    "slice21_repair_required": true,
+    "slice22_repair_required": true
+  },
+  "grants": {
+    "implementation_construction": true,
+    "max_unreviewed_low_risk_slices": 3,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "terminal_authority": false
+  }
+}
