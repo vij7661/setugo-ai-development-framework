@@ -1,0 +1,28 @@
+{
+  "schema": "r8-v15-r1-ig1-successor3-proposal-preflight-green/v1",
+  "status": "PROPOSAL_PREFLIGHT_PASS_NO_MATERIALIZATION",
+  "authority_effect": "NONE",
+  "run_id": 36165634225,
+  "head_sha": "d25759616332b488dee05a627a9274bf6a3b80c4",
+  "exact_target_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "checks": [
+    "Successor3 machinery syntax valid",
+    "import allowlists and dynamic-execution prohibitions pass",
+    "normalized governance-history detector acceptance self-tests pass",
+    "separate exact Slice7 target worktree created",
+    "target clean and exact-base before preflight",
+    "all exact reviewed source/tree-entry identities pass",
+    "zero collisions/reserved-path conflicts",
+    "S20-S22 repaired-lineage explicit reacceptance checks pass",
+    "frozen schema subtree equality passes",
+    "11 inherited baseline test identities pass",
+    "baseline groups exactly partition manifest with per-group counts summing to 140",
+    "activation artifact absent",
+    "target remains pristine after preflight"
+  ],
+  "baseline_group_measurement_run_id": 36164919504,
+  "materialization_executed": false,
+  "integration_executed": false,
+  "semantic_execution": false,
+  "prior_failure": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-PROPOSAL-PREFLIGHT-FAILURE-001.json"
+}
