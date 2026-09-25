@@ -1,0 +1,31 @@
+{
+  "schema": "r8-v15-r1-implementation-slice6-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "618b9edfead5c8cfd35b8c680b7160992232d99a",
+  "frozen_harness_commit": "a5e074690e2b11fd3fef26b94eaf6ae94f87cc2d",
+  "workflow_commit": "8a4d1322e8cf83c81a0c99791b80bbd7fcfb613a",
+  "workflow_run_id": 36116629927,
+  "workflow_job_id": 108012146718,
+  "exact_checkout_sha": "8a4d1322e8cf83c81a0c99791b80bbd7fcfb613a",
+  "observed": {
+    "slice6_tests_run": 16,
+    "slice6_passed": 1,
+    "slice6_failed": 15,
+    "passing_case": "I6-16 dependency immutability/inherited workflow coverage",
+    "failure_root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_seal_validator'"
+  },
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "preserved_not_reclassified": true,
+  "claim_boundary": {
+    "slice6_construction_green": false,
+    "verified_state_seal_authoritative": false,
+    "current_heads_rechecked": false,
+    "commit_with_seal_authorized": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
