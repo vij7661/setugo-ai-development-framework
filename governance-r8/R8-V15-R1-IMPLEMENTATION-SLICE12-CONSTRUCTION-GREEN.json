@@ -1,0 +1,42 @@
+{
+  "schema": "r8-v15-r1-implementation-slice12-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_THREE_LOOP_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "294c8b0112e1715402325836f1c8f0b58a042e70",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "batch8_10_closure_anchor": "525e5c90d0f16482b75595e854f647ac88eaa761",
+  "final_green_run": {
+    "run_id": 36127195749,
+    "job_id": 108045925273,
+    "exact_checkout_sha": "294c8b0112e1715402325836f1c8f0b58a042e70",
+    "slice12": "16/16 PASS",
+    "inherited_baseline": "140/140 PASS",
+    "total": "156/156 PASS"
+  },
+  "preserved_red_run_id": 36126993234,
+  "frozen_schema_changed": false,
+  "closed_slice1_7_modules_changed": false,
+  "verified_scope": [
+    "ResolverImplementationRegistryRecord exact required-field structure",
+    "opaque non-empty GCP-valid IDs/digests",
+    "nullable predecessor record ID",
+    "Sequence syntax for activation and retirement/revocation",
+    "lifecycle enum closure",
+    "no temporal eligibility or resolver authorization self-grant"
+  ],
+  "claim_boundary": {
+    "temporal_ordering_verified": false,
+    "temporal_eligibility_proven": false,
+    "record_digest_verified": false,
+    "record_current": false,
+    "resolver_authorized": false,
+    "conformance_qualified": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
