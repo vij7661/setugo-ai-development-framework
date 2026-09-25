@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import hashlib, pathlib, subprocess
+
+BUNDLE_COMMIT="a6a22ba7345395d189b8819f178242f7c504048e"
+PROPOSAL_COMMIT="67c84138140e86ba4a85a954f368f4c0f7e9ef3c"
+CANDIDATE="4984f06a4420b76ad1ad475751aebda04a2d2c5c"
+OUT=pathlib.Path("stage2-sg1-review"); OUT.mkdir(exist_ok=True)
+TARGET=OUT/"R8-V15-R1-STAGE2-SG1-EARLY-REVIEW-PACKET.txt"
+
+BUNDLE_FILES=[
+("governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-PROPOSAL.json","SG-1 PROPOSAL CONTRACT"),
+("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json","SG-1 ACTIVATION GATE BINDING"),
+("governance-r8/R8-V15-R1-STAGE2-SG1-PROPOSAL-PREFLIGHT-GREEN-001.json","SG-1 STATIC PREFLIGHT GREEN"),
+("governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-SURFACE.json","EXACT DEPENDENCY SEMANTIC SURFACE"),
+("governance-runtime/test_r8_v15_r1_stage2_sg1_dependency_semantics.py","EXACT 18-CASE SG-1 HARNESS"),
+("tools/compare_r8_v15_r1_stage2_sg1_results.py","FORWARD/REVERSE RESULT COMPARATOR"),
+(".github/workflows/r8-v15-r1-stage2-sg1-core.yml","NON-TRIGGERED SG-1 REUSABLE CORE"),
+(".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml","POST-FREEZE SG-1 ACTIVATION GATE"),
+("tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py","EXACT STAGE1 REGRESSION VERIFIER"),
+("governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-CLOSURE.json","CLOSED STAGE1 BOUNDED CANDIDATE"),
+("governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-INDEPENDENT-REVIEW-005.txt","STAGE1 REVIEW 005"),
+("governance-r8/R8-V15-R1-REVIEW-CADENCE-RECOVERY-ELIGIBLE-2-OF-2.json","CADENCE RECOVERY ELIGIBILITY — NOT RESTORED"),
+]
+CANDIDATE_FILES=[
+("governance-runtime/r8_v15_r1_frozen_schema_runtime.py","EXACT FROZEN-SCHEMA RUNTIME TARGET"),
+("governance-runtime/r8_v15_r1_effect_intent_validator.py","EXACT EFFECT-INTENT TARGET"),
+("governance-runtime/r8_v15_r1_effect_state_validator.py","EXACT EFFECT-STATE CONSUMER"),
+("governance-runtime/test_r8_v15_r1_implementation_slice7.py","REVIEWED SLICE7 FIXTURE/ACCEPTANCE FILE"),
+("governance-runtime/test_r8_v15_r1_implementation_slice8.py","REVIEWED SLICE8 FIXTURE/ACCEPTANCE FILE"),
+]
+
+def sh(*args): return subprocess.check_output(args)
+def show(rev,path): return sh("git","show",f"{rev}:{path}")
+def blob(rev,path): return sh("git","rev-parse",f"{rev}:{path}").decode().strip()
+
+header=f"""R8 v15-r1 — STAGE2 SG-1 DEPENDENCY SEMANTIC CONFORMANCE — FRESH MANDATORY EARLY REVIEW
+
+USE ONLY THIS FILE.
+Do not use prior conversation history or model recollection.
+This is a PROPOSAL/EARLY REVIEW ONLY.
+NO SG-1 semantic execution has occurred.
+NO activation artifact exists.
+
+EXACT PROPOSAL
+proposal ID: R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001
+proposal contract commit: {PROPOSAL_COMMIT}
+proposal blob SHA-1: d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b
+review-bundle commit: {BUNDLE_COMMIT}
+activation-gate blob SHA-1: 056bce33da38a2178ca2827d581b5a81c8bf4416
+
+EXACT CLOSED STAGE1 CANDIDATE
+candidate: {CANDIDATE}
+tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+parent: 751162ee42c603cb6c84ee12021d16bab6fa626b
+Stage1 closure: BOUNDED_PASS, non-authoritative
+Stage1 review 005: BOUNDED_PASS, zero Critical/High
+Stage1 strict regression guard: 636 reviewed tests + 140 inherited tests = 776, zero bypass/failure classifications
+
+CURRENT CADENCE
+Fallback-to-3 remains ACTIVE.
+Recovery evidence 2/2 is satisfied but six-slice cadence is NOT restored.
+SG-1 is a separately reviewed Stage2 phase gate and does not silently restore cadence.
+
+EXACT DEPENDENCY SURFACE
+39 selected implementation files.
+32 direct r8_v15_r1_* dependency edges.
+Only two direct target modules:
+1. 31 edges -> governance-runtime/r8_v15_r1_frozen_schema_runtime.py
+   exact blob e5a06f43b98131f0730852757a83bb7fe5882001
+   used surface only: GCPError, INT64_MAX, canonicalize_json_text
+2. 1 edge -> governance-runtime/r8_v15_r1_effect_intent_validator.py
+   exact blob 50c5f3edd905ec23ae8e97d3cc2d441489935786
+   source: governance-runtime/r8_v15_r1_effect_state_validator.py
+   used surface only: EffectIntentError, validate_effect_intent
+
+SG-1 PREREGISTERED EXECUTION
+Qualification-only; candidate bytes are not changed.
+Exact harness blob: 15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad
+Exact comparator blob: 097464a6b99bc79117501f7700d012ebeddd8675
+Exact reusable core blob: 93ea0cccfdb1392ef38ee41dd053512372de0c87
+Exact Stage1 verifier blob: dc8b76d6710dee27af4a3502b157853959d34ba7
+
+The harness contains exactly 18 preregistered cases:
+SG1-01 exact target and reviewed fixture identities
+SG1-02 exact consumer identities
+SG1-03 exact runtime resolution
+SG1-04 import all consumers
+SG1-05 shared frozen-runtime module object
+SG1-06 exact identity/value for used frozen surface
+SG1-07 valid GCP canonicalization
+SG1-08 non-NFC rejection
+SG1-09 noncharacter rejection
+SG1-10 INT64 boundary
+SG1-11 effect-state -> effect-intent module/function/error-class identity
+SG1-12 valid delegated state + explicit non-authority
+SG1-13 invalid intent-state translation
+SG1-14 nested time-proof error translation
+SG1-15 effect_intent_id binding
+SG1-16 idempotency binding
+SG1-17 SUCCEEDED_RECONCILED label grants no authority
+SG1-18 failure non-poisoning/determinism
+
+The core would, only after approved activation:
+- create exact candidate worktree;
+- rerun the exact Stage1 776-test guard BEFORE SG-1;
+- run all 18 cases in forward import order;
+- run all 18 cases in reverse import order;
+- require order-invariant semantic fingerprint and case results;
+- rerun the exact Stage1 776-test guard AFTER SG-1;
+- require exact candidate HEAD/tree/worktree unchanged;
+- upload only bounded SG-1 result evidence.
+
+Harness audit policy blocks subprocess execution, socket connect/bind/listen, os system/exec/spawn/fork, file writes, and mutating remove/rename/mkdir/rmdir operations from the SG-1 harness process.
+
+AUTHORITY BOUNDARY
+SG-1 is only local dependency-semantic falsification.
+It does NOT establish broader Stage2 semantic authority.
+It does NOT establish semantic selection/promotion, currentness, qualification, evidence promotion, SRTT recomputation, SFV execution, external effects, runtime qualification, release, deployment, production, policy, constitutional, root, or terminal authority.
+Even a future SG-1 execution PASS must receive a fresh independent post-execution review before SG-1 can close or any later Stage2 gate can execute.
+
+REVIEW FOCUS
+Adversarially inspect whether:
+- the 32-edge/2-target scope is complete for this SG-1 objective;
+- exact runtime target resolution and object identity can false-green;
+- testing only the actually used frozen-runtime surface is sufficient and correctly bounded;
+- the four GCP/INT64 checks adequately falsify shared-surface composition rather than pretending to requalify the frozen runtime;
+- effect-state -> effect-intent delegation/error translation/binding cases cover the observable cross-validator edge without granting authority;
+- forward/reverse import-order comparison can miss shared-state contamination;
+- the audit policy and exact candidate regression guards prevent meaningful external/mutating side effects;
+- reviewed Slice7/8 fixture reuse introduces any test-coupling false-green;
+- comparator semantics can silently normalize away a failure;
+- exact Stage1 guard before/after and candidate immutability checks are sufficient;
+- activation binding is exact and complete;
+- post-execution independent review is mandatory before any later Stage2 gate;
+- any omitted direct edge or semantic target creates a High/Critical gap.
+
+REQUIRED OUTPUT — RETURN ONLY A-H
+
+A. OVERALL_DISPOSITION
+Exactly one: BOUNDED_PASS / CHANGES_REQUIRED / INSUFFICIENT_EVIDENCE
+
+B. EXACT_SG1_PROPOSAL_IDENTITY
+Include proposal ID, proposal commit/blob, bundle commit, activation-gate blob, harness/comparator/core/verifier blobs, semantic-surface blob, exact Stage1 candidate/tree, 39 implementation files, 32 edges, 2 targets, and static preflight run/job 36169709850 / 108185981758.
+
+C. CRITICAL_FINDINGS
+
+D. HIGH_FINDINGS
+
+E. MEDIUM_LOW_FINDINGS
+
+F. SG1_PROTOCOL_ASSESSMENT
+F1 completeness of 32-edge/2-target scope for SG-1
+F2 exact runtime import-resolution/file/blob identity
+F3 31-consumer shared frozen-runtime module/surface identity
+F4 GCP and INT64 semantic falsification coverage
+F5 effect-state -> effect-intent delegation/error-translation/binding coverage
+F6 forward/reverse import-order and shared-state contamination oracle
+F7 fixture reuse and fixture identity
+F8 audit policy / external or mutating side-effect boundary
+F9 Stage1 776-test guard before/after + candidate immutability
+F10 comparator false-green risk
+F11 exact activation proposal/review/machinery/evidence binding
+F12 post-execution review and broader Stage2 authority boundary
+Identify any concrete false-green, hidden dependency, authority-transfer, or under-test path.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+State whether SG-1 remains qualification-only and non-authoritative; broader Stage2 remains unauthorized; fallback-to-3 remains active despite 2/2 restoration eligibility; exact SG-1 execution evidence would require fresh review before closure/next Stage2 gate.
+
+H. FINAL_GATE
+State exactly:
+- Stage2 SG-1 may be explicitly activated by user: YES or NO.
+- If YES, activation is NOT automatic and explicit user approval must bind proposal commit {PROPOSAL_COMMIT}, proposal blob d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b, and activation-gate blob 056bce33da38a2178ca2827d581b5a81c8bf4416.
+- SG-1 execution authority if activated: LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
+- Broader Stage2 semantic authority granted: NO.
+- Automatic six-slice cadence restoration: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
+
+"""
+
+with TARGET.open("wb") as fp:
+    fp.write(header.encode())
+    for path,label in BUNDLE_FILES:
+        b=show(BUNDLE_COMMIT,path)
+        fp.write(f"\n===== BEGIN {label} =====\npath={path}\nref={BUNDLE_COMMIT}\ngit_blob_sha1={blob(BUNDLE_COMMIT,path)}\nbyte_count={len(b)}\nsha256={hashlib.sha256(b).hexdigest()}\n".encode())
+        fp.write(b)
+        if not b.endswith(b"\n"): fp.write(b"\n")
+        fp.write(f"===== END {label} =====\n".encode())
+    for path,label in CANDIDATE_FILES:
+        b=show(CANDIDATE,path)
+        fp.write(f"\n===== BEGIN {label} =====\npath={path}\nref={CANDIDATE}\ngit_blob_sha1={blob(CANDIDATE,path)}\nbyte_count={len(b)}\nsha256={hashlib.sha256(b).hexdigest()}\n".encode())
+        fp.write(b)
+        if not b.endswith(b"\n"): fp.write(b"\n")
+        fp.write(f"===== END {label} =====\n".encode())
+
+b=TARGET.read_bytes()
+print(TARGET.name,len(b),hashlib.sha256(b).hexdigest())
