@@ -1,0 +1,18 @@
+{
+  "schema": "r8-v15-r1-implementation-slice22-successor1-repair-red/v1",
+  "status": "PRESERVED_REVIEWER_FINDING_REPRODUCTION_RED",
+  "authority_effect": "NONE",
+  "rejected_candidate": "8ecdd17ce80549f87dd15bbe1fc29414272b6253",
+  "triggering_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICES20-25-INDEPENDENT-REVIEW-001.txt",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "frozen_repair_workflow_commit": "2399e1833c815ca96bc4d1153f6ddd3164cb170d",
+  "run_id": 36143170972,
+  "job_id": 108097693607,
+  "successor_tests_run": 4,
+  "observed_failure_events": 36,
+  "finding_reproduced": true,
+  "finding_summary": "All nine tuple fields falsely accepted each of four leading ECMA line terminators.",
+  "frozen_pattern": "^(?!ANY$).+",
+  "repair_not_yet_applied_at_this_run": true,
+  "preserved_not_reclassified": true
+}
