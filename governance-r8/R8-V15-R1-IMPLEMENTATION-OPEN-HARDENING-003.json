@@ -1,0 +1,44 @@
+{
+  "schema": "r8-v15-r1-implementation-open-hardening/v3",
+  "status": "OPEN_NONBLOCKING_HARDENING",
+  "authority_effect": "NONE",
+  "source_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE4-INDEPENDENT-REVIEW-001.txt",
+  "source_adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE4-REVIEW-001-ADJUDICATION.json",
+  "items": [
+    {
+      "id": "R8V15R1-IMPL-HARDEN-007",
+      "title": "Require list-only AuthorityReadSet entries before exact Python/JSON type-equivalence claim",
+      "status": "OPEN",
+      "severity": "API_STRICTNESS",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-008",
+      "title": "Freeze or normalize Slice 4 PresealError/GCPError taxonomy",
+      "status": "OPEN",
+      "severity": "ERROR_TAXONOMY",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-009",
+      "title": "Expand direct Slice 4 workflow trigger coverage over exercised closed dependencies/tests",
+      "status": "OPEN",
+      "severity": "PROCESS_HARDENING",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-010",
+      "title": "Preserve raw workflow/log evidence when job-step numbering is non-contiguous",
+      "status": "OPEN",
+      "severity": "EVIDENCE_PACKAGING",
+      "blocking": false
+    }
+  ],
+  "inherited_open_items": [
+    "R8V15R1-RTQ-OPEN-001",
+    "R8V15R1-IMPL-HARDEN-004",
+    "R8V15R1-IMPL-HARDEN-005",
+    "R8V15R1-IMPL-HARDEN-006"
+  ],
+  "rule": "These items remain open after Slice 4 closure and may not be represented as resolved without governed evidence."
+}
