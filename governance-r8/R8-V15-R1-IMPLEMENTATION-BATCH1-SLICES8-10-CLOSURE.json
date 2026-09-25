@@ -1,0 +1,101 @@
+{
+  "schema": "r8-v15-r1-implementation-batch1-slices8-10-closure/v1",
+  "status": "IMPLEMENTATION_BATCH1_SLICES8_10_BOUNDED_PASS",
+  "authority_effect": "BOUNDED_IMPLEMENTATION_CONSTRUCTION_ONLY",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "closed_slice7_closure_head": "5477df994c2cc9db0033742e189b906eb20247c1",
+  "exact_candidates": {
+    "slice8": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "slice9": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "slice10": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4"
+  },
+  "independent_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH1-SLICES8-10-INDEPENDENT-REVIEW-001.txt",
+  "adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH1-SLICES8-10-REVIEW-001-ADJUDICATION.json",
+  "open_hardening": "governance-r8/R8-V15-R1-IMPLEMENTATION-OPEN-HARDENING-007.json",
+  "final_runs": {
+    "slice8": {
+      "run_id": 36121677646,
+      "job_id": 108028378950,
+      "result": "156/156 PASS"
+    },
+    "slice9": {
+      "run_id": 36121983437,
+      "job_id": 108029364363,
+      "result": "156/156 PASS"
+    },
+    "slice10": {
+      "run_id": 36122429875,
+      "job_id": 108030797431,
+      "result": "156/156 PASS"
+    }
+  },
+  "review_disposition": "BOUNDED_PASS",
+  "review_findings_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 2,
+    "low_medium": 1,
+    "low": 1,
+    "blocking": 0
+  },
+  "open_items": [
+    "R8V15R1-RTQ-OPEN-001",
+    "R8V15R1-IMPL-HARDEN-014",
+    "R8V15R1-IMPL-HARDEN-015",
+    "R8V15R1-IMPL-HARDEN-016",
+    "R8V15R1-IMPL-HARDEN-017",
+    "R8V15R1-IMPL-HARDEN-018",
+    "R8V15R1-IMPL-HARDEN-019",
+    "R8V15R1-IMPL-HARDEN-020",
+    "R8V15R1-IMPL-HARDEN-021"
+  ],
+  "proven_scope": [
+    "Slice 8 exact local EffectStateRecord structure and EffectIntent binding for exact candidate fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "Slice 9 exact local EvidenceRecord structural validation for exact candidate 9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "Slice 10 exact local ReviewAttestation structural validation for exact candidate 33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+    "preserved mechanism-absent RED evidence for each slice",
+    "exact-candidate green workflow evidence for each slice",
+    "combined fresh blind independent review of the three exact sibling candidates"
+  ],
+  "nonclaims": [
+    "combined executable composition of Slice 8, Slice 9, and Slice 10 in one candidate tree",
+    "single combined Slice 8+9+10 workflow qualification",
+    "cross-sibling byte immutability after each individual exact candidate",
+    "actual EffectStateRecord append/commit or legal lifecycle transition",
+    "external effect success, reconciliation truth, executor qualification, or compensation authority",
+    "evidence-class upgrade, temporal revocation validity, execution proof validity, output derivation validity, or evidence promotion",
+    "reviewer independence proof, signature verification, aggregate review policy, or review-gate authority",
+    "runtime qualification",
+    "release",
+    "deployment",
+    "production",
+    "policy authority",
+    "merge authority",
+    "terminal authority"
+  ],
+  "batch_rule_satisfaction": {
+    "requested_loop_count": 3,
+    "completed_loop_count": 3,
+    "combined_review_after_loop_count": 3,
+    "combined_review_completed": true,
+    "combined_review_disposition": "BOUNDED_PASS",
+    "unreviewed_loop_authority_granted": false
+  },
+  "next_phase": "NEXT_BOUNDED_IMPLEMENTATION_WORK_REQUIRES_FRESH_PREREGISTRATION; ANY_SLICE8_10_COMPOSITION_REQUIRES_HARDEN_018_AND_HARDEN_019_FIRST",
+  "claim_boundary": {
+    "batch1_bounded_construction_closed": true,
+    "slice8_bounded_construction": true,
+    "slice9_bounded_construction": true,
+    "slice10_bounded_construction": true,
+    "combined_composition_proven": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "merge_authority": false,
+    "terminal_authority": false
+  }
+}
