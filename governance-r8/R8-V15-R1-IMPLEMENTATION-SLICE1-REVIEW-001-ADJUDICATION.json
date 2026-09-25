@@ -1,0 +1,102 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-review-adjudication/v1",
+  "status": "CHANGES_REQUIRED_NARROW_SUCCESSOR",
+  "authority_effect": "REVIEW_ADJUDICATION_ONLY",
+  "reviewed_candidate": "e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+  "independent_review_path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-INDEPENDENT-REVIEW-001.txt",
+  "independent_review_disposition": "INSUFFICIENT_EVIDENCE",
+  "adjudicated_findings": [
+    {
+      "id": "R1-C-01",
+      "reviewer_claim": "four frozen schema artifacts were missing from the packet",
+      "disposition": "REJECTED",
+      "severity_after_adjudication": "NONE",
+      "basis": "The supplied 02_FULL_FROZEN_SCHEMA_INPUTS packet contains explicit complete BEGIN/END sections for schema-provenance-source-map.json, schema-provenance-manifest.schema.json, srtt-4-rule-registry.schema.json, and srtt-4-total-table.schema.json."
+    },
+    {
+      "id": "R1-C-02",
+      "reviewer_claim": "workflow-invoked test_r8_v15_r1_sfv45_r2_repair.py source was not supplied",
+      "disposition": "CONFIRMED",
+      "severity_after_adjudication": "EVIDENCE_TRANSPORT_GAP",
+      "candidate_defect": false,
+      "repair": "Embed exact invoked regression source in successor review packet."
+    },
+    {
+      "id": "R1-H-01",
+      "reviewer_claim": "loader does not prove repo_root Git checkout equals frozen schema commit",
+      "disposition": "REJECTED_AS_CODE_DEFECT_CLARIFICATION_REQUIRED",
+      "severity_after_adjudication": "NONE",
+      "basis": "I1-I01 pins the frozen schema candidate as runtime configuration identity while I1-I02/I03 establish byte identity through the exact SPM and per-artifact SHA-256. The implementation necessarily executes from a later implementation commit; requiring repo_root HEAD==f93ca would make the designed post-freeze implementation impossible. Successor review material will state this identity model explicitly."
+    },
+    {
+      "id": "R1-H-02",
+      "reviewer_claim": "hash and parse are separate reads, creating TOCTOU",
+      "disposition": "CONFIRMED",
+      "severity_after_adjudication": "HIGH",
+      "candidate_defect": true,
+      "repair": "Read each artifact once into bytes; validate digest over those bytes and parse/use only the same verified bytes."
+    },
+    {
+      "id": "R1-H-03",
+      "reviewer_claim": "source-map/SPM semantic cross-validation is incomplete",
+      "disposition": "REJECTED_AS_REQUIRED_RUNTIME_DEFECT",
+      "severity_after_adjudication": "NONE",
+      "basis": "Slice 1 consumes an already frozen exact bundle. The SPM and source map are independently exact-hash pinned, and every SPM artifact is digest checked. Regenerating provenance semantics is outside Slice 1. Path confinement will nevertheless be strengthened in the successor."
+    },
+    {
+      "id": "R1-M-01",
+      "reviewer_claim": "entry_count 3058 is not independently hardcoded",
+      "disposition": "REJECTED_AS_INDEPENDENT_DEFECT",
+      "severity_after_adjudication": "NONE",
+      "basis": "The entire SPM is exact-hash pinned before validation. A changed entry_count cannot survive the exact SPM digest check. Successor may additionally assert frozen counts as defense in depth."
+    },
+    {
+      "id": "R1-M-02",
+      "reviewer_claim": "unpaired-surrogate path is not explicitly tested",
+      "disposition": "CONFIRMED",
+      "severity_after_adjudication": "MEDIUM",
+      "candidate_defect": false,
+      "test_coverage_gap": true,
+      "repair": "Add explicit lone-surrogate acceptance regression while preserving I1-I13."
+    },
+    {
+      "id": "R1-M-03",
+      "reviewer_claim": "workflow only triggers on marker path",
+      "disposition": "CONFIRMED",
+      "severity_after_adjudication": "MEDIUM_CONTROL",
+      "candidate_defect": false,
+      "repair": "Trigger workflow on implementation, acceptance/regression, workflow, preregistration, and marker changes."
+    },
+    {
+      "id": "R1-M-04",
+      "reviewer_claim": "marker status is stale",
+      "disposition": "CONFIRMED",
+      "severity_after_adjudication": "LOW_EVIDENCE_LABEL",
+      "candidate_defect": false,
+      "repair": "Use successor marker with current lifecycle state."
+    },
+    {
+      "id": "R1-M-05",
+      "reviewer_claim": "loader does not self-check GCP rejection vectors during load",
+      "disposition": "NOT_REQUIRED_BUT_STRENGTHEN",
+      "severity_after_adjudication": "NONE",
+      "basis": "Rejection semantics are already exercised by the canonicalizer acceptance surface; load-time vector self-check is not explicitly required by I1-I11. Successor will add the self-check to eliminate ambiguity."
+    }
+  ],
+  "successor_required": true,
+  "successor_scope": [
+    "single-read digest-and-parse closure",
+    "explicit unpaired-surrogate regression",
+    "workflow trigger coverage",
+    "current lifecycle marker",
+    "load-time GCP rejection-vector self-check",
+    "defense-in-depth exact frozen count/path confinement",
+    "complete review transport including all invoked regression source"
+  ],
+  "prohibited_changes": [
+    "frozen executable-schema bytes",
+    "I1 authority boundary",
+    "runtime qualification scope",
+    "release/deployment/production authority"
+  ]
+}
