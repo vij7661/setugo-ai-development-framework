@@ -1,0 +1,28 @@
+{
+  "schema": "r8-v15-r1-implementation-slice3-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "14eea5d4458e5b54b71619d85a9ebf71141f6a07",
+  "frozen_harness_commit": "090370c616980986415bcb4dac934ad28b5048d1",
+  "workflow_commit": "d7c9edb3241b1c3a2caba724e7cb1bc5a31bad4e",
+  "workflow_run_id": 36111326318,
+  "workflow_job_id": 107995209685,
+  "exact_checkout_sha": "d7c9edb3241b1c3a2caba724e7cb1bc5a31bad4e",
+  "observed": {
+    "slice3_tests_run": 16,
+    "slice3_passed": 1,
+    "slice3_failed": 15,
+    "passing_case": "I3-16 dependency regressions/immutability/workflow coverage",
+    "failure_root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_stc_validator'"
+  },
+  "interpretation": "Expected preregistered RED before Slice 3 mechanism implementation. Direct Slice 2 GGS verify and verify-result metadata regressions already pass in I3-16.",
+  "preserved_not_reclassified": true,
+  "claim_boundary": {
+    "slice3_construction_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
