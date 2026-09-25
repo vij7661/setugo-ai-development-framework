@@ -1,0 +1,35 @@
+{
+  "schema": "r8-v15-r1-implementation-open-hardening/v6",
+  "status": "OPEN_NONBLOCKING_HARDENING",
+  "authority_effect": "NONE",
+  "source_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE7-INDEPENDENT-REVIEW-001.txt",
+  "source_adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE7-REVIEW-001-ADJUDICATION.json",
+  "items": [
+    {
+      "id": "R8V15R1-IMPL-HARDEN-015",
+      "title": "Add explicit string type check for EffectIntent.state",
+      "status": "OPEN",
+      "severity": "API_STRICTNESS",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-016",
+      "title": "Replace substring workflow coverage proof with structural YAML/path validation",
+      "status": "OPEN",
+      "severity": "PROCESS_HARDENING",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-017",
+      "title": "Directly assert EffectIntent additionalProperties=false in schema parity test",
+      "status": "OPEN",
+      "severity": "TEST_DEPTH",
+      "blocking": false
+    }
+  ],
+  "inherited_open_items": [
+    "R8V15R1-RTQ-OPEN-001",
+    "R8V15R1-IMPL-HARDEN-014"
+  ],
+  "rule": "These items remain open after Slice 7 closure and may not be represented as resolved without governed evidence."
+}
