@@ -1,5 +1,7 @@
 """R8 v15-r1 Slice 15: local ResolverConformanceAggregateResult validation only."""
 
+# CI retrigger only: no semantic change.
+
 from __future__ import annotations
 
 import json
