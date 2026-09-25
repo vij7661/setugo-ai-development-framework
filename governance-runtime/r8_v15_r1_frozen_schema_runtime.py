@@ -11,7 +11,7 @@ import hashlib
 import json
 import re
 import unicodedata
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Tuple
 
 FROZEN_CANDIDATE_SHA = "f93ca26975ecb64f0da13779889c75b36140cdfc"
@@ -27,6 +27,10 @@ GENERATOR_WORKLOAD_PROOF_DIGEST = "9cca9f7e996e9e956f6c1dc93451a9a9e53794071275e
 
 INT64_MIN = -(2**63)
 INT64_MAX = 2**63 - 1
+
+FROZEN_ARTIFACT_COUNT = 16
+FROZEN_ENTRY_COUNT = 3058
+FROZEN_SCHEMA_PREFIX = "schemas/governance-r8/v15-r1"
 
 
 class FrozenSchemaError(RuntimeError):
@@ -58,11 +62,11 @@ def _required_file(path: Path) -> None:
         raise FrozenSchemaError("REQUIRED_ARTIFACT_MISSING", str(path))
 
 
-def _load_json(path: Path) -> Any:
+def _load_json_bytes(data: bytes, label: str) -> Any:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(data.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise FrozenSchemaError("ARTIFACT_PARSE_ERROR", f"{path}: {exc}") from exc
+        raise FrozenSchemaError("ARTIFACT_PARSE_ERROR", f"{label}: {exc}") from exc
 
 
 def validate_spm_document(spm: Dict[str, Any]) -> None:
@@ -99,12 +103,34 @@ def validate_spm_document(spm: Dict[str, Any]) -> None:
     artifacts = spm.get("artifacts")
     if not isinstance(artifacts, list) or len(artifacts) != spm.get("artifact_count"):
         raise FrozenSchemaError("SPM_ARTIFACT_SET_INVALID", "artifact_count/list mismatch")
-    if len(artifacts) != 16:
-        raise FrozenSchemaError("SPM_ARTIFACT_SET_INVALID", f"expected 16 artifacts, got {len(artifacts)}")
+    if len(artifacts) != FROZEN_ARTIFACT_COUNT:
+        raise FrozenSchemaError(
+            "SPM_ARTIFACT_COUNT_MISMATCH",
+            f"expected {FROZEN_ARTIFACT_COUNT} artifacts, got {len(artifacts)}",
+        )
+
+    for artifact in artifacts:
+        raw_path = artifact.get("path")
+        if not isinstance(raw_path, str):
+            raise FrozenSchemaError("SPM_ARTIFACT_PATH_INVALID", repr(raw_path))
+        pure = PurePosixPath(raw_path)
+        if (
+            pure.is_absolute()
+            or ".." in pure.parts
+            or "." in pure.parts
+            or pure.parent.as_posix() != FROZEN_SCHEMA_PREFIX
+            or pure.as_posix() != raw_path
+        ):
+            raise FrozenSchemaError("SPM_ARTIFACT_PATH_INVALID", raw_path)
 
     entries = spm.get("entries")
     if not isinstance(entries, list) or len(entries) != spm.get("entry_count"):
         raise FrozenSchemaError("SPM_ENTRY_SET_INVALID", "entry_count/list mismatch")
+    if len(entries) != FROZEN_ENTRY_COUNT:
+        raise FrozenSchemaError(
+            "SPM_ENTRY_COUNT_MISMATCH",
+            f"expected {FROZEN_ENTRY_COUNT} entries, got {len(entries)}",
+        )
 
     known_refs = set((spm.get("source_ref_catalog") or {}).keys())
     if not known_refs:
@@ -161,50 +187,63 @@ class FrozenSchemaRuntime:
         for path in required.values():
             _required_file(path)
 
+        byte_cache: Dict[Path, bytes] = {}
+
+        def read_once(path: Path) -> bytes:
+            key = path.resolve()
+            if key not in byte_cache:
+                byte_cache[key] = path.read_bytes()
+            return byte_cache[key]
+
         spm_path = required["spm"]
-        actual_spm_sha = _sha256_file(spm_path)
+        spm_bytes = read_once(spm_path)
+        actual_spm_sha = _sha256_bytes(spm_bytes)
         if actual_spm_sha != FROZEN_SPM_SHA256:
             raise FrozenSchemaError(
                 "SPM_DIGEST_MISMATCH",
                 f"expected {FROZEN_SPM_SHA256}, got {actual_spm_sha}",
             )
-
-        source_map_sha = _sha256_file(required["source_map"])
-        if source_map_sha != FROZEN_SOURCE_MAP_SHA256:
-            raise FrozenSchemaError(
-                "SOURCE_MAP_DIGEST_MISMATCH",
-                f"expected {FROZEN_SOURCE_MAP_SHA256}, got {source_map_sha}",
-            )
-
-        gcp_sha = _sha256_file(required["gcp"])
-        if gcp_sha != FROZEN_GCP_JSON_SHA256:
-            raise FrozenSchemaError(
-                "GCP_VECTOR_DIGEST_MISMATCH",
-                f"expected {FROZEN_GCP_JSON_SHA256}, got {gcp_sha}",
-            )
-
-        spm = _load_json(spm_path)
+        spm = _load_json_bytes(spm_bytes, str(spm_path))
         validate_spm_document(spm)
 
+        artifact_bytes_by_rel: Dict[str, bytes] = {}
         for artifact in spm["artifacts"]:
             rel = artifact["path"]
             path = self.repo_root / rel
             _required_file(path)
-            actual = _sha256_file(path)
+            data = read_once(path)
+            actual = _sha256_bytes(data)
             if actual != artifact["sha256"]:
                 raise FrozenSchemaError(
                     "ARTIFACT_DIGEST_MISMATCH",
                     f"{rel}: expected {artifact['sha256']}, got {actual}",
                 )
+            artifact_bytes_by_rel[rel] = data
 
-        source_map = _load_json(required["source_map"])
+        source_map_bytes = read_once(required["source_map"])
+        source_map_sha = _sha256_bytes(source_map_bytes)
+        if source_map_sha != FROZEN_SOURCE_MAP_SHA256:
+            raise FrozenSchemaError(
+                "SOURCE_MAP_DIGEST_MISMATCH",
+                f"expected {FROZEN_SOURCE_MAP_SHA256}, got {source_map_sha}",
+            )
+        source_map = _load_json_bytes(source_map_bytes, str(required["source_map"]))
         if source_map.get("semantic_candidate_commit") != FROZEN_SEMANTIC_SHA:
             raise FrozenSchemaError(
                 "SEMANTIC_IDENTITY_MISMATCH",
                 "source map semantic candidate mismatch",
             )
 
-        spm_names = {Path(a["path"]).name for a in spm["artifacts"]}
+        gcp_bytes = read_once(required["gcp"])
+        gcp_sha = _sha256_bytes(gcp_bytes)
+        if gcp_sha != FROZEN_GCP_JSON_SHA256:
+            raise FrozenSchemaError(
+                "GCP_VECTOR_DIGEST_MISMATCH",
+                f"expected {FROZEN_GCP_JSON_SHA256}, got {gcp_sha}",
+            )
+        gcp = _load_json_bytes(gcp_bytes, str(required["gcp"]))
+
+        spm_names = {PurePosixPath(a["path"]).name for a in spm["artifacts"]}
         source_names = set((source_map.get("artifact_sources") or {}).keys())
         if spm_names != source_names:
             raise FrozenSchemaError(
@@ -212,13 +251,25 @@ class FrozenSchemaRuntime:
                 f"spm-only={sorted(spm_names-source_names)} source-only={sorted(source_names-spm_names)}",
             )
 
-        gcp = _load_json(required["gcp"])
         recompute_positive_vectors(gcp)
+        validate_rejection_vectors(gcp)
 
-        # Parse the remaining required core artifacts after digest verification.
-        traceability = _load_json(required["traceability"])
-        runtime_schema = _load_json(required["runtime_schema"])
-        validator = _load_json(required["validator"])
+        trace_rel = "schemas/governance-r8/v15-r1/schema-freeze-traceability.json"
+        runtime_rel = "schemas/governance-r8/v15-r1/runtime-contracts.schema.json"
+        validator_rel = "schemas/governance-r8/v15-r1/schema-freeze-validator-contract.json"
+
+        traceability = _load_json_bytes(
+            artifact_bytes_by_rel[trace_rel],
+            trace_rel,
+        )
+        runtime_schema = _load_json_bytes(
+            artifact_bytes_by_rel[runtime_rel],
+            runtime_rel,
+        )
+        validator = _load_json_bytes(
+            artifact_bytes_by_rel[validator_rel],
+            validator_rel,
+        )
 
         return {
             "candidate_sha": FROZEN_CANDIDATE_SHA,
@@ -414,4 +465,33 @@ def recompute_positive_vectors(gcp_document: Dict[str, Any]) -> Dict[str, Dict[s
             "canonical_utf8": canonical_text,
             "sha256": digest,
         }
+    return observed
+
+
+def validate_rejection_vectors(gcp_document: Dict[str, Any]) -> Dict[str, str]:
+    vectors = gcp_document.get("rejection_vectors")
+    if not isinstance(vectors, list):
+        raise FrozenSchemaError("GCP_VECTOR_SET_INVALID", "rejection_vectors missing")
+
+    observed: Dict[str, str] = {}
+    for vector in vectors:
+        vector_id = vector["vector_id"]
+        expected_code = vector["expected_rejection_code"]
+        try:
+            canonicalize_json_text(
+                vector["input_representation"],
+                schema_context=vector["schema_context"],
+            )
+        except GCPError as exc:
+            if exc.code != expected_code:
+                raise FrozenSchemaError(
+                    "GCP_REJECTION_VECTOR_CODE_MISMATCH",
+                    f"{vector_id}: expected {expected_code}, got {exc.code}",
+                ) from exc
+            observed[vector_id] = exc.code
+        else:
+            raise FrozenSchemaError(
+                "GCP_REJECTION_VECTOR_FALSE_ACCEPT",
+                f"{vector_id}: expected {expected_code}",
+            )
     return observed
