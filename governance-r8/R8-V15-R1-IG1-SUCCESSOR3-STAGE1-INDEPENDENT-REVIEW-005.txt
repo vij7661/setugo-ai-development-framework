@@ -1,0 +1,80 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_STAGE1_CANDIDATE_IDENTITY
+- Candidate commit: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+- Candidate parent: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- Candidate tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+- Candidate branch: integration/r8-v15-r1-ig1-successor3-candidate-448739d25dc7
+- Commits above base: 1
+- Changed-path count: 121
+- Allowlisted-entry count: 120
+- Candidate manifest blob: a78add847f6d4ba8914a66ee00d89422fbaa47f2
+- Activation run: 36167485075
+- Activation gate job: 108178671152
+- Stage1 job: 108178711127
+- Stage1 conclusion: SUCCESS
+- Post-run verification run/job: 36167715425 / 108179410259
+- Post-run conclusion: SUCCESS
+- Test totals: 636 reviewed S8-S46 tests + 140 inherited S1-S7 baseline tests = 776 total; failures/errors/skips/expected failures/unexpected successes all 0
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+None.
+
+E. MEDIUM_LOW_FINDINGS
+No Medium findings newly identified.
+
+Low residuals:
+- The generated direct implementation-import scan shows observable direct r8_v15_r1_* import edges: 31 imports to r8_v15_r1_frozen_schema_runtime and 1 import from r8_v15_r1_effect_state_validator to r8_v15_r1_effect_intent_validator. These targets are outside the 121 changed paths and appear inherited/unchanged, but the observed dependency edges remain relevant to Stage2 semantic integration.
+- Review004 Low residuals remain: heuristic governance-history detection against dynamic string construction; final staged-diff verification did not itself bind manifest content in the pre-commit check; activation review-blob binding relies on activation JSON plus explicit user approval; AST dynamic-execution restrictions are not exhaustive against every possible Python dynamic technique.
+- These residuals do not create a Critical/High false-green or silent-authority path for Stage1 bounded closure.
+
+F. STAGE1_CANDIDATE_ASSESSMENT
+F1 exact parent/tree/one-commit construction
+PASS. Parent is exactly 751162ee42c603cb6c84ee12021d16bab6fa626b, tree is exactly 5a34e0d7db3e750dd5b0f722ccecc8014be189ef, and the candidate is one commit above the base.
+
+F2 exact 120+manifest path set
+PASS. The candidate changed set is 121 paths: 120 reviewed allowlisted entries plus the one candidate manifest. The allowlist decomposes as 39 reviewed candidates with 120 selected entries, including the three successor test entries for slices 20-22.
+
+F3 path/mode/type/blob allowlist identity
+PASS. The generated exact tree matrix reports all 120 reviewed entries as path/mode/type/blob matches, and the manifest entry matches expected manifest blob a78add847f6d4ba8914a66ee00d89422fbaa47f2.
+
+F4 inherited baseline identity
+PASS. The baseline identity file specifies 11 entries in 7 exact groups, with counts 16/16/16/16/16/16/44 = 140. Post-run verification states all 11 inherited baseline identities were re-verified unchanged.
+
+F5 candidate manifest/non-authority
+PASS. The manifest declares status INTEGRATED_IMPLEMENTATION_CANDIDATE_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW, authority_effect NONE, and all semantic/currentness/qualification/evidence/runtime/release/deployment/production/policy/constitutional/root/terminal authorities false.
+
+F6 activation + execution evidence
+PASS. Activation JSON records explicit user approval binding proposal ID, proposal commit, proposal blob, Review004 blob, and activation-gate blob. Activation run 36167485075, gate job 108178671152, and Stage1 job 108178711127 all succeeded. Raw log extract records preflight, materialization/oracle, final diff verification, candidate commit, and non-authority status.
+
+F7 post-run re-verification + 776-test oracle
+PASS. Post-run run/job 36167715425 / 108179410259 succeeded. The strict oracle is 636 + 140 = 776 tests with zero failures, errors, skips, expected failures, and unexpected successes. Post-run evidence re-establishes candidate tree, changed path set, 120 imported entries, manifest blob, baseline identities, oracle rerun, and unchanged worktree after oracle.
+
+F8 direct implementation import/dependency scan
+PASS with note. The scan shows direct r8_v15_r1_* import edges among the selected implementation files, primarily to r8_v15_r1_frozen_schema_runtime and one to r8_v15_r1_effect_intent_validator. These are observable dependency edges, but they do not introduce changed unreviewed content into the candidate and do not themselves grant authority. They remain Stage2 semantic-integration-relevant.
+
+F9 unreviewed-content/silent-authority assessment
+PASS. The candidate changed set is exactly the 120 reviewed entries plus the non-authoritative manifest. No unreviewed content or authority-bearing behavior is shown to have entered the candidate. The manifest and execution evidence preserve the non-authority boundary.
+
+F10 Stage2 separation
+PASS. Stage2 semantic integration remains separately gated and is not authorized by Stage1 closure. Exact integrated bytes still require a separate semantic gate before Stage2.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+- The exact Stage1 candidate may close only as non-authoritative mechanical integration.
+- Stage2 remains separately gated and unauthorized.
+- Fallback-to-3 remains ACTIVE.
+- A clean BOUNDED_PASS result counts as clean review 2 of 2 and only satisfies the evidence precondition for possible explicit cadence restoration.
+- Automatic six-slice cadence restoration does not occur.
+- Runtime, release, deployment, production, policy, constitutional, root, and terminal authority remain false.
+
+H. FINAL_GATE
+- Exact Stage1 candidate 4984f06a4420b76ad1ad475751aebda04a2d2c5c may close as BOUNDED_PASS: YES.
+- Clean review 2 of 2 achieved: YES.
+- Automatic six-slice cadence restoration: NO.
+- Stage2 semantic integration authorized: NO.
+- Stage2 semantic-gate preregistration/review may proceed after bounded closure: YES.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
