@@ -1,0 +1,29 @@
+{
+  "schema": "r8-v15-r1-implementation-slice10-marker/v1",
+  "status": "SLICE10_CONSTRUCTION_GREEN_PENDING_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "batch_loop": 3,
+  "batch_review_after_loop": 3,
+  "closed_slice7_base": "5477df994c2cc9db0033742e189b906eb20247c1",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "preregistration_commit": "cd112d71d20c5d6ff2eb98b2284ec5eda81ec9cd",
+  "frozen_harness_commit": "0581ecd099d9bff4b88a16dec2a89da18e66775d",
+  "mechanism_commit": "ee077dc9366c8619fb63255c2828c69d625f4965",
+  "preserved_red_run_id": 36122231238,
+  "green_mechanism_run_id": 36122332891,
+  "green_mechanism_job_id": 108030481328,
+  "next_gate": "COMBINED_FRESH_BLIND_INDEPENDENT_REVIEW_FOR_LOOPS_1_TO_3",
+  "grants": {
+    "implementation_construction": true,
+    "independent_review_closed": false,
+    "reviewer_independence_proven": false,
+    "review_gate_closed": false,
+    "promotion_authorized": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
