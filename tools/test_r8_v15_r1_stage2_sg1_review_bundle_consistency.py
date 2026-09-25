@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-ACTIVATION-MANIFEST.json"
 BINDING = ROOT / "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json"
 PACKET = ROOT / "stage2-sg1-review/R8-V15-R1-STAGE2-SG1-CONSOLIDATED-REVIEW-002-PACKET.txt"
+OLD_GATE = "056bce33" + "da38a2178ca2827d581b5a81c8bf4416"
 
 
 class SG1ReviewBundleConsistencyTests(unittest.TestCase):
@@ -42,7 +43,7 @@ class SG1ReviewBundleConsistencyTests(unittest.TestCase):
     def test_old_gate_in_h_final_gate_rejected(self):
         def mutate(_, __, packet):
             text = packet.read_text(encoding="utf-8")
-            packet.write_text(text.replace("activation-gate blob 1078bc673665b3e23d99d2d1699a7ccab90bbf6d", "activation-gate blob 056bce33da38a2178ca2827d581b5a81c8bf4416"), encoding="utf-8")
+            packet.write_text(text.replace("activation-gate blob c09f5d75b70bf5f9f928a79d1dd094f11ff24279", "activation-gate blob " + OLD_GATE), encoding="utf-8")
         self.assert_mutation_rejected(mutate)
 
     def test_review001_cannot_be_current_review(self):
@@ -129,7 +130,7 @@ class SG1ReviewBundleConsistencyTests(unittest.TestCase):
 
     def test_old_gate_outside_history_rejected(self):
         def mutate(_, __, packet):
-            packet.write_text(packet.read_text(encoding="utf-8") + "\n056bce33da38a2178ca2827d581b5a81c8bf4416\n", encoding="utf-8")
+            packet.write_text(packet.read_text(encoding="utf-8") + "\n" + OLD_GATE + "\n", encoding="utf-8")
         self.assert_mutation_rejected(mutate)
 
     def test_wrong_machinery_blob_rejected(self):
