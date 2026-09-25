@@ -1,0 +1,28 @@
+{
+  "schema": "r8-v15-r1-ig1-successor2-proposal-preflight-green/v1",
+  "status": "PROPOSAL_PREFLIGHT_PASS_PRISTINE_EXACT_BASE_NO_MATERIALIZATION",
+  "authority_effect": "NONE",
+  "run_id": 36163247367,
+  "job_id": 108164711384,
+  "head_sha": "25e06b4432ec47421a072cf0e8a1a9aa342ced65",
+  "exact_target_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "checks": [
+    "Successor2 machinery syntax valid",
+    "separate target worktree created at exact Slice7 base",
+    "target clean before preflight",
+    "exact reviewed source commit/tree-entry identities pass",
+    "zero allowlist collisions pass",
+    "reserved-path checks pass",
+    "S20-S22 repaired-lineage explicit reacceptance checks pass",
+    "frozen schema equality between Slice7 base and frozen schema candidate pass",
+    "all 11 inherited baseline test path/mode/type/blob identities pass",
+    "schema-vs-governance-history runtime file IO policy pass",
+    "integration machinery declarative AST constraints pass",
+    "activation artifact absent",
+    "target remains exact-base pristine after preflight"
+  ],
+  "materialization_executed": false,
+  "integration_executed": false,
+  "semantic_execution": false,
+  "predecessor_failure": "governance-r8/R8-V15-R1-IG1-SUCCESSOR2-PROPOSAL-PREFLIGHT-FAILURE-001.json"
+}
