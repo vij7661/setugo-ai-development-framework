@@ -1,0 +1,1467 @@
+{
+  "schema": "r8-v15-r1-ig1-successor1-exact-tree-entry-allowlist/v1",
+  "status": "PROPOSAL_EVIDENCE_NOT_ACTIVE_NOT_MATERIALIZED",
+  "authority_effect": "NONE",
+  "implementation_tree_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "reviewed_candidates": {
+    "8": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "9": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "10": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+    "11": "4b49613a56c53048cf9531783b09ba71b64539ef",
+    "12": "294c8b0112e1715402325836f1c8f0b58a042e70",
+    "13": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+    "14": "5c0e6e47d7b4e23f0be0b9137e1d67f3ab73b88b",
+    "15": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+    "16": "d9a935a0e418e70a0f63904c98547ff4590d8f72",
+    "17": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+    "18": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+    "19": "6d591e8ce8a881411929a887d7152603a4af0e49",
+    "20": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+    "21": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+    "22": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+    "23": "e80783edea482605eb15ddaded6c8ef8aa79303c",
+    "24": "49ad02ca8ccc4f9d6f1b5c78c7ba392184eb2ab4",
+    "25": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+    "26": "83e0366251e22d9768554e44340e2b81dbf5424a",
+    "27": "d5c01df8c03b808ca0382793433e6e910485f09f",
+    "28": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+    "29": "4c720a215e8d3e99ea236f7a951263a168929813",
+    "30": "113a67da6b11936a48a919410e88469ece20f84b",
+    "31": "66595ac25a600daa9c71e63f473d815859945136",
+    "32": "5fa171b732e58e2eb1a75d755ae25b18f4ac3fff",
+    "33": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+    "34": "6b313f9d1a0c7a2712e5773e7844aa19355091e3",
+    "35": "fd8f410be0cf6e0a45cd5b67942e462278d360e2",
+    "36": "07a62458e36adb02b621ecf0fb6761c6cbb6c376",
+    "37": "3b16bd2ea3c00eb1f1d2acedf1c3375d2f0eeb2e",
+    "38": "9d5e9af3a643297b5b4074d8be42904a6fa6098d",
+    "39": "43d43aa48571c905cb4d43e202f891ab853e8d5a",
+    "40": "46e373bc50aee6d1d05aeba01a8d42037a743128",
+    "41": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+    "42": "0a4ada53a74dc09f064b4a753fc0629fe64a9a07",
+    "43": "308a06c55de52ec2e59c350aa119733ff7cc6b3b",
+    "44": "c1d95441292d2051fbb50b03af8d79093818d0ff",
+    "45": "e04913f7973d135f00ecafe6c5b6ea580305e55c",
+    "46": "237b2e3216378ad75e8c54b1a44cb1b0b245002f"
+  },
+  "selection_rule": {
+    "implementation": "direct governance-runtime/r8_v15_r1_*.py blobs changed by exact candidate relative to Slice7 base",
+    "tests": "governance-runtime/test_r8_v15_r1_implementation_sliceN*.py changed by exact candidate relative to Slice7 base",
+    "workflows": ".github/workflows/r8-v15-r1-implementation-sliceN*.yml changed by exact candidate relative to Slice7 base",
+    "important": "This generated list itself must receive independent review before it can become an executable allowlist. No unlisted path may be materialized."
+  },
+  "per_candidate": {
+    "8": {
+      "source_commit": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+      "selected_entries": [
+        {
+          "slice": 8,
+          "source_commit": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice8.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "f65766c13829ef1f529736311d0c011673f6812a"
+        },
+        {
+          "slice": 8,
+          "source_commit": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+          "path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "d89b5929b607a1a39c9e412dffded49586ce3b91"
+        },
+        {
+          "slice": 8,
+          "source_commit": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice8.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "62a15e44ee17d08becb14bc955e1368f88a6b0c7"
+        }
+      ],
+      "changed_path_count": 15,
+      "selected_count": 3
+    },
+    "9": {
+      "source_commit": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+      "selected_entries": [
+        {
+          "slice": 9,
+          "source_commit": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice9.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "eb3bf6b191a3fc7a2c75df3e057b9fed5a544ca2"
+        },
+        {
+          "slice": 9,
+          "source_commit": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+          "path": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "086ab78ef4fedb5c534c23886212c31d9dd9296b"
+        },
+        {
+          "slice": 9,
+          "source_commit": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice9.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "079e3d7ce60a1bcd84eacf9cd4017d797b9276df"
+        }
+      ],
+      "changed_path_count": 15,
+      "selected_count": 3
+    },
+    "10": {
+      "source_commit": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+      "selected_entries": [
+        {
+          "slice": 10,
+          "source_commit": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice10.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "4a356916237e9bad16226098b108c52896743a36"
+        },
+        {
+          "slice": 10,
+          "source_commit": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+          "path": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "08bbd221ad26dd0d98c7936cf625cee2233ddd90"
+        },
+        {
+          "slice": 10,
+          "source_commit": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice10.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "abb3caebf7254cd57c0963b4ff1e492d2eb4450a"
+        }
+      ],
+      "changed_path_count": 15,
+      "selected_count": 3
+    },
+    "11": {
+      "source_commit": "4b49613a56c53048cf9531783b09ba71b64539ef",
+      "selected_entries": [
+        {
+          "slice": 11,
+          "source_commit": "4b49613a56c53048cf9531783b09ba71b64539ef",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice11.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "611a36f1ce62386c450ee0ef706da00ffde4a5e4"
+        },
+        {
+          "slice": 11,
+          "source_commit": "4b49613a56c53048cf9531783b09ba71b64539ef",
+          "path": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "b0efd6add746a359294cac632cf074659e215472"
+        },
+        {
+          "slice": 11,
+          "source_commit": "4b49613a56c53048cf9531783b09ba71b64539ef",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice11.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "57ddfb7a27e558df6128dce6f6b1bcd68a32c989"
+        }
+      ],
+      "changed_path_count": 16,
+      "selected_count": 3
+    },
+    "12": {
+      "source_commit": "294c8b0112e1715402325836f1c8f0b58a042e70",
+      "selected_entries": [
+        {
+          "slice": 12,
+          "source_commit": "294c8b0112e1715402325836f1c8f0b58a042e70",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice12.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "82d80bf837d734b2d0f54e36d8c987f92f941265"
+        },
+        {
+          "slice": 12,
+          "source_commit": "294c8b0112e1715402325836f1c8f0b58a042e70",
+          "path": "governance-runtime/r8_v15_r1_rir_record_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "ac4b612698feead3895d1a978bac67054fc7597d"
+        },
+        {
+          "slice": 12,
+          "source_commit": "294c8b0112e1715402325836f1c8f0b58a042e70",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice12.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "acd4462ac0f1760290d9a15b17c0c5bb4b2c268c"
+        }
+      ],
+      "changed_path_count": 16,
+      "selected_count": 3
+    },
+    "13": {
+      "source_commit": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+      "selected_entries": [
+        {
+          "slice": 13,
+          "source_commit": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice13.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "2595dc3a0c7e224229920ea09086899bb31b7125"
+        },
+        {
+          "slice": 13,
+          "source_commit": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+          "path": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "457f2cf739e8ec9eff1c6750bd034d9a2f21bf3f"
+        },
+        {
+          "slice": 13,
+          "source_commit": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice13.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "a2c41a25d9d9bda5f3cd1bed953ed621f2b4f028"
+        }
+      ],
+      "changed_path_count": 16,
+      "selected_count": 3
+    },
+    "14": {
+      "source_commit": "5c0e6e47d7b4e23f0be0b9137e1d67f3ab73b88b",
+      "selected_entries": [
+        {
+          "slice": 14,
+          "source_commit": "5c0e6e47d7b4e23f0be0b9137e1d67f3ab73b88b",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice14.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "3dae80da5095caedc1a92f84d54194de238e0de7"
+        },
+        {
+          "slice": 14,
+          "source_commit": "5c0e6e47d7b4e23f0be0b9137e1d67f3ab73b88b",
+          "path": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "9cbf84eb3b9ce4a08facba422fb5ebbf7617267e"
+        },
+        {
+          "slice": 14,
+          "source_commit": "5c0e6e47d7b4e23f0be0b9137e1d67f3ab73b88b",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice14.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "ebbc6bd7583b09e659d8afac1f30909ef861b4a2"
+        }
+      ],
+      "changed_path_count": 17,
+      "selected_count": 3
+    },
+    "15": {
+      "source_commit": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+      "selected_entries": [
+        {
+          "slice": 15,
+          "source_commit": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice15.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "1e3af46f462bf5984e439d81f4e42ed96aa1a442"
+        },
+        {
+          "slice": 15,
+          "source_commit": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+          "path": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "445642ccf072ce6e0d2b6da2e6796e5f433e8643"
+        },
+        {
+          "slice": 15,
+          "source_commit": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice15.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "38a917c18319862f70bf748658415110357fd10e"
+        }
+      ],
+      "changed_path_count": 18,
+      "selected_count": 3
+    },
+    "16": {
+      "source_commit": "d9a935a0e418e70a0f63904c98547ff4590d8f72",
+      "selected_entries": [
+        {
+          "slice": 16,
+          "source_commit": "d9a935a0e418e70a0f63904c98547ff4590d8f72",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice16.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "c24d12c0a377928d37d90410c05c241610deddc2"
+        },
+        {
+          "slice": 16,
+          "source_commit": "d9a935a0e418e70a0f63904c98547ff4590d8f72",
+          "path": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "5721f5a91632f81b6df7a0a492cf0deceeca4af7"
+        },
+        {
+          "slice": 16,
+          "source_commit": "d9a935a0e418e70a0f63904c98547ff4590d8f72",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice16.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "951f475a1b71a27dff60abbe218c4abb3fcd4ce0"
+        }
+      ],
+      "changed_path_count": 17,
+      "selected_count": 3
+    },
+    "17": {
+      "source_commit": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+      "selected_entries": [
+        {
+          "slice": 17,
+          "source_commit": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice17.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "bf19ddd52ed3a53407befe853d98291a5a6f4c55"
+        },
+        {
+          "slice": 17,
+          "source_commit": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+          "path": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "615ea2e1dac7edf39016e0d77a5d4eb67e9463f8"
+        },
+        {
+          "slice": 17,
+          "source_commit": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice17.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7ef47aaa41effbb3ba1ee661358683acc5f99408"
+        }
+      ],
+      "changed_path_count": 18,
+      "selected_count": 3
+    },
+    "18": {
+      "source_commit": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+      "selected_entries": [
+        {
+          "slice": 18,
+          "source_commit": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice18.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "b4814535056fea8ffcf6874859b2b53fba494606"
+        },
+        {
+          "slice": 18,
+          "source_commit": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+          "path": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "64b3a7ebdc424048770a7556a68a8880a052478a"
+        },
+        {
+          "slice": 18,
+          "source_commit": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice18.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "e973aaa1ee27102aa5aec1769cbc8eb331843388"
+        }
+      ],
+      "changed_path_count": 18,
+      "selected_count": 3
+    },
+    "19": {
+      "source_commit": "6d591e8ce8a881411929a887d7152603a4af0e49",
+      "selected_entries": [
+        {
+          "slice": 19,
+          "source_commit": "6d591e8ce8a881411929a887d7152603a4af0e49",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice19.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "70fae8440c8649d8f2fcf0849dddaf0468cc35b4"
+        },
+        {
+          "slice": 19,
+          "source_commit": "6d591e8ce8a881411929a887d7152603a4af0e49",
+          "path": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "c4f86fd7d351c068e1954f67cbc05dde2fb3a2a1"
+        },
+        {
+          "slice": 19,
+          "source_commit": "6d591e8ce8a881411929a887d7152603a4af0e49",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice19.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "8b2da7af8dbdc8f7c656aedd2c3ca0162a61a822"
+        }
+      ],
+      "changed_path_count": 18,
+      "selected_count": 3
+    },
+    "20": {
+      "source_commit": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+      "selected_entries": [
+        {
+          "slice": 20,
+          "source_commit": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice20.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "965a5f2cc37a405bfb7486b6331c964703bc27a8"
+        },
+        {
+          "slice": 20,
+          "source_commit": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+          "path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7f9179dbc8dc69a6627044caeb393ffeffef6cc2"
+        },
+        {
+          "slice": 20,
+          "source_commit": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice20.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "22b32b86e448d9a77aaa71f7db805653bc918abb"
+        },
+        {
+          "slice": 20,
+          "source_commit": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice20_successor1.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "3b64efc4817541f0fbbbfee161bcc95966a8031f"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 4
+    },
+    "21": {
+      "source_commit": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+      "selected_entries": [
+        {
+          "slice": 21,
+          "source_commit": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice21.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "01089a083eca85d81689b34e6c9ff93712a04349"
+        },
+        {
+          "slice": 21,
+          "source_commit": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+          "path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "01f6f005669c90b4b6d6ee3ce4443c99248581c7"
+        },
+        {
+          "slice": 21,
+          "source_commit": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice21.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "ad8e09f8a01703a0b81adfd87f8be1d00d6b8d92"
+        },
+        {
+          "slice": 21,
+          "source_commit": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice21_successor1.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "f79a9ff1775395e4c8f6ee26aebe745594a936d8"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 4
+    },
+    "22": {
+      "source_commit": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+      "selected_entries": [
+        {
+          "slice": 22,
+          "source_commit": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice22.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "96feb660664d60bae947959fe90d026196cd9f4f"
+        },
+        {
+          "slice": 22,
+          "source_commit": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+          "path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "9df43264001c95b870e6dd0458d8ac4478d776dd"
+        },
+        {
+          "slice": 22,
+          "source_commit": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice22.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "66bca0e924c9da85a924d7b5b9952a8ad5e6d013"
+        },
+        {
+          "slice": 22,
+          "source_commit": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice22_successor1.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "f445f56ae451702ee0b4ac6a6e025c382b2cd5bd"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 4
+    },
+    "23": {
+      "source_commit": "e80783edea482605eb15ddaded6c8ef8aa79303c",
+      "selected_entries": [
+        {
+          "slice": 23,
+          "source_commit": "e80783edea482605eb15ddaded6c8ef8aa79303c",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice23.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7b7a4c23b455f6013f770bd15d09bd8c7c81cf3b"
+        },
+        {
+          "slice": 23,
+          "source_commit": "e80783edea482605eb15ddaded6c8ef8aa79303c",
+          "path": "governance-runtime/r8_v15_r1_scope_component_name_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "d18d312c267166bbca734fd6d1a7cfee906054fd"
+        },
+        {
+          "slice": 23,
+          "source_commit": "e80783edea482605eb15ddaded6c8ef8aa79303c",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice23.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "2edb725663134c3d9da4515d193d6e3e7a366e08"
+        }
+      ],
+      "changed_path_count": 21,
+      "selected_count": 3
+    },
+    "24": {
+      "source_commit": "49ad02ca8ccc4f9d6f1b5c78c7ba392184eb2ab4",
+      "selected_entries": [
+        {
+          "slice": 24,
+          "source_commit": "49ad02ca8ccc4f9d6f1b5c78c7ba392184eb2ab4",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice24.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "dd47aa5dd24565a673df4e6518efa6ce8122f852"
+        },
+        {
+          "slice": 24,
+          "source_commit": "49ad02ca8ccc4f9d6f1b5c78c7ba392184eb2ab4",
+          "path": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "15f77c04b2232535624f50a9fb8502eb071e020e"
+        },
+        {
+          "slice": 24,
+          "source_commit": "49ad02ca8ccc4f9d6f1b5c78c7ba392184eb2ab4",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice24.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "ba097a2b727d5cc2ec509263f2e2d5c37c95c1f4"
+        }
+      ],
+      "changed_path_count": 21,
+      "selected_count": 3
+    },
+    "25": {
+      "source_commit": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+      "selected_entries": [
+        {
+          "slice": 25,
+          "source_commit": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice25.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "b5d13dfc2490d1d3899b5793232083acecd19181"
+        },
+        {
+          "slice": 25,
+          "source_commit": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+          "path": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "83dd1f3d808151842e20669bfe49ccd8dd1012d1"
+        },
+        {
+          "slice": 25,
+          "source_commit": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice25.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "5000e33725886e323ef8b62f7a02801e2eab16fe"
+        }
+      ],
+      "changed_path_count": 21,
+      "selected_count": 3
+    },
+    "26": {
+      "source_commit": "83e0366251e22d9768554e44340e2b81dbf5424a",
+      "selected_entries": [
+        {
+          "slice": 26,
+          "source_commit": "83e0366251e22d9768554e44340e2b81dbf5424a",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice26.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "b47b2e8336a9ba55ef84fc41d51d1706a142b667"
+        },
+        {
+          "slice": 26,
+          "source_commit": "83e0366251e22d9768554e44340e2b81dbf5424a",
+          "path": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "3a583c43f8e06caa421f1698e00b398b65dd61cb"
+        },
+        {
+          "slice": 26,
+          "source_commit": "83e0366251e22d9768554e44340e2b81dbf5424a",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice26.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "3327612451f9757e4623d250fc30cd5d3a5a69d1"
+        }
+      ],
+      "changed_path_count": 24,
+      "selected_count": 3
+    },
+    "27": {
+      "source_commit": "d5c01df8c03b808ca0382793433e6e910485f09f",
+      "selected_entries": [
+        {
+          "slice": 27,
+          "source_commit": "d5c01df8c03b808ca0382793433e6e910485f09f",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice27.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "43fedbcaed9a14499fa482f0c35e283cb331cbe2"
+        },
+        {
+          "slice": 27,
+          "source_commit": "d5c01df8c03b808ca0382793433e6e910485f09f",
+          "path": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "02f2f3cccc3aeafb8826744bff49fe2718ff5983"
+        },
+        {
+          "slice": 27,
+          "source_commit": "d5c01df8c03b808ca0382793433e6e910485f09f",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice27.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "4e3147935b3f7c4cc5dfe8f35212e9c5372fb12b"
+        }
+      ],
+      "changed_path_count": 24,
+      "selected_count": 3
+    },
+    "28": {
+      "source_commit": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+      "selected_entries": [
+        {
+          "slice": 28,
+          "source_commit": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice28.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "d2b522f753ba848dc98cf2cf272891b864d25283"
+        },
+        {
+          "slice": 28,
+          "source_commit": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+          "path": "governance-runtime/r8_v15_r1_scope_replacement_outside_table_input_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "603d8adeff8d8b9f0efd6fe5f811263b300d63fd"
+        },
+        {
+          "slice": 28,
+          "source_commit": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice28.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "e3a7b6d63c6504bd6de5ffc34936a4af9d9452a8"
+        }
+      ],
+      "changed_path_count": 24,
+      "selected_count": 3
+    },
+    "29": {
+      "source_commit": "4c720a215e8d3e99ea236f7a951263a168929813",
+      "selected_entries": [
+        {
+          "slice": 29,
+          "source_commit": "4c720a215e8d3e99ea236f7a951263a168929813",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice29.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "c1a1564ebba75188d703b7ec4c5834cd83ec9f73"
+        },
+        {
+          "slice": 29,
+          "source_commit": "4c720a215e8d3e99ea236f7a951263a168929813",
+          "path": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "1cb048726d9651647c74ec094e522c0b9b2e2d6f"
+        },
+        {
+          "slice": 29,
+          "source_commit": "4c720a215e8d3e99ea236f7a951263a168929813",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice29.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "5b12e11e4028c9b2d2a50584e4aa2c70b3475dd7"
+        }
+      ],
+      "changed_path_count": 26,
+      "selected_count": 3
+    },
+    "30": {
+      "source_commit": "113a67da6b11936a48a919410e88469ece20f84b",
+      "selected_entries": [
+        {
+          "slice": 30,
+          "source_commit": "113a67da6b11936a48a919410e88469ece20f84b",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice30.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "e600609d709514c485bf6f572a066d6a7da6ae7d"
+        },
+        {
+          "slice": 30,
+          "source_commit": "113a67da6b11936a48a919410e88469ece20f84b",
+          "path": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "cd71ad35e16639d387d34d660026fbb250197358"
+        },
+        {
+          "slice": 30,
+          "source_commit": "113a67da6b11936a48a919410e88469ece20f84b",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice30.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "6e2d4aebce616a1e9bb69d7428af799eca06a2cc"
+        }
+      ],
+      "changed_path_count": 26,
+      "selected_count": 3
+    },
+    "31": {
+      "source_commit": "66595ac25a600daa9c71e63f473d815859945136",
+      "selected_entries": [
+        {
+          "slice": 31,
+          "source_commit": "66595ac25a600daa9c71e63f473d815859945136",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice31.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "30fc223658d646e71ce03c6ece8e7c3bfaa9b526"
+        },
+        {
+          "slice": 31,
+          "source_commit": "66595ac25a600daa9c71e63f473d815859945136",
+          "path": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "3b11ef18c84f8461b22d165f97cabcc6d5d4bc93"
+        },
+        {
+          "slice": 31,
+          "source_commit": "66595ac25a600daa9c71e63f473d815859945136",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice31.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7b312df995d60b24525d1da3cd73e617f56740fa"
+        }
+      ],
+      "changed_path_count": 26,
+      "selected_count": 3
+    },
+    "32": {
+      "source_commit": "5fa171b732e58e2eb1a75d755ae25b18f4ac3fff",
+      "selected_entries": [
+        {
+          "slice": 32,
+          "source_commit": "5fa171b732e58e2eb1a75d755ae25b18f4ac3fff",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice32.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "dc94d1c9edb91e0094f84fcc0cbedbd7f83e9e18"
+        },
+        {
+          "slice": 32,
+          "source_commit": "5fa171b732e58e2eb1a75d755ae25b18f4ac3fff",
+          "path": "governance-runtime/r8_v15_r1_bsp5_grammar_freeze_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "542ec83a3783af21b06247780e51fbdf072f628d"
+        },
+        {
+          "slice": 32,
+          "source_commit": "5fa171b732e58e2eb1a75d755ae25b18f4ac3fff",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice32.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7dfb7bd83c8d1e8777817aa9363ef7429f322ff8"
+        }
+      ],
+      "changed_path_count": 26,
+      "selected_count": 3
+    },
+    "33": {
+      "source_commit": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+      "selected_entries": [
+        {
+          "slice": 33,
+          "source_commit": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice33.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "0e556cb03d228a60a3edfb5486afb8b9e13e39a5"
+        },
+        {
+          "slice": 33,
+          "source_commit": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+          "path": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7e671bc59726163b4ad84451364e35cb30d53695"
+        },
+        {
+          "slice": 33,
+          "source_commit": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice33.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "385b3d6cb82a515404fe6ba7191b458cd770d0bf"
+        }
+      ],
+      "changed_path_count": 26,
+      "selected_count": 3
+    },
+    "34": {
+      "source_commit": "6b313f9d1a0c7a2712e5773e7844aa19355091e3",
+      "selected_entries": [
+        {
+          "slice": 34,
+          "source_commit": "6b313f9d1a0c7a2712e5773e7844aa19355091e3",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice34.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "fcd55556b83d9385d43fa168e785880d33342c63"
+        },
+        {
+          "slice": 34,
+          "source_commit": "6b313f9d1a0c7a2712e5773e7844aa19355091e3",
+          "path": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "43f9445efdc4af4b73b13e96deff8f52d8006753"
+        },
+        {
+          "slice": 34,
+          "source_commit": "6b313f9d1a0c7a2712e5773e7844aa19355091e3",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice34.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "0c21bd8c1efa19c53d119823e35d55b6a33f56bc"
+        }
+      ],
+      "changed_path_count": 26,
+      "selected_count": 3
+    },
+    "35": {
+      "source_commit": "fd8f410be0cf6e0a45cd5b67942e462278d360e2",
+      "selected_entries": [
+        {
+          "slice": 35,
+          "source_commit": "fd8f410be0cf6e0a45cd5b67942e462278d360e2",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice35.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "20e85ab661759a0628fa3ed02afb25c4e819aa4c"
+        },
+        {
+          "slice": 35,
+          "source_commit": "fd8f410be0cf6e0a45cd5b67942e462278d360e2",
+          "path": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "800714e8984088c81086da1999fadc7a6c590b88"
+        },
+        {
+          "slice": 35,
+          "source_commit": "fd8f410be0cf6e0a45cd5b67942e462278d360e2",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice35.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "0f9426385dd5c76a5c4e48755fa0cbceb690f4f4"
+        }
+      ],
+      "changed_path_count": 27,
+      "selected_count": 3
+    },
+    "36": {
+      "source_commit": "07a62458e36adb02b621ecf0fb6761c6cbb6c376",
+      "selected_entries": [
+        {
+          "slice": 36,
+          "source_commit": "07a62458e36adb02b621ecf0fb6761c6cbb6c376",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice36.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "6b92d786965d443d7eda5b9bdcd830a3bb9cacca"
+        },
+        {
+          "slice": 36,
+          "source_commit": "07a62458e36adb02b621ecf0fb6761c6cbb6c376",
+          "path": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "90d74ea96eceabd465e29c016c19c956da97faa6"
+        },
+        {
+          "slice": 36,
+          "source_commit": "07a62458e36adb02b621ecf0fb6761c6cbb6c376",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice36.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "1f534c5c140c1a430dc3b6084e17ff0b78144ae9"
+        }
+      ],
+      "changed_path_count": 27,
+      "selected_count": 3
+    },
+    "37": {
+      "source_commit": "3b16bd2ea3c00eb1f1d2acedf1c3375d2f0eeb2e",
+      "selected_entries": [
+        {
+          "slice": 37,
+          "source_commit": "3b16bd2ea3c00eb1f1d2acedf1c3375d2f0eeb2e",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice37.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "4c9e5d9169120a47c0a7a4cf5fd97732ddee73df"
+        },
+        {
+          "slice": 37,
+          "source_commit": "3b16bd2ea3c00eb1f1d2acedf1c3375d2f0eeb2e",
+          "path": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "ec527fc83b8efc958ef1e02a5c763a3f2319fab4"
+        },
+        {
+          "slice": 37,
+          "source_commit": "3b16bd2ea3c00eb1f1d2acedf1c3375d2f0eeb2e",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice37.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "f5bc81642fc2cf3d666a79f88e5462eca5ab68ce"
+        }
+      ],
+      "changed_path_count": 27,
+      "selected_count": 3
+    },
+    "38": {
+      "source_commit": "9d5e9af3a643297b5b4074d8be42904a6fa6098d",
+      "selected_entries": [
+        {
+          "slice": 38,
+          "source_commit": "9d5e9af3a643297b5b4074d8be42904a6fa6098d",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice38.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "ae9b4a007d792aca740e59e9bd401655d5dfd2b4"
+        },
+        {
+          "slice": 38,
+          "source_commit": "9d5e9af3a643297b5b4074d8be42904a6fa6098d",
+          "path": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "932bce96e75768ccdf11615f5d232cb0fe7be684"
+        },
+        {
+          "slice": 38,
+          "source_commit": "9d5e9af3a643297b5b4074d8be42904a6fa6098d",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice38.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "bde8e019558aeb78e1b2c405957b032e767b61e3"
+        }
+      ],
+      "changed_path_count": 27,
+      "selected_count": 3
+    },
+    "39": {
+      "source_commit": "43d43aa48571c905cb4d43e202f891ab853e8d5a",
+      "selected_entries": [
+        {
+          "slice": 39,
+          "source_commit": "43d43aa48571c905cb4d43e202f891ab853e8d5a",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice39.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "dd2d3b61edf5a80377875eb3efa74a3bc6e57dc9"
+        },
+        {
+          "slice": 39,
+          "source_commit": "43d43aa48571c905cb4d43e202f891ab853e8d5a",
+          "path": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "fe32e7dcc64d87f8ece9beb44fbef9a7d421f9e0"
+        },
+        {
+          "slice": 39,
+          "source_commit": "43d43aa48571c905cb4d43e202f891ab853e8d5a",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice39.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "bb6c9a218d990fa32106df419cd115729d974ed1"
+        }
+      ],
+      "changed_path_count": 27,
+      "selected_count": 3
+    },
+    "40": {
+      "source_commit": "46e373bc50aee6d1d05aeba01a8d42037a743128",
+      "selected_entries": [
+        {
+          "slice": 40,
+          "source_commit": "46e373bc50aee6d1d05aeba01a8d42037a743128",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice40.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "75a7cd2b6970ea272c268ad7035212022c2f2bf5"
+        },
+        {
+          "slice": 40,
+          "source_commit": "46e373bc50aee6d1d05aeba01a8d42037a743128",
+          "path": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "50a34baef108f715e80d339876f1cd1f83c92f7e"
+        },
+        {
+          "slice": 40,
+          "source_commit": "46e373bc50aee6d1d05aeba01a8d42037a743128",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice40.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "af40a12002a6845467a0a4fd170a6663ad56d9f8"
+        }
+      ],
+      "changed_path_count": 27,
+      "selected_count": 3
+    },
+    "41": {
+      "source_commit": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+      "selected_entries": [
+        {
+          "slice": 41,
+          "source_commit": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice41.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "bd278bf44fefd010822c91edf730d531c2b24558"
+        },
+        {
+          "slice": 41,
+          "source_commit": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+          "path": "governance-runtime/r8_v15_r1_freeze_traceability_exact_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "9d0348d8ef1a977b0cbc0b2261f46895319de5c0"
+        },
+        {
+          "slice": 41,
+          "source_commit": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice41.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "a074906fcc31e38e13318cd77a42e46baa9c29f6"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 3
+    },
+    "42": {
+      "source_commit": "0a4ada53a74dc09f064b4a753fc0629fe64a9a07",
+      "selected_entries": [
+        {
+          "slice": 42,
+          "source_commit": "0a4ada53a74dc09f064b4a753fc0629fe64a9a07",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice42.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "b1c282010332fdd11b48f72c91da0375128872a7"
+        },
+        {
+          "slice": 42,
+          "source_commit": "0a4ada53a74dc09f064b4a753fc0629fe64a9a07",
+          "path": "governance-runtime/r8_v15_r1_provenance_source_map_exact_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "3cb2deca50d08a93ef5cec1f53fd1e6889e1804a"
+        },
+        {
+          "slice": 42,
+          "source_commit": "0a4ada53a74dc09f064b4a753fc0629fe64a9a07",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice42.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "c402fc6220b8ff9a70b61fb16770b17cdc6cd765"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 3
+    },
+    "43": {
+      "source_commit": "308a06c55de52ec2e59c350aa119733ff7cc6b3b",
+      "selected_entries": [
+        {
+          "slice": 43,
+          "source_commit": "308a06c55de52ec2e59c350aa119733ff7cc6b3b",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice43.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "bb31ac2341c2f1b12c0dcde8527e249c57ddf7e6"
+        },
+        {
+          "slice": 43,
+          "source_commit": "308a06c55de52ec2e59c350aa119733ff7cc6b3b",
+          "path": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "b40e1cfd54753fc31fa1db67d873577351b8b684"
+        },
+        {
+          "slice": 43,
+          "source_commit": "308a06c55de52ec2e59c350aa119733ff7cc6b3b",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice43.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "95ffaa85a625c0919abdefa395d7915d6ca7e6e7"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 3
+    },
+    "44": {
+      "source_commit": "c1d95441292d2051fbb50b03af8d79093818d0ff",
+      "selected_entries": [
+        {
+          "slice": 44,
+          "source_commit": "c1d95441292d2051fbb50b03af8d79093818d0ff",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice44.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "f0b97b23c09dbd2731bfc206de66d1f3e9a46c57"
+        },
+        {
+          "slice": 44,
+          "source_commit": "c1d95441292d2051fbb50b03af8d79093818d0ff",
+          "path": "governance-runtime/r8_v15_r1_srtt4_total_table_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "fb691b6aa52b6696530f7933a2a1334ca0e9adc9"
+        },
+        {
+          "slice": 44,
+          "source_commit": "c1d95441292d2051fbb50b03af8d79093818d0ff",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice44.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "fafc804fabc70ab6875804e5aaa44634235b0364"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 3
+    },
+    "45": {
+      "source_commit": "e04913f7973d135f00ecafe6c5b6ea580305e55c",
+      "selected_entries": [
+        {
+          "slice": 45,
+          "source_commit": "e04913f7973d135f00ecafe6c5b6ea580305e55c",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice45.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "02333bdeed941229580bddddab4b5c9438902f8a"
+        },
+        {
+          "slice": 45,
+          "source_commit": "e04913f7973d135f00ecafe6c5b6ea580305e55c",
+          "path": "governance-runtime/r8_v15_r1_freeze_validator_contract_exact_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "c67541318e7c7127f03a9e425e25710979fcfc7a"
+        },
+        {
+          "slice": 45,
+          "source_commit": "e04913f7973d135f00ecafe6c5b6ea580305e55c",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice45.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "c9a31679dbce5c966a1c905aac3f83e1a5d94c14"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 3
+    },
+    "46": {
+      "source_commit": "237b2e3216378ad75e8c54b1a44cb1b0b245002f",
+      "selected_entries": [
+        {
+          "slice": 46,
+          "source_commit": "237b2e3216378ad75e8c54b1a44cb1b0b245002f",
+          "path": ".github/workflows/r8-v15-r1-implementation-slice46.yml",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "4c170edb1907fa254a699a84a387d54ddcff6218"
+        },
+        {
+          "slice": 46,
+          "source_commit": "237b2e3216378ad75e8c54b1a44cb1b0b245002f",
+          "path": "governance-runtime/r8_v15_r1_frozen_instance_family_exact_validator.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "7d9999321aa8414e7f4f16a5ca249c4ff06f23d1"
+        },
+        {
+          "slice": 46,
+          "source_commit": "237b2e3216378ad75e8c54b1a44cb1b0b245002f",
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice46.py",
+          "mode": "100644",
+          "type": "blob",
+          "blob": "fbc538dd0de9b09d0ff29e5565d6aeaac9f5e67c"
+        }
+      ],
+      "changed_path_count": 28,
+      "selected_count": 3
+    }
+  },
+  "collisions": [],
+  "hard_fail_if_any_conflicting_collision": true,
+  "hard_fail_if_source_commit_not_exact_roster_candidate": true,
+  "hard_fail_if_materialized_path_not_listed": true,
+  "hard_fail_if_materialized_mode_or_blob_differs": true,
+  "rejected_predecessor_analysis": {
+    "20": {
+      "rejected_predecessor": "053a5c0e70aee45e0e73653d68de3575a83d455c",
+      "reviewed_successor": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+      "rejected_is_ancestor_of_reviewed_successor": true,
+      "strict_ancestry_ban_compatible_with_repair_lineage": false,
+      "selected_entry_comparison": [
+        {
+          "path": ".github/workflows/r8-v15-r1-implementation-slice20.yml",
+          "successor_mode": "100644",
+          "successor_blob": "965a5f2cc37a405bfb7486b6331c964703bc27a8",
+          "predecessor_entry": {
+            "path": ".github/workflows/r8-v15-r1-implementation-slice20.yml",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "581e0ae275358ada1e2f978a39de9cb038544a5c"
+          },
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+          "successor_mode": "100644",
+          "successor_blob": "7f9179dbc8dc69a6627044caeb393ffeffef6cc2",
+          "predecessor_entry": {
+            "path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "bd9667eaabf9a191c3c9ffe3f0d7b0de3d8afac2"
+          },
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice20.py",
+          "successor_mode": "100644",
+          "successor_blob": "22b32b86e448d9a77aaa71f7db805653bc918abb",
+          "predecessor_entry": {
+            "path": "governance-runtime/test_r8_v15_r1_implementation_slice20.py",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "22b32b86e448d9a77aaa71f7db805653bc918abb"
+          },
+          "identical_to_rejected_predecessor": true,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice20_successor1.py",
+          "successor_mode": "100644",
+          "successor_blob": "3b64efc4817541f0fbbbfee161bcc95966a8031f",
+          "predecessor_entry": null,
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        }
+      ]
+    },
+    "21": {
+      "rejected_predecessor": "d3f184380f6cd15582cb3dd6e987895dd895d930",
+      "reviewed_successor": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+      "rejected_is_ancestor_of_reviewed_successor": true,
+      "strict_ancestry_ban_compatible_with_repair_lineage": false,
+      "selected_entry_comparison": [
+        {
+          "path": ".github/workflows/r8-v15-r1-implementation-slice21.yml",
+          "successor_mode": "100644",
+          "successor_blob": "01089a083eca85d81689b34e6c9ff93712a04349",
+          "predecessor_entry": {
+            "path": ".github/workflows/r8-v15-r1-implementation-slice21.yml",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "617f54b851a6cfad4dca5794e557da7be94aa416"
+          },
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+          "successor_mode": "100644",
+          "successor_blob": "01f6f005669c90b4b6d6ee3ce4443c99248581c7",
+          "predecessor_entry": {
+            "path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "9d279d54b8c9432770830163528dad07b92decb5"
+          },
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice21.py",
+          "successor_mode": "100644",
+          "successor_blob": "ad8e09f8a01703a0b81adfd87f8be1d00d6b8d92",
+          "predecessor_entry": {
+            "path": "governance-runtime/test_r8_v15_r1_implementation_slice21.py",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "ad8e09f8a01703a0b81adfd87f8be1d00d6b8d92"
+          },
+          "identical_to_rejected_predecessor": true,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice21_successor1.py",
+          "successor_mode": "100644",
+          "successor_blob": "f79a9ff1775395e4c8f6ee26aebe745594a936d8",
+          "predecessor_entry": null,
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        }
+      ]
+    },
+    "22": {
+      "rejected_predecessor": "8ecdd17ce80549f87dd15bbe1fc29414272b6253",
+      "reviewed_successor": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+      "rejected_is_ancestor_of_reviewed_successor": true,
+      "strict_ancestry_ban_compatible_with_repair_lineage": false,
+      "selected_entry_comparison": [
+        {
+          "path": ".github/workflows/r8-v15-r1-implementation-slice22.yml",
+          "successor_mode": "100644",
+          "successor_blob": "96feb660664d60bae947959fe90d026196cd9f4f",
+          "predecessor_entry": {
+            "path": ".github/workflows/r8-v15-r1-implementation-slice22.yml",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "125b61d804fbf7a52383ca0eb81491c9f61507fe"
+          },
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+          "successor_mode": "100644",
+          "successor_blob": "9df43264001c95b870e6dd0458d8ac4478d776dd",
+          "predecessor_entry": {
+            "path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "f1598905d50ad30b8ad7674c73dea2895ec98e6b"
+          },
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice22.py",
+          "successor_mode": "100644",
+          "successor_blob": "66bca0e924c9da85a924d7b5b9952a8ad5e6d013",
+          "predecessor_entry": {
+            "path": "governance-runtime/test_r8_v15_r1_implementation_slice22.py",
+            "mode": "100644",
+            "type": "blob",
+            "blob": "66bca0e924c9da85a924d7b5b9952a8ad5e6d013"
+          },
+          "identical_to_rejected_predecessor": true,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        },
+        {
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice22_successor1.py",
+          "successor_mode": "100644",
+          "successor_blob": "f445f56ae451702ee0b4ac6a6e025c382b2cd5bd",
+          "predecessor_entry": null,
+          "identical_to_rejected_predecessor": false,
+          "eligibility_basis": "EXACT_SUCCESSOR_CANDIDATE_REVIEW_GATE_YES_AND_SUCCESSOR1_CLOSURE; entry still requires explicit allowlist review"
+        }
+      ]
+    }
+  },
+  "grants": {
+    "integration": false,
+    "semantic_execution": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "terminal_authority": false
+  }
+}
