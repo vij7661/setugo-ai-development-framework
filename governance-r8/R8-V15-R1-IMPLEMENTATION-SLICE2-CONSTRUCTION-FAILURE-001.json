@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice2-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "e67300d9fdcaecec5fe0e687d642dd2fbe71e65e",
+  "frozen_harness_commit": "269d50db22f7942154737bae7368d964f94dfb9b",
+  "trigger_commit": "bbf625ade39f0e0229da4f67f51e2f1eb3a93be9",
+  "workflow_run_id": 36109493832,
+  "workflow_job_id": 107989469276,
+  "exact_checkout_sha": "bbf625ade39f0e0229da4f67f51e2f1eb3a93be9",
+  "observed": {
+    "slice2_tests_run": 16,
+    "slice2_passed": 1,
+    "slice2_failed": 15,
+    "passing_case": "I2-16 Slice 1/frozen-schema immutability",
+    "failure_root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_state_roots'",
+    "inherited_slice1_step_executed": false,
+    "inherited_slice1_step_reason": "workflow stops after the intentionally failing Slice 2 RED step"
+  },
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "interpretation": "Expected preregistered RED before Slice 2 mechanism implementation. No acceptance rule was weakened and no Slice 2 implementation existed.",
+  "claim_boundary": {
+    "slice2_construction_green": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
