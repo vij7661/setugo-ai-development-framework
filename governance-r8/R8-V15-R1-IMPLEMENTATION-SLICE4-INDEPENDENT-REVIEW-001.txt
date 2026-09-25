@@ -1,0 +1,88 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_IDENTITY
+Slice 4 implementation candidate:
+3b60d8f14851b755f09a35431c620d6ae594a894
+
+Frozen executable-schema candidate:
+f93ca26975ecb64f0da13779889c75b36140cdfc
+
+Closed dependency candidates:
+Slice 3: 9b8b519c1f32b675d102b1267511a6a141f39c4a
+Slice 2: 6a8d0b0e4baa3a9df75dc47f626953b4dde51255
+Slice 1: fdf825cb45fbd00441a4cd02bb1912bb3cda01b0
+
+Slice 4 evidence-only freeze head:
+8857d91b6cbd5b8569907a04720123621fbf8db3
+
+Authoritative run/job:
+36113335473 / 108001554748
+
+Packet SHA-256 values used from 05_SHA256_MANIFEST:
+01_INSTRUCTIONS.txt:
+c66167b680c6705fe7784a38b523c892a858b7b99b0ea904f5eb47dd154c6f1e
+02_EXACT_SLICE4_CANDIDATE.txt:
+5d7700b0354d8a088010d4ab54549a1210071f4d3b0a9c0bd6b9107947da0c83
+03_FROZEN_CONTRACTS_SOURCES_DEPENDENCIES.txt:
+06287f13a38f7804135329175b6255a380add1b0d52acf710b84b2c899880bf9
+04_CONSTRUCTION_EVIDENCE.txt:
+19f75c87b651ae42ba721b6a94fc0203257f7ba8bfe75d03bd1e8ac6f8e6d438
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+None.
+
+E. MEDIUM_LOW_FINDINGS
+Low: `validate_authority_read_set` accepts any non-string `Sequence` such as a tuple, while the frozen JSON schema defines `entries` as an array. This does not produce a false-green for the supplied JSON-shaped inputs, but the Python API is slightly over-permissive relative to the strict JSON array type.
+
+Low: `_validate_gcp_string` propagates inherited `slice1.GCPError` for non-NFC or noncharacter strings instead of wrapping those failures in `PresealError`. The frozen Slice 4 tests explicitly expect this mixed error taxonomy, but callers must handle both exception classes.
+
+Low: The Slice 4 workflow directly triggers on the Slice 1 canonicalizer but not on the closed Slice 2/3 modules or inherited test files that the workflow also executes. The exact candidate does not modify those dependencies, and I4-16 checks the closed modules from the frozen Slice 3 candidate, but a future accidental edit to those exercised dependencies on this branch would not trigger this Slice 4 workflow.
+
+Low: The final job metadata step numbering is non-contiguous (`1`–`6`, `12`–`13`) while the workflow file and raw log show the expected bounded acceptance steps. This does not change the observed test results but is an evidence-packaging inconsistency.
+
+F. I4_01_TO_I4_16_ASSESSMENT
+I4-01 PASS: AuthorityReadSetEntry required-field constant exactly matches frozen schema required fields.
+
+I4-02 PASS: AuthorityReadSet required-field constant exactly matches frozen schema required fields.
+
+I4-03 PASS: DecisionPresealContext required-field constant exactly matches frozen schema required fields.
+
+I4-04 PASS: SemanticHeads and ResolverIdentity required-field constants exactly match frozen schema required fields.
+
+I4-05 PASS: One-entry and multi-entry AuthorityReadSet pass; empty `entries` rejects with `ARS_ENTRIES_INVALID`.
+
+I4-06 PASS: Missing or extra fields on AuthorityReadSet and AuthorityReadSetEntry reject with exact field-set errors.
+
+I4-07 PASS: Empty, non-NFC, and noncharacter generic strings reject; opaque non-SHA digest strings pass. The inherited GCP error path is exercised.
+
+I4-08 PASS: `semantic_state_sequence` accepts `0` and `9223372036854775807`; rejects negative, max+1, bool, string, and float values with `PRESEAL_SEQUENCE_INVALID`.
+
+I4-09 PASS: No-effect decision requires `effect_class=null`; no-effect with string rejects.
+
+I4-10 PASS: External-effect decision accepts non-empty GCP-valid `effect_class`; rejects `null` and empty string; rejects non-boolean `external_effect_involved`.
+
+I4-11 PASS: DPS `authority_read_set_digest` equality with supplied AuthorityReadSet digest passes; mismatch rejects with `PRESEAL_AUTHORITY_READ_SET_DIGEST_MISMATCH`.
+
+I4-12 PASS: SemanticHeads missing, extra, empty, and non-NFC values reject.
+
+I4-13 PASS: ResolverIdentity missing, extra, empty, and noncharacter values reject.
+
+I4-14 PASS: `decision_preseal_digest` remains opaque non-empty; result metadata remains authority `NONE` and does not claim digest verification, currentness, qualification, release, deployment, production, policy, or terminal authority.
+
+I4-15 PASS: Failed validation does not poison subsequent valid read-set/DPS validation; repeated valid calls return equal bounded results.
+
+I4-16 PASS: Exact candidate preserves frozen schema and closed Slice 1/2/3 implementation modules, inherited Slice 3/2/1 acceptance suites run green in the final workflow, and direct Slice 4 workflow path coverage is present for the promised Slice 4 and Slice 1 canonicalizer paths. Low caveat noted in E regarding exercised Slice 2/3 modules not being in the workflow trigger filter.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+Positive bounded Slice 4 construction proves only deterministic local structure and cross-field validation for AuthorityReadSetEntry, AuthorityReadSet, DecisionPresealContext, nested SemanticHeads, and nested ResolverIdentity under the frozen schema and supplied read set. It enforces exact required-field parity, non-empty read-set entries, inherited GCP string validity, non-boolean signed-int64 `semantic_state_sequence` closure, `effect_class` sentinel behavior against verifier-owned `external_effect_involved`, and exact equality of DPS `authority_read_set_digest` to the supplied locally valid read-set digest. It does not recompute or verify `authority_read_set_digest` or `decision_preseal_digest`.
+
+It does not prove AuthorityReadSet completeness for any actual predicate, source/head/value freshness or currentness, digest correctness, active/current RIR membership, resolver qualification, lawful derivation of `external_effect_involved`, revocation/runtime/workload currentness, time proof, VerifiedStateSeal, COMMIT_WITH_SEAL, consequential commit recheck, runtime qualification, release, deployment, production, policy, or terminal authority.
+
+Bounded Slice 4 construction may be adjudicated as a bounded local construction result only. It grants no runtime qualification or downstream authority.
+
+H. FINAL_GATE
+Yes. Exact candidate `3b60d8f14851b755f09a35431c620d6ae594a894` may close the Slice 4 independent-review gate for bounded local construction, provided adjudication records the stated nonclaims and does not treat local validation as runtime, release, deployment, production, policy, or terminal authority.
