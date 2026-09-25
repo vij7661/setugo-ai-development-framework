@@ -1,12 +1,13 @@
 {
   "schema": "r8-v15-r1-implementation-slice1-marker/v1",
-  "status": "MECHANISM_GREEN_PENDING_POST_FREEZE_REGRESSION",
-  "authority_effect": "NONE",
+  "status": "SUCCESSOR1_CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
   "preregistration_commit": "ce4d6a46d0907922520ef56c3ca62f7c8784a319",
   "harness_commit": "9952aa72f8f124514430aef4d0a0b0218318a4e1",
   "exact_frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
   "expected_initial_outcome": "RED_MECHANISM_ABSENT",
   "grants": {
+    "implementation_construction": true,
     "runtime_qualification": false,
     "release": false,
     "deployment": false,
@@ -22,5 +23,16 @@
   "preserved_failure_003_run_id": 36060223157,
   "control_failure_004_run_id": 36060442863,
   "post_freeze_regression_commit": "240511afc41329a6ac25da7d069e8fc3ea3aae20",
-  "workflow_repair_commit": "1b4699ec27aa3a2a9383a52a91636e8c0bb1b280"
+  "workflow_repair_commit": "1b4699ec27aa3a2a9383a52a91636e8c0bb1b280",
+  "predecessor_implementation_candidate": "e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+  "successor1_preregistration_commit": "dfca9dd073dedfff8008fa2aaaf679023b3c5aa4",
+  "successor1_frozen_repair_harness_commit": "da46eeb47150094b114768a4b9de7377c71d9e2a",
+  "successor1_mechanism_repair_commit": "6db224acec37e4991482eb4d171a2118b8936a7b",
+  "successor1_green_repair_run_id": 36105362709,
+  "successor1_green_repair_job_id": 107976583620,
+  "preserved_successor_failures": [
+    36104942867,
+    36105013894
+  ],
+  "next_gate": "FRESH_BLIND_INDEPENDENT_IMPLEMENTATION_REVIEW"
 }
