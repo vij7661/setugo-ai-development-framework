@@ -1,0 +1,148 @@
+{
+  "schema": "r8-v15-r1-ig1-successor3-inherited-baseline-test-identity/v1",
+  "status": "PROPOSAL_EVIDENCE_ONLY_NOT_ACTIVE",
+  "authority_effect": "NONE",
+  "exact_slice7_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "measurement": {
+    "run_id": 36164919504,
+    "job_id": 108170211813,
+    "method": "clean exact-Slice7 worktree; unittest per declared group"
+  },
+  "expected_total_tests": 140,
+  "test_entries": [
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice7.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "c11a7ce8eb04a23016abaed5456b3a6ae169cd7f"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice6.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "160f186566ddddf00ef6f4f1ebf556f16e306687"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice5.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "e3b31a4645dfeafe05e2be7d06a9d9a198a14738"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice4.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "0dade7a6a3093ff906136ecad390b88e73fd2564"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice3.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "4191265955495086fe2097f98a55bc83a358792a"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice2.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "fe8526f1872467704f4588d04d067858e21fd9fa"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice1.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "3f146f0464b1457ebb5454bb356ec0a09919d6e7"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "a016e37792a9f69a15ed2f027df0746c3ee296d6"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "46556c95538a93af0cd2ccd9bcdecb807512b1f4"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "465bf867fe45d3831414bafe2bc4fae56a2cca8e"
+    },
+    {
+      "path": "governance-runtime/test_r8_v15_r1_post_freeze_regression.py",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "4ae9e2eacb4860ce40800405d44d8844cec3b630"
+    }
+  ],
+  "groups": [
+    {
+      "name": "slice7",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice7.py"
+      ],
+      "expected_tests": 16
+    },
+    {
+      "name": "slice6",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice6.py"
+      ],
+      "expected_tests": 16
+    },
+    {
+      "name": "slice5",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice5.py"
+      ],
+      "expected_tests": 16
+    },
+    {
+      "name": "slice4",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice4.py"
+      ],
+      "expected_tests": 16
+    },
+    {
+      "name": "slice3",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice3.py"
+      ],
+      "expected_tests": 16
+    },
+    {
+      "name": "slice2",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice2.py"
+      ],
+      "expected_tests": 16
+    },
+    {
+      "name": "slice1-family",
+      "files": [
+        "governance-runtime/test_r8_v15_r1_implementation_slice1.py",
+        "governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py",
+        "governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py",
+        "governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py",
+        "governance-runtime/test_r8_v15_r1_post_freeze_regression.py"
+      ],
+      "expected_tests": 44
+    }
+  ],
+  "invariants": {
+    "group_files_exactly_partition_test_entries": true,
+    "duplicate_group_file_forbidden": true,
+    "per_group_count_required": true,
+    "aggregate_count_required": 140
+  },
+  "grants": {
+    "integration": false,
+    "semantic_execution": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "terminal_authority": false
+  }
+}
