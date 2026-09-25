@@ -1,0 +1,61 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_SG1_PROPOSAL_IDENTITY
+- proposal ID: R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001
+- proposal commit: 67c84138140e86ba4a85a954f368f4c0f7e9ef3c
+- proposal blob: d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b
+- review-bundle commit: a6a22ba7345395d189b8819f178242f7c504048e
+- activation-gate blob: 056bce33da38a2178ca2827d581b5a81c8bf4416
+- semantic harness blob: 15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad
+- comparator blob: 097464a6b99bc79117501f7700d012ebeddd8675
+- reusable core blob: 93ea0cccfdb1392ef38ee41dd053512372de0c87
+- Stage1 verifier blob: dc8b76d6710dee27af4a3502b157853959d34ba7
+- semantic-surface blob: 94e3275edbb32baca640966830352f5e6c9f4ada
+- exact Stage1 candidate: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+- candidate tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+- 39 selected implementation files: surface declares 39; exact enumeration not individually provided in packet. The 32 edges and 2 targets are enumerated.
+- 32 direct dependency edges: 31 edges to governance-runtime/r8_v15_r1_frozen_schema_runtime.py; 1 edge from governance-runtime/r8_v15_r1_effect_state_validator.py to governance-runtime/r8_v15_r1_effect_intent_validator.py.
+- 2 dependency targets:
+  1. governance-runtime/r8_v15_r1_frozen_schema_runtime.py, blob e5a06f43b98131f0730852757a83bb7fe5882001, used attributes GCPError, INT64_MAX, canonicalize_json_text.
+  2. governance-runtime/r8_v15_r1_effect_intent_validator.py, blob 50c5f3edd905ec23ae8e97d3cc2d441489935786, used attributes EffectIntentError, validate_effect_intent.
+- static-preflight run/job: 36169709850 / 108185981758
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+Finding ID: SG1-ACT-GATE-REVIEW-PARSER-001
+Affected mechanism/case: SG-1 activation gate review artifact parser in .github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml (blob 056bce33da38a2178ca2827d581b5a81c8bf4416).
+Concrete failure or false-green path: The activation gate verify step parses the independent review artifact and requires the C. CRITICAL_FINDINGS and D. HIGH_FINDINGS section bodies to be exactly "None" or "None." (case-sensitive set {"None","None."}). The mandatory review format in the review instructions requires empty sections to state "NONE." (uppercase). A clean review that follows the required format would therefore be rejected by the activation gate, preventing SG-1 activation. This is a concrete activation-binding incompatibility.
+Why the current proposal is insufficient: The proposal binds the activation gate blob but does not reconcile the gate’s parser with the required review output format. A compliant clean review cannot activate the gate.
+Narrow required correction: Either update the activation gate regex to accept case-insensitive "none"/"none." (or specifically "NONE"/"NONE.") for clean Critical/High sections, or change the required review format instruction to output "None." in those sections.
+
+E. MEDIUM_LOW_FINDINGS
+- Low: The audit hook blocks file writes only when the `open` audit event mode is a string containing 'w','a','x','+'. It may not block all write paths (e.g., `os.open` with integer flags). This is defense-in-depth; the reviewed modules do not use such paths, so it does not create a practical false-green.
+- Low: The activation gate verify step does not directly bind the activation-gate binding JSON blob (ffc1577f9db7cd593f38f8078805fa1b42a7e349) as evidence; it only binds the activation gate workflow blob (056bce...). The binding JSON is informational.
+- Low: The SG-1 harness does not independently re-scan the 39 selected implementation files for omitted direct R8 dependency edges; it relies on the bound surface JSON and Stage1 review 005 scan. This is bounded by the SG-1 objective and the bound surface.
+
+F. SG1_PROTOCOL_ASSESSMENT
+F1: The 32-edge/2-target scope is complete for the declared SG-1 objective, based on the bound surface JSON and Stage1 review 005. No omitted direct edge is evident from the packet.
+F2: Exact runtime import-resolution/file/blob identity is checked for both targets and all source consumers via exact_file and allowlist. PASS.
+F3: Shared frozen-runtime module and used-surface identity across the 31 consumers is checked by SG1-05 and SG1-06. PASS.
+F4: GCP and INT64 semantic falsification covers valid canonicalization, non-NFC rejection, noncharacter rejection, and INT64 boundary. Given the exact frozen-runtime blob, this adequately falsifies the used shared-surface composition without requalifying the whole runtime.
+F5: effect-state -> effect-intent delegation, error translation, binding, and non-authority are covered by SG1-11 through SG1-18. PASS.
+F6: Forward/reverse import-order testing with semantic fingerprint and case comparison provides a reasonable oracle for shared-state contamination. PASS.
+F7: Fixture reuse from reviewed slice7/slice8 test files is bound by exact blob checks in SG1-01. PASS.
+F8: Audit policy blocks major external/mutating operations; low residual noted in E. Does not prevent activation.
+F9: Stage1 776-test guard before/after plus candidate immutability checks are present and bound. PASS.
+F10: Comparator does not normalize away failures; it requires exact PASS/18 and identical fingerprints. PASS.
+F11: Activation binding is mostly exact, but the HIGH finding in D prevents a clean review from activating. CHANGES_REQUIRED.
+F12: Post-execution review is mandatory and broader Stage2 authority remains unauthorized. PASS.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+SG-1 remains qualification-only and non-authoritative. Broader Stage2 remains unauthorized. Fallback-to-3 remains active despite 2/2 restoration eligibility. Successful SG-1 execution would still require fresh independent review before closure or execution of the next Stage2 gate.
+
+H. FINAL_GATE
+Stage2 SG-1 may be explicitly activated by user: NO.
+SG-1 execution authority if activated: LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
+Broader Stage2 semantic authority granted: NO.
+Automatic six-slice cadence restoration: NO.
+Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
