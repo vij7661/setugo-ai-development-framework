@@ -5,14 +5,17 @@ on:
     branches:
       - implementation/r8-v15-r1-slice1-frozen-schema-runtime-2026-09-24
       - implementation/r8-v15-r1-slice1-successor-1-2026-09-25
+      - implementation/r8-v15-r1-slice1-successor-2-2026-09-25
     paths:
       - governance-runtime/r8_v15_r1_frozen_schema_runtime.py
       - governance-runtime/test_r8_v15_r1_implementation_slice1.py
       - governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py
       - governance-runtime/test_r8_v15_r1_post_freeze_regression.py
       - governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py
       - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-PREREGISTRATION.md
       - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR1-PREREGISTRATION.md
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR2-PREREGISTRATION.md
       - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-MARKER.json
       - .github/workflows/r8-v15-r1-implementation-slice1.yml
 
@@ -46,6 +49,13 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py
+
+      - name: Run Slice 1 Successor 2 frozen repair harness
+        if: github.ref == 'refs/heads/implementation/r8-v15-r1-slice1-successor-2-2026-09-25'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py
 
       - name: Run applicable post-freeze R8 regressions
         shell: bash
