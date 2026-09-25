@@ -1,0 +1,51 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_IDENTITY
+- Exact implementation candidate: `2cf7adce8bdd67c8b78659d9359c178535af1d73`
+- Frozen executable-schema candidate: `f93ca26975ecb64f0da13779889c75b36140cdfc`
+- Authoritative exact-candidate construction run/job per `00_INSTRUCTIONS.txt`: `36105497132 / 107976990604`
+- Full frozen SPM SHA-256 claimed by `02_SCHEMA_INDEX.txt`: `84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797`
+- SPM part payload SHA-256s claimed by `02_SCHEMA_INDEX.txt`:
+  - part 1: `22bb50aee1e37bc5003f1de0ce43cc1da26453ece7328486838136d1525e3208`
+  - part 2: `605a7460aec0dbe9194f37da79dec96938258611b2f40171c39dcbdbf19bbd0a`
+  - part 3: `75b586c0b357781837a716cb6131eb8e0ce43e9de3424b38871691854971c175`
+  - part 4: `3f0efa712abe2e2bb55cdf1fcd33de9425f72586741701254edd98eba1491de6`
+- Frozen source-map SHA-256 used by runtime: `6d35964bfaa0cccfdd09bb46128a5efe3197d146e90144d1ac61ebe08c0aeec5`
+- Frozen GCP JSON SHA-256 used by runtime: `0466789e013d6f4e0080262effc674a57277588353c1dba19431be5be4f25ab9`
+- Frozen semantic candidate: `1fa49fa4adfa6aa47fae68c0f1938083eeb1497f`
+
+C. CRITICAL_FINDINGS
+1. **Nested negative-zero canonicalization defect.** `canonicalize_json_text` does not preserve integer lexical form for values inside JSON objects/arrays. Python `json.loads` normalizes `-0` to integer `0`, and `_normalize_value` accepts it. Therefore input such as `{"n":-0}` is silently canonicalized to `{"n":0}` instead of rejecting negative zero as required by the frozen GCP rejection rule / canonicalization rules. The existing rejection vector only covers top-level `-0` in `integer_lexical` context, so the defect is not caught by the current tests. This is a real canonicalization ambiguity and can silently turn an invalid frozen-GCP input into a valid canonical form.
+
+2. **Transport is not review-complete.** The supplied `04_SPM_PART_04_OF_04.txt` is truncated: it lacks the expected `===== END EXACT SPM PAYLOAD PART 4/4 =====` marker and ends mid-JSON at `"generator_runtime_manifest_digest": "5d284ca4039368e3f74cbc9127cac07930f7852621d22c7e3a169fd` without closing the string or file. Consequently the full frozen SPM bytes and claimed full SPM SHA-256 cannot be independently reconstructed or verified from the supplied packet.
+
+3. **Required transport files are absent from the supplied packet.** `00_INSTRUCTIONS.txt` references `05_INVOKED_REGRESSION_SOURCES.txt`, `06_CONSTRUCTION_EVIDENCE.txt`, and `07_SHA256_MANIFEST.txt`, but those files are not present in the supplied content. This prevents independent verification of the invoked regression sources, exact construction evidence, raw CI log, freeze/green evidence, and transport hash manifest.
+
+4. **Run/job identity discrepancy.** `00_INSTRUCTIONS.txt` states the authoritative exact-candidate construction run/job as `36105497132 / 107976990604`. The supplied marker instead records `successor1_green_repair_run_id: 36105362709` and `successor1_green_repair_job_id: 107976583620`. Without `06_CONSTRUCTION_EVIDENCE.txt`, this discrepancy cannot be resolved.
+
+D. HIGH_FINDINGS
+1. **SPM path confinement is lexical only.** `validate_spm_document` constrains SPM artifact path strings to `schemas/governance-r8/v15-r1/...` and rejects traversal, absolute paths, and duplicate path/artifact IDs, but it does not require the resolved real path to remain under the frozen schema directory. Symlink/realpath escape is not rejected by the path-confinement logic itself, although the later SHA-256 checks would still reject byte substitution unless the symlink target has the exact expected bytes.
+
+2. **No exact source-map path binding by full path.** The loader compares only `PurePosixPath(...).name` sets between SPM artifacts and `source_map["artifact_sources"]`. Because path confinement already forces the frozen directory, this is probably not exploitable for the exact frozen SPM, but it is weaker than full-path equality.
+
+E. MEDIUM_LOW_FINDINGS
+1. `validate_spm_document` does not explicitly validate that each artifact `sha256` is a 64-hex string or that each `artifact_id` is a non-empty string. This is mitigated in `load()` by the exact SPM SHA-256 pin, but the helper is weaker than it could be.
+
+2. `validate_spm_document` does not require every `source_ref_catalog` entry to be referenced by some entry. It only requires non-empty catalog and entry refs to be a subset. This is not exploitable for the exact frozen SPM, but it is a missing closure check.
+
+3. `test_s1r_07_workflow_trigger_covers_governed_paths` does not include the original `R8-V15-R1-IMPLEMENTATION-SLICE1-PREREGISTRATION.md` in its required list, although the actual workflow `paths:` block does include it. The test is therefore slightly weaker than the workflow.
+
+4. `S1R-01` counts `Path.read_bytes` only for resolved paths under `SCHEMA_DIR.resolve()`. If a required schema path were replaced by a symlink resolving outside the schema directory, duplicate reads of that outside target would not be counted by the test.
+
+F. I1_AND_SUCCESSOR_REPAIR_ASSESSMENT
+- **Original I1-01..I1-16:** The supplied code and tests appear to implement the listed I1 acceptance semantics: exact candidate pin, SPM digest pin, artifact digest verification, required-artifact failure, SPM coverage emptiness, generator binding, GCP key ordering, int64 bounds, P05 recomputation, positive vector recomputation, duplicate/NFC collision rejection, Unicode rejection, read-only/network-free test, non-authoritative result metadata, and failure-recovery behavior. However, execution cannot be independently confirmed because the construction evidence and full SPM bytes are not supplied.
+- **S1R-01..S1R-08:** The successor repair appears aimed at the predecessor TOCTOU and evidence-transport gaps. The single-read `read_once` closure and absence of post-verification `read_text` are present in the code; S1R-01/S1R-02 target this. S1R-03 adds explicit surrogate rejection. S1R-04 adds load-time rejection-vector self-check. S1R-05 adds exact 3058-entry enforcement. S1R-06 adds artifact path confinement. S1R-07 checks workflow trigger coverage. S1R-08 checks frozen schema byte preservation. On code inspection, the predecessor TOCTOU gap appears closed.
+- **Code defect remains:** The nested negative-zero issue in GCP canonicalization is a code defect not addressed by the I1 or S1R acceptance cases.
+- **Transport gap remains:** The successor preregistration requires a byte-complete independent-review packet including every invoked regression source. The supplied packet is not byte-complete: `04_SPM_PART_04_OF_04.txt` is truncated, and `05`, `06`, and `07` are absent. Therefore the evidence-transport gap is not closed by the supplied material.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+Construction of this Slice 1 candidate would prove only that the repository-local reference implementation can load and integrity-check the exact frozen R8 v15-r1 schema bundle and reproduce the supported frozen GCP canonicalization behavior under tested conditions. It does not prove governance authority decisions, live trust dependencies, cryptographic identity correctness, external effects, runtime qualification, release, deployment, production readiness, policy authority, or terminal authority. On the supplied packet, bounded Slice 1 construction may not be adjudicated: the exact SPM bytes are not fully supplied, construction evidence is missing, and a critical GCP canonicalization defect remains.
+
+H. FINAL_GATE
+No. Exact candidate `2cf7adce8bdd67c8b78659d9359c178535af1d73` may not close the Slice 1 independent-review gate on the supplied evidence. A corrected candidate and a byte-complete review packet, including the full SPM payload parts and `05`, `06`, and `07`, are required before gate closure.
