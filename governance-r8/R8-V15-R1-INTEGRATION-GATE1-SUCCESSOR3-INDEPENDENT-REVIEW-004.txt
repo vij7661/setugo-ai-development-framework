@@ -1,0 +1,58 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_SUCCESSOR_IDENTITY
+- proposal ID: R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR3
+- proposal contract commit: c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317
+- proposal blob: 4f3cab0b33caa19fcb81da3cff53456714de3da3
+- review-bundle commit: a39270edfd237640166472cc0041baae704a72b7
+- activation-gate blob: 8a3c9ca39f83e3262a85ae0e5ffb456d61c6d3ac
+- materializer blob: eb4231b1bd6f1c1b4e312d263c01665ae87fbd76
+- oracle blob: 6cecb7db86a8268a1bcea988986150a24f7f1b69
+- child blob: c3c4c029fcd91afb3ee6c4ae82560c87a4a60075
+- core workflow blob: f61f16adcbd8ce30c3410a7b21c89c094a295946
+- allowlist blob: 15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b
+- inventory blob: 1a745cf09c9958115664b2b6fa03312c737697d9
+- baseline blob: 761f1e2a60e0ab21d2b7b1dc392f0562b28fb9bd
+- preflight green run: 36165634225; preserved failure run: 36165481422
+- selected entries: 120
+- inventory paths: 904
+- fallback-to-3 state: ACTIVE; clean reviews after latest remediation 0/2; this BOUNDED_PASS review counts as 1 of 2.
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+None.
+
+E. MEDIUM_LOW_FINDINGS
+- Governance-history detector remains heuristic against dynamic string construction such as concatenating "governance" + "-r8", though it closes the specific traversal, receiver, directory/glob, and API bypasses identified earlier. Low.
+- Final staged-diff verification checks the staged path set and selected entry identities but does not bind the generated candidate manifest content/blob. Since the manifest is explicitly non-authoritative and fresh review is required, Low.
+- The activation gate cannot hardcode the independent review blob before the review exists; it relies on the activation JSON and explicit user approval to bind the review blob. This is an accepted trust boundary. Low.
+- The AST dynamic-execution restrictions are not exhaustive against every possible Python dynamic technique, although the exact machinery contains no prohibited dynamic execution/import/monkeypatch route. Low.
+
+F. REMEDIATION_AND_PROTOCOL_ASSESSMENT
+F1 Review003 High1 exact activation binding: Closed. The gate hardcodes exact proposal ID/commit/blob/path, exact machinery/evidence maps, and exact key sets, and checks HEAD blobs.
+F2 activation-gate root/self-hash boundary: Acceptable bounded root-of-trust. The gate cannot embed its own blob without circularity; its exact blob is externally bound by explicit user approval. No mechanical substitution path exists if the activation branch and user approval are trusted. Residual trust is the inability to cryptographically prove user intent.
+F3 Review003 High2 normalized governance-history detector: Closed for the specified High2. Traversal-first normalization and required API coverage are implemented with self-tests.
+F4 directory/glob/traversal/receiver coverage: Covered for open/read_text/read_bytes/readlink/resolve/iterdir/glob/rglob/walk/listdir/scandir plus path / traversal and receiver/argument checks. Residual dynamic string construction remains outside the heuristic.
+F5 immediate pre-commit exact staged-diff verification: Closed for staged path set, unstaged tracked paths, untracked paths, and selected identities. The same shell step runs --verify-final-only immediately before git commit. Residual: manifest content is not blob-bound in that final check.
+F6 baseline manifest group membership/per-group counts: Closed. The manifest has 11 identities, 7 exact groups, counts 16/16/16/16/16/16/44 = 140, and the oracle checks exact partition, duplicate rejection, per-group counts, and aggregate.
+F7 exact review artifact binding and parsing: Closed. Review path is fixed; HEAD review blob must equal the activation-recorded blob; actual review text is parsed for exact proposal ID/commit, BOUNDED_PASS, clean Critical/High sections, YES final gate, and Stage2 NO.
+F8 declarative machinery import/dynamic-execution restrictions: Closed for actual machinery. Import allowlists and forbidden dynamic-execution/monkeypatch checks are present; the exact materializer/oracle/child contain no prohibited routes.
+F9 structured zero-bypass 636+140 oracle: Closed. Structured child accounting and oracle enforce 636 reviewed slice tests plus 140 baseline tests with zero skips, failures, errors, expected failures, or unexpected successes.
+F10 exact-base/120-entry composition and rejected predecessor controls: Closed. Exact Slice7 base, 120 reviewed entries, candidate manifest, rejected S20–S22 ancestry/identical-entry reacceptance controls are preserved.
+F11 reusable core hash binding and gate/core separation: Closed. The gate validates and calls the exact-hash-bound reusable core; integration-causing logic remains in the core, not the gate.
+F12 Stage1 non-authority, Stage2 separation, fallback/recovery: Closed. Stage1 is non-authoritative; Stage2 is separately gated and not authorized; fallback-to-3 remains active; a clean Successor3 BOUNDED_PASS review counts as 1 of 2 toward recovery.
+Remaining concrete false-green or silent-authority path: none Critical/High; only the Low residuals above.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+Stage1 remains non-authoritative. Stage2 remains separately gated and NOT AUTHORIZED. Exact integrated bytes require fresh independent review before Stage2. Fallback-to-3 remains ACTIVE. A clean Successor3 BOUNDED_PASS review counts as 1 of 2 toward cadence recovery. Six-slice cadence is NOT automatically restored. Runtime, release, deployment, production, policy, constitutional, root, and terminal authority remain false.
+
+H. FINAL_GATE
+- IG-1 Successor3 proposal may be explicitly activated by user: YES.
+- If YES, activation is NOT automatic and explicit user approval must bind proposal contract commit c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317, proposal blob 4f3cab0b33caa19fcb81da3cff53456714de3da3, and activation-gate blob 8a3c9ca39f83e3262a85ae0e5ffb456d61c6d3ac.
+- Stage1 integrated output authority: NONE / non-authoritative pending fresh review.
+- Stage2 semantic integration authorized: NO.
+- Six-slice cadence automatically restored: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
