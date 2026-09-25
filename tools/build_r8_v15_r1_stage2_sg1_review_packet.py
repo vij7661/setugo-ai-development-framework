@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import hashlib, pathlib, subprocess
+import json
 
-PROPOSAL_COMMIT="67c84138140e86ba4a85a954f368f4c0f7e9ef3c"
-CANDIDATE="4984f06a4420b76ad1ad475751aebda04a2d2c5c"
-EXPECTED_REVIEW_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt"
+MANIFEST_PATH=pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-ACTIVATION-MANIFEST.json")
+MANIFEST=json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+PROPOSAL_COMMIT=MANIFEST["proposal"]["commit"]
+CANDIDATE=MANIFEST["candidate"]["commit"]
+EXPECTED_REVIEW_PATH=MANIFEST["reviews"]["expected_fresh_review_002"]["path"]
 OUT=pathlib.Path("stage2-sg1-review"); OUT.mkdir(exist_ok=True)
 TARGET=OUT/"R8-V15-R1-STAGE2-SG1-EARLY-REVIEW-PACKET.txt"
 
 BUNDLE_FILES=[
 ("governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-PROPOSAL.json","SG-1 PROPOSAL CONTRACT"),
+("governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-ACTIVATION-MANIFEST.json","SG-1 CANONICAL REVIEW ACTIVATION MANIFEST"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json","SG-1 ACTIVATION GATE BINDING"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-001.txt","HISTORICAL INDEPENDENT EARLY REVIEW 001 — CHANGES_REQUIRED"),
 ("governance-r8/R8-V15-R1-STAGE2-SG1-PROPOSAL-PREFLIGHT-GREEN-001.json","SG-1 STATIC PREFLIGHT GREEN"),
@@ -37,6 +41,13 @@ def blob(rev,path): return sh("git","rev-parse",f"{rev}:{path}").decode().strip(
 
 BUNDLE_COMMIT=sh("git","rev-parse","HEAD").decode().strip()
 ACTIVATION_GATE_BLOB=blob(BUNDLE_COMMIT,".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml")
+if ACTIVATION_GATE_BLOB != MANIFEST["activation_gate"]["blob_sha1"]:
+    raise SystemExit("activation gate does not match canonical manifest")
+if blob(BUNDLE_COMMIT, MANIFEST["proposal"]["path"]) != MANIFEST["proposal"]["blob_sha1"]:
+    raise SystemExit("proposal does not match canonical manifest")
+binding=json.loads(pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json").read_text(encoding="utf-8"))
+if binding["expected_review"]["path"] != EXPECTED_REVIEW_PATH or binding["activation_gate"]["blob_sha1"] != ACTIVATION_GATE_BLOB:
+    raise SystemExit("activation binding does not match canonical manifest")
 
 header=f"""R8 v15-r1 — STAGE2 SG-1 DEPENDENCY SEMANTIC CONFORMANCE — FRESH MANDATORY EARLY REVIEW
 
@@ -177,7 +188,7 @@ State whether SG-1 remains qualification-only and non-authoritative; broader Sta
 H. FINAL_GATE
 State exactly:
 - Stage2 SG-1 may be explicitly activated by user: YES or NO.
-- If YES, activation is NOT automatic and explicit user approval must bind proposal commit {PROPOSAL_COMMIT}, proposal blob d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b, and activation-gate blob 056bce33da38a2178ca2827d581b5a81c8bf4416.
+- If YES, activation is NOT automatic and explicit user approval must bind proposal commit {PROPOSAL_COMMIT}, proposal blob {MANIFEST["proposal"]["blob_sha1"]}, and activation-gate blob {ACTIVATION_GATE_BLOB}.
 - SG-1 execution authority if activated: LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
 - Broader Stage2 semantic authority granted: NO.
 - Automatic six-slice cadence restoration: NO.

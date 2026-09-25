@@ -1,0 +1,70 @@
+{
+  "schema": "r8-v15-r1-stage2-sg1-review-activation-manifest/v1",
+  "status": "PROPOSAL_REVIEW_EVIDENCE_ONLY_NOT_ACTIVE",
+  "authority_effect": "NONE",
+  "proposal": {
+    "id": "R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001",
+    "commit": "67c84138140e86ba4a85a954f368f4c0f7e9ef3c",
+    "blob_sha1": "d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b",
+    "path": "governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-PROPOSAL.json"
+  },
+  "candidate": {
+    "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+    "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b"
+  },
+  "activation_gate": {
+    "path": ".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml",
+    "blob_sha1": "1078bc673665b3e23d99d2d1699a7ccab90bbf6d",
+    "self_hash_boundary": "The gate blob is externally computed and user-approved; it is not self-embedded."
+  },
+  "activation_binding": {
+    "path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json",
+    "blob_sha1": "fb4ddafdde4a2b35b17e52e813fecedd0a97ad0e"
+  },
+  "reviews": {
+    "historical_review_001": {
+      "path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-001.txt",
+      "disposition": "CHANGES_REQUIRED",
+      "blob_sha1": "9edfc2055588a218b3358530b94b0365768176d1"
+    },
+    "expected_fresh_review_002": {
+      "path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt",
+      "required_disposition": "BOUNDED_PASS",
+      "required_critical_findings": 0,
+      "required_high_findings": 0,
+      "required_final_gate": "YES"
+    }
+  },
+  "machinery": {
+    "governance-runtime/test_r8_v15_r1_stage2_sg1_dependency_semantics.py": "15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad",
+    "tools/compare_r8_v15_r1_stage2_sg1_results.py": "097464a6b99bc79117501f7700d012ebeddd8675",
+    ".github/workflows/r8-v15-r1-stage2-sg1-core.yml": "93ea0cccfdb1392ef38ee41dd053512372de0c87",
+    "tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py": "dc8b76d6710dee27af4a3502b157853959d34ba7"
+  },
+  "evidence": {
+    "governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-SURFACE.json": "94e3275edbb32baca640966830352f5e6c9f4ada",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-CLOSURE.json": "3ad11c9d9ed00dff314c2bf47893e51ce65ff2ce",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-INDEPENDENT-REVIEW-005.txt": "7b9c5c0eefaa782753abf92a2fa88afbf23ff450",
+    "governance-r8/R8-V15-R1-REVIEW-CADENCE-RECOVERY-ELIGIBLE-2-OF-2.json": "c7cba8b690ab217cdd2040e1db7662400910feb5",
+    "governance-r8/R8-V15-R1-STAGE2-SG1-PROPOSAL-PREFLIGHT-GREEN-001.json": "963b3e29ce2cdb2621d83e4e9f3f657a45222ad6"
+  },
+  "dependency_targets": {
+    "governance-runtime/r8_v15_r1_frozen_schema_runtime.py": "e5a06f43b98131f0730852757a83bb7fe5882001",
+    "governance-runtime/r8_v15_r1_effect_intent_validator.py": "50c5f3edd905ec23ae8e97d3cc2d441489935786"
+  },
+  "preflight": {
+    "path": "governance-r8/R8-V15-R1-STAGE2-SG1-PROPOSAL-PREFLIGHT-GREEN-001.json",
+    "run": "36169709850",
+    "job": "108185981758"
+  },
+  "governance": {
+    "authority_boundary": "LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY",
+    "fallback_to_3": "ACTIVE",
+    "six_slice_cadence_restored": false,
+    "activation_artifact_exists": false,
+    "semantic_execution_performed": false,
+    "broader_stage2_authorized": false,
+    "runtime_release_deployment_production_policy_constitutional_root_terminal_authority": false
+  }
+}
