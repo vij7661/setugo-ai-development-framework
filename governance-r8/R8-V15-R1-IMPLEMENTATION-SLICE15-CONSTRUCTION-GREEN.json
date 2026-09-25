@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice15-construction-green/v1",
+  "status": "SLICE15_EXACT_CANDIDATE_GREEN_PENDING_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "batch11_13_closure_anchor": "0441370a1d9f2d80a75926839294eb5fba32faaf",
+  "preserved_red_run_id": 36132791973,
+  "ci_trigger_gap_commit": "8ad0438b42e4e64a1c27a2058b57304fe5a554bd",
+  "mechanism_green_run_id": 36133009022,
+  "mechanism_green_job_id": 108064397273,
+  "exact_candidate_run_id": 36133071805,
+  "exact_candidate_job_id": 108064603054,
+  "exact_checkout_sha": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+  "acceptance": {
+    "slice15": "16/16 PASS",
+    "inherited_closed_baseline": "140/140 PASS",
+    "total": "156/156 PASS"
+  },
+  "grants": {
+    "implementation_construction": true,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
