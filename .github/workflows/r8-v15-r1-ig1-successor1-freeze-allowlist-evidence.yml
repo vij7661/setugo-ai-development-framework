@@ -1,0 +1,36 @@
+name: R8 v15-r1 IG-1 Successor1 Freeze Allowlist Evidence
+
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-integration-gate1-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IG1-SUCCESSOR1-FREEZE-EVIDENCE-MARKER.json
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Regenerate exact proposal evidence
+        run: python3 tools/build_r8_v15_r1_ig1_successor1_allowlist.py
+      - name: Freeze generated proposal evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp ig1-successor1-evidence/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json governance-r8/
+          cp ig1-successor1-evidence/R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json governance-r8/
+          cp ig1-successor1-evidence/R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json governance-r8/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add governance-r8/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json governance-r8/R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json
+          git diff --cached --exit-code && exit 0 || true
+          git commit -m "governance(r8): freeze IG-1 successor1 exact allowlist evidence"
+          git push origin HEAD:governance/r8-v15-r1-integration-gate1-proposal-2026-09-25
