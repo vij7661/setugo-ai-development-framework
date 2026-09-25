@@ -1,0 +1,102 @@
+{
+  "schema": "r8-v15-r1-implementation-batch1-review-adjudication/v1",
+  "status": "BOUNDED_PASS_ACCEPTED_SLICES8_10_BATCH_CONSTRUCTION",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_ADJUDICATION_ONLY",
+  "batch_identity": {
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+    "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "closed_slice7_closure_head": "5477df994c2cc9db0033742e189b906eb20247c1",
+    "slice8_exact_candidate": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "slice9_exact_candidate": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "slice10_exact_candidate": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4"
+  },
+  "independent_review_path": "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH1-SLICES8-10-INDEPENDENT-REVIEW-001.txt",
+  "independent_review_disposition": "BOUNDED_PASS",
+  "review_packet_sha256": "e81993bc7a99df8ee6e29bb9fdd1e7ecd7b6f0d636d83fe08439beca97744bb5",
+  "exact_candidate_runs": {
+    "slice8": {
+      "run_id": 36121677646,
+      "job_id": 108028378950,
+      "exact_checkout_sha": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+      "result": "156/156 PASS"
+    },
+    "slice9": {
+      "run_id": 36121983437,
+      "job_id": 108029364363,
+      "exact_checkout_sha": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+      "result": "156/156 PASS"
+    },
+    "slice10": {
+      "run_id": 36122429875,
+      "job_id": 108030797431,
+      "exact_checkout_sha": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+      "result": "156/156 PASS"
+    }
+  },
+  "findings": [
+    {
+      "id": "R8V15R1-BATCH1-M-001",
+      "severity": "MEDIUM",
+      "title": "No single supplied workflow executes Slice 8, Slice 9, and Slice 10 together",
+      "disposition": "ACCEPTED_NONBLOCKING_FOR_SIBLING_BATCH_BOUNDED_CONSTRUCTION",
+      "blocks_batch_bounded_construction": false,
+      "carry_forward": true,
+      "rationale": "The governing three-loop rule required three construction loops followed by one combined independent review; it did not require an integrated post-batch candidate or combined CI run. The review evaluated the exact sibling candidates individually and found no Critical self-grant path.",
+      "required_action": "Before any claim of combined Slice 8+9+10 composition/integration, execute an exact combined candidate workflow that includes all three suites and inherited regressions."
+    },
+    {
+      "id": "R8V15R1-BATCH1-M-002",
+      "severity": "MEDIUM",
+      "title": "Later sibling immutability checks do not cover earlier unclosed sibling slice files",
+      "disposition": "ACCEPTED_NONBLOCKING_FOR_SIBLING_BATCH_BOUNDED_CONSTRUCTION",
+      "blocks_batch_bounded_construction": false,
+      "carry_forward": true,
+      "rationale": "Slices 8, 9, and 10 are sibling loops sharing the closed Slice 7 base, not a descendant chain. Each exact candidate is independently identified and reviewed; no claim is made that Slice 9 or 10 preserves files that are not ancestors in its tree.",
+      "required_action": "Before composition/integration of the sibling slices, freeze the exact component SHAs or assert byte identity of all three reviewed slice artifacts in the combined candidate."
+    },
+    {
+      "id": "R8V15R1-BATCH1-LM-003",
+      "severity": "LOW_MEDIUM",
+      "title": "Slice 8 I8-11 revalidation-first wording is stronger than the tested global validation precedence",
+      "disposition": "ACCEPTED_NONBLOCKING_TEST_ORDERING_GAP",
+      "blocks_batch_bounded_construction": false,
+      "carry_forward": true,
+      "rationale": "The mechanism revalidates EffectIntent before effect-intent/idempotency binding decisions, while record-local shape/state checks occur earlier. This does not create authority or false-green within the bounded local claim.",
+      "required_action": "Before claiming global failure precedence as 'EffectIntent revalidated first', either narrow the wording to binding-order precedence or add dual-invalid precedence tests and implementation ordering consistent with the claim."
+    },
+    {
+      "id": "R8V15R1-BATCH1-L-004",
+      "severity": "LOW",
+      "title": "Slice 8, 9, and 10 markers omit a self-contained exact_candidate field",
+      "disposition": "ACCEPTED_NONBLOCKING_PROVENANCE_HARDENING",
+      "blocks_batch_bounded_construction": false,
+      "carry_forward": true,
+      "rationale": "Exact candidate identities are independently bound by the review packet and exact-checkout final workflow logs.",
+      "required_action": "Add explicit exact_candidate/self_identity fields to future marker schema or closure metadata where practical."
+    }
+  ],
+  "adjudication_basis": [
+    "combined fresh blind independent review returned BOUNDED_PASS",
+    "no Critical or High false-green/self-grant finding was identified",
+    "all three exact candidates have preserved mechanism-absent RED evidence and exact-candidate final green runs",
+    "the three-loop governing rule required combined independent review after three sibling construction loops and did not require post-review composition",
+    "all higher-authority flags remain false and are preserved as nonclaims",
+    "reviewer observations are retained as open nonblocking hardening rather than erased"
+  ],
+  "batch_review_gate": "CLOSED_BOUNDED_PASS",
+  "claim_boundary": {
+    "slice8_bounded_construction": true,
+    "slice9_bounded_construction": true,
+    "slice10_bounded_construction": true,
+    "combined_composition_proven": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "merge_authority": false,
+    "adjudication_authority": false,
+    "terminal_authority": false
+  }
+}
