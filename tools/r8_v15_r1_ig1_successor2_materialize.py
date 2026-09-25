@@ -91,6 +91,33 @@ def static_governance_runtime_read_check(blob,path):
             if expr_mentions_history(node.func.value,tainted) or any(expr_mentions_history(a,tainted) for a in node.args):
                 raise SystemExit(f"FAIL runtime governance-history file read: {path}")
 
+def assert_integration_machinery_declarative():
+    for p in (
+        pathlib.Path(__file__).resolve(),
+        ORACLE,
+    ):
+        text=p.read_text()
+        tree=ast.parse(text,filename=str(p))
+        for node in ast.walk(tree):
+            if isinstance(node,ast.Import):
+                for alias in node.names:
+                    if alias.name.startswith("r8_v15_r1_") or alias.name.startswith("unittest.mock"):
+                        raise SystemExit(f"FAIL forbidden integration import {alias.name} in {p}")
+            elif isinstance(node,ast.ImportFrom):
+                name=node.module or ""
+                if name.startswith("r8_v15_r1_") or name.startswith("unittest.mock"):
+                    raise SystemExit(f"FAIL forbidden integration import-from {name} in {p}")
+            elif isinstance(node,ast.Name) and node.id=="monkeypatch":
+                raise SystemExit(f"FAIL monkeypatch name in {p}")
+            elif isinstance(node,ast.Subscript):
+                target=node.value
+                if isinstance(target,ast.Attribute) and isinstance(target.value,ast.Name) and target.value.id=="sys" and target.attr=="modules":
+                    raise SystemExit(f"FAIL sys.modules access in {p}")
+    wf=(PROPOSAL_ROOT/".github/workflows/r8-v15-r1-ig1-successor2-materialize.yml").read_text().lower()
+    for token in ("unittest.mock","mock.patch","monkeypatch","sys.modules"):
+        if token in wf:
+            raise SystemExit(f"FAIL forbidden workflow token {token}")
+
 def assert_exact_clean_base(target):
     head=run(target,"git","rev-parse","HEAD").stdout.strip()
     if head!=BASE: raise SystemExit(f"FAIL target HEAD {head} != exact Slice7 base {BASE}")
@@ -102,6 +129,7 @@ def assert_exact_clean_base(target):
         raise SystemExit("FAIL Slice7 base schema tree differs from frozen schema candidate")
 
 def preflight(target):
+    assert_integration_machinery_declarative()
     allow=load_json(ALLOW); summary=load_json(SUMMARY); baseline=load_json(BASELINE)
     assert_exact_clean_base(target)
     if allow["implementation_tree_base"]!=BASE or baseline["exact_slice7_base"]!=BASE:
