@@ -1,0 +1,18 @@
+{
+  "schema": "r8-v15-r1-implementation-slice10-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "batch_loop": 3,
+  "preregistration_commit": "cd112d71d20c5d6ff2eb98b2284ec5eda81ec9cd",
+  "frozen_harness_commit": "0581ecd099d9bff4b88a16dec2a89da18e66775d",
+  "workflow_commit": "1ad99b62578094e650f10fbd1d4a4fc0b14cbecb",
+  "workflow_run_id": 36122231238,
+  "workflow_job_id": 108030145937,
+  "exact_checkout_sha": "1ad99b62578094e650f10fbd1d4a4fc0b14cbecb",
+  "observed": {
+    "slice10_tests_run": 16,
+    "slice10_dependency_case_passed": true,
+    "root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_review_attestation_validator'"
+  },
+  "preserved_not_reclassified": true
+}
