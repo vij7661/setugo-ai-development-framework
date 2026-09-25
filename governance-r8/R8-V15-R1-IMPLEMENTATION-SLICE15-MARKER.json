@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice15-marker/v1",
+  "status": "SLICE15_CONSTRUCTION_GREEN_PENDING_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "batch11_13_closure_anchor": "0441370a1d9f2d80a75926839294eb5fba32faaf",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "preregistration_commit": "d841672c8bc548672c54b51ac52a33d26d689bcb",
+  "frozen_harness_commit": "c78db0f29b2494b53afde2a11a1457ae24ad6eea",
+  "first_mechanism_commit_no_check_suite": "8ad0438b42e4e64a1c27a2058b57304fe5a554bd",
+  "mechanism_commit": "a4bc656c687d73a3673d8ee9c9f2f372447475f0",
+  "preserved_red_run_id": 36132791973,
+  "preserved_ci_trigger_gap": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE15-CI-TRIGGER-GAP-001.json",
+  "green_mechanism_run_id": 36133009022,
+  "green_mechanism_job_id": 108064397273,
+  "next_gate": "COMPLETE_THREE_LOOP_BATCH_THEN_FRESH_BLIND_COMBINED_REVIEW",
+  "grants": {
+    "implementation_construction": true,
+    "aggregate_semantics_verified": false,
+    "conformance_qualified": false,
+    "resolver_authorized": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
