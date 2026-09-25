@@ -1,0 +1,216 @@
+{
+  "schema": "r8-v15-r1-integration-gate1-successor3-proposal/v1",
+  "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR3",
+  "status": "PROPOSED_NOT_ACTIVE_REQUIRES_FRESH_INDEPENDENT_EARLY_REVIEW_AND_EXPLICIT_USER_APPROVAL",
+  "authority_effect": "NONE",
+  "predecessor": {
+    "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR2",
+    "exact_commit": "f4b33737ff67970d1d125745aa82cf1f9d22a67b",
+    "review": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR2-INDEPENDENT-REVIEW-003.txt",
+    "review_blob_sha1": "21b8c2320211fb784416716fc5c2c921324b6c4e",
+    "disposition": "CHANGES_REQUIRED",
+    "critical_findings": 0,
+    "high_findings": 2,
+    "activation_allowed": false
+  },
+  "governance_state": {
+    "closed_low_risk_anchor": "a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe",
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+    "exact_slice7_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "active_fallback_anchor_commit": "6dcb1f5e42bb1e806faf3177f0ef732ee1dc8916",
+    "fallback_to_three_active": true,
+    "clean_reviews_after_latest_remediation": 0,
+    "clean_reviews_required_for_recovery": 2
+  },
+  "exact_evidence": {
+    "allowlist": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json",
+      "blob_sha1": "15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b",
+      "selected_entries": 120
+    },
+    "inventory": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json",
+      "blob_sha1": "1a745cf09c9958115664b2b6fa03312c737697d9",
+      "changed_paths": 904
+    },
+    "collision_summary": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json",
+      "blob_sha1": "c76891e92d5d8ea5391a91d76c0286720ea3dd57",
+      "collisions": 0,
+      "conflicting_collisions": 0
+    },
+    "baseline_identity_and_groups": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-INHERITED-BASELINE-TEST-IDENTITY.json",
+      "blob_sha1": "761f1e2a60e0ab21d2b7b1dc392f0562b28fb9bd",
+      "exact_test_entries": 11,
+      "groups": [
+        {
+          "name": "slice7",
+          "expected_tests": 16
+        },
+        {
+          "name": "slice6",
+          "expected_tests": 16
+        },
+        {
+          "name": "slice5",
+          "expected_tests": 16
+        },
+        {
+          "name": "slice4",
+          "expected_tests": 16
+        },
+        {
+          "name": "slice3",
+          "expected_tests": 16
+        },
+        {
+          "name": "slice2",
+          "expected_tests": 16
+        },
+        {
+          "name": "slice1-family",
+          "expected_tests": 44
+        }
+      ],
+      "expected_total_tests": 140,
+      "measurement_run_id": 36164919504
+    },
+    "proposal_preflight_failure": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-PROPOSAL-PREFLIGHT-FAILURE-001.json",
+      "blob_sha1": "ca96cadabbb6a8fbf463a817279893c2e905f4de",
+      "run_id": 36165481422
+    },
+    "proposal_preflight_green": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-PROPOSAL-PREFLIGHT-GREEN-001.json",
+      "blob_sha1": "143836f6b1ca1da0c3b8a2060aca65fc35640c4a",
+      "run_id": 36165634225
+    }
+  },
+  "exact_core_machinery": {
+    "materializer": {
+      "path": "tools/r8_v15_r1_ig1_successor3_materialize.py",
+      "blob_sha1": "eb4231b1bd6f1c1b4e312d263c01665ae87fbd76"
+    },
+    "structured_oracle": {
+      "path": "governance-runtime/test_r8_v15_r1_ig1_successor3_integration_oracle.py",
+      "blob_sha1": "6cecb7db86a8268a1bcea988986150a24f7f1b69"
+    },
+    "unittest_child": {
+      "path": "tools/r8_v15_r1_ig1_successor3_unittest_child.py",
+      "blob_sha1": "c3c4c029fcd91afb3ee6c4ae82560c87a4a60075"
+    },
+    "reusable_core_workflow": {
+      "path": ".github/workflows/r8-v15-r1-ig1-successor3-core.yml",
+      "blob_sha1": "f61f16adcbd8ce30c3410a7b21c89c094a295946"
+    }
+  },
+  "remediation_of_review003": {
+    "high1_activation_binding": {
+      "status": "DESIGNED_FOR_POST_FREEZE_EXACT_BINDING",
+      "rule": "A small activation-gate workflow is created only after this proposal contract is frozen, so it can hard-code this proposal's exact commit/blob without circularity.",
+      "required_gate_constants": [
+        "exact Successor3 proposal ID",
+        "exact frozen proposal commit",
+        "exact frozen proposal blob",
+        "exact proposal path",
+        "exact review path",
+        "complete exact machinery key/value map",
+        "complete exact evidence key/value map"
+      ],
+      "activation_json_rule": "Top-level and nested key sets must exactly match the gate schema; missing or extra machinery/evidence keys hard-fail.",
+      "review_rule": "Review artifact path is fixed; HEAD blob must equal the activation-recorded blob; actual review text is parsed and must independently state BOUNDED_PASS, zero Critical, zero High, exact proposal ID/commit, and YES activation gate."
+    },
+    "high2_governance_history_detector": {
+      "status": "REMEDIATED",
+      "normalization": "posixpath normalization; traversal evaluated before schema allowance",
+      "allowed_schema_root": "schemas/governance-r8/v15-r1",
+      "prohibited_history_root": "governance-r8",
+      "covered_read_apis": [
+        "open",
+        "read_text",
+        "read_bytes",
+        "readlink",
+        "resolve",
+        "iterdir",
+        "glob",
+        "rglob",
+        "walk",
+        "listdir",
+        "scandir"
+      ],
+      "path_construction": "Path '/' traversal expressions with '..' in governance/schema context are classified HISTORY.",
+      "self_tests": {
+        "must_reject": [
+          "Path(schema_root)/../../governance-r8/foo",
+          "literal schema-root traversal to governance-r8",
+          "os.listdir(governance-r8)",
+          "Path(governance-r8).glob(*)",
+          "inherited schema root plus ../../../governance-r8"
+        ],
+        "must_allow": [
+          "Path(schemas/governance-r8/v15-r1/foo.json).read_text()",
+          "traversal-free Path(schemas)/governance-r8/v15-r1 construction"
+        ]
+      }
+    },
+    "medium_precommit_reverification": {
+      "status": "REMEDIATED",
+      "rule": "Materializer exposes --verify-final-only; reusable core runs it in the same shell step immediately before git commit.",
+      "exact_candidate_diff": "120 reviewed paths plus one candidate manifest; any missing/extra staged path, unstaged tracked path, or untracked path hard-fails."
+    },
+    "medium_baseline_group_binding": {
+      "status": "REMEDIATED",
+      "rule": "Groups and per-group counts are stored in the exact baseline identity manifest; oracle proves groups exactly partition the 11 bound entries with no duplicates and executes each declared expected count.",
+      "total": 140
+    },
+    "medium_review_artifact_binding": {
+      "status": "REMEDIATED_BY_POST_FREEZE_GATE",
+      "rule": "Activation gate fixes review path, requires exact independent_review key set, verifies HEAD review blob equals supplied blob, and parses the actual review artifact instead of trusting activation disposition fields."
+    },
+    "medium_dynamic_execution": {
+      "status": "REMEDIATED",
+      "rule": "Materializer/oracle/child are checked by AST against explicit per-role import allowlists, forbidden modules, forbidden eval/exec/compile/__import__/globals/locals/vars calls, sys.modules, mock/monkeypatch, and direct r8_v15_r1 production-validator imports.",
+      "python_c_dynamic_child_removed": true
+    }
+  },
+  "stage1": {
+    "candidate_base": "exact Slice7 only",
+    "selected_reviewed_entries": 120,
+    "candidate_manifest_count": 1,
+    "expected_reviewed_slice_tests": 636,
+    "expected_inherited_baseline_tests": 140,
+    "output_status": "INTEGRATED_IMPLEMENTATION_CANDIDATE_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW",
+    "authority_effect": "NONE"
+  },
+  "stage2": {
+    "authorized": false,
+    "prerequisite": "fresh independent review of exact Stage1 integrated bytes plus separately preregistered semantic gate"
+  },
+  "activation_root_boundary": {
+    "design": "Post-freeze activation gate contains only validation and a call to the exact hash-bound reusable core workflow; it contains no materialization or semantic logic.",
+    "self_hash_note": "The gate cannot contain its own exact blob without circular self-reference. Its exact blob is therefore included verbatim in the independent review packet and must be part of explicit user approval; all integration-causing core machinery and evidence are separately exact-hash-bound by the gate.",
+    "no_activation_before_fresh_review": true
+  },
+  "cadence_effect": {
+    "fallback_to_three_remains_active": true,
+    "clean_successor3_review_if_bounded_pass_zero_critical_high": "1 of 2",
+    "six_slice_recovery_automatic": false
+  },
+  "grants": {
+    "proposal_authority": false,
+    "integration": false,
+    "semantic_execution": false,
+    "currentness": false,
+    "qualification": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
