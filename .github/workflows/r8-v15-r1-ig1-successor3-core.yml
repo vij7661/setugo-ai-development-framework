@@ -1,0 +1,51 @@
+name: R8 v15-r1 IG-1 Successor3 Core Materialization
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Create pristine target worktree from exact Slice7
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="$RUNNER_TEMP/ig1-successor3-target"
+          git worktree add --detach "$TARGET" 751162ee42c603cb6c84ee12021d16bab6fa626b
+          git -C "$TARGET" switch -c "integration/r8-v15-r1-ig1-successor3-candidate-${GITHUB_SHA::12}"
+          echo "IG1_TARGET=$TARGET" >> "$GITHUB_ENV"
+      - name: Preflight all identities before materialization
+        run: python3 tools/r8_v15_r1_ig1_successor3_materialize.py --target "$IG1_TARGET" --preflight-only
+      - name: Materialize exact reviewed entries and execute strict oracle
+        run: python3 tools/r8_v15_r1_ig1_successor3_materialize.py --target "$IG1_TARGET"
+      - name: Re-verify exact staged candidate and commit immediately
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/r8_v15_r1_ig1_successor3_materialize.py --target "$IG1_TARGET" --verify-final-only
+          git -C "$IG1_TARGET" config user.name "github-actions[bot]"
+          git -C "$IG1_TARGET" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$IG1_TARGET" commit -m "integration(r8): materialize IG-1 successor3 non-authoritative candidate"
+          CANDIDATE="$(git -C "$IG1_TARGET" rev-parse HEAD)"
+          BRANCH="$(git -C "$IG1_TARGET" branch --show-current)"
+          test "$(git -C "$IG1_TARGET" rev-parse HEAD^)" = "751162ee42c603cb6c84ee12021d16bab6fa626b"
+          test "$(git -C "$IG1_TARGET" diff --name-only HEAD^ HEAD | wc -l)" -eq 121
+          git -C "$IG1_TARGET" push origin "HEAD:refs/heads/$BRANCH"
+          echo "INTEGRATED_CANDIDATE_SHA=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "INTEGRATED_CANDIDATE_BRANCH=$BRANCH" >> "$GITHUB_ENV"
+      - name: Report bounded Stage1 output
+        run: |
+          echo "Candidate: $INTEGRATED_CANDIDATE_SHA"
+          echo "Branch: $INTEGRATED_CANDIDATE_BRANCH"
+          echo "Authority: NONE — exact integrated bytes require fresh independent review before Stage2"
