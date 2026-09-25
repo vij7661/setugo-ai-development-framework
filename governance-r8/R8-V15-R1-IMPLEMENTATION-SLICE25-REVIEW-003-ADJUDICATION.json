@@ -1,0 +1,31 @@
+{
+  "schema": "r8-v15-r1-implementation-slice25-review003-adjudication/v1",
+  "status": "BOUNDED_PASS_ACCEPTED_SLICE25_ORIGINAL_CANDIDATE",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_ADJUDICATION_ONLY",
+  "exact_candidate": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+  "review_path": "governance-r8/R8-V15-R1-SLICE25-INDEPENDENT-REVIEW-003.txt",
+  "disposition": "BOUNDED_PASS",
+  "critical_findings": 0,
+  "high_findings": 0,
+  "low_findings": [
+    "S25-L-RED-COUNT-DESCRIPTION",
+    "S25-L-REVIEW-NO-INDEPENDENT-REHASH"
+  ],
+  "slice_final_gate": "YES",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "clean_post_remediation_review_count_after_this": 1,
+  "clean_review_recovery_target": 2,
+  "cadence_restore_authorized": false,
+  "grants": {
+    "bounded_implementation_construction": true,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "constitutional": false,
+    "root": false,
+    "terminal_authority": false
+  }
+}
