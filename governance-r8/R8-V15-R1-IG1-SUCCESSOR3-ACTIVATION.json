@@ -1,0 +1,37 @@
+{
+  "schema": "r8-v15-r1-ig1-successor3-activation/v1",
+  "status": "ACTIVE_EXPLICIT_USER_APPROVAL",
+  "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR3",
+  "exact_proposal_commit": "c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317",
+  "proposal_blob_sha1": "4f3cab0b33caa19fcb81da3cff53456714de3da3",
+  "proposal_path": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR3-PROPOSAL.json",
+  "independent_review": {
+    "path": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR3-INDEPENDENT-REVIEW-004.txt",
+    "blob_sha1": "46e2a5ef1a95eb2f098e706da6c09c3652072344",
+    "disposition": "BOUNDED_PASS",
+    "critical_findings": 0,
+    "high_findings": 0
+  },
+  "bound_machinery_blobs": {
+    "tools/r8_v15_r1_ig1_successor3_materialize.py": "eb4231b1bd6f1c1b4e312d263c01665ae87fbd76",
+    "governance-runtime/test_r8_v15_r1_ig1_successor3_integration_oracle.py": "6cecb7db86a8268a1bcea988986150a24f7f1b69",
+    "tools/r8_v15_r1_ig1_successor3_unittest_child.py": "c3c4c029fcd91afb3ee6c4ae82560c87a4a60075",
+    ".github/workflows/r8-v15-r1-ig1-successor3-core.yml": "f61f16adcbd8ce30c3410a7b21c89c094a295946"
+  },
+  "bound_evidence_blobs": {
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json": "15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json": "1a745cf09c9958115664b2b6fa03312c737697d9",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json": "c76891e92d5d8ea5391a91d76c0286720ea3dd57",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-INHERITED-BASELINE-TEST-IDENTITY.json": "761f1e2a60e0ab21d2b7b1dc392f0562b28fb9bd",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-PROPOSAL-PREFLIGHT-FAILURE-001.json": "ca96cadabbb6a8fbf463a817279893c2e905f4de",
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-PROPOSAL-PREFLIGHT-GREEN-001.json": "143836f6b1ca1da0c3b8a2060aca65fc35640c4a"
+  },
+  "explicit_user_approval": {
+    "approved": true,
+    "approved_proposal_commit": "c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317",
+    "approved_proposal_blob": "4f3cab0b33caa19fcb81da3cff53456714de3da3",
+    "approved_review_blob": "46e2a5ef1a95eb2f098e706da6c09c3652072344",
+    "approved_activation_gate_blob": "8a3c9ca39f83e3262a85ae0e5ffb456d61c6d3ac"
+  },
+  "authority_effect": "STAGE1_MECHANICAL_INTEGRATION_EXECUTION_ONLY_NON_AUTHORITATIVE"
+}
