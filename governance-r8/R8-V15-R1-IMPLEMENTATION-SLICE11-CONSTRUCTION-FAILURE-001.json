@@ -1,0 +1,26 @@
+{
+  "schema": "r8-v15-r1-implementation-slice11-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "f0d1e8964219cc4deb9ff94e4850ac141d538cd3",
+  "frozen_harness_commit": "5e12ac2b6f25ea2212a84c91a13639686717eeca",
+  "workflow_commit": "1547145547a4799c3ecdffd37b94118605d28478",
+  "workflow_run_id": 36126508455,
+  "workflow_job_id": 108043745007,
+  "exact_checkout_sha": "1547145547a4799c3ecdffd37b94118605d28478",
+  "observed": {
+    "slice11_tests_run": 16,
+    "slice11_passed": 1,
+    "slice11_failed": 15,
+    "passing_case": "I11-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_resolver_policy_validator"
+  },
+  "classification": "CONSTRUCTION_MECHANISM_ABSENCE",
+  "preserved_not_reclassified": true,
+  "claim_boundary": {
+    "slice11_construction_green": false,
+    "runtime_qualification": false,
+    "policy_authority": false,
+    "terminal_authority": false
+  }
+}
