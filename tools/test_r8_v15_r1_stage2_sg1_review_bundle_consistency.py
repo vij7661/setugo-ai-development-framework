@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -18,17 +17,23 @@ PACKET = ROOT / "stage2-sg1-review/R8-V15-R1-STAGE2-SG1-CONSOLIDATED-REVIEW-002-
 
 class SG1ReviewBundleConsistencyTests(unittest.TestCase):
     def assert_mutation_rejected(self, mutate):
-        with tempfile.TemporaryDirectory(dir=ROOT) as td:
-            root = Path(td)
-            manifest = root / "manifest.json"
-            binding = root / "binding.json"
-            packet = root / "packet.txt"
+        root = ROOT / "stage2-sg1-review"
+        manifest = root / ".sg1-test-manifest.json"
+        binding = root / ".sg1-test-binding.json"
+        packet = root / ".sg1-test-packet.txt"
+        try:
             manifest.write_bytes(MANIFEST.read_bytes())
             binding.write_bytes(BINDING.read_bytes())
             packet.write_bytes(PACKET.read_bytes())
             mutate(manifest, binding, packet)
             with self.assertRaises(SystemExit):
                 verify(manifest, binding, packet)
+        finally:
+            for path in (manifest, binding, packet):
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
 
     def test_clean_bundle_passes(self):
         result = verify(MANIFEST, BINDING, PACKET)
