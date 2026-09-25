@@ -1,0 +1,29 @@
+name: R8 v15-r1 Stage2 SG-1 Freeze Semantic Surface
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-stage2-semantic-gate-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-STAGE2-SG1-SEMANTIC-SURFACE-MARKER.json
+permissions:
+  contents: write
+jobs:
+  freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Build exact semantic surface from closed Stage1 candidate
+        run: python3 tools/build_r8_v15_r1_stage2_sg1_semantic_surface.py
+      - name: Freeze proposal evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-SURFACE.json
+          git commit -m "governance(r8): freeze Stage2 SG-1 dependency semantic surface"
+          git push origin HEAD:governance/r8-v15-r1-stage2-semantic-gate-proposal-2026-09-25
