@@ -1,0 +1,41 @@
+name: R8 v15-r1 IG-1 Successor2 Proposal Preflight
+
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-integration-gate1-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IG1-SUCCESSOR2-PROPOSAL-PREFLIGHT-MARKER.json
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Syntax check successor2 machinery
+        run: |
+          python3 -m py_compile tools/r8_v15_r1_ig1_successor2_materialize.py
+          python3 -m py_compile governance-runtime/test_r8_v15_r1_ig1_successor2_integration_oracle.py
+      - name: Create pristine exact-base target worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="$RUNNER_TEMP/ig1-successor2-preflight-target"
+          git worktree add --detach "$TARGET" 751162ee42c603cb6c84ee12021d16bab6fa626b
+          echo "IG1_TARGET=$TARGET" >> "$GITHUB_ENV"
+      - name: Run proposal-only exact-base preflight
+        run: python3 tools/r8_v15_r1_ig1_successor2_materialize.py --target "$IG1_TARGET" --preflight-only
+      - name: Assert activation absent and target still pristine
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e governance-r8/R8-V15-R1-IG1-SUCCESSOR2-ACTIVATION.json
+          test "$(git -C "$IG1_TARGET" rev-parse HEAD)" = "751162ee42c603cb6c84ee12021d16bab6fa626b"
+          test -z "$(git -C "$IG1_TARGET" status --porcelain=v1)"
