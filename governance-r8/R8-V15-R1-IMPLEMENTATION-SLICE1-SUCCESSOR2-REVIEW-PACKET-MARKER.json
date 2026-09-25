@@ -1,0 +1,21 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor2-review-packet-marker/v1",
+  "status": "BUILD_SIX_FILE_FRESH_BLIND_REVIEW_PACKET",
+  "authority_effect": "NONE",
+  "exact_implementation_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "predecessor_implementation_candidate": "2cf7adce8bdd67c8b78659d9359c178535af1d73",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "evidence_head": "181f83bbdfbb59894705e7df92b8cbf33708e136",
+  "final_green_run_id": 36107415256,
+  "final_green_job_id": 107983021495,
+  "intended_attachment_count": 6,
+  "purpose": "Produce a byte-complete six-file fresh blind review transport to avoid prior attachment-count/truncation ambiguity.",
+  "grants": {
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
