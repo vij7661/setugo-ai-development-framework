@@ -1,0 +1,51 @@
+# R8 v15-r1 Implementation Slice 1 Successor 2 — Independent Blind Review
+
+A. OVERALL_DISPOSITION
+
+BOUNDED_PASS
+
+B. EXACT_IDENTITY
+
+- Exact implementation candidate: `fdf825cb45fbd00441a4cd02bb1912bb3cda01b0`
+- Predecessor implementation candidate: `2cf7adce8bdd67c8b78659d9359c178535af1d73`
+- Frozen executable-schema candidate: `f93ca26975ecb64f0da13779889c75b36140cdfc`
+- Evidence-only freeze head: `181f83bbdfbb59894705e7df92b8cbf33708e136`
+- Authoritative run/job: `36107415256` / `107983021495`
+- Full SPM SHA-256: `84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797` (independently reproduced)
+- Six transport hashes: `02` `947e7a90...c69002`, `03` `fde49acd...9793c`, `04` `539926e8...fba90`, `05` `f8ab45a1...86bda`, `06` `5d7f11d0...3eb06` — all confirmed byte-for-byte against files as received.
+
+C. CRITICAL_FINDINGS
+
+None. Frozen schema byte diff between the frozen candidate and HEAD for `schemas/governance-r8/v15-r1` is empty (`(none)`), corroborated by S1R-08/S1R2-07's `git diff --name-only` regression tests, both green in the final run.
+
+D. HIGH_FINDINGS
+
+1. **TOCTOU window remains architecturally open, not adversarially tested.** `_assert_frozen_file_path` performs symlink-component checks and `resolve(strict=True)` confinement, then `read_once` later opens the same path by name via `Path.read_bytes()`. Nothing binds the verified inode to the byte read (e.g., no `os.open(..., O_NOFOLLOW)` + `os.fstat`/`os.read` on a single fd). S1R-01/02 test single-read and no-reopen behavior, but no test exercises a race where the path target is swapped between the confinement check and the read. In a CI job on a freshly checked-out, non-adversarial filesystem this is low practical severity, but it is not "closed" in the strict sense the review posture asks about — it's mitigated, not eliminated.
+
+E. MEDIUM_LOW_FINDINGS
+
+1. S1R2-04's source-map path test exercises only one mutation (a `../` traversal insertion). `validate_source_map_artifact_paths` itself does full set-equality, which is stronger than what's directly tested, but coverage for other mismatch shapes (extra/missing unrelated keys, case differences) is implicit rather than explicit.
+2. `read_once` keys its cache on `path.resolve()`, computed fresh each call rather than reusing the already-resolved path from `_assert_frozen_file_path` — redundant but not incorrect.
+
+F. I1_S1R_S1R2_ASSESSMENT
+
+- **I1-01..16**: all 16 pass in the final run (`Ran 16 tests ... OK`), covering exact-tree load, identity/digest mismatch, coverage/generator binding, GCP ordering/int64/vectors, fail-closed on missing artifacts, read-only/network-free, non-authoritative claim boundary, and no state poisoning across loads.
+- **S1R-01..08**: all 8 pass, confirming single-read-per-artifact, no post-verification reopen, explicit lone-surrogate rejection, self-checked rejection vectors, exact 3058-entry enforcement, and confined artifact paths.
+- **S1R2-01..08**: all 8 pass, directly closing the five gaps the prior construction-failure record exposed:
+  - Nested object/array negative-zero (S1R2-01/02) — closed. `_normalize_value` recurses through `_PairObject`/list structures and applies `_reject_top_level_integer_lexical` to every `_LexicalInteger`, regardless of nesting depth, since `json.loads(parse_int=...)` tags all integer tokens, not just top-level ones. Int64 bounds are preserved correctly alongside the rejection.
+  - Same-byte external symlink (S1R2-03) — closed. The test constructs a byte-identical external file and symlinks the frozen artifact to it; `_assert_frozen_file_path`'s component-wise symlink scan catches this before any read.
+  - Exact full-path source-map/SPM equality (S1R2-04) — closed via `validate_source_map_artifact_paths`, a genuine set-equality check, not membership.
+  - artifact_id/sha256 shape enforcement (S1R2-05) — closed: empty `artifact_id` and non-hex/wrong-length `sha256` both rejected with distinct codes.
+  - Workflow ordering control gap (previously: Successor 1 harness skipped on Successor 2 branch) — closed in the `.yml`: the S1R step's `if` now matches both the successor-1 and successor-2 refs, and the final run log shows Successor 1's 8 tests running and passing on the successor-2 candidate.
+- **TOCTOU**: not closed — see High Finding 1.
+- **Prior transport gaps**: closed — this review independently reproduced all six transport hashes and the full SPM hash from raw bytes.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+
+Bounded construction proves: the frozen schema bundle loads and validates correctly against exact frozen bytes; the GCP canonicalization/rejection mechanism is internally consistent and closes the five previously preregistered repair gaps; the schema bytes are provably unmodified; and the authorization record (`IMPLEMENTATION_AUTHORIZED_BOUNDED_LOCAL_CONSTRUCTION`) explicitly scopes this to local deterministic reference mechanisms with `runtime_qualification`, `release`, `deployment`, `production`, `policy`, and `terminal_authority` all set `false`. It does **not** prove runtime qualification, correctness under adversarial concurrency (TOCTOU), production readiness, or any release/deployment/policy authority. Bounded Slice 1 construction **may** be adjudicated on this evidence; it does not itself constitute or imply any authority beyond construction.
+
+H. FINAL_GATE
+
+Exact candidate `fdf825cb45fbd00441a4cd02bb1912bb3cda01b0` **may close the Slice 1 independent-review gate** for bounded construction, conditioned on High Finding 1 (TOCTOU) being tracked as an open item for any later runtime-qualification review rather than treated as resolved by this evidence.
+
+This review is evidence only, not self-authority.
