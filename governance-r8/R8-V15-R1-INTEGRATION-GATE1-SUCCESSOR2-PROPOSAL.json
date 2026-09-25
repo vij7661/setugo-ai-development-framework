@@ -1,0 +1,169 @@
+{
+  "schema": "r8-v15-r1-integration-gate1-successor2-proposal/v1",
+  "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR2",
+  "status": "PROPOSED_NOT_ACTIVE_REQUIRES_FRESH_INDEPENDENT_EARLY_REVIEW_AND_EXPLICIT_USER_APPROVAL",
+  "authority_effect": "NONE",
+  "predecessor": {
+    "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR1",
+    "exact_commit": "b0b7ddd9fb8c4dfe9775990ac27968c85ade75c1",
+    "review": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR1-INDEPENDENT-REVIEW-002.txt",
+    "review_blob_sha1": "cb50e727850b3ae952630285c11bad4fe16f9ddf",
+    "disposition": "CHANGES_REQUIRED",
+    "critical_findings": 0,
+    "high_findings": 2,
+    "activation_allowed": false
+  },
+  "governance_state": {
+    "closed_low_risk_anchor": "a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe",
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+    "exact_slice7_implementation_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "active_fallback_anchor_commit": "943fe969f2de3c12328a0c0892499fe6f04a7436",
+    "active_max_unreviewed_low_risk_slices": 3,
+    "clean_reviews_after_latest_remediation_before_this_review": 0,
+    "clean_reviews_required_for_future_cadence_recovery": 2,
+    "ig1_is_separately_reviewed_phase_gate": true
+  },
+  "exact_evidence": {
+    "allowlist": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json",
+      "blob_sha1": "15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b",
+      "selected_entries": 120
+    },
+    "full_change_inventory": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json",
+      "blob_sha1": "1a745cf09c9958115664b2b6fa03312c737697d9",
+      "changed_paths": 904
+    },
+    "collision_summary": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json",
+      "blob_sha1": "c76891e92d5d8ea5391a91d76c0286720ea3dd57",
+      "collisions_total": 0,
+      "conflicting_collisions_total": 0
+    },
+    "inherited_baseline_test_identity": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR2-INHERITED-BASELINE-TEST-IDENTITY.json",
+      "blob_sha1": "41d15ff34baa21331c83ce0f0dce4407cda70f0c",
+      "files": 11,
+      "expected_tests": 140
+    },
+    "proposal_preflight_failure": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR2-PROPOSAL-PREFLIGHT-FAILURE-001.json",
+      "blob_sha1": "54c2401f5de94c613a8b3b7d77f43c570fb07bea",
+      "run_id": 36163117291,
+      "job_id": 108164281614,
+      "materialization_executed": false
+    },
+    "proposal_preflight_green": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR2-PROPOSAL-PREFLIGHT-GREEN-001.json",
+      "blob_sha1": "06276f19d58f58ee21b14673c0dcca3786f28fe9",
+      "run_id": 36163247367,
+      "job_id": 108164711384,
+      "materialization_executed": false,
+      "target_remained_pristine": true
+    }
+  },
+  "exact_machinery": {
+    "materializer": {
+      "path": "tools/r8_v15_r1_ig1_successor2_materialize.py",
+      "blob_sha1": "260b962d4cc14685e7a71be40ed1c00c716a8ba1"
+    },
+    "strict_oracle": {
+      "path": "governance-runtime/test_r8_v15_r1_ig1_successor2_integration_oracle.py",
+      "blob_sha1": "26e4250e7254188176c62fcd3e7cfc88b2d6fa7e"
+    },
+    "workflow": {
+      "path": ".github/workflows/r8-v15-r1-ig1-successor2-materialize.yml",
+      "blob_sha1": "5d3a1b959b292336770afab8454aca3cf6d04961"
+    }
+  },
+  "remediation_of_review002": {
+    "high1_exact_candidate_composition": {
+      "status": "REMEDIATED",
+      "target_construction": "A separate target worktree is created from exact Slice7 commit 751162ee42c603cb6c84ee12021d16bab6fa626b; proposal-branch HEAD is never the candidate base.",
+      "pre_materialization_checks": [
+        "target HEAD equals exact Slice7 base",
+        "target worktree clean",
+        "target commit tree equals exact base",
+        "frozen schema subtree at Slice7 base equals frozen schema candidate"
+      ],
+      "materialization": "Only the 120 exact reviewed allowlist entries are checked out into target from exact reviewed source commits.",
+      "final_diff_oracle": "Before and after test execution, staged diff from Slice7 base must equal exactly the 120 allowlisted paths plus one non-authoritative candidate manifest; any missing or extra path hard-fails.",
+      "no_extra_state": [
+        "no unstaged tracked changes",
+        "no untracked files"
+      ],
+      "commit_boundary": "No broad git add is used. Selected paths are staged only by exact source checkout; only the single candidate manifest is explicitly git-added. Commit/push occurs only after exact-diff verification and strict oracle PASS.",
+      "candidate_excludes": "Proposal branch governance, review packets, activation artifact, integration machinery and other unselected changes are not inherited into target."
+    },
+    "high2_inherited_baseline_identity": {
+      "status": "REMEDIATED",
+      "identity_manifest": "11 exact baseline test path+mode+type+blob entries bound to Slice7 base",
+      "preflight_check": "all 11 baseline test identities verified before materialization",
+      "oracle_check": "all 11 baseline test identities reverified immediately before execution",
+      "expected_tests": 140,
+      "result_rule": "structured unittest TestResult must report zero failures, errors, skips, expectedFailures and unexpectedSuccesses; aggregate testsRun must equal 140"
+    },
+    "medium_governance_history_io": {
+      "status": "REMEDIATED",
+      "rule": "AST path classification distinguishes permitted frozen-schema reads under schemas/governance-r8/v15-r1 from prohibited governance-history root reads.",
+      "coverage": "receiver-based read_text/read_bytes/open patterns and simple variable propagation are checked."
+    },
+    "medium_test_bypass_detection": {
+      "status": "REMEDIATED",
+      "rule": "No prose-marker parsing is used. Child unittest runner emits structured TestResult JSON for testsRun, failures, errors, skipped, expectedFailures, unexpectedSuccesses and successful."
+    },
+    "medium_broad_staging": {
+      "status": "REMEDIATED",
+      "rule": "Workflow contains no broad git add for candidate construction; final commit consumes only exact staged reviewed entries plus exact candidate manifest."
+    }
+  },
+  "stage1_protocol": {
+    "activation_precondition": "Fresh independent BOUNDED_PASS with zero Critical/High plus explicit user approval of the exact Successor2 proposal commit.",
+    "activation_binding": [
+      "exact Successor2 proposal commit and blob",
+      "exact materializer/oracle/workflow blobs",
+      "exact allowlist/inventory/collision-summary/baseline-identity evidence blobs",
+      "review disposition and zero Critical/High"
+    ],
+    "candidate_base": "exact Slice7 implementation base only",
+    "reviewed_slice_test_oracle": {
+      "expected_total": 636,
+      "per_slice": "20 for S20-S22; 16 for every other S8-S46 slice",
+      "exact_test_files": "taken only from reviewed 120-entry allowlist",
+      "result": "structured zero-bypass TestResult"
+    },
+    "inherited_baseline_test_oracle": {
+      "exact_identity_manifest": true,
+      "expected_total": 140,
+      "result": "structured zero-bypass TestResult"
+    },
+    "output_status": "INTEGRATED_IMPLEMENTATION_CANDIDATE_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW",
+    "semantic_execution": false,
+    "cross_slice_dependency_authority": false
+  },
+  "stage2": {
+    "authorized": false,
+    "rule": "No semantic/currentness/qualification/evidence-promotion work until the exact Stage1 integrated candidate receives a separate fresh independent review and subsequent separately preregistered semantic gate approval."
+  },
+  "cadence_effect": {
+    "fallback_to_three_remains_active": true,
+    "clean_successor2_review_if_bounded_pass_zero_high_critical": "counts as clean post-remediation review 1 of 2",
+    "six_slice_recovery_automatic": false
+  },
+  "grants": {
+    "proposal_authority": false,
+    "integration": false,
+    "semantic_execution": false,
+    "currentness": false,
+    "qualification": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
