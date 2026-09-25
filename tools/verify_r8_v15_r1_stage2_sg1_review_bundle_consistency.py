@@ -50,7 +50,7 @@ def validate_review_002(path: Path, expected: dict, proposal: dict) -> str:
         fail("Review 002 broader authority declaration mismatch")
     if proposal["id"] not in text or proposal["commit"] not in text or proposal["blob_sha1"] not in text:
         fail("Review 002 proposal identity mismatch")
-    return git_blob(str(path))
+    return git_blob(expected["path"])
 
 
 def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
