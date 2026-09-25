@@ -6,13 +6,13 @@ Git tree entries listed in the frozen allowlist, verifies exact path/mode/blob
 identity before and after checkout, and invokes the separate integration oracle.
 """
 from __future__ import annotations
-import argparse, json, pathlib, re, subprocess, sys
+import argparse, ast, json, pathlib, subprocess, sys
 
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 ALLOW=ROOT/"governance-r8"/"R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json"
-INVENTORY=ROOT/"governance-r8"/"R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json"
 SUMMARY=ROOT/"governance-r8"/"R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json"
 ORACLE=ROOT/"governance-runtime"/"test_r8_v15_r1_ig1_integration_oracle.py"
+WORKFLOW=ROOT/".github"/"workflows"/"r8-v15-r1-ig1-successor1-materialize.yml"
 ACTIVATION=ROOT/"governance-r8"/"R8-V15-R1-IG1-SUCCESSOR1-ACTIVATION.json"
 BASE="751162ee42c603cb6c84ee12021d16bab6fa626b"
 FROZEN_SCHEMA="f93ca26975ecb64f0da13779889c75b36140cdfc"
@@ -29,23 +29,21 @@ RESERVED={
  "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-INTEGRATED-CANDIDATE-MANIFEST.json",
 }
 
-def run(*args,check=True,capture=True,env=None):
-    p=subprocess.run(args,cwd=ROOT,text=True,capture_output=capture,env=env)
+def run(*args,check=True):
+    p=subprocess.run(args,cwd=ROOT,text=True,capture_output=True)
     if check and p.returncode:
         raise SystemExit(f"FAIL command={args!r}\nstdout={p.stdout}\nstderr={p.stderr}")
     return p
 
 def tree_entry(commit,path):
     out=run("git","ls-tree",commit,"--",path).stdout.rstrip("\n")
-    if not out:
-        return None
+    if not out: return None
     meta,name=out.split("\t",1); mode,typ,blob=meta.split()
     return {"path":name,"mode":mode,"type":typ,"blob":blob}
 
 def index_entry(path):
     out=run("git","ls-files","-s","--",path).stdout.strip()
-    if not out:
-        return None
+    if not out: return None
     first=out.splitlines()[0]
     meta,name=first.split("\t",1); mode,blob,stage=meta.split()
     return {"path":name,"mode":mode,"blob":blob,"stage":stage}
@@ -59,6 +57,36 @@ def ensure_commit(c):
 def load_json(path):
     return json.loads(path.read_text())
 
+def assert_integration_python_declarative(path):
+    text=path.read_text()
+    tree=ast.parse(text,filename=str(path))
+    for node in ast.walk(tree):
+        if isinstance(node,ast.Import):
+            for alias in node.names:
+                if alias.name.startswith("r8_v15_r1_") or alias.name.startswith("unittest.mock") or alias.name=="importlib":
+                    raise SystemExit(f"FAIL forbidden integration import {alias.name} in {path}")
+        elif isinstance(node,ast.ImportFrom):
+            name=node.module or ""
+            if name.startswith("r8_v15_r1_") or name.startswith("unittest.mock") or name=="importlib":
+                raise SystemExit(f"FAIL forbidden integration import-from {name} in {path}")
+        elif isinstance(node,ast.Subscript):
+            target=node.value
+            if isinstance(target,ast.Attribute) and isinstance(target.value,ast.Name) and target.value.id=="sys" and target.attr=="modules":
+                raise SystemExit(f"FAIL sys.modules mutation/access pattern in {path}")
+    lowered=text.lower()
+    for tok in ("monkeypatch","mock."+"patch","unittest."+"mock","meta_"+"path","path_"+"hooks"):
+        if tok in lowered:
+            raise SystemExit(f"FAIL forbidden integration harness token {tok!r} in {path}")
+
+def assert_integration_machinery_declarative():
+    assert_integration_python_declarative(pathlib.Path(__file__).resolve())
+    assert_integration_python_declarative(ORACLE)
+    workflow=WORKFLOW.read_text()
+    if "r8_v15_r1_" in workflow and "r8_v15_r1_ig1_successor1" not in workflow:
+        raise SystemExit("FAIL workflow references non-IG1 runtime module")
+    for tok in ("monkeypatch","unittest.mock","mock.patch","sys.modules"):
+        if tok in workflow.lower(): raise SystemExit(f"FAIL forbidden workflow token {tok}")
+
 def static_governance_runtime_read_check(blob,path):
     if not path.startswith("governance-runtime/r8_v15_r1_") or path.startswith("governance-runtime/test_"):
         return
@@ -67,6 +95,7 @@ def static_governance_runtime_read_check(blob,path):
         raise SystemExit(f"FAIL runtime implementation contains governance-history path literal: {path}")
 
 def preflight():
+    assert_integration_machinery_declarative()
     allow=load_json(ALLOW); summary=load_json(SUMMARY)
     if allow["implementation_tree_base"]!=BASE: raise SystemExit("FAIL allowlist base mismatch")
     if summary["collisions_total"]!=0 or summary["conflicting_collisions_total"]!=0:
@@ -91,7 +120,7 @@ def preflight():
     for n,pred in REJECTED.items():
         ensure_commit(pred)
         if run("git","merge-base","--is-ancestor",pred,allow["per_candidate"][n]["source_commit"],check=False).returncode!=0:
-            raise SystemExit(f"FAIL expected repaired successor lineage not present for slice {n}")
+            raise SystemExit(f"FAIL repaired successor ancestry changed for slice {n}")
         identical=set()
         for e in allow["per_candidate"][n]["selected_entries"]:
             pe=tree_entry(pred,e["path"])
@@ -99,20 +128,17 @@ def preflight():
                 identical.add(e["path"])
         if identical!=REACCEPTED_IDENTICAL[n]:
             raise SystemExit(f"FAIL rejected-predecessor identical-entry set changed for slice {n}: {sorted(identical)}")
-    # Frozen schema must be byte-identical to exact frozen candidate at the current tree.
     diff=run("git","diff","--exit-code",FROZEN_SCHEMA,"HEAD","--","schemas/governance-r8/v15-r1",check=False)
     if diff.returncode!=0: raise SystemExit("FAIL frozen schema tree differs from exact frozen candidate")
     return allow
 
 def materialize(allow):
-    # All collision/source/tree checks have already completed before this point.
     for n in sorted(allow["per_candidate"],key=int):
         rec=allow["per_candidate"][n]
         source=rec["source_commit"]
         for e in rec["selected_entries"]:
             run("git","checkout",source,"--",e["path"])
-    # Verify exact staged path+mode+blob after materialization.
-    for n,rec in allow["per_candidate"].items():
+    for rec in allow["per_candidate"].values():
         for e in rec["selected_entries"]:
             got=index_entry(e["path"])
             expected={"path":e["path"],"mode":e["mode"],"blob":e["blob"],"stage":"0"}
@@ -155,7 +181,6 @@ def main():
         raise SystemExit("FAIL activation status")
     materialize(allow)
     write_manifest(allow)
-    # The oracle is an exact proposal-reviewed integration-only harness.
     run(sys.executable,str(ORACLE))
     print("IG1_MATERIALIZATION_AND_ORACLE_PASS")
 
