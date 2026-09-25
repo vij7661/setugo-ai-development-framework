@@ -1,0 +1,39 @@
+{
+  "schema": "r8-v15-r1-implementation-slices11-13-review-packet-marker/v1",
+  "status": "BUILD_FRESH_BLIND_THREE_LOOP_BATCH_REVIEW_PACKET",
+  "authority_effect": "NONE",
+  "common_frozen_schema": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "common_closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "governance_batch_anchor": "525e5c90d0f16482b75595e854f647ac88eaa761",
+  "slice11": {
+    "candidate": "4b49613a56c53048cf9531783b09ba71b64539ef",
+    "evidence_head": "e432fc8dd4ba59d4212d1792a6d57c1667630ba6",
+    "green_run": 36126687291,
+    "red_run": 36126508455
+  },
+  "slice12": {
+    "candidate": "294c8b0112e1715402325836f1c8f0b58a042e70",
+    "evidence_head": "abbfbf06189607056d0848cf40417b58b00b475a",
+    "green_run": 36127195749,
+    "red_run": 36126993234
+  },
+  "slice13": {
+    "candidate": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+    "evidence_head": "264a3cf6412b33bd13704a4110eaa44f1d8c5fde",
+    "green_run": 36127649764,
+    "red_run": 36127475312
+  },
+  "intended_attachment_count": 7,
+  "raw_red_logs_required": true,
+  "grants": {
+    "resolver_authorization": false,
+    "conformance_qualification": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
