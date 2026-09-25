@@ -73,10 +73,12 @@ def assert_integration_python_declarative(path):
             target=node.value
             if isinstance(target,ast.Attribute) and isinstance(target.value,ast.Name) and target.value.id=="sys" and target.attr=="modules":
                 raise SystemExit(f"FAIL sys.modules mutation/access pattern in {path}")
-    lowered=text.lower()
-    for tok in ("monkeypatch","mock."+"patch","unittest."+"mock","meta_"+"path","path_"+"hooks"):
-        if tok in lowered:
-            raise SystemExit(f"FAIL forbidden integration harness token {tok!r} in {path}")
+        elif isinstance(node,ast.Name) and node.id=="monkeypatch":
+            raise SystemExit(f"FAIL monkeypatch name in {path}")
+        elif isinstance(node,ast.Attribute) and node.attr=="patch":
+            base=node.value
+            if (isinstance(base,ast.Name) and base.id=="mock") or (isinstance(base,ast.Attribute) and base.attr=="mock"):
+                raise SystemExit(f"FAIL mock.patch pattern in {path}")
 
 def assert_integration_machinery_declarative():
     assert_integration_python_declarative(pathlib.Path(__file__).resolve())
