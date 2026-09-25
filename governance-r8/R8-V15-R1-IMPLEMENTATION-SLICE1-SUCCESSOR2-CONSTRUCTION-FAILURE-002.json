@@ -1,0 +1,28 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor2-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_WITH_PREDECESSOR_HARNESS",
+  "authority_effect": "NONE",
+  "workflow_control_commit": "1f8247cf4bda01bc339b8bdfb21c1a63cb96ca4e",
+  "workflow_run_id": 36107241364,
+  "workflow_job_id": 107982477437,
+  "exact_checkout_sha": "1f8247cf4bda01bc339b8bdfb21c1a63cb96ca4e",
+  "observed": {
+    "original_i1": "16/16 PASS",
+    "successor1_s1r": "8/8 PASS",
+    "successor2_s1r2": "3/8 PASS, 5/8 FAIL",
+    "failed": [
+      "S1R2-01",
+      "S1R2-02",
+      "S1R2-03",
+      "S1R2-04",
+      "S1R2-05"
+    ],
+    "passed": [
+      "S1R2-06",
+      "S1R2-07",
+      "S1R2-08"
+    ]
+  },
+  "purpose": "Confirms the full inherited I1 + S1R baseline remains green while only the preregistered Successor 2 repair gaps remain red.",
+  "preserved_not_reclassified": true
+}
