@@ -1,0 +1,64 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_PROPOSAL_IDENTITY
+- proposal ID: R8V15R1-IG1-MECHANICAL-INTEGRATION-001
+- exact proposal commit: 181217d201a628991936042da5d64d98ad9f4bf7
+- proposal blob SHA-1: b15aa8badba393d5c5f89a6721704cd283af3a7c
+- roster blob SHA-1: 99b4a41f57fd3c3b79c9c0df39f67ea22a248ef3
+- base governance anchor: a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe
+- frozen schema candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+- Slice7 implementation tree base: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- reviewed candidates: 39 candidates, slices 8–46 inclusive
+- rejected S20-S22 predecessors:
+  - S20: 053a5c0e70aee45e0e73653d68de3575a83d455c
+  - S21: d3f184380f6cd15582cb3dd6e987895dd895d930
+  - S22: 8ecdd17ce80549f87dd15bbe1fc29414272b6253
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+1. Missing exact per-candidate reviewed-file allowlist. The file-selection policy selects governance-runtime/*.py by diff against the Slice7 base and path globs, not by an exact reviewed path+blob manifest from the source indexes. This can import candidate-commit files that are not slice-owned reviewed evidence. The hard-fail check only confirms selected blob equals the roster candidate blob; it does not confirm the path was authorized for that slice. Remediation: require exact per-candidate path+blob manifests, hard-fail on any unlisted selected path, and hard-fail if the materialization source commit is not exactly the roster candidate.
+
+2. Integration acceptance false-green risk. The proposal does not hard-fail on skipped, xfailed, uncollected, or conditionally bypassed tests. Reviewed acceptance suites designed for sibling branches may skip when dependencies are absent or branch-specific markers do not match. A green run could therefore fail to exercise imported reviewed behavior. Remediation: add an integration-specific oracle requiring no skips/xfails/not-collected for imported slice tests, exact test collection, assertion of imported module identities, and prohibition of test-time monkeypatching that changes semantics.
+
+3. Integration-only harness/workflow can silently create dependency or authority semantics. The proposal permits new integration-only manifest/harness/workflow files that do not alter imported reviewed modules, but it does not constrain those files to declarative import/test invocation. Such files could monkeypatch, wire cross-slice dependencies, or execute semantic selection, currentness, qualification, evidence-promotion, or other authority-bearing logic before Stage 2. Remediation: require integration-only harness/workflow code to be declarative-only, prohibit semantic branching beyond test invocation, prohibit monkeypatching/cross-slice semantic wiring, and bind exact harness/workflow blobs into the fresh independent review.
+
+4. Rejected predecessor and unreviewed descendant exclusion is not mechanically fail-closed. The roster rule is textual. Hard-fail conditions do not require verifying that the materialization source commit is exactly a roster candidate, that candidate ancestry excludes rejected S20-S22 predecessors, or that selected blobs are not inherited from rejected predecessor trees unless explicitly re-reviewed. A descendant with identical selected blobs could source bytes and extra files. Remediation: hard-fail on source-commit mismatch, rejected ancestry, or selected blob matching a rejected predecessor for the same path without explicit re-review.
+
+E. MEDIUM_LOW_FINDINGS
+- Collision handling should require stopping before any bytes are selected or materialized, not merely when a collision is detected.
+- Exact blob-identity checks should be exact tree-entry checks: path + mode + blob. Blob SHA alone does not cover file mode changes.
+- Integration-only new file path collision with an imported reviewed path is not explicitly hard-failed. Add a hard-fail condition.
+- Governance-history exclusion appears safe only if those files remain external evidence and are not runtime-required by tests. Add a check for runtime reads.
+- Conflict policy correctly requires STOP_AND_REQUIRE_FRESH_REVIEW and prohibits automatic merge resolution or manual semantic reconciliation.
+
+F. INTEGRATION_PROTOCOL_ASSESSMENT
+1. Does IG-1 remain genuinely mechanical? Mostly, but the path-selection allowlist gap and integration-only harness gap can silently introduce non-mechanical or semantic behavior. See D1, D3.
+2. Is the roster sufficiently fail-closed against rejected S20-S22 and unreviewed descendants? Not fully. It lists rejected predecessors, but does not mechanically enforce source-commit identity, ancestry exclusion, or rejected-blob exclusion. See D4.
+3. Is deriving selected files relative to the Slice7 base safe? Not fully. A diff against the base can leak unrelated branch history if a candidate commit contains extra changes. It needs exact per-slice reviewed file manifests. See D1.
+4. Is the hard-fail collision rule sufficient? It is partially sufficient but should stop before choosing any bytes and should explicitly cover integration-only file collisions.
+5. Does exact blob-identity checking prevent integration-time mutation? It prevents content mutation of imported files, but not mode/tree-entry mutation and not source-commit substitution. It should use exact tree-entry identity and source-commit binding.
+6. Can integration-only harness/workflow code create authority or dependency semantics? Yes. The narrow additional constraint required is declarative-only harness/workflow behavior: no semantic selection, currentness, qualification, evidence promotion, authority transitions, monkeypatching, or cross-slice dependency wiring. See D3.
+7. Is excluding sibling governance-history files safe? Generally yes if they remain external governance evidence, but tests must not require them at runtime. Add a runtime-read check.
+8. Do reviewed acceptance suites risk false-green? Yes. Original sibling-branch tests may skip/xfail when dependencies are absent. Required integration-specific oracle: fail on skips/xfails/not-collected, require exact collection, assert imported module identities, and prohibit semantic monkeypatching. See D2.
+9. Does IG-1 correctly prohibit semantic reconciliation, currentness, qualification, evidence promotion, SRTT recomputation, or authority transitions? Textually yes. Enforcement should be strengthened in harness/workflow constraints.
+10. Is fresh independent review of exact mechanically integrated bytes required before semantic work? Yes. The proposal states this.
+11. Should activation require fresh BOUNDED_PASS with zero Critical/High and explicit user approval of exact proposal commit? Yes. The proposal states this.
+12. Does IG-1 improperly inherit authority from prior schema-freeze provenance/attestation evidence? No. It declares authority_effect: NONE and all grants false.
+13. Does entering IG-1 itself trigger fallback-to-3? Not merely by entering IG-1. However this review’s CHANGES_REQUIRED/High findings trigger the existing automatic fallback-to-3 under the proposal’s cadence rule.
+14. Concrete false-green/path-selection/ancestry/conflict/test-composition/authority-transfer paths not fail-closed? Yes: D1-D4, plus partial materialization, file-mode mutation, and integration-only path collisions.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+- Cross-slice integration remains non-authoritative if eventually activated after remediation.
+- Semantic work remains separately gated. Stage 2 remains NOT AUTHORIZED by IG-1.
+- Exact integrated bytes require fresh independent review before any semantic work.
+- Six-slice cadence is unchanged but not applicable to IG-1.
+- Entering IG-1 alone does not trigger fallback-to-3. This CHANGES_REQUIRED/High review does trigger the existing automatic fallback-to-3 under the proposal’s stated cadence rule.
+
+H. FINAL_GATE
+- IG-1 proposal may be explicitly activated by user: NO.
+- If it were later approved after remediation, activation would still be NOT automatic and must bind exact proposal commit 181217d201a628991936042da5d64d98ad9f4bf7.
+- Semantic/integration Stage 2 authorized: NO.
+- Runtime/release/deployment/production/policy/root/terminal authority granted: NO.
