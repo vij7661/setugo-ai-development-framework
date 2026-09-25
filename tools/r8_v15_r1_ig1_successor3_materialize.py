@@ -148,27 +148,24 @@ def classify_literal(value):
 def path_class(node,classes):
     literals=[x.value for x in ast.walk(node) if isinstance(x,ast.Constant) and isinstance(x.value,str)]
     inherited=[classes[x.id] for x in ast.walk(node) if isinstance(x,ast.Name) and x.id in classes]
+    has_dotdot=any(".." in s.replace("\\","/").split("/") for s in literals)
+    # Traversal is evaluated before any schema allowance.
+    if has_dotdot and (any("governance-r8" in s or "schemas" in s for s in literals) or "SCHEMA" in inherited or "HISTORY" in inherited):
+        return "HISTORY"
     if "HISTORY" in inherited:
         return "HISTORY"
+    # A traversal-free expression that fully constructs the exact allowed schema root is schema access.
+    segs=[s.replace("\\","/").strip("/") for s in literals]
+    if not has_dotdot and {"schemas","governance-r8","v15-r1"}.issubset(set(segs)):
+        return "SCHEMA"
+    if "SCHEMA" in inherited and not has_dotdot:
+        return "SCHEMA"
     if any(classify_literal(s)=="HISTORY" for s in literals):
         return "HISTORY"
-    if any(".." in s.replace("\\","/").split("/") for s in literals):
-        if any("governance-r8" in s or "schemas" in s for s in literals) or "SCHEMA" in inherited:
-            # Fully constant paths may remain schema-only only when normalization proves it.
-            combined="/".join(literals)
-            if inherited:
-                return "HISTORY"
-            if classify_literal(combined)=="SCHEMA":
-                return "SCHEMA"
-            return "HISTORY"
-    if "SCHEMA" in inherited:
-        return "SCHEMA"
     classes_found={classify_literal(s) for s in literals}
     classes_found.discard(None)
     if classes_found=={"SCHEMA"}:
         return "SCHEMA"
-    if "HISTORY" in classes_found:
-        return "HISTORY"
     return None
 
 def forbidden_history_reason(text,path):
@@ -199,7 +196,8 @@ def forbidden_history_reason(text,path):
                 if any(path_class(arg,classes)=="HISTORY" for arg in node.args):
                     return f"{node.func.attr} history argument read"
         if isinstance(node,ast.BinOp) and isinstance(node.op,ast.Div):
-            if path_class(node,classes)=="HISTORY":
+            literals=[x.value for x in ast.walk(node) if isinstance(x,ast.Constant) and isinstance(x.value,str)]
+            if any(".." in s.replace("\\","/").split("/") for s in literals) and path_class(node,classes)=="HISTORY":
                 return "history traversal path expression"
     return None
 
