@@ -1,0 +1,44 @@
+{
+  "schema": "r8-v15-r1-implementation-slice13-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_THREE_LOOP_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "batch8_10_closure_anchor": "525e5c90d0f16482b75595e854f647ac88eaa761",
+  "final_green_run": {
+    "run_id": 36127649764,
+    "job_id": 108047357656,
+    "exact_checkout_sha": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+    "slice13": "16/16 PASS",
+    "inherited_baseline": "140/140 PASS",
+    "total": "156/156 PASS"
+  },
+  "preserved_red_run_id": 36127475312,
+  "frozen_schema_changed": false,
+  "closed_slice1_7_modules_changed": false,
+  "verified_scope": [
+    "ResolverConformanceSuite1 exact required-field structure",
+    "non-empty GCP-valid opaque CanonicalId/Digest strings",
+    "required runtime/workload identity digests retained but unverified",
+    "suite_digest/generator/harness bindings explicitly unverified",
+    "no current/executed/qualified/freshness/runtime authority claim"
+  ],
+  "claim_boundary": {
+    "required_runtime_identity_verified": false,
+    "required_workload_identity_verified": false,
+    "suite_digest_verified": false,
+    "vector_generator_identity_verified": false,
+    "execution_harness_verified": false,
+    "suite_current": false,
+    "suite_executed": false,
+    "resolver_qualified": false,
+    "conformance_fresh": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
