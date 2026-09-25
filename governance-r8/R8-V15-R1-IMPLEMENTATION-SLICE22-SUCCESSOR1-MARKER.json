@@ -1,0 +1,40 @@
+{
+  "schema": "r8-v15-r1-implementation-slice22-successor1-marker/v1",
+  "status": "SLICE22_SUCCESSOR1_REPAIR_GREEN_PENDING_FRESH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "prior_closed_batch_anchor": "613ad12b29704f44f036e1a275403f58011ae203",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "rejected_predecessor_candidate": "8ecdd17ce80549f87dd15bbe1fc29414272b6253",
+  "triggering_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICES20-25-INDEPENDENT-REVIEW-001.txt",
+  "repair_preregistration_commit": "1ebd52c94f8c678dc7f18a48723e0877344be344",
+  "repair_red_run_id": 36143170972,
+  "repair_red_job_id": 108097693607,
+  "repair_mechanism_commit": "9e8992c1af2cb348bf5385c7ac484082de949cc5",
+  "repair_mechanism_green_run_id": 36143381547,
+  "repair_mechanism_green_job_id": 108098396879,
+  "repair_workflow_commit": "b7a7a18a1d55a3b05fa91446f7878d1e2a19f441",
+  "acceptance": {
+    "original_slice_tests": "16/16 PASS",
+    "successor1_repair_tests": "4/4 PASS",
+    "inherited_closed_baseline": "140/140 PASS",
+    "total": "160/160 PASS"
+  },
+  "finding_repaired_locally": "Leading ECMA line terminators are rejected on StableScopeValue-derived stable branches while later/trailing line terminators retain frozen pattern semantics.",
+  "review_gate": "FRESH_INDEPENDENT_REVIEW_REQUIRED",
+  "grants": {
+    "implementation_construction": true,
+    "scope_permission": false,
+    "currentness": false,
+    "semantic_selection": false,
+    "constitutional_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
