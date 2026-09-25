@@ -1,0 +1,70 @@
+{
+  "schema": "r8-v15-r1-implementation-batch8-10-closure/v1",
+  "status": "BATCH8_10_INDEPENDENT_BOUNDED_CLOSURES_RECORDED",
+  "authority_effect": "GOVERNANCE_EVIDENCE_INDEX_ONLY",
+  "common_closed_baseline": {
+    "slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "slice7_closure_head": "5477df994c2cc9db0033742e189b906eb20247c1",
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc"
+  },
+  "independent_review": {
+    "disposition": "BOUNDED_PASS",
+    "packet_manifest_file": "07_SHA256_MANIFEST.txt",
+    "packet_hashes": {
+      "instructions": "a1a587f7b624b6a5e4141496d1fa290790cf9da1828fedad7d35ccabaee98205",
+      "slice8": "47a82fcbbdb652c6f59ffa5a229b37ded3a8299182a155aee8e8977bc143cd89",
+      "slice9": "12d9efd242e3dc8da62a9aaf39a9a90c558e6791fa5b249303b13a8224850329",
+      "slice10": "f10ee0b2500f035bdd3f9f0bb5247781632689cdf7517e7607ba6c695e3883a7",
+      "shared": "54e933243cc0e15f370fe463bbfbb6204761193b6c47b529d9ba63aad944372a",
+      "evidence": "d861fa02b20c20a3c17450e05f0185642c096f5690e98dbf51be8b133d2c83f8"
+    }
+  },
+  "slices": {
+    "8": {
+      "exact_candidate": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+      "evidence_head_before_review": "be2a88bb85a59f253fbadbfcf400dbff2f15f064",
+      "closure_commit": "7677d72a20d982cf1072f317eda22adf10240239",
+      "final_run_id": 36121677646,
+      "final_job_id": 108028378950,
+      "scope": "LOCAL_EFFECT_STATE_RECORD_VALIDATION"
+    },
+    "9": {
+      "exact_candidate": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+      "evidence_head_before_review": "ec2862c0cf1bfbd0cefc08537e6359495d6c842f",
+      "closure_commit": "ec0d26d2e39ef8935556ccdc944cb26c01ee8dc8",
+      "final_run_id": 36121983437,
+      "final_job_id": 108029364363,
+      "scope": "LOCAL_EVIDENCE_RECORD_VALIDATION"
+    },
+    "10": {
+      "exact_candidate": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+      "evidence_head_before_review": "e964b17d54aac10f90c9ab1206a21e1d6825441e",
+      "closure_commit": "d2d3858b51a48cad6933e2145bb1f7f7f68966e0",
+      "final_run_id": 36122429875,
+      "final_job_id": 108030797431,
+      "scope": "LOCAL_REVIEW_ATTESTATION_VALIDATION"
+    }
+  },
+  "open_nonblocking_findings": [
+    "S8-L-01",
+    "S9-L-01",
+    "S10-L-01",
+    "S8-10-L-TRANSPORT-01",
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "invariants": {
+    "cross_batch_authority_transfer": false,
+    "batch_integration_authorized": false,
+    "implementation_modules_merged": false,
+    "other_batch_slice_dependency_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "review_gate_authority": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  },
+  "next_instruction": "Use this anchor only as governance history for the next three-loop batch. Do not treat it as an integrated implementation tree."
+}
