@@ -1,0 +1,73 @@
+name: R8 v15-r1 IG-1 Successor2 Mechanical Materialization
+
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-integration-gate1-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IG1-SUCCESSOR2-ACTIVATION.json
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify exact activation, proposal and machinery bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          a=json.loads(pathlib.Path('governance-r8/R8-V15-R1-IG1-SUCCESSOR2-ACTIVATION.json').read_text())
+          if a['status']!='ACTIVE_EXPLICIT_USER_APPROVAL': raise SystemExit('bad activation status')
+          if a['proposal_id']!='R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR2': raise SystemExit('bad proposal id')
+          if a['independent_review_disposition']!='BOUNDED_PASS' or a['critical_findings']!=0 or a['high_findings']!=0:
+              raise SystemExit('review does not permit activation')
+          pc=a['exact_proposal_commit']; ppath='governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR2-PROPOSAL.json'
+          subprocess.check_call(['git','cat-file','-e',pc+'^{commit}'])
+          at_pc=subprocess.check_output(['git','rev-parse',f'{pc}:{ppath}'],text=True).strip()
+          at_head=subprocess.check_output(['git','rev-parse',f'HEAD:{ppath}'],text=True).strip()
+          if at_pc!=a['proposal_blob_sha1'] or at_head!=a['proposal_blob_sha1']: raise SystemExit('proposal binding mismatch')
+          for path,blob in a['bound_machinery_blobs'].items():
+              got=subprocess.check_output(['git','rev-parse',f'HEAD:{path}'],text=True).strip()
+              if got!=blob: raise SystemExit(f'machinery blob mismatch {path}')
+          print('SUCCESSOR2_ACTIVATION_BINDING_PASS')
+          PY
+      - name: Create pristine target worktree from exact Slice7 base
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="$RUNNER_TEMP/ig1-successor2-target"
+          git worktree add --detach "$TARGET" 751162ee42c603cb6c84ee12021d16bab6fa626b
+          git -C "$TARGET" switch -c "integration/r8-v15-r1-ig1-successor2-candidate-${GITHUB_SHA::12}"
+          echo "IG1_TARGET=$TARGET" >> "$GITHUB_ENV"
+      - name: Preflight exact base and all source/tree identities before materialization
+        run: python3 tools/r8_v15_r1_ig1_successor2_materialize.py --target "$IG1_TARGET" --preflight-only
+      - name: Materialize exact allowlisted entries and run strict structured oracle
+        run: python3 tools/r8_v15_r1_ig1_successor2_materialize.py --target "$IG1_TARGET"
+      - name: Commit and publish exact non-authoritative candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C "$IG1_TARGET" config user.name "github-actions[bot]"
+          git -C "$IG1_TARGET" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          test -z "$(git -C "$IG1_TARGET" diff --name-only)"
+          test -z "$(git -C "$IG1_TARGET" ls-files --others --exclude-standard)"
+          git -C "$IG1_TARGET" commit -m "integration(r8): materialize IG-1 successor2 non-authoritative candidate"
+          CANDIDATE="$(git -C "$IG1_TARGET" rev-parse HEAD)"
+          BRANCH="$(git -C "$IG1_TARGET" branch --show-current)"
+          git -C "$IG1_TARGET" push origin "HEAD:refs/heads/$BRANCH"
+          echo "INTEGRATED_CANDIDATE_SHA=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "INTEGRATED_CANDIDATE_BRANCH=$BRANCH" >> "$GITHUB_ENV"
+      - name: Report bounded output
+        run: |
+          echo "Candidate: $INTEGRATED_CANDIDATE_SHA"
+          echo "Branch: $INTEGRATED_CANDIDATE_BRANCH"
+          echo "Authority: NONE — pending fresh independent review"
