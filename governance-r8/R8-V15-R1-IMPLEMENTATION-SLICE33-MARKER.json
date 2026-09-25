@@ -1,0 +1,33 @@
+{
+  "schema": "r8-v15-r1-implementation-slice33-marker/v1",
+  "status": "SLICE33_CONSTRUCTION_GREEN_PENDING_RESTORED_SIX_SLICE_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "restored_cadence_anchor": "dfdeceb297b0eefe54d3a47edc3ae16a6f624ded",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "preregistration_commit": "5831115ba39cd739eda955eedb0ca77637793db2",
+  "frozen_harness_commit": "cbfa53fead6fd1cd486ffd0f823a6cc2dd3796a1",
+  "mechanism_commit": "c1e95f73d7bf24deda1c6349841b10ea6452fd6e",
+  "preserved_red_run_id": 36148064454,
+  "preserved_red_job_id": 108114091190,
+  "mechanism_green_run_id": 36148350323,
+  "mechanism_green_job_id": 108115039355,
+  "early_review_trigger_crossed": false,
+  "batch_position": 5,
+  "batch_size_max": 6,
+  "next_gate": "EXACT_CANDIDATE_GREEN_THEN_FREEZE_AND_FRESH_SIX_SLICE_REVIEW",
+  "grants": {
+    "implementation_construction": true,
+    "review_authority": false,
+    "currentness": false,
+    "semantic_selection": false,
+    "constitutional_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
