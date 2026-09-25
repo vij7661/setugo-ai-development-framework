@@ -1,0 +1,70 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor1-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "2cf7adce8bdd67c8b78659d9359c178535af1d73",
+  "predecessor_implementation_candidate": "e106bdd44973f3b16b5479c7689cbe07cb0f5421",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "preregistration_commit": "dfca9dd073dedfff8008fa2aaaf679023b3c5aa4",
+  "frozen_repair_harness_commit": "da46eeb47150094b114768a4b9de7377c71d9e2a",
+  "mechanism_repair_commit": "6db224acec37e4991482eb4d171a2118b8936a7b",
+  "marker_candidate_commit": "2cf7adce8bdd67c8b78659d9359c178535af1d73",
+  "final_green_run": {
+    "run_id": 36105497132,
+    "job_id": 107976990604,
+    "exact_checkout_sha": "2cf7adce8bdd67c8b78659d9359c178535af1d73",
+    "conclusion": "success",
+    "original_i1": {
+      "passed": 16,
+      "total": 16
+    },
+    "successor_repair": {
+      "passed": 8,
+      "total": 8
+    },
+    "post_freeze_regressions": {
+      "passed": 12,
+      "total": 12
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36105362709,
+    "job_id": 107976583620,
+    "exact_checkout_sha": "6db224acec37e4991482eb4d171a2118b8936a7b",
+    "conclusion": "success"
+  },
+  "preserved_history": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-INDEPENDENT-REVIEW-001.txt",
+      "disposition": "INSUFFICIENT_EVIDENCE"
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR1-CONTROL-FAILURE-001.json",
+      "run_id": 36104942867
+    },
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR1-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36105013894
+    }
+  ],
+  "verified_properties": [
+    "original I1-01..I1-16 unchanged and green",
+    "S1R-01..S1R-08 green",
+    "hash and parse/use consume the same read-once bytes",
+    "load-time GCP rejection-vector self-check is active",
+    "exact SPM cardinality and artifact-path confinement are enforced",
+    "explicit lone-surrogate rejection is covered",
+    "governed path changes automatically trigger CI",
+    "frozen executable-schema bytes are unchanged"
+  ],
+  "claim_boundary": {
+    "implementation_slice1_construction_green": true,
+    "independent_review_closed": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
