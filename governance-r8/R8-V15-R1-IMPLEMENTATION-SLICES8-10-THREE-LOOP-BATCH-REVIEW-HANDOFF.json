@@ -1,0 +1,72 @@
+{
+  "schema": "r8-v15-r1-three-loop-batch-review-handoff/v1",
+  "status": "FRESH_BLIND_BATCH_REVIEW_REQUIRED",
+  "authority_effect": "NONE",
+  "instruction_basis": "User requested three implementation loops before the next independent review.",
+  "closed_baseline": {
+    "slice7_closure_head": "5477df994c2cc9db0033742e189b906eb20247c1",
+    "slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc"
+  },
+  "loops": [
+    {
+      "loop": 1,
+      "slice": 8,
+      "scope": "Local EffectStateRecord validation",
+      "exact_candidate": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+      "evidence_head": "be2a88bb85a59f253fbadbfcf400dbff2f15f064",
+      "final_run_id": 36121677646,
+      "final_job_id": 108028378950,
+      "final_result": "156/156 PASS",
+      "preserved_red_run_id": 36121507503,
+      "adjudicated": false
+    },
+    {
+      "loop": 2,
+      "slice": 9,
+      "scope": "Local EvidenceRecord validation",
+      "exact_candidate": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+      "evidence_head": "ec2862c0cf1bfbd0cefc08537e6359495d6c842f",
+      "final_run_id": 36121983437,
+      "final_job_id": 108029364363,
+      "final_result": "156/156 PASS",
+      "preserved_red_run_id": 36121849545,
+      "adjudicated": false
+    },
+    {
+      "loop": 3,
+      "slice": 10,
+      "scope": "Local ReviewAttestation validation",
+      "exact_candidate": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+      "evidence_head": "e964b17d54aac10f90c9ab1206a21e1d6825441e",
+      "final_run_id": 36122429875,
+      "final_job_id": 108030797431,
+      "final_result": "156/156 PASS",
+      "preserved_red_run_id": 36122231238,
+      "adjudicated": false
+    }
+  ],
+  "batch_rules": [
+    "Review each exact candidate independently against the same closed Slice 7 baseline.",
+    "Do not treat Slice 8 as authority for Slice 9 or Slice 9 as authority for Slice 10.",
+    "Do not merge candidate bytes for review.",
+    "Construction PASS labels are evidence inputs only and are not sufficient by themselves.",
+    "No bounded closure for Slice 8, Slice 9, or Slice 10 before fresh independent batch review.",
+    "Any substantive candidate defect requires a successor for the affected slice and fresh evidence for that slice."
+  ],
+  "next_gate": "FRESH_BLIND_INDEPENDENT_THREE_LOOP_BATCH_REVIEW",
+  "claim_boundary": {
+    "slice8_closed": false,
+    "slice9_closed": false,
+    "slice10_closed": false,
+    "reviewer_independence_proven": false,
+    "review_gate_closed": false,
+    "promotion_authorized": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
