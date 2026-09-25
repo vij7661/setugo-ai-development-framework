@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import argparse
 from pathlib import Path
 
 
@@ -45,6 +46,9 @@ def review(disposition="BOUNDED_PASS", c="NONE.", d="NONE.", h_extra=""):
 
 
 def main() -> None:
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--review", type=Path)
+    args=parser.parse_args()
     source = WORKFLOW.read_text(encoding="utf-8")
     assert 'EXPECTED_REVIEW_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt"' in source
     assert 're.fullmatch(r"(?i:none\\.?)", text.strip())' in source
@@ -58,6 +62,8 @@ def main() -> None:
         assert not clean_none_section(value), value
     accepted_document = review()
     parse_review_contract(accepted_document)
+    if args.review:
+        parse_review_contract(args.review.read_text(encoding="utf-8"))
     rejected_documents = [
         accepted_document.replace("A. OVERALL_DISPOSITION", "A. OVERALL_DISPOSITION\nA. DUPLICATE", 1),
         accepted_document.replace("C. CRITICAL_FINDINGS", "C. CRITICAL_FINDINGS\nC. DUPLICATE", 1),

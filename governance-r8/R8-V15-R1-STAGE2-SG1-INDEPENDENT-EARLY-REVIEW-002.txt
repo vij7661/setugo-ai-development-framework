@@ -1,0 +1,64 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_SG1_PROPOSAL_IDENTITY
+- proposal ID: R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001
+- proposal commit: 67c84138140e86ba4a85a954f368f4c0f7e9ef3c
+- proposal blob: d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b
+- review-bundle commit: 8fe20cc726b5d912fb5fd20f84a90b9f20bb3711
+- activation-gate blob: c09f5d75b70bf5f9f928a79d1dd094f11ff24279
+- semantic harness blob: 15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad
+- comparator blob: 097464a6b99bc79117501f7700d012ebeddd8675
+- reusable core blob: 93ea0cccfdb1392ef38ee41dd053512372de0c87
+- Stage1 verifier blob: dc8b76d6710dee27af4a3502b157853959d34ba7
+- semantic-surface blob: 94e3275edbb32baca640966830352f5e6c9f4ada
+- exact Stage1 candidate: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+- candidate tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+- candidate parent: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- 39 selected implementation files: surface declares 39 selected implementation files; packet enumerates the 32 direct edges and 2 unique targets, with 31 frozen-runtime consumer sources plus effect-state source and the two target modules.
+- 32 direct R8 dependency edges: 31 edges to governance-runtime/r8_v15_r1_frozen_schema_runtime.py; 1 edge from governance-runtime/r8_v15_r1_effect_state_validator.py to governance-runtime/r8_v15_r1_effect_intent_validator.py.
+- 2 dependency targets:
+  1. governance-runtime/r8_v15_r1_frozen_schema_runtime.py, blob e5a06f43b98131f0730852757a83bb7fe5882001, used surface GCPError, INT64_MAX, canonicalize_json_text.
+  2. governance-runtime/r8_v15_r1_effect_intent_validator.py, blob 50c5f3edd905ec23ae8e97d3cc2d441489935786, used surface EffectIntentError, validate_effect_intent.
+- static-preflight run/job: 36169709850 / 108185981758.
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+NONE.
+
+E. MEDIUM_LOW_FINDINGS
+- Low: The activation gate does not directly read or bind the activation-gate binding JSON blob ff5f70b64065b554c5872afef5100d6988407783. The binding is checked by the review-bundle consistency verifier and is informational for the gate. This is mitigated by the gates exact blob binding, explicit user approval, and consistency checks, but it remains a defense-in-depth gap.
+- Low: The SG-1 harness audit hook blocks string-mode file writes, but it may not block every possible write path such as os.open with integer flags. No practical escape path was demonstrated for the reviewed modules; this is a bounded residual.
+- Low: The SG-1 harness does not independently re-scan all 39 selected implementation files for omitted direct R8 dependency edges. It relies on the bound dependency surface, Stage1 scan, static preflight, and the consolidated A1-A25 sweep, which found no additional materially relevant direct edge.
+- Low: The SG-1 harness asserts the surfaces declared 32-edge/2-target fields and checks 31 frozen-runtime edges, but it does not independently assert the effect-intent edge count or unique target path set from the edges list. The bound surface and preflight mitigate this.
+- Low: The activation gate parser validates the A, C, D, and H contract sections but does not fully validate the B sections proposal identity content beyond requiring the exact proposal ID and commit to appear somewhere in the review. Review blob binding and explicit user approval mitigate this.
+- Low: The consistency verifier is not invoked by the activation gate. It is a separate review-bundle integrity check; activation relies on the gates own exact machinery/evidence/proposal/review binding.
+- Low: The packet declares 39 selected implementation files but does not individually enumerate all 39 in this packet. The exact allowlist and dependency surface are bound by blob, and the SG-1 objective is the 32 observed direct edges and 2 targets.
+- Low: The consistency verifier hardcodes a raw SHA-1 for historical Review 001. The packet reports PASS for the verifier and preserves Review 001 as historical CHANGES_REQUIRED evidence; no stale-gate identity is present outside that historical section.
+
+F. SG1_PROTOCOL_ASSESSMENT
+F1 completeness of 32-edge/2-target scope for SG-1: PASS. The declared scope matches the observed direct dependency surface: 31 edges to the frozen-schema runtime and 1 edge from effect-state to effect-intent. The 39-file declaration is broader than the direct-edge scope, but SG-1 is explicitly a dependency-semantic falsification of the observed direct edges, not a full re-scan or Stage2 semantic requalification.
+F2 exact runtime import-resolution/file/blob identity: PASS. SG1-01 through SG1-04 check exact target and consumer file blobs, runtime resolution, and exact import resolution against the candidate worktree.
+F3 31-consumer shared frozen-runtime module/surface identity: PASS. SG1-05 and SG1-06 check shared module object identity and used frozen-runtime surface identity across the 31 frozen-runtime edges.
+F4 GCP and INT64 semantic falsification coverage: PASS. SG1-07 through SG1-10 cover valid GCP canonicalization, non-NFC rejection, Unicode noncharacter rejection, and INT64 upper-bound pass/out-of-range rejection using the exact frozen-runtime target. This is bounded to the used surface and does not pretend to requalify the whole frozen runtime.
+F5 effect-state -> effect-intent delegation/error-translation/binding coverage: PASS. SG1-11 through SG1-18 cover exact module/function/error-class identity, valid delegation non-authority, invalid intent-state translation, nested time-proof error translation, effect_intent_id binding, idempotency-key binding, success-label non-authority, and failure non-poisoning/determinism.
+F6 forward/reverse import-order and shared-state contamination oracle: PASS. The core runs all 18 cases in forward and reverse import order, requires PASS/18 in each order, and the comparator requires order-invariant semantic fingerprint and case results.
+F7 fixture reuse and fixture identity: PASS. SG1-01 binds the reviewed Slice7 and Slice8 fixture files by exact blob; the harness imports them from the candidate worktree and checks their resolved file identity.
+F8 audit policy / external or mutating side-effect boundary: PASS with the Low residuals noted in E. The harness installs an audit hook blocking major subprocess, socket, os exec/spawn/fork, file-write, and mutating remove/rename/mkdir/rmdir operations. The core also runs with PYTHONDONTWRITEBYTECODE and -B.
+F9 Stage1 776-test guard before/after + candidate immutability: PASS. The core reruns the exact Stage1 verifier before and after SG-1 and then asserts candidate HEAD, tree, and clean worktree remain unchanged.
+F10 comparator false-green risk: PASS. The comparator rejects non-PASS, non-18-case, false-case, authority-boundary-violating, candidate-mismatched, fingerprint-mismatched, or case-mismatched results. It does not normalize away failures.
+F11 exact activation proposal/review/machinery/evidence binding: PASS. The activation gate verifies exact proposal ID/commit/blob/path, exact machinery and evidence blobs, exact review path/blob/disposition/finding counts, exact approval fields, and the current activation-gate blob. The historical parser defect for NONE. is repaired and the parser adversarial suite covers case-insensitive none, duplicates, contradictory H declarations, and hidden Critical/High lines outside C/D.
+F12 post-execution review and broader Stage2 authority boundary: PASS. The proposal and manifest require fresh independent post-execution review before SG-1 closure or any later Stage2 gate. Broader Stage2 semantic authority, currentness, qualification, evidence promotion, runtime/release/deployment/production/policy/constitutional/root/terminal authority remain false.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+SG-1 remains qualification-only and non-authoritative. It is limited to local dependency semantic falsification. Broader Stage2 remains unauthorized. Fallback-to-3 remains ACTIVE despite the 2/2 recovery-evidence precondition being satisfied; six-slice cadence is not restored. Even a future SG-1 execution PASS would require fresh independent review of the exact SG-1 execution evidence before SG-1 closure or execution of any later Stage2 gate.
+
+H. FINAL_GATE
+Stage2 SG-1 may be explicitly activated by user: YES
+If YES, activation is NOT automatic and explicit user approval must bind proposal commit 67c84138140e86ba4a85a954f368f4c0f7e9ef3c, proposal blob d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b, and activation-gate blob c09f5d75b70bf5f9f928a79d1dd094f11ff24279.
+SG-1 execution authority if activated: LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
+Broader Stage2 semantic authority granted: NO.
+Automatic six-slice cadence restoration: NO.
+Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.

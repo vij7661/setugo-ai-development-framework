@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -24,6 +25,32 @@ def raw_sha1(path: Path) -> str:
 
 def fail(message: str) -> None:
     raise SystemExit(message)
+
+
+def validate_review_002(path: Path, expected: dict, proposal: dict) -> str:
+    text = path.read_text(encoding="utf-8")
+    headings=list(re.finditer(r"(?m)^([A-H])\.\s+[^\r\n]*$", text))
+    if len(headings) != 8 or [m.group(1) for m in headings] != list("ABCDEFGH"):
+        fail("Review 002 is not exactly one ordered A-H document")
+    sections={}
+    for index, match in enumerate(headings):
+        end=headings[index+1].start() if index+1 < len(headings) else len(text)
+        sections[match.group(1)]=text[match.end():end].strip()
+    if sections["A"] != expected["required_disposition"]:
+        fail("Review 002 disposition mismatch")
+    if not re.fullmatch(r"(?i:none\.?)", sections["C"]):
+        fail("Review 002 Critical section is not clean")
+    if not re.fullmatch(r"(?i:none\.?)", sections["D"]):
+        fail("Review 002 High section is not clean")
+    if len(re.findall(r"(?mi)^Stage2 SG-1 may be explicitly activated by user:\s*YES\s*$", sections["H"])) != 1:
+        fail("Review 002 activation declaration mismatch")
+    if re.search(r"(?mi)^Stage2 SG-1 may be explicitly activated by user:\s*NO\s*$", text):
+        fail("Review 002 contradictory activation declaration")
+    if len(re.findall(r"(?mi)^Broader Stage2 semantic authority granted:\s*NO\s*$", sections["H"])) != 1 or re.search(r"(?mi)^Broader Stage2 semantic authority granted:\s*YES\s*$", text):
+        fail("Review 002 broader authority declaration mismatch")
+    if proposal["id"] not in text or proposal["commit"] not in text or proposal["blob_sha1"] not in text:
+        fail("Review 002 proposal identity mismatch")
+    return git_blob(str(path))
 
 
 def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
@@ -91,6 +118,7 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("binding final gate requirement mismatch")
     if binding["expected_review"] != {
         "path": manifest["reviews"]["expected_fresh_review_002"]["path"],
+        "blob_sha1": manifest["reviews"]["expected_fresh_review_002"]["blob_sha1"],
         "required_disposition": manifest["reviews"]["expected_fresh_review_002"]["required_disposition"],
         "required_critical_findings": manifest["reviews"]["expected_fresh_review_002"]["required_critical_findings"],
         "required_high_findings": manifest["reviews"]["expected_fresh_review_002"]["required_high_findings"],
@@ -115,8 +143,11 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("Review 001 missing or altered")
     if historical["disposition"] != "CHANGES_REQUIRED" or "CHANGES_REQUIRED" not in historical_path.read_text(encoding="utf-8", errors="strict"):
         fail("Review 001 disposition mismatch")
-    if Path(expected_review).exists():
-        fail("Review 002 must remain an external fresh review")
+    if not Path(expected_review).exists():
+        fail("Review 002 is missing")
+    review_002_blob = validate_review_002(Path(expected_review), manifest["reviews"]["expected_fresh_review_002"], p)
+    if binding["expected_review"].get("blob_sha1") != review_002_blob:
+        fail("Review 002 blob binding mismatch")
     if Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").exists():
         fail("activation artifact unexpectedly present")
 
@@ -152,6 +183,8 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
             fail("candidate identity absent from packet header")
     if expected_review not in header:
         fail("Review 002 path absent from packet header")
+    if manifest["reviews"]["expected_fresh_review_002"]["blob_sha1"] not in header:
+        fail("Review 002 blob absent from packet header")
     if "expected fresh review: governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-001.txt" in header:
         fail("stale Review 001 expected path in active packet instructions")
     if "historical Review 001:" not in header or "CHANGES_REQUIRED" not in header:
