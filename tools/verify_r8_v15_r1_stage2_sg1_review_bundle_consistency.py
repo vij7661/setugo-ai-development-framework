@@ -46,7 +46,7 @@ def validate_review_002(path: Path, expected: dict, proposal: dict) -> str:
         fail("Review 002 activation declaration mismatch")
     if re.search(r"(?mi)^Stage2 SG-1 may be explicitly activated by user:\s*NO\s*$", text):
         fail("Review 002 contradictory activation declaration")
-    if len(re.findall(r"(?mi)^Broader Stage2 semantic authority granted:\s*NO\s*$", sections["H"])) != 1 or re.search(r"(?mi)^Broader Stage2 semantic authority granted:\s*YES\s*$", text):
+    if len(re.findall(r"(?mi)^Broader Stage2 semantic authority granted:\s*NO\.?\s*$", sections["H"])) != 1 or re.search(r"(?mi)^Broader Stage2 semantic authority granted:\s*YES\s*$", text):
         fail("Review 002 broader authority declaration mismatch")
     if proposal["id"] not in text or proposal["commit"] not in text or proposal["blob_sha1"] not in text:
         fail("Review 002 proposal identity mismatch")

@@ -31,7 +31,7 @@ def parse_review_contract(text: str) -> dict:
         raise ValueError("activation")
     if re.search(r"(?mi)^Stage2 SG-1 may be explicitly activated by user:\s*NO\s*$", text):
         raise ValueError("contradictory activation")
-    if len(re.findall(r"(?mi)^Broader Stage2 semantic authority granted:\s*NO\s*$", sections["H"])) != 1:
+    if len(re.findall(r"(?mi)^Broader Stage2 semantic authority granted:\s*NO\.?\s*$", sections["H"])) != 1:
         raise ValueError("authority")
     if re.search(r"(?mi)^Broader Stage2 semantic authority granted:\s*YES\s*$", text):
         raise ValueError("broader authority")
