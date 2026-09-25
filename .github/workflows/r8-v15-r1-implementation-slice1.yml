@@ -44,7 +44,7 @@ jobs:
           python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1.py
 
       - name: Run Slice 1 Successor 1 frozen repair harness
-        if: github.ref == 'refs/heads/implementation/r8-v15-r1-slice1-successor-1-2026-09-25'
+        if: github.ref == 'refs/heads/implementation/r8-v15-r1-slice1-successor-1-2026-09-25' || github.ref == 'refs/heads/implementation/r8-v15-r1-slice1-successor-2-2026-09-25'
         shell: bash
         run: |
           set -euo pipefail
