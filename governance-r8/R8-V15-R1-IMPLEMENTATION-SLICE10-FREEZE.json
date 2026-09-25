@@ -1,0 +1,24 @@
+{
+  "schema": "r8-v15-r1-implementation-slice10-freeze/v1",
+  "status": "IMPLEMENTATION_SLICE10_FROZEN_PENDING_THREE_LOOP_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CANDIDATE_FREEZE_ONLY",
+  "exact_implementation_candidate": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+  "final_green_run_id": 36122429875,
+  "final_green_job_id": 108030797431,
+  "batch_loop": 3,
+  "batch_review_after_loop": 3,
+  "freeze_rules": [
+    "candidate bytes are exactly 33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+    "later evidence commits are not candidate bytes",
+    "no bounded closure or authority transfer before the combined fresh independent review"
+  ],
+  "claim_boundary": {
+    "implementation_adjudicated": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
