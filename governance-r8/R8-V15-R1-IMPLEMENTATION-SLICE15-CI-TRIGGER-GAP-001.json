@@ -1,0 +1,12 @@
+{
+  "schema": "r8-v15-r1-implementation-slice15-ci-trigger-gap/v1",
+  "status": "PRESERVED_NO_WORKFLOW_EVENT_FOR_MECHANISM_COMMIT",
+  "authority_effect": "NONE",
+  "mechanism_commit_without_check_suite": "8ad0438b42e4e64a1c27a2058b57304fe5a554bd",
+  "observed_check_suite_count": 0,
+  "observed_status_count": 0,
+  "classification": "CI_TRIGGER_DELIVERY_GAP_NO_TEST_EXECUTION",
+  "semantic_result": "UNAVAILABLE",
+  "reclassification_prohibited": true,
+  "remediation": "Create a semantics-neutral successor mechanism commit without changing preregistration, frozen harness, or workflow; require a fresh workflow run on that successor."
+}
