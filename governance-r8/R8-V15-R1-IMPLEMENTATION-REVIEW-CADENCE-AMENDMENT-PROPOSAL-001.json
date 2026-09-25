@@ -1,0 +1,104 @@
+{
+  "schema": "r8-v15-r1-implementation-review-cadence-amendment-proposal/v1",
+  "status": "PROPOSED_NOT_ACTIVE",
+  "authority_effect": "NONE",
+  "proposal_id": "R8V15R1-REVIEW-CADENCE-ADAPTIVE-001",
+  "base_governance_anchor": "613ad12b29704f44f036e1a275403f58011ae203",
+  "supersedes_if_activated": {
+    "source": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE7-CLOSURE.json",
+    "current_next_phase": "THREE_LOOP_BATCH_BEFORE_NEXT_REVIEW",
+    "current_requested_loop_count": 3,
+    "current_review_after_loop_count": 3
+  },
+  "rationale": {
+    "observed_recent_review_batches": [
+      {
+        "batch": "Slices 11-13",
+        "disposition": "BOUNDED_PASS",
+        "critical": 0,
+        "high": 0,
+        "blocking_findings": 0
+      },
+      {
+        "batch": "Slices 14-16",
+        "disposition": "BOUNDED_PASS",
+        "critical": 0,
+        "high": 0,
+        "blocking_findings": 0,
+        "note": "Only low defensive-test-depth/packet observations."
+      },
+      {
+        "batch": "Slices 17-19",
+        "disposition": "BOUNDED_PASS",
+        "critical": 0,
+        "high": 0,
+        "blocking_findings": 0,
+        "note": "Only minor defensive-test-depth/transport observations."
+      }
+    ],
+    "objective": "Reduce repetitive independent-review overhead for mature, purely local, non-authority structural validators while preserving independent review before higher-risk boundaries."
+  },
+  "proposed_rule": {
+    "default_low_risk_batch_size": 6,
+    "max_unreviewed_low_risk_slices": 6,
+    "no_unreviewed_slice_may_grant_authority": true,
+    "sibling_slices_may_share_latest_closed_governance_anchor": true,
+    "each_slice_still_requires": [
+      "preregistration before mechanism",
+      "frozen acceptance harness/workflow before mechanism",
+      "preserved expected RED or explicit non-execution classification",
+      "mechanism GREEN",
+      "exact-candidate GREEN",
+      "exact-candidate freeze",
+      "closed-baseline immutability check",
+      "explicit fail-closed authority metadata"
+    ],
+    "mandatory_early_review_triggers": [
+      "any change to frozen schema bytes or frozen semantics",
+      "authority-bearing semantic selection or transition logic",
+      "constitutional, policy, root, terminal, or governance authority",
+      "runtime qualification or attestation verification",
+      "evidence promotion or evidence-authority transitions",
+      "resolver authorization or conformance qualification/freshness semantics",
+      "cryptographic trust, signature, key, registry-currentness, or revocation semantics",
+      "external side effects, dispatch, commit, payment, network, database, cloud, or production effects",
+      "cross-slice integration, merge, or dependency authority",
+      "concurrency, replay, ordering, idempotency, race, or distributed-state semantics",
+      "freshness/current-state/temporal eligibility semantics",
+      "release, deployment, production, or terminal phase boundary",
+      "a new Critical or High finding",
+      "CHANGES_REQUIRED on any independent review"
+    ],
+    "mandatory_phase_boundary_review": true,
+    "no_batch_integration_before_review": true,
+    "no_cross_slice_dependency_authority_before_review": true
+  },
+  "adaptive_fallback": {
+    "on_critical_or_high_finding": "RESET_TO_3_SLICE_MAXIMUM",
+    "on_changes_required": "RESET_TO_3_SLICE_MAXIMUM",
+    "recovery_to_6_requires": "Two consecutive fresh independent BOUNDED_PASS reviews with zero Critical/High findings after remediation.",
+    "low_findings": "May be carried forward only when explicitly adjudicated nonblocking and authority remains fail-closed."
+  },
+  "future_step_up": {
+    "nine_slice_batching": "NOT_AUTHORIZED_BY_THIS_PROPOSAL",
+    "condition_for_future_consideration": "A separate explicit amendment after successful operation of the 6-slice cadence."
+  },
+  "activation_conditions": {
+    "user_explicit_approval_required": true,
+    "activation_commit_required": true,
+    "silent_activation_prohibited": true,
+    "activation_must_bind_exact_proposal_commit": true
+  },
+  "grants": {
+    "proposal_authority": false,
+    "implementation_construction": false,
+    "cadence_change_active": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "terminal_authority": false
+  }
+}
