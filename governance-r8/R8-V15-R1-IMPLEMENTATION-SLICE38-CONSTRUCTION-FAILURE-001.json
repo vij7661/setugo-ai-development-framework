@@ -1,0 +1,21 @@
+{
+  "schema": "r8-v15-r1-implementation-slice38-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "batch29_34_closure_anchor": "09fd9c34077b7e1a5a5cad48d76278117845e704",
+  "restored_cadence_anchor": "dfdeceb297b0eefe54d3a47edc3ae16a6f624ded",
+  "preregistration_commit": "5591fb40f7ef1f12d798b281f3b08bab312e254a",
+  "frozen_harness_commit": "cc40e9c3f8c4bf7b9ba3771af46112d760c8823e",
+  "workflow_commit": "d20b9210d464cfb9455615f49ae746182a8ab6c5",
+  "workflow_run_id": 36153425750,
+  "workflow_job_id": 108132079288,
+  "exact_checkout_sha": "d20b9210d464cfb9455615f49ae746182a8ab6c5",
+  "observed": {
+    "tests_run": 16,
+    "passed": 1,
+    "failed": 15,
+    "passing_case": "I38-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_gcp_rvm2_family_validator"
+  },
+  "preserved_not_reclassified": true
+}
