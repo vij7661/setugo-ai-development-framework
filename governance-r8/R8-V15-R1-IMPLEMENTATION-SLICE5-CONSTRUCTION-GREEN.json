@@ -1,0 +1,88 @@
+{
+  "schema": "r8-v15-r1-implementation-slice5-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "403e40502e9d51740e89ef352b5611711439661e",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice4_candidate": "3b60d8f14851b755f09a35431c620d6ae594a894",
+  "closed_slice3_candidate": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+  "closed_slice2_candidate": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "closed_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "slice4_closure_head": "d91b800d0003bc12b31a32bc14685147686c43ee",
+  "preregistration_commit": "2cb5534a776ccdd42cca308bf41675bcb308c818",
+  "frozen_harness_commit": "afcc31070d5fa2e24a5613183e5f8e80a9f31c0c",
+  "mechanism_commit": "10453f09b8c696967aa3a9b880a0f2bd6827ed8b",
+  "marker_candidate_commit": "403e40502e9d51740e89ef352b5611711439661e",
+  "final_green_run": {
+    "run_id": 36115137350,
+    "job_id": 108007336356,
+    "exact_checkout_sha": "403e40502e9d51740e89ef352b5611711439661e",
+    "conclusion": "success",
+    "slice5_i5": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice4": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice3": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36115022249,
+    "job_id": 108006968177,
+    "exact_checkout_sha": "10453f09b8c696967aa3a9b880a0f2bd6827ed8b",
+    "conclusion": "success"
+  },
+  "preserved_failure_history": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE5-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36114909174,
+      "classification": "EXPECTED_MECHANISM_ABSENCE"
+    }
+  ],
+  "verified_properties": [
+    "TimeSourceAttestation and QualifiedTimeProof exact required-field parity with frozen schema",
+    "source_attestations is list-only with frozen 2..3 cardinality",
+    "nonce is exactly 64 ASCII hex characters with frozen case-insensitive lexical form",
+    "effective_sequence enforces non-boolean signed-int64 non-negative closure",
+    "generic CanonicalId/Digest values remain opaque non-empty GCP-valid strings",
+    "closed Slice 4 DecisionPresealContext is revalidated before time-proof binding",
+    "QualifiedTimeProof decision_preseal_digest must exactly equal supplied DPS decision_preseal_digest",
+    "duplicate time_source_id values are structurally accepted but explicitly do not prove independence",
+    "nonce consumption, source status, source independence, freshness, signature validity and time_proof_digest verification all remain false",
+    "Slice 5 workflow directly covers governed files and all executed dependency/test paths",
+    "frozen schema and closed Slice 1/2/3/4 implementation modules remain unchanged"
+  ],
+  "open_runtime_qualification_findings": [
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "claim_boundary": {
+    "implementation_slice5_construction_green": true,
+    "independent_review_closed": false,
+    "qualified_time_proven": false,
+    "nonce_consumed": false,
+    "source_status_valid": false,
+    "source_independence_proven": false,
+    "freshness_proven": false,
+    "signature_verified": false,
+    "time_proof_digest_verified": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
