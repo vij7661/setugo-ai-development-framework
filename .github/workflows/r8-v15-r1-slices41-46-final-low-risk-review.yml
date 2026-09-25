@@ -1,0 +1,37 @@
+name: R8 v15-r1 Slices41-46 Final Low-Risk Review
+
+on:
+  push:
+    branches:
+      - implementation/r8-v15-r1-slice46-frozen-instance-family-exact-local-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-SLICES41-46-FINAL-LOW-RISK-REVIEW-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build final low-risk compact review packet
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 tools/build_r8_v15_r1_slices41_46_final_low_risk_review.py
+          test "$(find review-compact-s41-46 -maxdepth 1 -type f | wc -l)" -eq 1
+      - name: Upload final low-risk review packet
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-slices41-46-final-low-risk-review
+          path: review-compact-s41-46/R8-V15-R1-SLICES41-46-FINAL-LOW-RISK-COMPACT-REVIEW.txt
+          if-no-files-found: error
+          retention-days: 30
