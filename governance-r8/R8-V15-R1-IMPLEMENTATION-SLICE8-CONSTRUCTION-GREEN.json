@@ -1,0 +1,35 @@
+{
+  "schema": "r8-v15-r1-implementation-slice8-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_THREE_LOOP_BATCH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "batch_loop": 1,
+  "exact_implementation_candidate": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_base": "5477df994c2cc9db0033742e189b906eb20247c1",
+  "final_green_run": {
+    "run_id": 36121677646,
+    "job_id": 108028378950,
+    "exact_checkout_sha": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "slice8_i8": "16/16 PASS",
+    "inherited_slice7": "16/16 PASS",
+    "inherited_slice6": "16/16 PASS",
+    "inherited_slice5": "16/16 PASS",
+    "inherited_slice4": "16/16 PASS",
+    "inherited_slice3": "16/16 PASS",
+    "inherited_slice2": "16/16 PASS",
+    "inherited_slice1": "44/44 PASS"
+  },
+  "preserved_red_run_id": 36121507503,
+  "claim_boundary": {
+    "independent_review_closed": false,
+    "effect_state_committed": false,
+    "external_effect_succeeded": false,
+    "reconciliation_verified": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
