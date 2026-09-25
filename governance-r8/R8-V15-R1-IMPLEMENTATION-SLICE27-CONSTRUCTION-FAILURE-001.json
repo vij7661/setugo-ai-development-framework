@@ -1,0 +1,21 @@
+{
+  "schema": "r8-v15-r1-implementation-slice27-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "governance_anchor": "4a401bdf33786b980364784a0c8a19e20acef2df",
+  "fallback_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "preregistration_commit": "9c54c8e5fd4367bde8033ca225dc81f8380d8867",
+  "frozen_harness_commit": "1f75fab5d99ebb73397abbc15d0e8ab052577c07",
+  "workflow_commit": "661d6d51414eeea02409dedff72261f0a0269331",
+  "workflow_run_id": 36146268040,
+  "workflow_job_id": 108108092603,
+  "exact_checkout_sha": "661d6d51414eeea02409dedff72261f0a0269331",
+  "observed": {
+    "tests_run": 16,
+    "passed": 1,
+    "failed": 15,
+    "passing_case": "I27-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_scope_replacement_mapping_validator"
+  },
+  "preserved_not_reclassified": true
+}
