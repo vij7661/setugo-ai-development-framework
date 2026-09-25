@@ -1,0 +1,33 @@
+{
+  "schema": "r8-v15-r1-runtime-qualification-open-finding/v1",
+  "finding_id": "R8V15R1-RTQ-OPEN-001",
+  "status": "OPEN_BLOCKS_RUNTIME_QUALIFICATION",
+  "authority_effect": "NONE",
+  "source_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR2-INDEPENDENT-REVIEW-001.txt",
+  "source_adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR2-REVIEW-001-ADJUDICATION.json",
+  "exact_implementation_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "title": "Filesystem path-check/read TOCTOU under adversarial concurrent mutation",
+  "description": "The implementation checks symlink components and resolved-path confinement before later opening the same pathname via Path.read_bytes(). A concurrent adversary capable of mutating the filesystem namespace could replace the path between validation and open. Exact digest checks still protect content identity unless substituted bytes match, but strict path/inode identity is not proven.",
+  "required_before_runtime_qualification": [
+    "define the runtime filesystem mutation/adversary model",
+    "if concurrent namespace mutation is in scope, bind path validation and byte read to one opened file descriptor using no-follow semantics where supported",
+    "verify opened object identity/type with fstat or equivalent before consuming bytes",
+    "add adversarial race/fault tests appropriate to the target runtime",
+    "obtain fresh runtime-qualification evidence; Slice 1 construction evidence cannot satisfy this finding"
+  ],
+  "does_not_block": [
+    "bounded repository-local Slice 1 construction adjudication"
+  ],
+  "blocks": [
+    "runtime qualification until explicitly resolved or formally scoped out by a preregistered runtime threat model",
+    "any production-readiness claim that assumes adversarial filesystem namespace integrity without evidence"
+  ],
+  "claim_boundary": {
+    "resolved": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
