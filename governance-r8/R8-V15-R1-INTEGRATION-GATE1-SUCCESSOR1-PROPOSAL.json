@@ -1,0 +1,225 @@
+{
+  "schema": "r8-v15-r1-integration-gate1-successor1-proposal/v1",
+  "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR1",
+  "status": "PROPOSED_NOT_ACTIVE_REQUIRES_FRESH_INDEPENDENT_EARLY_REVIEW_AND_EXPLICIT_USER_APPROVAL",
+  "authority_effect": "NONE",
+  "predecessor_proposal": {
+    "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-001",
+    "exact_commit": "181217d201a628991936042da5d64d98ad9f4bf7",
+    "review": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-INDEPENDENT-REVIEW-001.txt",
+    "disposition": "CHANGES_REQUIRED",
+    "critical_findings": 0,
+    "high_findings": 4,
+    "activation_allowed": false
+  },
+  "governance_state": {
+    "closed_low_risk_anchor": "a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe",
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+    "slice7_implementation_tree_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "automatic_fallback_anchor_commit": "2a58959d07d0f7c5f50bef94690480e795f2be0b",
+    "active_max_unreviewed_low_risk_slices": 3,
+    "fallback_recovery_rule": "Two consecutive fresh independent BOUNDED_PASS reviews with zero Critical/High findings after remediation.",
+    "ig1_is_phase_gate_not_low_risk_batching": true
+  },
+  "exact_review_evidence": {
+    "allowlist": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json",
+      "git_blob_sha1": "15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b",
+      "sha256": "297f17a2a2029ad137da90f350b6de46320e3d2a6ee6b0e81ccdb9066e65a52e",
+      "selected_entries_total": 120
+    },
+    "full_change_inventory": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-FULL-CHANGE-INVENTORY.json",
+      "git_blob_sha1": "1a745cf09c9958115664b2b6fa03312c737697d9",
+      "sha256": "a16b2f3fe76a7273466665250cd425d2004e00baee09693a9fc0cf14d04d9a73",
+      "changed_paths_total": 904
+    },
+    "preflight_summary": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PREFLIGHT-SUMMARY.json",
+      "git_blob_sha1": "c76891e92d5d8ea5391a91d76c0286720ea3dd57",
+      "sha256": "1e1490eaa46c697c8baa32c3c2d5a7a25a9ca242c9b2f860901f5e2c8b1822f2",
+      "collisions_total": 0,
+      "conflicting_collisions_total": 0
+    },
+    "preflight_failures": [
+      {
+        "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PROPOSAL-PREFLIGHT-FAILURE-001.json",
+        "git_blob_sha1": "b5d317d54c0c451a30409f3b1fba0b2add2571ef",
+        "run_id": 36160931940,
+        "job_id": 108157018888
+      },
+      {
+        "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PROPOSAL-PREFLIGHT-FAILURE-002.json",
+        "git_blob_sha1": "ea8b29fce3b1beb815ff202f0229a91c21b581df",
+        "run_id": 36161050087,
+        "job_id": 108157417037
+      }
+    ],
+    "successful_preflight": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-PROPOSAL-PREFLIGHT-GREEN-001.json",
+      "git_blob_sha1": "1aaf3108ed0c6a47e8f5bbb7dff1f48b5f24ef50",
+      "run_id": 36161185432,
+      "job_id": 108157862287,
+      "materialization_executed": false,
+      "integration_executed": false
+    }
+  },
+  "exact_integration_machinery": {
+    "materializer": {
+      "path": "tools/r8_v15_r1_ig1_successor1_materialize.py",
+      "git_blob_sha1": "e5c6be889f3e37a9cd937657115faae8dc764d79"
+    },
+    "strict_oracle": {
+      "path": "governance-runtime/test_r8_v15_r1_ig1_integration_oracle.py",
+      "git_blob_sha1": "439df7d559eed44baa87c48eca454f7cb6af024b"
+    },
+    "materialization_workflow": {
+      "path": ".github/workflows/r8-v15-r1-ig1-successor1-materialize.yml",
+      "git_blob_sha1": "f4c384745cd2588fd54f14a8bb54106259292108"
+    }
+  },
+  "remediation_of_review001": {
+    "D1_exact_per_candidate_allowlist": {
+      "status": "REMEDIATED",
+      "rule": "No path is discovered during integration. Only the 120 exact path+mode+type+blob entries in the independently reviewed allowlist may be materialized.",
+      "full_branch_history_visibility": "All 904 candidate changes relative to Slice7 are recorded in the full change inventory; unselected changes remain excluded.",
+      "source_binding": "Every allowlist entry binds exact roster candidate source_commit; any source mismatch or unlisted path hard-fails before materialization.",
+      "tree_entry_identity": "Verification is path + mode + type + blob, both at source tree and staged integrated index."
+    },
+    "D2_integration_false_green": {
+      "status": "REMEDIATED",
+      "imported_slice_test_oracle": {
+        "expected_slice_test_total": 636,
+        "expected_per_slice": "16 tests for S8-S19 and S23-S46; 20 tests for repaired S20-S22 including successor tests",
+        "execution": "each slice runs in an isolated subprocess using exact imported test file paths",
+        "hard_fail_on": [
+          "nonzero test return",
+          "missing collection count",
+          "count mismatch",
+          "skipped",
+          "expected failure",
+          "unexpected success",
+          "xfail/xfailed",
+          "not collected",
+          "deselected"
+        ]
+      },
+      "inherited_baseline": {
+        "expected_tests": 140,
+        "hard_fail_on": "any failure, skip, expected failure, unexpected success, or count mismatch"
+      },
+      "imported_identity_assertion": "Before tests, every imported path must match exact allowlisted mode+blob in the integrated index.",
+      "monkeypatch_rule": "No new integration-only monkeypatch/import-hook layer is permitted; imported tests run byte-exact as previously reviewed."
+    },
+    "D3_integration_machinery_semantics": {
+      "status": "REMEDIATED",
+      "declarative_constraint": "Materializer/oracle may perform Git identity checks, file materialization, subprocess test invocation, result counting, and metadata emission only.",
+      "prohibited": [
+        "direct import/call of r8_v15_r1 production validators by integration machinery",
+        "unittest.mock/importlib monkeypatch layers",
+        "sys.modules mutation",
+        "cross-slice semantic wiring",
+        "semantic selection",
+        "currentness/freshness decisions",
+        "qualification",
+        "evidence promotion",
+        "authority transitions",
+        "SRTT recomputation"
+      ],
+      "machinery_binding": "Activation workflow hard-fails unless current proposal blob and all integration machinery blobs equal the exact user-approved/reviewed bindings.",
+      "fresh_integrated_review": "Any integrated candidate remains NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW."
+    },
+    "D4_rejected_predecessor_and_descendant_exclusion": {
+      "status": "REMEDIATED_WITH_EXPLICIT_REPAIR_LINEAGE_EXCEPTION",
+      "unreviewed_descendants": "Impossible as source: materializer accepts only exact source commits recorded in reviewed allowlist.",
+      "rejected_predecessors": "S20-S22 rejected predecessor commits are never materialization sources.",
+      "repair_lineage_note": "The exact reviewed S20-S22 successor candidates legitimately descend from their rejected predecessors; a blanket ancestry ban would reject the repaired lineages themselves.",
+      "explicit_reaccepted_identical_entries": [
+        {
+          "slice": 20,
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice20.py",
+          "mode": "100644",
+          "blob": "22b32b86e448d9a77aaa71f7db805653bc918abb"
+        },
+        {
+          "slice": 21,
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice21.py",
+          "mode": "100644",
+          "blob": "ad8e09f8a01703a0b81adfd87f8be1d00d6b8d92"
+        },
+        {
+          "slice": 22,
+          "path": "governance-runtime/test_r8_v15_r1_implementation_slice22.py",
+          "mode": "100644",
+          "blob": "66bca0e924c9da85a924d7b5b9952a8ad5e6d013"
+        }
+      ],
+      "rule": "These are the only selected entries permitted to be byte-identical to rejected predecessor tree entries, because the exact successor candidates were independently re-reviewed and closed. Any additional identical selected entry hard-fails."
+    }
+  },
+  "pre_materialization_hard_fail_rules": [
+    "any selected path absent from exact reviewed allowlist",
+    "source commit not exactly the allowlisted reviewed candidate",
+    "source tree path/mode/type/blob mismatch",
+    "any duplicate selected path, even when bytes match",
+    "any collision with reserved integration-only path",
+    "any S20-S22 rejected-predecessor identical entry outside the three explicit reaccepted test entries",
+    "frozen schema tree differs from exact frozen schema candidate",
+    "reviewed runtime implementation performs detected governance-history file IO",
+    "integration machinery violates declarative AST constraints",
+    "activation proposal/review/machinery binding mismatch"
+  ],
+  "partial_materialization_policy": "All source/collision/schema/machinery checks complete before the first checkout. A later ephemeral-runner failure may leave a partial local worktree, but no commit or push occurs until all 120 entries verify and the strict oracle passes.",
+  "governance_history_boundary": "Governance history remains repository evidence on the governance base; imported runtime implementation is prohibited from detected file IO against governance-r8 history. No governance-history file is selected as a reviewed implementation entry.",
+  "activation_conditions": {
+    "fresh_independent_review_disposition": "BOUNDED_PASS",
+    "critical_findings": 0,
+    "high_findings": 0,
+    "explicit_user_approval_required": true,
+    "activation_must_bind_exact_successor_proposal_commit": true,
+    "activation_must_bind_exact_successor_proposal_blob": true,
+    "activation_must_bind_exact_machinery_blobs": true,
+    "activation_must_record_review_disposition_and_counts": true
+  },
+  "stage1_output_boundary": {
+    "status": "INTEGRATED_IMPLEMENTATION_CANDIDATE_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW",
+    "semantic_execution_authorized": false,
+    "cross_slice_dependency_authority": false,
+    "currentness_authority": false,
+    "qualification_authority": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  },
+  "stage2_semantic_integration": {
+    "authorized": false,
+    "rule": "Stage 2 remains separately preregistered and review-gated. A fresh independent review of exact Stage 1 integrated bytes is mandatory first."
+  },
+  "cadence_effect": {
+    "fallback_to_three_active": true,
+    "successor_review_if_clean_counts_toward_recovery": "1 of 2 after remediation",
+    "six_slice_recovery_not_automatic": true,
+    "ig1_activation_independent_of_low_risk_batch_size_but_still_requires_its_own_review_and_user_approval": true
+  },
+  "grants": {
+    "proposal_authority": false,
+    "integration": false,
+    "semantic_execution": false,
+    "cross_slice_dependency_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
