@@ -1,0 +1,120 @@
+name: R8 v15-r1 Stage2 SG-1 Activation Gate
+
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-stage2-semantic-gate-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact SG-1 proposal, review, evidence, machinery and explicit approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, re, subprocess
+
+          EXPECTED_PROPOSAL_ID="R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001"
+          EXPECTED_PROPOSAL_COMMIT="67c84138140e86ba4a85a954f368f4c0f7e9ef3c"
+          EXPECTED_PROPOSAL_BLOB="d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b"
+          EXPECTED_PROPOSAL_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-PROPOSAL.json"
+          EXPECTED_REVIEW_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-001.txt"
+          GATE_PATH=".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml"
+
+          EXPECTED_MACHINERY={
+            "governance-runtime/test_r8_v15_r1_stage2_sg1_dependency_semantics.py":"15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad",
+            "tools/compare_r8_v15_r1_stage2_sg1_results.py":"097464a6b99bc79117501f7700d012ebeddd8675",
+            ".github/workflows/r8-v15-r1-stage2-sg1-core.yml":"93ea0cccfdb1392ef38ee41dd053512372de0c87",
+            "tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py":"dc8b76d6710dee27af4a3502b157853959d34ba7",
+          }
+          EXPECTED_EVIDENCE={
+            "governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-SURFACE.json":"94e3275edbb32baca640966830352f5e6c9f4ada",
+            "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-CLOSURE.json":"3ad11c9d9ed00dff314c2bf47893e51ce65ff2ce",
+            "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-INDEPENDENT-REVIEW-005.txt":"7b9c5c0eefaa782753abf92a2fa88afbf23ff450",
+            "governance-r8/R8-V15-R1-REVIEW-CADENCE-RECOVERY-ELIGIBLE-2-OF-2.json":"c7cba8b690ab217cdd2040e1db7662400910feb5",
+            "governance-r8/R8-V15-R1-STAGE2-SG1-PROPOSAL-PREFLIGHT-GREEN-001.json":"963b3e29ce2cdb2621d83e4e9f3f657a45222ad6",
+          }
+
+          TOP_KEYS={
+            "schema","status","proposal_id","exact_proposal_commit","proposal_blob_sha1","proposal_path",
+            "independent_review","bound_machinery_blobs","bound_evidence_blobs","explicit_user_approval","authority_effect"
+          }
+          REVIEW_KEYS={"path","blob_sha1","disposition","critical_findings","high_findings"}
+          APPROVAL_KEYS={"approved","approved_proposal_commit","approved_proposal_blob","approved_review_blob","approved_activation_gate_blob"}
+
+          def git_blob(rev):
+              return subprocess.check_output(["git","rev-parse",rev],text=True).strip()
+
+          a=json.loads(pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").read_text())
+          if set(a)!=TOP_KEYS: raise SystemExit("activation top-level key set mismatch")
+          if a["schema"]!="r8-v15-r1-stage2-sg1-activation/v1": raise SystemExit("activation schema mismatch")
+          if a["status"]!="ACTIVE_EXPLICIT_USER_APPROVAL": raise SystemExit("activation status mismatch")
+          if a["proposal_id"]!=EXPECTED_PROPOSAL_ID: raise SystemExit("proposal id mismatch")
+          if a["exact_proposal_commit"]!=EXPECTED_PROPOSAL_COMMIT: raise SystemExit("proposal commit mismatch")
+          if a["proposal_blob_sha1"]!=EXPECTED_PROPOSAL_BLOB: raise SystemExit("proposal blob mismatch")
+          if a["proposal_path"]!=EXPECTED_PROPOSAL_PATH: raise SystemExit("proposal path mismatch")
+          if a["authority_effect"]!="STAGE2_SG1_LOCAL_DEPENDENCY_SEMANTIC_FALSIFICATION_ONLY": raise SystemExit("authority boundary mismatch")
+          if a["bound_machinery_blobs"]!=EXPECTED_MACHINERY or set(a["bound_machinery_blobs"])!=set(EXPECTED_MACHINERY):
+              raise SystemExit("machinery key/value set mismatch")
+          if a["bound_evidence_blobs"]!=EXPECTED_EVIDENCE or set(a["bound_evidence_blobs"])!=set(EXPECTED_EVIDENCE):
+              raise SystemExit("evidence key/value set mismatch")
+
+          subprocess.check_call(["git","cat-file","-e",EXPECTED_PROPOSAL_COMMIT+"^{commit}"])
+          if git_blob(f"{EXPECTED_PROPOSAL_COMMIT}:{EXPECTED_PROPOSAL_PATH}")!=EXPECTED_PROPOSAL_BLOB:
+              raise SystemExit("proposal blob mismatch at frozen commit")
+          if git_blob(f"HEAD:{EXPECTED_PROPOSAL_PATH}")!=EXPECTED_PROPOSAL_BLOB:
+              raise SystemExit("current proposal bytes differ from frozen proposal")
+          for path,blob in {**EXPECTED_MACHINERY,**EXPECTED_EVIDENCE}.items():
+              if git_blob(f"HEAD:{path}")!=blob:
+                  raise SystemExit(f"bound blob mismatch: {path}")
+
+          ir=a["independent_review"]
+          if set(ir)!=REVIEW_KEYS: raise SystemExit("independent_review key set mismatch")
+          if ir["path"]!=EXPECTED_REVIEW_PATH: raise SystemExit("review path mismatch")
+          if ir["disposition"]!="BOUNDED_PASS" or ir["critical_findings"]!=0 or ir["high_findings"]!=0:
+              raise SystemExit("review claims are not clean")
+          if not re.fullmatch(r"[0-9a-f]{40}",ir["blob_sha1"]): raise SystemExit("review blob syntax invalid")
+          if git_blob(f"HEAD:{EXPECTED_REVIEW_PATH}")!=ir["blob_sha1"]:
+              raise SystemExit("review artifact blob mismatch")
+
+          review=pathlib.Path(EXPECTED_REVIEW_PATH).read_text()
+          if not re.search(r"(?m)^A\. OVERALL_DISPOSITION\s*(?:—|-|:)?\s*BOUNDED_PASS\s*$",review):
+              raise SystemExit("review artifact does not state BOUNDED_PASS")
+          if EXPECTED_PROPOSAL_ID not in review or EXPECTED_PROPOSAL_COMMIT not in review:
+              raise SystemExit("review artifact not bound to exact proposal")
+          c=re.search(r"(?ms)^C\. CRITICAL_FINDINGS\s*\n(.*?)(?=^D\.)",review)
+          d=re.search(r"(?ms)^D\. HIGH_FINDINGS\s*\n(.*?)(?=^E\.)",review)
+          if not c or c.group(1).strip() not in {"None","None."}: raise SystemExit("review Critical section not clean")
+          if not d or d.group(1).strip() not in {"None","None."}: raise SystemExit("review High section not clean")
+          if not re.search(r"(?mi)Stage2 SG-1 may be explicitly activated by user:\s*YES",review):
+              raise SystemExit("review final gate is not YES")
+          if not re.search(r"(?mi)Broader Stage2 semantic authority granted:\s*NO",review):
+              raise SystemExit("review does not preserve broader Stage2 boundary")
+
+          approval=a["explicit_user_approval"]
+          if set(approval)!=APPROVAL_KEYS: raise SystemExit("explicit_user_approval key set mismatch")
+          if approval["approved"] is not True: raise SystemExit("explicit user approval false")
+          if approval["approved_proposal_commit"]!=EXPECTED_PROPOSAL_COMMIT: raise SystemExit("approved proposal commit mismatch")
+          if approval["approved_proposal_blob"]!=EXPECTED_PROPOSAL_BLOB: raise SystemExit("approved proposal blob mismatch")
+          if approval["approved_review_blob"]!=ir["blob_sha1"]: raise SystemExit("approved review blob mismatch")
+          gate_blob=git_blob(f"HEAD:{GATE_PATH}")
+          if approval["approved_activation_gate_blob"]!=gate_blob:
+              raise SystemExit("approved activation-gate blob mismatch")
+
+          print("R8V15R1_STAGE2_SG1_EXACT_ACTIVATION_GATE_PASS")
+          PY
+
+  run-sg1:
+    needs: verify
+    uses: ./.github/workflows/r8-v15-r1-stage2-sg1-core.yml
