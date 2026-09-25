@@ -1,0 +1,15 @@
+{
+  "schema": "r8-v15-r1-ig1-successor2-proposal-preflight-failure/v1",
+  "status": "PRESERVED_FAIL_CLOSED_PROPOSAL_PREFLIGHT",
+  "authority_effect": "NONE",
+  "run_id": 36163117291,
+  "job_id": 108164281614,
+  "head_sha": "2848fcb26a9bd8579e26830267b46ff12f58eba4",
+  "failure": "governance-history detector over-classified legitimate frozen-schema read under schemas/governance-r8/v15-r1",
+  "offending_reviewed_candidate": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+  "offending_path": "governance-runtime/r8_v15_r1_freeze_traceability_exact_validator.py",
+  "materialization_executed": false,
+  "integration_executed": false,
+  "semantic_execution": false,
+  "disposition": "TOOLING_PREFLIGHT_DEFECT_REPAIRED_WITH_SCHEMA_VS_HISTORY_PATH_CLASSIFICATION"
+}
