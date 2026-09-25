@@ -35,10 +35,11 @@ jobs:
           at_pc=subprocess.check_output(['git','rev-parse',f'{pc}:{ppath}'],text=True).strip()
           at_head=subprocess.check_output(['git','rev-parse',f'HEAD:{ppath}'],text=True).strip()
           if at_pc!=a['proposal_blob_sha1'] or at_head!=a['proposal_blob_sha1']: raise SystemExit('proposal binding mismatch')
-          for path,blob in a['bound_machinery_blobs'].items():
-              got=subprocess.check_output(['git','rev-parse',f'HEAD:{path}'],text=True).strip()
-              if got!=blob: raise SystemExit(f'machinery blob mismatch {path}')
-          print('SUCCESSOR2_ACTIVATION_BINDING_PASS')
+          for group in ('bound_machinery_blobs','bound_evidence_blobs'):
+              for path,blob in a[group].items():
+                  got=subprocess.check_output(['git','rev-parse',f'HEAD:{path}'],text=True).strip()
+                  if got!=blob: raise SystemExit(f'{group} blob mismatch {path}')
+          print('SUCCESSOR2_ACTIVATION_PROPOSAL_REVIEW_MACHINERY_EVIDENCE_BINDING_PASS')
           PY
       - name: Create pristine target worktree from exact Slice7 base
         shell: bash
