@@ -1,0 +1,30 @@
+name: R8 v15-r1 IG-1 Successor1 Allowlist Evidence
+
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-integration-gate1-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IG1-SUCCESSOR1-ALLOWLIST-BUILD-MARKER.json
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build exact candidate path-mode-blob evidence
+        run: python3 tools/build_r8_v15_r1_ig1_successor1_allowlist.py
+      - name: Upload proposal evidence only
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-ig1-successor1-allowlist-evidence
+          path: ig1-successor1-evidence/
+          if-no-files-found: error
+          retention-days: 30
