@@ -1,0 +1,74 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor2-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "predecessor_implementation_candidate": "2cf7adce8bdd67c8b78659d9359c178535af1d73",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "preregistration_commit": "fe160b0d50e208c964380acc7676515aa60736fd",
+  "frozen_repair_harness_commit": "82ffca70bb4c67fae6569cca50b8048911d01ce1",
+  "mechanism_repair_commit": "07023be7998cec23df1b45cc4a237ccc12102087",
+  "marker_candidate_commit": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "final_green_run": {
+    "run_id": 36107415256,
+    "job_id": 107983021495,
+    "exact_checkout_sha": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+    "conclusion": "success",
+    "original_i1": {
+      "passed": 16,
+      "total": 16
+    },
+    "successor1_s1r": {
+      "passed": 8,
+      "total": 8
+    },
+    "successor2_s1r2": {
+      "passed": 8,
+      "total": 8
+    },
+    "post_freeze_regressions": {
+      "passed": 12,
+      "total": 12
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36107351236,
+    "job_id": 107982824474,
+    "exact_checkout_sha": "07023be7998cec23df1b45cc4a237ccc12102087",
+    "conclusion": "success"
+  },
+  "preserved_failure_history": [
+    {
+      "run_id": 36107096938,
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR2-CONTROL-FAILURE-001.json"
+    },
+    {
+      "run_id": 36107151949,
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR2-CONSTRUCTION-FAILURE-001.json"
+    },
+    {
+      "run_id": 36107241364,
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR2-CONSTRUCTION-FAILURE-002.json"
+    }
+  ],
+  "verified_properties": [
+    "nested object and array negative zero reject before normalization",
+    "nested signed-int64 bounds remain exact",
+    "symlinked same-byte frozen artifacts reject",
+    "resolved frozen artifact parent confinement enforced",
+    "source-map artifact keys map to exact full frozen artifact paths",
+    "SPM artifact IDs and SHA-256 shapes validated",
+    "original I1 and Successor 1 S1R remain green",
+    "frozen executable-schema bytes unchanged"
+  ],
+  "claim_boundary": {
+    "implementation_slice1_construction_green": true,
+    "independent_review_closed": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
