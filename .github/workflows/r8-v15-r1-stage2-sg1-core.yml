@@ -1,0 +1,68 @@
+name: R8 v15-r1 Stage2 SG-1 Dependency Semantic Core
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  semantic-conformance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONNOUSERSITE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Create exact closed Stage1 candidate worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="$RUNNER_TEMP/r8-stage2-sg1-candidate"
+          git worktree add --detach "$TARGET" 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+          test "$(git -C "$TARGET" rev-parse HEAD)" = "4984f06a4420b76ad1ad475751aebda04a2d2c5c"
+          test "$(git -C "$TARGET" rev-parse HEAD^{tree})" = "5a34e0d7db3e750dd5b0f722ccecc8014be189ef"
+          test -z "$(git -C "$TARGET" status --porcelain=v1)"
+          echo "SG1_TARGET=$TARGET" >> "$GITHUB_ENV"
+      - name: Re-run Stage1 exact-candidate regression guard before SG-1
+        run: |
+          PRE="$RUNNER_TEMP/r8-stage2-sg1-precheck"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$PRE"
+      - name: Run SG-1 forward import order
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B governance-runtime/test_r8_v15_r1_stage2_sg1_dependency_semantics.py --target "$SG1_TARGET" --order forward > "$RUNNER_TEMP/sg1-forward.json"
+          cat "$RUNNER_TEMP/sg1-forward.json"
+      - name: Run SG-1 reverse import order
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B governance-runtime/test_r8_v15_r1_stage2_sg1_dependency_semantics.py --target "$SG1_TARGET" --order reverse > "$RUNNER_TEMP/sg1-reverse.json"
+          cat "$RUNNER_TEMP/sg1-reverse.json"
+      - name: Compare order-invariant semantic results
+        run: python3 tools/compare_r8_v15_r1_stage2_sg1_results.py "$RUNNER_TEMP/sg1-forward.json" "$RUNNER_TEMP/sg1-reverse.json"
+      - name: Re-run Stage1 exact-candidate regression guard after SG-1
+        run: |
+          POST="$RUNNER_TEMP/r8-stage2-sg1-postcheck"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$POST"
+      - name: Assert exact candidate remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$SG1_TARGET" rev-parse HEAD)" = "4984f06a4420b76ad1ad475751aebda04a2d2c5c"
+          test "$(git -C "$SG1_TARGET" rev-parse HEAD^{tree})" = "5a34e0d7db3e750dd5b0f722ccecc8014be189ef"
+          test -z "$(git -C "$SG1_TARGET" status --porcelain=v1)"
+      - name: Upload bounded SG-1 results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-stage2-sg1-results
+          path: |
+            ${{ runner.temp }}/sg1-forward.json
+            ${{ runner.temp }}/sg1-reverse.json
+          if-no-files-found: error
+          retention-days: 30
