@@ -1,0 +1,47 @@
+{
+  "schema": "r8-v15-r1-slices8-10-batch-review-packet-marker/v1",
+  "status": "BUILD_FRESH_BLIND_THREE_LOOP_BATCH_REVIEW_PACKET",
+  "authority_effect": "NONE",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "closed_slice7_head": "5477df994c2cc9db0033742e189b906eb20247c1",
+  "loop_candidates": {
+    "slice8": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "slice9": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "slice10": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4"
+  },
+  "evidence_heads": {
+    "slice8": "be2a88bb85a59f253fbadbfcf400dbff2f15f064",
+    "slice9": "ec2862c0cf1bfbd0cefc08537e6359495d6c842f",
+    "slice10": "e964b17d54aac10f90c9ab1206a21e1d6825441e"
+  },
+  "final_runs": {
+    "slice8": {
+      "run_id": 36121677646,
+      "job_id": 108028378950
+    },
+    "slice9": {
+      "run_id": 36121983437,
+      "job_id": 108029364363
+    },
+    "slice10": {
+      "run_id": 36122429875,
+      "job_id": 108030797431
+    }
+  },
+  "intended_attachment_count": 7,
+  "review_mode": "ONE_COMBINED_FRESH_BLIND_REVIEW_WITH_PER_SLICE_FINAL_GATES",
+  "grants": {
+    "slice8_closed": false,
+    "slice9_closed": false,
+    "slice10_closed": false,
+    "review_gate_closed": false,
+    "promotion_authorized": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
