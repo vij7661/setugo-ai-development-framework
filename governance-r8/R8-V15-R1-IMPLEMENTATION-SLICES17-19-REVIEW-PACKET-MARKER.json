@@ -1,0 +1,54 @@
+{
+  "schema": "r8-v15-r1-implementation-slices17-19-review-packet-marker/v1",
+  "status": "BUILD_FRESH_BLIND_THREE_LOOP_BATCH_REVIEW_PACKET",
+  "authority_effect": "NONE",
+  "common_frozen_schema": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "common_closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "governance_batch_anchor": "fa69cd70113c043a285646d0b1bfaef94caa0c69",
+  "slice17": {
+    "candidate": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+    "evidence_head": "f987da522eac67268f01ddd0e99fcef826f25af7",
+    "final_green_run": 36135627354,
+    "final_green_job": 108072886412,
+    "mechanism_green_run": 36135576764,
+    "mechanism_green_job": 108072724304,
+    "red_run": 36135490554,
+    "red_job": 108072441996
+  },
+  "slice18": {
+    "candidate": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+    "evidence_head": "4ce6500cd57db824bfe513decc34391eb48592cb",
+    "final_green_run": 36135936005,
+    "final_green_job": 108073888191,
+    "mechanism_green_run": 36135882980,
+    "mechanism_green_job": 108073717236,
+    "red_run": 36135804708,
+    "red_job": 108073466799
+  },
+  "slice19": {
+    "candidate": "6d591e8ce8a881411929a887d7152603a4af0e49",
+    "evidence_head": "b64c36061eed399cdc28ef7ed0e136f555c7a07a",
+    "final_green_run": 36136273176,
+    "final_green_job": 108074991131,
+    "mechanism_green_run": 36136220758,
+    "mechanism_green_job": 108074821574,
+    "red_run": 36136138749,
+    "red_job": 108074552132
+  },
+  "intended_attachment_count": 7,
+  "raw_red_logs_required": true,
+  "raw_green_logs_required": true,
+  "manifest_design": "PAYLOAD_FILES_01_06_HASHED; NO_INTERNAL_SELF_HASH; OUTER_GITHUB_ARTIFACT_DIGEST_BINDS_ZIP",
+  "grants": {
+    "semantic_selection": false,
+    "lineage_transition_authority": false,
+    "constitutional_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
