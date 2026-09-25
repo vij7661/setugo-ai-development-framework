@@ -1,0 +1,93 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_BATCH_IDENTITY
+Reviewed baseline:
+- Frozen schema candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+- Closed Slice 7 candidate: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- Closed Slice 7 closure head: 5477df994c2cc9db0033742e189b906eb20247c1
+
+Slice 8:
+- Preregistration: c4a8436e76b162bd3044b1d75af0bbc49de4978c
+- Frozen harness: 9fd96beee997169644c88414bcfcc1f5d9c5f171
+- Mechanism: 865774ae97a99d25fa6275e245ebc71b1dcc81f1
+- Exact candidate: fa94f8dd96bc54515baabf3f34ed37d25f41f6db
+- RED run/job: 36121507503 / 108027844694
+- GREEN run/job: 36121594696 / 108028121381
+- Exact-candidate final run/job: 36121677646 / 108028378950
+
+Slice 9:
+- Preregistration: eef112faeb9fb6b728f16e9f4f8cc107b7770d45
+- Frozen harness: 38c7ffb9da9ccc3af2c3a5bd6a4406b0fb556e06
+- Mechanism: 05dca8080f7b0b255abafede2a0eafbd01cdbf57
+- Exact candidate: 9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea
+- RED run/job: 36121849545 / 108028937278
+- GREEN run/job: 36121928547 / 108029191186
+- Exact-candidate final run/job: 36121983437 / 108029364363
+
+Slice 10:
+- Preregistration: cd112d71d20c5d6ff2eb98b2284ec5eda81ec9cd
+- Frozen harness: 0581ecd099d9bff4b88a16dec2a89da18e66775d
+- Mechanism: ee077dc9366c8619fb63255c2828c69d625f4965
+- Exact candidate: 33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4
+- RED run/job: 36122231238 / 108030145937
+- GREEN run/job: 36122332891 / 108030481328
+- Exact-candidate final run/job: 36122429875 / 108030797431
+
+C. SLICE_8_REVIEW
+PASS — bounded Slice 8 claim is supported within supplied evidence.
+
+Findings:
+- Preregistration-before-mechanism ordering is stated in the packet and preserved by the RED MECHANISM_ABSENT run/job.
+- Frozen acceptance tests align with the bounded local EffectStateRecord claim: field parity, enum closure, nullable fields, SUCCEEDED_RECONCILED evidence requirements, intent binding, and non-authority metadata are covered.
+- Implementation matches the frozen EffectStateRecord shape and does not claim state transition, executor authority, reconciliation truth, external success, compensation correctness, runtime qualification, or downstream authority.
+- Dependency immutability check covers frozen schema and closed Slice 1..7 implementation files from the closed Slice 7 candidate.
+- Exact-candidate final run proves checkout of fa94f8dd96bc54515baabf3f34ed37d25f41f6db and reports 156 tests PASS.
+
+Observations:
+- I8-11 says the supplied EffectIntent is revalidated first. The test test_i8_11_supplied_effect_intent_revalidated_first proves rejection when the record is valid and the intent is invalid. It does not prove precedence when both record and intent are invalid. The implementation validates record shape/state before revalidating the EffectIntent, though it does revalidate before ID/idempotency binding comparisons. This is a Low/Medium test-strength/ordering observation, not a self-grant or false-green path within the bounded claim.
+- The Slice 8 marker JSON does not itself contain an exact_candidate field. The exact candidate is supplied by the packet heading and final run identity. Low provenance observation.
+
+D. SLICE_9_REVIEW
+PASS — bounded Slice 9 claim is supported within supplied evidence.
+
+Findings:
+- Preregistration-before-mechanism ordering is stated and preserved by the RED MECHANISM_ABSENT run/job.
+- Frozen acceptance tests cover exact field parity, list cardinality/type, non-invented array-length/uniqueness rules, Sequence closure, opaque GCP strings, and non-authority metadata.
+- Implementation matches the frozen EvidenceRecord local shape and explicitly leaves evidence-class upgrade, temporal revocation, mandatory-evidence satisfaction, promotion, execution proof, output derivation, and authority claims false.
+- Dependency immutability check covers frozen schema and closed Slice 1..7 implementation files from the closed Slice 7 candidate.
+- Exact-candidate final run proves checkout of 9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea and reports 156 tests PASS.
+
+Observations:
+- The Slice 9 workflow omits the Slice 8 test suite. The final workflow scope is Slice 9 direct tests plus inherited closed Slice 7..2 and Slice 1/repair/post-freeze set, not a combined batch run including Slice 8.
+- The Slice 9 immutability test does not include prior unclosed batch files such as the Slice 8 mechanism, harness, marker, or workflow. It therefore does not prove Slice 8 files were unchanged at the Slice 9 candidate.
+- The Slice 9 marker JSON does not itself contain an exact_candidate field. Low provenance observation.
+
+E. SLICE_10_REVIEW
+PASS — bounded Slice 10 claim is supported within supplied evidence.
+
+Findings:
+- Preregistration-before-mechanism ordering is stated and preserved by the RED MECHANISM_ABSENT run/job.
+- Frozen acceptance tests cover top-level field parity, nested review-dimension exact fields, result enum closure, non-invented dimension uniqueness/all-PASS policies, opaque GCP strings, and non-authority metadata.
+- Implementation matches the frozen ReviewAttestation local shape and explicitly leaves reviewer independence, signature verification, review-gate closure, promotion, and authority claims false.
+- Dependency immutability check covers frozen schema and closed Slice 1..7 implementation files from the closed Slice 7 candidate.
+- Exact-candidate final run proves checkout of 33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4 and reports 156 tests PASS.
+- Candidate marker sets next_gate to COMBINED_FRESH_BLIND_INDEPENDENT_REVIEW_FOR_LOOPS_1_TO_3, consistent with the batch rule.
+
+Observations:
+- The Slice 10 workflow omits both the Slice 8 and Slice 9 test suites. The final workflow scope is Slice 10 direct tests plus inherited closed Slice 7..2 and Slice 1/repair/post-freeze set, not a combined batch run including Slice 8 and Slice 9.
+- The Slice 10 immutability test does not include prior unclosed batch files such as Slice 8 or Slice 9 mechanisms, harnesses, markers, or workflows. It therefore does not prove those earlier batch files were unchanged at the Slice 10 candidate.
+- The Slice 10 marker JSON does not itself contain an exact_candidate field. Low provenance observation.
+
+F. CROSS_SLICE_AND_FALSE_GREEN_FINDINGS
+- Medium: No supplied single combined workflow run executes Slice 8, Slice 9, and Slice 10 together. Slice 9 omits Slice 8; Slice 10 omits Slice 8 and Slice 9. The repeated 156-test totals reflect direct slice tests plus closed Slice 7..1 inheritance, not the full three-loop batch. Each slice has its own exact-candidate run, but batch-level combined coverage is not shown.
+- Medium: Slice 9 and Slice 10 dependency-immutability checks cover frozen schema and closed Slice 1..7 files, but not prior unclosed batch slice files. Thus later batch candidates are not proven to leave earlier batch slice mechanisms/tests/markers unchanged.
+- Low/Medium: Slice 8 I8-11 “EffectIntent is revalidated first” is only partially tested. The implementation revalidates the intent before ID/idempotency binding, but validates record shape/state before intent revalidation. Precedence when both record and intent are invalid is not covered.
+- Low: Slice markers omit an explicit exact_candidate field, although the packet headings and final logs provide the exact candidate identities.
+- NONE_FOUND_WITHIN_SUPPLIED_EVIDENCE for Critical false-green or self-grant paths: authority flags remain false, promotion/review-gate/independence claims remain false, and the implementations do not claim authority beyond bounded local construction evidence.
+
+G. AUTHORITY_BOUNDARY
+This review is REVIEW_ONLY / NON_AUTHORITATIVE. It does not grant, and even this BOUNDED_PASS does not grant, runtime qualification, evidence promotion, release, deployment, production, policy authority, merge authority, adjudication authority, or terminal authority. It authorizes only the conclusion that the exact bounded local implementation construction evidence for Slice 8, Slice 9, and Slice 10 is sufficient to record those bounded claims as passing within the supplied packet.
+
+H. REQUIRED_NEXT_ACTION
+Record the three-loop batch as closed for bounded implementation evidence only, for the exact candidates identified above. Do not treat that closure as runtime qualification, evidence promotion, release, deployment, production, policy authority, merge authority, or terminal authority. If a single combined batch-level workflow run including Slice 8, Slice 9, and Slice 10 is required by policy, that remains outside this review and must be supplied separately.
