@@ -6,6 +6,8 @@ from typing import Any, Dict, Tuple
 import r8_v15_r1_frozen_schema_runtime as slice1
 
 SCOPE_FIELDS: Tuple[str,...]=("trust_domain_id","constitution_id","root_namespace","tenant_id","organization_id","project_id","experiment_or_release_id","object_class","action_class")
+STABLE_SCOPE_PATTERN="^(?!ANY$).+"
+ECMA_LINE_TERMINATORS=("\n","\r","\u2028","\u2029")
 
 class CanonicalScopeTupleError(ValueError):
     def __init__(self,code:str,message:str):
@@ -14,6 +16,8 @@ class CanonicalScopeTupleError(ValueError):
 def _component(value:Any,field:str)->None:
     if not isinstance(value,str) or not value:
         raise CanonicalScopeTupleError("CANONICAL_SCOPE_COMPONENT_INVALID",f"{field} must be non-empty string")
+    if value != "ANY" and value[0] in ECMA_LINE_TERMINATORS:
+        raise CanonicalScopeTupleError("CANONICAL_SCOPE_COMPONENT_PATTERN_INVALID",f"{field} stable branch does not match frozen pattern {STABLE_SCOPE_PATTERN}")
     try:
         slice1.canonicalize_json_text(json.dumps({"value":value},ensure_ascii=True,separators=(",",":")),schema_context="object")
     except slice1.GCPError as exc:
