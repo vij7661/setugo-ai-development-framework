@@ -1,0 +1,35 @@
+{
+  "schema": "r8-v15-r1-review-cadence-post-successor3-review004/v1",
+  "status": "FALLBACK_TO_3_ACTIVE_CLEAN_REVIEW_1_OF_2",
+  "authority_effect": "IMPLEMENTATION_WORKFLOW_GOVERNANCE_ONLY",
+  "prior_fallback_anchor_commit": "6dcb1f5e42bb1e806faf3177f0ef732ee1dc8916",
+  "clean_review": {
+    "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR3",
+    "exact_proposal_commit": "c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317",
+    "review_path": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR3-INDEPENDENT-REVIEW-004.txt",
+    "review_blob_sha1": "46e2a5ef1a95eb2f098e706da6c09c3652072344",
+    "disposition": "BOUNDED_PASS",
+    "critical_findings": 0,
+    "high_findings": 0
+  },
+  "recovery_state": {
+    "clean_reviews_after_latest_remediation": 1,
+    "required": 2,
+    "six_slice_cadence_restored": false,
+    "automatic_restore": false
+  },
+  "active_rule": {
+    "max_unreviewed_low_risk_slices": 3,
+    "mandatory_early_review_triggers_remain_active": true
+  },
+  "grants": {
+    "integration": false,
+    "semantic_execution": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "terminal_authority": false
+  }
+}
