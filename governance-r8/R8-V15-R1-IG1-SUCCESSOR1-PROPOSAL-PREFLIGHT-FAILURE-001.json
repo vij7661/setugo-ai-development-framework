@@ -1,0 +1,14 @@
+{
+  "schema": "r8-v15-r1-ig1-successor1-proposal-preflight-failure/v1",
+  "status": "PRESERVED_FAIL_CLOSED_PROPOSAL_PREFLIGHT",
+  "authority_effect": "NONE",
+  "run_id": 36160931940,
+  "job_id": 108157018888,
+  "head_sha": "71261a3a9d43720636783763df4798b57ceb2174",
+  "failure": "self-referential forbidden-token text scan rejected materializer because literal monkeypatch appeared in its own scanner definition",
+  "candidate_tree_entry_checks_reached": false,
+  "materialization_executed": false,
+  "integration_executed": false,
+  "semantic_execution": false,
+  "disposition": "TOOLING_PREFLIGHT_DEFECT_REPAIRED_WITH_AST_BASED_SCANNER"
+}
