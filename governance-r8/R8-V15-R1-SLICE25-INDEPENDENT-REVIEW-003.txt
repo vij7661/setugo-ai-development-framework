@@ -1,0 +1,39 @@
+A. OVERALL_DISPOSITION — BOUNDED_PASS
+
+B. EXACT_IDENTITY
+- Frozen schema: f93ca26975ecb64f0da13779889c75b36140cdfc
+- Closed implementation baseline Slice 7: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- Active fallback-to-3 governance anchor: 0410aae4f783b84542d0d491d3d1bb6003ad4216
+- Slice 25 exact candidate: aa61ee5637daa10f1de9f39d164c610145fe47be
+- Preserved RED: run 36139530746 / job 108085656867 / head 9ba5e12620a6e6fd50e607dbfe7f6ca9be728bdd / raw_log_sha256 a74155a288260b2af45dd703288cadf45987e9f7bbfbadbd49d7bedea5a52559 / bytes 160718
+- Mechanism GREEN: run 36139760592 / job 108086423863 / head f37ecaf9e0b839ae326fda2de3a7dbeb688f6cf7 / raw_log_sha256 f72e16282df25179457407677bcae1c282a84b9ad92eb9b1be738641e362f13a / bytes 176706
+- Exact-candidate GREEN: run 36139890031 / job 108086840659 / head aa61ee5637daa10f1de9f39d164c610145fe47be / raw_log_sha256 439b8f834d73eec561bcde2d6c8981a6885f360eea4a111d40c337bfb426a01c / bytes 176706
+- Validator: path governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py; ref aa61ee5637daa10f1de9f39d164c610145fe47be; git_blob_sha1 83dd1f3d808151842e20669bfe49ccd8dd1012d1; sha256 5edd95e8a964df366f1dcbbe9cf31b62e7c0b4f0895c79b5a9a570ae41e9afae; bytes 2775
+- Tests: path governance-runtime/test_r8_v15_r1_implementation_slice25.py; ref aa61ee5637daa10f1de9f39d164c610145fe47be; git_blob_sha1 5000e33725886e323ef8b62f7a02801e2eab16fe; sha256 e92cee90409e327e71f09d6b5af57ccfa59fd29abce15e055fb9017ea1047adb; bytes 6902
+- Workflow: path .github/workflows/r8-v15-r1-implementation-slice25.yml; ref aa61ee5637daa10f1de9f39d164c610145fe47be; git_blob_sha1 b5d13dfc2490d1d3899b5793232083acecd19181; sha256 323ce477f508d3b6c2f22aa18f51e22a9d43059175cb2287568ddd7de5ca1dea; bytes 3412
+- Marker: path governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE25-MARKER.json; ref aa61ee5637daa10f1de9f39d164c610145fe47be; git_blob_sha1 2a39a9bdba3428bb0a552e667422ac8695583b0b; sha256 50be43d8c98a3b0527b08eab22056f147eb23f98fd39b59ecba0ac260d048476; bytes 1355
+
+C. CRITICAL_FINDINGS
+- None.
+
+D. HIGH_FINDINGS
+- None.
+
+E. MEDIUM_LOW_FINDINGS
+- LOW: Preserved RED is described as “15 mechanism-absent failures,” but the raw log shows 14 failures + 1 error + 1 pass. The error is test_i25_15 failing to read the absent validator source, not a MECHANISM_ABSENT assertion. This remains consistent with mechanism absence and does not affect the RED/GREEN relationship.
+- LOW: This evidence-only review relies on the supplied blob/SHA256 identities and raw logs; no independent rehash or re-execution was performed here.
+
+F. SLICE25_EVIDENCE_ASSESSMENT
+1. Preserved RED: Complete and consistent with mechanism absence. 16 tests ran; 14 failures and 1 error all trace to the missing validator/module or missing validator source; I25-16 passes; job conclusion is failure.
+2. Mechanism GREEN: Complete and successful. Slice25 16/16 OK; inherited baseline 140/140 OK; total 156/156 OK. Run 36139760592 is success at head f37ecaf9e0b839ae326fda2de3a7dbeb688f6cf7.
+3. Exact-candidate GREEN: Complete, successful, and bound to aa61ee5637daa10f1de9f39d164c610145fe47be. Slice25 16/16 OK; inherited baseline 140/140 OK; total 156/156 OK. Run 36139890031 is success, and checkout/log identity shows aa61ee5637daa10f1de9f39d164c610145fe47be.
+4. Unchanged identities: Validator, test, workflow, and marker identities are present and bound to aa61ee5637daa10f1de9f39d164c610145fe47be. Slice25 test I25-16 immutability/workflow coverage passes in the GREEN runs, and the workflow includes the expected governed paths and branch.
+5. Authority boundary: No authority is granted beyond bounded structural implementation construction. Validator output keeps policy, semantic, scope, constitutional, runtime, evidence-promotion, release, deployment, production, policy, and terminal authority false; marker grants only implementation_construction true.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+- This closes only the previously open Slice 25 evidence-completion gate for bounded structural implementation construction.
+- It does not grant runtime qualification, evidence promotion, release, deployment, production, policy, constitutional, root, or terminal authority.
+- It does not establish semantic selection, scope authority, policy currentness, permission authorization, or any operational authority.
+- Recovery-cadence statement: Because this disposition is BOUNDED_PASS with zero Critical/High findings, this counts as clean post-remediation review 1 of 2 toward possible future recovery from the 3-slice fallback to the 6-slice cadence, together with review 002’s zero Critical/High findings on the repaired/accepted slices. This review does not itself change cadence or grant authority.
+
+H. FINAL_GATE — YES for exact candidate aa61ee5637daa10f1de9f39d164c610145fe47be, bounded to the structural implementation construction gate only.
