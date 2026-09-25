@@ -1,0 +1,34 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor1-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_PRE_REPAIR",
+  "authority_effect": "NONE",
+  "preregistration_commit": "dfca9dd073dedfff8008fa2aaaf679023b3c5aa4",
+  "frozen_repair_harness_commit": "da46eeb47150094b114768a4b9de7377c71d9e2a",
+  "workflow_run_id": 36105013894,
+  "workflow_job_id": 107975505494,
+  "exact_checkout_sha": "da46eeb47150094b114768a4b9de7377c71d9e2a",
+  "observed": {
+    "original_i1": "16/16 PASS",
+    "successor_repair": "4/8 PASS, 4/8 FAIL",
+    "passed": [
+      "S1R-01",
+      "S1R-03",
+      "S1R-07",
+      "S1R-08"
+    ],
+    "failed": [
+      "S1R-02",
+      "S1R-04",
+      "S1R-05",
+      "S1R-06"
+    ],
+    "exposed": [
+      "verified schema bytes are reopened through read_text after hashing",
+      "no deterministic load-time rejection-vector self-check exists",
+      "direct SPM validation accepts 3057 entries when declared count is also 3057",
+      "direct SPM validation accepts artifact paths outside the frozen schema directory"
+    ]
+  },
+  "classification": "EXPECTED_PREREGISTERED_REPAIR_GAP",
+  "preserved_not_reclassified": true
+}
