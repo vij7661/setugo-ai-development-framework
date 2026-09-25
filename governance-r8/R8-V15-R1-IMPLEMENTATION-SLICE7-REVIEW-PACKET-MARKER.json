@@ -1,0 +1,30 @@
+{
+  "schema": "r8-v15-r1-implementation-slice7-review-packet-marker/v1",
+  "status": "BUILD_FRESH_BLIND_REVIEW_PACKET",
+  "authority_effect": "NONE",
+  "exact_implementation_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice6_candidate": "a972ddcee333aff063858727739986fe2fd8088d",
+  "closed_slice5_candidate": "403e40502e9d51740e89ef352b5611711439661e",
+  "closed_slice4_candidate": "3b60d8f14851b755f09a35431c620d6ae594a894",
+  "closed_slice3_candidate": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+  "closed_slice2_candidate": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "closed_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "evidence_head": "b9b5bdf0f4ec746b6617fbd5d1a15422f574912e",
+  "final_green_run_id": 36119319521,
+  "final_green_job_id": 108020783148,
+  "intended_attachment_count": 5,
+  "purpose": "Produce exact fresh blind Slice 7 review transport from frozen candidate and evidence-only head.",
+  "grants": {
+    "effect_intent_committed": false,
+    "commit_with_seal_authorized": false,
+    "dispatch_authorized": false,
+    "external_effect_succeeded": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
