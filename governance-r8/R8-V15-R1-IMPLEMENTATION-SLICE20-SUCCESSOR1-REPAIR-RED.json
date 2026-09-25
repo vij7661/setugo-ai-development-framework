@@ -1,0 +1,18 @@
+{
+  "schema": "r8-v15-r1-implementation-slice20-successor1-repair-red/v1",
+  "status": "PRESERVED_REVIEWER_FINDING_REPRODUCTION_RED",
+  "authority_effect": "NONE",
+  "rejected_candidate": "053a5c0e70aee45e0e73653d68de3575a83d455c",
+  "triggering_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICES20-25-INDEPENDENT-REVIEW-001.txt",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "frozen_repair_workflow_commit": "14c913829ffeaa8387f098ad8a2ccf211ce2d76a",
+  "run_id": 36143159757,
+  "job_id": 108097654409,
+  "successor_tests_run": 4,
+  "observed_failure_events": 4,
+  "finding_reproduced": true,
+  "finding_summary": "All four leading ECMA line terminators were falsely accepted by the rejected candidate.",
+  "frozen_pattern": "^(?!ANY$).+",
+  "repair_not_yet_applied_at_this_run": true,
+  "preserved_not_reclassified": true
+}
