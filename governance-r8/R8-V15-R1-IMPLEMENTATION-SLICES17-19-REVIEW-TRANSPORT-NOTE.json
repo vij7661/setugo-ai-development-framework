@@ -1,0 +1,26 @@
+{
+  "schema": "r8-v15-r1-slices17-19-review-transport-note/v1",
+  "status": "CANONICAL_ARCHIVE_FILENAMES_VERIFIED",
+  "authority_effect": "NONE",
+  "github_artifact_id": 10865626062,
+  "github_artifact_name": "r8-v15-r1-slices17-19-review-packet",
+  "github_artifact_sha256": "b43ea219db37c9586536ad7a127a62587c48290e5f4ee0210ab646940c9da62f",
+  "canonical_archive_entries": [
+    "01_INSTRUCTIONS.txt",
+    "02_EXACT_SLICE17_CANDIDATE.txt",
+    "03_EXACT_SLICE18_CANDIDATE.txt",
+    "04_EXACT_SLICE19_CANDIDATE.txt",
+    "05_SHARED_FROZEN_CONTRACTS_AND_BASELINE.txt",
+    "06_BATCH_CONSTRUCTION_EVIDENCE.txt",
+    "07_SHA256_MANIFEST.txt"
+  ],
+  "reviewer_observed_renamed_examples": [
+    "01_INSTRUCTIONS(3).txt",
+    "05_SHARED_FROZEN_CONTRACTS_AND_BASELINE(3).txt",
+    "06_BATCH_CONSTRUCTION_EVIDENCE(3).txt",
+    "07_SHA256_MANIFEST(3).txt"
+  ],
+  "classification": "DOWNSTREAM_UPLOAD_OR_DEDUPLICATION_RENAME_ONLY",
+  "canonical_packet_rebuild_required": false,
+  "note": "The archived GitHub artifact itself contains canonical names. Reviewer-side suffixes are preserved as transport history and do not alter content hashes or candidate identity."
+}
