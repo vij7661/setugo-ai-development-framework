@@ -1,0 +1,37 @@
+name: R8 v15-r1 Slice25 Evidence Completion
+
+on:
+  push:
+    branches:
+      - implementation/r8-v15-r1-slice25-aim-scope-policy-class-rule-local-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-SLICE25-EVIDENCE-COMPLETION-MARKER.json
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build Slice25 evidence completion file
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 tools/build_r8_v15_r1_slice25_evidence_completion.py
+          test "$(find slice25-evidence -maxdepth 1 -type f | wc -l)" -eq 1
+      - name: Upload Slice25 evidence completion
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-slice25-evidence-completion
+          path: slice25-evidence/R8-V15-R1-SLICE25-EVIDENCE-COMPLETION.txt
+          if-no-files-found: error
+          retention-days: 30
