@@ -1,0 +1,41 @@
+{
+  "schema": "r8-v15-r1-implementation-open-hardening/v4",
+  "status": "OPEN_NONBLOCKING_HARDENING",
+  "authority_effect": "NONE",
+  "source_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE5-INDEPENDENT-REVIEW-001.txt",
+  "source_adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE5-REVIEW-001-ADJUDICATION.json",
+  "items": [
+    {
+      "id": "R8V15R1-IMPL-HARDEN-011",
+      "title": "Directly test missing/extra top-level QualifiedTimeProof fields",
+      "status": "OPEN",
+      "severity": "TEST_DEPTH",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-012",
+      "title": "Directly exercise invalid external_effect_involved type at Slice 5 boundary",
+      "status": "OPEN",
+      "severity": "TEST_DEPTH",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-013",
+      "title": "Preserve exact workflow logs as evidence inherited suites actually execute",
+      "status": "OPEN",
+      "severity": "EVIDENCE_STRUCTURE",
+      "blocking": false
+    }
+  ],
+  "inherited_open_items": [
+    "R8V15R1-RTQ-OPEN-001",
+    "R8V15R1-IMPL-HARDEN-004",
+    "R8V15R1-IMPL-HARDEN-005",
+    "R8V15R1-IMPL-HARDEN-006",
+    "R8V15R1-IMPL-HARDEN-007",
+    "R8V15R1-IMPL-HARDEN-008",
+    "R8V15R1-IMPL-HARDEN-009",
+    "R8V15R1-IMPL-HARDEN-010"
+  ],
+  "rule": "These items remain open after Slice 5 closure and may not be represented as resolved without governed evidence."
+}
