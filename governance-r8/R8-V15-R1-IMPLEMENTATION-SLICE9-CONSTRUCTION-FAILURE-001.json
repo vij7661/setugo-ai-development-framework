@@ -1,0 +1,19 @@
+{
+  "schema": "r8-v15-r1-implementation-slice9-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "batch_loop": 2,
+  "preregistration_commit": "eef112faeb9fb6b728f16e9f4f8cc107b7770d45",
+  "frozen_harness_commit": "38c7ffb9da9ccc3af2c3a5bd6a4406b0fb556e06",
+  "workflow_commit": "5712b3bd37184dd41c12b33e088ce7368ad2e53c",
+  "workflow_run_id": 36121849545,
+  "workflow_job_id": 108028937278,
+  "exact_checkout_sha": "5712b3bd37184dd41c12b33e088ce7368ad2e53c",
+  "observed": {
+    "slice9_tests_run": 16,
+    "slice9_passed": 1,
+    "slice9_failed": 15,
+    "root_cause": "ModuleNotFoundError: No module named 'r8_v15_r1_evidence_record_validator'"
+  },
+  "preserved_not_reclassified": true
+}
