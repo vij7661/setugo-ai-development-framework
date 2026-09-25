@@ -1,0 +1,27 @@
+name: R8 v15-r1 Stage2 SG-1 Early Review Packet
+on:
+  push:
+    branches:
+      - governance/r8-v15-r1-stage2-semantic-gate-proposal-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-PACKET-MARKER.json
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build exact SG-1 early-review packet
+        run: python3 tools/build_r8_v15_r1_stage2_sg1_review_packet.py
+      - name: Upload one-file packet
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-stage2-sg1-early-review
+          path: stage2-sg1-review/R8-V15-R1-STAGE2-SG1-EARLY-REVIEW-PACKET.txt
+          if-no-files-found: error
+          retention-days: 30
