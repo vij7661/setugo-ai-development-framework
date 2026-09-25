@@ -8,6 +8,7 @@ on:
       - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE20-PREREGISTRATION.md
       - governance-runtime/r8_v15_r1_stable_scope_value_validator.py
       - governance-runtime/test_r8_v15_r1_implementation_slice20.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice20_successor1.py
       - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE20-MARKER.json
       - governance-r8/R8-V15-R1-IMPLEMENTATION-REVIEW-CADENCE-ACTIVATION-001.json
       - .github/workflows/r8-v15-r1-implementation-slice20.yml
@@ -48,6 +49,8 @@ jobs:
           persist-credentials: false
       - name: Run Slice 20
         run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice20.py
+      - name: Run Slice 20 successor-1 repair
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice20_successor1.py
       - name: Run inherited Slice 7
         run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice7.py
       - name: Run inherited Slice 6
