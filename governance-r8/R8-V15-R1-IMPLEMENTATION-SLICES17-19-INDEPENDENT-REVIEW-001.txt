@@ -1,0 +1,132 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_BATCH_IDENTITY
+Common frozen schema: f93ca26975ecb64f0da13779889c75b36140cdfc
+Common closed implementation baseline (Slice 7): 751162ee42c603cb6c84ee12021d16bab6fa626b
+Governance-only Slices 14–16 closure anchor: fa69cd70113c043a285646d0b1bfaef94caa0c69
+
+Slice 17
+candidate: 2717f6127a4d2a76a7d7efafe5e79fe83cc32c53
+evidence head: f987da522eac67268f01ddd0e99fcef826f25af7
+final run/job: 36135627354 / 108072886412
+mechanism GREEN run/job: 36135576764 / 108072724304
+preserved RED run/job: 36135490554 / 108072441996
+
+Slice 18
+candidate: 9a7d60691fa80b1b5da52dbd5120e899eeefbfe6
+evidence head: 4ce6500cd57db824bfe513decc34391eb48592cb
+final run/job: 36135936005 / 108073888191
+mechanism GREEN run/job: 36135882980 / 108073717236
+preserved RED run/job: 36135804708 / 108073466799
+
+Slice 19
+candidate: 6d591e8ce8a881411929a887d7152603a4af0e49
+evidence head: b64c36061eed399cdc28ef7ed0e136f555c7a07a
+final run/job: 36136273176 / 108074991131
+mechanism GREEN run/job: 36136220758 / 108074821574
+preserved RED run/job: 36136138749 / 108074552132
+
+Packet hashes (from 07_SHA256_MANIFEST(3).txt):
+01_INSTRUCTIONS.txt: 29011fb765992a7da7033aea1e567f96df6b66021584704738d25162113fef95
+02_EXACT_SLICE17_CANDIDATE.txt: e8e9c9ccb7ca45bac0682d30b9183298823d106001aa32fa3ec96ab2dbeb5a6e
+03_EXACT_SLICE18_CANDIDATE.txt: 6f634e309c2017a0c49119152902fbaa9d124280dca1afd371b05aab6476eeae
+04_EXACT_SLICE19_CANDIDATE.txt: 18781e8f8652960a7f4cc61d1fd51713847c893bb6a3daaa7a92e511901892c3
+05_SHARED_FROZEN_CONTRACTS_AND_BASELINE.txt: dff734d6940d05f1e3b1ba31458f4d4e95e574a5817203aefa6f175073d0611b
+06_BATCH_CONSTRUCTION_EVIDENCE.txt: 77377cad1325af6aa892147969b4271dbebc4d9685b0cda62b19c281063825e8
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+None.
+
+E. MEDIUM_LOW_FINDINGS
+Packet: The manifest lists filenames 01_INSTRUCTIONS.txt, 05_SHARED_FROZEN_CONTRACTS_AND_BASELINE.txt, and 06_BATCH_CONSTRUCTION_EVIDENCE.txt, but the delivered files are 01_INSTRUCTIONS(3).txt, 05_SHARED_FROZEN_CONTRACTS_AND_BASELINE(3).txt, and 06_BATCH_CONSTRUCTION_EVIDENCE(3).txt. The hash values are presumably content hashes, but the filename mismatch impairs straightforward hash-to-file verification. This appears to be a packaging/transport artifact (deduplication suffix), not a governance defect, but it should be corrected for a clean review packet.
+
+Slice 17: Test I17-10 exercises nullable string rejection with `1`, `""`, non-NFC, and noncharacter values but does not explicitly exercise `True`/`False`. The validator correctly rejects booleans via `isinstance(value, str)`, so this is a minor test-coverage gap, not a false-green.
+
+Slice 18: Test I18-04 and I18-10 exercise non-string and opaque digest paths but do not explicitly test `True`/`False` for digest fields. The validator rejects booleans via `isinstance(value, str)`. Minor coverage gap only.
+
+Slice 19: Test I19-13 exercises duplicate strings, non-string elements, empty strings, non-NFC, and noncharacter channel IDs but does not explicitly test boolean elements. The validator rejects booleans via `isinstance(value, str)`. Minor coverage gap only.
+
+F. THREE_LOOP_ACCEPTANCE_ASSESSMENT
+
+F1 Slice 17 — I17-01..I17-16
+All 16 invariants pass in the final GREEN run (36135627354 / 108072886412). The preserved RED run (36135490554 / 108072441996) shows 15 failures with `MECHANISM_ABSENT: ModuleNotFoundError: No module named 'r8_v15_r1_semantic_entry_validator'` and 1 pass (I17-16), exactly as expected for a harness-only freeze. The mechanism GREEN run (36135576764 / 108072724304) also passes 16/16.
+
+No false-green local path detected. The validator enforces exact field closure, scope-tuple shape, scope-component syntax (ANY or non-empty GCP-valid stable value), specificity 0–9 with bool rejection, lifecycle enum closure, nullable-string handling, effective-sequence closure, and opaque non-SHA digest/key pass-through. The frozen x-validator invariants (specificity count, semantic_entry_key, ANY permission) remain unverified and are explicitly reported false. No hidden authority grant is present; `authority_effect` is `NONE` and all authority/currentness/qualification flags are `False`.
+
+F2 Slice 18 — I18-01..I18-16
+All 16 invariants pass in the final GREEN run (36135936005 / 108073888191). The preserved RED run (36135804708 / 108073466799) shows 15 failures with `MECHANISM_ABSENT: ModuleNotFoundError: No module named 'r8_v15_r1_semantic_lineage_mapping_validator'` and 1 pass (I18-16). The mechanism GREEN run (36135882980 / 108073717236) also passes 16/16.
+
+No false-green local path detected. The validator enforces exact field closure, both nested scope tuples, scope-component syntax, effective-sequence closure, lifecycle enum closure (ACTIVE | SUSPENDED | RETIRED | REVOKED), and opaque digest pass-through. It does not invent any source/destination relation, currentness, effectiveness, transition correctness, or constitutional authority. Test I18-11 explicitly verifies that identical source/destination values are structurally accepted while the relation remains unverified. All authority flags are `False`; `authority_effect` is `NONE`.
+
+F3 Slice 19 — I19-01..I19-16
+All 16 invariants pass in the final GREEN run (36136273176 / 108074991131). The preserved RED run (36136138749 / 108074552132) shows 15 failures with `MECHANISM_ABSENT: ModuleNotFoundError: No module named 'r8_v15_r1_aiep_runtime_profile_validator'` and 1 pass (I19-16). The mechanism GREEN run (36136220758 / 108074821574) also passes 16/16.
+
+No false-green local path detected. The validator enforces exact field closure, digest string rules, attestation-state enum closure (`ATTESTED` | `UNATTESTED_RUNTIME`), exact boolean constants (`read_only_root_filesystem` true; the four prohibited capabilities false), non-empty unique GCP-valid `approved_channel_ids`, and opaque digest pass-through. Both `ATTESTED` and `UNATTESTED_RUNTIME` return `authority_effect: NONE` and all runtime/attestation/evidence/root/terminal authority flags `False`. Test I19-03 explicitly checks the unattested case; I19-14 checks opaque digests and all authority flags false.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+
+Slice 17 proves:
+- exact structural field closure for `SemanticEntry`;
+- exact nested `CanonicalScopeTuple` shape and component syntax;
+- `specificity_score` integer 0–9 with bool rejection;
+- `lifecycle_state` enum closure;
+- nullable string handling;
+- `effective_sequence` signed-int64 closure;
+- opaque non-SHA digests and keys pass structurally.
+
+Slice 17 does not prove:
+- specificity count correctness;
+- `semantic_entry_key` recomputation;
+- current ANY permission validity;
+- entry currentness or semantic selection;
+- lineage or scope transition authority;
+- constitutional authorization;
+- runtime qualification, evidence promotion, release, deployment, production, policy or terminal authority.
+
+Slice 18 proves:
+- exact structural field closure for `SemanticLineageMapping`;
+- exact source and destination `CanonicalScopeTuple` structure;
+- lifecycle and Sequence syntax;
+- opaque digest handling.
+
+Slice 18 does not prove:
+- source or destination object existence;
+- transition semantic correctness;
+- mapping currentness or effectiveness;
+- lineage transition authority;
+- scope transition authority;
+- constitutional authority;
+- any higher authority.
+
+Slice 19 proves:
+- exact structural field closure for `AIEPRuntimeProfile`;
+- exact attestation-state enum;
+- exact boolean constants;
+- non-empty unique GCP-valid `approved_channel_ids`;
+- opaque digest string handling.
+
+Slice 19 does not prove:
+- attestation authenticity;
+- runtime manifest correctness;
+- profile digest correctness;
+- approved-channel authorization or currentness;
+- runtime-profile currentness;
+- strong evidence producer qualification;
+- root or terminal authority evaluation;
+- runtime qualification, evidence promotion, release, deployment, production, policy or terminal authority.
+
+No slice transfers authority to another batch slice. The three slices are independent branches built from the common closed Slice 7 baseline. Each workflow runs only its own acceptance suite plus the inherited Slice 1–7 baseline. No cross-slice dependency authority is claimed or exercised.
+
+H. FINAL_GATES
+
+Slice 17: YES — independent-review gate may close as BOUNDED_PASS for the exact candidate `2717f6127a4d2a76a7d7efafe5e79fe83cc32c53`, subject to the minor test-coverage note in E.
+
+Slice 18: YES — independent-review gate may close as BOUNDED_PASS for the exact candidate `9a7d60691fa80b1b5da52dbd5120e899eeefbfe6`, subject to the minor test-coverage note in E.
+
+Slice 19: YES — independent-review gate may close as BOUNDED_PASS for the exact candidate `6d591e8ce8a881411929a887d7152603a4af0e49`, subject to the minor test-coverage note in E.
+
+Packet-level note: The manifest filename mismatch in E does not prevent the individual slice gates from closing, but the packet should be corrected before archiving as a verifiable review artifact.
