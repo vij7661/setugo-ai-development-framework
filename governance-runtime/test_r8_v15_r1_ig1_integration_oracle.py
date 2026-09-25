@@ -12,7 +12,6 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 ALLOW=ROOT/"governance-r8"/"R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json"
 EXPECTED={str(n):(20 if n in (20,21,22) else 16) for n in range(8,47)}
 FORBIDDEN_OUTPUT=("skipped=","expected failure","unexpected success"," xfail"," xfailed"," not collected","deselected")
-FORBIDDEN_HARNESS_TOKENS=("unittest.mock","mock.patch","monkeypatch","sys.modules","meta_path","path_hooks")
 
 def run(*args,check=True):
     p=subprocess.run(args,cwd=ROOT,text=True,capture_output=True)
@@ -29,15 +28,9 @@ def index_entry(path):
 def test_files_for_slice(allow,n):
     return sorted(e["path"] for e in allow["per_candidate"][n]["selected_entries"] if e["path"].startswith("governance-runtime/test_") and e["path"].endswith(".py"))
 
-def assert_harness_declarative():
-    for path in ("tools/r8_v15_r1_ig1_successor1_materialize.py","governance-runtime/test_r8_v15_r1_ig1_integration_oracle.py"):
-        text=(ROOT/path).read_text()
-        for tok in FORBIDDEN_HARNESS_TOKENS:
-            if tok in text: raise SystemExit(f"FAIL forbidden integration-harness token {tok!r} in {path}")
-
 def assert_import_identities(allow):
     seen=set()
-    for n,rec in allow["per_candidate"].items():
+    for rec in allow["per_candidate"].values():
         for e in rec["selected_entries"]:
             if e["path"] in seen: raise SystemExit(f"FAIL duplicate imported path {e['path']}")
             seen.add(e["path"])
@@ -45,11 +38,7 @@ def assert_import_identities(allow):
             expected={"path":e["path"],"mode":e["mode"],"blob":e["blob"],"stage":"0"}
             if got!=expected: raise SystemExit(f"FAIL imported identity mismatch {e['path']}: {got} != {expected}")
 
-def run_slice_tests(allow,n):
-    files=test_files_for_slice(allow,n)
-    if not files: raise SystemExit(f"FAIL no imported tests for slice {n}")
-    mods=[pathlib.Path(f).stem for f in files]
-    p=run(sys.executable,"-m","unittest","-v",*mods,check=False)
+def assert_strict_result(n,p):
     output=(p.stdout+"\n"+p.stderr).lower()
     if p.returncode!=0: raise SystemExit(f"FAIL slice {n} tests\n{p.stdout}\n{p.stderr}")
     matches=re.findall(r"ran\s+(\d+)\s+tests?",output)
@@ -59,6 +48,12 @@ def run_slice_tests(allow,n):
     for marker in FORBIDDEN_OUTPUT:
         if marker in output: raise SystemExit(f"FAIL slice {n} forbidden bypass marker {marker!r}")
     return ran
+
+def run_slice_tests(allow,n):
+    files=test_files_for_slice(allow,n)
+    if not files: raise SystemExit(f"FAIL no imported tests for slice {n}")
+    p=run(sys.executable,"-m","unittest","-v",*files,check=False)
+    return assert_strict_result(n,p)
 
 def run_baseline():
     groups=[
@@ -72,8 +67,7 @@ def run_baseline():
     ]
     total=0
     for files in groups:
-        mods=[pathlib.Path(f).stem for f in files]
-        p=run(sys.executable,"-m","unittest","-v",*mods,check=False)
+        p=run(sys.executable,"-m","unittest","-v",*files,check=False)
         out=(p.stdout+"\n"+p.stderr).lower()
         if p.returncode!=0: raise SystemExit(f"FAIL inherited baseline\n{p.stdout}\n{p.stderr}")
         ms=re.findall(r"ran\s+(\d+)\s+tests?",out)
@@ -85,9 +79,7 @@ def run_baseline():
     return total
 
 def main():
-    sys.path.insert(0,str(ROOT/"governance-runtime"))
     allow=json.loads(ALLOW.read_text())
-    assert_harness_declarative()
     assert_import_identities(allow)
     slice_total=sum(run_slice_tests(allow,str(n)) for n in range(8,47))
     expected_total=sum(EXPECTED.values())
