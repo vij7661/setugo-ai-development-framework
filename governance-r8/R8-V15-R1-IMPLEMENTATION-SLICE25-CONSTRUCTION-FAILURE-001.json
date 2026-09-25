@@ -1,0 +1,20 @@
+{
+  "schema": "r8-v15-r1-implementation-slice25-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "active_cadence_anchor": "b29619c9307c2a30562a2253f88d052a00bfea6a",
+  "preregistration_commit": "cc2db307f1ffcff1b9e7b9ab9d3c3a8ac766a1a0",
+  "frozen_harness_commit": "47fd25c6bb7664d0e4a5b8b203a08a31d7af9b38",
+  "workflow_commit": "9ba5e12620a6e6fd50e607dbfe7f6ca9be728bdd",
+  "workflow_run_id": 36139530746,
+  "workflow_job_id": 108085656867,
+  "exact_checkout_sha": "9ba5e12620a6e6fd50e607dbfe7f6ca9be728bdd",
+  "observed": {
+    "tests_run": 16,
+    "passed": 1,
+    "failed": 15,
+    "passing_case": "I25-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_aim_scope_policy_class_rule_validator"
+  },
+  "preserved_not_reclassified": true
+}
