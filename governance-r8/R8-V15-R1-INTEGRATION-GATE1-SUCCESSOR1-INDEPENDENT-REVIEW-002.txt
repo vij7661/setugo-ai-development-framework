@@ -1,0 +1,63 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_SUCCESSOR_IDENTITY
+- proposal ID: R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR1
+- exact proposal commit: b0b7ddd9fb8c4dfe9775990ac27968c85ade75c1
+- exact proposal blob SHA-1: e7de88a0814e97f960a696458767ce1629846692
+- allowlist blob SHA-1: 15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b
+- inventory blob SHA-1: 1a745cf09c9958115664b2b6fa03312c737697d9
+- materializer blob SHA-1: e5c6be889f3e37a9cd937657115faae8dc764d79
+- oracle blob SHA-1: 439df7d559eed44baa87c48eca454f7cb6af024b
+- workflow blob SHA-1: f4c384745cd2588fd54f14a8bb54106259292108
+- preflight green run/job: run 36161185432 / job 108157862287
+- selected-entry count: 120
+- inventory count: 904
+- collision count: 0 total; 0 conflicting
+- fallback-to-3 state: ACTIVE
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+1. Final integrated candidate is not constrained to only the 120 reviewed allowlist entries relative to the Slice7 implementation base. The materializer starts from current HEAD and only checks out selected allowlist paths from exact source commits. It does not reset to 751162ee42c603cb6c84ee12021d16bab6fa626b, and it does not hard-fail if unselected paths in governance-runtime or .github/workflows differ from the base. The workflow then creates the candidate branch from HEAD and commits/pushes. Therefore pre-existing unlisted changes in those directories can remain in the integrated candidate. This defeats the “only 120 selected” and unreviewed/unselected exclusion property. Remediation: reset to the exact base before materialization, or hard-fail unless the integration-scope diff from base is exactly the 120 allowlisted entries; also narrow the workflow staging/commit to exact allowlisted paths plus the manifest.
+
+2. Inherited S1-S7 baseline test identities are not verified. The strict oracle runs hardcoded baseline files from the working tree and checks only return code, total count 140, and bypass markers. It does not verify baseline path/mode/blob identity against the base or against any reviewed baseline manifest. If the activation branch HEAD contains modified baseline tests, the oracle can be false-green. This leaves part of Review-001 D2 unremediated. Remediation: bind exact inherited baseline tree entries and hard-fail on any path/mode/blob mismatch before running them.
+
+E. MEDIUM_LOW_FINDINGS
+- Governance-history runtime-read detection is incomplete. static_governance_runtime_read_check only inspects call arguments for a constant containing governance-r8; it does not detect receiver-based reads such as pathlib.Path("governance-r8/...").read_text(), where the governance-history string is in the receiver, not the call args.
+- Oracle forbidden-marker matching is slightly brittle: it checks skipped= and leading-space xfail/xfailed variants, but not every possible bare-marker variant. Unittest summaries usually cover skips/expected failures/unexpected successes, but the check is not fully exhaustive.
+- Workflow staging uses broad git add governance-runtime .github/workflows, which is wider than the allowlist and can accidentally include unlisted working-tree changes if the branch is not clean.
+
+F. REMEDIATION_AND_PROTOCOL_ASSESSMENT
+F1 Review001 D1 exact allowlist: Partially remediated. Exact per-candidate source commit, path/mode/type/blob, 904-path inventory, 120 selected entries, and no runtime path discovery in the materializer are present. However final candidate composition is not fail-closed against pre-existing unlisted changes in HEAD. See High 1.
+F2 Review001 D2 false-green/test oracle: Partially remediated. Imported allowlisted identities, expected slice counts, 636 slice tests, 140 baseline, and bypass-marker hard-fails are present. But inherited baseline identities are not verified, allowing a modified-baseline false-green. See High 2.
+F3 Review001 D3 integration-only machinery: Largely remediated. Materializer/oracle are declarative/mechanical in intent; no direct production-validator import/call is present; AST constraints exist; workflow binds proposal/review/machinery blobs. No semantic/currentness/qualification logic observed.
+F4 Review001 D4 rejected predecessor/unreviewed descendant exclusion: Partially remediated. Exact source commits, rejected-predecessor ancestry, and the three explicit reaccepted identical S20-S22 test entries are enforced. But unlisted pre-existing files from unreviewed descendants could remain via the High 1 gap.
+F5 tree-entry mode/blob identity: Pass. Source and staged index checks use path + mode + type + blob.
+F6 pre-materialization collision/reserved-path handling: Pass for selected paths. Collision and reserved-path checks run before materialization. It does not cover unlisted pre-existing paths.
+F7 governance-history runtime-read boundary: Partial. A static AST check exists, but it can miss receiver-based file-read patterns. Not fully closed.
+F8 partial materialization/publish boundary: Partial. No commit/push occurs until materializer and oracle pass, but the candidate branch can already contain pre-existing unlisted changes from HEAD.
+F9 exact activation proposal/review/machinery binding: Pass for proposal/review/machinery. Workflow verifies activation status, proposal ID, exact proposal commit/blob, current proposal blob, BOUNDED_PASS with zero Critical/High, and bound machinery blobs. It does not bind the entire tree.
+F10 fresh independent review of exact integrated candidate before Stage 2: Pass textually. Stage 2 remains separately gated and not authorized.
+F11 semantic/currentness/qualification/evidence-promotion prohibition: Pass textually. No authority grants are activated.
+F12 fallback-to-3 and recovery accounting: Pass. Fallback-to-3 remains ACTIVE; a clean review would count only as 1 of 2 toward possible recovery; six-slice cadence is not automatically restored.
+
+Remaining concrete false-green/silent-authority path: unlisted pre-existing changes in governance-runtime/.github/workflows and unverified inherited baseline tests can enter the integrated candidate and affect the oracle without being covered by the 120-entry allowlist.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+- Stage 1 remains non-authoritative.
+- Stage 2 remains separately gated and NOT AUTHORIZED.
+- Exact integrated bytes require fresh independent review before Stage 2.
+- Fallback-to-3 remains ACTIVE.
+- A clean successor review would count only as 1 of 2 toward possible cadence recovery.
+- Six-slice cadence is NOT automatically restored.
+- Runtime, release, deployment, production, policy, constitutional, root, and terminal authority remain false.
+
+H. FINAL_GATE
+- IG-1 successor1 proposal may be explicitly activated by user: NO.
+- If later approved after remediation, activation is NOT automatic and must bind exact proposal commit b0b7ddd9fb8c4dfe9775990ac27968c85ade75c1.
+- Stage 1 integrated output authority: NONE / non-authoritative pending fresh independent review.
+- Stage 2 semantic integration authorized: NO.
+- Six-slice cadence automatically restored: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
