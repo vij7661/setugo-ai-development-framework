@@ -1,0 +1,67 @@
+{
+  "schema": "r8-v15-r1-three-loop-batch-review/v1",
+  "status": "THREE_LOOP_CONSTRUCTION_COMPLETE_PENDING_COMBINED_INDEPENDENT_REVIEW",
+  "authority_effect": "NONE",
+  "closed_base": {
+    "slice7_closure_head": "5477df994c2cc9db0033742e189b906eb20247c1",
+    "slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc"
+  },
+  "loops": [
+    {
+      "loop": 1,
+      "slice": "Slice 8",
+      "subject": "EffectStateRecord local validation",
+      "candidate": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+      "evidence_head": "be2a88bb85a59f253fbadbfcf400dbff2f15f064",
+      "final_run_id": 36121677646,
+      "final_job_id": 108028378950,
+      "preserved_red_run_id": 36121507503,
+      "preserved_red_job_id": 108027844694,
+      "adjudicated": false
+    },
+    {
+      "loop": 2,
+      "slice": "Slice 9",
+      "subject": "EvidenceRecord local validation",
+      "candidate": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+      "evidence_head": "ec2862c0cf1bfbd0cefc08537e6359495d6c842f",
+      "final_run_id": 36121983437,
+      "final_job_id": 108029364363,
+      "preserved_red_run_id": 36121849545,
+      "preserved_red_job_id": 108028937278,
+      "adjudicated": false
+    },
+    {
+      "loop": 3,
+      "slice": "Slice 10",
+      "subject": "ReviewAttestation local validation",
+      "candidate": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+      "evidence_head": "e964b17d54aac10f90c9ab1206a21e1d6825441e",
+      "final_run_id": 36122429875,
+      "final_job_id": 108030797431,
+      "preserved_red_run_id": 36122231238,
+      "preserved_red_job_id": 108030145937,
+      "adjudicated": false
+    }
+  ],
+  "batch_rules": [
+    "All three candidates are siblings from the same closed Slice 7 base.",
+    "No candidate depends on unreviewed authority from another batch loop.",
+    "Each loop must receive its own review disposition.",
+    "Overall batch pass requires no surviving blocking defect in any loop.",
+    "No loop is adjudicated closed before this combined fresh independent review.",
+    "A batch review grants no runtime qualification, release, deployment, production, policy, or terminal authority."
+  ],
+  "claim_boundary": {
+    "slice8_closed": false,
+    "slice9_closed": false,
+    "slice10_closed": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
