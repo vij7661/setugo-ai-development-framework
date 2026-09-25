@@ -1,0 +1,73 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_BATCH_IDENTITY
+Common closed baseline:
+- frozen_schema_candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+- closed_slice7_candidate: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- closed_slice7_closure_head: 5477df994c2cc9db0033742e189b906eb20247c1
+
+Slice 8:
+- exact_candidate: fa94f8dd96bc54515baabf3f34ed37d25f41f6db
+- evidence_head: be2a88bb85a59f253fbadbfcf400dbff2f15f064
+- final_run/job: 36121677646 / 108028378950
+- preserved_red_run: 36121507503
+
+Slice 9:
+- exact_candidate: 9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea
+- evidence_head: ec2862c0cf1bfbd0cefc08537e6359495d6c842f
+- final_run/job: 36121983437 / 108029364363
+- preserved_red_run: 36121849545
+
+Slice 10:
+- exact_candidate: 33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4
+- evidence_head: e964b17d54aac10f90c9ab1206a21e1d6825441e
+- final_run/job: 36122429875 / 108030797431
+- preserved_red_run: 36122231238
+
+Packet hashes used, from 07_SHA256_MANIFEST.txt:
+- 01_INSTRUCTIONS.txt: a1a587f7b624b6a5e4141496d1fa290790cf9da1828fedad7d35ccabaee98205
+- 02_EXACT_SLICE8_CANDIDATE.txt: 47a82fcbbdb652c6f59ffa5a229b37ded3a8299182a155aee8e8977bc143cd89
+- 03_EXACT_SLICE9_CANDIDATE.txt: 12d9efd242e3dc8da62a9aaf39a9a90c558e6791fa5b249303b13a8224850329
+- 04_EXACT_SLICE10_CANDIDATE.txt: f10ee0b2500f035bdd3f9f0bb5247781632689cdf7517e7607ba6c695e3883a7
+- 05_SHARED_FROZEN_CONTRACTS_AND_BASELINE.txt: 54e933243cc0e15f370fe463bbfbb6204761193b6c47b529d9ba63aad944372a
+- 06_BATCH_CONSTRUCTION_EVIDENCE.txt: d861fa02b20c20a3c17450e05f0185642c096f5690e98dbf51be8b133d2c83f8
+
+C. CRITICAL_FINDINGS
+None identified.
+
+D. HIGH_FINDINGS
+None identified.
+
+E. MEDIUM_LOW_FINDINGS
+LOW — Slice 8: The I8-11 test exercises a valid EffectStateRecord with an invalid supplied EffectIntent. The implementation revalidates the EffectIntent before the effect_intent_id/idempotency_key equality bindings, but it validates record shape/state/nullability first. This is not a false acceptance, but the test does not independently prove precedence against an also-invalid record.
+
+LOW — Slice 9: The harness does not explicitly test an invalid element inside input_object_digests, such as an empty or non-NFC digest string. The implementation does validate each element through the same _string path, so this is a test-depth gap rather than an observed false-green.
+
+LOW — Slice 10: The harness does not explicitly test an invalid result_digest inside a review dimension, such as an empty or non-NFC string. The implementation validates result_digest through the same _string path, so this is a test-depth gap rather than an observed false-green.
+
+LOW — Evidence packet: Preserved RED runs are evidenced by run metadata plus construction-failure JSON, not by full raw RED logs. The root-cause strings and run identities are consistent with the expected mechanism-absent failures, but the raw RED logs themselves are not included for independent byte-level inspection.
+
+F. THREE_LOOP_ACCEPTANCE_ASSESSMENT
+F1. Slice 8 — I8-01 through I8-16
+All sixteen frozen acceptance cases are implemented and pass in the final green run. The exact candidate adds only the local EffectStateRecord validator, its harness, workflow, marker, preregistration, and failure evidence. The final green raw log shows Slice 8 16/16 PASS and inherited Slice 7 through Slice 1 all PASS, totaling 156/156. No false-green path was identified for local structural acceptance, enum closure, nullable-field handling, SUCCEEDED_RECONCILED evidence requirements, or EffectIntent binding. The only noted gap is LOW test-depth around error precedence when both record and intent are invalid.
+
+F2. Slice 9 — I9-01 through I9-16
+All sixteen frozen acceptance cases are implemented and pass in the final green run. The exact candidate adds only the local EvidenceRecord validator, its harness, workflow, marker, preregistration, and failure evidence. The final green raw log shows Slice 9 16/16 PASS and inherited Slice 7 through Slice 1 all PASS, totaling 156/156. The implementation correctly avoids inventing equal-length, uniqueness, sorting, or positional-pairing rules absent from the frozen schema. No false-green path was identified. The only noted gap is LOW test-depth for invalid elements inside input_object_digests.
+
+F3. Slice 10 — I10-01 through I10-16
+All sixteen frozen acceptance cases are implemented and pass in the final green run. The exact candidate adds only the local ReviewAttestation validator, its harness, workflow, marker, preregistration, and failure evidence. The final green raw log shows Slice 10 16/16 PASS and inherited Slice 7 through Slice 1 all PASS, totaling 156/156. The implementation correctly permits duplicate dimension IDs, accepts PASS/FAIL/UNAVAILABLE structurally, and does not self-grant review-gate closure or authority. No false-green path was identified. The only noted gap is LOW test-depth for invalid result_digest values.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+Slice 8 proves only local EffectStateRecord structure and binding to a supplied locally valid EffectIntent. It does not prove legal state transition, stream append/commit, executor qualification, dispatch authority, reconciliation truth, provider success, compensation correctness, runtime qualification, release, deployment, production, policy, or terminal authority.
+
+Slice 9 proves only local EvidenceRecord structure, list cardinality/type, opaque GCP-valid string handling, and Sequence closure. It does not prove evidence-class upgrade validity, producer temporal revocation judgment, mandatory evidence satisfaction, execution proof, output derivation proof, promotion, runtime qualification, release, deployment, production, policy, or terminal authority.
+
+Slice 10 proves only local ReviewAttestation structure, nested dimension shape, enum closure, and opaque GCP-valid string handling. It does not prove reviewer independence, signature validity, attestation digest correctness, review-gate closure, promotion, runtime qualification, release, deployment, production, policy, or terminal authority.
+
+Each slice may be independently adjudicated for its own bounded local construction scope. No slice may transfer authority or act as dependency authority for another batch slice. This review does not grant runtime qualification, evidence promotion, review-gate closure, release, deployment, production, policy, or terminal authority.
+
+H. FINAL_GATES
+- Slice 8 fa94f8dd96bc54515baabf3f34ed37d25f41f6db: YES
+- Slice 9 9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea: YES
+- Slice 10 33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4: YES
