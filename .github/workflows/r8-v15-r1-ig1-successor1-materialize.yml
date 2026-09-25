@@ -28,10 +28,20 @@ jobs:
           root=pathlib.Path('.')
           a=json.loads((root/'governance-r8/R8-V15-R1-IG1-SUCCESSOR1-ACTIVATION.json').read_text())
           if a['status']!='ACTIVE_EXPLICIT_USER_APPROVAL': raise SystemExit('bad activation status')
+          if a['proposal_id']!='R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR1': raise SystemExit('bad proposal id')
+          pc=a['exact_proposal_commit']
+          subprocess.check_call(['git','cat-file','-e',pc+'^{commit}'])
+          ppath='governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR1-PROPOSAL.json'
+          proposal_blob=subprocess.check_output(['git','rev-parse',f'{pc}:{ppath}'],text=True).strip()
+          if proposal_blob!=a['proposal_blob_sha1']: raise SystemExit('proposal blob mismatch at exact proposal commit')
+          current_proposal_blob=subprocess.check_output(['git','rev-parse',f'HEAD:{ppath}'],text=True).strip()
+          if current_proposal_blob!=a['proposal_blob_sha1']: raise SystemExit('current proposal bytes differ from approved proposal')
+          if a['independent_review_disposition']!='BOUNDED_PASS': raise SystemExit('review disposition not bounded pass')
+          if a['critical_findings']!=0 or a['high_findings']!=0: raise SystemExit('review findings block activation')
           for path,blob in a['bound_integration_machinery_blobs'].items():
               got=subprocess.check_output(['git','rev-parse',f'HEAD:{path}'],text=True).strip()
               if got!=blob: raise SystemExit(f'machinery blob mismatch {path}: {got} != {blob}')
-          print('ACTIVATION_AND_MACHINERY_BINDING_PASS')
+          print('ACTIVATION_PROPOSAL_REVIEW_AND_MACHINERY_BINDING_PASS')
           PY
       - name: Preflight before any materialization
         run: python3 tools/r8_v15_r1_ig1_successor1_materialize.py --preflight-only
