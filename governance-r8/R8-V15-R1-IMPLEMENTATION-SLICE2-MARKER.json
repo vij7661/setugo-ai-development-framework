@@ -1,7 +1,7 @@
 {
   "schema": "r8-v15-r1-implementation-slice2-marker/v1",
-  "status": "MECHANISM_IMPLEMENTED_PENDING_FROZEN_ACCEPTANCE",
-  "authority_effect": "NONE",
+  "status": "SLICE2_CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
   "slice1_closure_head": "194963c846fa62143aa03208d3617ca3f39dd173",
   "exact_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
   "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
@@ -20,5 +20,8 @@
   },
   "mechanism_commit": "26c8e55bc2938e9b2d3fcda273d333cc3b41e50f",
   "preserved_red_run_id": 36109493832,
-  "retrigger_nonce": 1
+  "retrigger_nonce": 1,
+  "green_mechanism_run_id": 36109636650,
+  "green_mechanism_job_id": 107989919947,
+  "next_gate": "FRESH_BLIND_INDEPENDENT_IMPLEMENTATION_REVIEW"
 }
