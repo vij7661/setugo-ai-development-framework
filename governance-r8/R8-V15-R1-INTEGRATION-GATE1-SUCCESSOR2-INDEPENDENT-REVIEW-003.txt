@@ -1,0 +1,62 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_SUCCESSOR_IDENTITY
+- proposal ID: R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR2
+- exact proposal commit: f4b33737ff67970d1d125745aa82cf1f9d22a67b
+- exact proposal blob SHA-1: 6bd95d56ab8319eeea0d28ab79629c2e409e2837
+- allowlist blob SHA-1: 15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b
+- inventory blob SHA-1: 1a745cf09c9958115664b2b6fa03312c737697d9
+- baseline-identity blob SHA-1: 41d15ff34baa21331c83ce0f0dce4407cda70f0c
+- materializer blob SHA-1: 260b962d4cc14685e7a71be40ed1c00c716a8ba1
+- oracle blob SHA-1: 26e4250e7254188176c62fcd3e7cfc88b2d6fa7e
+- workflow blob SHA-1: 5d3a1b959b292336770afab8454aca3cf6d04961
+- preflight green run/job: run 36163247367 / job 108164711384
+- selected-entry count: 120
+- inventory count: 904
+- collision count: 0 total; 0 conflicting
+- fallback-to-3 state: ACTIVE
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+1. Activation binding is not complete or exact. The workflow reads exact_proposal_commit from the activation artifact and only checks that the proposal blob at that commit and at HEAD equals proposal_blob_sha1; it does not hard-fail unless the commit is exactly f4b33737ff67970d1d125745aa82cf1f9d22a67b and the blob is exactly 6bd95d56ab8319eeea0d28ab79629c2e409e2837. It also iterates bound_machinery_blobs and bound_evidence_blobs without requiring the exact required keys. An empty or partial binding set can pass. This leaves a false-green/silent-authority path where a different commit/blob set or omitted machinery/evidence bindings can be activated under the same proposal ID.
+
+2. The governance-history runtime-read detector can be bypassed. path_class classifies any expression containing schemas/governance-r8 as SCHEMA before checking for history, and it does not normalize or resolve paths. A path such as schemas/governance-r8/v15-r1/../../../governance-r8/... or an inherited SCHEMA base with ../../../governance-r8/... can be classified as permitted schema access while actually escaping to governance-history root. The detector also only checks open, read_text, and read_bytes, so directory/glob reads such as os.listdir, os.scandir, glob, Path.glob, Path.rglob, or Path.iterdir are not covered. This can permit prohibited runtime governance-history dependencies.
+
+E. MEDIUM_LOW_FINDINGS
+- The commit step does not re-run the exact staged-diff verification immediately before commit. It checks unstaged tracked and untracked files, but not that the staged set is still exactly 120 allowlisted paths plus the manifest. A background process or test side effect after the materializer’s final check could stage extra content.
+- The oracle’s inherited-baseline groups are hardcoded and not derived from the baseline identity manifest. Aggregate 140 is enforced, but per-group counts and exact group membership are not independently bound to the manifest.
+- The activation check trusts the activation JSON’s independent_review_disposition and zero Critical/High claims without binding a review artifact blob/path in the same enforced way as machinery/evidence blobs.
+- The declarative AST checks cover several dynamic-import and monkeypatch vectors, but they are not exhaustive against all possible dynamic import or execution techniques.
+
+F. REMEDIATION_AND_PROTOCOL_ASSESSMENT
+F1 Review002 High1 exact-base candidate composition: Closed.
+F2 Review002 High2 inherited baseline test identity: Closed.
+F3 exact final diff = 120 allowlisted paths + one manifest: Closed for materializer; commit step lacks immediate recheck.
+F4 no broad staging/unlisted file inclusion: Closed.
+F5 structured unittest result/no-bypass oracle: Substantially closed; baseline group binding incomplete.
+F6 proposal/evidence/machinery activation binding: Not fully closed.
+F7 governance-history runtime-read boundary: Not fully closed.
+F8 rejected-predecessor/unreviewed-descendant exclusion: Closed.
+F9 collision/reserved-path handling before materialization: Closed.
+F10 partial materialization/publish boundary: Mostly closed; immediate pre-commit recheck missing.
+F11 Stage1 non-authority and Stage2 separation: Closed textually.
+F12 fallback-to-3/recovery accounting: Closed; this review does not count clean.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+- Stage1 remains non-authoritative.
+- Stage2 remains separately gated and NOT AUTHORIZED.
+- Exact integrated bytes require fresh independent review before Stage2.
+- Fallback-to-3 remains ACTIVE.
+- This CHANGES_REQUIRED review does not count toward cadence recovery.
+- Six-slice cadence is NOT automatically restored.
+- Runtime, release, deployment, production, policy, constitutional, root, and terminal authority remain false.
+
+H. FINAL_GATE
+- IG-1 Successor2 proposal may be explicitly activated by user: NO.
+- Stage1 integrated output authority: NONE / non-authoritative pending fresh review.
+- Stage2 semantic integration authorized: NO.
+- Six-slice cadence automatically restored: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
