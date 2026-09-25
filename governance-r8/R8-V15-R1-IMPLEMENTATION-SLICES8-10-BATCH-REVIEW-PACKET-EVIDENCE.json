@@ -1,0 +1,39 @@
+{
+  "schema": "r8-v15-r1-slices8-10-batch-review-packet-evidence/v1",
+  "status": "VERIFIED_REVIEW_TRANSPORT_READY",
+  "authority_effect": "NONE",
+  "review_only_head": "23de2ee7b9c1266fc53e18635683229e49be5e51",
+  "workflow_run_id": 36124490646,
+  "artifact_id": 10858881884,
+  "artifact_name": "r8-v15-r1-slices8-10-three-loop-batch-review",
+  "artifact_archive_digest": "sha256:9710d9304a0b832f24dea2dfda3e7d070bd3b6045088401a106fa387d628cf7e",
+  "file_sha256": {
+    "01_INSTRUCTIONS.txt": "a1a587f7b624b6a5e4141496d1fa290790cf9da1828fedad7d35ccabaee98205",
+    "02_EXACT_SLICE8_CANDIDATE.txt": "47a82fcbbdb652c6f59ffa5a229b37ded3a8299182a155aee8e8977bc143cd89",
+    "03_EXACT_SLICE9_CANDIDATE.txt": "12d9efd242e3dc8da62a9aaf39a9a90c558e6791fa5b249303b13a8224850329",
+    "04_EXACT_SLICE10_CANDIDATE.txt": "f10ee0b2500f035bdd3f9f0bb5247781632689cdf7517e7607ba6c695e3883a7",
+    "05_SHARED_FROZEN_CONTRACTS_AND_BASELINE.txt": "54e933243cc0e15f370fe463bbfbb6204761193b6c47b529d9ba63aad944372a",
+    "06_BATCH_CONSTRUCTION_EVIDENCE.txt": "d861fa02b20c20a3c17450e05f0185642c096f5690e98dbf51be8b133d2c83f8",
+    "07_SHA256_MANIFEST.txt": "9ca05e39ff518cf1f2831ac88bdf5524f911a2592cf1f419f8f082abc3df3143"
+  },
+  "locally_recomputed_manifest_match": true,
+  "exact_candidates": {
+    "slice8": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "slice9": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "slice10": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4"
+  },
+  "batch_review_required": true,
+  "grants": {
+    "slice8_closed": false,
+    "slice9_closed": false,
+    "slice10_closed": false,
+    "review_gate_closed": false,
+    "promotion_authorized": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
