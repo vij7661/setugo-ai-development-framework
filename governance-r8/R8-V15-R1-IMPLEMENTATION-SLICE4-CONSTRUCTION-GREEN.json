@@ -1,0 +1,80 @@
+{
+  "schema": "r8-v15-r1-implementation-slice4-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "3b60d8f14851b755f09a35431c620d6ae594a894",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice3_candidate": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+  "closed_slice2_candidate": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "closed_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "slice3_closure_head": "adf6e2bfdcf96ec67f762615a3f5a1b0d031921a",
+  "preregistration_commit": "046a249933796faf6740e95d1ccf69d22397231b",
+  "frozen_harness_commit": "2044202d99f6af6ef8d9661c1f7781df7337fdee",
+  "mechanism_commit": "882c815f3d76dc5257735756a7b6f47193e66666",
+  "marker_candidate_commit": "3b60d8f14851b755f09a35431c620d6ae594a894",
+  "final_green_run": {
+    "run_id": 36113335473,
+    "job_id": 108001554748,
+    "exact_checkout_sha": "3b60d8f14851b755f09a35431c620d6ae594a894",
+    "conclusion": "success",
+    "slice4_i4": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice3": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36113274313,
+    "job_id": 108001366707,
+    "exact_checkout_sha": "882c815f3d76dc5257735756a7b6f47193e66666",
+    "conclusion": "success"
+  },
+  "preserved_failure_history": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE4-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36113171369,
+      "classification": "EXPECTED_MECHANISM_ABSENCE"
+    }
+  ],
+  "verified_properties": [
+    "AuthorityReadSetEntry/AuthorityReadSet/DecisionPresealContext/SemanticHeads/ResolverIdentity required-field parity with frozen schema",
+    "AuthorityReadSet entries non-empty with exact per-entry structure",
+    "generic CanonicalId/Digest strings remain opaque non-empty GCP-valid values",
+    "semantic_state_sequence enforces non-boolean signed-int64 non-negative closure",
+    "effect_class sentinel is checked against verifier-owned external_effect_involved context",
+    "supplied AuthorityReadSet digest equality is enforced without inventing a digest formula",
+    "authority_read_set_digest and decision_preseal_digest are explicitly not claimed verified",
+    "validation metadata grants no currentness/resolver qualification/runtime/downstream authority",
+    "Slice 4 workflow directly triggers on governed paths",
+    "frozen schema and closed Slice 1/2/3 implementation modules unchanged"
+  ],
+  "open_runtime_qualification_findings": [
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "claim_boundary": {
+    "implementation_slice4_construction_green": true,
+    "independent_review_closed": false,
+    "read_set_completeness_proven": false,
+    "authority_read_set_digest_verified": false,
+    "decision_preseal_digest_verified": false,
+    "resolver_qualified": false,
+    "effect_context_lawfully_derived": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
