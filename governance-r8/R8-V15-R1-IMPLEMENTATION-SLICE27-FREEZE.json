@@ -1,0 +1,27 @@
+{
+  "schema": "r8-v15-r1-implementation-slice27-freeze/v1",
+  "status": "IMPLEMENTATION_SLICE27_FROZEN_PENDING_FRESH_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CANDIDATE_FREEZE_ONLY",
+  "exact_implementation_candidate": "d5c01df8c03b808ca0382793433e6e910485f09f",
+  "construction_green_evidence_commit": "e7981ad2c422a1d84bde777ba244897bc34a08d2",
+  "final_green_run_id": 36146537117,
+  "final_green_job_id": 108108996436,
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "common_closed_baseline_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "post_remediation_governance_anchor": "4a401bdf33786b980364784a0c8a19e20acef2df",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "fallback_batch_position": 2,
+  "active_max_unreviewed_low_risk_slices": 3,
+  "fresh_review_required": true,
+  "clean_review_counter_before_batch": 1,
+  "cadence_restore_authorized": false,
+  "grants": {
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
