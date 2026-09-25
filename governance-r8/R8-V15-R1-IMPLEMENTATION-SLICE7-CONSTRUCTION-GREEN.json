@@ -1,0 +1,105 @@
+{
+  "schema": "r8-v15-r1-implementation-slice7-construction-green/v1",
+  "status": "CONSTRUCTION_GREEN_PENDING_INDEPENDENT_REVIEW",
+  "authority_effect": "IMPLEMENTATION_CONSTRUCTION_EVIDENCE_ONLY",
+  "exact_implementation_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice6_candidate": "a972ddcee333aff063858727739986fe2fd8088d",
+  "closed_slice5_candidate": "403e40502e9d51740e89ef352b5611711439661e",
+  "closed_slice4_candidate": "3b60d8f14851b755f09a35431c620d6ae594a894",
+  "closed_slice3_candidate": "9b8b519c1f32b675d102b1267511a6a141f39c4a",
+  "closed_slice2_candidate": "6a8d0b0e4baa3a9df75dc47f626953b4dde51255",
+  "closed_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
+  "slice6_closure_head": "05081fad07c41fb1daf0900c3ff79287f4b5701b",
+  "preregistration_commit": "e441f4884bd9cfd966d2f123a5a73219118c587d",
+  "frozen_harness_commit": "d83b1ca3c52dbe46d486fc7c31d3de0bcc4d2421",
+  "mechanism_commit": "c09305c043b40f1d43d56b530e06d1bed91e2ea6",
+  "marker_candidate_commit": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "final_green_run": {
+    "run_id": 36119319521,
+    "job_id": 108020783148,
+    "exact_checkout_sha": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "conclusion": "success",
+    "slice7_i7": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice6": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice5": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice4": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice3": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice2": {
+      "passed": 16,
+      "total": 16
+    },
+    "inherited_slice1": {
+      "passed": 44,
+      "total": 44
+    }
+  },
+  "prior_green_mechanism_run": {
+    "run_id": 36119211112,
+    "job_id": 108020434659,
+    "exact_checkout_sha": "c09305c043b40f1d43d56b530e06d1bed91e2ea6",
+    "conclusion": "success"
+  },
+  "preserved_failure_history": [
+    {
+      "path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE7-CONSTRUCTION-FAILURE-001.json",
+      "run_id": 36119069699,
+      "classification": "EXPECTED_MECHANISM_ABSENCE"
+    }
+  ],
+  "verified_properties": [
+    "EffectIntent exact required-field parity with frozen schema",
+    "state exactly INTENT_COMMITTED",
+    "all generic IDs/digests remain opaque non-empty GCP-valid strings",
+    "external EffectIntent requires verifier-owned external_effect_involved=true",
+    "closed Slice 4 preseal/read-set revalidation before intent binding",
+    "closed Slice 5 time-proof revalidation before intent binding",
+    "closed Slice 6 seal revalidation before intent binding",
+    "verified_state_seal_digest exactly binds supplied seal_digest",
+    "decision_preseal_digest exactly binds supplied DPS digest",
+    "effect_class exactly binds non-null supplied DPS effect_class",
+    "idempotency derivation/payload/provider/action/scope derivations remain explicitly unverified",
+    "intent commit, COMMIT_WITH_SEAL, dispatch, external success and reconciliation remain false",
+    "Slice 7 workflow directly covers all governed and executed dependency/test paths",
+    "frozen schema and closed Slice 1..6 implementation modules remain unchanged"
+  ],
+  "open_runtime_qualification_findings": [
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "claim_boundary": {
+    "implementation_slice7_construction_green": true,
+    "independent_review_closed": false,
+    "effect_intent_committed": false,
+    "commit_with_seal_authorized": false,
+    "current_heads_rechecked": false,
+    "idempotency_key_derivation_verified": false,
+    "payload_digest_verified": false,
+    "provider_action_authorized": false,
+    "scope_digests_verified": false,
+    "executor_qualified": false,
+    "dispatch_authorized": false,
+    "external_effect_succeeded": false,
+    "reconciliation_complete": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
