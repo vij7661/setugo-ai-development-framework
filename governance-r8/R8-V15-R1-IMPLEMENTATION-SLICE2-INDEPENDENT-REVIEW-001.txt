@@ -1,0 +1,66 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_IDENTITY
+Slice 2 implementation candidate: 6a8d0b0e4baa3a9df75dc47f626953b4dde51255
+Frozen executable-schema candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+Closed Slice 1 dependency candidate: fdf825cb45fbd00441a4cd02bb1912bb3cda01b0
+Slice 1 closure evidence head: 194963c846fa62143aa03208d3617ca3f39dd173
+Slice 2 evidence-only freeze head: f0861b4d143ea6ae6d931679b955fc15b5e4edbe
+Authoritative exact-candidate run/job: 36109723091 / 107990188335
+Exact checkout SHA in final run evidence: 6a8d0b0e4baa3a9df75dc47f626953b4dde51255
+
+Packet SHA-256 values used from 05_SHA256_MANIFEST.txt:
+01_INSTRUCTIONS.txt: f0188bbad8ee0a1c081288a437d89c0750f8a9012272deafdd4742b5c20e5230
+02_EXACT_SLICE2_CANDIDATE.txt: d8d30ce637f6d16f3c209692f1aafe581f2c6407454d29f8efd3fbd5685af005
+03_FROZEN_CONTRACTS_AND_SLICE1_DEPENDENCY.txt: cc51a061a412f36836b9e7ac04c3b5b5fa6a02da7f2c31e20e00939ca9d4f983
+04_CONSTRUCTION_EVIDENCE.txt: 9f773763f7bcd838aa4398ffcca306d48f9cf48d1e1b0f5a88b29a788bb4bdc3
+
+C. CRITICAL_FINDINGS
+None.
+
+D. HIGH_FINDINGS
+None.
+
+E. MEDIUM_LOW_FINDINGS
+1. The Slice 2 workflow path filter only triggers on governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE2-MARKER.json. A direct push changing only the Slice 2 module or harness would not trigger the workflow. This does not invalidate the reviewed exact-candidate run because run 36109723091 was triggered by the marker commit and checked out exact candidate 6a8d0b0e4baa3a9df75dc47f626953b4dde51255, but it is a process-hardening gap for successor changes.
+2. verify_ggs_genesis_state_root is implemented but is not directly exercised by any I2 acceptance case. GGS construction, member-set, and sequence cases are covered, and GGS verification shares the same _verify path as LAS verification, but direct GGS verification evidence is absent.
+3. I2-14 asserts non-authority metadata on compute results only. verify results use the same _result_metadata helper, but direct assertion on verify-result metadata is not present in the frozen harness.
+
+F. I2_01_TO_I2_16_ASSESSMENT
+I2-01: PASS. Implementation LAS_PREIMAGE_MEMBERS equals the frozen runtime schema LASAuthorityStateRoot x-gcp1-preimage-members.
+I2-02: PASS. Implementation GGS_PREIMAGE_MEMBERS equals the frozen runtime schema GGSGenesisStateRoot x-gcp1-preimage-members.
+I2-03: PASS. LAS known vector produces the exact hardcoded canonical preimage bytes and SHA-256 in the frozen harness; final run reports this test OK.
+I2-04: PASS. Reversing LAS input mapping order produces identical canonical preimage bytes and root digest.
+I2-05: PASS. LAS missing, extra, and self-included state_root_digest members reject with ROOT_MEMBER_SET_INVALID.
+I2-06: PASS. LAS semantic_state_sequence and configuration_generation accept 0 and INT64_MAX; negatives, INT64_MAX+1, booleans, strings, and floats reject with ROOT_SEQUENCE_INVALID.
+I2-07: PASS. LAS one-member mutation changes the root digest, and verifying the mutated root with the old digest fails with STATE_ROOT_DIGEST_MISMATCH.
+I2-08: PASS. LAS verification accepts the exact computed root and rejects malformed state_root_digest encodings with ROOT_DIGEST_ENCODING_INVALID.
+I2-09: PASS. GGS known vector produces the exact hardcoded canonical preimage bytes and SHA-256 in the frozen harness; final run reports this test OK.
+I2-10: PASS. GGS missing, extra, and self-included state_root_digest members reject with ROOT_MEMBER_SET_INVALID.
+I2-11: PASS. GGS barrier_index and configuration_generation accept 0 and INT64_MAX; negatives, INT64_MAX+1, booleans, strings, and floats reject with ROOT_SEQUENCE_INVALID.
+I2-12: PASS. Opaque non-SHA-looking component digest strings are accepted when non-empty and GCP-valid, preserving frozen Digest opacity.
+I2-13: PASS. Empty component digest strings reject with ROOT_COMPONENT_DIGEST_INVALID; non-NFC and Unicode noncharacter component strings reject through the inherited Slice 1 GCP canonicalizer with the expected GCP rejection codes.
+I2-14: PASS. Compute results for LAS and GGS carry authority_effect="NONE", runtime_qualified=false, and no current/certified/authority/authoritative self-grant. Verify metadata is not directly asserted, but it uses the same metadata helper.
+I2-15: PASS. A failed LAS construction does not poison subsequent valid construction; repeated valid calls return identical canonical bytes and root digest.
+I2-16: PASS. Final run shows inherited Slice 1 acceptance/regressions 44/44 OK, and the immutability diff for the frozen schema plus Slice 1 module is empty.
+
+No false-green was observed in the frozen I2 cases. Untested direct paths are noted in E: GGS verification and verify-result metadata are not directly asserted, and workflow trigger coverage is marker-only.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+A positive Slice 2 construction proves only that the repository-local reference implementation can deterministically construct and verify the exact frozen LASAuthorityStateRoot and GGSGenesisStateRoot digest objects under the tested conditions, using the closed Slice 1 GCP canonicalizer, exact frozen preimage member sets, frozen Sequence validation, opaque non-empty component Digest handling, exact SHA-256 root encoding, fail-closed verification, no self-inclusion, and non-authority result metadata.
+
+It does not prove or grant:
+- that semantic_state_sequence is current LAS state;
+- that named LAS heads came from one coherent committed snapshot;
+- that GGS barrier_index is certified by ROTATION_PREPARE;
+- quorum, sequencer, log, rollback, durability, or STC correctness;
+- CSM-5 bundle-digest construction;
+- resolver policy/RIR/RCS authority;
+- runtime qualification;
+- release, deployment, production, policy, or terminal authority.
+
+Bounded Slice 2 construction may be adjudicated as bounded construction evidence only. This review does not grant runtime qualification or any downstream authority.
+
+H. FINAL_GATE
+Yes. Exact candidate 6a8d0b0e4baa3a9df75dc47f626953b4dde51255 may close the Slice 2 independent-review gate for bounded deterministic LAS/GGS state-root construction/verification, subject to the noted low/medium evidence gaps being recorded but not blocking. This review is evidence only, not self-authority, and does not grant runtime qualification, release, deployment, production, policy, or terminal authority.
