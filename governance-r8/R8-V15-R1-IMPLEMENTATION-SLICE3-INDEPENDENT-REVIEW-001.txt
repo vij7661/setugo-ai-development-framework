@@ -1,0 +1,54 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_IDENTITY
+Slice 3 implementation candidate: 9b8b519c1f32b675d102b1267511a6a141f39c4a
+Frozen executable-schema candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+Closed Slice 2 dependency candidate: 6a8d0b0e4baa3a9df75dc47f626953b4dde51255
+Closed Slice 1 dependency candidate: fdf825cb45fbd00441a4cd02bb1912bb3cda01b0
+Slice 3 evidence-only freeze head: bf81c062b4afafa33eca7148091893910e49129a
+Authoritative run/job: 36111540428 / 107995892189
+Packet SHA-256 values used from 05_SHA256_MANIFEST:
+01_INSTRUCTIONS.txt: f5664e047a3e424fe3371c20ed468c835cb9b3861049844a655f94d8a01c3a4f
+02_EXACT_SLICE3_CANDIDATE.txt: a5d7242ec5d5f871492beb8e22e74a2cb80939e890a1cd4cf0c87073d0612913
+03_FROZEN_CONTRACTS_SOURCES_DEPENDENCIES.txt: 06e1eb58dfc1c5495af3727e516c38ea5d9b508a2e4e715a996cbc64737329d2
+04_CONSTRUCTION_EVIDENCE.txt: 2021e2007d824059e2c872e3812061b71aa83341c966c2ab434fabefc09ed6ee
+
+C. CRITICAL_FINDINGS
+None found.
+
+D. HIGH_FINDINGS
+None found.
+
+E. MEDIUM_LOW_FINDINGS
+1. I3-08 malformed nested GGS root digest coverage is narrower than its label suggests. In the malformed case, both `ggs_genesis_state_root.state_root_digest` and the outer STC `state_root_digest` are set to `"ABC"`, so rejection occurs at the outer STC root-digest encoding check before Slice 2 is invoked. The implementation still rejects a malformed nested root when the outer STC root digest is valid, via Slice 2 `ROOT_DIGEST_ENCODING_INVALID` wrapped as `STC_GGS_ROOT_INVALID`, but that exact path is not directly exercised.
+2. GCP string failures from `semantic_heads` values and nested GGS root values can propagate as `slice1.GCPError` rather than being normalized to `STCError`. This is not an authority or correctness escape because invalid input still rejects, but the validator’s error taxonomy is not uniform and tests do not cover these nested/GCP-invalid paths.
+3. Several conditional rejection paths are not directly tested: GGS non-null `stream_head_map_root_digest`; GGS null `ggs_namespace_root_digest`; GGS null `ggs_authorization_root_digest`; GGS null `ggs_genesis_state_root`; GGS binding true with null `semantic_heads`; GGS binding false with non-null `semantic_heads`; invalid `system_id`; non-bool `semantic_state_binding_required`; empty `stc_digest`; STC extra/missing fields. Code inspection shows these are enforced by the shared exact-field and conditional logic.
+
+F. I3_01_TO_I3_16_ASSESSMENT
+I3-01: PASS. STC required-field constant matches frozen schema required set exactly. Actual extra/missing STC field rejection is not directly tested, but code enforces it.
+I3-02: PASS. SemanticHeads required-field constant matches frozen schema exactly.
+I3-03: PASS. Valid LAS local STC passes.
+I3-04: PASS. LAS false binding, null heads, non-null GGS namespace/auth/root, and missing stream head all reject as `STC_CONDITIONAL_INVALID`.
+I3-05: PASS. Valid GGS with binding false and null semantic_heads passes.
+I3-06: PASS. Valid GGS with binding true and valid SemanticHeads passes.
+I3-07: PASS. Mapped GGS nested-root field mismatches reject. The symmetric case of mutating the STC-side mapped field while leaving the nested root valid is not separately tested, but the equality check is symmetric.
+I3-08: PASS with coverage caveat. Nested-root digest mismatch against a valid outer STC root rejects as `STC_GGS_ROOT_INVALID`. The malformed nested-root digest path is not directly isolated because the outer STC root digest is also malformed in the second subcase.
+I3-09: PASS. Sequence min/max pass and negative/max+1/bool/string/float reject on LAS. GGS sequence fields use the same common path but are not individually re-tested.
+I3-10: PASS. `highest_applied_index` null or valid Sequence passes; malformed values reject.
+I3-11: PASS. Selected generic IDs/digests are non-empty, GCP-valid, opaque, and invalid empty/non-NFC/noncharacter values reject. Not every generic field, SemanticHeads value, or nested GGS root value is individually tested.
+I3-12: PASS. LAS/GGS `state_root_digest` lexical SHA-256 enforcement is implemented; `stc_digest` remains opaque. GGS outer root encoding is exercised through common validation and I3-08.
+I3-13: PASS. SemanticHeads missing, extra, and empty values reject. Non-NFC/noncharacter values inside SemanticHeads are not directly tested.
+I3-14: PASS. Validation metadata remains `authority_effect: NONE` and does not self-grant currentness/certification/authority.
+I3-15: PASS. A failed validation does not poison subsequent valid LAS/GGS validation.
+I3-16: PASS. Direct Slice 2 GGS verify positive/mismatch/malformed and metadata regressions pass; dependency immutability diff is empty; workflow direct-path coverage strings are present. The CI log also shows inherited Slice 2 16/16 and inherited Slice 1 44/44 passing.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+A positive bounded Slice 3 construction proves only local deterministic `StateTransferCertificate` shape and cross-field consistency under the tested frozen contract: exact STC/SemanticHeads field parity, LAS/GGS conditional null/non-null rules, GGS nested `GGSGenesisStateRoot` local Slice 2 digest verification and mapped-field equality, Sequence/nullability/type handling, generic CanonicalId/Digest non-empty opacity plus inherited GCP string validation, SHA-256 lexical enforcement only for LAS/GGS `state_root_digest`, no invented `stc_digest` formula, stateless failure recovery, non-authority result metadata, dependency immutability, and workflow coverage.
+
+It does not prove or authorize ROTATION_PREPARE certificate validity or committed-barrier matching; barrier reservation/currentness/abort semantics; old/new quorum signatures or voting state; STC_COMMIT uniqueness, STC equivocation, ENTER_JOINT, or ACTIVATE; lawful derivation of GGS `semantic_state_binding_required`; lawful coherent LAS semantic heads or barrier-B snapshot; runtime qualification; release; deployment; production; policy; or terminal authority. A locally valid STC may still have authority effect NONE.
+
+Bounded Slice 3 construction may be adjudicated only for this local construction scope, subject to the stated nonclaims.
+
+H. FINAL_GATE
+Yes. Exact candidate 9b8b519c1f32b675d102b1267511a6a141f39c4a may close the Slice 3 independent-review gate as BOUNDED_PASS for the bounded local StateTransferCertificate validation scope. This does not grant runtime qualification, release, deployment, production, policy, or terminal authority.
