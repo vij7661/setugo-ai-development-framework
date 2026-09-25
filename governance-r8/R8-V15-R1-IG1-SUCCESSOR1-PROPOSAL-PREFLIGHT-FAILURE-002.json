@@ -1,0 +1,15 @@
+{
+  "schema": "r8-v15-r1-ig1-successor1-proposal-preflight-failure/v1",
+  "status": "PRESERVED_FAIL_CLOSED_PROPOSAL_PREFLIGHT",
+  "authority_effect": "NONE",
+  "run_id": 36161050087,
+  "job_id": 108157417037,
+  "head_sha": "76d409e3c1cae9d0e99fd3054b165b0fec896368",
+  "failure": "over-broad governance-history literal scan rejected reviewed S33 NCG validator whose source_matrix is a frozen string value, not runtime file IO",
+  "offending_reviewed_candidate": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+  "offending_path": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+  "materialization_executed": false,
+  "integration_executed": false,
+  "semantic_execution": false,
+  "disposition": "TOOLING_PREFLIGHT_DEFECT_REPAIRED_WITH_AST_FILE_IO_DETECTION"
+}
