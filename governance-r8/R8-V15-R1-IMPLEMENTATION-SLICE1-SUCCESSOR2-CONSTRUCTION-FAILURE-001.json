@@ -1,0 +1,35 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor2-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_PRE_REPAIR",
+  "authority_effect": "NONE",
+  "preregistration_commit": "fe160b0d50e208c964380acc7676515aa60736fd",
+  "frozen_repair_harness_commit": "82ffca70bb4c67fae6569cca50b8048911d01ce1",
+  "workflow_run_id": 36107151949,
+  "workflow_job_id": 107982190209,
+  "exact_checkout_sha": "82ffca70bb4c67fae6569cca50b8048911d01ce1",
+  "observed": {
+    "original_i1": "16/16 PASS",
+    "successor2_repair": "3/8 PASS, 5/8 FAIL",
+    "passed": [
+      "S1R2-06",
+      "S1R2-07",
+      "S1R2-08"
+    ],
+    "failed": [
+      "S1R2-01",
+      "S1R2-02",
+      "S1R2-03",
+      "S1R2-04",
+      "S1R2-05"
+    ],
+    "exposed": [
+      "nested object negative zero false-accept",
+      "nested array negative zero false-accept",
+      "same-byte external symlink accepted",
+      "no exact full-path source-map/SPM validator",
+      "no direct non-empty artifact_id / lowercase 64-hex sha256 enforcement"
+    ]
+  },
+  "additional_control_observation": "Successor 1 S1R harness was not run on Successor 2 because the workflow condition named only the Successor 1 branch. This must be corrected before mechanism repair is accepted.",
+  "preserved_not_reclassified": true
+}
