@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify_r8_v15_r1_stage2_sg1_review_bundle_consistency import verify
 
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-ACTIVATION-MANIFEST.json"
 BINDING = ROOT / "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json"
-PACKET = ROOT / "stage2-sg1-review/R8-V15-R1-STAGE2-SG1-EARLY-REVIEW-PACKET.txt"
+PACKET = ROOT / "stage2-sg1-review/R8-V15-R1-STAGE2-SG1-CONSOLIDATED-REVIEW-002-PACKET.txt"
 
 
 class SG1ReviewBundleConsistencyTests(unittest.TestCase):
     def assert_mutation_rejected(self, mutate):
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory(dir=ROOT) as td:
             root = Path(td)
             manifest = root / "manifest.json"
             binding = root / "binding.json"

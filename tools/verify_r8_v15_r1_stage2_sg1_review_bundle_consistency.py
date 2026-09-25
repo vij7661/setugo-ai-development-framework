@@ -11,7 +11,7 @@ from pathlib import Path
 OLD_GATE = "056bce33da38a2178ca2827d581b5a81c8bf4416"
 EXPECTED_MANIFEST = Path("governance-r8/R8-V15-R1-STAGE2-SG1-REVIEW-ACTIVATION-MANIFEST.json")
 EXPECTED_BINDING = Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json")
-EXPECTED_PACKET = Path("stage2-sg1-review/R8-V15-R1-STAGE2-SG1-EARLY-REVIEW-PACKET.txt")
+EXPECTED_PACKET = Path("stage2-sg1-review/R8-V15-R1-STAGE2-SG1-CONSOLIDATED-REVIEW-002-PACKET.txt")
 
 
 def git_blob(path: str) -> str:
@@ -41,6 +41,13 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("proposal manifest mismatch")
     if git_blob(p["path"]) != p["blob_sha1"]:
         fail("proposal blob mismatch")
+    candidate = manifest["candidate"]
+    candidate_tree = subprocess.check_output(["git", "rev-parse", f"{candidate['commit']}^{{tree}}"], text=True).strip()
+    candidate_parent = subprocess.check_output(["git", "show", "-s", "--format=%P", candidate["commit"]], text=True).strip().split()[0]
+    if candidate_tree != candidate["tree"]:
+        fail("candidate tree mismatch")
+    if candidate_parent != candidate["parent"]:
+        fail("candidate parent mismatch")
     if git_blob(manifest["activation_gate"]["path"]) != manifest["activation_gate"]["blob_sha1"]:
         fail("activation gate blob mismatch")
     if git_blob(manifest["activation_binding"]["path"]) != manifest["activation_binding"]["blob_sha1"]:
@@ -94,8 +101,13 @@ def verify(manifest_path: Path, binding_path: Path, packet_path: Path) -> dict:
         fail("stale old gate identity in active packet instructions")
     if manifest["activation_gate"]["blob_sha1"] not in header:
         fail("current gate identity absent from packet header")
+    for value in (candidate["commit"], candidate["tree"], candidate["parent"]):
+        if value not in header:
+            fail("candidate identity absent from packet header")
     if expected_review not in header:
         fail("Review 002 path absent from packet header")
+    if "expected fresh review: governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-001.txt" in header:
+        fail("stale Review 001 expected path in active packet instructions")
     if "historical Review 001:" not in header or "CHANGES_REQUIRED" not in header:
         fail("historical Review 001 disclosure absent from packet header")
     h_match = "activation-gate blob " + manifest["activation_gate"]["blob_sha1"]
