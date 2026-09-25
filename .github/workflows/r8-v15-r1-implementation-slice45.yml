@@ -1,0 +1,46 @@
+name: R8 v15-r1 Implementation Slice 45
+
+on:
+  push:
+    branches:
+      - implementation/r8-v15-r1-slice45-freeze-validator-contract-exact-local-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE45-PREREGISTRATION.md
+      - governance-runtime/r8_v15_r1_freeze_validator_contract_exact_validator.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice45.py
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE45-MARKER.json
+      - .github/workflows/r8-v15-r1-implementation-slice45.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r8-v15-r1-implementation-slice45
+  cancel-in-progress: false
+
+jobs:
+  frozen-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run Slice 45
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice45.py
+      - name: Run inherited Slice 7
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice7.py
+      - name: Run inherited Slice 6
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice6.py
+      - name: Run inherited Slice 5
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice5.py
+      - name: Run inherited Slice 4
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice4.py
+      - name: Run inherited Slice 3
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice3.py
+      - name: Run inherited Slice 2
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice2.py
+      - name: Run inherited Slice 1
+        run: |
+          python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1.py governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py governance-runtime/test_r8_v15_r1_post_freeze_regression.py

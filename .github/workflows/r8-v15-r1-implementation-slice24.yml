@@ -1,0 +1,65 @@
+name: R8 v15-r1 Implementation Slice 24
+
+on:
+  push:
+    branches:
+      - implementation/r8-v15-r1-slice24-any-scope-permission-local-2026-09-25
+    paths:
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE24-PREREGISTRATION.md
+      - governance-runtime/r8_v15_r1_any_scope_permission_validator.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice24.py
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE24-MARKER.json
+      - governance-r8/R8-V15-R1-IMPLEMENTATION-REVIEW-CADENCE-ACTIVATION-001.json
+      - .github/workflows/r8-v15-r1-implementation-slice24.yml
+      - governance-runtime/r8_v15_r1_frozen_schema_runtime.py
+      - governance-runtime/r8_v15_r1_state_roots.py
+      - governance-runtime/r8_v15_r1_stc_validator.py
+      - governance-runtime/r8_v15_r1_preseal_validator.py
+      - governance-runtime/r8_v15_r1_timeproof_validator.py
+      - governance-runtime/r8_v15_r1_seal_validator.py
+      - governance-runtime/r8_v15_r1_effect_intent_validator.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice7.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice6.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice5.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice4.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice3.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice2.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice1.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py
+      - governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py
+      - governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py
+      - governance-runtime/test_r8_v15_r1_post_freeze_regression.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r8-v15-r1-implementation-slice24
+  cancel-in-progress: false
+
+jobs:
+  frozen-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run Slice 24
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice24.py
+      - name: Run inherited Slice 7
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice7.py
+      - name: Run inherited Slice 6
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice6.py
+      - name: Run inherited Slice 5
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice5.py
+      - name: Run inherited Slice 4
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice4.py
+      - name: Run inherited Slice 3
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice3.py
+      - name: Run inherited Slice 2
+        run: python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice2.py
+      - name: Run inherited Slice 1
+        run: |
+          python3 -m unittest -v governance-runtime/test_r8_v15_r1_implementation_slice1.py governance-runtime/test_r8_v15_r1_implementation_slice1_successor1.py governance-runtime/test_r8_v15_r1_implementation_slice1_successor2.py governance-runtime/test_r8_v15_r1_sfv45_r2_repair.py governance-runtime/test_r8_v15_r1_post_freeze_regression.py
