@@ -1,0 +1,19 @@
+{
+  "schema": "r8-v15-r1-implementation-slice19-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "5af007527627d18313b782a03e77e1536241efd8",
+  "frozen_harness_commit": "e9f6807247a568e557c5998f8f0f96cb2617af80",
+  "workflow_commit": "b1cc4d3de3b36846b70c055556e9ef4fa51fc8d3",
+  "workflow_run_id": 36136138749,
+  "workflow_job_id": 108074552132,
+  "exact_checkout_sha": "b1cc4d3de3b36846b70c055556e9ef4fa51fc8d3",
+  "observed": {
+    "slice19_tests_run": 16,
+    "slice19_passed": 1,
+    "slice19_failed": 15,
+    "passing_case": "I19-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_aiep_runtime_profile_validator"
+  },
+  "preserved_not_reclassified": true
+}
