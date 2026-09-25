@@ -1,0 +1,37 @@
+{
+  "schema": "r8-v15-r1-implementation-open-hardening/v2",
+  "status": "OPEN_NONBLOCKING_HARDENING",
+  "authority_effect": "NONE",
+  "source_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE3-INDEPENDENT-REVIEW-001.txt",
+  "source_adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE3-REVIEW-001-ADJUDICATION.json",
+  "items": [
+    {
+      "id": "R8V15R1-IMPL-HARDEN-004",
+      "title": "Isolate malformed nested GGS root digest path",
+      "status": "OPEN",
+      "severity": "TEST_DEPTH",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-005",
+      "title": "Freeze or normalize nested GCP/STC error taxonomy",
+      "status": "OPEN",
+      "severity": "ERROR_TAXONOMY",
+      "blocking": false
+    },
+    {
+      "id": "R8V15R1-IMPL-HARDEN-006",
+      "title": "Directly exercise remaining STC conditional rejection branches",
+      "status": "OPEN",
+      "severity": "TEST_DEPTH",
+      "blocking": false
+    }
+  ],
+  "inherited_open_items": [
+    "R8V15R1-RTQ-OPEN-001",
+    "R8V15R1-IMPL-HARDEN-001",
+    "R8V15R1-IMPL-HARDEN-002",
+    "R8V15R1-IMPL-HARDEN-003"
+  ],
+  "rule": "These items are preserved as open and are not resolved by Slice 3 closure."
+}
