@@ -1,0 +1,24 @@
+{
+  "schema": "r8-v15-r1-stage2-sg1-proposal-preflight-green/v1",
+  "status": "PROPOSAL_PREFLIGHT_PASS_NO_SEMANTIC_EXECUTION",
+  "authority_effect": "NONE",
+  "run_id": 36169709850,
+  "job_id": 108185981758,
+  "exact_stage1_candidate": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+  "exact_stage1_tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+  "checks": [
+    "SG-1 harness and comparator syntax valid",
+    "exact proposal machinery/evidence blobs match",
+    "dependency surface binds exact Stage1 candidate/tree",
+    "32 direct R8 dependency edges and 2 unique targets",
+    "frozen-schema target blob and used attributes exact",
+    "effect-intent target blob and used attributes exact",
+    "18 preregistered SG-1 cases present",
+    "harness contains no forbidden network/dynamic modules from static preflight set",
+    "core workflow is workflow_call-only and binds exact candidate",
+    "activation artifact absent"
+  ],
+  "semantic_execution_performed": false,
+  "candidate_modified": false,
+  "stage2_authorized": false
+}
