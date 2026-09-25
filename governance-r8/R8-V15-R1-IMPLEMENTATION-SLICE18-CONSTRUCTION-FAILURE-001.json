@@ -1,0 +1,19 @@
+{
+  "schema": "r8-v15-r1-implementation-slice18-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "preregistration_commit": "8396e50ef8014231d71ef28fcef7c37383ca3f9a",
+  "frozen_harness_commit": "2e3d5155b1d63344addb0e7cbe53cb13ddedb682",
+  "workflow_commit": "105ce9f15ce2e44983d89e6eb249bf52a205ce6d",
+  "workflow_run_id": 36135804708,
+  "workflow_job_id": 108073466799,
+  "exact_checkout_sha": "105ce9f15ce2e44983d89e6eb249bf52a205ce6d",
+  "observed": {
+    "slice18_tests_run": 16,
+    "slice18_passed": 1,
+    "slice18_failed": 15,
+    "passing_case": "I18-16",
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_semantic_lineage_mapping_validator"
+  },
+  "preserved_not_reclassified": true
+}
