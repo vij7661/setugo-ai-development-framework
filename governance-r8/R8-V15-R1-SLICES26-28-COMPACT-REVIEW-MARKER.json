@@ -1,0 +1,43 @@
+{
+  "schema": "r8-v15-r1-slices26-28-compact-review-marker/v1",
+  "status": "BUILD_SINGLE_COMPACT_REVIEW_PACKET",
+  "authority_effect": "NONE",
+  "frozen_schema": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "closed_slice7_candidate": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "fallback_governance_anchor": "0410aae4f783b84542d0d491d3d1bb6003ad4216",
+  "post_remediation_governance_anchor": "4a401bdf33786b980364784a0c8a19e20acef2df",
+  "clean_review_counter_before_batch": 1,
+  "slices": {
+    "26": {
+      "candidate": "83e0366251e22d9768554e44340e2b81dbf5424a",
+      "evidence": "26cd26914a2f48d3c08ac728cdf261fc4c31c60f",
+      "red_run": 36146228177,
+      "red_job": 108107967344,
+      "mechanism_run": 36146439277,
+      "mechanism_job": 108108666916,
+      "final_run": 36146516928,
+      "final_job": 108108929336
+    },
+    "27": {
+      "candidate": "d5c01df8c03b808ca0382793433e6e910485f09f",
+      "evidence": "9820674204c391fbf2ef0eea4cb14166da69a1dc",
+      "red_run": 36146268040,
+      "red_job": 108108092603,
+      "mechanism_run": 36146443930,
+      "mechanism_job": 108108682963,
+      "final_run": 36146537117,
+      "final_job": 108108996436
+    },
+    "28": {
+      "candidate": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+      "evidence": "73e43c477b3d4b8cd9428a7b876f7df8cdb4ca91",
+      "red_run": 36146283886,
+      "red_job": 108108143245,
+      "mechanism_run": 36146447644,
+      "mechanism_job": 108108695527,
+      "final_run": 36146553993,
+      "final_job": 108109054565
+    }
+  },
+  "no_slice29_before_review": true
+}
