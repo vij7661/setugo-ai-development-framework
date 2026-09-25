@@ -1,0 +1,20 @@
+{
+  "schema": "r8-v15-r1-implementation-slice45-construction-failure/v1",
+  "status": "PRESERVED_EXPECTED_RED_MECHANISM_ABSENT",
+  "authority_effect": "NONE",
+  "prior_batch_closure_anchor": "37dae48c9c537487ff80ca93f92dd13300feff53",
+  "restored_cadence_anchor": "dfdeceb297b0eefe54d3a47edc3ae16a6f624ded",
+  "preregistration_commit": "30ac2ab8e14ba05900cf4d921f1730e2ae3caec9",
+  "frozen_harness_commit": "afc96cc5781e22f30fe2bb11ffd25451228f7a49",
+  "workflow_commit": "71d1ecf1419881a9d6eb1e8e6418a09c36d1856d",
+  "workflow_run_id": 36155970302,
+  "workflow_job_id": 108140472886,
+  "exact_checkout_sha": "71d1ecf1419881a9d6eb1e8e6418a09c36d1856d",
+  "observed": {
+    "tests_run": 16,
+    "passed": 2,
+    "failed": 14,
+    "failure_root_cause": "ModuleNotFoundError: r8_v15_r1_freeze_validator_contract_exact_validator"
+  },
+  "preserved_not_reclassified": true
+}
