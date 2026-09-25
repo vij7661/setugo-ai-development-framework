@@ -1,0 +1,318 @@
+R8 v15-r1 — INTEGRATION GATE IG-1 — FRESH MANDATORY EARLY REVIEW
+
+USE ONLY THIS FILE.
+Do not use prior conversation history or model recollection.
+This is a PROPOSAL REVIEW ONLY. No integration or semantic execution has been authorized.
+
+A. EXACT GOVERNANCE IDENTITY
+proposal_id: R8V15R1-IG1-MECHANICAL-INTEGRATION-001
+exact proposal commit: 181217d201a628991936042da5d64d98ad9f4bf7
+proposal blob SHA-1: b15aa8badba393d5c5f89a6721704cd283af3a7c
+reviewed-candidate roster commit: 4c74f67ad3fea852234da47f465838c63b6c8bad
+roster blob SHA-1 at proposal commit: 99b4a41f57fd3c3b79c9c0df39f67ea22a248ef3
+proposal base / closed S41-46 governance anchor: a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe
+frozen schema candidate: f93ca26975ecb64f0da13779889c75b36140cdfc
+common closed implementation tree base: 751162ee42c603cb6c84ee12021d16bab6fa626b
+adaptive cadence activation proposal: 80c3aad923e405dde76e5042248edf0fa8f919a1
+restored six-slice cadence anchor: dfdeceb297b0eefe54d3a47edc3ae16a6f624ded
+
+B. WHY EARLY REVIEW IS MANDATORY
+The active cadence rule makes these mandatory early-review triggers:
+- cross-slice integration, merge, or dependency authority;
+- authority-bearing semantic selection or transition logic;
+- currentness/freshness/temporal eligibility;
+- resolver qualification/freshness;
+- runtime qualification or attestation;
+- evidence promotion;
+- cryptographic trust/current registry/revocation;
+- concurrency/replay/idempotency/distributed-state semantics;
+- release/deployment/production/terminal boundaries;
+- any Critical/High finding or CHANGES_REQUIRED.
+
+Review 007 of S41-S46 concluded:
+- BOUNDED_PASS;
+- zero Critical/High findings;
+- remaining low-risk structural/exact-freeze surface exhausted;
+- next semantic/integration phase requires fresh mandatory early review before execution.
+
+IG-1 addresses ONLY the first high-risk boundary: mechanical cross-slice integration.
+
+C. SOURCE INDEX IDENTITIES
+All candidate identities in the roster are derived from these existing reviewed closure/state indexes.
+Git blob SHA-1 at exact proposal commit:
+- R8-V15-R1-IMPLEMENTATION-BATCH8-10-CLOSURE.json
+  97f3b95554818f72400f56f2dc67a3a3069f671b
+- R8-V15-R1-IMPLEMENTATION-BATCH11-13-CLOSURE.json
+  5f41f0be9409684296e48127228c2546b4ee2d6d
+- R8-V15-R1-IMPLEMENTATION-BATCH14-16-CLOSURE.json
+  0cc8efa4280a6f0438d2cdbfda903d1bdec6cbb6
+- R8-V15-R1-IMPLEMENTATION-BATCH17-19-CLOSURE.json
+  901853417e0b25698068573b465af88e690f4eae
+- R8-V15-R1-POST-REMEDIATION-CLEAN-REVIEW-STATE-001.json
+  8c0d637e26b069c880ec77158941007bd7318c56
+- R8-V15-R1-POST-REMEDIATION-CLEAN-REVIEW-STATE-002.json
+  c369c95d37536e35e5b45f3f504c726f12262d7c
+- R8-V15-R1-IMPLEMENTATION-BATCH29-34-CLOSURE.json
+  403e58b11fe0a98d97d72c5c096550ada958293e
+- R8-V15-R1-IMPLEMENTATION-BATCH35-40-CLOSURE.json
+  238d28cd14e1948ee0f3b7ff4553836b9d952b77
+- R8-V15-R1-IMPLEMENTATION-BATCH41-46-CLOSURE.json
+  c819cc2cf9365c9ce505774271c5a79f7d85b13a
+
+D. EXACT PROPOSAL
+===== BEGIN R8-V15-R1-INTEGRATION-GATE1-PROPOSAL.json =====
+{
+  "schema": "r8-v15-r1-integration-gate1-proposal/v1",
+  "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-001",
+  "status": "PROPOSED_NOT_ACTIVE_REQUIRES_FRESH_INDEPENDENT_EARLY_REVIEW_AND_USER_APPROVAL",
+  "authority_effect": "NONE",
+  "proposal_base_anchor": "a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "implementation_tree_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "reviewed_candidate_roster": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-REVIEWED-CANDIDATE-ROSTER.json",
+  "trigger_basis": [
+    "cross-slice integration, merge, or dependency authority is a mandatory early-review trigger",
+    "Slices 41-46 review 007 declared low-risk structural/exact-freeze surface exhausted",
+    "Slices 41-46 review 007 requires fresh mandatory early review before semantic/integration execution"
+  ],
+  "objective": "Create one mechanically integrated, non-authoritative implementation candidate containing only exact reviewed slice-owned bytes from S8-S46, without editing their behavior and without beginning semantic recomputation.",
+  "stage_1_mechanical_integration_protocol": {
+    "permitted_after_activation": [
+      "create one integration branch from the exact governance anchor bound by the activation artifact",
+      "materialize only slice-owned reviewed implementation/test/workflow files from exact candidate commits in the roster",
+      "preserve imported file bytes exactly as stored at the reviewed candidate",
+      "create new integration-only manifest/harness/workflow files that do not alter imported reviewed modules",
+      "run inherited Slice1-7 baseline tests",
+      "run integration import/isolation checks",
+      "run exact blob-identity checks for every imported file",
+      "run available reviewed acceptance suites when their exact dependencies are materialized"
+    ],
+    "file_selection_policy": {
+      "implementation_files": "governance-runtime/*.py added/modified by the exact candidate relative to the common Slice7 implementation tree, excluding test_*.py unless imported as test evidence",
+      "test_evidence_files": "slice-specific governance-runtime/test_r8_v15_r1_implementation_slice*.py from the exact candidate when needed for integrated regression",
+      "workflow_evidence_files": ".github/workflows/r8-v15-r1-implementation-slice*.yml from the exact candidate when required by the imported acceptance test",
+      "governance_history_files": "do not merge sibling governance histories into the integrated implementation tree; use the roster and batch-closure indexes instead"
+    },
+    "hard_fail_conditions": [
+      "two eligible candidates claim different bytes for the same implementation/test/workflow path",
+      "selected imported blob does not equal the blob at the exact roster candidate",
+      "frozen schema bytes differ from f93ca26975ecb64f0da13779889c75b36140cdfc",
+      "integration requires editing an imported reviewed implementation module",
+      "integration requires choosing between conflicting reviewed behaviors",
+      "any imported module begins depending on an unreviewed sibling semantic result",
+      "any test failure is bypassed, weakened, or reclassified as PASS",
+      "any authority/currentness/qualification/evidence-promotion behavior is added"
+    ],
+    "conflict_policy": "STOP_AND_REQUIRE_FRESH_REVIEW; no automatic merge resolution, no manual semantic reconciliation inside IG-1.",
+    "output_status": "INTEGRATED_IMPLEMENTATION_CANDIDATE_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW",
+    "authority_effect": "NONE"
+  },
+  "stage_2_after_integrated_candidate_review": {
+    "status": "NOT_AUTHORIZED_BY_IG1",
+    "rule": "Semantic recomputation/integration work begins only after the exact mechanical integration candidate itself receives fresh independent BOUNDED_PASS and a separately preregistered semantic gate is reviewed.",
+    "candidate_future_work_packages": [
+      "SRTT-4 decisive-rule membership and full semantic recomputation (SFV-01..04)",
+      "Guard/Case/CaseProof cross-registry closure and omission evidence recomputation (SFV-05..07, SFV-39..40)",
+      "BSP/NCG/RPS semantic execution and graph/review materiality checks (SFV-08..10, SFV-41..42)",
+      "Provenance/source-boundary/digest binding checks (SFV-35..38, SFV-43..44)",
+      "remaining runtime/currentness/authority semantics SFV-11..34 using integrated reviewed structural mechanisms"
+    ]
+  },
+  "review_requirements": {
+    "current_review_is_proposal_only": true,
+    "reviewer_must_assess": "whether stage-1 mechanical integration can be executed without authority transfer, semantic reconciliation, schema drift, false-green test composition, or importing rejected predecessors",
+    "activation_requires": {
+      "fresh_independent_disposition": "BOUNDED_PASS",
+      "critical_findings": 0,
+      "high_findings": 0,
+      "explicit_user_approval_of_exact_proposal_commit": true
+    },
+    "changes_required_or_high_critical": "DO_NOT_ACTIVATE; remediate proposal and re-review",
+    "insufficient_evidence": "DO_NOT_ACTIVATE; provide missing proposal evidence only"
+  },
+  "cadence_effect": {
+    "six_slice_low_risk_cadence": "unchanged but not applicable to IG-1",
+    "fallback_to_three": "not triggered merely by entering IG-1; existing automatic trigger still applies to a new High/Critical or CHANGES_REQUIRED",
+    "no_silent_return_to_low_risk_batched_execution": true
+  },
+  "grants": {
+    "proposal_authority": false,
+    "integration": false,
+    "semantic_execution": false,
+    "cross_slice_dependency_authority": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
+
+===== END R8-V15-R1-INTEGRATION-GATE1-PROPOSAL.json =====
+
+E. EXACT REVIEWED-CANDIDATE ROSTER
+===== BEGIN R8-V15-R1-INTEGRATION-GATE1-REVIEWED-CANDIDATE-ROSTER.json =====
+{
+  "schema": "r8-v15-r1-integration-gate1-reviewed-candidate-roster/v1",
+  "status": "PROPOSAL_EVIDENCE_ONLY_NOT_INTEGRATED",
+  "authority_effect": "NONE",
+  "integration_base_governance_anchor": "a9d45f4b96c5a9c8aa980748d6cb0bca27af25fe",
+  "implementation_tree_base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "frozen_schema_candidate": "f93ca26975ecb64f0da13779889c75b36140cdfc",
+  "source_indexes": [
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH8-10-CLOSURE.json",
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH11-13-CLOSURE.json",
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH14-16-CLOSURE.json",
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH17-19-CLOSURE.json",
+    "governance-r8/R8-V15-R1-POST-REMEDIATION-CLEAN-REVIEW-STATE-001.json",
+    "governance-r8/R8-V15-R1-POST-REMEDIATION-CLEAN-REVIEW-STATE-002.json",
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH29-34-CLOSURE.json",
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH35-40-CLOSURE.json",
+    "governance-r8/R8-V15-R1-IMPLEMENTATION-BATCH41-46-CLOSURE.json"
+  ],
+  "candidates": {
+    "8": "fa94f8dd96bc54515baabf3f34ed37d25f41f6db",
+    "9": "9d82c3f095fa08e81808d7e0d4c4b0a0a26556ea",
+    "10": "33d112b5e2d3d6bc75fb07f14f6cf55c4d6b19f4",
+    "11": "4b49613a56c53048cf9531783b09ba71b64539ef",
+    "12": "294c8b0112e1715402325836f1c8f0b58a042e70",
+    "13": "4f9c5f6a1a22d61a038ada48bb8ce5ce28af41f0",
+    "14": "5c0e6e47d7b4e23f0be0b9137e1d67f3ab73b88b",
+    "15": "1dcccf04e8c05f8acae145fa63c140d44e68d882",
+    "16": "d9a935a0e418e70a0f63904c98547ff4590d8f72",
+    "17": "2717f6127a4d2a76a7d7efafe5e79fe83cc32c53",
+    "18": "9a7d60691fa80b1b5da52dbd5120e899eeefbfe6",
+    "19": "6d591e8ce8a881411929a887d7152603a4af0e49",
+    "20": "eee3dee24243fe79c86f0d587fcbf42df932fb39",
+    "21": "799921c4e31df9b1140a21c3a1f182dceaaa3f6d",
+    "22": "7adab4471a17612d50eaf3fae48feb50884f5fcd",
+    "23": "e80783edea482605eb15ddaded6c8ef8aa79303c",
+    "24": "49ad02ca8ccc4f9d6f1b5c78c7ba392184eb2ab4",
+    "25": "aa61ee5637daa10f1de9f39d164c610145fe47be",
+    "26": "83e0366251e22d9768554e44340e2b81dbf5424a",
+    "27": "d5c01df8c03b808ca0382793433e6e910485f09f",
+    "28": "bc17d15d4f0939945576d364dec6ee761c96d8d5",
+    "29": "4c720a215e8d3e99ea236f7a951263a168929813",
+    "30": "113a67da6b11936a48a919410e88469ece20f84b",
+    "31": "66595ac25a600daa9c71e63f473d815859945136",
+    "32": "5fa171b732e58e2eb1a75d755ae25b18f4ac3fff",
+    "33": "bbf310642e6e106fc2de4375da38bbb6d355c6ad",
+    "34": "6b313f9d1a0c7a2712e5773e7844aa19355091e3",
+    "35": "fd8f410be0cf6e0a45cd5b67942e462278d360e2",
+    "36": "07a62458e36adb02b621ecf0fb6761c6cbb6c376",
+    "37": "3b16bd2ea3c00eb1f1d2acedf1c3375d2f0eeb2e",
+    "38": "9d5e9af3a643297b5b4074d8be42904a6fa6098d",
+    "39": "43d43aa48571c905cb4d43e202f891ab853e8d5a",
+    "40": "46e373bc50aee6d1d05aeba01a8d42037a743128",
+    "41": "cea8e0925e715d5735d33b6522521c3abca8c87b",
+    "42": "0a4ada53a74dc09f064b4a753fc0629fe64a9a07",
+    "43": "308a06c55de52ec2e59c350aa119733ff7cc6b3b",
+    "44": "c1d95441292d2051fbb50b03af8d79093818d0ff",
+    "45": "e04913f7973d135f00ecafe6c5b6ea580305e55c",
+    "46": "237b2e3216378ad75e8c54b1a44cb1b0b245002f"
+  },
+  "rejected_predecessors": {
+    "20": "053a5c0e70aee45e0e73653d68de3575a83d455c",
+    "21": "d3f184380f6cd15582cb3dd6e987895dd895d930",
+    "22": "8ecdd17ce80549f87dd15bbe1fc29414272b6253"
+  },
+  "roster_rule": "Only exact reviewed candidates listed above are eligible. Rejected predecessors and any unlisted descendants are ineligible.",
+  "grants": {
+    "integration": false,
+    "semantic_execution": false,
+    "runtime_qualification": false,
+    "evidence_promotion": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "terminal_authority": false
+  }
+}
+
+===== END R8-V15-R1-INTEGRATION-GATE1-REVIEWED-CANDIDATE-ROSTER.json =====
+
+F. REVIEW QUESTIONS
+Assess the proposal adversarially. In particular:
+
+1. Does IG-1 remain genuinely mechanical, or can its file-selection/materialization rules silently create semantic behavior?
+2. Is the exact-candidate roster sufficiently fail-closed against rejected S20-S22 predecessors and unreviewed descendants?
+3. Is deriving selected files relative to the common Slice7 implementation tree safe, or does it allow unrelated branch history to leak into integration?
+4. Is the hard-fail collision rule sufficient? If two candidates claim one path, must execution stop before choosing any bytes?
+5. Does exact blob-identity checking prevent integration-time mutation of reviewed modules?
+6. Can integration-only harness/workflow code itself create authority or dependency semantics? If so, identify the narrow additional constraint required.
+7. Is excluding sibling governance-history files from the integrated implementation tree safe, given that exact roster/index references remain external governance evidence?
+8. Does running reviewed acceptance suites on an integrated tree risk a false-green because original tests were designed for sibling branches? State any required integration-specific oracle.
+9. Does IG-1 correctly prohibit semantic reconciliation, currentness, qualification, evidence promotion, SRTT recomputation, or authority transitions?
+10. Is a fresh independent review of the exact mechanically integrated bytes required before any semantic work? The proposal says YES.
+11. Should IG-1 activation require both fresh BOUNDED_PASS with zero Critical/High AND explicit user approval of exact proposal commit? The proposal says YES.
+12. Does any part of IG-1 improperly inherit authority from prior schema-freeze provenance/attestation evidence? It must not.
+13. Does entering IG-1 itself trigger fallback-to-3? The proposal says NO unless the review produces Critical/High or CHANGES_REQUIRED.
+14. Are there any concrete false-green, path-selection, ancestry, conflict-resolution, test-composition, or authority-transfer paths not fail-closed by the proposal?
+
+G. REQUIRED AUTHORITY BOUNDARY
+A favorable review may establish only that the PROPOSAL is safe to activate after explicit user approval.
+It must NOT itself:
+- activate IG-1;
+- create an integrated tree;
+- authorize semantic recomputation;
+- grant cross-slice dependency authority;
+- qualify runtime/attestation;
+- promote evidence;
+- authorize release/deployment/production;
+- grant policy/constitutional/root/terminal authority.
+
+If activated later, Stage 1 output must remain:
+INTEGRATED_IMPLEMENTATION_CANDIDATE_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW
+
+Stage 2 semantic work remains NOT AUTHORIZED by IG-1.
+
+H. REQUIRED REVIEW OUTPUT
+Return only these sections:
+
+A. OVERALL_DISPOSITION
+Exactly one of:
+- BOUNDED_PASS
+- CHANGES_REQUIRED
+- INSUFFICIENT_EVIDENCE
+
+B. EXACT_PROPOSAL_IDENTITY
+Include:
+- proposal ID;
+- exact proposal commit;
+- proposal blob SHA-1;
+- roster blob SHA-1;
+- base governance anchor;
+- frozen schema candidate;
+- Slice7 implementation tree base;
+- count/range of reviewed candidates;
+- rejected S20-S22 predecessors.
+
+C. CRITICAL_FINDINGS
+
+D. HIGH_FINDINGS
+
+E. MEDIUM_LOW_FINDINGS
+
+F. INTEGRATION_PROTOCOL_ASSESSMENT
+Address F1-F14 corresponding to the 14 questions above.
+Identify any concrete false-green or silent-authority path.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+State:
+- whether cross-slice integration remains non-authoritative;
+- whether semantic work remains separately gated;
+- whether exact integrated bytes require fresh independent review;
+- whether the six-slice cadence changes;
+- whether fallback-to-3 is triggered.
+
+H. FINAL_GATE
+State exactly:
+- IG-1 proposal may be explicitly activated by user: YES or NO.
+- If YES, activation is still NOT automatic and must bind exact proposal commit 181217d201a628991936042da5d64d98ad9f4bf7.
+- Semantic/integration Stage 2 authorized: NO.
+- Runtime/release/deployment/production/policy/root/terminal authority granted: NO.
