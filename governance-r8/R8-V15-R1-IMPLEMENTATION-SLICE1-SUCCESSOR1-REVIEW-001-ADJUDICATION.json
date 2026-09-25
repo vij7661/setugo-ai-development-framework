@@ -1,0 +1,131 @@
+{
+  "schema": "r8-v15-r1-implementation-slice1-successor1-review-adjudication/v1",
+  "status": "CHANGES_REQUIRED_SUCCESSOR2",
+  "authority_effect": "REVIEW_ADJUDICATION_ONLY",
+  "reviewed_candidate": "2cf7adce8bdd67c8b78659d9359c178535af1d73",
+  "independent_review_path": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE1-SUCCESSOR1-INDEPENDENT-REVIEW-001.txt",
+  "independent_review_disposition": "CHANGES_REQUIRED",
+  "packet_build": {
+    "run_id": 36106011092,
+    "artifact_id": 10851057882,
+    "artifact_zip_sha256": "b95e967b695358048d87d3e7a404f3b24d80190d4afb3b4fcc63c43fa3dd570b",
+    "full_packet_sha256": "a20de86ac7f1b6df26ae076a732ecbd6808f532edc6125eef173a5134a47b74a",
+    "generated_files_present": [
+      "00_INSTRUCTIONS.txt",
+      "01_EXACT_SUCCESSOR_CANDIDATE.txt",
+      "02_SCHEMA_INDEX.txt",
+      "03_SCHEMA_NON_SPM.txt",
+      "04_SPM_PART_01_OF_04.txt",
+      "04_SPM_PART_02_OF_04.txt",
+      "04_SPM_PART_03_OF_04.txt",
+      "04_SPM_PART_04_OF_04.txt",
+      "05_INVOKED_REGRESSION_SOURCES.txt",
+      "06_CONSTRUCTION_EVIDENCE.txt",
+      "07_SHA256_MANIFEST.txt"
+    ],
+    "spm_reconstruction": {
+      "part_payload_sha256": [
+        "22bb50aee1e37bc5003f1de0ce43cc1da26453ece7328486838136d1525e3208",
+        "605a7460aec0dbe9194f37da79dec96938258611b2f40171c39dcbdbf19bbd0a",
+        "75b586c0b357781837a716cb6131eb8e0ce43e9de3424b38871691854971c175",
+        "3f0efa712abe2e2bb55cdf1fcd33de9425f72586741701254edd98eba1491de6"
+      ],
+      "reconstructed_sha256": "84c484121c4c8dd0592bcd7e4c070d8a3ab7f17215f4c3d2b31863fb6dbf6797",
+      "exact": true,
+      "part4_end_marker_present": true
+    }
+  },
+  "adjudicated_findings": [
+    {
+      "id": "S1S1-C-01",
+      "claim": "nested negative zero is normalized to zero inside object/array JSON",
+      "disposition": "CONFIRMED",
+      "severity": "CRITICAL",
+      "candidate_defect": true,
+      "repair": "Preserve integer lexical tokens during generic JSON parsing and reject nested -0 before canonicalization; add object and array negative-zero tests."
+    },
+    {
+      "id": "S1S1-C-02",
+      "claim": "SPM part 4 supplied by packet builder is truncated",
+      "disposition": "REJECTED_AS_BUILDER_DEFECT__CLASSIFIED_DELIVERY_OR_INGESTION_GAP",
+      "severity": "TRANSPORT",
+      "candidate_defect": false,
+      "basis": "The GitHub-built artifact contains complete part 4 with the END marker; all four payloads concatenate exactly to the frozen SPM SHA-256."
+    },
+    {
+      "id": "S1S1-C-03",
+      "claim": "05/06/07 transport files are absent",
+      "disposition": "REJECTED_AS_BUILDER_DEFECT__CLASSIFIED_DELIVERY_OR_INGESTION_GAP",
+      "severity": "TRANSPORT",
+      "candidate_defect": false,
+      "basis": "All three files are present in GitHub artifact 10851057882 and its manifest."
+    },
+    {
+      "id": "S1S1-C-04",
+      "claim": "36105362709 versus 36105497132 is an unresolved run identity discrepancy",
+      "disposition": "REJECTED",
+      "severity": "NONE",
+      "candidate_defect": false,
+      "basis": "36105362709 is the mechanism-repair green run; 36105497132 is the subsequent exact marker-candidate green run and is the authoritative reviewed-candidate run. Construction evidence records both."
+    },
+    {
+      "id": "S1S1-H-01",
+      "claim": "symlink/realpath escape is not rejected",
+      "disposition": "CONFIRMED_DEFENSE_GAP",
+      "severity": "HIGH",
+      "candidate_defect": true,
+      "repair": "Reject symlink components/final artifacts and require resolved artifact parent to equal the resolved frozen schema directory before reading."
+    },
+    {
+      "id": "S1S1-H-02",
+      "claim": "source-map comparison uses basenames rather than exact frozen full paths",
+      "disposition": "CONFIRMED_WEAKNESS",
+      "severity": "HIGH",
+      "candidate_defect": true,
+      "repair": "Translate source-map artifact keys to exact frozen full paths and require set equality with SPM artifact paths."
+    },
+    {
+      "id": "S1S1-M-01",
+      "claim": "artifact_id and sha256 shapes are not directly validated",
+      "disposition": "CONFIRMED_DEFENSE_GAP",
+      "severity": "LOW",
+      "repair": "Require non-empty artifact_id and lowercase 64-hex sha256 in direct SPM validation."
+    },
+    {
+      "id": "S1S1-M-02",
+      "claim": "every source_ref_catalog entry must be referenced by an SPM entry",
+      "disposition": "REJECTED",
+      "severity": "NONE",
+      "basis": "The exact frozen SPM intentionally contains catalog refs not used by entry rows (SRC-SPG-ENROLLMENT, SRC-SPG-STAGEB-VERIFY, SRC-V6). Catalog membership is not defined as entry-use closure; exact SPM hash remains authoritative."
+    },
+    {
+      "id": "S1S1-M-03",
+      "claim": "workflow-trigger test omits the original Slice 1 preregistration path",
+      "disposition": "CONFIRMED_TEST_WEAKNESS",
+      "severity": "LOW",
+      "repair": "Add the original preregistration path to trigger-coverage acceptance."
+    },
+    {
+      "id": "S1S1-M-04",
+      "claim": "read-count test can miss symlink targets outside schema directory",
+      "disposition": "CONFIRMED_TEST_WEAKNESS",
+      "severity": "LOW",
+      "repair": "Add explicit same-byte external symlink rejection test; symlink rejection makes the read-count blind spot non-authoritative."
+    }
+  ],
+  "successor2_scope": [
+    "nested integer lexical preservation and nested negative-zero rejection",
+    "symlink and realpath confinement",
+    "full-path source-map/SPM equality",
+    "artifact_id and sha256 shape checks",
+    "stronger workflow trigger coverage test",
+    "explicit external-symlink same-byte rejection",
+    "review transport reduced to <=6 attachments with all non-SPM review evidence consolidated into one core file"
+  ],
+  "prohibited_changes": [
+    "frozen executable-schema bytes",
+    "frozen semantic candidate",
+    "original I1 authority boundary",
+    "runtime qualification/release/deployment/production authority"
+  ]
+}
