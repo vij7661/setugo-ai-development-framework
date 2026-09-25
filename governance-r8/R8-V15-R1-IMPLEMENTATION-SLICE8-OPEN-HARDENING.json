@@ -1,0 +1,23 @@
+{
+  "schema": "r8-v15-r1-implementation-slice8-open-hardening/v1",
+  "status": "OPEN_NONBLOCKING_HARDENING",
+  "authority_effect": "NONE",
+  "source_review": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICES8-10-INDEPENDENT-REVIEW-001.txt",
+  "source_adjudication": "governance-r8/R8-V15-R1-IMPLEMENTATION-SLICE8-REVIEW-001-ADJUDICATION.json",
+  "items": [
+    {
+      "id": "S8-L-01",
+      "status": "OPEN",
+      "blocking": false
+    },
+    {
+      "id": "S8-10-L-TRANSPORT-01",
+      "status": "OPEN",
+      "blocking": false
+    }
+  ],
+  "inherited_open_items": [
+    "R8V15R1-RTQ-OPEN-001"
+  ],
+  "rule": "No open item is resolved by bounded closure. Cross-batch authority transfer remains prohibited."
+}
