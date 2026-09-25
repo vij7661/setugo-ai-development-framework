@@ -1,6 +1,6 @@
 {
   "schema": "r8-v15-r1-implementation-slice2-marker/v1",
-  "status": "FROZEN_ACCEPTANCE_HARNESS_PRE_MECHANISM",
+  "status": "MECHANISM_IMPLEMENTED_PENDING_FROZEN_ACCEPTANCE",
   "authority_effect": "NONE",
   "slice1_closure_head": "194963c846fa62143aa03208d3617ca3f39dd173",
   "exact_slice1_candidate": "fdf825cb45fbd00441a4cd02bb1912bb3cda01b0",
@@ -17,5 +17,8 @@
     "production": false,
     "policy": false,
     "terminal_authority": false
-  }
+  },
+  "mechanism_commit": "26c8e55bc2938e9b2d3fcda273d333cc3b41e50f",
+  "preserved_red_run_id": 36109493832,
+  "retrigger_nonce": 1
 }
