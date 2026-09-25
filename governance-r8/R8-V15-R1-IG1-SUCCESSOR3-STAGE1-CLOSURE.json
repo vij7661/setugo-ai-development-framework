@@ -1,0 +1,92 @@
+{
+  "schema": "r8-v15-r1-ig1-successor3-stage1-closure/v1",
+  "status": "CLOSED_BOUNDED_PASS_NON_AUTHORITATIVE_MECHANICAL_INTEGRATION",
+  "authority_effect": "NONE",
+  "exact_candidate": {
+    "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "branch": "integration/r8-v15-r1-ig1-successor3-candidate-448739d25dc7",
+    "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+    "changed_paths": 121,
+    "reviewed_allowlisted_entries": 120,
+    "manifest_path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-INTEGRATED-CANDIDATE-MANIFEST.json",
+    "manifest_blob_sha1": "a78add847f6d4ba8914a66ee00d89422fbaa47f2"
+  },
+  "activation_and_execution": {
+    "proposal_id": "R8V15R1-IG1-MECHANICAL-INTEGRATION-SUCCESSOR3",
+    "proposal_commit": "c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317",
+    "proposal_blob_sha1": "4f3cab0b33caa19fcb81da3cff53456714de3da3",
+    "activation_gate_blob_sha1": "8a3c9ca39f83e3262a85ae0e5ffb456d61c6d3ac",
+    "activation_commit": "448739d25dc775237f9000ccd189d0764a452ae6",
+    "activation_run_id": 36167485075,
+    "activation_gate_job_id": 108178671152,
+    "stage1_job_id": 108178711127,
+    "postrun_verify_run_id": 36167715425,
+    "postrun_verify_job_id": 108179410259,
+    "result": "PASS"
+  },
+  "independent_reviews": {
+    "pre_activation_review_004": {
+      "path": "governance-r8/R8-V15-R1-INTEGRATION-GATE1-SUCCESSOR3-INDEPENDENT-REVIEW-004.txt",
+      "blob_sha1": "46e2a5ef1a95eb2f098e706da6c09c3652072344",
+      "disposition": "BOUNDED_PASS",
+      "critical": 0,
+      "high": 0,
+      "clean_review_number_after_latest_remediation": 1
+    },
+    "post_stage1_review_005": {
+      "path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-STAGE1-INDEPENDENT-REVIEW-005.txt",
+      "blob_sha1": "7b9c5c0eefaa782753abf92a2fa88afbf23ff450",
+      "disposition": "BOUNDED_PASS",
+      "critical": 0,
+      "high": 0,
+      "final_gate": "YES",
+      "clean_review_number_after_latest_remediation": 2
+    }
+  },
+  "oracle": {
+    "reviewed_slice_tests": 636,
+    "inherited_baseline_tests": 140,
+    "total_tests": 776,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "expected_failures": 0,
+    "unexpected_successes": 0
+  },
+  "residuals": [
+    "Direct implementation import scan observed 31 imports to r8_v15_r1_frozen_schema_runtime and 1 edge r8_v15_r1_effect_state_validator -> r8_v15_r1_effect_intent_validator; these remain Stage2 semantic-integration-relevant.",
+    "Governance-history detector remains heuristic against arbitrary dynamic string construction.",
+    "Pre-commit final-diff verification did not itself bind manifest content, though exact manifest blob was post-run reverified and independently reviewed.",
+    "Activation review blob binding necessarily relied on activation JSON plus explicit user approval.",
+    "AST dynamic-execution restrictions are not exhaustive against every conceivable Python dynamic technique."
+  ],
+  "cadence": {
+    "fallback_to_three_remains_active": true,
+    "clean_reviews_after_latest_remediation": 2,
+    "clean_reviews_required_for_recovery": 2,
+    "recovery_evidence_precondition_satisfied": true,
+    "automatic_restoration": false,
+    "explicit_restoration_action_required": true
+  },
+  "stage2": {
+    "semantic_integration_authorized": false,
+    "semantic_gate_preregistration_and_review_may_proceed": true,
+    "exact_stage1_candidate_must_be_bound": true
+  },
+  "grants": {
+    "mechanical_stage1_candidate_closure": true,
+    "semantic_execution": false,
+    "currentness": false,
+    "qualification": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
