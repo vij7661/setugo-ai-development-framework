@@ -1,0 +1,91 @@
+{
+  "schema": "r8-v15-r1-ig1-successor3-stage1-execution-evidence/v1",
+  "status": "STAGE1_MECHANICAL_INTEGRATION_EXECUTED_NON_AUTHORITATIVE_PENDING_FRESH_INDEPENDENT_REVIEW",
+  "authority_effect": "NONE",
+  "activation": {
+    "artifact_path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-ACTIVATION.json",
+    "activation_commit": "448739d25dc775237f9000ccd189d0764a452ae6",
+    "proposal_contract_commit": "c4d00fcd2f52ba77f4ee90a1aa9b6c62c0a7c317",
+    "proposal_blob_sha1": "4f3cab0b33caa19fcb81da3cff53456714de3da3",
+    "activation_gate_blob_sha1": "8a3c9ca39f83e3262a85ae0e5ffb456d61c6d3ac",
+    "independent_review_004_blob_sha1": "46e2a5ef1a95eb2f098e706da6c09c3652072344",
+    "user_approval_scope": "Stage1 mechanical integration only"
+  },
+  "activation_run": {
+    "run_id": 36167485075,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "gate_job_id": 108178671152,
+    "gate_job_conclusion": "success",
+    "stage1_job_id": 108178711127,
+    "stage1_job_conclusion": "success",
+    "checks": [
+      "exact activation/proposal/review/evidence/machinery/user-approval gate PASS",
+      "pristine exact Slice7 target creation PASS",
+      "pre-materialization identity preflight PASS",
+      "materialization plus strict oracle PASS",
+      "immediate final diff verification PASS",
+      "candidate commit and push PASS"
+    ]
+  },
+  "integrated_candidate": {
+    "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "branch": "integration/r8-v15-r1-ig1-successor3-candidate-448739d25dc7",
+    "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+    "commits_above_base": 1,
+    "changed_paths": 121,
+    "reviewed_allowlisted_entries": 120,
+    "candidate_manifest_path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-INTEGRATED-CANDIDATE-MANIFEST.json",
+    "candidate_manifest_blob_sha1": "a78add847f6d4ba8914a66ee00d89422fbaa47f2",
+    "composition": "exact Slice7 base + exact 120 reviewed allowlisted entries + one non-authoritative manifest"
+  },
+  "stage1_oracle": {
+    "reviewed_slice_tests": 636,
+    "inherited_baseline_tests": 140,
+    "total_tests": 776,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "expected_failures": 0,
+    "unexpected_successes": 0,
+    "result": "PASS"
+  },
+  "independent_postrun_verification": {
+    "run_id": 36167715425,
+    "job_id": 108179410259,
+    "conclusion": "success",
+    "result": "IG1_SUCCESSOR3_EXACT_CANDIDATE_POSTRUN_VERIFY_PASS",
+    "candidate_tree_reverified": true,
+    "exact_changed_path_set_reverified": true,
+    "all_120_imported_tree_entries_reverified": true,
+    "manifest_blob_reverified": true,
+    "all_11_baseline_identities_reverified": true,
+    "strict_oracle_rerun": true,
+    "candidate_worktree_unchanged_after_oracle": true
+  },
+  "cadence": {
+    "fallback_to_three_active": true,
+    "clean_reviews_after_latest_remediation": 1,
+    "clean_reviews_required_for_recovery": 2,
+    "six_slice_cadence_restored": false
+  },
+  "pending_manual_gate": {
+    "required": "fresh independent review of exact integrated candidate",
+    "stage2_authorized": false
+  },
+  "nonclaims": {
+    "semantic_integration": false,
+    "currentness": false,
+    "qualification": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
