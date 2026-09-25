@@ -49,6 +49,15 @@ class _PairObject(list):
     """Marker type preserving JSON object pairs before duplicate/NFC checks."""
 
 
+class _LexicalInteger:
+    """Preserves the exact JSON integer token until governance lexical validation."""
+
+    __slots__ = ("raw",)
+
+    def __init__(self, raw: str):
+        self.raw = raw
+
+
 def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -60,6 +69,55 @@ def _sha256_file(path: Path) -> str:
 def _required_file(path: Path) -> None:
     if not path.is_file():
         raise FrozenSchemaError("REQUIRED_ARTIFACT_MISSING", str(path))
+
+
+def _assert_frozen_file_path(repo_root: Path, schema_dir: Path, path: Path) -> None:
+    """Reject symlink substitution and require direct confinement to the frozen schema dir."""
+    try:
+        relative = path.relative_to(repo_root)
+    except ValueError as exc:
+        raise FrozenSchemaError("ARTIFACT_PATH_INVALID", str(path)) from exc
+
+    current = repo_root
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise FrozenSchemaError("ARTIFACT_PATH_SYMLINK", str(current))
+
+    _required_file(path)
+
+    try:
+        resolved = path.resolve(strict=True)
+        schema_resolved = schema_dir.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise FrozenSchemaError("REQUIRED_ARTIFACT_MISSING", str(path)) from exc
+
+    if resolved.parent != schema_resolved:
+        raise FrozenSchemaError(
+            "ARTIFACT_PATH_INVALID",
+            f"{path} resolves outside frozen schema directory: {resolved}",
+        )
+    if not resolved.is_file():
+        raise FrozenSchemaError("REQUIRED_ARTIFACT_MISSING", str(path))
+
+
+def validate_source_map_artifact_paths(spm: Dict[str, Any], source_map: Dict[str, Any]) -> None:
+    artifacts = spm.get("artifacts")
+    artifact_sources = source_map.get("artifact_sources")
+    if not isinstance(artifacts, list) or not isinstance(artifact_sources, dict):
+        raise FrozenSchemaError("SOURCE_MAP_ARTIFACT_SET_MISMATCH", "missing artifact sets")
+
+    spm_paths = {a.get("path") for a in artifacts}
+    source_paths = {
+        f"{FROZEN_SCHEMA_PREFIX}/{name}"
+        for name in artifact_sources
+        if isinstance(name, str)
+    }
+    if spm_paths != source_paths:
+        raise FrozenSchemaError(
+            "SOURCE_MAP_ARTIFACT_SET_MISMATCH",
+            f"spm-only={sorted(spm_paths-source_paths)} source-only={sorted(source_paths-spm_paths)}",
+        )
 
 
 def _load_json_bytes(data: bytes, label: str) -> Any:
@@ -110,6 +168,13 @@ def validate_spm_document(spm: Dict[str, Any]) -> None:
         )
 
     for artifact in artifacts:
+        artifact_id = artifact.get("artifact_id")
+        if not isinstance(artifact_id, str) or not artifact_id:
+            raise FrozenSchemaError("SPM_ARTIFACT_ID_INVALID", repr(artifact_id))
+        digest = artifact.get("sha256")
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            raise FrozenSchemaError("SPM_ARTIFACT_SHA256_INVALID", repr(digest))
+
         raw_path = artifact.get("path")
         if not isinstance(raw_path, str):
             raise FrozenSchemaError("SPM_ARTIFACT_PATH_INVALID", repr(raw_path))
@@ -185,7 +250,7 @@ class FrozenSchemaRuntime:
             "validator": self.schema_dir / "schema-freeze-validator-contract.json",
         }
         for path in required.values():
-            _required_file(path)
+            _assert_frozen_file_path(self.repo_root, self.schema_dir, path)
 
         byte_cache: Dict[Path, bytes] = {}
 
@@ -210,7 +275,7 @@ class FrozenSchemaRuntime:
         for artifact in spm["artifacts"]:
             rel = artifact["path"]
             path = self.repo_root / rel
-            _required_file(path)
+            _assert_frozen_file_path(self.repo_root, self.schema_dir, path)
             data = read_once(path)
             actual = _sha256_bytes(data)
             if actual != artifact["sha256"]:
@@ -243,13 +308,7 @@ class FrozenSchemaRuntime:
             )
         gcp = _load_json_bytes(gcp_bytes, str(required["gcp"]))
 
-        spm_names = {PurePosixPath(a["path"]).name for a in spm["artifacts"]}
-        source_names = set((source_map.get("artifact_sources") or {}).keys())
-        if spm_names != source_names:
-            raise FrozenSchemaError(
-                "SOURCE_MAP_ARTIFACT_SET_MISMATCH",
-                f"spm-only={sorted(spm_names-source_names)} source-only={sorted(source_names-spm_names)}",
-            )
+        validate_source_map_artifact_paths(spm, source_map)
 
         recompute_positive_vectors(gcp)
         validate_rejection_vectors(gcp)
@@ -367,6 +426,12 @@ def _object_from_pairs(pairs: Iterable[Tuple[str, Any]]) -> Dict[str, Any]:
 def _normalize_value(value: Any) -> Any:
     if isinstance(value, _PairObject):
         return _object_from_pairs(value)
+    if isinstance(value, _LexicalInteger):
+        _reject_top_level_integer_lexical(value.raw)
+        parsed = int(value.raw)
+        if parsed < INT64_MIN or parsed > INT64_MAX:
+            raise GCPError("GCP_REJECT_OUT_OF_INT64", f"{parsed} outside signed int64")
+        return parsed
     if isinstance(value, list):
         return [_normalize_value(v) for v in value]
     if isinstance(value, str):
@@ -387,6 +452,7 @@ def _parse_json_preserving_pairs(text: str) -> Any:
         return json.loads(
             text,
             object_pairs_hook=lambda pairs: _PairObject(pairs),
+            parse_int=_LexicalInteger,
             parse_constant=lambda value: (_ for _ in ()).throw(
                 GCPError("GCP_REJECT_UNSUPPORTED_NUMBER", value)
             ),
