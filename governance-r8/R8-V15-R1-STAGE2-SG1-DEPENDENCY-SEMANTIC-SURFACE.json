@@ -1,0 +1,627 @@
+{
+  "schema": "r8-v15-r1-stage2-sg1-dependency-semantic-surface/v1",
+  "status": "PROPOSAL_EVIDENCE_ONLY_NOT_EXECUTION",
+  "candidate": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+  "candidate_tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+  "base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+  "selected_implementation_files": 39,
+  "direct_r8_dependency_edges": 32,
+  "unique_dependency_targets": 2,
+  "targets": {
+    "governance-runtime/r8_v15_r1_frozen_schema_runtime.py": {
+      "blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "inherited": true,
+      "changed": false,
+      "edge_count": 31,
+      "attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "sources": [
+        "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+        "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+        "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+        "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+        "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+        "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+        "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+        "governance-runtime/r8_v15_r1_effect_state_validator.py",
+        "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+        "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+        "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+        "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+        "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+        "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+        "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+        "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+        "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+        "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+        "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+        "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+        "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+        "governance-runtime/r8_v15_r1_rir_record_validator.py",
+        "governance-runtime/r8_v15_r1_scope_component_validator.py",
+        "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+        "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+        "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+        "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+        "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+        "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+        "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+        "governance-runtime/r8_v15_r1_stable_scope_value_validator.py"
+      ]
+    },
+    "governance-runtime/r8_v15_r1_effect_intent_validator.py": {
+      "blob": "50c5f3edd905ec23ae8e97d3cc2d441489935786",
+      "inherited": true,
+      "changed": false,
+      "edge_count": 1,
+      "attributes": [
+        "EffectIntentError",
+        "validate_effect_intent"
+      ],
+      "sources": [
+        "governance-runtime/r8_v15_r1_effect_state_validator.py"
+      ]
+    }
+  },
+  "edges": [
+    {
+      "from_path": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_effect_intent_validator",
+      "alias": "slice7",
+      "imported_names": [],
+      "used_attributes": [
+        "EffectIntentError",
+        "validate_effect_intent"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_effect_intent_validator.py",
+      "target_blob_candidate": "50c5f3edd905ec23ae8e97d3cc2d441489935786",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 10
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 11
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 7
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 7
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rir_record_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 7
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 5
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 5,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "INT64_MAX",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 3,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 9
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 6
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "alias": "slice1",
+      "imported_names": [],
+      "used_attributes": [
+        "GCPError",
+        "canonicalize_json_text"
+      ],
+      "direct_name_occurrences": 2,
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+      "target_blob_candidate": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_changed_in_stage1": false,
+      "target_inherited_from_base": true,
+      "lineno": 5
+    }
+  ],
+  "semantic_execution_performed": false,
+  "authority_effect": "NONE",
+  "stage2_authorized": false
+}
