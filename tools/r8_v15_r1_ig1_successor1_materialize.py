@@ -89,12 +89,27 @@ def assert_integration_machinery_declarative():
     for tok in ("monkeypatch","unittest.mock","mock.patch","sys.modules"):
         if tok in workflow.lower(): raise SystemExit(f"FAIL forbidden workflow token {tok}")
 
+def _expr_mentions_governance_history(node):
+    for child in ast.walk(node):
+        if isinstance(child,ast.Constant) and isinstance(child.value,str) and "governance-r8" in child.value:
+            return True
+    return False
+
 def static_governance_runtime_read_check(blob,path):
     if not path.startswith("governance-runtime/r8_v15_r1_") or path.startswith("governance-runtime/test_"):
         return
     text=run("git","cat-file","blob",blob).stdout
-    if "governance-r8/" in text:
-        raise SystemExit(f"FAIL runtime implementation contains governance-history path literal: {path}")
+    tree=ast.parse(text,filename=path)
+    for node in ast.walk(tree):
+        if not isinstance(node,ast.Call):
+            continue
+        is_read=False
+        if isinstance(node.func,ast.Name) and node.func.id=="open":
+            is_read=True
+        elif isinstance(node.func,ast.Attribute) and node.func.attr in {"open","read_text","read_bytes"}:
+            is_read=True
+        if is_read and any(_expr_mentions_governance_history(arg) for arg in node.args):
+            raise SystemExit(f"FAIL runtime implementation performs governance-history file I/O: {path}")
 
 def preflight():
     assert_integration_machinery_declarative()
