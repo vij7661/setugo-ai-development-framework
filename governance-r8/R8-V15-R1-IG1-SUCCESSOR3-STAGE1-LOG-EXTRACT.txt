@@ -1,0 +1,26 @@
+R8 v15-r1 IG-1 Successor3 Stage1 — selected raw execution evidence
+
+Activation workflow
+run: 36167485075
+gate job: 108178671152
+stage1 job: 108178711127
+conclusion: success
+
+Selected Stage1 raw log lines:
+IG1_SUCCESSOR3_PREFLIGHT_PASS
+IG1_SUCCESSOR3_MATERIALIZATION_AND_ORACLE_PASS
+IG1_SUCCESSOR3_FINAL_DIFF_VERIFY_PASS
+Candidate: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+Branch: integration/r8-v15-r1-ig1-successor3-candidate-448739d25dc7
+Authority: NONE — exact integrated bytes require fresh independent review before Stage2
+
+Post-run exact-candidate verification
+run: 36167715425
+job: 108179410259
+conclusion: success
+
+Structured raw output:
+{"authority_effect": "NONE", "expectedFailures": 0, "inherited_baseline_tests": 140, "reviewed_slice_tests": 636, "skips": 0, "status": "IG1_SUCCESSOR3_ORACLE_PASS", "unexpectedSuccesses": 0}
+{"authority_effect": "NONE", "candidate": "4984f06a4420b76ad1ad475751aebda04a2d2c5c", "changed_paths": 121, "inherited_baseline_tests": 140, "manifest_blob": "a78add847f6d4ba8914a66ee00d89422fbaa47f2", "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b", "reviewed_allowlisted_entries": 120, "reviewed_slice_tests": 636, "stage2_authorized": false, "status": "IG1_SUCCESSOR3_EXACT_CANDIDATE_POSTRUN_VERIFY_PASS", "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef"}
+
+This file is an evidence extract only. Exact GitHub run/job IDs above remain the authoritative execution references.
