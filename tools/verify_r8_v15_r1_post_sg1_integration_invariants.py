@@ -49,8 +49,13 @@ def main():
     assert all(v is False for v in manifest["grants"].values())
     assert manifest["fallback_to_3"] == "ACTIVE"
     assert manifest["six_slice_cadence_restored"] is False
-    assert manifest["expected_changed_file_count"] == 29
+    assert manifest["expected_changed_file_count"] == 33
     assert len(changed) == manifest["expected_changed_file_count"], (len(changed), manifest["expected_changed_file_count"])
+    api_contract = manifest["api_request_contract_preservation"]
+    assert api_contract["status"] == "ACTIVE_INVARIANT"
+    assert api_contract["provider_request_schema_change_authorized"] is False
+    assert api_contract["api_execution_behavior_change_authorized"] is False
+    assert manifest["defect_root_cause_control"]["status"] == "ACTIVE_INVARIANT"
     assert manifest["semantic_gap_inventory"]["classification"] == "HISTORICAL_STAGE1_BOUND_EVIDENCE"
     assert manifest["semantic_gap_inventory"]["candidate_commit"] == "4984f06a4420b76ad1ad475751aebda04a2d2c5c"
     assert manifest["semantic_gap_inventory"]["base_commit"] == "751162ee42c603cb6c84ee12021d16bab6fa626b"
@@ -217,6 +222,40 @@ def main():
         for p in (ROOT/"governance-r8/codex-work-queue").glob("Q[0-9][0-9]-*.md")
     }
     assert task_ids - manifest_ids == set(), (task_ids - manifest_ids)
+
+    # Governance-only remediation must preserve provider-facing API semantics.
+    api = load_module(
+        "provider_api_request_contract_invariant",
+        ROOT/"governance-runtime/provider_api_request_contract.py",
+    )
+    provider_request = {
+        "provider": "deepseek",
+        "endpoint": "/chat/completions",
+        "method": "POST",
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "Return only the requested answer."},
+            {"role": "user", "content": "What is 7 multiplied by 8? Reply exactly with 56."},
+        ],
+        "provider_parameters": {"temperature": 0, "stream": False},
+        "timeout_ms": 60000,
+        "retry_policy": {"max_attempts": 1, "retry_on": []},
+    }
+    fp_before = api.provider_request_fingerprint(provider_request)
+    fp_after = api.assert_governance_change_preserves_provider_request(
+        provider_request,
+        dict(provider_request),
+        change_classes={"CONTROL_PLANE_ONLY", "EVIDENCE_ONLY"},
+    )
+    assert fp_before == fp_after
+    leaked = dict(provider_request)
+    leaked["candidate_sha"] = "1" * 40
+    try:
+        api.canonical_provider_request(leaked)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("governance metadata leaked into provider-facing request")
 
     # Direct governed runtime lexical parent traversal must fail closed.
     runtime = load_module(
