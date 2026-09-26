@@ -1,5 +1,5 @@
 from __future__ import annotations
-import hashlib, shutil, unittest
+import hashlib, shutil, tempfile, unittest
 from unittest import mock
 from pathlib import Path
 import sys
@@ -29,14 +29,12 @@ class ReviewPreflightTests(unittest.TestCase):
         finally: path.unlink(missing_ok=True)
 
     def test_git_blob_lookup_failure_is_controlled(self):
-        path = Path("stage2-sg1-evidence") / "_untracked-review.txt"
         source = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")
-        path.write_bytes(source.read_bytes())
-        try:
+        with tempfile.TemporaryDirectory(prefix="r8-untracked-review-") as td:
+            path = Path(td) / "review.txt"
+            path.write_bytes(source.read_bytes())
             with self.assertRaisesRegex(ValueError, "review Git blob lookup failed"):
                 validate_artifact(path, expected_blob="0" * 40)
-        finally:
-            path.unlink(missing_ok=True)
 
     def test_review_workflows_bind_exact_artifacts(self):
         root = Path(".github/workflows")
