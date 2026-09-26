@@ -11,7 +11,7 @@ def clean_none_section(text: str) -> bool:
 
 STRUCTURED_FINDING = re.compile(
     r"(?mi)^[ \t]*(?:[-*][ \t]+)?(?:CRITICAL|HIGH)(?:[ \t]+FINDING)?"
-    r"(?:[ \t]*(?::|[-\u2013\u2014])[ \t]*|[ \t]{2,})(?=\S).+$"
+    r"(?:[ \t]*(?::|[-\u2013\u2014])[ \t]*|[ \t]+)(?=\S).+$"
 )
 
 
