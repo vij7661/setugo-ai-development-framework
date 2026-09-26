@@ -1,0 +1,72 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_REMEDIATION_IDENTITY
+- proposal ID: R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001
+- proposal commit: 67c84138140e86ba4a85a954f368f4c0f7e9ef3c
+- proposal blob: d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b
+- candidate: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+- candidate tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+- candidate parent: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- failed activation commit: 6acc2d3c934d44d20a334b4c0474f763f535586b
+- failed activation run/job: 36190374209 / 108253787018
+- prior reviewed/failed gate blob: c09f5d75b70bf5f9f928a79d1dd094f11ff24279
+- current repaired activation-gate blob: 9adc02a0f29a8dd7b3e88c51decc8dd066c3e577
+- Review 002 blob: fa4e783d698db8701990a0eb92cbf34e1f3054bb
+- current remediation bundle commit: 0bf383a8936cf206364ede1b372f9610c123155e
+- current activation-gate binding blob: aa184defb7cb79d91748953261f552018c2c3198
+- expected fresh Review 003 path: governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt
+- unchanged semantic machinery:
+  - harness: 15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad
+  - comparator: 097464a6b99bc79117501f7700d012ebeddd8675
+  - reusable core: 93ea0cccfdb1392ef38ee41dd053512372de0c87
+  - Stage1 verifier: dc8b76d6710dee27af4a3502b157853959d34ba7
+  - semantic surface: 94e3275edbb32baca640966830352f5e6c9f4ada
+  - preflight: 963b3e29ce2cdb2621d83e4e9f3f657a45222ad6
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+NONE.
+
+E. MEDIUM_LOW_FINDINGS
+Medium: NONE.
+
+Low findings:
+- Low: The activation gate does not directly read or bind the activation-gate binding JSON blob aa184defb7cb79d91748953261f552018c2c3198. It binds the proposal, review, machinery, evidence, explicit approval, and current gate blob. The binding JSON remains informational/consistency-checked rather than gate-enforced.
+- Low: Hidden Critical/High detection outside C/D catches lines beginning with CRITICAL: or HIGH: case-insensitively. Alternative phrasings such as HIGH FINDING: would not match that specific guard, though the clean C/D full-match check and exact review/approval blob bindings mitigate this.
+- Low: The repaired parser accepts case-insensitive clean none forms and case-insensitive YES/NO tokens. This is broader than the exact uppercase declaration text, but the contradictory-declaration checks and clean C/D checks still enforce the relevant boundaries.
+- Low: The parser does not fully validate B-section proposal identity content beyond requiring the exact proposal ID and commit to appear somewhere in the review. It does not require the review text to contain the proposal blob, candidate/tree/parent, prior gate blob, current gate blob, Review 002 blob, remediation bundle commit, or machinery blobs. Activation JSON, review blob binding, and explicit approval mitigate this.
+- Low: The gate requires the fresh Review 003 path and a new approval binding the Review 003 blob, but it does not compare the Review 003 blob against the Review 002 blob to prove distinct freshness. A copied Review 002 at the Review 003 path could parse if separately approved; the independent review and explicit user approval process are the controls.
+- Low: The SG-1 harness audit hook blocks string-mode file writes but may not block every possible write path such as os.open with integer flags. No practical escape path was demonstrated for the reviewed modules.
+- Low: The SG-1 harness does not independently re-scan all 39 selected implementation files for omitted direct R8 dependency edges. It relies on the bound dependency surface, Stage1 scan, preflight, and reviewed evidence.
+- Low: The SG-1 harness does not independently assert the effect-intent edge count or unique target path set from the edges list. It relies on the bound surface and preflight evidence.
+
+F. REMEDIATION_ASSESSMENT
+F1 failed-attempt preservation and no semantic execution: PASS. The failed activation attempt is preserved in governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-001-FAILED.json with blob 241809c0965541f65e3a81c12d3f475719beb011, run 36190374209, verify job 108253787018, conclusion failure, exact failure “review broader authority declaration is not exactly one NO”, reusable_core_reached false, and semantic_execution_performed false. The manifest also records no semantic execution.
+
+F2 narrow parser delta: PASS. The repaired gate blob 9adc02a0f29a8dd7b3e88c51decc8dd066c3e577 changes the expected review path to Review 003, points the trigger at the remediation successor branch, and accepts an optional single trailing period for the bounded YES/NO declarations. It still calls the same reusable SG-1 core and does not alter semantic machinery.
+
+F3 exact Review 002 punctuation regression: PASS. Preserved Review 002 contains “Broader Stage2 semantic authority granted: NO.” and “Stage2 SG-1 may be explicitly activated by user: YES”. The repaired parser accepts the optional trailing period, and the parser regression validator explicitly parses the preserved Review 002 without editing it.
+
+F4 duplicate/reordered/contradictory/hidden-finding rejection: PASS. The parser requires exactly one ordered A-H section, clean C/D, exactly one activation YES in H, exactly one broader Stage2 NO in H, rejects contradictory activation NO or broader Stage2 YES anywhere, and rejects CRITICAL:/HIGH: lines outside C/D. The regression validator covers duplicate sections, reordered sections, hidden Critical/High lines, contradictory H declarations, and malformed period cases.
+
+F5 unchanged proposal/candidate/semantic machinery: PASS. Proposal commit/blob, candidate/tree/parent, semantic harness, comparator, reusable core, Stage1 verifier, semantic surface, and preflight blobs match the previously reviewed identities and remain unchanged.
+
+F6 stale prior approval cannot authorize new gate: PASS. The prior explicit approval bound activation-gate blob c09f5d75b70bf5f9f928a79d1dd094f11ff24279 and Review 002. The repaired gate expects Review 003 and checks approved_activation_gate_blob against the current HEAD gate blob 9adc02a0f29a8dd7b3e88c51decc8dd066c3e577, so the old approval cannot authorize the new gate.
+
+F7 Review 003 + new explicit approval requirement: PASS. The current gate expects governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt and requires explicit_user_approval fields binding the proposal commit/blob, the fresh Review 003 blob, and the current activation-gate blob. The manifest and binding state that Review 003 and new explicit user approval are required.
+
+F8 authority/cadence/post-execution-review boundary: PASS. This remediation grants no authority, SG-1 remains inactive, broader Stage2 remains unauthorized, fallback-to-3 remains ACTIVE, six-slice cadence remains not restored, and any future SG-1 execution would still require fresh independent post-execution review before closure or later Stage2 gates.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+This remediation grants no authority. SG-1 remains inactive. Broader Stage2 remains unauthorized. Fallback-to-3 remains ACTIVE. Six-slice cadence remains NOT restored. Runtime/release/deployment/production/policy/constitutional/root/terminal authority remains NO.
+
+H. FINAL_GATE
+- Stage2 SG-1 may be explicitly activated by user: YES.
+- If YES, activation is NOT automatic and a NEW explicit user approval must bind proposal commit 67c84138140e86ba4a85a954f368f4c0f7e9ef3c, proposal blob d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b, fresh Review-003 blob, and current activation-gate blob 9adc02a0f29a8dd7b3e88c51decc8dd066c3e577.
+- SG-1 execution authority if later activated: LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
+- Broader Stage2 semantic authority granted: NO.
+- Automatic six-slice cadence restoration: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
