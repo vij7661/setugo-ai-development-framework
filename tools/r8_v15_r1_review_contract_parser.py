@@ -86,9 +86,9 @@ def parse_review_contract(text: str) -> dict[str, str]:
         raise ValueError("authority")
 
     # Required declarations must actually live in H.
-    if len(ACTIVATION_LINE.findall(sections["H"])) != 1:
+    if sum(1 for line in sections["H"].splitlines() if ACTIVATION_LINE.fullmatch(line)) != 1:
         raise ValueError("activation section")
-    if len(AUTHORITY_LINE.findall(sections["H"])) != 1:
+    if sum(1 for line in sections["H"].splitlines() if AUTHORITY_LINE.fullmatch(line)) != 1:
         raise ValueError("authority section")
 
     outside_cd = text[:headings[2].start()] + text[headings[4].start():]
