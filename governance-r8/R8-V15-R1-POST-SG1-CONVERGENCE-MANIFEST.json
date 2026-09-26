@@ -57,5 +57,23 @@
   },
   "fallback_to_3": "ACTIVE",
   "six_slice_cadence_restored": false,
-  "expected_changed_file_count": 29
+  "expected_changed_file_count": 33,
+  "api_request_contract_preservation": {
+    "status": "ACTIVE_INVARIANT",
+    "default_change_classes": [
+      "CONTROL_PLANE_ONLY",
+      "EVIDENCE_ONLY"
+    ],
+    "provider_request_schema_change_authorized": false,
+    "api_execution_behavior_change_authorized": false,
+    "rule": "Governance-only remediation must preserve the canonical provider request fingerprint for the same admitted logical request.",
+    "standard": "standards/provider-api-request-contract-preservation.md",
+    "implementation": "governance-runtime/provider_api_request_contract.py",
+    "regression": "governance-runtime/test_provider_api_request_contract.py"
+  },
+  "defect_root_cause_control": {
+    "status": "ACTIVE_INVARIANT",
+    "standard": "standards/r8-defect-root-cause-permanent-invariant-control.md",
+    "remediation_rule": "Translate reviewer findings into permanent defect-family invariants, not literal example patches."
+  }
 }
