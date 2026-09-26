@@ -10,13 +10,13 @@
   },
   "activation_gate": {
     "path": ".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml",
-    "blob_sha1": "9adc02a0f29a8dd7b3e88c51decc8dd066c3e577",
+    "blob_sha1": "5d75c4b5c85fec075812c819c979e7048df8cd7f",
     "role": "VALIDATION_ROOT_ONLY_THEN_CALL_EXACT_SG1_CORE",
     "contains_semantic_test_logic": false,
     "self_hash_boundary": "Gate cannot embed its own exact blob without circularity; exact gate blob must be independently reviewed and explicitly approved by the user in the activation record."
   },
   "expected_review": {
-    "path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt",
+    "path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt",
     "blob_sha1": null,
     "required_disposition": "BOUNDED_PASS",
     "required_critical_findings": 0,
@@ -84,12 +84,22 @@
     "root_authority": false,
     "terminal_authority": false
   },
-  "prior_activation_attempt": {
-    "attempt": 1,
-    "status": "FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION",
-    "evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-001-FAILED.json",
-    "evidence_blob_sha1": "241809c0965541f65e3a81c12d3f475719beb011",
-    "run_id": 36190374209,
-    "verify_job_id": 108253787018
-  }
+  "prior_activation_attempts": [
+    {
+      "attempt": 1,
+      "status": "FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION",
+      "evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-001-FAILED.json",
+      "evidence_blob_sha1": "241809c0965541f65e3a81c12d3f475719beb011",
+      "run_id": 36190374209,
+      "verify_job_id": 108253787018
+    },
+    {
+      "attempt": 2,
+      "status": "FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION",
+      "evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-002-FAILED.json",
+      "evidence_blob_sha1": "__TO_FILL__",
+      "run_id": 36223537668,
+      "verify_job_id": 108353145716
+    }
+  ]
 }
