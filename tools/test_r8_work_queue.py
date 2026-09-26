@@ -45,6 +45,16 @@ class QueueTests(unittest.TestCase):
         self.assertIn("prior provenance", rendered)
         self.assertIn("current evidence", rendered)
 
+    def test_every_q_task_file_is_in_machine_readable_manifest(self):
+        data = load()
+        manifest_ids = {task["id"] for task in data["tasks"]}
+        task_dir = Path("governance-r8/codex-work-queue")
+        file_ids = {
+            p.name.split("-", 1)[0]
+            for p in task_dir.glob("Q[0-9][0-9]-*.md")
+        }
+        self.assertEqual(file_ids - manifest_ids, set())
+
     def test_external_head_requires_exact_trusted_comparison(self):
         data = load(); good = "a" * 40
         self.assertTrue(verify_external_head(data, report_source_head="b" * 40, final_remote_head=good, expected_external_head=good))
