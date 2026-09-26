@@ -15,9 +15,11 @@ def sha256_bytes(data: bytes) -> str:
 def file_digest(root: Path, path: Path) -> str:
     """Digest a file only through the caller-supplied fixed evidence root."""
     try:
-        path.relative_to(root)
+        relative = path.relative_to(root)
     except ValueError as exc:
         raise ValueError("evidence path escapes fixed root") from exc
+    if any(part == ".." for part in relative.parts):
+        raise ValueError("non-canonical evidence path")
     return sha256_bytes(read_confined_file(root, path))
 
 
