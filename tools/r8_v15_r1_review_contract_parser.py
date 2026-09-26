@@ -25,24 +25,14 @@ ACTIVATION_LINE = re.compile(
 AUTHORITY_LINE = re.compile(
     r"(?i)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*(YES|NO)\.?\s*$"
 )
-
-
-def _controlled_declarations(text: str) -> tuple[list[str], list[str]]:
-    """Return exact controlled declaration values; reject embedded/heading forms."""
-    activation: list[str] = []
-    authority: list[str] = []
-    for line in text.splitlines():
-        if re.search(re.escape(ACTIVATION_PHRASE), line, flags=re.IGNORECASE):
-            match = ACTIVATION_LINE.fullmatch(line)
-            if not match:
-                raise ValueError("activation declaration placement")
-            activation.append(match.group(1).upper())
-        if re.search(re.escape(AUTHORITY_PHRASE), line, flags=re.IGNORECASE):
-            match = AUTHORITY_LINE.fullmatch(line)
-            if not match:
-                raise ValueError("authority declaration placement")
-            authority.append(match.group(1).upper())
-    return activation, authority
+ACTIVATION_OCCURRENCE = re.compile(
+    re.escape(ACTIVATION_PHRASE) + r"\s*(YES|NO)\.?",
+    flags=re.IGNORECASE,
+)
+AUTHORITY_OCCURRENCE = re.compile(
+    re.escape(AUTHORITY_PHRASE) + r"\s*(YES|NO)\.?",
+    flags=re.IGNORECASE,
+)
 
 
 def parse_review_contract(text: str) -> dict[str, str]:
@@ -77,19 +67,25 @@ def parse_review_contract(text: str) -> dict[str, str]:
     if not clean_none_section(sections["D"]):
         raise ValueError("high")
 
-    # Controlled activation/authority phrases are allowed only as exact standalone
-    # declarations. Heading-line/prose embedding is fail-closed.
-    activation, authority = _controlled_declarations(text)
-    if activation != ["YES"]:
-        raise ValueError("activation")
-    if authority != ["NO"]:
-        raise ValueError("authority")
+    # Contradictory controlled declarations fail closed even when embedded in a
+    # heading or prose. Benign historical prose quoting the allowed YES/NO pair
+    # remains parseable; only exact standalone declarations carry gate semantics.
+    activation_values = [m.group(1).upper() for m in ACTIVATION_OCCURRENCE.finditer(text)]
+    authority_values = [m.group(1).upper() for m in AUTHORITY_OCCURRENCE.finditer(text)]
+    if "NO" in activation_values:
+        raise ValueError("contradictory activation")
+    if "YES" in authority_values:
+        raise ValueError("broader authority")
 
-    # Required declarations must actually live in H.
-    if sum(1 for line in sections["H"].splitlines() if ACTIVATION_LINE.fullmatch(line)) != 1:
-        raise ValueError("activation section")
-    if sum(1 for line in sections["H"].splitlines() if AUTHORITY_LINE.fullmatch(line)) != 1:
-        raise ValueError("authority section")
+    lines = text.splitlines()
+    global_activation_lines = sum(1 for line in lines if ACTIVATION_LINE.fullmatch(line))
+    global_authority_lines = sum(1 for line in lines if AUTHORITY_LINE.fullmatch(line))
+    h_activation_lines = sum(1 for line in sections["H"].splitlines() if ACTIVATION_LINE.fullmatch(line))
+    h_authority_lines = sum(1 for line in sections["H"].splitlines() if AUTHORITY_LINE.fullmatch(line))
+    if global_activation_lines != 1 or h_activation_lines != 1:
+        raise ValueError("activation")
+    if global_authority_lines != 1 or h_authority_lines != 1:
+        raise ValueError("authority")
 
     outside_cd = text[:headings[2].start()] + text[headings[4].start():]
     if STRUCTURED_FINDING.search(outside_cd):
