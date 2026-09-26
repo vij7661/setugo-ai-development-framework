@@ -49,6 +49,10 @@ def main():
     assert all(v is False for v in manifest["grants"].values())
     assert manifest["fallback_to_3"] == "ACTIVE"
     assert manifest["six_slice_cadence_restored"] is False
+    assert manifest["semantic_gap_inventory"]["classification"] == "HISTORICAL_STAGE1_BOUND_EVIDENCE"
+    assert manifest["semantic_gap_inventory"]["candidate_commit"] == "4984f06a4420b76ad1ad475751aebda04a2d2c5c"
+    assert manifest["semantic_gap_inventory"]["base_commit"] == "751162ee42c603cb6c84ee12021d16bab6fa626b"
+    assert manifest["semantic_gap_inventory"]["not_regenerated_from_successor"] is True
 
     # One-tree composition: #44 is the single runtime winner; stale packet artifacts are excluded.
     runtime_blob = run("git","rev-parse","HEAD:governance-runtime/r8_v15_r1_frozen_schema_runtime.py")
@@ -107,36 +111,52 @@ def main():
         for s in starts:
             block = text[s:text.find("\n\n", s) if text.find("\n\n", s) != -1 else len(text)]
             assert "--expected-sha256" in block and "--expected-blob" in block, (wf, block)
+        validator_lines = [line for line in text.splitlines() if "python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py" in line]
+        assert validator_lines and all("--expected-sha256" not in line and "--expected-blob" not in line for line in validator_lines)
 
     # Semantic inventory must verify the complete canonical scan, not self-hash/subsets.
     import r8_v15_r1_stage2_semantic_gap_inventory as inv
     inventory_path = ROOT/"governance-r8/R8-V15-R1-STAGE2-SEMANTIC-GAP-INVENTORY.json"
     assert inv.verify_inventory(inventory_path)
-    with tempfile.TemporaryDirectory() as td:
-        tampered = json.loads(inventory_path.read_text())
-        assert tampered["items"]
-        tampered["items"][0]["classification"] = "tampered"
-        data = dict(tampered)
-        data.pop("inventory_sha256", None)
-        raw = (json.dumps(data, indent=2, sort_keys=True) + "\n").encode()
-        tampered["inventory_sha256"] = hashlib.sha256(raw).hexdigest()
-        p = Path(td)/"inventory.json"
-        p.write_text(json.dumps(tampered, indent=2, sort_keys=True)+"\n")
-        assert inv.verify_inventory(p) is False
+    tampered = json.loads(inventory_path.read_text())
+    assert tampered["items"]
+    tampered["items"][0]["classification"] = "tampered"
+    data = dict(tampered)
+    data.pop("inventory_sha256", None)
+    raw = (json.dumps(data, indent=2, sort_keys=True) + "\n").encode()
+    tampered["inventory_sha256"] = hashlib.sha256(raw).hexdigest()
+    p = ROOT/"stage2-sg1-evidence/_invariant-gate-inventory.json"
+    p.write_text(json.dumps(tampered, indent=2, sort_keys=True)+"\n")
+    assert inv.verify_inventory(p) is False
+    p.unlink()
 
     # Evidence verifier must be strict: missing independent expected identities must fail.
     import r8_evidence_bundle_integrity as ev
+    root = ROOT/"stage2-sg1-evidence"; fixture = root/"_invariant-gate-file"; fixture.write_text("ok", encoding="utf-8")
+    for alias in (root / "a" / ".." / "_invariant-gate-file", root / "." / "_invariant-gate-file"):
+        try:
+            ev.file_digest(root, alias)
+        except (ValueError, RuntimeError):
+            pass
+        else:
+            raise AssertionError("direct traversal alias was accepted")
+    fixture.unlink()
     sig = __import__("inspect").signature(ev.verify_bundle)
     required_expected = {
         "expected_run_id","expected_job_id","expected_workflow","expected_head",
-        "expected_inputs","expected_archive_sha256","expected_activation_verification"
+        "expected_inputs","expected_archive_sha256","expected_activation_verification",
+        "expected_schema","expected_archive_format"
     }
     assert required_expected.issubset(sig.parameters)
+    assert "expected_schema" in sig.parameters and "expected_archive_format" in sig.parameters
 
     # Queue manifest/tool validation must succeed and preserve all-false authority.
     import r8_work_queue as wq
     q = wq.load()
     assert all(v is False for v in q["authority"].values())
+    gate_text = (ROOT/".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml").read_text(encoding="utf-8")
+    assert 'read_text(encoding="utf-8")' in gate_text
+    assert "root_abs = root_dir.absolute()" in (ROOT/"governance-runtime/r8_v15_r1_frozen_schema_runtime.py").read_text(encoding="utf-8")
 
     print(json.dumps({
         "status":"R8_POST_SG1_SINGLE_CANDIDATE_INVARIANTS_PASS",

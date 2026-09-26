@@ -23,7 +23,7 @@ class EvidenceIntegrityTests(unittest.TestCase):
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
     def test_valid_lineage_and_per_file_hash(self):
         root = self.root; bundle = self.make_bundle(root)
-        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=bundle["activation_verification"])["status"], "PASS")
+        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=bundle["activation_verification"], expected_schema=bundle["schema"], expected_archive_format=bundle["archive"]["format"])["status"], "PASS")
 
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
     def test_changed_file_rejected(self):
@@ -72,7 +72,7 @@ class EvidenceIntegrityTests(unittest.TestCase):
         root = self.root; bundle = self.make_bundle(root)
         expected = {"performed": True, "run_id": "activation-run", "job_id": "activation-job", "conclusion": "success"}
         bundle["activation_verification"] = expected
-        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=expected)["status"], "PASS")
+        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=expected, expected_schema=bundle["schema"], expected_archive_format=bundle["archive"]["format"])["status"], "PASS")
         bundle["activation_verification"] = {"performed": False, "run_id": "", "job_id": "", "conclusion": ""}
         with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=bundle["activation_verification"])
 

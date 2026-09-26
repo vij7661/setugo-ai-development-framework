@@ -27,7 +27,10 @@ def validate_artifact(path: Path, *, expected_sha256: str | None = None, expecte
     if expected_sha256 and raw_sha != expected_sha256:
         raise ValueError("review raw SHA-256 mismatch")
     if expected_blob:
-        blob = subprocess.check_output(["git", "rev-parse", f"{git_rev}:{path.as_posix()}"], text=True).strip()
+        try:
+            blob = subprocess.check_output(["git", "rev-parse", f"{git_rev}:{path.as_posix()}"], text=True, stderr=subprocess.STDOUT).strip()
+        except subprocess.CalledProcessError as exc:
+            raise ValueError("review Git blob lookup failed") from exc
         if blob != expected_blob:
             raise ValueError("review Git blob mismatch")
     activation_yes = len(re.findall(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*YES\.?\s*$", result["H"])) == 1

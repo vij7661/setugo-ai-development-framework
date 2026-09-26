@@ -75,6 +75,8 @@ def read_confined_file(root_dir: Path, path: Path) -> bytes:
     namespace model. Platforms without O_NOFOLLOW fail closed rather than
     silently weakening the guarantee.
     """
+    root_abs = root_dir.absolute()
+    path_abs = path.absolute()
     nofollow = getattr(os, "O_NOFOLLOW", None)
     directory = getattr(os, "O_DIRECTORY", None)
     if nofollow is None or directory is None:
@@ -82,7 +84,7 @@ def read_confined_file(root_dir: Path, path: Path) -> bytes:
     try:
         # Use lexical absolute paths only; resolving here would reintroduce the
         # namespace race that the descriptor walk is designed to close.
-        relative = path.absolute().relative_to(root_dir.absolute())
+        relative = path_abs.relative_to(root_abs)
     except ValueError as exc:
         raise FrozenSchemaError("ARTIFACT_PATH_INVALID", str(path)) from exc
     parts = relative.parts
@@ -96,7 +98,7 @@ def read_confined_file(root_dir: Path, path: Path) -> bytes:
     result = None
     try:
         try:
-            descriptors.append(os.open(root_dir, directory_flags))
+            descriptors.append(os.open(root_abs, directory_flags))
             for part in parts[:-1]:
                 descriptors.append(os.open(part, directory_flags, dir_fd=descriptors[-1]))
             descriptors.append(os.open(parts[-1], file_flags, dir_fd=descriptors[-1]))

@@ -58,6 +58,8 @@ def verify_bundle(
     expected_inputs: dict | None = None,
     expected_archive_sha256: str | None = None,
     expected_activation_verification: dict | None = None,
+    expected_schema: str | None = None,
+    expected_archive_format: str | None = None,
 ) -> dict:
     required = {"schema", "run_id", "job_id", "workflow", "head_sha", "input_blobs", "files", "archive", "authority_effect", "activation_verification"}
     if set(bundle) != required:
@@ -66,8 +68,10 @@ def verify_bundle(
         raise ValueError("authority boundary mismatch")
     if not isinstance(bundle["run_id"], str) or not bundle["run_id"] or not isinstance(bundle["job_id"], str) or not bundle["job_id"] or not isinstance(bundle["workflow"], str) or not bundle["workflow"]:
         raise ValueError("missing lineage identity")
-    if not all((expected_run_id, expected_job_id, expected_workflow, expected_head, expected_inputs, expected_archive_sha256, expected_activation_verification)):
+    if not all((expected_run_id, expected_job_id, expected_workflow, expected_head, expected_inputs, expected_archive_sha256, expected_activation_verification, expected_schema, expected_archive_format)):
         raise ValueError("strict expected lineage is required")
+    if bundle["schema"] != expected_schema:
+        raise ValueError("schema identity mismatch")
     if bundle["run_id"] != expected_run_id:
         raise ValueError("wrong run identity")
     if bundle["job_id"] != expected_job_id:
@@ -93,6 +97,8 @@ def verify_bundle(
         raise ValueError("archive digest schema mismatch")
     if archive["sha256"] != expected_archive_sha256:
         raise ValueError("archive digest mismatch")
+    if archive["format"] != expected_archive_format:
+        raise ValueError("archive format mismatch")
     av = bundle["activation_verification"]
     if set(av) != {"performed", "run_id", "job_id", "conclusion"} or not isinstance(av["performed"], bool):
         raise ValueError("activation verification evidence incomplete")

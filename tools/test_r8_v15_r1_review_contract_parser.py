@@ -34,6 +34,13 @@ def main():
         doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\n- HIGH FINDING: hidden"),
         doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\nCRITICAL — hidden"),
         doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\nHIGH - hidden"),
+        doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\nCRITICAL:\nhidden"),
+        doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\nHIGH:\nhidden"),
+        doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\n1. CRITICAL: hidden"),
+        doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\n[ ] HIGH hidden"),
+        doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\n> CRITICAL hidden"),
+        doc().replace("C. CRITICAL_FINDINGS", "C. CRITICAL_FINDINGS CRITICAL: hidden"),
+        doc().replace("D. HIGH_FINDINGS", "D. HIGH_FINDINGS HIGH: hidden"),
         doc("Stage2 SG-1 may be explicitly activated by user: YES\nStage2 SG-1 may be explicitly activated by user: NO\nBroader Stage2 semantic authority granted: NO"),
         doc("Stage2 SG-1 may be explicitly activated by user: YES\nBroader Stage2 semantic authority granted: NO\nBroader Stage2 semantic authority granted: YES"),
         doc() + "\nA. EXTRA\ntext",
@@ -43,7 +50,7 @@ def main():
     root = Path("governance-r8")
     for name in ("R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt", "R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt", "R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt"):
         parse_review_contract((root / name).read_text(encoding="utf-8"))
-    print("R8_REVIEW_CONTRACT_PARSER_TESTS_PASS cases=14")
+    print("R8_REVIEW_CONTRACT_PARSER_TESTS_PASS cases=21")
 
 
 if __name__ == "__main__":

@@ -58,7 +58,7 @@ jobs:
           def git_blob(rev):
               return subprocess.check_output(["git","rev-parse",rev],text=True).strip()
 
-          a=json.loads(pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").read_text())
+          a=json.loads(pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").read_text(encoding="utf-8"))
           if set(a)!=TOP_KEYS: raise SystemExit("activation top-level key set mismatch")
           if a["schema"]!="r8-v15-r1-stage2-sg1-activation/v1": raise SystemExit("activation schema mismatch")
           if a["status"]!="ACTIVE_EXPLICIT_USER_APPROVAL": raise SystemExit("activation status mismatch")
@@ -90,7 +90,7 @@ jobs:
           if git_blob(f"HEAD:{EXPECTED_REVIEW_PATH}")!=ir["blob_sha1"]:
               raise SystemExit("review artifact blob mismatch")
 
-          review=pathlib.Path(EXPECTED_REVIEW_PATH).read_text()
+          review=pathlib.Path(EXPECTED_REVIEW_PATH).read_text(encoding="utf-8")
           try:
               parse_review_contract(review)
           except ValueError as exc:

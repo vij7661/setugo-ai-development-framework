@@ -10,8 +10,7 @@ def clean_none_section(text: str) -> bool:
 
 
 STRUCTURED_FINDING = re.compile(
-    r"(?mi)^[ \t]*(?:[-*][ \t]+)?(?:CRITICAL|HIGH)(?:[ \t]+FINDING)?"
-    r"(?:[ \t]*(?::|[-\u2013\u2014])[ \t]*|[ \t]+)(?=\S).+$"
+    r"(?mi)^[^A-Za-z\r\n]*?(CRITICAL|HIGH)\b"
 )
 
 
@@ -20,6 +19,10 @@ def parse_review_contract(text: str) -> dict[str, str]:
     headings = list(re.finditer(r"(?m)^([A-H])\.\s+[^\r\n]*$", text))
     if len(headings) != 8 or [m.group(1) for m in headings] != list("ABCDEFGH"):
         raise ValueError("review must contain exactly one ordered A-H section")
+    if headings[2].group(0).strip() != "C. CRITICAL_FINDINGS":
+        raise ValueError("critical heading")
+    if headings[3].group(0).strip() != "D. HIGH_FINDINGS":
+        raise ValueError("high heading")
     sections: dict[str, str] = {}
     for index, match in enumerate(headings):
         end = headings[index + 1].start() if index + 1 < len(headings) else len(text)

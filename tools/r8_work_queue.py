@@ -22,17 +22,20 @@ def load():
         if task.get("state") not in ALLOWED_STATES: raise ValueError("unknown queue state")
         if any(dep not in ids for dep in task.get("dependencies", [])): raise ValueError("unknown dependency")
         manual = task.get("manual")
-        if not isinstance(manual, dict) or not isinstance(manual.get("reason"), str) or not manual["reason"] or not isinstance(manual.get("requested_action"), str) or not manual["requested_action"] or not isinstance(manual.get("blocking_status"), str) or not manual["blocking_status"]:
+        if task["state"] in ALLOWED_BLOCKING and not isinstance(manual, dict):
             raise ValueError("manual intervention record incomplete")
-        if not isinstance(manual.get("evidence_refs"), list) or not manual["evidence_refs"] or any(not isinstance(ref, str) or not ref for ref in manual["evidence_refs"]):
-            raise ValueError("evidence_refs must be a non-empty list of strings")
-        for field in ("prior_provenance", "current_evidence"):
-            if not isinstance(manual.get(field), list) or any(not isinstance(ref, str) or not ref for ref in manual[field]):
-                raise ValueError(f"{field} must be a list of strings")
-        if manual["blocking_status"] not in ALLOWED_BLOCKING:
-            raise ValueError("unknown manual blocking status")
-        if task["state"] in ALLOWED_BLOCKING and manual["blocking_status"] != task["state"]:
-            raise ValueError("manual blocking status incompatible with task state")
+        if manual is not None:
+            if not isinstance(manual.get("reason"), str) or not manual["reason"] or not isinstance(manual.get("requested_action"), str) or not manual["requested_action"] or not isinstance(manual.get("blocking_status"), str) or not manual["blocking_status"]:
+                raise ValueError("manual intervention record incomplete")
+            if not isinstance(manual.get("evidence_refs"), list) or not manual["evidence_refs"] or any(not isinstance(ref, str) or not ref for ref in manual["evidence_refs"]):
+                raise ValueError("evidence_refs must be a non-empty list of strings")
+            for field in ("prior_provenance", "current_evidence"):
+                if not isinstance(manual.get(field), list) or any(not isinstance(ref, str) or not ref for ref in manual[field]):
+                    raise ValueError(f"{field} must be a list of strings")
+            if manual["blocking_status"] not in ALLOWED_BLOCKING:
+                raise ValueError("unknown manual blocking status")
+            if task["state"] in ALLOWED_BLOCKING and manual["blocking_status"] != task["state"]:
+                raise ValueError("manual blocking status incompatible with task state")
     return data
 
 def next_runnable(data: dict) -> dict | None:
@@ -51,7 +54,7 @@ def report(data: dict, *, report_source_head: str = "EXTERNAL_INPUT_REQUIRED", f
     verified = verify_external_head(data, report_source_head=report_source_head, final_remote_head=final_remote_head, expected_external_head=expected_external_head)
     lines = [f"# Issue #{data['issue']} consolidated queue report", "", f"report_source_head: {report_source_head}", f"final_remote_head_verified_externally: {str(verified).lower()}", "", "| PR | branch | state | reason | prior provenance | current evidence | requested action |", "|---:|---|---|---|---|---|---|"]
     for t in data["tasks"]:
-        m=t["manual"]; lines.append(f"| #{t['pr']} | {t['branch']} | {t['state']} | {m['reason']} | {', '.join(m['prior_provenance'])} | {', '.join(m['current_evidence'])} | {m['requested_action']} |")
+        m=t.get("manual") or {}; lines.append(f"| #{t['pr']} | {t['branch']} | {t['state']} | {m.get('reason','')} | {', '.join(m.get('prior_provenance',[]))} | {', '.join(m.get('current_evidence',[]))} | {m.get('requested_action','')} |")
     lines += ["", "Authority remains NONE; no merge, activation, runtime, release, deployment, or production action is granted."]
     return "\n".join(lines) + "\n"
 
