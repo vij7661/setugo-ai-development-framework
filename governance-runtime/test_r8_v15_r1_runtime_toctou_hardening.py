@@ -7,12 +7,47 @@ import tempfile
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).parent))
 import r8_v15_r1_frozen_schema_runtime as runtime
 
 
 class RuntimeFileReadTests(unittest.TestCase):
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
+    def test_intermediate_open_failure_closes_root_descriptor(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td)
+            close_calls = []
+            with mock.patch.object(os, "open", side_effect=[101, OSError("intermediate")]), \
+                 mock.patch.object(os, "close", side_effect=lambda fd: close_calls.append(fd)):
+                with self.assertRaises(runtime.FrozenSchemaError) as cm:
+                    runtime.read_confined_file(root, root / "sub" / "file")
+            self.assertEqual(cm.exception.code, "ARTIFACT_OPEN_FAILED")
+            self.assertEqual(close_calls, [101])
+
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
+    def test_final_open_failure_closes_root_descriptor(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td)
+            close_calls = []
+            with mock.patch.object(os, "open", side_effect=[102, OSError("final")]), \
+                 mock.patch.object(os, "close", side_effect=lambda fd: close_calls.append(fd)):
+                with self.assertRaises(runtime.FrozenSchemaError) as cm:
+                    runtime.read_confined_file(root, root / "file")
+            self.assertEqual(cm.exception.code, "ARTIFACT_OPEN_FAILED")
+            self.assertEqual(close_calls, [102])
+
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
+    def test_primary_open_error_survives_close_error(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td)
+            with mock.patch.object(os, "open", side_effect=[103, OSError("final")]), \
+                 mock.patch.object(os, "close", side_effect=OSError("close")):
+                with self.assertRaises(runtime.FrozenSchemaError) as cm:
+                    runtime.read_confined_file(root, root / "file")
+            self.assertEqual(cm.exception.code, "ARTIFACT_OPEN_FAILED")
+
     @unittest.skipUnless(hasattr(os, "O_NOFOLLOW"), "platform has no O_NOFOLLOW")
     def test_regular_file_single_descriptor_read(self):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:

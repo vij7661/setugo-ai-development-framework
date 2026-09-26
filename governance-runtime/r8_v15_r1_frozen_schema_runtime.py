@@ -88,33 +88,48 @@ def read_confined_file(root_dir: Path, path: Path) -> bytes:
     parts = relative.parts
     if not parts or any(part in ("", ".", "..") for part in parts):
         raise FrozenSchemaError("ARTIFACT_PATH_INVALID", str(path))
-    parent_fd = None
+    cloexec = getattr(os, "O_CLOEXEC", 0)
+    directory_flags = os.O_RDONLY | directory | nofollow | cloexec
+    file_flags = os.O_RDONLY | nofollow | cloexec
+    descriptors = []
+    primary_error = None
+    result = None
     try:
-        parent_fd = os.open(root_dir, os.O_RDONLY | directory | nofollow)
-        for part in parts[:-1]:
-            next_fd = os.open(part, os.O_RDONLY | directory | nofollow, dir_fd=parent_fd)
-            os.close(parent_fd)
-            parent_fd = next_fd
-        fd = os.open(parts[-1], os.O_RDONLY | nofollow, dir_fd=parent_fd)
-    except OSError as exc:
-        raise FrozenSchemaError("ARTIFACT_OPEN_FAILED", f"{path}: {exc}") from exc
-    try:
-        info = os.fstat(fd)
-        if not stat.S_ISREG(info.st_mode):
-            raise FrozenSchemaError("ARTIFACT_NOT_REGULAR", str(path))
-        chunks = []
-        while True:
-            chunk = os.read(fd, 1024 * 1024)
-            if not chunk:
-                break
-            chunks.append(chunk)
-        return b"".join(chunks)
-    except OSError as exc:
-        raise FrozenSchemaError("ARTIFACT_READ_FAILED", f"{path}: {exc}") from exc
+        try:
+            descriptors.append(os.open(root_dir, directory_flags))
+            for part in parts[:-1]:
+                descriptors.append(os.open(part, directory_flags, dir_fd=descriptors[-1]))
+            descriptors.append(os.open(parts[-1], file_flags, dir_fd=descriptors[-1]))
+        except OSError as exc:
+            primary_error = FrozenSchemaError("ARTIFACT_OPEN_FAILED", f"{path}: {exc}")
+        if primary_error is None:
+            try:
+                info = os.fstat(descriptors[-1])
+                if not stat.S_ISREG(info.st_mode):
+                    primary_error = FrozenSchemaError("ARTIFACT_NOT_REGULAR", str(path))
+                else:
+                    chunks = []
+                    while True:
+                        chunk = os.read(descriptors[-1], 1024 * 1024)
+                        if not chunk:
+                            break
+                        chunks.append(chunk)
+                    result = b"".join(chunks)
+            except OSError as exc:
+                primary_error = FrozenSchemaError("ARTIFACT_READ_FAILED", f"{path}: {exc}")
     finally:
-        os.close(fd)
-        if parent_fd is not None:
-            os.close(parent_fd)
+        close_error = None
+        for descriptor in reversed(descriptors):
+            try:
+                os.close(descriptor)
+            except OSError as exc:
+                if close_error is None:
+                    close_error = exc
+        if primary_error is None and close_error is not None:
+            primary_error = FrozenSchemaError("ARTIFACT_CLOSE_FAILED", f"{path}: {close_error}")
+    if primary_error is not None:
+        raise primary_error
+    return result
 
 
 def _read_verified_file(path: Path) -> bytes:
