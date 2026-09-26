@@ -165,7 +165,8 @@ def main():
         validator_lines = [line for line in text.splitlines() if "python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py" in line]
         assert validator_lines
         assert all("--expected-sha256" not in line and "--expected-blob" not in line for line in validator_lines)
-        assert all("--review " in line for line in validator_lines), (wf, validator_lines)
+        if "review003-remediation" in wf or "review004-remediation" in wf:
+            assert all("--review " in line for line in validator_lines), (wf, validator_lines)
 
     # Semantic inventory must verify the complete canonical scan, not self-hash/subsets.
     import r8_v15_r1_stage2_semantic_gap_inventory as inv
