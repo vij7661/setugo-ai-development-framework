@@ -26,6 +26,25 @@ class QueueTests(unittest.TestCase):
             finally:
                 __import__("r8_work_queue").MANIFEST.write_text(old, encoding="utf-8")
 
+    def test_manual_evidence_refs_must_be_typed_list(self):
+        data = load(); module = __import__("r8_work_queue")
+        old = module.MANIFEST.read_text(encoding="utf-8")
+        try:
+            bad = copy.deepcopy(data); bad["tasks"][0]["manual"]["evidence_refs"] = "not-a-list"
+            module.MANIFEST.write_text(__import__("json").dumps(bad), encoding="utf-8")
+            with self.assertRaises(ValueError): load()
+            bad = copy.deepcopy(data); bad["tasks"][0]["manual"]["current_evidence"] = [""]
+            module.MANIFEST.write_text(__import__("json").dumps(bad), encoding="utf-8")
+            with self.assertRaises(ValueError): load()
+        finally:
+            module.MANIFEST.write_text(old, encoding="utf-8")
+
+    def test_report_renders_prior_and_current_provenance(self):
+        module = __import__("r8_work_queue"); data = load()
+        rendered = module.report(data)
+        self.assertIn("prior provenance", rendered)
+        self.assertIn("current evidence", rendered)
+
     def test_external_head_requires_exact_trusted_comparison(self):
         data = load(); good = "a" * 40
         self.assertTrue(verify_external_head(data, report_source_head="b" * 40, final_remote_head=good, expected_external_head=good))
