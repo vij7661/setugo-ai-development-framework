@@ -1,0 +1,116 @@
+name: R8 v15-r1 Successor1 Linux Evidence
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-post-sg1-successor1-linux-2026-09-26
+    paths:
+      - .github/workflows/r8-v15-r1-successor1-linux-evidence.yml
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+  SUCCESSOR_SHA: "b73f2eb2fd44f97a53f3b39307fd92175330325d"
+  SUCCESSOR_TREE: "99fad2453dc849598e95497c1f0d6edf8cf34b36"
+
+jobs:
+  linux-successor-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create exact successor worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/successor"
+          git worktree add --detach "$ROOT" "$SUCCESSOR_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD)" = "$SUCCESSOR_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD^{tree})" = "$SUCCESSOR_TREE"
+          test -z "$(git -C "$ROOT" status --porcelain=v1)"
+          echo "SUCCESSOR_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Successor invariant gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+
+      - name: Parser tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/test_r8_v15_r1_review_contract_parser.py
+
+      - name: Preflight tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+
+      - name: Activation parser validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+
+      - name: Semantic inventory tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+
+      - name: Runtime descriptor-safe tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+
+      - name: Evidence-integrity tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/test_r8_evidence_bundle_integrity.py
+
+      - name: Queue tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/test_r8_work_queue.py
+
+      - name: Stage1 exact-candidate guard before
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before"
+
+      - name: Stage1 exact-candidate guard after
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after"
+
+      - name: Final exact identity and clean worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$SUCCESSOR_ROOT" rev-parse HEAD)" = "$SUCCESSOR_SHA"
+          test "$(git -C "$SUCCESSOR_ROOT" rev-parse HEAD^{tree})" = "$SUCCESSOR_TREE"
+          test -z "$(git -C "$SUCCESSOR_ROOT" status --porcelain=v1)"
