@@ -51,6 +51,19 @@ For chunked evidence:
 
 If expected chunks = N and delivered chunks != N, review cannot be treated as complete.
 
+## 3A. Governed access modes
+
+Reviewer access may be recorded only as one of:
+- `AUTHENTICATED_GITHUB_MCP_READ_ONLY`: immutable repository/commit/object access through read-only GitHub MCP;
+- `PROVIDER_URL_CONTEXT`: immutable commit-addressed public URL context with exact object identity;
+- `PLATFORM_MATERIALIZED_CONTENT`: platform-fetched content delivered with exact bytes and SHA-256;
+- `URL_ONLY`: locator only, never evidence by itself.
+
+An access manifest records provider identity, repository, immutable commit, accessed objects,
+read-only status, result status, and mandatory-subject coverage. URLs pointing at moving branches
+are invalid. Raw tokens, bearer credentials, PATs, and secrets are prohibited from manifests,
+prompts, persisted evidence, and fingerprints.
+
 ## 4. Reviewer task
 
 The reviewer is expected to review the actual REVIEW_SUBJECT against the requested review dimensions.

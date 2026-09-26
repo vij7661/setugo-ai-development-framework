@@ -12,11 +12,48 @@ from reviewer_evidence_delivery import (  # noqa: E402
     validate_solution_adjudication,
     verify_chunked_delivery,
     verify_material_delivery,
+    validate_reviewer_access_manifest,
+    validate_review_delivery_request,
     verify_whole_delivery,
 )
 
 
 class ReviewerEvidenceDeliveryTests(unittest.TestCase):
+    def _manifest(self, mode="PLATFORM_MATERIALIZED_CONTENT"):
+        commit = "a" * 40
+        obj = {"path": "review.txt", "commit_sha": commit}
+        if mode == "PLATFORM_MATERIALIZED_CONTENT":
+            obj.update(content_sha256="b" * 64, bytes=4)
+        elif mode == "AUTHENTICATED_GITHUB_MCP_READ_ONLY":
+            obj.update(tool_access="read_only", object_id="blob:b")
+        elif mode == "PROVIDER_URL_CONTEXT":
+            obj["url"] = f"https://github.com/a/b/blob/{commit}/review.txt"
+        return {"provider_identity": "reviewer", "delivery_mode": mode, "repository": "a/b", "commit_sha": commit, "accessed_objects": [obj], "read_only": mode != "URL_ONLY", "mandatory_subjects_covered": mode != "URL_ONLY", "result_status": "SUCCESS"}
+
+    def test_access_manifest_modes_and_url_only_is_not_evidence(self):
+        for mode in ("AUTHENTICATED_GITHUB_MCP_READ_ONLY", "PROVIDER_URL_CONTEXT", "PLATFORM_MATERIALIZED_CONTENT"):
+            self.assertTrue(validate_reviewer_access_manifest(self._manifest(mode)))
+        url_only = self._manifest("URL_ONLY")
+        url_only["read_only"] = False
+        url_only["mandatory_subjects_covered"] = False
+        self.assertTrue(validate_reviewer_access_manifest(url_only))
+        raw = b"data"
+        item = {"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw), "delivered": raw}
+        self.assertFalse(validate_review_delivery_request([item], url_only))
+
+    def test_access_manifest_rejects_mutable_or_secret_access(self):
+        manifest = self._manifest("PROVIDER_URL_CONTEXT")
+        manifest["accessed_objects"][0]["url"] = "https://github.com/a/b/blob/main/review.txt"
+        self.assertFalse(validate_reviewer_access_manifest(manifest))
+        manifest = self._manifest()
+        manifest["token"] = "must-not-persist"
+        self.assertFalse(validate_reviewer_access_manifest(manifest))
+
+    def test_delivery_request_requires_materialized_subject(self):
+        raw = b"data"
+        item = {"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw), "delivered": raw}
+        self.assertTrue(validate_review_delivery_request([item], self._manifest()))
+        self.assertFalse(validate_review_delivery_request([item], self._manifest("URL_ONLY")))
     def test_summary_only_delivery_is_rejected(self):
         raw = b"complete material"
         item = {"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw)}

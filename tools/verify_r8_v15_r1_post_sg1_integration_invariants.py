@@ -324,6 +324,26 @@ def main():
         "state": "ACCEPTED_NARROWED",
         "reason": "reviewer solution remains advisory pending governed implementation",
     })
+    access_commit = "a" * 40
+    access_object = {
+        "path": "review.txt",
+        "commit_sha": access_commit,
+        "content_sha256": "b" * 64,
+        "bytes": 4,
+    }
+    access_manifest = {
+        "provider_identity": "platform-reviewer",
+        "delivery_mode": "PLATFORM_MATERIALIZED_CONTENT",
+        "repository": "owner/repository",
+        "commit_sha": access_commit,
+        "accessed_objects": [access_object],
+        "read_only": True,
+        "mandatory_subjects_covered": True,
+        "result_status": "SUCCESS",
+    }
+    assert delivery.validate_reviewer_access_manifest(access_manifest)
+    access_manifest["commit_sha"] = "c" * 40
+    assert not delivery.validate_reviewer_access_manifest(access_manifest)
 
     # Direct governed runtime lexical parent traversal must fail closed.
     runtime = load_module(
