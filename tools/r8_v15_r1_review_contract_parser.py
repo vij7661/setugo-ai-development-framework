@@ -39,7 +39,6 @@ def parse_review_contract(text: str) -> dict[str, str]:
     if re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
         raise ValueError("broader authority")
     outside_cd = text[:headings[2].start()] + text[headings[4].start():]
-    marker = r"(?mi)^\s*(?:[-*]\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*(?::|[-–—])\s+"
     if STRUCTURED_FINDING.search(outside_cd):
         raise ValueError("finding outside section")
     return sections
