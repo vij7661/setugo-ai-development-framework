@@ -1,0 +1,92 @@
+name: R8 v15-r1 Frozen Successor2 Review Packet
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-post-sg1-successor2-review-2026-09-26
+    paths:
+      - .github/workflows/r8-v15-r1-successor2-review-packet.yml
+      - tools/build_r8_v15_r1_successor2_review_packet.py
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+  BASE_SHA: "7cd2787d85b189a4161f271ee131e42bd961140a"
+  SUCCESSOR_SHA: "a9bf0a4fbdb3e382183bb285b521de935451fe9c"
+  SUCCESSOR_TREE: "4538ee6aafa977bf5c35704d48407336b37d8598"
+
+jobs:
+  build-review-packet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create exact frozen successor2 worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/successor2"
+          git worktree add --detach "$ROOT" "$SUCCESSOR_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD)" = "$SUCCESSOR_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD^{tree})" = "$SUCCESSOR_TREE"
+          test -z "$(git -C "$ROOT" status --porcelain=v1)"
+          echo "SUCCESSOR_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Run exact frozen successor2 checks and capture logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOGDIR="$RUNNER_TEMP/review-logs"
+          mkdir -p "$LOGDIR"
+          cd "$SUCCESSOR_ROOT"
+          python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py 2>&1 | tee "$LOGDIR/01-invariants.txt"
+          python3 tools/test_r8_v15_r1_review_contract_parser.py 2>&1 | tee "$LOGDIR/02-parser.txt"
+          python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py 2>&1 | tee "$LOGDIR/03-preflight.txt"
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py 2>&1 | tee "$LOGDIR/04-activation-parser.txt"
+          python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py 2>&1 | tee "$LOGDIR/05-semantic-inventory.txt"
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py 2>&1 | tee "$LOGDIR/06-runtime-safe-read.txt"
+          python3 tools/test_r8_evidence_bundle_integrity.py 2>&1 | tee "$LOGDIR/07-evidence-integrity.txt"
+          python3 tools/test_r8_work_queue.py 2>&1 | tee "$LOGDIR/08-work-queue.txt"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before" 2>&1 | tee "$LOGDIR/09-stage1-before.txt"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after" 2>&1 | tee "$LOGDIR/10-stage1-after.txt"
+          test "$(git rev-parse HEAD)" = "$SUCCESSOR_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$SUCCESSOR_TREE"
+          test -z "$(git status --porcelain=v1)"
+
+      - name: Build packet from exact frozen successor2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/build_r8_v15_r1_successor2_review_packet.py             --candidate-root "$SUCCESSOR_ROOT"             --base "$BASE_SHA"             --head "$SUCCESSOR_SHA"             --tree "$SUCCESSOR_TREE"             --log-dir "$RUNNER_TEMP/review-logs"             --out "$RUNNER_TEMP/R8-V15-R1-POST-SG1-SUCCESSOR2-REVIEW-PACKET.txt"             --packet-run-id "${{ github.run_id }}"             --packet-job "${{ github.job }}"             --linux-run-id "36244614589"             --linux-job-id "108411369154"
+
+      - name: Verify packet completeness and exact identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKET="$RUNNER_TEMP/R8-V15-R1-POST-SG1-SUCCESSOR2-REVIEW-PACKET.txt"
+          test -s "$PACKET"
+          grep -F "frozen successor commit: $SUCCESSOR_SHA" "$PACKET"
+          grep -F "frozen successor tree: $SUCCESSOR_TREE" "$PACKET"
+          grep -F "DO NOT STOP AFTER THE FIRST FINDING." "$PACKET"
+          while IFS= read -r path; do
+            blob="$(git -C "$SUCCESSOR_ROOT" rev-parse "$SUCCESSOR_SHA:$path")"
+            grep -F -- "----- BEGIN FILE $path | blob $blob |" "$PACKET" >/dev/null
+          done < <(git -C "$SUCCESSOR_ROOT" diff --name-only "$BASE_SHA..$SUCCESSOR_SHA")
+          test "$(git -C "$SUCCESSOR_ROOT" rev-parse HEAD)" = "$SUCCESSOR_SHA"
+          test "$(git -C "$SUCCESSOR_ROOT" rev-parse HEAD^{tree})" = "$SUCCESSOR_TREE"
+          test -z "$(git -C "$SUCCESSOR_ROOT" status --porcelain=v1)"
+
+      - name: Upload successor2 review packet
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-post-sg1-successor2-review-packet
+          path: ${{ runner.temp }}/R8-V15-R1-POST-SG1-SUCCESSOR2-REVIEW-PACKET.txt
+          if-no-files-found: error
+          retention-days: 30
