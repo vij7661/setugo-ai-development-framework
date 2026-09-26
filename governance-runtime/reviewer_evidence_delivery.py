@@ -27,6 +27,17 @@ def verify_whole_delivery(*, declared_sha256: str, declared_bytes: int, delivere
     return len(delivered) == declared_bytes and sha256_bytes(delivered) == declared_sha256
 
 
+def verify_material_delivery(item: Mapping[str, Any], delivered: bytes | None = None, *, chunks: Sequence[Mapping[str, Any]] | None = None) -> bool:
+    """Require actual material, never a filename/hash/summary-only placeholder."""
+    if not isinstance(item, Mapping) or item.get("delivery_mode") not in {"native_file", "in_request", "chunked"}:
+        return False
+    if not isinstance(item.get("sha256"), str) or not isinstance(item.get("bytes"), int):
+        return False
+    if item.get("delivery_mode") == "chunked":
+        return chunks is not None and verify_chunked_delivery(declared_sha256=item["sha256"], declared_bytes=item["bytes"], chunks=chunks)
+    return delivered is not None and verify_whole_delivery(declared_sha256=item["sha256"], declared_bytes=item["bytes"], delivered=delivered)
+
+
 def verify_chunked_delivery(
     *,
     declared_sha256: str,

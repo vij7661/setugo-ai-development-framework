@@ -11,11 +11,22 @@ from reviewer_evidence_delivery import (  # noqa: E402
     validate_finding_solution_contract,
     validate_solution_adjudication,
     verify_chunked_delivery,
+    verify_material_delivery,
     verify_whole_delivery,
 )
 
 
 class ReviewerEvidenceDeliveryTests(unittest.TestCase):
+    def test_summary_only_delivery_is_rejected(self):
+        raw = b"complete material"
+        item = {"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw)}
+        self.assertTrue(verify_material_delivery(item, raw))
+        self.assertFalse(verify_material_delivery({"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw), "summary": "summary only"}))
+
+    def test_chunked_material_delivery_is_exact(self):
+        raw = b"abcdef"
+        chunks = [{"index": 0, "count": 2, "bytes": b"abc", "sha256": sha256_bytes(b"abc")}, {"index": 1, "count": 2, "bytes": b"def", "sha256": sha256_bytes(b"def")}]
+        self.assertTrue(verify_material_delivery({"delivery_mode": "chunked", "sha256": sha256_bytes(raw), "bytes": len(raw)}, chunks=chunks))
     def test_whole_document_must_match_declared_identity(self):
         raw = b"full review packet\n"
         self.assertTrue(

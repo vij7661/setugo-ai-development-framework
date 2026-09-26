@@ -11,6 +11,7 @@ from provider_api_request_contract import (  # noqa: E402
     assert_governance_change_preserves_provider_request,
     canonical_provider_request,
     provider_request_fingerprint,
+    sanitize_semantic_headers,
 )
 
 
@@ -86,6 +87,11 @@ class ProviderAPIRequestContractTests(unittest.TestCase):
             after,
             change_classes={"API_EXECUTION_BEHAVIOR_CHANGE"},
         )
+
+    def test_secret_headers_never_enter_semantic_material(self):
+        headers = sanitize_semantic_headers({"Authorization": "Bearer secret", "X-Trace": "stable"})
+        self.assertNotIn("Authorization", headers)
+        self.assertEqual(headers["X-Trace"], "stable")
 
 
 if __name__ == "__main__":
