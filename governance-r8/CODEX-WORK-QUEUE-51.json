@@ -1,17 +1,17 @@
 {
   "schema": "r8-codex-work-queue/v1",
-  "issue": 51,
+  "issue": 52,
   "fallback_to_3": "ACTIVE",
   "tasks": [
-    {"id":"Q01","pr":42,"branch":"codex/r8-q01-review-parser-consolidation","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
-    {"id":"Q02","pr":43,"branch":"codex/r8-q02-stage2-semantic-gap-inventory","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
-    {"id":"Q03","pr":44,"branch":"codex/r8-q03-runtime-toctou-hardening","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
-    {"id":"Q04","pr":45,"branch":"codex/r8-q04-runtime-qualification-harness","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
-    {"id":"Q05","pr":46,"branch":"codex/r8-q05-evidence-integrity-lineage","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
-    {"id":"Q06","pr":47,"branch":"codex/r8-q06-release-qualification-gate","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
-    {"id":"Q07","pr":48,"branch":"codex/r8-q07-deployment-qualification-gate","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
-    {"id":"Q08","pr":49,"branch":"codex/r8-q08-production-readiness-gate","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
-    {"id":"Q09","pr":50,"branch":"codex/r8-q09-manual-intervention-status-ledger","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"}
+    {"id":"Q01","pr":42,"branch":"codex/r8-q01-review-parser-consolidation","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"fresh independent review required","evidence_refs":["615e762f"],"requested_action":"review and adjudicate PR #42","blocking_status":"HUMAN_REVIEW_BLOCKED"}},
+    {"id":"Q02","pr":43,"branch":"codex/r8-q02-stage2-semantic-gap-inventory","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"policy choice may be required for any next gate","evidence_refs":["c42f18f0"],"requested_action":"review evidence-bound inventory","blocking_status":"HUMAN_REVIEW_BLOCKED"}},
+    {"id":"Q03","pr":44,"branch":"codex/r8-q03-runtime-toctou-hardening","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"Linux runtime capability and review required","evidence_refs":["424afbe9"],"requested_action":"review safe-read contract","blocking_status":"HUMAN_REVIEW_BLOCKED"}},
+    {"id":"Q04","pr":45,"branch":"codex/r8-q04-runtime-qualification-harness","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"bound infrastructure and credentials required","evidence_refs":["5a1d1e51"],"requested_action":"provide governed runtime test environment","blocking_status":"MANUAL_INTERVENTION_BLOCKED"}},
+    {"id":"Q05","pr":46,"branch":"codex/r8-q05-evidence-integrity-lineage","dependencies":["Q03"],"state":"CODE_COMPLETE","manual":{"reason":"fresh independent evidence review required","evidence_refs":["a8add41b","424afbe9"],"requested_action":"review Q03-integrated evidence tooling","blocking_status":"HUMAN_REVIEW_BLOCKED"}},
+    {"id":"Q06","pr":47,"branch":"codex/r8-q06-release-qualification-gate","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"independent release review and authorization required","evidence_refs":["642cbb79"],"requested_action":"governed release decision","blocking_status":"MANUAL_INTERVENTION_BLOCKED"}},
+    {"id":"Q07","pr":48,"branch":"codex/r8-q07-deployment-qualification-gate","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"target environment and deployment authorization required","evidence_refs":["307b994e"],"requested_action":"provide governed deployment decision","blocking_status":"MANUAL_INTERVENTION_BLOCKED"}},
+    {"id":"Q08","pr":49,"branch":"codex/r8-q08-production-readiness-gate","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"production readiness review and authorization required","evidence_refs":["41b5892f"],"requested_action":"governed production decision","blocking_status":"MANUAL_INTERVENTION_BLOCKED"}},
+    {"id":"Q09","pr":50,"branch":"codex/r8-q09-manual-intervention-status-ledger","dependencies":[],"state":"CODE_COMPLETE","manual":{"reason":"fresh independent review required","evidence_refs":["3ef445ab"],"requested_action":"review queue ledger","blocking_status":"HUMAN_REVIEW_BLOCKED"}}
   ],
   "authority": {"runtime":false,"release":false,"deployment":false,"production":false,"merge":false,"activation":false}
 }
