@@ -1,0 +1,71 @@
+name: R8 v15-r1 Round2 Linux Capability Evidence
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-round2-linux-capability-2026-09-26
+    paths:
+      - .github/workflows/r8-v15-r1-round2-linux-capability.yml
+
+permissions:
+  contents: read
+
+jobs:
+  pr44-safe-read:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 72814c11b60cb9a7385d860777878727d4a4f52c
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact PR44 head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "72814c11b60cb9a7385d860777878727d4a4f52c"
+          test -z "$(git status --porcelain=v1)"
+      - name: Run full descriptor-safe runtime tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+      - name: Verify worktree unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "72814c11b60cb9a7385d860777878727d4a4f52c"
+          test -z "$(git status --porcelain=v1)"
+
+  pr46-evidence-integrity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1d916fc0314c4d4f66f69bf039887f4212847943
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact PR46 head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "1d916fc0314c4d4f66f69bf039887f4212847943"
+          test -z "$(git status --porcelain=v1)"
+      - name: Run integrated PR44 safe-read tests at PR46 head
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+      - name: Run full evidence-integrity tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/test_r8_evidence_bundle_integrity.py
+      - name: Verify worktree unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "1d916fc0314c4d4f66f69bf039887f4212847943"
+          test -z "$(git status --porcelain=v1)"
