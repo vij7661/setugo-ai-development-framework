@@ -14,6 +14,20 @@ import r8_v15_r1_frozen_schema_runtime as runtime
 
 
 class RuntimeFileReadTests(unittest.TestCase):
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY") and hasattr(os, "O_CLOEXEC"), "descriptor/cloexec capability unavailable")
+    def test_open_flags_include_cloexec_for_root_intermediate_and_final(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td); nested = root / "nested"; nested.mkdir(); (nested / "x").write_bytes(b"ok")
+            original_open = os.open
+            calls = []
+            def capture(path, flags, *args, **kwargs):
+                calls.append(flags)
+                return original_open(path, flags, *args, **kwargs)
+            with mock.patch.object(os, "open", side_effect=capture):
+                self.assertEqual(runtime.read_confined_file(root, nested / "x"), b"ok")
+            self.assertEqual(len(calls), 3)
+            self.assertTrue(all(flags & os.O_CLOEXEC for flags in calls))
+
     @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
     def test_intermediate_open_failure_closes_root_descriptor(self):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
