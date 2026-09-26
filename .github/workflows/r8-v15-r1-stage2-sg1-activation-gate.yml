@@ -3,7 +3,7 @@ name: R8 v15-r1 Stage2 SG-1 Activation Gate
 on:
   push:
     branches:
-      - governance/r8-v15-r1-stage2-sg1-parser-remediation-2026-09-26
+      - governance/r8-v15-r1-stage2-sg1-parser-remediation2-2026-09-26
     paths:
       - governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json
 
@@ -29,7 +29,7 @@ jobs:
           EXPECTED_PROPOSAL_COMMIT="67c84138140e86ba4a85a954f368f4c0f7e9ef3c"
           EXPECTED_PROPOSAL_BLOB="d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b"
           EXPECTED_PROPOSAL_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-PROPOSAL.json"
-          EXPECTED_REVIEW_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt"
+          EXPECTED_REVIEW_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt"
           GATE_PATH=".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml"
 
           EXPECTED_MACHINERY={
@@ -73,16 +73,16 @@ jobs:
                   raise SystemExit("review Critical section not clean")
               if not clean_none_section(sections["D"]):
                   raise SystemExit("review High section not clean")
-              if len(re.findall(r"(?mi)^Stage2 SG-1 may be explicitly activated by user:\s*YES\.?\s*$", sections["H"])) != 1:
+              if len(re.findall(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*YES\.?\s*$", sections["H"])) != 1:
                   raise SystemExit("review activation declaration is not exactly one YES")
-              if re.search(r"(?mi)^Stage2 SG-1 may be explicitly activated by user:\s*NO\.?\s*$", text):
+              if re.search(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*NO\.?\s*$", text):
                   raise SystemExit("review has contradictory activation declaration")
-              if len(re.findall(r"(?mi)^Broader Stage2 semantic authority granted:\s*NO\.?\s*$", sections["H"])) != 1:
+              if len(re.findall(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*NO\.?\s*$", sections["H"])) != 1:
                   raise SystemExit("review broader authority declaration is not exactly one NO")
-              if re.search(r"(?mi)^Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
+              if re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
                   raise SystemExit("review grants broader Stage2 authority")
               outside_cd=text[:headings[2].start()] + text[headings[4].start():]
-              if re.search(r"(?mi)^(?:CRITICAL|HIGH)\s*:", outside_cd):
+              if re.search(r"(?mi)^\s*(?:-\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*:", outside_cd):
                   raise SystemExit("review has Critical/High findings outside C/D")
               return sections
 
