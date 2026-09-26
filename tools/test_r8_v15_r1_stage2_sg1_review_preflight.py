@@ -20,4 +20,23 @@ class ReviewPreflightTests(unittest.TestCase):
             with self.assertRaises(ValueError): validate_artifact(copy_path, expected_sha256="0" * 64)
         finally: copy_path.unlink(missing_ok=True)
 
+    def test_invalid_utf8_is_controlled_failure(self):
+        path = Path("stage2-sg1-evidence") / "_invalid-review.txt"
+        path.parent.mkdir(exist_ok=True); path.write_bytes(b"\xff\xfe")
+        try:
+            with self.assertRaises(ValueError): validate_artifact(path)
+        finally: path.unlink(missing_ok=True)
+
+    def test_review_workflows_bind_exact_artifacts(self):
+        root = Path(".github/workflows")
+        checks = {
+            "r8-v15-r1-stage2-sg1-review-packet.yml": ("--expected-sha256", "--expected-blob"),
+            "r8-v15-r1-stage2-sg1-review003-remediation-packet.yml": ("--expected-sha256", "--expected-blob"),
+            "r8-v15-r1-stage2-sg1-review004-remediation-packet.yml": ("--expected-sha256", "--expected-blob"),
+        }
+        for name, needles in checks.items():
+            text = (root / name).read_text(encoding="utf-8")
+            for needle in needles:
+                self.assertIn(needle, text)
+
 if __name__ == "__main__": unittest.main()

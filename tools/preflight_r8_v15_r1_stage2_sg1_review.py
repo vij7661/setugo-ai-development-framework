@@ -23,8 +23,8 @@ def validate_artifact(path: Path, *, expected_sha256: str | None = None, expecte
         blob = subprocess.check_output(["git", "rev-parse", f"{git_rev}:{path.as_posix()}"], text=True).strip()
         if blob != expected_blob:
             raise ValueError("review Git blob mismatch")
-    activation_yes = bool(re.fullmatch(r"(?i)(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*YES\.?", result["H"].splitlines()[0].strip()))
-    broader_no = bool(re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*NO\.?\s*$", result["H"]))
+    activation_yes = len(re.findall(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*YES\.?\s*$", result["H"])) == 1
+    broader_no = len(re.findall(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*NO\.?\s*$", result["H"])) == 1
     return {"status": "PASS", "review_path": path.as_posix(), "raw_sha256": raw_sha, "disposition": result["A"].strip(), "critical": result["C"].strip(), "high": result["D"].strip(), "activation_yes": activation_yes, "broader_stage2_no": broader_no}
 
 
@@ -35,6 +35,8 @@ def main() -> None:
     ap.add_argument("--expected-blob")
     ap.add_argument("--git-rev", default="HEAD")
     args = ap.parse_args()
+    if (str(__import__("os").environ.get("CI", "")).lower() == "true" or args.expected_sha256 or args.expected_blob) and not (args.expected_sha256 and args.expected_blob):
+        raise SystemExit("exact expected SHA-256 and Git blob are required in CI/exact mode")
     path = args.review
     try:
         result = validate_artifact(path, expected_sha256=args.expected_sha256, expected_blob=args.expected_blob, git_rev=args.git_rev)

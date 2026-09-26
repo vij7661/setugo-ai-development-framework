@@ -39,6 +39,7 @@ def main() -> None:
     parse_review_contract(REVIEW_004.read_text(encoding="utf-8"))
     bullet_document = accepted_document.replace("Stage2 SG-1 may be explicitly activated by user: YES", "- Stage2 SG-1 may be explicitly activated by user: YES.").replace("Broader Stage2 semantic authority granted: NO", "- Broader Stage2 semantic authority granted: NO.")
     parse_review_contract(bullet_document)
+    parse_review_contract(review(h_extra="The parser rejects CRITICAL: labels only at structured line starts."))
     if args.review:
         parse_review_contract(args.review.read_text(encoding="utf-8"))
     rejected_documents = [
@@ -53,6 +54,11 @@ def main() -> None:
         review(h_extra="- Stage2 SG-1 may be explicitly activated by user: NO."),
         review(h_extra="- Broader Stage2 semantic authority granted: YES."),
         review(h_extra="- HIGH FINDING: hidden high issue"),
+        review(h_extra="CRITICAL:hidden"),
+        review(h_extra="HIGH:hidden"),
+        review(h_extra="CRITICAL FINDING:hidden"),
+        review(h_extra="HIGH FINDING  hidden"),
+        review(h_extra="- CRITICAL FINDING:hidden"),
         accepted_document.replace("A. OVERALL_DISPOSITION", "A. OVERALL_DISPOSITION\nA. OVERALL_DISPOSITION", 1),
         accepted_document.replace("H. FINAL_GATE", "H. FINAL_GATE\nH. FINAL_GATE", 1),
         accepted_document.replace("activated by user: YES", "activated by user: YES..", 1),

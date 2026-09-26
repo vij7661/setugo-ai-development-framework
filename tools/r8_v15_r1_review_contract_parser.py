@@ -9,6 +9,12 @@ def clean_none_section(text: str) -> bool:
     return re.fullmatch(r"(?i:none\.?)", text.strip()) is not None
 
 
+STRUCTURED_FINDING = re.compile(
+    r"(?mi)^[ \t]*(?:[-*][ \t]+)?(?:CRITICAL|HIGH)(?:[ \t]+FINDING)?"
+    r"(?:[ \t]*(?::|[-\u2013\u2014])[ \t]*|[ \t]{2,})(?=\S).+$"
+)
+
+
 def parse_review_contract(text: str) -> dict[str, str]:
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     headings = list(re.finditer(r"(?m)^([A-H])\.\s+[^\r\n]*$", text))
@@ -34,10 +40,13 @@ def parse_review_contract(text: str) -> dict[str, str]:
         raise ValueError("broader authority")
     outside_cd = text[:headings[2].start()] + text[headings[4].start():]
     marker = r"(?mi)^\s*(?:[-*]\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*(?::|[-–—])\s+"
-    if re.search(marker, outside_cd):
+    if STRUCTURED_FINDING.search(outside_cd):
         raise ValueError("finding outside section")
     return sections
 
 
 def parse_review_file(path: Path) -> dict[str, str]:
-    return parse_review_contract(path.read_text(encoding="utf-8"))
+    try:
+        return parse_review_contract(path.read_text(encoding="utf-8"))
+    except UnicodeDecodeError as exc:
+        raise ValueError("review is not valid UTF-8") from exc
