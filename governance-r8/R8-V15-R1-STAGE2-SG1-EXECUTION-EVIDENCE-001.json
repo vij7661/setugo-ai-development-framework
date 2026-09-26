@@ -1,0 +1,109 @@
+{
+  "schema": "r8-v15-r1-stage2-sg1-execution-evidence/v1",
+  "status": "EXECUTION_PASS_PENDING_INDEPENDENT_POST_EXECUTION_REVIEW",
+  "authority_effect": "NONE",
+  "proposal_id": "R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001",
+  "proposal_commit": "67c84138140e86ba4a85a954f368f4c0f7e9ef3c",
+  "proposal_blob_sha1": "d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b",
+  "activation_commit": "5bd4fb376625ee0d4f19aea33f1b71a70963436a",
+  "activation_gate_blob_sha1": "5d75c4b5c85fec075812c819c979e7048df8cd7f",
+  "independent_review_004_blob_sha1": "ce879a1d0b3b1116877d26738922c2c7028d1f02",
+  "candidate": {
+    "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+    "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "modified": false,
+    "worktree_clean_after": true
+  },
+  "github_actions": {
+    "run_id": 36224368626,
+    "run_conclusion": "success",
+    "verify_job_id": 108355417398,
+    "verify_job_conclusion": "success",
+    "semantic_conformance_job_id": 108355437312,
+    "semantic_conformance_job_conclusion": "success"
+  },
+  "stage1_regression_guard": {
+    "before": {
+      "status": "IG1_SUCCESSOR3_ORACLE_PASS",
+      "reviewed_slice_tests": 636,
+      "inherited_baseline_tests": 140,
+      "total_tests": 776,
+      "expectedFailures": 0,
+      "skips": 0,
+      "unexpectedSuccesses": 0,
+      "exact_candidate_postrun_verify": "PASS"
+    },
+    "after": {
+      "status": "IG1_SUCCESSOR3_ORACLE_PASS",
+      "reviewed_slice_tests": 636,
+      "inherited_baseline_tests": 140,
+      "total_tests": 776,
+      "expectedFailures": 0,
+      "skips": 0,
+      "unexpectedSuccesses": 0,
+      "exact_candidate_postrun_verify": "PASS"
+    }
+  },
+  "sg1_results": {
+    "forward": {
+      "sha256": "5749e1a9ec4597b870b1463860025c8636110f3760af5c6f00e634407c73316c",
+      "status": "PASS",
+      "case_count": 18,
+      "all_cases_true": true,
+      "candidate_modified": false,
+      "external_effects_performed": false,
+      "authority_effect": "NONE",
+      "stage2_broader_authority": false
+    },
+    "reverse": {
+      "sha256": "0a23b59ccc15afc41caaa8578cb999c26c6da9fafb69e8e237ca26ecd5f2a5a2",
+      "status": "PASS",
+      "case_count": 18,
+      "all_cases_true": true,
+      "candidate_modified": false,
+      "external_effects_performed": false,
+      "authority_effect": "NONE",
+      "stage2_broader_authority": false
+    },
+    "comparator_status": "R8V15R1_STAGE2_SG1_FORWARD_REVERSE_EQUIVALENCE_PASS",
+    "semantic_fingerprints_identical": true,
+    "case_results_identical": true
+  },
+  "artifact": {
+    "id": 10900590603,
+    "name": "r8-v15-r1-stage2-sg1-results",
+    "digest": "sha256:58e3b45ccb6f95b3d6966339d7819f74cbdf4d0b4cfc4aa58356545b622c1d3e",
+    "expires_at": "2026-10-26T06:38:57Z",
+    "files": [
+      "sg1-forward.json",
+      "sg1-reverse.json"
+    ]
+  },
+  "prior_failed_activation_attempts": [
+    {
+      "attempt": 1,
+      "run_id": 36190374209,
+      "verify_job_id": 108253787018,
+      "semantic_execution_performed": false
+    },
+    {
+      "attempt": 2,
+      "run_id": 36223537668,
+      "verify_job_id": 108353145716,
+      "run_sg1_job_id": 108353161400,
+      "run_sg1_job_conclusion": "skipped",
+      "semantic_execution_performed": false
+    }
+  ],
+  "governance": {
+    "sg1_execution_completed": true,
+    "sg1_closed": false,
+    "fresh_independent_post_execution_review_required": true,
+    "broader_stage2_authorized": false,
+    "later_stage2_gate_authorized": false,
+    "fallback_to_3": "ACTIVE",
+    "six_slice_cadence_restored": false,
+    "runtime_release_deployment_production_policy_constitutional_root_terminal_authority": false
+  }
+}
