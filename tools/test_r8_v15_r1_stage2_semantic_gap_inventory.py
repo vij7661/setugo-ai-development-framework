@@ -22,6 +22,9 @@ def main():
     assert altered["proposed_next_gates"] == []
     # A known covered edge cannot silently disappear from a claimed inventory.
     assert result["direct_edges"]
+    assert len({inv.edge_key(edge) for edge in result["direct_edges"]}) == len(result["direct_edges"])
+    assert all(edge["source_blob"] and edge["target_blob"] for edge in result["direct_edges"])
+    assert inv.target_for_module("r8_v15_r1_frozen_schema_runtime") == "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     missing = json.loads(json.dumps(result))
     missing["direct_edges"] = missing["direct_edges"][1:]
     assert len(missing["direct_edges"]) != len(result["direct_edges"])
@@ -30,6 +33,10 @@ def main():
     written = inv.write(p)
     assert p.exists() and written["inventory_sha256"]
     assert inv.verify_inventory_digest(p)
+    tampered = json.loads(p.read_text(encoding="utf-8"))
+    tampered["direct_edges"][0]["source_blob"] = "0" * 40
+    p.write_text(json.dumps(tampered, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    assert not inv.verify_inventory_digest(p)
     p.unlink()
     print(f"R8_SEMANTIC_GAP_INVENTORY_TESTS_PASS edges={len(result['direct_edges'])}")
 
