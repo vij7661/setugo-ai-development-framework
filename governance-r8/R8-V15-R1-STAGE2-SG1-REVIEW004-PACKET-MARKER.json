@@ -1,0 +1,25 @@
+{
+  "schema": "r8-v15-r1-stage2-sg1-review004-list-marker-remediation-packet-marker/v1",
+  "status": "BUILD_FRESH_REVIEW_004_LIST_MARKER_REMEDIATION_PACKET",
+  "authority_effect": "NONE",
+  "proposal_id": "R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001",
+  "failed_activation_attempts": [
+    {
+      "attempt": 1,
+      "run_id": 36190374209,
+      "verify_job_id": 108253787018
+    },
+    {
+      "attempt": 2,
+      "run_id": 36223537668,
+      "verify_job_id": 108353145716,
+      "run_sg1_job_id": 108353161400
+    }
+  ],
+  "review_003_blob": "378ffe70e131b6c63e95f4142596ae091ba37ebe",
+  "prior_gate_blob": "9adc02a0f29a8dd7b3e88c51decc8dd066c3e577",
+  "repaired_gate_blob": "5d75c4b5c85fec075812c819c979e7048df8cd7f",
+  "expected_review_004_path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt",
+  "activation_artifact_absent": true,
+  "semantic_execution_performed": false
+}
