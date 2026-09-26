@@ -1,0 +1,14 @@
+{
+  "schema": "r8-v15-r1-runtime-qualification-matrix/v1",
+  "status": "PREREGISTERED_NON_AUTHORITATIVE",
+  "candidate_commit": "7cd2787d85b189a4161f271ee131e42bd961140a",
+  "arms": [
+    {"id": "filesystem_race", "requires_live_infrastructure": true, "fault_proof": "kernel_or_descriptor_observation"},
+    {"id": "permission_readonly_io", "requires_live_infrastructure": true, "fault_proof": "errno_and_kernel_observation"},
+    {"id": "crash_restart", "requires_live_infrastructure": true, "fault_proof": "process_and_state_observation"},
+    {"id": "idempotency_durable_state", "requires_live_infrastructure": true, "fault_proof": "request_response_and_storage_observation"},
+    {"id": "external_effect_denial", "requires_live_infrastructure": true, "fault_proof": "audit_and_network_observation"},
+    {"id": "candidate_immutability", "requires_live_infrastructure": false, "fault_proof": "git_identity_observation"}
+  ],
+  "authority": {"runtime_qualification_granted": false, "live_execution_authorized": false, "independent_post_run_review_required": true}
+}
