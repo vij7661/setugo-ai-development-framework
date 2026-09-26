@@ -6,6 +6,7 @@ on:
       - evidence/r8-v15-r1-post-sg1-frozen-candidate-2026-09-26
     paths:
       - .github/workflows/r8-v15-r1-frozen-candidate-review-packet.yml
+      - tools/build_r8_v15_r1_frozen_candidate_review_packet.py
 
 permissions:
   contents: read
@@ -24,17 +25,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ca1ae48be3d01025b7811d50d8482db30d15e4e9
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify exact frozen identity
+      - name: Create exact frozen candidate worktree
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
-          test "$(git rev-parse HEAD^{tree})" = "$CANDIDATE_TREE"
-          test -z "$(git status --porcelain=v1)"
+          CANDIDATE_ROOT="$RUNNER_TEMP/frozen-candidate"
+          git worktree add --detach "$CANDIDATE_ROOT" "$CANDIDATE_SHA"
+          test "$(git -C "$CANDIDATE_ROOT" rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test "$(git -C "$CANDIDATE_ROOT" rev-parse HEAD^{tree})" = "$CANDIDATE_TREE"
+          test -z "$(git -C "$CANDIDATE_ROOT" status --porcelain=v1)"
+          echo "CANDIDATE_ROOT=$CANDIDATE_ROOT" >> "$GITHUB_ENV"
 
       - name: Run candidate checks and capture exact logs
         shell: bash
@@ -42,6 +45,7 @@ jobs:
           set -euo pipefail
           LOGDIR="$RUNNER_TEMP/review-logs"
           mkdir -p "$LOGDIR"
+          cd "$CANDIDATE_ROOT"
           python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py 2>&1 | tee "$LOGDIR/01-invariants.txt"
           python3 tools/test_r8_v15_r1_review_contract_parser.py 2>&1 | tee "$LOGDIR/02-parser.txt"
           python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py 2>&1 | tee "$LOGDIR/03-preflight.txt"
@@ -57,168 +61,17 @@ jobs:
 
       - name: Generate one self-contained packet from exact frozen SHA
         shell: bash
-        env:
-          EVIDENCE_RUN_ID: ${{ github.run_id }}
-          EVIDENCE_JOB: ${{ github.job }}
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import hashlib, os, subprocess
-
-          root=Path.cwd()
-          base=os.environ["BASE_SHA"]
-          head=os.environ["CANDIDATE_SHA"]
-          tree=os.environ["CANDIDATE_TREE"]
-          logdir=Path(os.environ["RUNNER_TEMP"])/"review-logs"
-          out=Path(os.environ["RUNNER_TEMP"])/"R8-V15-R1-POST-SG1-FROZEN-CANDIDATE-REVIEW-PACKET.txt"
-
-          def git(*args):
-              return subprocess.check_output(["git",*args], text=True).strip()
-
-          changed=git("diff","--name-only",f"{base}..{head}").splitlines()
-          diff=subprocess.check_output(["git","diff","--no-ext-diff","--unified=80",f"{base}..{head}"], text=True)
-
-          parts=[]
-          parts.append("""R8 v15-r1 — FROZEN POST-SG1 SINGLE-CANDIDATE INDEPENDENT REVIEW
-
-USE ONLY THIS PACKET.
-Do not use prior conversation history, GitHub access, external APIs, model recollection, or prior packet conclusions.
-
-This review intentionally replaces the earlier multi-PR packet process.
-There is ONE candidate under review.
-
-EXACT FROZEN CANDIDATE
-""")
-          parts.append(f"baseline: {base}\n")
-          parts.append(f"candidate commit: {head}\n")
-          parts.append(f"candidate tree: {tree}\n")
-          parts.append("frozen branch: frozen/r8-v15-r1-post-sg1-integration-candidate-2026-09-26\n")
-          parts.append(f"packet-generation workflow run: {os.environ['EVIDENCE_RUN_ID']}\n")
-          parts.append(f"packet-generation job: {os.environ['EVIDENCE_JOB']}\n")
-          parts.append("authority_effect: NONE\n")
-          parts.append("fallback-to-3: ACTIVE\n")
-          parts.append("six-slice cadence restored: NO\n\n")
-
-          parts.append("PROCESS CHANGE\n")
-          parts.append("- #42/#43/#44/#46/#50 are no longer reviewed as separately moving heads.\n")
-          parts.append("- Their implementation changes are composed into this one tree.\n")
-          parts.append("- #44 is the single runtime winner for the #44/#46 overlap.\n")
-          parts.append("- #46 consumes the runtime in this exact tree.\n")
-          parts.append("- historical review packet/report artifacts were excluded from candidate implementation composition.\n")
-          parts.append("- all evidence below is regenerated from this exact candidate SHA.\n\n")
-
-          parts.append(f"CHANGED FILE COUNT: {len(changed)}\n")
-          parts.append("CHANGED FILES\n")
-          for p in changed:
-              blob=git("rev-parse",f"{head}:{p}")
-              data=(root/p).read_bytes()
-              raw=hashlib.sha256(data).hexdigest()
-              parts.append(f"- {p} | blob {blob} | sha256 {raw} | bytes {len(data)}\n")
-
-          parts.append("\n===== EXACT CHANGED FILE CONTENTS =====\n")
-          for p in changed:
-              blob=git("rev-parse",f"{head}:{p}")
-              data=(root/p).read_bytes()
-              raw=hashlib.sha256(data).hexdigest()
-              parts.append(f"\n----- BEGIN FILE {p} | blob {blob} | sha256 {raw} -----\n")
-              try:
-                  parts.append(data.decode("utf-8"))
-              except UnicodeDecodeError:
-                  parts.append("<NON-UTF8 FILE OMITTED FROM TEXT; HASH/IDENTITY ABOVE>\n")
-              if not parts[-1].endswith("\n"):
-                  parts.append("\n")
-              parts.append(f"----- END FILE {p} -----\n")
-
-          parts.append("\n===== COMPLETE BASELINE-TO-CANDIDATE DIFF =====\n")
-          parts.append(diff)
-          parts.append("\n===== END DIFF =====\n")
-
-          parts.append("\n===== EXACT TEST / INVARIANT LOGS =====\n")
-          for lp in sorted(logdir.glob("*.txt")):
-              parts.append(f"\n----- BEGIN LOG {lp.name} -----\n")
-              parts.append(lp.read_text(encoding="utf-8", errors="replace"))
-              if not parts[-1].endswith("\n"):
-                  parts.append("\n")
-              parts.append(f"----- END LOG {lp.name} -----\n")
-
-          parts.append("""
-===== INDEPENDENT REVIEW INSTRUCTIONS =====
-
-Review this ONE exact frozen candidate only.
-
-DO NOT STOP AFTER THE FIRST FINDING.
-Enumerate ALL Critical, High, Medium, and Low findings.
-
-For every finding provide:
-1. Finding ID
-2. Severity
-3. Exact file/function/contract
-4. Concrete failure/false-green/omission path
-5. Why current invariant/test is insufficient
-6. Narrow recommended solution
-7. Exact tests to add/change
-8. Whether it invalidates candidate freeze
-9. Merge-blocking YES/NO
-10. Classification: code / evidence / runtime / policy
-
-Explicitly test whether the old loop classes are closed:
-- stale #44/#46 runtime composition;
-- parser punctuation/hidden-finding variants;
-- parser/hash double-read;
-- unbound CI preflight identity;
-- partial semantic-inventory verification;
-- non-exact evidence lineage;
-- queue/provenance ambiguity;
-- hand-copied/stale test counts;
-- packet identity drift.
-
-Return ONLY sections A-J:
-
-A. OVERALL_DISPOSITION
-Exactly one: BOUNDED_PASS / CHANGES_REQUIRED / INSUFFICIENT_EVIDENCE
-
-B. EXACT_CANDIDATE_IDENTITY
-Repeat baseline, candidate commit/tree, changed-file count, packet workflow run/job.
-
-C. CRITICAL_FINDINGS
-Use NONE. if none.
-
-D. HIGH_FINDINGS
-Use NONE. if none.
-
-E. MEDIUM_FINDINGS
-Use NONE. if none.
-
-F. LOW_FINDINGS
-Use NONE. if none.
-
-G. INVARIANT_ASSESSMENT
-Assess each load-bearing invariant and whether the packet/test evidence proves it.
-
-H. INTEGRATION_ASSESSMENT
-Assess composition as ONE tree, especially #44/#46 and exact evidence binding.
-
-I. REMEDIATION_PLAN
-For every finding, give smallest safe fix + exact regression test. If none, state NONE.
-
-J. FINAL_GATE
-State:
-- Frozen candidate eligible for bounded merge consideration: YES or NO.
-- Broader Stage2 semantic authority granted: NO.
-- Runtime qualification granted: NO.
-- Release/deployment/production authority granted: NO.
-- Automatic six-slice cadence restoration: NO.
-- Fallback-to-3 remains ACTIVE.
-""")
-
-          text="".join(parts)
-          out.write_text(text, encoding="utf-8", newline="\n")
-          print(out)
-          print("packet_sha256="+hashlib.sha256(out.read_bytes()).hexdigest())
-          print("packet_bytes="+str(out.stat().st_size))
-          print("packet_lines="+str(text.count("\n")+1))
-          PY
+          python3 tools/build_r8_v15_r1_frozen_candidate_review_packet.py \
+            --candidate-root "$CANDIDATE_ROOT" \
+            --base "$BASE_SHA" \
+            --head "$CANDIDATE_SHA" \
+            --tree "$CANDIDATE_TREE" \
+            --log-dir "$RUNNER_TEMP/review-logs" \
+            --out "$RUNNER_TEMP/R8-V15-R1-POST-SG1-FROZEN-CANDIDATE-REVIEW-PACKET.txt" \
+            --run-id "${{ github.run_id }}" \
+            --job "${{ github.job }}"
 
       - name: Verify packet completeness against exact candidate
         shell: bash
@@ -230,12 +83,12 @@ State:
           grep -F "candidate tree: $CANDIDATE_TREE" "$PACKET"
           grep -F "DO NOT STOP AFTER THE FIRST FINDING." "$PACKET"
           while IFS= read -r path; do
-            blob="$(git rev-parse "$CANDIDATE_SHA:$path")"
+            blob="$(git -C "$CANDIDATE_ROOT" rev-parse "$CANDIDATE_SHA:$path")"
             grep -F -- "----- BEGIN FILE $path | blob $blob |" "$PACKET" >/dev/null
-          done < <(git diff --name-only "$BASE_SHA..$CANDIDATE_SHA")
-          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
-          test "$(git rev-parse HEAD^{tree})" = "$CANDIDATE_TREE"
-          test -z "$(git status --porcelain=v1)"
+          done < <(git -C "$CANDIDATE_ROOT" diff --name-only "$BASE_SHA..$CANDIDATE_SHA")
+          test "$(git -C "$CANDIDATE_ROOT" rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test "$(git -C "$CANDIDATE_ROOT" rev-parse HEAD^{tree})" = "$CANDIDATE_TREE"
+          test -z "$(git -C "$CANDIDATE_ROOT" status --porcelain=v1)"
 
       - name: Upload exact frozen-candidate review packet
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
