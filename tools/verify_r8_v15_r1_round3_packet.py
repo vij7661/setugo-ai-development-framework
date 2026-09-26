@@ -4,10 +4,10 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 BASE='7cd2787d85b189a4161f271ee131e42bd961140a'
-HEADS={'#42':'5428f001061f2bac4e6df6ea2debc09be6adfd50','#43':'8d1efb126a87adc4da101cf57d4d26025e9b9b16','#44':'36546975cf733becdbbec5b658a32716f7a1489a','#46':'41d2ed1718d0ad1faf1d8110d19a5ec819eafcad','#50':'12b3235ea2c1f67310f073708458b45b93ada9f5'}
+HEADS={'#42':'4fcf6d3f2733d02668f94de19f51c69932391442','#43':'8d1efb126a87adc4da101cf57d4d26025e9b9b16','#44':'36546975cf733becdbbec5b658a32716f7a1489a','#46':'41d2ed1718d0ad1faf1d8110d19a5ec819eafcad','#50':'12b3235ea2c1f67310f073708458b45b93ada9f5'}
 PACKET=ROOT/'governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-53-ROUND3-REVIEW-PACKET.txt'
 def run(*a): return subprocess.check_output(['git',*a],cwd=ROOT,stderr=subprocess.STDOUT).decode()
-def blob(raw): return hashlib.sha1(f'blob {len(raw)}\\0'.encode()+raw).hexdigest()
+def blob(raw): return subprocess.check_output(['git','hash-object','--stdin'], input=raw, cwd=ROOT).decode().strip()
 def expected_files(h): return [x for x in run('diff','--name-only',BASE,h).splitlines() if x]
 def raw(h,p): return subprocess.check_output(['git','show',f'{h}:{p}'],cwd=ROOT)
 def main():

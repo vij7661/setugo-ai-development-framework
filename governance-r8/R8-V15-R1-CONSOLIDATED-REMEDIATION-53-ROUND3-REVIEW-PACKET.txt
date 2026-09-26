@@ -11,7 +11,7 @@ EXACT BASELINE
 SG-1 bounded closure baseline: 7cd2787d85b189a4161f271ee131e42bd961140a
 
 ROUND-2 REVIEWED AND ROUND-3 REPAIRED HEADS
-#42 prior reviewed head=82da8dce64a8f96c938f687f8ef31dee34c7938e round-3 repaired head=5428f001061f2bac4e6df6ea2debc09be6adfd50
+#42 prior reviewed head=82da8dce64a8f96c938f687f8ef31dee34c7938e round-3 repaired head=4fcf6d3f2733d02668f94de19f51c69932391442
 #43 prior reviewed head=8954bd34e98c96e035f8f6e27eb55765ddf76bae round-3 repaired head=8d1efb126a87adc4da101cf57d4d26025e9b9b16
 #44 prior reviewed head=72814c11b60cb9a7385d860777878727d4a4f52c round-3 repaired head=36546975cf733becdbbec5b658a32716f7a1489a
 #46 prior reviewed head=1d916fc0314c4d4f66f69bf039887f4212847943 round-3 repaired head=41d2ed1718d0ad1faf1d8110d19a5ec819eafcad
@@ -303,10 +303,10 @@ index 00000000..673a0a33
 +    main()
 diff --git a/tools/r8_v15_r1_review_contract_parser.py b/tools/r8_v15_r1_review_contract_parser.py
 new file mode 100644
-index 00000000..1cfd0d8a
+index 00000000..f6ef28aa
 --- /dev/null
 +++ b/tools/r8_v15_r1_review_contract_parser.py
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,51 @@
 +"""Single fail-closed parser for the bounded R8 v15-r1 A-H review contract."""
 +from __future__ import annotations
 +
@@ -348,7 +348,6 @@ index 00000000..1cfd0d8a
 +    if re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
 +        raise ValueError("broader authority")
 +    outside_cd = text[:headings[2].start()] + text[headings[4].start():]
-+    marker = r"(?mi)^\s*(?:[-*]\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*(?::|[-–—])\s+"
 +    if STRUCTURED_FINDING.search(outside_cd):
 +        raise ValueError("finding outside section")
 +    return sections
@@ -569,7 +568,7 @@ index c4111f16..f7f95b1a 100644
 
 PR #42 EMBEDDED FILE CONTENTS
 FILE_BEGIN #42 .github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml
-FILE_BLOB_SHA1 aa9673b3b81b7e653cc944d23162705cab16dcec
+FILE_BLOB_SHA1 d3d775d92c649f57f2ab53a81daaa0918320466c
 FILE_RAW_SHA256 a8fb86c3567349aad49ba5c3900bc24f1860bae082ef51a60c6fb093a83f739d
 FILE_BYTES 7063
 name: R8 v15-r1 Stage2 SG-1 Activation Gate
@@ -690,7 +689,7 @@ jobs:
 FILE_END #42 .github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml
 
 FILE_BEGIN #42 .github/workflows/r8-v15-r1-stage2-sg1-review-packet.yml
-FILE_BLOB_SHA1 e735635e784c4e2e9ce2bca2af5b068e001e9b9e
+FILE_BLOB_SHA1 1eb302d698395344f17da0fb426e2b3c3d057d3e
 FILE_RAW_SHA256 5d761e7f7a0bbd8e6ac6888059ef916a9c688062f3a42a2f6eafcb25658fe184
 FILE_BYTES 1543
 name: R8 v15-r1 Stage2 SG-1 Early Review Packet
@@ -729,7 +728,7 @@ jobs:
 FILE_END #42 .github/workflows/r8-v15-r1-stage2-sg1-review-packet.yml
 
 FILE_BEGIN #42 .github/workflows/r8-v15-r1-stage2-sg1-review003-remediation-packet.yml
-FILE_BLOB_SHA1 9db2119cb91f456f339e0e742dfa44d68314ebaf
+FILE_BLOB_SHA1 6cc020d71e0630a436d4027f2fe0ec5c31545160
 FILE_RAW_SHA256 c90df991e954140a05b03d5f8306e786b42f7c390650cfd0379453e606bf1670
 FILE_BYTES 1918
 name: R8 v15-r1 Stage2 SG-1 Review 003 Parser Remediation Packet
@@ -780,7 +779,7 @@ jobs:
 FILE_END #42 .github/workflows/r8-v15-r1-stage2-sg1-review003-remediation-packet.yml
 
 FILE_BEGIN #42 .github/workflows/r8-v15-r1-stage2-sg1-review004-remediation-packet.yml
-FILE_BLOB_SHA1 4057dcc50dcc165caf7f41ba91403715d6bb81e3
+FILE_BLOB_SHA1 2031f15db60e5bb82cfc6953b5dd6d2909811578
 FILE_RAW_SHA256 2cba65049607581550ff0bf6780c05fb22cfb5fd7c9434e4f4bb064fde2dcfc0
 FILE_BYTES 1948
 name: R8 v15-r1 Stage2 SG-1 Review 004 List Marker Remediation Packet
@@ -831,7 +830,7 @@ jobs:
 FILE_END #42 .github/workflows/r8-v15-r1-stage2-sg1-review004-remediation-packet.yml
 
 FILE_BEGIN #42 governance-r8/codex-work-queue/Q01-REVIEW-PARSER-CONSOLIDATION.md
-FILE_BLOB_SHA1 24c9ed4864707c6ae07fd8b57bbfc67d253b08a3
+FILE_BLOB_SHA1 9b3f69ed831da6e3f56e154a20809d09ca67c800
 FILE_RAW_SHA256 b2d79212a65eef7d54c9684d68dae5497fd8a06208bef0298e57d13b0fe17fc4
 FILE_BYTES 2838
 # Q01 — Shared review-contract parser and exact-artifact preflight
@@ -883,7 +882,7 @@ Remove the duplicated review-parser logic that caused the two failed-closed SG-1
 FILE_END #42 governance-r8/codex-work-queue/Q01-REVIEW-PARSER-CONSOLIDATION.md
 
 FILE_BEGIN #42 tools/preflight_r8_v15_r1_stage2_sg1_review.py
-FILE_BLOB_SHA1 921b692ceb2c25fe4bf24f307f03edfeb86d22e5
+FILE_BLOB_SHA1 673a0a331f926a6553551c38fba9f8d11c62f496
 FILE_RAW_SHA256 c0b1be9e450f0a9854cb4da7b82ddf5023c4900d554c09defc8334b798eda09e
 FILE_BYTES 2505
 """Exact-artifact, non-activating preflight for SG-1 review contracts."""
@@ -945,9 +944,9 @@ if __name__ == "__main__":
 FILE_END #42 tools/preflight_r8_v15_r1_stage2_sg1_review.py
 
 FILE_BEGIN #42 tools/r8_v15_r1_review_contract_parser.py
-FILE_BLOB_SHA1 c570073658dc2764c68ee0d6dfa1b68eb7d1d21e
-FILE_RAW_SHA256 0b8914f539c3e6a8516b4ca50f883eb23b43d5daf29568b8c8fbdedfb85f248b
-FILE_BYTES 2404
+FILE_BLOB_SHA1 f6ef28aaa80dbd2473a53c88fa55830901844502
+FILE_RAW_SHA256 cf19cee147fe3611bc628601390c4da9cb01b707b65c20d3b2fd1606caa73528
+FILE_BYTES 2313
 """Single fail-closed parser for the bounded R8 v15-r1 A-H review contract."""
 from __future__ import annotations
 
@@ -989,7 +988,6 @@ def parse_review_contract(text: str) -> dict[str, str]:
     if re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
         raise ValueError("broader authority")
     outside_cd = text[:headings[2].start()] + text[headings[4].start():]
-    marker = r"(?mi)^\s*(?:[-*]\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*(?::|[-–—])\s+"
     if STRUCTURED_FINDING.search(outside_cd):
         raise ValueError("finding outside section")
     return sections
@@ -1003,7 +1001,7 @@ def parse_review_file(path: Path) -> dict[str, str]:
 FILE_END #42 tools/r8_v15_r1_review_contract_parser.py
 
 FILE_BEGIN #42 tools/test_r8_v15_r1_review_contract_parser.py
-FILE_BLOB_SHA1 8d5e9ad467d5bd40e5be9251f9b93c5ac94cd351
+FILE_BLOB_SHA1 90b640df55ab6d080cfe185cd6e007a3375906d5
 FILE_RAW_SHA256 d52f8a5f6c4ec07a738b27f5169156a7f25124f9cea338344f7a60f90b760738
 FILE_BYTES 3000
 """Table-driven adversarial tests for the shared SG-1 review parser."""
@@ -1059,7 +1057,7 @@ if __name__ == "__main__":
 FILE_END #42 tools/test_r8_v15_r1_review_contract_parser.py
 
 FILE_BEGIN #42 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
-FILE_BLOB_SHA1 be2a33d29d66c5b07e99e30ebb9b2fa25a05ab1b
+FILE_BLOB_SHA1 085aa5caf16ea689716723c3927e43571467f300
 FILE_RAW_SHA256 c4024dbd47169e5f4aa10159656808831fb3717638580a5fcd39601b943b219c
 FILE_BYTES 3086
 from __future__ import annotations
@@ -1122,7 +1120,7 @@ if __name__ == "__main__": unittest.main()
 FILE_END #42 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
 
 FILE_BEGIN #42 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
-FILE_BLOB_SHA1 14e3bb956454673762b6acfe359d313e7d7f0715
+FILE_BLOB_SHA1 f7f95b1aa5de658d214e5b03978fb314d81cfddc
 FILE_RAW_SHA256 2cb5db2fceca963cbf02a300ac1b11f1c42c1d695222817e81302d432d944b07
 FILE_BYTES 4735
 """Offline deterministic validation of the SG-1 activation review parser contract."""
@@ -2418,7 +2416,7 @@ index 00000000..f4607c75
 
 PR #43 EMBEDDED FILE CONTENTS
 FILE_BEGIN #43 governance-r8/R8-V15-R1-STAGE2-SEMANTIC-GAP-INVENTORY.json
-FILE_BLOB_SHA1 09fb8dd15483e908dab624aad3eb79b8492019b1
+FILE_BLOB_SHA1 650d8d878261863aee69e44351c876babc6f4bbb
 FILE_RAW_SHA256 0053264ca799fe4b1752e408bac6ead9b86e6eb352dbde5d615d6efcaca06c65
 FILE_BYTES 42558
 {
@@ -3374,7 +3372,7 @@ FILE_BYTES 42558
 FILE_END #43 governance-r8/R8-V15-R1-STAGE2-SEMANTIC-GAP-INVENTORY.json
 
 FILE_BEGIN #43 governance-r8/codex-work-queue/Q02-STAGE2-SEMANTIC-GAP-INVENTORY.md
-FILE_BLOB_SHA1 52fa9c41dd954e7c66670e35d4f903499069e407
+FILE_BLOB_SHA1 d7b12bfde5f63cf59e1f51695a078253cf1bfd98
 FILE_RAW_SHA256 286cebf733cf1236bb15644c3c8fcd725e07af6a03e2f6f8eb96277b5d1d1323
 FILE_BYTES 2614
 # Q02 — Deterministic Stage2 semantic-gap inventory and next-gate scaffold
@@ -3421,7 +3419,7 @@ Determine the remaining Stage2 semantic work after SG-1 closure without inventin
 FILE_END #43 governance-r8/codex-work-queue/Q02-STAGE2-SEMANTIC-GAP-INVENTORY.md
 
 FILE_BEGIN #43 tools/r8_v15_r1_stage2_semantic_gap_inventory.py
-FILE_BLOB_SHA1 42bf28703c6e3ddb7f4fcc1846ce61895c68dfa3
+FILE_BLOB_SHA1 e62820cfc119e1c4a8c4baaad831e62d880f2016
 FILE_RAW_SHA256 bb45e0c81995c8b9ec2ba39d94d195254b3eb80cb0d7bdd0bea5f90898940a66
 FILE_BYTES 8222
 """Deterministic, exact-evidence-bound semantic-gap inventory after SG-1 closure."""
@@ -3562,7 +3560,7 @@ if __name__ == "__main__":
 FILE_END #43 tools/r8_v15_r1_stage2_semantic_gap_inventory.py
 
 FILE_BEGIN #43 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
-FILE_BLOB_SHA1 f4dc367862e2b261798f7d28d9a44812077f4064
+FILE_BLOB_SHA1 f4607c75e75ad85ec16a94e5f43b045d921685ed
 FILE_RAW_SHA256 61cd6bb9d69b2e5a71cbd50379fb1df9d2064a2801a1206743b8686a10f6f2b3
 FILE_BYTES 3420
 """Negative tests for evidence-bound semantic-gap inventory generation."""
@@ -3914,7 +3912,7 @@ index 00000000..cbc38c4c
 
 PR #44 EMBEDDED FILE CONTENTS
 FILE_BEGIN #44 governance-r8/codex-work-queue/Q03-RUNTIME-TOCTOU-HARDENING.md
-FILE_BLOB_SHA1 da6582e91c6fe77bc6442659cbf0983831584dec
+FILE_BLOB_SHA1 9a20a97de535cbeaecd1b2df671efd7d04208b2a
 FILE_RAW_SHA256 3793f7a2f818dc4ed4c23d63dad4c254df8ab723873677f65939e9cbabbd4d08
 FILE_BYTES 2476
 # Q03 — Runtime filesystem TOCTOU hardening
@@ -3965,7 +3963,7 @@ Implement the narrow runtime-safe file-read primitive required to resolve this c
 FILE_END #44 governance-r8/codex-work-queue/Q03-RUNTIME-TOCTOU-HARDENING.md
 
 FILE_BEGIN #44 governance-runtime/r8_v15_r1_frozen_schema_runtime.py
-FILE_BLOB_SHA1 5bc8d699dc584943659c6e5bb05823710a20c562
+FILE_BLOB_SHA1 a9714e570f9a813d5d143f8258afa196333d38a0
 FILE_RAW_SHA256 b0e390206f96eea3387924b8d4edbb1a6bf78af0213d03a1a8d1d7a4b4e143d4
 FILE_BYTES 25329
 """R8 v15-r1 implementation Slice 1: frozen schema loader + GCP helpers.
@@ -4604,7 +4602,7 @@ def validate_rejection_vectors(gcp_document: Dict[str, Any]) -> Dict[str, str]:
 FILE_END #44 governance-runtime/r8_v15_r1_frozen_schema_runtime.py
 
 FILE_BEGIN #44 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
-FILE_BLOB_SHA1 b3626cea78d10df24ef7a4efef89b5b969b77298
+FILE_BLOB_SHA1 cbc38c4cddd02cb8702bb5005f67b858d836b5c2
 FILE_RAW_SHA256 708f180a3828fe6e33fdfe4cda924a99a57fc1d5f4ea220d394783465d2e2cfd
 FILE_BYTES 6884
 """Deterministic tests for the descriptor-based governed file read."""
@@ -5239,7 +5237,7 @@ index 00000000..62a50c94
 
 PR #46 EMBEDDED FILE CONTENTS
 FILE_BEGIN #46 governance-r8/R8-V15-R1-STAGE1-CHANGED-PATHS-ACCOUNTING.json
-FILE_BLOB_SHA1 edda61323e823246f66ca85b6dfd393ab8cdc14e
+FILE_BLOB_SHA1 1942e534d069d2c402b72e40f56c3f1c72d0572e
 FILE_RAW_SHA256 ef02bd6f2c978448d25151125c0fead266d346af56915303d3fe683718d38f7d
 FILE_BYTES 604
 {
@@ -5256,7 +5254,7 @@ FILE_BYTES 604
 FILE_END #46 governance-r8/R8-V15-R1-STAGE1-CHANGED-PATHS-ACCOUNTING.json
 
 FILE_BEGIN #46 governance-r8/codex-work-queue/Q05-EVIDENCE-INTEGRITY-LINEAGE.md
-FILE_BLOB_SHA1 461e94e61d1a8c84fec7c4bec229b2e707bccbc3
+FILE_BLOB_SHA1 582d2b972d8c474ed84181c3b02718b5d344033b
 FILE_RAW_SHA256 a020ed5126fe48b15fd40017696e35ce489c8ce0302c055c9297f0830fbb00b0
 FILE_BYTES 2411
 # Q05 — Evidence bundle integrity, lineage and closure tooling
@@ -5301,7 +5299,7 @@ Close recurring evidence-packaging weaknesses surfaced by SG-1 reviews and make 
 FILE_END #46 governance-r8/codex-work-queue/Q05-EVIDENCE-INTEGRITY-LINEAGE.md
 
 FILE_BEGIN #46 governance-runtime/r8_v15_r1_frozen_schema_runtime.py
-FILE_BLOB_SHA1 5bc8d699dc584943659c6e5bb05823710a20c562
+FILE_BLOB_SHA1 a9714e570f9a813d5d143f8258afa196333d38a0
 FILE_RAW_SHA256 b0e390206f96eea3387924b8d4edbb1a6bf78af0213d03a1a8d1d7a4b4e143d4
 FILE_BYTES 25329
 """R8 v15-r1 implementation Slice 1: frozen schema loader + GCP helpers.
@@ -5940,7 +5938,7 @@ def validate_rejection_vectors(gcp_document: Dict[str, Any]) -> Dict[str, str]:
 FILE_END #46 governance-runtime/r8_v15_r1_frozen_schema_runtime.py
 
 FILE_BEGIN #46 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
-FILE_BLOB_SHA1 db02097d95b194c320f1a1437717f33c14e616d5
+FILE_BLOB_SHA1 9b4c70f05d442b23bf30ba30171d6775e3089f26
 FILE_RAW_SHA256 6e096ebadc122e5089ab94eeeaac8f8d8b903bae52196c46c680687929dcbf39
 FILE_BYTES 5986
 """Deterministic tests for the descriptor-based governed file read."""
@@ -6061,7 +6059,7 @@ if __name__ == "__main__":
 FILE_END #46 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
 
 FILE_BEGIN #46 tools/r8_evidence_bundle_integrity.py
-FILE_BLOB_SHA1 fe3a14f1811d22889c36842ba37ab3241e888be3
+FILE_BLOB_SHA1 7aff1be4b617000c5db6b9e2fce94490b38eabd3
 FILE_RAW_SHA256 44aee1eed759420301368911ab3687313d6903c7e38ae8fad80a7ddddda123a0
 FILE_BYTES 5476
 """Reusable deterministic evidence-file and lineage verification helpers."""
@@ -6172,7 +6170,7 @@ def verify_bundle(
 FILE_END #46 tools/r8_evidence_bundle_integrity.py
 
 FILE_BEGIN #46 tools/test_r8_evidence_bundle_integrity.py
-FILE_BLOB_SHA1 ef369aaf465ad39729a7ccc0a3c641225e676f8c
+FILE_BLOB_SHA1 62a50c9426180be94144fc0dc1056fbc53642aa5
 FILE_RAW_SHA256 48b51bfb6aa496a3c3e866df48aa4b8afbfa49f381f31ed03485bb5e7f0aae85
 FILE_BYTES 7187
 from __future__ import annotations
@@ -53067,7 +53065,7 @@ index 00000000..9e710dcb
 
 PR #50 EMBEDDED FILE CONTENTS
 FILE_BEGIN #50 governance-r8/CODEX-WORK-QUEUE-51.json
-FILE_BLOB_SHA1 cf301c1221e9b2ab54d65af0172c56167f2e8ebc
+FILE_BLOB_SHA1 ced030f583ff6784a648ddd1436e41d42aae5924
 FILE_RAW_SHA256 3d5d3dbb3e1e7b16beef6bf47434ba558a891bdf619a35e5c9e61faff460833e
 FILE_BYTES 3869
 {
@@ -53090,7 +53088,7 @@ FILE_BYTES 3869
 FILE_END #50 governance-r8/CODEX-WORK-QUEUE-51.json
 
 FILE_BEGIN #50 governance-r8/ISSUE-52-CONSOLIDATED-QUEUE-REPORT.md
-FILE_BLOB_SHA1 ace37bce63ac962d3b78ffdccd2a030d0f4725c4
+FILE_BLOB_SHA1 9718e595e29785293d78d065ab9e9797b14a6551
 FILE_RAW_SHA256 5bf486c117cf17bae5170cd9b446ed837d9fad3a6b4a7fc0ae5c730796e138c5
 FILE_BYTES 1684
 # Issue #52 consolidated remediation queue report
@@ -53112,7 +53110,7 @@ No runnable remediation coding tasks remain. Human review, runtime capability, c
 FILE_END #50 governance-r8/ISSUE-52-CONSOLIDATED-QUEUE-REPORT.md
 
 FILE_BEGIN #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET-V2.txt
-FILE_BLOB_SHA1 f4ce850c058e9f7846052fcf4017a7914da06620
+FILE_BLOB_SHA1 98460899ae6105496ca040281540adc8dc95000d
 FILE_RAW_SHA256 2b74d3d830cb688e9dad9366dd5428cd0c47b8d3f13020c1137dc1d5c14fc772
 FILE_BYTES 270671
 R8 V15-R1 CONSOLIDATED REMEDIATION REVIEW PACKET V2
@@ -58694,7 +58692,7 @@ One row per PR with head, disposition, Critical/High/Medium/Low counts, code cha
 FILE_END #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET-V2.txt
 
 FILE_BEGIN #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET-V3.txt
-FILE_BLOB_SHA1 dcb883415c5dcfbb0ab3de5065760f95463a08dd
+FILE_BLOB_SHA1 0a41fe9708ed98b7cf17bee8e5bc014f4594854a
 FILE_RAW_SHA256 09d4a9a1f4d93e8d0f56614631d98c772b09feb34fddc4fdec17774688133940
 FILE_BYTES 271846
 R8 V15-R1 CONSOLIDATED REMEDIATION REVIEW PACKET V3
@@ -64282,7 +64280,7 @@ One row per PR with head, disposition, Critical/High/Medium/Low counts, code cha
 FILE_END #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET-V3.txt
 
 FILE_BEGIN #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET.md
-FILE_BLOB_SHA1 1d6d7c1a307c43419cd11c7e1f5e65b4076cf87d
+FILE_BLOB_SHA1 786f4fd5ec6f4ce764e017f9ad9a5d40b0315ccf
 FILE_RAW_SHA256 02f6d542f3c6fe3d40c480ec6567e3e664973efe238470308ffb087124ab0d63
 FILE_BYTES 4974
 # R8 v15-r1 Consolidated Remediation Queue — Fresh Independent Review Packet
@@ -64340,7 +64338,7 @@ Do not stop after the first finding. Enumerate **all Critical, High, Medium, and
 FILE_END #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET.md
 
 FILE_BEGIN #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-ROUND2-REVIEW-PACKET-V2.txt
-FILE_BLOB_SHA1 c0fd3d2e019d3a037edc231bc7744fcffca4208a
+FILE_BLOB_SHA1 4e43c5d98e2b8c1b228904a7b391af97db9d28b8
 FILE_RAW_SHA256 2ea0ac11b8f876590c2a96c01dd2c936fc4725b3bbc240ce2cda2117eeedb309
 FILE_BYTES 881596
 R8 V15-R1 CONSOLIDATED REMEDIATION ROUND 2 REVIEW PACKET
@@ -81940,7 +81938,7 @@ When producing sections A-J, treat this supplement as the latest evidence for Li
 FILE_END #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-ROUND2-REVIEW-PACKET-V2.txt
 
 FILE_BEGIN #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-ROUND2-REVIEW-PACKET.txt
-FILE_BLOB_SHA1 1d16976bb70e697146e6c46d6e0771d3502e7c8a
+FILE_BLOB_SHA1 762f57f7b234807c3b9343ad40f04db462e26233
 FILE_RAW_SHA256 70fad502f2c7f644c997c1360e91c66462fefc0f86266d9b15a41f63e4c9724c
 FILE_BYTES 878508
 R8 V15-R1 CONSOLIDATED REMEDIATION ROUND 2 REVIEW PACKET
@@ -99465,7 +99463,7 @@ J. FINAL_GATE_TABLE: one row per PR with exact head and finding counts; state br
 FILE_END #50 governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-ROUND2-REVIEW-PACKET.txt
 
 FILE_BEGIN #50 governance-r8/codex-work-queue/Q09-MANUAL-INTERVENTION-STATUS-LEDGER.md
-FILE_BLOB_SHA1 2cf37bccb735cc64813f665688f7994ecb8bd195
+FILE_BLOB_SHA1 4c5ef1d220ec94ec7b0d42bd6eb4218f8c82f683
 FILE_RAW_SHA256 d9bb9d0869765c9e75372f81139767250e89c44b1a65d3ea023cc8003cda9a5e
 FILE_BYTES 2318
 # Q09 — Manual-intervention ledger and uninterrupted work-queue tooling
@@ -99510,7 +99508,7 @@ Support the requested workflow: a blocked PR must not halt coding on the remaini
 FILE_END #50 governance-r8/codex-work-queue/Q09-MANUAL-INTERVENTION-STATUS-LEDGER.md
 
 FILE_BEGIN #50 tools/r8_work_queue.py
-FILE_BLOB_SHA1 1a2eaf9fb20fb053532f3cca0a9e580feb2a8e4a
+FILE_BLOB_SHA1 7e57ca07b5c7afbb8e8e651c2152597ae618f53d
 FILE_RAW_SHA256 78a5072d78e0078da8ba6ed4275ca3a23c7b3f45d85691a4f19a45051fd88580
 FILE_BYTES 4507
 """Machine-readable queue selector/report generator; human boundaries never stop other tasks."""
@@ -99576,7 +99574,7 @@ if __name__ == "__main__":
 FILE_END #50 tools/r8_work_queue.py
 
 FILE_BEGIN #50 tools/test_r8_work_queue.py
-FILE_BLOB_SHA1 8727d22280ff2b14244facc31cd9befc417ae4c9
+FILE_BLOB_SHA1 27c7efe1d32882050257bdc715c6596fb9b78e94
 FILE_RAW_SHA256 83a9c9bcafbe0a9ba7f68a94b762434cad16635899454256b50438a7b23f9cca
 FILE_BYTES 4326
 from __future__ import annotations
@@ -99648,7 +99646,7 @@ if __name__ == "__main__": unittest.main()
 FILE_END #50 tools/test_r8_work_queue.py
 
 FILE_BEGIN #50 tools/verify_r8_v15_r1_consolidated_remediation_packet_v2.py
-FILE_BLOB_SHA1 c359bcddcc7044c7e906c971d51332efbb82e121
+FILE_BLOB_SHA1 7ed04e3f7ed36eedfeb6e5809122f1badc8d948c
 FILE_RAW_SHA256 50c12ea4cfa0c49862d31b31c4c0f2910efdf79042b4edcfdbd368c493dc88ca
 FILE_BYTES 2977
 from __future__ import annotations
@@ -99680,7 +99678,7 @@ if __name__=="__main__": check()
 FILE_END #50 tools/verify_r8_v15_r1_consolidated_remediation_packet_v2.py
 
 FILE_BEGIN #50 tools/verify_r8_v15_r1_consolidated_remediation_packet_v3.py
-FILE_BLOB_SHA1 3f092cf27d8db680cd6e7451a7785f15b5bbb606
+FILE_BLOB_SHA1 32992771395a5db93cf90c1f531b7caff0e93a9d
 FILE_RAW_SHA256 26fb2c918fe33d4d63ed5e369c60660c80675ef476397c070a077720417ccf9a
 FILE_BYTES 5457
 from __future__ import annotations
@@ -99812,7 +99810,7 @@ if __name__ == "__main__":
 FILE_END #50 tools/verify_r8_v15_r1_consolidated_remediation_packet_v3.py
 
 FILE_BEGIN #50 tools/verify_r8_v15_r1_consolidated_remediation_round2_packet.py
-FILE_BLOB_SHA1 ac50c05a75ef1cae5a523abb59a123c04526d8a3
+FILE_BLOB_SHA1 9e710dcb8195c277f5030c5c7856403d5db6eaaf
 FILE_RAW_SHA256 a5f9b7f357d4cf0a89e271398f7599b5eede6cf16c92ba2ccf1ac9254187dc38
 FILE_BYTES 2638
 from __future__ import annotations
