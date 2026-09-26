@@ -18,26 +18,26 @@ class RuntimeFileReadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
             path = Path(td) / "x"
             path.write_bytes(b"stable")
-            self.assertEqual(runtime._read_verified_file(path), b"stable")
+            self.assertEqual(runtime.read_confined_file(Path(td), path), b"stable")
 
     @unittest.skipUnless(hasattr(os, "O_NOFOLLOW"), "platform has no O_NOFOLLOW")
     def test_directory_rejected_as_non_regular(self):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
             with self.assertRaises(runtime.FrozenSchemaError) as cm:
-                runtime._read_verified_file(Path(td))
+                runtime.read_confined_file(Path(td).parent, Path(td))
             self.assertEqual(cm.exception.code, "ARTIFACT_NOT_REGULAR")
 
     def test_no_follow_capability_is_required(self):
         original = getattr(os, "O_NOFOLLOW", None)
         if original is None:
             with self.assertRaises(runtime.FrozenSchemaError) as cm:
-                runtime._read_verified_file(Path("does-not-matter"))
+                runtime.read_confined_file(Path("."), Path("does-not-matter"))
             self.assertEqual(cm.exception.code, "NOFOLLOW_UNSUPPORTED")
             return
         try:
             delattr(os, "O_NOFOLLOW")
             with self.assertRaises(runtime.FrozenSchemaError) as cm:
-                runtime._read_verified_file(Path("does-not-matter"))
+                runtime.read_confined_file(Path("."), Path("does-not-matter"))
             self.assertEqual(cm.exception.code, "NOFOLLOW_UNSUPPORTED")
         finally:
             setattr(os, "O_NOFOLLOW", original)
@@ -56,7 +56,24 @@ class RuntimeFileReadTests(unittest.TestCase):
             except OSError:
                 self.skipTest("symlink creation unavailable")
             with self.assertRaises(runtime.FrozenSchemaError):
-                runtime._read_verified_file(link)
+                runtime.read_confined_file(root, link)
+
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
+    def test_parent_symlink_substitution_rejected(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td); safe = root / "safe"; safe.mkdir(); (safe / "x").write_bytes(b"ok")
+            outside = root / "outside"; outside.mkdir(); (outside / "x").write_bytes(b"bad")
+            link = root / "alias"
+            try: link.symlink_to(safe, target_is_directory=True)
+            except OSError: self.skipTest("symlink creation unavailable")
+            with self.assertRaises(runtime.FrozenSchemaError): runtime.read_confined_file(root, link / "x")
+
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
+    def test_non_regular_final_object_rejected(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td); (root / "subdir").mkdir()
+            with self.assertRaises(runtime.FrozenSchemaError) as cm: runtime.read_confined_file(root, root / "subdir")
+            self.assertEqual(cm.exception.code, "ARTIFACT_NOT_REGULAR")
 
 
 if __name__ == "__main__":
