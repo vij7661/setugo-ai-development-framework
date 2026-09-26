@@ -39,144 +39,95 @@ jobs:
           test -z "$(git -C "$ROOT" status --porcelain=v1)"
           echo "Q15_ROOT=$ROOT" >> "$GITHUB_ENV"
 
-      - name: Permanent invariant gate
+      - name: Run complete Q15 matrix without stopping at first failure
         shell: bash
         run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+          set -uo pipefail
+          failures=()
 
-      - name: Legacy A-H review parser
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/test_r8_v15_r1_review_contract_parser.py
+          run_case() {
+            label="$1"
+            shift
+            echo "===== BEGIN $label ====="
+            if "$@"; then
+              echo "Q15_CASE_PASS::$label"
+            else
+              rc=$?
+              echo "Q15_CASE_FAIL::$label::exit=$rc"
+              failures+=("$label")
+            fi
+            echo "===== END $label ====="
+          }
 
-      - name: Independent A-J review parser
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/test_r8_v15_r1_independent_review_parser.py
+          run_in_root() {
+            python_file="$1"
+            (cd "$Q15_ROOT" && python3 "$python_file")
+          }
 
-      - name: Exact review preflight
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+          run_unittest() {
+            test_file="$1"
+            (cd "$Q15_ROOT/governance-runtime" && python3 -m unittest -v "$test_file")
+          }
 
-      - name: Activation parser validation
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+          run_case "permanent_invariant_gate" run_in_root tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+          run_case "legacy_AH_parser" run_in_root tools/test_r8_v15_r1_review_contract_parser.py
+          run_case "independent_AJ_parser" run_in_root tools/test_r8_v15_r1_independent_review_parser.py
+          run_case "review_preflight" run_in_root tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+          run_case "activation_parser" run_in_root tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+          run_case "semantic_inventory" run_in_root tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+          run_case "runtime_toctou" run_in_root governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+          run_case "evidence_integrity" run_in_root tools/test_r8_evidence_bundle_integrity.py
+          run_case "queue" run_in_root tools/test_r8_work_queue.py
+          run_case "provider_api_contract" run_in_root governance-runtime/test_provider_api_request_contract.py
+          run_case "reviewer_delivery" run_in_root governance-runtime/test_reviewer_evidence_delivery.py
+          run_case "platform_materialization_v2" run_unittest test_platform_candidate_review_v2_materialization.py
+          run_case "platform_request_integrity" run_unittest test_platform_candidate_review_request_integrity.py
+          run_case "platform_delivery_integration" run_unittest test_platform_candidate_review_delivery_integration.py
+          run_case "freeze_attestation" run_unittest test_freeze_attestation.py
+          run_case "q15_merge_gate" run_unittest test_q15_review_merge_gate.py
 
-      - name: Semantic inventory tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+          echo "===== BEGIN compileall ====="
+          if (cd "$Q15_ROOT" && python3 -m compileall -q governance-runtime tools); then
+            echo "Q15_CASE_PASS::compileall"
+          else
+            rc=$?
+            echo "Q15_CASE_FAIL::compileall::exit=$rc"
+            failures+=("compileall")
+          fi
+          echo "===== END compileall ====="
 
-      - name: Runtime descriptor-safe TOCTOU tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+          echo "===== BEGIN stage1_before ====="
+          if (cd "$Q15_ROOT" && python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before"); then
+            echo "Q15_CASE_PASS::stage1_before"
+          else
+            rc=$?
+            echo "Q15_CASE_FAIL::stage1_before::exit=$rc"
+            failures+=("stage1_before")
+          fi
+          echo "===== END stage1_before ====="
 
-      - name: Evidence integrity tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/test_r8_evidence_bundle_integrity.py
+          echo "===== BEGIN stage1_after ====="
+          if (cd "$Q15_ROOT" && python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after"); then
+            echo "Q15_CASE_PASS::stage1_after"
+          else
+            rc=$?
+            echo "Q15_CASE_FAIL::stage1_after::exit=$rc"
+            failures+=("stage1_after")
+          fi
+          echo "===== END stage1_after ====="
 
-      - name: Queue tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/test_r8_work_queue.py
+          echo "===== BEGIN final_identity ====="
+          if test "$(git -C "$Q15_ROOT" rev-parse HEAD)" = "$Q15_CANDIDATE_SHA"              && test "$(git -C "$Q15_ROOT" rev-parse HEAD^{tree})" = "$Q15_CANDIDATE_TREE"              && test -z "$(git -C "$Q15_ROOT" status --porcelain=v1)"; then
+            echo "Q15_CASE_PASS::final_identity"
+          else
+            echo "Q15_CASE_FAIL::final_identity"
+            failures+=("final_identity")
+          fi
+          echo "===== END final_identity ====="
 
-      - name: Provider API request preservation tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 governance-runtime/test_provider_api_request_contract.py
-
-      - name: Reviewer evidence delivery tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 governance-runtime/test_reviewer_evidence_delivery.py
-
-      - name: Platform review materialization v2 tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT/governance-runtime"
-          python3 -m unittest -v test_platform_candidate_review_v2_materialization.py
-
-      - name: Platform review request integrity tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT/governance-runtime"
-          python3 -m unittest -v test_platform_candidate_review_request_integrity.py
-
-      - name: Platform reviewer delivery integration tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT/governance-runtime"
-          python3 -m unittest -v test_platform_candidate_review_delivery_integration.py
-
-      - name: External freeze attestation tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT/governance-runtime"
-          python3 -m unittest -v test_freeze_attestation.py
-
-      - name: Q15 review merge gate tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT/governance-runtime"
-          python3 -m unittest -v test_q15_review_merge_gate.py
-
-      - name: Python compile check
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 -m compileall -q governance-runtime tools
-
-      - name: Stage1 exact-candidate guard before
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before"
-
-      - name: Stage1 exact-candidate guard after
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd "$Q15_ROOT"
-          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after"
-
-      - name: Final exact identity and clean worktree
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$(git -C "$Q15_ROOT" rev-parse HEAD)" = "$Q15_CANDIDATE_SHA"
-          test "$(git -C "$Q15_ROOT" rev-parse HEAD^{tree})" = "$Q15_CANDIDATE_TREE"
-          test -z "$(git -C "$Q15_ROOT" status --porcelain=v1)"
+          echo "Q15_MATRIX_FAILURE_COUNT=${#failures[@]}"
+          if ((${#failures[@]})); then
+            printf 'Q15_MATRIX_FAILURE::%s\n' "${failures[@]}"
+            exit 1
+          fi
           echo "Q15_LINUX_VALIDATION_PASS"
