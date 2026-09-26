@@ -1,46 +1,15 @@
 """Offline deterministic validation of the SG-1 activation review parser contract."""
 from __future__ import annotations
 
-import re
 import argparse
 from pathlib import Path
+from r8_v15_r1_review_contract_parser import clean_none_section, parse_review_contract
 
 
 WORKFLOW = Path(".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml")
 REVIEW_002 = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")
 REVIEW_003 = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt")
-
-
-def clean_none_section(text: str) -> bool:
-    return re.fullmatch(r"(?i:none\.?)", text.strip()) is not None
-
-
-def parse_review_contract(text: str) -> dict:
-    headings=list(re.finditer(r"(?m)^([A-H])\.\s+[^\r\n]*$", text))
-    if len(headings) != 8 or [m.group(1) for m in headings] != list("ABCDEFGH"):
-        raise ValueError("review must contain exactly one ordered A-H section")
-    sections={}
-    for index, match in enumerate(headings):
-        end=headings[index+1].start() if index+1 < len(headings) else len(text)
-        sections[match.group(1)]=text[match.end():end].strip()
-    if sections["A"] != "BOUNDED_PASS":
-        raise ValueError("disposition")
-    if not clean_none_section(sections["C"]):
-        raise ValueError("critical")
-    if not clean_none_section(sections["D"]):
-        raise ValueError("high")
-    if len(re.findall(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*YES\.?\s*$", sections["H"])) != 1:
-        raise ValueError("activation")
-    if re.search(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*NO\.?\s*$", text):
-        raise ValueError("contradictory activation")
-    if len(re.findall(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*NO\.?\s*$", sections["H"])) != 1:
-        raise ValueError("authority")
-    if re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
-        raise ValueError("broader authority")
-    outside_cd=text[:headings[2].start()] + text[headings[4].start():]
-    if re.search(r"(?mi)^\s*(?:-\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*:", outside_cd):
-        raise ValueError("finding outside section")
-    return sections
+REVIEW_004 = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt")
 
 
 def review(disposition="BOUNDED_PASS", c="NONE.", d="NONE.", h_extra=""):
@@ -52,9 +21,8 @@ def main() -> None:
     parser.add_argument("--review", type=Path)
     args=parser.parse_args()
     source = WORKFLOW.read_text(encoding="utf-8")
-    assert 'EXPECTED_REVIEW_PATH="governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt"' in source
-    assert 're.fullmatch(r"(?i:none\\.?)", text.strip())' in source
-    assert "review must contain exactly one ordered A-H section" in source
+    assert 'from r8_v15_r1_review_contract_parser import parse_review_contract' in source
+    assert Path("tools/r8_v15_r1_review_contract_parser.py").exists()
 
     accepted = ["None", "None.", "NONE", "NONE.", "nOnE", "nOnE."]
     rejected = ["NONE..", "NO FINDINGS", "0", "PASS", "", "None. extra"]
@@ -68,8 +36,10 @@ def main() -> None:
     parse_review_contract(punctuated_document)
     parse_review_contract(REVIEW_002.read_text(encoding="utf-8"))
     parse_review_contract(REVIEW_003.read_text(encoding="utf-8"))
+    parse_review_contract(REVIEW_004.read_text(encoding="utf-8"))
     bullet_document = accepted_document.replace("Stage2 SG-1 may be explicitly activated by user: YES", "- Stage2 SG-1 may be explicitly activated by user: YES.").replace("Broader Stage2 semantic authority granted: NO", "- Broader Stage2 semantic authority granted: NO.")
     parse_review_contract(bullet_document)
+    parse_review_contract(review(h_extra="The parser rejects CRITICAL: labels only at structured line starts."))
     if args.review:
         parse_review_contract(args.review.read_text(encoding="utf-8"))
     rejected_documents = [
@@ -84,6 +54,11 @@ def main() -> None:
         review(h_extra="- Stage2 SG-1 may be explicitly activated by user: NO."),
         review(h_extra="- Broader Stage2 semantic authority granted: YES."),
         review(h_extra="- HIGH FINDING: hidden high issue"),
+        review(h_extra="CRITICAL:hidden"),
+        review(h_extra="HIGH:hidden"),
+        review(h_extra="CRITICAL FINDING:hidden"),
+        review(h_extra="HIGH FINDING  hidden"),
+        review(h_extra="- CRITICAL FINDING:hidden"),
         accepted_document.replace("A. OVERALL_DISPOSITION", "A. OVERALL_DISPOSITION\nA. OVERALL_DISPOSITION", 1),
         accepted_document.replace("H. FINAL_GATE", "H. FINAL_GATE\nH. FINAL_GATE", 1),
         accepted_document.replace("activated by user: YES", "activated by user: YES..", 1),

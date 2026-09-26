@@ -1,0 +1,61 @@
+name: R8 v15-r1 Post-SG1 Single Candidate Invariant Gate
+
+on:
+  push:
+    branches:
+      - integration/r8-v15-r1-post-sg1-convergence-2026-09-26
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  invariant-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact candidate invariants
+        run: python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+      - name: Review parser adversarial tests
+        run: python3 tools/test_r8_v15_r1_review_contract_parser.py
+      - name: Review preflight exact-artifact tests
+        run: python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+      - name: Semantic inventory tests
+        run: python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+      - name: Runtime safe-read tests
+        run: python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+      - name: Evidence integrity tests
+        run: python3 tools/test_r8_evidence_bundle_integrity.py
+      - name: Queue tests
+        run: python3 tools/test_r8_work_queue.py
+      - name: Syntax-check changed Python without writing bytecode
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          files = [
+              "tools/r8_v15_r1_review_contract_parser.py",
+              "tools/preflight_r8_v15_r1_stage2_sg1_review.py",
+              "tools/r8_v15_r1_stage2_semantic_gap_inventory.py",
+              "tools/r8_evidence_bundle_integrity.py",
+              "tools/r8_work_queue.py",
+              "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+          ]
+          for name in files:
+              ast.parse(Path(name).read_text(encoding="utf-8"), filename=name)
+          print(f"AST_SYNTAX_PASS files={len(files)}")
+          PY
+      - name: Verify worktree clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain=v1)"
