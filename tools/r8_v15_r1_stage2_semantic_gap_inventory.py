@@ -41,9 +41,23 @@ def selected_files(allow: dict | None = None) -> list[str]:
 def target_for_module(module: str) -> str | None:
     dotted = module.replace(".", "/")
     for candidate in (f"governance-runtime/{dotted}.py", f"governance-runtime/{dotted}/__init__.py"):
-        if subprocess.run(["git", "cat-file", "-e", f"{CANDIDATE}:{candidate}"], cwd=ROOT).returncode == 0:
+        if subprocess.run(["git", "cat-file", "-e", f"{CANDIDATE}:{candidate}"], cwd=ROOT, stderr=subprocess.DEVNULL).returncode == 0:
             return candidate
     return None
+
+def importfrom_targets(module: str, names: list[str]) -> list[tuple[str, list[str]]]:
+    """Resolve actual dotted submodules without treating symbols as modules."""
+    resolved = []
+    remaining = []
+    for name in names:
+        dotted = f"{module}.{name}"
+        if target_for_module(dotted):
+            resolved.append((dotted, [name]))
+        else:
+            remaining.append(name)
+    if remaining and target_for_module(module):
+        resolved.append((module, remaining))
+    return resolved
 
 def edge_key(edge: dict) -> tuple:
     return (edge.get("from_path"), edge.get("source_blob"), edge.get("import_kind", edge.get("kind")), edge.get("import_module", edge.get("module")), tuple(edge.get("imported_names", edge.get("names", []))), edge.get("lineno", edge.get("line")), edge.get("target_path"), edge.get("target_blob"))
@@ -58,7 +72,10 @@ def discover_edges(files: list[str]) -> list[dict]:
                 aliases = [(alias.name, []) for alias in node.names]
                 kind = "import"
             elif isinstance(node, ast.ImportFrom):
-                aliases = [((node.module or ""), [a.name for a in node.names])]
+                module = node.module or ""
+                if not module.startswith("r8_v15_r1_"):
+                    continue
+                aliases = importfrom_targets(module, [a.name for a in node.names])
                 kind = "from"
             else:
                 continue
@@ -107,7 +124,7 @@ def verify_inventory(path: Path) -> bool:
     if declared != hashlib.sha256(raw).hexdigest():
         return False
     expected = scan()
-    return data.get("direct_edges") == expected["direct_edges"] and data.get("selected_files") == expected["selected_files"]
+    return data == expected
 
 def verify_inventory_digest(path: Path) -> bool:
     return verify_inventory(path)

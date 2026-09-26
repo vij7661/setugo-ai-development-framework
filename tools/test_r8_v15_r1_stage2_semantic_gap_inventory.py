@@ -25,6 +25,7 @@ def main():
     assert len({inv.edge_key(edge) for edge in result["direct_edges"]}) == len(result["direct_edges"])
     assert all(edge["source_blob"] and edge["target_blob"] for edge in result["direct_edges"])
     assert inv.target_for_module("r8_v15_r1_frozen_schema_runtime") == "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    assert inv.importfrom_targets("r8_v15_r1_frozen_schema_runtime", ["GCPError", "missing_symbol"]) == [("r8_v15_r1_frozen_schema_runtime", ["GCPError", "missing_symbol"])]
     missing = json.loads(json.dumps(result))
     missing["direct_edges"] = missing["direct_edges"][1:]
     assert len(missing["direct_edges"]) != len(result["direct_edges"])
@@ -37,6 +38,13 @@ def main():
     tampered["direct_edges"][0]["source_blob"] = "0" * 40
     p.write_text(json.dumps(tampered, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     assert not inv.verify_inventory_digest(p)
+    for field, value in (("items", []), ("candidate", {"commit": "0" * 40}), ("evidence_inputs", {}), ("unresolved_semantic_dependencies", [{"fake": True}]), ("authority_effect", "RUNTIME_QUALIFIED"), ("proposed_next_gates", ["SG2"])):
+        tampered = json.loads(p.read_text(encoding="utf-8")) if p.exists() else json.loads(json.dumps(written))
+        tampered = json.loads(json.dumps(written)); tampered[field] = value
+        payload = dict(tampered); payload.pop("inventory_sha256", None)
+        tampered["inventory_sha256"] = __import__("hashlib").sha256((json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()).hexdigest()
+        p.write_text(json.dumps(tampered, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        assert not inv.verify_inventory_digest(p), field
     p.unlink()
     print(f"R8_SEMANTIC_GAP_INVENTORY_TESTS_PASS edges={len(result['direct_edges'])}")
 
