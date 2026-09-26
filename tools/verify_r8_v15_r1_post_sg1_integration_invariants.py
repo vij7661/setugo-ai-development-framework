@@ -125,22 +125,24 @@ def main():
     data.pop("inventory_sha256", None)
     raw = (json.dumps(data, indent=2, sort_keys=True) + "\n").encode()
     tampered["inventory_sha256"] = hashlib.sha256(raw).hexdigest()
-    p = ROOT/"stage2-sg1-evidence/_invariant-gate-inventory.json"
-    p.write_text(json.dumps(tampered, indent=2, sort_keys=True)+"\n")
-    assert inv.verify_inventory(p) is False
-    p.unlink()
+    with tempfile.TemporaryDirectory(prefix="r8-invariant-inventory-") as td:
+        p = Path(td) / "inventory.json"
+        p.write_text(json.dumps(tampered, indent=2, sort_keys=True)+"\n", encoding="utf-8")
+        assert inv.verify_inventory(p) is False
 
     # Evidence verifier must be strict: missing independent expected identities must fail.
     import r8_evidence_bundle_integrity as ev
-    root = ROOT/"stage2-sg1-evidence"; fixture = root/"_invariant-gate-file"; fixture.write_text("ok", encoding="utf-8")
-    for alias in (root / "a" / ".." / "_invariant-gate-file", root / "." / "_invariant-gate-file"):
-        try:
-            ev.file_digest(root, alias)
-        except (ValueError, RuntimeError):
-            pass
-        else:
-            raise AssertionError("direct traversal alias was accepted")
-    fixture.unlink()
+    with tempfile.TemporaryDirectory(prefix="r8-invariant-evidence-") as td:
+        root = Path(td)
+        fixture = root / "_invariant-gate-file"
+        fixture.write_text("ok", encoding="utf-8")
+        for alias in (root / "a" / ".." / "_invariant-gate-file", root / "." / "_invariant-gate-file"):
+            try:
+                ev.file_digest(root, alias)
+            except (ValueError, RuntimeError):
+                pass
+            else:
+                raise AssertionError("direct traversal alias was accepted")
     sig = __import__("inspect").signature(ev.verify_bundle)
     required_expected = {
         "expected_run_id","expected_job_id","expected_workflow","expected_head",
