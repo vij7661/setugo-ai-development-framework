@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 import unicodedata
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Tuple
@@ -63,7 +65,39 @@ def _sha256_bytes(data: bytes) -> str:
 
 
 def _sha256_file(path: Path) -> str:
-    return _sha256_bytes(path.read_bytes())
+    return _sha256_bytes(_read_verified_file(path))
+
+
+def _read_verified_file(path: Path) -> bytes:
+    """Read one regular object through one descriptor, never by pathname twice.
+
+    The governed runtime requires kernel no-follow support for its adversarial
+    namespace model. Platforms without O_NOFOLLOW fail closed rather than
+    silently weakening the guarantee.
+    """
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise FrozenSchemaError("NOFOLLOW_UNSUPPORTED", str(path))
+    flags = os.O_RDONLY | nofollow
+    try:
+        fd = os.open(path, flags)
+    except OSError as exc:
+        raise FrozenSchemaError("ARTIFACT_OPEN_FAILED", f"{path}: {exc}") from exc
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode):
+            raise FrozenSchemaError("ARTIFACT_NOT_REGULAR", str(path))
+        chunks = []
+        while True:
+            chunk = os.read(fd, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        return b"".join(chunks)
+    except OSError as exc:
+        raise FrozenSchemaError("ARTIFACT_READ_FAILED", f"{path}: {exc}") from exc
+    finally:
+        os.close(fd)
 
 
 def _required_file(path: Path) -> None:
@@ -257,7 +291,7 @@ class FrozenSchemaRuntime:
         def read_once(path: Path) -> bytes:
             key = path.resolve()
             if key not in byte_cache:
-                byte_cache[key] = path.read_bytes()
+                byte_cache[key] = _read_verified_file(path)
             return byte_cache[key]
 
         spm_path = required["spm"]
