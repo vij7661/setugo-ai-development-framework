@@ -49,6 +49,8 @@ def main():
     assert all(v is False for v in manifest["grants"].values())
     assert manifest["fallback_to_3"] == "ACTIVE"
     assert manifest["six_slice_cadence_restored"] is False
+    assert manifest["expected_changed_file_count"] == 29
+    assert len(changed) == manifest["expected_changed_file_count"], (len(changed), manifest["expected_changed_file_count"])
     assert manifest["semantic_gap_inventory"]["classification"] == "HISTORICAL_STAGE1_BOUND_EVIDENCE"
     assert manifest["semantic_gap_inventory"]["candidate_commit"] == "4984f06a4420b76ad1ad475751aebda04a2d2c5c"
     assert manifest["semantic_gap_inventory"]["base_commit"] == "751162ee42c603cb6c84ee12021d16bab6fa626b"
@@ -77,8 +79,57 @@ def main():
         "- CRITICAL hidden",
         "* HIGH FINDING hidden",
     ]
-    for marker in structured:
+    for marker in structured + [
+        "CRITICAL_FINDING: hidden",
+        "HIGH_FINDING: hidden",
+        "1. CRITICAL: hidden",
+        "1) HIGH hidden",
+        "• HIGH: hidden",
+        "[ ] CRITICAL hidden",
+        "> HIGH hidden",
+        "*** CRITICAL hidden",
+        "CRITICAL:\nhidden",
+        "HIGH:\nhidden",
+    ]:
         expect_reject(rp.parse_review_contract, review_doc(marker))
+
+    # Non-C/D heading lines cannot smuggle findings.
+    base_doc = review_doc()
+    for original, injected in (
+        ("A. OVERALL_DISPOSITION", "A. OVERALL_DISPOSITION CRITICAL: hidden"),
+        ("B. IDENTITY", "B. IDENTITY HIGH: hidden"),
+        ("E. MEDIUM_LOW_FINDINGS", "E. MEDIUM_LOW_FINDINGS CRITICAL: hidden"),
+        ("F. ASSESSMENT", "F. ASSESSMENT HIGH: hidden"),
+        ("G. BOUNDARY", "G. BOUNDARY CRITICAL: hidden"),
+        ("H. FINAL_GATE", "H. FINAL_GATE HIGH: hidden"),
+    ):
+        expect_reject(rp.parse_review_contract, base_doc.replace(original, injected, 1))
+
+    # Controlled declarations cannot be hidden in headings or prose.
+    for malformed in (
+        base_doc.replace(
+            "H. FINAL_GATE",
+            "H. FINAL_GATE Stage2 SG-1 may be explicitly activated by user: NO",
+            1,
+        ),
+        base_doc.replace(
+            "H. FINAL_GATE",
+            "H. FINAL_GATE Broader Stage2 semantic authority granted: YES",
+            1,
+        ),
+        base_doc.replace(
+            "E. MEDIUM_LOW_FINDINGS\nNone.",
+            "E. MEDIUM_LOW_FINDINGS\nNote: Stage2 SG-1 may be explicitly activated by user: NO",
+            1,
+        ),
+        base_doc.replace(
+            "E. MEDIUM_LOW_FINDINGS\nNone.",
+            "E. MEDIUM_LOW_FINDINGS\nHowever, Broader Stage2 semantic authority granted: YES",
+            1,
+        ),
+    ):
+        expect_reject(rp.parse_review_contract, malformed)
+
     # Ordinary inline prose is not a machine-readable finding declaration.
     rp.parse_review_contract(review_doc("The parser rejects CRITICAL: labels in structured line-start form."))
 
@@ -112,7 +163,9 @@ def main():
             block = text[s:text.find("\n\n", s) if text.find("\n\n", s) != -1 else len(text)]
             assert "--expected-sha256" in block and "--expected-blob" in block, (wf, block)
         validator_lines = [line for line in text.splitlines() if "python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py" in line]
-        assert validator_lines and all("--expected-sha256" not in line and "--expected-blob" not in line for line in validator_lines)
+        assert validator_lines
+        assert all("--expected-sha256" not in line and "--expected-blob" not in line for line in validator_lines)
+        assert all("--review " in line for line in validator_lines), (wf, validator_lines)
 
     # Semantic inventory must verify the complete canonical scan, not self-hash/subsets.
     import r8_v15_r1_stage2_semantic_gap_inventory as inv
@@ -157,6 +210,27 @@ def main():
     import r8_work_queue as wq
     q = wq.load()
     assert all(v is False for v in q["authority"].values())
+    manifest_ids = {task["id"] for task in q["tasks"]}
+    task_ids = {
+        p.name.split("-", 1)[0]
+        for p in (ROOT/"governance-r8/codex-work-queue").glob("Q[0-9][0-9]-*.md")
+    }
+    assert task_ids - manifest_ids == set(), (task_ids - manifest_ids)
+
+    # Direct governed runtime lexical parent traversal must fail closed.
+    runtime = load_module(
+        "r8_v15_r1_frozen_schema_runtime_invariant",
+        ROOT/"governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+    )
+    with tempfile.TemporaryDirectory(prefix="r8-runtime-parent-alias-") as td:
+        root = Path(td)
+        (root/"file").write_bytes(b"ok")
+        try:
+            runtime.read_confined_file(root, root/"nested"/".."/"file")
+        except runtime.FrozenSchemaError as exc:
+            assert exc.code == "ARTIFACT_PATH_INVALID"
+        else:
+            raise AssertionError("runtime lexical parent traversal alias was accepted")
     gate_text = (ROOT/".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml").read_text(encoding="utf-8")
     assert 'read_text(encoding="utf-8")' in gate_text
     assert "root_abs = root_dir.absolute()" in (ROOT/"governance-runtime/r8_v15_r1_frozen_schema_runtime.py").read_text(encoding="utf-8")
