@@ -1,0 +1,75 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_REMEDIATION_IDENTITY
+- proposal ID: R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001
+- proposal commit: 67c84138140e86ba4a85a954f368f4c0f7e9ef3c
+- proposal blob: d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b
+- candidate: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+- candidate tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+- candidate parent: 751162ee42c603cb6c84ee12021d16bab6fa626b
+- failed activation attempt 001 run/job: 36190374209 / 108253787018
+- failed activation attempt 002 run/job: 36223537668 / 108353145716
+- failed activation attempt 002 skipped core job: 108353161400
+- Review 003 blob: 378ffe70e131b6c63e95f4142596ae091ba37ebe
+- prior gate blob reviewed by Review 003: 9adc02a0f29a8dd7b3e88c51decc8dd066c3e577
+- current repaired activation-gate blob: 5d75c4b5c85fec075812c819c979e7048df8cd7f
+- current remediation bundle commit: 31786cb97b7422c0e187a2f97caa5f3ff6d8c881
+- current activation-gate binding blob: 88d76f7f5592a777177c9006a474824a1064c348
+- current manifest blob: 0d25a2d3851673f1b2943a8b4bfdf9b11dfabd99
+- expected fresh Review 004 path: governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt
+- unchanged semantic machinery:
+  - harness: 15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad
+  - comparator: 097464a6b99bc79117501f7700d012ebeddd8675
+  - reusable core: 93ea0cccfdb1392ef38ee41dd053512372de0c87
+  - Stage1 verifier: dc8b76d6710dee27af4a3502b157853959d34ba7
+  - semantic surface: 94e3275edbb32baca640966830352f5e6c9f4ada
+  - preflight: 963b3e29ce2cdb2621d83e4e9f3f657a45222ad6
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+NONE.
+
+E. MEDIUM_LOW_FINDINGS
+Medium: NONE.
+
+Low findings:
+- Low: The activation gate does not directly read or bind the activation-gate binding JSON blob 88d76f7f5592a777177c9006a474824a1064c348 or the manifest blob 0d25a2d3851673f1b2943a8b4bfdf9b11dfabd99. It binds proposal, review, machinery, evidence, explicit approval, and current gate blob; the binding/manifest remain informational/consistency-checked.
+- Low: The hidden Critical/High guard catches line-start optional list markers and CRITICAL/HIGH plus optional FINDING followed by colon. It still does not catch every possible phrasing without a colon, such as HIGH FINDING without colon. Clean C/D full-match and exact review/approval blob binding mitigate this.
+- Low: The parser accepts case-insensitive YES/NO and some whitespace flexibility broader than exact uppercase single-line declaration text. Contradictory-declaration checks and clean C/D checks still enforce the relevant boundaries.
+- Low: The parser does not fully validate B-section proposal identity content beyond requiring the exact proposal ID and commit to appear somewhere in the review. It does not require the review text to contain proposal blob, candidate/tree/parent, prior gate blob, current gate blob, Review 002/003 blobs, remediation bundle commit, or machinery blobs. Activation JSON, review blob binding, and explicit user approval mitigate this.
+- Low: The gate requires the fresh Review 004 path and a new approval binding the Review 004 blob, but it does not compare the Review 004 blob against the Review 003 blob to prove distinct freshness, and it does not require the review text to mention Review 004. A copied stale review at the Review 004 path could parse if separately approved; independent review and explicit user approval are the controls.
+- Low: The parser regression validator duplicates parser logic rather than importing/evaluating the workflow parser directly. It asserts selected strings and parses the preserved Review 002 and Review 003, but future drift between validator and gate parser remains possible. Current packet copies match.
+- Low: The SG-1 harness audit hook blocks string-mode file writes but may not block every possible write path such as os.open with integer flags. No practical escape path was demonstrated for the reviewed modules.
+- Low: The SG-1 harness does not independently re-scan all 39 selected implementation files for omitted direct R8 dependency edges. It relies on the bound dependency surface, Stage1 scan, preflight, and reviewed evidence.
+- Low: The SG-1 harness does not independently assert the effect-intent edge count or unique target path set from the edges list. It relies on the bound surface and preflight evidence.
+
+F. REMEDIATION_ASSESSMENT
+F1 failed-attempt preservation and no semantic execution: PASS. Attempt 001 is preserved with evidence blob 241809c0965541f65e3a81c12d3f475719beb011, run/job 36190374209 / 108253787018, exact failure “review broader authority declaration is not exactly one NO”, FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION, semantic_execution_performed false, reusable_core_reached false. Attempt 002 is preserved with evidence blob 777763a679f0dfd4fd1c3d7e472a5e6ea373dbbf, run/job 36223537668 / 108353145716, run SG-1 job 108353161400 skipped, exact failure “review activation declaration is not exactly one YES”, FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION, semantic_execution_performed false, reusable_core_reached false. Neither reached SG-1 semantic execution.
+
+F2 narrow list-marker parser delta: PASS. The repaired gate blob 5d75c4b5c85fec075812c819c979e7048df8cd7f expects Review 004, triggers on the parser-remediation2 successor branch, accepts optional leading whitespace and one optional “- ” list marker plus one optional trailing period for the two H declarations, and expands the hidden Critical/High line guard to catch optional list markers and CRITICAL FINDING / HIGH FINDING forms. It still calls the same reusable SG-1 core and does not alter semantic machinery.
+
+F3 exact Review 002 + Review 003 regression: PASS. The parser regression validator references the preserved Review 002 and Review 003 paths and calls parse_review_contract on their exact text without editing either review. Review 002 parses with no list marker and an optional broader NO period; Review 003 parses with “- ” list markers and trailing periods.
+
+F4 duplicate/reordered/contradictory/hidden-finding rejection: PASS. The parser requires exactly one ordered A-H document, clean C/D sections, exactly one activation YES declaration in H, exactly one broader Stage2 NO declaration in H, rejects contradictory activation NO or broader Stage2 YES anywhere, and rejects hidden CRITICAL/HIGH and CRITICAL FINDING / HIGH FINDING forms outside C/D. The regression validator covers duplicate sections, reordered sections, malformed periods, hidden finding lines, and contradictory H declarations.
+
+F5 unchanged proposal/candidate/semantic machinery: PASS. Proposal commit/blob, candidate/tree/parent, semantic harness, comparator, reusable core, Stage1 verifier, semantic surface, and preflight blobs match the previously reviewed identities and remain unchanged.
+
+F6 stale prior approvals cannot authorize new gate: PASS. Prior explicit approvals bound older gate blobs and older review artifacts. The repaired gate compares approved_activation_gate_blob against the current HEAD gate blob 5d75c4b5c85fec075812c819c979e7048df8cd7f and requires approved_review_blob to match the fresh Review 004 blob, so old approvals cannot authorize the new gate.
+
+F7 Review 004 + new explicit approval requirement: PASS. The gate expects governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt and requires explicit_user_approval fields binding the proposal commit/blob, the fresh Review 004 blob, and the current activation-gate blob. The manifest and activation-gate binding state that fresh Review 004 and new explicit user approval are required.
+
+F8 authority/cadence/post-execution-review boundary: PASS. This remediation grants no authority, SG-1 remains inactive, broader Stage2 remains unauthorized, fallback-to-3 remains ACTIVE, six-slice cadence remains not restored, and any future SG-1 execution still requires fresh independent post-execution review before SG-1 closure or any later Stage2 gate.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+This remediation grants no authority. SG-1 remains inactive. Broader Stage2 remains unauthorized. Fallback-to-3 remains ACTIVE. Six-slice cadence remains NOT restored. Runtime/release/deployment/production/policy/constitutional/root/terminal authority remains NO. A future successful SG-1 execution would still require fresh independent post-execution review before SG-1 closure or any later Stage2 gate.
+
+H. FINAL_GATE
+- Stage2 SG-1 may be explicitly activated by user: YES.
+- If YES, activation is NOT automatic and a NEW explicit user approval must bind proposal commit 67c84138140e86ba4a85a954f368f4c0f7e9ef3c, proposal blob d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b, fresh Review-004 blob, and current activation-gate blob 5d75c4b5c85fec075812c819c979e7048df8cd7f.
+- SG-1 execution authority if later activated: LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
+- Broader Stage2 semantic authority granted: NO.
+- Automatic six-slice cadence restoration: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
