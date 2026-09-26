@@ -23,6 +23,8 @@ jobs:
         run: |
           python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py \
             --review governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt
+          python3 tools/preflight_r8_v15_r1_stage2_sg1_review.py \
+            --review governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt
 
       - name: Build focused Review 003 remediation packet
         run: python3 tools/build_r8_v15_r1_stage2_sg1_review003_parser_remediation_packet.py
