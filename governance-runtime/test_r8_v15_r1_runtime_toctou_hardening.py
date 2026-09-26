@@ -91,6 +91,16 @@ class RuntimeFileReadTests(unittest.TestCase):
         finally:
             setattr(os, "O_NOFOLLOW", original)
 
+    @unittest.skipUnless(hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"), "descriptor walk unsupported")
+    def test_direct_lexical_parent_traversal_is_rejected(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as td:
+            root = Path(td)
+            (root / "file").write_bytes(b"ok")
+            alias = root / "nested" / ".." / "file"
+            with self.assertRaises(runtime.FrozenSchemaError) as cm:
+                runtime.read_confined_file(root, alias)
+            self.assertEqual(cm.exception.code, "ARTIFACT_PATH_INVALID")
+
     @unittest.skipUnless(hasattr(os, "O_NOFOLLOW"), "platform has no O_NOFOLLOW")
     def test_symlink_target_is_rejected_when_supported(self):
         if not hasattr(os, "symlink") or not hasattr(os, "O_NOFOLLOW"):
