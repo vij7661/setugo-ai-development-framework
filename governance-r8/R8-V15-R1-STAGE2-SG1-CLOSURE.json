@@ -1,0 +1,125 @@
+{
+  "schema": "r8-v15-r1-stage2-sg1-closure/v1",
+  "status": "CLOSED_BOUNDED_PASS_LOCAL_DEPENDENCY_SEMANTIC_FALSIFICATION_ONLY",
+  "authority_effect": "NONE",
+  "proposal": {
+    "id": "R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001",
+    "commit": "67c84138140e86ba4a85a954f368f4c0f7e9ef3c",
+    "blob_sha1": "d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b"
+  },
+  "candidate": {
+    "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "parent": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef",
+    "final_worktree_clean": true
+  },
+  "activation": {
+    "commit": "5bd4fb376625ee0d4f19aea33f1b71a70963436a",
+    "activation_gate_blob_sha1": "5d75c4b5c85fec075812c819c979e7048df8cd7f",
+    "activation_artifact_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json",
+    "activation_artifact_blob_sha1": "1f79cfb9a320f5c7c43bcbf2dcc8857c214cf7a8",
+    "pre_execution_review_path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt",
+    "pre_execution_review_blob_sha1": "ce879a1d0b3b1116877d26738922c2c7028d1f02"
+  },
+  "execution": {
+    "evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-EXECUTION-EVIDENCE-001.json",
+    "evidence_blob_sha1": "5a1ac857b7be37c633bd01a3d1ecfbafdf289298",
+    "run_id": 36224368626,
+    "run_conclusion": "success",
+    "verify_job_id": 108355417398,
+    "verify_job_conclusion": "success",
+    "semantic_conformance_job_id": 108355437312,
+    "semantic_conformance_job_conclusion": "success",
+    "artifact_id": 10900590603,
+    "artifact_name": "r8-v15-r1-stage2-sg1-results",
+    "artifact_digest": "sha256:58e3b45ccb6f95b3d6966339d7819f74cbdf4d0b4cfc4aa58356545b622c1d3e",
+    "forward_raw_sha256": "5749e1a9ec4597b870b1463860025c8636110f3760af5c6f00e634407c73316c",
+    "reverse_raw_sha256": "0a23b59ccc15afc41caaa8578cb999c26c6da9fafb69e8e237ca26ecd5f2a5a2",
+    "forward_cases_passed": 18,
+    "reverse_cases_passed": 18,
+    "comparator_status": "R8V15R1_STAGE2_SG1_FORWARD_REVERSE_EQUIVALENCE_PASS",
+    "external_effects_performed": false,
+    "candidate_modified": false
+  },
+  "stage1_regression_guard": {
+    "before": {
+      "reviewed_slice_tests": 636,
+      "inherited_baseline_tests": 140,
+      "total_tests": 776,
+      "failures": 0,
+      "expected_failures": 0,
+      "skips": 0,
+      "unexpected_successes": 0,
+      "status": "PASS"
+    },
+    "after": {
+      "reviewed_slice_tests": 636,
+      "inherited_baseline_tests": 140,
+      "total_tests": 776,
+      "failures": 0,
+      "expected_failures": 0,
+      "skips": 0,
+      "unexpected_successes": 0,
+      "status": "PASS"
+    }
+  },
+  "independent_post_execution_review": {
+    "path": "governance-r8/R8-V15-R1-STAGE2-SG1-POST-EXECUTION-INDEPENDENT-REVIEW-001.txt",
+    "blob_sha1": "0bdbe14593532fc2245626f890e9ac4830103e9a",
+    "disposition": "BOUNDED_PASS",
+    "critical_findings": 0,
+    "high_findings": 0,
+    "final_gate": "YES"
+  },
+  "prior_failed_activation_attempts": [
+    {
+      "attempt": 1,
+      "run_id": 36190374209,
+      "verify_job_id": 108253787018,
+      "semantic_execution_performed": false,
+      "preserved_evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-001-FAILED.json",
+      "preserved_evidence_blob_sha1": "241809c0965541f65e3a81c12d3f475719beb011"
+    },
+    {
+      "attempt": 2,
+      "run_id": 36223537668,
+      "verify_job_id": 108353145716,
+      "run_sg1_job_id": 108353161400,
+      "run_sg1_job_conclusion": "skipped",
+      "semantic_execution_performed": false,
+      "preserved_evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-002-FAILED.json",
+      "preserved_evidence_blob_sha1": "777763a679f0dfd4fd1c3d7e472a5e6ea373dbbf"
+    }
+  ],
+  "residuals": [
+    "The structured execution-evidence summary does not repeat the execution-evidence record blob SHA-1 that appears in the review packet header.",
+    "Individual uploaded artifact file digests are not separately stated; forward/reverse raw JSON SHA-256 hashes and the artifact archive digest are preserved.",
+    "The post-execution review packet does not reproduce a verbatim activation-verification log line; verification success is bound by the successful verify job identity and execution evidence.",
+    "Stage1 exact-candidate verification reports changed_paths=121 and reviewed_allowlisted_entries=120; the verifier passed, but the one-count difference remains unexplained in the post-execution packet."
+  ],
+  "cadence": {
+    "fallback_to_three_remains_active": true,
+    "six_slice_cadence_restored": false,
+    "automatic_restoration": false
+  },
+  "stage2": {
+    "sg1_closed": true,
+    "sg1_closure_scope": "LOCAL_DEPENDENCY_SEMANTIC_FALSIFICATION_ONLY",
+    "broader_stage2_semantic_authority": false,
+    "later_stage2_gate_execution_automatically_authorized": false,
+    "later_stage2_gate_requires_separate_preregistration_review_and_authorization": true
+  },
+  "grants": {
+    "sg1_bounded_closure": true,
+    "broader_stage2": false,
+    "evidence_promotion": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy_authority": false,
+    "constitutional_authority": false,
+    "root_authority": false,
+    "terminal_authority": false
+  }
+}
