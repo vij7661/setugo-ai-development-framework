@@ -57,7 +57,7 @@
   },
   "fallback_to_3": "ACTIVE",
   "six_slice_cadence_restored": false,
-  "expected_changed_file_count": 33,
+  "expected_changed_file_count": 36,
   "api_request_contract_preservation": {
     "status": "ACTIVE_INVARIANT",
     "default_change_classes": [
@@ -75,5 +75,21 @@
     "status": "ACTIVE_INVARIANT",
     "standard": "standards/r8-defect-root-cause-permanent-invariant-control.md",
     "remediation_rule": "Translate reviewer findings into permanent defect-family invariants, not literal example patches."
+  },
+  "reviewer_evidence_delivery": {
+    "status": "ACTIVE_INVARIANT",
+    "standard": "standards/reviewer-evidence-delivery-and-defect-remediation.md",
+    "implementation": "governance-runtime/reviewer_evidence_delivery.py",
+    "regression": "governance-runtime/test_reviewer_evidence_delivery.py",
+    "mandatory_material_must_be_delivered": true,
+    "summary_only_is_sufficient": false,
+    "incomplete_chunk_set_is_sufficient": false
+  },
+  "reviewer_defect_solution_contract": {
+    "status": "ACTIVE_INVARIANT",
+    "reviewer_must_propose_narrow_solution": true,
+    "reviewer_must_propose_regression_tests": true,
+    "reviewer_solution_is_authority": false,
+    "implementer_must_adjudicate_solution": true
   }
 }
