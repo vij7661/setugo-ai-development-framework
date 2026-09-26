@@ -49,13 +49,22 @@ def main():
     assert all(v is False for v in manifest["grants"].values())
     assert manifest["fallback_to_3"] == "ACTIVE"
     assert manifest["six_slice_cadence_restored"] is False
-    assert manifest["expected_changed_file_count"] == 33
+    assert manifest["expected_changed_file_count"] == 36
     assert len(changed) == manifest["expected_changed_file_count"], (len(changed), manifest["expected_changed_file_count"])
     api_contract = manifest["api_request_contract_preservation"]
     assert api_contract["status"] == "ACTIVE_INVARIANT"
     assert api_contract["provider_request_schema_change_authorized"] is False
     assert api_contract["api_execution_behavior_change_authorized"] is False
     assert manifest["defect_root_cause_control"]["status"] == "ACTIVE_INVARIANT"
+    assert manifest["reviewer_evidence_delivery"]["status"] == "ACTIVE_INVARIANT"
+    assert manifest["reviewer_evidence_delivery"]["mandatory_material_must_be_delivered"] is True
+    assert manifest["reviewer_evidence_delivery"]["summary_only_is_sufficient"] is False
+    assert manifest["reviewer_evidence_delivery"]["incomplete_chunk_set_is_sufficient"] is False
+    solution_contract = manifest["reviewer_defect_solution_contract"]
+    assert solution_contract["reviewer_must_propose_narrow_solution"] is True
+    assert solution_contract["reviewer_must_propose_regression_tests"] is True
+    assert solution_contract["reviewer_solution_is_authority"] is False
+    assert solution_contract["implementer_must_adjudicate_solution"] is True
     assert manifest["semantic_gap_inventory"]["classification"] == "HISTORICAL_STAGE1_BOUND_EVIDENCE"
     assert manifest["semantic_gap_inventory"]["candidate_commit"] == "4984f06a4420b76ad1ad475751aebda04a2d2c5c"
     assert manifest["semantic_gap_inventory"]["base_commit"] == "751162ee42c603cb6c84ee12021d16bab6fa626b"
@@ -256,6 +265,55 @@ def main():
         pass
     else:
         raise AssertionError("governance metadata leaked into provider-facing request")
+
+    # Mandatory reviewer evidence must be delivered completely, and reviewer
+    # solutions are advisory until explicitly adjudicated.
+    delivery = load_module(
+        "reviewer_evidence_delivery_invariant",
+        ROOT/"governance-runtime/reviewer_evidence_delivery.py",
+    )
+    whole = b"complete review packet\n"
+    assert delivery.verify_whole_delivery(
+        declared_sha256=delivery.sha256_bytes(whole),
+        declared_bytes=len(whole),
+        delivered=whole,
+    )
+    assert not delivery.verify_whole_delivery(
+        declared_sha256=delivery.sha256_bytes(whole),
+        declared_bytes=len(whole),
+        delivered=b"summary only",
+    )
+    chunks = [
+        {"index": 0, "count": 2, "bytes": b"complete review ", "sha256": delivery.sha256_bytes(b"complete review ")},
+        {"index": 1, "count": 2, "bytes": b"packet\n", "sha256": delivery.sha256_bytes(b"packet\n")},
+    ]
+    assert delivery.verify_chunked_delivery(
+        declared_sha256=delivery.sha256_bytes(whole),
+        declared_bytes=len(whole),
+        chunks=chunks,
+    )
+    assert not delivery.verify_chunked_delivery(
+        declared_sha256=delivery.sha256_bytes(whole),
+        declared_bytes=len(whole),
+        chunks=chunks[:1],
+    )
+    assert delivery.validate_finding_solution_contract({
+        "finding_id": "F-X",
+        "severity": "HIGH",
+        "location": "example",
+        "failure_path": "example path",
+        "evidence": "exact evidence",
+        "impact": "blocking",
+        "proposed_remediation": "narrow repair",
+        "regression_tests": ["family regression", "valid behavior preservation"],
+        "candidate_invalidated": True,
+        "blocking": True,
+    })
+    assert delivery.validate_solution_adjudication({
+        "finding_id": "F-X",
+        "state": "ACCEPTED_NARROWED",
+        "reason": "reviewer solution remains advisory pending governed implementation",
+    })
 
     # Direct governed runtime lexical parent traversal must fail closed.
     runtime = load_module(
