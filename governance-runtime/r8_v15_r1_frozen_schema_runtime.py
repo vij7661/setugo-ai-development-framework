@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 import unicodedata
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Tuple
@@ -63,7 +65,60 @@ def _sha256_bytes(data: bytes) -> str:
 
 
 def _sha256_file(path: Path) -> str:
-    return _sha256_bytes(path.read_bytes())
+    return _sha256_bytes(_read_verified_file(path))
+
+
+def read_confined_file(root_dir: Path, path: Path) -> bytes:
+    """Read one regular object through one descriptor, never by pathname twice.
+
+    The governed runtime requires kernel no-follow support for its adversarial
+    namespace model. Platforms without O_NOFOLLOW fail closed rather than
+    silently weakening the guarantee.
+    """
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    directory = getattr(os, "O_DIRECTORY", None)
+    if nofollow is None or directory is None:
+        raise FrozenSchemaError("NOFOLLOW_UNSUPPORTED", str(path))
+    try:
+        # Use lexical absolute paths only; resolving here would reintroduce the
+        # namespace race that the descriptor walk is designed to close.
+        relative = path.absolute().relative_to(root_dir.absolute())
+    except ValueError as exc:
+        raise FrozenSchemaError("ARTIFACT_PATH_INVALID", str(path)) from exc
+    parts = relative.parts
+    if not parts or any(part in ("", ".", "..") for part in parts):
+        raise FrozenSchemaError("ARTIFACT_PATH_INVALID", str(path))
+    parent_fd = None
+    try:
+        parent_fd = os.open(root_dir, os.O_RDONLY | directory | nofollow)
+        for part in parts[:-1]:
+            next_fd = os.open(part, os.O_RDONLY | directory | nofollow, dir_fd=parent_fd)
+            os.close(parent_fd)
+            parent_fd = next_fd
+        fd = os.open(parts[-1], os.O_RDONLY | nofollow, dir_fd=parent_fd)
+    except OSError as exc:
+        raise FrozenSchemaError("ARTIFACT_OPEN_FAILED", f"{path}: {exc}") from exc
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode):
+            raise FrozenSchemaError("ARTIFACT_NOT_REGULAR", str(path))
+        chunks = []
+        while True:
+            chunk = os.read(fd, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        return b"".join(chunks)
+    except OSError as exc:
+        raise FrozenSchemaError("ARTIFACT_READ_FAILED", f"{path}: {exc}") from exc
+    finally:
+        os.close(fd)
+        if parent_fd is not None:
+            os.close(parent_fd)
+
+
+def _read_verified_file(path: Path) -> bytes:
+    return read_confined_file(path.parent, path)
 
 
 def _required_file(path: Path) -> None:
@@ -257,7 +312,7 @@ class FrozenSchemaRuntime:
         def read_once(path: Path) -> bytes:
             key = path.resolve()
             if key not in byte_cache:
-                byte_cache[key] = path.read_bytes()
+                byte_cache[key] = read_confined_file(self.schema_dir, path)
             return byte_cache[key]
 
         spm_path = required["spm"]
