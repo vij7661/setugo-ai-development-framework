@@ -61,7 +61,7 @@ def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
     """Validate governed reviewer access without treating a locator as evidence."""
     if not isinstance(manifest, Mapping) or _contains_secret_key(manifest):
         return False
-    required = {"provider_identity", "delivery_mode", "repository", "commit_sha", "accessed_objects", "read_only", "mandatory_subjects_covered", "result_status"}
+    required = {"provider_identity", "delivery_mode", "repository", "commit_sha", "review_request_id", "request_hash", "corpus_sha256", "accessed_objects", "read_only", "mandatory_subjects_covered", "result_status"}
     if set(manifest) != required or manifest.get("delivery_mode") not in DELIVERY_MODES:
         return False
     if not isinstance(manifest.get("provider_identity"), str) or not manifest["provider_identity"].strip():
@@ -69,6 +69,12 @@ def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
     if not isinstance(manifest.get("repository"), str) or manifest["repository"].count("/") != 1:
         return False
     if not isinstance(manifest.get("commit_sha"), str) or not _SHA1.fullmatch(manifest["commit_sha"]):
+        return False
+    if not isinstance(manifest.get("review_request_id"), str) or not manifest["review_request_id"].strip():
+        return False
+    if not isinstance(manifest.get("request_hash"), str) or not _SHA256.fullmatch(manifest["request_hash"]):
+        return False
+    if not isinstance(manifest.get("corpus_sha256"), str) or not _SHA256.fullmatch(manifest["corpus_sha256"]):
         return False
     objects = manifest.get("accessed_objects")
     if not isinstance(objects, list) or not objects:
@@ -95,6 +101,10 @@ def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
             url = obj.get("url")
             if not isinstance(url, str) or not (f"/blob/{manifest['commit_sha']}/" in url or f"/commit/{manifest['commit_sha']}/" in url):
                 return False
+            if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]):
+                return False
+            if not isinstance(obj.get("bytes"), int) or obj["bytes"] < 0:
+                return False
         elif mode == "PLATFORM_MATERIALIZED_CONTENT":
             if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]):
                 return False
@@ -103,13 +113,24 @@ def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
     return True
 
 
-def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any]) -> bool:
+def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any], *, review_request: Mapping[str, Any] | None = None) -> bool:
     """Bind mandatory material delivery to the declared reviewer access mode."""
     if not validate_reviewer_access_manifest(access_manifest) or not isinstance(subjects, Sequence) or not subjects:
         return False
     if access_manifest["delivery_mode"] == "URL_ONLY":
         return False
-    return all(isinstance(item, Mapping) and verify_material_delivery(item, item.get("delivered"), chunks=item.get("chunks")) for item in subjects)
+    if review_request is not None:
+        if access_manifest["commit_sha"] != review_request.get("artifact", {}).get("commit"):
+            return False
+        if access_manifest["review_request_id"] != review_request.get("review_request_id"):
+            return False
+        if access_manifest["request_hash"] != review_request.get("request_hash"):
+            return False
+    if not all(isinstance(item, Mapping) and verify_material_delivery(item, item.get("delivered"), chunks=item.get("chunks")) for item in subjects):
+        return False
+    expected = {(item.get("subject_id"), item.get("sha256"), item.get("bytes")) for item in subjects}
+    observed = {(item.get("path"), item.get("content_sha256"), item.get("bytes")) for item in access_manifest["accessed_objects"]}
+    return expected == observed
 
 
 def verify_chunked_delivery(

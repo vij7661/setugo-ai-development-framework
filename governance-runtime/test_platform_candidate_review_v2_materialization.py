@@ -90,8 +90,10 @@ class EvidenceMaterializationV2Tests(unittest.TestCase):
         request = {"review_request_id": "X", "artifact": {"commit": CANDIDATE}}
         with tempfile.TemporaryDirectory() as td:
             req = Path(td) / "request.json"
+            manifest = Path(td) / "manifest.json"
             req.write_text(json.dumps(request), encoding="utf-8")
-            with patch("sys.argv", ["platform_candidate_review_v2.py", "--request", str(req), "--output-dir", td, "--model", "m"]):
+            manifest.write_text("{}", encoding="utf-8")
+            with patch("sys.argv", ["platform_candidate_review_v2.py", "--request", str(req), "--output-dir", td, "--model", "m", "--access-manifest", str(manifest)]):
                 with self.assertRaisesRegex(RuntimeError, "unsupported evidence"):
                     review_v2.main()
         invoke.assert_not_called()

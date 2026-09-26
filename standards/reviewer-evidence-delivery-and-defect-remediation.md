@@ -59,10 +59,15 @@ Reviewer access may be recorded only as one of:
 - `PLATFORM_MATERIALIZED_CONTENT`: platform-fetched content delivered with exact bytes and SHA-256;
 - `URL_ONLY`: locator only, never evidence by itself.
 
-An access manifest records provider identity, repository, immutable commit, accessed objects,
-read-only status, result status, and mandatory-subject coverage. URLs pointing at moving branches
-are invalid. Raw tokens, bearer credentials, PATs, and secrets are prohibited from manifests,
-prompts, persisted evidence, and fingerprints.
+An access manifest records provider identity, repository, immutable commit, exact review-request
+id/hash, accessed objects, read-only status, result status, and mandatory-subject coverage. The
+governed review path must compare the manifest's complete object identity set with the exact
+materialized corpus before provider invocation. Omission, mismatch, or an incomplete set fails
+closed. URLs pointing at moving branches are invalid. `PROVIDER_URL_CONTEXT` additionally requires
+the independently checked fetched-content SHA-256 and byte count; an immutable URL without fetched
+content identity remains only a locator and must fall back to `PLATFORM_MATERIALIZED_CONTENT`.
+Raw tokens, bearer credentials, PATs, and secrets are prohibited from manifests, prompts,
+persisted evidence, and fingerprints.
 
 ## 4. Reviewer task
 

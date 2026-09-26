@@ -232,7 +232,22 @@
       "pr": 62,
       "branch": "codex/r8-v15-r1-q14-permanent-invariants-2026-09-26",
       "dependencies": ["Q10"],
-      "state": "RUNNABLE_CODING"
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_commit": "01ec3651c9c0764e69944cd5718b07e4d30623b4",
+      "candidate_tree": "a61f1b0686c65719a83e0b065f5ac632f88cba96",
+      "frozen_ref": "frozen/r8-v15-r1-q14-permanent-invariants-2026-09-27",
+      "candidate_state": "FROZEN",
+      "review_state": "CHANGES_REQUIRED",
+      "freeze_attestation": "governance-r8/freeze-attestations/Q14-FREEZE-ATTESTATION.json"
+    },
+    {
+      "id": "Q15",
+      "pr": 64,
+      "branch": "codex/r8-v15-r1-q15-q14-review-successor-2026-09-27",
+      "dependencies": ["Q14"],
+      "state": "CODE_COMPLETE",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "NOT_REVIEWED"
     }
   ],
   "authority": {

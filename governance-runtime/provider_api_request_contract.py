@@ -9,6 +9,7 @@ import hashlib
 import json
 from copy import deepcopy
 from typing import Any, Mapping
+from urllib.parse import quote
 
 ALLOWED_CHANGE_CLASSES = frozenset({
     "CONTROL_PLANE_ONLY",
@@ -95,11 +96,51 @@ def canonical_provider_request(request: Mapping[str, Any]) -> dict[str, Any]:
         raise ValueError("messages must be a non-empty list")
     if not isinstance(out["provider_parameters"], Mapping):
         raise ValueError("provider_parameters must be an object")
+    _reject_forbidden_structured_keys(out["provider_parameters"])
+    for message in out["messages"]:
+        if not isinstance(message, Mapping):
+            raise ValueError("message must be an object")
+        # Natural-language strings are deliberately opaque. Structured message,
+        # tool, and adapter metadata remains governed and is scanned recursively.
+        for key, value in message.items():
+            if key != "content" or not isinstance(value, str):
+                _reject_forbidden_structured_keys(value)
     if not isinstance(out["timeout_ms"], int) or out["timeout_ms"] <= 0:
         raise ValueError("timeout_ms must be a positive integer")
     if not isinstance(out["retry_policy"], Mapping):
         raise ValueError("retry_policy must be an object")
     return out
+
+
+def _reject_forbidden_structured_keys(value: Any) -> None:
+    if isinstance(value, Mapping):
+        leaked = {str(key) for key in value if str(key) in FORBIDDEN_PROVIDER_KEYS}
+        if leaked:
+            raise ValueError(f"governance metadata leaked into provider request: {sorted(leaked)}")
+        for child in value.values():
+            _reject_forbidden_structured_keys(child)
+    elif isinstance(value, (list, tuple)):
+        for child in value:
+            _reject_forbidden_structured_keys(child)
+
+
+def gemini_adapter_semantic_request(*, model: str, prompt: str, timeout_ms: int = 180000) -> dict[str, Any]:
+    """Exact non-secret semantic projection used by the real Gemini adapter."""
+    return canonical_provider_request({
+        "provider": "gemini",
+        "endpoint": f"/v1beta/models/{quote(model, safe='')}:generateContent",
+        "method": "POST",
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "provider_parameters": {
+            "temperature": 0.0,
+            "maxOutputTokens": 16384,
+            "responseMimeType": "application/json",
+            "stream": False,
+        },
+        "timeout_ms": timeout_ms,
+        "retry_policy": {"max_attempts": 1, "retry_on": []},
+    })
 
 
 def provider_request_fingerprint(request: Mapping[str, Any]) -> str:
@@ -122,11 +163,11 @@ def assert_governance_change_preserves_provider_request(
 
 
 def sanitize_semantic_headers(headers: Mapping[str, str]) -> dict[str, str]:
-    """Optional helper for adapter tests: never fingerprint secret header values."""
+    """Normalize non-secret semantic headers; authentication is excluded."""
     out: dict[str, str] = {}
     for name, value in headers.items():
         low = str(name).lower()
         if low in SECRET_HEADER_NAMES:
             continue
-        out[str(name)] = str(value)
+        out[low] = " ".join(str(value).strip().split())
     return out
