@@ -226,6 +226,13 @@
         "requested_action": "review the current frozen successor candidate only",
         "blocking_status": "HUMAN_REVIEW_BLOCKED"
       }
+    },
+    {
+      "id": "Q14",
+      "pr": 62,
+      "branch": "codex/r8-v15-r1-q14-permanent-invariants-2026-09-26",
+      "dependencies": ["Q10"],
+      "state": "RUNNABLE_CODING"
     }
   ],
   "authority": {

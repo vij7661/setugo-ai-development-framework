@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from typing import Any, Mapping, Sequence
 
 
@@ -14,6 +15,16 @@ ADJUDICATION_STATES = frozenset({
     "DEFERRED_REQUIRES_EVIDENCE",
 })
 
+DELIVERY_MODES = frozenset({
+    "AUTHENTICATED_GITHUB_MCP_READ_ONLY",
+    "PROVIDER_URL_CONTEXT",
+    "PLATFORM_MATERIALIZED_CONTENT",
+    "URL_ONLY",
+})
+_SHA1 = re.compile(r"[0-9a-f]{40}\Z")
+_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+_SECRET_KEYS = frozenset({"authorization", "bearer", "token", "access_token", "api_key", "password", "secret", "pat"})
+
 
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
@@ -25,6 +36,80 @@ def verify_whole_delivery(*, declared_sha256: str, declared_bytes: int, delivere
     if not isinstance(declared_bytes, int) or declared_bytes < 0:
         return False
     return len(delivered) == declared_bytes and sha256_bytes(delivered) == declared_sha256
+
+
+def verify_material_delivery(item: Mapping[str, Any], delivered: bytes | None = None, *, chunks: Sequence[Mapping[str, Any]] | None = None) -> bool:
+    """Require actual material, never a filename/hash/summary-only placeholder."""
+    if not isinstance(item, Mapping) or item.get("delivery_mode") not in {"native_file", "in_request", "chunked"}:
+        return False
+    if not isinstance(item.get("sha256"), str) or not isinstance(item.get("bytes"), int):
+        return False
+    if item.get("delivery_mode") == "chunked":
+        return chunks is not None and verify_chunked_delivery(declared_sha256=item["sha256"], declared_bytes=item["bytes"], chunks=chunks)
+    return delivered is not None and verify_whole_delivery(declared_sha256=item["sha256"], declared_bytes=item["bytes"], delivered=delivered)
+
+
+def _contains_secret_key(value: Any) -> bool:
+    if isinstance(value, Mapping):
+        return any(str(key).lower() in _SECRET_KEYS or _contains_secret_key(child) for key, child in value.items())
+    if isinstance(value, (list, tuple)):
+        return any(_contains_secret_key(child) for child in value)
+    return False
+
+
+def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
+    """Validate governed reviewer access without treating a locator as evidence."""
+    if not isinstance(manifest, Mapping) or _contains_secret_key(manifest):
+        return False
+    required = {"provider_identity", "delivery_mode", "repository", "commit_sha", "accessed_objects", "read_only", "mandatory_subjects_covered", "result_status"}
+    if set(manifest) != required or manifest.get("delivery_mode") not in DELIVERY_MODES:
+        return False
+    if not isinstance(manifest.get("provider_identity"), str) or not manifest["provider_identity"].strip():
+        return False
+    if not isinstance(manifest.get("repository"), str) or manifest["repository"].count("/") != 1:
+        return False
+    if not isinstance(manifest.get("commit_sha"), str) or not _SHA1.fullmatch(manifest["commit_sha"]):
+        return False
+    objects = manifest.get("accessed_objects")
+    if not isinstance(objects, list) or not objects:
+        return False
+    if not isinstance(manifest.get("read_only"), bool) or not isinstance(manifest.get("mandatory_subjects_covered"), bool):
+        return False
+    if not isinstance(manifest.get("result_status"), str) or not manifest["result_status"].strip():
+        return False
+    mode = manifest["delivery_mode"]
+    if mode == "URL_ONLY":
+        if manifest["mandatory_subjects_covered"] or manifest["read_only"]:
+            return False
+    elif not manifest["read_only"]:
+        return False
+    for obj in objects:
+        if not isinstance(obj, Mapping) or not isinstance(obj.get("path"), str) or not obj["path"].strip():
+            return False
+        if obj.get("commit_sha") != manifest["commit_sha"]:
+            return False
+        if mode == "AUTHENTICATED_GITHUB_MCP_READ_ONLY":
+            if obj.get("tool_access") != "read_only" or not isinstance(obj.get("object_id"), str) or not obj["object_id"].strip():
+                return False
+        elif mode == "PROVIDER_URL_CONTEXT":
+            url = obj.get("url")
+            if not isinstance(url, str) or not (f"/blob/{manifest['commit_sha']}/" in url or f"/commit/{manifest['commit_sha']}/" in url):
+                return False
+        elif mode == "PLATFORM_MATERIALIZED_CONTENT":
+            if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]):
+                return False
+            if not isinstance(obj.get("bytes"), int) or obj["bytes"] < 0:
+                return False
+    return True
+
+
+def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any]) -> bool:
+    """Bind mandatory material delivery to the declared reviewer access mode."""
+    if not validate_reviewer_access_manifest(access_manifest) or not isinstance(subjects, Sequence) or not subjects:
+        return False
+    if access_manifest["delivery_mode"] == "URL_ONLY":
+        return False
+    return all(isinstance(item, Mapping) and verify_material_delivery(item, item.get("delivered"), chunks=item.get("chunks")) for item in subjects)
 
 
 def verify_chunked_delivery(
