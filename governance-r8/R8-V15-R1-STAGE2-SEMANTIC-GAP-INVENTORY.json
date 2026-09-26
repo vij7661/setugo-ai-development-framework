@@ -296,11 +296,11 @@
     }
   ],
   "fallback_to_3": "ACTIVE",
-  "inventory_sha256": "1b16d0a1f174bbfe6b2f990061696cb55d8aabe5ad0ed68853bae070413ca5b4",
+  "inventory_sha256": "1c1102d82e313ec4ea0fcb3437b9f6c730e37285fe232e8a1c33b859a483464e",
   "items": [
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
         "kind": "import",
         "line": 9,
@@ -309,13 +309,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-001",
       "source": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
         "kind": "import",
         "line": 6,
@@ -324,13 +325,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-002",
       "source": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
         "kind": "import",
         "line": 6,
@@ -339,13 +341,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-003",
       "source": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
         "kind": "import",
         "line": 6,
@@ -354,13 +357,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-004",
       "source": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
         "kind": "import",
         "line": 6,
@@ -369,13 +373,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-005",
       "source": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
         "kind": "import",
         "line": 6,
@@ -384,13 +389,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-006",
       "source": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
         "kind": "import",
         "line": 6,
@@ -399,13 +405,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-007",
       "source": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
         "kind": "import",
         "line": 9,
@@ -414,13 +421,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-008",
       "source": "governance-runtime/r8_v15_r1_effect_state_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
         "kind": "import",
         "line": 10,
@@ -429,13 +437,14 @@
         "target_blob": "50c5f3edd905ec23ae8e97d3cc2d441489935786",
         "target_path": "governance-runtime/r8_v15_r1_effect_intent_validator.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-009",
       "source": "governance-runtime/r8_v15_r1_effect_state_validator.py",
       "target": "governance-runtime/r8_v15_r1_effect_intent_validator.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
         "kind": "import",
         "line": 9,
@@ -444,13 +453,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-010",
       "source": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
         "kind": "import",
         "line": 6,
@@ -459,13 +469,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-011",
       "source": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
         "kind": "import",
         "line": 6,
@@ -474,13 +485,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-012",
       "source": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
         "kind": "import",
         "line": 6,
@@ -489,13 +501,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-013",
       "source": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
         "kind": "import",
         "line": 11,
@@ -504,13 +517,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-014",
       "source": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
         "kind": "import",
         "line": 9,
@@ -519,13 +533,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-015",
       "source": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
         "kind": "import",
         "line": 7,
@@ -534,13 +549,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-016",
       "source": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
         "kind": "import",
         "line": 9,
@@ -549,13 +565,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-017",
       "source": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
         "kind": "import",
         "line": 7,
@@ -564,13 +581,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-018",
       "source": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
         "kind": "import",
         "line": 9,
@@ -579,13 +597,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-019",
       "source": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
         "kind": "import",
         "line": 6,
@@ -594,13 +613,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-020",
       "source": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
         "kind": "import",
         "line": 6,
@@ -609,13 +629,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-021",
       "source": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
         "kind": "import",
         "line": 6,
@@ -624,13 +645,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-022",
       "source": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_rir_record_validator.py",
         "kind": "import",
         "line": 7,
@@ -639,13 +661,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-023",
       "source": "governance-runtime/r8_v15_r1_rir_record_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
         "kind": "import",
         "line": 5,
@@ -654,13 +677,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-024",
       "source": "governance-runtime/r8_v15_r1_scope_component_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
         "kind": "import",
         "line": 6,
@@ -669,13 +693,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-025",
       "source": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
         "kind": "import",
         "line": 9,
@@ -684,13 +709,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-026",
       "source": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
         "kind": "import",
         "line": 9,
@@ -699,13 +725,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-027",
       "source": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
         "kind": "import",
         "line": 6,
@@ -714,13 +741,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-028",
       "source": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
         "kind": "import",
         "line": 6,
@@ -729,13 +757,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-029",
       "source": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
         "kind": "import",
         "line": 6,
@@ -744,13 +773,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-030",
       "source": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
         "kind": "import",
         "line": 6,
@@ -759,13 +789,14 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-031",
       "source": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     },
     {
       "classification": "already_covered",
-      "evidence": {
+      "edge": {
         "from_path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
         "kind": "import",
         "line": 5,
@@ -774,15 +805,26 @@
         "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
         "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
       },
+      "evidence": "semantic-surface + SG1 closure",
       "id": "SG1-EDGE-032",
       "source": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
       "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
     }
   ],
+  "manual_policy": {
+    "items": [],
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
   "manual_policy_decision_required": true,
   "proposed_next_gates": [],
-  "release_deployment_production_only": [],
-  "runtime_only": [],
+  "release_deployment_production_only": {
+    "items": [],
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
+  "runtime_only": {
+    "items": [],
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
   "schema": "r8-v15-r1-stage2-semantic-gap-inventory/v1",
   "selected_files": [
     "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
