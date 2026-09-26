@@ -66,7 +66,7 @@ jobs:
 
           run_unittest() {
             test_file="$1"
-            (cd "$Q15_ROOT/governance-runtime" && python3 -m unittest -v "$test_file")
+            (cd "$Q15_ROOT" && python3 "governance-runtime/$test_file")
           }
 
           run_case "permanent_invariant_gate" run_in_root tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
@@ -87,7 +87,7 @@ jobs:
           run_case "q15_merge_gate" run_unittest test_q15_review_merge_gate.py
 
           echo "===== BEGIN compileall ====="
-          if (cd "$Q15_ROOT" && python3 -m compileall -q governance-runtime tools); then
+          if (cd "$Q15_ROOT" && PYTHONPYCACHEPREFIX="$RUNNER_TEMP/q15-pycache" python3 -m compileall -q governance-runtime tools); then
             echo "Q15_CASE_PASS::compileall"
           else
             rc=$?
