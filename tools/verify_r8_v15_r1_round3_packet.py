@@ -27,7 +27,7 @@ def main():
             assert m.group(2)==hashlib.sha256(actual).hexdigest(), f'sha embedded {pr} {p}'
             assert embedded==actual, f'bytes mismatch {pr} {p}'
     assert 'H-1 -> #42' in text and 'H-2 -> #42' in text
-    assert 'H-3 -> #43' in text and 'H-4 -> #43' in text
+    assert 'H-3 -> #43' in text and 'H-4 -> #50' in text
     assert 'H-5 -> #44' in text and 'H-6 -> #44' in text
     for x in ['H-7 -> #46','H-8 -> #46','H-9 -> #46','H-10 -> #46','H-14 -> #46','H-11 -> #50','H-12 -> #50','H-13 -> #50','M-2 -> #46','M-5 -> #43','M-6 -> #44','M-7 -> #43']:
         assert x in text, x

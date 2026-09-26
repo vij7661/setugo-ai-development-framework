@@ -24,7 +24,7 @@ FINDING-TO-REPAIR MATRIX
 H-1 -> #42: hidden Critical/High structured-label bypass; repaired shared parser/preflight; status=implemented or explicitly adjudicated as above.
 H-2 -> #42: preflight exact artifact identity; repaired expected SHA/blob binding; status=implemented or explicitly adjudicated as above.
 H-3 -> #43: semantic inventory self-hash-only verification; repaired full canonical result comparison; status=implemented or explicitly adjudicated as above.
-H-4 -> #43: scanner-level evidence and unsupported empty categories; repaired evidence-bound classification; status=implemented or explicitly adjudicated as above.
+H-4 -> #50: packet completeness; final packet embeds every in-scope changed file with exact identity; status=implemented or explicitly adjudicated as above.
 H-5 -> #44: path-component/cache-key TOCTOU; preserved descriptor-safe contract; status=implemented or explicitly adjudicated as above.
 H-6 -> #44: adversarial namespace/fault tests; retained and hardened tests; status=implemented or explicitly adjudicated as above.
 C-2 -> #46: evidence-root traversal; fixed-root safe-read integration; status=implemented or explicitly adjudicated as above.
