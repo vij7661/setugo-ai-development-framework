@@ -3,6 +3,9 @@
   "changed_paths": 121,
   "reviewed_allowlisted_entries": 120,
   "unreviewed_delta": 1,
-  "interpretation": "The one-path delta is preserved as explicit accounting evidence and is not silently treated as reviewed.",
+  "extra_path": "governance-r8/R8-V15-R1-IG1-SUCCESSOR3-INTEGRATED-CANDIDATE-MANIFEST.json",
+  "extra_path_blob": "a78add847f6d4ba8914a66ee00d89422fbaa47f2",
+  "candidate_manifest_composition": "exact Slice7 base + exactly 120 reviewed allowlisted entries + this manifest",
+  "interpretation": "The one-path delta is the explicitly bound integrated candidate manifest, not an unidentified unreviewed implementation path.",
   "authority_effect": "NONE"
 }
