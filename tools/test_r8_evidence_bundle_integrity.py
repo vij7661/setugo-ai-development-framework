@@ -3,7 +3,7 @@ import hashlib, json, unittest, shutil
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
-from r8_evidence_bundle_integrity import canonical_entries, verify_bundle
+from r8_evidence_bundle_integrity import canonical_entries, file_digest, verify_bundle
 
 
 class EvidenceIntegrityTests(unittest.TestCase):
@@ -58,6 +58,14 @@ class EvidenceIntegrityTests(unittest.TestCase):
         with self.assertRaises(ValueError): canonical_entries(self.root, ["nested/../result.json"])
         with self.assertRaises(ValueError): canonical_entries(self.root, ["C:/escape"])
         with self.assertRaises(ValueError): canonical_entries(self.root, ["result.json", "result.json"])
+
+    @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
+    def test_direct_file_digest_parent_alias_rejected_and_dot_alias_is_canonical(self):
+        root = self.root
+        (root / "result.json").write_text('{"ok":true}\n', encoding="utf-8")
+        with self.assertRaises(ValueError):
+            file_digest(root, root / "nested" / ".." / "result.json")
+        self.assertEqual(file_digest(root, root / "." / "result.json"), file_digest(root, root / "result.json"))
 
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
     def test_exact_lineage_fields_reject_valid_looking_substitutions(self):
