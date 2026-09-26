@@ -21,8 +21,13 @@ jobs:
 
       - name: Validate repaired parser against exact preserved Review 002
         run: |
-          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py \
-            --review governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+            --review governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt \
+            
+          python3 tools/preflight_r8_v15_r1_stage2_sg1_review.py \
+            --review governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt \
+            --expected-sha256 0a367ff99021bcb996095f6b6281230446a5147b2c97d4e614035508ad472cca \
+            --expected-blob fa4e783d698db8701990a0eb92cbf34e1f3054bb
 
       - name: Build focused Review 003 remediation packet
         run: python3 tools/build_r8_v15_r1_stage2_sg1_review003_parser_remediation_packet.py

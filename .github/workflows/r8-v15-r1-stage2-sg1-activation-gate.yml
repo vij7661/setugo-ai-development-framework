@@ -23,7 +23,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json, pathlib, re, subprocess
+          import json, pathlib, re, subprocess, sys
+          sys.path.insert(0, "tools")
+          from r8_v15_r1_review_contract_parser import parse_review_contract
 
           EXPECTED_PROPOSAL_ID="R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001"
           EXPECTED_PROPOSAL_COMMIT="67c84138140e86ba4a85a954f368f4c0f7e9ef3c"
@@ -56,37 +58,7 @@ jobs:
           def git_blob(rev):
               return subprocess.check_output(["git","rev-parse",rev],text=True).strip()
 
-          def clean_none_section(text: str) -> bool:
-              return re.fullmatch(r"(?i:none\.?)", text.strip()) is not None
-
-          def parse_review_contract(text: str):
-              headings=list(re.finditer(r"(?m)^([A-H])\.\s+[^\r\n]*$", text))
-              if len(headings) != 8 or [m.group(1) for m in headings] != list("ABCDEFGH"):
-                  raise SystemExit("review must contain exactly one ordered A-H section")
-              sections={}
-              for index, match in enumerate(headings):
-                  end=headings[index+1].start() if index+1 < len(headings) else len(text)
-                  sections[match.group(1)]=text[match.end():end].strip()
-              if sections["A"] != "BOUNDED_PASS":
-                  raise SystemExit("review disposition is not exactly BOUNDED_PASS")
-              if not clean_none_section(sections["C"]):
-                  raise SystemExit("review Critical section not clean")
-              if not clean_none_section(sections["D"]):
-                  raise SystemExit("review High section not clean")
-              if len(re.findall(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*YES\.?\s*$", sections["H"])) != 1:
-                  raise SystemExit("review activation declaration is not exactly one YES")
-              if re.search(r"(?mi)^\s*(?:-\s*)?Stage2 SG-1 may be explicitly activated by user:\s*NO\.?\s*$", text):
-                  raise SystemExit("review has contradictory activation declaration")
-              if len(re.findall(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*NO\.?\s*$", sections["H"])) != 1:
-                  raise SystemExit("review broader authority declaration is not exactly one NO")
-              if re.search(r"(?mi)^\s*(?:-\s*)?Broader Stage2 semantic authority granted:\s*YES\.?\s*$", text):
-                  raise SystemExit("review grants broader Stage2 authority")
-              outside_cd=text[:headings[2].start()] + text[headings[4].start():]
-              if re.search(r"(?mi)^\s*(?:-\s*)?(?:CRITICAL|HIGH)(?:\s+FINDING)?\s*:", outside_cd):
-                  raise SystemExit("review has Critical/High findings outside C/D")
-              return sections
-
-          a=json.loads(pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").read_text())
+          a=json.loads(pathlib.Path("governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION.json").read_text(encoding="utf-8"))
           if set(a)!=TOP_KEYS: raise SystemExit("activation top-level key set mismatch")
           if a["schema"]!="r8-v15-r1-stage2-sg1-activation/v1": raise SystemExit("activation schema mismatch")
           if a["status"]!="ACTIVE_EXPLICIT_USER_APPROVAL": raise SystemExit("activation status mismatch")
@@ -118,8 +90,11 @@ jobs:
           if git_blob(f"HEAD:{EXPECTED_REVIEW_PATH}")!=ir["blob_sha1"]:
               raise SystemExit("review artifact blob mismatch")
 
-          review=pathlib.Path(EXPECTED_REVIEW_PATH).read_text()
-          parse_review_contract(review)
+          review=pathlib.Path(EXPECTED_REVIEW_PATH).read_text(encoding="utf-8")
+          try:
+              parse_review_contract(review)
+          except ValueError as exc:
+              raise SystemExit(str(exc))
           if EXPECTED_PROPOSAL_ID not in review or EXPECTED_PROPOSAL_COMMIT not in review:
               raise SystemExit("review artifact not bound to exact proposal")
           approval=a["explicit_user_approval"]
