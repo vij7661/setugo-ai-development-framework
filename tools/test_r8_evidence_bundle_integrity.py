@@ -68,6 +68,15 @@ class EvidenceIntegrityTests(unittest.TestCase):
         with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_activation_verification={"performed": True, "run_id": "run-1", "job_id": "job-1", "conclusion": "success"})
 
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
+    def test_separate_activation_job_identity_is_valid_and_empty_is_not(self):
+        root = self.root; bundle = self.make_bundle(root)
+        expected = {"performed": True, "run_id": "activation-run", "job_id": "activation-job", "conclusion": "success"}
+        bundle["activation_verification"] = expected
+        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=expected)["status"], "PASS")
+        bundle["activation_verification"] = {"performed": False, "run_id": "", "job_id": "", "conclusion": ""}
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=bundle["activation_verification"])
+
+    @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
     def test_malformed_and_substituted_identity_values_rejected(self):
         root = self.root; bundle = self.make_bundle(root)
         bundle["head_sha"] = "not-a-sha"

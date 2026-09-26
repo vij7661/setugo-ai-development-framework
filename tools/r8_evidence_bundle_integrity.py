@@ -66,15 +66,17 @@ def verify_bundle(
         raise ValueError("authority boundary mismatch")
     if not isinstance(bundle["run_id"], str) or not bundle["run_id"] or not isinstance(bundle["job_id"], str) or not bundle["job_id"] or not isinstance(bundle["workflow"], str) or not bundle["workflow"]:
         raise ValueError("missing lineage identity")
-    if expected_run_id is not None and bundle["run_id"] != expected_run_id:
+    if not all((expected_run_id, expected_job_id, expected_workflow, expected_head, expected_inputs, expected_archive_sha256, expected_activation_verification)):
+        raise ValueError("strict expected lineage is required")
+    if bundle["run_id"] != expected_run_id:
         raise ValueError("wrong run identity")
-    if expected_job_id is not None and bundle["job_id"] != expected_job_id:
+    if bundle["job_id"] != expected_job_id:
         raise ValueError("wrong job identity")
-    if expected_workflow is not None and bundle["workflow"] != expected_workflow:
+    if bundle["workflow"] != expected_workflow:
         raise ValueError("wrong workflow identity")
     if not isinstance(bundle["head_sha"], str) or len(bundle["head_sha"]) != 40 or any(c not in "0123456789abcdef" for c in bundle["head_sha"]):
         raise ValueError("head identity syntax mismatch")
-    if expected_head is not None and bundle["head_sha"] != expected_head:
+    if bundle["head_sha"] != expected_head:
         raise ValueError("stale head")
     files = bundle["files"]
     if not isinstance(files, list) or not files:
@@ -84,19 +86,19 @@ def verify_bundle(
         raise ValueError("evidence file digest mismatch")
     if not isinstance(bundle["input_blobs"], dict) or not all(isinstance(v, str) and len(v) == 40 and all(c in "0123456789abcdef" for c in v) for v in bundle["input_blobs"].values()):
         raise ValueError("input blob identity mismatch")
-    if expected_inputs is not None and bundle["input_blobs"] != expected_inputs:
+    if bundle["input_blobs"] != expected_inputs:
         raise ValueError("substituted input blob mapping")
     archive = bundle["archive"]
     if set(archive) != {"format", "sha256"} or archive["format"] not in {"zip", "tar", "directory"} or not isinstance(archive["sha256"], str) or len(archive["sha256"]) != 64 or any(c not in "0123456789abcdef" for c in archive["sha256"]):
         raise ValueError("archive digest schema mismatch")
-    if expected_archive_sha256 is not None and archive["sha256"] != expected_archive_sha256:
+    if archive["sha256"] != expected_archive_sha256:
         raise ValueError("archive digest mismatch")
     av = bundle["activation_verification"]
     if set(av) != {"performed", "run_id", "job_id", "conclusion"} or not isinstance(av["performed"], bool):
         raise ValueError("activation verification evidence incomplete")
-    if not isinstance(av["run_id"], str) or not isinstance(av["job_id"], str) or not isinstance(av["conclusion"], str):
+    if not isinstance(av["run_id"], str) or not av["run_id"] or not isinstance(av["job_id"], str) or not av["job_id"] or not isinstance(av["conclusion"], str) or not av["conclusion"]:
         raise ValueError("activation verification identity malformed")
-    if expected_activation_verification is not None and av != expected_activation_verification:
+    if av != expected_activation_verification:
         raise ValueError("activation verification mismatch")
     if bundle["authority_effect"] != "NONE":
         raise ValueError("authority promotion")
