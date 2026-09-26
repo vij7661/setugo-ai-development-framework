@@ -107,3 +107,15 @@ A reviewer example is never, by itself, the complete regression contract.
 Once frozen, a candidate is immutable.
 A genuine finding creates a successor candidate.
 The previous candidate and failed evidence remain preserved.
+
+### 11. Reviewer evidence delivery completeness
+- A reviewer reviews the exact document/artifact declared as the review subject.
+- Mandatory review material must be actually delivered, not represented by filename, digest, or summary alone.
+- File/attachment, exact in-request materialization, or complete deterministic chunking are acceptable delivery modes.
+- Missing/truncated/mismatched evidence makes the review non-promotable.
+
+### 12. Reviewer solutions are advisory engineering input
+- Every defect should include the narrowest proposed remediation and exact regression/falsification tests.
+- Reviewer solutions do not grant authority and are not auto-implemented.
+- The implementer must adjudicate each recommendation for reproducibility, scope, cross-component impact, and preserved valid behavior.
+- The original reviewer proposal and the final adjudication are both preserved.
