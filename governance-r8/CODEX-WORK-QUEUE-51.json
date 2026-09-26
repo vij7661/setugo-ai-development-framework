@@ -1,0 +1,17 @@
+{
+  "schema": "r8-codex-work-queue/v1",
+  "issue": 51,
+  "fallback_to_3": "ACTIVE",
+  "tasks": [
+    {"id":"Q01","pr":42,"branch":"codex/r8-q01-review-parser-consolidation","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
+    {"id":"Q02","pr":43,"branch":"codex/r8-q02-stage2-semantic-gap-inventory","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
+    {"id":"Q03","pr":44,"branch":"codex/r8-q03-runtime-toctou-hardening","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
+    {"id":"Q04","pr":45,"branch":"codex/r8-q04-runtime-qualification-harness","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
+    {"id":"Q05","pr":46,"branch":"codex/r8-q05-evidence-integrity-lineage","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"},
+    {"id":"Q06","pr":47,"branch":"codex/r8-q06-release-qualification-gate","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
+    {"id":"Q07","pr":48,"branch":"codex/r8-q07-deployment-qualification-gate","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
+    {"id":"Q08","pr":49,"branch":"codex/r8-q08-production-readiness-gate","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"MANUAL_INTERVENTION_REQUIRED"},
+    {"id":"Q09","pr":50,"branch":"codex/r8-q09-manual-intervention-status-ledger","dependencies":[],"state":"CODE_COMPLETE","manual_intervention":"REVIEW_REQUIRED"}
+  ],
+  "authority": {"runtime":false,"release":false,"deployment":false,"production":false,"merge":false,"activation":false}
+}
