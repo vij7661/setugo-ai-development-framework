@@ -1,0 +1,204 @@
+name: R8 Q15 Frozen Candidate Review Packet
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-q15-review-2026-09-27
+    paths:
+      - .github/workflows/r8-q15-review-packet.yml
+      - tools/build_r8_v15_r1_q15_review_packet.py
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+  BASE_SHA: "7cd2787d85b189a4161f271ee131e42bd961140a"
+  Q15_SHA: "8ce8226818407924d81cee98a2800fc64d1797b1"
+  Q15_TREE: "a571f49f66f0543ac2f12bdf5b39db99d537a02c"
+  FROZEN_REF: "frozen/r8-v15-r1-q15-review-remediation-successor-2026-09-27"
+  LINUX_RUN_ID: "36271731990"
+  LINUX_JOB_ID: "108486853573"
+
+jobs:
+  build-q15-review-packet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout packet branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Ensure frozen ref is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "refs/heads/$FROZEN_REF:refs/remotes/origin/$FROZEN_REF"
+          test "$(git rev-parse "refs/remotes/origin/$FROZEN_REF")" = "$Q15_SHA"
+
+      - name: Create exact frozen Q15 worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/frozen-q15"
+          git worktree add --detach "$ROOT" "$Q15_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD)" = "$Q15_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD^{tree})" = "$Q15_TREE"
+          test -z "$(git -C "$ROOT" status --porcelain=v1)"
+          echo "Q15_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Resolve exact numeric packet job id
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run = os.environ["GITHUB_RUN_ID"]
+          token = os.environ["GH_TOKEN"]
+          job_name = "build-q15-review-packet"
+          url = f"https://api.github.com/repos/{repo}/actions/runs/{run}/jobs?per_page=100"
+          headers = {
+              "Accept": "application/vnd.github+json",
+              "Authorization": f"Bearer {token}",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "r8-q15-review-packet/1.0",
+          }
+          job_id = None
+          for _ in range(30):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  data = json.load(response)
+              for job in data.get("jobs", []):
+                  if job.get("name") == job_name:
+                      job_id = str(job["id"])
+                      break
+              if job_id:
+                  break
+              time.sleep(1)
+          if not job_id:
+              raise SystemExit("current numeric job id unavailable")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as handle:
+              handle.write(f"PACKET_JOB_ID={job_id}\n")
+          print("PACKET_JOB_ID_RESOLVED")
+          PY
+
+      - name: Create and verify external Q15 freeze attestation
+        shell: bash
+        run: |
+          set -euo pipefail
+          ATTEST="$RUNNER_TEMP/Q15-FREEZE-ATTESTATION.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          value = {
+            "schema": "r8-external-freeze-attestation/v1",
+            "candidate_commit": os.environ["Q15_SHA"],
+            "candidate_tree": os.environ["Q15_TREE"],
+            "frozen_ref": os.environ["FROZEN_REF"],
+            "linux_validation": {
+              "run_id": os.environ["LINUX_RUN_ID"],
+              "job_id": os.environ["LINUX_JOB_ID"],
+              "conclusion": "SUCCESS"
+            },
+            "review_packet": {
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "job_id": os.environ["PACKET_JOB_ID"],
+              "conclusion": "GENERATED"
+            },
+            "authority_effect": "NONE",
+            "fallback_to_3": "ACTIVE",
+            "six_slice_cadence": "NOT_RESTORED",
+            "attestation_state": "FROZEN_VERIFIED"
+          }
+          path = Path(os.environ["RUNNER_TEMP"]) / "Q15-FREEZE-ATTESTATION.json"
+          path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(path)
+          PY
+          PYTHONPATH="$Q15_ROOT/governance-runtime" python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from freeze_attestation import load_and_verify
+          load_and_verify(
+              Path(os.environ["RUNNER_TEMP"]) / "Q15-FREEZE-ATTESTATION.json",
+              root=Path(os.environ["GITHUB_WORKSPACE"]),
+          )
+          print("Q15_FREEZE_ATTESTATION_VERIFY_PASS")
+          PY
+          echo "Q15_ATTEST=$ATTEST" >> "$GITHUB_ENV"
+
+      - name: Run exact frozen Q15 checks and capture logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOGDIR="$RUNNER_TEMP/review-logs"
+          mkdir -p "$LOGDIR"
+          cd "$Q15_ROOT"
+          python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py 2>&1 | tee "$LOGDIR/01-invariants.txt"
+          python3 tools/test_r8_v15_r1_review_contract_parser.py 2>&1 | tee "$LOGDIR/02-legacy-parser.txt"
+          python3 tools/test_r8_v15_r1_independent_review_parser.py 2>&1 | tee "$LOGDIR/03-aj-parser.txt"
+          python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py 2>&1 | tee "$LOGDIR/04-preflight.txt"
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py 2>&1 | tee "$LOGDIR/05-activation-parser.txt"
+          python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py 2>&1 | tee "$LOGDIR/06-semantic-inventory.txt"
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py 2>&1 | tee "$LOGDIR/07-runtime-safe-read.txt"
+          python3 tools/test_r8_evidence_bundle_integrity.py 2>&1 | tee "$LOGDIR/08-evidence-integrity.txt"
+          python3 tools/test_r8_work_queue.py 2>&1 | tee "$LOGDIR/09-work-queue.txt"
+          python3 governance-runtime/test_provider_api_request_contract.py 2>&1 | tee "$LOGDIR/10-provider-api-contract.txt"
+          python3 governance-runtime/test_reviewer_evidence_delivery.py 2>&1 | tee "$LOGDIR/11-reviewer-delivery.txt"
+          python3 governance-runtime/test_platform_candidate_review_v2_materialization.py 2>&1 | tee "$LOGDIR/12-platform-materialization-v2.txt"
+          python3 governance-runtime/test_platform_candidate_review_request_integrity.py 2>&1 | tee "$LOGDIR/13-platform-request-integrity.txt"
+          python3 governance-runtime/test_platform_candidate_review_delivery_integration.py 2>&1 | tee "$LOGDIR/14-platform-delivery-integration.txt"
+          python3 governance-runtime/test_freeze_attestation.py 2>&1 | tee "$LOGDIR/15-freeze-attestation.txt"
+          python3 governance-runtime/test_q15_review_merge_gate.py 2>&1 | tee "$LOGDIR/16-q15-merge-gate.txt"
+          PYTHONPYCACHEPREFIX="$RUNNER_TEMP/q15-packet-pycache" python3 -m compileall -q governance-runtime tools 2>&1 | tee "$LOGDIR/17-compileall.txt"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before" 2>&1 | tee "$LOGDIR/18-stage1-before.txt"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after" 2>&1 | tee "$LOGDIR/19-stage1-after.txt"
+          test "$(git rev-parse HEAD)" = "$Q15_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$Q15_TREE"
+          test -z "$(git status --porcelain=v1)"
+
+      - name: Build exact Q15 review packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/build_r8_v15_r1_q15_review_packet.py             --candidate-root "$Q15_ROOT"             --base "$BASE_SHA"             --head "$Q15_SHA"             --tree "$Q15_TREE"             --freeze-attestation "$Q15_ATTEST"             --log-dir "$RUNNER_TEMP/review-logs"             --out "$RUNNER_TEMP/R8-V15-R1-Q15-FROZEN-REVIEW-PACKET.txt"             --packet-run-id "$GITHUB_RUN_ID"             --packet-job-id "$PACKET_JOB_ID"             --linux-run-id "$LINUX_RUN_ID"             --linux-job-id "$LINUX_JOB_ID"
+
+      - name: Verify packet completeness and exact identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKET="$RUNNER_TEMP/R8-V15-R1-Q15-FROZEN-REVIEW-PACKET.txt"
+          test -s "$PACKET"
+          grep -F "frozen Q15 commit: $Q15_SHA" "$PACKET"
+          grep -F "frozen Q15 tree: $Q15_TREE" "$PACKET"
+          grep -F "changed-file count from baseline: 53" "$PACKET"
+          grep -F "packet-generation job: $PACKET_JOB_ID" "$PACKET"
+          grep -F "exact Linux validation run: $LINUX_RUN_ID" "$PACKET"
+          grep -F "DO NOT STOP AFTER THE FIRST FINDING." "$PACKET"
+          while IFS= read -r path; do
+            blob="$(git -C "$Q15_ROOT" rev-parse "$Q15_SHA:$path")"
+            grep -F -- "----- BEGIN FILE $path | blob $blob |" "$PACKET" >/dev/null
+          done < <(git -C "$Q15_ROOT" diff --name-only "$BASE_SHA..$Q15_SHA")
+          test "$(git -C "$Q15_ROOT" rev-parse HEAD)" = "$Q15_SHA"
+          test "$(git -C "$Q15_ROOT" rev-parse HEAD^{tree})" = "$Q15_TREE"
+          test -z "$(git -C "$Q15_ROOT" status --porcelain=v1)"
+          sha256sum "$PACKET"
+          sha256sum "$Q15_ATTEST"
+          wc -c -l "$PACKET"
+
+      - name: Upload Q15 review packet and freeze attestation
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-q15-frozen-review-package
+          path: |
+            ${{ runner.temp }}/R8-V15-R1-Q15-FROZEN-REVIEW-PACKET.txt
+            ${{ runner.temp }}/Q15-FREEZE-ATTESTATION.json
+          if-no-files-found: error
+          retention-days: 30
