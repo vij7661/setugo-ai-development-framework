@@ -1,0 +1,60 @@
+{
+  "schema": "r8-v15-r1-post-sg1-single-candidate-convergence/v1",
+  "status": "OPEN_CONVERGENCE_NOT_FROZEN",
+  "authority_effect": "NONE",
+  "semantic_gap_inventory": {
+    "classification": "HISTORICAL_STAGE1_BOUND_EVIDENCE",
+    "candidate_commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "base_commit": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "not_regenerated_from_successor": true
+  },
+  "baseline": "7cd2787d85b189a4161f271ee131e42bd961140a",
+  "source_heads": {
+    "pr42": "4fcf6d3f2733d02668f94de19f51c69932391442",
+    "pr43": "8d1efb126a87adc4da101cf57d4d26025e9b9b16",
+    "pr44": "36546975cf733becdbbec5b658a32716f7a1489a",
+    "pr46": "41d2ed1718d0ad1faf1d8110d19a5ec819eafcad",
+    "pr50_implementation": "12b3235ea2c1f67310f073708458b45b93ada9f5"
+  },
+  "overlap_resolution": {
+    "governance-runtime/r8_v15_r1_frozen_schema_runtime.py": {
+      "winner": "pr44",
+      "expected_initial_blob": "a9714e570f9a813d5d143f8258afa196333d38a0",
+      "rule": "single runtime file in integration tree; PR46 must consume this copy"
+    },
+    "governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py": {
+      "winner": "pr44",
+      "rule": "single runtime hardening test in integration tree"
+    }
+  },
+  "excluded_historical_packet_artifacts": [
+    "governance-r8/ISSUE-52-CONSOLIDATED-QUEUE-REPORT.md",
+    "governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET.md",
+    "governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET-V2.txt",
+    "governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-REVIEW-PACKET-V3.txt",
+    "governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-ROUND2-REVIEW-PACKET.txt",
+    "governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-52-ROUND2-REVIEW-PACKET-V2.txt"
+  ],
+  "freeze_requirements": [
+    "candidate-level invariant gate PASS",
+    "all narrow and broad regression tests PASS",
+    "exact candidate HEAD/tree/worktree recorded",
+    "Linux capability evidence bound to frozen exact SHA",
+    "review packet generated only from frozen exact SHA",
+    "fresh independent review after freeze"
+  ],
+  "grants": {
+    "merge": false,
+    "broader_stage2": false,
+    "runtime_qualification": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "constitutional": false,
+    "root": false,
+    "terminal": false
+  },
+  "fallback_to_3": "ACTIVE",
+  "six_slice_cadence_restored": false
+}

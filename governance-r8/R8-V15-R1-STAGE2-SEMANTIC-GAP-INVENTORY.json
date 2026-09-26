@@ -1,0 +1,950 @@
+{
+  "authority_effect": "NONE",
+  "candidate": {
+    "base": "751162ee42c603cb6c84ee12021d16bab6fa626b",
+    "commit": "4984f06a4420b76ad1ad475751aebda04a2d2c5c",
+    "tree": "5a34e0d7db3e750dd5b0f722ccecc8014be189ef"
+  },
+  "direct_edges": [
+    {
+      "from_path": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "c4f86fd7d351c068e1954f67cbc05dde2fb3a2a1",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "83dd1f3d808151842e20669bfe49ccd8dd1012d1",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "3a583c43f8e06caa421f1698e00b398b65dd61cb",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "15f77c04b2232535624f50a9fb8502eb071e020e",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "9df43264001c95b870e6dd0458d8ac4478d776dd",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "90d74ea96eceabd465e29c016c19c956da97faa6",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "fe32e7dcc64d87f8ece9beb44fbef9a7d421f9e0",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "d89b5929b607a1a39c9e412dffded49586ce3b91",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_effect_intent_validator",
+      "imported_names": [],
+      "lineno": 10,
+      "source_blob": "d89b5929b607a1a39c9e412dffded49586ce3b91",
+      "target_blob": "50c5f3edd905ec23ae8e97d3cc2d441489935786",
+      "target_path": "governance-runtime/r8_v15_r1_effect_intent_validator.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "086ab78ef4fedb5c534c23886212c31d9dd9296b",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "932bce96e75768ccdf11615f5d232cb0fe7be684",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "ec527fc83b8efc958ef1e02a5c763a3f2319fab4",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "7e671bc59726163b4ad84451364e35cb30d53695",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 11,
+      "source_blob": "445642ccf072ce6e0d2b6da2e6796e5f433e8643",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "5721f5a91632f81b6df7a0a492cf0deceeca4af7",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 7,
+      "source_blob": "457f2cf739e8ec9eff1c6750bd034d9a2f21bf3f",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "9cbf84eb3b9ce4a08facba422fb5ebbf7617267e",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 7,
+      "source_blob": "b0efd6add746a359294cac632cf074659e215472",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "08bbd221ad26dd0d98c7936cf625cee2233ddd90",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "1cb048726d9651647c74ec094e522c0b9b2e2d6f",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "cd71ad35e16639d387d34d660026fbb250197358",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "3b11ef18c84f8461b22d165f97cabcc6d5d4bc93",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_rir_record_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 7,
+      "source_blob": "ac4b612698feead3895d1a978bac67054fc7597d",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 5,
+      "source_blob": "01f6f005669c90b4b6d6ee3ce4443c99248581c7",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "02f2f3cccc3aeafb8826744bff49fe2718ff5983",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "615ea2e1dac7edf39016e0d77a5d4eb67e9463f8",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 9,
+      "source_blob": "64b3a7ebdc424048770a7556a68a8880a052478a",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "50a34baef108f715e80d339876f1cd1f83c92f7e",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "800714e8984088c81086da1999fadc7a6c590b88",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "43f9445efdc4af4b73b13e96deff8f52d8006753",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 6,
+      "source_blob": "b40e1cfd54753fc31fa1db67d873577351b8b684",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "from_path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+      "import_kind": "import",
+      "import_module": "r8_v15_r1_frozen_schema_runtime",
+      "imported_names": [],
+      "lineno": 5,
+      "source_blob": "7f9179dbc8dc69a6627044caeb393ffeffef6cc2",
+      "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+      "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    }
+  ],
+  "evidence_inputs": {
+    "governance-r8/R8-V15-R1-IG1-SUCCESSOR1-EXACT-TREE-ENTRY-ALLOWLIST.json": {
+      "blob": "15cbe7947d0f6f872fabd00b2fc5b0d01a894e2b",
+      "sha256": "297f17a2a2029ad137da90f350b6de46320e3d2a6ee6b0e81ccdb9066e65a52e"
+    },
+    "governance-r8/R8-V15-R1-STAGE2-SG1-CLOSURE.json": {
+      "blob": "95e8c4264ed483f9c6ef7f3bbad1accd7ad87f4e",
+      "sha256": "476040eb193e4a18d19f67dca0f9078a2587085a10a3097f175837865db557b5"
+    },
+    "governance-r8/R8-V15-R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-SURFACE.json": {
+      "blob": "94e3275edbb32baca640966830352f5e6c9f4ada",
+      "sha256": "dcbc2bed0f911a0a6886c16971e7359bba0cd0c056922275927ff2a417bafdab"
+    }
+  },
+  "fallback_to_3": "ACTIVE",
+  "inventory_sha256": "599b1443338682a1b104db92d4715c581c725778f53cf75055dfec6a0e380570",
+  "items": [
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "c4f86fd7d351c068e1954f67cbc05dde2fb3a2a1",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-001",
+      "source": "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "83dd1f3d808151842e20669bfe49ccd8dd1012d1",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-002",
+      "source": "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "3a583c43f8e06caa421f1698e00b398b65dd61cb",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-003",
+      "source": "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "15f77c04b2232535624f50a9fb8502eb071e020e",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-004",
+      "source": "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "9df43264001c95b870e6dd0458d8ac4478d776dd",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-005",
+      "source": "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "90d74ea96eceabd465e29c016c19c956da97faa6",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-006",
+      "source": "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "fe32e7dcc64d87f8ece9beb44fbef9a7d421f9e0",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-007",
+      "source": "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "d89b5929b607a1a39c9e412dffded49586ce3b91",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-008",
+      "source": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_effect_intent_validator",
+        "imported_names": [],
+        "lineno": 10,
+        "source_blob": "d89b5929b607a1a39c9e412dffded49586ce3b91",
+        "target_blob": "50c5f3edd905ec23ae8e97d3cc2d441489935786",
+        "target_path": "governance-runtime/r8_v15_r1_effect_intent_validator.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-009",
+      "source": "governance-runtime/r8_v15_r1_effect_state_validator.py",
+      "target": "governance-runtime/r8_v15_r1_effect_intent_validator.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "086ab78ef4fedb5c534c23886212c31d9dd9296b",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-010",
+      "source": "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "932bce96e75768ccdf11615f5d232cb0fe7be684",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-011",
+      "source": "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "ec527fc83b8efc958ef1e02a5c763a3f2319fab4",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-012",
+      "source": "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "7e671bc59726163b4ad84451364e35cb30d53695",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-013",
+      "source": "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 11,
+        "source_blob": "445642ccf072ce6e0d2b6da2e6796e5f433e8643",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-014",
+      "source": "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "5721f5a91632f81b6df7a0a492cf0deceeca4af7",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-015",
+      "source": "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 7,
+        "source_blob": "457f2cf739e8ec9eff1c6750bd034d9a2f21bf3f",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-016",
+      "source": "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "9cbf84eb3b9ce4a08facba422fb5ebbf7617267e",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-017",
+      "source": "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 7,
+        "source_blob": "b0efd6add746a359294cac632cf074659e215472",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-018",
+      "source": "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "08bbd221ad26dd0d98c7936cf625cee2233ddd90",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-019",
+      "source": "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "1cb048726d9651647c74ec094e522c0b9b2e2d6f",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-020",
+      "source": "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "cd71ad35e16639d387d34d660026fbb250197358",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-021",
+      "source": "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "3b11ef18c84f8461b22d165f97cabcc6d5d4bc93",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-022",
+      "source": "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_rir_record_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 7,
+        "source_blob": "ac4b612698feead3895d1a978bac67054fc7597d",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-023",
+      "source": "governance-runtime/r8_v15_r1_rir_record_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 5,
+        "source_blob": "01f6f005669c90b4b6d6ee3ce4443c99248581c7",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-024",
+      "source": "governance-runtime/r8_v15_r1_scope_component_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "02f2f3cccc3aeafb8826744bff49fe2718ff5983",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-025",
+      "source": "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "615ea2e1dac7edf39016e0d77a5d4eb67e9463f8",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-026",
+      "source": "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 9,
+        "source_blob": "64b3a7ebdc424048770a7556a68a8880a052478a",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-027",
+      "source": "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "50a34baef108f715e80d339876f1cd1f83c92f7e",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-028",
+      "source": "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "800714e8984088c81086da1999fadc7a6c590b88",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-029",
+      "source": "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "43f9445efdc4af4b73b13e96deff8f52d8006753",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-030",
+      "source": "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 6,
+        "source_blob": "b40e1cfd54753fc31fa1db67d873577351b8b684",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-031",
+      "source": "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    },
+    {
+      "classification": "already_covered",
+      "edge": {
+        "from_path": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+        "import_kind": "import",
+        "import_module": "r8_v15_r1_frozen_schema_runtime",
+        "imported_names": [],
+        "lineno": 5,
+        "source_blob": "7f9179dbc8dc69a6627044caeb393ffeffef6cc2",
+        "target_blob": "e5a06f43b98131f0730852757a83bb7fe5882001",
+        "target_path": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+      },
+      "evidence": "semantic-surface + SG1 closure",
+      "id": "SG1-EDGE-032",
+      "source": "governance-runtime/r8_v15_r1_stable_scope_value_validator.py",
+      "target": "governance-runtime/r8_v15_r1_frozen_schema_runtime.py"
+    }
+  ],
+  "manual_policy": {
+    "items": [],
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
+  "manual_policy_decision_required": true,
+  "proposed_next_gates": [],
+  "release_deployment_production_only": {
+    "items": [],
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
+  "runtime_only": {
+    "items": [],
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
+  "schema": "r8-v15-r1-stage2-semantic-gap-inventory/v2",
+  "selected_files": [
+    "governance-runtime/r8_v15_r1_aiep_runtime_profile_validator.py",
+    "governance-runtime/r8_v15_r1_aim_scope_policy_class_rule_validator.py",
+    "governance-runtime/r8_v15_r1_aim_scope_policy_validator.py",
+    "governance-runtime/r8_v15_r1_any_scope_permission_validator.py",
+    "governance-runtime/r8_v15_r1_bsp5_grammar_freeze_validator.py",
+    "governance-runtime/r8_v15_r1_canonical_scope_tuple_validator.py",
+    "governance-runtime/r8_v15_r1_case_guard_registry_family_validator.py",
+    "governance-runtime/r8_v15_r1_case_proof_contracts_family_validator.py",
+    "governance-runtime/r8_v15_r1_effect_state_validator.py",
+    "governance-runtime/r8_v15_r1_evidence_record_validator.py",
+    "governance-runtime/r8_v15_r1_freeze_traceability_exact_validator.py",
+    "governance-runtime/r8_v15_r1_freeze_validator_contract_exact_validator.py",
+    "governance-runtime/r8_v15_r1_frozen_instance_family_exact_validator.py",
+    "governance-runtime/r8_v15_r1_gcp_rvm2_family_validator.py",
+    "governance-runtime/r8_v15_r1_guard_omission_family_validator.py",
+    "governance-runtime/r8_v15_r1_ncg_structured_closure_validator.py",
+    "governance-runtime/r8_v15_r1_provenance_source_map_exact_validator.py",
+    "governance-runtime/r8_v15_r1_rcs_aggregate_result_validator.py",
+    "governance-runtime/r8_v15_r1_rcs_evidence_validator.py",
+    "governance-runtime/r8_v15_r1_rcs_suite_validator.py",
+    "governance-runtime/r8_v15_r1_rcs_vector_result_validator.py",
+    "governance-runtime/r8_v15_r1_resolver_policy_validator.py",
+    "governance-runtime/r8_v15_r1_review_attestation_validator.py",
+    "governance-runtime/r8_v15_r1_review_field_rule_validator.py",
+    "governance-runtime/r8_v15_r1_review_packet_type_validator.py",
+    "governance-runtime/r8_v15_r1_review_presentation_schema_validator.py",
+    "governance-runtime/r8_v15_r1_rir_record_validator.py",
+    "governance-runtime/r8_v15_r1_scope_component_name_validator.py",
+    "governance-runtime/r8_v15_r1_scope_component_validator.py",
+    "governance-runtime/r8_v15_r1_scope_replacement_mapping_validator.py",
+    "governance-runtime/r8_v15_r1_scope_replacement_outside_table_input_validator.py",
+    "governance-runtime/r8_v15_r1_semantic_entry_validator.py",
+    "governance-runtime/r8_v15_r1_semantic_lineage_mapping_validator.py",
+    "governance-runtime/r8_v15_r1_spg1_binding_family_validator.py",
+    "governance-runtime/r8_v15_r1_spm1_provenance_family_validator.py",
+    "governance-runtime/r8_v15_r1_spm_source_ref_validator.py",
+    "governance-runtime/r8_v15_r1_srtt4_rule_registry_validator.py",
+    "governance-runtime/r8_v15_r1_srtt4_total_table_validator.py",
+    "governance-runtime/r8_v15_r1_stable_scope_value_validator.py"
+  ],
+  "stage2_semantic_execution_performed": false,
+  "unresolved_semantic_dependencies": []
+}
