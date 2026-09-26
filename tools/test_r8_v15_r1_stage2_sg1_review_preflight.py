@@ -1,0 +1,23 @@
+from __future__ import annotations
+import hashlib, shutil, unittest
+from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from preflight_r8_v15_r1_stage2_sg1_review import validate_artifact
+
+class ReviewPreflightTests(unittest.TestCase):
+    def test_exact_artifact_binding(self):
+        path = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")
+        raw = path.read_bytes()
+        blob = __import__("subprocess").check_output(["git", "rev-parse", f"HEAD:{path.as_posix()}"], text=True).strip()
+        self.assertEqual(validate_artifact(path, expected_sha256=hashlib.sha256(raw).hexdigest(), expected_blob=blob)["status"], "PASS")
+
+    def test_parseable_substitution_and_wrong_digest_reject(self):
+        source = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")
+        copy_path = Path("stage2-sg1-evidence") / "_substituted-review.txt"
+        copy_path.parent.mkdir(exist_ok=True); shutil.copyfile(source, copy_path)
+        try:
+            with self.assertRaises(ValueError): validate_artifact(copy_path, expected_sha256="0" * 64)
+        finally: copy_path.unlink(missing_ok=True)
+
+if __name__ == "__main__": unittest.main()
