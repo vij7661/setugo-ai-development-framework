@@ -23,7 +23,7 @@ class EvidenceIntegrityTests(unittest.TestCase):
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
     def test_valid_lineage_and_per_file_hash(self):
         root = self.root; bundle = self.make_bundle(root)
-        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64)["status"], "PASS")
+        self.assertEqual(verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="run-1", expected_job_id="job-1", expected_workflow="wf.yml", expected_head="a" * 40, expected_inputs={"input": "b" * 40}, expected_archive_sha256="c" * 64, expected_activation_verification=bundle["activation_verification"])["status"], "PASS")
 
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
     def test_changed_file_rejected(self):
@@ -51,6 +51,30 @@ class EvidenceIntegrityTests(unittest.TestCase):
     def test_activation_evidence_shape_required(self):
         root = self.root; bundle = self.make_bundle(root)
         bundle["activation_verification"] = {"performed": False}
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE")
+
+    def test_path_aliases_and_absolute_paths_rejected_before_read(self):
+        with self.assertRaises(ValueError): canonical_entries(self.root, ["./result.json"])
+        with self.assertRaises(ValueError): canonical_entries(self.root, ["nested/../result.json"])
+        with self.assertRaises(ValueError): canonical_entries(self.root, ["C:/escape"])
+        with self.assertRaises(ValueError): canonical_entries(self.root, ["result.json", "result.json"])
+
+    @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
+    def test_exact_lineage_fields_reject_valid_looking_substitutions(self):
+        root = self.root; bundle = self.make_bundle(root)
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_run_id="other")
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_job_id="other")
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_workflow="other.yml")
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE", expected_activation_verification={"performed": True, "run_id": "run-1", "job_id": "job-1", "conclusion": "success"})
+
+    @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
+    def test_malformed_and_substituted_identity_values_rejected(self):
+        root = self.root; bundle = self.make_bundle(root)
+        bundle["head_sha"] = "not-a-sha"
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE")
+        bundle = self.make_bundle(root); bundle["input_blobs"]["input"] = "g" * 40
+        with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE")
+        bundle = self.make_bundle(root); bundle["archive"]["sha256"] = "bad"
         with self.assertRaises(ValueError): verify_bundle(bundle, root=root, expected_authority="NONE")
 
 
