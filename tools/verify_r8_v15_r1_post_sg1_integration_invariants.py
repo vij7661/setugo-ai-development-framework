@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = "7cd2787d85b189a4161f271ee131e42bd961140a"
-EXPECTED_RUNTIME_BLOB = "a9714e570f9a813d5d143f8258afa196333d38a0"
+EXPECTED_RUNTIME_BLOB = "0f2e7f7a917adc584fb79d91a60f708713becd35"
 
 def run(*args: str) -> str:
     return subprocess.check_output(args, cwd=ROOT, text=True).strip()
