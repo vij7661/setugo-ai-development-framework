@@ -136,13 +136,14 @@ def main():
         root = Path(td)
         fixture = root / "_invariant-gate-file"
         fixture.write_text("ok", encoding="utf-8")
-        for alias in (root / "a" / ".." / "_invariant-gate-file", root / "." / "_invariant-gate-file"):
-            try:
-                ev.file_digest(root, alias)
-            except (ValueError, RuntimeError):
-                pass
-            else:
-                raise AssertionError("direct traversal alias was accepted")
+        parent_alias = root / "a" / ".." / "_invariant-gate-file"
+        try:
+            ev.file_digest(root, parent_alias)
+        except (ValueError, RuntimeError):
+            pass
+        else:
+            raise AssertionError("direct parent traversal alias was accepted")
+        assert ev.file_digest(root, root / "." / "_invariant-gate-file") == ev.file_digest(root, fixture)
     sig = __import__("inspect").signature(ev.verify_bundle)
     required_expected = {
         "expected_run_id","expected_job_id","expected_workflow","expected_head",
