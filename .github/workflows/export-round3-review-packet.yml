@@ -1,0 +1,27 @@
+name: Export Round3 Review Packet
+
+on:
+  push:
+    branches:
+      - utility/export-round3-review-packet-2026-09-26
+    paths:
+      - .github/workflows/export-round3-review-packet.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: bbf24e228508c8d389c8edb1557ea6a94b1c52fe
+          persist-credentials: false
+      - name: Upload packet
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: round3-review-packet
+          path: governance-r8/R8-V15-R1-CONSOLIDATED-REMEDIATION-53-ROUND3-REVIEW-PACKET.txt
+          if-no-files-found: error
+          retention-days: 7
