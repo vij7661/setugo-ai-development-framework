@@ -1,0 +1,57 @@
+{
+  "schema": "r8-v15-r1-round2-linux-capability-evidence/v1",
+  "status": "PASS_NON_AUTHORITATIVE_CAPABILITY_EVIDENCE_ONLY",
+  "authority_effect": "NONE",
+  "workflow": {
+    "path": ".github/workflows/r8-v15-r1-round2-linux-capability.yml",
+    "workflow_commit": "9994c549f81de6b1a436e524de4f49ce1a0f65ec",
+    "run_id": 36237083781,
+    "run_conclusion": "success"
+  },
+  "pr44": {
+    "exact_head": "72814c11b60cb9a7385d860777878727d4a4f52c",
+    "job_id": 108390707196,
+    "conclusion": "success",
+    "tests": {
+      "command": "python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py",
+      "count": 9,
+      "result": "OK",
+      "skips": 0
+    },
+    "worktree_unchanged": true
+  },
+  "pr46": {
+    "exact_head": "1d916fc0314c4d4f66f69bf039887f4212847943",
+    "job_id": 108390707072,
+    "conclusion": "success",
+    "integrated_safe_read_tests": {
+      "command": "python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py",
+      "count": 9,
+      "result": "OK",
+      "skips": 0
+    },
+    "evidence_integrity_tests": {
+      "command": "python3 tools/test_r8_evidence_bundle_integrity.py",
+      "count": 9,
+      "result": "OK",
+      "skips": 0
+    },
+    "worktree_unchanged": true
+  },
+  "historical_failed_attempt": {
+    "run_id": 36237054540,
+    "conclusion": "failure",
+    "note": "All substantive tests passed, but post-test worktree-clean assertions failed because Python bytecode dirtied the checkout. The rerun set PYTHONDONTWRITEBYTECODE=1 and passed. This failed evidence run remains preserved."
+  },
+  "grants": {
+    "runtime_qualification": false,
+    "broader_stage2": false,
+    "release": false,
+    "deployment": false,
+    "production": false,
+    "policy": false,
+    "constitutional": false,
+    "root": false,
+    "terminal": false
+  }
+}
