@@ -35,11 +35,25 @@ jobs:
         run: python3 tools/test_r8_evidence_bundle_integrity.py
       - name: Queue tests
         run: python3 tools/test_r8_work_queue.py
-      - name: Compile changed Python
+      - name: Syntax-check changed Python without writing bytecode
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m py_compile             tools/r8_v15_r1_review_contract_parser.py             tools/preflight_r8_v15_r1_stage2_sg1_review.py             tools/r8_v15_r1_stage2_semantic_gap_inventory.py             tools/r8_evidence_bundle_integrity.py             tools/r8_work_queue.py             governance-runtime/r8_v15_r1_frozen_schema_runtime.py
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          files = [
+              "tools/r8_v15_r1_review_contract_parser.py",
+              "tools/preflight_r8_v15_r1_stage2_sg1_review.py",
+              "tools/r8_v15_r1_stage2_semantic_gap_inventory.py",
+              "tools/r8_evidence_bundle_integrity.py",
+              "tools/r8_work_queue.py",
+              "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+          ]
+          for name in files:
+              ast.parse(Path(name).read_text(encoding="utf-8"), filename=name)
+          print(f"AST_SYNTAX_PASS files={len(files)}")
+          PY
       - name: Verify worktree clean
         shell: bash
         run: |
