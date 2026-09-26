@@ -1,0 +1,69 @@
+A. OVERALL_DISPOSITION
+BOUNDED_PASS
+
+B. EXACT_EXECUTION_IDENTITY
+Proposal ID: R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001
+Proposal commit: 67c84138140e86ba4a85a954f368f4c0f7e9ef3c
+Proposal blob: d1ebd1427d5dfb07348fda2f817aa7f3d20feb3b
+Candidate commit: 4984f06a4420b76ad1ad475751aebda04a2d2c5c
+Candidate tree: 5a34e0d7db3e750dd5b0f722ccecc8014be189ef
+Candidate parent: 751162ee42c603cb6c84ee12021d16bab6fa626b
+Activation commit: 5bd4fb376625ee0d4f19aea33f1b71a70963436a
+Activation-gate blob: 5d75c4b5c85fec075812c819c979e7048df8cd7f
+Review-004 blob: ce879a1d0b3b1116877d26738922c2c7028d1f02
+Activation artifact blob: 1f79cfb9a320f5c7c43bcbf2dcc8857c214cf7a8
+Execution-evidence record blob: 5a1ac857b7be37c633bd01a3d1ecfbafdf289298
+Run ID: 36224368626 — success
+Activation verify job: 108355417398 — success
+SG-1 semantic-conformance job: 108355437312 — success
+Run head SHA: 5bd4fb376625ee0d4f19aea33f1b71a70963436a
+Artifact ID: 10900590603
+Artifact name: r8-v15-r1-stage2-sg1-results
+Artifact digest: sha256:58e3b45ccb6f95b3d6966339d7819f74cbdf4d0b4cfc4aa58356545b622c1d3e
+Artifact files: sg1-forward.json, sg1-reverse.json
+Forward raw JSON SHA-256: 5749e1a9ec4597b870b1463860025c8636110f3760af5c6f00e634407c73316c
+Reverse raw JSON SHA-256: 0a23b59ccc15afc41caaa8578cb999c26c6da9fafb69e8e237ca26ecd5f2a5a2
+Machinery blobs:
+- semantic harness: 15cb741fedd6f65d4f1cf5a5a3873e70649ed4ad
+- forward/reverse comparator: 097464a6b99bc79117501f7700d012ebeddd8675
+- reusable SG-1 core: 93ea0cccfdb1392ef38ee41dd053512372de0c87
+- Stage1 exact-candidate verifier: dc8b76d6710dee27af4a3502b157853959d34ba7
+- semantic-surface: 94e3275edbb32baca640966830352f5e6c9f4ada
+- static preflight: 963b3e29ce2cdb2621d83e4e9f3f657a45222ad6
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+NONE.
+
+E. MEDIUM_LOW_FINDINGS
+- Low: The structured execution-evidence summary does not repeat the execution-evidence record blob SHA-1 that appears in the packet header; traceability remains available from the header.
+- Low: Individual artifact file digests are not separately stated; forward/reverse raw JSON SHA-256 hashes and the artifact archive digest are provided and internally consistent with the summary.
+- Low: The exact run log excerpts do not reproduce a verbatim activation-verification log line; activation verification before SG-1 execution is supported by the verify job conclusion and structured summary.
+- Low: The Stage1 exact-candidate postrun log shows changed_paths=121 and reviewed_allowlisted_entries=120; the verifier status is PASS and no gate failure is evidenced, but the one-count difference is not explained in the packet.
+
+F. POST_EXECUTION_ASSESSMENT
+F1 exact execution/activation identity: Matches packet header and structured summary; proposal, candidate, activation, review, artifact, run, and job identities are consistent.
+F2 Stage1 guard before: PASS; IG1_SUCCESSOR3_ORACLE_PASS; reviewed slice 636 + inherited baseline 140 = 776; expectedFailures 0, skips 0, unexpectedSuccesses 0; exact-candidate postrun verification PASS.
+F3 forward 18-case result: PASS; 18/18 cases true; candidate_modified false; external_effects_performed false; authority_effect NONE; stage2_broader_authority false; raw JSON SHA-256 matches.
+F4 reverse 18-case result: PASS; 18/18 cases true; candidate_modified false; external_effects_performed false; authority_effect NONE; stage2_broader_authority false; raw JSON SHA-256 matches.
+F5 forward/reverse comparator: R8V15R1_STAGE2_SG1_FORWARD_REVERSE_EQUIVALENCE_PASS; case_count_each 18; semantic fingerprints identical true; case results identical true. No false-green evidence in the supplied JSON.
+F6 candidate immutability: HEAD remained 4984f06a4420b76ad1ad475751aebda04a2d2c5c; tree remained 5a34e0d7db3e750dd5b0f722ccecc8014be189ef; worktree remained clean; candidate_modified false.
+F7 Stage1 guard after: PASS; IG1_SUCCESSOR3_ORACLE_PASS; 636 + 140 = 776; expectedFailures 0, skips 0, unexpectedSuccesses 0; exact-candidate postrun verification PASS.
+F8 no external effects / no authority grant: external_effects_performed false; authority_effect NONE; no runtime, release, deployment, production, policy, constitutional, root, or terminal authority granted.
+F9 artifact/result integrity: Artifact ID, digest, and files are stated; forward/reverse raw hashes match the header and structured summary; no mismatch found.
+F10 preserved failed-attempt history: Attempt 001 failed in activation verification before semantic execution; Attempt 002 SG-1 core job was SKIPPED; both remain preserved history and are not rewritten by the successful third activation.
+F11 exact SG-1 bounded objective: SG-1 remains dependency-semantic conformance only; stage2_scope is DEPENDENCY_SEMANTIC_CONFORMANCE_SG1_ONLY; no broader Stage2 authority is supported.
+F12 post-execution closure eligibility: SG-1 is eligible for bounded closure only; SG-1 execution completed but SG-1 is not yet closed; no later Stage2 gate is authorized by execution success alone.
+
+G. IMPLEMENTATION_AND_AUTHORITY_BOUNDARY
+SG-1 remains bounded to LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY. Broader Stage2 remains unauthorized. Fallback-to-3 remains ACTIVE. Six-slice cadence remains not restored. Any later Stage2 gate requires separately governed preregistration, review, and authorization.
+
+H. FINAL_GATE
+- Stage2 SG-1 may be boundedly closed: YES.
+- If YES, closure is limited to SG-1 LOCAL DEPENDENCY SEMANTIC FALSIFICATION ONLY.
+- Broader Stage2 semantic authority granted: NO.
+- Later Stage2 gate execution automatically authorized: NO.
+- Automatic six-slice cadence restoration: NO.
+- Runtime/release/deployment/production/policy/constitutional/root/terminal authority granted: NO.
