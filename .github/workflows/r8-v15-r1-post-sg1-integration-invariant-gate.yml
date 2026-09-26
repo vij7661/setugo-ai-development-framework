@@ -29,6 +29,9 @@ jobs:
         run: python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
       - name: Semantic inventory tests
         run: python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+      - name: Reviewer evidence delivery and solution-contract tests
+        run: python3 governance-runtime/test_reviewer_evidence_delivery.py
+
       - name: Provider API request contract preservation tests
         run: python3 governance-runtime/test_provider_api_request_contract.py
 
