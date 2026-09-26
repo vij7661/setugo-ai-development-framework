@@ -1,0 +1,133 @@
+name: R8 Q14 Linux Validation
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-q14-linux-validation-2026-09-27
+    paths:
+      - .github/workflows/r8-q14-linux-validation.yml
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+  Q14_CANDIDATE_SHA: "01ec3651c9c0764e69944cd5718b07e4d30623b4"
+  Q14_CANDIDATE_TREE: "a61f1b0686c65719a83e0b065f5ac632f88cba96"
+
+jobs:
+  q14-linux-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout workflow branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create exact Q14 candidate worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/q14-candidate"
+          git worktree add --detach "$ROOT" "$Q14_CANDIDATE_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD)" = "$Q14_CANDIDATE_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD^{tree})" = "$Q14_CANDIDATE_TREE"
+          test -z "$(git -C "$ROOT" status --porcelain=v1)"
+          echo "Q14_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Q14 permanent invariant gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+
+      - name: Review parser tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/test_r8_v15_r1_review_contract_parser.py
+
+      - name: Review preflight tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+
+      - name: Activation parser validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+
+      - name: Semantic inventory tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+
+      - name: Runtime descriptor-safe TOCTOU tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+
+      - name: Evidence integrity descriptor-safe tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/test_r8_evidence_bundle_integrity.py
+
+      - name: Queue tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/test_r8_work_queue.py
+
+      - name: Provider API request preservation tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 governance-runtime/test_provider_api_request_contract.py
+
+      - name: Reviewer evidence delivery tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 governance-runtime/test_reviewer_evidence_delivery.py
+
+      - name: Stage1 exact-candidate guard before
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before"
+
+      - name: Stage1 exact-candidate guard after
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q14_ROOT"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after"
+
+      - name: Final exact identity and clean worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$Q14_ROOT" rev-parse HEAD)" = "$Q14_CANDIDATE_SHA"
+          test "$(git -C "$Q14_ROOT" rev-parse HEAD^{tree})" = "$Q14_CANDIDATE_TREE"
+          test -z "$(git -C "$Q14_ROOT" status --porcelain=v1)"
+          echo "Q14_LINUX_VALIDATION_PASS"
