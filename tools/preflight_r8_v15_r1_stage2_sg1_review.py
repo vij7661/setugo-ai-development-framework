@@ -10,13 +10,20 @@ import subprocess
 import re
 
 sys.path.insert(0, str(Path(__file__).parent))
-from r8_v15_r1_review_contract_parser import parse_review_file  # noqa: E402
+from r8_v15_r1_review_contract_parser import parse_review_contract  # noqa: E402
 
 
 def validate_artifact(path: Path, *, expected_sha256: str | None = None, expected_blob: str | None = None, git_rev: str = "HEAD") -> dict:
-    result = parse_review_file(path)
     raw = path.read_bytes()
     raw_sha = hashlib.sha256(raw).hexdigest()
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("review is not valid UTF-8") from exc
+    try:
+        result = parse_review_contract(text)
+    except ValueError:
+        raise
     if expected_sha256 and raw_sha != expected_sha256:
         raise ValueError("review raw SHA-256 mismatch")
     if expected_blob:

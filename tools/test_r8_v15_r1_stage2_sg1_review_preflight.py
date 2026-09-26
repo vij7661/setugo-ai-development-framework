@@ -1,5 +1,6 @@
 from __future__ import annotations
 import hashlib, shutil, unittest
+from unittest import mock
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
@@ -35,8 +36,22 @@ class ReviewPreflightTests(unittest.TestCase):
             "r8-v15-r1-stage2-sg1-review004-remediation-packet.yml": ("--expected-sha256", "--expected-blob"),
         }
         for name, needles in checks.items():
-            text = (root / name).read_text(encoding="utf-8")
-            for needle in needles:
-                self.assertIn(needle, text)
+            lines = (root / name).read_text(encoding="utf-8").splitlines()
+            commands = []
+            for i, line in enumerate(lines):
+                if "preflight_r8_v15_r1_stage2_sg1_review.py" in line:
+                    commands.append(" ".join(lines[i:i + 4]))
+            self.assertTrue(commands)
+            for command in commands:
+                for needle in needles:
+                    self.assertIn(needle, command)
+
+    def test_validate_artifact_reads_one_raw_stream(self):
+        path = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")
+        raw = path.read_bytes()
+        blob = __import__("subprocess").check_output(["git", "rev-parse", f"HEAD:{path.as_posix()}"], text=True).strip()
+        with mock.patch.object(Path, "read_bytes", wraps=path.read_bytes) as read:
+            self.assertEqual(validate_artifact(path, expected_sha256=hashlib.sha256(raw).hexdigest(), expected_blob=blob)["status"], "PASS")
+            self.assertEqual(read.call_count, 1)
 
 if __name__ == "__main__": unittest.main()
