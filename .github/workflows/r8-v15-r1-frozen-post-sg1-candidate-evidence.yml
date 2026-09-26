@@ -1,0 +1,77 @@
+name: R8 v15-r1 Frozen Post-SG1 Candidate Evidence
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-post-sg1-frozen-candidate-2026-09-26
+    paths:
+      - .github/workflows/r8-v15-r1-frozen-post-sg1-candidate-evidence.yml
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+
+jobs:
+  frozen-candidate-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ca1ae48be3d01025b7811d50d8482db30d15e4e9
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact frozen candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "ca1ae48be3d01025b7811d50d8482db30d15e4e9"
+          test "$(git rev-parse HEAD^{tree})" = "db50bcbead24390cc147278dd371188e54a3166d"
+          test -z "$(git status --porcelain=v1)"
+
+      - name: Candidate invariant gate
+        run: python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+
+      - name: Parser tests
+        run: python3 tools/test_r8_v15_r1_review_contract_parser.py
+
+      - name: Preflight tests
+        run: python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+
+      - name: Semantic inventory tests
+        run: python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+
+      - name: Runtime safe-read tests
+        run: python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+
+      - name: Evidence integrity tests
+        run: python3 tools/test_r8_evidence_bundle_integrity.py
+
+      - name: Queue tests
+        run: python3 tools/test_r8_work_queue.py
+
+      - name: Re-run Stage1 exact-candidate regression guard before evidence close
+        shell: bash
+        run: |
+          set -euo pipefail
+          PRE="$RUNNER_TEMP/r8-post-sg1-frozen-precheck"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$PRE"
+
+      - name: Re-run Stage1 exact-candidate regression guard after evidence close
+        shell: bash
+        run: |
+          set -euo pipefail
+          POST="$RUNNER_TEMP/r8-post-sg1-frozen-postcheck"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$POST"
+
+      - name: Final identity and clean-worktree assertion
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "ca1ae48be3d01025b7811d50d8482db30d15e4e9"
+          test "$(git rev-parse HEAD^{tree})" = "db50bcbead24390cc147278dd371188e54a3166d"
+          test -z "$(git status --porcelain=v1)"
