@@ -1,6 +1,6 @@
 {
   "schema": "r8-v15-r1-stage2-sg1-review-activation-manifest/v1",
-  "status": "PARSER_REMEDIATION_REQUIRES_FRESH_REVIEW_003_NOT_ACTIVE",
+  "status": "H_SECTION_LIST_MARKER_REMEDIATION_REQUIRES_FRESH_REVIEW_004_NOT_ACTIVE",
   "authority_effect": "NONE",
   "proposal": {
     "id": "R8V15R1-STAGE2-SG1-DEPENDENCY-SEMANTIC-CONFORMANCE-001",
@@ -15,12 +15,12 @@
   },
   "activation_gate": {
     "path": ".github/workflows/r8-v15-r1-stage2-sg1-activation-gate.yml",
-    "blob_sha1": "9adc02a0f29a8dd7b3e88c51decc8dd066c3e577",
+    "blob_sha1": "5d75c4b5c85fec075812c819c979e7048df8cd7f",
     "self_hash_boundary": "The gate blob is externally computed and user-approved; it is not self-embedded."
   },
   "activation_binding": {
     "path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-GATE-BINDING.json",
-    "blob_sha1": "aa184defb7cb79d91748953261f552018c2c3198"
+    "blob_sha1": "88d76f7f5592a777177c9006a474824a1064c348"
   },
   "reviews": {
     "historical_review_001": {
@@ -35,8 +35,15 @@
       "reviewed_activation_gate_blob_sha1": "c09f5d75b70bf5f9f928a79d1dd094f11ff24279",
       "later_activation_attempt_status": "FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION"
     },
-    "expected_fresh_review_003": {
+    "historical_review_003": {
       "path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-003.txt",
+      "disposition": "BOUNDED_PASS",
+      "blob_sha1": "378ffe70e131b6c63e95f4142596ae091ba37ebe",
+      "reviewed_activation_gate_blob_sha1": "9adc02a0f29a8dd7b3e88c51decc8dd066c3e577",
+      "later_activation_attempt_status": "FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION"
+    },
+    "expected_fresh_review_004": {
+      "path": "governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-004.txt",
       "blob_sha1": null,
       "required_disposition": "BOUNDED_PASS",
       "required_critical_findings": 0,
@@ -83,6 +90,16 @@
       "evidence_blob_sha1": "241809c0965541f65e3a81c12d3f475719beb011",
       "run_id": "36190374209",
       "verify_job_id": "108253787018",
+      "semantic_execution_performed": false
+    },
+    {
+      "attempt": 2,
+      "status": "FAILED_CLOSED_BEFORE_SEMANTIC_EXECUTION",
+      "evidence_path": "governance-r8/R8-V15-R1-STAGE2-SG1-ACTIVATION-ATTEMPT-002-FAILED.json",
+      "evidence_blob_sha1": "777763a679f0dfd4fd1c3d7e472a5e6ea373dbbf",
+      "run_id": "36223537668",
+      "verify_job_id": "108353145716",
+      "run_sg1_job_id": "108353161400",
       "semantic_execution_performed": false
     }
   ]
