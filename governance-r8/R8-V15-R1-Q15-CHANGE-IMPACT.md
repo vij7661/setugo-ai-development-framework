@@ -67,6 +67,16 @@ Source: issue #63 implementer adjudication. This is construction evidence only. 
 
 ## Operating boundary
 
+### Pre-freeze Linux validation repair
+
+- Candidate tested by Linux validation: commit `d7cf234653b9264d03d472b351b125f35a446a6b`, tree `a9a1b528c9952751e983c28a93bdcba533ad4dcc`.
+- Preserved runs: `36270975410 / 108484736168`, `36271088620 / 108485055943`, and corrected exhaustive run `36271206089 / 108485381693`.
+- Finding: the permanent-invariant verifier mechanically computed 53 baseline-to-candidate changed paths while the candidate manifest retained Q14's stale expected count of 37.
+- Repair: `governance-r8/R8-V15-R1-POST-SG1-CONVERGENCE-MANIFEST.json` now declares the exact Q15 count, `53`.
+- Mechanical invariant preserved: `tools/verify_r8_v15_r1_post_sg1_integration_invariants.py` continues to recompute the changed-path set and compare its length to the manifest; no hard-coded verifier bypass was added.
+- Classification: `EVIDENCE_ONLY`; no provider API request schema or execution behavior effect.
+- Closure proof: the permanent-invariant verifier must pass against the repaired exact Q15 HEAD, and the complete local matrix must remain green before push.
+
 - `AUTHORITY_EFFECT = NONE`
 - Fallback-to-3 remains `ACTIVE`.
 - Six-slice cadence remains `NOT_RESTORED`.
