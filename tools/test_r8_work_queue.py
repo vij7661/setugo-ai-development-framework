@@ -29,9 +29,14 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(q16["candidate_state"], "PRE_FREEZE_READY")
         self.assertEqual(q16["state"], "FROZEN_REVIEWED_CHANGES_REQUIRED")
         self.assertEqual(current_lifecycle(q16),"FROZEN_VERIFIED")
-        self.assertEqual(q16["external_lifecycle"]["evidence_pointer"]["independent_review_git_blob"],"65b149e6147607f203176642dccfbc76acf084bf")
+        self.assertEqual(q16["external_lifecycle"]["evidence_pointer"]["committed_review_git_blob"],"65b149e6147607f203176642dccfbc76acf084bf")
+        self.assertEqual(q16["external_lifecycle"]["evidence_pointer"]["original_upload_verification"],"EXTERNAL_RECEIPT_ONLY")
         q17=next(task for task in data["tasks"] if task["id"]=="Q17")
         self.assertEqual(q17["candidate_state"],"PRE_FREEZE_READY")
+        self.assertEqual(current_lifecycle(q17),"FROZEN_VERIFIED")
+        self.assertEqual(q17["external_lifecycle"]["evidence_pointer"]["committed_review_sha256"],"9e7a8bc139d737f7a416f193ee5bc825ab4fd08309d7ae20182c444d22a3050c")
+        q18=next(task for task in data["tasks"] if task["id"]=="Q18")
+        self.assertEqual(q18["candidate_state"],"PRE_FREEZE_READY")
         self.assertIsNone(next_runnable(data))
 
     def test_candidate_local_prefreeze_cannot_negate_external_freeze(self):

@@ -6,6 +6,13 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 from preflight_r8_v15_r1_stage2_sg1_review import validate_artifact
 
+def assert_separate_packet_commands(text:str):
+    if "\\n\\n" in text: raise ValueError("literal newline escape in executable block")
+    commands=[line.strip() for line in text.replace("\r\n","\n").splitlines() if line.strip().startswith("python3 ")]
+    validators=[c for c in commands if "validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py" in c]
+    preflights=[c for c in commands if "preflight_r8_v15_r1_stage2_sg1_review.py" in c]
+    if len(validators)!=1 or len(preflights)!=1 or validators[0]==preflights[0]:raise ValueError("validator and preflight must be separate executable commands")
+
 class ReviewPreflightTests(unittest.TestCase):
     def test_exact_artifact_binding(self):
         path = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")
@@ -47,7 +54,7 @@ class ReviewPreflightTests(unittest.TestCase):
             "r8-v15-r1-stage2-sg1-review004-remediation-packet.yml": ("--expected-sha256", "--expected-blob"),
         }
         for name, needles in checks.items():
-            lines = (root / name).read_text(encoding="utf-8").splitlines()
+            workflow=(root/name).read_text(encoding="utf-8");assert_separate_packet_commands(workflow);lines=workflow.splitlines()
             commands = []
             for i, line in enumerate(lines):
                 if "preflight_r8_v15_r1_stage2_sg1_review.py" in line:
@@ -56,6 +63,11 @@ class ReviewPreflightTests(unittest.TestCase):
             for command in commands:
                 for needle in needles:
                     self.assertIn(needle, command)
+
+    def test_literal_backslash_newline_packaging_fails(self):
+        good=Path(".github/workflows/r8-v15-r1-stage2-sg1-review003-remediation-packet.yml").read_text(encoding="utf-8")
+        broken=good.replace("\n\n          python3 tools/preflight_","\\n\\n          python3 tools/preflight_",1)
+        with self.assertRaises(ValueError):assert_separate_packet_commands(broken)
 
     def test_validate_artifact_reads_one_raw_stream(self):
         path = Path("governance-r8/R8-V15-R1-STAGE2-SG1-INDEPENDENT-EARLY-REVIEW-002.txt")

@@ -6,5 +6,13 @@ def main():
   try:verify(mutated)
   except ValueError:pass
   else:raise AssertionError(f"mutable tag accepted: {path}")
+ for bad in ("uses: actions/checkout@v4","uses: actions/checkout@v4 # mutable",'uses: "actions/checkout@v4"',"uses: 'actions/checkout@v4' # mutable"):
+  try:verify("steps:\n  - "+bad+"\n")
+  except ValueError:pass
+  else:raise AssertionError(f"mutable quoted/comment action accepted: {bad}")
+ verify("steps:\n  - uses: './.github/actions/governed' # explicit local\n")
+ try:verify("steps:\n  - uses: docker://alpine:latest\n")
+ except ValueError:pass
+ else:raise AssertionError("mutable Docker action accepted")
  print("PINNED_GOVERNANCE_ACTIONS_ADVERSARIAL_PASS")
 if __name__=="__main__":main()

@@ -64,15 +64,14 @@ def load():
                 raise ValueError("external lifecycle identity is malformed")
             pointer=external.get("evidence_pointer")
             if pointer is not None:
-                required={"tracker","independent_review","independent_review_raw_sha256","independent_review_git_blob"}
-                if set(pointer)!=required or not all(isinstance(pointer[k],str) and pointer[k] for k in required) or not re.fullmatch(r"[0-9a-f]{64}",pointer["independent_review_raw_sha256"]) or not HEAD_RE.fullmatch(pointer["independent_review_git_blob"]):
+                required={"tracker","independent_review","committed_review_sha256","committed_review_git_blob","original_upload_raw_sha256","original_upload_verification"}
+                if set(pointer)!=required or not all(isinstance(pointer[k],str) and pointer[k] for k in required) or not re.fullmatch(r"[0-9a-f]{64}",pointer["committed_review_sha256"]) or not re.fullmatch(r"[0-9a-f]{64}",pointer["original_upload_raw_sha256"]) or not HEAD_RE.fullmatch(pointer["committed_review_git_blob"]) or pointer["original_upload_verification"]!="EXTERNAL_RECEIPT_ONLY":
                     raise ValueError("external lifecycle evidence pointer malformed")
                 review_path=ROOT/pointer["independent_review"]
                 if not review_path.is_file(): raise ValueError("external lifecycle review pointer missing")
-                normalized=review_path.read_bytes().replace(b"\r\n",b"\n").replace(b"\r",b"\n")
-                blob=hashlib.sha1(f"blob {len(normalized)}\0".encode()+normalized).hexdigest()
-                uploaded=normalized.replace(b"\n",b"\r\n")
-                if blob!=pointer["independent_review_git_blob"] or hashlib.sha256(uploaded).hexdigest()!=pointer["independent_review_raw_sha256"]:
+                committed=review_path.read_bytes()
+                blob=hashlib.sha1(f"blob {len(committed)}\0".encode()+committed).hexdigest()
+                if blob!=pointer["committed_review_git_blob"] or hashlib.sha256(committed).hexdigest()!=pointer["committed_review_sha256"]:
                     raise ValueError("external lifecycle review identity mismatch")
     return data
 

@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
     inputs:
       evidence_ref: {description: "Evidence branch/ref", required: true, type: string}
-      expected_identity_path: {description: "Expected identity JSON", required: true, type: string}
       expected_receipt_sha256: {description: "Trusted receipt SHA256", required: true, type: string}
 permissions:
   contents: read
@@ -14,17 +13,22 @@ jobs:
   eligibility-only:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with: {ref: "${{ inputs.evidence_ref }}", fetch-depth: 0, persist-credentials: false}
+      - name: Checkout immutable trusted gate code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ github.sha }}", path: trusted, fetch-depth: 0, persist-credentials: false}
+      - name: Checkout evidence as data only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ inputs.evidence_ref }}", path: evidence-ref, fetch-depth: 1, persist-credentials: false}
       - name: Verify exact review and emit deterministic eligibility evidence
         shell: bash
         run: |
           set -euo pipefail
-          python3 governance-runtime/manual_review_ingestion.py \
-            --review evidence/independent-review.txt --freeze-attestation evidence/freeze-attestation.json \
-            --linux-statement evidence/linux-statement.json --packet-statement evidence/packet-statement.json \
-            --packet-payload evidence/review-packet.tar --receipt evidence/governed-receipt.json \
+          python3 trusted/governance-runtime/stage_evidence_data.py --source evidence-ref/evidence --destination staged independent-review.txt freeze-attestation.json governed-receipt.json expected-identity.json
+          python3 trusted/governance-runtime/manual_review_ingestion.py \
+            --review staged/independent-review.txt --freeze-attestation staged/freeze-attestation.json \
+            --linux-statement staged/freeze-attestation.json --packet-statement staged/freeze-attestation.json \
+            --packet-payload staged/governed-receipt.json --receipt staged/governed-receipt.json \
             --receipt-sha256 "${{ inputs.expected_receipt_sha256 }}" \
-            --expected-identity "${{ inputs.expected_identity_path }}" --output eligibility.json
+            --expected-identity staged/expected-identity.json --output eligibility.json
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with: {name: governed-review-eligibility-only, path: eligibility.json, if-no-files-found: error}

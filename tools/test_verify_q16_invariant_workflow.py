@@ -1,16 +1,14 @@
-from verify_q16_invariant_workflow import REQUIRED, WORKFLOW, verify
-
+from verify_q16_invariant_workflow import CONTRACT,WORKFLOW,verify
+def rejects(text):
+ try:verify(text)
+ except ValueError:return
+ raise AssertionError("weakened workflow accepted")
 def main():
-    text=WORKFLOW.read_text(encoding="utf-8"); verify(text)
-    for item in REQUIRED:
-        try: verify(text.replace(item,"",1))
-        except ValueError: pass
-        else: raise AssertionError(f"workflow removal not detected: {item}")
-    target=REQUIRED[0]
-    commented=text.replace(f"run: python3 {target}",f"run: |\n          # python3 {target}",1)
-    try: verify(commented)
-    except ValueError: pass
-    else: raise AssertionError("comment substitution satisfied executable coverage")
-    print(f"Q16_INVARIANT_WORKFLOW_ADVERSARIAL_PASS required={len(REQUIRED)}")
-
-if __name__=="__main__": main()
+ text=WORKFLOW.read_text(encoding="utf-8");verify(text)
+ name,command=next(iter(CONTRACT.items()));needle=f"run: {command}"
+ for replacement in (f'run: echo "{command}"',f"run: printf '{command}'",f"run: |\n          cat <<'EOF'\n          {command}\n          EOF",f"run: |\n          exit 0\n          {command}"):
+  rejects(text.replace(needle,replacement,1))
+ rejects(text.replace(f"- name: {name}",f"- name: {name}\n        continue-on-error: true",1))
+ for step,cmd in CONTRACT.items():rejects(text.replace(f"run: {cmd}","run: true",1))
+ print(f"Q18_INVARIANT_WORKFLOW_ADVERSARIAL_PASS required={len(CONTRACT)}")
+if __name__=="__main__":main()

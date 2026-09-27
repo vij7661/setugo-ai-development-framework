@@ -13,15 +13,22 @@ jobs:
   receipt-only:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with: {ref: "${{ inputs.evidence_ref }}", fetch-depth: 0, persist-credentials: false}
+      - name: Checkout immutable trusted verifier code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ github.sha }}", path: trusted, fetch-depth: 0, persist-credentials: false}
+      - name: Checkout evidence as data only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ inputs.evidence_ref }}", path: evidence-ref, fetch-depth: 1, persist-credentials: false}
       - name: Verify GitHub run job artifact and exact-byte provenance
         shell: bash
         env: {GITHUB_TOKEN: "${{ github.token }}"}
         run: |
           set -euo pipefail
-          python3 governance-runtime/github_evidence_ingestion.py --spec evidence/receipt-spec.json \
-            --blob-map evidence/blob-map.json --artifact-locations evidence/artifact-locations.json \
+          python3 trusted/governance-runtime/stage_evidence_data.py --source evidence-ref/evidence --destination staged receipt-spec.json artifact-locations.json freeze-attestation.json independent-review.txt
+          TRUSTED_TREE="$(git -C trusted rev-parse HEAD^{tree})"
+          python3 trusted/governance-runtime/github_evidence_ingestion.py --spec staged/receipt-spec.json \
+            --artifact-locations staged/artifact-locations.json --trusted-verifier-commit "${{ github.sha }}" \
+            --trusted-verifier-tree "$TRUSTED_TREE" --evidence-ref "${{ inputs.evidence_ref }}" \
             --output governed-evidence-receipt.json
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with: {name: governed-evidence-receipt-only, path: governed-evidence-receipt.json, if-no-files-found: error}

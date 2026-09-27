@@ -5,6 +5,9 @@ from pathlib import Path
 from q15_review_merge_gate import review_merge_evidence_eligible
 
 def ingest(*,review_path,freeze_attestation_path,linux_statement_path,packet_statement_path,packet_payload_path,receipt_path,receipt_sha256,expected_identity,root=Path(".")):
+    if Path(receipt_path).is_file():
+        receipt=json.loads(Path(receipt_path).read_text(encoding="utf-8"))
+        if receipt.get("schema")!="r8-governed-evidence-receipt/v2": raise ValueError("manual Q18 eligibility requires governed receipt v2")
     eligible=review_merge_evidence_eligible(review_path=review_path,freeze_attestation_path=freeze_attestation_path,linux_statement_path=linux_statement_path,review_packet_statement_path=packet_statement_path,packet_payload_path=packet_payload_path,governed_receipt_path=receipt_path,expected_receipt_sha256=receipt_sha256,expected_identity=expected_identity,root=root)
     return {"schema":"r8-manual-review-eligibility/v1","candidate_commit":expected_identity["candidate_commit"],"candidate_tree":expected_identity["candidate_tree"],"review_evidence_eligible":eligible,"authority_effect":"NONE","automatic_merge":False,"runtime_authority":False,"release_authority":False,"deployment_authority":False,"production_authority":False}
 
