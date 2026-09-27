@@ -22,11 +22,11 @@ class ReviewerEvidenceDeliveryTests(unittest.TestCase):
     def _manifest(self, mode="PLATFORM_MATERIALIZED_CONTENT"):
         commit = "a" * 40
         raw = b"data"
-        obj = {"path": "subject:data", "commit_sha": commit, "content_sha256": sha256_bytes(raw), "bytes": len(raw)}
+        obj = {"subject_id": "subject:data", "source_path": "review.txt", "commit_sha": commit, "content_sha256": sha256_bytes(raw), "bytes": len(raw)}
         if mode == "PLATFORM_MATERIALIZED_CONTENT":
             pass
         elif mode == "AUTHENTICATED_GITHUB_MCP_READ_ONLY":
-            obj.update(tool_access="read_only", object_id="blob:b")
+            obj.update(repository="a/b", tool_access="read_only", object_id="blob:b")
         elif mode == "PROVIDER_URL_CONTEXT":
             obj["url"] = f"https://github.com/a/b/blob/{commit}/review.txt"
         return {"provider_identity": "reviewer", "delivery_mode": mode, "repository": "a/b", "commit_sha": commit, "review_request_id": "R", "request_hash": "c" * 64, "corpus_sha256": "d" * 64, "accessed_objects": [obj], "read_only": mode != "URL_ONLY", "mandatory_subjects_covered": mode != "URL_ONLY", "result_status": "SUCCESS"}
@@ -46,6 +46,9 @@ class ReviewerEvidenceDeliveryTests(unittest.TestCase):
         manifest = self._manifest("PROVIDER_URL_CONTEXT")
         manifest["accessed_objects"][0]["url"] = "https://github.com/a/b/blob/main/review.txt"
         self.assertFalse(validate_reviewer_access_manifest(manifest))
+        manifest = self._manifest("AUTHENTICATED_GITHUB_MCP_READ_ONLY")
+        manifest["accessed_objects"][0].pop("content_sha256")
+        self.assertFalse(validate_reviewer_access_manifest(manifest))
         manifest = self._manifest("PROVIDER_URL_CONTEXT")
         manifest["accessed_objects"][0].pop("content_sha256")
         self.assertFalse(validate_reviewer_access_manifest(manifest))
@@ -55,9 +58,10 @@ class ReviewerEvidenceDeliveryTests(unittest.TestCase):
 
     def test_delivery_request_requires_materialized_subject(self):
         raw = b"data"
-        item = {"subject_id": "subject:data", "delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw), "delivered": raw}
+        item = {"subject_id": "subject:data", "source_path": "review.txt", "commit_sha": "a"*40, "delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw), "delivered": raw}
         self.assertTrue(validate_review_delivery_request([item], self._manifest()))
         self.assertFalse(validate_review_delivery_request([item], self._manifest("URL_ONLY")))
+        self.assertFalse(validate_review_delivery_request([item], self._manifest("AUTHENTICATED_GITHUB_MCP_READ_ONLY"), required_manifest_mode="PLATFORM_MATERIALIZED_CONTENT"))
     def test_summary_only_delivery_is_rejected(self):
         raw = b"complete material"
         item = {"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw)}

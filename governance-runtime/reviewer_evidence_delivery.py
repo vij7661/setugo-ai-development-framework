@@ -23,7 +23,10 @@ DELIVERY_MODES = frozenset({
 })
 _SHA1 = re.compile(r"[0-9a-f]{40}\Z")
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
-_SECRET_KEYS = frozenset({"authorization", "bearer", "token", "access_token", "api_key", "password", "secret", "pat"})
+_SECRET_KEYS = frozenset({"authorization", "bearer", "token", "access_token", "api_key", "x_api_key", "x_goog_api_key", "password", "secret", "pat", "personal_access_token"})
+
+def _key(value: Any) -> str:
+    return str(value).strip().lower().replace("-", "_")
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -51,7 +54,7 @@ def verify_material_delivery(item: Mapping[str, Any], delivered: bytes | None = 
 
 def _contains_secret_key(value: Any) -> bool:
     if isinstance(value, Mapping):
-        return any(str(key).lower() in _SECRET_KEYS or _contains_secret_key(child) for key, child in value.items())
+        return any(_key(key) in _SECRET_KEYS or _contains_secret_key(child) for key, child in value.items())
     if isinstance(value, (list, tuple)):
         return any(_contains_secret_key(child) for child in value)
     return False
@@ -90,34 +93,31 @@ def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
     elif not manifest["read_only"]:
         return False
     for obj in objects:
-        if not isinstance(obj, Mapping) or not isinstance(obj.get("path"), str) or not obj["path"].strip():
+        common = {"subject_id", "source_path", "commit_sha", "content_sha256", "bytes"}
+        if not isinstance(obj, Mapping) or not all(isinstance(obj.get(k), str) and obj[k].strip() for k in ("subject_id", "source_path")):
             return False
         if obj.get("commit_sha") != manifest["commit_sha"]:
             return False
+        if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]): return False
+        if not isinstance(obj.get("bytes"), int) or obj["bytes"] < 0: return False
         if mode == "AUTHENTICATED_GITHUB_MCP_READ_ONLY":
-            if obj.get("tool_access") != "read_only" or not isinstance(obj.get("object_id"), str) or not obj["object_id"].strip():
+            if set(obj) != common | {"repository", "tool_access", "object_id"} or obj.get("repository") != manifest["repository"] or obj.get("tool_access") != "read_only" or not isinstance(obj.get("object_id"), str) or not obj["object_id"].strip():
                 return False
         elif mode == "PROVIDER_URL_CONTEXT":
+            if set(obj) != common | {"url"}: return False
             url = obj.get("url")
             if not isinstance(url, str) or not (f"/blob/{manifest['commit_sha']}/" in url or f"/commit/{manifest['commit_sha']}/" in url):
                 return False
-            if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]):
-                return False
-            if not isinstance(obj.get("bytes"), int) or obj["bytes"] < 0:
-                return False
         elif mode == "PLATFORM_MATERIALIZED_CONTENT":
-            if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]):
-                return False
-            if not isinstance(obj.get("bytes"), int) or obj["bytes"] < 0:
-                return False
+            if set(obj) != common: return False
     return True
 
 
-def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any], *, review_request: Mapping[str, Any] | None = None) -> bool:
+def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any], *, review_request: Mapping[str, Any] | None = None, required_manifest_mode: str | None = None) -> bool:
     """Bind mandatory material delivery to the declared reviewer access mode."""
     if not validate_reviewer_access_manifest(access_manifest) or not isinstance(subjects, Sequence) or not subjects:
         return False
-    if access_manifest["delivery_mode"] == "URL_ONLY":
+    if access_manifest["delivery_mode"] == "URL_ONLY" or (required_manifest_mode and access_manifest["delivery_mode"] != required_manifest_mode):
         return False
     if review_request is not None:
         if access_manifest["commit_sha"] != review_request.get("artifact", {}).get("commit"):
@@ -128,8 +128,8 @@ def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], acce
             return False
     if not all(isinstance(item, Mapping) and verify_material_delivery(item, item.get("delivered"), chunks=item.get("chunks")) for item in subjects):
         return False
-    expected = {(item.get("subject_id"), item.get("sha256"), item.get("bytes")) for item in subjects}
-    observed = {(item.get("path"), item.get("content_sha256"), item.get("bytes")) for item in access_manifest["accessed_objects"]}
+    expected = {(item.get("subject_id"), item.get("source_path"), item.get("commit_sha"), item.get("sha256"), item.get("bytes")) for item in subjects}
+    observed = {(item.get("subject_id"), item.get("source_path"), item.get("commit_sha"), item.get("content_sha256"), item.get("bytes")) for item in access_manifest["accessed_objects"]}
     return expected == observed
 
 

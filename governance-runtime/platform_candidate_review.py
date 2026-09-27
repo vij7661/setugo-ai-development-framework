@@ -4,11 +4,10 @@ import argparse, json, os, re, subprocess
 from hashlib import sha256
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from review_protocol import verify_review_request
-from provider_api_request_contract import gemini_adapter_semantic_request
+from provider_api_request_contract import gemini_adapter_semantic_request, gemini_wire_request_from_semantic
 
 HEX40=re.compile(r"^[0-9a-f]{40}$")
 ALLOWED_STATUSES={"CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"}
@@ -57,12 +56,11 @@ def invoke(key,model,prompt):
     # Construct and validate the adapter-facing semantics independently of auth.
     # The API key is added only to transport headers below and can never enter
     # the semantic fingerprint/evidence projection.
-    gemini_adapter_semantic_request(model=model, prompt=prompt)
-    url=f"https://generativelanguage.googleapis.com/v1beta/models/{quote(model,safe='')}:generateContent"
-    payload={"contents":[{"role":"user","parts":[{"text":prompt}]}],"generationConfig":{"temperature":0.0,"maxOutputTokens":16384,"responseMimeType":"application/json"}}
-    req=Request(url,data=json.dumps(payload).encode(),headers={"x-goog-api-key":key,"content-type":"application/json","user-agent":"setugo-governance-platform-review/1.0"},method="POST")
+    semantic=gemini_adapter_semantic_request(model=model, prompt=prompt)
+    wire=gemini_wire_request_from_semantic(semantic)
+    req=Request(wire["url"],data=json.dumps(wire["payload"]).encode(),headers={"x-goog-api-key":key,"content-type":"application/json","user-agent":"setugo-governance-platform-review/1.0"},method=wire["method"])
     try:
-        with urlopen(req,timeout=180) as response: body=json.loads(response.read().decode("utf-8"))
+        with urlopen(req,timeout=wire["timeout_seconds"]) as response: body=json.loads(response.read().decode("utf-8"))
     except HTTPError as exc: raise RuntimeError(f"Gemini HTTP {exc.code}: "+exc.read().decode("utf-8",errors="replace")[:1000]) from exc
     except URLError as exc: raise RuntimeError(f"Gemini connection failed: {exc.reason}") from exc
     c=(body.get("candidates") or [{}])[0]

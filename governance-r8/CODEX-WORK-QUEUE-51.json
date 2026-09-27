@@ -245,6 +245,22 @@
       "pr": 64,
       "branch": "codex/r8-v15-r1-q15-q14-review-successor-2026-09-27",
       "dependencies": ["Q14"],
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "CHANGES_REQUIRED",
+      "external_lifecycle": {
+        "state": "FROZEN_VERIFIED",
+        "candidate_commit": "8ce8226818407924d81cee98a2800fc64d1797b1",
+        "candidate_tree": "a571f49f66f0543ac2f12bdf5b39db99d537a02c",
+        "frozen_ref": "frozen/r8-v15-r1-q15-review-remediation-successor-2026-09-27",
+        "attestation_location": "EXTERNAL_NOT_CANDIDATE_LOCAL"
+      }
+    },
+    {
+      "id": "Q16",
+      "pr": 66,
+      "branch": "codex/r8-v15-r1-q16-q15-review-successor-2026-09-27",
+      "dependencies": ["Q15"],
       "state": "CODE_COMPLETE",
       "candidate_state": "PRE_FREEZE_READY",
       "review_state": "NOT_REVIEWED"

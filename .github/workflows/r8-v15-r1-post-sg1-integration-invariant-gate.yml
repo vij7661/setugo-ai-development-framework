@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - integration/r8-v15-r1-post-sg1-convergence-2026-09-26
+      - codex/r8-v15-r1-q16-q15-review-successor-2026-09-27
   workflow_dispatch:
 
 permissions:
@@ -11,6 +12,7 @@ permissions:
 
 env:
   PYTHONDONTWRITEBYTECODE: "1"
+  AUTHORITY_EFFECT: "NONE"
 
 jobs:
   invariant-gate:
@@ -25,12 +27,28 @@ jobs:
         run: python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
       - name: Review parser adversarial tests
         run: python3 tools/test_r8_v15_r1_review_contract_parser.py
+      - name: Independent A-J parser adversarial tests
+        run: python3 tools/test_r8_v15_r1_independent_review_parser.py
+      - name: Activation parser validation
+        run: python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
       - name: Review preflight exact-artifact tests
         run: python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
       - name: Semantic inventory tests
         run: python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
       - name: Reviewer evidence delivery and solution-contract tests
         run: python3 governance-runtime/test_reviewer_evidence_delivery.py
+      - name: Platform review materialization v2 tests
+        run: python3 governance-runtime/test_platform_candidate_review_v2_materialization.py
+      - name: Platform review request-integrity tests
+        run: python3 governance-runtime/test_platform_candidate_review_request_integrity.py
+      - name: Real-path reviewer delivery integration tests
+        run: python3 governance-runtime/test_platform_candidate_review_delivery_integration.py
+      - name: External freeze-attestation v2 tests
+        run: python3 governance-runtime/test_freeze_attestation.py
+      - name: Candidate-bound execution-evidence tests
+        run: python3 governance-runtime/test_candidate_execution_evidence.py
+      - name: Review merge identity-gate tests
+        run: python3 governance-runtime/test_q15_review_merge_gate.py
 
       - name: Provider API request contract preservation tests
         run: python3 governance-runtime/test_provider_api_request_contract.py
@@ -41,6 +59,10 @@ jobs:
         run: python3 tools/test_r8_evidence_bundle_integrity.py
       - name: Queue tests
         run: python3 tools/test_r8_work_queue.py
+      - name: Verify invariant workflow test completeness
+        run: python3 tools/verify_q16_invariant_workflow.py
+      - name: Invariant workflow self-check adversarial tests
+        run: python3 tools/test_verify_q16_invariant_workflow.py
       - name: Syntax-check changed Python without writing bytecode
         shell: bash
         run: |
@@ -54,7 +76,13 @@ jobs:
               "tools/r8_v15_r1_stage2_semantic_gap_inventory.py",
               "tools/r8_evidence_bundle_integrity.py",
               "tools/r8_work_queue.py",
+              "tools/r8_v15_r1_independent_review_parser.py",
               "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+              "governance-runtime/candidate_execution_evidence.py",
+              "governance-runtime/freeze_attestation.py",
+              "governance-runtime/provider_api_request_contract.py",
+              "governance-runtime/reviewer_evidence_delivery.py",
+              "governance-runtime/q15_review_merge_gate.py",
           ]
           for name in files:
               ast.parse(Path(name).read_text(encoding="utf-8"), filename=name)

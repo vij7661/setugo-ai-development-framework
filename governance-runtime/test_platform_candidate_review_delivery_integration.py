@@ -32,13 +32,13 @@ CORPUS = {
 
 def manifest(mode="PLATFORM_MATERIALIZED_CONTENT"):
     objects = [{
-        "path": f"review_request:{REQUEST['review_request_id']}", "commit_sha": CANDIDATE,
+        "subject_id": f"review_request:{REQUEST['review_request_id']}", "source_path": "review-request.json", "commit_sha": CANDIDATE,
         "content_sha256": review_v2._sha_bytes(review_v2._canon(REQUEST)), "bytes": len(review_v2._canon(REQUEST)),
     }, {
-        "path": f"candidate_diff:{CANDIDATE}", "commit_sha": CANDIDATE,
+        "subject_id": f"candidate_diff:{CANDIDATE}", "source_path": "candidate.diff", "commit_sha": CANDIDATE,
         "content_sha256": review_v2._sha_bytes(b"diff"), "bytes": 4,
     }, {
-        "path": "history:frozen history", "commit_sha": CANDIDATE,
+        "subject_id": "history:frozen history", "source_path": "history:frozen history", "commit_sha": CANDIDATE,
         "content_sha256": review_v2._sha_bytes(RAW), "bytes": len(RAW),
     }]
     return {
@@ -71,6 +71,14 @@ class RealReviewPathDeliveryTests(unittest.TestCase):
 
     def test_url_only_prevents_provider_invocation(self):
         self.run_main(manifest("URL_ONLY"))
+
+    def test_other_real_access_modes_cannot_claim_materialized_path(self):
+        for mode in ("AUTHENTICATED_GITHUB_MCP_READ_ONLY", "PROVIDER_URL_CONTEXT"):
+            self.run_main(manifest(mode))
+
+    def test_wrong_source_object_fails_even_when_bytes_match(self):
+        value=manifest(); value["accessed_objects"][0]["source_path"]="wrong-object.json"
+        self.run_main(value)
 
     def test_omitted_manifest_prevents_provider_invocation(self):
         self.run_main(include_argument=False)

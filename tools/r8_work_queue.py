@@ -51,6 +51,16 @@ def load():
                     raise ValueError("queue candidate identity disagrees with freeze attestation")
         elif any(field in task for field in ("candidate_commit", "candidate_tree", "frozen_ref", "freeze_attestation")):
             raise ValueError("unfrozen queue task cannot claim frozen identity")
+        external = task.get("external_lifecycle")
+        if external is not None:
+            if task.get("candidate_state") != "PRE_FREEZE_READY":
+                raise ValueError("external lifecycle must remain separate from candidate-local construction state")
+            if set(external) != {"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location"}:
+                raise ValueError("external lifecycle identity is incomplete")
+            if external["state"] != "FROZEN_VERIFIED" or external["attestation_location"] != "EXTERNAL_NOT_CANDIDATE_LOCAL":
+                raise ValueError("external lifecycle must rely on external attestation")
+            if not HEAD_RE.fullmatch(external["candidate_commit"]) or not HEAD_RE.fullmatch(external["candidate_tree"]) or not external["frozen_ref"].startswith("frozen/"):
+                raise ValueError("external lifecycle identity is malformed")
     return data
 
 def next_runnable(data: dict) -> dict | None:

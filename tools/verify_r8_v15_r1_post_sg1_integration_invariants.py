@@ -326,7 +326,8 @@ def main():
     })
     access_commit = "a" * 40
     access_object = {
-        "path": "review.txt",
+        "subject_id": "file:review.txt",
+        "source_path": "review.txt",
         "commit_sha": access_commit,
         "content_sha256": "b" * 64,
         "bytes": 4,

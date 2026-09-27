@@ -18,14 +18,14 @@ HEADINGS = (
 )
 DISPOSITIONS = frozenset({"BOUNDED_PASS", "CHANGES_REQUIRED", "INSUFFICIENT_EVIDENCE"})
 SEVERITIES = ("CRITICAL", "HIGH", "MEDIUM", "LOW")
-FINAL_FIELDS = (
-    "Frozen Q14 candidate eligible for bounded merge consideration",
+FINAL_FIELDS_AFTER_CANDIDATE = (
     "Broader Stage2 semantic authority granted",
     "Runtime qualification granted",
     "Release/deployment/production authority granted",
     "Automatic six-slice cadence restoration",
 )
-FINDING_ID = re.compile(r"\*\*F-[0-9]+\*\*\s*$")
+FINDING_ID_TOKEN = r"[A-Z][A-Z0-9_-]*-[0-9]+"
+SHA40 = r"[0-9a-f]{40}"
 
 
 def _none(body: str) -> bool:
@@ -35,7 +35,7 @@ def _none(body: str) -> bool:
 def _validate_findings(body: str, severity: str) -> list[str]:
     if _none(body):
         return []
-    matches = list(re.finditer(r"(?m)^\*\*(F-[0-9]+)(?: [^*\r\n]+)?\*\*\s*$", body))
+    matches = list(re.finditer(rf"(?m)^\*\*({FINDING_ID_TOKEN})(?: [^*\r\n]+)?\*\*\s*$", body))
     if not matches or body[:matches[0].start()].strip():
         raise ValueError(f"malformed {severity} findings")
     ids = []
@@ -50,13 +50,39 @@ def _validate_findings(body: str, severity: str) -> list[str]:
             rows[int(parsed.group(1))] = parsed.group(2)
         if set(rows) != set(range(2, 12)) or rows[2] != severity:
             raise ValueError(f"malformed finding {match.group(1)}")
+        prefix_severity = {"C": "CRITICAL", "H": "HIGH", "M": "MEDIUM", "L": "LOW"}
+        prefix = match.group(1).split("-", 1)[0]
+        if prefix in prefix_severity and prefix_severity[prefix] != severity:
+            raise ValueError(f"finding id/severity mismatch: {match.group(1)}")
         ids.append(match.group(1))
     if len(ids) != len(set(ids)):
         raise ValueError("duplicate finding id")
     return ids
 
 
-def parse_independent_review(text: str) -> dict:
+def _parse_identity(body: str, candidate_label: str) -> dict:
+    patterns = (
+        ("baseline", rf"- baseline:\s*({SHA40})"),
+        ("candidate_commit", rf"- frozen {re.escape(candidate_label)} commit:\s*({SHA40})"),
+        ("candidate_tree", rf"- frozen {re.escape(candidate_label)} tree:\s*({SHA40})"),
+        ("changed_file_count", r"- changed-file count from baseline:\s*([0-9]+)"),
+        ("packet_run_job", r"- packet-generation run/job:\s*([0-9]+)\s*/\s*([0-9]+)"),
+        ("linux_run_job", r"- exact Linux validation run/job:\s*([0-9]+)\s*/\s*([0-9]+)"),
+    )
+    lines = [line.strip() for line in body.splitlines() if line.strip()]
+    if len(lines) != len(patterns):
+        raise ValueError("candidate identity must contain exactly six fields")
+    identity = {"candidate_label": candidate_label}
+    for line, (name, pattern) in zip(lines, patterns):
+        match = re.fullmatch(pattern, line)
+        if not match:
+            raise ValueError(f"invalid candidate identity field: {name}")
+        value = match.groups()
+        identity[name] = int(value[0]) if name == "changed_file_count" else (value if len(value) == 2 else value[0])
+    return identity
+
+
+def parse_independent_review(text: str, *, candidate_label: str) -> dict:
     normalized = text.replace("\r\n", "\n").replace("\r", "\n")
     headings = list(re.finditer(r"(?m)^([A-J])\. [^\n]+$", normalized))
     if len(headings) != 10 or [m.group(0) for m in headings] != list(HEADINGS):
@@ -70,6 +96,7 @@ def parse_independent_review(text: str) -> dict:
         raise ValueError("invalid disposition")
     if not sections["B"] or not sections["G"] or not sections["H"] or not sections["I"]:
         raise ValueError("required review section is empty")
+    identity = _parse_identity(sections["B"], candidate_label)
     findings = {}
     seen = set()
     for letter, severity in zip("CDEF", SEVERITIES):
@@ -81,14 +108,15 @@ def parse_independent_review(text: str) -> dict:
     if len(lines) != 6:
         raise ValueError("final gate must contain exactly six fields")
     values = {}
-    for expected, line in zip(FINAL_FIELDS, lines[:5]):
-        match = re.fullmatch(rf"- {re.escape(expected)}:\s*(YES|NO)", line)
+    final_fields = (f"Frozen {candidate_label} candidate eligible for bounded merge consideration",) + FINAL_FIELDS_AFTER_CANDIDATE
+    for expected, line in zip(final_fields, lines[:5]):
+        match = re.fullmatch(rf"- {re.escape(expected)}:\s*(YES|NO)\.?", line)
         if not match:
             raise ValueError("invalid final gate field")
         values[expected] = match.group(1)
-    if lines[5] != "- Fallback-to-3 remains ACTIVE":
+    if not re.fullmatch(r"- Fallback-to-3 remains ACTIVE\.?", lines[5]):
         raise ValueError("invalid fallback final gate field")
-    return {"disposition": disposition, "sections": sections, "findings": findings, "final_gate": values}
+    return {"disposition": disposition, "sections": sections, "identity": identity, "findings": findings, "final_gate": values, "candidate_gate_field": final_fields[0]}
 
 
 def eligible_for_bounded_merge(parsed: dict, *, freeze_verified: bool = False) -> bool:
@@ -97,13 +125,13 @@ def eligible_for_bounded_merge(parsed: dict, *, freeze_verified: bool = False) -
         and
         parsed.get("disposition") == "BOUNDED_PASS"
         and not any(parsed.get("findings", {}).values())
-        and parsed.get("final_gate", {}).get(FINAL_FIELDS[0]) == "YES"
-        and all(parsed.get("final_gate", {}).get(field) == "NO" for field in FINAL_FIELDS[1:])
+        and parsed.get("final_gate", {}).get(parsed.get("candidate_gate_field")) == "YES"
+        and all(parsed.get("final_gate", {}).get(field) == "NO" for field in FINAL_FIELDS_AFTER_CANDIDATE)
     )
 
 
-def parse_independent_review_file(path: Path) -> dict:
+def parse_independent_review_file(path: Path, *, candidate_label: str) -> dict:
     try:
-        return parse_independent_review(path.read_text(encoding="utf-8"))
+        return parse_independent_review(path.read_text(encoding="utf-8"), candidate_label=candidate_label)
     except UnicodeDecodeError as exc:
         raise ValueError("review is not valid UTF-8") from exc

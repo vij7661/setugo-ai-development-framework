@@ -182,11 +182,13 @@ def mandatory_delivery_subjects(corpus: dict) -> list[dict]:
     subjects = [
         {
             "subject_id": f"review_request:{corpus['review_request']['review_request_id']}",
+            "source_path": "review-request.json", "commit_sha": corpus["candidate_commit"],
             "delivery_mode": "in_request", "sha256": _sha_bytes(request_raw),
             "bytes": len(request_raw), "delivered": request_raw,
         },
         {
             "subject_id": f"candidate_diff:{corpus['candidate_commit']}",
+            "source_path": "candidate.diff", "commit_sha": corpus["candidate_commit"],
             "delivery_mode": "in_request", "sha256": _sha_bytes(diff_raw),
             "bytes": len(diff_raw), "delivered": diff_raw,
         },
@@ -195,6 +197,8 @@ def mandatory_delivery_subjects(corpus: dict) -> list[dict]:
         raw = _canon(item["content"]) if isinstance(item["content"], (dict, list)) else str(item["content"]).encode("utf-8")
         subjects.append({
             "subject_id": f"{item['type']}:{item['ref']}",
+            "source_path": item["ref"] if item["type"] == "file" else f"{item['type']}:{item['ref']}",
+            "commit_sha": corpus["candidate_commit"],
             "delivery_mode": "in_request",
             "sha256": item["sha256"],
             "bytes": len(raw),
@@ -208,7 +212,7 @@ def validate_corpus_delivery(request: dict, corpus: dict, manifest: dict | None)
         raise ValueError("reviewer_access_manifest required")
     if manifest.get("corpus_sha256") != corpus.get("corpus_sha256"):
         raise ValueError("reviewer access manifest corpus mismatch")
-    if not validate_review_delivery_request(mandatory_delivery_subjects(corpus), manifest, review_request=request):
+    if not validate_review_delivery_request(mandatory_delivery_subjects(corpus), manifest, review_request=request, required_manifest_mode="PLATFORM_MATERIALIZED_CONTENT"):
         raise ValueError("reviewer evidence delivery validation failed")
 
 

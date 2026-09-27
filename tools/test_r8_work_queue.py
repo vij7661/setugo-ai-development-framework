@@ -22,8 +22,23 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(q14["candidate_tree"], "a61f1b0686c65719a83e0b065f5ac632f88cba96")
         q15 = next(task for task in data["tasks"] if task["id"] == "Q15")
         self.assertEqual(q15["candidate_state"], "PRE_FREEZE_READY")
-        self.assertEqual(q15["state"], "CODE_COMPLETE")
+        self.assertEqual(q15["state"], "FROZEN_REVIEWED_CHANGES_REQUIRED")
+        self.assertEqual(q15["review_state"], "CHANGES_REQUIRED")
+        self.assertEqual(q15["external_lifecycle"]["candidate_commit"], "8ce8226818407924d81cee98a2800fc64d1797b1")
+        q16 = next(task for task in data["tasks"] if task["id"] == "Q16")
+        self.assertEqual(q16["candidate_state"], "PRE_FREEZE_READY")
+        self.assertEqual(q16["state"], "CODE_COMPLETE")
         self.assertIsNone(next_runnable(data))
+
+    def test_candidate_local_prefreeze_cannot_negate_external_freeze(self):
+        data = load(); module = __import__("r8_work_queue")
+        q15 = next(task for task in data["tasks"] if task["id"] == "Q15")
+        bad = copy.deepcopy(data); next(task for task in bad["tasks"] if task["id"] == "Q15")["external_lifecycle"]["attestation_location"] = "CANDIDATE_LOCAL"
+        old = module.MANIFEST.read_text(encoding="utf-8")
+        try:
+            module.MANIFEST.write_text(__import__("json").dumps(bad), encoding="utf-8")
+            with self.assertRaises(ValueError): load()
+        finally: module.MANIFEST.write_text(old, encoding="utf-8")
 
     def test_dependency_unknown_duplicate_and_manual_status_rejected(self):
         data = load()
