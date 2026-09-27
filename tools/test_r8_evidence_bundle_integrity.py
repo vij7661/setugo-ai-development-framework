@@ -60,7 +60,7 @@ class EvidenceIntegrityTests(unittest.TestCase):
         with self.assertRaises(ValueError): canonical_entries(self.root, ["result.json", "result.json"])
 
     @unittest.skipUnless(hasattr(__import__('os'), 'O_NOFOLLOW') and hasattr(__import__('os'), 'O_DIRECTORY'), 'descriptor-safe read unsupported')
-    def test_direct_file_digest_parent_alias_rejected_and_dot_alias_is_canonical(self):
+    def test_direct_file_digest_parent_rejected_and_dot_alias_is_canonical(self):
         root = self.root
         (root / "result.json").write_text('{"ok":true}\n', encoding="utf-8")
         with self.assertRaises(ValueError):

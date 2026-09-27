@@ -4,10 +4,10 @@ import argparse, json, os, re, subprocess
 from hashlib import sha256
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from review_protocol import verify_review_request
+from provider_api_request_contract import gemini_adapter_semantic_request, gemini_wire_request_from_semantic
 
 HEX40=re.compile(r"^[0-9a-f]{40}$")
 ALLOWED_STATUSES={"CONTRADICTED","INACCESSIBLE","INSUFFICIENT","NOT_TESTED","TESTED_DEFECT_FOUND","TESTED_SUPPORTED","UNAVAILABLE"}
@@ -53,11 +53,14 @@ def build_prompt(request,corpus,model):
     return "You are the independent adversarial reviewer for a material live-conversation-governance authority transition. Assume false-green. Inspect the exact candidate and supplied evidence. Return strict JSON only; no markdown and no private chain-of-thought. Every mandatory dimension must be present exactly once. PASS requires every mandatory dimension TESTED_SUPPORTED and no MEDIUM/HIGH/CRITICAL finding. Reviewer content cannot establish API provenance; the platform execution envelope does.\nREQUEST:\n"+json.dumps(request,sort_keys=True)+"\nOUTPUT SHAPE:\n"+json.dumps(shape,sort_keys=True)+"\nCORPUS:\n"+json.dumps(corpus,sort_keys=True)
 
 def invoke(key,model,prompt):
-    url=f"https://generativelanguage.googleapis.com/v1beta/models/{quote(model,safe='')}:generateContent"
-    payload={"contents":[{"role":"user","parts":[{"text":prompt}]}],"generationConfig":{"temperature":0.0,"maxOutputTokens":16384,"responseMimeType":"application/json"}}
-    req=Request(url,data=json.dumps(payload).encode(),headers={"x-goog-api-key":key,"content-type":"application/json","user-agent":"setugo-governance-platform-review/1.0"},method="POST")
+    # Construct and validate the adapter-facing semantics independently of auth.
+    # The API key is added only to transport headers below and can never enter
+    # the semantic fingerprint/evidence projection.
+    semantic=gemini_adapter_semantic_request(model=model, prompt=prompt)
+    wire=gemini_wire_request_from_semantic(semantic)
+    req=Request(wire["url"],data=json.dumps(wire["payload"]).encode(),headers={"x-goog-api-key":key,"content-type":"application/json","user-agent":"setugo-governance-platform-review/1.0"},method=wire["method"])
     try:
-        with urlopen(req,timeout=180) as response: body=json.loads(response.read().decode("utf-8"))
+        with urlopen(req,timeout=wire["timeout_seconds"]) as response: body=json.loads(response.read().decode("utf-8"))
     except HTTPError as exc: raise RuntimeError(f"Gemini HTTP {exc.code}: "+exc.read().decode("utf-8",errors="replace")[:1000]) from exc
     except URLError as exc: raise RuntimeError(f"Gemini connection failed: {exc.reason}") from exc
     c=(body.get("candidates") or [{}])[0]

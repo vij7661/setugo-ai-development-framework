@@ -1,0 +1,131 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_CANDIDATE_IDENTITY
+- baseline: 7cd2787d85b189a4161f271ee131e42bd961140a
+- frozen Q14 commit: 01ec3651c9c0764e69944cd5718b07e4d30623b4
+- frozen Q14 tree: a61f1b0686c65719a83e0b065f5ac632f88cba96
+- changed-file count from baseline: 37
+- packet-generation run/job: 36267884335 / 108475932629
+- exact Linux validation run/job: 36267651715 / 108475282396
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+
+**F-01**
+2. HIGH
+3. `governance-runtime/reviewer_evidence_delivery.py` (all public functions) vs. the workflows/CI gates that would need to call them
+4. Every function in this module (`validate_reviewer_access_manifest`, `validate_review_delivery_request`, `verify_whole_delivery`, `verify_chunked_delivery`) is exercised only by its own unit test file and by the invariant-gate script's *self-test* with hand-built literal fixtures. No workflow YAML, no preflight tool, and no other module in the changed-file set imports or calls this module against a real reviewer submission. A reviewer/automation could submit a review backed by a bare URL-only or fabricated manifest through any real ingestion path and nothing in the shipped pipeline would ever invoke this validator on it.
+5. Grep across the full packet (source + diff) shows `reviewer_evidence_delivery` imported only in its own test file and in `verify_r8_v15_r1_post_sg1_integration_invariants.py`'s synthetic self-check block; zero references from any `.yml` workflow or `tools/preflight_*` script.
+6. A unit-tested library is not an enforced control. Invariant family 11 ("mandatory reviewer evidence must actually be delivered completely") requires the check to sit on the path that consumes real review submissions, not merely exist and pass isolated tests.
+7. Add a call to `validate_review_delivery_request` (or equivalent) inside the actual review-ingestion step of the SG-1/Q14 workflow(s), and fail the gate when it returns False.
+8. Add a workflow-level test that feeds a `URL_ONLY` or manifest-omitted review submission through the real ingestion path and asserts the gate rejects it (not just that the library function rejects it in isolation).
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: governance-rule / runtime
+
+**F-02**
+2. HIGH
+3. `tools/r8_v15_r1_review_contract_parser.py::parse_review_contract`, and its exclusive use in `verify_r8_v15_r1_post_sg1_integration_invariants.py` and `test_r8_v15_r1_review_contract_parser.py`
+4. The "single fail-closed parser" hardcodes exactly 8 headings (`A`–`H`), the legacy "Stage2 SG-1 may be explicitly activated by user" / "Broader Stage2 semantic authority granted" grammar, and `sections["A"] != "BOUNDED_PASS"` as an automatic reject. This packet's own `INDEPENDENT REVIEW CONTRACT` requires a *different*, 10-section `A`–`J` grammar (with `MEDIUM_FINDINGS`, `LOW_FINDINGS`, `PERMANENT_INVARIANT_ASSESSMENT`, etc.) and explicitly allows `CHANGES_REQUIRED` and `INSUFFICIENT_EVIDENCE` as valid dispositions. No parser, and no test case anywhere in the changed files, accepts either of those two dispositions or the `A`–`J` shape — every accepted/rejected case in `test_r8_v15_r1_review_contract_parser.py` and the invariant-gate's inline `review_doc()` fixture uses the old 8-section, BOUNDED_PASS-only shape.
+5. Lines 4005–4060 (`parse_review_contract`), the `doc()` fixture in `test_r8_v15_r1_review_contract_parser.py`, and the identical `review_doc()` fixture inside `verify_r8_v15_r1_post_sg1_integration_invariants.py` all hardcode the 8-heading/BOUNDED_PASS shape.
+6. "Review grammar must be structural, not a list of punctuation examples" (family 1) is claimed as a closed permanent invariant, but the structural grammar that is actually implemented and tested does not cover the review format this very candidate is being gated by, and cannot represent a negative verdict at all.
+7. Either generalize the parser to accept the declared `A`–`J` contract and all three valid dispositions, or ship a second, equally adversarially-tested parser for it; add explicit accepted-case tests for `CHANGES_REQUIRED` and `INSUFFICIENT_EVIDENCE`.
+8. Add `parse_review_contract(doc().replace("BOUNDED_PASS", "CHANGES_REQUIRED"))` (and `INSUFFICIENT_EVIDENCE`) as accepted cases in `test_r8_v15_r1_review_contract_parser.py`; add a full `A`–`J` fixture round-trip test.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: code / governance-rule
+
+**F-03 (frozen status not machine-verifiable)**
+2. HIGH
+3. `governance-r8/R8-V15-R1-POST-SG1-CONVERGENCE-MANIFEST.json["status"]` and its assertion in `verify_r8_v15_r1_post_sg1_integration_invariants.py`
+4. The manifest this invariant gate reads and asserts against still carries `"status": "OPEN_CONVERGENCE_NOT_FROZEN"`, and the gate script literally asserts `manifest["status"] == "OPEN_CONVERGENCE_NOT_FROZEN"` as a *pass* condition. Yet the packet header presents this exact tree as `Q14 FROZEN PERMANENT-INVARIANT CANDIDATE` with a `frozen/...` branch name. "Frozen" is asserted only in prose and a branch-name convention; no machine-checked field anywhere in the shipped schema (manifest, work-queue, or invariant gate) flips to a `FROZEN` state.
+5. `governance-r8/R8-V15-R1-POST-SG1-CONVERGENCE-MANIFEST.json` lines shown around `"status": "OPEN_CONVERGENCE_NOT_FROZEN"`; `verify_r8_v15_r1_post_sg1_integration_invariants.py` line `assert manifest["status"] == "OPEN_CONVERGENCE_NOT_FROZEN"`.
+6. Family 8 ("review packets are deterministic projections of one immutable SHA/tree") depends on freeze status itself being derivable/verifiable from the tree, not just claimed in the packet's free-text header.
+7. Add an explicit `frozen: true` / `status: FROZEN` field to the manifest schema once freeze requirements are met, and have the invariant gate assert on that field instead of (or in addition to) the pre-freeze value.
+8. A test that loads the manifest for a *frozen* candidate and asserts `manifest["status"] == "FROZEN"` (currently no such assertion or state exists).
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: evidence / packaging
+
+E. MEDIUM_FINDINGS
+
+**F-04 (non-recursive governance-leak check)**
+2. MEDIUM
+3. `governance-runtime/provider_api_request_contract.py::canonical_provider_request`
+4. The forbidden-key check (`keys & FORBIDDEN_PROVIDER_KEYS`) only inspects the top-level keys of the request object. Governance metadata nested inside `provider_parameters` (an unvalidated `Mapping`) or inside a `messages[i]["content"]` string would pass through undetected and would still be included in the fingerprint, silently becoming part of the "provider-facing" surface.
+5. `test_provider_api_request_contract.py::test_governance_envelope_is_not_part_of_provider_request` only tests a top-level leaked key (`req["candidate_sha"] = ...`); no test injects a leak into `provider_parameters` or `messages`.
+6. Invariant family 5/10 requires that "governance metadata must not silently leak into provider-facing model/API requests" — a shallow, single-level check does not satisfy this for nested structures.
+7. Recursively scan `provider_parameters` and message `content`/structured fields for `FORBIDDEN_PROVIDER_KEYS` (or a documented narrower nested-key list) before fingerprinting.
+8. `canonical_provider_request({... , "provider_parameters": {"governance_review_blob": "x"}})` should raise `ValueError` — currently it does not.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: API-contract / code
+
+**F-05 (secret-header sanitization is optional, not enforced)**
+2. MEDIUM
+3. `governance-runtime/provider_api_request_contract.py::sanitize_semantic_headers`
+4. This helper is explicitly documented as "optional" and is never called from `canonical_provider_request`, `provider_request_fingerprint`, or `assert_governance_change_preserves_provider_request`. If an adapter puts header-like secret material anywhere inside the request object being fingerprinted, nothing in the enforced path strips it.
+5. Function docstring: "Optional helper for adapter tests: never fingerprint secret header values." No call site exists outside its own test.
+6. "Secret values must not enter fingerprints/evidence" is listed as a hard contract requirement, but is only satisfied if every caller remembers to call an optional helper.
+7. Call `sanitize_semantic_headers` (or an equivalent secret-scrubbing pass) unconditionally inside `canonical_provider_request` before returning/fingerprinting.
+8. A test that includes an `Authorization`-style key somewhere in the request and asserts the resulting fingerprint is identical regardless of its value.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: API-contract
+
+**F-06 (queue ledger drift for the very task under review)**
+2. MEDIUM
+3. `governance-r8/CODEX-WORK-QUEUE-51.json` (`Q14` task entry) vs. the packet's `EXACT CANDIDATE IDENTITY` block
+4. The ledger's `Q14` entry has `"branch": "codex/r8-v15-r1-q14-permanent-invariants-2026-09-26"` and `"state": "RUNNABLE_CODING"`, while the packet identifies the actual frozen candidate as `frozen/r8-v15-r1-q14-permanent-invariants-2026-09-27` (different branch, different date) and describes it as complete and frozen. The queue-completeness check in `verify_r8_v15_r1_post_sg1_integration_invariants.py` (`task_ids - manifest_ids == set()`) only checks that a Q-numbered markdown file has *some* entry in the ledger; it never checks that the entry's branch/state fields match the actual candidate being reviewed.
+5. `CODEX-WORK-QUEUE-51.json` lines defining the `Q14` task vs. packet header lines 8–11.
+6. Family 6 ("every governed Q-task is represented in the ledger") is satisfied at the ID-membership level but not at the field-accuracy level, so ledger drift for the exact candidate under review is invisible to the shipped check.
+7. Update the `Q14` ledger entry's `branch`/`state` to match the frozen candidate at freeze time, and extend `r8_work_queue.load()` to validate branch-name/state consistency for any task whose id matches a currently-frozen candidate.
+8. A test asserting `wq.load()["tasks"]` entry for a frozen candidate's id has `branch` equal to the frozen branch name recorded in the freeze manifest.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: evidence / governance-rule
+
+F. LOW_FINDINGS
+
+**F-07**
+2. LOW
+3. `governance-runtime/reviewer_evidence_delivery.py::validate_reviewer_access_manifest` (`PROVIDER_URL_CONTEXT` branch)
+4. Unlike the `PLATFORM_MATERIALIZED_CONTENT` branch (which requires `content_sha256` + `bytes` on every accessed object), the `PROVIDER_URL_CONTEXT` branch only checks that the URL string contains `/blob/{commit_sha}/` or `/commit/{commit_sha}/`. It never requires any recorded proof of fetched-content identity, even though the lineage doc states "fetched content identity must be recorded" for this mode.
+5. Lines ~2937–2940 of `reviewer_evidence_delivery.py`; contrast with the `PLATFORM_MATERIALIZED_CONTENT` branch two clauses below it.
+6. As written, a `PROVIDER_URL_CONTEXT` manifest can pass `validate_reviewer_access_manifest` on the strength of a well-formed URL alone, which is closer to `URL_ONLY` than the contract intends (`validate_review_delivery_request`'s separate `subjects`/`delivered` check provides a partial backstop, but the manifest-level check itself is weaker than documented).
+7. Require a `content_sha256` (and ideally `bytes`) field on `PROVIDER_URL_CONTEXT` accessed objects, matching the `PLATFORM_MATERIALIZED_CONTENT` branch.
+8. A test asserting a `PROVIDER_URL_CONTEXT` manifest with a valid commit-addressed URL but no `content_sha256` is rejected — currently it is accepted.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO (mitigated in practice by `validate_review_delivery_request`'s subject-level byte verification)
+11. Classification: evidence / code
+
+G. PERMANENT_INVARIANT_ASSESSMENT
+1. Review grammar structural, not example-based — Partially held: the implemented parser is genuinely structural (regex on line-start tokens, not an enumerable literal list), but it only covers the legacy 8-section grammar, not this packet's own 10-section contract (F-02).
+2. Single semantic owner for authority declarations — Held for the grammar it covers: duplicate/contradictory/embedded activation-authority lines fail closed (confirmed by the adversarial table tests).
+3. Workflow commands executable/CLI-compatible — Held as far as tested: the invariant gate asserts `--expected-sha256`/`--expected-blob`/`--review` sit on the same shell line as the preflight invocation.
+4. Semantic verification recomputes canonical results — Held: `verify_inventory` is exercised with a tamper test that flips a classification and confirms detection.
+5. Evidence identity binds the complete tuple — Weakened: the tuple is bound for the Stage1/Stage2 successor lineage, but the Q14 candidate's own ledger entry is not kept in sync with its frozen identity (F-06), and freeze status itself is not a checked field (F-03).
+6. Queue completeness — Weakened: presence-only check; field-accuracy drift for the reviewed task itself is possible and currently present (F-06).
+7. Filesystem confinement, fixed root, descriptor-safe — Held: `read_confined_file` uses per-component `openat`-style descriptors with `O_NOFOLLOW`/`O_DIRECTORY`, and both the runtime helper and `r8_evidence_bundle_integrity.py`'s helper are exercised against a lexical parent-traversal alias in the invariant gate.
+8. Deterministic packet projection from one SHA/tree — Weakened: the manifest still declares `OPEN_CONVERGENCE_NOT_FROZEN` for what is presented as a frozen tree (F-03).
+9. Cross-component load-bearing equality — Held: the gate pins the exact runtime blob SHA and asserts the evidence-bundle tool imports `read_confined_file` from it.
+10. Provider API request preservation — Partially held: fingerprinting and governance-only-preserves-fingerprint logic work for the tested top-level shape, but the leak check is non-recursive (F-04) and secret scrubbing is optional (F-05).
+11. Mandatory reviewer evidence actually delivered — Not held in practice: the machinery exists and is unit-tested but is not wired into any real ingestion path (F-01).
+12. Reviewer solutions advisory, implementer adjudicates — Held: `validate_finding_solution_contract` / `validate_solution_adjudication` correctly separate proposal from authority, and adjudication states are a closed enum.
+
+H. API_AND_REVIEWER_DELIVERY_ASSESSMENT
+Provider API request preservation is directionally sound (canonicalization, POST/field-shape validation, fingerprint diffing gated by declared change class) but has two real gaps: the anti-leak check doesn't recurse into `provider_parameters`/`messages` (F-04), and header/secret scrubbing is opt-in rather than enforced (F-05). None of the four reviewer evidence-delivery modes are actually reachable from a real workflow — the whole module is validated only by its own tests and the invariant gate's synthetic self-check (F-01). Within the module itself, `AUTHENTICATED_GITHUB_MCP_READ_ONLY` and `PLATFORM_MATERIALIZED_CONTENT` are well-specified (object ids/content hashes required, read-only enforced), `URL_ONLY` correctly can never satisfy `validate_review_delivery_request`, but `PROVIDER_URL_CONTEXT` falls short of its own documented "fetched content identity must be recorded" requirement (F-07).
+
+I. REMEDIATION_PLAN
+For F-01 through F-07: proposed solutions and regression/falsification tests are given inline under each finding above. All are narrow (wire an existing function into a real call site, add a missing field/test, extend an existing check to be recursive or field-accurate) — none require redesigning an invariant family. These are reviewer-proposed solutions only; they are advisory and carry no authority. Every one requires explicit implementer adjudication (`ACCEPTED_AS_PROPOSED` / `ACCEPTED_NARROWED` / `ACCEPTED_WITH_ALTERNATIVE_SOLUTION` / `REJECTED_NOT_REPRODUCED` / `REJECTED_UNSAFE_OR_OUT_OF_SCOPE` / `DEFERRED_REQUIRES_EVIDENCE`) before any code changes based on them are made.
+
+J. FINAL_GATE
+- Frozen Q14 candidate eligible for bounded merge consideration: NO
+- Broader Stage2 semantic authority granted: NO
+- Runtime qualification granted: NO
+- Release/deployment/production authority granted: NO
+- Automatic six-slice cadence restoration: NO
+- Fallback-to-3 remains ACTIVE

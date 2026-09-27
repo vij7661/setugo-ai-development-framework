@@ -3,7 +3,7 @@ import copy, unittest
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
-from r8_work_queue import next_runnable, load, verify_external_head, ALLOWED_STATES
+from r8_work_queue import next_runnable, load, verify_external_head, current_lifecycle, ALLOWED_STATES
 
 class QueueTests(unittest.TestCase):
     def test_human_block_does_not_stop_independent_task(self):
@@ -15,6 +15,34 @@ class QueueTests(unittest.TestCase):
     def test_current_manifest_preserves_authority_boundaries(self):
         data = load(); self.assertTrue(all(not v for v in data["authority"].values())); self.assertEqual(data["issue"], 52)
         self.assertTrue(ALLOWED_STATES.issuperset({"RUNNABLE_CODING","CODE_COMPLETE","HUMAN_REVIEW_BLOCKED","MANUAL_INTERVENTION_BLOCKED","CODE_DEPENDENCY_BLOCKED","TERMINAL"}))
+        q14 = next(task for task in data["tasks"] if task["id"] == "Q14")
+        self.assertEqual(q14["state"], "FROZEN_REVIEWED_CHANGES_REQUIRED")
+        self.assertEqual(q14["review_state"], "CHANGES_REQUIRED")
+        self.assertEqual(q14["candidate_commit"], "01ec3651c9c0764e69944cd5718b07e4d30623b4")
+        self.assertEqual(q14["candidate_tree"], "a61f1b0686c65719a83e0b065f5ac632f88cba96")
+        q15 = next(task for task in data["tasks"] if task["id"] == "Q15")
+        self.assertEqual(q15["candidate_state"], "PRE_FREEZE_READY")
+        self.assertEqual(q15["state"], "FROZEN_REVIEWED_CHANGES_REQUIRED")
+        self.assertEqual(q15["review_state"], "CHANGES_REQUIRED")
+        self.assertEqual(q15["external_lifecycle"]["candidate_commit"], "8ce8226818407924d81cee98a2800fc64d1797b1")
+        q16 = next(task for task in data["tasks"] if task["id"] == "Q16")
+        self.assertEqual(q16["candidate_state"], "PRE_FREEZE_READY")
+        self.assertEqual(q16["state"], "FROZEN_REVIEWED_CHANGES_REQUIRED")
+        self.assertEqual(current_lifecycle(q16),"FROZEN_VERIFIED")
+        self.assertEqual(q16["external_lifecycle"]["evidence_pointer"]["independent_review_git_blob"],"65b149e6147607f203176642dccfbc76acf084bf")
+        q17=next(task for task in data["tasks"] if task["id"]=="Q17")
+        self.assertEqual(q17["candidate_state"],"PRE_FREEZE_READY")
+        self.assertIsNone(next_runnable(data))
+
+    def test_candidate_local_prefreeze_cannot_negate_external_freeze(self):
+        data = load(); module = __import__("r8_work_queue")
+        q15 = next(task for task in data["tasks"] if task["id"] == "Q15")
+        bad = copy.deepcopy(data); next(task for task in bad["tasks"] if task["id"] == "Q15")["external_lifecycle"]["attestation_location"] = "CANDIDATE_LOCAL"
+        old = module.MANIFEST.read_text(encoding="utf-8")
+        try:
+            module.MANIFEST.write_text(__import__("json").dumps(bad), encoding="utf-8")
+            with self.assertRaises(ValueError): load()
+        finally: module.MANIFEST.write_text(old, encoding="utf-8")
 
     def test_dependency_unknown_duplicate_and_manual_status_rejected(self):
         data = load()

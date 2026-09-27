@@ -137,6 +137,8 @@ class PlatformCandidateReviewRequestIntegrityTests(unittest.TestCase):
                 validation = json.loads((output_dir / "validation.json").read_text(encoding="utf-8"))
                 self.assertTrue(validation["valid"])
                 self.assertEqual(validation["effective_disposition"], "PASS")
+                persisted = "\n".join(path.read_text(encoding="utf-8") for path in output_dir.iterdir())
+                self.assertNotIn("synthetic-test-key", persisted)
 
 
 if __name__ == "__main__":

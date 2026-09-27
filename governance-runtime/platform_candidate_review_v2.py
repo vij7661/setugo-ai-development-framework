@@ -11,6 +11,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 import platform_candidate_review as legacy
+from reviewer_evidence_delivery import validate_review_delivery_request
 
 DIGITS = re.compile(r"^[0-9]+$")
 
@@ -118,6 +119,7 @@ def _materialize_ci_run(candidate: str, ref_value: str) -> dict:
         "candidate_sha": candidate,
         "authority_class": "EXECUTION_EVIDENCE_NOT_SEMANTIC_AUTHORITY",
         "sha256": _sha_bytes(raw),
+        "bytes_utf8": len(raw),
         "content": materialized,
     }
 
@@ -173,14 +175,57 @@ def build_corpus(root: Path, request: dict) -> dict:
     return corpus
 
 
+def mandatory_delivery_subjects(corpus: dict) -> list[dict]:
+    """Project the exact materialized corpus evidence into the delivery contract."""
+    request_raw = _canon(corpus["review_request"])
+    diff_raw = corpus["candidate_diff"].encode("utf-8")
+    subjects = [
+        {
+            "subject_id": f"review_request:{corpus['review_request']['review_request_id']}",
+            "source_path": "review-request.json", "commit_sha": corpus["candidate_commit"],
+            "delivery_mode": "in_request", "sha256": _sha_bytes(request_raw),
+            "bytes": len(request_raw), "delivered": request_raw,
+        },
+        {
+            "subject_id": f"candidate_diff:{corpus['candidate_commit']}",
+            "source_path": "candidate.diff", "commit_sha": corpus["candidate_commit"],
+            "delivery_mode": "in_request", "sha256": _sha_bytes(diff_raw),
+            "bytes": len(diff_raw), "delivered": diff_raw,
+        },
+    ]
+    for item in corpus["evidence_artifacts"]:
+        raw = _canon(item["content"]) if isinstance(item["content"], (dict, list)) else str(item["content"]).encode("utf-8")
+        subjects.append({
+            "subject_id": f"{item['type']}:{item['ref']}",
+            "source_path": item["ref"] if item["type"] == "file" else f"{item['type']}:{item['ref']}",
+            "commit_sha": corpus["candidate_commit"],
+            "delivery_mode": "in_request",
+            "sha256": item["sha256"],
+            "bytes": len(raw),
+            "delivered": raw,
+        })
+    return subjects
+
+
+def validate_corpus_delivery(request: dict, corpus: dict, manifest: dict | None, *, expected_repository: str, expected_provider_identity: str = "gemini") -> None:
+    if not isinstance(manifest, dict):
+        raise ValueError("reviewer_access_manifest required")
+    if manifest.get("corpus_sha256") != corpus.get("corpus_sha256"):
+        raise ValueError("reviewer access manifest corpus mismatch")
+    if not validate_review_delivery_request(mandatory_delivery_subjects(corpus), manifest, review_request=request, required_manifest_mode="PLATFORM_MATERIALIZED_CONTENT", expected_provider_identity=expected_provider_identity, expected_repository=expected_repository):
+        raise ValueError("reviewer evidence delivery validation failed")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--request", required=True)
     ap.add_argument("--output-dir", required=True)
     ap.add_argument("--model", required=True)
+    ap.add_argument("--access-manifest", required=True)
     args = ap.parse_args()
 
     request = json.loads(Path(args.request).read_text(encoding="utf-8"))
+    access_manifest = json.loads(Path(args.access_manifest).read_text(encoding="utf-8"))
     legacy.verify_request_integrity(request)
     root = Path(".")
     out = Path(args.output_dir)
@@ -188,6 +233,10 @@ def main() -> None:
 
     # Materialization is completed before any provider secret is required or provider call can occur.
     corpus = build_corpus(root, request)
+    expected_repository = _repo_name()
+    validate_corpus_delivery(request, corpus, access_manifest, expected_provider_identity="gemini", expected_repository=expected_repository)
+    manifest_bytes = _canon(access_manifest)
+    manifest_sha256 = _sha_bytes(manifest_bytes)
     prompt = legacy.build_prompt(request, corpus, args.model)
     key = os.environ.get("GEMINI_API_KEY", "")
     if not key:
@@ -206,11 +255,16 @@ def main() -> None:
         "remote_model_identity_cryptographically_proven": False,
         "request_hash": request.get("request_hash"),
         "corpus_sha256": corpus["corpus_sha256"],
+        "access_manifest_sha256": manifest_sha256,
+        "delivery_mode": access_manifest["delivery_mode"],
+        "reviewer_provider_identity": access_manifest["provider_identity"],
+        "repository": access_manifest["repository"],
         "materialization_version": "GOV-EVIDENCE-MATERIALIZATION-001",
         "evidence_ref_count": corpus["evidence_ref_count"],
         "materialized_evidence_count": corpus["materialized_evidence_count"],
         "authority_effect": "NONE_PENDING_DETERMINISTIC_INGESTION",
     }
+    (out / "access-manifest.json").write_bytes(manifest_bytes)
     for name, obj in [
         ("corpus.json", corpus),
         ("provider-response.json", provider),

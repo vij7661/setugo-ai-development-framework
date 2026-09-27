@@ -1,0 +1,218 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_CANDIDATE_IDENTITY
+- baseline: 7cd2787d85b189a4161f271ee131e42bd961140a
+- frozen Q16 commit: 66b720bd33eb200428c64c31c50e8c5a1ce5cec1
+- frozen Q16 tree: 78061fdbc0340f3025a056612836cf9b2df1a412
+- changed-file count from baseline: 61
+- packet-generation run/job: 36302560339 / 108572835121
+- exact Linux validation run/job: 36302342969 / 108572209505
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+
+**H-01**
+2. HIGH
+3. `governance-runtime/platform_candidate_review.py::invoke`; `governance-runtime/provider_api_request_contract.py::gemini_wire_request_from_semantic`
+4. The canonical semantic projection includes `retry_policy`, and `gemini_wire_request_from_semantic` returns it, but `invoke` ignores `wire["retry_policy"]` and performs exactly one `urlopen` attempt. A governance-only change to retry semantics would not change actual execution; conversely, adding retry behavior to `invoke` would not change the fingerprint. Retry semantics are therefore not load-bearing on the real provider path.
+5. `invoke` uses `wire["url"]`, `wire["payload"]`, `wire["method"]`, and `wire["timeout_seconds"]`, but never `wire["retry_policy"]`. Tests exercise `assert_gemini_wire_matches_semantic` only against a mutated wire object, not against the actual execution plan in `invoke`.
+6. The API preservation contract requires endpoint, method, payload, timeout, retry, streaming, and response semantics not to drift. The current tests do not prove retry behavior is derived from or checked against the projection.
+7. Derive the actual retry execution plan from `wire["retry_policy"]` and execute it, or assert the actual execution plan equals the projection before `urlopen`.
+8. Regression: set semantic `retry_policy` to `{"max_attempts": 2, "retry_on": []}`; the real invocation must either perform two attempts or fail preservation. Current code still performs one attempt.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: API-contract / code
+
+**H-02**
+2. HIGH
+3. `governance-runtime/freeze_attestation.py::verify_freeze_attestation` / `verify_execution_statement`
+4. V2 attestations verify only self-hashed execution statements and candidate fields. They do not bind Linux/packet run/job IDs to the candidate through external evidence, a signature, or a trusted attestation digest. A fabricated v2 attestation with the correct candidate commit/tree/ref and arbitrary or stale run/job IDs can pass by recomputing `statement_sha256`.
+5. `verify_execution_statement` checks `statement_sha256 == canonical_sha256(material)` and candidate fields, but there is no external run/job binding, no signed attestation, and no expected attestation hash in `q15_review_merge_gate`.
+6. The review contract specifically requires stale/cross-candidate run/job replay to fail. The current verifier does not prevent a self-consistent fabricated attestation from replaying run/job identities from another candidate while claiming the Q16 candidate.
+7. Require a trusted/signed attestation, or require an expected attestation SHA256/Git blob plus candidate-bound run/job evidence, such as workflow head SHA equal to the candidate commit or an independently checked run/job-to-candidate binding.
+8. Regression: construct a v2 attestation with correct Q16 commit/tree/ref but Linux/packet run IDs from another candidate; verification must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: evidence / governance-rule
+
+**H-03**
+2. HIGH
+3. `governance-runtime/q15_review_merge_gate.py::review_merge_evidence_eligible`
+4. The gate parses any review file at `review_path` and compares the review’s section-B identity fields to `expected_identity`, but it never verifies the exact review artifact’s raw SHA256 or Git blob. A different `BOUNDED_PASS` review with the same identity fields and final gate can satisfy the gate.
+5. The function accepts `review_path` and calls `parse_independent_review_file`, but there is no expected review digest/blob parameter. `expected_identity` also lacks a review artifact hash.
+6. Review/merge evidence must bind the exact candidate and the exact review artifact. The current gate binds candidate identity but not review artifact identity.
+7. Require an expected review raw SHA256 and/or Git blob, and verify it before parsing.
+8. Regression: substitute a forged `BOUNDED_PASS` review with the same section-B identity but different bytes; the gate must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: code / evidence / governance-rule
+
+**H-04**
+2. HIGH
+3. `tools/verify_q16_invariant_workflow.py::verify`
+4. The workflow self-check counts required command strings in the YAML text. Replacing a required `run:` command with a comment containing the same path leaves `text.count(item) == 1`, so the self-check passes while the command no longer executes.
+5. `missing = [item for item in REQUIRED if text.count(item) != 1]` does not parse YAML or confirm the item appears in an executable run block. `tools/test_verify_q16_invariant_workflow.py` only deletes strings; it does not test comment substitution.
+6. The invariant workflow’s required commands can silently disappear while its own self-check still passes.
+7. Parse the workflow YAML and require each required item to appear in a non-comment `run:` command block, or verify the executable step inventory rather than raw string count.
+8. Regression: replace a required run command with `# <command>`; the self-check must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: governance-rule / evidence
+
+E. MEDIUM_FINDINGS
+
+**M-01**
+2. MEDIUM
+3. `governance-runtime/provider_api_request_contract.py::canonical_provider_request` / `_reject_forbidden_structured_keys`
+4. `provider_parameters` and structured message fields are recursively checked, but `retry_policy` is only type-checked as a `Mapping`. Forbidden governance or secret keys nested inside `retry_policy` can enter the fingerprint.
+5. `out["retry_policy"]` is checked only with `isinstance(..., Mapping)`; `_reject_forbidden_structured_keys(out["retry_policy"])` is not called.
+6. The recursive secret/governance normalization invariant is incomplete for the `retry_policy` subtree.
+7. Recursively scan `retry_policy` with the same forbidden/secret key normalization.
+8. Regression: `canonical_provider_request` with `retry_policy: {"candidate_sha": "x"}` or `{"authorization": "secret"}` must raise.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: API-contract / code
+
+**M-02**
+2. MEDIUM
+3. `governance-runtime/reviewer_evidence_delivery.py::validate_reviewer_access_manifest` / `validate_review_delivery_request`; `governance-runtime/platform_candidate_review_v2.py::validate_corpus_delivery`
+4. Non-URL modes do not require `mandatory_subjects_covered == True`, do not require `result_status` to indicate success, and do not bind `provider_identity` or `repository` to expected values. A manifest can claim false coverage, failure status, or wrong provider/repository and still pass if object hashes match.
+5. Manifest validation only type-checks these fields. `platform_candidate_review_v2.validate_corpus_delivery` checks `corpus_sha256` and `required_manifest_mode`, but not provider identity, repository, result success, or mandatory coverage truthfulness.
+6. Reviewer delivery evidence can be internally consistent but false about coverage, provider, repository, or result.
+7. Require `mandatory_subjects_covered is True`, `result_status` in a success set, and `provider_identity`/`repository` to match the expected provider and repository on the real path.
+8. Regression: manifest with `mandatory_subjects_covered: false`, `result_status: "FAILED"`, wrong `provider_identity`, or wrong `repository` must fail `validate_corpus_delivery`.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: evidence / code
+
+**M-03**
+2. MEDIUM
+3. `governance-runtime/platform_candidate_review_v2.py::main`
+4. The real v2 path validates the access manifest but does not persist it or its canonical hash into output evidence or the execution envelope. Post-run audit cannot verify which manifest was admitted.
+5. Output files are `corpus.json`, `provider-response.json`, `review.json`, `validation.json`, and `execution-envelope.json`; there is no `access-manifest.json` or manifest hash.
+6. Reviewer delivery mode truthfulness and exact source identity cannot be independently audited from the persisted evidence.
+7. Persist the validated access manifest or its canonical SHA256 and delivery mode into the execution envelope and output directory.
+8. Regression: run `main` with a valid manifest; assert output contains the exact manifest or its canonical hash and that the envelope binds it.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / packaging
+
+**M-04**
+2. MEDIUM
+3. `governance-runtime/reviewer_evidence_delivery.py::validate_reviewer_access_manifest`
+4. For `PROVIDER_URL_CONTEXT`, the URL is checked only for containing `/blob/{commit}/` or `/commit/{commit}/`; it is not bound to `source_path` or the expected object path. For `AUTHENTICATED_GITHUB_MCP_READ_ONLY`, `object_id` is only required to be non-empty. Matching bytes from the wrong source object can pass if the content hash matches.
+5. The URL branch checks only commit addressing. The MCP branch checks only that `object_id` is a non-empty string.
+6. The contract requires exact source path/object/blob identity for these modes.
+7. Bind URL path and MCP `object_id` to expected source/object identity for those modes.
+8. Regression: URL-context manifest with correct commit and content hash but a URL path for a different file must fail; MCP manifest with mismatched `object_id` must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / code
+
+**M-05**
+2. MEDIUM
+3. `governance-runtime/q15_review_merge_gate.py`
+4. The gate is unit-tested but is not called by any workflow or real merge/promotion ingestion path. A future merge could proceed without invoking it.
+5. The Q16 invariant workflow runs `test_q15_review_merge_gate.py`, but no production workflow imports or calls `review_merge_evidence_eligible`.
+6. The permanent invariant is not enforced on the path that consumes real review/merge evidence.
+7. Wire the gate into the actual merge/promotion or evidence-ingestion workflow, or explicitly mark it as a non-production library with a governed integration boundary.
+8. Regression: a workflow-level test must fail if the gate is omitted from the real ingestion path.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: governance-rule / code
+
+F. LOW_FINDINGS
+
+**L-01**
+2. LOW
+3. `governance-runtime/reviewer_evidence_delivery.py::_contains_secret_key`
+4. Secret detection checks only mapping keys, not values. A manifest value such as `"Bearer secret"` or an API key string under a non-secret key can pass.
+5. `_contains_secret_key` iterates keys only.
+6. The standard prohibits raw tokens/secrets from manifests, prompts, persisted evidence, and fingerprints.
+7. Add value-pattern scanning or a secret-free manifest schema.
+8. Regression: manifest with `provider_identity: "Bearer secret"` must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / API-contract
+
+**L-02**
+2. LOW
+3. `tools/r8_v15_r1_independent_review_parser.py::_validate_findings`
+4. It validates that rows 2–11 exist and that row 2 matches severity, but it does not validate row order or the semantic content of rows 9–11 (`Candidate invalidated`, `Merge/promotion blocking`, `Classification`).
+5. The parser checks `set(rows) == set(range(2, 12))` and `rows[2] == severity`; it does not validate row 9/10 YES/NO or row 11 classification.
+6. The structural contract is only partially enforced.
+7. Validate row order and the semantic enums for rows 9–11.
+8. Regression: a finding with row 9 `MAYBE`, row 10 `MAYBE`, or empty row 11 must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: code
+
+**L-03**
+2. LOW
+3. `.github/workflows/governance-candidate-platform-review.yml`
+4. The governance review workflow uses `actions/checkout@v4` and `actions/upload-artifact@v4` tag references rather than full commit SHAs.
+5. Workflow file evidence.
+6. Governance workflows should minimize mutable action references.
+7. Pin third-party actions to full commit SHAs.
+8. Regression: workflow lint requiring pinned actions.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: packaging / governance-rule
+
+**L-04**
+2. LOW
+3. `governance-r8/R8-V15-R1-Q15-CHANGE-IMPACT.md`
+4. The file states that Q15 remains pre-freeze and that no Q15 external review was performed, while the candidate tree contains the Q15 independent review and external freeze lifecycle evidence. Candidate-local pre-freeze construction state is allowed, but a negative external-lifecycle claim is misleading.
+5. End of Q15 change-impact file versus `R8-V15-R1-Q15-INDEPENDENT-REVIEW-001.txt` and the external v2 freeze attestation.
+6. Candidate-local records must not assert negative external lifecycle facts that are contradicted by later external evidence.
+7. Reword to state construction-time state only; leave external lifecycle to external attestations.
+8. Regression: candidate-local lifecycle records must not contain negative external freeze/review claims.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / packaging
+
+**L-05**
+2. LOW
+3. `governance-r8/CODEX-WORK-QUEUE-51.json` Q16 entry
+4. Q16 has no `external_lifecycle` record even though an external v2 attestation is present in the review bundle. Candidate-local state may remain `PRE_FREEZE_READY`, but the queue does not point to the external evidence, causing discoverability drift.
+5. Q16 entry has `candidate_state: PRE_FREEZE_READY`, `review_state: NOT_REVIEWED`, and no `external_lifecycle`.
+6. Queue/ledger completeness is weakened for the exact task under review.
+7. Add an external lifecycle pointer or an explicit governed exemption without mutating candidate-local freeze state.
+8. Regression: if an external lifecycle pointer is present for Q16, queue validation must bind it to the external attestation.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / governance-rule
+
+G. PERMANENT_INVARIANT_ASSESSMENT
+- Review section-B candidate identity binding: Held for expected identity, Linux statement, packet statement, and v2 attestation in `q15_review_merge_gate`, but the exact review artifact bytes/hash are not bound (H-03).
+- A-J parser compatibility: Held for ordered A-J headings, non-F finding IDs such as `C-01`/`H-01`/`M-01`/`L-01`, parameterized candidate labels, negative dispositions, duplicate IDs, severity mismatches, and malformed headings. Row-level semantic validation is still incomplete (L-02).
+- Candidate-local `PRE_FREEZE_READY` vs external `FROZEN` lifecycle separation: Held. The candidate does not self-mutate to claim post-freeze state, and external v2 attestation is the post-freeze record. Q15 change-impact contains a stale negative external claim (L-04).
+- V2 execution-statement digest integrity and stale/cross-candidate replay: Self-hash integrity is held, but external run/job binding is not held (H-02). A fabricated self-consistent v2 attestation can replay run/job identities while claiming the correct candidate.
+- Actual Gemini wire request preservation: URL, method, payload, and timeout are derived from the canonical projection. Retry semantics are not executed or bound on the real path (H-01), and `retry_policy` is not recursively scanned (M-01).
+- Recursive secret/governance key normalization: Held for `provider_parameters` and structured message/adapter objects. `retry_policy` is missed (M-01), and manifest secret values are not scanned (L-01).
+- Real reviewer delivery mode truthfulness and exact source identity: The v2 real path accepts only `PLATFORM_MATERIALIZED_CONTENT`, and mandatory subjects are materialized. Truthfulness fields (`mandatory_subjects_covered`, `result_status`, provider identity, repository) are not enforced (M-02). URL/MCP source-object identity is weak (M-04). The admitted manifest is not persisted (M-03).
+- Matching bytes from wrong source: For `PLATFORM_MATERIALIZED_CONTENT`, `source_path` is matched against expected subjects. For `PROVIDER_URL_CONTEXT` and MCP modes, source/object identity is not fully bound (M-04).
+- Invariant workflow completeness and self-check bypass: Required commands are present, but the self-check is string-count based and can be bypassed by comments (H-04).
+- Queue/lifecycle logic: Q14 frozen identity is verified against its v1 attestation. Q15 external lifecycle is shape-checked but not externally verified. Q16 lacks an external lifecycle pointer (L-05). No self-referential in-tree freeze mutation was found.
+- Repair-induced defects: Retry projection is dead data on the real path (H-01). Access manifest is validated but not persisted (M-03). The Q15 merge gate is not integrated into a real workflow (M-05).
+
+H. API_AND_REVIEWER_DELIVERY_ASSESSMENT
+- Actual Gemini wire-request preservation: The real `invoke` now derives URL, method, payload, and timeout from the canonical semantic projection, which closes the prior parallel-unused-helper concern for those fields. Retry behavior is still not derived from or checked against the projection; `wire["retry_policy"]` is ignored. Therefore execution behavior preservation is incomplete for retry semantics (H-01). `retry_policy` is also not recursively scanned for forbidden/secret keys (M-01).
+- Authentication secrets: The real Gemini semantic projection excludes authentication by construction, and the API key is added only to transport headers. The generic provider contract recursively rejects secret-like structured keys in `provider_parameters` and structured message fields, but not in `retry_policy` (M-01), and manifest secret values are not scanned (L-01).
+- Reviewer delivery modes: `URL_ONLY` remains non-promotable. `PLATFORM_MATERIALIZED_CONTENT` is the only mode accepted by the v2 real path and is wired before provider invocation. `PROVIDER_URL_CONTEXT` now requires content SHA-256 and byte count, but its URL is not bound to the expected source object (M-04). `AUTHENTICATED_GITHUB_MCP_READ_ONLY` requires read-only tool access and an object ID, but the object ID is not compared to an expected repository object (M-04). Manifest truthfulness fields are not fully enforced (M-02), and the admitted manifest is not persisted in output evidence (M-03).
+- Real review path integration: `platform_candidate_review_v2` requires an access manifest and calls delivery validation before provider invocation. The workflow passes `--access-manifest`. The committed invariant workflow runs the Q16-specific integration tests. However, the Q15 review/merge gate itself is not wired into a real workflow, only unit-tested (M-05).
+- Q15 review/merge gate: It binds parsed candidate identity to expected identity, both execution statements, and the v2 attestation. It does not bind the exact review artifact hash (H-03), and the v2 attestation lacks an external run/job trust anchor (H-02).
+
+I. REMEDIATION_PLAN
+For every finding above, the narrowest safe remediation and exact regression/falsification test are stated inline under that finding. Reviewer proposals remain advisory and require explicit implementer adjudication under the governed states (`ACCEPTED_AS_PROPOSED`, `ACCEPTED_NARROWED`, `ACCEPTED_WITH_ALTERNATIVE_SOLUTION`, `REJECTED_NOT_REPRODUCED`, `REJECTED_UNSAFE_OR_OUT_OF_SCOPE`, `DEFERRED_REQUIRES_EVIDENCE`) before any change based on them is made.
+
+J. FINAL_GATE
+- Frozen Q16 candidate eligible for bounded merge consideration: NO.
+- Broader Stage2 semantic authority granted: NO.
+- Runtime qualification granted: NO.
+- Release/deployment/production authority granted: NO.
+- Automatic six-slice cadence restoration: NO.
+- Fallback-to-3 remains ACTIVE.
