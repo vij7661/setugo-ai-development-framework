@@ -1,0 +1,202 @@
+name: R8 Q16 Linux Validation
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-q16-linux-validation-2026-09-27
+    paths:
+      - .github/workflows/r8-q16-linux-validation.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+  AUTHORITY_EFFECT: "NONE"
+  BASE_SHA: "7cd2787d85b189a4161f271ee131e42bd961140a"
+  Q16_SHA: "66b720bd33eb200428c64c31c50e8c5a1ce5cec1"
+  Q16_TREE: "78061fdbc0340f3025a056612836cf9b2df1a412"
+  Q16_CHANGED_COUNT: "61"
+
+jobs:
+  q16-linux-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout workflow branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create exact Q16 candidate worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/q16-candidate"
+          git worktree add --detach "$ROOT" "$Q16_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD)" = "$Q16_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD^{tree})" = "$Q16_TREE"
+          test "$(git -C "$ROOT" diff --name-only "$BASE_SHA..$Q16_SHA" | wc -l)" -eq "$Q16_CHANGED_COUNT"
+          test -z "$(git -C "$ROOT" status --porcelain=v1)"
+          echo "Q16_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Resolve exact numeric job id
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run = os.environ["GITHUB_RUN_ID"]
+          token = os.environ["GH_TOKEN"]
+          job_name = "q16-linux-validation"
+          url = f"https://api.github.com/repos/{repo}/actions/runs/{run}/jobs?per_page=100"
+          headers = {
+              "Accept": "application/vnd.github+json",
+              "Authorization": f"Bearer {token}",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "r8-q16-linux-validation/1.0",
+          }
+          job_id = None
+          for _ in range(30):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  data = json.load(response)
+              for job in data.get("jobs", []):
+                  if job.get("name") == job_name:
+                      job_id = str(job["id"])
+                      break
+              if job_id:
+                  break
+              time.sleep(1)
+          if not job_id:
+              raise SystemExit("current numeric job id unavailable")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as h:
+              h.write(f"Q16_JOB_ID={job_id}\n")
+          print("Q16_JOB_ID_RESOLVED")
+          PY
+
+      - name: Run complete Q16 matrix and preserve every result
+        shell: bash
+        run: |
+          set -uo pipefail
+          LOGDIR="$RUNNER_TEMP/q16-logs"
+          mkdir -p "$LOGDIR"
+          failures=()
+
+          run_case() {
+            label="$1"
+            shift
+            echo "===== BEGIN $label ====="
+            if "$@" > >(tee "$LOGDIR/$label.txt") 2> >(tee -a "$LOGDIR/$label.txt" >&2); then
+              echo "Q16_CASE_PASS::$label"
+            else
+              rc=$?
+              echo "Q16_CASE_FAIL::$label::exit=$rc"
+              failures+=("$label")
+            fi
+            echo "===== END $label ====="
+          }
+
+          run_root() {
+            (cd "$Q16_ROOT" && "$@")
+          }
+
+          run_case permanent_invariant run_root python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py
+          run_case legacy_AH_parser run_root python3 tools/test_r8_v15_r1_review_contract_parser.py
+          run_case generic_AJ_parser run_root python3 tools/test_r8_v15_r1_independent_review_parser.py
+          run_case review_preflight run_root python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py
+          run_case activation_parser run_root python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py
+          run_case semantic_inventory run_root python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py
+          run_case runtime_toctou run_root python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py
+          run_case evidence_integrity run_root python3 tools/test_r8_evidence_bundle_integrity.py
+          run_case queue run_root python3 tools/test_r8_work_queue.py
+          run_case provider_api_contract run_root python3 governance-runtime/test_provider_api_request_contract.py
+          run_case reviewer_delivery run_root python3 governance-runtime/test_reviewer_evidence_delivery.py
+          run_case platform_materialization_v2 run_root python3 governance-runtime/test_platform_candidate_review_v2_materialization.py
+          run_case platform_request_integrity run_root python3 governance-runtime/test_platform_candidate_review_request_integrity.py
+          run_case platform_delivery_integration run_root python3 governance-runtime/test_platform_candidate_review_delivery_integration.py
+          run_case freeze_attestation_v2 run_root python3 governance-runtime/test_freeze_attestation.py
+          run_case candidate_execution_evidence run_root python3 governance-runtime/test_candidate_execution_evidence.py
+          run_case review_merge_identity_gate run_root python3 governance-runtime/test_q15_review_merge_gate.py
+          run_case invariant_workflow_selfcheck run_root python3 tools/verify_q16_invariant_workflow.py
+          run_case invariant_workflow_adversarial run_root python3 tools/test_verify_q16_invariant_workflow.py
+          run_case stage1_before run_root python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before"
+          run_case stage1_after run_root python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after"
+
+          echo "===== BEGIN compileall ====="
+          if (cd "$Q16_ROOT" && PYTHONPYCACHEPREFIX="$RUNNER_TEMP/q16-pycache" python3 -m compileall -q governance-runtime tools) > >(tee "$LOGDIR/compileall.txt") 2> >(tee -a "$LOGDIR/compileall.txt" >&2); then
+            echo "Q16_CASE_PASS::compileall"
+          else
+            rc=$?
+            echo "Q16_CASE_FAIL::compileall::exit=$rc"
+            failures+=("compileall")
+          fi
+          echo "===== END compileall ====="
+
+          echo "===== BEGIN final_identity ====="
+          if test "$(git -C "$Q16_ROOT" rev-parse HEAD)" = "$Q16_SHA"              && test "$(git -C "$Q16_ROOT" rev-parse HEAD^{tree})" = "$Q16_TREE"              && test "$(git -C "$Q16_ROOT" diff --name-only "$BASE_SHA..$Q16_SHA" | wc -l)" -eq "$Q16_CHANGED_COUNT"              && test -z "$(git -C "$Q16_ROOT" status --porcelain=v1)"; then
+            echo "Q16_CASE_PASS::final_identity"
+          else
+            echo "Q16_CASE_FAIL::final_identity"
+            failures+=("final_identity")
+          fi
+          echo "===== END final_identity ====="
+
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          out = {
+            "schema": "r8-q16-linux-validation-summary/v1",
+            "run_id": os.environ["GITHUB_RUN_ID"],
+            "job_id": os.environ["Q16_JOB_ID"],
+            "workflow_identity": "R8 Q16 Linux Validation/q16-linux-validation",
+            "baseline_commit": os.environ["BASE_SHA"],
+            "candidate_commit": os.environ["Q16_SHA"],
+            "candidate_tree": os.environ["Q16_TREE"],
+            "changed_file_count": int(os.environ["Q16_CHANGED_COUNT"]),
+            "authority_effect": "NONE"
+          }
+          Path(os.environ["RUNNER_TEMP"], "q16-summary-base.json").write_text(
+            json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          PY
+
+          echo "Q16_MATRIX_FAILURE_COUNT=${#failures[@]}"
+          if (("${#failures[@]}")); then
+            printf 'Q16_MATRIX_FAILURE::%s\n' "${failures[@]}"
+            printf '%s\n' "${failures[@]}" > "$RUNNER_TEMP/q16-failures.txt"
+            exit 1
+          fi
+          echo "Q16_LINUX_VALIDATION_PASS"
+          echo "PASS" > "$RUNNER_TEMP/q16-result.txt"
+
+      - name: Build candidate-bound Linux evidence bundle and statement
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUNDLE="$RUNNER_TEMP/Q16-LINUX-EVIDENCE.tar"
+          tar -cf "$BUNDLE" -C "$RUNNER_TEMP" q16-logs q16-summary-base.json q16-result.txt
+          DIGEST="sha256:$(sha256sum "$BUNDLE" | awk '{print $1}')"
+          cd "$Q16_ROOT"
+          python3 governance-runtime/candidate_execution_evidence.py             --kind LINUX_VALIDATION             --run-id "$GITHUB_RUN_ID"             --job-id "$Q16_JOB_ID"             --workflow-identity "R8 Q16 Linux Validation/q16-linux-validation"             --baseline-commit "$BASE_SHA"             --candidate-commit "$Q16_SHA"             --candidate-tree "$Q16_TREE"             --changed-file-count "$Q16_CHANGED_COUNT"             --conclusion SUCCESS             --artifact-digest "$DIGEST"             --output "$RUNNER_TEMP/Q16-LINUX-EXECUTION-STATEMENT.json"
+          sha256sum "$BUNDLE"
+          sha256sum "$RUNNER_TEMP/Q16-LINUX-EXECUTION-STATEMENT.json"
+
+      - name: Upload Q16 Linux evidence
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-q16-linux-evidence
+          path: |
+            ${{ runner.temp }}/Q16-LINUX-EVIDENCE.tar
+            ${{ runner.temp }}/Q16-LINUX-EXECUTION-STATEMENT.json
+          if-no-files-found: error
+          retention-days: 30
