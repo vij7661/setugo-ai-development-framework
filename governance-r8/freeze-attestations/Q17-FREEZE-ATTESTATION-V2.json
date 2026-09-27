@@ -1,0 +1,38 @@
+{
+  "attestation_state": "FROZEN_VERIFIED",
+  "authority_effect": "NONE",
+  "candidate_commit": "b88b5d51dc0f5299c611f57df36153ab0962b54c",
+  "candidate_tree": "9f3d5429b30db1036c937efa8895bf001e986783",
+  "fallback_to_3": "ACTIVE",
+  "frozen_ref": "frozen/r8-v15-r1-q17-q16-review-successor-2026-09-27",
+  "linux_validation_statement": {
+    "artifact_digest": "sha256:2743f4c81727dcbb91b5659aab306aeb2c79f1c11ece41c2aa89e1cd1a7fa68b",
+    "baseline_commit": "7cd2787d85b189a4161f271ee131e42bd961140a",
+    "candidate_commit": "b88b5d51dc0f5299c611f57df36153ab0962b54c",
+    "candidate_tree": "9f3d5429b30db1036c937efa8895bf001e986783",
+    "changed_file_count": 77,
+    "conclusion": "SUCCESS",
+    "job_id": "108579466318",
+    "kind": "LINUX_VALIDATION",
+    "run_id": "36304894787",
+    "schema": "r8-candidate-execution-evidence/v1",
+    "statement_sha256": "23d57bd02d31f6e0888ca035c4f383a5263550f4728dbfa390a3fb5bfe9ae766",
+    "workflow_identity": "R8 Q17 Linux Validation/q17-linux-validation"
+  },
+  "review_packet_statement": {
+    "artifact_digest": "sha256:c889f525a3a922977a950931f349089d2a85d196c28da047ccbb80f513e23e24",
+    "baseline_commit": "7cd2787d85b189a4161f271ee131e42bd961140a",
+    "candidate_commit": "b88b5d51dc0f5299c611f57df36153ab0962b54c",
+    "candidate_tree": "9f3d5429b30db1036c937efa8895bf001e986783",
+    "changed_file_count": 77,
+    "conclusion": "GENERATED",
+    "job_id": "108580124868",
+    "kind": "REVIEW_PACKET",
+    "run_id": "36305128832",
+    "schema": "r8-candidate-execution-evidence/v1",
+    "statement_sha256": "03797f1f4228f0bc594774435f8637f63f7aa072d1696bcd65813c5f2ae5c3da",
+    "workflow_identity": "R8 Q17 Frozen Candidate Review Bundle/build-q17-review-bundle"
+  },
+  "schema": "r8-external-freeze-attestation/v2",
+  "six_slice_cadence": "NOT_RESTORED"
+}
