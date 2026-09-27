@@ -1,0 +1,142 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_CANDIDATE_IDENTITY
+- baseline: 7cd2787d85b189a4161f271ee131e42bd961140a
+- frozen Q17 commit: b88b5d51dc0f5299c611f57df36153ab0962b54c
+- frozen Q17 tree: 9f3d5429b30db1036c937efa8895bf001e986783
+- changed-file count from baseline: 77
+- packet-generation run/job: 36305128832 / 108580124868
+- exact Linux validation run/job: 36304894787 / 108579466318
+
+C. CRITICAL_FINDINGS
+NONE.
+
+D. HIGH_FINDINGS
+
+**H-01**
+2. HIGH
+3. `governance-runtime/github_evidence_ingestion.py::GitHubREST.resolve_ref`
+4. The verifier constructs the GitHub ref URL as `/repos/{repo}/git/ref/{ref.replace('refs/','',1)}`. For the Q17 frozen-ref convention `frozen/r8-v15-r1-q17-q16-review-successor-2026-09-27`, this produces `/git/ref/frozen/...`. GitHub’s Get-a-reference API requires `heads/<branch>` or `tags/<tag>`. The call will 404, so the receipt ingestion cannot verify the frozen ref association it claims to anchor.
+5. `governed_evidence_receipt.ingest_verified_receipt` calls `api.resolve_ref(repo, candidate["frozen_ref"])`; the frozen ref in the bundle is `frozen/r8-v15-r1-q17-q16-review-successor-2026-09-27`.
+6. The receipt tests mock `resolve_ref`, so they do not exercise the real GitHub ref format; the ref-binding invariant is not actually proven on the real API path.
+7. Normalize full refs (`refs/heads/...` -> `heads/...`, `refs/tags/...` -> `tags/...`) or require an explicit `heads/`/`tags/` prefix or commit SHA.
+8. Regression: mock the GitHub request URL and assert `frozen/r8-v15-r1-q17-...` resolves to `/git/ref/heads/frozen/r8-v15-r1-q17-...`; assert the current raw `frozen/...` path fails or is normalized.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: evidence / governance-rule / code
+
+**H-02**
+2. HIGH
+3. `.github/workflows/governance-evidence-receipt-ingestion.yml`, `.github/workflows/governance-manual-review-ingestion.yml`
+4. Both workflows checkout `ref: ${{ inputs.evidence_ref }}` and then execute verifier/gate code from that same checkout (`governance-runtime/github_evidence_ingestion.py`, `governance-runtime/manual_review_ingestion.py`). A malicious or compromised `evidence_ref` can replace the verifier/gate with arbitrary code, allowing false receipt/eligibility artifacts while still appearing to be read-only evidence-only workflows.
+5. The checkout step is the only source of repository code; subsequent `python3 governance-runtime/...` commands run from that ref.
+6. The design intends `evidence_ref` to be external evidence, not the code trust root; the workflows conflate the two.
+7. Checkout trusted governance code from the workflow/trigger SHA or protected default branch; fetch evidence files from `evidence_ref` into a separate directory; run verifier/gate from the trusted checkout.
+8. Regression: workflow-level adversarial test with an `evidence_ref` containing modified `github_evidence_ingestion.py`/`manual_review_ingestion.py`; assert the trusted verifier is still used and fails closed.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: governance-rule / packaging / evidence
+
+**H-03**
+2. HIGH
+3. `.github/workflows/r8-v15-r1-stage2-sg1-review003-remediation-packet.yml`, `.github/workflows/r8-v15-r1-stage2-sg1-review004-remediation-packet.yml`
+4. The YAML run blocks contain a literal `\n\n` between the activation-gate validator command and the preflight command. In a YAML block scalar this is not a newline; the shell receives the validator command concatenated with the preflight command, so the validator is invoked with unexpected arguments and the step fails.
+5. Exact text in the provided file contents: `python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py --review ...\n\n          python3 tools/preflight_r8_v15_r1_stage2_sg1_review.py \`.
+6. `tools/test_r8_v15_r1_stage2_sg1_review_preflight.py` only checks nearby lines for `--expected-sha256`/`--expected-blob`; it does not parse or execute YAML shell semantics, so it passes despite the broken command.
+7. Replace the literal `\n\n` with a real newline so the validator and preflight are separate shell commands.
+8. Regression: YAML/shell-parse test that asserts the validator and preflight are separate executable lines or commands.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: packaging / governance-rule
+
+E. MEDIUM_FINDINGS
+
+**M-01**
+2. MEDIUM
+3. `tools/verify_pinned_governance_actions.py::verify`
+4. The `uses:` matcher requires the line to end immediately after `\S+`. A mutable action reference followed by a trailing comment (`uses: actions/checkout@v4 # comment`) is ignored. If another pinned action exists in the same workflow, `uses` remains non-empty and the verifier passes, leaving the mutable action unpinned.
+5. The regex is `^\s*-?\s*uses:\s*(\S+)\s*$`; comments after the action reference prevent a match.
+6. The pinned-action invariant can be bypassed by a trivial YAML comment; the adversarial test only replaces the SHA with `@v4` without a trailing comment.
+7. Strip YAML comments before matching, or parse YAML `uses` fields structurally; fail any non-local `uses` without a full 40-hex SHA.
+8. Regression: add `uses: actions/checkout@v4 # mutable` and assert `verify` raises.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: governance-rule / packaging
+
+F. LOW_FINDINGS
+
+**L-01**
+2. LOW
+3. `tools/test_r8_v15_r1_stage2_sg1_review_preflight.py::test_review_workflows_bind_exact_artifacts`
+4. The test joins lines around the preflight command and checks for flag strings, but does not verify that the activation-gate validator command is a separate executable command. It therefore does not catch the literal `\n\n` defect in review003/review004 workflows.
+5. The test passes against the broken YAML in the bundle.
+6. The test is a presence check, not a workflow-executability check.
+7. Parse the `run` block or assert the validator and preflight commands are on separate shell lines.
+8. Regression: add a fixture with `\n\n` concatenation and assert the test fails.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: code / evidence
+
+**L-02**
+2. LOW
+3. `tools/verify_q16_invariant_workflow.py::executable_run_text`
+4. The extractor removes YAML comments but still treats any text inside a `run` block as executable coverage. A required command could be placed inside a quoted string, a here-doc, or after an `exit 0`, and the self-check would count it.
+5. The function does not parse shell semantics; it only extracts run-scalar text and strips comment lines.
+6. The repair closes the comment-substitution bypass but not general shell non-execution.
+7. Either execute the extracted commands in a controlled lint mode or require exact command-line prefixes in executable positions, not arbitrary string presence.
+8. Regression: add an adversarial case that embeds a required command in `echo "tools/test.py"` or after `exit 0` and assert verification fails.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: governance-rule / code
+
+**L-03**
+2. LOW
+3. `tools/r8_work_queue.py::load` (external_lifecycle evidence_pointer verification)
+4. The raw review hash check converts LF to CRLF before hashing (`uploaded=normalized.replace(b"\n",b"\r\n")`) and assumes that is the raw upload representation. This is a brittle heuristic; a different valid upload line-ending form would cause false rejection, and the code does not record or verify actual upload bytes.
+5. The pointer contains both a Git blob hash and a raw SHA256, but the raw SHA256 check depends on the CRLF assumption.
+6. The lifecycle pointer invariant should bind exact raw bytes or an explicitly recorded upload transformation.
+7. Store exact raw bytes/hash independently, or record the line-ending normalization rule in the pointer and verify only that rule.
+8. Regression: add a preserved review with LF-only raw bytes and assert the pointer validation accepts the documented rule or fails with a precise error.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / code
+
+G. PERMANENT_INVARIANT_ASSESSMENT
+- Unsupported retry policies fail before provider transport; admitted Gemini behavior remains exactly one attempt: Held. `invoke` derives the wire request from the semantic projection; `gemini_wire_request_from_semantic` rejects non-admitted retry policies before `urlopen`; the retry contract test exercises the real `invoke` path with zero and one transport calls.
+- Governed evidence receipt verifies GitHub run/job/artifact/ref/blob associations through read-only APIs and exact digests: Partially held. Run/job/artifact/blob checks are present, but frozen-ref resolution is broken for the `frozen/...` convention (H-01); ingestion workflows also execute verifier code from untrusted `evidence_ref` (H-02).
+- Exact independent-review bytes/hash/blob are bound before review parsing or merge-evidence eligibility: Held. `review_merge_evidence_eligible` verifies receipt SHA256, `verify_receipt_files` binds review raw SHA256 and Git blob before `parse_independent_review_file`.
+- Invariant-workflow self-check inspects executable run blocks; comments cannot satisfy required commands: Partially held. Comment substitution is closed, but arbitrary run-block text can still satisfy coverage without shell execution (L-02).
+- `retry_policy` receives the same normalized recursive governance/secret-key checks as other structured provider fields: Held. `canonical_provider_request` recursively scans `retry_policy`; tests cover normalized nested keys.
+- Materialized review path requires mandatory coverage true, successful result status, exact provider identity and repository before provider invocation: Held. `validate_corpus_delivery` enforces `PLATFORM_MATERIALIZED_CONTENT`, expected provider `gemini`, expected repository, true coverage, and success status; tests cover false/FAILED/wrong provider/wrong repository.
+- Validated access manifest is persisted and its digest/mode/provider/repository/request/candidate identity are bound into execution evidence: Held. `platform_candidate_review_v2.main` writes `access-manifest.json` and binds SHA256/mode/provider/repository in the execution envelope.
+- URL and authenticated-MCP delivery modes bind logical subject separately from repository, commit, path, object/blob identity, digest and bytes: Partially held. Library-level `validate_review_delivery_request(expected_objects=...)` can bind exact source/object identity, and tests exercise it; however, the real v2 path only accepts `PLATFORM_MATERIALIZED_CONTENT`, so URL/MCP binding is not exercised on a production path.
+- Manual independent-review ingestion is a real workflow path invoking the load-bearing review/merge evidence gate but cannot merge or grant authority: Partially held. A workflow exists and invokes `manual_review_ingestion.py`; it emits eligibility only. But it executes gate code from untrusted `evidence_ref` (H-02).
+- A-J parser enforces exact finding row order and controlled rows 9-11: Held. `_validate_findings` enforces row order 2..11, YES/NO rows 9-10, and classification vocabulary; tests cover reorder/MAYBE/unknown classification.
+- Governance workflows pin third-party actions to immutable SHAs: Partially held. Current three governance workflows are pinned, but the verifier can be bypassed by trailing comments (M-01).
+- Historical construction records are point-in-time evidence; later lifecycle interpretation comes from external structured evidence: Held. Lifecycle standard and `current_lifecycle`/queue pointer tests enforce separation; Q15 historical prose is not allowed to override external state.
+- Queue/external lifecycle discoverability does not mutate frozen predecessors: Held. Q16 external pointer is validated without mutating Q16; Q17 remains `PRE_FREEZE_READY`.
+
+H. API_AND_REVIEWER_DELIVERY_ASSESSMENT
+- Actual Gemini request preservation: The real `invoke` derives URL, method, payload, timeout, and retry-policy admission from the canonical semantic projection. Admitted requests perform exactly one transport attempt. No API request schema or execution behavior change is introduced for the admitted logical request. The remaining retry concern is that `wire["retry_policy"]` is not used to drive a configurable execution plan, but because only `max_attempts=1` is admitted and unsupported policies fail closed, current execution behavior matches the projection.
+- Authentication secrets: The real Gemini projection excludes auth by construction; the API key is transport-only. The generic provider contract recursively rejects normalized secret/governance keys in structured subtrees including `retry_policy`. Natural-language message content remains opaque.
+- Reviewer delivery modes: `URL_ONLY` remains non-promotable. `PLATFORM_MATERIALIZED_CONTENT` is the only mode accepted by the real v2 path and is bound to exact materialized subjects. `PROVIDER_URL_CONTEXT` and `AUTHENTICATED_GITHUB_MCP_READ_ONLY` have library-level exact-object checks when `expected_objects` is supplied, but no production path currently exercises those modes.
+- Receipt/ingestion design: Receipt structure and file checks are deterministic and bind run/job/artifact/ref/blob and exact bytes. However, the GitHub ref resolver is broken for the `frozen/...` convention (H-01), and both ingestion workflows execute verifier/gate code from the untrusted `evidence_ref` (H-02).
+- Authority boundaries: All new workflows declare `AUTHORITY_EFFECT: NONE`; manual review ingestion emits eligibility only and does not merge or grant runtime/release/deployment/production authority. The untrusted-code execution issue can produce false evidence but does not itself grant merge authority.
+
+I. REMEDIATION_PLAN
+- H-01: Fix `GitHubREST.resolve_ref` to normalize `frozen/...` to `heads/frozen/...` or require full refs. Regression: mock URL capture for `frozen/...` and assert `/git/ref/heads/frozen/...`; real GitHub ref-resolution test for a frozen branch.
+- H-02: Separate trusted code checkout from evidence checkout. Checkout the workflow/trigger SHA for code, then fetch `evidence_ref` into a distinct evidence directory. Regression: workflow-level test with malicious `evidence_ref` that modifies the verifier/gate and assert the trusted verifier is still used and fails closed.
+- H-03: Replace literal `\n\n` with real newlines in both remediation-packet workflows. Regression: YAML/shell parse test that asserts the validator and preflight commands are separate executable lines.
+- M-01: Strip YAML comments or parse YAML structurally in `verify_pinned_governance_actions.py`; fail any non-local `uses` without a full SHA. Regression: `uses: actions/checkout@v4 # comment` must raise.
+- L-01: Strengthen `test_review_workflows_bind_exact_artifacts` to parse the `run` block or assert separate commands. Regression: fixture with `\n\n` concatenation must fail.
+- L-02: Make `executable_run_text` or its consumers reject required commands that are not in executable shell positions. Regression: command inside `echo` or after `exit 0` must fail.
+- L-03: Replace the CRLF heuristic with exact raw-byte hash or an explicit recorded normalization rule. Regression: LF-only preserved review raw hash must validate under the documented rule or fail closed with a precise error.
+
+J. FINAL_GATE
+- Frozen Q17 candidate eligible for bounded merge consideration: NO.
+- Broader Stage2 semantic authority granted: NO.
+- Runtime qualification granted: NO.
+- Release/deployment/production authority granted: NO.
+- Automatic six-slice cadence restoration: NO.
+- Fallback-to-3 remains ACTIVE.
