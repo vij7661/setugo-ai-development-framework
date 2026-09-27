@@ -10,8 +10,6 @@ on:
       receipt_workflow_file: {description: "Trusted receipt workflow file", required: true, type: string}
       receipt_workflow_identity: {description: "Trusted receipt job identity", required: true, type: string}
       receipt_archive_digest: {description: "GitHub artifact archive digest", required: true, type: string}
-      trusted_verifier_commit: {description: "Exact trusted verifier commit", required: true, type: string}
-      trusted_verifier_tree: {description: "Exact trusted verifier tree", required: true, type: string}
       candidate_label: {description: "Review candidate label", required: true, type: string}
       committed_review_path: {description: "Trusted checkout path of committed review", required: true, type: string}
 permissions:
@@ -19,13 +17,15 @@ permissions:
 env:
   AUTHORITY_EFFECT: NONE
   PYTHONDONTWRITEBYTECODE: "1"
+  TRUSTED_VERIFIER_COMMIT: f71139a937be23bd5f4c545d3b3dc2199b47bc06
+  TRUSTED_VERIFIER_TREE: e7d311e25e2232452dd5c209d0825d277f487756
 jobs:
   eligibility-only:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout immutable trusted gate code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with: {ref: "${{ github.sha }}", path: trusted, fetch-depth: 0, persist-credentials: false}
+        with: {ref: "${{ env.TRUSTED_VERIFIER_COMMIT }}", path: trusted, fetch-depth: 0, persist-credentials: false}
       - name: Checkout evidence as data only
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with: {ref: "${{ inputs.evidence_ref }}", path: evidence-ref, fetch-depth: 1, persist-credentials: false}
@@ -34,9 +34,8 @@ jobs:
         run: |
           set -euo pipefail
           TRUSTED_TREE="$(git -C trusted rev-parse HEAD^{tree})"
-          test "${{ github.sha }}" = "${{ inputs.trusted_verifier_commit }}"
-          test "$TRUSTED_TREE" = "${{ inputs.trusted_verifier_tree }}"
-          python3 trusted/governance-runtime/trusted_receipt_fetch.py --repository "${{ github.repository }}" --artifact-id "${{ inputs.receipt_artifact_id }}" --run-id "${{ inputs.receipt_run_id }}" --job-id "${{ inputs.receipt_job_id }}" --workflow-file "${{ inputs.receipt_workflow_file }}" --workflow-identity "${{ inputs.receipt_workflow_identity }}" --archive-digest "${{ inputs.receipt_archive_digest }}" --verifier-commit "${{ inputs.trusted_verifier_commit }}" --verifier-tree "${{ inputs.trusted_verifier_tree }}" --output trusted/governed-evidence-receipt.json --proof-output trusted/trusted-receipt-proof.json
+          test "$TRUSTED_TREE" = "$TRUSTED_VERIFIER_TREE"
+          python3 trusted/governance-runtime/trusted_receipt_fetch.py --repository "${{ github.repository }}" --artifact-id "${{ inputs.receipt_artifact_id }}" --run-id "${{ inputs.receipt_run_id }}" --job-id "${{ inputs.receipt_job_id }}" --workflow-file "${{ inputs.receipt_workflow_file }}" --workflow-identity "${{ inputs.receipt_workflow_identity }}" --archive-digest "${{ inputs.receipt_archive_digest }}" --verifier-commit "$TRUSTED_VERIFIER_COMMIT" --verifier-tree "$TRUSTED_VERIFIER_TREE" --output trusted/governed-evidence-receipt.json --proof-output trusted/trusted-receipt-proof.json
           python3 trusted/governance-runtime/stage_evidence_data.py --source evidence-ref/evidence --destination staged independent-review.txt freeze-attestation.json
           python3 trusted/governance-runtime/manual_review_ingestion.py \
             --review staged/independent-review.txt --freeze-attestation staged/freeze-attestation.json \
@@ -44,7 +43,7 @@ jobs:
             --packet-payload trusted/governed-evidence-receipt.json --receipt trusted/governed-evidence-receipt.json \
             --receipt-sha256 "${{ inputs.expected_receipt_sha256 }}" \
             --candidate-label "${{ inputs.candidate_label }}" --trusted-receipt-proof trusted/trusted-receipt-proof.json \
-            --committed-review "trusted/${{ inputs.committed_review_path }}" --trusted-verifier-commit "${{ inputs.trusted_verifier_commit }}" \
-            --trusted-verifier-tree "${{ inputs.trusted_verifier_tree }}" --output eligibility.json
+            --committed-review "trusted/${{ inputs.committed_review_path }}" --trusted-verifier-commit "$TRUSTED_VERIFIER_COMMIT" \
+            --trusted-verifier-tree "$TRUSTED_VERIFIER_TREE" --output eligibility.json
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with: {name: governed-review-eligibility-only, path: eligibility.json, if-no-files-found: error}

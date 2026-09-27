@@ -15,4 +15,8 @@ class Tests(unittest.TestCase):
  def test_identity_substitution_fails(self):
   receipt,_,_=fixtures();api=Mock();api.run.return_value={"id":1,"workflow_file":"wf","conclusion":"success"};api.job.return_value={"id":2,"run_id":1,"workflow_identity":"job","conclusion":"success"};api.artifact.return_value={"id":3,"run_id":1,"digest":"sha256:"+"0"*64,"archive_download_url":"u"};api.download_artifact.return_value=b"not zip"
   with self.assertRaises(ValueError):fetch(api=api,repository="a/b",artifact_id="3",run_id="1",job_id="2",workflow_file="wf",workflow_identity="job",archive_digest="sha256:"+"0"*64,verifier_commit="e"*40,verifier_tree="f"*40)
+ def test_wrong_verifier_tree_or_claim_fails_closed(self):
+  receipt,_,_=fixtures();
+  from governed_evidence_receipt import verify_trusted_code_binding
+  self.assertFalse(verify_trusted_code_binding(receipt,expected_commit=receipt["trusted_code"]["verifier_commit"],expected_tree="0"*40))
 if __name__=="__main__":unittest.main()
