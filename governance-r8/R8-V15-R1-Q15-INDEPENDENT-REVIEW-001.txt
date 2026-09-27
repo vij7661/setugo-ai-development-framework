@@ -1,0 +1,182 @@
+A. OVERALL_DISPOSITION
+CHANGES_REQUIRED
+
+B. EXACT_CANDIDATE_IDENTITY
+- baseline: 7cd2787d85b189a4161f271ee131e42bd961140a
+- frozen Q15 commit: 8ce8226818407924d81cee98a2800fc64d1797b1
+- frozen Q15 tree: a571f49f66f0543ac2f12bdf5b39db99d537a02c
+- changed-file count from baseline: 53
+- packet-generation run/job: 36271912371 / 108487358393
+- exact Linux validation run/job: 36271731990 / 108486853573
+
+C. CRITICAL_FINDINGS
+
+**C-01**
+2. CRITICAL
+3. `governance-r8/R8-V15-R1-Q15-CHANGE-IMPACT.md`, `governance-r8/R8-V15-R1-POST-SG1-CONVERGENCE-MANIFEST.json`, `tools/verify_r8_v15_r1_post_sg1_integration_invariants.py`, packet-header external freeze attestation.
+4. The packet header attests Q15 frozen at commit `8ce8226818407924d81cee98a2800fc64d1797b1`, Linux run `36271731990`, packet run `36271912371`. The candidate’s own `R8-V15-R1-Q15-CHANGE-IMPACT.md` states: “Q15 remains pre-freeze; no Q15 Linux qualification, packet generation, external review, merge, activation, runtime qualification, release, deployment, or production action was performed.” The in-tree manifest still declares `"status": "OPEN_CONVERGENCE_NOT_FROZEN"`, and the invariant gate asserts that pre-freeze status as a PASS condition. No Q15-specific freeze-attestation file exists in the changed-file set; the only attestation file is `Q14-FREEZE-ATTESTATION.json`.
+5. Direct contradiction between packet-header freeze attestation and candidate-owned change-impact/manifest/invariant-gate content; changed-file list contains no `Q15-FREEZE-ATTESTATION.json` or equivalent.
+6. The candidate is not internally frozen according to its own machine-readable state and gate. The external freeze attestation is not bound into the candidate tree and cannot be verified by the shipped Q15 code path from candidate-local evidence.
+7. Create and include a Q15-specific external freeze attestation file, update the Q15 change-impact record to match the actual freeze/Linux/packet runs, and either (a) if truly frozen, update the manifest and invariant gate to assert a frozen Q15 state, or (b) if pre-freeze, remove the frozen Q15 claim and treat this only as a pre-freeze candidate.
+8. Add a regression test that loads the Q15 candidate and asserts: manifest status is `FROZEN`; Q15 attestation file exists; Q15 attestation candidate commit/tree/ref exactly match Q15; Q15 change-impact records the same Linux/packet run/job IDs; and the invariant gate asserts the frozen state rather than `OPEN_CONVERGENCE_NOT_FROZEN`.
+9. Candidate invalidated: YES
+10. Merge/promotion blocking: YES
+11. Classification: evidence / packaging / governance-rule
+
+D. HIGH_FINDINGS
+
+**H-01**
+2. HIGH
+3. `governance-runtime/q15_review_merge_gate.py::review_merge_evidence_eligible`, `tools/r8_v15_r1_independent_review_parser.py::parse_independent_review`, `tools/r8_v15_r1_independent_review_parser.py::eligible_for_bounded_merge`.
+4. The Q15 review/merge gate does not bind the A-J review’s `B. EXACT_CANDIDATE_IDENTITY` to the freeze attestation or to the Q15 candidate. It parses any A-J review, loads any verifiable freeze attestation, and returns eligibility based only on disposition/findings/final-gate values. A valid `BOUNDED_PASS` review for a different candidate with final gate `YES/NO` pattern can satisfy the gate when paired with a verifiable but unrelated attestation. The shipped test uses the Q14 `CHANGES_REQUIRED` review and Q14 attestation, so it does not exercise this cross-candidate bypass.
+5. `q15_review_merge_gate.py` calls `eligible_for_bounded_merge(parsed, freeze_verified=True)` without comparing parsed candidate identity to the attestation; `eligible_for_bounded_merge` ignores all identity fields.
+6. The gate can be satisfied by a stale or cross-candidate review; the permanent invariant “review/merge evidence binds the exact candidate” is not held.
+7. Require the Q15 gate to take an expected Q15 candidate commit/tree, extract the review’s exact candidate identity, and require exact equality to both the expected candidate and the freeze attestation before eligibility.
+8. Regression: a syntactically valid `BOUNDED_PASS` A-J review for commit `a` plus a valid freeze attestation for commit `b` must be rejected; a matching Q15 review plus Q15 attestation may be eligible.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: code / governance-rule
+
+**H-02**
+2. HIGH
+3. `governance-runtime/platform_candidate_review.py::invoke`, `governance-runtime/provider_api_request_contract.py::gemini_adapter_semantic_request`.
+4. `invoke` calls `gemini_adapter_semantic_request(model=model, prompt=prompt)` but discards the result. It then builds the actual Gemini URL, payload, timeout, and retry behavior independently with hard-coded values. Therefore the semantic projection/fingerprint is not actually bound to the real adapter transport request. A governance-only change could alter the real wire payload, endpoint, timeout, or retry behavior without changing the projection that the tests and invariant gate check.
+5. `platform_candidate_review.py` constructs `url`, `payload`, and `urlopen(..., timeout=180)` separately after the projection call; the projection return value is never used.
+6. F-04/F-05 API request preservation is not truly enforced on the real provider path; the check is a parallel helper call, not a load-bearing equality check.
+7. Derive the actual Gemini URL/payload/timeout/retry from the canonical projection, or validate the constructed wire request against the projection before `urlopen`. Add a test that mutates the real wire payload and confirms fingerprint/preservation failure.
+8. Regression: change one real payload field (e.g., `generationConfig.temperature`, `maxOutputTokens`, endpoint, or timeout) without changing the projection inputs and assert the preservation check fails.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: API-contract / code
+
+**H-03**
+2. HIGH
+3. `governance-runtime/freeze_attestation.py::verify_freeze_attestation`.
+4. The verifier checks that `linux_validation` and `review_packet` have numeric `run_id`/`job_id` strings and the expected conclusions, but it never binds those run/job identities to the attested candidate, the frozen ref, or any external evidence. An attestation with correct `candidate_commit`, `candidate_tree`, and resolvable `frozen_ref` but stale/cross-candidate Linux/packet run IDs passes verification.
+5. The function validates only `evidence[key].isdigit()` and conclusion strings; no cross-check to candidate SHA, workflow head SHA, or external run evidence.
+6. The review contract specifically asks whether stale/cross-candidate attestations can be replayed. The shipped verifier does not prevent this.
+7. Require the attestation to include and verify candidate-bound execution evidence, e.g. workflow head SHA equals candidate commit, or an independently checked run/job-to-candidate binding.
+8. Regression: construct a valid-looking attestation with correct commit/tree/ref but Linux/packet run IDs from another candidate and assert verification fails.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: evidence / governance-rule
+
+**H-04**
+2. HIGH
+3. `.github/workflows/r8-v15-r1-post-sg1-integration-invariant-gate.yml`.
+4. The candidate-level invariant gate workflow does not run several Q15-specific tests that are present in the packet-generation logs: `tools/test_r8_v15_r1_independent_review_parser.py`, `governance-runtime/test_q15_review_merge_gate.py`, `governance-runtime/test_freeze_attestation.py`, `governance-runtime/test_platform_candidate_review_delivery_integration.py`, `governance-runtime/test_platform_candidate_review_v2_materialization.py`, and `governance-runtime/test_platform_candidate_review_request_integrity.py`. The packet logs show these passing in the packet-generation run, but the committed CI gate does not enforce them.
+5. Workflow step list omits those test files; packet logs include them separately.
+6. Regressions in the A-J parser, Q15 merge gate, freeze attestation, real-path delivery integration, and materialization path would not be caught by the candidate invariant gate.
+7. Add every Q15-specific test to the invariant gate workflow and to the invariant-gate script where appropriate.
+8. Regression: the workflow YAML must contain explicit steps for each Q15-specific test file; CI must fail if any of those tests is removed or fails.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: YES
+11. Classification: governance-rule / evidence
+
+E. MEDIUM_FINDINGS
+
+**M-01**
+2. MEDIUM
+3. `governance-runtime/provider_api_request_contract.py::canonical_provider_request`, `_reject_forbidden_structured_keys`.
+4. F-05’s alternative solution secures the real Gemini projection by construction, but the generic provider request contract still does not enforce secret scrubbing. `canonical_provider_request` does not call `sanitize_semantic_headers` or reject `SECRET_HEADER_NAMES` recursively. A nested `authorization`, `api_key`, or similar key inside `provider_parameters` can still enter the fingerprint.
+5. `_reject_forbidden_structured_keys` checks only `FORBIDDEN_PROVIDER_KEYS`, not `SECRET_HEADER_NAMES`; `test_provider_api_request_contract.py` tests the sanitizer helper directly but not nested secrets in `canonical_provider_request`.
+6. The standard says secret values must not enter fingerprints; the generic helper can still fingerprint them if misused.
+7. Recursively reject or strip secret-header names in `canonical_provider_request` before fingerprinting.
+8. Regression: `canonical_provider_request` with nested `provider_parameters: {"authorization": "secret"}` must either raise or produce a fingerprint identical to the same request with the secret removed.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: API-contract
+
+**M-02**
+2. MEDIUM
+3. `governance-runtime/reviewer_evidence_delivery.py::validate_review_delivery_request`, `governance-runtime/platform_candidate_review_v2.py::mandatory_delivery_subjects`.
+4. The real mandatory subjects are always built with `"delivery_mode": "in_request"`, but `validate_review_delivery_request` does not require the access manifest’s `delivery_mode` to match the actual delivery mechanism. It only rejects `URL_ONLY`. A manifest can claim `AUTHENTICATED_GITHUB_MCP_READ_ONLY` or `PROVIDER_URL_CONTEXT` while the actual governed path delivers in-request materialized content.
+5. `mandatory_delivery_subjects` hardcodes `in_request`; `validate_review_delivery_request` compares hashes/bytes but not mode compatibility.
+6. The access-mode evidence can be misleading; the manifest does not prove the declared reviewer access mode.
+7. Require manifest delivery mode to be compatible with the actual delivery path, or have the real path set the correct mode and reject mismatches.
+8. Regression: an `AUTHENTICATED_GITHUB_MCP_READ_ONLY` manifest with in-request subjects must fail; a matching `PLATFORM_MATERIALIZED_CONTENT` or in-request mode must pass.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / code
+
+**M-03**
+2. MEDIUM
+3. `governance-runtime/reviewer_evidence_delivery.py::validate_review_delivery_request`, `governance-runtime/platform_candidate_review_v2.py::mandatory_delivery_subjects`.
+4. The access-manifest `path` field is effectively used as the synthetic `subject_id` from `mandatory_delivery_subjects` (e.g. `file:...`, `history:...`, `candidate_diff:...`). For `AUTHENTICATED_GITHUB_MCP_READ_ONLY`, the separately required `object_id` is never compared to the expected GitHub object, and the `path` is not verified as a real repository path. Thus the manifest does not prove which GitHub object was actually accessed.
+5. `validate_review_delivery_request` builds `observed` as `{(item.get("path"), item.get("content_sha256"), item.get("bytes")) ...}` and requires equality with `subject_id`-based expected tuples.
+6. The access manifest’s object identity evidence is weakened to a consistency check against synthetic subject IDs, not exact repository object identity.
+7. Separate logical subject IDs from repository object paths; validate `object_id`/path against the exact expected GitHub object identity for authenticated MCP and URL-context modes.
+8. Regression: an authenticated manifest with a mismatched `object_id` or repository path must fail even if hashes match synthetic subject IDs.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence
+
+**M-04**
+2. MEDIUM
+3. `governance-r8/CODEX-WORK-QUEUE-51.json` Q15 entry, `tools/r8_work_queue.py::load`.
+4. The packet presents Q15 as a frozen candidate, but the queue file still records Q15 as `"state": "CODE_COMPLETE"`, `"candidate_state": "PRE_FREEZE_READY"`, `"review_state": "NOT_REVIEWED"`. `r8_work_queue.load` only validates frozen identity when `candidate_state == "FROZEN"`, so Q15 identity drift is not detected.
+5. Queue Q15 entry and packet header disagree; queue validation does not enforce Q15 frozen identity.
+6. F-06 is fixed for Q14 but not for Q15; the exact task under review can drift from frozen/review state.
+7. Update Q15 queue state/identity to match the frozen Q15 attestation, or change the packet to pre-freeze; extend queue validation to validate Q15 if it is presented as frozen.
+8. Regression: `wq.load()` must reject a Q15 queue entry whose candidate state/identity disagrees with the Q15 freeze attestation once Q15 is frozen.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / governance-rule
+
+F. LOW_FINDINGS
+
+**L-01**
+2. LOW
+3. `governance-runtime/provider_api_request_contract.py::_reject_forbidden_structured_keys`.
+4. Forbidden-key detection is case-sensitive (`str(key) in FORBIDDEN_PROVIDER_KEYS`). A nested key such as `Candidate_SHA` or `candidate_sha ` with trailing space would not be rejected.
+5. Code uses exact string membership; tests use exact lower-case keys.
+6. The anti-leak check can be bypassed by trivial key-casing/whitespace variation.
+7. Normalize nested key names for comparison or explicitly document exact-case requirement.
+8. Regression: nested `Candidate_SHA`, `candidate_sha `, and `authority_effect ` must fail.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: API-contract
+
+**L-02**
+2. LOW
+3. `governance-runtime/reviewer_evidence_delivery.py::validate_reviewer_access_manifest` (`AUTHENTICATED_GITHUB_MCP_READ_ONLY` branch).
+4. The manifest-level validator does not require `content_sha256` or `bytes` for authenticated MCP objects, but `validate_review_delivery_request` implicitly requires them through the observed tuple equality. This makes the mode contract internally inconsistent: the manifest validator accepts a shape that the delivery validator will later reject unless extra fields are present.
+5. The authenticated branch checks only `tool_access` and `object_id`; the delivery-request comparison uses `content_sha256` and `bytes`.
+6. Mode documentation and validation are not aligned.
+7. Either require content identity fields consistently for authenticated MCP delivery or adjust delivery validation to use the mode-appropriate identity fields.
+8. Regression: an authenticated MCP manifest without content identity must fail with a clear mode-specific error, not an opaque set mismatch.
+9. Candidate invalidated: NO
+10. Merge/promotion blocking: NO
+11. Classification: evidence / code
+
+G. PERMANENT_INVARIANT_ASSESSMENT
+- F-01: Partially held. Reviewer evidence delivery is now called from `platform_candidate_review_v2.py` before provider invocation, and the workflow passes an access manifest. However, the manifest mode is not bound to actual delivery, access-object identity is synthetic, and the Q15-specific integration tests are not in the committed invariant-gate workflow.
+- F-02: Partially held. A separate A-J parser exists, accepts `CHANGES_REQUIRED` and `INSUFFICIENT_EVIDENCE` as valid evidence, and does not treat negative dispositions as bounded-merge PASS. However, the Q15 merge gate does not bind the parsed candidate identity to the freeze attestation or expected Q15 candidate.
+- F-03: Not held for Q15. The candidate’s own change-impact record says Q15 remains pre-freeze; the manifest says `OPEN_CONVERGENCE_NOT_FROZEN`; the invariant gate asserts that pre-freeze state; and no Q15-specific freeze attestation exists in the changed-file set. The only in-tree attestation is for Q14. Run/job IDs are not candidate-bound.
+- F-04: Partially held. Recursive structured-key rejection was added, but the actual Gemini wire payload is not derived from or checked against the semantic projection, so real adapter request semantics are not actually enforced by the preservation contract.
+- F-05: Partially held. The real Gemini projection excludes auth by construction and is credential-invariant in tests. The generic `canonical_provider_request` still permits nested secret-like keys into fingerprints, and the actual transport payload is not derived from the projection.
+- F-06: Partially held. Q14 queue identity is repaired and validated against Q14 attestation. Q15 queue identity drifts from the packet’s frozen Q15 claim and is not validated as frozen.
+- F-07: Held. `PROVIDER_URL_CONTEXT` now requires `content_sha256` and `bytes` in addition to a commit-addressed URL, and a test rejects a URL-context object missing content identity.
+- Q14 legacy A-H activation parser: Preserved. The activation gate still uses the A-H parser and exact activation semantics; the separate A-J parser does not replace it.
+- Freeze attestation: Weakened. The verifier checks ref -> commit/tree but does not bind Linux/packet run/job evidence to the candidate, enabling stale/cross-candidate replay.
+- Queue/ledger: Weakened for Q15. Q14 is improved; Q15 remains pre-freeze in the queue while the packet presents it as frozen.
+- API request preservation: Weakened on the real path. The helper exists, but the actual Gemini transport request is built independently of the projection.
+- Reviewer evidence delivery completeness: Partially held. Mandatory material is checked before provider invocation, but access modes and object identities are not faithfully bound to actual reviewer access.
+
+H. API_AND_REVIEWER_DELIVERY_ASSESSMENT
+- Actual adapter-facing request preservation: The Gemini adapter still constructs its real URL, payload, timeout, and retry behavior separately from `gemini_adapter_semantic_request`. The projection is not load-bearing on the real transport path, so F-04/F-05 are not fully closed for actual provider execution.
+- Authentication secrets: The real Gemini projection is credential-invariant in the tested path. The generic provider request contract can still fingerprint nested secret-like keys because `canonical_provider_request` does not enforce secret scrubbing.
+- Reviewer delivery modes: `URL_ONLY` cannot satisfy mandatory delivery. `PROVIDER_URL_CONTEXT` now requires content SHA-256 and byte count. `PLATFORM_MATERIALIZED_CONTENT` requires content identity. `AUTHENTICATED_GITHUB_MCP_READ_ONLY` requires read-only tool access and object ID, but the access manifest’s object identity is not tied to actual repository objects, and delivery mode is not bound to actual transport.
+- Real review path integration: `platform_candidate_review_v2.py` now requires an access manifest and calls delivery validation before provider invocation. The workflow passes `--access-manifest`. However, the committed invariant-gate workflow does not run the Q15-specific integration tests that exercise this path.
+- Q15 merge gate: The A-J parser correctly separates valid negative review evidence from bounded-merge eligibility, but the gate does not bind the review to the Q15 candidate or to the freeze attestation.
+
+I. REMEDIATION_PLAN
+For each finding above, the narrowest safe remediation and regression test are stated inline. Reviewer solutions are advisory only and require explicit implementer adjudication under the governed states (`ACCEPTED_AS_PROPOSED`, `ACCEPTED_NARROWED`, `ACCEPTED_WITH_ALTERNATIVE_SOLUTION`, `REJECTED_NOT_REPRODUCED`, `REJECTED_UNSAFE_OR_OUT_OF_SCOPE`, `DEFERRED_REQUIRES_EVIDENCE`) before any change is made.
+
+J. FINAL_GATE
+- Frozen Q15 candidate eligible for bounded merge consideration: NO.
+- Broader Stage2 semantic authority granted: NO.
+- Runtime qualification granted: NO.
+- Release/deployment/production authority granted: NO.
+- Automatic six-slice cadence restoration: NO.
+- Fallback-to-3 remains ACTIVE.

@@ -9,6 +9,7 @@ import hashlib
 import json
 from copy import deepcopy
 from typing import Any, Mapping
+from urllib.parse import quote
 
 ALLOWED_CHANGE_CLASSES = frozenset({
     "CONTROL_PLANE_ONLY",
@@ -47,10 +48,13 @@ FORBIDDEN_PROVIDER_KEYS = frozenset({
 
 SECRET_HEADER_NAMES = frozenset({
     "authorization",
-    "x-api-key",
-    "api-key",
-    "proxy-authorization",
+    "x_api_key", "api_key", "proxy_authorization", "x_goog_api_key",
+    "token", "access_token", "secret", "password", "pat", "personal_access_token",
 })
+
+
+def _policy_key(value: Any) -> str:
+    return str(value).strip().lower().replace("-", "_")
 
 
 def _canon(value: Any) -> bytes:
@@ -75,7 +79,7 @@ def canonical_provider_request(request: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(request, Mapping):
         raise ValueError("provider request must be an object")
     keys = set(request)
-    forbidden = keys & FORBIDDEN_PROVIDER_KEYS
+    forbidden = {_policy_key(key) for key in keys} & {_policy_key(key) for key in FORBIDDEN_PROVIDER_KEYS}
     if forbidden:
         raise ValueError(f"governance metadata leaked into provider request: {sorted(forbidden)}")
     unknown = keys - PROVIDER_REQUEST_KEYS
@@ -95,11 +99,77 @@ def canonical_provider_request(request: Mapping[str, Any]) -> dict[str, Any]:
         raise ValueError("messages must be a non-empty list")
     if not isinstance(out["provider_parameters"], Mapping):
         raise ValueError("provider_parameters must be an object")
+    _reject_forbidden_structured_keys(out["provider_parameters"])
+    for message in out["messages"]:
+        if not isinstance(message, Mapping):
+            raise ValueError("message must be an object")
+        # Natural-language strings are deliberately opaque. Structured message,
+        # tool, and adapter metadata remains governed and is scanned recursively.
+        structured = {key: value for key, value in message.items() if key != "content" or not isinstance(value, str)}
+        _reject_forbidden_structured_keys(structured)
     if not isinstance(out["timeout_ms"], int) or out["timeout_ms"] <= 0:
         raise ValueError("timeout_ms must be a positive integer")
     if not isinstance(out["retry_policy"], Mapping):
         raise ValueError("retry_policy must be an object")
     return out
+
+
+def _reject_forbidden_structured_keys(value: Any) -> None:
+    if isinstance(value, Mapping):
+        forbidden = {_policy_key(key) for key in FORBIDDEN_PROVIDER_KEYS}
+        leaked = {_policy_key(key) for key in value if _policy_key(key) in forbidden}
+        secrets = {_policy_key(key) for key in value if _policy_key(key) in SECRET_HEADER_NAMES}
+        if leaked or secrets:
+            raise ValueError(f"forbidden structured metadata entered provider request: {sorted(leaked | secrets)}")
+        for child in value.values():
+            _reject_forbidden_structured_keys(child)
+    elif isinstance(value, (list, tuple)):
+        for child in value:
+            _reject_forbidden_structured_keys(child)
+
+
+def gemini_adapter_semantic_request(*, model: str, prompt: str, timeout_ms: int = 180000) -> dict[str, Any]:
+    """Exact non-secret semantic projection used by the real Gemini adapter."""
+    return canonical_provider_request({
+        "provider": "gemini",
+        "endpoint": f"/v1beta/models/{quote(model, safe='')}:generateContent",
+        "method": "POST",
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "provider_parameters": {
+            "temperature": 0.0,
+            "maxOutputTokens": 16384,
+            "responseMimeType": "application/json",
+            "stream": False,
+        },
+        "timeout_ms": timeout_ms,
+        "retry_policy": {"max_attempts": 1, "retry_on": []},
+    })
+
+
+def gemini_wire_request_from_semantic(semantic: Mapping[str, Any]) -> dict[str, Any]:
+    """Derive the real Gemini wire request solely from the canonical projection."""
+    spec = canonical_provider_request(semantic)
+    if spec["provider"] != "gemini" or spec["retry_policy"] != {"max_attempts": 1, "retry_on": []}:
+        raise ValueError("unsupported Gemini semantic execution contract")
+    params = dict(spec["provider_parameters"])
+    if params.pop("stream", None) is not False:
+        raise ValueError("Gemini review path must be non-streaming")
+    messages = spec["messages"]
+    if len(messages) != 1 or messages[0].get("role") != "user" or not isinstance(messages[0].get("content"), str):
+        raise ValueError("Gemini review path requires one user prompt")
+    return {
+        "url": "https://generativelanguage.googleapis.com" + spec["endpoint"],
+        "method": spec["method"],
+        "payload": {"contents": [{"role": "user", "parts": [{"text": messages[0]["content"]}]}], "generationConfig": params},
+        "timeout_seconds": spec["timeout_ms"] // 1000,
+        "retry_policy": dict(spec["retry_policy"]),
+    }
+
+
+def assert_gemini_wire_matches_semantic(semantic: Mapping[str, Any], wire: Mapping[str, Any]) -> None:
+    if dict(wire) != gemini_wire_request_from_semantic(semantic):
+        raise ValueError("Gemini wire request drifted from canonical semantic projection")
 
 
 def provider_request_fingerprint(request: Mapping[str, Any]) -> str:
@@ -122,11 +192,11 @@ def assert_governance_change_preserves_provider_request(
 
 
 def sanitize_semantic_headers(headers: Mapping[str, str]) -> dict[str, str]:
-    """Optional helper for adapter tests: never fingerprint secret header values."""
+    """Normalize non-secret semantic headers; authentication is excluded."""
     out: dict[str, str] = {}
     for name, value in headers.items():
-        low = str(name).lower()
+        low = _policy_key(name)
         if low in SECRET_HEADER_NAMES:
             continue
-        out[str(name)] = str(value)
+        out[low] = " ".join(str(value).strip().split())
     return out

@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import copy
+import os
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -11,6 +13,10 @@ from provider_api_request_contract import (  # noqa: E402
     assert_governance_change_preserves_provider_request,
     canonical_provider_request,
     provider_request_fingerprint,
+    gemini_adapter_semantic_request,
+    gemini_wire_request_from_semantic,
+    assert_gemini_wire_matches_semantic,
+    sanitize_semantic_headers,
 )
 
 
@@ -86,6 +92,55 @@ class ProviderAPIRequestContractTests(unittest.TestCase):
             after,
             change_classes={"API_EXECUTION_BEHAVIOR_CHANGE"},
         )
+
+    def test_secret_headers_never_enter_semantic_material(self):
+        headers = sanitize_semantic_headers({"Authorization": "Bearer secret", "X-Trace": "stable"})
+        self.assertNotIn("Authorization", headers)
+        self.assertEqual(headers["x_trace"], "stable")
+
+    def test_nested_structured_governance_metadata_is_rejected(self):
+        for key in ("governance_review_blob", "candidate_sha", "authority_effect"):
+            req = sample_request()
+            req["provider_parameters"]["adapter"] = {"tools": [{key: "leak"}]}
+            with self.assertRaisesRegex(ValueError, "forbidden structured metadata"):
+                canonical_provider_request(req)
+
+    def test_normalized_governance_and_secret_keys_are_rejected(self):
+        for key in (" Candidate_SHA ", "Authority_Effect ", "Authorization", "API-KEY", "x-goog-api-key", " token ", "access_token", "PAT", "password"):
+            req = sample_request(); req["provider_parameters"]["nested"] = {key: "secret"}
+            with self.assertRaisesRegex(ValueError, "forbidden structured metadata"):
+                canonical_provider_request(req)
+
+    def test_natural_language_may_discuss_governance_keys(self):
+        req = sample_request()
+        req["messages"][1]["content"] = "Explain candidate_sha and governance_review_blob in prose."
+        canonical_provider_request(req)
+
+    def test_real_gemini_projection_excludes_auth_and_is_secret_invariant(self):
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "first-secret"}):
+            first = gemini_adapter_semantic_request(model="gemini-test", prompt="hello")
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "different-secret"}):
+            second = gemini_adapter_semantic_request(model="gemini-test", prompt="hello")
+        self.assertEqual(provider_request_fingerprint(first), provider_request_fingerprint(second))
+        serialized = str(first).lower()
+        self.assertNotIn("api_key", serialized)
+        self.assertNotIn("authorization", serialized)
+        self.assertEqual(first["provider_parameters"]["temperature"], 0.0)
+        self.assertEqual(first["timeout_ms"], 180000)
+
+    def test_real_gemini_wire_is_derived_and_drift_fails(self):
+        semantic = gemini_adapter_semantic_request(model="gemini-test", prompt="hello")
+        wire = gemini_wire_request_from_semantic(semantic)
+        assert_gemini_wire_matches_semantic(semantic, wire)
+        for mutate in (
+            lambda w: w.update(url=w["url"] + "-drift"),
+            lambda w: w["payload"]["generationConfig"].update(temperature=1.0),
+            lambda w: w.update(timeout_seconds=1),
+            lambda w: w["retry_policy"].update(max_attempts=2),
+        ):
+            bad = copy.deepcopy(wire); mutate(bad)
+            with self.assertRaisesRegex(ValueError, "wire request drifted"):
+                assert_gemini_wire_matches_semantic(semantic, bad)
 
 
 if __name__ == "__main__":

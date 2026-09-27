@@ -2,11 +2,14 @@
 from __future__ import annotations
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "governance-runtime"))
+from freeze_attestation import verify_freeze_attestation  # noqa: E402
 MANIFEST = ROOT / "governance-r8/CODEX-WORK-QUEUE-51.json"
-ALLOWED_STATES = {"RUNNABLE_CODING", "CODE_COMPLETE", "HUMAN_REVIEW_BLOCKED", "MANUAL_INTERVENTION_BLOCKED", "CODE_DEPENDENCY_BLOCKED", "TERMINAL"}
+ALLOWED_STATES = {"RUNNABLE_CODING", "CODE_COMPLETE", "FROZEN_REVIEWED_CHANGES_REQUIRED", "HUMAN_REVIEW_BLOCKED", "MANUAL_INTERVENTION_BLOCKED", "CODE_DEPENDENCY_BLOCKED", "TERMINAL"}
 ALLOWED_BLOCKING = {"HUMAN_REVIEW_BLOCKED", "MANUAL_INTERVENTION_BLOCKED", "CODE_DEPENDENCY_BLOCKED"}
 AUTHORITY_KEYS = {"runtime", "release", "deployment", "production", "merge", "activation"}
 HEAD_RE = re.compile(r"[0-9a-f]{40}\Z")
@@ -36,10 +39,32 @@ def load():
                 raise ValueError("unknown manual blocking status")
             if task["state"] in ALLOWED_BLOCKING and manual["blocking_status"] != task["state"]:
                 raise ValueError("manual blocking status incompatible with task state")
+        if task.get("candidate_state") == "FROZEN":
+            required = ("candidate_commit", "candidate_tree", "frozen_ref", "review_state", "freeze_attestation")
+            if any(not isinstance(task.get(field), str) or not task[field] for field in required):
+                raise ValueError("frozen candidate identity is incomplete")
+            attestation = json.loads((ROOT / task["freeze_attestation"]).read_text(encoding="utf-8"))
+            if not verify_freeze_attestation(attestation, root=ROOT):
+                raise ValueError("queue freeze attestation is not externally verifiable")
+            for field in ("candidate_commit", "candidate_tree", "frozen_ref"):
+                if task[field] != attestation.get(field):
+                    raise ValueError("queue candidate identity disagrees with freeze attestation")
+        elif any(field in task for field in ("candidate_commit", "candidate_tree", "frozen_ref", "freeze_attestation")):
+            raise ValueError("unfrozen queue task cannot claim frozen identity")
+        external = task.get("external_lifecycle")
+        if external is not None:
+            if task.get("candidate_state") != "PRE_FREEZE_READY":
+                raise ValueError("external lifecycle must remain separate from candidate-local construction state")
+            if set(external) != {"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location"}:
+                raise ValueError("external lifecycle identity is incomplete")
+            if external["state"] != "FROZEN_VERIFIED" or external["attestation_location"] != "EXTERNAL_NOT_CANDIDATE_LOCAL":
+                raise ValueError("external lifecycle must rely on external attestation")
+            if not HEAD_RE.fullmatch(external["candidate_commit"]) or not HEAD_RE.fullmatch(external["candidate_tree"]) or not external["frozen_ref"].startswith("frozen/"):
+                raise ValueError("external lifecycle identity is malformed")
     return data
 
 def next_runnable(data: dict) -> dict | None:
-    done = {t["id"] for t in data["tasks"] if t["state"] in {"CODE_COMPLETE", "TERMINAL"}}
+    done = {t["id"] for t in data["tasks"] if t["state"] in {"CODE_COMPLETE", "FROZEN_REVIEWED_CHANGES_REQUIRED", "TERMINAL"}}
     for task in data["tasks"]:
         if task["state"] != "RUNNABLE_CODING": continue
         if all(dep in done for dep in task["dependencies"]): return task
