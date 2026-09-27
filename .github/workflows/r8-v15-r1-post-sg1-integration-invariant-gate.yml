@@ -53,6 +53,8 @@ jobs:
         run: python3 governance-runtime/test_candidate_execution_evidence.py
       - name: Governed evidence receipt tests
         run: python3 governance-runtime/test_governed_evidence_receipt.py
+      - name: Trusted receipt artifact-binding tests
+        run: python3 governance-runtime/test_trusted_receipt_fetch.py
       - name: GitHub ref and ingestion adapter tests
         run: python3 governance-runtime/test_github_evidence_ingestion.py
       - name: Evidence data-only staging tests
@@ -109,8 +111,10 @@ jobs:
               "governance-runtime/q15_review_merge_gate.py",
               "governance-runtime/governed_evidence_receipt.py",
               "governance-runtime/github_evidence_ingestion.py",
+              "governance-runtime/trusted_receipt_fetch.py",
               "governance-runtime/manual_review_ingestion.py",
               "governance-runtime/stage_evidence_data.py",
+              "governance-runtime/trusted_receipt_fetch.py",
           ]
           for name in files:
               ast.parse(Path(name).read_text(encoding="utf-8"), filename=name)

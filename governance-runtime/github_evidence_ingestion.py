@@ -1,6 +1,6 @@
 """Read-only GitHub evidence ingestion entry point for governed receipts."""
 from __future__ import annotations
-import argparse,json,os,re
+import argparse,json,os,re,base64
 from pathlib import Path
 from urllib.request import Request,urlopen
 from governed_evidence_receipt import canonical_bytes,ingest_verified_receipt
@@ -42,6 +42,10 @@ class GitHubREST:
         if download_url != expected: raise ValueError("artifact download URL mismatch")
         return self._get_bytes(download_url)
     def git_blob(self,repository,revision,path):return self._get(f"https://api.github.com/repos/{repository}/contents/{path}?ref={revision}")["sha"]
+    def git_blob_bytes(self,repository,revision,path):
+        value=self._get(f"https://api.github.com/repos/{repository}/contents/{path}?ref={revision}")
+        if value.get("encoding")!="base64":raise ValueError("Git content is not base64")
+        return base64.b64decode(value["content"],validate=True)
 
 def main():
     p=argparse.ArgumentParser();p.add_argument("--spec",required=True);p.add_argument("--artifact-locations",required=True);p.add_argument("--trusted-verifier-commit",required=True);p.add_argument("--trusted-verifier-tree",required=True);p.add_argument("--evidence-ref",required=True);p.add_argument("--output",required=True);a=p.parse_args()

@@ -9,6 +9,7 @@ def main():
  for replacement in (f'run: echo "{command}"',f"run: printf '{command}'",f"run: |\n          cat <<'EOF'\n          {command}\n          EOF",f"run: |\n          exit 0\n          {command}"):
   rejects(text.replace(needle,replacement,1))
  rejects(text.replace(f"- name: {name}",f"- name: {name}\n        continue-on-error: true",1))
+ rejects(text.replace(f"- name: {name}",f"- name: {name}\n        shell: 'always-success {0}'",1))
  for step,cmd in CONTRACT.items():rejects(text.replace(f"run: {cmd}","run: true",1))
  print(f"Q18_INVARIANT_WORKFLOW_ADVERSARIAL_PASS required={len(CONTRACT)}")
 if __name__=="__main__":main()

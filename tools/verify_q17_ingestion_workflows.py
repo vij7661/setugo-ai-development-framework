@@ -3,7 +3,7 @@ from pathlib import Path
 from verify_q16_invariant_workflow import executable_run_text
 REQUIRED={
  Path(".github/workflows/governance-evidence-receipt-ingestion.yml"):("trusted/governance-runtime/stage_evidence_data.py","trusted/governance-runtime/github_evidence_ingestion.py"),
- Path(".github/workflows/governance-manual-review-ingestion.yml"):("trusted/governance-runtime/stage_evidence_data.py","trusted/governance-runtime/manual_review_ingestion.py"),
+ Path(".github/workflows/governance-manual-review-ingestion.yml"):("trusted/governance-runtime/trusted_receipt_fetch.py","trusted/governance-runtime/stage_evidence_data.py","trusted/governance-runtime/manual_review_ingestion.py"),
 }
 def verify(path,text):
     executable=executable_run_text(text)

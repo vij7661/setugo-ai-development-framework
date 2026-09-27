@@ -101,6 +101,15 @@ class GitHubEvidenceAPI(Protocol):
     def artifact(self, repository: str, artifact_id: str) -> Mapping: ...
     def download_artifact(self, repository: str, artifact_id: str, download_url: str) -> bytes: ...
     def git_blob(self, repository: str, commit: str, path: str) -> str: ...
+    def git_blob_bytes(self, repository: str, commit: str, path: str) -> bytes: ...
+
+def verify_trusted_code_binding(receipt:Mapping, *, expected_commit:str, expected_tree:str, actual_commit:str|None=None, actual_tree:str|None=None)->bool:
+    """Bind the executing trusted checkout and recorded receipt identity."""
+    if not (_sha40(expected_commit) and _sha40(expected_tree)): return False
+    if actual_commit is not None and actual_commit != expected_commit: return False
+    if actual_tree is not None and actual_tree != expected_tree: return False
+    trusted=receipt.get("trusted_code") if isinstance(receipt,Mapping) else None
+    return isinstance(trusted,Mapping) and trusted.get("verifier_commit")==expected_commit and trusted.get("verifier_tree")==expected_tree
 
 
 V2_TOP={"schema","repository","candidate","linux","packet","freeze_attestation","independent_review","trusted_code","authority_effect"}
@@ -144,7 +153,7 @@ def ingest_verified_receipt(spec: Mapping, api: GitHubEvidenceAPI, blobs: Mappin
     """Verify GitHub associations and exact bytes, then emit deterministic evidence only."""
     receipt = json.loads(json.dumps(spec))
     if not verify_receipt_v2_structure(receipt): raise ValueError("receipt v2 specification required; v1 is historical only")
-    if receipt["trusted_code"]!={"verifier_commit":trusted_verifier_commit,"verifier_tree":trusted_verifier_tree,"evidence_ref":evidence_ref}: raise ValueError("trusted code/evidence separation mismatch")
+    if not verify_trusted_code_binding(receipt,expected_commit=trusted_verifier_commit,expected_tree=trusted_verifier_tree): raise ValueError("trusted code/evidence separation mismatch")
     repo, candidate = receipt["repository"], receipt["candidate"]
     if api.resolve_ref(repo, candidate["frozen_ref"]) != candidate["commit"]: raise ValueError("frozen ref mismatch")
     statements={}
@@ -169,6 +178,7 @@ def ingest_verified_receipt(spec: Mapping, api: GitHubEvidenceAPI, blobs: Mappin
         raw=blobs[name]; record=receipt[name]; location=artifact_locations.get(name,{})
         if not location.get("revision") or not location.get("path"): raise ValueError(f"{name} identity mismatch")
         if name=="independent_review":
-            if record["original_upload_raw_sha256"] != sha256_bytes(raw) or api.git_blob(repo,location["revision"],location["path"]) != record["git_blob"]: raise ValueError(f"{name} identity mismatch")
+            committed=api.git_blob_bytes(repo,location["revision"],location["path"])
+            if record["original_upload_raw_sha256"] != sha256_bytes(raw) or record["committed_review_sha256"] != sha256_bytes(committed) or git_blob_sha1(committed) != record["git_blob"] or api.git_blob(repo,location["revision"],location["path"]) != record["git_blob"]: raise ValueError(f"{name} identity mismatch")
         elif record["raw_sha256"] != sha256_bytes(raw) or record["git_blob"] != git_text_blob_sha1(raw) or api.git_blob(repo,location["revision"],location["path"]) != record["git_blob"]: raise ValueError(f"{name} identity mismatch")
     return receipt

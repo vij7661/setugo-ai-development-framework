@@ -24,7 +24,7 @@ def api_for(receipt,archives):
  api.run.side_effect=[{"id":11,"workflow_file":receipt["linux"]["workflow_file"],"conclusion":"success"},{"id":21,"workflow_file":receipt["packet"]["workflow_file"],"conclusion":"success"}]
  api.job.side_effect=[{"id":12,"run_id":11,"workflow_identity":receipt["linux"]["workflow_identity"],"conclusion":"success"},{"id":22,"run_id":21,"workflow_identity":receipt["packet"]["workflow_identity"],"conclusion":"success"}]
  api.artifact.side_effect=[{"id":13,"run_id":11,"digest":receipt["linux"]["archive_digest"],"archive_download_url":"u1"},{"id":23,"run_id":21,"digest":receipt["packet"]["archive_digest"],"archive_download_url":"u2"}]
- api.download_artifact.side_effect=[archives["linux"],archives["packet"]];api.git_blob.side_effect=[receipt["freeze_attestation"]["git_blob"],receipt["independent_review"]["git_blob"]];return api
+ api.download_artifact.side_effect=[archives["linux"],archives["packet"]];api.git_blob.side_effect=[receipt["freeze_attestation"]["git_blob"],receipt["independent_review"]["git_blob"]];api.git_blob_bytes.return_value=b"review bytes\n";return api
 LOC={"freeze_attestation":{"revision":"e","path":"freeze.json"},"independent_review":{"revision":"r","path":"review.txt"}}
 def ingest(receipt,blobs,archives):return ingest_verified_receipt(receipt,api_for(receipt,archives),blobs,artifact_locations=LOC,trusted_verifier_commit=VC,trusted_verifier_tree=VT,evidence_ref=ER)
 class Tests(unittest.TestCase):
@@ -47,4 +47,11 @@ class Tests(unittest.TestCase):
   receipt,blobs,archives=fixtures();old=copy.deepcopy(receipt);old["schema"]="r8-governed-evidence-receipt/v1"
   with self.assertRaises(ValueError):ingest(old,blobs,archives)
   with self.assertRaises(ValueError):ingest_verified_receipt(receipt,api_for(receipt,archives),blobs,artifact_locations=LOC,trusted_verifier_commit="0"*40,trusted_verifier_tree=VT,evidence_ref=ER)
+ def test_three_review_provenance_identities_are_distinct_and_load_bearing(self):
+  receipt,blobs,archives=fixtures()
+  for field in ("committed_review_sha256","git_blob"):
+   bad=copy.deepcopy(receipt);bad["independent_review"][field]="0"*len(bad["independent_review"][field])
+   with self.assertRaises(ValueError):ingest(bad,blobs,archives)
+  bad=copy.deepcopy(blobs);bad["independent_review"]=b"different original bytes"
+  with self.assertRaises(ValueError):ingest(receipt,bad,archives)
 if __name__=="__main__":unittest.main()

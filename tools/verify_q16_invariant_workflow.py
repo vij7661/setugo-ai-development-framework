@@ -16,6 +16,7 @@ CONTRACT={
  "External freeze-attestation v2 tests":"python3 governance-runtime/test_freeze_attestation.py",
  "Candidate-bound execution-evidence tests":"python3 governance-runtime/test_candidate_execution_evidence.py",
  "Governed evidence receipt tests":"python3 governance-runtime/test_governed_evidence_receipt.py",
+ "Trusted receipt artifact-binding tests":"python3 governance-runtime/test_trusted_receipt_fetch.py",
  "GitHub ref and ingestion adapter tests":"python3 governance-runtime/test_github_evidence_ingestion.py",
  "Evidence data-only staging tests":"python3 governance-runtime/test_stage_evidence_data.py",
  "Review merge identity-gate tests":"python3 governance-runtime/test_q15_review_merge_gate.py",
@@ -43,6 +44,7 @@ def steps(text):
   if stripped.startswith("- name:"):current=stripped.split(":",1)[1].strip();result[current]={}
   elif current and stripped.startswith("continue-on-error:"):result[current]["continue-on-error"]=stripped.split(":",1)[1].strip()
   elif current and stripped.startswith("if:"):result[current]["if"]=stripped.split(":",1)[1].strip()
+  elif current and stripped.startswith("shell:"):result[current]["shell"]=stripped.split(":",1)[1].strip().strip("\"'")
   elif current and stripped.startswith("run:"):
    tail=stripped[4:].strip()
    if tail in {"|","|-",">",">-"}:
@@ -61,6 +63,7 @@ def verify(text):
   if not step or step.get("run")!=command:raise ValueError(f"exact governed step missing or altered: {name}")
   if step.get("continue-on-error") not in (None,"false"):raise ValueError(f"continue-on-error forbidden: {name}")
   if "if" in step:raise ValueError(f"conditional skip forbidden: {name}")
+  if step.get("shell") not in (None,"bash"):raise ValueError(f"unapproved shell semantics: {name}")
   if any(token in step["run"] for token in ("|| true","set +e","\n","echo ","printf ","<<","exit 0")):raise ValueError(f"weakened governed command: {name}")
  if 'PYTHONDONTWRITEBYTECODE: "1"' not in text or 'AUTHORITY_EFFECT: "NONE"' not in text:raise ValueError("workflow governance environment missing")
 def executable_run_text(text):return "\n".join(v.get("run","") for v in steps(text).values())

@@ -9,19 +9,24 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
 from freeze_attestation import load_and_verify  # noqa: E402
-from governed_evidence_receipt import git_text_blob_sha1,sha256_bytes, verify_receipt_files,verify_receipt_v2_structure  # noqa: E402
+from governed_evidence_receipt import git_blob_sha1,git_text_blob_sha1,sha256_bytes, verify_receipt_files,verify_receipt_v2_structure,verify_trusted_code_binding  # noqa: E402
 from r8_v15_r1_independent_review_parser import (  # noqa: E402
     eligible_for_bounded_merge,
     parse_independent_review_file,
 )
 
 
-def review_merge_evidence_eligible(*, review_path: Path, freeze_attestation_path: Path, linux_statement_path: Path, review_packet_statement_path: Path, packet_payload_path: Path, governed_receipt_path: Path, expected_receipt_sha256: str, expected_identity: dict, root: Path = ROOT) -> bool:
+def review_merge_evidence_eligible(*, review_path: Path, freeze_attestation_path: Path, linux_statement_path: Path, review_packet_statement_path: Path, packet_payload_path: Path, governed_receipt_path: Path, expected_receipt_sha256: str, expected_identity: dict, trusted_receipt_proof_path: Path|None = None, committed_review_path: Path|None = None, trusted_verifier_commit: str|None = None, trusted_verifier_tree: str|None = None, root: Path = ROOT) -> bool:
     receipt_raw=governed_receipt_path.read_bytes()
     if sha256_bytes(receipt_raw) != expected_receipt_sha256: return False
     receipt=json.loads(receipt_raw.decode("utf-8"))
     if receipt.get("schema")=="r8-governed-evidence-receipt/v2":
         if not verify_receipt_v2_structure(receipt): return False
+        if not trusted_receipt_proof_path or not trusted_receipt_proof_path.is_file() or not committed_review_path or not committed_review_path.is_file() or not trusted_verifier_commit or not trusted_verifier_tree: return False
+        proof=json.loads(trusted_receipt_proof_path.read_text(encoding="utf-8"))
+        if proof.get("schema")!="r8-trusted-receipt-proof/v1" or proof.get("source")!="GITHUB_ACTIONS_ARTIFACT_DOWNLOAD" or proof.get("receipt_sha256")!=expected_receipt_sha256 or not verify_trusted_code_binding(receipt,expected_commit=trusted_verifier_commit,expected_tree=trusted_verifier_tree) or proof.get("verifier_commit")!=trusted_verifier_commit or proof.get("verifier_tree")!=trusted_verifier_tree: return False
+        committed=committed_review_path.read_bytes()
+        if receipt["independent_review"]["committed_review_sha256"]!=sha256_bytes(committed) or receipt["independent_review"]["git_blob"]!=git_blob_sha1(committed): return False
         review_raw=review_path.read_bytes();freeze_raw=freeze_attestation_path.read_bytes()
         if receipt["independent_review"]["original_upload_raw_sha256"]!=sha256_bytes(review_raw): return False
         if receipt["freeze_attestation"]!={"raw_sha256":sha256_bytes(freeze_raw),"git_blob":git_text_blob_sha1(freeze_raw)}: return False

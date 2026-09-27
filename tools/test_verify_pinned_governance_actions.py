@@ -1,18 +1,19 @@
-from verify_pinned_governance_actions import WORKFLOWS,verify
+from pathlib import Path
+from verify_pinned_governance_actions import WORKFLOWS,verify,verify_inventory
+def rejects(value):
+ try:verify(value)
+ except ValueError:return
+ raise AssertionError("mutable/unsafe action accepted")
 def main():
- for path in WORKFLOWS:
-  text=path.read_text(encoding="utf-8");verify(text)
-  mutated=text.replace("@3d3c42e5aac5ba805825da76410c181273ba90b1","@v4",1) if "@3d3c42" in text else text.replace("@65462800fd760344b1a7b4382951275a0abb4808","@v4",1)
-  try:verify(mutated)
-  except ValueError:pass
-  else:raise AssertionError(f"mutable tag accepted: {path}")
- for bad in ("uses: actions/checkout@v4","uses: actions/checkout@v4 # mutable",'uses: "actions/checkout@v4"',"uses: 'actions/checkout@v4' # mutable"):
-  try:verify("steps:\n  - "+bad+"\n")
-  except ValueError:pass
-  else:raise AssertionError(f"mutable quoted/comment action accepted: {bad}")
- verify("steps:\n  - uses: './.github/actions/governed' # explicit local\n")
- try:verify("steps:\n  - uses: docker://alpine:latest\n")
+ verify_inventory()
+ for bad in ("uses: actions/checkout@v4","uses: actions/checkout@v4 # mutable",'uses: "actions/checkout@v4"',"uses: 'actions/checkout@v4' # mutable","steps:\n  - {uses: actions/checkout@v4}","jobs:\n  reusable:\n    uses: owner/workflow/.github/workflows/reuse.yml@v4","uses: docker://alpine:latest"):
+  rejects(bad)
+ verify("steps:\n  - {uses: actions/checkout@"+"a"*40+"}")
+ verify("steps:\n  - uses: docker://alpine@sha256:"+"a"*64)
+ verify("steps:\n  - uses: './.github/actions/governed'")
+ rejects("steps:\n  - uses: ./../outside")
+ try:verify_inventory(tuple(WORKFLOWS[:-1]))
  except ValueError:pass
- else:raise AssertionError("mutable Docker action accepted")
+ else:raise AssertionError("omitted governed workflow accepted")
  print("PINNED_GOVERNANCE_ACTIONS_ADVERSARIAL_PASS")
 if __name__=="__main__":main()

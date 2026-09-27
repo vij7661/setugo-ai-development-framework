@@ -14,3 +14,5 @@
 The v2 receipt explicitly separates GitHub archive digest from contained member digest. It fails closed on v1/ambiguous receipts in the Q18 eligibility path. Q17/Q16 frozen history remains immutable.
 
 No repair changes Gemini endpoint, method, model, prompt, payload, provider parameters, timeout, retry, streaming, or response semantics. Authority effect remains `NONE`; fallback-to-3 remains active; six-slice cadence remains not restored.
+
+Q18 pre-freeze adversarial remediation strengthens the same families: manual eligibility now requires a trusted GitHub-artifact receipt proof; verifier SHA/tree is checked at both ingestion and eligibility; review committed SHA is checked against exact GitHub content bytes and Git blob; governed action inventory parses block and flow YAML; and load-bearing steps reject unapproved shell semantics. These repairs remain evidence/control-plane only.
