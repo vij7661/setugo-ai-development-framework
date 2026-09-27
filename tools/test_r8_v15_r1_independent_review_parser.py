@@ -56,12 +56,14 @@ def main():
         negative = parse_independent_review(clean(disposition), candidate_label="Q14")
         assert negative["disposition"] == disposition
         assert not eligible_for_bounded_merge(negative)
-    preserved = parse_independent_review(Path("governance-r8/R8-V15-R1-Q14-INDEPENDENT-REVIEW-001.txt").read_text(encoding="utf-8"), candidate_label="Q14")
+    preserved = parse_independent_review(Path("governance-r8/R8-V15-R1-Q14-INDEPENDENT-REVIEW-001.txt").read_text(encoding="utf-8"), candidate_label="Q14", allow_legacy_finding_annotations=True)
     assert preserved["disposition"] == "CHANGES_REQUIRED"
     assert not eligible_for_bounded_merge(preserved)
     q15 = parse_independent_review(Path("governance-r8/R8-V15-R1-Q15-INDEPENDENT-REVIEW-001.txt").read_text(encoding="utf-8"), candidate_label="Q15")
     assert q15["disposition"] == "CHANGES_REQUIRED"
     assert q15["identity"]["candidate_commit"] == "8ce8226818407924d81cee98a2800fc64d1797b1"
+    q16 = parse_independent_review(Path("governance-r8/R8-V15-R1-Q16-INDEPENDENT-REVIEW-001.txt").read_text(encoding="utf-8"), candidate_label="Q16")
+    assert q16["disposition"] == "CHANGES_REQUIRED"
     base = clean()
     finding = """**F-09**
 2. HIGH
@@ -92,6 +94,10 @@ def main():
         with_finding.replace("**F-09**", "**F-09**\n**F-09**"),
         with_finding.replace("**F-09**", "**H-09**").replace("2. HIGH", "2. MEDIUM"),
         base.replace("frozen Q14 commit", "frozen Q15 commit"),
+        with_finding.replace("8. regression\n9. Candidate", "9. Candidate\n8. regression"),
+        with_finding.replace("Candidate invalidated: NO", "Candidate invalidated: MAYBE"),
+        with_finding.replace("Merge/promotion blocking: YES", "Merge/promotion blocking: MAYBE"),
+        with_finding.replace("Classification: code", "Classification: unknown-class"),
     ]
     for case in cases:
         reject(case)

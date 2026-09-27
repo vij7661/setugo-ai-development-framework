@@ -26,9 +26,9 @@ class ReviewerEvidenceDeliveryTests(unittest.TestCase):
         if mode == "PLATFORM_MATERIALIZED_CONTENT":
             pass
         elif mode == "AUTHENTICATED_GITHUB_MCP_READ_ONLY":
-            obj.update(repository="a/b", tool_access="read_only", object_id="blob:b")
+            obj.update(repository="a/b", tool_access="read_only", tool_identity="github.read_file", object_id="blob:b")
         elif mode == "PROVIDER_URL_CONTEXT":
-            obj["url"] = f"https://github.com/a/b/blob/{commit}/review.txt"
+            obj.update(url=f"https://github.com/a/b/blob/{commit}/review.txt", object_id="blob:b")
         return {"provider_identity": "reviewer", "delivery_mode": mode, "repository": "a/b", "commit_sha": commit, "review_request_id": "R", "request_hash": "c" * 64, "corpus_sha256": "d" * 64, "accessed_objects": [obj], "read_only": mode != "URL_ONLY", "mandatory_subjects_covered": mode != "URL_ONLY", "result_status": "SUCCESS"}
 
     def test_access_manifest_modes_and_url_only_is_not_evidence(self):
@@ -62,6 +62,15 @@ class ReviewerEvidenceDeliveryTests(unittest.TestCase):
         self.assertTrue(validate_review_delivery_request([item], self._manifest()))
         self.assertFalse(validate_review_delivery_request([item], self._manifest("URL_ONLY")))
         self.assertFalse(validate_review_delivery_request([item], self._manifest("AUTHENTICATED_GITHUB_MCP_READ_ONLY"), required_manifest_mode="PLATFORM_MATERIALIZED_CONTENT"))
+    def test_url_and_mcp_require_exact_expected_source_object(self):
+        raw=b"data"; item={"subject_id":"subject:data","source_path":"review.txt","commit_sha":"a"*40,"delivery_mode":"native_file","sha256":sha256_bytes(raw),"bytes":len(raw),"delivered":raw}
+        expected={"subject:data":{"source_path":"review.txt","object_id":"blob:b","tool_identity":"github.read_file"}}
+        self.assertTrue(validate_review_delivery_request([item],self._manifest("PROVIDER_URL_CONTEXT"),expected_objects=expected))
+        bad=self._manifest("PROVIDER_URL_CONTEXT"); bad["accessed_objects"][0]["url"]=f"https://github.com/a/b/blob/{'a'*40}/wrong.txt"
+        self.assertFalse(validate_review_delivery_request([item],bad,expected_objects=expected))
+        self.assertTrue(validate_review_delivery_request([item],self._manifest("AUTHENTICATED_GITHUB_MCP_READ_ONLY"),expected_objects=expected))
+        bad=self._manifest("AUTHENTICATED_GITHUB_MCP_READ_ONLY"); bad["accessed_objects"][0]["object_id"]="blob:wrong"
+        self.assertFalse(validate_review_delivery_request([item],bad,expected_objects=expected))
     def test_summary_only_delivery_is_rejected(self):
         raw = b"complete material"
         item = {"delivery_mode": "native_file", "sha256": sha256_bytes(raw), "bytes": len(raw)}

@@ -26,13 +26,14 @@ FINAL_FIELDS_AFTER_CANDIDATE = (
 )
 FINDING_ID_TOKEN = r"[A-Z][A-Z0-9_-]*-[0-9]+"
 SHA40 = r"[0-9a-f]{40}"
+FINDING_CLASSIFICATIONS = frozenset({"api-contract", "code", "evidence", "governance-rule", "packaging", "runtime"})
 
 
 def _none(body: str) -> bool:
     return re.fullmatch(r"(?is)\s*NONE\.?\s*", body) is not None
 
 
-def _validate_findings(body: str, severity: str) -> list[str]:
+def _validate_findings(body: str, severity: str, *, allow_legacy_annotations: bool = False) -> list[str]:
     if _none(body):
         return []
     matches = list(re.finditer(rf"(?m)^\*\*({FINDING_ID_TOKEN})(?: [^*\r\n]+)?\*\*\s*$", body))
@@ -43,12 +44,24 @@ def _validate_findings(body: str, severity: str) -> list[str]:
         end = matches[index + 1].start() if index + 1 < len(matches) else len(body)
         block = body[match.end():end].strip()
         rows = {}
+        order = []
         for line in block.splitlines():
             parsed = re.fullmatch(r"\s*(\d+)\.\s+(.+?)\s*", line)
             if not parsed or int(parsed.group(1)) in rows:
                 raise ValueError(f"malformed finding {match.group(1)}")
-            rows[int(parsed.group(1))] = parsed.group(2)
-        if set(rows) != set(range(2, 12)) or rows[2] != severity:
+            number = int(parsed.group(1)); order.append(number); rows[number] = parsed.group(2)
+        if order != list(range(2, 12)) or rows[2] != severity:
+            raise ValueError(f"malformed finding {match.group(1)}")
+        if not re.fullmatch(r"Candidate invalidated:\s*(YES|NO)", rows[9], re.I):
+            raise ValueError(f"malformed finding {match.group(1)}")
+        blocking_pattern = r"Merge/promotion blocking:\s*(YES|NO)(?:\s*\(.+\))?" if allow_legacy_annotations else r"Merge/promotion blocking:\s*(YES|NO)"
+        if not re.fullmatch(blocking_pattern, rows[10], re.I):
+            raise ValueError(f"malformed finding {match.group(1)}")
+        classification = re.fullmatch(r"Classification:\s*(.+)", rows[11], re.I)
+        if not classification:
+            raise ValueError(f"malformed finding {match.group(1)}")
+        classes = {item.strip().lower() for item in classification.group(1).split("/")}
+        if not classes or not classes <= FINDING_CLASSIFICATIONS:
             raise ValueError(f"malformed finding {match.group(1)}")
         prefix_severity = {"C": "CRITICAL", "H": "HIGH", "M": "MEDIUM", "L": "LOW"}
         prefix = match.group(1).split("-", 1)[0]
@@ -82,7 +95,7 @@ def _parse_identity(body: str, candidate_label: str) -> dict:
     return identity
 
 
-def parse_independent_review(text: str, *, candidate_label: str) -> dict:
+def parse_independent_review(text: str, *, candidate_label: str, allow_legacy_finding_annotations: bool = False) -> dict:
     normalized = text.replace("\r\n", "\n").replace("\r", "\n")
     headings = list(re.finditer(r"(?m)^([A-J])\. [^\n]+$", normalized))
     if len(headings) != 10 or [m.group(0) for m in headings] != list(HEADINGS):
@@ -100,7 +113,7 @@ def parse_independent_review(text: str, *, candidate_label: str) -> dict:
     findings = {}
     seen = set()
     for letter, severity in zip("CDEF", SEVERITIES):
-        findings[severity] = _validate_findings(sections[letter], severity)
+        findings[severity] = _validate_findings(sections[letter], severity, allow_legacy_annotations=allow_legacy_finding_annotations)
         if seen.intersection(findings[severity]):
             raise ValueError("finding id repeated across severities")
         seen.update(findings[severity])
@@ -130,8 +143,8 @@ def eligible_for_bounded_merge(parsed: dict, *, freeze_verified: bool = False) -
     )
 
 
-def parse_independent_review_file(path: Path, *, candidate_label: str) -> dict:
+def parse_independent_review_file(path: Path, *, candidate_label: str, allow_legacy_finding_annotations: bool = False) -> dict:
     try:
-        return parse_independent_review(path.read_text(encoding="utf-8"), candidate_label=candidate_label)
+        return parse_independent_review(path.read_text(encoding="utf-8"), candidate_label=candidate_label, allow_legacy_finding_annotations=allow_legacy_finding_annotations)
     except UnicodeDecodeError as exc:
         raise ValueError("review is not valid UTF-8") from exc

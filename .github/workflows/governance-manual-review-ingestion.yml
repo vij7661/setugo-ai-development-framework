@@ -1,0 +1,30 @@
+name: Governance Manual Review Evidence Ingestion
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_ref: {description: "Evidence branch/ref", required: true, type: string}
+      expected_identity_path: {description: "Expected identity JSON", required: true, type: string}
+      expected_receipt_sha256: {description: "Trusted receipt SHA256", required: true, type: string}
+permissions:
+  contents: read
+env:
+  AUTHORITY_EFFECT: NONE
+  PYTHONDONTWRITEBYTECODE: "1"
+jobs:
+  eligibility-only:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ inputs.evidence_ref }}", fetch-depth: 0, persist-credentials: false}
+      - name: Verify exact review and emit deterministic eligibility evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 governance-runtime/manual_review_ingestion.py \
+            --review evidence/independent-review.txt --freeze-attestation evidence/freeze-attestation.json \
+            --linux-statement evidence/linux-statement.json --packet-statement evidence/packet-statement.json \
+            --packet-payload evidence/review-packet.tar --receipt evidence/governed-receipt.json \
+            --receipt-sha256 "${{ inputs.expected_receipt_sha256 }}" \
+            --expected-identity "${{ inputs.expected_identity_path }}" --output eligibility.json
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with: {name: governed-review-eligibility-only, path: eligibility.json, if-no-files-found: error}

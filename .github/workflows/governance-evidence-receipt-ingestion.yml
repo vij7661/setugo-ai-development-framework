@@ -1,0 +1,27 @@
+name: Governed External Evidence Receipt Ingestion
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_ref: {description: "Post-freeze evidence ref", required: true, type: string}
+permissions:
+  contents: read
+  actions: read
+env:
+  AUTHORITY_EFFECT: NONE
+  PYTHONDONTWRITEBYTECODE: "1"
+jobs:
+  receipt-only:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ inputs.evidence_ref }}", fetch-depth: 0, persist-credentials: false}
+      - name: Verify GitHub run job artifact and exact-byte provenance
+        shell: bash
+        env: {GITHUB_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          python3 governance-runtime/github_evidence_ingestion.py --spec evidence/receipt-spec.json \
+            --blob-map evidence/blob-map.json --artifact-locations evidence/artifact-locations.json \
+            --output governed-evidence-receipt.json
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with: {name: governed-evidence-receipt-only, path: governed-evidence-receipt.json, if-no-files-found: error}

@@ -19,7 +19,7 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout trigger head
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
       - name: Resolve review trigger
@@ -89,7 +89,7 @@ jobs:
           PY
       - name: Upload governance review evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: governance-candidate-platform-review
           path: governance-review-evidence/

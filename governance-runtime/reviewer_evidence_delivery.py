@@ -21,6 +21,7 @@ DELIVERY_MODES = frozenset({
     "PLATFORM_MATERIALIZED_CONTENT",
     "URL_ONLY",
 })
+SUCCESS_RESULT_STATUSES = frozenset({"SUCCESS", "SUCCEEDED"})
 _SHA1 = re.compile(r"[0-9a-f]{40}\Z")
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _SECRET_KEYS = frozenset({"authorization", "bearer", "token", "access_token", "api_key", "x_api_key", "x_goog_api_key", "password", "secret", "pat", "personal_access_token"})
@@ -101,23 +102,29 @@ def validate_reviewer_access_manifest(manifest: Mapping[str, Any]) -> bool:
         if not isinstance(obj.get("content_sha256"), str) or not _SHA256.fullmatch(obj["content_sha256"]): return False
         if not isinstance(obj.get("bytes"), int) or obj["bytes"] < 0: return False
         if mode == "AUTHENTICATED_GITHUB_MCP_READ_ONLY":
-            if set(obj) != common | {"repository", "tool_access", "object_id"} or obj.get("repository") != manifest["repository"] or obj.get("tool_access") != "read_only" or not isinstance(obj.get("object_id"), str) or not obj["object_id"].strip():
+            if set(obj) != common | {"repository", "tool_access", "tool_identity", "object_id"} or obj.get("repository") != manifest["repository"] or obj.get("tool_access") != "read_only" or not isinstance(obj.get("tool_identity"), str) or not obj["tool_identity"].strip() or not isinstance(obj.get("object_id"), str) or not obj["object_id"].strip():
                 return False
         elif mode == "PROVIDER_URL_CONTEXT":
-            if set(obj) != common | {"url"}: return False
+            if set(obj) != common | {"url", "object_id"}: return False
             url = obj.get("url")
-            if not isinstance(url, str) or not (f"/blob/{manifest['commit_sha']}/" in url or f"/commit/{manifest['commit_sha']}/" in url):
+            if not isinstance(obj.get("object_id"), str) or not obj["object_id"].strip() or not isinstance(url, str) or not (f"/blob/{manifest['commit_sha']}/" in url or f"/commit/{manifest['commit_sha']}/" in url):
                 return False
         elif mode == "PLATFORM_MATERIALIZED_CONTENT":
             if set(obj) != common: return False
     return True
 
 
-def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any], *, review_request: Mapping[str, Any] | None = None, required_manifest_mode: str | None = None) -> bool:
+def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], access_manifest: Mapping[str, Any], *, review_request: Mapping[str, Any] | None = None, required_manifest_mode: str | None = None, expected_provider_identity: str | None = None, expected_repository: str | None = None, expected_objects: Mapping[str, Mapping[str, Any]] | None = None) -> bool:
     """Bind mandatory material delivery to the declared reviewer access mode."""
     if not validate_reviewer_access_manifest(access_manifest) or not isinstance(subjects, Sequence) or not subjects:
         return False
     if access_manifest["delivery_mode"] == "URL_ONLY" or (required_manifest_mode and access_manifest["delivery_mode"] != required_manifest_mode):
+        return False
+    if access_manifest["mandatory_subjects_covered"] is not True or access_manifest["result_status"] not in SUCCESS_RESULT_STATUSES:
+        return False
+    if expected_provider_identity is not None and access_manifest["provider_identity"] != expected_provider_identity:
+        return False
+    if expected_repository is not None and access_manifest["repository"] != expected_repository:
         return False
     if review_request is not None:
         if access_manifest["commit_sha"] != review_request.get("artifact", {}).get("commit"):
@@ -130,7 +137,24 @@ def validate_review_delivery_request(subjects: Sequence[Mapping[str, Any]], acce
         return False
     expected = {(item.get("subject_id"), item.get("source_path"), item.get("commit_sha"), item.get("sha256"), item.get("bytes")) for item in subjects}
     observed = {(item.get("subject_id"), item.get("source_path"), item.get("commit_sha"), item.get("content_sha256"), item.get("bytes")) for item in access_manifest["accessed_objects"]}
-    return expected == observed
+    if expected != observed:
+        return False
+    if expected_objects is not None:
+        for obj in access_manifest["accessed_objects"]:
+            spec = expected_objects.get(obj["subject_id"])
+            if not isinstance(spec, Mapping) or obj["source_path"] != spec.get("source_path"):
+                return False
+            if access_manifest["delivery_mode"] == "AUTHENTICATED_GITHUB_MCP_READ_ONLY" and obj.get("object_id") != spec.get("object_id"):
+                return False
+            if access_manifest["delivery_mode"] == "AUTHENTICATED_GITHUB_MCP_READ_ONLY" and obj.get("tool_identity") != spec.get("tool_identity"):
+                return False
+            if access_manifest["delivery_mode"] == "PROVIDER_URL_CONTEXT":
+                expected_url = f"https://github.com/{access_manifest['repository']}/blob/{access_manifest['commit_sha']}/{spec['source_path']}"
+                if obj.get("url") != expected_url:
+                    return False
+                if obj.get("object_id") != spec.get("object_id"):
+                    return False
+    return True
 
 
 def verify_chunked_delivery(

@@ -111,6 +111,12 @@ class ProviderAPIRequestContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "forbidden structured metadata"):
                 canonical_provider_request(req)
 
+    def test_retry_policy_is_recursively_governed(self):
+        for key in ("candidate_sha", "authority_effect", "authorization", "api_key", "x-api-key", "x-goog-api-key", "token", "access_token", "secret", "password", "PAT"):
+            req = sample_request(); req["retry_policy"]["nested"] = {key: "blocked"}
+            with self.assertRaisesRegex(ValueError, "forbidden structured metadata"):
+                canonical_provider_request(req)
+
     def test_natural_language_may_discuss_governance_keys(self):
         req = sample_request()
         req["messages"][1]["content"] = "Explain candidate_sha and governance_review_blob in prose."

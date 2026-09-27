@@ -52,7 +52,7 @@ def manifest(mode="PLATFORM_MATERIALIZED_CONTENT"):
 
 class RealReviewPathDeliveryTests(unittest.TestCase):
     def test_exact_materialized_delivery_is_admitted(self):
-        review_v2.validate_corpus_delivery(REQUEST, CORPUS, manifest())
+        review_v2.validate_corpus_delivery(REQUEST, CORPUS, manifest(), expected_repository="a/b")
 
     def run_main(self, value=None, *, include_argument=True):
         with tempfile.TemporaryDirectory() as td:
@@ -64,7 +64,7 @@ class RealReviewPathDeliveryTests(unittest.TestCase):
                 manifest_path = root / "manifest.json"
                 manifest_path.write_text(json.dumps(value), encoding="utf-8")
                 argv += ["--access-manifest", str(manifest_path)]
-            with patch.object(sys, "argv", argv), patch.object(review_v2.legacy, "verify_request_integrity"), patch.object(review_v2, "build_corpus", return_value=CORPUS), patch.object(review_v2.legacy, "invoke") as invoke:
+            with patch.object(sys, "argv", argv), patch.dict("os.environ", {"GITHUB_REPOSITORY":"a/b", "GEMINI_API_KEY":"test-only"}), patch.object(review_v2.legacy, "verify_request_integrity"), patch.object(review_v2, "build_corpus", return_value=CORPUS), patch.object(review_v2.legacy, "invoke") as invoke:
                 with self.assertRaises((ValueError, SystemExit)):
                     review_v2.main()
                 invoke.assert_not_called()
@@ -92,6 +92,23 @@ class RealReviewPathDeliveryTests(unittest.TestCase):
         for field, value in (("commit_sha", "f" * 40), ("request_hash", "f" * 64)):
             bad = manifest(); bad[field] = value
             self.run_main(bad)
+
+    def test_false_truthfulness_fields_prevent_provider_invocation(self):
+        for field, value in (("mandatory_subjects_covered", False), ("result_status", "FAILED"), ("provider_identity", "other"), ("repository", "wrong/repo")):
+            bad = manifest(); bad[field] = value
+            self.run_main(bad)
+
+    def test_admitted_manifest_is_persisted_and_envelope_bound(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); req=root/"request.json"; access=root/"manifest.json"; out=root/"out"; value=manifest()
+            req.write_text(json.dumps(REQUEST),encoding="utf-8"); access.write_text(json.dumps(value),encoding="utf-8")
+            argv=["platform_candidate_review_v2.py","--request",str(req),"--output-dir",str(out),"--model","m","--access-manifest",str(access)]
+            with patch.object(sys,"argv",argv), patch.dict("os.environ",{"GITHUB_REPOSITORY":"a/b","GEMINI_API_KEY":"test-only"}), patch.object(review_v2.legacy,"verify_request_integrity"), patch.object(review_v2,"build_corpus",return_value=CORPUS), patch.object(review_v2.legacy,"build_prompt",return_value="prompt"), patch.object(review_v2.legacy,"invoke",return_value=({},{})), patch.object(review_v2.legacy,"validate",return_value={"valid":True}):
+                review_v2.main()
+            persisted=(out/"access-manifest.json").read_bytes()
+            self.assertEqual(persisted,review_v2._canon(value))
+            envelope=json.loads((out/"execution-envelope.json").read_text(encoding="utf-8"))
+            self.assertEqual(envelope["access_manifest_sha256"],review_v2._sha_bytes(persisted)); self.assertEqual(envelope["delivery_mode"],"PLATFORM_MATERIALIZED_CONTENT"); self.assertEqual(envelope["repository"],"a/b")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 """Machine-readable queue selector/report generator; human boundaries never stop other tasks."""
 from __future__ import annotations
 import json
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -55,12 +56,24 @@ def load():
         if external is not None:
             if task.get("candidate_state") != "PRE_FREEZE_READY":
                 raise ValueError("external lifecycle must remain separate from candidate-local construction state")
-            if set(external) != {"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location"}:
+            if set(external) not in ({"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location"},{"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location", "evidence_pointer"}):
                 raise ValueError("external lifecycle identity is incomplete")
             if external["state"] != "FROZEN_VERIFIED" or external["attestation_location"] != "EXTERNAL_NOT_CANDIDATE_LOCAL":
                 raise ValueError("external lifecycle must rely on external attestation")
             if not HEAD_RE.fullmatch(external["candidate_commit"]) or not HEAD_RE.fullmatch(external["candidate_tree"]) or not external["frozen_ref"].startswith("frozen/"):
                 raise ValueError("external lifecycle identity is malformed")
+            pointer=external.get("evidence_pointer")
+            if pointer is not None:
+                required={"tracker","independent_review","independent_review_raw_sha256","independent_review_git_blob"}
+                if set(pointer)!=required or not all(isinstance(pointer[k],str) and pointer[k] for k in required) or not re.fullmatch(r"[0-9a-f]{64}",pointer["independent_review_raw_sha256"]) or not HEAD_RE.fullmatch(pointer["independent_review_git_blob"]):
+                    raise ValueError("external lifecycle evidence pointer malformed")
+                review_path=ROOT/pointer["independent_review"]
+                if not review_path.is_file(): raise ValueError("external lifecycle review pointer missing")
+                normalized=review_path.read_bytes().replace(b"\r\n",b"\n").replace(b"\r",b"\n")
+                blob=hashlib.sha1(f"blob {len(normalized)}\0".encode()+normalized).hexdigest()
+                uploaded=normalized.replace(b"\n",b"\r\n")
+                if blob!=pointer["independent_review_git_blob"] or hashlib.sha256(uploaded).hexdigest()!=pointer["independent_review_raw_sha256"]:
+                    raise ValueError("external lifecycle review identity mismatch")
     return data
 
 def next_runnable(data: dict) -> dict | None:
@@ -69,6 +82,11 @@ def next_runnable(data: dict) -> dict | None:
         if task["state"] != "RUNNABLE_CODING": continue
         if all(dep in done for dep in task["dependencies"]): return task
     return None
+
+def current_lifecycle(task: dict) -> str:
+    """External evidence supersedes current interpretation, never historical text."""
+    external=task.get("external_lifecycle")
+    return external["state"] if isinstance(external,dict) else task.get("candidate_state","UNKNOWN")
 
 def verify_external_head(data: dict, *, report_source_head: str, final_remote_head: str | None, expected_external_head: str | None) -> bool:
     if data.get("issue") != 52 or not HEAD_RE.fullmatch(report_source_head or "") or not HEAD_RE.fullmatch(expected_external_head or "") or not HEAD_RE.fullmatch(final_remote_head or ""):

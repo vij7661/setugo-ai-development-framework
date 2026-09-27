@@ -261,6 +261,28 @@
       "pr": 66,
       "branch": "codex/r8-v15-r1-q16-q15-review-successor-2026-09-27",
       "dependencies": ["Q15"],
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "CHANGES_REQUIRED",
+      "external_lifecycle": {
+        "state": "FROZEN_VERIFIED",
+        "candidate_commit": "66b720bd33eb200428c64c31c50e8c5a1ce5cec1",
+        "candidate_tree": "78061fdbc0340f3025a056612836cf9b2df1a412",
+        "frozen_ref": "frozen/r8-v15-r1-q16-q15-review-successor-2026-09-27",
+        "attestation_location": "EXTERNAL_NOT_CANDIDATE_LOCAL",
+        "evidence_pointer": {
+          "tracker": "issue:#67",
+          "independent_review": "governance-r8/R8-V15-R1-Q16-INDEPENDENT-REVIEW-001.txt",
+          "independent_review_raw_sha256": "69c5e8087aaca9aca26bfee956d77601ff2c6fd904189f5bb5d194c1c01db47c",
+          "independent_review_git_blob": "65b149e6147607f203176642dccfbc76acf084bf"
+        }
+      }
+    },
+    {
+      "id": "Q17",
+      "pr": 68,
+      "branch": "codex/r8-v15-r1-q17-q16-review-successor-2026-09-27",
+      "dependencies": ["Q16"],
       "state": "CODE_COMPLETE",
       "candidate_state": "PRE_FREEZE_READY",
       "review_state": "NOT_REVIEWED"

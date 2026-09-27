@@ -111,6 +111,7 @@ def canonical_provider_request(request: Mapping[str, Any]) -> dict[str, Any]:
         raise ValueError("timeout_ms must be a positive integer")
     if not isinstance(out["retry_policy"], Mapping):
         raise ValueError("retry_policy must be an object")
+    _reject_forbidden_structured_keys(out["retry_policy"])
     return out
 
 
