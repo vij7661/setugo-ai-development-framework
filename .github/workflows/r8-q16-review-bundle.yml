@@ -1,0 +1,265 @@
+name: R8 Q16 Frozen Candidate Review Bundle
+
+on:
+  push:
+    branches:
+      - evidence/r8-v15-r1-q16-review-2026-09-27
+    paths:
+      - .github/workflows/r8-q16-review-bundle.yml
+      - tools/build_r8_v15_r1_q16_review_payload.py
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONNOUSERSITE: "1"
+  AUTHORITY_EFFECT: "NONE"
+  BASE_SHA: "7cd2787d85b189a4161f271ee131e42bd961140a"
+  Q16_SHA: "66b720bd33eb200428c64c31c50e8c5a1ce5cec1"
+  Q16_TREE: "78061fdbc0340f3025a056612836cf9b2df1a412"
+  Q16_CHANGED_COUNT: "61"
+  FROZEN_REF: "frozen/r8-v15-r1-q16-q15-review-successor-2026-09-27"
+
+jobs:
+  build-q16-review-bundle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout evidence branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch and verify frozen Q16 ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "refs/heads/$FROZEN_REF:refs/remotes/origin/$FROZEN_REF"
+          test "$(git rev-parse "refs/remotes/origin/$FROZEN_REF")" = "$Q16_SHA"
+
+      - name: Create exact frozen Q16 worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/frozen-q16"
+          git worktree add --detach "$ROOT" "$Q16_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD)" = "$Q16_SHA"
+          test "$(git -C "$ROOT" rev-parse HEAD^{tree})" = "$Q16_TREE"
+          test "$(git -C "$ROOT" diff --name-only "$BASE_SHA..$Q16_SHA" | wc -l)" -eq "$Q16_CHANGED_COUNT"
+          test -z "$(git -C "$ROOT" status --porcelain=v1)"
+          echo "Q16_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Resolve exact numeric packet job id
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run = os.environ["GITHUB_RUN_ID"]
+          token = os.environ["GH_TOKEN"]
+          job_name = "build-q16-review-bundle"
+          url = f"https://api.github.com/repos/{repo}/actions/runs/{run}/jobs?per_page=100"
+          headers = {
+              "Accept": "application/vnd.github+json",
+              "Authorization": f"Bearer {token}",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "r8-q16-review-bundle/1.0",
+          }
+          job_id = None
+          for _ in range(30):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  data = json.load(response)
+              for job in data.get("jobs", []):
+                  if job.get("name") == job_name:
+                      job_id = str(job["id"])
+                      break
+              if job_id:
+                  break
+              time.sleep(1)
+          if not job_id:
+              raise SystemExit("current numeric job id unavailable")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as h:
+              h.write(f"Q16_PACKET_JOB_ID={job_id}\n")
+          print("Q16_PACKET_JOB_ID_RESOLVED")
+          PY
+
+      - name: Verify preserved candidate-bound Linux statement
+        shell: bash
+        run: |
+          set -euo pipefail
+          LINUX="$GITHUB_WORKSPACE/governance-r8/execution-evidence/Q16-LINUX-EXECUTION-STATEMENT.json"
+          test -s "$LINUX"
+          cd "$Q16_ROOT"
+          PYTHONPATH="$Q16_ROOT/governance-runtime" python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from freeze_attestation import verify_execution_statement
+          p = Path(os.environ["GITHUB_WORKSPACE"]) / "governance-r8/execution-evidence/Q16-LINUX-EXECUTION-STATEMENT.json"
+          v = json.loads(p.read_text(encoding="utf-8"))
+          assert verify_execution_statement(
+              v,
+              kind="LINUX_VALIDATION",
+              commit=os.environ["Q16_SHA"],
+              tree=os.environ["Q16_TREE"],
+              baseline=os.environ["BASE_SHA"],
+              changed_file_count=int(os.environ["Q16_CHANGED_COUNT"]),
+          )
+          print("Q16_LINUX_STATEMENT_VERIFY_PASS")
+          PY
+          echo "Q16_LINUX_STATEMENT=$LINUX" >> "$GITHUB_ENV"
+
+      - name: Run exact frozen Q16 packet-generation checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOGDIR="$RUNNER_TEMP/q16-review-logs"
+          mkdir -p "$LOGDIR"
+          cd "$Q16_ROOT"
+          python3 tools/verify_r8_v15_r1_post_sg1_integration_invariants.py 2>&1 | tee "$LOGDIR/01-permanent-invariant.txt"
+          python3 tools/test_r8_v15_r1_review_contract_parser.py 2>&1 | tee "$LOGDIR/02-legacy-parser.txt"
+          python3 tools/test_r8_v15_r1_independent_review_parser.py 2>&1 | tee "$LOGDIR/03-aj-parser.txt"
+          python3 tools/test_r8_v15_r1_stage2_sg1_review_preflight.py 2>&1 | tee "$LOGDIR/04-preflight.txt"
+          python3 tools/validate_r8_v15_r1_stage2_sg1_activation_gate_parser.py 2>&1 | tee "$LOGDIR/05-activation-parser.txt"
+          python3 tools/test_r8_v15_r1_stage2_semantic_gap_inventory.py 2>&1 | tee "$LOGDIR/06-semantic-inventory.txt"
+          python3 governance-runtime/test_r8_v15_r1_runtime_toctou_hardening.py 2>&1 | tee "$LOGDIR/07-runtime-toctou.txt"
+          python3 tools/test_r8_evidence_bundle_integrity.py 2>&1 | tee "$LOGDIR/08-evidence-integrity.txt"
+          python3 tools/test_r8_work_queue.py 2>&1 | tee "$LOGDIR/09-queue.txt"
+          python3 governance-runtime/test_provider_api_request_contract.py 2>&1 | tee "$LOGDIR/10-provider-api.txt"
+          python3 governance-runtime/test_reviewer_evidence_delivery.py 2>&1 | tee "$LOGDIR/11-reviewer-delivery.txt"
+          python3 governance-runtime/test_platform_candidate_review_v2_materialization.py 2>&1 | tee "$LOGDIR/12-materialization-v2.txt"
+          python3 governance-runtime/test_platform_candidate_review_request_integrity.py 2>&1 | tee "$LOGDIR/13-request-integrity.txt"
+          python3 governance-runtime/test_platform_candidate_review_delivery_integration.py 2>&1 | tee "$LOGDIR/14-delivery-integration.txt"
+          python3 governance-runtime/test_freeze_attestation.py 2>&1 | tee "$LOGDIR/15-freeze-attestation-v2.txt"
+          python3 governance-runtime/test_candidate_execution_evidence.py 2>&1 | tee "$LOGDIR/16-execution-evidence.txt"
+          python3 governance-runtime/test_q15_review_merge_gate.py 2>&1 | tee "$LOGDIR/17-review-merge-gate.txt"
+          python3 tools/verify_q16_invariant_workflow.py 2>&1 | tee "$LOGDIR/18-workflow-selfcheck.txt"
+          python3 tools/test_verify_q16_invariant_workflow.py 2>&1 | tee "$LOGDIR/19-workflow-adversarial.txt"
+          PYTHONPYCACHEPREFIX="$RUNNER_TEMP/q16-packet-pycache" python3 -m compileall -q governance-runtime tools 2>&1 | tee "$LOGDIR/20-compileall.txt"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-before" 2>&1 | tee "$LOGDIR/21-stage1-before.txt"
+          python3 tools/verify_r8_v15_r1_ig1_successor3_exact_candidate.py "$RUNNER_TEMP/stage1-after" 2>&1 | tee "$LOGDIR/22-stage1-after.txt"
+          test "$(git rev-parse HEAD)" = "$Q16_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$Q16_TREE"
+          test "$(git diff --name-only "$BASE_SHA..$Q16_SHA" | wc -l)" -eq "$Q16_CHANGED_COUNT"
+          test -z "$(git status --porcelain=v1)"
+          echo "Q16_PACKET_CHECKS_PASS"
+          echo "Q16_LOGDIR=$LOGDIR" >> "$GITHUB_ENV"
+
+      - name: Build immutable Q16 review payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          PAYLOAD="$RUNNER_TEMP/R8-V15-R1-Q16-REVIEW-PAYLOAD.txt"
+          python3 tools/build_r8_v15_r1_q16_review_payload.py             --candidate-root "$Q16_ROOT"             --base "$BASE_SHA"             --head "$Q16_SHA"             --tree "$Q16_TREE"             --linux-statement "$Q16_LINUX_STATEMENT"             --log-dir "$Q16_LOGDIR"             --out "$PAYLOAD"
+          test -s "$PAYLOAD"
+          PAYLOAD_SHA="$(sha256sum "$PAYLOAD" | awk '{print $1}')"
+          echo "Q16_PAYLOAD=$PAYLOAD" >> "$GITHUB_ENV"
+          echo "Q16_PAYLOAD_SHA=$PAYLOAD_SHA" >> "$GITHUB_ENV"
+
+      - name: Build candidate-bound packet statement
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$Q16_ROOT"
+          python3 governance-runtime/candidate_execution_evidence.py             --kind REVIEW_PACKET             --run-id "$GITHUB_RUN_ID"             --job-id "$Q16_PACKET_JOB_ID"             --workflow-identity "R8 Q16 Frozen Candidate Review Bundle/build-q16-review-bundle"             --baseline-commit "$BASE_SHA"             --candidate-commit "$Q16_SHA"             --candidate-tree "$Q16_TREE"             --changed-file-count "$Q16_CHANGED_COUNT"             --conclusion GENERATED             --artifact-digest "sha256:$Q16_PAYLOAD_SHA"             --output "$RUNNER_TEMP/Q16-PACKET-EXECUTION-STATEMENT.json"
+          echo "Q16_PACKET_STATEMENT=$RUNNER_TEMP/Q16-PACKET-EXECUTION-STATEMENT.json" >> "$GITHUB_ENV"
+
+      - name: Build and verify external freeze-attestation v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          linux = json.loads(Path(os.environ["Q16_LINUX_STATEMENT"]).read_text(encoding="utf-8"))
+          packet = json.loads(Path(os.environ["Q16_PACKET_STATEMENT"]).read_text(encoding="utf-8"))
+          value = {
+            "schema": "r8-external-freeze-attestation/v2",
+            "candidate_commit": os.environ["Q16_SHA"],
+            "candidate_tree": os.environ["Q16_TREE"],
+            "frozen_ref": os.environ["FROZEN_REF"],
+            "linux_validation_statement": linux,
+            "review_packet_statement": packet,
+            "authority_effect": "NONE",
+            "fallback_to_3": "ACTIVE",
+            "six_slice_cadence": "NOT_RESTORED",
+            "attestation_state": "FROZEN_VERIFIED"
+          }
+          p = Path(os.environ["RUNNER_TEMP"]) / "Q16-FREEZE-ATTESTATION-V2.json"
+          p.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(p)
+          PY
+          PYTHONPATH="$Q16_ROOT/governance-runtime" python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from freeze_attestation import load_and_verify
+          load_and_verify(
+              Path(os.environ["RUNNER_TEMP"]) / "Q16-FREEZE-ATTESTATION-V2.json",
+              root=Path(os.environ["GITHUB_WORKSPACE"]),
+              require_v2=True,
+          )
+          print("Q16_FREEZE_ATTESTATION_V2_VERIFY_PASS")
+          PY
+          echo "Q16_ATTESTATION=$RUNNER_TEMP/Q16-FREEZE-ATTESTATION-V2.json" >> "$GITHUB_ENV"
+
+      - name: Assemble one-file Q16 independent-review bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUNDLE="$RUNNER_TEMP/R8-V15-R1-Q16-FROZEN-REVIEW-BUNDLE.txt"
+          {
+            echo "R8 v15-r1 — Q16 FINAL FROZEN INDEPENDENT-REVIEW BUNDLE"
+            echo
+            echo "===== REVIEW PACKET EXECUTION STATEMENT ====="
+            cat "$Q16_PACKET_STATEMENT"
+            echo "===== END REVIEW PACKET EXECUTION STATEMENT ====="
+            echo
+            echo "===== EXTERNAL FREEZE ATTESTATION V2 ====="
+            cat "$Q16_ATTESTATION"
+            echo "===== END EXTERNAL FREEZE ATTESTATION V2 ====="
+            echo
+            echo "===== IMMUTABLE REVIEW PAYLOAD ====="
+            cat "$Q16_PAYLOAD"
+            echo "===== END IMMUTABLE REVIEW PAYLOAD ====="
+          } > "$BUNDLE"
+          echo "Q16_BUNDLE=$BUNDLE" >> "$GITHUB_ENV"
+          sha256sum "$Q16_PAYLOAD"
+          sha256sum "$Q16_PACKET_STATEMENT"
+          sha256sum "$Q16_ATTESTATION"
+          sha256sum "$BUNDLE"
+          wc -c -l "$BUNDLE"
+
+      - name: Verify final bundle identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F "frozen Q16 commit: $Q16_SHA" "$Q16_BUNDLE"
+          grep -F "frozen Q16 tree: $Q16_TREE" "$Q16_BUNDLE"
+          grep -F "changed-file count from baseline: $Q16_CHANGED_COUNT" "$Q16_BUNDLE"
+          grep -F "\"candidate_commit\": \"$Q16_SHA\"" "$Q16_BUNDLE"
+          grep -F "\"candidate_tree\": \"$Q16_TREE\"" "$Q16_BUNDLE"
+          grep -F "\"schema\": \"r8-external-freeze-attestation/v2\"" "$Q16_BUNDLE"
+          grep -F "DO NOT STOP AFTER THE FIRST FINDING." "$Q16_BUNDLE"
+          test "$(git -C "$Q16_ROOT" rev-parse HEAD)" = "$Q16_SHA"
+          test "$(git -C "$Q16_ROOT" rev-parse HEAD^{tree})" = "$Q16_TREE"
+          test -z "$(git -C "$Q16_ROOT" status --porcelain=v1)"
+          echo "Q16_FINAL_REVIEW_BUNDLE_VERIFY_PASS"
+
+      - name: Upload Q16 frozen review bundle
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: r8-v15-r1-q16-frozen-review-bundle
+          path: |
+            ${{ runner.temp }}/R8-V15-R1-Q16-FROZEN-REVIEW-BUNDLE.txt
+            ${{ runner.temp }}/R8-V15-R1-Q16-REVIEW-PAYLOAD.txt
+            ${{ runner.temp }}/Q16-PACKET-EXECUTION-STATEMENT.json
+            ${{ runner.temp }}/Q16-FREEZE-ATTESTATION-V2.json
+          if-no-files-found: error
+          retention-days: 30
