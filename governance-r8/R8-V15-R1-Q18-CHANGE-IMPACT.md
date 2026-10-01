@@ -17,7 +17,7 @@ No repair changes Gemini endpoint, method, model, prompt, payload, provider para
 
 Q18 pre-freeze adversarial remediation strengthens the same families: manual eligibility now requires a trusted GitHub-artifact receipt proof; verifier SHA/tree is checked at both ingestion and eligibility; review committed SHA is checked against exact GitHub content bytes and Git blob; governed action inventory parses block and flow YAML; and load-bearing steps reject unapproved shell semantics. These repairs remain evidence/control-plane only.
 
-The trusted verifier root is explicitly pinned to commit `86841191f1f9686c73e7df30bc255db65f4c86cc` and tree `b80f9b28015441c9d395e2d4096b09cc5ccd370e`, independent of the final workflow head. Manual eligibility consumes only the receipt downloaded from the trusted artifact and its trusted proof; evidence-ref receipt and expected-identity files cannot select verifier authority or receipt truth.
+The trusted verifier root is explicitly pinned to commit `698d390dee9f062c984be8663aafc7994d009542` and tree `b5f89c29d91a2b55caec1815009d414e162bef11`, independent of the final workflow head. Manual eligibility consumes only the receipt downloaded from the trusted artifact and its trusted proof; evidence-ref receipt and expected-identity files cannot select verifier authority or receipt truth.
 
 ## PF2 pre-freeze remediation
 
