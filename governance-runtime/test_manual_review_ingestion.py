@@ -26,7 +26,7 @@ class Tests(unittest.TestCase):
   from test_q15_review_merge_gate import review
   from test_governed_evidence_receipt import fixtures as v2_fixtures
   from governed_evidence_receipt import git_blob_sha1
-  receipt,blobs,archives=v2_fixtures(); committed=review().replace("a"*40,"c"*40).replace("c"*40,"d"*40,1).replace("changed-file count from baseline: 53","changed-file count from baseline: 88").replace("11 / 12","21 / 22").replace("13 / 14","11 / 12") .encode()
+  receipt,blobs,archives=v2_fixtures(); freeze=json.loads(blobs["freeze_attestation"].decode()); committed=review().replace("a"*40,"c"*40).replace("c"*40,"d"*40,1).replace("changed-file count from baseline: 53","changed-file count from baseline: 88").replace("11 / 12","21 / 22").replace("13 / 14","11 / 12") .encode()
   receipt["independent_review"]={"original_upload_raw_sha256":sha256_bytes(committed),"committed_review_sha256":sha256_bytes(committed),"git_blob":git_blob_sha1(committed)}
   receipt["trusted_code"]={"verifier_commit":"e"*40,"verifier_tree":"f"*40,"evidence_ref":"evidence/q18"}
   receipt["review_source"]={"repository":receipt["repository"],"revision":"a"*40,"path":"review.txt"}
