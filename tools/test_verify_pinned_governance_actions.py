@@ -14,6 +14,14 @@ def main():
   rejects(bad)
  rejects("steps:\n  - {uses: actions/checkout@"+"a"*40+"}\n  - ? uses\n    : actions/upload-artifact@v4")
  rejects("steps:\n  - {uses: actions/checkout@"+"a"*40+"}\n  - ? uses\n    : 'actions/upload-artifact@v4'")
+ pinned="a"*40
+ for bad in (
+  "steps:\n  - uses: actions/checkout@"+pinned+"\n  - uses:\n      actions/upload-artifact@v4",
+  "steps:\n  - uses:\n      actions/upload-artifact@v4\n  - uses: actions/checkout@"+pinned,
+  "steps:\n  - uses: actions/checkout@"+pinned+"\n  - uses:\n        owner/action@v4\n  - uses:\n      another/action@v3",
+  "steps:\n    - uses: actions/checkout@"+pinned+"\n    - uses:\n        actions/upload-artifact@v4",
+ ):
+  rejects(bad)
  verify("steps:\n  - {uses: actions/checkout@"+"a"*40+"}")
  verify("steps:\n  - uses: docker://alpine@sha256:"+"a"*64)
  verify("steps:\n  - uses: './.github/actions/governed'")

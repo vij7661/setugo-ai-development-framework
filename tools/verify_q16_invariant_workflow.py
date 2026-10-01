@@ -143,6 +143,7 @@ def steps(text):
   elif current and stripped.startswith("shell:"):result[current]["shell"]=stripped.split(":",1)[1].strip().strip("\"'")
   elif current and stripped.startswith("run:"):
    tail=stripped[4:].strip()
+   result[current]["run_style"] = tail if tail in {"|","|-",">",">-"} else "plain"
    if tail in {"|","|-",">",">-"}:
     indent=len(lines[i])-len(lines[i].lstrip());body=[];i+=1
     while i<len(lines) and (not lines[i].strip() or len(lines[i])-len(lines[i].lstrip())>indent):
@@ -164,7 +165,7 @@ def verify(text):
   if step.get("shell") not in (None,"bash"):raise ValueError(f"unapproved shell semantics: {name}")
   if any(token in step["run"] for token in ("|| true","set +e","\n","echo ","printf ","<<","exit 0")):raise ValueError(f"weakened governed command: {name}")
  syntax=inventory.get(SYNTAX_STEP)
- if not syntax or syntax.get("shell")!="bash" or syntax.get("run")!=SYNTAX_RUN_BODY: raise ValueError("syntax step command contract changed")
+ if not syntax or syntax.get("shell")!="bash" or syntax.get("run_style")!="|" or syntax.get("run")!=SYNTAX_RUN_BODY: raise ValueError("syntax step command contract changed")
  clean=inventory.get("Verify worktree clean")
  if not clean or clean.get("shell")!="bash" or clean.get("run")!='test -z "$(git status --porcelain=v1)"': raise ValueError("clean-worktree step contract changed")
  if 'PYTHONDONTWRITEBYTECODE: "1"' not in text or 'AUTHORITY_EFFECT: "NONE"' not in text:raise ValueError("workflow governance environment missing")

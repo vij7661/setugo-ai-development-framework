@@ -37,5 +37,7 @@ def main():
  rejects(text.replace("          set -euo pipefail","          echo bypass",1))
  rejects(text.replace("          print(f\"AST_SYNTAX_PASS files={len(files)}\")","          print('bypass')",1))
  rejects(text.replace("      - name: Syntax-check changed Python without writing bytecode\n        shell: bash\n        run: |","      - name: Syntax-check changed Python without writing bytecode\n        run: |",1))
+ rejects(text.replace("        run: |","        run: >",1))
+ rejects(text.replace("        run: |","        run: >-",1))
  print(f"Q18_INVARIANT_WORKFLOW_ADVERSARIAL_PASS required={len(CONTRACT)}")
 if __name__=="__main__":main()

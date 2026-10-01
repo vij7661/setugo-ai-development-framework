@@ -25,6 +25,8 @@ def uses_nodes(text):
     # cannot safely interpret.
     if re.search(r"(?m)^\s*uses\s*:\s*[>|]", text) or re.search(r"(?m)^\s*[-]?\s*\{\s*uses\s*:\s*[>|]", text):
         raise ValueError("unsupported uses block scalar")
+    if re.search(r"(?m)^\s*(?:-\s*)?uses\s*:\s*$", text):
+        raise ValueError("unsupported multiline uses mapping")
     found=[]
     for line in text.replace("\r\n","\n").splitlines():
         quote=None;i=0
