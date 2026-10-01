@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from freeze_attestation import load_and_verify  # noqa: E402
 from governed_evidence_receipt import git_blob_sha1,git_text_blob_sha1,sha256_bytes, verify_receipt_files,verify_receipt_v2_structure,verify_trusted_code_binding  # noqa: E402
+from trusted_receipt_fetch import TRUSTED_RECEIPT_WORKFLOW_FILE,TRUSTED_RECEIPT_JOB_IDENTITY  # noqa: E402
 from r8_v15_r1_independent_review_parser import (  # noqa: E402
     eligible_for_bounded_merge,
     parse_independent_review_file,
@@ -24,7 +25,13 @@ def review_merge_evidence_eligible(*, review_path: Path, freeze_attestation_path
         if not verify_receipt_v2_structure(receipt): return False
         if not trusted_receipt_proof_path or not trusted_receipt_proof_path.is_file() or not committed_review_path or not committed_review_path.is_file() or not trusted_verifier_commit or not trusted_verifier_tree: return False
         proof=json.loads(trusted_receipt_proof_path.read_text(encoding="utf-8"))
-        if proof.get("schema")!="r8-trusted-receipt-proof/v1" or proof.get("source")!="GITHUB_ACTIONS_ARTIFACT_DOWNLOAD" or proof.get("receipt_sha256")!=expected_receipt_sha256 or not verify_trusted_code_binding(receipt,expected_commit=trusted_verifier_commit,expected_tree=trusted_verifier_tree) or proof.get("verifier_commit")!=trusted_verifier_commit or proof.get("verifier_tree")!=trusted_verifier_tree: return False
+        required=("schema","source","receipt_sha256","repository","run_id","job_id","workflow_file","workflow_identity","artifact_id","archive_digest","member","producer_head_sha","verifier_commit","verifier_tree")
+        if proof.get("schema")!="r8-trusted-receipt-proof/v2" or any(not proof.get(k) for k in required): return False
+        if proof.get("source")!="GITHUB_ACTIONS_ARTIFACT_DOWNLOAD" or proof.get("receipt_sha256")!=expected_receipt_sha256 or proof.get("repository")!=receipt.get("repository"): return False
+        if proof.get("workflow_file")!=TRUSTED_RECEIPT_WORKFLOW_FILE or proof.get("workflow_identity")!=TRUSTED_RECEIPT_JOB_IDENTITY or proof.get("producer_head_sha")!=trusted_verifier_commit: return False
+        if proof.get("run_id")!=str(proof["run_id"]) or proof.get("job_id")!=str(proof["job_id"]) or proof.get("artifact_id")!=str(proof["artifact_id"]): return False
+        if not proof.get("archive_digest","").startswith("sha256:") or len(proof["archive_digest"])!=71 or proof.get("member")!="governed-evidence-receipt.json": return False
+        if not verify_trusted_code_binding(receipt,expected_commit=trusted_verifier_commit,expected_tree=trusted_verifier_tree) or proof.get("verifier_commit")!=trusted_verifier_commit or proof.get("verifier_tree")!=trusted_verifier_tree: return False
         committed=committed_review_path.read_bytes()
         if receipt["independent_review"]["committed_review_sha256"]!=sha256_bytes(committed) or receipt["independent_review"]["git_blob"]!=git_blob_sha1(committed): return False
         if "review_source" in receipt and receipt["review_source"].get("repository")!=receipt.get("repository"): return False

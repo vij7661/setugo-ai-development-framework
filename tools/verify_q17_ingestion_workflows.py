@@ -23,5 +23,10 @@ def verify(path,text):
         if "fetch_committed_review.py" not in executable or "--committed-review staged/committed-review.txt" not in executable: raise ValueError("committed review must come from trusted GitHub fetch")
 def main():
     for path in REQUIRED:verify(path,path.read_text(encoding="utf-8"))
+    manual=Path(".github/workflows/governance-manual-review-ingestion.yml").read_text(encoding="utf-8")
+    receipt=Path(".github/workflows/governance-evidence-receipt-ingestion.yml").read_text(encoding="utf-8")
+    commits=re.findall(r"TRUSTED_VERIFIER_COMMIT:\s*([0-9a-f]{40})",manual+receipt); trees=re.findall(r"TRUSTED_VERIFIER_TREE:\s*([0-9a-f]{40})",manual+receipt)
+    impact=Path("governance-r8/R8-V15-R1-Q18-CHANGE-IMPACT.md").read_text(encoding="utf-8")
+    if not commits or not trees or len(set(commits))!=1 or len(set(trees))!=1 or f"commit `{commits[0]}` and tree `{trees[0]}`" not in impact: raise ValueError("Q18 trusted verifier root declaration mismatch")
     print("Q17_INGESTION_WORKFLOW_SELF_CHECK_PASS")
 if __name__=="__main__":main()

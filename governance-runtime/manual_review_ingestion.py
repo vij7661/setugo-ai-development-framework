@@ -9,12 +9,11 @@ def validate_trusted_receipt(receipt_path:Path, proof_path:Path, expected_sha256
     raw=receipt_path.read_bytes()
     if sha256_bytes(raw)!=expected_sha256 or not proof_path.is_file():raise ValueError("trusted receipt bytes are not externally bound")
     receipt=json.loads(raw.decode("utf-8"));proof=json.loads(proof_path.read_text(encoding="utf-8"))
-    if proof.get("schema") not in {"r8-trusted-receipt-proof/v1","r8-trusted-receipt-proof/v2"} or proof.get("source")!="GITHUB_ACTIONS_ARTIFACT_DOWNLOAD" or proof.get("receipt_sha256")!=expected_sha256:raise ValueError("trusted receipt proof malformed")
+    if proof.get("schema")!="r8-trusted-receipt-proof/v2" or proof.get("source")!="GITHUB_ACTIONS_ARTIFACT_DOWNLOAD" or proof.get("receipt_sha256")!=expected_sha256:raise ValueError("trusted receipt proof malformed")
     if not verify_receipt_v2_structure(receipt) or not verify_trusted_code_binding(receipt,expected_commit=verifier_commit,expected_tree=verifier_tree):raise ValueError("trusted receipt verifier root mismatch")
     for key in ("repository","run_id","job_id","workflow_file","workflow_identity","artifact_id","archive_digest","member","verifier_commit","verifier_tree"):
         if not proof.get(key):raise ValueError("trusted receipt proof incomplete")
-    if proof.get("schema")=="r8-trusted-receipt-proof/v2":
-        if proof.get("workflow_file")!=".github/workflows/governance-evidence-receipt-ingestion.yml" or proof.get("workflow_identity")!="receipt-only" or proof.get("producer_head_sha")!=verifier_commit: raise ValueError("untrusted receipt producer")
+    if proof.get("workflow_file")!=".github/workflows/governance-evidence-receipt-ingestion.yml" or proof.get("workflow_identity")!="receipt-only" or proof.get("producer_head_sha")!=verifier_commit: raise ValueError("untrusted receipt producer")
     if proof["verifier_commit"]!=verifier_commit or proof["verifier_tree"]!=verifier_tree:raise ValueError("trusted receipt verifier root mismatch")
     return receipt
 

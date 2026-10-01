@@ -17,7 +17,7 @@ def uses_nodes(text):
     """Find YAML mapping keys in block and flow style without trusting formatting."""
     # This verifier intentionally accepts only the governed YAML subset. Quoted
     # mapping keys, aliases and anchors are rejected rather than ignored.
-    if re.search(r"(?:^|[,{]|\n)\s*['\"](?:uses|shell|run|if|continue-on-error)['\"]\s*:",text,re.M) or re.search(r"(^|\s)[&*][A-Za-z0-9_-]+",text):
+    if re.search(r"(?:^|[,{]|\n)\s*['\"](?:uses|shell|run|if|continue-on-error)['\"]\s*:",text,re.M) or re.search(r"(^|\s)[&*][A-Za-z0-9_-]+",text) or re.search(r"\\(?:x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})",text) or re.search(r"(^|\s)![A-Za-z]",text,re.M):
         raise ValueError("unsupported quoted/aliased YAML mapping")
     found=[]
     for line in text.replace("\r\n","\n").splitlines():
