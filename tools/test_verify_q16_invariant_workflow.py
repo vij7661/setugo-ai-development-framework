@@ -29,5 +29,9 @@ def main():
  rejects(text.replace("    timeout-minutes: 30","    env:\n      PYTHONPATH: /tmp\n    timeout-minutes: 30",1))
  rejects(text.replace("jobs:\n  invariant-gate:","defaults:\n  run:\n    shell: bash\njobs:\n  invariant-gate:",1))
  rejects(text.replace("jobs:\n  invariant-gate:","jobs:\n  invariant-gate:\n    container: alpine",1))
+ checkout='          fetch-depth: 0\n          persist-credentials: false'
+ for extra in ("ref: attacker-branch","repository: attacker/repository","path: attacker","token: secret","clean: false","sparse-checkout: src","fetch-tags: true","lfs: true","submodules: true","fetch-depth: 1","persist-credentials: true","extra-input: value"):
+  replacement=extra+"\n"+checkout if extra.split(":",1)[0] not in {"fetch-depth","persist-credentials"} else extra+"\n"+("          persist-credentials: false" if extra.startswith("fetch-depth") else "          fetch-depth: 0")
+  rejects(text.replace(checkout,replacement,1))
  print(f"Q18_INVARIANT_WORKFLOW_ADVERSARIAL_PASS required={len(CONTRACT)}")
 if __name__=="__main__":main()

@@ -80,6 +80,17 @@ def structural_contract(text):
     if any(v.startswith("- name:") and not v.split(":",1)[1].strip() for v in step_lines): raise ValueError("unnamed step")
     if any(v.startswith("- name:") for v in step_lines[1:]) and len(names)!=len(set(names)): raise ValueError("duplicate step name")
     if "        with:" not in lines or "          fetch-depth: 0" not in lines or "          persist-credentials: false" not in lines: raise ValueError("checkout options changed")
+    with_start=lines.index("        with:")
+    with_keys=[]
+    with_values={}
+    for line in lines[with_start+1:]:
+        if line.startswith("      - "):
+            break
+        if line.startswith("          ") and not line.startswith("            ") and ":" in line:
+            key,value=line.strip().split(":",1)
+            with_keys.append(key);with_values[key]=value.strip()
+    if with_keys != ["fetch-depth","persist-credentials"] or with_values != {"fetch-depth":"0","persist-credentials":"false"}:
+        raise ValueError("checkout input contract changed")
     # Only checkout has `with`; only the syntax step may declare bash.
     for i,line in enumerate(lines):
         if line.startswith("        ") and not line.startswith("          ") and line.strip().endswith(":"):
